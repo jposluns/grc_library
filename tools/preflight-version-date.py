@@ -22,9 +22,9 @@ Exit codes: 0 clear; 1 one or more predicted findings; 2 inspection/scope error 
 missing base, an in-progress merge or unmerged index, or a non-UTF-8 tracked filename).
 
 Reuses ``check-date-cobump-on-pr.py`` (D4) for the exemption set and ``aiqt_corpus`` for the Version/Date
-field extraction, so this aid and the D4 gate never drift on what they inspect.
+field extraction (and D4's ``promisor_remote_reason`` for partial-clone detection), so this aid and the D4 gate never drift on what they inspect.
 
-Scope boundaries (two documented residues, D-220 round-10; D4 remains the post-commit authority):
+Scope boundaries (D4 remains the post-commit authority):
 - STAGED scope: this aid predicts the co-bump status of the STAGED changes you are about to commit. A
   pre-existing stale Version/Date bump introduced by an EARLIER commit already in the PR range is NOT
   re-audited here; D4 catches it over the whole ``merge-base..HEAD`` range at push (and it would have
@@ -38,16 +38,17 @@ Scope boundaries (two documented residues, D-220 round-10; D4 remains the post-c
   helper, which applies universal-newline translation, so such a name can be mis-identified. Both this
   aid and D4 share that helper and behave identically; a CR/LF in a filename is pathological input the
   corpus never produces, and D4 remains the post-commit authority.
-- GITLINK CONVERSION: if a versioned ``.md`` is converted to a git submodule (gitlink) in the staged
-  change, the aid skips the non-blob entry while D4 renders the referenced commit and reports the lost
-  Version field. The aid does not model this (a documentation file becoming a submodule is nonsensical
-  and never occurs in the corpus); D4 remains the authority.
+- GITLINK CONVERSION: if a versioned ``.md`` is converted to a git submodule (gitlink) in the
+  staged change, both the aid and D4 read via ``git cat-file blob``, which errors on the non-blob
+  entry, so both skip it (converged). A documentation file becoming a submodule never occurs in
+  the corpus.
 - INVALID GIT CONFIG: under an INVALID git configuration value (e.g. ``log.showSignature=<not-a-bool>``)
   git commands fail and D4 can treat the failure as absent content. Predicting D4 exactly under a broken
   git configuration is outside the aid's contract; the misconfiguration is the operator's to fix.
-- PARTIAL CLONE + D4: in a partial clone (a promisor remote) with a base blob unavailable, the aid
-  correctly scope-errors (2) while D4 may treat the unavailable blob as absent and clear (0). This is
-  the SAFE direction (the aid is stricter); D4 runs in a full clone in CI, where the blob is present.
+- PARTIAL CLONE: in a partial clone (a promisor remote) a base blob may be unavailable;
+  reading it would be misread as absent and silently clear a stale bump. Both the aid and D4
+  now decline (exit 2) via the shared ``promisor_remote_reason`` (D4-owned), so the two agree
+  on every partial-clone input; CI runs in a full clone, where no promisor remote exists.
 - INTERPRETER-STARTUP .pyc: ``from __future__ import annotations`` MUST be the module's first statement
   (a language rule), so it executes before ``sys.dont_write_bytecode = True`` and, on a cold cache with
   a writable bytecode target, git-independent interpreter startup may write ``__future__``'s ``.pyc``.
@@ -162,6 +163,7 @@ try:
     _d4 = _ilu.module_from_spec(_d4_spec)
     _d4_spec.loader.exec_module(_d4)
     is_exempt = _d4.is_exempt
+    promisor_remote_reason = _d4.promisor_remote_reason
 except (ImportError, OSError, AttributeError, SyntaxError, ValueError, EOFError) as _d4_exc:
     # The D4 module or one of its dependencies is missing / unloadable (e.g. an unstaged deletion of
     # check-date-cobump-on-pr.py or lint_common.py): a clean scope error, not a traceback. This load
@@ -211,27 +213,10 @@ def _special_state() -> str | None:
         return "the index has a non-UTF-8 unmerged entry"
     # A partial clone (a promisor remote) may not hold the base commit's blobs; with lazy fetch
     # disabled (read-only), those reads would fail and be misread as absent files. Decline.
-    try:
-        promisors = git("config", "--get-regexp", r"^remote\..*\.promisor$")
-    except subprocess.CalledProcessError:
-        promisors = ""  # no promisor remote -> not a partial clone
-    except UnicodeDecodeError:
-        # An accented / non-UTF-8 remote name under an ASCII locale makes the config output
-        # undecodable; we cannot tell whether a promisor remote is present, so decline (scope error).
-        return "a remote name is non-UTF-8; cannot read partial-clone config reliably"
-    for _line in promisors.splitlines():
-        _key = _line.split(None, 1)[0] if _line.strip() else ""
-        if not _key:
-            continue
-        try:
-            # Let git normalise the boolean itself, so 1 / yes / on / True / 2 / a bare key all
-            # count as true exactly as git reads them (a literal ``endswith("true")`` missed these).
-            _norm = git("config", "--type=bool", "--get", _key)
-        except (subprocess.CalledProcessError, UnicodeDecodeError):
-            return "cannot normalise a partial-clone config value; declining"
-        if _norm.strip() == "true":
-            return "this is a partial clone; base objects may be unavailable without a fetch"
-    return None
+    # Detection is now SHARED with D4 (promisor_remote_reason), which declines identically, so
+    # the two can never drift on what counts as a partial clone; pass this aid's read-only
+    # hardened git wrapper so the config queries keep fsmonitor/trace2 disabled.
+    return promisor_remote_reason(_git=git)
 
 
 def _resolve_base(base_arg: str | None) -> str:
