@@ -118,24 +118,33 @@ _DOMAIN_DOTS = (".", "。", "．", "｡")
 
 
 def _idna_label_continues(c: str) -> bool:
-    """Exact UTS-46: True iff codepoint ``c`` can be part of a domain label (retain ->
-    keep scanning; the email is NOT a complete reserved/example domain). False ONLY when
-    ``c`` is UTS-46 DISALLOWED anywhere (a real label boundary).
+    """Exact UTS-46: True iff codepoint ``c`` could be part of a valid domain LABEL in
+    some context (retain -> keep scanning; the email is NOT a complete reserved/example
+    domain). False ONLY when ``c`` cannot begin or continue any valid label (a boundary).
 
-    FALSE-NEGATIVE-SAFE: the ``InvalidCodepoint`` signal is context-free (per-codepoint),
-    so a whole-label bidi/joiner CONTEXT error (Arabic/Hebrew letters, ZWNJ, kana middot)
-    raises a sibling ``IDNAError`` rather than ``InvalidCodepoint`` and is treated as
-    RETAIN, never as a boundary. Verified empirically against idna 3.11: catching a bare
-    ``idna.encode("a"+c, uts46=True, std3_rules=True)`` and mapping only ``InvalidCodepoint``
-    to a boundary matches the codepoint-class table with zero mismatches across every
-    boundary-classified codepoint (ZWSP/ZWNJ/kana-middot/RTL all correctly retain)."""
+    FALSE-NEGATIVE-SAFE. A single codepoint cannot be settled by encoding it in isolation,
+    because some valid label characters are valid only in COMPOSITION: a conjoining Hangul
+    jamo (U+1100) or a combining mark is rejected by ``idna.encode`` on its own yet forms a
+    valid label when composed with its neighbours (``a.test.\uac01.com`` is a real IDN
+    domain). So every LETTER, MARK, or NUMBER (Unicode general category L*/M*/N*) is
+    retained outright, covering the compositional cases without a false boundary. Only a
+    punctuation, symbol, separator, or format character (P*/S*/Z*/C*) is probed with
+    ``idna.encode``: a context error (a valid-in-context codepoint such as a joiner)
+    retains, and only ``InvalidCodepoint`` (disallowed anywhere) is a boundary. Verified
+    against idna 3.11; ``InvalidCodepointContext`` / ``IDNABidiError`` are siblings of
+    ``InvalidCodepoint`` (not subclasses), so a context error is never mis-read as a
+    boundary."""
+    if unicodedata.category(c)[:1] in ("L", "M", "N"):
+        return True                       # letter/mark/number: a possible (compositional) label char
     try:
         idna.encode("a" + c, uts46=True, std3_rules=True)
-        return True
+        return True                       # encodes as a label char
+    except idna.InvalidCodepointContext:
+        return True                       # valid in context (joiner/bidi): FN-safe retain
     except idna.InvalidCodepoint:
-        return False          # disallowed anywhere -> a real label boundary
+        return False                      # disallowed anywhere -> a real label boundary
     except idna.IDNAError:
-        return True           # bidi/context/other -> FN-safe: retain (keep the address flagged)
+        return True                       # any other IDNA constraint: FN-safe retain
 
 
 def _label_starts(ch: str) -> bool:
