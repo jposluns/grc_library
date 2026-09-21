@@ -1291,6 +1291,9 @@ class DateCobumpOnPrTests(LinterTestCase):
             sp.run(["git", "init", "-q", "-b", "main", str(src)], check=True)
             sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
+            # enable server-side filtering so --filter=blob:none genuinely omits blobs (else the
+            # clone quietly keeps every blob and the no-lazy-fetch assertion is vacuous).
+            sp.run(["git", "-C", str(src), "config", "uploadpack.allowFilter", "true"], check=True)
             d = src / "governance"; d.mkdir()
             (d / "x.md").write_text(_doc("1.0.0", "2026-06-24"), encoding="utf-8")
             sp.run(["git", "-C", str(src), "add", "-A"], check=True)
@@ -1309,6 +1312,12 @@ class DateCobumpOnPrTests(LinterTestCase):
             (clone / "governance" / "x.md").write_text(_doc("2.0.0", "2026-06-25"), encoding="utf-8")
             sp.run(["git", "-C", str(clone), "add", "-A"], check=True)
             sp.run(["git", "-C", str(clone), "commit", "-q", "-m", "c3"], check=True)
+            # confirm the base blob is genuinely absent (a real partial clone), else the test
+            # proves nothing about lazy-fetch; skip if the environment kept the blob.
+            probe = sp.run(["git", "-C", str(clone), "cat-file", "-e", f"{first}:governance/x.md"],
+                           capture_output=True, env=dict(os.environ, GIT_NO_LAZY_FETCH="1"))
+            if probe.returncode == 0:
+                self.skipTest("environment did not produce a blob-filtered partial clone")
             before = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))
             r = self._run(clone, first)
             after = set(glob.glob(str(clone / ".git" / "objects" / "pack" / "*")))

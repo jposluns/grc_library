@@ -41,7 +41,7 @@ stays silent.
 
 Blob reads use ``git cat-file blob`` (a local ``blob_at``), not ``git show``: cat-file
 returns the raw stored bytes and errors on a non-blob (a gitlink) rather than rendering the
-referenced commit or running textconv/smudge drivers, so this gate reads exactly the bytes
+referenced commit or running textconv (diff) drivers, so this gate reads exactly the bytes
 the pre-commit predictor aid (``preflight-version-date.py``) reads and writes no objects,
 notes, or refs. In a partial clone (a promisor remote) an unavailable base blob would be
 misread as an added file and silently clear a stale bump, so this gate detects the promisor
@@ -160,6 +160,17 @@ def promisor_remote_reason(_git=git):
     and preflight-version-date.py decline on it (this gate exits 2, the aid scope-errors), so
     the two agree on every partial-clone input. Takes the git callable so the aid can pass its
     read-only-hardened wrapper; defaults to this module's git."""
+    # extensions.partialClone (naming the promisor remote) is git's canonical partial-clone
+    # marker, set at clone time; a repo can carry it while remote.*.promisor is unset, so check
+    # it first (else that config escapes detection and the harmful false-OK survives).
+    try:
+        ext = _git("config", "--get", "extensions.partialClone")
+    except subprocess.CalledProcessError:
+        ext = ""  # not set -> fall through to the remote.*.promisor check
+    except UnicodeDecodeError:
+        return "extensions.partialClone is non-UTF-8; cannot read partial-clone config reliably"
+    if ext.strip():
+        return "this is a partial clone (extensions.partialClone set); base objects may be unavailable without a fetch"
     try:
         promisors = _git("config", "--get-regexp", r"^remote\..*\.promisor$")
     except subprocess.CalledProcessError:
@@ -182,7 +193,7 @@ def promisor_remote_reason(_git=git):
 def blob_at(ref: str, path: str) -> str | None:
     """Content of the blob at ``ref:path`` via ``git cat-file blob`` rather than ``git show``.
     cat-file returns the raw stored bytes and ERRORS on a non-blob (a gitlink) instead of
-    rendering the referenced commit and running textconv/smudge drivers, so it writes no
+    rendering the referenced commit and running textconv (diff) drivers, so it writes no
     objects, notes, or refs and reads exactly the bytes preflight-version-date.py reads
     (read-path parity). Returns None if the path is absent at ``ref`` or is a non-blob; an
     undecodable blob raises UnicodeDecodeError, which the caller turns into exit 2."""
@@ -190,6 +201,7 @@ def blob_at(ref: str, path: str) -> str | None:
         return subprocess.check_output(
             ["git", "cat-file", "blob", f"{ref}:{path}"],
             text=True,
+            encoding="utf-8",
             stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError:
