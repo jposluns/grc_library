@@ -8220,7 +8220,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Data Subject Rights Management Procedure"
-  version: "1.6.23"
+  version: "1.6.24"
   date: "2026-09-21"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"

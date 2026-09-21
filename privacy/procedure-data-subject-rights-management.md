@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.23\
+**Version:** 1.6.24\
 **Date:** 2026-09-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -191,13 +191,13 @@ A request may be denied wholly or in part on the following grounds (non-exhausti
 - Protection of the rights of third parties.
 - Statutory or regulatory retention obligation preventing deletion.
 - The right invoked does not apply under the relevant law (e.g., portability not available for data processed under legitimate interests).
-- The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively per the Article 12(5) assessment checklist in §7.2.
+- The request is manifestly unfounded or excessive (repeat or abusive requests); this must be assessed individually and objectively per the Article 12(5) assessment in §7.2.
 
-### 7.2 Article 12(5) assessment checklist (manifestly unfounded or excessive)
+### 7.2 Article 12(5) assessment (manifestly unfounded or excessive)
 
 GDPR Article 12(5) makes information and communications free of charge by default. Where requests are manifestly unfounded or excessive, the controller may charge a reasonable fee reflecting administrative costs or refuse to act; the controller bears the burden of demonstrating that character. Separately, Article 15(3) permits a reasonable administrative-cost-based fee for further copies requested by the data subject, without an Article 12(5) finding.
 
-This section structures that assessment as a checklist. Every invocation of Article 12(5) requires documented evidence against each applicable criterion before fee or refusal is communicated to the subject. The EDPB Guidelines 01/2022 on the right of access confirm this reading: Article 12(5) permits the controller to charge a reasonable fee or refuse only where the request is manifestly unfounded or excessive, and the controller bears the burden of demonstrating that character.
+Every invocation of Article 12(5) requires documented evidence supporting the manifestly-unfounded-or-excessive determination before fee or refusal is communicated to the subject. The EDPB Guidelines 01/2022 on the right of access confirm this reading: Article 12(5) permits the controller to charge a reasonable fee or refuse only where the request is manifestly unfounded or excessive, and the controller bears the burden of demonstrating that character.
 
 #### 7.2.1 Default: free of charge
 
@@ -216,7 +216,7 @@ For access requests, document why Article 15's requirements are clearly and obje
 
 #### 7.2.3 Excessive requests: criteria
 
-Assess each request individually. For repetition, document previous responses, overlap, elapsed time, likely data changes, and the processing context; no fixed interval establishes excessiveness. Workload, data volume, requesting all personal data, or intended litigation does not alone justify refusal or a fee. Any reliance on abuse must be supported by evidence of misuse solely to cause harm or disruption. Apply EDPB Guidelines 01/2022, paragraphs 175-190; assess other rights against their own statutory requirements.
+Assess each request individually. For repetition, document previous responses, overlap, elapsed time, likely data changes, and the processing context; no fixed interval establishes excessiveness. Workload, data volume, requesting all personal data, or intended litigation does not alone justify refusal or a fee. Any reliance on abuse must be supported by documented evidence: for example, an offer to withdraw the request in return for a benefit from the controller, or malicious use to harass the controller or its staff with no purpose other than disruption (paragraph 190). Apply EDPB Guidelines 01/2022, paragraphs 175-190; assess other rights against their own statutory requirements.
 
 #### 7.2.4 Action options under Article 12(5)
 
@@ -233,10 +233,10 @@ The controller cannot do both (charge a fee AND refuse the substantive action); 
 
 Per Article 12(5) sentence 3, the controller bears the burden of demonstrating the manifestly-unfounded-or-excessive character. The documentation required:
 
-1. Written assessment against each criterion in §7.2.2 and §7.2.3 with quoted evidence.
+1. Written assessment against the applicable §7.2.2 and §7.2.3 grounds with quoted evidence.
 2. Legal Counsel sign-off on the assessment before fee or refusal is communicated.
 3. DPO sign-off on the fee-or-refusal election.
-4. Written communication to the subject naming: the determination, the specific Article 12(5) criterion invoked, the action taken (fee with amount and basis, OR refusal), and the subject's right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77 to 79.
+4. Written communication to the subject naming: the determination, the specific Article 12(5) ground invoked, the action taken (fee with amount and basis, OR refusal), and the subject's right to lodge a complaint with the supervisory authority and to seek judicial remedy per Articles 77 to 79.
 5. Entry in the DSR register linking the assessment, sign-offs, and subject communication.
 
 Records retained per the organization's privacy retention schedule; minimum **3 years** for fee/refusal evidence (or longer where the supervisory authority has indicated a longer retention requirement).
