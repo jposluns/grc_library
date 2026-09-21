@@ -2,8 +2,9 @@
 """PII-content audit (grc gate): pack-owned engine (source of record).
 
 Scan content for suspected personally-identifying information: email addresses
-(excluding an allow-list of documentation / example / maintainer-contact
-domains supplied by the caller), US SSN patterns, US phone numbers, public IPv4
+(excluding a caller-supplied allow-list of documentation / example /
+maintainer-contact domains, plus the RFC 2606 / RFC 6761 reserved TLDs
+.invalid/.test/.example/.localhost), US SSN patterns, US phone numbers, public IPv4
 addresses (documentation / private / reserved / version-number-shaped matches
 are filtered out), and postal street-address fragments. Lines inside fenced code
 blocks are skipped (the shared fence-aware scan).
@@ -27,6 +28,7 @@ from __future__ import annotations
 
 import ipaddress
 import re
+import unicodedata
 from pathlib import Path
 
 try:
@@ -39,6 +41,15 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 
 EMAIL_RE = re.compile(r"\b([a-zA-Z0-9._%+\-]+)@([a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b")
+# RFC 2606 s.2 / RFC 6761 reserved TLDs: not publicly registrable, so an email on
+# one is a placeholder/example address rather than a real public mailbox. This is
+# an example-domain policy signal, not proof of non-identifiability: RFC 6761 still
+# permits private .test resolution and .localhost loopback, so a private-network
+# deployment could resolve one. Matched as a suffix (the leading dot enforces a
+# label boundary) rather than an exact host, unlike the caller-supplied
+# EXAMPLE_DOMAINS allowlist. Do not fold these into EXAMPLE_DOMAINS: that set is
+# exact-match by design and folding would broaden project-specific exemptions.
+RESERVED_EMAIL_SUFFIXES = (".invalid", ".test", ".example", ".localhost")
 US_SSN_RE = re.compile(r"\b\d{3}-\d{2}-\d{4}\b")
 # Strict US phone: optional +1, then 3-3-4 with separators.
 US_PHONE_RE = re.compile(r"\b(?:\+1[-. ]?)?\(?\d{3}\)?[-. ]\d{3}[-. ]\d{4}\b")
@@ -94,6 +105,67 @@ def is_version_ip(line: str, start: int) -> bool:
     return any(ind in window for ind in indicators)
 
 
+# Domain-label separators, including the Unicode "dot" variants that IDN / browsers
+# normalise to ".": ideographic full stop, fullwidth full stop, halfwidth ideographic
+# full stop.
+_DOMAIN_DOTS = (".", "。", "．", "｡")
+
+
+def _label_starts(ch: str) -> bool:
+    """Whether ``ch`` could begin or continue a (possibly IDN) domain LABEL, so that an
+    email match ending just before it may be a truncated prefix of a longer real domain.
+
+    FALSE-NEGATIVE-SAFE by construction. Exact UTS-46 / IDNA validity is not computable
+    from the Python standard library (the ``idna`` package is out of scope under the
+    stdlib-only rule), and the D-220 QA panel proved that NO Unicode-general-category
+    boundary set is safe: IDNA-valid characters hide in ``Po`` (the Tibetan tsheg,
+    katakana middle dot), ``Cf`` (ZWJ), ``Sk`` (U+0375) and ``So`` (U+06FD/U+06FE). So
+    the boundary test is deliberately MINIMAL: after NFKC normalisation, a character is
+    a boundary only when its first normalised codepoint is whitespace, a dot separator
+    (handled by the caller), or an ASCII punctuation character. EVERY other character,
+    which is every non-ASCII character that does not compatibility-map to ASCII (no
+    IDNA-valid character does), conservatively continues the label and RETAINS the
+    address for scanning. A real (possibly IDN) domain whose ASCII prefix looks reserved
+    can therefore never be wrongly exempted. Residual cost: a harmless over-flag of a
+    reserved/example email placed immediately (no separating space) against an exotic
+    non-ASCII symbol, curly quote, CJK bracket or zero-width character, which plain-ASCII
+    fixtures never produce (ASCII spaces, quotes, brackets and punctuation stay exempt)."""
+    norm = unicodedata.normalize("NFKC", ch)
+    if not norm:
+        return False                              # default-ignorable / empty: boundary
+    c = norm[0]
+    if c.isspace() or c in _DOMAIN_DOTS:
+        return False
+    if c == "-":
+        return True
+    if c.isascii():
+        return c.isalnum()                        # ASCII: alnum continues, punctuation is a boundary
+    return True                                   # any other non-ASCII: a possible IDN label char
+
+
+def _email_domain_complete(line: str, end: int) -> bool:
+    """True when the matched email's domain is the WHOLE domain, not a prefix the ASCII
+    ``EMAIL_RE`` truncated at a non-ASCII / IDN character. The reserved-suffix and
+    example-domain exemptions apply only when this holds, so a real domain such as
+    ``a.test.<idn>.com`` (whose ASCII prefix ``a.test`` ends in a reserved suffix) is
+    not wrongly exempted. See ``_label_starts`` for the false-negative-safe design and
+    its residue. A trailing boundary (EOL, whitespace, an ASCII/normalised-ASCII
+    punctuation, a symbol/quote/bracket/underscore, or a sentence-ending or repeated
+    dot) keeps a legitimate reserved/example address exempt."""
+    if end >= len(line):
+        return True
+    # NFKC-normalise so a compatibility dot (U+2024, U+FE52, U+FF0E) is recognised as a
+    # separator, then apply the dot look-ahead; otherwise classify the character itself.
+    first = unicodedata.normalize("NFKC", line[end])[:1]
+    if first in _DOMAIN_DOTS:
+        after = line[end + 1] if end + 1 < len(line) else ""
+        # a dot continues the domain only when a LABEL character follows it; a dot
+        # followed by another dot (an ellipsis / repeated dot) or by a boundary is
+        # ordinary punctuation, not a domain separator.
+        return not (after != "" and _label_starts(after))
+    return not _label_starts(line[end])
+
+
 def scan(path: Path, *, example_domains) -> list[tuple[int, str, str]]:
     findings: list[tuple[int, str, str]] = []
     text = read_text_safe(path)
@@ -103,7 +175,8 @@ def scan(path: Path, *, example_domains) -> list[tuple[int, str, str]]:
         # Email addresses
         for m in EMAIL_RE.finditer(line):
             local, domain = m.group(1), m.group(2).lower()
-            if domain in example_domains:
+            if (domain in example_domains or domain.endswith(RESERVED_EMAIL_SUFFIXES)) \
+                    and _email_domain_complete(line, m.end()):
                 continue
             # Skip obvious GitHub username @ patterns ("@user" not "user@domain")
             findings.append((lineno, "email address", m.group(0)))

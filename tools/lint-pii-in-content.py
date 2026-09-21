@@ -32,6 +32,10 @@ Exemption layers:
     ``phishing.example``, ``malicious.example``), and ``posluns.ca``
     (the maintainer's contact address, kept available for adopter
     contact) are not flagged.
+  - Reserved TLDs (engine ``RESERVED_EMAIL_SUFFIXES``): email addresses
+    on the RFC 2606 / RFC 6761 reserved suffixes (``.invalid``,
+    ``.test``, ``.example``, ``.localhost``) are not flagged, matched as
+    a suffix and only when the ASCII regex captured the whole domain.
   - Version-string heuristic: IPv4-shaped strings that look like
     software versions (e.g., ``4.0.1.2`` adjacent to "v" or "version"
     or "Rev") are treated as version numbers, not addresses.
