@@ -2,7 +2,7 @@
 
 **Document Title:** Automated Decision-Making and Profiling Register\
 **Document Type:** Register\
-**Version:** 1.0.16\
+**Version:** 1.0.17\
 **Date:** 2026-09-21\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -127,7 +127,7 @@ Where an ADM system is also an AI system (most modern cases), the AI System Regi
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | GDPR | Articles 13(2)(f), 14(2)(g), 15(1)(h), 22, Recital 71 | Information duty, access, ADM rights |
-| UK GDPR | Articles 22A-22D | Replaced Article 22 for automated decision-making (DUAA 2025 s.80, commenced 2026-02-05 by SI 2026/82; earlier Article 22(3) decisions saved; see the UK jurisdiction annex) |
+| UK GDPR | Articles 22A-22D | Replaced Article 22 for automated decision-making (DUAA 2025 s.80, commenced 2026-02-05; earlier Article 22(3) decisions saved; see the UK jurisdiction annex) |
 | EU AI Act | Articles 6, 14, 26, Annex III | High-risk AI, human oversight, transparency |
 | EU AI Act | Article 27 | Fundamental rights impact assessment (FRIA); may cross-reference the DPIA per Article 27(4) as amended by Regulation (EU) 2026/1744; deployer obligation applicable from 2 December 2027 (Annex III and Article 6(2) high-risk systems, per the amended Article 113) |
 | LGPD | Article 20 | Right to review of automated decisions |
