@@ -606,8 +606,7 @@ class StandardsCurrencyTests(LinterTestCase):
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing canonical-citations register → exit 2.
-        synthetic_root = FIXTURE_DIR / "synthetic-root-no-register-citations"
-        synthetic_root.mkdir(parents=True, exist_ok=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-register-citations-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
                 "tools/lint-standards-currency.py",
@@ -660,8 +659,7 @@ class RolesLinterTests(LinterTestCase):
         # the register path (a regression where --root is silently
         # ignored would let the linter find the real register and
         # exit 0, failing this test).
-        synthetic_root = FIXTURE_DIR / "synthetic-root-no-register-roles"
-        synthetic_root.mkdir(parents=True, exist_ok=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-register-roles-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
                 "tools/lint-roles.py",
@@ -3857,22 +3855,6 @@ class ExternalOverlayLicenseTests(LinterTestCase):
 class FollowupAgeingTests(LinterTestCase):
     """tools/lint-followup-ageing.py"""
 
-    def tearDown(self) -> None:
-        # The fixtures use subdirectories under FIXTURE_DIR; the module-
-        # level tearDown only removes top-level *.md files. Clean
-        # subdirectories explicitly so the corpus audits (which scan
-        # the entire repo for markdown) do not pick them up.
-        import shutil
-        for sub in (
-            "followup-ageing-expired",
-            "followup-ageing-retriaged",
-            "followup-ageing-invalid",
-        ):
-            path = FIXTURE_DIR / sub
-            if path.exists():
-                shutil.rmtree(path)
-        super().tearDown()
-
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test: the register has no expired follow-ups at HEAD.
         result = run_linter("tools/lint-followup-ageing.py")
@@ -3887,8 +3869,8 @@ class FollowupAgeingTests(LinterTestCase):
         # Positive test: build a fixture with a surfaced/re-triage-by
         # pair whose deadline has passed and no re-triaged trailer.
         # Use --today to make the test independent of the wall clock.
-        fixture_dir = FIXTURE_DIR / "followup-ageing-expired"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="followup-ageing-expired-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, fixture_dir)
         fixture_path = fixture_dir / "register.md"
         fixture_path.write_text(
             "# Test register\n\n"
@@ -3920,8 +3902,8 @@ class FollowupAgeingTests(LinterTestCase):
     def test_fresh_retriaged_trailer_dismisses(self) -> None:
         # Negative test: same expired fixture, but with a re-triaged
         # trailer dated after the deadline. Should pass.
-        fixture_dir = FIXTURE_DIR / "followup-ageing-retriaged"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="followup-ageing-retriaged-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, fixture_dir)
         fixture_path = fixture_dir / "register.md"
         fixture_path.write_text(
             "# Test register\n\n"
@@ -3951,8 +3933,8 @@ class FollowupAgeingTests(LinterTestCase):
         # separated dates would not match the regex at all and would be
         # silently ignored; only well-formed-shape-but-invalid-value
         # dates reach the parser.
-        fixture_dir = FIXTURE_DIR / "followup-ageing-invalid"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="followup-ageing-invalid-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, fixture_dir)
         fixture_path = fixture_dir / "register.md"
         fixture_path.write_text(
             "# Test register\n\n"
@@ -5325,8 +5307,7 @@ class AcronymConsistencyTests(LinterTestCase):
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing-glossary → exit 2.
-        synthetic_root = FIXTURE_DIR / "synthetic-root-no-register-glossary"
-        synthetic_root.mkdir(parents=True, exist_ok=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-register-glossary-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
                 "tools/lint-acronym-consistency.py",
@@ -6308,8 +6289,7 @@ class CitationVerificationFreshnessTests(LinterTestCase):
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing register → exit 2.
-        synthetic_root = FIXTURE_DIR / "synthetic-root-no-verifications-register"
-        synthetic_root.mkdir(parents=True, exist_ok=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-verifications-register-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
                 "tools/lint-citation-verification-freshness.py",
@@ -6347,8 +6327,7 @@ class ToolingProvenanceFreshnessTests(LinterTestCase):
 
     def test_root_override_with_missing_register_exits_2(self) -> None:
         # Phase 23.64: --root override + missing register → exit 2.
-        synthetic_root = FIXTURE_DIR / "synthetic-root-no-tooling-register"
-        synthetic_root.mkdir(parents=True, exist_ok=True)
+        synthetic_root = Path(tempfile.mkdtemp(prefix="synthetic-root-no-tooling-register-", dir=FIXTURE_DIR))
         try:
             result = run_linter(
                 "tools/lint-tooling-provenance-freshness.py",
@@ -7750,8 +7729,7 @@ class TodoStalenessTests(LinterTestCase):
         # Positive test: a TODO line marks PR #999 as "Next" while PR
         # #999 has merged. Use the module's check_file via tempfile.
         mod = self._load_module()
-        fixture_dir = FIXTURE_DIR / "todo-staleness-merged"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="todo-staleness-merged-", dir=FIXTURE_DIR))
         try:
             path = fixture_dir / "TODO.md"
             path.write_text(
@@ -7774,8 +7752,7 @@ class TodoStalenessTests(LinterTestCase):
     def test_queued_pr_not_yet_merged_passes(self) -> None:
         # Negative test: same line, but PR #999 has NOT merged. No finding.
         mod = self._load_module()
-        fixture_dir = FIXTURE_DIR / "todo-staleness-not-merged"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="todo-staleness-not-merged-", dir=FIXTURE_DIR))
         try:
             path = fixture_dir / "TODO.md"
             path.write_text(
@@ -7797,8 +7774,7 @@ class TodoStalenessTests(LinterTestCase):
         # Positive test: TODO claims Sweep 5 iter 2 but history has Sweep
         # 11 iter 1. Should flag.
         mod = self._load_module()
-        fixture_dir = FIXTURE_DIR / "todo-staleness-cursor"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="todo-staleness-cursor-", dir=FIXTURE_DIR))
         try:
             path = fixture_dir / "TODO.md"
             path.write_text(
@@ -7822,8 +7798,7 @@ class TodoStalenessTests(LinterTestCase):
     def test_sweep_cursor_current_passes(self) -> None:
         # Negative test: cursor matches latest history row. No finding.
         mod = self._load_module()
-        fixture_dir = FIXTURE_DIR / "todo-staleness-cursor-current"
-        fixture_dir.mkdir(parents=True, exist_ok=True)
+        fixture_dir = Path(tempfile.mkdtemp(prefix="todo-staleness-cursor-current-", dir=FIXTURE_DIR))
         try:
             path = fixture_dir / "TODO.md"
             path.write_text(
@@ -9666,15 +9641,15 @@ class WorkingProseHygieneTests(LinterTestCase):
         # legitimately carries em/en-dashes; EXEMPT_DIRS skips any `guardrail-seeds`
         # directory (name-component match). A same-content file OUTSIDE such a
         # directory is still flagged (PR #1799 iter-2, codex catch).
-        seed_dir = FIXTURE_DIR / "guardrail-seeds"
+        seed_base = Path(tempfile.mkdtemp(prefix="guardrail-seeds-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, seed_base)
+        seed_dir = seed_base / "guardrail-seeds"
         seed_dir.mkdir(exist_ok=True)
         seed = seed_dir / "SEED-em-dash.md"
         seed.write_text(
             "# Seed\n\nPart 3 — implementation plan carries an em-dash.\n",
             encoding="utf-8",
         )
-        self.addCleanup(seed_dir.rmdir)
-        self.addCleanup(lambda: seed.unlink() if seed.exists() else None)
         exempt = run_linter("tools/lint-working-prose-hygiene.py", seed)
         self.assertEqual(
             exempt.returncode, 0,
