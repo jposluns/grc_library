@@ -4343,14 +4343,33 @@ class PIIContentTests(LinterTestCase):
 
     def test_non_allowlisted_email_flagged(self) -> None:
         # Emails on example.com and the posluns.ca domain are
-        # allowlisted; a plausible personal email on a non-allowlisted
-        # domain should be caught.
+        # allowlisted; a plausible personal email on a non-allowlisted,
+        # non-reserved domain should be caught. (A reserved-TLD host such
+        # as *.invalid is exempt per RFC 2606: see the test below.)
         fixture = self.make_fixture(
             "standard-email.md",
-            VALID_METADATA + "\n\nContact: jdoe@personal-domain-xyz.invalid.\n",
+            VALID_METADATA + "\n\nContact: jdoe@personal-domain-xyz.com.\n",
         )
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertLinterFails(result)
+
+    def test_rfc_reserved_tld_email_skipped(self) -> None:
+        # RFC 2606 / RFC 6761 reserved TLDs (.invalid/.test/.example/.localhost)
+        # are not publicly registrable, so an email on one is a placeholder/example
+        # address rather than a real public mailbox: it must not be flagged. This is
+        # the example-domain exemption that lets fixtures and self-tests use reserved
+        # hosts freely.
+        fixture = self.make_fixture(
+            "standard-reserved-email.md",
+            VALID_METADATA + "\n\nSelf-test uses jdoe@example.invalid and x@a.b.test freely.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            f"reserved-TLD emails must not be flagged.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
 
     def test_public_ipv4_flagged(self) -> None:
         # Use a public IP outside RFC 1918, RFC 5737, and loopback ranges.
@@ -16766,7 +16785,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                 self.assertEqual(m.main(prefix + [str(twin)]), 1)
         for name, body in (
             ("lint-secrets-in-content.py", "AKIAIOSFODNN7EXAMPLE\n"),
-            ("lint-pii-in-content.py", "Reach person@real-business.test for assistance.\n"),
+            ("lint-pii-in-content.py", "Reach person@real-business.io for assistance.\n"),
         ):
             m = self.load(name)
             for p in (pack, twin, self.root / "executive/standard-scope.md"):
@@ -19839,6 +19858,129 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
         self.assertIn("email address", [l[0] for l in labels])
         self.assertTrue(any("realcorp.io" in v for _, v in labels))
         self.assertFalse(any("example.com" in v for _, v in labels), "example-domain email must be skipped")
+
+    def test_reserved_tld_emails_skipped_boundary_safe(self):
+        # RFC 2606/6761 reserved suffixes are exempt; the leading-dot boundary
+        # keeps look-alike real hosts flagged (per-match, not per-line/file).
+        self.assertEqual(
+            ("invalid", "test", "example", "localhost"),
+            tuple(s.lstrip(".") for s in self.engine.RESERVED_EMAIL_SUFFIXES),
+        )
+        # exempt (no email finding): each reserved suffix + an uppercase variant
+        for doc in ("x@example.invalid here.\n", "x@a.b.test here.\n",
+                    "x@fixture.example here.\n", "x@fixture.localhost here.\n",
+                    "x@EXAMPLE.INVALID here.\n"):
+            self.assertEqual(
+                [f for f in self._scan(doc) if f[1] == "email address"], [],
+                f"reserved-TLD email should be skipped: {doc!r}")
+        # still flagged: real host, look-alike (leading-dot boundary), nested-real
+        for doc, needle in (("x@realcorp.io here.\n", "realcorp.io"),
+                            ("x@fixture.notinvalid here.\n", "notinvalid"),
+                            ("x@fixture.invalid.com here.\n", "invalid.com")):
+            found = [f for f in self._scan(doc) if f[1] == "email address"]
+            self.assertTrue(any(needle in f[2] for f in found),
+                            f"real/look-alike email should be flagged: {doc!r}")
+        # per-match: a reserved email is skipped but a real one on the same line stays
+        emails = [f[2] for f in self._scan("x@example.invalid and y@realcorp.io here.\n")
+                  if f[1] == "email address"]
+        self.assertTrue(any("realcorp.io" in v for v in emails))
+        self.assertFalse(any("example.invalid" in v for v in emails))
+        # a reserved email does not suppress a co-located non-email finding
+        found = self._scan("x@example.invalid SSN 123-45-6789 here.\n")
+        self.assertIn("US SSN pattern", [f[1] for f in found])
+
+    def test_idn_truncated_domain_not_exempted(self):
+        # A REAL domain whose ASCII EMAIL_RE prefix ends in a reserved suffix
+        # (an IDN label or a fullwidth dot truncates the capture) must NOT be
+        # exempted: the regex captures only e.g. 'a.test', but the full domain
+        # (a.test.<idn>.com) is real and deliverable. Regression for the codex
+        # execution-lens finding on PR #2430.
+        for doc in ("x@a.test.école.com here.\n",   # a.test.<IDN>.com
+                    "x@a.test-é.com here.\n",        # a.test-<IDN>.com
+                    "x@a.test。com here.\n"):          # fullwidth ideographic dot
+            found = [f for f in self._scan(doc) if f[1] == "email address"]
+            self.assertTrue(found, f"IDN-truncated real domain must be flagged: {doc!r}")
+        # but a reserved email at a genuine sentence boundary stays exempt
+        self.assertEqual(
+            [f for f in self._scan("Mail jdoe@example.invalid.\n") if f[1] == "email address"],
+            [], "reserved email ending a sentence must stay exempt")
+
+    def test_unicode_boundary_after_exempt_email_stays_exempt(self):
+        # A legitimate reserved / example-domain email followed by a Unicode
+        # whitespace, an ASCII wrapper, or a fullwidth punctuation that NFKC-maps to
+        # ASCII is at a boundary, not a truncated domain, so it stays EXEMPT. (An
+        # exotic non-ASCII symbol / curly quote / CJK bracket adjacent with no space
+        # is the FN-safe over-flag residue: see test_idn_punctuation_and_fnsafe_residue.)
+        for tail in (" rest.", "　rest.", "， next.",
+                     ". Next sentence.", ")", "] x"):
+            for base in ("x@example.invalid", "nobody@example.com"):
+                doc = f"{base}{tail}\n"
+                self.assertEqual(
+                    [f for f in self._scan(doc) if f[1] == "email address"], [],
+                    f"exempt email at a Unicode boundary must stay exempt: {doc!r}")
+        # a combining mark or zero-width format char DOES continue an IDN label,
+        # so a reserved-looking prefix before one is retained (flagged)
+        for doc in ("x@a.test́ here.\n", "x@a.test​.com here.\n"):
+            self.assertTrue(
+                [f for f in self._scan(doc) if f[1] == "email address"],
+                f"IDN label continuation after a reserved prefix must be flagged: {doc!r}")
+
+    def test_idna_compat_symbols_and_repeated_dots(self):
+        # IDNA / UTS-46 compatibility characters map to real domain labels, so a
+        # reserved-looking ASCII prefix before one is a truncated domain and must be
+        # FLAGGED (codex VERIFY finding). This also pins the example_domains branch
+        # of the guard (a truncated example.com domain must flag) and the fullwidth /
+        # small hyphens that map to "-" (gemini VERIFY finding).
+        for doc in ("x@a.test.ⓐ.com here.\n",   # circled 'a' -> a
+                    "x@www.test.ⓒom here.\n",    # circled 'c' -> c
+                    "x@a.test.①.com here.\n",    # circled '1' -> 1
+                    "x@a.test－com here.\n",       # fullwidth hyphen -> -
+                    "x@a.test﹣com here.\n",       # small hyphen -> -
+                    "x@example.com。realcorp.io here.\n"):  # example-branch truncation
+            self.assertTrue(
+                [f for f in self._scan(doc) if f[1] == "email address"],
+                f"IDNA-mapped / truncated domain must be flagged: {doc!r}")
+        # repeated dots (ellipsis) and a markdown-emphasis underscore are punctuation,
+        # not a domain continuation, so a genuine exempt email before them stays exempt
+        for doc in ("x@example.com... rest.\n", "x@posluns.ca... rest.\n",
+                    "x@a.b.test... rest.\n", "x@example.invalid__ bold.\n"):
+            self.assertEqual(
+                [f for f in self._scan(doc) if f[1] == "email address"], [],
+                f"ellipsis / markdown underscore after an exempt email must stay exempt: {doc!r}")
+
+    def test_idn_punctuation_and_fnsafe_residue(self):
+        # UTS-46 exactness is not stdlib-computable, so the guard is false-negative-
+        # safe: IDNA-valid "other punctuation" (Tibetan tsheg, katakana middle dot) and
+        # compatibility single-dot separators are treated as domain continuation and
+        # FLAGGED (codex / gemini VERIFY-3), never wrongly exempted.
+        for doc in ("x@a.test་x.com here.\n",    # Tibetan tsheg (IDNA PVALID, cat Po)
+                    "x@a.test・x.com here.\n",    # katakana middle dot (cat Po)
+                    "x@www.test․com here.\n",    # one-dot leader -> '.'
+                    "x@www.test﹒com here.\n"):    # small full stop -> '.'
+            self.assertTrue(
+                [f for f in self._scan(doc) if f[1] == "email address"],
+                f"IDNA-valid punctuation / compat dot must be flagged (FN-safe): {doc!r}")
+        # symbols, quotes, brackets and multi-char NFKC expansions that begin with a
+        # boundary are boundaries, so a genuine exempt email before them stays exempt
+        for doc in ("(x@example.invalid)\n", "[x@a.b.test]\n",
+                    "x@example.com⒜ rest.\n",     # parenthesised 'a' -> "(a)"
+                    "x@example.com‗ rest.\n"):     # double low line -> space + mark
+            self.assertEqual(
+                [f for f in self._scan(doc) if f[1] == "email address"], [],
+                f"symbol / bracket / boundary-leading expansion must stay exempt: {doc!r}")
+
+        # IDNA-valid symbols (categories Sk/So have PVALID/CONTEXTO members) and any
+        # other exotic non-ASCII adjacent with no space are RETAINED (FN-safe): a real
+        # domain is never exempted, and the over-flag of a reserved email jammed against
+        # a symbol / curly quote / CJK bracket is the documented residue (codex VERIFY-4).
+        for doc in ("x@a.test͵x.com here.\n",       # Greek numeral sign (Sk, CONTEXTO)
+                    "x@a.test۽x.com here.\n",       # Arabic sign (So, PVALID)
+                    "x@example.invalid👍\n",      # emoji residue
+                    "x@example.invalid”x here.\n",   # curly quote residue
+                    "x@example.invalid〈x here.\n"):   # CJK bracket residue
+            self.assertTrue(
+                [f for f in self._scan(doc) if f[1] == "email address"],
+                f"IDNA-valid symbol / exotic non-ASCII must be retained (FN-safe): {doc!r}")
 
     def test_ssn_and_phone_flagged(self):
         found = self._scan("SSN 123-45-6789 phone (415) 555-0142 here.\n")

@@ -4,7 +4,8 @@
 
 Content does not carry suspected personally-identifying information. The check
 scans for email addresses (excluding a caller-supplied allow-list of
-documentation, example, and maintainer-contact domains), US Social Security
+documentation, example, and maintainer-contact domains, and the RFC 2606 /
+RFC 6761 reserved TLDs .invalid/.test/.example/.localhost), US Social Security
 number patterns, US phone numbers, public IPv4 addresses (documentation,
 private, reserved, and version-number-shaped matches are filtered out), and
 postal street-address fragments. Lines inside fenced code blocks are skipped. The
