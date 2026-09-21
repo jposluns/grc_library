@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.7\
-**Date:** 2026-09-18\
+**Version:** 1.3.8\
+**Date:** 2026-09-21\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -95,7 +95,7 @@ IT equipment entering or leaving an IT infrastructure area must be logged in the
 
 ## 9. Clean desk and clear screen
 
-IT Operations areas and the server room must maintain a clean desk policy. Printed documents containing Confidential or Restricted data must not be left unattended on desks in shared IT areas. Workstations in IT areas lock automatically after 15 minutes of inactivity per the endpoint compliance policy. Personnel must manually lock the screen when leaving a workstation unattended.
+IT Operations areas and the server room must maintain a clean desk policy. Printed documents containing Confidential or Restricted data must not be left unattended on desks in shared IT areas. Workstations in IT areas lock automatically after 5 minutes of inactivity per the endpoint compliance policy. Personnel must manually lock the screen when leaving a workstation unattended.
 
 ---
 

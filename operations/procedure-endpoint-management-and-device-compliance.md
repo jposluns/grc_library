@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.14\
-**Date:** 2026-09-18\
+**Version:** 1.3.15\
+**Date:** 2026-09-21\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -135,7 +135,7 @@ The endpoint management platform performs continuous compliance assessment again
 
 ### 5.3 Workstation screen lock
 
-All workstations and laptops must lock automatically after a maximum of 15 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
+All workstations and laptops must lock automatically after a maximum of 5 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
 
 ### 5.4 Compliance remediation
 
