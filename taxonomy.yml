@@ -1540,7 +1540,7 @@ documents:
   domain: "ai"
   type: "Matrix"
   title: "ETSI Securing-AI Baseline Alignment Matrix"
-  version: "0.0.3"
+  version: "0.0.4"
   date: "2026-09-21"
   owner: "AI Security Maintainer"
   approving_authority: "Governance Library Maintainer"
