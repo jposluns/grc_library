@@ -188,7 +188,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
                                    else "the held-branches file (resolved via lint_common.resolve_working)"))
     lines += [
         "",
-        "  CONSIDER-INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
+        "CONSIDER-INSTEAD: merge the branch(es) above, or record the hold with its reason in the "
         "held-branches file. For a genuine block (CI, a maintainer decision, an external wait), say so and:",
         f"      touch {ESCAPE_FILE}     # honoured once, then deleted",
     ]

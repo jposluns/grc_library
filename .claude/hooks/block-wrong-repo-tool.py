@@ -174,7 +174,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, repo in flagged]
         reason = (
-            "BLOCKED (wrong-repo-tool-abspath, P-1.19): a cd-prefixed cwd-relative repo tool.\n"
+            "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cd-prefixed cwd-relative repo tool.\n"
             "WHY: the standing directive is ABSOLUTE PATHS BY DEFAULT "
             "(grc_library_private/INDEX.md); a cd-prefixed cwd-relative tool runs via the "
             "ambient cwd, which drifts, instead of an absolute path.\n"

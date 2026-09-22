@@ -498,7 +498,7 @@ def decide_exit(rows, ledger_text) -> int:
         misfiled = misfiled_finding_rows(ledger_text)
         if misfiled:
             lines = [
-                f"BLOCKED (open-findings-misfiled, P-1.70 part-2b): {len(misfiled)} finding-row(s) in "
+                f"BLOCKED (open-findings-misfiled): (P-1.70 part-2b) {len(misfiled)} finding-row(s) in "
                 f"{LEDGER_REL} sit OUTSIDE '## Open' / '## Closed today'.\n"
                 "WHY: a row outside a scanned section is invisible to this hook's disposition scan, so "
                 "an undispositioned defect would escape the guard entirely.\n"

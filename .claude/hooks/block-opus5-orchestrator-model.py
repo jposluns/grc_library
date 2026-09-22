@@ -178,7 +178,7 @@ def write_alert(model: str) -> None:
 
 def _message(model: str) -> str:
     return (
-        f"BLOCKED (opus5-orchestrator-model): the orchestrator is running on `{model}` (Opus 5), "
+        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: the orchestrator is running on `{model}` (Opus 5), "
         f"and this tool call is halted (maintainer directive 2026-08-21).\n"
         f"WHY: Opus 5 is a banned working model for the orchestrator; running orchestrator work on "
         f"it is prohibited.\n"

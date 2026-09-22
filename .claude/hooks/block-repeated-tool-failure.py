@@ -72,13 +72,13 @@ def decide(subject: str):
         "verification-pipes": "drop the truncating pipe (`| tail`, `| head`, `| grep`); run the "
                               "verification unpiped, or via `tools/tail-safe.sh`, which "
                               "preserves the exit code",
-        "answered-question": "the question is already decided; run `python3 "
+        "answered-question": "run `python3 "
                              "tools/decisions-search.py <key>`, read the recorded answer, and "
                              "act on it instead of re-asking",
     }.get(blocking_hook, "change its STRUCTURE (not just its wording or description) so it no "
                          "longer trips the same block")
     lines = [
-        f"BLOCKED (repeated-tool-failure): you resubmitted, UNCHANGED, a command that "
+        f"BLOCKED (repeated-tool-failure): REPEAT-BLOCK: you resubmitted, UNCHANGED, a command that "
         f"`{blocking_hook}` just blocked.\n"
         f"WHY: the literal command string does not reflect the fix the block asked for (a common "
         f"cause is editing the command DESCRIPTION, not the command STRING); resubmitting the "

@@ -91,7 +91,7 @@ def main() -> int:
     except Exception:
         pass
     sys.stderr.write(
-        "BLOCKED (verification-pipes, RM-10): this command pipes a "
+        "BLOCKED (verification-pipes): (RM-10) this command pipes a "
         "verification command into a truncating filter "
         "(tail/head/grep/sed/awk/tee/wc).\n"
         "WHY: the pipeline reports the filter's exit code, not the gate's, "
