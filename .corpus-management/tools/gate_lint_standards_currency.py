@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
-"""Standards-currency audit (grc gate): pack-owned engine (source of record).
+"""Pack-owned standards-currency engine.
 
-Flag a stale external-standard citation: a standard identifier cited with a version the
-canonical register lists as superseded. The register supplies, per standard, the current
-version and the superseded version strings; a line citing ``<id>:<version>``,
-``<id> <version>``, ``<id> (<version>)``, or a ``v``-prefixed variant, where the version is
-a superseded one, is flagged (a version-continuation guard prevents matching inside a longer
-version string, e.g. ``4.0`` inside ``4.0.1``). Lines inside fenced code blocks are not scanned.
+The original compile_entry_patterns/check_file/run API remains available.
+coverage_report adds register-independent discovery and review inventories.
+The project wrapper supplies parsed entries, files, policy and CLI defaults.
 
-Engine/wrapper split (compile PR-19): this engine carries the PURE check
-(``compile_entry_patterns`` turns register entries into compiled patterns; ``check_file``
-matches them; ``run`` groups + reports), taking the compiled patterns and the entry count in.
-The project wrapper (``tools/lint-standards-currency.py``) supplies the scan scope and the grc
-canonical-citations REGISTER (it parses the grc register format, handles the ``--root``
-fixture-isolation override, and passes the parsed-and-compiled patterns + counts in). This
-engine holds no register-format, scan-scope, or repository-path policy.
+Report mode blocks only findings produced by the original Markdown
+check_file path. Newly discovered stale forms, HTML findings and coverage
+findings remain advisory. Explicit enforce mode additionally blocks
+recognized stale, unregistered, noncanonical and unpinned citations.
+Ambiguity, candidate forms and unresolved editions remain review inventories.
 
-A register entry is a dict ``{"id", "current", "superseded": [...]}``; a compiled item is a
-``(prefilter, pattern, message)`` triple.
-
-Exit codes (the wrapper returns these): 0 clean; 1 one or more findings (register/root error
-paths are the wrapper's).
+No register schema, repository roots, publisher lookup or current-version
+catalogue is owned here.
 """
 
 from __future__ import annotations
@@ -141,3 +133,684 @@ def run(
         f"across {len(by_file)} file(s)."
     )
     return 1
+
+
+from bisect import bisect_right
+from collections import Counter
+from html import unescape
+from html.parser import HTMLParser
+import json
+
+
+IDENTIFIERS = [
+    (
+        "ISO/IEC",
+        r"(?:ISO(?:\s*/\s*(?:IEC|IEEE|SAE)){0,2}"
+        r"|IEC(?:\s*/\s*IEEE)?|ISA\s*/\s*IEC)"
+        r"(?:\s+(?:TR|TS|PAS))?\s+\d{4,6}(?:-\d{1,3})*",
+    ),
+    (
+        "NIST",
+        r"(?:NIST\s+(?:"
+        r"SP\s+\d{3,4}(?:-\d+[A-Z]?(?:-\d+)?)?"
+        r"|IR\s+\d+[A-Z]?"
+        r"|AI\s+\d+-\d+"
+        r"|AI\s+RMF|CSF|RMF|Privacy\s+Framework)"
+        r"|NISTIR\s+\d+[A-Z]?"
+        r"|(?:NIST\s+)?FIPS(?:\s+PUB)?\s+\d+(?:-\d+)?)",
+    ),
+    (
+        "IEEE",
+        r"IEEE(?:\s+Std)?\s+\d{3,5}(?:\.\d+)*(?:[a-z])?",
+    ),
+    (
+        "ETSI/CEN",
+        r"(?:(?:ETSI|CEN)\s+(?:EN|TS|TR|GS)|EN)"
+        r"\s+\d{3,6}(?:\s+\d{3}){0,1}(?:-\d{1,3})*",
+    ),
+    ("named", r"CIS\s+Controls|ITIL|WCAG|COBIT|SLSA"),
+]
+
+ID_RE = re.compile(
+    r"(?<![\w/.-])(?:" + "|".join(
+        "(?P<F%d>%s)%s" % (
+            i,
+            p,
+            r"(?![A-Za-z0-9]|\.\d|-\d)" if i not in {1, 2}
+            else (
+                r"(?:(?![A-Za-z0-9]|\.\d|-\d)|(?=[re]\d))"
+                if i == 1 else r"(?![A-Za-z0-9]|\.\d)"
+            ),
+        )
+        for i, (_, p) in enumerate(IDENTIFIERS)
+    ) + r")",
+    re.I,
+)
+
+BROAD_RE = re.compile(
+    r"\b(?:ISO(?:\s*/\s*IEC)?|IEC|NIST(?:IR)?|FIPS|IEEE|ETSI|CEN"
+    r"|CIS|ITIL|WCAG|COBIT|SLSA)\b"
+    r"|(?<!\w)[A-Z][A-Za-z0-9]+(?:[ \t]+[A-Za-z]+){0,3}[ \t]+"
+    r"(?:Framework|Controls|Standard)[ \t]+v?\d+(?:\.\d+)*"
+)
+
+REV = r"(?:Rev(?:ision)?\.?\s*|r)(\d+(?:\.\d+)*)"
+NUM = r"\d+(?:\.\d+)*(?:-\d+)*"
+END = r"(?![\w]|\.\d|-\d)"
+BLOCK_TAGS = set(
+    "address article aside blockquote br caption dd div dl dt fieldset "
+    "figcaption figure footer form h1 h2 h3 h4 h5 h6 header hr li main "
+    "nav ol p pre section table tbody td th thead tr ul".split()
+)
+
+
+def identity_key(value):
+    value = unescape(value).replace("\xa0", " ")
+    value = value.translate(
+        str.maketrans({"–": "-", "‑": "-", "−": "-"})
+    )
+    value = re.sub(r"\s*/\s*", "/", value)
+    return re.sub(r"\s+", " ", value).strip().casefold()
+
+
+def edition_key(value):
+    value = value.strip().strip("()").strip()
+    m = re.fullmatch(REV, value, re.I)
+    if m:
+        return "rev:" + m[1]
+    value = re.sub(
+        r"^(?:version\s+|v)", "", value, flags=re.I
+    )
+    if re.fullmatch(r"e\d{4}", value, re.I):
+        return "edition:" + value.lower()
+    if re.fullmatch(NUM, value):
+        return "version:" + value
+    return None
+
+
+class TextExtractor(HTMLParser):
+    """Logical text blocks with source offsets for their characters."""
+
+    def __init__(self, source, base=0, markdown=False):
+        super().__init__(convert_charrefs=False)
+        self.source = source
+        self.base = base
+        self.markdown = markdown
+        self.starts = [0] + [
+            m.end() for m in re.finditer("\n", source)
+        ]
+        self.blocks = []
+        self.chars = []
+        self.offsets = []
+        self.hidden = []
+
+    def source_offset(self):
+        line, col = self.getpos()
+        return self.base + self.starts[line - 1] + col
+
+    def flush(self):
+        if self.chars:
+            self.blocks.append(
+                ("".join(self.chars), self.offsets)
+            )
+        self.chars, self.offsets = [], []
+
+    def add(self, value, pos, literal=True):
+        for i, c in enumerate(value):
+            if self.markdown and c in "*_~\x60":
+                continue
+            self.chars.append(
+                " " if c.isspace() else c.translate(
+                    str.maketrans({"–": "-", "‑": "-", "−": "-"})
+                )
+            )
+            self.offsets.append(pos + (i if literal else 0))
+
+    def add_encoded(self, value, pos):
+        end = 0
+        for match in re.finditer(
+            r"&(?:#\d+|#x[0-9a-f]+|[a-z][a-z0-9]+);",
+            value,
+            re.I,
+        ):
+            self.add(value[end:match.start()], pos + end)
+            self.add(
+                unescape(match[0]), pos + match.start(), False
+            )
+            end = match.end()
+        self.add(value[end:], pos + end)
+
+    def handle_starttag(self, tag, attrs):
+        if tag in {"script", "style"}:
+            self.flush()
+            self.hidden.append(tag)
+            return
+        if self.hidden:
+            return
+        if tag in BLOCK_TAGS:
+            self.flush()
+
+        # Human-facing attributes are independent blocks.
+        raw = self.get_starttag_text()
+        for m in re.finditer(
+            r"""\b(?:alt|title|aria-label)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
+            raw,
+            re.I,
+        ):
+            self.flush()
+            g = next(g for g in (1, 2, 3) if m[g] is not None)
+            self.add_encoded(
+                m[g], self.source_offset() + m.start(g)
+            )
+            self.flush()
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        if self.hidden:
+            if tag == self.hidden[-1]:
+                self.hidden.pop()
+            return
+        if tag in BLOCK_TAGS:
+            self.flush()
+        elif self.chars and not self.chars[-1].isspace():
+            self.add(" ", self.source_offset(), False)
+
+    def handle_data(self, data):
+        if not self.hidden:
+            self.add(data, self.source_offset())
+
+    def handle_entityref(self, name):
+        if not self.hidden:
+            self.add(
+                unescape("&" + name + ";"),
+                self.source_offset(),
+                False,
+            )
+
+    def handle_charref(self, name):
+        if not self.hidden:
+            self.add(
+                unescape("&#" + name + ";"),
+                self.source_offset(),
+                False,
+            )
+
+
+def text_blocks(source, suffix):
+    if suffix == ".html":
+        parser = TextExtractor(source)
+        parser.feed(source)
+        parser.close()
+        parser.flush()
+        return parser.blocks
+
+    # Mask destinations, retaining source positions.
+    masked = list(source)
+
+    def erase(a, b):
+        for j in range(a, b):
+            if masked[j] != "\n":
+                masked[j] = " "
+
+    for m in re.finditer(
+        r"(?m)^[ \t]{0,3}\[[^\]\n]+\]:[^\n]*"
+        r"|https?://[^\s<>]+"
+        r"|<[^<>\n]*@[^<>\n]*>",
+        source,
+    ):
+        erase(m.start(), m.end())
+
+    # Balanced inline-link destinations, including nested parentheses.
+    for m in re.finditer(r"\]\(", source):
+        depth, j = 1, m.end()
+        while j < len(source) and depth:
+            if source[j] == "\\":
+                j += 2
+                continue
+            depth += (source[j] == "(") - (source[j] == ")")
+            j += 1
+        if not depth:
+            erase(m.start(), j)
+
+    for m in re.finditer(r"\]\[[^\]\n]*\]", source):
+        erase(m.start(), m.end())
+
+    # Inline paths are authoring references, not citation labels.
+    for m in re.finditer(r"\x60[^\x60\n]*\x60", source):
+        if re.search(
+            r"(?:^|[/\\])|\.(?:md|html|py)\b", m[0][1:-1]
+        ) and (
+            "/" in m[0]
+            or re.search(r"\.(?:md|html|py)\b", m[0])
+        ):
+            if not re.match(
+                r"\x60(?:ISO|IEC|ISA)"
+                r"(?:\s*/\s*(?:IEC|IEEE|SAE)){0,2}\s+\d",
+                m[0],
+                re.I,
+            ):
+                erase(m.start(), m.end())
+
+    allowed = {ln for ln, _ in iter_non_code_lines(source)}
+    blocks, offset, start, pending = [], 0, 0, []
+
+    def flush():
+        nonlocal pending
+        if pending:
+            value = "".join(pending)
+            parser = TextExtractor(value, start, markdown=True)
+            parser.feed(value)
+            parser.close()
+            parser.flush()
+            blocks.extend(parser.blocks)
+            pending = []
+
+    for ln, line in enumerate(
+        "".join(masked).splitlines(keepends=True), 1
+    ):
+        raw = source[offset:offset + len(line)]
+        if ln not in allowed or not line.strip():
+            flush()
+        elif "|" in raw:
+            flush()
+            cell_start = offset
+            for cell in line.split("|"):
+                parser = TextExtractor(
+                    cell, cell_start, markdown=True
+                )
+                parser.feed(cell)
+                parser.close()
+                parser.flush()
+                blocks.extend(parser.blocks)
+                cell_start += len(cell) + 1
+        else:
+            if re.match(
+                r"^\s*(?:#{1,6}\s|[-+*]\s|\d+\.\s|>)", raw
+            ):
+                flush()
+            if not pending:
+                start = offset
+            pending.append(line)
+        offset += len(line)
+    flush()
+    return blocks
+
+
+def version_after(text, end, family):
+    tail = text[end:]
+    if family == "NIST":
+        embedded = re.match(r"(e\d{4})" + END, tail, re.I)
+        if embedded:
+            return embedded[1], end + embedded.end()
+        m = re.match(
+            r"\s*(?:[:(]\s*)?(" + REV + ")" + END,
+            tail,
+            re.I,
+        )
+        if m:
+            return m[1], end + m.end()
+
+    if family == "ISO/IEC":
+        pat = r"\s*(?::|\(\s*|\s)(\d{4})" + END
+    elif family == "IEEE":
+        pat = r"\s*(?:[-:]|\(\s*|\s)(\d{4})" + END
+    else:
+        pat = (
+            r"\s*(?:[:(]\s*)?(?:\s|(?=v))"
+            r"((?:version\s+|v)?" + NUM + ")" + END
+        )
+    m = re.match(pat, tail, re.I)
+    return (m[1], end + m.end()) if m else ("", end)
+
+
+def discover(source, suffix):
+    starts = [0] + [
+        m.end() for m in re.finditer("\n", source)
+    ]
+
+    def location(offset):
+        n = bisect_right(starts, offset)
+        return [n, offset - starts[n - 1] + 1]
+
+    occurrences = []
+    for text, offsets in text_blocks(source, suffix):
+        covered = []
+
+        def emit(a, b, family, observed, version, channel):
+            covered.append((a, b))
+            occurrences.append(dict(
+                family=family,
+                observed=observed,
+                identity=identity_key(observed),
+                version=version,
+                channel=channel,
+                context=text,
+                span=[
+                    location(offsets[a]),
+                    location(offsets[b - 1]),
+                ],
+            ))
+
+        for m in ID_RE.finditer(text):
+            family = IDENTIFIERS[int(m.lastgroup[1:])][0]
+            version, end = version_after(
+                text, m.end(), family
+            )
+            emit(
+                m.start(), end, family, m[0], version, "grammar"
+            )
+
+            # Directly coordinated ISO identifiers with colon-year pins.
+            # No arbitrary numeric prose inherits a publisher.
+            if family == "ISO/IEC":
+                prefix = re.match(r".*?(?=\d)", m[0])[0]
+                while True:
+                    carry = re.match(
+                        r"\s*(?:,\s*(?:and\s+)?|and\s+|&\s*)"
+                        r"(\d{4,6}(?:-\d{1,3})*):(\d{4})" + END,
+                        text[end:],
+                    )
+                    if not carry:
+                        break
+                    a = end + carry.start(1)
+                    end += carry.end()
+                    emit(
+                        a, end, family, prefix + carry[1],
+                        carry[2], "grammar",
+                    )
+
+        grammar_spans = list(covered)
+        for m in BROAD_RE.finditer(text):
+            if any(
+                a <= m.start() < b for a, b in grammar_spans
+            ):
+                continue
+            end = len(text)
+            stop = re.search(r"[;|]", text[m.end():end])
+            if stop:
+                end = m.end() + stop.start()
+            observed = text[m.start():end].strip()
+            token = m[0].upper()
+            family = (
+                "ISO/IEC" if token.startswith(("ISO", "IEC"))
+                else "NIST" if token.startswith(("NIST", "FIPS"))
+                else "IEEE" if token.startswith("IEEE")
+                else "ETSI/CEN" if token.startswith(("ETSI", "CEN"))
+                else "named" if token.startswith(
+                    ("CIS", "ITIL", "WCAG", "COBIT", "SLSA")
+                )
+                else "other"
+            )
+            emit(
+                m.start(), max(m.end(), end),
+                family, observed, "", "candidate",
+            )
+    return occurrences
+
+
+def diagnostic_key(value):
+    key = identity_key(value)
+    # Suggestions only: preserve kind, number, part and publication series.
+    m = re.fullmatch(
+        r"(?:iso/iec|iso|iec)\s+"
+        r"((?:(?:tr|ts|pas)\s+)?\d+(?:-\d+)*)",
+        key,
+    )
+    if m:
+        return ("iso-suggestion", m[1])
+    key = re.sub(r"^nistir\s+", "nist ir ", key)
+    key = re.sub(r"^ieee std\s+", "ieee ", key)
+    key = re.sub(
+        r"^(?:nist )?fips pub\s+", "fips ", key
+    )
+    return ("spelling-suggestion", key)
+
+
+def resolve(occurrence, entries, bare_exceptions=None):
+    if occurrence["channel"] == "candidate":
+        return [
+            ("CANDIDATE", "Classify unsupported publisher/framework form.")
+        ]
+
+    key = occurrence["identity"]
+    exact = [
+        e for e in entries
+        if identity_key(str(e["id"])) == key
+    ]
+    if not exact:
+        nearby = [
+            e for e in entries
+            if diagnostic_key(str(e["id"]))
+            == diagnostic_key(occurrence["observed"])
+        ]
+        if len(nearby) > 1:
+            return [(
+                "AMBIGUOUS",
+                "Possible rows: "
+                + ", ".join(str(e["id"]) for e in nearby),
+            )]
+        if nearby:
+            return [(
+                "NONCANONICAL_ID",
+                "Suggest " + str(nearby[0]["id"]) + "; not accepted.",
+            )]
+        return [("UNREGISTERED", "No canonical register row.")]
+
+    if len(exact) != 1:
+        return [("AMBIGUOUS", "Multiple canonical rows.")]
+
+    entry = exact[0]
+    version = occurrence["version"]
+    if not version:
+        reason = (bare_exceptions or {}).get(key)
+        if reason:
+            return []
+        return [(
+            "UNPINNED",
+            "Required edition missing; register: "
+            + str(entry["current"]),
+        )]
+
+    observed = edition_key(version)
+    superseded = {
+        edition_key(str(v)) for v in entry["superseded"]
+    } - {None}
+    if observed in superseded:
+        return [(
+            "STALE",
+            "Registered superseded edition; current: "
+            + str(entry["current"]),
+        )]
+    current = edition_key(str(entry["current"]))
+    if current is not None and current == observed:
+        return []
+    return [(
+        "UNRESOLVED_EDITION",
+        "Observed edition is not a comparable current/superseded "
+        "register marker: " + str(entry["current"]),
+    )]
+
+
+KINDS = (
+    "STALE", "UNREGISTERED", "NONCANONICAL_ID", "UNPINNED",
+    "AMBIGUOUS", "UNRESOLVED_EDITION", "CANDIDATE",
+)
+
+
+def coverage_report(
+    files, entries, *, repo_root, mode="report", bare_exceptions=None
+):
+    compiled = compile_entry_patterns(entries)
+    findings, occurrences, file_counts = [], [], Counter()
+
+    for path in files:
+        # UTF-8/read failures are environmental errors, never silent skips.
+        source = path.read_text(encoding="utf-8")
+        rel = path.relative_to(repo_root).as_posix()
+        suffix = path.suffix
+        file_counts[suffix] += 1
+
+        # This exact HEAD check alone controls PR1 blocking behavior.
+        if suffix == ".md":
+            for line, message in check_file(path, compiled):
+                findings.append(dict(
+                    kind="STALE",
+                    family="legacy",
+                    identity=message,
+                    observed=message,
+                    version="",
+                    path=rel,
+                    suffix=suffix,
+                    span=[[line, 1], [line, 1]],
+                    detail=message,
+                    legacy=True,
+                ))
+
+        for occurrence in discover(source, suffix):
+            occurrence.update(path=rel, suffix=suffix)
+            occurrences.append(occurrence)
+            for kind, detail in resolve(
+                occurrence, entries, bare_exceptions
+            ):
+                # Avoid reporting the same recognized stale occurrence
+                # twice through legacy and normalized channels.
+                matched = [
+                    f for f in findings
+                    if kind == "STALE"
+                    and f["legacy"]
+                    and f["family"] == "legacy"
+                    and f["path"] == rel
+                    and f["span"][0][0] == occurrence["span"][0][0]
+                    and f["detail"].casefold().startswith(
+                        (
+                            "stale citation '"
+                            + occurrence["observed"] + " "
+                        ).casefold()
+                    )
+                ]
+                for f in matched:
+                    findings.remove(f)
+                findings.append(dict(
+                    occurrence,
+                    kind=kind,
+                    detail=detail,
+                    legacy=bool(matched),
+                ))
+
+    order = lambda x: (
+        x["path"], x["span"][0], x.get("kind", ""), x["observed"]
+    )
+    findings.sort(key=order)
+    occurrences.sort(key=order)
+
+    legacy = sum(f["legacy"] for f in findings)
+    blocking_kinds = {
+        "STALE", "UNREGISTERED", "NONCANONICAL_ID", "UNPINNED",
+    }
+    new_blocking = sum(
+        f["kind"] in blocking_kinds and not f["legacy"]
+        for f in findings
+    )
+    status = int(bool(
+        legacy or (mode == "enforce" and new_blocking)
+    ))
+
+    inventories = {}
+    for kind in KINDS:
+        subset = [f for f in findings if f["kind"] == kind]
+        inventories[kind] = dict(
+            identities=len({f["identity"] for f in subset}),
+            occurrences=len(subset),
+            legacy=sum(f["legacy"] for f in subset),
+        )
+
+    census = []
+    for suffix in sorted(file_counts):
+        for family in sorted({
+            o["family"] for o in occurrences
+            if o["suffix"] == suffix
+        }):
+            group = [
+                o for o in occurrences
+                if o["suffix"] == suffix and o["family"] == family
+            ]
+            issues = [
+                f for f in findings
+                if f["suffix"] == suffix and f["family"] == family
+            ]
+            census.append(dict(
+                suffix=suffix,
+                family=family,
+                recognized=sum(
+                    o["channel"] == "grammar" for o in group
+                ),
+                candidates=sum(
+                    o["channel"] == "candidate" for o in group
+                ),
+                identities=len({
+                    o["identity"] for o in group
+                    if o["channel"] == "grammar"
+                }),
+                findings=dict(sorted(
+                    Counter(f["kind"] for f in issues).items()
+                )),
+            ))
+
+    return dict(
+        mode=mode,
+        exit=status,
+        entries=len(entries),
+        census=census,
+        files=dict(sorted(file_counts.items())),
+        inventories=inventories,
+        occurrences=occurrences,
+        findings=findings,
+    )
+
+
+def print_coverage(report, *, as_json=False):
+    if as_json:
+        print(json.dumps(
+            report, ensure_ascii=False, indent=2, sort_keys=True
+        ))
+        return
+
+    print("Coverage mode:", report["mode"])
+    print("Files:", report["files"], "Register rows:", report["entries"])
+    print("Scope:", report.get("scope", {}))
+    for kind, count in report["inventories"].items():
+        print(
+            "%s: %d identities; %d occurrences (%d legacy)" % (
+                kind, count["identities"],
+                count["occurrences"], count["legacy"],
+            )
+        )
+        subset = [
+            f for f in report["findings"] if f["kind"] == kind
+        ]
+        if not subset:
+            print("  (none)")
+        for f in subset:
+            label = "BLOCKING" if f["legacy"] or (
+                report["mode"] == "enforce"
+                and kind in {
+                    "STALE", "UNREGISTERED",
+                    "NONCANONICAL_ID", "UNPINNED",
+                }
+            ) else "ADVISORY"
+            print(
+                "  %s:%s:%s %s %s %r edition=%r: %s" % (
+                    f["path"], *f["span"][0], label, f["family"],
+                    f["observed"], f["version"], f["detail"],
+                )
+            )
+
+    if report["exit"]:
+        print("FAIL: blocking findings remain.")
+    elif report["findings"]:
+        print("REPORT: no blocking findings; advisory review remains.")
+    else:
+        print("OK: no findings within the declared scope and grammars.")
