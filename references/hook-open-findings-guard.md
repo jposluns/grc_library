@@ -15,14 +15,20 @@ acting on one, and the gap between those two is where the cost lives, so the blo
 
 ## What it reads
 
-`grc_library_private/.working/open-findings.md`, the ledger, whose `## Open` table carries one row per
+The hook reads `open-findings.md` via `lint_common.resolve_working`, taking the first existing of: an
+eligible operational store (`$GRC_STORE`, or `<repo-parent>/private` by default, which is `/opt/grc/private`
+for this checkout; used only when it is a directory resolving OUTSIDE the repo), then `<repo-parent>/grc_library_private/.working/open-findings.md`, then the in-repo
+`.working/open-findings.md`. If the helper cannot be imported it checks only the in-repo path; a missing
+or unreadable selected ledger fails open. Its `## Open` table carries one row per
 confirmed defect with a severity and a disposition. A row with an EMPTY disposition is undispositioned.
 A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 ## What it blocks (two conditions)
 
 1. **Undispositioned `error` row (primary).** An `error`-severity row with no disposition blocks
-   `gh pr create` and `gh pr merge`, because shipping past a known wrong behaviour is the thing worth
+   a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create`
+   or `gh pr merge` (it misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell
+   syntax), because shipping past a known wrong behaviour is the thing worth
    preventing. A `warning` does NOT block a PR (an in-flight change should finish rather than be
    abandoned half-landed) and is surfaced instead. Notes never block.
 2. **Mis-filed finding-row (second condition, P-1.70, 2026-09-10).** A row carrying the finding-row
