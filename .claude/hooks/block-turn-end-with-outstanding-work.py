@@ -23,7 +23,7 @@ working-tree changes, and to a detached commit. Those are
 real outstanding work and this hook will let you yield on all of them; the discipline, not the
 guard, covers them.
 
-WHAT IT BLOCKS. A turn-end while a branch is ahead of main and is not on the recorded held list.
+WHAT IT BLOCKS. A turn-end while a branch is ahead of main whose tree `git diff --quiet` reports as differing (a tree-identical branch, e.g. squash-merged-but-undeleted, is exempt; a diff-command error also leaves it reportable) and is not on the recorded held list.
 
 WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
@@ -46,7 +46,10 @@ that traps the actor on its own malfunction gets removed, and a removed guard pr
 
 GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-action:
   * "a branch is ahead of main" is NOT "a branch is meant to merge". A deliberately-held branch
-    needs a recorded exemption, which is why the list is a file with reasons rather than a constant.
+    needs a file entry with a YYYY-MM-DD-shaped date token comparing lexically at or after today; the
+    reason and any decision-record citation are the instructed convention the hook does not verify (it
+    checks only that token). The list is a file
+    rather than a constant so holds are recorded, not baked in.
   * the hook sees files and refs. It cannot see whether the actor intends to continue, which is the
     thing it is really trying to constrain; it can only make yielding-with-work-outstanding require
     a deliberate act.
