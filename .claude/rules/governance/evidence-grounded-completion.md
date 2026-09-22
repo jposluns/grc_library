@@ -297,10 +297,10 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 
 - The stated-intention rule's mechanical backstop here is the
   [`block-turn-end-with-outstanding-work.py`](../../hooks/block-turn-end-with-outstanding-work.py)
-  Stop hook: it refuses turn-end while any unmerged local branch (except `main` and recorded held branches) carries commits not on `main`.
+  Stop hook: it refuses turn-end while any local branch (except `main` and recorded held branches) is ahead of `main` AND `git diff --quiet` reports a differing tree (a branch ahead of `main` but tree-identical, e.g. squash-merged-but-undeleted, is exempt; a diff-command error also leaves the branch reportable).
   It fails open, honours a one-shot `.allow-stop` escape
   FILE for a genuine block, and exempts deliberately-held branches through the `held-branches.txt`
-  file whose every entry cites its decision record.
+  file; the hook mechanically checks only that each entry carries a YYYY-MM-DD-shaped token comparing lexically at or after today, while the reason and any decision-record citation are the instructed convention it does not verify.
 
 - The broken-link audit the no-decorative-links section names is gate 3
   (repository-internal link audit, `tools/lint-links.py`); the domain allow-list
