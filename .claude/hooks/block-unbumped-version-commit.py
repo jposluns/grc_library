@@ -14,8 +14,11 @@ the repair is itself a new commit touching the same file, which is how one miss 
 D4 repair that moved a `Date` became a gate-40 failure, whose repair became a gate-33 failure. The
 fix has to fire at the moment of the commit, where the correction is free.
 
-WHAT IT READS. The STAGED diff (`git diff --cached`) of the repository CONTAINING THIS HOOK, whose root
-is derived from the hook's own location (NOT the command's `-C` target or the runtime cwd). It does not
+WHAT IT READS. The STAGED diff (`git diff --cached`), targeting `project_root()` via `git -C`.
+That root is derived from the hook's own location (NOT the command's `-C` target or the runtime cwd).
+The Git subprocesses inherit ambient Git environment variables, so `GIT_DIR` / `GIT_WORK_TREE`
+pointing at a scratch repository can redirect Git despite `-C`; working-file reads still use
+`project_root()`. It does not
 simulate preceding commands, a `commit -a`, or a path-selected commit, so any of those can make the
 inspected index differ from what the eventual commit contains. Eligibility comes from WORKING-TREE
 contents: a staged `.md` file outside `.corpus-management/` whose working file carries any column-zero
@@ -25,8 +28,11 @@ line, matched anywhere, is treated as metadata; a blank changed line is ignored)
 remains the authority and compares differently); it checks only that a `**Version:**` line was added or
 removed, not that the value increments. Eligible paths come from `git diff --cached --name-only` filtered to
 staged `.md` files (outside `.corpus-management/`) whose working file carries a `**Version:**` line (a
-per-file read error skips only that file). The diff-header parser then associates hunks with those paths by
-splitting each header at its first ` b/`, so a ` b/`-containing or Git-quoted path can be missed.
+per-file read error skips only that file). Git-quoted (including octal-escaped) `--name-only` paths are
+not decoded before suffix checks and working-file reads, so a file can fail eligibility and never enter
+`versioned`. The diff-header parser associates hunks by splitting each header at its first ` b/` and
+requiring the resulting path to be in `versioned`; a ` b/`-containing or Git-quoted header path can also
+break that association. Quoting can therefore defeat eligibility as well as hunk association.
 
 WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
   - AUTO-FIXES FIRST, THEN BLOCKS (auto-fix added #1237): on a staged body change to a versioned
@@ -308,8 +314,8 @@ def main() -> int:
         return 0
 
     lines = [
-        "BLOCKED (unbumped-version-commit): a commit containing staged file(s) with a changed BODY, an "
-        "unchanged `**Version:**` line, and an unsuccessful auto-bump (other unstaged changes "
+        "BLOCKED (unbumped-version-commit): a commit containing staged file(s) with a changed BODY, no "
+        "staged `**Version:**` line addition/removal, and an unsuccessful auto-bump (other unstaged changes "
         "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
         "",
     ]
