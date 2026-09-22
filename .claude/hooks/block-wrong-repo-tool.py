@@ -28,11 +28,11 @@ suggestion templates. These are regex and filesystem checks, not shell execution
       match but an ``is_file()`` match in another scanned repo's tools directory.
   (2) if neither tool check blocks and there is NO matched ``cd`` anywhere, an
       ``_GIT_MUTATE`` match for add/commit/push/reset/checkout/switch/merge/rebase/stash/
-      rm/mv/clean/apply/restore/cherry-pick/revert. Each listed name matches as a
-      word-boundary prefix, so a longer subcommand sharing one (``git commit-graph``) also
-      matches; the set includes read-only uses such as ``git stash list`` and omits a
-      subcommand sharing no listed prefix such as ``git tag``. Arguments are not checked for
-      mutation or the actual target repo.
+      rm/mv/clean/apply/restore/cherry-pick/revert. Each listed name matches only where it
+      ends at a word boundary, so a longer subcommand whose listed prefix ends at a boundary
+      (``git commit-graph``, but not ``git commitment``) also matches; the set includes
+      read-only uses such as ``git stash list`` and omits a subcommand sharing no listed
+      prefix such as ``git tag``. Arguments are not checked for mutation or the actual target repo.
 
 Scanning is limited to existing tools directories under the configured
 ``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
@@ -119,10 +119,11 @@ _INVOKE = re.compile(
 # The (?!-C\b) lookahead rejects -C only immediately after git's whitespace; a standalone
 # -C <path> in option position is not consumed (it is neither -c nor --), but a -C token
 # supplied as the value after -c IS consumed by -c\s+\S+ (e.g. the malformed git -c -C commit).
-# The alternation matches a listed NAME at a word boundary, so a longer subcommand sharing a
-# listed prefix also matches (e.g. git commit-graph, git checkout-index); one sharing no listed
-# prefix (git tag) and status/log/diff/show do not. Arguments are not inspected, so git stash
-# list matches. The final \b is not a shell-token boundary.
+# The alternation matches a listed NAME only where it ends at a word boundary, so a longer
+# subcommand whose listed prefix ends at a boundary also matches (git commit-graph,
+# git checkout-index, but not git commitment); one sharing no listed prefix (git tag) and
+# status/log/diff/show do not. Arguments are not inspected, so git stash list matches. The
+# final \b is not a shell-token boundary.
 # Matching does not establish mutation or the target repo: accepted assignments and long
 # options can specify another target, for example GIT_DIR=... or --git-dir=....
 _GIT_MUTATE = re.compile(
