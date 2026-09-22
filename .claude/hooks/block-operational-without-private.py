@@ -11,17 +11,18 @@ never to silently work around.
 This hook is the MECHANICAL core of the layered assurance (the others: detect-env's
 private_availability decision + the /orch HALT, and the read-evidence discipline). It fires on
 the operational-work tools (Edit, Write) and BLOCKS them (exit 2, reason on stderr) ONLY when
-BOTH are confirmed: (a) the operator is the maintainer (the origin URL passes _origin_is_maintainer's
-exact-or-prefixed-substring test for jposluns/grc_library, which also accepts a suffixed-name repo),
+BOTH are confirmed: (a) the origin is classified as maintainer by _origin_is_maintainer's
+exact-or-prefixed-substring test for jposluns/grc_library (which also accepts a suffixed-name repo, so this
+is an origin match, not a proven operator identity),
 and (b) grc_library_private is genuinely absent (no readable, non-empty sibling directory). Read
 and Bash are deliberately NOT gated, so the session can still clone _private and investigate.
 
 Design (fail-open on uncertainty, fail-loud on the real condition):
   - _private present  -> ALLOW (fast path; the common case).
-  - _private absent + maintainer origin CONFIRMED -> BLOCK (loud clone/fix message).
+  - _private absent + origin matches the maintainer repo -> BLOCK (loud clone/fix message).
   - _private absent + adopter/indeterminate origin -> ALLOW (an adopter legitimately has no
     _private; blocking would brick a legitimate adopter session).
-  - any parse/read error, or origin cannot be positively confirmed as maintainer -> ALLOW.
+  - any parse/read error, or the origin does not match the maintainer repo -> ALLOW.
     Blocking requires POSITIVE confirmation of BOTH conditions; the safe direction on any
     uncertainty is allow (a false block bricks the session; a false allow only misses the
     guard, which the detect-env HALT + read-evidence discipline still cover). A hook bug must
@@ -90,7 +91,7 @@ def _private_present(project_dir: str) -> bool:
 
 
 def decide(project_dir: str) -> tuple[bool, str]:
-    """Return (block, reason). Block only on confirmed maintainer + confirmed _private-absent."""
+    """Return (block, reason). Block only on a maintainer-origin match + confirmed _private-absent."""
     if _private_present(project_dir):
         return False, ""
     if not _origin_is_maintainer(project_dir):
@@ -98,7 +99,7 @@ def decide(project_dir: str) -> tuple[bool, str]:
     return True, (
         "BLOCKED (operational-without-private): an Edit/Write while the origin matches the maintainer "
         f"repo {MAINTAINER_ORIGIN} (exactly, or as a path-prefix, so possibly a fork or sibling) and "
-        "grc_library_private is NOT accessible.\n"
+        "no readable, non-empty grc_library_private sibling was found.\n"
         "WHY: _private holds the operational state the CLAUDE.md delegation directive points to; "
         "it is a REQUIRED dependency, and reconstructing its content from memory is the failure "
         "this guard prevents.\n"

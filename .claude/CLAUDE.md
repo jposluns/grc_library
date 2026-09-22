@@ -218,7 +218,7 @@ orchestration runbook") and defers to the INDEX for the file.
   PreToolUse hook blocks Edit/Write with `_private` absent when the origin URL passes the exact-or-prefixed-substring test for `jposluns/grc_library` (which also matches a suffixed-name repo such as a `.../grc_library_fork` origin; Read and Bash
   stay available so the clone remediation works), and `tools/pre-push-guard.sh` refuses the push.
 - **Adopter** (`detect-env` identity `adopter`): `_private` is legitimately absent (it is the
-  maintainer's private store). You are OFFERED a choice, never blocked: point your own operational
+  maintainer's private store). You are OFFERED a choice, and (unless your origin matches the maintainer repo path) never blocked: point your own operational
   store at `../grc_library_private`, have `/adopt` create an in-repo `.private` stub, or create your own
   from the concerns this directive names above. Nothing in `_private` is required to use the corpus or run
   the public gates.
