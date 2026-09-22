@@ -229,7 +229,7 @@ def decide(added: str, todo_count: "int | None" = None):
     classifications = _CLASSIFICATION_RE.findall(added)
     if not classifications:
         return True, (
-            "BLOCKED (unjustified-decision): a write to the autonomous-decisions log with no "
+            "BLOCKED (unjustified-decision): DECISION-GUARD: a write to the autonomous-decisions log with no "
             "`**Classification:**` line.\n"
             "WHY: the write-before-enact rubric requires every decision classified at decision "
             "time so avoidance cannot be dressed as prudence.\n"
@@ -299,7 +299,7 @@ def decide(added: str, todo_count: "int | None" = None):
             )
     if problems:
         return True, (
-            "BLOCKED (unjustified-decision): this decisions-log entry is not well-formed. "
+            "BLOCKED (unjustified-decision): DECISION-GUARD: this decisions-log entry is not well-formed. "
             + " ".join(problems)
             + "\nWHY: deferral-with-no-question and un-instrumented internal-state "
             "justifications are the failure this guard prevents; a hold must name a real "
