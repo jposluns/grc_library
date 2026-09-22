@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
-"""PreToolUse hook: block in-session agent-spawning dispatch in ORCHESTRATOR sessions.
+"""PreToolUse hook: gate Task, Agent, Workflow, and SendMessage calls.
 
-SCOPE. In a DISPATCHED WORKER session this hook is a no-op (see `_is_worker_session`): the
-worker is already the offload and its fan-out bills the pooled worker account, so blocking it
-only degrades a fan-out skill into a sequential one. In an ORCHESTRATOR session,
-DISPATCH_TOOLS (and the settings.json matcher) cover every in-session tool that
-spawns or resumes a reasoning agent billing the orchestrator account: Task, Agent,
-Workflow (which fans out many subagents, up to the harness cap), and SendMessage (which
-resumes one). The set below is the authoritative list; if the harness later adds another
-agent-spawning tool, add it here and to the matcher.
+SCOPE. DISPATCH_TOOLS is the fixed set of tool names this hook checks; it does
+not discover all reasoning-offload mechanisms or inspect whether a particular
+call spawns or resumes an agent. A matching worker marker exempts these calls:
+`_is_worker_session()` checks whether the lexical basename of the
+caller-controlled CLAUDE_CONFIG_DIR starts with `orch-worker.`. This does not
+establish broker provenance, actual session role, or the account billed.
+Exempt calls leave the sentinel untouched and attempt a WORKER-ALLOWED log row.
+Without that exemption, listed calls require successful sentinel consumption
+to bypass the normal block decision. Keep the set and settings matcher aligned.
 
 ACTIVE guardrail, wired on the `Task|Agent|Workflow|SendMessage` PreToolUse matcher in
 `.claude/settings.json` by PR #1470.
 
-WHY THIS EXISTS. The orchestrator's own account is the scarce, slow-to-renew
-resource. A subagent dispatched with any tool in the in-session agent-spawning
-class (Task, Agent, Workflow, SendMessage) bills that account: an in-session
-subagent is not an offload, it is the orchestrator spending itself twice.
-Running the QA cadence that way cost a full week of orchestrator usage, which is
-the specific failure this hook is built to prevent.
+WHY THIS EXISTS. The policy aims to conserve the orchestrator's scarce,
+slow-to-renew account usage by routing reasoning work through external workers.
+It treats Task, Agent, Workflow, and SendMessage as in-session dispatch tools.
+Billing is a policy assumption here, not something this hook measures or
+verifies. The motivating incident was a QA cadence reported to have consumed
+a full week of orchestrator usage.
 
 WHY IT DOES NOT LOOK AT THE WORKER REGISTRY, unlike its predecessor. The
 retired `block-mandatory-offload.py` gated its block on
@@ -27,64 +28,79 @@ read ZERO because the deprecated file-drop fleet registers none, so the guard
 fell through to ALLOW in exactly the situation it was written for. Under the
 orch-verify worker model, a worker is spawned on demand with
 `orch-verify <family> <prompt-file>`. Therefore, no live worker is never a fact
-about capability and never a licence to self-run. There is no `list-workers`
-call, no freshness window, and nothing that can read zero and open the gate.
+about capability and never a licence to self-run. This hook makes no `list-workers` call and uses no worker-count or freshness
+condition. A zero live-worker count therefore cannot itself authorize a call.
 
-WHY UNCONDITIONAL. A marker scan is inherently leaky. Paraphrased QA evades it,
-as do real examples such as `/fitness`, `verify`, `validation sweep`, `screen
-publications`, and `poke holes in this diff`. The robust guard blocks the tool
-class instead of trying to classify the prompt. Every Task, Agent, Workflow, or
-SendMessage dispatch is blocked, whether it asks for QA, research, drafting, or
-exploration. The inputs to the decision are the tool name, the SESSION IDENTITY (a dispatched
-worker is exempt: it IS the offload, and its fan-out bills the pooled worker account, not the
-orchestrator's), and the sentinel.
-Deterministic Bash and Read calls remain allowed because they are not members of
-the in-session agent-spawning tool class.
+WHY PROMPT-INDEPENDENT. QA wording is not a reliable classification boundary:
+prompts such as `/fitness`, `verify`, `validation sweep`, `screen publications`,
+and `poke holes in this diff` need no special recognition here. The same
+decision applies to every call whose tool name is in DISPATCH_TOOLS, whether
+its fields describe QA, research, drafting, exploration, or nothing at all.
+The decision uses the tool name, the lexical worker marker, and successful
+sentinel consumption, subject to the error handling described below.
+Calls named Bash or Read are outside this hook's set and return allow
+regardless of their contents; this hook does not inspect commands inside them.
 
-WHAT IT DOES.
-  * A tool outside DISPATCH_TOOLS                     -> ALLOW silently (exit 0).
-  * Task/Agent/Workflow/SendMessage, no consumable
-    sentinel                                          -> BLOCK (exit 2).
-  * Task/Agent/Workflow/SendMessage, sentinel
-    consumed successfully                             -> ALLOW once, report the
-                                                         authorized bypass.
+WHAT IT DOES, on the normal decision path:
+  * Tool name outside DISPATCH_TOOLS -> ALLOW silently; no sentinel access.
+  * Listed tool with a matching worker marker -> ALLOW without consuming the
+    sentinel; attempt a WORKER-ALLOWED register row.
+  * Listed tool without that exemption, successful sentinel consumption ->
+    ALLOW this call and report the bypass.
+  * Listed tool without that exemption or successful consumption -> BLOCK
+    with exit 2 when BLOCK_SEVERITY is True; warn and exit 0 when it is False.
+  Empty input and caught parse/decision errors also return 0 as described below.
 
-AUTHORIZATION. The sentinel is a deliberate speed bump plus an audit record,
-not a maintainer-only capability. The actor can create it with one shell call:
+AUTHORIZATION. The sentinel is an actor-creatable speed bump, not a
+maintainer-only capability or a security boundary. Where filesystem
+permissions permit, the actor can create it with:
 
     touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-orchestrator-qa"
 
-The hook honours only a regular-file sentinel that it successfully removes. A
-directory, symlink, missing path, or removal failure does not authorize the
-dispatch. A successful bypass leaves a filesystem trace through consumption of
-the sentinel and appends a BYPASS-AUTHORIZED row to the register when possible.
-The actor can create the sentinel, so this is a guardrail, not a security
-boundary.
+The hook renames the sentinel to a PID-derived claim path, checks that path
+with lstat for regular-file status, then unlinks it. It returns successful
+consumption only if those operations succeed in that order. An OSError
+during claim, lstat, or unlink, or an observed non-regular type, returns failed
+consumption. The operations after rename remain subject to claim-path races.
+Contents, ownership, actor, session, tool, prompt, and expiry are not checked.
+Calls sharing the working root share this sentinel; it does not reserve a
+bypass for a particular call. Successful consumption removes a directory
+entry but leaves no durable filesystem receipt. A BYPASS-AUTHORIZED register
+row is attempted separately and can fail.
 
-REJECTION IS NON-DESTRUCTIVE. When the guard refuses a claimed object it tries to
-put it back, and that restore is a rename and nothing else. If the rename back
-fails, the object is LEFT at its private claim path; the guard never unlinks and
-never rmdirs it. A stranded claim file is cosmetic, not a bypass, because
-authorization requires a successful claim of the sentinel path followed by a
-successful consume. See `_restore()`.
+REJECTION RESTORATION. After a claimed object fails validation or consumption,
+`_restore()` attempts only a rename back to SENTINEL. It suppresses OSError
+and performs no unlink or rmdir fallback. A successful rename can replace a
+compatible object recreated at SENTINEL. A failed rename may leave residue
+at the claim path; concurrent filesystem changes can alter that outcome.
+Residue alone does not authorize a call, but can affect later claims that
+reuse the same PID-derived name. See `_restore()`.
 
-Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it
-and feeds stderr back to the model as the reason. Malformed stdin and unexpected
-hook errors fail open so a broken hook does not trap the actor. Sentinel
-validation and consumption failures are expected authorization failures and
-therefore leave the block standing.
+Exit protocol (Claude Code hooks): exit 0 permits the call to proceed past this
+hook; exit 2 blocks it and supplies stderr as the reason. Tty input or
+empty/whitespace-only stdin returns 0 without logging. Exceptions from JSON parsing or decide() that main() catches as Exception
+return 0 after a best-effort FAIL-OPEN log attempt.
+Sentinel OSError paths and an observed non-regular claim return failed
+consumption, producing the normal block/warn decision when no worker
+exemption applies. Other exceptions escaping sentinel processing are handled by the
+decision fail-open handler only if they are instances of Exception. Module initialization, stdin reading, and stderr
+printing are outside those handlers; this script does not explicitly convert
+their failures into exit 0.
 
 Severity: `BLOCK_SEVERITY = True` (exit 2). Flip to False for WARN-only. BLOCK
 is the right default here and the argument is empirical, not stylistic: the WARN
 arm of the predecessor is precisely the arm that fired during the week that was
 lost, and it changed nothing.
 
-REGISTER. Each BLOCK, each authorized BYPASS, and each FAIL-OPEN appends a row to
-``${GRC_DROP_ROOT:-/opt/grc/grc_working}/guard-fires.tsv`` when that file's directory is writable.
-Best-effort by order, `log_fire()` returns False rather than raising so a
-logging failure can never cost a block. The register currently has no reader,
-and rotation is not implemented, so it is an append-only trace for human
-calibration and nothing gates on it.
+REGISTER. main() attempts a row for BLOCK, BYPASS-AUTHORIZED, FAIL-OPEN,
+WORKER-ALLOWED, and, when severity is disabled, WARN-ALLOWED, in
+``${GRC_DROP_ROOT:-/opt/grc/grc_working}/guard-fires.tsv``.
+Appending is best-effort: a writable directory alone does not guarantee
+success. log_fire() returns False on Exception, and main() ignores that
+result, so logging failure does not change the decision. This hook neither
+creates the directory nor rotates the log, and production decisions do not
+read it. Self-tests read it to check recorded events. The log is an attempted
+audit trace, not a guaranteed durable receipt.
 
 DOCUMENTATION RESOLUTION RECORD. In the same PR, the dual-family standard in
 `.claude/CLAUDE.md` and the pre-push-verifier exception in
@@ -103,17 +119,18 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# The shared `orch` worker broker launches each dispatched Claude worker with
-# CLAUDE_CONFIG_DIR pointed at an EPHEMERAL credential copy it creates as
-# `mktemp -d "<tmpbase>/orch-worker.XXXXXX"`. The orchestrator's own value is a
-# stable pooled-account path (`/opt/orch-accounts/<project>/<account>`), so the
-# `orch-worker.` basename prefix is a positive marker set by the broker itself.
+# The shared detector recognizes the lexical `orch-worker.` basename prefix
+# in caller-controlled CLAUDE_CONFIG_DIR. This convention is intended to mark
+# broker workers, but the check does not establish who set it, whether the
+# path exists, which credentials are used, or which account fan-out bills.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 try:
     from _hookutil import is_worker_session as _is_worker_session
 except Exception:                                  # pragma: no cover
-    # FAIL CLOSED: if the shared detector cannot be imported we cannot prove this is a
-    # worker, so every dispatch keeps the orchestrator contract and blocks. Ignorance refuses.
+    # Import failure disables only the worker-marker exemption. Listed tools
+    # still take the sentinel path; successful consumption can bypass, and
+    # exceptions escaping decide() are handled by main()'s fail-open handler
+    # only if they are instances of Exception.
     def _is_worker_session() -> bool:              # noqa: D103
         return False
 
@@ -126,7 +143,8 @@ DISPATCH_TOOLS = {"Task", "Agent", "Workflow", "SendMessage"}
 
 WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")
 
-# Actor-created and once-only. Reachable from any shell with `touch <path>`.
+# Actor-creatable where permissions permit; shared by calls using this root.
+# Successful consumption permits the current call; a same-inode rename can leave SENTINEL present.
 SENTINEL = WORKING_ROOT / ".allow-orchestrator-qa"
 
 # Append-only fire register. See the REGISTER note in the docstring.
@@ -153,24 +171,20 @@ def _is_dispatch(payload: dict) -> bool:
 
 
 def _restore(claim) -> None:
-    """Move a claimed object back to the sentinel path: best-effort and NEVER destructive.
+    """Attempt to rename a claimed object back to SENTINEL.
 
-    Called when the claimed object is not a regular file, when its type could not be
-    read, or when a regular file could not be consumed. The guard blocks and tries to
-    leave the path as it found it, so a directory or symlink someone placed there is not
-    destroyed by a probe.
+    Called after an lstat OSError, an observed non-regular type, or an unlink
+    OSError. This function attempts only claim.rename(SENTINEL), suppresses
+    OSError, and performs no unlink or rmdir fallback.
 
-    The ONLY action is `claim.rename(SENTINEL)`. If that raises OSError (a race
-    recreated the sentinel at the path, or the directory is not writable), this function
-    does NOTHING further. It never unlinks and it never rmdirs. Deleting the claimed
-    object was the earlier behaviour and it could destroy the very directory or symlink
-    the guard had just refused to honour, which is a worse outcome than any failure it
-    was cleaning up after.
+    Rename can replace a compatible destination recreated at SENTINEL, so
+    restoration is not universally non-destructive. If rename fails, this
+    function takes no further action; the claim may remain, subject to
+    concurrent filesystem changes.
 
-    The cost of the safe choice is a possible stranded `..allow-orchestrator-qa.claim-*`
-    object in the working root. That is COSMETIC, not a bypass: authorization requires a
-    successful claim of the SENTINEL path followed by a successful consume, and a
-    stranded claim satisfies neither. Sweep such objects by hand if they accumulate.
+    Residue is named `..allow-orchestrator-qa.claim-<pid>`. Its presence alone
+    grants no bypass, but it can affect later claims that reuse that name.
+    This function does not clean up stranded claims.
     """
     try:
         claim.rename(SENTINEL)
@@ -179,24 +193,32 @@ def _restore(claim) -> None:
 
 
 def _consume_sentinel() -> bool:
-    """Atomically CLAIM the sentinel, then validate and consume the claimed object.
+    """Atomically rename the sentinel, then check and unlink the claim path.
 
-    The claim is a ``rename`` of the sentinel path to a private name in the same
-    directory. Rename is atomic and moves the EXACT object that was at the path, so
-    nothing can swap a symlink in between the type check and the removal (the TOCTOU a
-    separate lstat-then-unlink would allow). Bypass is granted ONLY when the claimed
-    object is a regular file and its removal succeeds.
+    The claim name is `..allow-orchestrator-qa.claim-<pid>` in SENTINEL's
+    directory. Rename is atomic, but this function does not protect that
+    predictable name against other writers. A compatible existing claim
+    destination can be replaced by rename.
 
-    Every other outcome is a failed authorization and returns False: an absent sentinel
-    or any other claim (rename) failure; a failure to read the claimed object's type
-    (lstat); a claimed object that is not a regular file; and a removal failure on a
-    regular file. In the last three cases the claim already happened, so `_restore()` is
-    called to put the object back at the sentinel path. That restore is best-effort and
-    NEVER destructive: if it fails the object stays at the private claim path rather
-    than being deleted.
+    Return True after rename succeeds, lstat reports a regular file, and
+    unlink succeeds. These are separate path operations: no inode identity
+    is retained or rechecked, so replacing the claim between lstat and unlink
+    can change which object is removed.
 
-    Concurrent dispatches rename to distinct private names and only one rename of the
-    single sentinel can succeed, so a race grants exactly one bypass.
+    Return False on a claim OSError, an lstat OSError, an observed non-regular
+    type, or an unlink OSError. After the latter three outcomes, attempt
+    _restore(); it can overwrite a compatible destination or leave residue.
+    Other exceptions can propagate to main()'s decision fail-open handler.
+
+    With distinct process claim names, no pre-existing claim destination
+    naming the sentinel's inode, no competing claim-path changes, and no
+    recreation or restoration of the sentinel, one existing sentinel permits
+    at most one successful claim and bypass. If source and destination name
+    the same inode, rename can succeed without removing SENTINEL; unlinking
+    the claim can then return True while leaving SENTINEL available again.
+    A claim or consumption failure can yield no bypass. Recreating the
+    sentinel permits further attempts; this is not a permanent one-call
+    allowance per session.
     """
     claim = SENTINEL.with_name("." + SENTINEL.name + ".claim-" + str(os.getpid()))
     try:
@@ -206,16 +228,16 @@ def _consume_sentinel() -> bool:
     try:
         regular = stat.S_ISREG(claim.lstat().st_mode)
     except OSError:
-        _restore(claim)                     # type unreadable: restore + block (never orphan)
+        _restore(claim)                     # lstat OSError: attempt restore, then return False
         return False
     if regular:
         try:
-            claim.unlink()                  # consume the exact claimed regular file
+            claim.unlink()                  # unlink the current claim-path entry after the regular-file check
             return True
         except OSError:
-            _restore(claim)                 # could not consume: restore + block (no bypass)
+            _restore(claim)                 # unlink OSError: attempt restore, then return False
             return False
-    _restore(claim)                         # non-regular: restore intact + block
+    _restore(claim)                         # non-regular type observed: attempt restore, then return False
     return False
 
 
@@ -226,7 +248,7 @@ def log_fire(event: str, detail: str) -> bool:
     matches existing rows. Column 2 carries the event class, one of BLOCK,
     BYPASS-AUTHORIZED, FAIL-OPEN, WORKER-ALLOWED, or WARN-ALLOWED (the last is what a
     `BLOCK_SEVERITY = False` flip records, because the register logs the OUTCOME
-    rather than the intent). The caller ignores a False result on the block path,
+    rather than the intent). The caller ignores a False result,
     but the self-test can assert that the writer works.
     """
     try:
@@ -254,64 +276,83 @@ def _dispatch_summary(text: str) -> str:
 
 def _block_message(dispatch_text: str) -> str:
     return (
-        "BLOCKED (orchestrator-self-qa): an in-session "
-        "Task/Agent/Workflow/SendMessage dispatch is prohibited. Dispatch fields: "
+        "GUARD DECISION (orchestrator-self-qa): this "
+        "Task/Agent/Workflow/SendMessage call has no worker-marker exemption or "
+        "successful sentinel consumption. It blocks when BLOCK_SEVERITY is True "
+        "and warns while allowing when False. Dispatch fields: "
         + repr(_dispatch_summary(dispatch_text))
         + ".\n"
         "\n"
-        "WHY: an in-session subagent is not an offload; it bills the orchestrator's "
-        "account, which is the scarce resource. The guard blocks the entire "
-        "in-session agent-spawning tool class (Task, Agent, Workflow, SendMessage) because prompt "
-        "classification is inherently leaky.\n"
+        "WHY: the policy aims to conserve orchestrator usage by routing reasoning "
+        "work through external workers. This hook checks the fixed tool names "
+        "Task, Agent, Workflow, and SendMessage without classifying their prompts. "
+        "It does not verify billing, actual session role, or other offload mechanisms.\n"
         "\n"
         "CONSIDER-INSTEAD: dispatch a worker with orch-verify:\n"
         "    orch-verify {claude|codex|gemini} <prompt-file> [<workdir>] "
         "[--expensive] [--model <model>] [--effort <low|medium|high|xhigh|max>]\n"
-        "  (for a skeptical verifier, add --skip <account-label> so the verifier "
-        "never lands on the account that authored the work; orch-verify picks the "
-        "account from the shared pool by orch-rank).\n"
-        "  (use orch-verify --pick <family> to dry-run the account choice; the "
-        "prompt file is any readable path, no job-directory requirement).\n"
+        "  (for a skeptical verifier, pass the authoring account's label with "
+        "--skip <account-label> to exclude that label from selection; orch-verify "
+        "selects from the shared pool through orch-rank. This hook does not "
+        "identify the authoring account or verify the exclusion).\n"
+        "  (use orch-verify --pick <family> to preview account selection; this "
+        "does not reserve an account. The prompt must be a readable regular file "
+        "within orch-verify's size limit; no job-directory placement is required).\n"
         "\n"
-        "  If this dispatch genuinely must run in-session, that is a deliberate "
-        "authorization. The actor can create the once-only sentinel from a shell:\n"
+        "  If this dispatch must run in-session, the actor can create a sentinel "
+        "where filesystem permissions permit:\n"
         "    touch "
         + str(SENTINEL)
-        + "     # honoured once, then deleted\n"
+        + "     # successful rename/check/unlink permits the current call\n"
         "\n"
-        "  The sentinel is a speed bump and audit record. It is not a security "
-        "boundary. A failed deletion does not authorize the dispatch."
+        "  Calls using the same working root share this speed bump. It does not "
+        "reserve a bypass for this call or establish maintainer approval. The "
+        "hook attempts rename, regular-file lstat, and unlink in sequence; an "
+        "OSError or observed non-regular type grants no sentinel bypass. Other "
+        "exceptions from decide() that main() catches as Exception return 0 "
+        "after a best-effort FAIL-OPEN log attempt. The claim path "
+        "remains subject to races, and audit logging is best-effort."
     )
 
 
 def decide(payload: dict):
-    """Return (action, message), where action is allow, worker-allow, block, or bypass.
+    """Return (action, message): allow, worker-allow, block, or bypass.
 
-    The dispatch text is collected only for logging. It does not affect the
-    decision. The decision uses the tool name, the session identity (a
-    dispatched worker session is allowed unconditionally, without consuming
-    the sentinel, per #1695), and successful sentinel consumption.
+    A tool name outside DISPATCH_TOOLS returns allow before either exemption
+    is checked. A listed tool with a matching lexical CLAUDE_CONFIG_DIR worker
+    marker returns worker-allow without attempting sentinel consumption.
+    The marker does not verify actual session role, provenance, or billing.
+
+    Otherwise collect dispatch fields for messages and logging, then return
+    bypass on successful sentinel consumption or block on failed consumption.
+    Dispatch-field contents do not determine the action. Exceptions escaping
+    this function are handled by main()'s fail-open path only if they are
+    instances of Exception.
     """
     if not _is_dispatch(payload):
         return "allow", ""
     if _is_worker_session():
-        # A dispatched worker IS the offload; its fan-out spends the elastic pooled
-        # account, not the orchestrator's scarce one. Allowed without consuming the
-        # sentinel, which is the orchestrator's one-shot authorization and must not be
-        # burned by a worker. Logged so the register still shows the guard deciding.
+        # The lexical worker marker exempts this listed call without attempting
+        # sentinel consumption. Actual worker provenance and billing are not
+        # verified. main() attempts to log the worker-allow outcome.
         return "worker-allow", (
-            "WORKER SESSION: dispatch allowed. CLAUDE_CONFIG_DIR names a broker "
-            "ephemeral worker dir, so this process is a dispatched worker rather than "
-            "the orchestrator; its subagent fan-out bills the pooled worker account."
+            "WORKER MARKER: dispatch allowed without consuming the sentinel. "
+            "The lexical basename of caller-controlled CLAUDE_CONFIG_DIR starts "
+            "with orch-worker.; broker provenance, path existence, actual session "
+            "role, and the account billed are not verified."
         )
     dispatch_text = _dispatch_text(payload)
     if _consume_sentinel():
         return "bypass", (
-            "AUTHORIZED IN-SESSION DISPATCH BYPASS CONSUMED: the regular-file "
-            "sentinel "
+            "AUTHORIZED IN-SESSION DISPATCH BYPASS CONSUMED: sentinel "
             + str(SENTINEL)
-            + " was removed successfully. The next Task/Agent/Workflow/SendMessage "
-            "dispatch blocks again. Dispatch fields: "
+            + " had a successful rename operation to a claim path, lstat reported "
+            "a regular file there, and unlink succeeded. A same-inode rename can "
+            "leave the sentinel available again. This permits the current call; the claim path "
+            "was not protected against concurrent replacement. A later "
+            "Task/Agent/Workflow/SendMessage call blocks only if it has no worker "
+            "marker or new successful sentinel consumption, reaches the normal "
+            "block path, and BLOCK_SEVERITY remains True. Dispatch fields: "
             + repr(_dispatch_summary(dispatch_text))
             + ". Record why this pass ran in-session."
         )
@@ -323,15 +364,15 @@ def main(argv: list) -> int:
         return _self_test()
     raw = sys.stdin.read() if not sys.stdin.isatty() else ""
     if not raw.strip():
-        # No dispatch payload arrived at all (a tty, or an empty pipe from a manual
-        # invocation). Nothing was decided, so this is not a fail-open: writing a
-        # FAIL-OPEN row here would pollute the human calibration record with noise.
+        # Tty input and empty/whitespace-only stdin return 0 without a decision
+        # or register row. This branch does not establish why no payload arrived.
         return 0
     try:
         payload = json.loads(raw)
     except Exception:
-        # Fail open, but NOT silently: a payload-shape change must not degrade the
-        # guard to allow-all with no trace (the register is the human calibration record).
+        # A JSON parsing exception returns 0 after a best-effort FAIL-OPEN
+        # log attempt. Logging failure can leave no trace; valid JSON with an
+        # unsuitable shape is handled later if decide() raises.
         log_fire("FAIL-OPEN", "unparseable payload: " + raw[:200])
         return 0
     try:
@@ -475,7 +516,7 @@ def _self_test() -> int:
             self.assertEqual(decide(dispatch(prompt="first"))[0], "bypass")
             self.assertEqual(decide(dispatch(prompt="second"))[0], "block")
 
-        def test_claim_is_a_rename_of_the_sentinel_to_a_private_path(self):
+        def test_claim_renames_sentinel_to_a_different_path_in_the_same_directory(self):
             # Discriminating: the retired lstat-then-unlink-the-SENTINEL design performed
             # NO rename at all, so it would fail on the first assertion below.
             SENTINEL.write_text("", encoding="utf-8")
@@ -565,17 +606,17 @@ def _self_test() -> int:
             self.assertNotIn("\n", row)
             self.assertIn("block-orchestrator-self-qa", row)
 
-        def test_log_failure_never_costs_block(self):
+        def test_log_failure_never_changes_the_decision(self):
             global FIRE_LOG
             FIRE_LOG = self._root / "missing" / "guard-fires.tsv"
             self.assertFalse(log_fire("BLOCK", "x"))
             self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
 
         # --- worker-session scoping (GS-1, 2026-08-20) ---------------------------
-        # The guard protects the ORCHESTRATOR's scarce account. A dispatched worker is
-        # already the offload, so its fan-out must not be blocked. Detection is a
-        # POSITIVE match on the broker's ephemeral config dir; every other state must
-        # keep blocking, so most of these tests are the fail-closed negatives.
+        # These cases exercise the lexical worker-marker exemption. A matching
+        # basename allows listed calls without verifying provenance or billing.
+        # Negative-marker cases below expect block with the fixture's absent
+        # sentinel. A detector miss alone does not disable sentinel bypass.
 
         def test_worker_session_dispatch_is_allowed(self):
             with mock.patch.dict(
@@ -584,8 +625,8 @@ def _self_test() -> int:
                 self.assertEqual(decide(dispatch(prompt="research"))[0], "worker-allow")
 
         def test_worker_allow_does_not_consume_the_sentinel(self):
-            # The sentinel is the ORCHESTRATOR's one-shot authorization. A worker must
-            # never burn it, or an unrelated orchestrator dispatch later loses its bypass.
+            # A marker-exempt call must leave the shared sentinel untouched so
+            # another call can still attempt to consume it for a bypass.
             SENTINEL.write_text("", encoding="utf-8")
             with mock.patch.dict(
                 os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-worker.Ab3xZ9"}
@@ -610,8 +651,8 @@ def _self_test() -> int:
                 self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
 
         def test_marker_must_be_the_basename_not_a_parent(self):
-            # A PARENT directory named orch-worker.* must not qualify the session: the
-            # broker sets the ephemeral dir itself, so only the basename is authoritative.
+            # A marker in a parent component alone does not match: the detector
+            # checks only Path(config_dir).name, without verifying provenance.
             with mock.patch.dict(
                 os.environ,
                 {"CLAUDE_CONFIG_DIR": "/run/orch-worker.Ab3xZ9/orch-accounts/grc/acct"},
@@ -619,7 +660,7 @@ def _self_test() -> int:
                 self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
 
         def test_lookalike_prefix_blocks(self):
-            # "orch-workers-cache" shares a prefix up to the dot; the dot is load-bearing.
+            # "orch-workers-cache" has "s" where "orch-worker." requires ".".
             with mock.patch.dict(
                 os.environ, {"CLAUDE_CONFIG_DIR": "/run/orch/orch-workers-cache"}
             ):
