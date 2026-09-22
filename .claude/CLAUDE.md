@@ -862,7 +862,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   PreToolUse hook (widened 2026-07-24, softened scope) ENFORCES the git half and the
   sibling-tool half: it blocks a cwd-relative SIBLING `tools/<x>` (a PROJECT tool run
   cwd-relative stays ALLOWED, so this file's documented `tools/x` commands are unaffected)
-  and ANY repo-mutating bare `git` (add/commit/push/... without `-C`/`cd`), printing the
+  and a repo-mutating bare `git` from the hook's fixed subcommand set (add/commit/push/reset/checkout/switch/merge/rebase/stash/rm/mv/clean/apply/restore/cherry-pick/revert; `branch` and `tag` are NOT in the set) without `-C`/`cd`, printing the
   copy-paste fix. Accordingly, the `git commit` / `git push` / `git add` examples elsewhere
   in this file are to be run in the `git -C /home/grc/grc_library` (or `cd`-prefixed)
   form; a bare project `tools/x` example stays valid as written.

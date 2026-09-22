@@ -25,10 +25,14 @@ archive is location-EXEMPT (a row there is indistinguishable from an archived on
 misfiled_finding_rows SCOPE/RESIDUES). This covers the push->merge edit window the pre-push D14
 check cannot see.
 
-FAIL-OPEN BY DESIGN, AND SAID SO PLAINLY. If the ledger is missing or unparseable this hook ALLOWS the
+FAIL-OPEN BY DESIGN, AND SAID SO PLAINLY. If the ledger is missing or unreadable this hook ALLOWS the
 action, because a guard that blocks all work on its own malfunction would be removed within a day, and
-a removed guard protects nothing. That is a deliberate trade recorded here rather than an oversight: the
-ledger plus the convention are the primary control and this hook is defence in depth.
+a removed guard protects nothing. ONE exception is deliberately fail-CLOSED: a single MALFORMED row
+(wrong column count, e.g. a stray unescaped pipe) UNDER ``## Open`` is forced toward BLOCK, not allow,
+so it cannot silently disable the guard (a malformed row under ``## Closed today`` or the dated archive
+is out of the Open-scoped scan, so it neither blocks nor fails open). That is a deliberate trade recorded
+here rather than an oversight: the ledger plus the convention are the primary control and this hook is
+defence in depth.
 
 CLASS-COMPLETENESS ATTESTATION (P-1.67, advisory here). A Finding cell that LEADS with a
 bracketed class token names a CLASS of defect, so its FIXED disposition must attest the fix

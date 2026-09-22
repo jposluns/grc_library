@@ -13,8 +13,9 @@ so an adopter who legitimately runs Opus 5 with Claude Code is never blocked by 
 SIGNAL: the running model id, read from the transcript's LAST genuine assistant entry
 (payload["transcript_path"] -> message.model). Injected `<synthetic>` entries (notifications,
 interrupts) are skipped so the guard reads the last GENUINE model, WHATEVER it is (claude or not);
-is_opus5() then decides. A non-Opus-5 last model (4.8, a differently-cased id, a non-claude id)
-yields ALLOW, never a search back to an older entry.
+is_opus5() then decides (case-INSENSITIVELY). A non-Opus-5 last model (4.8, any 4.x, a non-claude
+id) yields ALLOW, never a search back to an older entry; because the match lowercases the id, a
+differently-cased Opus-5 id (e.g. ``Claude-Opus-5``) is still BLOCKED, not allowed.
 
 MATCH: a model id matching `claude-opus-5` or `claude-opus-5-<x>` (bare id, dated variants, the
 `-1m` context variant). Does NOT match `claude-opus-4-8`, any 4.x, `claude-opus-50`, `claude-opus-5x`,
@@ -78,7 +79,7 @@ def model_from_transcript(tp) -> "str | None":
     (never search PAST an unparseable tail record); OR an assistant record with no determinable model
     string (`message:{}` / null / non-string). Only the known injected `<synthetic>` marker is
     skip-and-continued. Otherwise returns the model string AS-IS (claude or not); is_opus5()
-    classifies, so a non-claude/differently-cased current model yields ALLOW rather than a fail-closed
+    classifies, so a non-claude or non-Opus-5 current model yields ALLOW rather than a fail-closed
     fallback to an older entry.
     """
     if not tp:
