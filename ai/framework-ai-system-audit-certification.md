@@ -2,7 +2,7 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-09-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -272,7 +272,7 @@ CAPAs are tracked in the organization's CAPA management system and reviewed at e
 | EU AI Act Chapter IX | Post-market monitoring; serious incident reporting; market surveillance | 7, 8 |
 | NIST AI RMF: MEASURE 1.1, 2.9, 2.11 | Metrics and methods for assessing AI risk; bias and fairness evaluation; explainability | 4, 5.5 |
 | NIST AI RMF: MANAGE 1.2, 1.4, 4.1, 4.3 | Risk treatment; incident response; CAPA; residual risk documentation | 9 |
-| CSA AICM v1.1 A&A-01-A&A-06 | Audit and assurance controls: independent assessments, risk-based planning, compliance verification | 3, 4, 5 |
+| CSA AICM v1.1 A&A-01 through A&A-06 | Audit and assurance controls: independent assessments, risk-based planning, compliance verification | 3, 4, 5 |
 
 ---
 
