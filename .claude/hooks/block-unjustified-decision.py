@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse hook (Edit AND Write): guard the autonomous-decisions log write process.
+"""PreToolUse hook (Edit AND Write): check submitted decisions-log text.
 
 
 Shipped 2026-07-19 after a recurring failure the maintainer named directly: the assistant
@@ -13,11 +13,10 @@ The durable control (maintainer-designed 2026-07-19) is a WRITE-BEFORE-ENACT dec
 the assistant writes a classified entry to ``grc_library_private/autonomous-decisions-log.md``
 BEFORE enacting any SIGNIFICANT autonomous decision (one that DISPOSES of a queued/authorized
 item or CHANGES the plan: defer, re-sequence, wind-down, skip, or an authorial choice made
-without asking), never a routine execution step. This hook guards the FORM of that write so a
-non-conforming (self-justifying) decision cannot be logged, and so is defence-in-depth for the
-CLAUDE.md decision-rubric discipline, not a substitute for it.
+without asking), never a routine execution step. These are rubric requirements; this hook
+checks textual proxies and does not establish that a decision complies with the rubric.
 
-Every logged entry must carry a ``**Classification:**`` line naming exactly one of:
+The rubric requires every logged entry to carry a ``**Classification:**`` line naming one of:
 
   - ``ACT``   : there is no real blocker, so do it (the default).
   - ``ASK``   : a specific decision that is the maintainer's; the entry states the question,
@@ -27,21 +26,47 @@ Every logged entry must carry a ``**Classification:**`` line naming exactly one 
                 ``maintainer-decision-unreachable`` / ``irreversible-needs-confirmation`` /
                 ``failing-check`` / ``source-unavailable`` / ``maintainer-directed-hold``.
 
-The hook BLOCKS a write to the log when: the ADDED text carries no ``**Classification:**`` line at
-all (a presence check over the whole submission, NOT per-entry -- one classified entry anywhere in a
-multi-entry Write satisfies it, so per-entry classification stays the author's discipline);
-a ``BLOCKED`` entry names a blocker-type OUTSIDE the closed set; a ``BLOCKED`` entry cites a
-FORBIDDEN un-instrumented justification phrase (the self-justifying language the failure uses);
-or a hold/defer entry justified by a backlog SET-COMPLETENESS / exhaustion claim ("everything is
-blocked", "queue drained") carries no fresh full-audit proof (a ``backlog-audit: <N> items
-enumerated`` token whose ``<N>`` matches the live ``TODO.md`` open-item count). Everything else
-is allowed. A write to any OTHER file is out of scope (allowed).
+Target selection compares the last slash-separated path component, after removing trailing
+slashes, with ``autonomous-decisions-log.md``. It does not require the private directory,
+resolve the target path, or check existence. Nonmatching targets are allowed.
 
-Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds
-stderr back to the model. Fail-OPEN on any parse/state error: this is a discipline guardrail,
-not a security boundary, and a hook that blocked on a malformed payload would be worse than the
-lapse it prevents. Does not fire in a child session whose ``CLAUDE_PROJECT_DIR`` is unset
-(documented harness limitation); the discipline is the primary control either way.
+The submitted text is the whole string-valued ``content`` field when present, including an
+empty string; otherwise it is a string-valued ``new_string``, or an empty string. Selection
+uses field type and precedence, not the tool name. Write content is not reduced to a diff,
+and Edit validation does not reconstruct the resulting file. Non-string, empty, and
+whitespace-only inputs to ``decide`` are allowed.
+
+For other inputs, the hook requires at least one case-insensitive ``_CLASSIFICATION_RE``
+match anywhere in the submission. The pattern is not anchored to a Markdown line, and its
+whitespace match can extend across a newline. This is not a per-entry presence check.
+For every captured value, the first whitespace-delimited token, uppercased and stripped
+of trailing colons, must be ACT, ASK, or BLOCKED. A BLOCKED head must also yield a blocker
+token in ``VALID_BLOCKERS``. Further text is permitted; blocker reality is not verified.
+
+The forbidden-phrase check rejects a submission containing both a ``DEFERRAL_MARKERS``
+substring and a ``FORBIDDEN`` substring anywhere in its lowercased text. They need not
+occur in the same entry or describe an actual deferral or justification.
+
+The audit-token check applies when any stripped classification capture, uppercased, starts
+with BLOCKED, including invalid values such as BLOCKEDNESS, and ``SET_COMPLETENESS_RE``
+matches anywhere in the submission. It requires an ``AUDIT_TOKEN_RE`` match anywhere and
+uses only the first match. Its integer must equal ``todo_count`` when that count is not
+None. These checks do not prove that an audit occurred or was fresh or complete.
+
+The count sums all ``TODO_ROW_RE`` matches in public ``root/TODO.md`` and all
+``ITEM_HEADING_RE`` matches in sibling ``root.parent/grc_library_private/P-TODO.md``,
+plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true. A missing
+private file contributes zero. A public path that is not a file, or any Exception caught
+during counting, yields None and skips only audit-count equality. These are syntax counts,
+not independent verification of open-item status.
+
+During normal hook execution, return 0 allows the tool call; return 2 blocks it after
+printing the reason to stderr. ``main`` returns 0 on Exceptions caught while loading JSON
+or handling and validating the payload. Module initialization, self-test execution, and
+printing the refusal are outside those handlers. This is a discipline guardrail, not a
+security boundary. The configured shell command uses ``CLAUDE_PROJECT_DIR`` to locate this
+script; once invoked, the script does not require that variable. Counting uses a truthy
+workspace ``project_dir``, then that environment variable, then this script's repository root.
 
 Self-test: ``python3 .claude/hooks/block-unjustified-decision.py --self-test``.
 """
@@ -51,16 +76,17 @@ import re
 import sys
 from pathlib import Path
 
-# F1793-12: harmonize the P-TODO open-item count with tools/audit-backlog-actionability.py
-# (parse_items), which GATES the index-ROW count on has_todo_index_header so a legacy item's
-# body table cannot inflate the count. Import the canonical classifier; fail OPEN to a
-# faithful inline replica if tools/ is not importable (the hook must never crash).
+# F1793-12: gate private P-TODO index-row counting on has_todo_index_header,
+# as tools/audit-backlog-actionability.py parse_items gates its index parser.
+# Without a recognized header, private body-table rows are not counted.
+# If importing the canonical classifier raises Exception, use the inline replica
+# and continue validation. Other module-initialization operations are not protected.
 _TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 try:
     from lint_common import has_todo_index_header as _has_todo_index_header
-except Exception:  # pragma: no cover - fail OPEN on import trouble
+except Exception:  # pragma: no cover - use inline classifier on import trouble
     def _has_todo_index_header(text: str) -> bool:  # noqa: D103
         in_fence = False
         for line in text.splitlines():
@@ -85,8 +111,9 @@ except Exception:  # pragma: no cover - fail OPEN on import trouble
 
 LOG_BASENAME = "autonomous-decisions-log.md"
 
-# Un-instrumented self-justifications for INACTION (the language the failure uses). A BLOCKED
-# entry citing any of these is refused: an internal-state claim is never a valid blocker.
+# Phrases associated with un-instrumented justifications for inaction.
+# Any listed substring plus any DEFERRAL_MARKERS substring anywhere in the
+# lowercased submission causes refusal, regardless of entry boundaries or intent.
 FORBIDDEN = (
     "heavy context",
     "context weight",
@@ -106,7 +133,8 @@ FORBIDDEN = (
     "given my context",
 )
 
-# The CLOSED set of valid, externally-observable blocker types for a BLOCKED classification.
+# The closed set of permitted blocker-type tokens for a BLOCKED head.
+# Membership does not establish that an externally observable blocker exists.
 VALID_BLOCKERS = (
     "maintainer-decision-unreachable",
     "irreversible-needs-confirmation",
@@ -117,17 +145,17 @@ VALID_BLOCKERS = (
 
 _CLASSIFICATION_RE = re.compile(r"\*\*Classification:\*\*\s*(.+)", re.IGNORECASE)
 
-# Deferral / hold / wind-down markers (hoisted from decide() so both the existing
-# forbidden-justification check and the new backlog-exhaustion check reference the
-# SAME set rather than duplicating it, per TODO gr-actionability).
+# Substring markers used by the forbidden-phrase check over the whole submission.
+# The audit-token guard instead tests classification captures for a BLOCKED prefix;
+# it does not use this set.
 DEFERRAL_MARKERS = (
     "blocked", "defer", "wind down", "wind-down", "skip",
     "hold off", "postpone", "punt", "back-burner", "sit on",
     "leave for later", "do it later", "push to", "park it",
 )
 
-# A set-completeness / backlog-exhaustion claim (the false "everything is blocked,
-# so hold" language used to justify STOPPING unattended). Case-insensitive.
+# Case-insensitive textual proxy for set-completeness / backlog-exhaustion language.
+# A match does not establish a false claim, an actual hold, or a justification for one.
 SET_COMPLETENESS_RE = re.compile(
     r"all .{0,30}(blocked|actionable|items)"
     r"|every .{0,20}(item|remaining)"
@@ -139,28 +167,27 @@ SET_COMPLETENESS_RE = re.compile(
     re.IGNORECASE,
 )
 
-# The fresh-audit proof token the entry must carry: `backlog-audit: <N> items enumerated`.
+# Audit-token pattern: `backlog-audit: <N> items enumerated` (also singular `item`),
+# case-insensitive. When the guard applies, search the whole submission and use
+# only the first match; token presence and count equality do not prove an audit.
 AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
 
-# Item-heading regex for counting live TODO.md + P-TODO.md OPEN backlog items.
-# PARITY POINT: this is FUNCTIONALLY EQUIVALENT to the companion audit tool
-# `tools/audit-backlog-actionability.py` ITEM_HEADING_RE (it matches the SAME line
-# set), not byte-identical: the tool carries an extra `P-\d+(?:\.\d+){1,2}[a-z]?`
-# alternative that is redundant here because the coded-id alternative below already
-# matches a `P-<digit>` id (`P-1.15` matches on its `P-1` prefix), and the tool
-# applies its regex per line via `.match()` while this one uses `re.MULTILINE`
-# `.findall()`. The two count the same set: an id is `N.M` / `N.M.K` / an
-# alphanumeric sub-id (`1.19.10a`) or a coded id (`SR-1` / `RB-R6` / `GR-GAP-1` /
-# `P-1.15`). `## Priority N` section headers and the Maintainer-or-Egress-Gated
-# index table rows are NOT items. A test in tests/test_linters.py asserts this
-# count equals the tool's on the live UNION (both lists), so the pair cannot
-# silently drift.
+# Heading-prefix regex used by _todo_item_count only for private P-TODO.md.
+# Matches include numeric prefixes such as 1.19.10a and coded prefixes such as
+# SR-1, RB-R6, and GR-GAP-1; P-1.15 matches through its P-1 prefix.
+# This does not validate the complete item ID or establish open-item status.
+# `## Priority N` headers and table rows do not match this heading regex;
+# rows are counted separately with TODO_ROW_RE under the rules below.
+# The companion audit tool has its own heading and row parsers.
+# tests/test_linters.py compares the combined hook and tool counts on the live
+# public and private files; that check does not prove parity for every input.
 ITEM_HEADING_RE = re.compile(
     r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
 )
-# TODO.md is index-format now (| id | ... | rows); count rows there. P-TODO.md
-# keeps the ### heading shape. The two together must equal the tool's enumerated
-# count (audit-backlog-actionability), which the parity test asserts.
+# _todo_item_count counts every match of this row regex in public TODO.md.
+# In private P-TODO.md it counts these matches only if _has_todo_index_header
+# is true, and adds heading matches independently. Counting does not deduplicate
+# IDs or filter matching rows by status, section, or Markdown fence.
 TODO_ROW_RE = re.compile(
     r"^\|\s*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|",
     re.MULTILINE,
@@ -168,15 +195,20 @@ TODO_ROW_RE = re.compile(
 
 
 def _todo_item_count(project_dir: str | None) -> int | None:
-    """Count open backlog items (ITEM_HEADING_RE) across BOTH the public ``TODO.md``
-    (from TODO.md INDEX ROWS via ``TODO_ROW_RE``) and the private ``grc_library_private/P-TODO.md`` ``### `` headings under ``project_dir`` (the
-    UNION, matching ``tools/audit-backlog-actionability.py``, whose ``backlog-audit:
-    <N> items enumerated`` token this gates: P-1.1). Returns None only if the public
-    ``TODO.md`` cannot be resolved (the count-equality check then fails open;
-    presence of the audit token is still required). A MISSING ``P-TODO.md`` (an
-    adopter clone that has no private sibling) contributes 0, never None, so the
-    union degrades to the public count rather than failing the whole check. Never
-    raises."""
+    """Return a syntax-based count from the public and private backlog files.
+
+    Resolve a truthy ``project_dir`` as root; otherwise use this script's repository
+    root. Count all ``TODO_ROW_RE`` matches in ``root/TODO.md``. In sibling
+    ``root.parent/grc_library_private/P-TODO.md``, count all ``ITEM_HEADING_RE``
+    matches and add ``TODO_ROW_RE`` matches if ``_has_todo_index_header`` is true.
+    The sum does not deduplicate IDs or independently verify open-item status.
+
+    Return None if public TODO.md is not a file or any operation in the try block
+    raises Exception, including private-file reading or header classification.
+    A private path that is not a file contributes zero unless checking it raises.
+    In ``decide``, None skips audit-count equality, not token presence when the
+    audit-token guard applies.
+    """
     try:
         root = Path(project_dir).resolve() if project_dir else Path(__file__).resolve().parents[2]
         todo = root / "TODO.md"
@@ -186,11 +218,11 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
             ptodo_text = ptodo.read_text(encoding="utf-8")
-            # F1793-12: mirror audit-backlog-actionability.py parse_items - the
-            # index-ROW count is GATED on has_todo_index_header (the reliable index-form
-            # signal, so a legacy item's body table cannot inflate the count); the
-            # ### -heading (legacy) count is unconditional, matching parse_items' sum of
-            # idx_items + legacy_items.
+            # F1793-12: gate private row counting on the header classifier,
+            # as the audit tool gates its index parser. Once a header is found,
+            # count row-regex matches throughout ptodo_text, including body tables
+            # or fenced text that matches. Add heading matches independently;
+            # do not deduplicate matches between the two counts.
             if _has_todo_index_header(ptodo_text):
                 count += len(TODO_ROW_RE.findall(ptodo_text))
             count += len(ITEM_HEADING_RE.findall(ptodo_text))
@@ -200,7 +232,13 @@ def _todo_item_count(project_dir: str | None) -> int | None:
 
 
 def _added_text(payload: dict) -> str:
-    """The text this Edit/Write ADDS: Write -> content; Edit -> new_string. '' on any error."""
+    """Return submitted text by field type and precedence, without checking tool name.
+
+    Select truthy ``tool_input``, then truthy ``toolInput``, then an empty mapping.
+    Return the whole string-valued ``content`` field, even when empty; otherwise
+    return string-valued ``new_string``. Return '' if neither is a string or an
+    Exception is caught. No diff or resulting-file reconstruction is performed.
+    """
     try:
         ti = payload.get("tool_input") or payload.get("toolInput") or {}
         if isinstance(ti.get("content"), str):
@@ -222,17 +260,20 @@ def _targets_log(payload: dict) -> bool:
 
 
 def decide(added: str, todo_count: "int | None" = None):
-    """Return (block, reason) for the text added to the decisions log. Pure
-    (``todo_count`` is the live UNION open-item count across TODO.md + P-TODO.md,
-    or None if unresolved).
+    """Return (block, reason) from textual checks over the whole submitted string.
+
+    Pure: this function does not read files, check a target path, or verify an audit.
+    ``todo_count`` is a caller-supplied expected count, normally from
+    ``_todo_item_count``. None skips count equality but not token presence when
+    the audit-token guard applies. Checks do not enforce per-entry classification.
     """
     if not isinstance(added, str) or not added.strip():
-        return False, ""  # empty add: nothing to validate
+        return False, ""  # allow non-string, empty, or whitespace-only input
     classifications = _CLASSIFICATION_RE.findall(added)
     if not classifications:
         return True, (
-            "BLOCKED (unjustified-decision): DECISION-GUARD: a write to the autonomous-decisions log with no "
-            "`**Classification:**` line.\n"
+            "BLOCKED (unjustified-decision): DECISION-GUARD: the decisions-log submission has no "
+            "`**Classification:**` marker with text matched by the classification pattern.\n"
             "WHY: the write-before-enact rubric requires every decision classified at decision "
             "time so avoidance cannot be dressed as prudence.\n"
             "CONSIDER INSTEAD: add a `**Classification:**` line naming exactly one of "
@@ -244,7 +285,10 @@ def decide(added: str, todo_count: "int | None" = None):
         c_stripped = c.strip()
         head = c_stripped.split()[0].upper().rstrip(":") if c_stripped.split() else ""
         if head == "BLOCKED":
-            # blocker-type is the token after "BLOCKED:"
+            # For a normalized BLOCKED head, extract the following sequence matched
+            # by [A-Za-z0-9-]+ under re.IGNORECASE after colon/whitespace separators
+            # (so the letter ranges also match a few non-ASCII letters via Unicode
+            # case-folding, e.g. the Kelvin sign, which lower()s to an ASCII letter).
             m = re.match(r"BLOCKED[:\s]+([A-Za-z0-9-]+)", c_stripped, re.IGNORECASE)
             btype = (m.group(1).lower() if m else "")
             if btype not in VALID_BLOCKERS:
@@ -256,26 +300,26 @@ def decide(added: str, todo_count: "int | None" = None):
             problems.append(
                 f"Classification '{c_stripped[:40]}' is not ACT / ASK / BLOCKED."
             )
-    # A BLOCKED / defer / wind-down entry must not cite an un-instrumented justification.
+    # Reject co-occurring deferral-marker and forbidden-phrase substrings anywhere
+    # in the lowercased submission, regardless of classification or entry boundaries.
     low = added.lower()
     has_deferral_marker = any(k in low for k in DEFERRAL_MARKERS)
     if has_deferral_marker:
         hits = [p for p in FORBIDDEN if p in low]
         if hits:
             problems.append(
-                f"the entry cites un-instrumented justification(s) {hits}, which are never a "
-                f"valid basis for deferring/holding."
+                f"the submission contains forbidden phrase(s) {hits} and a deferral-marker "
+                f"substring; this co-occurrence does not establish an actual deferral or justification."
             )
-    # Backlog-exhaustion guard (TODO gr-actionability, layer 2): a hold/wind-down entry
-    # justified by a SET-COMPLETENESS / exhaustion claim ("everything is blocked",
-    # "queue drained") must carry proof of a FRESH FULL backlog audit whose item count
-    # matches the live TODO.md. FP-safe: it gates on the entry being a DECLARED HOLD, i.e.
-    # a `Classification: BLOCKED` (per the write-before-enact rubric a hold/defer/wind-down
-    # is classified BLOCKED with a named blocker), NOT on the loose deferral-marker
-    # substring, so a legitimate ACT/ASK entry, even one reviewing "all 92 items" or noting
-    # "none is blocked", is NOT blocked (that positive backlog review is exactly what this
-    # control exists to encourage); and a BLOCKED entry for a SPECIFIC named blocker with no
-    # set-completeness claim is unaffected (SET_COMPLETENESS_RE does not match).
+    # Audit-token guard (TODO gr-actionability, layer 2): require a token when any
+    # stripped, uppercased classification capture starts with BLOCKED and
+    # SET_COMPLETENESS_RE matches anywhere in the submission. This includes invalid
+    # classifications such as BLOCKEDNESS; the two matches may be in different entries.
+    # Use only the first AUDIT_TOKEN_RE match anywhere in the submission and compare
+    # its integer with todo_count when supplied. These are textual proxies, not proof
+    # of a real, fresh, or complete audit or of an actual hold.
+    # If no classification capture starts with BLOCKED, or no set-pattern match
+    # exists, this guard adds no problem. Other validation checks still apply.
     blocked_classification = any(
         c.strip().upper().startswith("BLOCKED") for c in classifications
     )
@@ -283,34 +327,34 @@ def decide(added: str, todo_count: "int | None" = None):
         m = AUDIT_TOKEN_RE.search(added)
         if not m:
             problems.append(
-                "the entry claims the backlog is exhausted / everything is blocked to "
-                "justify a hold, but carries no fresh-audit proof. "
-                "A set-completeness claim "
-                "without a complete "
-                "fresh enumeration is the failure this guard prevents."
+                "the submission contains a classification value starting with BLOCKED and "
+                "text matching the set-completeness pattern, but no matching fresh-audit token. "
+                "A `backlog-audit: <N> items enumerated` token "
+                "is required by this text check; "
+                "its presence does not prove a fresh or complete audit."
             )
         elif todo_count is not None and int(m.group(1)) != todo_count:
             problems.append(
-                f"the backlog-exhaustion claim cites `backlog-audit: {m.group(1)} items "
-                f"enumerated`, but the live backlog (TODO.md + P-TODO.md) has "
-                f"{todo_count} open item(s); the "
+                f"the first audit token reports {m.group(1)} items "
+                f"enumerated, but the supplied TODO.md + P-TODO.md count is "
+                f"{todo_count}; this mismatch alone does not establish whether the "
                 f"audit is stale or incomplete."
             )
     if problems:
         return True, (
-            "BLOCKED (unjustified-decision): DECISION-GUARD: a malformed decisions-log entry.\nWHY: "
+            "BLOCKED (unjustified-decision): DECISION-GUARD: the decisions-log submission failed textual checks.\nWHY: "
             + " ".join(problems)
-            + "\ndeferral-with-no-question and un-instrumented internal-state "
-            "justifications are the failure this guard prevents; a hold must name a real "
-            "observable blocker.\n"
+            + "\nThe rubric requires a real observable blocker for a hold; these textual "
+            "checks do not verify blocker reality, decision intent, or "
+            "audit freshness or completeness.\n"
             "CONSIDER INSTEAD: default to ACT; if the decision is the maintainer's and they are "
             "reachable, ASK the specific question (do not defer); record BLOCKED only with a "
             "named observable blocker from the closed set. For an un-instrumented deferral, "
             "name a real observable blocker or ACT/ASK. For a backlog-exhaustion hold, run "
             "`tools/audit-backlog-actionability.py`, enumerate every open item, and "
-            "embed `backlog-audit: <N> items enumerated` where <N> is the live "
-            "combined TODO.md + P-TODO.md open-item count. If the audit is stale or incomplete, "
-            "re-run the full enumeration and match the live count before holding."
+            "embed `backlog-audit: <N> items enumerated` where <N> matches the "
+            "combined TODO.md + P-TODO.md count computed by this hook when available. "
+            "Verify the enumeration itself before holding; token and count checks do not verify the audit."
         )
     return False, ""
 
@@ -324,7 +368,7 @@ def main(argv: list) -> int:
         return 0  # fail-open
     try:
         if not _targets_log(payload):
-            return 0  # a write to any other file is out of scope
+            return 0  # no matching basename, or target extraction failed
         workspace = payload.get("workspace") or {}
         project_dir = (
             workspace.get("project_dir")
@@ -333,7 +377,7 @@ def main(argv: list) -> int:
         )
         block, reason = decide(_added_text(payload), _todo_item_count(project_dir))
     except Exception:
-        return 0  # fail-open on any unexpected error
+        return 0  # fail-open on Exception during payload handling or validation
     if block:
         print(reason, file=sys.stderr)
         return 2
@@ -344,7 +388,7 @@ def _self_test() -> int:
     import unittest
 
     class T(unittest.TestCase):
-        def test_non_log_file_allowed(self):
+        def test_nonmatching_basename_not_targeted(self):
             p = {"tool_input": {"file_path": "/x/CHANGELOG.md",
                                 "content": "no classification here"}}
             self.assertFalse(_targets_log(p))
@@ -378,10 +422,10 @@ def _self_test() -> int:
             self.assertTrue(b)
             self.assertIn("un-instrumented", r)
 
-        def test_synonym_deferral_with_forbidden_blocked(self):
-            # 3.103 (closing PR #1081): a deferral phrased with a SYNONYM outside the original
-            # five keywords (here "postpone") that carries a forbidden
-            # internal-state justification must still be caught by the widened set.
+        def test_postpone_and_blocked_markers_with_forbidden_phrase_blocked(self):
+            # 3.103 (closing PR #1081): this fixture contains "postpone" and a
+            # forbidden phrase, but its BLOCKED classification already supplies a
+            # deferral marker. It does not isolate recognition of "postpone".
             b, r = decide(
                 "- **Classification:** BLOCKED: irreversible-needs-confirmation\n"
                 "- postpone this one because the context is heavy right now")
@@ -391,16 +435,18 @@ def _self_test() -> int:
         def test_empty_add_allowed(self):
             self.assertFalse(decide("")[0])
 
-        def test_exhaustion_claim_without_audit_blocked(self):
-            # A hold justified by "everything is blocked" with no fresh-audit token.
+        def test_exhaustion_claim_without_audit_token_blocked(self):
+            # A BLOCKED capture plus "every remaining item is blocked" matches
+            # the audit-token guard; no AUDIT_TOKEN_RE match is present.
             b, r = decide(
                 "- **Classification:** BLOCKED: maintainer-directed-hold\n"
                 "- winding down: every remaining item is blocked, so hold here")
             self.assertTrue(b)
             self.assertIn("fresh-audit", r)
 
-        def test_exhaustion_claim_with_matching_audit_allowed(self):
-            # Same claim, but with a fresh-audit token matching the live count.
+        def test_exhaustion_claim_with_matching_audit_token_allowed(self):
+            # The audit token's integer matches the supplied todo_count=5.
+            # This fixture neither reads the live backlog nor establishes an audit.
             self.assertFalse(decide(
                 "- **Classification:** BLOCKED: maintainer-directed-hold\n"
                 "- winding down: every remaining item is blocked\n"
@@ -417,19 +463,19 @@ def _self_test() -> int:
             self.assertIn("stale or incomplete", r)
 
         def test_specific_blocker_defer_without_set_claim_allowed(self):
-            # FP-safety: a defer entry citing a SPECIFIC named blocker, with no
-            # set-completeness claim, is NOT blocked by the exhaustion guard.
+            # This fixture has a permitted BLOCKED token and no
+            # SET_COMPLETENESS_RE match, so the audit-token guard adds no problem.
             self.assertFalse(decide(
                 "- **Classification:** BLOCKED: maintainer-directed-hold\n"
                 "- deferring this one item pending the maintainer's call on the scope",
                 todo_count=5)[0])
 
         def test_act_entry_with_set_language_not_blocked(self):
-            # FP-guard (pre-push verifier finding, gr-actionability L2): a legitimate
-            # ACT entry that reviews the whole backlog ("all N items", "none is
-            # blocked") must NOT be blocked. The exhaustion guard gates on a BLOCKED
-            # classification, not on the loose "blocked" substring, so this positive
-            # review (exactly what the control exists to encourage) passes.
+            # Regression (pre-push verifier finding, gr-actionability L2):
+            # these fixtures match the set-completeness pattern, but their only
+            # classification captures start with ACT, so the audit-token guard
+            # does not apply. Deferral-marker substrings are present, but no
+            # forbidden phrase matches; both submissions therefore pass.
             self.assertFalse(decide(
                 "- **Classification:** ACT\n"
                 "- reviewed all 92 open items; none is blocked; proceeding with P1",
@@ -440,8 +486,10 @@ def _self_test() -> int:
                 todo_count=92)[0])
 
         def test_ask_entry_with_set_language_not_blocked(self):
-            # FP-guard: an ASK entry with set-completeness language and the word
-            # "blocked" in the question is not a hold, so it is not blocked.
+            # This fixture matches the set-completeness pattern, but its only
+            # classification capture starts with ASK, so the audit-token guard
+            # does not apply. "blocked" is a deferral marker, but no forbidden
+            # phrase matches; the submission therefore passes.
             self.assertFalse(decide(
                 "- **Classification:** ASK: which blocked item to escalate first?\n"
                 "- every remaining item needs a maintainer call",
