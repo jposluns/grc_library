@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PreToolUse Bash hook: block a command whose target repo depends on the ambient cwd.
+"""PreToolUse Bash hook: block selected textual patterns for cwd-relative repo operations.
 
 Shipped 2026-07-19 (1.22.1 (closing PR #1042)) after the orchestrator ran ``python3
 tools/credit-offload-queue.py`` from the ``grc_library`` cwd, but that helper lives in the
@@ -11,47 +11,66 @@ and the sibling repos' ``tools/`` dirs, and ``python3 tools/<x>`` and bare ``git
 cwd-relative, so the same command means different things depending on the ambient working
 directory. The original hook caught only the sibling-mismatch case (a tool absent from the
 project repo). WIDENED 2026-07-24 (maintainer-directed, then SOFTENED after review) to ALSO
-catch the silent-danger case: a repo-mutating bare ``git`` acting on whatever repo the ambient
-cwd happens to be. The ``tools/<x>`` half is deliberately kept SIBLING-ONLY (a project tool run
-cwd-relative is ALLOWED) so the guard does not contradict the project's own documented
-``tools/<x>`` commands; a project tool's cwd-drift fails loud (file-not-found) and is covered by
-the absolute-path convention, whereas a wrong-repo ``git`` commit is silent.
+catch selected bare ``git`` subcommands that can mutate the wrong repo without necessarily
+failing. The sibling-mismatch check permits a tool found in the scanned project tools
+directory; the later P-1.19 absolute-path check also covers project tools preceded textually
+by a matched ``cd``. Running a project tool from another cwd can fail file-not-found, but
+can also resolve a different file with the same relative path.
 
-What it does: reads the PreToolUse JSON payload on stdin, inspects ``tool_input.command``, and
-BLOCKS (exit 2) any of THREE cwd-dependent shapes, printing the copy-paste fix:
-  (0) a cd-prefixed cwd-relative repo tool NOT in ``CWD_GUARD_ALLOWLIST`` where the ``cd``
-      PRECEDES the tool (P-1.19): the directive is ABSOLUTE PATHS BY DEFAULT, so the absolute
-      form is the default. (A ``tool``-then-``cd``, with the cd AFTER the tool, is NOT this shape.)
-  (1) a cwd-relative ``tools/<name>.(py|sh)`` invoked AT COMMAND POSITION that is NOT a project
-      tool but DOES exist in a SIBLING repo (``_INVOKE`` matches only the cwd-relative form, not
-      an absolute ``/path/tools/x``), when the command has no explicit ``cd``. A PROJECT tool run
-      cwd-relative is ALLOWED. The message names the sibling repo and the absolute form.
-  (2) a repo-MUTATING bare ``git`` subcommand (add/commit/push/reset/checkout/switch/merge/
-      rebase/stash/rm/mv/clean/apply/restore/cherry-pick/revert) without ``-C <path>`` and
-      without a ``cd`` (a wrong-repo commit is silent, hence kept in scope).
-Everything else is ALLOWED:
-  - a ``cd `` with NO cd-preceded non-allowlist repo tool (a bare ls, a git, a cwd-guard
-    tool, or a tool-then-cd);
-  - a cwd-relative PROJECT tool with no preceding cd (softened scope: the documented
-    ``tools/x`` commands stay valid);
-  - an ABSOLUTE tool path (``python3 /home/grc/grc_library/tools/foo.py``);
-  - a ``git -C <path> ...`` command (explicit target repo);
-  - read-only git (``status``/``log``/``diff``/``show`` are not in the mutating set);
-  - a filename mentioned as an argument (``grep -n x tools/foo.py``) (not invoked).
-KNOWN RESIDUALS (accepted; fail-open nudge, not a shell parser): a QUOTED cwd-relative path
-  and exotic cd syntax (an ``if cd``/``command cd`` prefix) slip the regexes; this guard
-  catches the common cd-then-tool shape only (codex QA, P-1.19).
+What it does: reads the PreToolUse JSON payload on stdin, applies ``strip_heredocs`` to
+``tool_input.command``, then checks THREE patterns in order. A block exits 2 and prints
+suggestion templates. These are regex and filesystem checks, not shell execution analysis:
+  (0) an ``_INVOKE`` tool match whose captured filename is outside ``CWD_GUARD_ALLOWLIST``
+      and passes ``is_file()`` in a scanned repo's tools directory, with a matched ``cd``
+      starting earlier in the command text. This does not establish that the cd executes,
+      succeeds, selects that repo, or changes the tool's cwd.
+  (1) if there is NO matched ``cd`` anywhere, an ``_INVOKE`` filename with no project-file
+      match but an ``is_file()`` match in another scanned repo's tools directory.
+  (2) if neither tool check blocks and there is NO matched ``cd`` anywhere, an
+      ``_GIT_MUTATE`` match for add/commit/push/reset/checkout/switch/merge/rebase/stash/
+      rm/mv/clean/apply/restore/cherry-pick/revert. Each listed name matches only where it
+      ends at a word boundary, so a longer subcommand whose listed prefix ends at a boundary
+      (``git commit-graph``, but not ``git commitment``) also matches; the set includes
+      read-only uses such as ``git stash list`` and omits a subcommand sharing no listed
+      prefix such as ``git tag``. Arguments are not checked for mutation or the actual target repo.
 
-A false block just tells the orchestrator to use an absolute path or ``git -C``, the intended
-discipline. Complements ``tools/repo-guard.sh`` (the write-mutation cross-repo guard, 1.15a (closing PR #1013))
-on the READ side.
+Scanning is limited to existing tools directories under the configured
+``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
+no project tools entry in this scan. For the absolute-path suggestion, a project-file
+match wins; otherwise the first matching configured repo wins. The sibling suggestion
+uses the first matching other repo. Neither choice establishes the intended target.
+
+After check (0), ANY matched ``cd`` allows the whole command, even a cd after a sibling
+tool or Git command. Without such a cd, a project-file match skips only that tool in check
+(1); another tool or Git match can still block. An absolute tool path, the plain argument
+example ``grep -n x tools/foo.py``, ``git -C <path> ...``, and
+``git status``/``log``/``diff``/``show`` do not themselves match the corresponding regexes.
+
+KNOWN RESIDUALS: the regexes approximate command position and do not parse shell quoting,
+comments, execution order, or scope. They can match command-like text inside arguments,
+miss quoted tool paths and unsupported prefixes, and capture a filename prefix because
+the tool pattern ends at a word boundary rather than a shell-token boundary. The cd
+pattern misses forms such as ``if cd``, ``command cd``, and ``{ cd``; an unrecognized cd
+does not provide the whole-command exemption.
+
+Suggestions are templates, not verified copy-paste fixes: both tool-message generators
+use ``python3`` even for ``.sh`` files, and an absolute script path does not establish the
+script's internal cwd independence. The sibling message also supplies a cd alternative;
+that alternative can trigger check (0) when the filename is outside the allowlist.
+
+Complements ``tools/repo-guard.sh`` (the write-mutation cross-repo guard, 1.15a (closing PR #1013))
+by checking selected repo-target command patterns, including potentially mutating Git uses.
 
 Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds
-stderr back to the model as the reason. Fail-OPEN on any parse/read failure: this is a
-guardrail against one mistake shape, not a security boundary. NOTE: like the sibling guards,
-this hook does not fire in a child session whose ``CLAUDE_PROJECT_DIR`` is unset (documented
-harness limitation); the ``## Boundaries`` cross-repo convention and the unpiped-verification
-habit are the primary controls either way.
+stderr back to the model as the reason. Exceptions inside main's payload-parsing,
+heredoc-filtering, project-root-selection, and decision try block return 0. This is a
+guardrail for selected command patterns, not a security boundary.
+Once launched, main selects the project root from ``workspace.project_dir``, then
+``CLAUDE_PROJECT_DIR``, then this hook's resolved location. An unset environment variable
+does not disable main. Separately, the configured launcher in ``.claude/settings.json``
+uses ``CLAUDE_PROJECT_DIR`` to locate the script, so an unset value can prevent launch
+before that fallback is reached. The ``## Boundaries`` cross-repo convention and the
+unpiped-verification habit remain primary controls.
 
 Self-test: ``python3 .claude/hooks/block-wrong-repo-tool.py --self-test``.
 """
@@ -62,7 +81,7 @@ import re
 import sys
 from pathlib import Path
 
-# The colocated repos whose tools/ dirs share the cwd-relative `tools/<x>` shape.
+# Fixed colocated directory names checked for tools/; Git repository status is not verified.
 SIBLING_REPO_NAMES = (
     "grc_library",
     "grc_library_scratch",
@@ -70,17 +89,21 @@ SIBLING_REPO_NAMES = (
     "grc_library_private",
 )
 
-# (P-1.19) Tools for which a `cd <repo> && tools/<x>` is ALLOWED, the narrow cwd-guard
-# exception to the absolute-paths-by-default directive. NOTE (2026-08-02): empirically these
-# both ``os.chdir(ROOT)`` (ROOT from ``__file__``) or use absolute internal paths, so an
-# ABSOLUTE invocation works for them too and the list could shrink to empty; it is kept per
-# the maintainer's stated design as the documented cwd-guard set.
+# (P-1.19) Filename exemptions from check (0), the cd-before-tool absolute-path check.
+# Membership alone grants the exemption; this hook does not verify cwd-guard behaviour
+# or internal path handling. These names can still trigger the sibling check when no cd
+# is matched. The allowlist does not exempt unrelated non-allowlisted tool matches.
 CWD_GUARD_ALLOWLIST = frozenset({"validate.py", "credit-offload-queue.py"})
 
-# A `tools/<name>.(py|sh)` token invoked at COMMAND POSITION: at command start, or after
-# ; && || | & newline ( {, optionally preceded by env assignments, timeout/env, an
-# interpreter (python3 [-m] / bash / sh), and a `./` prefix. This distinguishes EXECUTING
-# `python3 tools/foo.py` from MENTIONING `grep x tools/foo.py` (an argument).
+# Approximate command-position matching for an unquoted [./]tools/<name>.(py|sh) prefix.
+# With MULTILINE, ^ matches a line start without consuming indentation; other alternatives
+# accept ; & newline ( && | || plus optional whitespace, or { plus required whitespace.
+# Prefixes are ordered: zero or more NAME=\S* assignments, at most one timeout [\w.]+
+# or plain env wrapper, then optional python/python3 with optional -m, or bash/sh.
+# Assignments after env, wrapper options, and other interpreter options are not handled.
+# The final \b is a word boundary, not a shell-token boundary: tools/foo.py.bak can
+# capture foo.py. The plain grep argument example is excluded, but quoting, comments,
+# and shell execution are not parsed, so command-like argument text can still match.
 _INVOKE = re.compile(
     r"(?:^|[;&\n(]\s*|&&\s*|\|\|?\s*|\{\s+)"
     r"(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*"
@@ -90,10 +113,19 @@ _INVOKE = re.compile(
     re.MULTILINE,
 )
 
-# A repo-MUTATING `git` subcommand invoked at COMMAND POSITION without an explicit `-C
-# <path>`. Such a command acts on whatever repo the ambient cwd happens to be, which is the
-# `git add -A`-in-the-wrong-repo near-miss (2026-07-24). `git -C <path> ...` is exempt (the
-# `(?!-C\b)` lookahead); read-only git (status/log/diff/show) is NOT matched (not mutating).
+# Approximate command-position matching for literal git and the fixed subcommand set below,
+# using the same boundary, assignment, and timeout/env prefixes as _INVOKE.
+# Before the subcommand, accept repeated -c plus one nonspace token, or --nonspace tokens.
+# The (?!-C\b) lookahead rejects -C only immediately after git's whitespace; a standalone
+# -C <path> in option position is not consumed (it is neither -c nor --), but a -C token
+# supplied as the value after -c IS consumed by -c\s+\S+ (e.g. the malformed git -c -C commit).
+# The alternation matches a listed NAME only where it ends at a word boundary, so a longer
+# subcommand whose listed prefix ends at a boundary also matches (git commit-graph,
+# git checkout-index, but not git commitment); one sharing no listed prefix (git tag) and
+# status/log/diff/show do not. Arguments are not inspected, so git stash list matches. The
+# final \b is not a shell-token boundary.
+# Matching does not establish mutation or the target repo: accepted assignments and long
+# options can specify another target, for example GIT_DIR=... or --git-dir=....
 _GIT_MUTATE = re.compile(
     r"(?:^|[;&\n(]\s*|&&\s*|\|\|?\s*|\{\s+)"
     r"(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*"
@@ -117,7 +149,7 @@ from _hookutil import strip_heredocs  # noqa: E402
 
 
 def _sibling_roots(project_dir: str) -> dict:
-    """Map repo-name -> tools/ Path for each colocated repo that exists."""
+    """Map configured names to existing tools/ directories beside the resolved project."""
     parent = Path(project_dir).resolve().parent
     roots = {}
     for name in SIBLING_REPO_NAMES:
@@ -139,7 +171,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     has_cd = bool(re.search(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command))
 
     def _tool_repo(tool: str):
-        # the repo whose tools/ holds this cwd-relative tool (project first, then a sibling)
+        # First scanned repo with an is_file() match: project first, then configured order.
         if project_tools is not None and (project_tools / tool).is_file():
             return project_name
         for n, td in roots.items():
@@ -147,19 +179,15 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                 return n
         return None
 
-    # (0, P-1.19) A `cd <repo> && tools/<x>` prefix for a repo tool NOT in the cwd-guard
-    # allow-list: the maintainer directive is ABSOLUTE PATHS BY DEFAULT
-    # (grc_library_private/INDEX.md), so the absolute form is the default and cd is reserved
-    # for a genuine cwd-guard tool. A cd with no repo-tool invocation (`cd x && ls`,
-    # `cd x && git ...`) or only allow-listed tools stays allowed (the prior deliberate-cd
-    # behaviour). This closes the cd-escape that let the absolute-path convention be bypassed.
-    # (0, P-1.19) Flag a repo tool NOT in CWD_GUARD_ALLOWLIST only when a `cd ` command-position
-    # token PRECEDES it (the tool then runs via the cd'd cwd); a `tool && cd elsewhere` (cd AFTER
-    # the tool) is NOT flagged (codex QA fixed the whole-command false positive). The directive is
-    # ABSOLUTE PATHS BY DEFAULT (grc_library_private/INDEX.md); cd is reserved for a genuine
-    # cwd-guard tool. A cd with no cd-preceded flagged tool (a bare ls, a git, an allow-listed
-    # tool, or a tool-then-cd) stays allowed. KNOWN RESIDUALS (accepted; fail-open nudge, not a
-    # shell parser): a QUOTED cwd-relative path and exotic cd syntax slip the regexes.
+    # (0, P-1.19) Apply the ABSOLUTE PATHS BY DEFAULT directive
+    # (grc_library_private/INDEX.md) to an _INVOKE match outside CWD_GUARD_ALLOWLIST
+    # whose filename is found by _tool_repo, when any cd regex match starts earlier.
+    # This compares text offsets only: the cd need not execute, succeed, target the
+    # selected repo, or affect the tool's shell scope. A later cd alone does not flag
+    # an earlier tool, but any matched cd suppresses checks (1) and (2) below if this
+    # check finds no flagged tool. Allowlist membership is a filename exemption.
+    # The cd regex accepts start, ; & newline ( && || followed by optional whitespace,
+    # then cd and whitespace. It does not recognize every shell cd form or parse quoting.
     cd_pos = [m.start() for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command)]
     flagged = []
     for m in _INVOKE.finditer(command):
@@ -174,61 +202,65 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, repo in flagged]
         reason = (
-            "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cd-prefixed cwd-relative repo tool (absolute-path guardrail).\n"
+            "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cwd-relative repo-tool match follows a `cd` match in the command text.\n"
             "WHY: the standing directive is ABSOLUTE PATHS BY DEFAULT "
-            "(grc_library_private/INDEX.md); a cd-prefixed cwd-relative tool runs via the "
-            "ambient cwd, which drifts, instead of an absolute path.\n"
-            "CONSIDER INSTEAD: use the absolute form:\n" + "\n".join(lines)
-            + "\n(cd is reserved for a genuine cwd-guard tool: "
+            "(grc_library_private/INDEX.md); this filename is outside the cwd-guard allowlist, "
+            "and this textual pattern triggers the absolute-path guardrail.\n"
+            "CONSIDER INSTEAD: use an absolute tool path; the templates use python3, so select the appropriate interpreter for the file:\n" + "\n".join(lines)
+            + "\n(The filename exemptions from this cd-before-tool check are: "
             + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
         return True, reason
     if has_cd:
-        return False, ""  # deliberate cd, no cd-preceded flagged tool: allowed
+        return False, ""  # Any cd match, no flagged tool: skip sibling and Git checks.
 
-    # (1) A cwd-relative `tools/<x>` that is NOT a project tool but DOES exist in a sibling
-    # repo: it would fail file-not-found from the project cwd (the 2026-07-19
-    # credit-offload-queue slip). SOFTENED SCOPE (maintainer-directed 2026-07-24): a PROJECT
-    # tool run cwd-relative is ALLOWED, because blocking it would contradict the project's
-    # own documented `tools/<x>` commands, and its cwd-drift failure is loud (file-not-found)
-    # and covered by the absolute-path convention. A tool absent from every repo is allowed
-    # (new tool / typo). `_INVOKE` matches only the cwd-relative form, so an absolute path is
-    # never a hit.
+    # (1) Reached only without a cd match: check captured cwd-relative tool filenames
+    # against the configured roots. Skip a project is_file() match; otherwise report the
+    # first other repo with an is_file() match, in configured order.
+    # SOFTENED SCOPE (maintainer-directed 2026-07-24): project-file matches do not trigger
+    # this sibling check. Files absent from all scanned roots do not trigger it either.
+    # This does not inspect the Bash cwd or establish file-not-found there: an unlisted
+    # project has no project_tools entry, and another cwd may contain a matching path.
+    # Absolute tool paths do not themselves match _INVOKE; other matches can still block.
     if invoked and roots:
         hits = []
         for tool in invoked:
             if project_tools is not None and (project_tools / tool).is_file():
-                continue  # project tool run cwd-relative: allowed under the softened scope
+                continue  # Skip this project-file match; other tool and Git checks remain.
             elsewhere = [n for n, td in roots.items()
                          if n != project_name and (td / tool).is_file()]
             if elsewhere:
                 hits.append((tool, elsewhere[0]))
         if hits:
             lines = [
-                f"  - `tools/{tool}` lives in `{where}`, NOT `{project_name}`; run it "
-                f"cwd-independently: `python3 {parent}/{where}/tools/{tool} ...` (or "
-                f"`cd {parent}/{where} && python3 tools/{tool} ...`)."
+                f"  - `tools/{tool}`: found in `{where}`; no scanned project-file match for `{project_name}`. "
+                f"Templates: `python3 {parent}/{where}/tools/{tool} ...` (or "
+                f"`cd {parent}/{where} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
                 for tool, where in hits
             ]
             reason = (
-                "BLOCKED (wrong-repo-tool-sibling): a cwd-relative `tools/<x>` that is NOT in "
-                f"`{project_name}` but lives in a sibling repo.\n"
-                "WHY: it would fail file-not-found from this cwd "
-                "(the credit-offload-queue-from-the-wrong-repo slip).\n"
-                "CONSIDER INSTEAD: run it cwd-independently with an absolute path (or an "
-                "explicit `cd <repo> &&`):\n" + "\n".join(lines))
+                "BLOCKED (wrong-repo-tool-sibling): a cwd-relative `tools/<x>` match has no scanned project-file match for "
+                f"`{project_name}` but has a file match in a configured sibling.\n"
+                "WHY: this scan suggests a possible repo mismatch; "
+                "the hook does not inspect the Bash cwd or establish which file would run.\n"
+                "CONSIDER INSTEAD: use an absolute tool path; the templates use python3, so select the appropriate interpreter. "
+                "Use the cd alternative only for an allowlisted filename; neither form establishes the script's internal cwd independence:\n" + "\n".join(lines))
             return True, reason
 
-    # (2) A repo-MUTATING bare `git` (no `-C <path>`, no `cd`): it stages/commits/pushes
-    # against whatever repo the ambient cwd happens to be (the `git add -A`-in-the-wrong-repo
-    # near-miss). This half is KEPT under the softened scope because a wrong-repo commit is
-    # SILENT, unlike a tool's loud file-not-found. Read-only git (status/log/diff/show) is
-    # not in the mutating set, and `git -C <path>` is exempt via the regex lookahead.
+    # (2) Reached only without a cd match and without a preceding tool block.
+    # Block any _GIT_MUTATE match for the fixed subcommand-name set, regardless of
+    # whether its arguments actually mutate a repo or specify another target.
+    # This includes git stash list and a longer subcommand whose listed prefix ends at a
+    # word boundary (e.g. git commit-graph, but not git commitment); it excludes
+    # status/log/diff/show and a subcommand sharing no listed prefix (e.g. git tag).
+    # Standard git -C <path> forms do not match.
+    # Motivation: operations such as git add -A can affect an unintended repo without
+    # necessarily failing; neither a Git match nor tool-path drift guarantees that outcome.
     if _GIT_MUTATE.search(command):
         reason = (
-            "BLOCKED (wrong-repo-git): a repo-mutating `git` command with no `-C <path>`.\n"
-            "WHY: it acts on whatever repo the ambient cwd is, risking a stage/commit/push "
-            "against the WRONG repo (the 2026-07-24 `git add -A`-in-scratch near-miss), and a "
-            "wrong-repo commit is SILENT.\n"
+            "BLOCKED (wrong-repo-git): a `git` match hits a guarded subcommand name at a word boundary, with no matched `cd` anywhere in the command text.\n"
+            "WHY: this fixed subcommand-name check flags possible wrong-repo operations "
+            "(the 2026-07-24 `git add -A`-in-scratch near-miss); it does not determine "
+            "whether this use mutates a repo or which repo it targets.\n"
             "CONSIDER INSTEAD: use `git -C <absolute-repo-path> <subcommand> ...`, or an explicit "
             "`cd <repo-root> &&`.")
         return True, reason
@@ -291,10 +323,10 @@ def _self_test() -> int:
             self.assertTrue(block)
             self.assertIn("grc_library_scratch", reason)
 
-        def test_project_tool_cwd_relative_allowed(self):
-            # softened scope (maintainer-directed 2026-07-24): a PROJECT tool run
-            # cwd-relative is ALLOWED (blocking it would contradict the documented
-            # commands; its cwd-drift failure is loud file-not-found, not silent)
+        def test_project_tool_without_cd_allowed(self):
+            # Softened scope (maintainer-directed 2026-07-24): this project-file match
+            # with no cd and no other blocking match is allowed. This fixture does
+            # not test cwd drift or establish which file another cwd would resolve.
             block, _ = decide("bash tools/run_all_audits.sh", self.pd)
             self.assertFalse(block)
 
@@ -302,7 +334,7 @@ def _self_test() -> int:
             block, _ = decide(f"python3 {self.proj}/tools/run_all_audits.sh", self.pd)
             self.assertFalse(block)
 
-        def test_explicit_cd_allowed(self):
+        def test_explicit_cd_allowlisted_sibling_tool_allowed(self):
             block, _ = decide(
                 "cd ../grc_library_scratch && python3 tools/credit-offload-queue.py "
                 "list-workers", self.pd)
@@ -338,8 +370,8 @@ def _self_test() -> int:
             block, _ = decide("python3 tools/run_all_audits.sh && cd /tmp", self.pd)
             self.assertFalse(block)
 
-        def test_unknown_cwd_relative_tool_allowed(self):
-            # a tool absent from every repo (a new tool being created, or a typo) is allowed
+        def test_tool_absent_from_scanned_roots_allowed(self):
+            # This filename is absent from the scanned fixture roots, so it does not block.
             block, _ = decide("python3 tools/brand-new-thing.py", self.pd)
             self.assertFalse(block)
 
@@ -358,7 +390,7 @@ def _self_test() -> int:
                 "echo hi && python3 tools/credit-offload-queue.py", self.pd)
             self.assertTrue(block)
 
-        def test_git_mutate_bare_blocks(self):
+        def test_selected_bare_git_subcommands_block(self):
             self.assertTrue(decide("git add -A", self.pd)[0])
             self.assertTrue(decide("git commit -m x", self.pd)[0])
             self.assertTrue(decide("echo hi && git push origin HEAD:main", self.pd)[0])
@@ -369,12 +401,12 @@ def _self_test() -> int:
             self.assertFalse(decide("git -C /home/x/grc_library commit -m y", self.pd)[0])
             self.assertFalse(decide("git -C /home/x/grc_library add -A", self.pd)[0])
 
-        def test_git_readonly_allowed(self):
+        def test_git_status_log_diff_allowed(self):
             self.assertFalse(decide("git status --short", self.pd)[0])
             self.assertFalse(decide("git log --oneline -5", self.pd)[0])
             self.assertFalse(decide("git diff HEAD", self.pd)[0])
 
-        def test_git_mutate_with_cd_allowed(self):
+        def test_git_commit_with_preceding_cd_allowed(self):
             self.assertFalse(
                 decide("cd /home/x/grc_library && git commit -m y", self.pd)[0])
 
