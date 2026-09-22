@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.13\
-**Date:** 2026-09-05\
+**Version:** 1.0.14\
+**Date:** 2026-09-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -99,7 +99,7 @@ Organization-defined digital-trust indicators, informed by ISACA's Digital Trust
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 9001:2015 | §9 to 10: Performance Evaluation and Improvement | PDCA cycle, management review |
-| ISO/IEC 27001:2022 | §10: Continual Improvement | Security governance improvement |
+| ISO/IEC 27001:2022 | §10.1: Continual Improvement | Security governance improvement |
 | ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI maturity KPIs |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance |
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Maturity and stakeholder confidence |

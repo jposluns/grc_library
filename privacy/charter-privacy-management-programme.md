@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.14\
-**Date:** 2026-09-04\
+**Version:** 1.5.15\
+**Date:** 2026-09-22\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -129,7 +129,7 @@ The DPO documents the Article 27(2) exemption analysis in the organization's Art
 | Be designated in writing | Article 27(1) |
 | Be mandated to be addressed in addition to or instead of the controller/processor by supervisory authorities and data subjects on all issues related to processing | Article 27(4) |
 | Have sufficient knowledge of GDPR and the controller's processing activities to act as point of contact | EDPB Guidelines 3/2018 on the territorial scope of GDPR |
-| Maintain a copy of the controller's or processor's Article 30 records on Union territory where requested by the supervisory authority | Article 30(4) by extension |
+| Make the controller's or processor's Article 30 records available to the supervisory authority on request | Article 30(4) |
 
 **Designation process.**
 

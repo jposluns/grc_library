@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance and Risk Framework\
 **Document Type:** Framework\
-**Version:** 1.1.6\
-**Date:** 2026-09-13\
+**Version:** 1.1.7\
+**Date:** 2026-09-22\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/register-ai-risk.md`](register-ai-risk.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md)\
@@ -179,7 +179,7 @@ AI governance assurance should include:
 | ISO/IEC 23894:2023 | Annex A risk-management objectives (including A.5 Environmental impact and A.10 Safety); Annex B risk sources | Governance objectives, the safety and environmental dimensions, and risk classification |
 | ISO/IEC 5338:2023 | Clause 6 life-cycle processes (agreement, organizational project-enabling, technical management, and technical processes) | The AI lifecycle model |
 | ISO/IEC 8183:2023 | Clause 6 data life-cycle stages | Data as the primary risk surface |
-| NIST AI RMF (2023) | GOVERN 2.1 (Roles and responsibilities), MANAGE 1.1 (risk prioritization and management) | Governance structure and AI risk management |
+| NIST AI RMF (2023) | GOVERN 2.1 (Roles and responsibilities), MANAGE 1.2 (risk-treatment prioritization) | Governance structure and AI risk management |
 | EU AI Act (2024) | Article 6 (Classification rules for high-risk AI systems); Annex III (high-risk use cases) | Risk classification |
 
 ---

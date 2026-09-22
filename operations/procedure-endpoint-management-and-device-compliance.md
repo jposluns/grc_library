@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.16\
-**Date:** 2026-09-21\
+**Version:** 1.3.17\
+**Date:** 2026-09-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -265,7 +265,7 @@ All storage media must be sanitized before a device leaves IT custody, consisten
 
 | Media Type | Required Method |
 | --- | --- |
-| Solid-state drives (SSD) | Cryptographic erasure (ATA Secure Erase or equivalent) |
+| Solid-state drives (SSD) | IEEE 2883 Purge via Cryptographic Erase or Sanitize Block Erase |
 | Hard disk drives (HDD) | Overwrite (IEEE 2883 Clear) or degaussing followed by verification |
 | Non-erasable or damaged media | Physical destruction |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by OS |
