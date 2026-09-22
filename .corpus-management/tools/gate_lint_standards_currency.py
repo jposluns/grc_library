@@ -198,9 +198,18 @@ REV = r"(?:Rev(?:ision)?\.?\s*|r)(\d+(?:\.\d+)*)"
 NUM = r"\d+(?:\.\d+)*(?:-\d+)*"
 END = r"(?![\w]|\.\d|-\d)"
 BLOCK_TAGS = set(
-    "address article aside blockquote br caption dd div dl dt fieldset "
-    "figcaption figure footer form h1 h2 h3 h4 h5 h6 header hr li main "
-    "nav ol p pre section table tbody td th thead tr ul".split()
+    "address article aside blockquote br caption dd details div dl dt "
+    "fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 header hr li "
+    "main menu nav ol p pre section summary table tbody td th thead tr ul".split()
+)
+# Pure text-level formatting tags render with NO whitespace boundary, so an
+# end tag from this set must not inject a space that would split a citation
+# number or edition (ISO/IEC <b>2700</b>1 renders 27001). Any OTHER inline
+# tag (span, a, ...) may carry a display:block style that IS a real visual
+# boundary (the landing-page biblio .id spans), so it keeps a soft space.
+FORMATTING_TAGS = set(
+    "b i em strong code sub sup small mark u s tt kbd samp var cite q "
+    "abbr dfn time data bdi bdo ins del big wbr".split()
 )
 
 
@@ -298,7 +307,7 @@ class TextExtractor(HTMLParser):
         # stream (an inline tag must not split surrounding visible text).
         raw = self.get_starttag_text()
         for m in re.finditer(
-            r"""([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
+            r"""([^\s=/<>"']+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
             raw,
         ):
             if m[1].lower() not in {"alt", "title", "aria-label"}:
@@ -321,9 +330,15 @@ class TextExtractor(HTMLParser):
             return
         if tag in BLOCK_TAGS:
             self.flush()
-        # An inline (non-block) tag adds no whitespace in rendering, so it
-        # must not inject a space that would split a citation number or
-        # edition across the tag (e.g. ISO/IEC <b>2700</b>1 renders 27001).
+        elif (
+            tag not in FORMATTING_TAGS
+            and self.chars
+            and not self.chars[-1].isspace()
+        ):
+            # A non-formatting inline tag (span/a/...) may be a display:block
+            # visual boundary; keep a soft space so adjacent biblio spans do
+            # not concatenate a citation and its neighbour (landing.html).
+            self.add(" ", self.source_offset(), False)
 
     def handle_data(self, data):
         if not self.hidden:
@@ -390,6 +405,14 @@ def text_blocks(source, suffix):
     # rather than re-erasing an already-blanked span per destination.
     erased_to = 0
     for m in re.finditer(r"\]\(", source):
+        # A backslash-escaped "]" does not close an inline-link label (odd
+        # run of preceding backslashes), so the following "(...)" is visible
+        # text, not a destination to erase.
+        bs, i = 0, m.start() - 1
+        while i >= 0 and source[i] == "\\":
+            bs, i = bs + 1, i - 1
+        if bs % 2 == 1:
+            continue
         close = close_of.get(m.end() - 1)
         if close is not None:
             a = max(m.start(), erased_to)
@@ -475,17 +498,23 @@ def version_after(text, end, family):
         if m:
             return m[1], end + m.end()
 
+    # A parenthesized edition must close immediately, "(2022)", so a
+    # parenthetical prose quantity ("(2022 respondents)") is not mistaken
+    # for an edition; the colon and whitespace forms are unchanged.
     if family == "ISO/IEC":
-        pat = r"\s*(?::\s*|\(\s*|\s)(\d{4})" + END
+        pat = r"\s*(?:\(\s*(\d{4})\s*\)|(?::\s*|\s)(\d{4})" + END + ")"
     elif family == "IEEE":
-        pat = r"\s*(?:[-:]\s*|\(\s*|\s)(\d{4})" + END
+        pat = r"\s*(?:\(\s*(\d{4})\s*\)|(?:[-:]\s*|\s)(\d{4})" + END + ")"
     else:
         pat = (
-            r"\s*(?:[:(]\s*|\s+|(?=v))"
-            r"((?:version\s+|v)?" + NUM + ")" + END
+            r"\s*(?:\(\s*((?:version\s+|v)?" + NUM + r")\s*\)|"
+            r"(?::\s*|\s+|(?=v))((?:version\s+|v)?" + NUM + ")" + END + ")"
         )
     m = re.match(pat, tail, re.I)
-    return (m[1], end + m.end()) if m else ("", end)
+    if not m:
+        return ("", end)
+    ver = next((g for g in m.groups() if g is not None), "")
+    return (ver, end + m.end())
 
 
 def discover(source, suffix):
