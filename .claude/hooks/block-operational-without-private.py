@@ -11,7 +11,8 @@ never to silently work around.
 This hook is the MECHANICAL core of the layered assurance (the others: detect-env's
 private_availability decision + the /orch HALT, and the read-evidence discipline). It fires on
 the operational-work tools (Edit, Write) and BLOCKS them (exit 2, reason on stderr) ONLY when
-BOTH are confirmed: (a) the operator is the maintainer (origin remote is jposluns/grc_library),
+BOTH are confirmed: (a) the operator is the maintainer (the origin URL passes _origin_is_maintainer's
+exact-or-prefixed-substring test for jposluns/grc_library, which also accepts a suffixed-name repo),
 and (b) grc_library_private is genuinely absent (no readable, non-empty sibling directory). Read
 and Bash are deliberately NOT gated, so the session can still clone _private and investigate.
 
@@ -41,14 +42,17 @@ from pathlib import Path
 
 MAINTAINER_ORIGIN = "jposluns/grc_library"
 # Match the origin remote url in .git/config, tolerating https and ssh forms and an
-# optional .git suffix. We confirm MAINTAINER only on a positive match; anything else
-# (fork, missing, unparseable) is treated as non-maintainer -> allow.
+# optional .git suffix. A URL passing the exact-or-prefixed-substring test is classified MAINTAINER
+# (including a suffixed-name repo whose URL contains /jposluns/grc_library); a missing or non-matching
+# origin is treated as non-maintainer -> allow. The boundary blocks evil-jposluns/... but not the suffix.
 ORIGIN_BLOCK_RE = re.compile(r'\[remote "origin"\][^\[]*', re.DOTALL)
 URL_RE = re.compile(r"url\s*=\s*(\S+)")
 
 
 def _origin_is_maintainer(project_dir: str) -> bool:
-    """True only if the origin remote positively points at the maintainer repo."""
+    """True when the origin URL (trailing `.git` stripped) case-sensitively equals `jposluns/grc_library`,
+    or contains `/jposluns/grc_library` or `:jposluns/grc_library`. No host or trailing-boundary check, so a
+    suffixed-name repo such as a `.../jposluns/grc_library_fork` origin (or _ref / _scratch / _private) also matches."""
     cfg = Path(project_dir) / ".git" / "config"
     try:
         text = cfg.read_text(encoding="utf-8", errors="replace")
