@@ -19,8 +19,8 @@ What it does, in order (all other paths fail OPEN -> allow):
      binds the singleton orchestrator's wind-down; a bounded worker legitimately finishing its one task
      must not be told to work the orchestrator's backlog (and cannot switch the mode or mark the backlog).
   1. The resolved operating mode is not `unattended` -> allow; only a resolved `unattended` arms the guard.
-     Via the grc adapter (`_grc_map_mode`) a mode CONTAINING `unattended` (case-insensitive) or exactly
-     `attended-autonomous` resolves to `unattended` and ARMS; EVERY other value (plain `attended`,
+     Via the grc adapter (`_grc_map_mode`), after trimming and lowercasing the mode, a value CONTAINING
+     `unattended` or exactly equal to `attended-autonomous` resolves to `unattended` and ARMS; EVERY other value (plain `attended`,
      `attended-manual`, an unknown string, an absent or unreadable mode) resolves to non-`unattended` and
      allows. The portable MODE_FILE branch returns its text unmapped, so there only a literal `unattended`
      arms (even `attended-autonomous` from that source allows).
