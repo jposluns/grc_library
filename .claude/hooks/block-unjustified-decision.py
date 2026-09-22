@@ -235,7 +235,7 @@ def decide(added: str, todo_count: "int | None" = None):
             "`**Classification:**` line.\n"
             "WHY: the write-before-enact rubric requires every decision classified at decision "
             "time so avoidance cannot be dressed as prudence.\n"
-            "CONSIDER-INSTEAD: add a `**Classification:**` line naming exactly one of "
+            "CONSIDER INSTEAD: add a `**Classification:**` line naming exactly one of "
             "ACT / ASK / BLOCKED: <blocker-type> (default ACT; ASK a specific question if it is "
             "the maintainer's; BLOCKED only for a named observable blocker), then re-write."
         )
@@ -264,7 +264,7 @@ def decide(added: str, todo_count: "int | None" = None):
         if hits:
             problems.append(
                 f"the entry cites un-instrumented justification(s) {hits}, which are never a "
-                f"valid basis for deferring/holding. Name a real observable blocker or ACT/ASK."
+                f"valid basis for deferring/holding."
             )
     # Backlog-exhaustion guard (TODO gr-actionability, layer 2): a hold/wind-down entry
     # justified by a SET-COMPLETENESS / exhaustion claim ("everything is blocked",
@@ -284,10 +284,8 @@ def decide(added: str, todo_count: "int | None" = None):
         if not m:
             problems.append(
                 "the entry claims the backlog is exhausted / everything is blocked to "
-                "justify a hold, but carries no fresh-audit proof. Run "
-                "`tools/audit-backlog-actionability.py`, enumerate every open item, and "
-                "embed `backlog-audit: <N> items enumerated` where <N> is the live "
-                "combined TODO.md + P-TODO.md open-item count. A set-completeness claim "
+                "justify a hold, but carries no fresh-audit proof. "
+                "A set-completeness claim "
                 "without a complete "
                 "fresh enumeration is the failure this guard prevents."
             )
@@ -296,19 +294,23 @@ def decide(added: str, todo_count: "int | None" = None):
                 f"the backlog-exhaustion claim cites `backlog-audit: {m.group(1)} items "
                 f"enumerated`, but the live backlog (TODO.md + P-TODO.md) has "
                 f"{todo_count} open item(s); the "
-                f"audit is stale or incomplete. Re-run the full enumeration and match the "
-                f"live count before holding."
+                f"audit is stale or incomplete."
             )
     if problems:
         return True, (
-            "BLOCKED (unjustified-decision): DECISION-GUARD: this decisions-log entry is not well-formed. "
+            "BLOCKED (unjustified-decision): DECISION-GUARD: a malformed decisions-log entry.\nWHY: "
             + " ".join(problems)
-            + "\nWHY: deferral-with-no-question and un-instrumented internal-state "
+            + "\ndeferral-with-no-question and un-instrumented internal-state "
             "justifications are the failure this guard prevents; a hold must name a real "
             "observable blocker.\n"
-            "CONSIDER-INSTEAD: default to ACT; if the decision is the maintainer's and they are "
+            "CONSIDER INSTEAD: default to ACT; if the decision is the maintainer's and they are "
             "reachable, ASK the specific question (do not defer); record BLOCKED only with a "
-            "named observable blocker from the closed set."
+            "named observable blocker from the closed set. For an un-instrumented deferral, "
+            "name a real observable blocker or ACT/ASK. For a backlog-exhaustion hold, run "
+            "`tools/audit-backlog-actionability.py`, enumerate every open item, and "
+            "embed `backlog-audit: <N> items enumerated` where <N> is the live "
+            "combined TODO.md + P-TODO.md open-item count. If the audit is stale or incomplete, "
+            "re-run the full enumeration and match the live count before holding."
         )
     return False, ""
 

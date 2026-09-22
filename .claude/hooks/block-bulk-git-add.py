@@ -122,23 +122,23 @@ def violation(tokens: list[str]) -> str | None:
         real = [p for p in paths if p.rstrip("/") not in {r.rstrip("/") for r in TREE_ROOTS}]
         sweep = has_sweep_flag(args)
         if sweep and not (after and real):
-            return ("`git add " + sweep + "` stages the TREE. Bound it explicitly: "
-                    "`git add " + sweep + " -- <dir>/`, or name the files.")
+            return ("`git add " + sweep + "` stages the TREE without an explicit bounded pathspec; "
+                    "`git add " + sweep + " -- <dir>/` is the bounded form.")
         if not sweep and paths and not real:
             return ("`git add " + paths[0] + "` is a tree root, so it stages everything. "
-                    "Name the files instead.")
+                    "The pathspec does not enumerate the intended files.")
         interactive = any(a in {"-p", "--patch", "-i", "--interactive", "-e", "--edit"}
                           for a in args)
         if not sweep and not paths and not interactive:
             # F-4: an interactive add presents each hunk for a decision, so the scope IS stated,
             # one hunk at a time. Blocking it would push the author toward the sweep instead.
-            return "`git add` with no pathspec. Name the files."
+            return "`git add` has no pathspec identifying the intended files."
     if sub == "commit":
         for a in args:
             if a == "--all" or (a.startswith("-") and not a.startswith("--")
                                 and re.fullmatch(r"-[A-Za-z]+", a) and "a" in a[1:]):
                 return ("`git commit " + a + "` commits every tracked modification, bypassing "
-                        "staging. Stage the files you mean, then commit.")
+                        "staging and its explicit file selection.")
     return None
 
 
@@ -166,12 +166,13 @@ def main() -> int:
         for tokens in segments(command):
             problem = violation(tokens)
             if problem:
-                print("BLOCKED (bulk-git-add): " + problem + "\n"
-                      "WHY: a tree-sweep stage makes the commit message the only record of\n"
+                print("BLOCKED (bulk-git-add): a git stage/commit with tree-wide or unspecified scope.\nWHY: " + problem + "\n"
+                      "A tree-sweep stage makes the commit message the only record of\n"
                       "scope, and that message is the half that is never verified "
                       "(ORCHESTRATOR-MISTAKES.md entry 43).\n"
-                      "CONSIDER-INSTEAD: apply the fix the clause above names; for a genuinely\n"
-                      "intended tree sweep, lead the command with " + ESCAPE + "=1.", file=sys.stderr)
+                      "CONSIDER INSTEAD: stage the files you mean by naming their paths, then commit; "
+                      "when using a sweep flag, bound it with the `-- <dir>/` form above. "
+                      "For a genuinely intended tree sweep, lead the command with " + ESCAPE + "=1.", file=sys.stderr)
                 return 2
     except Exception:
         return 0

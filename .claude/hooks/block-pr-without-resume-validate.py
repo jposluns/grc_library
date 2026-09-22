@@ -206,11 +206,11 @@ def decide(cmd, is_worker: bool, hist_text, start_date, sentinel_present: bool) 
 def _block_message(threshold) -> str:
     when = threshold.isoformat() if threshold else "the session start"
     return (
-        "BLOCKED (pr-without-resume-validate): this session has no corpus-wide resume /validate row in "
-        f"{HISTORY_REL} dated on/after {when}, so a PR must not open or merge yet.\n"
+        "BLOCKED (pr-without-resume-validate): a PR open/merge without a corpus-wide resume /validate row in "
+        f"{HISTORY_REL} dated on/after {when}.\n"
         "WHY: /orch step 6a mandates a resume /validate as the session's first substantive task: it is "
         "the fresh-context drift-catch AND the compensating control for the closing-session QA fallback.\n"
-        "CONSIDER-INSTEAD: dispatch the triple-family corpus-wide /validate and record its history row, "
+        "CONSIDER INSTEAD: dispatch the triple-family corpus-wide /validate and record its history row, "
         "then re-run this. For a genuine exception (e.g. a handoff-only session), create the one-shot "
         "sentinel then retry:\n"
         '    touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-pr-without-resume-validate"'

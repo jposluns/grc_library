@@ -78,12 +78,12 @@ def decide(subject: str):
     }.get(blocking_hook, "change its STRUCTURE (not just its wording or description) so it no "
                          "longer trips the same block")
     lines = [
-        f"BLOCKED (repeated-tool-failure): REPEAT-BLOCK: you resubmitted, UNCHANGED, a command that "
+        f"BLOCKED (repeated-tool-failure): REPEAT-BLOCK: an UNCHANGED resubmission of a command that "
         f"`{blocking_hook}` just blocked.\n"
         f"WHY: the literal command string does not reflect the fix the block asked for (a common "
         f"cause is editing the command DESCRIPTION, not the command STRING); resubmitting the "
         f"same shape is the intent-vs-artefact loop this guard breaks.\n"
-        f"CONSIDER-INSTEAD: {steer}."
+        f"CONSIDER INSTEAD: {steer}."
     ]
 
     # GUARD 2: diagnosis circuit-breaker on a run of consecutive same-class blocks.

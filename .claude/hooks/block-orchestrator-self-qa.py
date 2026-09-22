@@ -276,19 +276,20 @@ def _dispatch_summary(text: str) -> str:
 
 def _block_message(dispatch_text: str) -> str:
     return (
-        "GUARD DECISION (orchestrator-self-qa): this "
-        "Task/Agent/Workflow/SendMessage call has no worker-marker exemption or "
-        "successful sentinel consumption. It blocks when BLOCK_SEVERITY is True "
-        "and warns while allowing when False. Dispatch fields: "
+        "BLOCKED (orchestrator-self-qa): this "
+        "Task/Agent/Workflow/SendMessage call without a worker-marker exemption or "
+        "successful sentinel consumption.\n"
+        "WHY: the call has no exemption or successful sentinel consumption. Dispatch fields: "
         + repr(_dispatch_summary(dispatch_text))
         + ".\n"
         "\n"
-        "WHY: the policy aims to conserve orchestrator usage by routing reasoning "
+        "The policy aims to conserve orchestrator usage by routing reasoning "
         "work through external workers. This hook checks the fixed tool names "
         "Task, Agent, Workflow, and SendMessage without classifying their prompts. "
-        "It does not verify billing, actual session role, or other offload mechanisms.\n"
+        "It does not verify billing, actual session role, or other offload mechanisms. "
+        "It blocks when BLOCK_SEVERITY is True and warns while allowing when False.\n"
         "\n"
-        "CONSIDER-INSTEAD: dispatch a worker with orch-verify:\n"
+        "CONSIDER INSTEAD: dispatch a worker with orch-verify:\n"
         "    orch-verify {claude|codex|gemini} <prompt-file> [<workdir>] "
         "[--expensive] [--model <model>] [--effort <low|medium|high|xhigh|max>]\n"
         "  (for a skeptical verifier, pass the authoring account's label with "
@@ -299,7 +300,7 @@ def _block_message(dispatch_text: str) -> str:
         "does not reserve an account. The prompt must be a readable regular file "
         "within orch-verify's size limit; no job-directory placement is required).\n"
         "\n"
-        "  If this dispatch must run in-session, the actor can create a sentinel "
+        "  If this dispatch must run in-session, create a sentinel "
         "where filesystem permissions permit:\n"
         "    touch "
         + str(SENTINEL)

@@ -286,12 +286,12 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
         fp = tool_input.get("file_path") or tool_input.get("notebook_path") or ""
         if fp and _path_under_public_working(project_dir, fp):
             return (
-                f"BLOCKED (public-working-write): {fp} resolves to the repository's resolved "
+                f"BLOCKED (public-working-write): a write to {fp} resolving to the repository's resolved "
                 f".working root or a descendant.\n"
                 f"WHY: this hook's origin-URL and store-directory checks matched. It guards against "
                 f"writes into the retired public working-state tree, but does not establish re-creation, "
                 f"canonical contents, or store writability.\n"
-                f"CONSIDER-INSTEAD: choose the intended operational-store or legacy-sibling destination "
+                f"CONSIDER INSTEAD: choose the intended operational-store or legacy-sibling destination "
                 f"and verify the resolved path (resolve_working_for_write can return an existing public file)."
             )
         return None
@@ -299,11 +299,11 @@ def decide(tool_name: str, tool_input: dict, project_dir: str) -> str | None:
         cmd = tool_input.get("command", "") or ""
         if _bash_writes_public_working(cmd, project_dir):
             return (
-                "BLOCKED (public-working-write): the Bash token scanner found a candidate resolving "
+                "BLOCKED (public-working-write): a Bash call with a scanned candidate resolving "
                 "to the repository's resolved .working root or a descendant.\n"
                 "WHY: this hook's origin-URL and store-directory checks matched. The scanner does not "
                 "prove the command writes; quoted data, comments, or other arguments can also match.\n"
-                "CONSIDER-INSTEAD: check the command and its intended destination (verify any path "
+                "CONSIDER INSTEAD: check the command and its intended destination (verify any path "
                 "resolve_working_for_write returns; it can return an existing public file). `rm`, "
                 "`git rm`, and `git clean` have no dedicated write-verb branch; reads and removals can "
                 "still yield scanner candidates and be blocked. For an intentional bypass of this "

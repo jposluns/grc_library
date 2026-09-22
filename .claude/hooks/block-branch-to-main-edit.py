@@ -15,7 +15,7 @@ BLOCKS (exit 2) when BOTH hold:
       i.e. ``grc_library``); AND
   (2) that repo's current branch (``git -C <project_dir> rev-parse --abbrev-ref HEAD``) is
       ``main`` or ``master``.
-The block message tells the author to ``git checkout -b <branch>`` first.
+The block message suggests a feature branch via ``git checkout -b <branch>`` first.
 
 Everything else is ALLOWED (the FP-safety envelope):
   - a target file NOT under ``project_dir`` (a sibling repo ``grc_library_scratch`` /
@@ -87,7 +87,7 @@ def decide(file_path: str, project_dir: str) -> tuple[bool, str]:
             f"(`{rel}`) while the repo is on `{branch}`.\n"
             "WHY: `main` is PR-only; edits belong on a feature branch, and an edit on `main` "
             "is essentially never intended.\n"
-            "CONSIDER-INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
+            "CONSIDER INSTEAD: run `git -C {proj} checkout -b claude/<name>` first, then "
             "re-apply the edit. (If you genuinely intend to edit a SIBLING repo, use its "
             "absolute path so the target resolves outside `grc_library`.)"
         ).replace("{proj}", str(proj))

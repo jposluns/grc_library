@@ -73,7 +73,7 @@ def decide(mode: str | None) -> tuple[bool, str]:
             f"`{mode}` (unattended).\n"
             f"WHY: a blocking prompt idles the run until the maintainer returns; unattended mode "
             f"records a maintainer decision as pending and CONTINUES (no-idle-stop).\n"
-            f"CONSIDER-INSTEAD: record the decision (.working/pending-decisions.md or the relevant "
+            f"CONSIDER INSTEAD: record the decision (.working/pending-decisions.md or the relevant "
             f"register) and proceed on the next authorized independent item via graceful "
             f"degradation (stricter-safe on a reversible action, defer-and-skip on an authorial "
             f"one); or, if the maintainer is in fact attended, update the Operating-mode field in "
