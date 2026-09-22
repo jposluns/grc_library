@@ -235,7 +235,7 @@ class CitationCoverageTests(unittest.TestCase):
         seven = seven.replace(S, S + " --- | --- |")
         for row in ROWS:
             seven = seven.replace(
-                row, row + " https://example.test | needs-reconfirm |"
+                row, row + " https://iso.org | needs-reconfirm |"
             )
         self.assertEqual(
             W.parse_register_text(seven)[0]["source_line"], 3
@@ -259,7 +259,7 @@ class CitationCoverageTests(unittest.TestCase):
             + " | ".join(W.PROJECT_HEADER) + " |\n"
             + "| " + " | ".join(["---"] * 8) + " |\n"
             + "| Demo | 1 | 2026 | Tool | MIT | Active "
-            "| https://example.test | pending |\n"
+            "| https://iso.org | pending |\n"
         )
         self.assertEqual(
             len(W.parse_register_text(REGISTER + tooling)), 5
@@ -310,7 +310,7 @@ class CitationCoverageTests(unittest.TestCase):
             '<img alt="ISO 9001:2015">', ".html"
         )), 1)
         self.assertEqual(len(self.occurrences(
-            "[ISO 9001:2015](https://example.test/ISO-7777)"
+            "[ISO 9001:2015](https://iso.org/ISO-7777)"
         )), 1)
         self.assertEqual(
             self.occurrences("[link](ISO 9001:2015)"), []

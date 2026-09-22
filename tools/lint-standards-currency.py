@@ -153,7 +153,7 @@ def parse_register_text(text):
                 entries.append(dict(
                     id=row[0],
                     current=row[1],
-                    superseded=[] if row[4] in {"", "-", "—"} else [
+                    superseded=[] if row[4] in {"", "-", "\u2014"} else [
                         v.strip() for v in row[4].split(",") if v.strip()
                     ],
                     superseded_raw=row[4],

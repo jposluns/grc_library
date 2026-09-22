@@ -207,7 +207,7 @@ BLOCK_TAGS = set(
 def identity_key(value):
     value = unescape(value).replace("\xa0", " ")
     value = value.translate(
-        str.maketrans({"–": "-", "‑": "-", "−": "-"})
+        str.maketrans({"\u2013": "-", "\u2011": "-", "\u2212": "-"})
     )
     value = re.sub(r"\s*/\s*", "/", value)
     return re.sub(r"\s+", " ", value).strip().casefold()
@@ -261,7 +261,7 @@ class TextExtractor(HTMLParser):
                 continue
             self.chars.append(
                 " " if c.isspace() else c.translate(
-                    str.maketrans({"–": "-", "‑": "-", "−": "-"})
+                    str.maketrans({"\u2013": "-", "\u2011": "-", "\u2212": "-"})
                 )
             )
             self.offsets.append(pos + (i if literal else 0))
