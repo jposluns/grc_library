@@ -21478,5 +21478,117 @@ class CitationWorklistSyncTests(unittest.TestCase):
         self.assertIsNone(new)
 
 
+
+
+class BlockingHookMessageContractTests(unittest.TestCase):
+    """P-1.36 slice-2: cross-hook SOURCE-LEVEL guard that every registered blocking hook's
+    refusal messages carry the BLOCKED (<guard>) / WHY: / CONSIDER INSTEAD: form with firmer,
+    un-hedged imperative remediation (maintainer-directed 2026-09-22).
+
+    Scope, stated honestly (guard-input discipline: no coverage is claimed that is not
+    actually provided). This class checks the hook SOURCES for the form markers and the
+    absence of the hyphenated label / inline hedged remediation; it is a coarse cross-hook
+    uniformity check, NOT a per-rendered-message form proof.
+
+    What the neighbouring layers do and do NOT establish. Each hook's own ``--self-test``
+    (run via VerificationGuardrailSelfTests) covers its implemented behavioural and token
+    assertions; it does NOT establish exhaustive per-message form or remediation coverage
+    (for example block-unjustified-decision's self-test asserts a ``Classification`` token but
+    not ``WHY:``). The AST-identical-after-blanking check is a separate QA/review step
+    checking structural preservation, not message correctness. So a per-message marker
+    imbalance that nets out across a multi-message file, and a hedge phrase split across
+    adjacent string literals, remain UNPROVEN by any current test until the exhaustive
+    per-rendered-message suite tracked in P-1.95 lands."""
+
+    HOOKS = [
+        "block-branch-to-main-edit",
+        "block-askuserquestion-unattended",
+        "block-bulk-git-add",
+        "block-on-open-findings",
+        "block-operational-without-private",
+        "block-opus5-orchestrator-model",
+        "block-orchestrator-self-qa",
+        "block-pr-without-resume-validate",
+        "block-public-working-write",
+        "block-repeated-tool-failure",
+        "block-turn-end-with-outstanding-work",
+        "block-unbumped-version-commit",
+        "block-unjustified-decision",
+        "block-unstamped-turn-end",
+        "block-verification-pipes",
+        "block-wrong-repo-tool",
+        "stop-guard-unattended",
+    ]
+
+    def _source(self, hook):
+        return (REPO_ROOT / ".claude" / "hooks" / (hook + ".py")).read_text(encoding="utf-8")
+
+    def _registered_blocking_hooks(self):
+        """The blocking-hook population as REGISTERED in settings.json: every distinct
+        ``block-*`` / ``stop-guard*`` hook script referenced by a hook command. Advisory,
+        non-blocking hooks (inject-session-timestamp, surface-session-facts) are excluded by
+        the naming convention. Reading registration (not a hardcoded list) is what lets this
+        catch a NEW blocking hook added to settings.json without its message reframed."""
+        import re
+        text = (REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
+        names = set(re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py", text))
+        return {n for n in names if n.startswith("block-") or n.startswith("stop-guard")}
+
+    def test_population_matches_registered_blocking_hooks(self):
+        """The contract population equals the set of blocking hooks REGISTERED in settings.json.
+        A new block-*/stop-guard* hook (or a removed one) that is not reflected here fails,
+        so the reframe invariant cannot silently stop covering the real population."""
+        registered = self._registered_blocking_hooks()
+        self.assertEqual(
+            registered, set(self.HOOKS),
+            "registered blocking hooks in settings.json != this contract's population; "
+            "symmetric difference: " + str(sorted(registered ^ set(self.HOOKS))),
+        )
+
+    def test_hyphenated_consider_instead_label_is_gone(self):
+        """No hook source may carry the pre-reframe hyphenated ``CONSIDER-INSTEAD:`` label."""
+        for hook in self.HOOKS:
+            with self.subTest(hook=hook):
+                self.assertNotIn(
+                    "CONSIDER-INSTEAD:", self._source(hook),
+                    hook + ": the hyphenated CONSIDER-INSTEAD: label survives the reframe",
+                )
+
+    def test_three_part_form_markers_present_and_balanced(self):
+        """Coarse cross-hook check: each hook carries the BLOCKED (/WHY:/CONSIDER INSTEAD:
+        markers with EQUAL counts (every BLOCKED-labelled refusal contributes one WHY: and one
+        CONSIDER INSTEAD:). This does NOT prove per-message balance within a multi-message
+        file (the exhaustive per-message proof is P-1.95; no current test establishes it); it catches a wholesale dropped marker."""
+        for hook in self.HOOKS:
+            with self.subTest(hook=hook):
+                src = self._source(hook)
+                blocked = src.count("BLOCKED (")
+                why = src.count("WHY:")
+                consider = src.count("CONSIDER INSTEAD:")
+                self.assertGreaterEqual(blocked, 1, hook + ": no BLOCKED (guard) label")
+                self.assertEqual(
+                    (why, consider), (blocked, blocked),
+                    hook + ": BLOCKED/WHY/CONSIDER INSTEAD counts are unbalanced "
+                    "(%d/%d/%d)" % (blocked, why, consider),
+                )
+
+    def test_remediation_is_not_inline_hedged(self):
+        """The CONSIDER INSTEAD: remediation is imperative, not softened with a leading
+        ``Consider ...`` (maintainer-directed firmer-verb tone). The check is whitespace- and
+        case-tolerant (``CONSIDER INSTEAD:\\s*[Cc]onsider\\b``), so a double space or a
+        capitalised/lowercased hedge is caught. Residue (documented): a hedge whose ``consider``
+        sits in a string literal ADJACENT to the ``CONSIDER INSTEAD:`` literal is not visible
+        to a source scan and is unproven until the P-1.95 rendered-message suite lands. The
+        circuit-breaker's ``considered`` evidence-log instruction is a different word (``\\b``
+        prevents a false match on it)."""
+        import re
+        pattern = re.compile(r"CONSIDER INSTEAD:\s*consider\b", re.IGNORECASE)
+        for hook in self.HOOKS:
+            with self.subTest(hook=hook):
+                m = pattern.search(self._source(hook))
+                self.assertIsNone(
+                    m, hook + ": hedged remediation after CONSIDER INSTEAD: (%r)"
+                    % (m.group(0) if m else ""),
+                )
 if __name__ == "__main__":
     unittest.main(verbosity=2)

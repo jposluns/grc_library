@@ -96,7 +96,7 @@ def main() -> int:
         "(tail/head/grep/sed/awk/tee/wc).\n"
         "WHY: the pipeline reports the filter's exit code, not the gate's, "
         "so a real failure is masked and reads as a pass.\n"
-        "CONSIDER-INSTEAD: run it standalone, use a file-redirect capture "
+        "CONSIDER INSTEAD: run the verification command standalone, use a file-redirect capture "
         "(cmd > log; CODE=$?), or use the sanctioned wrapper "
         "tools/tail-safe.sh [-n LINES] -- <command> (prints the last N "
         "lines plus EXIT=<code> and exits with the real code).\n")

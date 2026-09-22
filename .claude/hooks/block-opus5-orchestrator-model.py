@@ -165,9 +165,9 @@ def write_alert(model: str) -> None:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         block = (
             f"\n### ALERT {ts} {MARKER}\n"
-            f"The orchestrator session is running on model `{model}` (Opus 5). Per maintainer "
-            f"directive (2026-08-21), orchestrator work is HALTED at the first tool call. Swap the "
-            f"session to a better working model (e.g. Opus 4.8, `claude-opus-4-8`) and re-resume. "
+            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{model}` (Opus 5) is HALTED at the first tool call.\n"
+            f"WHY: maintainer directive (2026-08-21) prohibits Opus 5 as the orchestrator's working model.\n"
+            f"CONSIDER INSTEAD: swap the session to a better working model (e.g. Opus 4.8, `claude-opus-4-8`) and re-resume. "
             f"This channel clears by removal: once the model is swapped, remove this block and reset "
             f"the Status line above.\n"
         )
@@ -179,11 +179,11 @@ def write_alert(model: str) -> None:
 
 def _message(model: str) -> str:
     return (
-        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: the orchestrator is running on `{model}` (Opus 5), "
-        f"and this tool call is halted (maintainer directive 2026-08-21).\n"
+        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{model}` (Opus 5) "
+        f"is halted unconditionally (maintainer directive 2026-08-21).\n"
         f"WHY: Opus 5 is a banned working model for the orchestrator; running orchestrator work on "
         f"it is prohibited.\n"
-        f"CONSIDER-INSTEAD: tell the maintainer to swap the session to a supported model "
+        f"CONSIDER INSTEAD: tell the maintainer to swap the session to a supported model "
         f"(e.g. Opus 4.8 / claude-opus-4-8), then re-resume. MAINTAINER ALERT: an OPEN alert was "
         f"written to grc_library_scratch/MAINTAINER_ALERT.md if that sibling is present."
     )

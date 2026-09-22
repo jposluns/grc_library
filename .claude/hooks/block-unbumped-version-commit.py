@@ -308,8 +308,8 @@ def main() -> int:
         return 0
 
     lines = [
-        "BLOCKED (unbumped-version-commit): these staged file(s) have a changed BODY and an "
-        "unchanged `**Version:**` line and could not be auto-bumped (other unstaged changes "
+        "BLOCKED (unbumped-version-commit): a commit containing staged file(s) with a changed BODY, an "
+        "unchanged `**Version:**` line, and an unsuccessful auto-bump (other unstaged changes "
         "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
         "",
     ]
@@ -321,7 +321,7 @@ def main() -> int:
         "commit is itself a body change post-dating the bump); this fires at commit time rather than "
         "at the pre-push guard six minutes later.",
         "",
-        "CONSIDER-INSTEAD: bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. If "
+        "CONSIDER INSTEAD: bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. If "
         "this body edit genuinely does not warrant a bump, include `VersionBump: none <reason>` in the "
         "commit COMMAND text (e.g. an inline `-m` message; a `-F` message file is not inspected) and it "
         "will proceed.",

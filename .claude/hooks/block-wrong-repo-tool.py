@@ -174,11 +174,11 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
                  for t, repo in flagged]
         reason = (
-            "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cd-prefixed cwd-relative repo tool.\n"
+            "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cd-prefixed cwd-relative repo tool (absolute-path guardrail).\n"
             "WHY: the standing directive is ABSOLUTE PATHS BY DEFAULT "
             "(grc_library_private/INDEX.md); a cd-prefixed cwd-relative tool runs via the "
             "ambient cwd, which drifts, instead of an absolute path.\n"
-            "CONSIDER-INSTEAD: use the absolute form:\n" + "\n".join(lines)
+            "CONSIDER INSTEAD: use the absolute form:\n" + "\n".join(lines)
             + "\n(cd is reserved for a genuine cwd-guard tool: "
             + ", ".join(sorted(CWD_GUARD_ALLOWLIST)) + ".)")
         return True, reason
@@ -214,7 +214,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
                 f"`{project_name}` but lives in a sibling repo.\n"
                 "WHY: it would fail file-not-found from this cwd "
                 "(the credit-offload-queue-from-the-wrong-repo slip).\n"
-                "CONSIDER-INSTEAD: run it cwd-independently with an absolute path (or an "
+                "CONSIDER INSTEAD: run it cwd-independently with an absolute path (or an "
                 "explicit `cd <repo> &&`):\n" + "\n".join(lines))
             return True, reason
 
@@ -229,7 +229,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
             "WHY: it acts on whatever repo the ambient cwd is, risking a stage/commit/push "
             "against the WRONG repo (the 2026-07-24 `git add -A`-in-scratch near-miss), and a "
             "wrong-repo commit is SILENT.\n"
-            "CONSIDER-INSTEAD: use `git -C <absolute-repo-path> <subcommand> ...`, or an explicit "
+            "CONSIDER INSTEAD: use `git -C <absolute-repo-path> <subcommand> ...`, or an explicit "
             "`cd <repo-root> &&`.")
         return True, reason
     return False, ""
