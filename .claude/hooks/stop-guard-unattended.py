@@ -18,7 +18,7 @@ What it does, in order (all other paths fail OPEN -> allow):
   0. Not the ORCHESTRATOR session (a dispatched worker, or an unconfirmable owner) -> allow. The guard
      binds the singleton orchestrator's wind-down; a bounded worker legitimately finishing its one task
      must not be told to work the orchestrator's backlog (and cannot switch the mode or mark the backlog).
-  1. Not unattended (per the operating-mode record) -> allow.
+  1. Mode is neither `unattended` (any form) NOR `attended-autonomous` (which read_operating_mode maps to unattended, so it ARMS the guard) -> allow; only plain `attended`, an absent mode, or an unreadable mode allows.
   2. `stop_hook_active` true -> allow (already nudged this chain; the documented loop-guard).
   3. The backlog tool's actionable set (open items whose block is NOT a granted block) is empty, or
      indeterminate -> allow (tool-verified exhaustion, or a read failure -> fail open).
