@@ -657,7 +657,7 @@ the pack rule
 
 **Project wiring (the mechanical half, no pack counterpart).** This composes with the QA-blocking
 rule below (that one governs QA deliveries specifically; this governs anything wrong from any
-source). Every confirmed defect gets a row in the store-resolved `open-findings.md` ledger (`resolve_working`; store `/opt/grc/private/` first, then `grc_library_private/.working/`) the
+source). Every confirmed defect gets a row in the `open-findings.md` ledger resolved by `resolve_working` (an eligible out-of-repo operational store first (`$GRC_STORE`, else `/opt/grc/private/`), then the `.working/` fallbacks) the
 moment it is confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` /
 `ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook
 refuses a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (missing `gh pr 'merge'`, gating `echo "gh pr merge"`) on an undispositioned `error` row or a mis-filed one
@@ -689,7 +689,7 @@ FELT like progress while the defects stayed open. Summarizing is not disposition
 table is the most persuasive way to walk past a defect.
 
 **The ledger and its mechanical backstop.** Every confirmed defect gets a row in
-the store-resolved `open-findings.md` ledger (`resolve_working`; store `/opt/grc/private/` first, then `grc_library_private/.working/`) the moment it is confirmed, leaving only via
+the `open-findings.md` ledger resolved by `resolve_working` (an eligible out-of-repo operational store first (`$GRC_STORE`, else `/opt/grc/private/`), then the `.working/` fallbacks) the moment it is confirmed, leaving only via
 `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The [`block-on-open-findings.py`](hooks/block-on-open-findings.py)
 PreToolUse hook refuses a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (missing `gh pr 'merge'`, gating `echo "gh pr merge"`) on an undispositioned `error` row OR a
 MIS-FILED row that would escape the disposition scan; a `warning` is surfaced, not blocked; a missing or

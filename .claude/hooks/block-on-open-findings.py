@@ -9,9 +9,10 @@ as a table row and walked past in favour of writing a summary statistic about th
 is not acting on one, and the gap between those two is where the cost lives, so the block is
 mechanical.
 
-WHAT IT READS. `open-findings.md`, resolved via `lint_common.resolve_working` (operational store
-first, then the `grc_library_private/.working/` sibling, then the in-repo `.working/`; first existing;
-if the helper cannot be imported, only the in-repo path). Its `## Open` table carries one row per
+WHAT IT READS. `open-findings.md`, resolved via `lint_common.resolve_working`: the first existing of an
+eligible out-of-repo operational store (`$GRC_STORE`, else `<repo-parent>/private`), then the
+`grc_library_private/.working/` sibling, then the in-repo `.working/` (if the resolver helper cannot be
+imported, only the in-repo path is checked). Its `## Open` table carries one row per
 confirmed defect with a severity and a disposition. A row with an EMPTY disposition is undispositioned.
 A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disposition" is the
 primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
@@ -58,7 +59,8 @@ BLOCKING_CMDS = (("gh", "pr", "create"), ("gh", "pr", "merge"))
 
 
 # `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
-# lint_common.resolve_working (private sibling preferred, in-repo fallback). Fail-SAFE: if the
+# lint_common.resolve_working (an eligible out-of-repo operational store preferred, then the private
+# sibling, then the in-repo fallback). Fail-SAFE: if the
 # helper cannot be imported, fall back to the historical in-repo path so this hook never breaks.
 _TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
 if _TOOLS_DIR not in sys.path:
@@ -70,7 +72,7 @@ except Exception:  # pragma: no cover - fail-safe: never let a helper-load failu
 
 
 def _working_file(rel_below, root):
-    """`.working/<rel_below>` resolved via lint_common (private preferred), or None."""
+    """`.working/<rel_below>` resolved via lint_common (operational store preferred, else private sibling, else in-repo), or None."""
     if _resolve_working is not None:
         return _resolve_working(rel_below, repo_root=root)
     cand = root / ".working" / rel_below
