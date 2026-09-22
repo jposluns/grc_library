@@ -421,23 +421,26 @@ def text_blocks(source, suffix):
                 erased_to = close + 1
 
     for m in re.finditer(r"\]\[[^\]\n]*\]", source):
+        # An escaped "]" (odd backslash run) does not close a link label,
+        # so the following "[...]" is visible text, not a reference to mask.
+        bs, i = 0, m.start() - 1
+        while i >= 0 and source[i] == "\\":
+            bs, i = bs + 1, i - 1
+        if bs % 2 == 1:
+            continue
         erase(m.start(), m.end())
 
-    # Inline paths are authoring references, not citation labels.
+    # Inline paths are authoring references, not citation labels. A path is a
+    # single token (no whitespace) with a directory separator or a
+    # source-file extension; a code span containing whitespace is prose
+    # ("(7 years, ISO/IEC 42001)"), so a citation inside it is preserved.
     for m in re.finditer(r"\x60[^\x60\n]*\x60", source):
-        if re.search(
-            r"(?:^|[/\\])|\.(?:md|html|py)\b", m[0][1:-1]
-        ) and (
-            "/" in m[0]
-            or re.search(r"\.(?:md|html|py)\b", m[0])
+        content = m[0][1:-1]
+        if content and not re.search(r"\s", content) and (
+            "/" in content
+            or re.search(r"\.(?:md|html|py)\b", content)
         ):
-            if not re.match(
-                r"\x60(?:ISO|IEC|ISA)"
-                r"(?:\s*/\s*(?:IEC|IEEE|SAE)){0,2}\s+\d",
-                m[0],
-                re.I,
-            ):
-                erase(m.start(), m.end())
+            erase(m.start(), m.end())
 
     allowed = {ln for ln, _ in iter_non_code_lines(source)}
     blocks, offset, start, pending = [], 0, 0, []
@@ -498,23 +501,23 @@ def version_after(text, end, family):
         if m:
             return m[1], end + m.end()
 
-    # A parenthesized edition must close immediately, "(2022)", so a
-    # parenthetical prose quantity ("(2022 respondents)") is not mistaken
-    # for an edition; the colon and whitespace forms are unchanged.
+    # A parenthesized edition "(2022)" is accepted like the colon and
+    # whitespace forms, WITHOUT requiring an immediate close: a real edition
+    # is often followed by a qualifier inside the parens ("(1.0 core + 1.1
+    # IPD draft)" for the NIST Privacy Framework), and requiring the close
+    # discarded that real edition. A rare parenthetical prose quantity
+    # ("(2022 respondents)") is the accepted residual (no corpus occurrence).
     if family == "ISO/IEC":
-        pat = r"\s*(?:\(\s*(\d{4})\s*\)|(?::\s*|\s)(\d{4})" + END + ")"
+        pat = r"\s*(?::\s*|\(\s*|\s)(\d{4})" + END
     elif family == "IEEE":
-        pat = r"\s*(?:\(\s*(\d{4})\s*\)|(?:[-:]\s*|\s)(\d{4})" + END + ")"
+        pat = r"\s*(?:[-:]\s*|\(\s*|\s)(\d{4})" + END
     else:
         pat = (
-            r"\s*(?:\(\s*((?:version\s+|v)?" + NUM + r")\s*\)|"
-            r"(?::\s*|\s+|(?=v))((?:version\s+|v)?" + NUM + ")" + END + ")"
+            r"\s*(?:[:(]\s*|\s+|(?=v))"
+            r"((?:version\s+|v)?" + NUM + ")" + END
         )
     m = re.match(pat, tail, re.I)
-    if not m:
-        return ("", end)
-    ver = next((g for g in m.groups() if g is not None), "")
-    return (ver, end + m.end())
+    return (m[1], end + m.end()) if m else ("", end)
 
 
 def discover(source, suffix):
@@ -679,8 +682,16 @@ def resolve(occurrence, entries, bare_exceptions=None):
         )]
 
     observed = edition_key(version)
+    # A superseded marker may carry the standard's own id prefix (the
+    # register lists COBIT's superseded editions as "COBIT 5, COBIT 4.1");
+    # strip a leading id prefix so the bare edition key matches the observed
+    # version and the citation resolves STALE rather than UNRESOLVED_EDITION.
+    _id_prefix = re.compile(
+        r"^" + re.escape(str(entry["id"])) + r"\s+", re.I
+    )
     superseded = {
-        edition_key(str(v)) for v in entry["superseded"]
+        edition_key(_id_prefix.sub("", str(v)))
+        for v in entry["superseded"]
     } - {None}
     if observed in superseded:
         return [(
