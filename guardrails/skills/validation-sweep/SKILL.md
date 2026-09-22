@@ -42,7 +42,7 @@ The skill is project-agnostic in shape but invokes project-specific commands; th
 
 ## Process
 
-The sweep runs in nine steps. Steps 1-3 establish the baseline and scope; steps 4-5 are the semantic sweep; step 6 triages; step 7 is the fixed-point loop that runs until clean; step 8 appends to the cumulative history file when the sweep produces findings; step 9 writes a per-iteration record on every invocation.
+The sweep runs in nine steps. Steps 1-3 establish the baseline and scope; steps 4-5 are the semantic sweep; step 6 triages; step 7 is the fixed-point loop that runs until clean; step 8 appends a row to the sweep history on every iteration; step 9 writes a per-iteration detail file only when the iteration produced findings.
 
 ### 1. Establish mechanical baseline
 

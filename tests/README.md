@@ -67,14 +67,21 @@ Isolation is provided by two complementary mechanisms:
 Linters themselves do NOT exempt `tests/tmp/`. If a fixture from a
 crashed test were to remain in the directory, the main
 `tools/run_all_audits.sh` sweep would see it. In practice
-`setUpModule` cleans the directory at the start of each test run, so
-the only window for contamination is during a single-test crash
-without `tearDown`, and the next `setUpModule` removes the file.
+`setUpModule` removes stale top-level `*.md` fixtures at the start of
+each run, and per-test fixtures use unique `mkdtemp` directories cleaned
+by `addCleanup`; a single-test crash without cleanup can leave a
+uniquely-named `tests/tmp/fixture-*` directory that the next `setUpModule`
+does not sweep. Because the linters do not exempt `tests/tmp/` (above),
+such a leaked fixture can still be seen by a later `tools/run_all_audits.sh`
+sweep and trip a content gate, so clear `tests/tmp/` manually after a
+crashed run.
 
 ## Global-state isolation
 
-The regression suite runs every linter in ONE Python interpreter
-(`run-linter-regression.py` imports and drives them in-process), so a test
+The regression suite is driven by `run-linter-regression.py`, which runs
+the `unittest` module as a subprocess, and many linter invocations run in
+their own subprocesses via the `run_linter` helper; some tests, however,
+import linter modules and drive them in-process, so such a test
 that patches a shared or module-level global (an environment variable, a
 module attribute, `sys.argv`, a class attribute, or a monkeypatched function)
 must restore it deterministically, or the mutation leaks into a sibling test
