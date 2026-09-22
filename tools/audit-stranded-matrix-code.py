@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-"""Full-corpus stranded control-code scan (master compliance matrix vs per-document).
+"""Master-matrix same-family stranded control-code scan (master compliance matrix vs per-document).
 
-Advisory enumeration (exit 0, `audit-*` not `lint-*`) of the STRANDED paired-surface
-class: the master matrix cites a CSA CCM / AICM control code for a document whose OWN
-text no longer contains that code, because a per-document control-fit fix (the P-1.60
-campaign) corrected the document's table but the matrix row predates the fix. No
-existence gate can see this: the code exists and is in-catalogue; it is simply the
-WRONG code for THAT document now.
+Advisory enumeration (exit 0, `audit-*` not `lint-*`) of the same-family subset of the STRANDED paired-surface
+class: the master matrix cites a CSA CCM / AICM control code that is absent from the
+referenced document's own expanded code set, while that set contains another code of the
+SAME prefix (family). This is a SIGNAL of a possible stale mapping (a per-document
+control-fit fix may have re-mapped the document to a sibling while the matrix row kept the
+old code); the scan establishes only the token-level absence, not catalogue membership,
+revision history, or whether the mapping is actually wrong. Existence gates cannot see this
+class (they check code validity, not per-document fit); each candidate is judged at source.
 
 The per-PR D13 gate catches an intra-document table-vs-body strand within one PR's
-diff. This scan is the cross-DOCUMENT, whole-corpus complement: matrix-row-vs-document,
-run report-only to enumerate the complete set before the fixes (scan-first, maintainer
+diff. This scan is the cross-DOCUMENT, master-matrix complement: matrix-row-vs-document,
+run report-only to enumerate the same-family-signature candidates before the fixes (scan-first, maintainer
 decision 2026-09-02).
 
 Advisory, because a matrix row may legitimately cite a representative control the
@@ -25,9 +27,9 @@ at all is treated as a representative mapping and is NOT flagged; whether those 
 also be dropped is the master-matrix strict-reproduce-vs-representative principle routed
 to the maintainer (pending-decisions 2026-09-02), and this scan does not pre-empt it.
 
-Code shape and ranges. A control code is `PREFIX-NN`, where PREFIX is 2-5 characters of
-uppercase letters and ampersands (so the `A&A` and `I&S` families match, not only the
-letter-only families) and NN is two digits. A document (or a matrix cell) may express a
+Code shape and ranges. A standalone control token is `PREFIX-NN`, where PREFIX starts with
+an uppercase ASCII letter followed by 1-4 uppercase ASCII letters or ampersands (so the
+`A&A` and `I&S` families match, but ampersand-leading prefixes do not), and NN is two digits. A document (or a matrix cell) may express a
 contiguous block as a RANGE (`IAM-01 to 15`, `LOG-01 through LOG-14`); the scan expands
 both sides' ranges before comparing, so a code covered by a range the document carries is
 not falsely reported stranded.
@@ -88,9 +90,9 @@ def _doc_path(path_cell: str) -> str | None:
 
 
 def _default_doc_reader(docrel: str) -> str | None:
-    """Return the document's text, or None if it does not exist. Resolves a path
-    repo-relative first, then relative to the matrix's own directory (the link-fallback
-    form can yield a matrix-dir-relative or bare-filename path)."""
+    """Try repo-relative, then repo/compliance-relative paths.
+    Return None if neither candidate exists or the first existing candidate
+    fails UTF-8 decoding. Filesystem read errors propagate."""
     for cand in (REPO_ROOT / docrel, REPO_ROOT / "compliance" / docrel):
         if cand.exists():
             return read_text_safe(cand)
@@ -99,8 +101,9 @@ def _default_doc_reader(docrel: str) -> str | None:
 
 def scan(matrix_text: str, doc_reader=_default_doc_reader) -> list[str]:
     """Flag same-family strand candidates. `doc_reader(docrel) -> text|None` is the
-    document-text source (injected by the self-test; the corpus reader by default). A
-    None return means the document does not exist and the row is skipped."""
+    document-text source (injected by the self-test; the corpus reader by default).
+    A None return skips the row; the default reader returns None for an absent
+    document or a UTF-8 decoding failure."""
     findings: list[str] = []
     lines = matrix_text.splitlines()
     ccm_idx = aicm_idx = path_idx = None
@@ -129,7 +132,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader) -> list[str]:
             dt = doc_reader(docrel)
             doc_cache[docrel] = _expand_codes(dt) if dt is not None else None
         doc_codes = doc_cache[docrel]
-        if doc_codes is None:  # document does not exist
+        if doc_codes is None:  # reader returned None; skip this row
             i += 1
             continue
         doc_prefixes = {c.split("-")[0] for c in doc_codes}
@@ -144,7 +147,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader) -> list[str]:
                 # Strand SIGNATURE: the document engages this control FAMILY (has a
                 # same-prefix code) but not THIS code -> a per-doc fix likely replaced
                 # it with a sibling while the matrix row kept the old code. A document
-                # with NO same-family code is a representative mapping, not a strand.
+                # with NO same-family code is treated as representative, not a strand.
                 if prefix in doc_prefixes:
                     siblings = sorted(c for c in doc_codes if c.split("-")[0] == prefix)
                     findings.append(
@@ -201,7 +204,7 @@ def _self_test() -> int:
 
 
 def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description="Full-corpus stranded control-code scan (advisory).")
+    ap = argparse.ArgumentParser(description="Master-matrix same-family stranded control-code scan (advisory).")
     ap.add_argument("--matrix", default=str(REPO_ROOT / MATRIX_REL))
     ap.add_argument("--self-test", action="store_true", help="run the built-in fixtures and exit")
     args = ap.parse_args(argv[1:])
@@ -219,13 +222,18 @@ def main(argv: list[str]) -> int:
     if findings:
         uniq = sorted(set(findings))
         print(f"REPORT: {len(uniq)} stranded-code candidate(s) (matrix cites a code absent "
-              f"from the referenced document):")
+              f"from a referenced document that engages the SAME control family):")
         for f in uniq:
             print(f"  - {f}")
         print("\nAdvisory: each is a candidate, not a confirmed defect. Verify against the held "
               "control title and the document's own alignment table, then fix or dismiss.")
     else:
-        print("OK: every CCM/AICM code the master matrix cites appears in its referenced document.")
+        print("OK: no stranded-code candidates under the flagging signature (a CCM/AICM code in the "
+              "scanned matrix's CCM/AICM columns absent from its referenced document, which engages the "
+              "SAME control family via a same-prefix sibling). This does NOT establish universal presence: "
+              "a code whose family the document does not engage is TREATED AS a representative mapping and "
+              "is deliberately not flagged (module docstring; strict-reproduce-vs-representative decision), "
+              "and rows with an unresolved path, an absent document, or a document that fails UTF-8 decoding are skipped.")
     return 0  # advisory: never blocks
 
 
