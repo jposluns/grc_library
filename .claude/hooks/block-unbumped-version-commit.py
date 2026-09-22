@@ -14,19 +14,37 @@ the repair is itself a new commit touching the same file, which is how one miss 
 D4 repair that moved a `Date` became a gate-40 failure, whose repair became a gate-33 failure. The
 fix has to fire at the moment of the commit, where the correction is free.
 
-WHAT IT READS. The STAGED diff (`git diff --cached`), which is exactly what the commit will contain,
-so the hook's input can answer the question asked of it. For each staged file carrying a `**Version:**`
-metadata line, it asks whether any NON-METADATA line changed while the `Version` line did not. That is
-the same shape gate 40 checks against committed history, moved one step earlier.
+WHAT IT READS. The STAGED diff (`git diff --cached`) of the repository CONTAINING THIS HOOK, whose root
+is derived from the hook's own location (NOT the command's `-C` target or the runtime cwd). It does not
+simulate preceding commands, a `commit -a`, or a path-selected commit, so any of those can make the
+inspected index differ from what the eventual commit contains. Eligibility comes from WORKING-TREE
+contents: a staged `.md` file outside `.corpus-management/` whose working file carries any column-zero
+`**Version:**` line. For each, it asks whether a changed line is non-metadata (a column-zero `**Key:** value`
+line, matched anywhere, is treated as metadata; a blank changed line is ignored) while no changed line is a
+`**Version:**` line. This is a lighter, commit-time cousin of gate 40's committed-history check (gate 40
+remains the authority and compares differently); it checks only that a `**Version:**` line was added or
+removed, not that the value increments. Eligible paths come from `git diff --cached --name-only` filtered to
+staged `.md` files (outside `.corpus-management/`) whose working file carries a `**Version:**` line (a
+per-file read error skips only that file). The diff-header parser then associates hunks with those paths by
+splitting each header at its first ` b/`, so a ` b/`-containing or Git-quoted path can be missed.
 
 WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
   - AUTO-FIXES FIRST, THEN BLOCKS (auto-fix added #1237): on a staged body change to a versioned
-    file with no staged `Version` change, it attempts an automatic PATCH `**Version:**` + `**Date:**`
-    bump and re-stage (`try_auto_bump`); it BLOCKS only the file(s) it could NOT auto-bump (other
-    unstaged changes present, or a non-semver Version such as README's CalVer).
-  - ALSO WARNS (never blocks) when a corpus document's `Version` moved and `taxonomy.yml` is absent
-    from the same staged set, which is the sixth-instance shape. It warns rather than blocks because
-    the regeneration order matters and a blocked commit cannot be fixed without unstaging.
+    file with no staged `Version` change, it attempts a PATCH increment of the FIRST numeric `**Version:**` match before the metadata-region
+    boundary (skipping an earlier bracketed-template Version),
+    updates the first matching `**Date:**` in the leading metadata region IF one is present (otherwise the
+    Date is left unchanged), writes the file, then re-stages it. The write-then-stage is not transactional,
+    so a later failure can leave the working file modified. It reports the file(s) it could NOT auto-bump
+    (other unstaged changes present, no `SEMVER_VERSION` match before the metadata-region end, or an
+    Exception during the attempt) and BLOCKS THE WHOLE tool call if any remain; auto-bumps done earlier in
+    the same run are kept.
+  - ALSO WARNS (never blocks), only when the offender list is empty, over the eligible
+    working-tree-VERSIONED staged paths (not every staged `.md`), for those in a subdirectory outside
+    `.working/` and `.claude/` when none of the derived artefacts is staged alongside them
+    (a corpus path checks `taxonomy.yml` / `docs/portal.md` / `docs/maturity-scorecard.md`; an executive
+    path checks `narrative.yml`). It does NOT verify that a `**Version:**` value actually moved, so a
+    Date-only staged change can trigger it; it warns rather than blocks because the regeneration order
+    matters and the generated artefacts can be staged alongside the document without unstaging it.
   - DOES NOT block a `Version` bump whose `Date` is stale: delta gate D4 owns that comparison, it
     needs the commit's own date which does not exist yet at PreToolUse time, and duplicating it here
     from a guessed date would be a check whose input cannot answer it.
@@ -35,17 +53,21 @@ WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
     the staged set alone, so the hook leaves it (the refuse-what-you-cannot-answer discipline); a
     staged body change amended in is NOT version-checked here (gate 40 / D2 remain the authority).
 
-FAIL-OPEN BY DESIGN. Any failure to parse the payload, locate the repository, or run git ALLOWS the
-commit. A guard that blocks all work when it breaks gets removed within a day, and a removed guard
-protects nothing (the same trade `block-on-open-findings.py` records). This hook is defence in depth
-under gates 40 and D2, which remain the authority.
+FAIL-OPEN, BUT NOT UNIVERSALLY. A failure during the INITIAL JSON parse, repository location, or
+staged-diff inspection ALLOWS the commit; an error reading one candidate working file skips only that
+file, so other offenders can still block. A failure DURING an offender's auto-bump (a `git diff`/`git add`
+error, or any exception in `try_auto_bump`) is caught as an unsuccessful attempt, which keeps that file a
+blocking offender rather than allowing. A guard that blocks all work when it breaks gets removed within a
+day (the same trade `block-on-open-findings.py` records), which is why the read path fails open; the
+auto-bump path fails toward the block it was already going to issue. Defence in depth under gates 40 and
+D2, which remain the authority.
 
 THE ESCAPE HATCH IS DELIBERATE AND NARROW. A command whose text contains the bare token
 `VersionBump: none` proceeds (matched anywhere in the command string; the `<reason>` is a CONVENTION
 for the reviewer, NOT mechanically required or checked by this hook). Some body edits genuinely do
-not warrant a bump, and without a stated path the guard would be bypassed wholesale with `--no-verify`
-the first time it was wrong, which is worse than a hatch that, by convention, leaves a reason in the
-commit message where a reviewer can see it.
+not warrant a bump, and without a sanctioned opt-out an author whose edit genuinely does not warrant one
+has no clean path, so the guard becomes friction that invites disabling it wholesale, which is worse than a
+hatch that, by convention, leaves a reason in the commit message where a reviewer can see it.
 """
 from __future__ import annotations
 
@@ -57,8 +79,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 VERSION_LINE = re.compile(r"^\*\*Version:\*\*", re.M)
-# A metadata line is one of the leading `**Key:** value` block lines. Changing only these is a
-# metadata edit, not a body change, so it must not by itself demand a bump.
+# METADATA_PREFIX matches a column-zero `**Key:** value` line ANYWHERE (classify_hunk applies it
+# per changed line, with no leading-block tracking). Changing only such lines is a metadata edit,
+# not a body change, so it must not by itself demand a bump.
 METADATA_PREFIX = re.compile(r"^\*\*[A-Za-z][A-Za-z ()/-]*:\*\*")
 OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
 # Generated artefacts, split by SOURCE: corpus documents feed the taxonomy chain;
@@ -67,8 +90,13 @@ OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
 TAXONOMY_GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
 NARRATIVE_GENERATED = ("narrative.yml",)
 GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
-# A CLEAN `**Version:** X.Y.Z` semver line (auto-bumpable). README's `**Library Version:**` (CalVer)
-# and template `**Version:** <x.y.z ...>` do NOT match, so they fall through to the block fallback.
+# A `**Version:**` line beginning with three dot-separated digit groups (auto-bumpable); the trailing
+# `(.*)` preserves any remainder, so this does NOT distinguish semver from a numerically similar CalVer
+# and increments a `**Version:** 2026.07.725` just as it would a semver value. README's `**Library
+# Version:**` field is a DIFFERENT key and is not matched by VERSION_LINE at all; a bracketed template
+# `**Version:** <x.y.z ...>` has no leading digit group and does not match SEMVER_VERSION. When no numeric
+# match exists before the metadata-region end bump_semver returns None and the offender blocks; a numeric
+# match can still block if the file has other unstaged changes or the auto-bump raises.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
 DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 
@@ -86,7 +114,9 @@ COMMIT_RE = re.compile(r"\bgit\b(?:\s+-C\s+\S+)*\s+commit\b")
 
 
 def is_commit(cmd: str) -> bool:
-    """PURE. Is this shell command a git commit that will create a commit?"""
+    """PURE. Does the flattened command text contain `git`, optional whitespace-delimited `-C`
+    operands, and `commit` (a textual match, not a guarantee a commit will be created: `git commit
+    --dry-run` and `echo 'git commit'` both match)? Any `--amend` substring anywhere exempts it."""
     flat = " ".join(cmd.split())
     if not COMMIT_RE.search(flat):
         return False
@@ -98,8 +128,13 @@ def is_commit(cmd: str) -> bool:
 def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
     """PURE. (body_changed, version_changed) for one file's unified-diff lines.
 
-    A changed line counts as BODY unless it is a metadata `**Key:** value` line. Diff headers and
-    hunk markers are ignored. Returns two independent booleans because the interesting state is
+    A changed line counts as BODY unless it is blank/whitespace-only or a column-zero `**Key:**
+    value` metadata line (matched by position anywhere, not only in a leading block). Header lines
+    beginning `+++`/`---`/`@@`/`diff `/`index `/`new file`/`deleted file` are skipped by a prefix check
+    on the RAW diff line (before the +/- change marker is stripped), so a `+`/`-`-marked content line
+    starting `diff `/`index `/`@@`/etc. does NOT match and is kept as body, though content rendered
+    `+++`/`---` does match and is skipped. Returns two independent
+    booleans because the interesting state is
     body-without-version, and collapsing them early would hide it.
     """
     body = version = False
@@ -119,7 +154,9 @@ def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
 
 
 def offenders(diff: str, versioned: set[str]) -> list[str]:
-    """PURE. Staged versioned files whose body changed with no Version change."""
+    """PURE. Staged versioned files whose body changed with no Version change. Each diff header is
+    split at its FIRST literal ` b/`, so a path CONTAINING ` b/` (or a Git-quoted path) can be
+    misidentified or missed; such a file is then not seen as an offender."""
     out, cur, buf = [], None, []
 
     def flush():
@@ -145,9 +182,12 @@ def git(root: Path, *args: str) -> str:
 
 
 def _metadata_region_end(text: str) -> int:
-    """PURE. Char offset where the leading metadata block ends (the first BODY line). A
-    `**Version:**`/`**Date:**` at or after this offset is a body/example occurrence (e.g. a fenced
-    example or a template), NOT the real metadata field, so the auto-bump must not touch it."""
+    """PURE. Char offset where the leading run of blank, `#`-prefixed, and `**Key:**`-metadata-shaped
+    lines ends (a heuristic boundary, not a parse of document structure; each line is stripped first, so an
+    INDENTED metadata-shaped line also extends the region and a Markdown `#` heading is treated as a comment).
+    The auto-bump searches only
+    before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
+    is left untouched."""
     off = 0
     for line in text.splitlines(keepends=True):
         st = line.strip()
@@ -159,8 +199,12 @@ def _metadata_region_end(text: str) -> int:
 
 
 def bump_semver(text: str) -> str | None:
-    """PURE. `text` with the FIRST clean `**Version:** X.Y.Z` patch-bumped, or None if there is no
-    clean semver Version line (a CalVer or template Version returns None -> caller falls back to block)."""
+    """PURE. `text` with the FIRST `SEMVER_VERSION` match BEFORE `_metadata_region_end(text)`
+    patch-bumped, or None if there is no such match. The regex matches any three dot-separated digit
+    groups, so a CalVer-shaped `**Version:** 2026.07.725` in the metadata region also matches and is
+    bumped. A bracketed-template `**Version:** <x.y.z>` line does not itself match and is skipped, so a
+    later numeric Version line before the region end is still found and bumped; None is returned only when
+    NO numeric match exists before the region end -> caller blocks."""
     m = SEMVER_VERSION.search(text[:_metadata_region_end(text)])
     if not m:
         return None
@@ -178,9 +222,11 @@ def set_date(text: str, today: str) -> str:
 
 
 def try_auto_bump(root: Path, path: str, today: str) -> bool:
-    """Auto-bump a CLEAR offender's Version (patch) + Date and re-stage it. Return True if done,
-    False if AMBIGUOUS (caller blocks): OTHER unstaged changes to the file (auto-staging would grab
-    them), an unreadable file, or no clean semver Version line. Never mis-stages on any error."""
+    """Attempt a patch Version bump + Date update on an offender and re-stage it. Return True on
+    success, False (caller blocks) when the file has OTHER unstaged changes (auto-staging would grab
+    them), cannot be read, has no `SEMVER_VERSION` match before the metadata-region end, or any
+    Exception occurs during the attempt. The write-then-stage is not transactional, so a failure after
+    the write can leave the working file modified."""
     try:
         if git(root, "diff", "--name-only", "--", path).strip():
             return False
@@ -230,19 +276,20 @@ def main() -> int:
         return 0  # fail OPEN, deliberately: see the module docstring
 
     if not bad:
-        # The sixth-instance shape: a corpus Version moved but the derived artefacts are absent.
-        # A WARNING, not a block, because the regeneration order matters and a blocked commit
-        # cannot be fixed without unstaging.
+        # The sixth-instance shape: a versioned corpus document staged without its derived
+        # artefacts. This does NOT verify a Version actually moved (a Date-only staged change can
+        # trigger it). A WARNING, not a block: regeneration order matters, and the generated artefacts
+        # can be staged alongside the document without unstaging it.
         moved = [p for p in versioned if "/" in p and not p.startswith((".working/", ".claude/"))]
         exec_pages = [p for p in moved if p.startswith("executive/")]
         corpus_pages = [p for p in moved if not p.startswith("executive/")]
         if corpus_pages and not any(g in staged for g in TAXONOMY_GENERATED):
-            print("NOTE (version-bump guard): a corpus document's Version moved and none of "
+            print("NOTE (version-bump guard): a versioned corpus document is staged and none of "
                   f"{', '.join(TAXONOMY_GENERATED)} is staged. If this document feeds the taxonomy, "
                   "run `python3 tools/build-taxonomy.py` FIRST, then build-portal.py, and stage both. "
                   "Gate 33 catches it otherwise, six minutes from now.", file=sys.stderr)
         if exec_pages and not any(g in staged for g in NARRATIVE_GENERATED):
-            print("NOTE (version-bump guard): an executive/ page's Version moved and narrative.yml "
+            print("NOTE (version-bump guard): a versioned executive/ page is staged and narrative.yml "
                   "is not staged. Run `python3 tools/build-narrative-registry.py` and stage it. "
                   "Gate 85 catches it otherwise, six minutes from now.", file=sys.stderr)
         return 0
@@ -252,16 +299,18 @@ def main() -> int:
     for p in bad:
         (fixed if try_auto_bump(root, p, today) else remaining).append(p)
     if fixed:
-        print("NOTE (version-bump guard): auto-bumped **Version:** (patch) + **Date:** to "
-              f"{today} and re-staged: {', '.join(fixed)}. A PATCH bump is assumed; if a minor/major "
-              "is intended, edit **Version:** yourself and re-commit.", file=sys.stderr)
+        print("NOTE (version-bump guard): auto-bumped **Version:** (patch), set the first date-shaped "
+              f"**Date:** before the metadata-region end to {today} if one exists, and re-staged: "
+              f"{', '.join(fixed)}. A PATCH "
+              "bump is assumed; if a minor/major is intended, edit **Version:** yourself and re-commit.",
+              file=sys.stderr)
     if not remaining:
         return 0
 
     lines = [
         "BLOCKED (unbumped-version-commit): these staged file(s) have a changed BODY and an "
         "unchanged `**Version:**` line and could not be auto-bumped (other unstaged changes "
-        "present, or the Version is not clean semver such as README's CalVer):",
+        "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
         "",
     ]
     lines += [f"  - {p}" for p in remaining]
@@ -273,8 +322,9 @@ def main() -> int:
         "at the pre-push guard six minutes later.",
         "",
         "CONSIDER-INSTEAD: bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. If "
-        "this body edit genuinely does not warrant a bump, say so in the commit message with "
-        "`VersionBump: none <reason>` and it will proceed.",
+        "this body edit genuinely does not warrant a bump, include `VersionBump: none <reason>` in the "
+        "commit COMMAND text (e.g. an inline `-m` message; a `-F` message file is not inspected) and it "
+        "will proceed.",
     ]
     print("\n".join(lines), file=sys.stderr)
     return 2
@@ -353,7 +403,7 @@ def self_test() -> int:
     # --- 3.134 auto-bump: pure helpers ---
     ck("bump_semver patches Z", bump_semver("**Version:** 1.2.3\\\nbody"), "**Version:** 1.2.4\\\nbody")
     ck("bump_semver keeps trailing text", bump_semver("**Version:** 1.10.87 (per-doc)\\"), "**Version:** 1.10.88 (per-doc)\\")
-    ck("bump_semver returns None on a template/CalVer Version", bump_semver("**Version:** <x.y.z: new docs start at 0.0.1>\\"), None)
+    ck("bump_semver returns None on a bracketed-template Version", bump_semver("**Version:** <x.y.z: new docs start at 0.0.1>\\"), None)
     ck("bump_semver returns None with no Version line", bump_semver("just body text"), None)
     ck("bump_semver ignores a fenced/body Version example (F1 hardening)",
        bump_semver("**README Version:** 9.9.9\\\n\nbody\n\n```\n**Version:** 1.0.0\n```\n"), None)
@@ -387,12 +437,13 @@ def self_test() -> int:
     (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nstaged body\n"); git(d2, "add", "y.md")
     (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nUNSTAGED further edit\n")  # extra unstaged change
     ck("offender with other unstaged changes is NOT auto-bumped (block fallback)", try_auto_bump(d2, "y.md", "2026-07-29"), False)
-    # non-semver (CalVer/template) Version -> ambiguous -> not auto-bumped
+    # a different key (**Library Version:**) -> no SEMVER_VERSION match -> try_auto_bump returns False;
+    # main also excludes it from versioned eligibility
     d3 = mkrepo()
     (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nbody\n")
     git(d3, "add", "z.md"); git(d3, "commit", "-q", "-m", "init")
     (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nnew body\n"); git(d3, "add", "z.md")
-    ck("a non-semver (CalVer) Version is NOT auto-bumped (block fallback)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
+    ck("direct try_auto_bump returns False for a Library-Version-only file (no SEMVER_VERSION match)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
