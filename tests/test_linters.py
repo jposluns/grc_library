@@ -22178,7 +22178,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assert_refusal(render(changed_docs), guard="probe", imperative="run")
         with self.assertRaises(AssertionError):
             self.assert_refusal(render(new_branch, new=True), guard="probe", imperative="run")
-from tests.test_standards_currency_coverage import CitationCoverageTests
+from tests.test_standards_currency_coverage import CitationCoverageTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers it)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

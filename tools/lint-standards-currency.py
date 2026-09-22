@@ -242,7 +242,12 @@ def iter_files(paths, *, explicit=True):
             raise OSError(f"missing/unreadable intended input: {path}")
 
     for value in paths:
-        path = within(root / value)
+        candidate = root / value
+        if candidate.is_symlink() and candidate.is_dir():
+            raise OSError(
+                f"directory symlink in scan scope: {candidate}"
+            )
+        path = within(candidate)
         if not explicit and not path.exists():
             # Sparse --root fixtures need not create every default root.
             continue

@@ -152,7 +152,7 @@ IDENTIFIERS = [
     (
         "NIST",
         r"(?:NIST\s+(?:"
-        r"SP\s+\d{3,4}(?:-\d+[A-Z]?(?:-\d+)?)?"
+        r"SP\s+\d{3,4}(?:-\d+[A-Z]?(?:-\d+)?|\s+series)?"
         r"|IR\s+\d+[A-Z]?"
         r"|AI\s+\d+-\d+"
         r"|AI\s+RMF|CSF|RMF|Privacy\s+Framework)"
@@ -165,8 +165,8 @@ IDENTIFIERS = [
     ),
     (
         "ETSI/CEN",
-        r"(?:(?:ETSI|CEN)\s+(?:EN|TS|TR|GS)|EN)"
-        r"\s+\d{3,6}(?:\s+\d{3}){0,1}(?:-\d{1,3})*",
+        r"(?:(?:ETSI|CEN)\s+(?:EN|TS|TR|GS)\s+\d{3,6}|EN\s+\d{2,6})"
+        r"(?:\s+\d{3}){0,1}(?:-\d{1,3})*",
     ),
     ("named", r"CIS\s+Controls|ITIL|WCAG|COBIT|SLSA"),
 ]
@@ -290,19 +290,26 @@ class TextExtractor(HTMLParser):
         if tag in BLOCK_TAGS:
             self.flush()
 
-        # Human-facing attributes are independent blocks.
+        # Human-facing attributes are independent blocks. Match by the
+        # PARSED attribute names (so data-title and a title= inside
+        # another attribute's value are not mistaken for a real title),
+        # and append each as its own block WITHOUT flushing the visible
+        # stream (an inline tag must not split surrounding visible text).
         raw = self.get_starttag_text()
+        genuine = {n.lower() for n, v in attrs if v is not None}
         for m in re.finditer(
-            r"""\b(?:alt|title|aria-label)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
+            r"""(?<![\w-])(alt|title|aria-label)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
             raw,
             re.I,
         ):
+            if m[1].lower() not in genuine:
+                continue
+            g = next(gi for gi in (2, 3, 4) if m[gi] is not None)
+            saved_chars, saved_offsets = self.chars, self.offsets
+            self.chars, self.offsets = [], []
+            self.add_encoded(m[g], self.source_offset() + m.start(g))
             self.flush()
-            g = next(g for g in (1, 2, 3) if m[g] is not None)
-            self.add_encoded(
-                m[g], self.source_offset() + m.start(g)
-            )
-            self.flush()
+            self.chars, self.offsets = saved_chars, saved_offsets
 
     def handle_startendtag(self, tag, attrs):
         self.handle_starttag(tag, attrs)
@@ -364,16 +371,24 @@ def text_blocks(source, suffix):
         erase(m.start(), m.end())
 
     # Balanced inline-link destinations, including nested parentheses.
+    # One left-to-right pass pairs each "(" with its matching ")"; the
+    # per-"](" lookup is then O(1), avoiding the quadratic rescan a
+    # malformed run of "](" would otherwise cause.
+    close_of, open_stack, k, n = {}, [], 0, len(source)
+    while k < n:
+        ch = source[k]
+        if ch == "\\":
+            k += 2
+            continue
+        if ch == "(":
+            open_stack.append(k)
+        elif ch == ")" and open_stack:
+            close_of[open_stack.pop()] = k
+        k += 1
     for m in re.finditer(r"\]\(", source):
-        depth, j = 1, m.end()
-        while j < len(source) and depth:
-            if source[j] == "\\":
-                j += 2
-                continue
-            depth += (source[j] == "(") - (source[j] == ")")
-            j += 1
-        if not depth:
-            erase(m.start(), j)
+        close = close_of.get(m.end() - 1)
+        if close is not None:
+            erase(m.start(), close + 1)
 
     for m in re.finditer(r"\]\[[^\]\n]*\]", source):
         erase(m.start(), m.end())
@@ -446,7 +461,7 @@ def version_after(text, end, family):
         if embedded:
             return embedded[1], end + embedded.end()
         m = re.match(
-            r"\s*(?:[:(]\s*)?(" + REV + ")" + END,
+            r"\s*(?:[:(,]\s*)?(" + REV + ")" + END,
             tail,
             re.I,
         )
@@ -454,7 +469,7 @@ def version_after(text, end, family):
             return m[1], end + m.end()
 
     if family == "ISO/IEC":
-        pat = r"\s*(?::|\(\s*|\s)(\d{4})" + END
+        pat = r"\s*(?::\s*|\(\s*|\s)(\d{4})" + END
     elif family == "IEEE":
         pat = r"\s*(?:[-:]|\(\s*|\s)(\d{4})" + END
     else:
@@ -597,6 +612,15 @@ def resolve(occurrence, entries, bare_exceptions=None):
                 "NONCANONICAL_ID",
                 "Suggest " + str(nearby[0]["id"]) + "; not accepted.",
             )]
+        # A bare NIST SP series prefix (no publication part, no register
+        # row) is a series reference, not a missing publication: advisory.
+        if occurrence.get("family") == "NIST" and re.fullmatch(
+            r"NIST\s+SP\s+\d+", occurrence["observed"].strip(), re.I
+        ):
+            return [(
+                "CANDIDATE",
+                "Bare NIST SP series prefix; classify, not a publication.",
+            )]
         return [("UNREGISTERED", "No canonical register row.")]
 
     if len(exact) != 1:
@@ -607,6 +631,11 @@ def resolve(occurrence, entries, bare_exceptions=None):
     if not version:
         reason = (bare_exceptions or {}).get(key)
         if reason:
+            return []
+        # A register row whose current value is a series marker declares
+        # no single edition to pin to (editions vary per part): a bare
+        # citation of such a series is not UNPINNED.
+        if "series" in str(entry["current"]).lower():
             return []
         return [(
             "UNPINNED",
@@ -782,9 +811,10 @@ def print_coverage(report, *, as_json=False):
     print("Files:", report["files"], "Register rows:", report["entries"])
     print("Scope:", report.get("scope", {}))
     for kind, count in report["inventories"].items():
+        noun = "distinct forms" if kind == "CANDIDATE" else "identities"
         print(
-            "%s: %d identities; %d occurrences (%d legacy)" % (
-                kind, count["identities"],
+            "%s: %d %s; %d occurrences (%d legacy)" % (
+                kind, count["identities"], noun,
                 count["occurrences"], count["legacy"],
             )
         )
