@@ -29,7 +29,8 @@ WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
     cannot loop the session;
   * anything at all, if the escape file exists and is successfully consumed (see below);
-  * anything at all, if it cannot answer the question (see fail-open);
+  * anything at all, if an error reaches main()'s outer exception handler (see fail-open); a LOCAL
+    recovery path (the diff non-zero exit, the resolver import, a failed escape-unlink) can instead block;
   * anything at all, inside a dispatched worker session: a worker's fan-out cannot discharge any of
     this guard's remedies, so the check is skipped there (#1695).
 
