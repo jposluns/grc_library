@@ -2,8 +2,8 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
-**Date:** 2026-09-14\
+**Version:** 1.1.3\
+**Date:** 2026-09-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`docs/maturity-scorecard.md`](../docs/maturity-scorecard.md)\
@@ -171,7 +171,7 @@ An organization tunes the "begun", "substantive", and "sustained" thresholds to 
 
 ### 10.4 Source population and current state
 
-The signals compute from the relationship model once its source records enough of the corpus's real relationships. Source population has begun: [`relationship-model-source.json`](relationship-model-source.json) now carries real corpus relationships (a growing seed, currently 21 records across nine domains) rather than illustrative placeholders. Those records populate three of the seven signal-bearing classes (implementation, correspondence, and influence), with one further relationship (an adoption commitment) in a class outside the signal-bearing set; the requirement, applicability, assessed-outcome, and containment signal-bearing classes are not yet represented, so the population is an early seed rather than a complete record of the corpus's relationships. The measurement model defines the derivation; computing live signal values additionally requires a generator over the populated relationship model, which is not yet built. Broadening the population to the remaining signal-bearing classes and building that generator are tracked as separate follow-up work and are not changes to this methodology; until both are in place, the measured profile is defined but its live signal values are not yet computed.
+The signals compute from the relationship model once its source records enough of the corpus's real relationships. Source population has begun: [`relationship-model-source.json`](relationship-model-source.json) now carries real corpus relationships (a growing seed, currently 61 records across nine domains) rather than illustrative placeholders. Those records populate three of the seven signal-bearing classes (implementation, correspondence, and influence), with two further relationships (an adoption commitment and a citation) in classes outside the signal-bearing set; the requirement, applicability, assessed-outcome, and containment signal-bearing classes are not yet represented, so the population is an early seed rather than a complete record of the corpus's relationships. The measurement model defines the derivation; computing live signal values additionally requires a generator over the populated relationship model, which is not yet built. Broadening the population to the remaining signal-bearing classes and building that generator are tracked as separate follow-up work and are not changes to this methodology; until both are in place, the measured profile is defined but its live signal values are not yet computed.
 
 ---
 

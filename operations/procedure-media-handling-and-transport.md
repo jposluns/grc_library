@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.13\
-**Date:** 2026-09-14\
+**Version:** 1.3.14\
+**Date:** 2026-09-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -169,7 +169,7 @@ Before any storage media is reissued for a different user or purpose, it must be
 | Media Type | Required Sanitization Method |
 | --- | --- |
 | Hard disk drives (HDD) | IEEE 2883 Clear (overwrite) for Internal and below; Purge (verified overwrite or degauss) for Confidential and above. |
-| Solid-state drives (SSD) and flash media | Cryptographic erasure using ATA Secure Erase, Sanitize (Block Erase), or equivalent. |
+| Solid-state drives (SSD) and flash media | IEEE 2883 Purge via Sanitize Block Erase or Cryptographic Erase (the latter destroys the media encryption key on self-encrypting drives); or an equivalent manufacturer-verified Purge method (for example ATA Security Erase Unit in Enhanced Erase mode). |
 | Magnetic tapes | Degaussing followed by label removal and overwrite verification. |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by the device OS. |
 | Optical media (CD, DVD, Blu-ray) | Physical destruction (shredding); optical media cannot be reliably overwritten and must not be reused for Confidential or above. |
@@ -192,7 +192,7 @@ Media disposal initiated by expiry of the Records Retention Schedule is coordina
 1. No active retention hold (litigation freeze or regulatory hold) is in effect.
 2. The retention period for all data on the media has expired.
 
-Media subject to an active retention hold must not be destroyed until Legal Counsel formally lifts the hold, per the Records Retention and Destruction Standard §3.
+Media subject to an active retention hold must not be destroyed until Legal Counsel formally lifts the hold, per the Records Retention and Destruction Standard §7.
 
 ---
 

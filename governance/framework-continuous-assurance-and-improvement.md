@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.6\
-**Date:** 2026-09-20\
+**Version:** 1.1.7\
+**Date:** 2026-09-22\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -142,7 +142,7 @@ Performance data from all assurance activities feed into the Governance Performa
 
 ## 6. Sector-programme integration
 
-6.1 Where the organization participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the calendar in section 4 alongside enterprise assurance. See [`compliance/`](../compliance/).
+6.1 Where the organization participates in a sector programme (for example, BASC for trade and logistics, CTPAT for US trade, AEO for EU trade), the corresponding sector annex defines additional assurance cycles. Sector-programme assurance is incorporated into the Assurance Calendar (section 3.3) alongside enterprise assurance. See [`compliance/`](../compliance/).
 
 6.2 Sector-conditional roles (for example, a BASC Regional Compliance Officer where the relevant sector annex defines that role) maintain the sector-programme assurance logs and ensure that dual reporting to the sector body and the ERC follows the annex's cadence and channels.
 
@@ -178,9 +178,9 @@ Performance data from all assurance activities feed into the Governance Performa
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO 9001:2015 | §10: Continual Improvement | Improvement cycle structure |
+| ISO 9001:2015 | §10.3: Continual Improvement | Improvement cycle structure |
 | ISO/IEC 42001:2023 | §9.1: Monitoring, measurement, analysis and evaluation | AI governance maturity KPIs |
-| ISO/IEC 27001:2022 | §10: Continual Improvement | Security assurance integration |
+| ISO/IEC 27001:2022 | §10.1: Continual Improvement | Security assurance integration |
 | COBIT 2019 | MEA01: Managed Performance and Conformance Monitoring | Performance governance, digital trust |
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Governance maturity metrics |
 | CSA CCM v4.1 | A&A-01, A&A-05, A&A-02: Audit and Assurance Policy and Procedures; Audit Management Process; Independent Assessments | Cloud control assurance |

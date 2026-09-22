@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-09-13\
+**Version:** 1.0.15\
+**Date:** 2026-09-22\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -33,7 +33,7 @@ This framework applies to all AI systems in production or entering production. I
 - AI systems embedded within third-party services that the organization configures and is responsible for deploying.
 - General-purpose AI models integrated into the organization's products, services, or operational processes.
 
-This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)) for external AI services where the organization is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
+This framework complements the Supplier Third-Party AI Due Diligence Procedure (see [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md)) for external AI services where the organization is not the technical operator. That procedure applies at the point of supplier selection and periodic supplier review; this framework applies to systems once they are in production.
 
 ---
 

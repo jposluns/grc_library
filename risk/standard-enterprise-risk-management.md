@@ -2,8 +2,8 @@
 
 **Document Title:** Enterprise Risk Management Standard\
 **Document Type:** Standard\
-**Version:** 1.8.13\
-**Date:** 2026-09-18\
+**Version:** 1.8.14\
+**Date:** 2026-09-22\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/procedure-risk-acceptance.md`](procedure-risk-acceptance.md), [`governance/policy-exception-and-risk-acceptance-management.md`](../governance/policy-exception-and-risk-acceptance-management.md)\
@@ -168,7 +168,7 @@ Each risk register entry must include the following fields.
 | Treatment Actions | Specific steps with owner and target date |
 | Treatment Status | Pending / In Progress / Complete. Workflow state of the Treatment Option's execution; independent of the Status field below |
 | Risk Owner | Accountable individual (role title) |
-| Status | Open / Closed. Risk-record lifecycle state. A risk is Open while it remains within the organization's risk appetite considerations; a risk is Closed when no further treatment or monitoring action remains (e.g., the underlying activity has ceased, or the residual risk is accepted indefinitely under a documented acceptance). The Status field does NOT name the treatment outcome (which is captured by Treatment Option) or the treatment workflow state (Treatment Status above). |
+| Status | Open / Closed. Risk-record lifecycle state. A risk is Open while it remains within the organization's risk appetite considerations; a risk is Closed when no further treatment or monitoring action remains (e.g., the underlying activity has ceased). The Status field does NOT name the treatment outcome (which is captured by Treatment Option) or the treatment workflow state (Treatment Status above). |
 | Review Frequency | Monthly / Quarterly / Annually |
 | Last Reviewed | Date |
 | Next Review | Date |
