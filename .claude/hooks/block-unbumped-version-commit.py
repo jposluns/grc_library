@@ -31,16 +31,21 @@ WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
     needs the commit's own date which does not exist yet at PreToolUse time, and duplicating it here
     from a guessed date would be a check whose input cannot answer it.
   - DOES NOT touch files with no `**Version:**` line at all.
+  - DOES NOT act on a `git commit --amend`: an amend reuses an existing commit and its diff is not
+    the staged set alone, so the hook leaves it (the refuse-what-you-cannot-answer discipline); a
+    staged body change amended in is NOT version-checked here (gate 40 / D2 remain the authority).
 
 FAIL-OPEN BY DESIGN. Any failure to parse the payload, locate the repository, or run git ALLOWS the
 commit. A guard that blocks all work when it breaks gets removed within a day, and a removed guard
 protects nothing (the same trade `block-on-open-findings.py` records). This hook is defence in depth
 under gates 40 and D2, which remain the authority.
 
-THE ESCAPE HATCH IS DELIBERATE AND NARROW. A commit message containing `VersionBump: none <reason>`
-proceeds. Some body edits genuinely do not warrant a bump, and without a stated path the guard would
-be bypassed wholesale with `--no-verify` the first time it was wrong, which is worse than a hatch
-that leaves a reason in the commit message where a reviewer can see it.
+THE ESCAPE HATCH IS DELIBERATE AND NARROW. A command whose text contains the bare token
+`VersionBump: none` proceeds (matched anywhere in the command string; the `<reason>` is a CONVENTION
+for the reviewer, NOT mechanically required or checked by this hook). Some body edits genuinely do
+not warrant a bump, and without a stated path the guard would be bypassed wholesale with `--no-verify`
+the first time it was wrong, which is worse than a hatch that, by convention, leaves a reason in the
+commit message where a reviewer can see it.
 """
 from __future__ import annotations
 

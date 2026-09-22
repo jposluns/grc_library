@@ -22,11 +22,14 @@ GUARD-INPUT AUTHORITY. The evidence is the SWEEP'S OWN artefact-of-record (the h
 row was written, not that the sweep was semantically complete); that residue is stated and layered
 behind the triple-family standard and the open-findings guard.
 
-FAIL-OPEN BY DESIGN. On ANY malfunction (a non-dict payload, a non-dict tool_input, a non-string
-command, an unresolvable/unreadable history, a helper that raises, an unreadable session start) this
-hook ALLOWS: every I/O call in main() is wrapped, and the pure decide() core treats every "unknown"
-input as ALLOW. A guard that wedges on its own malfunction gets removed, and a removed guard protects
-nothing. Adopters (no private store) are a no-op.
+FAIL-OPEN BY DESIGN. On a malfunction (a non-dict payload, a non-dict tool_input, a non-string
+command, an unresolvable/unreadable history, an unreadable session start) this hook ALLOWS: every
+I/O call in main() is wrapped, and the pure decide() core treats every "unknown" input as ALLOW.
+ONE qualification: if the WORKER-IDENTITY helper raises, ``_safe`` returns None and the session is
+treated as NON-worker (``is_worker=False``) rather than auto-allowed, so a recognized PR with
+readable history, no qualifying row, and no consumable sentinel can still reach BLOCK -- an
+unresolvable worker identity is gated, not fail-opened. A guard that wedges on its own malfunction
+gets removed, and a removed guard protects nothing. Adopters (no private store) are a no-op.
 
 ESCAPE. A genuine exception (a handoff-only session that must open a PR without a sweep) is honoured
 via a one-shot sentinel the actor creates, consumed only when the hook would otherwise block:

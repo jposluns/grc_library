@@ -27,7 +27,9 @@ Every logged entry must carry a ``**Classification:**`` line naming exactly one 
                 ``maintainer-decision-unreachable`` / ``irreversible-needs-confirmation`` /
                 ``failing-check`` / ``source-unavailable`` / ``maintainer-directed-hold``.
 
-The hook BLOCKS a write to the log when: an added entry has no ``**Classification:**`` line;
+The hook BLOCKS a write to the log when: the ADDED text carries no ``**Classification:**`` line at
+all (a presence check over the whole submission, NOT per-entry -- one classified entry anywhere in a
+multi-entry Write satisfies it, so per-entry classification stays the author's discipline);
 a ``BLOCKED`` entry names a blocker-type OUTSIDE the closed set; a ``BLOCKED`` entry cites a
 FORBIDDEN un-instrumented justification phrase (the self-justifying language the failure uses);
 or a hold/defer entry justified by a backlog SET-COMPLETENESS / exhaustion claim ("everything is
