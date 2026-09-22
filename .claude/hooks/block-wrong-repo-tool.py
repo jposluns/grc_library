@@ -248,9 +248,10 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # (2) Reached only without a cd match and without a preceding tool block.
     # Block any _GIT_MUTATE match for the fixed subcommand-name set, regardless of
     # whether its arguments actually mutate a repo or specify another target.
-    # This includes git stash list and any longer subcommand sharing a listed prefix
-    # (e.g. git commit-graph); it excludes status/log/diff/show and a subcommand sharing
-    # no listed prefix (e.g. git tag). Standard git -C <path> forms do not match.
+    # This includes git stash list and a longer subcommand whose listed prefix ends at a
+    # word boundary (e.g. git commit-graph, but not git commitment); it excludes
+    # status/log/diff/show and a subcommand sharing no listed prefix (e.g. git tag).
+    # Standard git -C <path> forms do not match.
     # Motivation: operations such as git add -A can affect an unintended repo without
     # necessarily failing; neither a Git match nor tool-path drift guarantees that outcome.
     if _GIT_MUTATE.search(command):
