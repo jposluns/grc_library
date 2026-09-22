@@ -28,9 +28,11 @@ suggestion templates. These are regex and filesystem checks, not shell execution
       match but an ``is_file()`` match in another scanned repo's tools directory.
   (2) if neither tool check blocks and there is NO matched ``cd`` anywhere, an
       ``_GIT_MUTATE`` match for add/commit/push/reset/checkout/switch/merge/rebase/stash/
-      rm/mv/clean/apply/restore/cherry-pick/revert. This fixed name set includes read-only
-      uses such as ``git stash list`` and omits other mutating subcommands such as
-      ``git tag``. Arguments are not checked for mutation or the actual target repo.
+      rm/mv/clean/apply/restore/cherry-pick/revert. Each listed name matches as a
+      word-boundary prefix, so a longer subcommand sharing one (``git commit-graph``) also
+      matches; the set includes read-only uses such as ``git stash list`` and omits a
+      subcommand sharing no listed prefix such as ``git tag``. Arguments are not checked for
+      mutation or the actual target repo.
 
 Scanning is limited to existing tools directories under the configured
 ``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
@@ -114,10 +116,13 @@ _INVOKE = re.compile(
 # Approximate command-position matching for literal git and the fixed subcommand set below,
 # using the same boundary, assignment, and timeout/env prefixes as _INVOKE.
 # Before the subcommand, accept repeated -c plus one nonspace token, or --nonspace tokens.
-# The (?!-C\b) lookahead rejects -C immediately after git's whitespace; the intervening
-# option pattern also cannot consume a later standalone -C before the subcommand.
-# Subcommand arguments are not inspected: git stash list matches, while status/log/diff/show
-# and mutators outside the fixed set do not. The final \b is not a shell-token boundary.
+# The (?!-C\b) lookahead rejects -C only immediately after git's whitespace; a standalone
+# -C <path> in option position is not consumed (it is neither -c nor --), but a -C token
+# supplied as the value after -c IS consumed by -c\s+\S+ (e.g. the malformed git -c -C commit).
+# The alternation matches a listed NAME at a word boundary, so a longer subcommand sharing a
+# listed prefix also matches (e.g. git commit-graph, git checkout-index); one sharing no listed
+# prefix (git tag) and status/log/diff/show do not. Arguments are not inspected, so git stash
+# list matches. The final \b is not a shell-token boundary.
 # Matching does not establish mutation or the target repo: accepted assignments and long
 # options can specify another target, for example GIT_DIR=... or --git-dir=....
 _GIT_MUTATE = re.compile(
@@ -243,13 +248,14 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # (2) Reached only without a cd match and without a preceding tool block.
     # Block any _GIT_MUTATE match for the fixed subcommand-name set, regardless of
     # whether its arguments actually mutate a repo or specify another target.
-    # This includes git stash list; it excludes status/log/diff/show and unlisted
-    # mutating subcommands. Standard git -C <path> forms do not match.
+    # This includes git stash list and any longer subcommand sharing a listed prefix
+    # (e.g. git commit-graph); it excludes status/log/diff/show and a subcommand sharing
+    # no listed prefix (e.g. git tag). Standard git -C <path> forms do not match.
     # Motivation: operations such as git add -A can affect an unintended repo without
     # necessarily failing; neither a Git match nor tool-path drift guarantees that outcome.
     if _GIT_MUTATE.search(command):
         reason = (
-            "BLOCKED (wrong-repo-git): a `git` match uses a subcommand in the guarded set, with no matched `cd` anywhere in the command text.\n"
+            "BLOCKED (wrong-repo-git): a `git` match hits a guarded subcommand name at a word boundary, with no matched `cd` anywhere in the command text.\n"
             "WHY: this fixed subcommand-name check flags possible wrong-repo operations "
             "(the 2026-07-24 `git add -A`-in-scratch near-miss); it does not determine "
             "whether this use mutates a repo or which repo it targets.\n"
