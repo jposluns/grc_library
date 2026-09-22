@@ -39,47 +39,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-09-22 | 2026.09.1151 | PR #2447** - Expanded the governance relationship-model with 15 verified control-framework mappings and 10 new nodes (threat-modelling, AI audit and certification, continuous assurance, privacy-by-design, zero-trust, IT service management, and ISO 19011 audit guidance), growing it from 46 to 61 records.
 
-**2026-09-21 | 2026.09.1150 | PR #2446** - Converted the remaining 13 static-directory test fixtures (the `FIXTURE_DIR / name` pattern) to unique per-test directories, removing that delete-race class (P-1.86).
-
-**2026-09-21 | 2026.09.1149 | PR #2445** - Made the test suite's make_fixture helper concurrency-safe with a unique per-instance fixture directory, covering all 264 call sites in one change (P-1.86 partial).
-
-**2026-09-21 | 2026.09.1148 | PR #2444** - Added a Singapore IMDA Model AI Governance Framework for Agentic AI jurisdiction annex, presenting the framework's four voluntary dimensions and a crosswalk to corpus AI-governance controls, NIST AI RMF, and ISO/IEC 42001.
-
-**2026-09-21 | 2026.09.1147 | PR #2443** - Further expanded the governance relationship-model: six more verified mappings link the enterprise-GRM policy, supplier-security, presence-inference, logging, and AI-impact-assessment documents to ISO 31000, ISO/IEC 27001, the NIST AI RMF, and the EU AI Act they align with (40 to 46 typed relationships).
-
-**2026-09-21 | 2026.09.1146 | PR #2442** - Expanded the governance relationship-model with 6 verified control-framework mappings: six operations/security procedures and standards are now linked to the ISO/IEC 27001 and 27002 controls they map to via their framework-alignment tables (34 to 40 typed relationships).
-
-**2026-09-21 | 2026.09.1145 | PR #2441** - Internal test-suite concurrency hardening (continued): the backlog-gate shared test helpers and their inline fixtures now use unique per-run temporary directories, making three more test classes safe to run in parallel. Further fixed-name test-directory families remain (tracked internally).
-
-**2026-09-21 | 2026.09.1144 | PR #2440** - Internal test-suite concurrency hardening (follow-up): converts 8 more shared test helpers to unique per-run temporary directories. A further set of fixed-name test directories remains to convert (tracked internally).
-
-**2026-09-21 | 2026.09.1143 | PR #2439** - Internal test-suite concurrency hardening: three shared test helpers now use unique per-run temporary directories, so parallel test runs no longer delete each other's fixtures.
-
-**2026-09-21 | 2026.09.1142 | PR #2438** - tooling: reword two synchronous-model cutover leftovers (the pipeline `[w]`-state definition and the inbox-drops audit docstring) from the retired async delivery-tray / order-queue terms to the orch-verify synchronous reality (P-3.202 partial).
-
-**2026-09-21 | 2026.09.1141 | PR #2437** - content: align the data-subject-rights Article 12(5) excessive-request assessment with EDPB Guidelines 01/2022, dropping the volume, scope-sweep, and litigation-purpose tests the guidance cautions against.
-
-**2026-09-21 | 2026.09.1140 | PR #2436** - content: correct two data-subject-rights citation errors from the corpus-wide review: China's PIPL Article 50 no longer wrongly cites a fee (it prescribes a request-handling mechanism, not charging), and the UK automated-decision-making entries now distinguish the EU right from the UK's post-2025 reform.
-
-**2026-09-21 | 2026.09.1139 | PR #2435** - tooling: the version-date gate and its pre-commit predictor now read blobs the same safe way and both decline cleanly in a partial clone, closing a case where the gate could silently clear a missed version bump.
-
-**2026-09-21 | 2026.09.1138 | PR #2434** - tooling: the PII check now uses exact UTS-46 domain validity (via the project's first sanctioned dependency, `idna`, imported soft-optional with a stdlib fallback), fixing the reserved-email false-positive boundary from the #2430/#2431 work.
-
-**2026-09-21 | 2026.09.1137 | PR #2433** - content: align AI-supplier data-deletion timing with the cloud-exit data-export window, and correct one ETSI baseline coverage rating, from the corpus-wide review.
-
-**2026-09-21 | 2026.09.1136 | PR #2432** - Added a pre-commit aid that predicts the per-document Version/Date co-bump check for a commit made today, so a Date set to "today" no longer goes stale (and fails the check after push) when UTC rolls past midnight before the commit lands.
-
-**2026-09-21 | 2026.09.1135 | PR #2431** - Corrected an over-stated safety-proof premise in a code comment in the personal-data content check's domain-completeness guard (the expensive-worker theorycraft on the #2430 guardrail seed showed the claim conflated strict IDNA validation with compatibility mapping); no behaviour change.
-
-**2026-09-21 | 2026.09.1134 | PR #2430** - Taught the personal-data content check to skip email addresses on the RFC-reserved test domains (.invalid, .test, .example, .localhost), which cannot be publicly registered, so fixtures and self-tests can use them without a false finding; a domain-completeness guard keeps real look-alike domains flagged.
-
-**2026-09-21 | 2026.09.1133 | PR #2429** - Reworked the git-native pre-push dirty-tree backstop, fixing the branch-scoping, malformed-input, and worktree-lifecycle defects with real-push integration self-tests.
-
-**2026-09-21 | 2026.09.1132 | PR #2428** - Reconciled the BYOD mobile-application-management access model in the endpoint management procedure, scoping the MAM path to the cloud productivity platform only.
-
-**2026-09-21 | 2026.09.1131 | PR #2427** - Corrected an SSDF control mapping in the developer-security standard and a voluntary-Code binding overclaim in the foundation-model lifecycle procedure (resume /validate r2 control-fit and claim-fit).
-
-**2026-09-21 | 2026.09.1130 | PR #2426** - Fixed a workstation screen-lock timeout contradiction across the endpoint management and physical-security procedures, aligning both with the corpus-wide 5-minute standard.
+**2026-09-21 | 2026.09.1150 | PRs #2426-#2446 (21 PRs)** - The AI governance library gained a Singapore annex explaining the voluntary agentic-AI framework and its relationship to the corpus and international standards, while the governance relationship model expanded its verified links across risk, security, operations, and AI documents. Data-subject-rights guidance was corrected to reflect European guidance on excessive requests, China's request-handling rules, and the UK's reformed automated-decision framework. Further consistency fixes aligned AI-supplier deletion timing with the cloud-exit export window, clarified personal-device access to the cloud productivity platform, and reconciled workstation screen-lock requirements, alongside corrections to secure-development mappings and voluntary AI-code claims. Supporting checks and tests were hardened to improve concurrent execution, personal-data detection, and version and push safeguards.
 
 **2026-09-20 | 2026.09.1129 | PRs #2392-#2425 (34 PRs)** - Framework-alignment tables across AI, security, privacy, risk, and resilience documents gained specialist references that explain the guidance behind their requirements, including voluntary agentic-AI guidance for permissions, oversight, testing, and recovery. A broad accuracy pass corrected privacy-transfer thresholds, AI risk terminology, cryptographic-key retention, and framework citations, while reconciling personal-device access and screening-retention rules across documents. Supply-chain security references now distinguish organisational trade-data requirements from the management standard they align with, and the records-retention standard makes the precedence of record-specific schedules explicit. Security code examples were repaired to address unsafe implementation guidance and incorrect API usage, while the governance relationship model gained verified links between documents and their governing policies and frameworks.
 
