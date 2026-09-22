@@ -12,9 +12,13 @@ at the delete. This hook is the mechanical enforcement of the writer contract: f
 (with ``_private`` present) a write to public ``.working`` is refused; the write belongs in
 ``_private``.
 
-Fires on Edit, Write, MultiEdit, NotebookEdit, and Bash. BLOCKS (exit 2) only when ALL hold:
+Registered (settings.json) on Edit, Write, and Bash. (``decide`` also recognizes MultiEdit and
+NotebookEdit, but those are NOT registered, so a MultiEdit/NotebookEdit write is not intercepted.)
+BLOCKS (exit 2) only when ALL hold:
   (a) operator is the MAINTAINER (origin remote is ``jposluns/grc_library``), AND
-  (b) ``grc_library_private/.working/`` EXISTS (the private canonical store is in place), AND
+  (b) EITHER the primary store (``GRC_STORE`` when set, else the sibling ``../private``) is a dir
+      resolving OUTSIDE the public repo, OR the legacy sibling ``grc_library_private/.working/`` is a
+      dir (the fallback does NOT check resolved containment), AND
   (c) the operation WRITES/CREATES a path under ``<repo>/.working/`` (an Edit/Write ``file_path``,
       or a Bash write-shape, found by shlex-tokenizing the command (so quoted MULTI-token text is not
       mis-scanned) and resolving each write TARGET: a ``>``/``>>``/``>|``/fd redirect, a
