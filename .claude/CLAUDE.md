@@ -215,10 +215,10 @@ orchestration runbook") and defers to the INDEX for the file.
   missing `_private` for the maintainer is a broken setup to FIX, never to silently work around.
   This is enforced mechanically, not left to intent: `detect-env` emits a `private_availability`
   HALT, `/orch` acts on it, the [`block-operational-without-private.py`](hooks/block-operational-without-private.py)
-  PreToolUse hook blocks Edit/Write on a maintainer clone with `_private` absent (Read and Bash
+  PreToolUse hook blocks Edit/Write with `_private` absent when the origin URL passes the exact-or-prefixed-substring test for `jposluns/grc_library` (which also matches a suffixed-name repo such as a `.../grc_library_fork` origin; Read and Bash
   stay available so the clone remediation works), and `tools/pre-push-guard.sh` refuses the push.
 - **Adopter** (`detect-env` identity `adopter`): `_private` is legitimately absent (it is the
-  maintainer's private store). You are OFFERED a choice, never blocked: point your own operational
+  maintainer's private store). You are OFFERED a choice, and (unless your origin matches the maintainer repo path) never blocked: point your own operational
   store at `../grc_library_private`, have `/adopt` create an in-repo `.private` stub, or create your own
   from the concerns this directive names above. Nothing in `_private` is required to use the corpus or run
   the public gates.

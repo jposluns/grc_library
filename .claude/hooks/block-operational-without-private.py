@@ -11,16 +11,18 @@ never to silently work around.
 This hook is the MECHANICAL core of the layered assurance (the others: detect-env's
 private_availability decision + the /orch HALT, and the read-evidence discipline). It fires on
 the operational-work tools (Edit, Write) and BLOCKS them (exit 2, reason on stderr) ONLY when
-BOTH are confirmed: (a) the operator is the maintainer (origin remote is jposluns/grc_library),
+BOTH are confirmed: (a) the origin is classified as maintainer by _origin_is_maintainer's
+exact-or-prefixed-substring test for jposluns/grc_library (which also accepts a suffixed-name repo, so this
+is an origin match, not a proven operator identity),
 and (b) grc_library_private is genuinely absent (no readable, non-empty sibling directory). Read
 and Bash are deliberately NOT gated, so the session can still clone _private and investigate.
 
 Design (fail-open on uncertainty, fail-loud on the real condition):
   - _private present  -> ALLOW (fast path; the common case).
-  - _private absent + maintainer origin CONFIRMED -> BLOCK (loud clone/fix message).
+  - _private absent + origin matches the maintainer repo -> BLOCK (loud clone/fix message).
   - _private absent + adopter/indeterminate origin -> ALLOW (an adopter legitimately has no
     _private; blocking would brick a legitimate adopter session).
-  - any parse/read error, or origin cannot be positively confirmed as maintainer -> ALLOW.
+  - any parse/read error, or the origin does not match the maintainer repo -> ALLOW.
     Blocking requires POSITIVE confirmation of BOTH conditions; the safe direction on any
     uncertainty is allow (a false block bricks the session; a false allow only misses the
     guard, which the detect-env HALT + read-evidence discipline still cover). A hook bug must
@@ -41,14 +43,17 @@ from pathlib import Path
 
 MAINTAINER_ORIGIN = "jposluns/grc_library"
 # Match the origin remote url in .git/config, tolerating https and ssh forms and an
-# optional .git suffix. We confirm MAINTAINER only on a positive match; anything else
-# (fork, missing, unparseable) is treated as non-maintainer -> allow.
+# optional .git suffix. A URL passing the exact-or-prefixed-substring test is classified MAINTAINER
+# (including a suffixed-name repo whose URL contains /jposluns/grc_library); a missing or non-matching
+# origin is treated as non-maintainer -> allow. The boundary blocks evil-jposluns/... but not the suffix.
 ORIGIN_BLOCK_RE = re.compile(r'\[remote "origin"\][^\[]*', re.DOTALL)
 URL_RE = re.compile(r"url\s*=\s*(\S+)")
 
 
 def _origin_is_maintainer(project_dir: str) -> bool:
-    """True only if the origin remote positively points at the maintainer repo."""
+    """True when the origin URL (trailing `.git` stripped) case-sensitively equals `jposluns/grc_library`,
+    or contains `/jposluns/grc_library` or `:jposluns/grc_library`. No host or trailing-boundary check, so a
+    suffixed-name repo such as a `.../jposluns/grc_library_fork` origin (or _ref / _scratch / _private) also matches."""
     cfg = Path(project_dir) / ".git" / "config"
     try:
         text = cfg.read_text(encoding="utf-8", errors="replace")
@@ -86,22 +91,23 @@ def _private_present(project_dir: str) -> bool:
 
 
 def decide(project_dir: str) -> tuple[bool, str]:
-    """Return (block, reason). Block only on confirmed maintainer + confirmed _private-absent."""
+    """Return (block, reason). Block only on a maintainer-origin match + confirmed _private-absent."""
     if _private_present(project_dir):
         return False, ""
     if not _origin_is_maintainer(project_dir):
         return False, ""  # adopter / indeterminate: allow (fail-open)
     return True, (
-        "BLOCKED (operational-without-private): an Edit/Write on the maintainer clone (origin "
-        f"{MAINTAINER_ORIGIN}) while grc_library_private is NOT accessible.\n"
+        "BLOCKED (operational-without-private): an Edit/Write while the origin matches the maintainer "
+        f"repo {MAINTAINER_ORIGIN} (exactly, or as a path-prefix, so possibly a fork or sibling) and "
+        "no readable, non-empty grc_library_private sibling was found.\n"
         "WHY: _private holds the operational state the CLAUDE.md delegation directive points to; "
         "it is a REQUIRED dependency, and reconstructing its content from memory is the failure "
         "this guard prevents.\n"
         "CONSIDER-INSTEAD: clone it "
         "(git clone https://github.com/jposluns/grc_library_private.git ../grc_library_private) "
         "or grant sibling access (--add-dir ../grc_library_private), then continue (Read and Bash "
-        "stay available so you can do exactly that). (If you are genuinely an adopter this hook "
-        "would not have fired; if origin was misdetected, resolve it and retry.)"
+        "stay available so you can do exactly that). (If your origin matches that path but you are an "
+        "adopter, or the origin was misdetected, resolve it and retry.)"
     )
 
 
