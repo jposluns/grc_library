@@ -99,7 +99,7 @@ def _default_doc_reader(docrel: str) -> str | None:
     return None
 
 
-def scan(matrix_text: str, doc_reader=_default_doc_reader) -> list[str]:
+def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MATRIX_REL) -> list[str]:
     """Flag same-family strand candidates. `doc_reader(docrel) -> text|None` is the
     document-text source (injected by the self-test; the corpus reader by default).
     A None return skips the row; the default reader returns None for an absent
@@ -151,7 +151,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader) -> list[str]:
                 if prefix in doc_prefixes:
                     siblings = sorted(c for c in doc_codes if c.split("-")[0] == prefix)
                     findings.append(
-                        f"{MATRIX_REL}:{i+1}: matrix cites {colname} '{code}' for "
+                        f"{matrix_rel}:{i+1}: matrix cites {colname} '{code}' for "
                         f"`{docrel}`, absent from the document, which instead has "
                         f"{prefix}: {', '.join(siblings)} (stranded-code candidate; verify at source)"
                     )
@@ -184,7 +184,12 @@ def _self_test() -> int:
     )
     cited = {c for r in scan(matrix, doc_reader=docs.get)
              for c in re.findall(r"cites \w+ '([A-Z][A-Z&]{1,4}-\d{2})'", r)}
+    custom_findings = scan(matrix, doc_reader=docs.get, matrix_rel="other/x.md")
     checks = [
+        (bool(custom_findings) and all(
+            f.startswith("other/x.md:") and not f.startswith(f"{MATRIX_REL}:")
+            for f in custom_findings
+        ), "custom matrix path used in finding labels"),
         ("STA-02" in cited, "same-family strand STA-02 flagged"),
         ("A&A-02" in cited, "ampersand-family strand A&A-02 flagged"),
         ("STA-01" not in cited, "carried STA-01 not flagged"),
@@ -218,7 +223,11 @@ def main(argv: list[str]) -> int:
     if text is None:
         print(f"ERROR: cannot read matrix {args.matrix}", file=sys.stderr)
         return 2
-    findings = scan(text)
+    try:
+        matrix_rel = str(mp.resolve().relative_to(REPO_ROOT))
+    except ValueError:
+        matrix_rel = args.matrix
+    findings = scan(text, matrix_rel=matrix_rel)
     if findings:
         uniq = sorted(set(findings))
         print(f"REPORT: {len(uniq)} stranded-code candidate(s) (matrix cites a code absent "
