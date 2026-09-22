@@ -21481,114 +21481,693 @@ class CitationWorklistSyncTests(unittest.TestCase):
 
 
 class BlockingHookMessageContractTests(unittest.TestCase):
-    """P-1.36 slice-2: cross-hook SOURCE-LEVEL guard that every registered blocking hook's
-    refusal messages carry the BLOCKED (<guard>) / WHY: / CONSIDER INSTEAD: form with firmer,
-    un-hedged imperative remediation (maintainer-directed 2026-09-22).
+    """P-1.95: per-rendered-message refusal inventory and contract."""
 
-    Scope, stated honestly (guard-input discipline: no coverage is claimed that is not
-    actually provided). This class checks the hook SOURCES for the form markers and the
-    absence of the hyphenated label / inline hedged remediation; it is a coarse cross-hook
-    uniformity check, NOT a per-rendered-message form proof.
-
-    What the neighbouring layers do and do NOT establish. Each hook's own ``--self-test``
-    (run via VerificationGuardrailSelfTests) covers its implemented behavioural and token
-    assertions; it does NOT establish exhaustive per-message form or remediation coverage
-    (for example block-unjustified-decision's self-test asserts a ``Classification`` token but
-    not ``WHY:``). The AST-identical-after-blanking check is a separate QA/review step
-    checking structural preservation, not message correctness. So a per-message marker
-    imbalance that nets out across a multi-message file, and a hedge phrase split across
-    adjacent string literals, remain UNPROVEN by any current test until the exhaustive
-    per-rendered-message suite tracked in P-1.95 lands."""
-
-    HOOKS = [
-        "block-branch-to-main-edit",
-        "block-askuserquestion-unattended",
-        "block-bulk-git-add",
-        "block-on-open-findings",
-        "block-operational-without-private",
-        "block-opus5-orchestrator-model",
-        "block-orchestrator-self-qa",
-        "block-pr-without-resume-validate",
-        "block-public-working-write",
-        "block-repeated-tool-failure",
-        "block-turn-end-with-outstanding-work",
-        "block-unbumped-version-commit",
-        "block-unjustified-decision",
-        "block-unstamped-turn-end",
-        "block-verification-pipes",
-        "block-wrong-repo-tool",
-        "stop-guard-unattended",
-    ]
+    P = "/__p195__/grc_library"
+    ARGV_MAIN = {
+        "block-askuserquestion-unattended", "block-branch-to-main-edit",
+        "block-operational-without-private", "block-orchestrator-self-qa",
+        "block-repeated-tool-failure", "block-unjustified-decision",
+        "block-wrong-repo-tool", "stop-guard-unattended",
+    }
 
     def _source(self, hook):
-        return (REPO_ROOT / ".claude" / "hooks" / (hook + ".py")).read_text(encoding="utf-8")
+        return (REPO_ROOT / ".claude/hooks" / (hook + ".py")).read_text(encoding="utf-8")
 
     def _registered_blocking_hooks(self):
-        """The blocking-hook population as REGISTERED in settings.json: every distinct
-        ``block-*`` / ``stop-guard*`` hook script referenced by a hook command. Advisory,
-        non-blocking hooks (inject-session-timestamp, surface-session-facts) are excluded by
-        the naming convention. Reading registration (not a hardcoded list) is what lets this
-        catch a NEW blocking hook added to settings.json without its message reframed."""
-        import re
         text = (REPO_ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
         names = set(re.findall(r"\.claude/hooks/([a-z0-9-]+)\.py", text))
         return {n for n in names if n.startswith("block-") or n.startswith("stop-guard")}
 
+    def _site(self, source, function, fragment, occurrence=0):
+        """Resolve a reviewed innermost statement; comments/line shifts are irrelevant."""
+        import ast
+        tree = ast.parse(source)
+        fn, = [n for n in tree.body
+               if isinstance(n, ast.FunctionDef) and n.name == function]
+        matches = [n for n in ast.walk(fn)
+                   if isinstance(n, ast.stmt) and not isinstance(n, ast.FunctionDef)
+                   and fragment in ast.unparse(n)]
+        matches = [n for n in matches if not any(
+            other is not n and other in list(ast.walk(n)) for other in matches)]
+        matches.sort(key=lambda n: n.lineno)
+        self.assertLess(occurrence, len(matches), (function, fragment))
+        return matches[occurrence].lineno
+
+    @classmethod
+    def _case_registry(cls):
+        """Reviewed hook -> cases, each with crafted input, contract and trace evidence."""
+        cases = {}
+
+        def group(hook, imperative, emitter=("main", "print(reason, file=sys.stderr)"),
+                  guard=None):
+            cases[hook] = []
+
+            def add(case_id, arg=None, *, evidence=(), sites=(), absent=(),
+                    transport="stderr", status=2, at=None, diagnostics=(),
+                    verb=None, label=None):
+                cases[hook].append(dict(
+                    id=case_id, arg=arg, guard=label or guard or hook.removeprefix("block-"),
+                    imperative=verb or imperative, evidence=evidence, sites=sites,
+                    absent=absent, transport=transport, status=status,
+                    emitter=at or emitter, diagnostics=diagnostics))
+            return add
+
+        add = group("block-askuserquestion-unattended", "record")
+        for mode in ("unattended", "overnight-unattended", "daytime-unattended"):
+            add(mode, mode, evidence=(chr(96) + mode + chr(96),))
+        add = group("block-branch-to-main-edit", "run")
+        for branch in ("main", "master"):
+            add(branch, branch, evidence=(chr(96) + branch + chr(96),))
+
+        add = group("block-bulk-git-add", "stage", ("main", "print("))
+        for flag in ("-A", "--all", "-u", "--update", "--no-ignore-removal", "-Av", "-uf"):
+            add("sweep-" + flag, "git add " + flag,
+                evidence=("git add " + flag, "without an explicit bounded pathspec"),
+                sites=(("violation", "return", 0),))
+        for root in (".", "./", ":/", ":", "*", ":/.", "..", "../"):
+            add("root-" + root, "git add " + root, evidence=("is a tree root",),
+                sites=(("violation", "is a tree root"),))
+        add("no-path", "git add", evidence=("has no pathspec",),
+            sites=(("violation", "has no pathspec"),))
+        for flag in ("-a", "--all", "-am"):
+            add("commit-" + flag, "git commit " + flag, evidence=("commits every tracked",),
+                sites=(("violation", "commits every tracked"),))
+
+        add = group("block-on-open-findings", "give",
+                    ("decide_exit", "print('\\n'.join(lines),", 1), "open-findings")
+        for name in ("error", "error-many", "error-precedence"):
+            add(name, name, evidence=("without a disposition",)
+                + (("6 error-severity", "err4") if name == "error-many" else ()),
+                absent=("err5",) if name == "error-many" else
+                       (("stray0", "open-findings-misfiled") if name == "error-precedence" else ()))
+        for name in ("misfiled", "misfiled-many", "mixed"):
+            diagnostics = (("decide_exit", "print(f'NOTE"),
+                           ("decide_exit", "WARNING (class-completeness attestation")) if name == "mixed" else ()
+            add(name, name, evidence=("OUTSIDE '## Open'",)
+                + (("6 finding-row(s)", "stray4") if name == "misfiled-many" else ()),
+                absent=("stray5",) if name == "misfiled-many" else (),
+                label="open-findings-misfiled",
+                verb="move", at=("decide_exit", "print('\\n'.join(lines),", 0),
+                diagnostics=diagnostics)
+
+        add = group("block-operational-without-private", "clone")
+        for tool in ("Edit", "Write"):
+            add(tool, tool, evidence=("no readable, non-empty",))
+
+        add = group("block-opus5-orchestrator-model", "tell",
+                    ("main", "print(_message(model),"))
+        add("pretool", "PreToolUse", evidence=("MAINTAINER ALERT / HALT:",))
+        for event in ("Stop", "", "Unknown"):
+            add("event-" + (event or "missing"), event, transport="json", status=0,
+                evidence=("MAINTAINER ALERT / HALT:",), at=("main", "print(json.dumps("))
+        add("persisted", "persisted", transport="append", status=None, verb="swap",
+            evidence=("MAINTAINER ALERT / HALT:",), at=("write_alert", "fh.write(block)"))
+
+        add = group("block-orchestrator-self-qa", "dispatch",
+                    ("main", "print(message, file=sys.stderr)", 1))
+        for tool in ("Task", "Agent", "Workflow", "SendMessage"):
+            for prompt in ("review this", ""):
+                add(tool + ("-prompt" if prompt else "-empty"), (tool, prompt),
+                    evidence=(prompt or "<empty dispatch fields>",))
+
+        add = group("block-pr-without-resume-validate", "dispatch",
+                    ("_run", "print(_block_message(start_date),"))
+        for command in ("gh pr create", "gh pr merge 1"):
+            add(command, command, evidence=("2026-09-22",))
+        add("renderer-no-threshold", None, transport="return", status=None,
+            evidence=("dated on/after the session start",), at=("_block_message", "return"))
+
+        add = group("block-public-working-write", "choose")
+        for tool in ("Edit", "Write", "MultiEdit", "NotebookEdit"):
+            add(tool, tool, evidence=(cls.P + "/.working/x.md",),
+                sites=(("decide", "repository's resolved"),))
+        add("Bash", "Bash", verb="check", evidence=("a Bash call",),
+            sites=(("decide", "a Bash call"),))
+
+        add = group("block-repeated-tool-failure", "change")
+        for prior, verb in (
+            ("wrong-repo", "add"), ("verification-pipes", "drop"),
+            ("answered-question", "run"), ("repeated-tool-failure", "change"),
+            ("unknown", "change"), (None, "change"),
+        ):
+            for count in (1, 2):
+                add(str(prior) + "-" + str(count), (prior, count), verb=verb,
+                    evidence=(chr(96) + (prior or "a prior guard") + chr(96),)
+                             + (("CIRCUIT-BREAKER:",) if count == 2 else ()),
+                    absent=("CIRCUIT-BREAKER:",) if count == 1 else (),
+                    sites=(("decide", "lines.append("),) if count == 2 else ())
+
+        add = group("block-turn-end-with-outstanding-work", "merge",
+                    ("main", "print(message, file=sys.stderr)"), "turn-end-outstanding-work")
+        for held in (True, False):
+            for count in (1, 9):
+                add("held-%s-count-%s" % (held, count), (held, count),
+                    evidence=(("held-branches.txt" if held else
+                               "the held-branches file (resolved via"), "claude/probe0"),
+                    absent=("claude/probe8",) if count == 9 else ())
+
+        add = group("block-unbumped-version-commit", "bump",
+                    ("main", "print('\\n'.join(lines),"))
+        for name, occurrence in (("unstaged", 0), ("nonnumeric", 1), ("read-error", 2)):
+            add(name, name, evidence=("doc.md",),
+                sites=(("try_auto_bump", "return False", occurrence),))
+        add("mixed", "mixed", evidence=("bad.md",), absent=("  - good.md",),
+            diagnostics=(("main", "NOTE (version-bump guard): auto-bumped"),),
+            sites=(("try_auto_bump", "return True"),))
+
+        add = group("block-unjustified-decision", "default")
+        add("missing-classification", "entry", verb="add",
+            evidence=("has no",), sites=(("decide", "has no"),))
+        prefix = "**Classification:** "
+        for name, content, evidence, site in (
+            ("invalid-blocker", prefix + "BLOCKED: too-hard", "BLOCKED names 'too-hard'", "BLOCKED names"),
+            ("missing-blocker", prefix + "BLOCKED", "BLOCKED names '(none)'", "BLOCKED names"),
+            ("invalid-head", prefix + "MAYBE", "Classification 'MAYBE'", "Classification '"),
+            ("missing-audit", prefix + "BLOCKED: maintainer-directed-hold\n every remaining item is blocked",
+             "no matching fresh-audit token", "no matching fresh-audit token"),
+            ("wrong-audit-count", prefix + "BLOCKED: maintainer-directed-hold\n every remaining item is blocked\n backlog-audit: 3 items enumerated",
+             "first audit token reports 3 items", "first audit token reports"),
+        ):
+            add(name, content, evidence=(evidence,)
+                + (("supplied TODO.md + P-TODO.md count is 5",)
+                   if name == "wrong-audit-count" else ()), sites=(("decide", site),))
+        for phrase in (
+            "heavy context", "context weight", "context is heavy", "this deep in",
+            "deep into the turn", "long turn", "enormous turn", "fresh context",
+            "do it fresh", "do it later", "risky to do now", "risky to do unattended",
+            "felt sensitive", "too sensitive to do now", "best fresh", "given my context",
+        ):
+            add("forbidden-" + phrase, prefix + "ACT\n defer because " + phrase,
+                evidence=("forbidden phrase(s)", phrase), sites=(("decide", "forbidden phrase(s)"),))
+        add("combined", prefix + "BLOCKED: too-hard\n" + prefix
+            + "MAYBE\n defer because context is heavy; every remaining item is blocked",
+            evidence=("BLOCKED names 'too-hard'", "Classification 'MAYBE'",
+                      "forbidden phrase(s)", "no matching fresh-audit token"),
+            sites=tuple(("decide", s) for s in (
+                "BLOCKED names", "Classification '", "forbidden phrase(s)",
+                "no matching fresh-audit token")))
+
+        add = group("block-unstamped-turn-end", "re-send",
+                    ("main", "BLOCKED (unstamped-turn-end)"))
+        for name, message in (
+            ("missing", "done"), ("missing-duration", "[2026-09-22 12:00Z] done"),
+            ("missing-stamp", "done (session: 0h 5m)"),
+            ("stale", "[2026-09-21 11:00Z] done (session: 0h 1m)"),
+        ):
+            add(name, message, evidence=("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
+
+        add = group("block-verification-pipes", "run", ("main", "sys.stderr.write("))
+        add("pipe", "tools/run_all_audits.sh | tail -8", evidence=("(RM-10)",))
+        add = group("block-wrong-repo-tool", "use")
+        for name, command, guard, evidence in (
+            ("abspath", "cd /x && python3 tools/probe.py",
+             "wrong-repo-tool-abspath", "ABSOLUTE PATHS BY DEFAULT"),
+            ("sibling", "python3 tools/probe.py",
+             "wrong-repo-tool-sibling", "grc_library_scratch"),
+            ("git", "git add x", "wrong-repo-git", "guarded subcommand"),
+        ):
+            add(name, command, label=guard, evidence=(evidence,),
+                sites=(("decide", "BLOCKED (" + guard + ")"),))
+        add = group("stop-guard-unattended", "continue",
+                    ("run", "print(reason, file=sys.stderr)"), "stop-guard-unattended")
+        add("actionable", None, evidence=("1 actionable open backlog item",))
+        return cases
+
+    def assert_refusal(self, message, *, guard, imperative):
+        self.assertIsInstance(message, str)
+        for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
+            self.assertEqual(message.count(marker), 1, (marker, repr(message)))
+        self.assertNotIn("CONSIDER-INSTEAD:", message)
+        self.assertNotRegex(message, r"[\u2013\u2014]")
+        match = re.fullmatch(
+            r"BLOCKED \((?P<guard>[a-z0-9]+(?:-[a-z0-9]+)*)\):[ \t]*"
+            r"(?P<what>.+?)\nWHY:[ \t]*(?P<why>.+?)\n"
+            r"CONSIDER INSTEAD:[ \t]*(?P<action>.+)", message, flags=re.DOTALL)
+        self.assertIsNotNone(match, repr(message))
+        self.assertEqual(match["guard"], guard)
+        for section in ("what", "why", "action"):
+            self.assertTrue(match[section].strip(), section)
+        action = match["action"].lstrip()
+        self.assertNotRegex(action, r"(?i)^consider\b")
+        self.assertRegex(action, rf"(?i)^{re.escape(imperative)}\b")
+
+    def _render_case(self, hook, case):
+        import builtins
+        import datetime
+        import importlib
+        import json
+        from contextlib import ExitStack
+        from unittest.mock import Mock, mock_open, patch
+
+        source = self._source(hook)
+        script = ".claude/hooks/" + hook + ".py"
+        filename = str(REPO_ROOT / script)
+        emitter = self._site(source, *case["emitter"])
+        diagnostics = [self._site(source, *s) for s in case["diagnostics"]]
+        required = [emitter] + [self._site(source, *s) for s in case["sites"]]
+        stdout, stderr = io.StringIO(), io.StringIO()
+        seen, prints, external = set(), [], []
+        old_trace, old_path = sys.gettrace(), sys.path[:]
+        frozen = datetime.datetime(2026, 9, 22, 12, tzinfo=datetime.timezone.utc)
+
+        class FrozenDateTime(datetime.datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return frozen if tz else frozen.replace(tzinfo=None)
+
+        class UnexpectedExternalEffect(BaseException):
+            pass
+
+        def deny(name):
+            def blocked(*args, **kwargs):
+                external.append(name)
+                raise UnexpectedExternalEffect(name)
+            return blocked
+
+        def trace(frame, event, arg):
+            if frame.f_code.co_filename == filename:
+                if event == "line":
+                    seen.add(frame.f_lineno)
+                return trace
+            return None
+
+        def capture_print(*args, **kwargs):
+            frame = sys._getframe(1)
+            target = kwargs.get("file", sys.stdout)
+            self.assertIn(target, (stdout, stderr))
+            buf = io.StringIO()
+            builtins.print(*args, **dict(kwargs, file=buf))
+            prints.append((frame.f_lineno, target is stderr, buf.getvalue()))
+            builtins.print(*args, **kwargs)
+
+        payload = dict(hook_event_name="PreToolUse", tool_name="Bash", tool_input={},
+                       workspace={"project_dir": self.P},
+                       transcript_path=self.P + "/transcript.jsonl")
+        arg = case["arg"]
+
+        def bash(command):
+            payload["tool_input"] = {"command": command}
+
+        try:
+            with ExitStack() as stack:
+                def p(obj, name, value):
+                    return stack.enter_context(patch.object(obj, name, value))
+
+                def m(obj, name, value):
+                    spy = Mock(return_value=value)
+                    p(obj, name, spy)
+                    return spy
+
+                stack.enter_context(patch.dict(os.environ, {
+                    "CLAUDE_PROJECT_DIR": self.P, "GRC_DROP_ROOT": "/__p195__/drop",
+                    "GRC_STORE": "/__p195__/private", "HOME": "/__p195__/home",
+                    "PATH": "/usr/bin:/bin",
+                }, clear=True))
+                p(sys, "dont_write_bytecode", True)
+                p(sys, "argv", [filename])
+                stack.enter_context(patch.dict(sys.modules))
+                sys.path.insert(0, str(REPO_ROOT / ".claude/hooks"))
+                sys.path.insert(0, str(REPO_ROOT / "tools"))
+
+                # Guard writes/commands before importing the hook. Import reads are allowed.
+                real_open, real_io_open, real_os_open = builtins.open, io.open, os.open
+
+                def checked_open(real):
+                    def checked(file, mode="r", *a, **kw):
+                        if any(c in mode for c in "wax+"):
+                            return deny("open:" + mode)()
+                        return real(file, mode, *a, **kw)
+                    return checked
+
+                p(builtins, "open", checked_open(real_open))
+                p(io, "open", checked_open(real_io_open))
+
+                def checked_os_open(path, flags, *a, **kw):
+                    mask = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
+                    if flags & mask:
+                        return deny("os.open:write")()
+                    return real_os_open(path, flags, *a, **kw)
+
+                p(os, "open", checked_os_open)
+                for name in ("system", "popen", "fork", "posix_spawn", "posix_spawnp",
+                             "execv", "execve", "execvp", "execvpe", "spawnv", "spawnve",
+                             "spawnvp", "spawnvpe", "mkdir", "makedirs", "remove", "unlink",
+                             "rmdir", "removedirs", "rename", "renames", "replace",
+                             "link", "symlink", "chmod", "chown", "truncate"):
+                    if hasattr(os, name):
+                        p(os, name, deny("os." + name))
+                p(subprocess, "Popen", deny("subprocess.Popen"))
+                common = importlib.import_module("lint_common")
+                m(common, "resolve_working", None)  # also covers import-time HELD_FILE
+                state = importlib.import_module("_hook_state")
+                recorder = m(state, "record_block", None)
+                mod = load_linter_module(script, "_p195_" + hook.replace("-", "_"))
+                self.assertEqual(mod.__file__, filename)
+                p(Path, "resolve", lambda path, **kw: Path(os.path.abspath(path)))
+                p(sys, "stdout", stdout)
+                p(sys, "stderr", stderr)
+                stack.enter_context(patch.object(mod, "print", capture_print, create=True))
+
+                if hook == "block-askuserquestion-unattended":
+                    payload["tool_name"] = "AskUserQuestion"
+                    m(mod, "read_mode", arg)
+                elif hook == "block-branch-to-main-edit":
+                    payload.update(tool_name="Edit", tool_input={"file_path": self.P + "/doc.md"})
+                    m(mod, "_current_branch", arg)
+                elif hook in ("block-bulk-git-add", "block-verification-pipes"):
+                    bash(arg)
+                elif hook == "block-on-open-findings":
+                    bash("gh pr create")
+                    header = ("## Open\n| Found | Severity | Finding | Source | Disposition |\n"
+                              "| --- | --- | --- | --- | --- |\n")
+
+                    def row(severity, finding, disposition=""):
+                        return "| 2026-01-01 | %s | %s | s | %s |\n" % (
+                            severity, finding, disposition)
+
+                    errors = "".join(row("error", "err%d" % n)
+                                     for n in range(6 if arg == "error-many" else 1))
+                    stray = "".join(row("error", "stray%d" % n, "FIXED #1")
+                                    for n in range(6 if arg == "misfiled-many" else 1))
+                    if arg.startswith("error"):
+                        ledger = (stray if arg == "error-precedence" else "") + header + errors
+                    else:
+                        ledger = stray + header
+                        if arg == "mixed":
+                            ledger += row("warning", "warning") + row("error", "[probe] fixed", "FIXED #1")
+                    m(mod, "_working_file", Mock(read_text=Mock(return_value=ledger)))
+                elif hook == "block-operational-without-private":
+                    payload["tool_name"] = arg
+                    m(mod, "_private_present", False)
+                    m(mod, "_origin_is_maintainer", True)
+                elif hook == "block-opus5-orchestrator-model":
+                    m(mod, "_maintainer_env", True)
+                    m(mod, "model_from_transcript", "claude-opus-5")
+                    # Keep write_alert real for every main transport as well.
+                    alert = Mock()
+                    alert.exists.return_value = False
+                    m(mod, "_alert_file", alert)
+                    p(mod, "datetime", FrozenDateTime)
+                    opened = mock_open()
+                    stack.enter_context(patch.object(mod, "open", opened, create=True))
+                    payload["hook_event_name"] = "" if arg == "persisted" else arg
+                elif hook == "block-orchestrator-self-qa":
+                    tool, prompt = arg
+                    payload.update(tool_name=tool, tool_input={"prompt": prompt} if prompt else {})
+                    self.assertIs(mod.BLOCK_SEVERITY, True)
+                    m(mod, "_is_worker_session", False)
+                    sentinel = m(mod, "_consume_sentinel", False)
+                    fire = m(mod, "log_fire", None)
+                elif hook == "block-pr-without-resume-validate":
+                    bash(arg or "")
+                    m(mod, "_working_file", Mock(read_text=Mock(return_value="## History\n")))
+                    m(mod, "_session_start_dt", frozen)
+                    m(mod, "_is_worker_session", False)
+                    sentinel = m(mod, "_consume_sentinel", False)
+                elif hook == "block-public-working-write":
+                    payload["tool_name"] = arg
+                    key = "notebook_path" if arg == "NotebookEdit" else "file_path"
+                    payload["tool_input"] = {key: self.P + "/.working/x.md"}
+                    if arg == "Bash":
+                        bash("printf x > .working/x.md")
+                    m(mod, "_origin_is_maintainer", True)
+                    m(mod, "_private_working_present", True)
+                elif hook == "block-repeated-tool-failure":
+                    prior, count = arg
+                    bash("probe command")
+                    if prior == "answered-question":
+                        payload.update(tool_name="AskUserQuestion", tool_input={
+                            "questions": [{"question": "scope?", "header": "h"}]})
+                    # {} allows; use a truthy record without 'hook' for the fallback.
+                    recent = m(state, "find_recent_block",
+                               {"hook": prior} if prior else {"cmd": "probe command"})
+                    m(state, "consecutive_block_count", count)
+                elif hook == "block-turn-end-with-outstanding-work":
+                    held, count = arg
+                    payload.update(hook_event_name="Stop", stop_hook_active=False)
+                    m(mod, "is_worker_session", False)
+                    m(mod, "unmerged_branches", [("claude/probe%d" % n, "1") for n in range(count)])
+                    p(mod, "HELD_FILE", Path("/__p195__/held-branches.txt") if held else None)
+                    p(Path, "exists", lambda path: False)
+                elif hook == "block-unbumped-version-commit":
+                    bash("git commit -m probe")
+                    m(mod, "project_root", Path(self.P))
+                    p(mod, "datetime", FrozenDateTime)
+                    paths = ["good.md", "bad.md"] if arg == "mixed" else ["doc.md"]
+                    diff = "".join("diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
+                                   "@@ -5 +5 @@\n-old body\n+new body\n" % ((name,) * 4)
+                                   for name in paths)
+                    git_calls, writes = [], []
+
+                    def git(root, *args):
+                        git_calls.append(args)
+                        self.assertEqual(root, Path(self.P))
+                        if args == ("diff", "--cached", "--name-only"):
+                            return "\n".join(paths) + "\n"
+                        if args == ("diff", "--cached", "--unified=0", "--", *sorted(paths)):
+                            return diff
+                        if args[:3] == ("diff", "--name-only", "--") and args[3] in paths:
+                            return args[3] if arg == "unstaged" or args[3] == "bad.md" else ""
+                        if arg == "mixed" and args == ("add", "--", "good.md"):
+                            return ""
+                        self.fail(("unexpected git", args))
+
+                    p(mod, "git", git)
+
+                    def read_text(path, *a, **kw):
+                        self.assertIn(path.name, paths)
+                        if arg == "read-error" and not kw:
+                            raise OSError("crafted read failure")
+                        return "**Version:** " + ("<x.y.z>" if arg == "nonnumeric" else "1.0.0") + "\nBody\n"
+
+                    p(Path, "read_text", read_text)
+
+                    def write_text(path, text, *a, **kw):
+                        self.assertEqual((arg, path), ("mixed", Path(self.P) / "good.md"))
+                        writes.append(text)
+                        return len(text)
+
+                    p(Path, "write_text", write_text)
+                elif hook == "block-unjustified-decision":
+                    payload.update(tool_name="Write", tool_input={
+                        "file_path": self.P + "/autonomous-decisions-log.md", "content": arg})
+                    m(mod, "_todo_item_count", 5)
+                elif hook == "block-unstamped-turn-end":
+                    payload.update(hook_event_name="Stop", stop_hook_active=False,
+                                   last_assistant_message=arg)
+                    m(mod, "maintainer_env", True)
+                    m(mod, "stamp_and_duration", ("[2026-09-22 12:00Z]", "(session: 0h 5m)"))
+                    current = m(mod, "values_current", False)
+                elif hook == "block-wrong-repo-tool":
+                    bash(arg)
+                    m(mod, "_sibling_roots", {
+                        "grc_library": Path(self.P) / "tools",
+                        "grc_library_scratch": Path("/__p195__/grc_library_scratch/tools"),
+                    })
+                    p(Path, "is_file", lambda path:
+                      path == Path("/__p195__/grc_library_scratch/tools/probe.py"))
+                elif hook == "stop-guard-unattended":
+                    payload.update(hook_event_name="Stop", stop_hook_active=False)
+                    m(mod, "_grc_consume_escape", False)
+                    m(mod, "is_orchestrator_session", True)
+                    m(mod, "read_operating_mode", "unattended")
+                    m(mod, "actionable_items", [("P-1.95", "probe")])
+                else:
+                    self.fail("No adapter: " + hook)
+
+                p(sys, "stdin", io.StringIO(json.dumps(payload)))
+                sys.settrace(trace)
+                try:
+                    if case["transport"] == "append":
+                        status = mod.write_alert("claude-opus-5")
+                    elif case["transport"] == "return":
+                        returned = mod._block_message(None)
+                        status = None
+                    elif hook in self.ARGV_MAIN:
+                        status = mod.main([filename])
+                    else:
+                        status = mod.main()
+                finally:
+                    sys.settrace(old_trace)
+
+                self.assertEqual(status, case["status"], (hook, case, stderr.getvalue()))
+                self.assertTrue(set(required).issubset(seen), (required, sorted(seen)))
+                self.assertEqual("".join(s for _, err, s in prints if not err), stdout.getvalue())
+                if hook != "block-verification-pipes":
+                    self.assertEqual("".join(s for _, err, s in prints if err), stderr.getvalue())
+
+                # Select by reviewed call site, even if its opener is broken or absent.
+                transport = case["transport"]
+                if transport == "stderr":
+                    self.assertEqual(stdout.getvalue(), "")
+                    if hook == "block-verification-pipes":
+                        messages = [stderr.getvalue()]
+                        self.assertEqual(prints, [])
+                    else:
+                        self.assertEqual([ln for ln, _, _ in prints], diagnostics + [emitter])
+                        self.assertTrue(all(err for _, err, _ in prints))
+                        messages = [s for ln, _, s in prints if ln == emitter]
+                elif transport == "json":
+                    self.assertEqual(stderr.getvalue(), "")
+                    self.assertEqual([ln for ln, _, _ in prints], [emitter])
+                    obj = json.loads(stdout.getvalue())
+                    self.assertEqual(set(obj), {"systemMessage"})
+                    messages = [obj["systemMessage"]]
+                else:
+                    self.assertEqual((stdout.getvalue(), stderr.getvalue()), ("", ""))
+                    messages = [returned] if transport == "return" else []
+
+                if hook == "block-opus5-orchestrator-model":
+                    opened.assert_called_once_with(alert, "a", encoding="utf-8")
+                    opened().write.assert_called_once()
+                    block = opened().write.call_args.args[0]
+                    envelope = "\n### ALERT 2026-09-22T12:00:00Z opus5-orchestrator-model\n"
+                    self.assertTrue(block.startswith(envelope), repr(block))
+                    persisted = block[len(envelope):]
+                    self.assert_refusal(persisted, guard=case["guard"], imperative="swap")
+                    if transport == "append":
+                        messages = [persisted]
+                if hook == "block-repeated-tool-failure":
+                    subject = "scope?\nh" if arg[0] == "answered-question" else "probe command"
+                    recent.assert_called_once_with(subject)
+                    recorder.assert_called_once_with(subject, "repeated-tool-failure")
+                if hook == "block-orchestrator-self-qa":
+                    sentinel.assert_called_once_with()
+                    fire.assert_called_once_with("BLOCK", messages[0].splitlines()[0])
+                if hook == "block-pr-without-resume-validate" and transport != "return":
+                    sentinel.assert_called_once_with()
+                if hook == "block-unstamped-turn-end":
+                    self.assertEqual(current.call_count, int(case["id"] == "stale"))
+                if hook == "block-unbumped-version-commit":
+                    self.assertEqual(len(writes), int(arg == "mixed"))
+                    if writes:
+                        self.assertIn("**Version:** 1.0.1", writes[0])
+                        self.assertIn(("add", "--", "good.md"), git_calls)
+                self.assertEqual(len(messages), 1)
+                return dict(messages=messages, sites=seen, external=external,
+                            stdout=stdout.getvalue(), stderr=stderr.getvalue())
+        finally:
+            sys.settrace(old_trace)
+            sys.path[:] = old_path
+            self.assertEqual(external, [], "Attempted real external effects")
+
     def test_population_matches_registered_blocking_hooks(self):
-        """The contract population equals the set of blocking hooks REGISTERED in settings.json.
-        A new block-*/stop-guard* hook (or a removed one) that is not reflected here fails,
-        so the reframe invariant cannot silently stop covering the real population."""
         registered = self._registered_blocking_hooks()
-        self.assertEqual(
-            registered, set(self.HOOKS),
-            "registered blocking hooks in settings.json != this contract's population; "
-            "symmetric difference: " + str(sorted(registered ^ set(self.HOOKS))),
+        self.assertEqual(len(registered), 17)
+        self.assertEqual(registered, set(self._case_registry()))
+        for hook, cases in self._case_registry().items():
+            self.assertTrue(cases, hook)
+            self.assertEqual(len(cases), len({c["id"] for c in cases}), hook)
+
+    def test_each_refusal_branch_renders_and_conforms(self):
+        registry = self._case_registry()
+        executed = set()
+        for hook, cases in registry.items():
+            for case in cases:
+                with self.subTest(hook=hook, case=case["id"]):
+                    result = self._render_case(hook, case)
+                    for message in result["messages"]:
+                        self.assert_refusal(message, guard=case["guard"],
+                                            imperative=case["imperative"])
+                        for fragment in case["evidence"]:
+                            self.assertIn(fragment, message)
+                        for fragment in case["absent"]:
+                            self.assertNotIn(fragment, message)
+                    executed.add((hook, case["id"]))
+        self.assertEqual(executed, {(h, c["id"]) for h, cs in registry.items() for c in cs})
+
+    def test_opus_alert_transports_and_persisted_message(self):
+        hook = "block-opus5-orchestrator-model"
+        for case in self._case_registry()[hook]:
+            with self.subTest(case=case["id"]):
+                result = self._render_case(hook, case)
+                self.assert_refusal(result["messages"][0], guard=case["guard"],
+                                    imperative=case["imperative"])
+
+    def test_mixed_diagnostics_preserve_one_complete_refusal(self):
+        for hook in ("block-on-open-findings", "block-unbumped-version-commit"):
+            case, = [c for c in self._case_registry()[hook] if c["id"] == "mixed"]
+            with self.subTest(hook=hook):
+                result = self._render_case(hook, case)
+                self.assertTrue(result["stderr"].startswith("NOTE "))
+                self.assertEqual(len(result["messages"]), 1)
+                self.assert_refusal(result["messages"][0], guard=case["guard"],
+                                    imperative=case["imperative"])
+
+    def test_rendering_has_no_external_writes_or_commands(self):
+        # Every render installs the barrier. Check restoration on both write-capable paths.
+        before = (dict(os.environ), sys.path[:], sys.gettrace(), sys.dont_write_bytecode,
+                  sys.stdin, sys.stdout, sys.stderr)
+        for hook, case_id in (
+            ("block-opus5-orchestrator-model", "persisted"),
+            ("block-unbumped-version-commit", "mixed"),
+        ):
+            case, = [c for c in self._case_registry()[hook] if c["id"] == case_id]
+            result = self._render_case(hook, case)
+            self.assertEqual(result["external"], [])
+            self.assertEqual(
+                (dict(os.environ), sys.path[:], sys.gettrace(), sys.dont_write_bytecode,
+                 sys.stdin, sys.stdout, sys.stderr), before)
+
+    def test_contract_rejects_malformed_rendered_messages(self):
+        good = "BLOCKED (probe): action\nWHY: reason\nCONSIDER INSTEAD: run it"
+        self.assert_refusal(good, guard="probe", imperative="run")
+        negatives = {}
+        for marker in ("BLOCKED (probe):", "WHY:", "CONSIDER INSTEAD:"):
+            negatives["missing-" + marker] = good.replace(marker, "")
+            negatives["duplicate-" + marker] = good + "\n" + marker + " extra"
+        negatives.update({
+            "reordered": "BLOCKED (probe): action\nCONSIDER INSTEAD: run it\nWHY: reason",
+            "inline-why": good.replace("\nWHY:", " WHY:"),
+            "inline-action": good.replace("\nCONSIDER INSTEAD:", " CONSIDER INSTEAD:"),
+            "empty-what": good.replace(" action\n", " \t\n"),
+            "empty-why": good.replace(" reason\n", " \t\n"),
+            "empty-action": good.replace("run it", " \t\n"),
+            "consider": good.replace("run it", "consider running it"),
+            "mixed-consider": good.replace("run it", " \tCoNsIdEr running it"),
+            "adjacent-literals": "BLOCKED (probe): action\nWHY: reason\n"
+                                 "CONSIDER INSTEAD: " "Consider running it",
+            "em-dash": good.replace("reason", "reason\u2014detail"),
+            "en-dash": good.replace("reason", "reason\u2013detail"),
+            "hyphenated": good.replace("CONSIDER INSTEAD:", "CONSIDER-INSTEAD:"),
+            "wrong-guard": good.replace("(probe)", "(other)"),
+            "wrong-imperative": good.replace("run it", "perhaps run it"),
+            "second-opener": good + "\nBLOCKED (other): again",
+            "balance-a": "BLOCKED (probe): action\nWHY: one\nWHY: two\nrun it",
+            "balance-b": "BLOCKED (probe): action\nCONSIDER INSTEAD: run one\nCONSIDER INSTEAD: run two",
+        })
+        balanced = negatives["balance-a"] + negatives["balance-b"]
+        self.assertEqual([balanced.count(m) for m in
+                          ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:")], [2, 2, 2])
+        for name, message in negatives.items():
+            with self.subTest(fixture=name):
+                with self.assertRaises(AssertionError):
+                    self.assert_refusal(message, guard="probe", imperative="run")
+
+    def test_comments_and_docstrings_do_not_affect_contract(self):
+        source = (
+            '"""module: BLOCKED ("""\n'
+            '# comment: BLOCKED (\n'
+            'def main(new=False):\n'
+            '    """function: BLOCKED ("""\n'
+            '    return "BLOCKED (probe): action\\nWHY: reason\\nCONSIDER INSTEAD: run it"\n'
         )
+        changed_docs = source.replace("module: BLOCKED (", "module documentation changed").replace(
+            "function: BLOCKED (", "function documentation changed").replace(
+            "# comment: BLOCKED (", "# more bare markers: BLOCKED ( BLOCKED (")
+        new_branch = source.replace(
+            '    return "BLOCKED',
+            '    if new:\n        return "unlabelled refusal"\n    return "BLOCKED')
 
-    def test_hyphenated_consider_instead_label_is_gone(self):
-        """No hook source may carry the pre-reframe hyphenated ``CONSIDER-INSTEAD:`` label."""
-        for hook in self.HOOKS:
-            with self.subTest(hook=hook):
-                self.assertNotIn(
-                    "CONSIDER-INSTEAD:", self._source(hook),
-                    hook + ": the hyphenated CONSIDER-INSTEAD: label survives the reframe",
-                )
+        def render(text, **kwargs):
+            namespace = {}
+            exec(compile(text, "<p195-synthetic>", "exec"), namespace)
+            return namespace["main"](**kwargs)
 
-    def test_three_part_form_markers_present_and_balanced(self):
-        """Coarse cross-hook check: each hook carries the BLOCKED (/WHY:/CONSIDER INSTEAD:
-        markers with EQUAL counts (every BLOCKED-labelled refusal contributes one WHY: and one
-        CONSIDER INSTEAD:). This does NOT prove per-message balance within a multi-message
-        file (the exhaustive per-message proof is P-1.95; no current test establishes it); it catches a wholesale dropped marker."""
-        for hook in self.HOOKS:
-            with self.subTest(hook=hook):
-                src = self._source(hook)
-                blocked = src.count("BLOCKED (")
-                why = src.count("WHY:")
-                consider = src.count("CONSIDER INSTEAD:")
-                self.assertGreaterEqual(blocked, 1, hook + ": no BLOCKED (guard) label")
-                self.assertEqual(
-                    (why, consider), (blocked, blocked),
-                    hook + ": BLOCKED/WHY/CONSIDER INSTEAD counts are unbalanced "
-                    "(%d/%d/%d)" % (blocked, why, consider),
-                )
-
-    def test_remediation_is_not_inline_hedged(self):
-        """The CONSIDER INSTEAD: remediation is imperative, not softened with a leading
-        ``Consider ...`` (maintainer-directed firmer-verb tone). The check is whitespace- and
-        case-tolerant (``CONSIDER INSTEAD:\\s*[Cc]onsider\\b``), so a double space or a
-        capitalised/lowercased hedge is caught. Residue (documented): a hedge whose ``consider``
-        sits in a string literal ADJACENT to the ``CONSIDER INSTEAD:`` literal is not visible
-        to a source scan and is unproven until the P-1.95 rendered-message suite lands. The
-        circuit-breaker's ``considered`` evidence-log instruction is a different word (``\\b``
-        prevents a false match on it)."""
-        import re
-        pattern = re.compile(r"CONSIDER INSTEAD:\s*consider\b", re.IGNORECASE)
-        for hook in self.HOOKS:
-            with self.subTest(hook=hook):
-                m = pattern.search(self._source(hook))
-                self.assertIsNone(
-                    m, hook + ": hedged remediation after CONSIDER INSTEAD: (%r)"
-                    % (m.group(0) if m else ""),
-                )
+        self.assertEqual(render(source), render(changed_docs))
+        self.assert_refusal(render(changed_docs), guard="probe", imperative="run")
+        with self.assertRaises(AssertionError):
+            self.assert_refusal(render(new_branch, new=True), guard="probe", imperative="run")
 if __name__ == "__main__":
     unittest.main(verbosity=2)
