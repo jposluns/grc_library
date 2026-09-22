@@ -290,19 +290,18 @@ class TextExtractor(HTMLParser):
         if tag in BLOCK_TAGS:
             self.flush()
 
-        # Human-facing attributes are independent blocks. Match by the
-        # PARSED attribute names (so data-title and a title= inside
-        # another attribute's value are not mistaken for a real title),
-        # and append each as its own block WITHOUT flushing the visible
+        # Human-facing attributes are independent blocks. Tokenize the raw
+        # tag into COMPLETE name=value pairs left-to-right, so a name=
+        # embedded in another attribute's quoted value is consumed as that
+        # value and never matched as its own attribute; append each
+        # human-facing one as its own block WITHOUT flushing the visible
         # stream (an inline tag must not split surrounding visible text).
         raw = self.get_starttag_text()
-        genuine = {n.lower() for n, v in attrs if v is not None}
         for m in re.finditer(
-            r"""(?<![\w-])(alt|title|aria-label)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
+            r"""([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))""",
             raw,
-            re.I,
         ):
-            if m[1].lower() not in genuine:
+            if m[1].lower() not in {"alt", "title", "aria-label"}:
                 continue
             g = next(gi for gi in (2, 3, 4) if m[gi] is not None)
             saved_chars, saved_offsets = self.chars, self.offsets
@@ -322,8 +321,9 @@ class TextExtractor(HTMLParser):
             return
         if tag in BLOCK_TAGS:
             self.flush()
-        elif self.chars and not self.chars[-1].isspace():
-            self.add(" ", self.source_offset(), False)
+        # An inline (non-block) tag adds no whitespace in rendering, so it
+        # must not inject a space that would split a citation number or
+        # edition across the tag (e.g. ISO/IEC <b>2700</b>1 renders 27001).
 
     def handle_data(self, data):
         if not self.hidden:
@@ -385,10 +385,17 @@ def text_blocks(source, suffix):
         elif ch == ")" and open_stack:
             close_of[open_stack.pop()] = k
         k += 1
+    # A high-water mark erases each character at most once, so overlapping
+    # or nested destinations (a balanced "](" * n + ")" * n run) stay O(n)
+    # rather than re-erasing an already-blanked span per destination.
+    erased_to = 0
     for m in re.finditer(r"\]\(", source):
         close = close_of.get(m.end() - 1)
         if close is not None:
-            erase(m.start(), close + 1)
+            a = max(m.start(), erased_to)
+            if a < close + 1:
+                erase(a, close + 1)
+                erased_to = close + 1
 
     for m in re.finditer(r"\]\[[^\]\n]*\]", source):
         erase(m.start(), m.end())
@@ -471,10 +478,10 @@ def version_after(text, end, family):
     if family == "ISO/IEC":
         pat = r"\s*(?::\s*|\(\s*|\s)(\d{4})" + END
     elif family == "IEEE":
-        pat = r"\s*(?:[-:]|\(\s*|\s)(\d{4})" + END
+        pat = r"\s*(?:[-:]\s*|\(\s*|\s)(\d{4})" + END
     else:
         pat = (
-            r"\s*(?:[:(]\s*)?(?:\s|(?=v))"
+            r"\s*(?:[:(]\s*|\s+|(?=v))"
             r"((?:version\s+|v)?" + NUM + ")" + END
         )
     m = re.match(pat, tail, re.I)
@@ -612,15 +619,10 @@ def resolve(occurrence, entries, bare_exceptions=None):
                 "NONCANONICAL_ID",
                 "Suggest " + str(nearby[0]["id"]) + "; not accepted.",
             )]
-        # A bare NIST SP series prefix (no publication part, no register
-        # row) is a series reference, not a missing publication: advisory.
-        if occurrence.get("family") == "NIST" and re.fullmatch(
-            r"NIST\s+SP\s+\d+", occurrence["observed"].strip(), re.I
-        ):
-            return [(
-                "CANDIDATE",
-                "Bare NIST SP series prefix; classify, not a publication.",
-            )]
+        # A bare NIST SP number without a hyphenated part is NOT reliably a
+        # series prefix (SP 330, SP 811 are concrete publications), so an
+        # unmatched one stays UNREGISTERED. Registered series identities are
+        # recognized by the grammar's explicit "... series" suffix (F3a).
         return [("UNREGISTERED", "No canonical register row.")]
 
     if len(exact) != 1:
@@ -632,10 +634,14 @@ def resolve(occurrence, entries, bare_exceptions=None):
         reason = (bare_exceptions or {}).get(key)
         if reason:
             return []
-        # A register row whose current value is a series marker declares
-        # no single edition to pin to (editions vary per part): a bare
-        # citation of such a series is not UNPINNED.
-        if "series" in str(entry["current"]).lower():
+        # A register row whose current value BEGINS with a series marker
+        # declares no single edition to pin to (editions vary per part): a
+        # bare citation of such a series is not UNPINNED. Anchored to the
+        # start so a concrete edition with an incidental "series" note in
+        # its current cell is not wrongly exempted.
+        if str(entry["current"]).strip().lower().startswith(
+            ("series", "subseries")
+        ):
             return []
         return [(
             "UNPINNED",

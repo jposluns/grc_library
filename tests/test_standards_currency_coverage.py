@@ -296,7 +296,7 @@ class CitationCoverageTests(unittest.TestCase):
         found = self.occurrences(html, ".html")
         self.assertEqual(
             [(o["observed"], o["version"]) for o in found],
-            [("ISO/IEC  27001", "2022")],
+            [("ISO/IEC 27001", "2022")],
         )
         self.assertEqual(found[0]["span"][0], [1, 4])
         for text in [

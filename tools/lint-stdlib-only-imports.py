@@ -89,12 +89,12 @@ def _first_party_names(files: list[Path]) -> set[str]:
     names = {p.stem for p in files}
     # A package-qualified in-repo import (e.g. `from tests.test_x import y`) takes the
     # top-level package DIRECTORY as its AST import root; that in-repo package is first-
-    # party too. Add each scanned file's top-level directory when it is a valid Python
-    # identifier (so a non-package dir like `.web` or `.corpus-management`, never used as
-    # an import package, is not added, and a third-party import target is never masked).
+    # party too. Add a scanned file's top-level directory ONLY when it is a real Python
+    # package (a valid identifier with an __init__.py). A non-package storage dir
+    # (vendor/, tools/) is never added, so it cannot mask a same-named third-party import.
     for p in files:
         top = p.relative_to(REPO_ROOT).parts[0]
-        if top.isidentifier():
+        if top.isidentifier() and (REPO_ROOT / top / "__init__.py").is_file():
             names.add(top)
     return names
 
