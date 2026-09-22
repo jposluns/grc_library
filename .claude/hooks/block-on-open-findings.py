@@ -9,12 +9,16 @@ as a table row and walked past in favour of writing a summary statistic about th
 is not acting on one, and the gap between those two is where the cost lives, so the block is
 mechanical.
 
-WHAT IT READS. `.working/open-findings.md`, the ledger, whose `## Open` table carries one row per
+WHAT IT READS. `open-findings.md`, resolved via `lint_common.resolve_working` (operational store
+first, then the `grc_library_private/.working/` sibling, then the in-repo `.working/`; first existing;
+if the helper cannot be imported, only the in-repo path). Its `## Open` table carries one row per
 confirmed defect with a severity and a disposition. A row with an EMPTY disposition is undispositioned.
 A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disposition" is the
 primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
 
-WHAT IT BLOCKS. An `error`-severity undispositioned row blocks opening or merging a PR, because
+WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
+whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (so it
+misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
 (an in-flight change should finish rather than be abandoned half-landed) and is surfaced instead.
 Notes never block. SECOND blocking condition (P-1.70, 2026-09-10): a MIS-FILED finding-row - one that
@@ -466,7 +470,8 @@ def fixed_class_rows_unattested(rows: list) -> list:
 
 
 def is_blocking_command(cmd: str) -> bool:
-    """PURE. Does this shell command open or merge a PR?"""
+    """PURE. After whitespace collapse, does the command text contain the case-sensitive substring
+    `gh pr create` or `gh pr merge`? Quote-unaware: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
     flat = " ".join(cmd.split())
     return any(" ".join(parts) in flat for parts in BLOCKING_CMDS)
 
