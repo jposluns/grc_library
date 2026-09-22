@@ -180,9 +180,12 @@ The discipline implements the same audit-trail-integrity principle the broader p
 
 - The register in which validation-sweep dispatch declarations are recorded
   (the skill's Rule 5.6): `grc_library_private/.working/validate-sweeps/history.md`.
-- The repeated-failure circuit-breaker is enforced mechanically by the
+- The repeated-failure circuit-breaker is backed by the
   [`block-repeated-tool-failure.py`](../../hooks/block-repeated-tool-failure.py)
-  PreToolUse hook (GUARD 2: on two or more consecutive same-class blocks it requires a
-  written mechanism diagnosis before any retry), and the degradation hypothesis, if
-  raised, is recorded and assessed in `grc_library_private/degradation-watch-log.md`
-  before it is asserted.
+  PreToolUse hook, which mechanically refuses a byte-identical resubmit (GUARD 1) and, on
+  two or more consecutive same-class blocks, escalates the refusal with a hard-stop
+  instruction to WRITE a mechanism diagnosis before retrying (GUARD 2); the hook does not
+  verify the diagnosis, and a command whose subject matches no recent blocked subject passes
+  it, so writing and assessing the diagnosis is the discipline the hook prompts, not one it
+  enforces. The degradation hypothesis, if raised, is recorded and assessed in
+  `grc_library_private/degradation-watch-log.md` before it is asserted.
