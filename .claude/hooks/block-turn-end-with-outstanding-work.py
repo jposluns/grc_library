@@ -39,10 +39,14 @@ cannot silently become the standing state. It is reachable from a Bash tool call
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
 
-FAIL OPEN. Any internal error or an unreadable repository allows the stop, with ONE deliberate
-exception: a present escape file that cannot be consumed (a failed unlink) refuses the escape and
-falls through to the block, so a non-deletable sentinel cannot become a permanent bypass. A guard
-that traps the actor on its own malfunction gets removed, and a removed guard protects nothing.
+FAIL OPEN. Any internal error or an unreadable repository allows the stop, with TWO deliberate
+exceptions. First, a present escape file that cannot be consumed (a failed unlink) refuses the escape
+and falls through to the block, so a non-deletable sentinel cannot become a permanent bypass. Second,
+the per-branch tree check catches ANY non-zero `git diff --quiet` exit as CalledProcessError and treats
+it as 'trees differ', so a diff-command error (e.g. a bad ref, exit 128) on an ahead-of-main branch
+leaves that branch REPORTABLE toward a block, not allowed; only a clean exit-0 (tree-identical to main)
+exempts an ahead branch. A guard that traps the actor on its own malfunction gets removed, and a removed
+guard protects nothing.
 
 GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-action:
   * "a branch is ahead of main" is NOT "a branch is meant to merge". A deliberately-held branch
