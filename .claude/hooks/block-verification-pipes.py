@@ -31,10 +31,7 @@ EXIT=<code>), allowed; (4) the 2026-07-04 PR #629 widening added
 run-linter-regression.py, build-*.py --check invocations, and the tee/wc
 sinks to the named sets; a runner outside the widened set is still
 uncovered by design (the wrapper and the unpiped habit are the primary
-control); (5) the pipe-detection pattern matches ``||`` and ``|&`` as well as a single
-``|`` (the trailing ``|``/``&`` is optional), so a logical-OR fallback (``verification || head``) or ``|&`` combine, which does NOT
-pipe the verification's stdout into the filter, is a FALSE POSITIVE and blocks
-(caution-side; the fix is the same ``tools/tail-safe.sh`` wrapper).
+control).
 
 Self-test: `python3 .claude/hooks/block-verification-pipes.py --self-test`.
 """
