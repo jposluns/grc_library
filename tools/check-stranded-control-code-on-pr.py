@@ -132,8 +132,9 @@ def table_codes_from_diff(diff: str, sign: str) -> set[str]:
 
 
 def anchored(code: str) -> re.Pattern:
-    """An anchored matcher for one specific code, same guards as CODE_RE."""
-    return re.compile(r"(?<![\w.-])" + re.escape(code) + r"(?![\w(-])")
+    """An anchored matcher for one specific code: CODE_RE's guards plus a rejection of a following ".<digit>"."""
+    # A following ".<digit>" continues a longer code (PW.4 inside PW.4.1, A.8 inside A.8.20); not a cite of the parent.
+    return re.compile(r"(?<![\w.-])" + re.escape(code) + r"(?![\w(-]|\.\d)")
 
 
 def head_table_codes(head_text: str) -> set[str]:
@@ -282,6 +283,10 @@ def _self_test() -> int:
     check("cross-stem-domain-noexpand", "IAM-02" not in expand_ranges("IAM-01 to DSP-03") and "IAM-01 to DSP-03" in expand_ranges("IAM-01 to DSP-03"))
     check("cross-stem-iso-noexpand", "A.5.2" not in expand_ranges("A.5.1 to A.6.5"))
     check("cross-stem-ssdf-noexpand", "PW.2" not in expand_ranges("PW.1 to RV.4"))
+    # #2488 regression: a task-level cite (PW.4.1) is not a cite of its parent practice (PW.4); a sentence-final period still is.
+    check("anchored-parent-not-in-task", anchored("PW.4").search("NIST SSDF PW.4.1, PW.4.4") is None)
+    check("anchored-iso-parent-not-in-child", anchored("A.8").search("A.8.20") is None)
+    check("anchored-sentence-period", anchored("PW.4").search("maps to PW.4.") is not None)
     # codex-HOLD-3 regression: suffix-collision, mid-token left, and the `through` form.
     check("suffix-collision-noexpand", "IAM-02" not in expand_ranges("IAM-01 to AM-03"))
     check("midtoken-left-domain-noexpand", "IAM-02" not in expand_ranges("X-IAM-01 to 03"))

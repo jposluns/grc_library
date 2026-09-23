@@ -2,8 +2,8 @@
 
 **Document Title:** Technology Radar Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-09-07\
+**Version:** 1.0.8\
+**Date:** 2026-09-23\
 **Owner:** Chief Technology Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`architecture/framework-enterprise-architecture.md`](framework-enterprise-architecture.md), [`architecture/standard-architecture-decision-records.md`](standard-architecture-decision-records.md), [`architecture/standard-reference-architecture.md`](standard-reference-architecture.md), [`architecture/procedure-architecture-review.md`](procedure-architecture-review.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md)\
@@ -211,7 +211,7 @@ The council uses the criteria below when placing a blip. Not every criterion is 
 | Open Group TOGAF Standard | Technology Reference Model | Enterprise architecture |
 | Open Agile Architecture (O-AA) | Architecture practice | Modern EA practice |
 | OWASP SAMM | Operations: Environment Management; Software Composition | Software assurance maturity |
-| NIST SSDF SP 800-218 | PW.4 Reuse of existing software | Secure software development |
+| NIST SSDF SP 800-218 | PW.4.1 Acquire and maintain well-secured third-party components | Secure software development |
 | ISO/IEC 27001:2022 | A.5.21 Managing information security in the ICT supply chain | Supplier and external software |
 
 ---

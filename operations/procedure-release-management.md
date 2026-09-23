@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -215,7 +215,7 @@ The release class sets cadence and gates; it does not replace the change class. 
 | ITIL 4 | Release management; deployment management | Service management |
 | ISO/IEC 20000-1 | §8.5.3 Release and deployment management | Release and deployment management |
 | ISO/IEC 27001:2022 | A.8.32 Change management | Information security |
-| NIST SP 800-218 | SSDF PO, PS, PW, RV practices | Secure software development |
+| NIST SP 800-218 | SSDF PS.2.1, PS.3.1, PS.3.2 (artefact signing, release archive, provenance and SBOM); PW.7.2, PW.8.2 (SAST, IaC and DAST gates); RV.1.1, RV.2.2 (dependency scanning and the vulnerability gate) | Secure software development |
 | OWASP SAMM | Verification, Operations | Software assurance maturity |
 | Google SRE | Progressive rollouts; canary; error-budget gating | Reliability practice |
 | DORA accelerate metrics | Deployment frequency, lead time, change failure rate, MTTR | Performance baseline |
