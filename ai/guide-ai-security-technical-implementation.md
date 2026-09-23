@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Technical Implementation Guide\
 **Document Type:** Guide\
-**Version:** 1.3.6\
-**Date:** 2026-08-20\
+**Version:** 1.3.7\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -624,7 +624,7 @@ The KQL examples above use a log analytics query language. Adapt to your SIEM's 
 - **promptfoo**: Prompt testing and evaluation framework (open source)
 - **NIST AI RMF**: AI risk management framework
 - **OWASP GenAI Security Project**: genai.owasp.org
-- **NIST SP 800-218A**: Secure Software Development Practices for Generative AI and Dual-Use Foundation Models; model scanning (PW.7.2) and provenance via a software bill of materials and Supply-chain Levels for Software Artifacts (PS.3.2)
+- **NIST SP 800-218A**: Secure Software Development Practices for Generative AI and Dual-Use Foundation Models; model scanning (PW.7.2), provenance via a software bill of materials and Supply-chain Levels for Software Artifacts (PS.3.2), and weekly production-endpoint scanning with triage and a remediate-or-accept decision (RV.1.2, RV.2.1, RV.2.2)
 - **ETSI TR 104 128**: Securing AI (SAI): Implementation guidance for the baseline cyber security requirements for AI; corroborative implementation guidance for the ETSI EN 304 223 baseline that the AI security standards anchor to (informative see-also, not a normative anchor)
 - **CSA AICM v1.1.0**: AI Controls Matrix; the A3 patterns map to AIS-10, AIS-11, AIS-13, and AIS-15
 - **OWASP AI Exchange**: owaspai.org; the umbrella AI-security control catalogue whose runtime control set (model access control, runtime model and I/O integrity, input and output handling, resource limits, and monitoring) underpins this guide's reference architectures, guardrail patterns, and monitoring
