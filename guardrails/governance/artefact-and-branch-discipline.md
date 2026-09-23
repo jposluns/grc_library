@@ -170,7 +170,7 @@ Both exception paths are slow by design; the friction is proportional to the res
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | SLSA |
 | --- | --- | --- | --- | --- |
-| Generator-output discipline | PO.5, PW.4 | CCC-01 to 04, AIS-04 | A.8.32 | Level 2 |
-| Branch protection | PO.5 | CCC-04 | A.8.32 | Level 2 |
-| Audit-trail preservation | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15 | Level 3 |
-| Change classification of forced rewrites | PO.5 | CCC-02, CCC-03 | A.5.4, A.8.32 | N/A |
+| Generator-output discipline | PO.3.2 | CCC-01 to 04, AIS-04 | A.8.32 | Level 2 |
+| Branch protection | PS.1.1 | CCC-04 | A.8.32 | Level 2 |
+| Audit-trail preservation | PS.1.1 | LOG-02, LOG-04, LOG-10 | A.8.15 | Level 3 |
+| Change classification of forced rewrites | PS.1.1 | CCC-02, CCC-03 | A.5.4, A.8.32 | N/A |

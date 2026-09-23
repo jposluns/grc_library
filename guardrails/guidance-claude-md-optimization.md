@@ -155,8 +155,8 @@ procedure step; only non-actionable prose left the file.
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
-| Recorded rationale for a removal | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
-| Audit trail of what was removed and why | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15 |
+| Recorded rationale for a removal | N/A | CCC-01 to 03 | A.5.4, A.8.32 |
+| Audit trail of what was removed and why | N/A | LOG-02, LOG-04, LOG-10 | A.8.15 |
 | Verification before claiming completeness | N/A | GRC-05 | A.5.36 |
 
 ---

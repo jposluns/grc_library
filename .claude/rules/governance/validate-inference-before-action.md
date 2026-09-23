@@ -168,8 +168,8 @@ Any other "we can skip the validation because..." is the failure mode the rule e
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 | OWASP ASVS |
 | --- | --- | --- | --- | --- |
 | Validated premise before action | N/A | GRC-05, LOG-02 | A.5.36, A.8.15 | V15.1, V16.2 |
-| Cascade prevention discipline | PO.5 | GRC-04 | A.5.4 | V15.1 |
-| Audit trail of validations | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
+| Cascade prevention discipline | N/A | GRC-04 | A.5.4 | V15.1 |
+| Audit trail of validations | N/A | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
 | Diagnosis before retry after repeated failure | N/A | GRC-05 | A.5.36 | V15.1 |
 
 The discipline implements the same audit-trail-integrity principle the broader pack expresses: every action driven by a premise must be traceable to a validation of the premise. The cost of an unvalidated premise compounds; the cost of one extra tool call does not.

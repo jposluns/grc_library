@@ -288,5 +288,5 @@ For genuinely impractical re-reads (a generated file that is millions of lines l
 | --- | --- | --- | --- | --- |
 | Evidence-grounded assertions | N/A | GRC-05, LOG-02 | A.5.36, A.8.15 | V15.1, V16.2 |
 | Distinguishing mechanical from semantic verification | N/A | GRC-05 | A.5.36 | V15.1 |
-| Documented exception handling | PO.5 | GRC-04 | A.5.4 | V15.1 |
-| Audit trail of verifications performed | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
+| Documented exception handling | N/A | GRC-04 | A.5.4 | V15.1 |
+| Audit trail of verifications performed | N/A | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 | V16.2, V16.4 |
