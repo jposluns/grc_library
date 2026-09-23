@@ -235,7 +235,7 @@ The OWASP Risk column follows the 2025 ordering. (The NIST SSDF column was re-ve
 | --- | --- | --- | --- |
 | A01 Broken Access Control (incl. SSRF) | A.5.15 to 5.18 | PW.5.1 | IAM-04 to 05 |
 | A02 Security Misconfiguration | A.8.9 | PW.9 | CCC-07 |
-| A03 Software Supply Chain Failures | A.8.8 | RV.1.1, PW.4.1, PW.4.4, PS.2.1, PS.3.2 | TVM-06 |
+| A03 Software Supply Chain Failures | A.8.8 | RV.1.1, RV.2.2, PW.4.1, PW.4.4, PS.2.1, PS.3.2 | TVM-06 |
 | A04 Cryptographic Failures | A.8.24 | PW.5.1 | CEK-01 to CEK-07, CEK-09 to CEK-21 |
 | A05 Injection | A.8.28 | PW.5.1 | AIS-02 |
 | A06 Insecure Design | A.8.25 to 8.27 | PW.1.1, PW.1.2, PW.8.2 | AIS-01 |

@@ -298,4 +298,4 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 | Cryptography | V11 | PW.5.1 | A.8.24 |
 | Authentication (Spring Security) | V6, V7 | PW.5.1, PW.1.3 | A.5.17 |
 | Logging | V16 | PW.5.1 | A.8.15 to 8.16 |
-| Dependency management | V15.2 | PW.4.1, PW.4.4 | A.8.8 |
+| Dependency management | V15.2 | PW.4.1, PW.4.4, RV.1.1 | A.8.8 |
