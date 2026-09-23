@@ -158,6 +158,25 @@ def is_worker_session() -> bool:
         return False
 
 
+
+def is_verify_worker() -> bool:
+    """True inside a dispatched orch-verify worker: the ORCH_VERIFY_OWNER marker is present (even empty;
+    orch-verify exports it into every family's worker shell and the orchestrator never sets it), OR
+    is_worker_session() holds (the broker's worker config-dir prefix).
+
+    SCOPE, deliberately narrow: ONLY for NON-SAFETY orchestrator session-discipline hooks (message stamping,
+    timestamp injection, session-facts surfacing), where a false positive merely silences a reminder. SAFETY
+    guards must NOT use this: an inherited or leaked ambient marker must never disable a safety guard, so
+    they keep is_worker_session() (or no worker exemption at all). Fail-safe: any error -> False.
+    """
+    try:
+        if "ORCH_VERIFY_OWNER" in os.environ:
+            return True
+    except Exception:
+        return False
+    return is_worker_session()
+
+
 SELF_TEST = [
     ("cat > f <<'EOF'\nPAYLOAD\nEOF",                       False),
     ("cat > f <<EOF\nPAYLOAD\nEOF",                         True),
@@ -184,7 +203,32 @@ def _self_test() -> int:
         bad += 1
         print("FAIL: text after a stripped heredoc did not survive")
     print(str(len(SELF_TEST) + 1 - bad) + "/" + str(len(SELF_TEST) + 1) + " heredoc cases pass")
-    return 1 if bad else 0
+    # is_verify_worker: marker presence (even empty) or the worker config-dir prefix -> worker; neither ->
+    # orchestrator. is_worker_session (used by SAFETY guards) must IGNORE the marker. Env restored afterwards.
+    saved = {k: os.environ.get(k) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+    cases = [({"ORCH_VERIFY_OWNER": "x"}, True), ({"ORCH_VERIFY_OWNER": ""}, True),
+             ({"CLAUDE_CONFIG_DIR": "/a/orch-worker.claude-1"}, True),
+             ({"CLAUDE_CONFIG_DIR": "/a/claude-max-worker5-mailz"}, False),
+             ({"CLAUDE_CONFIG_DIR": "/orch-worker.x/child"}, False), ({}, False)]
+    wbad = 0
+    try:
+        for env, want in cases:
+            for k in saved:
+                os.environ.pop(k, None)
+            os.environ.update(env)
+            if is_verify_worker() is not want:
+                wbad += 1
+                print("FAIL is_verify_worker " + repr(env) + " want=" + str(want))
+            if "ORCH_VERIFY_OWNER" in env and "CLAUDE_CONFIG_DIR" not in env and is_worker_session():
+                wbad += 1
+                print("FAIL is_worker_session must ignore the marker " + repr(env))
+    finally:
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+    print(str(len(cases) - wbad) + "/" + str(len(cases)) + " worker-marker cases pass")
+    return 1 if (bad or wbad) else 0
 
 
 if __name__ == "__main__":
