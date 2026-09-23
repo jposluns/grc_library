@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.17\
-**Date:** 2026-09-22\
+**Version:** 1.3.18\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -182,7 +182,7 @@ The enterprise identity provider is the authoritative enforcement point for poli
 
 ### 6.2 Conditional access policy governance
 
-policy-based access controls are defined and owned by the CISO. All policy changes require a High-risk change request per the Change Management and Configuration Control Procedure. Changes to policy-based access controls are logged, reviewed at CAB, and subject to post-implementation review within 48 hours.
+policy-based access controls are defined and owned by the CISO. All policy changes require a High-risk change request per the Change Management and Configuration Control Procedure; a policy change needed to respond to an active security incident follows that procedure's Emergency path for the immediate action, with its permanent follow-up submitted as a High-risk change. Changes to policy-based access controls are logged, reviewed at CAB, and subject to post-implementation review within 48 hours.
 
 ### 6.3 Grace period for newly enrolled devices
 

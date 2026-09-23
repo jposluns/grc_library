@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-09-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -57,7 +57,7 @@ Every patch or update is classified on receipt to determine the required deploym
 | **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via Normal change |
 | **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
 | **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Scheduled maintenance window |
-| **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change |
+| **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change where it matches an approved standard-change template; otherwise Normal change |
 
 The Deployment Timeline column operationalizes the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); that procedure governs on any discrepancy, and the Trigger Condition and Authorization columns add the operational detail this procedure owns.
 

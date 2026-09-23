@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -128,7 +128,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Decision | Description |
 | --- | --- |
 | Rollback trigger | Pre-defined: customer impact, telemetry regression, security finding, regulatory concern |
-| Rollback execution | Rollback executed via the pre-tested mechanism; not improvised |
+| Rollback execution | Rollback executed via the documented mechanism (pre-tested, or covered by CAB-approved compensating controls); not improvised |
 | Forward-fix | Where rollback is not viable, a forward-fix is deployed under the same procedure on an expedited path |
 | Post-rollback validation | Service health validated after rollback; customers informed if material |
 
@@ -193,7 +193,7 @@ The release class sets cadence and gates; it does not replace the change class. 
 | Artefact registry | Artefacts stored in a registry with retention and signing per the supply-chain controls |
 | Deployment platform | Supports the selected deployment strategies |
 | Telemetry integration | Pipeline annotates telemetry with deployment events |
-| Rollback mechanism | Available, tested, and documented |
+| Rollback mechanism | Available, documented, and tested (or covered by CAB-approved compensating controls under the change management procedure) |
 | Feature-flag platform | Flags have ownership and expiry; per the SRE standard |
 
 ---
@@ -202,7 +202,7 @@ The release class sets cadence and gates; it does not replace the change class. 
 
 1. Production releases run through this procedure; ad-hoc production changes are incidents.
 2. Release cadence is reviewed quarterly; per-service cadence is tuned to risk and customer impact.
-3. Rollback paths are exercised periodically; rollback that is documented but untested is not rollback.
+3. Rollback paths are exercised periodically; rollback that is documented but untested is not rollback, which is why an untested rollback plan is accepted only under the CAB-approved compensating-controls exception in the change management procedure.
 4. Repeat failed releases trigger an architectural or process review.
 5. Emergency releases are reconciled to standard practice within the post-release window.
 

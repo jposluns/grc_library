@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.22\
+**Version:** 1.1.23\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -57,7 +57,7 @@ Prohibited by default. Most carry no exception path at all; where a row is excep
 | 25 | Use wildcard CORS origins (`origins: "*"`) in any production API, web app, or automation platform HTTP trigger | Wildcard CORS allows any origin to make credentialed requests. Use an explicit allow-list only. |
 | 26 | Download or save corporate data to local device storage or personal cloud storage | Violates acceptable use policy and remote working security standard. Corporate data must stay in company-managed storage. |
 | 27 | Connect unapproved USB drives or external storage to company devices | Exceptions require approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
-| 28 | Promote to production without an approved change record | Every production change requires a documented, approved change request. Emergency changes require retrospective CAB review within 5 business days. |
+| 28 | Promote to production without an approved change record | Every production change requires a documented, approved change request. An Emergency change is authorized by the CIO or equivalent before implementation, with the change request created retrospectively within 4 hours and retrospective CAB review within 5 business days. |
 | 29 | Allow a critical or high vulnerability to remain unpatched beyond its SLA | Unpatched critical vulnerabilities are an active security risk. Patch SLAs are mandatory, not targets. |
 
 ---
@@ -150,7 +150,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 | Standard (pre-approved, low-risk) | Team lead | No |
 | Normal | CIO delegate | Yes |
 | Emergency | CIO or equivalent | Retrospective within 5 business days |
-| High-risk (identity, PAM, PKI, production network) | CISO and CIO (joint approval) | Yes |
+| High-risk (identity, PAM, PKI, production network, firewall rule bases, security monitoring) | CISO and CIO (joint approval) | Yes |
 
 Every CAB-reviewed change must include a tested rollback plan, unless the CAB approves documented compensating controls where testing before the change window is not operationally feasible. Any manual change made during a declared incident must be codified in IaC within 24 hours; a permanent change resulting from an emergency change is submitted within 5 business days under its own change class.
 

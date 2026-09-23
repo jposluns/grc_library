@@ -2,7 +2,7 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.18\
+**Version:** 1.3.19\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -252,7 +252,7 @@ Security Engineering compiles a monthly metrics report for the CISO. The report 
 
 ### 9.1 Change control for SIEM rules
 
-All changes to SIEM detection rules, data connectors, and normalization pipelines are governed by the Change Management and Configuration Control Procedure. Changes to critical detection rules (those covering the mandatory alert categories in §4) require High-risk change classification (joint CISO and CIO approval and CAB review per the change management procedure) before implementation.
+All changes to SIEM detection rules, data connectors, and normalization pipelines are governed by the Change Management and Configuration Control Procedure. Changes to critical detection rules (those covering the mandatory alert categories in §4) require High-risk change classification (joint CISO and CIO approval and CAB review per the change management procedure) before implementation. A change to a critical detection rule needed to respond to an active security incident follows the change management procedure's Emergency path (CIO or equivalent authorization, retrospective CAB review) for the immediate action, and its permanent follow-up is submitted as a High-risk change.
 
 ### 9.2 False positive target
 
