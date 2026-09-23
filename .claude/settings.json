@@ -112,7 +112,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/future-stamp-write.py"
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/future-stamp-write.py"
           }
         ]
       }
@@ -143,7 +143,7 @@
           },
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stamp-truth-stop.py"
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stamp-truth-stop.py"
           }
         ]
       }
@@ -163,7 +163,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }
@@ -173,7 +173,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }
