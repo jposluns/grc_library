@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
-**Date:** 2026-09-20\
+**Version:** 1.0.9\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -27,7 +27,7 @@ This standard defines the hardening baseline for endpoints used in the organizat
 This standard applies to:
 
 1. **Managed corporate workstations and laptops** running supported operating systems (Windows, macOS, major Linux distributions used at scale).
-2. **Mobile devices** (iOS and Android) issued by the organization or enrolled under BYOD policy.
+2. **Mobile devices** (iOS and Android) issued by the organization or enrolled under the BYOD Policy's full-device MDM route. Personally-owned devices on the managed-work-profile or MAM route are governed by the BYOD Policy's route controls; requirements in this standard apply to them only within the corporate work profile or managed applications.
 3. **Privileged access workstations** used for administering production environments.
 4. **Developer workstations** with additional considerations for build chains and AI coding assistants.
 5. **Kiosks, shared devices, and unattended terminals** in operational settings.
@@ -167,11 +167,11 @@ Devices used to administer production environments meet a stricter baseline.
 
 | Control area | Requirement |
 | --- | --- |
-| Enrolment | Enrolled in the endpoint management platform before accessing organization data |
+| Enrolment | Devices must enrol before accessing organization data, except for the BYOD Policy's cloud-productivity-only MAM route; MAM controls must satisfy the BYOD Policy instead of the device-level requirements in this section |
 | OS version | Within the vendor-supported and patched version |
 | Passcode | Per the authentication standard |
 | Biometrics | Platform biometric permitted; secure-enclave-backed |
-| Wipe capability | Remote-wipe (full device or work profile) available; tested |
+| Wipe capability | Wipe capability must be available and tested: corporate applications for MAM, the corporate container for managed work profiles, and consented full-device wipe for BYOD MDM; corporate-device wipe remains applicable |
 | Containerization | Work profile or work container used where the platform supports it |
 | Camera and microphone | Controlled per role and per facility policy |
 | Public-Wi-Fi posture | Per the remote working standard; VPN engaged on untrusted networks |

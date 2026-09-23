@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.22\
+**Version:** 1.3.23\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -56,7 +56,7 @@ The registration and enrolment requirements apply to:
 
 - New organization-issued workstations and laptops before first use.
 - New or replacement servers before promotion to any environment.
-- BYOD devices using an enrolled or managed access path before accessing corporate systems (see §8).
+- BYOD devices using a full-device MDM or managed-work-profile route before accessing corporate systems (see §8).
 - Temporary or loaner devices issued by IT Operations.
 
 BYOD devices using the approved MAM access path remain subject to asset registration and the access restrictions in §6.1.
@@ -139,7 +139,7 @@ The endpoint management platform performs continuous compliance assessment again
 
 ### 5.3 Workstation screen lock
 
-All workstations and laptops must lock automatically after a maximum of 5 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
+All managed workstations and laptops must lock automatically after a maximum of 5 minutes of inactivity. This control is enforced via endpoint management platform policy and verified as part of the compliance assessment cycle. Manual bypass or policy exception requires an exception approved through the formal exception process in [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (the Section 4.2.2 risk-tier approver, with CISO co-approval for security-related exceptions).
 
 ### 5.4 Compliance remediation
 
@@ -228,7 +228,7 @@ Organization-issued mobile devices are enrolled in the endpoint management platf
 
 Personally-owned devices using the approved MAM access path in §6.1 are governed by the application-protection and identity-layer controls in the [BYOD Policy](../security/policy-byod.md) §5, including minimum OS version and jailbreak or root detection. They are not enrolled in the endpoint management platform and are not subject to the device-level minimum requirements in the table below. Under MAM, the organization does not configure device-level password, encryption, or screen-lock settings, as specified in that policy's §6. MAM access remains limited to the cloud productivity platform (email, collaboration, file storage), subject to that policy's §§7 and 12 classification restrictions.
 
-Personally-owned devices using an enrolled or managed access path must meet the following minimum device security requirements before access is permitted, subject to the newly enrolled device grace period in §6.3. The enterprise identity provider evaluates their device compliance at authentication via the endpoint management platform. The following table applies only to the enrolled or managed access path:
+Personally-owned devices using a full-device MDM or managed-work-profile route must meet the following minimum device security requirements before access is permitted, subject to the newly enrolled device grace period in §6.3. The enterprise identity provider evaluates their device compliance at authentication via the endpoint management platform. The following table applies only to the full-device MDM or managed-work-profile route:
 
 | Requirement | Minimum Standard |
 | --- | --- |
@@ -238,11 +238,11 @@ Personally-owned devices using an enrolled or managed access path must meet the 
 | Endpoint protection | Organization-approved app or OS-native security |
 | OS patches | Current within 30 days |
 
-Access to Restricted or Confidential data from a BYOD device is prohibited unless the device is enrolled in a managed work profile within the endpoint management platform. BYOD devices are not permitted to access the management VLAN, PAM infrastructure, or server administration interfaces under any circumstances.
+Access to Restricted or Confidential data from a BYOD device is prohibited unless the device is enrolled in a managed work profile within the endpoint management platform, subject only to the Confidential-data exception in BYOD Policy sections 7 and 12. BYOD devices are not permitted to access the management VLAN, PAM infrastructure, or server administration interfaces under any circumstances.
 
 ### 8.3 Personal device separation
 
-Where a managed work profile is deployed to a BYOD device, corporate data is containerized and isolated from personal data. IT Operations may remotely wipe the managed work profile without affecting personal data. Remote wipe of the full device is not performed on BYOD devices without the device owner's written consent, except where required by law.
+Where a managed work profile is deployed to a BYOD device, corporate data is containerized and isolated from personal data. IT Operations may remotely wipe the managed work profile without affecting personal data. Managed-work-profile wipe must remain limited to the corporate container. Full-device wipe must not occur without the device owner's written consent, except where required by law; full-device MDM enrolment must record that consent.
 
 ---
 

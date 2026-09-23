@@ -2,7 +2,7 @@
 
 **Document Title:** SaaS Security Posture Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,7 +64,7 @@ Each Tier 1 (mission critical) and Tier 2 (important) SaaS application has a doc
 | API and integration | Documented integrations; OAuth scope minimization; webhook validation |
 | Encryption | Encryption at rest enabled by default; encryption in transit enforced; customer-managed keys where the SaaS supports and the risk model requires |
 | Backup and recovery | Native backup, retention, and restore tested; export capability validated |
-| Mobile and unmanaged-device access | Per the BYOD policy; conditional access enforces device posture |
+| Mobile and unmanaged-device access | Conditional access must enforce the BYOD Policy's route-specific application, identity and device-compliance requirements; MAM access must remain limited to cloud productivity |
 | Network restrictions | IP-allow-list applied where the SaaS supports it and the use case justifies it |
 | Public sharing | Disabled by default; documented exceptions only |
 
