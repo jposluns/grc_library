@@ -309,9 +309,8 @@ def _print_report(findings, counts, root: Path) -> None:
     print("-" * 60)
     for bucket in ("in-repo-exists", "in-repo-missing", "cross-repo", "ambiguous"):
         print(f"  {bucket:<16} {counts.get(bucket, 0)}")
-    print(f"    cross-repo intended-minimal      {counts.get('intended-minimal', 0)}")
-    print(f"    cross-repo review-over-exposure  {counts.get('review-over-exposure', 0)}")
-    print(f"    cross-repo review-retired-sibling {counts.get('review-retired-sibling', 0)}")
+    for sub in ("intended-minimal", "review-over-exposure", "review-retired-sibling"):
+        print(f"    cross-repo {sub:<23} {counts.get(sub, 0)}")
     # The actionable buckets get per-item detail; in-repo-exists is count-only
     # (it is the healthy majority and would drown the report).
     actionable = [f for f in findings if f[2] in ("in-repo-missing", "ambiguous")
