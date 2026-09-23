@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -148,7 +148,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Class | Approval | Gate adjustments |
 | --- | --- | --- |
 | Routine release | Normal change approval (CAB), or High-risk approval where the release meets the High-risk criteria | Full automated gates |
-| Expedited release | Documented expedited path; senior engineering approval | Full gates; reduced waiting |
+| Expedited release | Approvals of its Normal or High-risk change class, plus senior engineering approval of the expedited path | Full gates; reduced waiting |
 | Emergency release | Emergency change approval; out-of-cycle senior approval | Minimum-viable gates; post-release reconciliation required |
 | Standard repeatable release | Pre-authorized template; automated approval where templated | Templated gates |
 

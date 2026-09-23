@@ -2,7 +2,7 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.5\
+**Version:** 1.0.6\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -160,6 +160,7 @@ Each OT change request must include:
 | --- | --- |
 | Standard | Just-in-time submission acceptable; records made at execution |
 | Normal | Minimum 10 business days; longer for major changes |
+| High-risk | As Normal (minimum 10 business days), allowing for joint CISO and CIO approval |
 | Emergency | At time of execution or as soon as feasible thereafter |
 | Safety-related | Per IEC 61511 management-of-change cycle (typically longer than Normal; safety review depth determines lead time) |
 
@@ -173,7 +174,7 @@ All change requests are recorded in the OT change register, which is maintained 
 
 ### 7.1 Risk-assessment dimensions
 
-Each Normal, Emergency, and Safety-related change request must be assessed across four dimensions:
+Each Normal, High-risk, Emergency, and Safety-related change request must be assessed across four dimensions:
 
 | Dimension | Considerations |
 | --- | --- |
@@ -245,7 +246,7 @@ OT changes are tested before production application using one or more of:
 
 ### 9.1 OT-CAB cadence
 
-The OT-CAB meets at least monthly and on demand for emergency or major changes. Standing agenda includes review of pending Normal and Safety-related changes, retrospective review of Emergency changes since last meeting, and annual review of the standard-change catalogue.
+The OT-CAB meets at least monthly and on demand for emergency or major changes. Standing agenda includes review of pending Normal, High-risk, and Safety-related changes, retrospective review of Emergency changes since last meeting, and annual review of the standard-change catalogue.
 
 ### 9.2 Approval criteria
 

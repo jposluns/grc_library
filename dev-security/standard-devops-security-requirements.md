@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -94,7 +94,7 @@ IaC state must be stored remotely in a cloud object store with versioning and ac
 | --- | --- | --- |
 | Dev | Dedicated dev domain | Developer merge approval |
 | Test | Dedicated test domain | Acceptance-into-service gate (security and functional sign-off) |
-| Production | Production domain | Acceptance-into-service gate + manual approval + change approval per change class (CAB for Normal and High-risk changes) |
+| Production | Production domain | Acceptance-into-service gate + manual approval + change approval per change class (CAB for Normal changes; joint CISO and CIO approval plus CAB for High-risk changes) |
 
 Test consolidates all pre-production testing (integration, QA, UAT). Multiple server or service copies may exist within Test. All are treated as Test-tier for security classification and access control.
 
