@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.38\
+**Version:** 1.8.39\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -557,7 +557,7 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 
 **ADTEST-SEC-02:** Test cases must not be removed from the suite without CISO approval.
 
-**Framework anchors.** These requirements align with NIST SP 800-218A PW.8.1 (include AI models in code testing, among which red teaming and adversarial testing), PW.8.2 (retest AI models when they are retrained), and PW.3.3 (include adversarial samples in the training and testing data), and with ETSI EN 304 223 V2.1.1 Provision 5.2.5-1 (appropriate testing and evaluation as part of a security assessment process; Principle 9). The threat classes tested are the adversarial machine-learning taxonomy of NIST AI 100-2e2025.
+**Framework anchors.** These requirements align with NIST SP 800-218A PW.8.1 (include AI models in code testing, among which red teaming and adversarial testing) and PW.8.2 (retest AI models when they are retrained), and with ETSI EN 304 223 V2.1.1 Provision 5.2.5-1 (appropriate testing and evaluation as part of a security assessment process; Principle 9). The threat classes tested are the adversarial machine-learning taxonomy of NIST AI 100-2e2025.
 
 ---
 
