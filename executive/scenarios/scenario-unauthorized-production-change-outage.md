@@ -2,8 +2,8 @@
 
 **Document Title:** When an unauthorized production change takes a critical service down\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-13\
+**Version:** 0.0.2\
+**Date:** 2026-09-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/standard-production-security-requirements.md`](../../operations/standard-production-security-requirements.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md)\
@@ -20,7 +20,7 @@
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
 **Review Record:** NR-2026-032\
-**Last Reviewed:** 2026-09-13
+**Last Reviewed:** 2026-09-23
 
 ---
 
@@ -38,7 +38,7 @@ The change was made outside the process, not through it. An emergency-change pat
 
 - **The control bypassed.** The [production security requirements standard](../../operations/standard-production-security-requirements.md) is the control the change went around: it requires firewall and access-control changes to go through a reviewed, documented change request.
 - **The gate it should have passed.** The [change-management and configuration-control procedure](../../operations/procedure-change-management-and-configuration-control.md) is where the change should have been classified, approved, and recorded, including through its emergency-change path for a critical outage or active security incident.
-- **Restoration.** The [release-management procedure](../../operations/procedure-release-management.md) is where a rollback or forward-fix plan is defined: rollback reverses the change through its pre-tested mechanism, and a forward-fix is deployed where rollback is not viable, the basis for restoring the service under control.
+- **Restoration.** The [release-management procedure](../../operations/procedure-release-management.md) is where the rollback plan is defined: rollback reverses the change through its documented mechanism, tested or covered by CAB-approved compensating controls, and a forward-fix supplements that plan where rollback is not viable, the basis for restoring the service under control.
 - **Detection.** The [security-monitoring and alert-management procedure](../../operations/procedure-security-monitoring-and-alert-management.md) is where a firewall or access-control change made outside an approved window raises an alert, and where events are correlated and driven to closure, rather than waiting for a client to report it.
 - **Service impact.** The [service-level-management standard](../../operations/standard-service-level-management.md) is where, if the disruption misses an availability or resolution target with no approved exclusion, the resulting breach is detected and escalated.
 - **Governance visibility.** The [IT-operations KPI register](../../operations/register-it-operations-kpis.md) is where the availability and change indicators that carry the event into governance reporting are defined.

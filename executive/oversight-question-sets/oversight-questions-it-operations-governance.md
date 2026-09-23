@@ -2,8 +2,8 @@
 
 **Document Title:** What the governing body should ask about the organization's change control, patch posture, estate inventory, monitoring, and service performance\
 **Document Type:** Executive Narrative\
-**Version:** 0.0.1\
-**Date:** 2026-09-13\
+**Version:** 0.0.2\
+**Date:** 2026-09-23\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](../../operations/framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../../operations/procedure-change-management-and-configuration-control.md), [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md)\
@@ -20,7 +20,7 @@
 **External Sources:** None\
 **Claim Classes Present:** citation, composite\
 **Review Record:** NR-2026-031\
-**Last Reviewed:** 2026-09-13
+**Last Reviewed:** 2026-09-23
 
 ---
 
@@ -39,7 +39,7 @@ Each question below is paired with the evidence a strong answer produces, and ro
 
 **Theme: change and release control. Are production changes authorized and reversible?**
 
-- *For each recent production change, was it classified, approved, and given a rollback or forward-fix plan appropriate to its risk before it went live?* A strong answer produces the [change-management](../../operations/procedure-change-management-and-configuration-control.md) records and the [release-management](../../operations/procedure-release-management.md) records showing classification, approval, and the rollback or forward-fix plan, not an assurance that changes are controlled.
+- *For each recent production change, was it classified, approved, and given a rollback plan appropriate to its risk (tested, or covered by an approved exception), with any forward-fix plan as a supplement, before it went live?* A strong answer produces the [change-management](../../operations/procedure-change-management-and-configuration-control.md) records and the [release-management](../../operations/procedure-release-management.md) records showing classification, approval, the rollback plan with its testing evidence or approved exception, and any supplementary forward-fix plan, not an assurance that changes are controlled.
 - *How would we find a change that reached production without going through the process?* A strong answer produces the configuration baseline and change records the [change-management and configuration-control procedure](../../operations/procedure-change-management-and-configuration-control.md) maintains, and the firewall and ACL change logging the [production security requirements standard](../../operations/standard-production-security-requirements.md) defines together with the infrastructure-as-code pipeline it requires, the record set an out-of-process change would be absent from.
 
 **Theme: vulnerability and patch posture. Are known weaknesses worked through a defined process?**
@@ -61,7 +61,7 @@ Each question below is paired with the evidence a strong answer produces, and ro
 ## Evidence to request
 
 - The organization's operating ITSM process model and process ownership, and the reconciled asset-inventory extract.
-- The change-management and release records for recent production changes, with classification, approval, and the rollback or forward-fix plan.
+- The change-management and release records for recent production changes, with classification, approval, the rollback plan with its testing evidence or approved exception, and any supplementary forward-fix plan.
 - The patch-compliance dashboard and deployment records, and the restore and recovery test records.
 - The security-monitoring alert-to-closure records, and the IT-security-operations register current-state entries.
 - The SLA breach records and corrective-action logs, the service-level performance against targets, and the IT-operations KPI dashboard for the period.
