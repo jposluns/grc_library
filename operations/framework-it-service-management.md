@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-09-13\
+**Version:** 1.0.13\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -54,7 +54,7 @@ Problem records are created for recurring or significant incidents. Root cause a
 
 ### 3. Change management
 
-All changes are categorized as Standard, Normal, or Emergency. CAB approval is required for Normal and Emergency changes. Post-implementation reviews assess success criteria and rollback results. Emergency changes are notified to the CAB promptly and reviewed within 5 business days of implementation.
+All changes are categorized as Standard, Normal, High-risk, or Emergency, per [`procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) section 1. CAB approval is required for Normal, Emergency, and High-risk changes; High-risk changes additionally require joint CISO and CIO approval. Post-implementation reviews assess success criteria and rollback results. Emergency changes are notified to the CAB promptly and reviewed within 5 business days of implementation.
 
 ### 4. Service level management
 

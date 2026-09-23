@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.13\
-**Date:** 2026-09-18\
+**Version:** 1.4.14\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -84,7 +84,7 @@ Sector-specific zone overlays (for example, dedicated zones for trade, customs, 
 
 - All firewall rules must have a documented business justification, named owner, and scheduled review date.
 - Rules are reviewed at least annually. Any rule without a current owner or justification must be disabled pending review.
-- Emergency rule additions require CISO notification within 24 hours and a formal change ticket within 5 business days.
+- Emergency rule additions follow the emergency change process in [`procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md) section 4; a firewall rule change is High-risk, so its permanent follow-up carries joint CISO and CIO approval.
 
 ### 5.3 Sector-specific channel overlays
 
