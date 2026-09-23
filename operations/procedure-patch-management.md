@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.17\
+**Version:** 1.0.18\
 **Date:** 2026-09-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,7 +47,7 @@ Effective patch management reduces the window of exposure between public vulnera
 
 ## 1. Patch classification
 
-Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status. Patch classification sets deployment urgency; it is separate from the change class under the [change management procedure](procedure-change-management-and-configuration-control.md): Standard Critical and Standard High patches deploy as Normal changes (CAB-reviewed), Standard Medium and Low patches inside a pre-approved maintenance window deploy as Standard changes, an Emergency patch is an Emergency change, and a patch to a system meeting the High-risk criteria (identity, PAM, PKI, production network, firewall, or security monitoring) follows the High-risk approval path.
+Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status. Patch classification sets deployment urgency; it is separate from the change class under the [change management procedure](procedure-change-management-and-configuration-control.md): Standard Critical and Standard High patches deploy as Normal changes (CAB-reviewed), Standard Medium and Low patches deploy as Standard changes only where they match an approved standard-change template (for example an OS patch from the approved list) applied within a pre-approved maintenance window, and otherwise as Normal changes. An Emergency patch is an Emergency change. A patch that changes the configuration or behaviour of identity, PAM, PKI, production network, firewall, or security monitoring infrastructure follows the High-risk approval path; an emergency patch of such a system follows the Emergency path for the immediate action, with its permanent follow-up classified as High-risk.
 
 | Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |
@@ -102,7 +102,7 @@ The completed checklist is retained with the change record.
 | **Emergency** | Emergency change per the change management procedure: CIO or equivalent authorization and CISO approval (verbal or written) before deployment; CAB notified post-deployment within 2 hours; retrospective CAB review within 5 business days |
 | **Standard Critical** | CAB approval via Normal change request; expedited CAB review within 24 hours of submission |
 | **Standard High** | CAB approval via Normal change request; standard review cycle |
-| **Standard Medium / Low** | Standard change request or inclusion in scheduled maintenance window; CAB approval not required if within pre-approved maintenance window scope |
+| **Standard Medium / Low** | Standard change request or inclusion in scheduled maintenance window; CAB approval not required where the patch matches an approved standard-change template within a pre-approved maintenance window |
 
 All deployments, regardless of classification, must be documented in the ITSM platform with the patch identifier, affected systems, deployment timestamp, and post-deployment verification result.
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,7 +47,7 @@ It does not cover patches under the patch management procedure (which has its ow
 | Customer impact | Expected customer impact assessed: no-impact, transparent, brief disruption, breaking |
 | Communication plan | Internal communication; customer communication where the change is customer-visible |
 | Window | Release window selected per the change calendar |
-| Rollback plan | A tested rollback or forward-fix plan is documented |
+| Rollback plan | A rollback plan is documented and tested, or approved with documented compensating controls under the change management procedure; a forward-fix plan may supplement it but does not replace it |
 | Acceptance criteria | Functional and non-functional acceptance criteria defined in advance |
 
 ### Step 2: Build and packaging

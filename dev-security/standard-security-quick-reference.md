@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.21\
+**Version:** 1.1.22\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -116,7 +116,7 @@ Secret rotation must work without a code deployment. If rotating requires a depl
 | Transition | Allowed? | Gate |
 | --- | --- | --- |
 | Dev → Test | Yes | Merge + pipeline gates pass |
-| Test → Prod | Yes | Acceptance-into-service gate + CAB/CIO approval + manual pipeline approval |
+| Test → Prod | Yes | Acceptance-into-service gate + change approval per change class (see the change type table below) + manual pipeline approval |
 | Prod → Dev or Test | Never | Back-promotion prohibited |
 | Production data → Test | Never | Masking/synthetic data only |
 | Production data → Dev | Never | N/A |

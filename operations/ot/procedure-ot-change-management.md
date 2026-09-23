@@ -2,7 +2,7 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ The default category. Any change not on the standard-change catalogue and not me
 
 ### 5.3 Emergency change
 
-Changes required to respond to an active incident or safety hazard. Authorized by the CISO (cyber emergency) or Plant Manager (safety emergency) with retrospective OT-CAB review within 5 business days.
+Changes required to respond to an active incident or safety hazard. Authorized by the CISO (cyber emergency) or Plant Manager (safety emergency), who act as the "CIO or equivalent" emergency authority of the general change management procedure for OT, with retrospective OT-CAB review within 5 business days.
 
 Emergency change requirements:
 
@@ -131,7 +131,7 @@ Any change affecting SIS, shared SIS/BPCS infrastructure, or other safety-releva
 
 ### 5.6 High-risk change
 
-A change that meets the High-risk criteria of the general change management procedure (changes to identity systems, PAM, PKI, production network topology, firewall rule bases, or security monitoring infrastructure, including the OT firewall, segmentation, conduit, and identity changes in scope under section 2.1) is a High-risk change. It follows the full Normal-change cycle in this procedure and additionally requires the joint written approval of the CISO and the CIO that the general procedure requires for the High-risk class. The OT-specific reviews in this procedure (OT-CAB, the section 7 risk tier, and any safety review) are added to that approval and never replace it.
+A change that meets the High-risk criteria of the general change management procedure (changes to identity systems, PAM, PKI, production network topology, firewall rule bases, or security monitoring infrastructure, including OT firewall, segmentation, and conduit changes and changes to OT identity infrastructure in scope under section 2.1; routine account administration within sanctioned roles remains a Standard change under section 5.1) is a High-risk change. Outside an emergency, it follows the full Normal-change cycle in this procedure and additionally requires the joint written approval of the CISO and the CIO that the general procedure requires for the High-risk class. The OT-specific reviews in this procedure (OT-CAB, the section 7 risk tier, and any safety review) are added to that approval and never replace it. A High-risk change needed to respond to an active incident or safety hazard follows section 5.3 for the immediate action, and its permanent follow-up is submitted as a High-risk change.
 
 ---
 

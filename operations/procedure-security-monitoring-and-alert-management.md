@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.17\
-**Date:** 2026-09-18\
+**Version:** 1.3.18\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -252,7 +252,7 @@ Security Engineering compiles a monthly metrics report for the CISO. The report 
 
 ### 9.1 Change control for SIEM rules
 
-All changes to SIEM detection rules, data connectors, and normalization pipelines are governed by the Change Management and Configuration Control Procedure. Changes to critical detection rules (those covering the mandatory alert categories in §4) require High-risk change classification and CISO approval before implementation.
+All changes to SIEM detection rules, data connectors, and normalization pipelines are governed by the Change Management and Configuration Control Procedure. Changes to critical detection rules (those covering the mandatory alert categories in §4) require High-risk change classification (joint CISO and CIO approval and CAB review per the change management procedure) before implementation.
 
 ### 9.2 False positive target
 

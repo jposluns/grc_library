@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.11\
-**Date:** 2026-09-13\
+**Version:** 1.0.12\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -115,7 +115,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.6.2 The CISO and AIGC must co-approve any AI-related AIS submission.
 
-4.6.3 The CAB must authorize the final change release prior to deployment.
+4.6.3 The final change release must be authorized under its change class per the change management procedure prior to deployment: CAB authorization for Normal and High-risk changes, the approved template for a Standard change, and CIO or equivalent authorization with retrospective CAB review for an Emergency change.
 
 ### 4.7 Post-implementation review
 

@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.17\
-**Date:** 2026-09-16\
+**Version:** 1.0.18\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -57,7 +57,7 @@ Protected branches feeding Test or Production pipelines must enforce: at minimum
 
 ### 2.5 Production deployment approval
 
-Production deployments require manual approval from a designated approver who is not the pipeline author. The approval is recorded as an audit event. Emergency deployments still require approval, which may be asynchronous but must be obtained within 4 hours and documented.
+Production deployments require manual approval from a designated approver who is not the pipeline author. The approval is recorded as an audit event. Emergency deployments still require prior authorization by the CIO or equivalent under the change management procedure, which may be given verbally; the pipeline approval record may be completed asynchronously but must be documented within 4 hours.
 
 ### 2.6 Artifact integrity
 
@@ -94,7 +94,7 @@ IaC state must be stored remotely in a cloud object store with versioning and ac
 | --- | --- | --- |
 | Dev | Dedicated dev domain | Developer merge approval |
 | Test | Dedicated test domain | Acceptance-into-service gate (security and functional sign-off) |
-| Production | Production domain | Acceptance-into-service gate + manual approval + Change Advisory Board (CAB) |
+| Production | Production domain | Acceptance-into-service gate + manual approval + change approval per change class (CAB for Normal and High-risk changes) |
 
 Test consolidates all pre-production testing (integration, QA, UAT). Multiple server or service copies may exist within Test. All are treated as Test-tier for security classification and access control.
 

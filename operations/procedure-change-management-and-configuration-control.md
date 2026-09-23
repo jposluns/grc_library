@@ -2,7 +2,7 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.13\
+**Version:** 1.3.14\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -198,7 +198,7 @@ The following metrics are reported to the CISO and CIO monthly:
 | --- | --- |
 | Change success rate (no rollback required) | ≥ 95% |
 | Emergency change percentage of total changes | ≤ 5% |
-| Changes with tested rollback plan | 100% of CAB-reviewed changes |
+| Changes with tested rollback plan | 100% of CAB-reviewed changes, excluding changes approved with documented compensating controls under section 6 |
 | CAB cycle time (CR submission to approval) | ≤ 5 business days for Normal |
 | Post-implementation review completion rate | 100% |
 
