@@ -19,7 +19,7 @@
 #
 # Examples:
 #   tools/repo-guard.sh grc_library -- git checkout main
-#   tools/repo-guard.sh grc_library_scratch -- git reset --hard origin/main
+#   tools/repo-guard.sh grc_library_ref -- git reset --hard origin/main
 #
 # Exit codes:
 #   0            the command ran (its own exit code is passed through on success)
