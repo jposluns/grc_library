@@ -2,7 +2,7 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.14\
+**Version:** 1.3.15\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,7 +38,7 @@ To ensure that changes to production systems are controlled, traceable, and reve
 | Role | Responsibility |
 | --- | --- |
 | **CIO** | Approves Emergency and High-risk changes; chairs or delegates CAB chair. |
-| **CISO** | Co-approves High-risk changes (identity, PAM, PKI, production network); reviews security impact of Normal changes. |
+| **CISO** | Co-approves High-risk changes (identity, PAM, PKI, production network, firewall rule bases, security monitoring; see section 1); reviews security impact of Normal changes. |
 | **Change Manager** | Administers the change process; chairs the CAB; maintains the change schedule; ensures that rollback plans are present. |
 | **Change Advisory Board (CAB)** | Reviews and approves Normal and High-risk changes; validates rollback plans. |
 | **IT Operations / Engineering** | Submits change requests; implements approved changes; executes post-implementation reviews. |
