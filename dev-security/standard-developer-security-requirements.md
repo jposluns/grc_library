@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.28\
-**Date:** 2026-09-21\
+**Version:** 1.1.29\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -351,8 +351,8 @@ All of the following must be validated before any application onboards to a prod
 | Input validation | A.8.28 | AIS-02 | PW.5.1 | V2, V1 | A05 |
 | Cryptography | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | PW.5.1 | V11 | A04 |
 | Error handling and logging | A.8.15, A.8.16 | LOG-09 | PW.5.1 | V16 | A09 |
-| Security testing | A.8.29 | AIS-05, TVM-07 | PW.7, PW.8 | All levels | All |
-| Dependency management | A.8.8 | TVM-06, AIS-04 | PW.4 | V15 | A03 |
+| Security testing | A.8.29 | AIS-05, TVM-07 | PW.7, PW.8, RV.1.2 | All levels | All |
+| Dependency management | A.8.8 | TVM-06, AIS-04 | PW.4, RV.1.1, RV.2.2 | V15 | A03 |
 | API security | A.8.26 | AIS-08 | N/A | V4 | A01, A04 |
 | AI/ML security | N/A | AICM TVM-13, AIS-09, AIS-10 | N/A | N/A | OWASP LLM Top 10 |
 
