@@ -484,7 +484,7 @@ def _self_test() -> int:
 
 # --- Repo-structure env resolution (the /orch structure-detection step; maintainer-directed
 # 2026-08-17). The grc_* repos are siblings under ONE parent (the model for all VMs:
-# /opt/<project>/grc_*, e.g. /opt/grc; historically /home/grc). Seven tools read GRC_REPO /
+# /opt/<project>/grc_*, e.g. /opt/grc; historically /home/grc). Five tools read GRC_REPO /
 # GRC_REF_PATH, so setting these to the DETECTED layout makes a
 # repo-root relocation need no file edits. The worker-exchange root (GRC_WORKING / GRC_DROP_ROOT)
 # is deliberately NOT set here: it belongs to the worker-pool setup (lab_infra), not repo structure.

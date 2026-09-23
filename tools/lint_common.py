@@ -189,6 +189,8 @@ def classify(rel: str) -> str:
 # (operational-state privatization + adopter-clone portability).
 _SIBLING_REPO_DIRS: dict[str, str] = {
     "ref": "grc_library_ref",
+    # RETIRED 2026-09-23 (maintainer-directed): kept ONLY so a legacy reader (audit-brief-freshness.py, routed
+    # to the maintainer) resolves it to None and degrades gracefully instead of raising KeyError. Never clone/sync it.
     "scratch": "grc_library_scratch",
     "private": "grc_library_private",
 }

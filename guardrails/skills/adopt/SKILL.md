@@ -49,8 +49,10 @@ the adopter has since changed).
 `/adopt` is the run-once onboarding that resolves this. It confirms the clone is genuinely
 an adopter fork (not the maintainer's own repository, and not a maintainer's fresh-machine
 clone that merely has not fetched its optional external dependencies yet), settles how the
-adopter will handle those dependencies (in the parent GRC library, the three sibling
-repositories named in the project wiring above), resets the machinery-core working-state to
+adopter will handle those dependencies (in the parent GRC library, the sibling
+repositories named in the project wiring above; its former worker-exchange sibling is retired, so only
+the reference-base and private-operational siblings apply to the maintainer, while an adopter may still keep
+its own worker-exchange repository), resets the machinery-core working-state to
 clean baselines the adopter starts fresh from, strips maintainer-only operational content, and
 records the adopter's choices in the project's committed adoption marker. After it runs once,
 the project's resume mechanism reads that marker and proceeds in adopter mode without
@@ -79,8 +81,9 @@ Execute the onboarding per the seven-step process:
 
 Run the operator classifier named in the project wiring and read its configured identity result.
 Proceed ONLY if it is `adopter`. If it is `maintainer`, STOP (this is the maintainer's
-repo). If it is `maintainer-fresh-machine`, STOP and advise cloning the sibling
-repositories instead (a fresh maintainer clone is not an adopter; resetting its
+repo). If it is `maintainer-fresh-machine`, STOP and advise cloning the required sibling
+repositories instead (in the parent GRC library, `grc_library_ref` and `grc_library_private`; the retired
+`grc_library_scratch` is never cloned) (a fresh maintainer clone is not an adopter; resetting its
 working-state would destroy the maintainer's audit trail). If an adopt-config already
 exists, STOP (the fork is already adopted; re-baselining is the ad-hoc case above and
 needs explicit confirmation). A misclassification in the dangerous direction (a maintainer
