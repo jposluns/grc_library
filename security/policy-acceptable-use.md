@@ -2,11 +2,11 @@
 
 **Document Title:** Acceptable Use Policy\
 **Document Type:** Policy\
-**Version:** 1.3.5\
+**Version:** 1.3.6\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/policy-byod.md`](policy-byod.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change\
