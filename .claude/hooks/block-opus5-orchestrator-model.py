@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
-"""PreToolUse + Stop guard: HALT and MAINTAINER-ALERT when the orchestrator's OWN running model is Opus 5.
+"""PreToolUse + Stop guard: HALT and MAINTAINER-ALERT when the orchestrator's OWN running model is Opus 5.0.
 
 Maintainer-directed 2026-08-21: "add a validation so that if you ever start using OPUS 5, you stop
 immediately and MAINTAINER ALERT so I can swap you to a better working model." The maintainer judges
 Opus 5 a worse working model for this project than Opus 4.8 and wants a mechanical hard-stop the
 moment a session (or a mid-session model swap) lands on Opus 5.
+
+AMENDED 2026-09-23 (maintainer-directed): the ban is narrowed to Opus 5.0 (the `claude-opus-5-0` family,
+with the bare `claude-opus-5` id still treated as 5.0). Opus 5.5 (`claude-opus-5-5`) and 5.1 are AUTHORIZED
+orchestrator models, matching lab_infra D-267's Opus-5.0-only fleet semantics. The function keeps its
+historical name `is_opus5` (tests and callers reference it); read it as "is a banned Opus 5.0 id".
 
 MAINTAINER-SCOPED: the Opus-5 ban is the maintainer's preference for THIS project, NOT a portable
 adopter guard. The guard NO-OPS for an adopter (signal: the `grc_library_private` sibling is absent),
@@ -17,8 +22,9 @@ is_opus5() then decides (case-INSENSITIVELY). A non-Opus-5 last model (4.8, any 
 id) yields ALLOW, never a search back to an older entry; because the match lowercases the id, a
 differently-cased Opus-5 id (e.g. ``Claude-Opus-5``) is still BLOCKED, not allowed.
 
-MATCH: a model id matching `claude-opus-5` or `claude-opus-5-<x>` (bare id, dated variants, the
-`-1m` context variant). Does NOT match `claude-opus-4-8`, any 4.x, `claude-opus-50`, `claude-opus-5x`,
+MATCH: a model id equal to `claude-opus-5` (bare, treated as 5.0) or starting `claude-opus-5-0` (5.0 dated and
+context variants). Does NOT match `claude-opus-5-5` or `claude-opus-5-1` (authorized), `claude-opus-4-8`, any 4.x,
+`claude-opus-50`, `claude-opus-5x`,
 or a sonnet/haiku id.
 
 FAIL-OPEN discipline (the contract). The guard BLOCKS (exit 2) ONLY when it POSITIVELY resolves the
@@ -48,8 +54,8 @@ ACCEPTED RESIDUES (stated, not hidden):
     (a git worktree at a different depth, a relocated clone whose sibling moved) would no-op the
     guard for the maintainer. That is the safe (fail-open) direction and the standard layout is
     siblings-under-one-parent; a more robust signal is a possible future hardening.
-  * is_opus5 also matches the never-emitted malformed id `claude-opus-5-` (empty suffix); for a BAN,
-    matching an Opus-5-shaped id is the conservative direction, and the id never appears in practice.
+  * The never-emitted malformed id `claude-opus-5-` (empty suffix) is NOT matched after the 2026-09-23
+    narrowing (it does not start `claude-opus-5-0`); it never appears in practice.
 
 Exit protocol: exit 0 allows. Only a PreToolUse event blocks (exit 2, reason on stderr). Every other
 event, Stop or an unknown/malformed label, is NON-blocking (a stdout `systemMessage`).
@@ -65,11 +71,11 @@ MARKER = "opus5-orchestrator-model"
 
 
 def is_opus5(model) -> bool:
-    """True only for a positively-resolved Opus-5 id: `claude-opus-5` or `claude-opus-5-<x>`."""
+    """True only for a positively-resolved banned Opus 5.0 id: bare `claude-opus-5` or `claude-opus-5-0...`."""
     if not isinstance(model, str):
         return False
     m = model.strip().lower()
-    return m == "claude-opus-5" or m.startswith("claude-opus-5-")
+    return m == "claude-opus-5" or m.startswith("claude-opus-5-0")
 
 
 def model_from_transcript(tp) -> "str | None":
@@ -135,13 +141,18 @@ def _maintainer_env() -> bool:
 
 
 def _alert_file() -> "Path | None":
+    """MAINTAINER_ALERT.md in the operational store (resolved by lint_common.resolve_working_dir: the
+    store first, then the transitional fallbacks), or None (adopter / helper unavailable: no alert file).
+    Moved 2026-09-23 off the retired grc_library_scratch sibling, which is never used, cloned, or synced."""
     try:
-        scratch = Path(__file__).resolve().parents[2].parent / "grc_library_scratch"
-        if scratch.is_dir():
-            return scratch / "MAINTAINER_ALERT.md"
+        tools = str(Path(__file__).resolve().parents[2] / "tools")
+        if tools not in sys.path:
+            sys.path.insert(0, tools)
+        from lint_common import resolve_working_dir
+        d = resolve_working_dir(repo_root=Path(__file__).resolve().parents[2])
+        return (d / "MAINTAINER_ALERT.md") if d is not None else None
     except Exception:
-        pass
-    return None
+        return None
 
 
 def already_open(text: str) -> bool:
@@ -165,8 +176,8 @@ def write_alert(model: str) -> None:
         ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         block = (
             f"\n### ALERT {ts} {MARKER}\n"
-            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{model}` (Opus 5) is HALTED at the first tool call.\n"
-            f"WHY: maintainer directive (2026-08-21) prohibits Opus 5 as the orchestrator's working model.\n"
+            f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: orchestrator work on model `{model}` (Opus 5.0) is HALTED at the first tool call.\n"
+            f"WHY: maintainer directive (2026-08-21, narrowed 2026-09-23) prohibits Opus 5.0 as the orchestrator's working model (Opus 5.5 and 5.1 are allowed).\n"
             f"CONSIDER INSTEAD: swap the session to a better working model (e.g. Opus 4.8, `claude-opus-4-8`) and re-resume. "
             f"This channel clears by removal: once the model is swapped, remove this block and reset "
             f"the Status line above.\n"
@@ -179,13 +190,13 @@ def write_alert(model: str) -> None:
 
 def _message(model: str) -> str:
     return (
-        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{model}` (Opus 5) "
+        f"BLOCKED (opus5-orchestrator-model): MAINTAINER ALERT / HALT: this orchestrator tool call on `{model}` (Opus 5.0) "
         f"is halted unconditionally (maintainer directive 2026-08-21).\n"
-        f"WHY: Opus 5 is a banned working model for the orchestrator; running orchestrator work on "
+        f"WHY: Opus 5.0 is a banned working model for the orchestrator (Opus 5.5 and 5.1 are allowed); running orchestrator work on "
         f"it is prohibited.\n"
         f"CONSIDER INSTEAD: tell the maintainer to swap the session to a supported model "
         f"(e.g. Opus 4.8 / claude-opus-4-8), then re-resume. MAINTAINER ALERT: an OPEN alert was "
-        f"written to grc_library_scratch/MAINTAINER_ALERT.md if that sibling is present."
+        f"written to MAINTAINER_ALERT.md in the operational store if the store is present."
     )
 
 
@@ -209,8 +220,12 @@ def _self_test() -> int:
         checks = [
             # is_opus5 classification
             ("opus5 bare", is_opus5("claude-opus-5") is True),
-            ("opus5 dated", is_opus5("claude-opus-5-20260901") is True),
-            ("opus5 1m", is_opus5("claude-opus-5-1m") is True),
+            ("opus5.0 dated", is_opus5("claude-opus-5-0-20260901") is True),
+            ("opus5.0 bare", is_opus5("claude-opus-5-0") is True),
+            ("opus5.0 1m", is_opus5("claude-opus-5-0-1m") is True),
+            ("opus5.5 allowed", is_opus5("claude-opus-5-5") is False),
+            ("opus5.5 dated allowed", is_opus5("claude-opus-5-5-20260901") is False),
+            ("opus5.1 allowed", is_opus5("claude-opus-5-1") is False),
             ("opus5 upper", is_opus5("Claude-Opus-5") is True),
             ("opus48 no", is_opus5("claude-opus-4-8") is False),
             ("opus48 cased no", is_opus5("Claude-Opus-4-8") is False),
@@ -239,6 +254,9 @@ def _self_test() -> int:
             # dedup
             ("open-present", already_open("a\n### ALERT x " + MARKER + "\nbody") is True),
             ("open-absent", already_open("nothing here") is False),
+            # alert file never resolves under the retired scratch sibling
+            ("alert not scratch", "grc_library_scratch" not in str(_alert_file() or "")),
+            ("empty-suffix id allowed", is_opus5("claude-opus-5-") is False),
         ]
     finally:
         for p in tmp_paths:
