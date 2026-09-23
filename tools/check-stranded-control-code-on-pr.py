@@ -132,7 +132,7 @@ def table_codes_from_diff(diff: str, sign: str) -> set[str]:
 
 
 def anchored(code: str) -> re.Pattern:
-    """An anchored matcher for one specific code, same guards as CODE_RE."""
+    """An anchored matcher for one specific code: CODE_RE's guards plus a rejection of a following ".<digit>"."""
     # A following ".<digit>" continues a longer code (PW.4 inside PW.4.1, A.8 inside A.8.20); not a cite of the parent.
     return re.compile(r"(?<![\w.-])" + re.escape(code) + r"(?![\w(-]|\.\d)")
 
