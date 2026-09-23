@@ -357,7 +357,7 @@ The skip trailer is the everyday exception. For larger deviations (an embargoed 
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
-| Change recording | PO.5, RV.2 | CCC-01 to 03 | A.5.4, A.8.32 |
-| Audit trail integrity | PS.1, RV.1 | LOG-02, LOG-04, LOG-10 | A.8.15 |
-| Version monotonicity | RV.1 | CCC-04 | A.8.27 |
+| Change recording | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
+| Audit trail integrity | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15 |
+| Version monotonicity | PS.3 | CCC-04 | A.8.27 |
 | Change classification (breaking vs non-breaking) | PO.5 | CCC-02 | A.8.32 |
