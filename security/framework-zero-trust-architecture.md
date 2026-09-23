@@ -2,7 +2,7 @@
 
 **Document Title:** Zero Trust Architecture Framework\
 **Document Type:** Framework\
-**Version:** 0.0.8\
+**Version:** 0.0.9\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -63,7 +63,7 @@ The framework adopts a seven-pillar structure, mirroring the DoD Zero Trust Refe
 | Device inventory | Authoritative inventory of every device that connects to organization resources |
 | Compliance enforcement | Policy-based access controls deny non-compliant devices |
 | Posture evaluation | Continuous posture (patch level, encryption, EDR health) feeds the policy engine |
-| Bring-your-own device | BYOD posture model defined and enforced where the BYOD policy permits |
+| Bring-your-own device | The BYOD Policy's route-specific controls must be enforced: application and identity controls for narrow MAM access; device or work-profile compliance for enrolled routes |
 | Embedded and IoT | Inventory and segmentation specifically for embedded and IoT devices |
 
 ### Pillar 3: Networks

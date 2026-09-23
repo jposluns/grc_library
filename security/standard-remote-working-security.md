@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.27\
-**Date:** 2026-09-20\
+**Version:** 1.0.28\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -53,7 +53,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 4.1.1 Remote work must be conducted on a company-managed device enrolled in the endpoint management platform as the default. Personal (bring-your-own) devices are permitted only as provided in Section 8, and any use beyond what Section 8 allows requires an exception under Section 10, except that access to Restricted data from a personal device is permitted only through the managed-work-profile route referenced in Section 8.2 (a standing approved path per the BYOD policy Section 7); outside that route it is prohibited outright and is not available through the Section 10 exception process. The endpoint management platform enforces configuration baselines; conditional access policy enforcement blocks non-compliant managed devices (Section 4.2) and limits unmanaged personal devices to the access permitted under Section 8.
 
-4.1.2 Devices must maintain compliance with the endpoint configuration baseline at all times. The baseline requires, at minimum:
+4.1.2 Managed devices must maintain compliance with the endpoint configuration baseline at all times. The baseline requires, at minimum:
 
 | Control | Requirement |
 | --- | --- |
@@ -179,7 +179,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 - Prohibition on local data storage: access must be read-only or via browser-based thin client; any deviation requires its own exception through the Section 10 process, recorded in the exception register
 - The exception approval must be documented, time-limited (maximum 90 days per the exception process in Section 10), and reviewed on renewal
 
-8.4 Personal devices may access Public, Controlled, and Internal data via cloud productivity platform browser interfaces subject to conditional access policy enforcement, without CISO approval, provided no data is downloaded to the personal device.
+8.4 Personal devices may access Public, Controlled, and Internal data via cloud productivity platform browser interfaces subject to all applicable BYOD Policy route controls, including MAM application protection and conditional access, without CISO approval, provided no data is downloaded to the personal device.
 
 ---
 
