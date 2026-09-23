@@ -22,8 +22,10 @@ is_opus5() then decides (case-INSENSITIVELY). A non-Opus-5 last model (4.8, any 
 id) yields ALLOW, never a search back to an older entry; because the match lowercases the id, a
 differently-cased Opus-5 id (e.g. ``Claude-Opus-5``) is still BLOCKED, not allowed.
 
-MATCH: a model id equal to `claude-opus-5` (bare, treated as 5.0) or starting `claude-opus-5-0` (5.0 dated and
-context variants). Does NOT match `claude-opus-5-5` or `claude-opus-5-1` (authorized), `claude-opus-4-8`, any 4.x,
+MATCH (bounded parse, platform-prefix aware: Bedrock `us.anthropic.`/`anthropic.`, Vertex publisher paths): bare
+`claude-opus-5` (treated as 5.0), `claude-opus-5[...]`/`claude-opus-5@...`, a dated bare `claude-opus-5-YYYYMMDD`, and
+`claude-opus-5-0` followed by end/`-`/`@`/`[`/`:` (5.0 dated, context and Vertex variants). Does NOT match
+`claude-opus-5-5` or `claude-opus-5-1` (authorized), `claude-opus-5-05`/`-0x` (no such 5.0 id), `claude-opus-4-8`, any 4.x,
 `claude-opus-50`, `claude-opus-5x`,
 or a sonnet/haiku id.
 
@@ -63,6 +65,7 @@ event, Stop or an unknown/malformed label, is NON-blocking (a stdout `systemMess
 Self-test: python3 .claude/hooks/block-opus5-orchestrator-model.py --self-test
 """
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -70,12 +73,28 @@ from pathlib import Path
 MARKER = "opus5-orchestrator-model"
 
 
+_OPUS5_CORE = re.compile(r"(?:^|[.:/])claude-opus-5(?P<rest>.*)$")
+_DATED = re.compile(r"-\d{8}(?!\d)")
+_FIVE_ZERO = re.compile(r"-0(?:$|[-@\[:])")
+
+
 def is_opus5(model) -> bool:
     """True only for a positively-resolved banned Opus 5.0 id: bare `claude-opus-5` or `claude-opus-5-0...`."""
     if not isinstance(model, str):
         return False
     m = model.strip().lower()
-    return m == "claude-opus-5" or m.startswith("claude-opus-5-0")
+    # Locate the claude-opus-5 core even behind a platform prefix (Bedrock "us.anthropic.",
+    # "anthropic.", a Vertex publisher path "…/"), then classify what FOLLOWS it with a strict boundary:
+    #   ""                       bare 5 (treated as 5.0)                 -> banned
+    #   "[…" / "@…"              bare 5 + context suffix / Vertex version -> banned
+    #   "-YYYYMMDD" (8 digits)   dated bare 5 (treated as 5.0)           -> banned
+    #   "-0" then end/-/@/[/:    5.0 and its dated/context variants      -> banned
+    #   anything else            5.5, 5.1, "-05", "-0x", "50", "5x"      -> allowed
+    hit = _OPUS5_CORE.search(m)
+    if not hit:
+        return False
+    rest = hit.group("rest")
+    return bool(rest == "" or rest[0] in "[@" or _DATED.match(rest) or _FIVE_ZERO.match(rest))
 
 
 def model_from_transcript(tp) -> "str | None":
@@ -257,6 +276,21 @@ def _self_test() -> int:
             # alert file never resolves under the retired scratch sibling
             ("alert not scratch", "grc_library_scratch" not in str(_alert_file() or "")),
             ("empty-suffix id allowed", is_opus5("claude-opus-5-") is False),
+            ("bedrock 5.0 blocked", is_opus5("us.anthropic.claude-opus-5-0-20260901-v1:0") is True),
+            ("bedrock bare-prefix 5.0 blocked", is_opus5("anthropic.claude-opus-5-0") is True),
+            ("bedrock 5.5 allowed", is_opus5("us.anthropic.claude-opus-5-5-20260901-v1:0") is False),
+            ("bedrock 5.1 allowed", is_opus5("us.anthropic.claude-opus-5-1") is False),
+            ("vertex path 5.0 blocked", is_opus5("publishers/anthropic/models/claude-opus-5-0@20260901") is True),
+            ("vertex 5.5 allowed", is_opus5("claude-opus-5-5@20260901") is False),
+            ("vertex 5.0 blocked", is_opus5("claude-opus-5-0@20260901") is True),
+            ("5.0 [1m] blocked", is_opus5("claude-opus-5-0[1m]") is True),
+            ("bare 5 [1m] blocked", is_opus5("claude-opus-5[1m]") is True),
+            ("dated bare 5 blocked", is_opus5("claude-opus-5-20260901") is True),
+            ("5-05 allowed (boundary)", is_opus5("claude-opus-5-05") is False),
+            ("5-0x allowed (boundary)", is_opus5("claude-opus-5-0x") is False),
+            ("prefixed 4.8 allowed", is_opus5("us.anthropic.claude-opus-4-8") is False),
+            ("verdict bedrock 5.0 PreToolUse -> block", _verdict("us.anthropic.claude-opus-5-0-20260901-v1:0", "PreToolUse") == "block"),
+            ("verdict 5.5 PreToolUse -> allow", _verdict("claude-opus-5-5", "PreToolUse") == "allow"),
         ]
     finally:
         for p in tmp_paths:
