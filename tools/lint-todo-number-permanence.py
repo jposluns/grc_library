@@ -830,6 +830,15 @@ EXEMPT: dict[tuple[str, str], str] = {
         "stranded candidates (audit-stranded-matrix-code.py) plus part (d) gate-flip "
         "remain live in P-TODO.md. Dated 2026-09-17, after the 2026-07-15 rule."
     ),
+    ("P-3.213", "P-3.213 PR1 citation-coverage discovery"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2471, 2026-09-23). P-3.213 "
+        "('SYSTEMIC: register-coverage currency blind spot') is the maintainer's chosen "
+        "4-PR build, live at P-TODO.md after PR1: #2471 shipped only the citation-coverage "
+        "discovery engine + report mode (advisory), leaving PR2 (ISO/IEC-family migration), "
+        "PR3 (NIST/IEEE/ETSI/CEN migration), and PR4 (flip to enforce). The DONE body says "
+        "'the umbrella stays OPEN (PR2/PR3 family migration, PR4 enforcement)'. Dated "
+        "2026-09-23, after the 2026-07-15 rule."
+    ),
 }
 
 
