@@ -2,11 +2,11 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.12\
+**Version:** 1.3.13\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md)\
 **Classification:** Public\
 **Category:** Operations\
 **Review Frequency:** Annual and upon material platform or regulatory change\
@@ -70,7 +70,7 @@ The change initiator submits a Change Request (CR) via the ITSM platform, includ
 - Systems and services affected.
 - Change type classification.
 - Implementation plan with step-by-step actions.
-- Tested rollback plan (mandatory for all CAB-reviewed changes).
+- Tested rollback plan (mandatory for all CAB-reviewed changes, except where the CAB approves documented compensating controls under section 6).
 - Risk assessment (impact and likelihood of failure or disruption).
 - Scheduled implementation window.
 - Post-implementation review plan.

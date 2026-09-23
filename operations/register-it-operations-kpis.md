@@ -2,8 +2,8 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register\
 **Document Type:** Register\
-**Version:** 1.1.5\
-**Date:** 2026-09-13\
+**Version:** 1.1.6\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-security-operations.md`](register-it-security-operations.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`resilience/register-resilience-metrics-and-testing-log.md`](../resilience/register-resilience-metrics-and-testing-log.md)\
@@ -73,7 +73,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Successful change rate | Percentage of implemented changes that achieve their stated objective without unplanned rollback, service impact, or post-implementation incident within 5 business days. | 95% | Monthly | Change Manager | Change record, post-implementation review | Chief Information Officer | Chief Information Officer | |
 | Failed and rolled-back change rate | Percentage of implemented changes requiring rollback or causing a post-implementation P1 or P2 incident. | < 3% | Monthly | Change Manager | Change record, incident record | Chief Information Officer | Chief Information Officer | |
-| Emergency change rate | Emergency changes as a percentage of total changes implemented per month. | < 5% | Monthly | Change Manager | Change record | Chief Information Officer | Chief Information Officer | High emergency change rates indicate inadequate change planning or release management. |
+| Emergency change rate | Emergency changes as a percentage of total changes implemented per month. | ≤ 5% | Monthly | Change Manager | Change record | Chief Information Officer | Chief Information Officer | High emergency change rates indicate inadequate change planning or release management. |
 | Emergency change CAB retrospective compliance | Percentage of emergency changes reviewed by the Change Advisory Board within 5 business days of implementation. | 100% | Monthly | Change Manager | Change record, CAB minutes | Chief Information Officer | Chief Information Officer | Required by the IT Service Management Framework. |
 | Change implementation on schedule | Percentage of approved Normal changes implemented within the approved implementation window. | 90% | Monthly | Change Manager | Change record | Chief Information Officer | Chief Information Officer | |
 

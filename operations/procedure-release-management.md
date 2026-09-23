@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-14\
+**Version:** 1.0.4\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -43,7 +43,7 @@ It does not cover patches under the patch management procedure (which has its ow
 | Activity | Required output |
 | --- | --- |
 | Release scope | The set of artefacts in the release is named and frozen |
-| Release class | Routine, expedited, standard, or emergency per the change management procedure |
+| Release class | Routine, expedited, emergency, or standard repeatable (see Release classes); the change class is determined separately under the change management procedure |
 | Customer impact | Expected customer impact assessed: no-impact, transparent, brief disruption, breaking |
 | Communication plan | Internal communication; customer communication where the change is customer-visible |
 | Window | Release window selected per the change calendar |
@@ -147,10 +147,12 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 
 | Class | Approval | Gate adjustments |
 | --- | --- | --- |
-| Routine release | Standard change approval | Full automated gates |
+| Routine release | Normal change approval (CAB), or High-risk approval where the release meets the High-risk criteria | Full automated gates |
 | Expedited release | Documented expedited path; senior engineering approval | Full gates; reduced waiting |
 | Emergency release | Emergency change approval; out-of-cycle senior approval | Minimum-viable gates; post-release reconciliation required |
 | Standard repeatable release | Pre-authorized template; automated approval where templated | Templated gates |
+
+The release class sets cadence and gates; it does not replace the change class. Each release is also classified under the change management procedure (Standard only where a pre-authorized template applies; otherwise Normal, High-risk, or Emergency) and carries that class's approvals. An expedited release is a Normal or High-risk change on an accelerated schedule, not a separate change class.
 
 ---
 
