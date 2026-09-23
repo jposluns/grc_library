@@ -3,6 +3,8 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
+**2026-09-23 | 2026.09.1193 | PR #2489** - changelog: the 25 entries for 22 September are collapsed into one plain-language daily summary; their full detail is archived.
+
 **2026-09-23 | 2026.09.1192 | PR #2488** - content: NIST SSDF citations in fifteen security, development, operations, architecture, supply-chain, AI and governance documents now name the specific practices or tasks each document implements, matching the governance pack's re-map. The stranded-code check no longer mistakes a task citation for its parent practice.
 
 **2026-09-23 | 2026.09.1191 | PR #2487** - content: the BYOD policy now offers three peer routes (app-level MAM, full-device MDM and a managed work profile) and maps each device class to its permitted routes. A full-device wipe needs the owner's written consent unless law requires one; seven linked documents now match.
@@ -37,55 +39,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-09-23 | 2026.09.1176 | PR #2472** - tooling: registered the P-3.213 partial-close exemption in the backlog item-number-permanence gate, so the still-open four-PR umbrella's PR1 DONE entry is no longer flagged as a recycled backlog number.
 
-**2026-09-22 | 2026.09.1175 | PR #2471** - tooling: the standards-currency gate now inventories recognized standard and framework citations in the corpus and reports, advisory, the ones missing from or unpinned in the canonical register, surfacing the register's coverage blind spot ahead of a staged migration; the legacy stale-citation check stays blocking.
-
-**2026-09-22 | 2026.09.1174 | PR #2470** - tooling: the stranded-matrix scanner (audit-stranded-matrix-code.py) now labels findings with the actual --matrix path instead of the fixed default constant, so a --matrix override no longer mislabels the file; added a regression test.
-
-**2026-09-22 | 2026.09.1173 | PR #2469** - tooling: corrected 3 exotic-edge docstring/message residuals in block-unbumped-version-commit.py (repo-isolation env-inheritance, Git-quoted-path eligibility, a refusal-message wording fix); logic AST-identical, the P-1.95 contract test stays green.
-
-**2026-09-22 | 2026.09.1172 | PR #2468** - tooling: replaced the blocking-hook message contract test with a per-rendered-message inventory (105 cases rendering all 17 hooks' real refusal branches), immune to the docstring `BLOCKED (` false-match; AST-digest coverage gate dropped per maintainer.
-
-**2026-09-22 | 2026.09.1171 | PR #2467** - .claude/ change: corrected block-wrong-repo-tool.py's docstrings, inline comments, three refusal messages, and self-test labels to describe the regex and filesystem checks accurately as textual proxies, with logic AST-identical.
-
-**2026-09-22 | 2026.09.1170 | PR #2466** - Corrected the unjustified-decision guard's prose (module and function docstrings, comments, refusal messages, self-test labels), which overstated per-entry enforcement, audit proof, and exception coverage; it checks textual proxies over the whole submission and the block/allow logic is unchanged.
-
-**2026-09-22 | 2026.09.1169 | PR #2465** - Changelog maintenance: reconstructed the 27 missing 2026-09-17 detailed-mirror entries from git history and rolled up the 2026-09-17, 09-20, and 09-21 daily summaries, clearing the D8 daily-rollup backlog.
-
-**2026-09-22 | 2026.09.1168 | PR #2464** - Reframed the refusal messages of all 17 enforcement hooks to a uniform BLOCKED / WHY / CONSIDER INSTEAD form with firmer imperative remediation, adding a contract test that locks the form; the hooks' detection, exit codes, and state handling are unchanged.
-
-**2026-09-22 | 2026.09.1167 | PR #2463** - Corrected the orchestrator-self-qa guard's prose (docstrings, comments, both messages, self-test labels), which overstated its fixed tool-name and lexical worker-marker checks as identity and provenance verification and its non-atomic sentinel handling as atomic; the block/allow logic is unchanged.
-
-**2026-09-22 | 2026.09.1166 | PR #2462** - Corrected the public-working-write guard's prose (docstrings, comments, both block messages, self-test labels), which overstated its origin and store checks as operator identity and a canonical store, and its lexical token scan as proven writes; the block/allow logic is unchanged.
-
-**2026-09-22 | 2026.09.1165 | PR #2461** - Corrected the version-bump-commit guard's prose (docstring, block-reason message, and self-test labels), which overstated what it inspects and enforces: it reads the staged diff of the hook's own repository (not the -C target), recognizes a git commit by text, and blocks the whole tool call.
-
-**2026-09-22 | 2026.09.1164 | PR #2460** - Corrected the stranded-code scanner's advisory messages and docstring: they described a flagged candidate as any control code absent from its referenced document, omitting that the scan only flags a code whose control family the document already engages, so the output no longer overstates its coverage.
-
-**2026-09-22 | 2026.09.1163 | PR #2459** - Corrected the outstanding-work turn-end guard's fail-open docstring: it claimed any internal error allows the stop, but three local recovery paths (a failed escape-unlink, a non-zero `git diff` exit, and a missing store resolver) can instead lead to a block.
-
-**2026-09-22 | 2026.09.1162 | PR #2458** - Corrected the operational-store guard's origin-match prose: it classifies as maintainer any origin URL equal to or path-prefixed by the maintainer repo, so a suffixed-name fork URL also matches and can overblock, not only the exact repo.
-
-**2026-09-22 | 2026.09.1161 | PR #2457** - Corrected the open-findings hook's prose on two axes: it reads the ledger store-first through the resolver (not only the working-copy path named), and its PR-command guard is a case-sensitive whitespace-collapsed substring match, not a shell parse.
-
-**2026-09-22 | 2026.09.1160 | PR #2456** - Corrected a stop-guard scope description: the unattended stop-guard arms only when the resolved operating mode is unattended, which the grc adapter also maps attended-autonomous to, while every other mode value allows the turn-end stop.
-
-**2026-09-22 | 2026.09.1159 | PR #2455** - Corrected two turn-end-guard descriptions: held-branch entries require a YYYY-MM-DD-shaped token comparing lexically at or after today, without verified reasons or citations, and otherwise eligible branches are reported when git diff returns nonzero, including errors; a zero exit exempts them.
-
-**2026-09-22 | 2026.09.1158 | PR #2454** - Corrected three more enforcement-hook accuracy gaps: the open-findings guard's fail-open note omitted its deliberate fail-closed handling of a malformed row, "ANY bare git" overstated a fixed subcommand set that excludes branch deletion, and the Opus-5 model guard matches case-insensitively.
-
-**2026-09-22 | 2026.09.1157 | PR #2453** - Corrected an accuracy gap in the repeated-failure circuit-breaker's description (project instructions and a governance rule): the hook refuses byte-identical resubmits and instructs a diagnosis on repeated blocks but does not mechanically verify the diagnosis, so the prose no longer overstates the enforcement.
-
-**2026-09-22 | 2026.09.1156 | PR #2452** - Corrected six enforcement-hook docstrings that overstated or misstated what the hook actually enforces (registered tool coverage, per-entry versus submission checks, the amend and version-bump escapes, store detection, and fail-open direction), so a reader relies on the real guarantee rather than an inflated one.
-
-**2026-09-22 | 2026.09.1155 | PR #2451** - Normalized a one-off control-range notation in the AI System Audit and Certification Framework (A&A-01-A&A-06 to A&A-01 through A&A-06), clearing two false-positive stranded-code findings on the master compliance matrix without changing the aligned controls.
-
-**2026-09-22 | 2026.09.1154 | PR #2450** - Completed the blocking-hook message-consistency pass: restored the REPEAT-BLOCK, DECISION-GUARD, and MAINTAINER ALERT/HALT secondary markers and normalized the guard labels across seven enforcement hooks, changing only the refusal wording, never the hook decisions or exits.
-
-**2026-09-22 | 2026.09.1153 | PR #2449** - Corrected three stale tooling-documentation statements a review surfaced: the test-fixture cleanup guarantee and the regression-runner interpreter model in the tests README, and a reversed step description in the validation-sweep skill overview.
-
-**2026-09-22 | 2026.09.1152 | PR #2448** - Corrected accuracy defects a fresh cross-family review surfaced across privacy, operations, risk, AI, and governance documents: two GDPR wording errors, an IEEE 2883 sanitization mislabel, a risk-closure contradiction, a mis-cited NIST AI RMF subcategory, and several stale section and clause references.
-
-**2026-09-22 | 2026.09.1151 | PR #2447** - Expanded the governance relationship-model with 15 verified control-framework mappings and 10 new nodes (threat-modelling, AI audit and certification, continuous assurance, privacy-by-design, zero-trust, IT service management, and ISO 19011 audit guidance), growing it from 46 to 61 records.
+**2026-09-22 | 2026.09.1175 | PRs #2447-#2471 (25 PRs)** - The day's corpus work corrected accuracy defects a fresh cross-family review found across privacy, operations, risk, AI, and governance documents, fixing wording errors, a sanitization mislabel, a risk-closure contradiction, a mis-cited AI risk subcategory, and stale references. A control-range notation in the AI audit and certification framework was normalized, clearing false-positive findings. The governance relationship model grew from 46 to 61 records with verified control-framework mappings and new topic nodes. Extensive tooling work made enforcement-guard and scanner prose describe what the checks actually verify, added a citation-coverage inventory, and cleared the daily changelog rollup backlog.
 
 **2026-09-21 | 2026.09.1150 | PRs #2426-#2446 (21 PRs)** - The AI governance library gained a Singapore annex explaining the voluntary agentic-AI framework and its relationship to the corpus and international standards, while the governance relationship model expanded its verified links across risk, security, operations, and AI documents. Data-subject-rights guidance was corrected to reflect European guidance on excessive requests, China's request-handling rules, and the UK's reformed automated-decision framework. Further consistency fixes aligned AI-supplier deletion timing with the cloud-exit export window, clarified personal-device access to the cloud productivity platform, and reconciled workstation screen-lock requirements, alongside corrections to secure-development mappings and voluntary AI-code claims. Supporting checks and tests were hardened to improve concurrent execution, personal-data detection, and version and push safeguards.
 
