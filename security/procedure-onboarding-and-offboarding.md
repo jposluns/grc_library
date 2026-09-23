@@ -2,11 +2,11 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material change\
@@ -163,10 +163,10 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 7.4.3 IT Operations must initiate remote wipe via the endpoint management platform if an organization-issued device is not returned within the required timeframe. Personal-device offboarding must follow item 7.4.4 and must not depend on device return.
 
-7.4.4 IT Operations must identify and record each personal device's deployed BYOD route and remove corporate access in accordance with Sections 7.2 and 8.2, as applicable. IT Operations must perform the following route-specific actions under the BYOD Policy:
+7.4.4 IT Operations must identify and record each personal device's deployed BYOD route and remove corporate access in accordance with Sections 7.2 and 8.2, as applicable. IT Operations must perform the following route-specific actions under the [BYOD Policy](policy-byod.md):
 - MAM: selectively wipe corporate application data and then deprovision corporate application access, without deleting personal application data.
 - Managed work profile: wipe the corporate container and confirm completion before removing the work profile and its management; personal data must remain unaffected.
-- Full-device MDM: unenrol the device. Where the enrolment consent terms require a full-device wipe, IT Operations must perform it while management remains available. A full-device wipe must not be performed without the owner's written, recorded consent expressly authorizing it, except where required by law; the consent reference or applicable legal requirement must be recorded.
+- Full-device MDM: where the enrolment consent terms require a full-device wipe, IT Operations must perform it while management remains available and then unenrol the device; otherwise, IT Operations must unenrol the device. A full-device wipe must not be performed without the owner's written, recorded consent expressly authorizing it, except where required by law; the consent reference or applicable legal requirement must be recorded.
 
 IT Operations must record the route, actions, timestamps, and wipe and deprovisioning outcomes in the offboarding record. A pending or failed wipe must be recorded and escalated to the CISO for follow-up, must not be recorded as completed, and must not delay corporate access revocation.
 

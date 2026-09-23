@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.30\
+**Version:** 1.0.31\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -189,7 +189,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 9.1.1 Remote workers must report any of the following events to the IT service desk immediately and in no case later than 1 hour after discovery:
 
-- Loss or theft of a managed device
+- Loss or theft of a managed device, or of a personal device with active access to corporate applications (BYOD Policy)
 - Suspected device compromise (malware, unauthorized access, unusual behaviour)
 - Suspected interception of credentials or data
 - Connection of a managed device to a potentially hostile network without VPN
@@ -198,7 +198,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ### 9.2 Response actions
 
-9.2.1 Upon receipt of a device loss or theft report, IT Operations must initiate a remote wipe of an organization-issued managed device via the endpoint management platform within 1 hour of notification. For a personally-owned device, the wipe must follow the BYOD Policy's route scope: corporate application data under MAM, the corporate container under a managed work profile, and a full-device wipe under MDM only with the owner's written, recorded consent, except where required by law.
+9.2.1 Upon receipt of a device loss or theft report, IT Operations must initiate a remote wipe of an organization-issued managed device via the endpoint management platform within 1 hour of notification. For a personally-owned device, IT Operations must initiate the wipe within 1 hour of notification, limited to the BYOD Policy's route scope: corporate application data under MAM, the corporate container under a managed work profile, and a full-device wipe under MDM only with the owner's written, recorded consent, except where required by law.
 
 9.2.2 Credential reset and session revocation via the enterprise identity provider will be initiated simultaneously with the remote wipe.
 
