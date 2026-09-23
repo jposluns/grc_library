@@ -106,6 +106,15 @@
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/future-stamp-write.py"
+          }
+        ]
       }
     ],
     "Stop": [
@@ -131,6 +140,10 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard-unattended.py",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stamp-truth-stop.py"
           }
         ]
       }
@@ -141,6 +154,26 @@
           {
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/inject-session-timestamp.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }
