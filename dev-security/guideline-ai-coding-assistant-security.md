@@ -2,7 +2,7 @@
 
 **Document Title:** AI Coding Assistant Security Guideline\
 **Document Type:** Guideline\
-**Version:** 1.3.19\
+**Version:** 1.3.20\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -305,7 +305,7 @@ The following publicly available resources provide additional guidance for AI co
 | Prompt injection awareness | A.6.3 | N/A | AIS-15 | Annex A.6 (AI system life cycle) | N/A |
 | Agentic use controls | A.5.18, A.8.2 | PW.1 | AIS-11 | Clause 8 (operation) | EU AI Act Art. 14 |
 | Deterministic enforcement | A.8.16, A.8.3 | PW.1 | TVM-13 | Annex A.6 (AI system life cycle) | EU AI Act Art. 14 |
-| Incident reporting | A.6.8 | RV.1.1 | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
+| Incident reporting | A.6.8 | N/A | SEF-08 | Clause 10 (improvement) | PIPEDA, GDPR |
 
 ---
 
