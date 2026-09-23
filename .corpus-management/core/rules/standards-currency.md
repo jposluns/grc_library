@@ -1,12 +1,33 @@
 # Standards currency
 
-An external-standard citation names the current version, not a superseded one. The
-project's canonical register lists, per standard, the current version and the version
-strings that are superseded; a line that cites a standard identifier immediately followed
-by one of that standard's superseded versions is flagged. The version may follow the
-identifier via a colon, an opening parenthesis, or whitespace, and may carry a ``v``
-prefix; a version-continuation guard prevents a match inside a longer version string (so a
-superseded ``4.0`` is not matched within a current ``4.0.1``). A citation of a
-non-superseded version, and any occurrence inside a fenced code block, are not flagged.
-The canonical register, and the repository root it is read from, are project configuration
-and are not part of this clause.
+The project's canonical register supplies citation identities and current and
+superseded edition facts. The gate does not query publishers or establish
+publisher truth or clause semantics.
+
+The established stale-citation check remains blocking. It matches registered
+identifiers followed by registered superseded markers, including v-prefixed
+versions, and preserves version-continuation boundaries and fenced-code
+exclusion.
+
+P-3.213 PR1 adds register-independent discovery for ISO/IEC-family publications,
+NIST publications and frameworks, IEEE, ETSI/CEN, and CIS Controls, ITIL, WCAG,
+COBIT and SLSA. Exact normalized identifiers resolve to register rows.
+Diagnostic spelling matches suggest corrections but are not accepted aliases.
+Parts, publication kinds and issuer identities remain distinct.
+
+Report mode is the default during migration. Newly discovered stale forms,
+HTML findings, missing registrations, noncanonical identifiers and missing
+edition pins are advisory. Only the established Markdown stale check blocks
+in report mode. Explicit enforce mode additionally blocks those recognized
+citation findings; PR1 gate invocations do not enable it.
+
+Ambiguous identities, broader discovery candidates and unresolved editions
+remain explicit review inventories. An unrecognized edition is not declared
+current or superseded. Final and compound register cells do not automatically
+authorize bare citations. Exceptions require explicit project policy and
+evidence.
+
+The project wrapper owns the register schema, publication surfaces, exclusions
+and exception reasons. Malformed or empty registers fail; missing or unreadable
+intended inputs are environmental errors. Reports include counts and every
+finding location, and do not claim cleanliness while review items remain.

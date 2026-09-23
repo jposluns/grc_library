@@ -12,7 +12,8 @@ This gate closes exactly that blind spot. It statically AST-parses every toolcha
 file (``tools/``, ``tests/``, ``.web/``, the Corpus-Management pack's ``.corpus-management/tools/``, and the vendored ``vendor/aiqt/tools/``) and flags any imported ROOT module that is not:
 
   - in ``sys.stdlib_module_names`` (the running interpreter's standard library), OR
-  - a first-party in-repo module (the stem of a ``.py`` file in the scanned set, e.g.
+  - a first-party in-repo module: the stem of a ``.py`` file in the scanned set, or an
+    in-repo package directory used as an import root (``from tests.x import y``), e.g.
     ``lint_common`` or the reference modules), OR
   - an explicitly-allow-listed sanctioned dependency (``ALLOWED_THIRD_PARTY`` below,
     currently: ``idna`` for exact UTS-46 in the PII gate; otherwise pure stdlib).
@@ -85,7 +86,17 @@ def _scan_files() -> list[Path]:
 def _first_party_names(files: list[Path]) -> set[str]:
     # Any scanned .py is importable by its stem as a sibling module (the toolchain adds
     # its own dir to sys.path); those names are first-party, never third-party.
-    return {p.stem for p in files}
+    names = {p.stem for p in files}
+    # A package-qualified in-repo import (e.g. `from tests.test_x import y`) takes the
+    # top-level package DIRECTORY as its AST import root; that in-repo package is first-
+    # party too. Add a scanned file's top-level directory ONLY when it is a real Python
+    # package (a valid identifier with an __init__.py). A non-package storage dir
+    # (vendor/, tools/) is never added, so it cannot mask a same-named third-party import.
+    for p in files:
+        top = p.relative_to(REPO_ROOT).parts[0]
+        if top.isidentifier() and (REPO_ROOT / top / "__init__.py").is_file():
+            names.add(top)
+    return names
 
 
 def _import_roots(tree: ast.AST) -> list[tuple[int, str]]:

@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
-"""Standards-currency audit (grc gate): project entry point.
+"""Standards-currency audit: project policy and register parser.
 
-The gate ENGINE is pack-owned source of record at
-``.corpus-management/tools/gate_lint_standards_currency.py`` (Corpus-Management pack, gate register
-``core/gates.toml``, id ``lint-standards-currency``, enforcing the pack's ``standards-currency``
-clause); this thin wrapper keeps the house ``python3 tools/lint-standards-currency.py`` shape (gate 35
-parses exactly that) and supplies the grc-local configuration the pack engine deliberately does not
-carry: the AIQT bootstrap, the repo root, the markdown scope selector, the default scan roots, the
-target-selection exemptions, and the grc canonical-citations REGISTER (it parses the grc register
-format via ``parse_canonical_register``, honours the ``--root`` fixture-isolation override the
-gate-36 regression uses, and passes the parsed entries -- compiled by the engine -- plus counts in).
-The register missing / parses-no-rows error paths (exit 2 / exit 1) are the wrapper's. These wrapper
-bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them; ``iter_files`` stays
-here so the scan-scope regression's ALLOW map observes it unmoved.
+The pack engine owns citation extraction, comparison and reporting.
+This wrapper owns the canonical-register schema, roots, exclusions and CLI.
 
-Usage:
-    python3 tools/lint-standards-currency.py
-    python3 tools/lint-standards-currency.py --paths governance ai
+PR1 defaults to report mode. Only the unchanged legacy Markdown stale
+check blocks in that mode. New findings are advisory. Explicit enforce
+mode supports migration fixtures; no gate invocation enables it in PR1.
 
-Exit codes are the engine's: 0 clean; 1 finding(s) (plus the wrapper's 2 = register missing).
+Exit: 0 no blocking findings; 1 blocking findings or malformed/empty
+register; 2 missing/unreadable intended inputs.
 """
 
 from __future__ import annotations
@@ -29,7 +20,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS  # noqa: E402  # grc-config/store, stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
@@ -62,140 +53,265 @@ DEFAULT_PATHS = [
 ]
 
 
-def parse_canonical_register() -> list[dict[str, object]]:
-    """Parse the canonical register's tables into a list of standard entries.
+STANDARD_HEADER = [
+    "Standard ID", "Current version", "Publication date",
+    "Topic", "Superseded versions",
+]
+EVIDENCE_HEADER = ["Upstream check location", "Last verified (UTC)"]
+PROJECT_HEADER = [
+    "Project", "Current version", "Registration date", "Topic",
+    "License", "Status notes", *EVIDENCE_HEADER,
+]
+HTML_ROOT = ".web/templates"
 
-    Each entry is a dict with keys:
-        id          (str)    Standard identifier as it appears in the table
-        current     (str)    Current version string
-        superseded  (list)   Strings the linter should flag if seen with this id
-    """
-    if not CANONICAL_REGISTER.exists():
-        print(
-            f"ERROR: canonical citations register not found at {CANONICAL_REGISTER}",
-            file=sys.stderr,
+# No evidence-backed bare-publication or series exceptions approved in PR1.
+BARE_EXCEPTIONS = {}
+
+EXEMPT_REASONS = {
+    "CHANGELOG.md": "Append-only change history.",
+    "TODO.md": "Explicit defect/backlog documentation.",
+    "TODO-REFERENCE.md": "Explicit defect/backlog documentation.",
+    "governance/register-canonical-citations.md": "Authority parsed separately.",
+    "tools/": "Implementation and fixtures.",
+    "docs/": "Existing explicit meta-document exemption.",
+}
+
+
+class RegisterError(ValueError):
+    pass
+
+
+def parse_register_text(text):
+    lines = text.splitlines()
+    entries, seen, section, i = [], {}, "(legacy fixture)", 0
+
+    def cells(raw, line):
+        raw = raw.strip()
+        if not (raw.startswith("|") and raw.endswith("|")):
+            raise RegisterError(
+                f"register:{line}: {section}: table row needs outer pipes"
+            )
+        return [
+            c.strip() for c in re.split(r"(?<!\\)\|", raw[1:-1])
+        ]
+
+    while i < len(lines):
+        raw = lines[i]
+        if raw.startswith("## "):
+            section = raw[3:].strip()
+        if "|" not in raw:
+            i += 1
+            continue
+
+        # Every table in this authority must have a known schema.
+        # A misspelled header cannot silently discard a section.
+        header = cells(raw, i + 1)
+        tooling = section == "AI security tooling references"
+        expected = PROJECT_HEADER if tooling else (
+            STANDARD_HEADER if len(header) == 5
+            else STANDARD_HEADER + EVIDENCE_HEADER
         )
-        return []
+        if header != expected:
+            raise RegisterError(
+                f"register:{i + 1}: {section}: malformed header; "
+                f"expected {expected!r}, got {header!r}"
+            )
+        if i + 1 >= len(lines):
+            raise RegisterError(f"register:{i + 1}: missing separator")
+        sep = cells(lines[i + 1], i + 2)
+        if len(sep) != len(header) or not all(
+            re.fullmatch(r":?-{3,}:?", c) for c in sep
+        ):
+            raise RegisterError(
+                f"register:{i + 2}: {section}: malformed separator"
+            )
 
-    text = CANONICAL_REGISTER.read_text(encoding="utf-8")
-    entries: list[dict[str, object]] = []
+        i += 2
+        while (
+            i < len(lines)
+            and lines[i].strip()
+            and not lines[i].startswith("#")
+        ):
+            row = cells(lines[i], i + 1)
+            if len(row) != len(header):
+                raise RegisterError(
+                    f"register:{i + 1}: {section}: "
+                    f"expected {len(header)} cells, got {len(row)}"
+                )
+            if not row[0] or not row[1]:
+                raise RegisterError(
+                    f"register:{i + 1}: identifier/current version required"
+                )
+            if not tooling:
+                key = _engine().identity_key(row[0])
+                if key in seen:
+                    raise RegisterError(
+                        f"register:{i + 1}: duplicate canonical identity "
+                        f"{row[0]!r}; first at {seen[key]}"
+                    )
+                seen[key] = i + 1
+                entries.append(dict(
+                    id=row[0],
+                    current=row[1],
+                    superseded=[] if row[4] in {"", "-", "\u2014"} else [
+                        v.strip() for v in row[4].split(",") if v.strip()
+                    ],
+                    superseded_raw=row[4],
+                    section=section,
+                    source_line=i + 1,
+                    identity_key=key,
+                    upstream=row[5] if len(row) == 7 else "",
+                    verified=row[6] if len(row) == 7 else "",
+                    cells=row,
+                ))
+            i += 1
 
-    # Each standard-table row is of the form:
-    # | <id> | <current> | <date> | <topic> | <superseded comma-list> |
-    # As of register v1.5.7 the five-column tables also carry two trailing
-    # columns (| <upstream check location> | <last verified (UTC)> |) added by
-    # the version-currency cadence. We extract id (1), current (2), and
-    # superseded (5); the optional non-capturing trailing group consumes those
-    # two new columns when present. The optional group matches EITHER zero or
-    # EXACTLY two trailing columns, so a 5-column row (the legacy form, still
-    # used by the regression fixtures) and a 7-column row (the current register)
-    # both match, while the 6-/8-column AI-security-tooling table (which is not a
-    # standards-currency source and was never parsed here) is still excluded.
-    row_re = re.compile(
-        r"^\|\s+([^|]+?)\s+\|\s+([^|]+?)\s+\|\s+[^|]+?\s+\|\s+[^|]+?\s+\|\s+([^|]+?)\s+\|"
-        r"(?:\s+[^|]+?\s+\|\s+[^|]+?\s+\|)?$"
-    )
-
-    for raw in text.splitlines():
-        m = row_re.match(raw)
-        if not m:
-            continue
-        std_id = m.group(1).strip()
-        current = m.group(2).strip()
-        superseded_raw = m.group(3).strip()
-
-        # Skip header rows
-        if std_id.lower() in {"standard id", "---", "--- ", " --- "}:
-            continue
-        if std_id.startswith("---"):
-            continue
-
-        # Parse superseded
-        if superseded_raw in {"\u2014", "-", ""}:
-            superseded: list[str] = []
-        else:
-            superseded = [s.strip() for s in superseded_raw.split(",") if s.strip()]
-
-        entries.append(
-            {
-                "id": std_id,
-                "current": current,
-                "superseded": superseded,
-            }
-        )
-
+    if not entries:
+        raise RegisterError("canonical citations register parsed no entries")
     return entries
 
 
-def iter_files(paths: list[str]) -> list[Path]:
-    out: list[Path] = []
-    for f in iter_scan_roots_markdown(paths, repo_root=REPO_ROOT):
-        rel = f.relative_to(REPO_ROOT).as_posix()
-        if rel in EXEMPT_FILES:
-            continue
-        if any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES):
-            continue
-        out.append(f)
-    return out
+def parse_canonical_register():
+    return parse_register_text(
+        CANONICAL_REGISTER.read_text(encoding="utf-8")
+    )
 
 
 def _engine():
-    """Import the pack-owned engine, ensuring its tools/ dir is importable."""
     pack_tools = str(PACK_TOOLS)
     if pack_tools not in sys.path:
         sys.path.insert(0, pack_tools)
-    import gate_lint_standards_currency  # the pack-owned engine (source of record)
+    import gate_lint_standards_currency
     return gate_lint_standards_currency
 
 
-def main() -> int:
-    global REPO_ROOT, CANONICAL_REGISTER
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--paths",
-        nargs="+",
-        default=DEFAULT_PATHS,
-        help="Paths to scan (default: all active library directories and root files)",
-    )
-    parser.add_argument(
-        "--root",
-        type=Path,
-        default=None,
-        help="Override repository root the canonical-citations register "
-             "is read from (used by the gate-36 regression test suite "
-             "for synthetic-fixture isolation testing). Default: the "
-             "actual repository root derived from this file's location.",
-    )
-    args = parser.parse_args()
-    if args.root is not None:
-        REPO_ROOT = args.root.resolve()
-        CANONICAL_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
+def iter_files(paths, *, explicit=True):
+    # Preserve this wrapper API for the scan-scope regression ALLOW map.
+    # The shared Markdown helper remains unchanged and Markdown-only.
+    from lint_common import is_default_exempt_root, is_adopter_exempt
 
-    entries = parse_canonical_register()
-    if not entries:
-        # Distinguish "register file missing" (exit 2; environmental
-        # failure) from "register parses no rows" (exit 1; treat as a
-        # gate failure rather than a silent no-op, because a register
-        # that parses zero rows indicates either a parsing bug or an
-        # accidental wipe, both of which should fail CI).
-        register = REPO_ROOT / "governance" / "register-canonical-citations.md"
-        if not register.exists():
-            print(
-                f"ERROR: canonical citations register not found at {register}",
-                file=sys.stderr,
-            )
-            return 2
-        print(
-            "ERROR: canonical citations register parsed no entries. "
-            "The register exists but no rows were extracted: likely a "
-            "parsing bug or an accidental wipe. Linter cannot verify "
-            "standards currency in this state.",
-            file=sys.stderr,
+    root = REPO_ROOT.resolve()
+    selected = set()
+
+    def within(path):
+        resolved = path.resolve()
+        try:
+            resolved.relative_to(root)
+        except ValueError:
+            raise OSError(f"out-of-root scan path: {path}") from None
+        return resolved
+
+    def excluded(path):
+        rel = path.relative_to(root).as_posix()
+        return (
+            rel in EXEMPT_FILES
+            or any(rel.startswith(p) for p in EXEMPT_DIRECTORY_PREFIXES)
+            or rel == ".web/dist"
+            or rel.startswith(".web/dist/")
+            or rel == ".web/templates-v2"
+            or rel.startswith(".web/templates-v2/")
+            or rel == ".web/templates-v3"
+            or rel.startswith(".web/templates-v3/")
+            or is_default_exempt_root(path, repo_root=root)
+            or is_adopter_exempt(path, repo_root=root)
         )
+
+    def visit(path):
+        path = within(path)
+        if excluded(path):
+            return
+        if path.is_dir():
+            # scandir surfaces unreadable-directory errors that a glob may
+            # silently omit. Resolve every descendant before accepting it.
+            import os
+            with os.scandir(path) as children:
+                for child in sorted(children, key=lambda c: c.name):
+                    if child.is_symlink() and child.is_dir():
+                        raise OSError(
+                            f"directory symlink in scan scope: {child.path}"
+                        )
+                    visit(Path(child.path))
+        elif path.is_file():
+            rel = path.relative_to(root).as_posix()
+            if path.suffix == ".md" or (
+                path.suffix == ".html"
+                and rel.startswith(HTML_ROOT + "/")
+            ):
+                selected.add(path)
+        else:
+            raise OSError(f"missing/unreadable intended input: {path}")
+
+    for value in paths:
+        candidate = root / value
+        if candidate.is_symlink() and candidate.is_dir():
+            raise OSError(
+                f"directory symlink in scan scope: {candidate}"
+            )
+        path = within(candidate)
+        if not explicit and not path.exists():
+            # Sparse --root fixtures need not create every default root.
+            continue
+        visit(path)
+    return sorted(selected)
+
+
+def main(argv=None):
+    global REPO_ROOT, CANONICAL_REGISTER
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--paths", nargs="+", default=None)
+    parser.add_argument("--root", type=Path)
+    parser.add_argument(
+        "--coverage-mode", choices=("report", "enforce"), default="report"
+    )
+    parser.add_argument(
+        "--format", choices=("text", "json"), default="text"
+    )
+    args = parser.parse_args(argv)
+
+    REPO_ROOT = (
+        args.root.resolve() if args.root
+        else Path(__file__).resolve().parent.parent
+    )
+    CANONICAL_REGISTER = (
+        REPO_ROOT / "governance/register-canonical-citations.md"
+    )
+    try:
+        entries = parse_canonical_register()
+        paths = (
+            args.paths if args.paths is not None
+            else [*DEFAULT_PATHS, HTML_ROOT]
+        )
+        files = iter_files(paths, explicit=args.paths is not None)
+        report = _engine().coverage_report(
+            files,
+            entries,
+            repo_root=REPO_ROOT,
+            mode=args.coverage_mode,
+            bare_exceptions=BARE_EXCEPTIONS,
+        )
+        report["scope"] = dict(
+            paths=paths,
+            explicit=args.paths is not None,
+            exclusions=EXEMPT_REASONS,
+            omitted=[
+                ".web/templates-v2/", ".web/templates-v3/", ".web/dist/",
+            ],
+            residual=(
+                "Regulations, Acts, soft law, tooling, unrecognized prose; "
+                "legacy stale checks retained."
+            ),
+        )
+        _engine().print_coverage(
+            report, as_json=args.format == "json"
+        )
+        return report["exit"]
+    except RegisterError as exc:
+        print("ERROR:", exc, file=sys.stderr)
         return 1
-    engine = _engine()
-    compiled = engine.compile_entry_patterns(entries)
-    return engine.run(iter_files(args.paths), compiled, len(entries), repo_root=REPO_ROOT)
+    except (OSError, UnicodeError) as exc:
+        print("ERROR:", exc, file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
