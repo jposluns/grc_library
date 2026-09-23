@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.27\
+**Version:** 1.1.28\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This standard defines security requirements for production infrastructure and op
 
 ## 2. Network security operations
 
-**VLAN and ACL compliance:** The current infrastructure Low Level Design is the authoritative network baseline. No ACL or firewall changes are permitted without a documented change request reviewed by the network and security teams. All rule changes are logged with business justification, approver, and effective date.
+**VLAN and ACL compliance:** The current infrastructure Low Level Design is the authoritative network baseline. No ACL or firewall changes are permitted without a documented change request reviewed by the network and security teams; an Emergency change is authorized by the CIO or equivalent before implementation, with the change request created retrospectively and reviewed per the change management procedure, and its permanent follow-up submitted as a High-risk change. All rule changes are logged with business justification, approver, and effective date.
 
 **DNS security:** Internal DNS must have query logging enabled and forwarded to the SIEM.
 

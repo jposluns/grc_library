@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-09-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,7 +47,7 @@ Effective patch management reduces the window of exposure between public vulnera
 
 ## 1. Patch classification
 
-Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status. Independently of this classification, any patch required to resolve or prevent a critical service outage or active security incident is an Emergency change under the change management procedure. Otherwise, patch classification sets deployment urgency; it is separate from the change class under the [change management procedure](procedure-change-management-and-configuration-control.md): Standard Critical and Standard High patches deploy as Normal changes (CAB-reviewed), Standard Medium and Low patches deploy as Standard changes only where they match an approved standard-change template (for example an OS patch from the approved list) applied within a pre-approved maintenance window, and otherwise as Normal changes. An Emergency patch is an Emergency change. A patch that changes the configuration or behaviour of identity, PAM, PKI, production network, firewall, or security monitoring infrastructure follows the High-risk approval path; an emergency patch of such a system follows the Emergency path for the immediate action, with its permanent follow-up classified as High-risk.
+Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status. Independently of this classification, any patch that meets the change management procedure's Emergency criteria (an unplanned change required to resolve or prevent a critical service outage or active security incident) is an Emergency change. Otherwise, patch classification sets deployment urgency; it is separate from the change class under the [change management procedure](procedure-change-management-and-configuration-control.md): Standard Critical and Standard High patches deploy as Normal changes (CAB-reviewed), Standard Medium and Low patches deploy as Standard changes only where they match an approved standard-change template (for example an OS patch from the approved list) applied within a pre-approved maintenance window, and otherwise as Normal changes. An Emergency patch is an Emergency change. A patch that changes the configuration or behaviour of identity, PAM, PKI, production network, firewall, or security monitoring infrastructure follows the High-risk approval path; an emergency patch of such a system follows the Emergency path for the immediate action, with its permanent follow-up classified as High-risk.
 
 | Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |

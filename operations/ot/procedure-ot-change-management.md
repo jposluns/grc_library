@@ -2,7 +2,7 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,8 @@ Where a change affects Safety Instrumented Systems (SIS) or other safety-critica
 | **Change Requester** | Originates the change request; documents business or operational justification, scope, risk, and backout plan. |
 | **OT-CAB** | Change Advisory Board for OT changes. Composition includes the OT Security Lead (chair), Plant Manager or delegate, Process Safety Engineer (for safety-relevant changes), Control System Engineer, and Vendor Liaison where vendor-controlled systems are affected. Equivalent to the general CAB for OT scope. |
 | **Vendor Liaison** | Coordinates vendor involvement in vendor-controlled changes; obtains vendor approval where vendor support contracts require it; documents vendor change instructions. |
-| **CISO** | Approves emergency changes; approves changes affecting SL-T or SL-A determinations; reviews change-management metrics annually. |
+| **CISO** | Approves cyber emergency changes (section 5.3); gives joint written approval, with the CIO, of High-risk changes (section 5.6); approves changes affecting SL-T or SL-A determinations; reviews change-management metrics annually. |
+| **CIO** | Gives joint written approval, with the CISO, of High-risk changes (section 5.6). |
 | **Internal Audit** | Reviews change records and OT-CAB minutes for compliance with this procedure. |
 
 ---
