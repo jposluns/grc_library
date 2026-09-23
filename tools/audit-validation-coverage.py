@@ -35,7 +35,7 @@ Policy per repo:
                landing is a note, not a finding (the channel does not guarantee
                per-landing CI and the pre-push validate is not observable);
                an observed RED validating run is still a finding.
-               (grc_library_scratch)
+               (no current repo; grc_library_scratch held it until its retirement 2026-09-23)
 
 Limitations (also surfaced in the run summary): (1) only the last N commits per
 repo are probed (fetch-first keeps origin/main current), so an unvalidated
@@ -73,7 +73,9 @@ REPO_POLICY = {
     "grc_library": "pr-required",
     "grc_library_ref": "pr-required",
     "grc_library_private": "pr-required",
-    "grc_library_scratch": "exchange",
+    # grc_library_scratch (policy "exchange") is RETIRED (maintainer-directed 2026-09-23): never used,
+    # cloned, or synced, so it is NOT audited (auditing would `git fetch` a stray checkout). The "exchange"
+    # policy stays defined for any future exchange-channel repository.
 }
 
 DEFAULT_WINDOW = 25

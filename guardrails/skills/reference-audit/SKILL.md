@@ -22,8 +22,8 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   exits 0).
 - Per-document state file (the per-touch delta anchor): the per-document reference-audit state file in the consuming project's working state.
 - Run-record directory: the reference-audit run-record directory in the consuming project's working state (dated per-run detail files plus the
-  non-dated `history.md`; completed records are swept to the worker-exchange scratch
-  archive under the parent's current-week retention model).
+  non-dated `history.md`; completed records are retained in the operational store, whose version history is their
+  archive; the parent's former worker-exchange scratch archive was retired on 2026-09-23).
 - Reference base: the sibling private `grc_library_ref` repository, located via its
   indexes (`INDEX.md`, `catalogue.yml`, `SECTION-INDEX.md`, `COVERAGE-MAP.md`).
 - Trust-tier assignments: the standards, frameworks, legislation, and programs buckets

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Sibling-repo stub-guard audit (gate 70), guard-if-present-as-stub.
 
-The three sibling repositories (``grc_library_ref`` / ``grc_library_scratch`` /
-``grc_library_private``) are SEPARATE repositories that live beside this one at
+The sibling repositories (``grc_library_ref`` / ``grc_library_private``, plus the
+retired ``grc_library_scratch``, whose adopter ``.scratch`` stand-in stays supported) are SEPARATE repositories that live beside this one at
 origin; they are NOT shipped inside the public repo. The maintainer runs the
 real siblings beside this clone; an adopter chooses how to run (their own
 siblings, or the in-repo ``.<name>`` placeholder stub that the ``/adopt`` flow

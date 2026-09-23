@@ -327,8 +327,9 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `grc_library_private/.working/worker-brief-template.md`.
 - Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/orch`).
-- Exchange channel and runbook: `grc_library_scratch` +
-  `multi-session-orchestration`.
+- Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
+  channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
+  guardrail seeds go to guardrails via `inbox-send`).
 - Guardrails authoring instantiation (TF-2 closed, Option B locked 2026-08-02):
   `grc_library` is the authoritative authoring and dogfood source; the standalone
   `guardrails` repository under the maintainer's account is a one-way publication
