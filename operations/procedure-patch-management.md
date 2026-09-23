@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.21\
+**Version:** 1.0.22\
 **Date:** 2026-09-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
@@ -96,6 +96,8 @@ The completed checklist is retained with the change record.
 ---
 
 ## 3. Deployment authorization
+
+Authorization follows the change class determined in section 1, including its Emergency and High-risk rules; the pathways below apply to patches that those rules do not reclassify.
 
 | Classification | Authorization Pathway |
 | --- | --- |
