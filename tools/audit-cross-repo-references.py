@@ -191,8 +191,16 @@ def classify_cross_repo(
     in_operational_tree = bool({".working", ".claude"} & set(source_rel_parts))
     if name in _INTENDED_SIBLINGS or in_operational_tree:
         sub_flag = "intended-minimal"
-    elif name in _RETIRED_SIBLINGS:
+    elif (name in _RETIRED_SIBLINGS and "retire" not in match.string.lower()
+          and bool(source_rel_parts) and source_rel_parts[-1].endswith(".md")):
+        # Only PROSE (.md) is flagged: code, tests and config legitimately name the retired sibling to
+        # exclude or handle it, and a line that itself documents the retirement is not a live pointer
+        # (both avoid cries-wolf noise). RESIDUE (accepted, benign at 2026-09-23): the adopter .scratch
+        # stand-in mapping in guardrails/skills/adopt/SKILL.md, a retirement sentence continued across
+        # a line break there, and the gate-76 narrative example in the audit-programme spec.
         sub_flag = "review-retired-sibling"
+    elif name in _RETIRED_SIBLINGS:
+        sub_flag = "intended-minimal"
     else:
         sub_flag = "review-over-exposure"
 
@@ -359,6 +367,25 @@ def self_test() -> int:
                 self.assertEqual(counts.get("review-retired-sibling", 0), 1)
                 self.assertEqual(counts.get("intended-minimal", 0), 0)
                 self.assertEqual(counts.get("review-over-exposure", 0), 0)
+
+        def test_retired_pointer_in_code_not_flagged(self):
+            with tempfile.TemporaryDirectory() as td:
+                root = self._tree(td)
+                (root / "governance" / "tool.py").write_text(
+                    'SIBS = ("../grc_library_scratch",)\n', encoding="utf-8",
+                )
+                findings, counts = audit_tree(root, sibling_resolver=lambda n: None)
+                self.assertEqual(counts.get("review-retired-sibling", 0), 0)
+
+        def test_retirement_documentation_line_not_flagged(self):
+            with tempfile.TemporaryDirectory() as td:
+                root = self._tree(td)
+                (root / "governance" / "doc.md").write_text(
+                    "the former ../grc_library_scratch channel is RETIRED\n", encoding="utf-8",
+                )
+                findings, counts = audit_tree(root, sibling_resolver=lambda n: None)
+                self.assertEqual(counts.get("review-retired-sibling", 0), 0)
+                self.assertEqual(counts.get("intended-minimal", 0), 1)
 
         def test_cross_repo_pointer_and_over_exposure(self):
             with tempfile.TemporaryDirectory() as td:
