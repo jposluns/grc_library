@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -129,7 +129,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | --- | --- |
 | Rollback trigger | Pre-defined: customer impact, telemetry regression, security finding, regulatory concern |
 | Rollback execution | Rollback executed via the documented mechanism (pre-tested, or covered by CAB-approved compensating controls); not improvised |
-| Forward-fix | Where rollback is not viable, a forward-fix is deployed under the same procedure on an expedited path |
+| Forward-fix | Where rollback is not viable, a forward-fix is deployed under the same procedure: on the Emergency path where the change management procedure's Emergency criteria apply, otherwise on an expedited path |
 | Post-rollback validation | Service health validated after rollback; customers informed if material |
 
 ### Step 9: Closure and learning

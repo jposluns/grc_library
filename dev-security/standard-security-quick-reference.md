@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.23\
+**Version:** 1.1.24\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -152,7 +152,7 @@ Every pipeline touching Test or Production must include these checks in order. P
 | Emergency | CIO or equivalent | Retrospective within 5 business days |
 | High-risk (identity, PAM, PKI, production network, firewall rule bases, security monitoring) | CISO and CIO (joint approval) | Yes |
 
-Every CAB-reviewed change must include a tested rollback plan, unless the CAB approves documented compensating controls where testing before the change window is not operationally feasible. Any manual change made during a declared incident must be codified in IaC within 24 hours; a permanent change resulting from an emergency change is submitted within 5 business days under its own change class.
+Every CAB-reviewed change must include a tested rollback plan, unless deferral is not operationally feasible, the rollback plan cannot be fully tested before the change window, and the CAB approves documented compensating controls (change management procedure section 6). Any manual change made during a declared incident must be codified in IaC within 24 hours; a permanent change resulting from an emergency change is submitted within 5 business days under its own change class.
 
 ---
 

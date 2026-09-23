@@ -2,7 +2,7 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -92,7 +92,7 @@ All deployment activities must comply with the Change Management and Configurati
 
 - Deployment through authorized automation and endpoint management platforms.
 - Phased releases: pilot → controlled → production.
-- Rollback and recovery plans validated in testing prior to deployment, or approved by the CAB with documented compensating controls under the change management procedure where pre-deployment testing is not operationally feasible.
+- Rollback and recovery plans validated in testing prior to deployment, or, where deferral is not operationally feasible and pre-deployment testing cannot be completed, approved by the CAB with documented compensating controls under the change management procedure.
 
 ---
 

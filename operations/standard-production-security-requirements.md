@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.26\
+**Version:** 1.1.27\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -109,7 +109,7 @@ Authenticated vulnerability scans must run at minimum weekly. Results must be re
 | Emergency | CIO or equivalent | Retrospective within 5 business days |
 | High-risk (identity, PAM, PKI, production network, firewall rule bases, security monitoring) | CISO and CIO (joint approval) | Yes |
 
-All production changes must be executed through the approved IaC pipeline. Direct manual production changes are prohibited except in declared incidents and must be codified within 24 hours. Every CAB-reviewed change must include a tested rollback plan, unless the CAB approves documented compensating controls under the change management procedure where testing before the change window is not operationally feasible.
+All production changes must be executed through the approved IaC pipeline. Direct manual production changes are prohibited except in declared incidents and must be codified within 24 hours. Every CAB-reviewed change must include a tested rollback plan, unless deferral is not operationally feasible, the rollback plan cannot be fully tested before the change window, and the CAB approves documented compensating controls under the change management procedure.
 
 **Framework:** CSA CCM CCC-01 through CCC-04, CCC-06 through CCC-09
 
