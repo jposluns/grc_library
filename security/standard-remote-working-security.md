@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.28\
+**Version:** 1.0.29\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -151,7 +151,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 | **Public** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Controlled** | Yes, on any compliant managed device | Company-managed storage | No |
 | **Internal** | Yes, on any compliant managed device | Company-managed storage | No (cloud); Yes (on-premises) |
-| **Confidential** | Yes, on compliant managed device, or personal device via the managed-work-profile route (Section 8.2, a standing approved path requiring no per-device exception); other personal-device access requires an approved exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
+| **Confidential** | Yes, on a compliant company-managed device, or personal device via the managed-work-profile route (Section 8.2, a standing approved path requiring no per-device exception); other personal-device access requires an approved exception per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) | Company-managed encrypted storage; personal cloud storage prohibited | Yes, always (VPN required for all Confidential-data access regardless of network type, per Section 5.2.2) |
 | **Restricted** | Managed device, or personal device only via the managed-work-profile route (Section 8.2, a standing approved path requiring no per-device exception); CISO approval required for remote access | Company-managed encrypted storage; no personal storage of any kind | Yes, always |
 
 The VPN Required column states requirements by data classification; Section 5.1 additionally requires VPN on untrusted networks (for example public Wi-Fi and most client-site networks) regardless of the data classification. The Remote Access Permitted column describes managed-device access; personal (BYOD) devices may also access Public, Controlled, and Internal data through browser interfaces under the conditional-access path set out in Section 8 (which also governs the personal-device conditions for Confidential and Restricted data).

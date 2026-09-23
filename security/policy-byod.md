@@ -2,7 +2,7 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.1.8\
+**Version:** 1.2.0\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -30,7 +30,7 @@ The organization may operate one or more of the three routes below (different ro
 
 - **Mobile application management (MAM), container model.** The organization controls a container of corporate applications and data on the personal device, enforced by application protection policies. The device itself is not enrolled and stays fully under the owner's control; the organization applies no device-level configuration and can wipe only the corporate container. MAM is the lighter-touch model, appropriate where the organization accepts application-layer control and does not require device-level assurance. The controls in the Approved access model section below are the MAM control set.
 - **Mobile device management (MDM), full-device model.** The owner explicitly enrols the personal device into the organization's device-management platform, and the organization applies device-level policies (passcode strength, disk encryption, screen-lock timeout, OS-patch enforcement, configuration profiles) and may perform a full-device wipe. MDM gives the organization device-level assurance at the cost of greater control over a personally owned device. It requires the owner's informed, written, recorded consent expressly authorizing full-device wipe, because it extends the organization's reach beyond the corporate container.
-- **Managed work profile, containerized model.** The organization enrols and manages a corporate work profile kept separate from the owner's personal data. Remote wipe must be limited to that container, and full-device wipe must not occur without the owner's written consent.
+- **Managed work profile, containerized model.** The organization enrols and manages a corporate work profile kept separate from the owner's personal data. Remote wipe must be limited to that container, and full-device wipe must not occur without the owner's written consent, except where required by law.
 
 An organization choosing MDM must obtain and record the device owner's explicit enrolment consent before applying device-level policies, and must state in its enrolment notice what the organization can see, configure, and wipe. An organization choosing MAM applies the container controls below without device enrolment. The control baseline must map each supported device class and operating system to its approved routes and data classifications. Smartphones and tablets may use MAM, full-device MDM, or a managed work profile where the required controls are supported. Laptops may use MAM or full-device MDM; a managed work profile on a laptop requires verified container isolation and selective wipe. Unsupported class and route combinations must be denied. MDM and work-profile enrolment notices must disclose configuration, visibility and wipe scope, with written consent recorded before enrolment.
 
@@ -67,7 +67,7 @@ Under the MAM model, personal devices may access corporate applications through 
 | **Copy/paste restrictions** | Copy and paste between managed corporate applications and unmanaged personal applications is blocked. Corporate data cannot be transferred to personal email, personal notes, personal storage, or any unmanaged application. |
 | **Data transfer restrictions** | Sharing or opening corporate files in unmanaged personal applications is blocked. Corporate attachments and documents can only be opened within applications covered by the MAM policy. |
 | **Application PIN or biometric** | Access to managed corporate applications requires a PIN or biometric authentication in addition to device unlock, enforced by MAM policy. |
-| **Remote wipe of corporate data** | IT Operations may remotely wipe all corporate data from managed applications on the device. The wipe is scoped to corporate application data only. Personal data, personal applications, and personal files on the device are not affected. |
+| **Remote wipe of corporate data** | IT Operations may remotely wipe all corporate data from managed applications on the device. Under MAM the wipe is scoped to corporate application data, and under the managed-work-profile route to the corporate container; personal data, personal applications, and personal files on the device are not affected. A full-device wipe occurs only under MDM with the owner's written consent, or where required by law. |
 | **Jailbreak and root detection** | Access from jailbroken or rooted devices is blocked by MAM policy. Devices that fail integrity checks are denied corporate data access. |
 | **Minimum OS version** | MAM policy enforces minimum operating system versions. Devices running OS versions below the defined minimum are blocked from accessing corporate applications. |
 

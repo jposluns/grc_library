@@ -142,7 +142,7 @@ _117 documents._
 | [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.10 | 2026-09-14 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.6 | 2026-09-23 |
-| [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.1.8 | 2026-09-23 |
+| [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.2.0 | 2026-09-23 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.26 | 2026-09-20 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.26 | 2026-09-13 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.31 | 2026-09-13 |
@@ -313,7 +313,7 @@ _163 documents._
 | [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.12 | 2026-09-18 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.11 | 2026-09-20 |
 | [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.10 | 2026-09-19 |
-| [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.28 | 2026-09-23 |
+| [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.29 | 2026-09-23 |
 | [security/standard-saas-security-posture-management.md](../security/standard-saas-security-posture-management.md) | SaaS Security Posture Management Standard | Standard | 1.0.8 | 2026-09-23 |
 | [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.7 | 2026-09-19 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.0.4 | 2026-07-02 |
