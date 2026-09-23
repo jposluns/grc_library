@@ -114,8 +114,8 @@ def _is_worker() -> bool:
     worker (WK-HOOK1: the stamp hook made every claude worker re-send its whole deliverable). Fail-safe:
     any detection error -> False (keep orchestrator behaviour, the status quo)."""
     try:
-        from _hookutil import is_worker_session
-        return is_worker_session()
+        from _hookutil import is_verify_worker
+        return is_verify_worker()
     except Exception:
         return False
 

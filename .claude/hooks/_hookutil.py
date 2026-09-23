@@ -129,8 +129,7 @@ WORKER_CONFIG_DIR_PREFIX = "orch-worker."
 
 
 def is_worker_session() -> bool:
-    """True when the orch-verify worker marker ORCH_VERIFY_OWNER is present, OR CLAUDE_CONFIG_DIR's
-    BASENAME begins with the broker's worker prefix.
+    """True when CLAUDE_CONFIG_DIR's BASENAME begins with the broker's worker prefix.
 
     That is the whole test, and the name of this function claims more than the test
     delivers, so read the module comment above before relying on it.
@@ -151,18 +150,31 @@ def is_worker_session() -> bool:
     and Gemini workers do not run Claude Code hooks at all.
     """
     try:
-        # SIGNAL 1 (added 2026-09-23): the orch-verify worker marker. orch-verify exports
-        # ORCH_VERIFY_OWNER into EVERY family's worker shell (verified at /usr/local/bin/orch-verify);
-        # its PRESENCE, even empty, marks a dispatched worker, and the orchestrator never sets it.
-        if "ORCH_VERIFY_OWNER" in os.environ:
-            return True
-        # SIGNAL 2: the broker's worker CLAUDE_CONFIG_DIR basename prefix (the original test).
         config_dir = os.environ.get("CLAUDE_CONFIG_DIR", "")
         if not config_dir:
             return False
         return Path(config_dir).name.startswith(WORKER_CONFIG_DIR_PREFIX)
     except Exception:
         return False
+
+
+
+def is_verify_worker() -> bool:
+    """True inside a dispatched orch-verify worker: the ORCH_VERIFY_OWNER marker is present (even empty;
+    orch-verify exports it into every family's worker shell and the orchestrator never sets it), OR
+    is_worker_session() holds (the broker's worker config-dir prefix).
+
+    SCOPE, deliberately narrow: ONLY for NON-SAFETY orchestrator session-discipline hooks (message stamping,
+    timestamp injection, session-facts surfacing), where a false positive merely silences a reminder. SAFETY
+    guards must NOT use this: an inherited or leaked ambient marker must never disable a safety guard, so
+    they keep is_worker_session() (or no worker exemption at all). Fail-safe: any error -> False.
+    """
+    try:
+        if "ORCH_VERIFY_OWNER" in os.environ:
+            return True
+    except Exception:
+        return False
+    return is_worker_session()
 
 
 SELF_TEST = [
@@ -191,8 +203,8 @@ def _self_test() -> int:
         bad += 1
         print("FAIL: text after a stripped heredoc did not survive")
     print(str(len(SELF_TEST) + 1 - bad) + "/" + str(len(SELF_TEST) + 1) + " heredoc cases pass")
-    # is_worker_session: marker presence (even empty) or the worker config-dir prefix -> worker;
-    # neither -> orchestrator. The environment is restored afterwards.
+    # is_verify_worker: marker presence (even empty) or the worker config-dir prefix -> worker; neither ->
+    # orchestrator. is_worker_session (used by SAFETY guards) must IGNORE the marker. Env restored afterwards.
     saved = {k: os.environ.get(k) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
     cases = [({"ORCH_VERIFY_OWNER": "x"}, True), ({"ORCH_VERIFY_OWNER": ""}, True),
              ({"CLAUDE_CONFIG_DIR": "/a/orch-worker.claude-1"}, True),
@@ -204,9 +216,12 @@ def _self_test() -> int:
             for k in saved:
                 os.environ.pop(k, None)
             os.environ.update(env)
-            if is_worker_session() is not want:
+            if is_verify_worker() is not want:
                 wbad += 1
-                print("FAIL is_worker_session " + repr(env) + " want=" + str(want))
+                print("FAIL is_verify_worker " + repr(env) + " want=" + str(want))
+            if "ORCH_VERIFY_OWNER" in env and "CLAUDE_CONFIG_DIR" not in env and is_worker_session():
+                wbad += 1
+                print("FAIL is_worker_session must ignore the marker " + repr(env))
     finally:
         for k, v in saved.items():
             os.environ.pop(k, None)
