@@ -300,6 +300,6 @@ result, _ := doSomethingImportant()  // silent failure risk
 | Command injection | V1.2.5 | PW.5.1 | A.8.28 |
 | Path traversal | V5.3.2 | PW.5.1 | A.8.28 |
 | Cryptography | V11 | PW.5.1 | A.8.24 |
-| TLS configuration | V12 | N/A | A.8.24 |
+| TLS configuration | V12 | PW.5.1 | A.8.24 |
 | Error handling | V16 | PW.5.1 | A.8.15 |
-| Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |
+| Dependency management | V15.2 | PW.4.1, PW.4.4 | A.8.8 |

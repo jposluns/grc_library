@@ -296,6 +296,6 @@ implementation 'org.springframework.boot:spring-boot-starter-security:3.2.5'
 | XML/XXE prevention | V1.5.1 | PW.5.1 | A.8.28 |
 | Deserialization | V1.5 | PW.5.1 | A.8.28 |
 | Cryptography | V11 | PW.5.1 | A.8.24 |
-| Authentication (Spring Security) | V6, V7 | N/A | A.5.17 |
+| Authentication (Spring Security) | V6, V7 | PW.5.1, PW.1.3 | A.5.17 |
 | Logging | V16 | PW.5.1 | A.8.15 to 8.16 |
-| Dependency management | V15.2 | PO.5, PW.4 | A.8.8 |
+| Dependency management | V15.2 | PW.4.1, PW.4.4 | A.8.8 |

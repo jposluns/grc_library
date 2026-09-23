@@ -304,10 +304,10 @@ Across all five disciplines:
 
 | Requirement | NIST SSDF | CSA CCM | ISO 27001 |
 | --- | --- | --- | --- |
-| Audit trail of orchestrator corrections | PS.1 | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 |
+| Audit trail of orchestrator corrections | N/A | LOG-02, LOG-04, LOG-10 | A.8.15, A.5.36 |
 | Verification before action | N/A | GRC-05 | A.5.36 |
-| Change classification at PR boundaries | PO.5 | CCC-01 to 03 | A.5.4, A.8.32 |
-| Idle-time productive use | PO.5 | n/a | n/a |
+| Change classification at PR boundaries | N/A | CCC-01 to 03 | A.5.4, A.8.32 |
+| Idle-time productive use | N/A | n/a | n/a |
 
 The disciplines implement the same audit-trail-integrity principle the broader pack expresses: every claim a downstream reader is asked to rely on must be traceable to a verification step, and the discipline of producing those verification steps must be regular enough that the audit trail is dense rather than sparse.
 

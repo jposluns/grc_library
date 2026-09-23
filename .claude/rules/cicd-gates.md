@@ -135,11 +135,11 @@ Pipeline definition files (YAML, JSON, HCL) must:
 | --- | --- | --- | --- |
 | Secret scanning | AIS-05 | PW.7.2 | A.8.28 |
 | SAST | AIS-04 | PW.7.1, PW.7.2 | A.8.29 |
-| SCA | TVM-06 | RV.1, PW.4 | A.8.8 |
+| SCA | TVM-06 | RV.1, PW.4.4, PS.3.2 | A.8.8 |
 | Container scan | I&S-04 | PW.4.4 | A.8.8 |
-| IaC scan | CCC-06 | PW.9 | A.8.9 |
+| IaC scan | CCC-06 | PW.7.2 | A.8.9 |
 | Artefact signing | CCC-04 | PS.2.1 | A.8.27 |
 | Manual approval | CCC-01 to 03 | N/A | A.8.32 |
-| Branch protection | CCC-04 | PO.5 | A.8.32 |
+| Branch protection | CCC-04 | PS.1.1 | A.8.32 |
 
 **SLSA relationship.** SLSA Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it produces, not individual scan or lint gates. Of the gates above, only artefact signing relates to SLSA at all, and even then a SLSA Build level is a property of the build PLATFORM and the provenance it generates (Build L2 needs a hosted build platform that generates and signs provenance; L3 additionally needs a hardened, tamper-resistant platform), not of a signing step in isolation; the source-analysis and scan gates (secret scanning, SAST, SCA, container and IaC scan) are orthogonal to SLSA build levels. Do not read a per-gate SLSA level from this table.
