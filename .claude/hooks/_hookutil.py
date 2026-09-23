@@ -129,7 +129,8 @@ WORKER_CONFIG_DIR_PREFIX = "orch-worker."
 
 
 def is_worker_session() -> bool:
-    """True when CLAUDE_CONFIG_DIR's BASENAME begins with the broker's worker prefix.
+    """True when the orch-verify worker marker ORCH_VERIFY_OWNER is present, OR CLAUDE_CONFIG_DIR's
+    BASENAME begins with the broker's worker prefix.
 
     That is the whole test, and the name of this function claims more than the test
     delivers, so read the module comment above before relying on it.
@@ -150,6 +151,12 @@ def is_worker_session() -> bool:
     and Gemini workers do not run Claude Code hooks at all.
     """
     try:
+        # SIGNAL 1 (added 2026-09-23): the orch-verify worker marker. orch-verify exports
+        # ORCH_VERIFY_OWNER into EVERY family's worker shell (verified at /usr/local/bin/orch-verify);
+        # its PRESENCE, even empty, marks a dispatched worker, and the orchestrator never sets it.
+        if "ORCH_VERIFY_OWNER" in os.environ:
+            return True
+        # SIGNAL 2: the broker's worker CLAUDE_CONFIG_DIR basename prefix (the original test).
         config_dir = os.environ.get("CLAUDE_CONFIG_DIR", "")
         if not config_dir:
             return False
@@ -184,7 +191,29 @@ def _self_test() -> int:
         bad += 1
         print("FAIL: text after a stripped heredoc did not survive")
     print(str(len(SELF_TEST) + 1 - bad) + "/" + str(len(SELF_TEST) + 1) + " heredoc cases pass")
-    return 1 if bad else 0
+    # is_worker_session: marker presence (even empty) or the worker config-dir prefix -> worker;
+    # neither -> orchestrator. The environment is restored afterwards.
+    saved = {k: os.environ.get(k) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+    cases = [({"ORCH_VERIFY_OWNER": "x"}, True), ({"ORCH_VERIFY_OWNER": ""}, True),
+             ({"CLAUDE_CONFIG_DIR": "/a/orch-worker.claude-1"}, True),
+             ({"CLAUDE_CONFIG_DIR": "/a/claude-max-worker5-mailz"}, False),
+             ({"CLAUDE_CONFIG_DIR": "/orch-worker.x/child"}, False), ({}, False)]
+    wbad = 0
+    try:
+        for env, want in cases:
+            for k in saved:
+                os.environ.pop(k, None)
+            os.environ.update(env)
+            if is_worker_session() is not want:
+                wbad += 1
+                print("FAIL is_worker_session " + repr(env) + " want=" + str(want))
+    finally:
+        for k, v in saved.items():
+            os.environ.pop(k, None)
+            if v is not None:
+                os.environ[k] = v
+    print(str(len(cases) - wbad) + "/" + str(len(cases)) + " worker-marker cases pass")
+    return 1 if (bad or wbad) else 0
 
 
 if __name__ == "__main__":

@@ -83,7 +83,20 @@ def final_message(payload) -> str:
     return _last_assistant_text(payload.get("transcript_path"))
 
 
+def _is_worker() -> bool:
+    """Dispatched orch-verify worker? Session-discipline hooks are orchestrator-scoped and no-op in a
+    worker (WK-HOOK1: the stamp hook made every claude worker re-send its whole deliverable). Fail-safe:
+    any detection error -> False (keep orchestrator behaviour, the status quo)."""
+    try:
+        from _hookutil import is_worker_session
+        return is_worker_session()
+    except Exception:
+        return False
+
+
 def main() -> int:
+    if "--self-test" not in sys.argv and _is_worker():
+        return 0
     if "--self-test" in sys.argv:
         from _session_clock import _self_test as clock_test
         ok = conforms("[2026-08-21 02:31Z] x (session: 1h 0m)") and not conforms("no stamp")
