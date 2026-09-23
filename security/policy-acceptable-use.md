@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptable Use Policy\
 **Document Type:** Policy\
-**Version:** 1.3.4\
-**Date:** 2026-08-15\
+**Version:** 1.3.5\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -73,7 +73,7 @@ All personnel must be aware that social engineering attacks are frequently condu
 
 - Access to company resources from personal devices is subject to Conditional Access policies enforced at the enterprise identity provider layer.
 - Personal devices used for company work must comply with minimum security standards (up-to-date OS, device encryption, active anti-malware) where technically enforceable.
-- A formal BYOD policy is subject to separate approval. Until such a policy is in place, personal device access is governed by Conditional Access compliance requirements only.
+- Personal device access is governed by the organization's [BYOD Policy](policy-byod.md), which defines the approved BYOD deployment models and access model; the Conditional Access compliance requirements above are enforced as part of that model.
 
 ---
 
