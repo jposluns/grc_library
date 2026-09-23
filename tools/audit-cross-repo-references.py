@@ -94,10 +94,12 @@ CROSS_REPO_TOKEN = re.compile(
     r"(?:\.\./)?(grc_library_(?:ref|scratch|private))(/[^\s`)\]\"']*)?"
 )
 
-# Sibling short names whose pointers are the two the public repo legitimately
-# references (the reference base and the worker-exchange). A ``private`` pointer is
-# flagged for over-exposure review instead.
-_INTENDED_SIBLINGS = frozenset({"ref", "scratch"})
+# Sibling short names whose pointers the public repo legitimately references (the reference
+# base). A ``private`` pointer is flagged for over-exposure review. The worker exchange
+# (``scratch``) was RETIRED 2026-09-23 (never used, cloned, or synced), so a public-tree pointer
+# to it is flagged ``review-retired-sibling``.
+_INTENDED_SIBLINGS = frozenset({"ref"})
+_RETIRED_SIBLINGS = frozenset({"scratch"})
 
 
 def iter_text_files(root: Path) -> list[Path]:
@@ -173,7 +175,8 @@ def classify_cross_repo(
 ) -> tuple[str, str]:
     """Classify a cross-repo pointer match into ``(sub_flag, detail)``.
 
-    ``sub_flag`` is ``intended-minimal`` (a ref/scratch pointer) or
+    ``sub_flag`` is ``intended-minimal`` (a ref pointer), ``review-retired-sibling`` (a
+    pointer to the retired scratch sibling from a public-tree file) or
     ``review-over-exposure`` (a ``_private`` pointer from a public-tree file; a
     pointer that itself lives under ``.working``/``.claude`` is treated as
     intended-minimal, since those trees are maintainer/AI operational state, not
@@ -188,6 +191,8 @@ def classify_cross_repo(
     in_operational_tree = bool({".working", ".claude"} & set(source_rel_parts))
     if name in _INTENDED_SIBLINGS or in_operational_tree:
         sub_flag = "intended-minimal"
+    elif name in _RETIRED_SIBLINGS:
+        sub_flag = "review-retired-sibling"
     else:
         sub_flag = "review-over-exposure"
 
@@ -298,10 +303,11 @@ def _print_report(findings, counts, root: Path) -> None:
         print(f"  {bucket:<16} {counts.get(bucket, 0)}")
     print(f"    cross-repo intended-minimal      {counts.get('intended-minimal', 0)}")
     print(f"    cross-repo review-over-exposure  {counts.get('review-over-exposure', 0)}")
+    print(f"    cross-repo review-retired-sibling {counts.get('review-retired-sibling', 0)}")
     # The actionable buckets get per-item detail; in-repo-exists is count-only
     # (it is the healthy majority and would drown the report).
     actionable = [f for f in findings if f[2] in ("in-repo-missing", "ambiguous")
-                  or (f[2] == "cross-repo" and f[3] == "review-over-exposure")]
+                  or (f[2] == "cross-repo" and f[3] in ("review-over-exposure", "review-retired-sibling"))]
     if actionable:
         print("\nActionable items (dangling, ambiguous, or over-exposure review):")
         # finding[0] already carries the PHYSICAL display location (set in audit_tree).
@@ -339,6 +345,20 @@ def self_test() -> int:
                     any(b == "in-repo-missing" and "nope.md" in d
                         for _, _, b, _, d in findings)
                 )
+
+        def test_retired_scratch_pointer_flagged_for_review(self):
+            with tempfile.TemporaryDirectory() as td:
+                root = self._tree(td)
+                # a public-tree pointer to the RETIRED scratch sibling is review-retired-sibling,
+                # never intended-minimal and never over-exposure.
+                (root / "governance" / "doc.md").write_text(
+                    "old channel ../grc_library_scratch/inbox/x.md\n", encoding="utf-8",
+                )
+                findings, counts = audit_tree(root, sibling_resolver=lambda n: None)
+                self.assertEqual(counts.get("cross-repo", 0), 1)
+                self.assertEqual(counts.get("review-retired-sibling", 0), 1)
+                self.assertEqual(counts.get("intended-minimal", 0), 0)
+                self.assertEqual(counts.get("review-over-exposure", 0), 0)
 
         def test_cross_repo_pointer_and_over_exposure(self):
             with tempfile.TemporaryDirectory() as td:

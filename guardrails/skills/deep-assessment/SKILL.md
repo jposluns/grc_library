@@ -22,13 +22,13 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   `tools/audit-brief-freshness.py`, `tools/residual-scan.py`, and `tools/tension-scan.py`
   (the last two run over the QA ledgers).
 - Sibling-repo set: the corpus repo (`grc_library`), the reference base
-  (`grc_library_ref`, the held source texts and indexes phase 5 judges against), the
-  worker exchange (`grc_library_scratch`, the delivery pipeline phase 6 reviews), and the
+  (`grc_library_ref`, the held source texts and indexes phase 5 judges against), and the
   private operational store (`grc_library_private`, the orchestrator's operational state:
   the decision-log, the design-decisions record, the operating runbook, the egress and
   activity requests, and the store index; phase 2 runs its gate and phase 6(d)
   content-reviews it). Each sibling carries its own validation gate (`tools/validate.py`);
-  `grc_library` carries `tools/run_all_audits.sh` instead. CAUTION: `grc_library_private`
+  `grc_library` carries `tools/run_all_audits.sh` instead. The former worker exchange
+  (`grc_library_scratch`) was RETIRED on 2026-09-23 and is not in scope: never clone, sync, or validate it. CAUTION: `grc_library_private`
   has received direct-push-to-`main` operations that bypassed the PR and CI path, so its
   content is not gate-verified by construction, and it is not in a worker's read surface,
   so its baseline gate, its validation-coverage row, and its phase-6(d) content review are
