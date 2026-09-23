@@ -2,7 +2,7 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.28\
+**Version:** 1.1.30\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -218,12 +218,12 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | --- | --- | --- | --- | --- |
 | Network security | A.8.20 to 8.22 | I&S-01 to I&S-05, I&S-07 to I&S-09 | SC-7, SC-8 | N/A |
 | Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |
-| Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to LOG-07, LOG-09 to LOG-14, SEF-01 to 10 | IR-4 to IR-6, SI-4 | RV.1 |
+| Monitoring and incident response | A.8.15 to 8.16, A.5.24 to 5.28 | LOG-01 to LOG-07, LOG-09 to LOG-14, SEF-01 to 10 | IR-4 to IR-6, SI-4 | N/A |
 | Vulnerability management | A.8.8 | TVM-03 to 12 | RA-5, SI-2 | RV.1, RV.2 |
 | Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | CM-3, CM-5 | N/A |
 | Certificate management | A.8.24 | CEK-01 to CEK-07, CEK-09 to CEK-21 | SC-12, SC-17 | N/A |
 | Access control | A.5.15 to 5.18 | IAM-01 to 10, IAM-12 to 15 | AC-2, AC-6 | N/A |
-| EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | N/A |
+| EOL and lifecycle | A.8.8 | TVM-01 | SA-22 | PW.4.4, RV.2.1, RV.2.2 |
 
 
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Software Bill of Materials Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-09-14\
+**Version:** 1.0.6\
+**Date:** 2026-09-23\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`dev-security/standard-software-composition-analysis.md`](../dev-security/standard-software-composition-analysis.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -152,7 +152,7 @@ Where the organization is a software vendor or delivers software-bearing product
 | US Executive Order 14028 | EO 14028 §4 | Federal SBOM expectation |
 | CISA SBOM guidance | Multiple | SBOM operationalization |
 | EU Cyber Resilience Act | Regulation (EU) 2024/2847 | Mandatory product-level SBOM |
-| NIST SP 800-218 | SSDF PS.3.2 (provenance/SBOM); PW.4, PW.7, PW.8 (secure development) | SBOM production and sharing maps to PS.3.2 ("share provenance data ... in a software bill of materials"); the PW practices cover secure development, not SBOM production |
+| NIST SP 800-218 | SSDF PS.3.2 (provenance/SBOM); RV.1.1, RV.2.1 (vulnerability identification and assessment); PW.4, PW.7, PW.8 (secure development) | SBOM production and sharing maps to PS.3.2 ("share provenance data ... in a software bill of materials"); the daily SBOM-to-CVE matching and VEX applicability assessment map to RV.1.1 and RV.2.1 (remediation itself follows the SCA standard and the vulnerability management procedure); the PW practices cover secure development, not SBOM production |
 | NIST SP 800-161 Rev. 1 | SR-4 (provenance), CM-8(10) (SBOMs for open-source projects) | Supply chain |
 | ISO/IEC 5230 (OpenChain) | Open source compliance | OSS programme baseline |
 | CycloneDX | OWASP standard | SBOM format |
