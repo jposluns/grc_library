@@ -24,7 +24,8 @@ differently-cased Opus-5 id (e.g. ``Claude-Opus-5``) is still BLOCKED, not allow
 
 MATCH (bounded parse, platform-prefix aware: Bedrock `us.anthropic.`/`anthropic.`, Vertex publisher paths): bare
 `claude-opus-5` (treated as 5.0), `claude-opus-5[...]`/`claude-opus-5@...`, a dated bare `claude-opus-5-YYYYMMDD`, and
-`claude-opus-5-0` followed by end/`-`/`@`/`[`/`:` (5.0 dated, context and Vertex variants). Does NOT match
+`claude-opus-5-0` followed by end/`-`/`@`/`[`/`:` (5.0 dated, context and Vertex variants), and the legacy bare-5
+1M-context alias `claude-opus-5-1m`. Does NOT match
 `claude-opus-5-5` or `claude-opus-5-1` (authorized), `claude-opus-5-05`/`-0x` (no such 5.0 id), `claude-opus-4-8`, any 4.x,
 `claude-opus-50`, `claude-opus-5x`,
 or a sonnet/haiku id.
@@ -76,6 +77,8 @@ MARKER = "opus5-orchestrator-model"
 _OPUS5_CORE = re.compile(r"(?:^|[.:/])claude-opus-5(?P<rest>.*)$")
 _DATED = re.compile(r"-\d{8}(?!\d)")
 _FIVE_ZERO = re.compile(r"-0(?:$|[-@\[:])")
+# the legacy bare-5 1M-context alias `claude-opus-5-1m` (5.0); bounded so 5.1 ids (`-1`, `-1-...`) never match
+_BARE_1M = re.compile(r"-1m(?:$|[-@\[:])")
 
 
 def is_opus5(model) -> bool:
@@ -89,12 +92,14 @@ def is_opus5(model) -> bool:
     #   "[…" / "@…"              bare 5 + context suffix / Vertex version -> banned
     #   "-YYYYMMDD" (8 digits)   dated bare 5 (treated as 5.0)           -> banned
     #   "-0" then end/-/@/[/:    5.0 and its dated/context variants      -> banned
+    #   "-1m" then end/-/@/[/:   legacy bare-5 1M-context alias (5.0)     -> banned
     #   anything else            5.5, 5.1, "-05", "-0x", "50", "5x"      -> allowed
     hit = _OPUS5_CORE.search(m)
     if not hit:
         return False
     rest = hit.group("rest")
-    return bool(rest == "" or rest[0] in "[@" or _DATED.match(rest) or _FIVE_ZERO.match(rest))
+    return bool(rest == "" or rest[0] in "[@" or _DATED.match(rest) or _FIVE_ZERO.match(rest)
+                or _BARE_1M.match(rest))
 
 
 def model_from_transcript(tp) -> "str | None":
@@ -288,6 +293,11 @@ def _self_test() -> int:
             ("dated bare 5 blocked", is_opus5("claude-opus-5-20260901") is True),
             ("5-05 allowed (boundary)", is_opus5("claude-opus-5-05") is False),
             ("5-0x allowed (boundary)", is_opus5("claude-opus-5-0x") is False),
+            ("opus5 1m legacy alias blocked", is_opus5("claude-opus-5-1m") is True),
+            ("opus5 1m cased+space blocked", is_opus5("  Claude-Opus-5-1M ") is True),
+            ("bedrock opus5 1m blocked", is_opus5("us.anthropic.claude-opus-5-1m") is True),
+            ("5.1 dated allowed (not 1m)", is_opus5("claude-opus-5-1-20260901") is False),
+            ("verdict opus5 1m PreToolUse -> block", _verdict("claude-opus-5-1m", "PreToolUse") == "block"),
             ("prefixed 4.8 allowed", is_opus5("us.anthropic.claude-opus-4-8") is False),
             ("verdict bedrock 5.0 PreToolUse -> block", _verdict("us.anthropic.claude-opus-5-0-20260901-v1:0", "PreToolUse") == "block"),
             ("verdict 5.5 PreToolUse -> allow", _verdict("claude-opus-5-5", "PreToolUse") == "allow"),
