@@ -2,8 +2,8 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.11\
-**Date:** 2026-09-20\
+**Version:** 1.3.12\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
@@ -141,7 +141,7 @@ Emergency changes follow an accelerated path:
 2. The change is implemented with all actions logged in real time.
 3. A retrospective CR is created in the ITSM platform within 4 hours of implementation.
 4. Retrospective CAB review is held within 5 business days.
-5. Any permanent configuration change resulting from an emergency change must be submitted as a Normal change within 5 business days.
+5. Any permanent configuration change resulting from an emergency change must be submitted within 5 business days and classified per the change-type criteria in section 1; a permanent change that meets the High-risk criteria (for example a firewall, PAM, PKI, identity-system, or production-network change) is submitted as a High-risk change and carries CISO and CIO joint approval.
 
 The CISO must be notified of all Emergency changes within 1 hour of initiation.
 
