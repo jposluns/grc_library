@@ -2,7 +2,7 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | AI System Name | |
 | AI System Register ID | |
 | Risk Tier (EU AI Act) | |
-| Risk Tier (NIST AI RMF) | |
+| Organizational risk tier (informed by NIST AI RMF) | |
 | Assessment Type | Pre-deployment / Annual review / Post-incident review / Post-modification review |
 | Assessment Date | |
 | Assessed By | |
@@ -56,7 +56,7 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | A1 | AI system registered in the AI System Register with complete metadata, including system name, version, deployment context, risk tier, intended use, and data categories | | | | |
-| A2 | Risk tier classification documented for both the EU AI Act tier and NIST AI RMF risk category; classification reviewed and approved by the AIGC | | | | |
+| A2 | Risk tier classification documented for both the EU AI Act tier and the organization's own risk tier (informed by the NIST AI RMF, which prescribes no tier taxonomy); classification reviewed and approved by the AIGC | | | | |
 | A3 | Model card completed and current, reflecting the model version in production ([`ai/template-model-card.md`](template-model-card.md)) | | | | |
 | A4 | System card completed and current, reflecting the current deployment context, human oversight design, and known limitations ([`ai/template-system-card.md`](template-system-card.md)) | | | | |
 | A5 | AI system owner (technical accountability) and operational owner (business accountability) designated and documented in the AI System Register | | | | |
