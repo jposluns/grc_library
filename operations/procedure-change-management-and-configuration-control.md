@@ -2,11 +2,11 @@
 
 **Document Title:** Change Management and Configuration Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.12\
+**Version:** 1.3.15\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
+**Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md)\
 **Classification:** Public\
 **Category:** Operations\
 **Review Frequency:** Annual and upon material platform or regulatory change\
@@ -38,7 +38,7 @@ To ensure that changes to production systems are controlled, traceable, and reve
 | Role | Responsibility |
 | --- | --- |
 | **CIO** | Approves Emergency and High-risk changes; chairs or delegates CAB chair. |
-| **CISO** | Co-approves High-risk changes (identity, PAM, PKI, production network); reviews security impact of Normal changes. |
+| **CISO** | Co-approves High-risk changes (identity, PAM, PKI, production network, firewall rule bases, security monitoring; see section 1); reviews security impact of Normal changes. |
 | **Change Manager** | Administers the change process; chairs the CAB; maintains the change schedule; ensures that rollback plans are present. |
 | **Change Advisory Board (CAB)** | Reviews and approves Normal and High-risk changes; validates rollback plans. |
 | **IT Operations / Engineering** | Submits change requests; implements approved changes; executes post-implementation reviews. |
@@ -70,7 +70,7 @@ The change initiator submits a Change Request (CR) via the ITSM platform, includ
 - Systems and services affected.
 - Change type classification.
 - Implementation plan with step-by-step actions.
-- Tested rollback plan (mandatory for all CAB-reviewed changes).
+- Tested rollback plan (mandatory for all CAB-reviewed changes, except where the CAB approves documented compensating controls under section 6).
 - Risk assessment (impact and likelihood of failure or disruption).
 - Scheduled implementation window.
 - Post-implementation review plan.
@@ -198,7 +198,7 @@ The following metrics are reported to the CISO and CIO monthly:
 | --- | --- |
 | Change success rate (no rollback required) | ≥ 95% |
 | Emergency change percentage of total changes | ≤ 5% |
-| Changes with tested rollback plan | 100% of CAB-reviewed changes |
+| Changes with tested rollback plan | 100% of CAB-reviewed changes, excluding changes approved with documented compensating controls under section 6 |
 | CAB cycle time (CR submission to approval) | ≤ 5 business days for Normal |
 | Post-implementation review completion rate | 100% |
 

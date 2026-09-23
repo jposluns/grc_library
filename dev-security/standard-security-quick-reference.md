@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.20\
-**Date:** 2026-09-20\
+**Version:** 1.1.24\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -57,7 +57,7 @@ Prohibited by default. Most carry no exception path at all; where a row is excep
 | 25 | Use wildcard CORS origins (`origins: "*"`) in any production API, web app, or automation platform HTTP trigger | Wildcard CORS allows any origin to make credentialed requests. Use an explicit allow-list only. |
 | 26 | Download or save corporate data to local device storage or personal cloud storage | Violates acceptable use policy and remote working security standard. Corporate data must stay in company-managed storage. |
 | 27 | Connect unapproved USB drives or external storage to company devices | Exceptions require approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
-| 28 | Promote to production without an approved change record | Every production change requires a documented, approved change request. Emergency changes require retrospective CAB review within 5 business days. |
+| 28 | Promote to production without an approved change record | Every production change requires a documented, approved change request. An Emergency change is authorized by the CIO or equivalent before implementation, with the change request created retrospectively within 4 hours and retrospective CAB review within 5 business days. |
 | 29 | Allow a critical or high vulnerability to remain unpatched beyond its SLA | Unpatched critical vulnerabilities are an active security risk. Patch SLAs are mandatory, not targets. |
 
 ---
@@ -116,7 +116,7 @@ Secret rotation must work without a code deployment. If rotating requires a depl
 | Transition | Allowed? | Gate |
 | --- | --- | --- |
 | Dev → Test | Yes | Merge + pipeline gates pass |
-| Test → Prod | Yes | Acceptance-into-service gate + CAB/CIO approval + manual pipeline approval |
+| Test → Prod | Yes | Acceptance-into-service gate + change approval per change class (see the change type table below) + manual pipeline approval |
 | Prod → Dev or Test | Never | Back-promotion prohibited |
 | Production data → Test | Never | Masking/synthetic data only |
 | Production data → Dev | Never | N/A |
@@ -149,10 +149,10 @@ Every pipeline touching Test or Production must include these checks in order. P
 | --- | --- | --- |
 | Standard (pre-approved, low-risk) | Team lead | No |
 | Normal | CIO delegate | Yes |
-| Emergency | CIO | Retrospective within 5 business days |
-| High-risk (identity, PAM, PKI, production network) | CISO and CIO (joint approval) | Yes |
+| Emergency | CIO or equivalent | Retrospective within 5 business days |
+| High-risk (identity, PAM, PKI, production network, firewall rule bases, security monitoring) | CISO and CIO (joint approval) | Yes |
 
-Every CAB-reviewed change must include a tested rollback plan. Emergency changes must be codified in IaC within 24 hours.
+Every CAB-reviewed change must include a tested rollback plan, unless deferral is not operationally feasible, the rollback plan cannot be fully tested before the change window, and the CAB approves documented compensating controls (change management procedure section 6). Any manual change made during a declared incident must be codified in IaC within 24 hours; a permanent change resulting from an emergency change is submitted within 5 business days under its own change class.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.27\
-**Date:** 2026-09-09\
+**Version:** 1.1.28\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -160,7 +160,7 @@ Service identities must be named per approved convention, hold minimum required 
 
 All inter-segment communication is default-deny. Production, Test, and Dev are fully segregated with separate identity domains, network segments, and access controls. Storage segments are non-routable. Database segments have no outbound internet access. DMZ systems cannot initiate connections to database, storage, or backup segments. All administrative access is from a privileged access workstation (PAW) or approved jump host only. Perimeter controls include a cloud-based web application firewall (WAF) and next-generation firewalls enforcing north-south traffic policy.
 
-Applications must document required network flows before deployment. No access control list (ACL) or firewall change is permitted without a documented, approved change request.
+Applications must document required network flows before deployment. No access control list (ACL) or firewall change is permitted without a documented, approved change request; an Emergency change is authorized by the CIO or equivalent before implementation, with the change request created retrospectively per the change management procedure.
 
 ---
 

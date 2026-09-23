@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-14\
+**Version:** 1.0.8\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -43,11 +43,11 @@ It does not cover patches under the patch management procedure (which has its ow
 | Activity | Required output |
 | --- | --- |
 | Release scope | The set of artefacts in the release is named and frozen |
-| Release class | Routine, expedited, standard, or emergency per the change management procedure |
+| Release class | Routine, expedited, emergency, or standard repeatable (see Release classes); the change class is determined separately under the change management procedure |
 | Customer impact | Expected customer impact assessed: no-impact, transparent, brief disruption, breaking |
 | Communication plan | Internal communication; customer communication where the change is customer-visible |
 | Window | Release window selected per the change calendar |
-| Rollback plan | A tested rollback or forward-fix plan is documented |
+| Rollback plan | A rollback plan is documented and tested, or approved with documented compensating controls under the change management procedure; a forward-fix plan may supplement it but does not replace it |
 | Acceptance criteria | Functional and non-functional acceptance criteria defined in advance |
 
 ### Step 2: Build and packaging
@@ -128,8 +128,8 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Decision | Description |
 | --- | --- |
 | Rollback trigger | Pre-defined: customer impact, telemetry regression, security finding, regulatory concern |
-| Rollback execution | Rollback executed via the pre-tested mechanism; not improvised |
-| Forward-fix | Where rollback is not viable, a forward-fix is deployed under the same procedure on an expedited path |
+| Rollback execution | Rollback executed via the documented mechanism (pre-tested, or covered by CAB-approved compensating controls); not improvised |
+| Forward-fix | Where rollback is not viable, a forward-fix is deployed under the same procedure: on the Emergency path where the change management procedure's Emergency criteria apply, otherwise on an expedited path |
 | Post-rollback validation | Service health validated after rollback; customers informed if material |
 
 ### Step 9: Closure and learning
@@ -147,10 +147,12 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 
 | Class | Approval | Gate adjustments |
 | --- | --- | --- |
-| Routine release | Standard change approval | Full automated gates |
-| Expedited release | Documented expedited path; senior engineering approval | Full gates; reduced waiting |
+| Routine release | Normal change approval (CAB), or High-risk approval where the release meets the High-risk criteria | Full automated gates |
+| Expedited release | Approvals of its Normal or High-risk change class, plus senior engineering approval of the expedited path | Full gates; reduced waiting |
 | Emergency release | Emergency change approval; out-of-cycle senior approval | Minimum-viable gates; post-release reconciliation required |
 | Standard repeatable release | Pre-authorized template; automated approval where templated | Templated gates |
+
+The release class sets cadence and gates; it does not replace the change class. Each release is also classified under the change management procedure (Standard only where a pre-authorized template applies; otherwise Normal, High-risk, or Emergency) and carries that class's approvals. An expedited release is a Normal or High-risk change on an accelerated schedule, not a separate change class.
 
 ---
 
@@ -191,7 +193,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 | Artefact registry | Artefacts stored in a registry with retention and signing per the supply-chain controls |
 | Deployment platform | Supports the selected deployment strategies |
 | Telemetry integration | Pipeline annotates telemetry with deployment events |
-| Rollback mechanism | Available, tested, and documented |
+| Rollback mechanism | Available, documented, and tested (or covered by CAB-approved compensating controls under the change management procedure) |
 | Feature-flag platform | Flags have ownership and expiry; per the SRE standard |
 
 ---
@@ -200,7 +202,7 @@ The strategy chosen matches the customer impact assessment and the rollback expe
 
 1. Production releases run through this procedure; ad-hoc production changes are incidents.
 2. Release cadence is reviewed quarterly; per-service cadence is tuned to risk and customer impact.
-3. Rollback paths are exercised periodically; rollback that is documented but untested is not rollback.
+3. Rollback paths are exercised periodically; rollback that is documented but untested is not rollback, which is why an untested rollback plan is accepted only under the CAB-approved compensating-controls exception in the change management procedure.
 4. Repeat failed releases trigger an architectural or process review.
 5. Emergency releases are reconciled to standard practice within the post-release window.
 

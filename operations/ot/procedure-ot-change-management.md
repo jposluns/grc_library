@@ -2,8 +2,8 @@
 
 **Document Title:** OT Change Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.7\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/procedure-change-management-and-configuration-control.md`](../procedure-change-management-and-configuration-control.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/policy-acceptance-into-service.md`](../../security/policy-acceptance-into-service.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -60,7 +60,8 @@ Where a change affects Safety Instrumented Systems (SIS) or other safety-critica
 | **Change Requester** | Originates the change request; documents business or operational justification, scope, risk, and backout plan. |
 | **OT-CAB** | Change Advisory Board for OT changes. Composition includes the OT Security Lead (chair), Plant Manager or delegate, Process Safety Engineer (for safety-relevant changes), Control System Engineer, and Vendor Liaison where vendor-controlled systems are affected. Equivalent to the general CAB for OT scope. |
 | **Vendor Liaison** | Coordinates vendor involvement in vendor-controlled changes; obtains vendor approval where vendor support contracts require it; documents vendor change instructions. |
-| **CISO** | Approves emergency changes; approves changes affecting SL-T or SL-A determinations; reviews change-management metrics annually. |
+| **CISO** | Approves cyber emergency changes (section 5.3); gives joint written approval, with the CIO, of High-risk changes (section 5.6); approves changes affecting SL-T or SL-A determinations; reviews change-management metrics annually. |
+| **CIO** | Gives joint written approval, with the CISO, of High-risk changes (section 5.6). |
 | **Internal Audit** | Reviews change records and OT-CAB minutes for compliance with this procedure. |
 
 ---
@@ -108,25 +109,30 @@ Standard changes follow the request-implement-record flow without per-change OT-
 
 ### 5.2 Normal change
 
-The default category. Any change not on the standard-change catalogue and not meeting emergency criteria. Goes through the full change request, risk assessment, OT-CAB approval, test, implement, verify cycle described in this procedure.
+The default category. Any change not on the standard-change catalogue and not meeting emergency or High-risk criteria (section 5.6). Goes through the full change request, risk assessment, OT-CAB approval, test, implement, verify cycle described in this procedure.
 
 ### 5.3 Emergency change
 
-Changes required to respond to an active incident or safety hazard. Authorized by the CISO (cyber emergency) or Plant Manager (safety emergency) with retrospective OT-CAB review within 5 business days.
+Changes required to respond to an active incident or safety hazard. Authorized by the CISO (cyber emergency) or Plant Manager (safety emergency), who act as the "CIO or equivalent" emergency authority of the general change management procedure for OT, with retrospective OT-CAB review within 5 business days.
 
 Emergency change requirements:
 
 - Documented in the incident or change record at the time of execution.
 - Backout plan, if any, documented at the time of execution or noted as not feasible.
 - Retrospective review identifies any standing-change opportunity to avoid future emergency invocation.
+- Any permanent configuration change resulting from an emergency change is submitted within 5 business days and classified per section 5; one that meets the High-risk criteria follows section 5.6.
 
 ### 5.4 Vendor-driven change
 
-Any change instigated by an OT vendor or integrator. Categorized as Normal or Emergency per the actual change content. Vendor must follow this procedure (via Vendor Liaison) even when vendor support contract terms differ.
+Any change instigated by an OT vendor or integrator. Categorized as Normal, High-risk, or Emergency per the actual change content. Vendor must follow this procedure (via Vendor Liaison) even when vendor support contract terms differ.
 
 ### 5.5 Safety-related change
 
 Any change affecting SIS, shared SIS/BPCS infrastructure, or other safety-relevant control loops. Subject to IEC 61511 management of change in addition to this procedure. Process Safety Engineer review is mandatory; vendor coordination is mandatory where the safety system is vendor-controlled. Cannot be a Standard change.
+
+### 5.6 High-risk change
+
+A change that meets the High-risk criteria of the general change management procedure (changes to identity systems, PAM, PKI, production network topology, firewall rule bases, or security monitoring infrastructure, including OT firewall, segmentation, and conduit changes and changes to OT identity infrastructure in scope under section 2.1; routine account administration within sanctioned roles remains a Standard change under section 5.1) is a High-risk change. Outside an emergency, it follows the full Normal-change cycle in this procedure and additionally requires the joint written approval of the CISO and the CIO that the general procedure requires for the High-risk class. The OT-specific reviews in this procedure (OT-CAB, the section 7 risk tier, and any safety review) are added to that approval and never replace it. A High-risk change needed to respond to an active incident or safety hazard follows section 5.3 for the immediate action, and its permanent follow-up is submitted as a High-risk change.
 
 ---
 
@@ -138,7 +144,7 @@ Each OT change request must include:
 
 - **Change identifier**: unique ID from the change-management system.
 - **Requester**: the role or function originating the change.
-- **Change category**: Standard / Normal / Emergency / Safety-related.
+- **Change category**: Standard / Normal / High-risk / Emergency / Safety-related.
 - **Scope**: affected zones, conduits, components, with explicit asset-identifier references from the OT asset inventory.
 - **Business or operational justification**: why the change is needed.
 - **Technical description**: what is being changed, in what state-from / state-to terms.
@@ -155,6 +161,7 @@ Each OT change request must include:
 | --- | --- |
 | Standard | Just-in-time submission acceptable; records made at execution |
 | Normal | Minimum 10 business days; longer for major changes |
+| High-risk | As Normal (minimum 10 business days), allowing for joint CISO and CIO approval |
 | Emergency | At time of execution or as soon as feasible thereafter |
 | Safety-related | Per IEC 61511 management-of-change cycle (typically longer than Normal; safety review depth determines lead time) |
 
@@ -168,7 +175,7 @@ All change requests are recorded in the OT change register, which is maintained 
 
 ### 7.1 Risk-assessment dimensions
 
-Each Normal, Emergency, and Safety-related change request must be assessed across four dimensions:
+Each Normal, High-risk, Emergency, and Safety-related change request must be assessed across four dimensions:
 
 | Dimension | Considerations |
 | --- | --- |
@@ -187,6 +194,8 @@ The assessment produces a risk tier driving the depth of review and the OT-CAB c
 | **Tier 2: High** | Single zone, single conduit, or single component with material cyber-impact. | Full OT-CAB; CISO informed. |
 | **Tier 3: Moderate** | Confined to a single asset with no SL or conduit impact. | OT Security Lead and Control System Engineer sign-off; OT-CAB informed. |
 | **Tier 4: Low** | Maps to a standard-change template. | Standard-change flow per section 5.1. |
+
+The risk tier sets the depth of OT review; it does not change the change category. A change of any tier that meets the High-risk criteria also requires the joint CISO and CIO approval in section 5.6, which takes precedence over a lighter tier outcome such as "CISO informed".
 
 ### 7.3 Cyber risk specifics
 
@@ -238,7 +247,7 @@ OT changes are tested before production application using one or more of:
 
 ### 9.1 OT-CAB cadence
 
-The OT-CAB meets at least monthly and on demand for emergency or major changes. Standing agenda includes review of pending Normal and Safety-related changes, retrospective review of Emergency changes since last meeting, and annual review of the standard-change catalogue.
+The OT-CAB meets at least monthly and on demand for emergency or major changes. Standing agenda includes review of pending Normal, High-risk, and Safety-related changes, retrospective review of Emergency changes since last meeting, and annual review of the standard-change catalogue.
 
 ### 9.2 Approval criteria
 

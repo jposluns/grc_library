@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.34\
-**Date:** 2026-09-20\
+**Version:** 1.8.36\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -399,7 +399,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **RUNTIME-SEC-01:** All production AI systems must have AI content safety filters enabled. Hate, self-harm, sexual content, violence, jailbreak detection, and indirect attack detection must be active at the highest available sensitivity.
 
-**RUNTIME-SEC-02:** Content safety filter changes are High-risk changes requiring security team approval. Disabling or loosening filters requires a documented exception approved per the section 8 exception path.
+**RUNTIME-SEC-02:** Content safety filter changes are treated as High-risk changes (joint CISO and CIO approval plus CAB review per the change management procedure), with security team review. A change that meets the change management procedure's Emergency criteria (an unplanned change required to resolve or prevent a critical service outage or active security incident) follows that procedure's Emergency path for the immediate action (CIO or equivalent authorization before implementation, retrospective change record and CAB review), and its permanent follow-up is submitted as a High-risk change. Disabling or loosening filters requires a documented exception approved per the section 8 exception path.
 
 **RUNTIME-SEC-03:** Content safety block events must be logged to the SIEM with the request hash and block category.
 
@@ -622,7 +622,7 @@ The adversarial test suite must cover the categories defined in the AI Adversari
 
 **MODEL-GOV-01:** Each deployed model must have a Model Registry entry documenting: model name and version, provider, deployment date, use case, data types processed, data residency status, content filter configuration, and approved-for-production status. See AI Risk Register.
 
-**MODEL-GOV-02:** Model version changes in production are High-risk changes per the Production Security Requirements Standard.
+**MODEL-GOV-02:** Model version changes in production are treated as High-risk changes (joint CISO and CIO approval plus CAB review per the change management procedure), a stricter classification this standard applies beyond that procedure's section 1 criteria. A change that meets the change management procedure's Emergency criteria (an unplanned change required to resolve or prevent a critical service outage or active security incident) follows that procedure's Emergency path for the immediate action (CIO or equivalent authorization before implementation, retrospective change record and CAB review), and its permanent follow-up is submitted as a High-risk change.
 
 **MODEL-GOV-03:** Model performance and behaviour drift must be monitored. Significant output distribution changes must trigger alert and human review.
 

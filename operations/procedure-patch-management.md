@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
-**Date:** 2026-09-18\
+**Version:** 1.0.23\
+**Date:** 2026-09-23\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -38,7 +38,7 @@ Effective patch management reduces the window of exposure between public vulnera
 | --- | --- |
 | **IT Operations Lead** | Owns the patch management programme; operates the patching infrastructure; produces compliance reports. |
 | **Chief Information Security Officer (CISO)** | Sets patch SLAs; co-approves security-related exceptions per the §4.2.2 risk-tier pathway of the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md); approves emergency patches; receives monthly compliance reporting. |
-| **Change Advisory Board (CAB)** | Authorizes Standard patch deployments; receives post-notification for Emergency patches. |
+| **Change Advisory Board (CAB)** | Authorizes Standard Critical and Standard High patch deployments as Normal changes; receives post-notification for Emergency patches. |
 | **System Owners** | Accountable for ensuring patches are applied to their assets within defined SLAs; raise deferrals where operationally required. |
 | **Development Teams** | Responsible for patching application dependencies and open-source libraries; integrate SCA tooling into CI/CD pipelines. |
 | **Internal Audit** | Reviews programme compliance, exception governance, and SLA adherence annually. |
@@ -47,17 +47,17 @@ Effective patch management reduces the window of exposure between public vulnera
 
 ## 1. Patch classification
 
-Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status.
+Every patch or update is classified on receipt to determine the required deployment pathway and timeline. Classification is based on CVSS score and active exploitation status. Independently of this classification, any patch that meets the change management procedure's Emergency criteria (an unplanned change required to resolve or prevent a critical service outage or active security incident) is an Emergency change. Otherwise, patch classification sets deployment urgency; it is separate from the change class under the [change management procedure](procedure-change-management-and-configuration-control.md): Standard Critical and Standard High patches deploy as Normal changes (CAB-reviewed), Standard Medium and Low patches deploy as Standard changes only where they match an approved standard-change template (for example an OS patch from the approved list) applied within a pre-approved maintenance window, and otherwise as Normal changes. An Emergency-classified patch (an actively exploited vulnerability requiring deployment within 24 hours) meets those Emergency criteria and is an Emergency change; where its remediation is instead planned in advance (for example after an approved deferral), it is deployed as a Normal or High-risk change. A patch that changes the configuration or behaviour of identity, PAM, PKI, production network, firewall, or security monitoring infrastructure follows the High-risk approval path; an emergency patch of such a system follows the Emergency path for the immediate action, with its permanent follow-up classified as High-risk.
 
 | Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |
-| **Emergency** | Actively exploited vulnerability (CISA KEV listed or credible equivalent intelligence) | Deploy within 24 hours | CISO approval; CAB post-notification |
-| **Standard Critical** | CVSS ≥ 9.0; publicly disclosed with a proof-of-concept available, not yet actively exploited | Deploy within 72 hours after testing | CAB approval via standard change |
-| **Standard Critical** | CVSS ≥ 9.0; no known active exploitation or public proof-of-concept | Deploy within 7 days after testing | CAB approval via standard change |
-| **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via standard change |
-| **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change or scheduled maintenance window |
-| **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Scheduled maintenance window |
-| **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change |
+| **Emergency** | Actively exploited vulnerability (CISA KEV listed or credible equivalent intelligence) | Deploy within 24 hours | CIO or equivalent authorization (Emergency change) and CISO approval; CAB post-notification |
+| **Standard Critical** | CVSS ≥ 9.0; publicly disclosed with a proof-of-concept available, not yet actively exploited | Deploy within 72 hours after testing | CAB approval via Normal change |
+| **Standard Critical** | CVSS ≥ 9.0; no known active exploitation or public proof-of-concept | Deploy within 7 days after testing | CAB approval via Normal change |
+| **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via Normal change |
+| **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change (approved template) in a scheduled maintenance window; otherwise Normal change |
+| **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Standard change (approved template) in a scheduled maintenance window; otherwise Normal change |
+| **Vendor-Recommended Update** | Vendor advisory without CVE assignment | Deploy at next maintenance window unless reclassified higher | Standard change where it matches an approved standard-change template; otherwise Normal change |
 
 The Deployment Timeline column operationalizes the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); that procedure governs on any discrepancy, and the Trigger Condition and Authorization columns add the operational detail this procedure owns.
 
@@ -97,12 +97,14 @@ The completed checklist is retained with the change record.
 
 ## 3. Deployment authorization
 
+Authorization follows the change class determined in section 1, including its Emergency and High-risk rules; the pathways below apply to patches that those rules do not reclassify.
+
 | Classification | Authorization Pathway |
 | --- | --- |
-| **Emergency** | CISO approval (verbal or written) before deployment; CAB notified post-deployment within 2 hours; retrospective CAB review within 5 business days |
-| **Standard Critical** | CAB approval via standard change request; expedited CAB review within 24 hours of submission |
-| **Standard High** | CAB approval via standard change request; standard review cycle |
-| **Standard Medium / Low** | Standard change request or inclusion in scheduled maintenance window; CAB approval not required if within pre-approved maintenance window scope |
+| **Emergency** | Emergency change per the change management procedure: CIO or equivalent authorization and CISO approval (verbal or written) before deployment; CAB notified post-deployment within 2 hours; retrospective CAB review within 5 business days |
+| **Standard Critical** | CAB approval via Normal change request; expedited CAB review within 24 hours of submission |
+| **Standard High** | CAB approval via Normal change request; standard review cycle |
+| **Standard Medium / Low** | Standard change request or inclusion in scheduled maintenance window; CAB approval not required where the patch matches an approved standard-change template within a pre-approved maintenance window |
 
 All deployments, regardless of classification, must be documented in the ITSM platform with the patch identifier, affected systems, deployment timestamp, and post-deployment verification result.
 
