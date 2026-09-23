@@ -235,7 +235,7 @@ a single run-once pass, not a cadence and not a fix-to-fixed-point loop.
 | --- | --- | --- | --- |
 | Clean-baseline onboarding of a forked control set | PO.1, PO.5 | GRC-01, CCC-01 | A.5.1, A.5.4 |
 | Authorial choices recorded before action | PO.5 | GRC-04 | A.5.4 |
-| Audit-trail integrity (no fabricated history) | PS.1, RV.1 | LOG-02, GRC-05 | A.8.15, A.5.36 |
+| Audit-trail integrity (no fabricated history) | PS.1 | LOG-02, GRC-05 | A.8.15, A.5.36 |
 | Scope-bounded reset (product preserved) | PO.5 | CCC-02, CCC-03 | A.5.4, A.8.32 |
 
 The skill expresses the same audit-trail-integrity principle as the rest of the pack, at the
