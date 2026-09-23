@@ -126,7 +126,7 @@ Pipeline definition files (YAML, JSON, HCL) must:
 | --- | --- | --- | --- |
 | Secret scanning | AIS-05 | PW.7.2 | A.8.28 |
 | SAST | AIS-04 | PW.7.1, PW.7.2 | A.8.29 |
-| SCA | TVM-06 | RV.1, PW.4.4, PS.3.2 | A.8.8 |
+| SCA | TVM-06 | RV.1, PW.4.1, PW.4.4, PS.3.2 | A.8.8 |
 | Container scan | I&S-04 | PW.4.4 | A.8.8 |
 | IaC scan | CCC-06 | PW.7.2 | A.8.9 |
 | Artefact signing | CCC-04 | PS.2.1 | A.8.27 |

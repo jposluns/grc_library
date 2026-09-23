@@ -281,4 +281,4 @@ semgrep --config=p/python-security .
 Supplements `core/` rules. Python-specific controls implement:
 - OWASP ASVS V2 (Input Validation), V11 (Cryptography), V6 (Authentication)
 - OWASP Top 10 A05 (Injection), A04 (Cryptographic Failures)
-- NIST SSDF PW.7 (Code Reviews), PW.8 (Automated Testing)
+- NIST SSDF PW.5.1 (Secure Coding Practices), PW.7.2 (Code Analysis)

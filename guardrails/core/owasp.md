@@ -229,7 +229,7 @@ ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verif
 
 ## Framework alignment
 
-The OWASP Risk column follows the 2025 ordering. (The ISO 27001 / NIST SSDF / CSA CCM mapping values are unchanged from the prior edition and are reviewed separately.)
+The OWASP Risk column follows the 2025 ordering. (The NIST SSDF column was re-verified against SP 800-218 v1.1 in the 2026-09 fit review; the ISO 27001 and CSA CCM mapping values are unchanged from the prior edition.)
 
 | OWASP Risk | ISO 27001 | NIST SSDF | CSA CCM |
 | --- | --- | --- | --- |
