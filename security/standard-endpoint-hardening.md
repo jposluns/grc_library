@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -27,7 +27,7 @@ This standard defines the hardening baseline for endpoints used in the organizat
 This standard applies to:
 
 1. **Managed corporate workstations and laptops** running supported operating systems (Windows, macOS, major Linux distributions used at scale).
-2. **Mobile devices** (iOS and Android) issued by the organization or enrolled under BYOD policy.
+2. **Mobile devices** (iOS and Android) issued by the organization or enrolled under the BYOD Policy's full-device MDM route. Personally-owned devices on the managed-work-profile or MAM route are governed by the BYOD Policy's route controls; requirements in this standard apply to them only within the corporate work profile or managed applications.
 3. **Privileged access workstations** used for administering production environments.
 4. **Developer workstations** with additional considerations for build chains and AI coding assistants.
 5. **Kiosks, shared devices, and unattended terminals** in operational settings.

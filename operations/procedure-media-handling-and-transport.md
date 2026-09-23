@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.14\
-**Date:** 2026-09-22\
+**Version:** 1.3.15\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -28,7 +28,7 @@ To protect information held on physical and digital media from unauthorized disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data.
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law).
 4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
