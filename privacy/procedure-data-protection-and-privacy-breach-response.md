@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.39\
+**Version:** 1.4.40\
 **Date:** 2026-09-23\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -145,7 +145,7 @@ Containment actions vary by breach type:
 | Unauthorized system access | Revoke compromised credentials; terminate active sessions; restrict access to affected systems; preserve authentication and access logs |
 | Data exfiltration | Block egress channels identified as exfiltration routes; engage endpoint detection; preserve SIEM and network flow evidence |
 | Accidental disclosure (email / file) | Request return or deletion of disclosed data from recipient; document recipient details; confirm whether data was accessed |
-| Lost or stolen device | IT Operations must initiate remote wipe of an organization-issued device via the endpoint management platform if enrolled and reachable. For a personally-owned device, IT Operations must initiate the route-appropriate wipe within 1 hour of notification, as the [BYOD Policy](../security/policy-byod.md) requires, through the applicable management platform: corporate application data only for MAM, without requiring device enrolment; the corporate container only for a managed work profile; or full-device wipe under MDM only with the owner's written, recorded consent expressly authorizing it, except where full-device wipe is required by law. IT Operations must record the route, wipe scope and outcome, any consent reference or applicable legal requirement, device contents and encryption status; pending or failed wipe must not delay corporate access revocation. |
+| Lost or stolen device | IT Operations must initiate remote wipe of an organization-issued device via the endpoint management platform within 1 hour of notification if enrolled and reachable. For a personally-owned device, IT Operations must initiate the route-appropriate wipe within 1 hour of notification, as the [BYOD Policy](../security/policy-byod.md) requires, through the applicable management platform: corporate application data only for MAM, without requiring device enrolment; the corporate container only for a managed work profile; or full-device wipe under MDM only with the owner's written, recorded consent expressly authorizing it, except where full-device wipe is required by law. IT Operations must record the route, wipe scope and outcome, any consent reference or applicable legal requirement, device contents and encryption status; pending or failed wipe must not delay corporate access revocation. |
 | Supplier breach | Invoke contractual breach notification clause; request evidence of containment from supplier; restrict supplier access pending investigation |
 | BASC trade data breach | Notify Regional BASC Compliance Officer immediately; initiate BASC incident documentation; restrict access to affected customs and cargo systems |
 
@@ -307,10 +307,11 @@ This one-page checklist summarizes the time-phased actions for a P1 or P2 person
 - Notify per severity: for a P1, the CISO, the DPO, and the CIO immediately (§2.1, §3).
 - Protect evidence: do not delete, overwrite, or modify any system, log, backup, or data record pending the impact assessment and notification determination; brief the DPO on evidence status before any containment that affects assessment completeness (§3.1, §5.1).
 - If a third-party processor holds the affected data, notify it immediately to preserve evidence and confirm it notified the organization within its contractual window (§5.1, §6.3).
+- For a lost or stolen device, IT Operations must initiate the ownership- and route-scoped wipe under §5.2 within 1 hour of notification.
 
 **By 4 hours: contain by breach type**
 
-- Responders must execute the privacy-specific containment for the breach type: revoke credentials and sessions; block exfiltration egress; request return or deletion for misdirected email or files; initiate the ownership- and route-scoped wipe for a lost or stolen device under §5.2 (for a personal device, within 1 hour of notification), including corporate-application wipe for MAM without device enrolment; invoke the supplier breach clause; for a trade-data breach notify the Regional BASC Compliance Officer (§5.2). Personal-device wipe must remain limited to corporate application data or the corporate work-profile container; full-device wipe under MDM must require the owner's written, recorded consent expressly authorizing it, except where required by law.
+- Responders must execute the privacy-specific containment for the breach type: revoke credentials and sessions; block exfiltration egress; request return or deletion for misdirected email or files; confirm the lost or stolen device wipe initiated in the first 60 minutes under §5.2, including corporate-application wipe for MAM without device enrolment; invoke the supplier breach clause; for a trade-data breach notify the Regional BASC Compliance Officer (§5.2). Personal-device wipe must remain limited to corporate application data or the corporate work-profile container; full-device wipe under MDM must require the owner's written, recorded consent expressly authorizing it, except where required by law.
 - Apply scope isolation, not deletion: restrict further access and exposure; no premature deletion unless directed by Legal Counsel (§5.1).
 - Where an AI system or AI-related data asset is involved, begin the AI-specific assessment dimensions (§4.3).
 
