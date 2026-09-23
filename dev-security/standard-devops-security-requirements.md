@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.19\
+**Version:** 1.0.20\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -209,7 +209,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | IaC security | A.8.25 | CCC-06 | PW.4 | CM-2, CM-3 | N/A |
 | Environment separation | A.8.31 | I&S-05 | PO.5 | SC-3, SC-7 | N/A |
 | Container security | A.8.25 | I&S-04 | PW.9 | CM-7, SI-3 | N/A |
-| EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4 | SI-2 | N/A |
+| EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4, RV.2.1, RV.2.2 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | N/A | CM-3 | N/A |
 
 **On the SLSA column.** SLSA Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the SLSA maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level.
