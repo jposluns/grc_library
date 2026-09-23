@@ -2,11 +2,11 @@
 
 **Document Title:** Workforce Network Monitoring Policy\
 **Document Type:** Policy\
-**Version:** 0.1.1\
-**Date:** 2026-09-05\
+**Version:** 0.1.2\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
+**Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`security/policy-byod.md`](policy-byod.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material privacy, employment-law, framework, or monitoring-technology change\
