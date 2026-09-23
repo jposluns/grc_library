@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -201,7 +201,7 @@ Devices used to administer production environments meet a stricter baseline.
 | Refresh | Within the documented lifecycle; refresh not exceeding the OS-supported window |
 | Reassignment | Wiped and re-enrolled before reassignment |
 | Disposal | Per the media handling standard with verified data sanitization |
-| Loss or theft | Immediate report; remote wipe attempted; access revocation |
+| Loss or theft | Loss or theft must be reported immediately and corporate access must be revoked. IT Operations must attempt remote wipe appropriate to ownership and BYOD route: organization-issued device wipe; corporate application data only for MAM; corporate container only for a managed work profile; full-device wipe under BYOD MDM only with the owner's written, recorded consent expressly authorizing it, except where required by law. Wipe scope, outcome and any consent reference or applicable legal requirement must be recorded. |
 
 ---
 

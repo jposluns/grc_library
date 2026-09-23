@@ -2,7 +2,7 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.29\
+**Version:** 1.0.30\
 **Date:** 2026-09-23\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -198,7 +198,7 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ### 9.2 Response actions
 
-9.2.1 Upon receipt of a device loss or theft report, IT Operations will initiate a remote wipe of the managed device via the endpoint management platform within 1 hour of notification.
+9.2.1 Upon receipt of a device loss or theft report, IT Operations must initiate a remote wipe of an organization-issued managed device via the endpoint management platform within 1 hour of notification. For a personally-owned device, the wipe must follow the BYOD Policy's route scope: corporate application data under MAM, the corporate container under a managed work profile, and a full-device wipe under MDM only with the owner's written, recorded consent, except where required by law.
 
 9.2.2 Credential reset and session revocation via the enterprise identity provider will be initiated simultaneously with the remote wipe.
 

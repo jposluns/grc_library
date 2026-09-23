@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-09-13\
+**Version:** 1.0.12\
+**Date:** 2026-09-23\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -155,13 +155,20 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 7.3.1 All accounts must be fully deprovisioned (deleted or permanently disabled) within 7 calendar days of the individual's last working day, unless a longer retention period is required for legal hold, investigation, or data retrieval purposes approved by the CISO or Legal.
 
-### 7.4 Device collection
+### 7.4 Device collection and BYOD access removal
 
-7.4.1 The managed device must be collected on or before the individual's last working day. The line manager is responsible for coordinating device collection.
+7.4.1 The organization-issued managed device must be collected on or before the individual's last working day. The line manager must coordinate device collection. Personally-owned devices must not be required to be surrendered.
 
-7.4.2 Where in-person collection is not possible (e.g., remote worker), a prepaid return courier must be arranged by IT Operations and the device must be received within 5 calendar days of the last working day.
+7.4.2 Where in-person collection of an organization-issued device is not possible (e.g., remote worker), a prepaid return courier must be arranged by IT Operations and the device must be received within 5 calendar days of the last working day.
 
-7.4.3 Remote wipe will be initiated via the endpoint management platform if the device is not returned within the required timeframe.
+7.4.3 IT Operations must initiate remote wipe via the endpoint management platform if an organization-issued device is not returned within the required timeframe. Personal-device offboarding must follow item 7.4.4 and must not depend on device return.
+
+7.4.4 IT Operations must identify and record each personal device's deployed BYOD route and remove corporate access in accordance with Sections 7.2 and 8.2, as applicable. IT Operations must perform the following route-specific actions under the BYOD Policy:
+- MAM: selectively wipe corporate application data and then deprovision corporate application access, without deleting personal application data.
+- Managed work profile: wipe the corporate container and confirm completion before removing the work profile and its management; personal data must remain unaffected.
+- Full-device MDM: unenrol the device. Where the enrolment consent terms require a full-device wipe, IT Operations must perform it while management remains available. A full-device wipe must not be performed without the owner's written, recorded consent expressly authorizing it, except where required by law; the consent reference or applicable legal requirement must be recorded.
+
+IT Operations must record the route, actions, timestamps, and wipe and deprovisioning outcomes in the offboarding record. A pending or failed wipe must be recorded and escalated to the CISO for follow-up, must not be recorded as completed, and must not delay corporate access revocation.
 
 ### 7.5 Data retrieval
 
@@ -191,11 +198,13 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 Disabling the enterprise identity-provider account and revoking active sessions, tokens, and VPN access are completed first because they remove the individual's primary means of authenticating to corporate systems. The remaining Section 11 checklist actions (for example multi-factor enrolment removal, mailbox conversion, file-storage removal, and licence reclamation) follow on their own timelines as subsequent cleanup. Independently-authenticated external portals not federated to the identity provider follow the distinct removal path in item 9.5.
 
-### 8.3 Device collection
+### 8.3 Device collection and BYOD access removal
 
-8.3.1 The managed device must be collected on the same day as termination where the individual is on site. Where same-day collection is not possible, the device must be collected or secured within 1 business day.
+8.3.1 The organization-issued managed device must be collected on the same day as termination where the individual is on site. Where same-day collection is not possible, the device must be collected or secured within 1 business day. Personally-owned devices must not be required to be surrendered.
 
-8.3.2 IT Operations must initiate a remote wipe via the endpoint management platform immediately if there is any risk that the individual may attempt to access or remove data from the device before collection.
+8.3.2 IT Operations must initiate a remote wipe of an organization-issued device via the endpoint management platform immediately if there is any risk that the individual may attempt to access or remove data from the device before collection.
+
+8.3.3 For personally-owned devices, IT Operations must perform the route-specific actions in item 7.4.4 and must initiate the applicable wipe immediately if there is any risk that the individual may attempt to access or remove corporate data. This urgency must not override the corporate-container boundary or the written, recorded consent requirement for full-device wipe, except where full-device wipe is required by law.
 
 ### 8.4 Line manager notification
 
@@ -252,8 +261,8 @@ The following checklist must be completed for every departure. IT Operations is 
 | 7 | Shared mailbox access removed | IT Operations | Within 24 hours | Access list confirmed in mail admin console |
 | 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | User removed from collaboration platform tenant |
 | 9 | Collaboration and file storage platform access removed | IT Operations | Within 4 hours of departure | Access confirmed removed; data transferred to line manager |
-| 10 | Managed device returned and confirmed received | Line Manager / IT Operations | Last day (voluntary) / 1 business day (involuntary) | Device serial number recorded as returned; chain of custody documented |
-| 11 | Remote wipe of managed device initiated (if not returned) | IT Operations | Within 1 business day of non-return | Wipe confirmation recorded from endpoint management platform |
+| 10 | Organization-issued managed device must be returned and receipt confirmed; personal devices must not be required to be surrendered | Line Manager / IT Operations | Last day (voluntary; remote returns within 5 calendar days under 7.4.2) / 1 business day (involuntary) | Device ownership must be recorded; returned device serial number and chain of custody must be documented; personal-device return must be marked not applicable |
+| 11 | Remote wipe of an unreturned organization-issued device must be initiated; for personally-owned devices, BYOD access removal and the route-specific wipe and deprovisioning must be performed under 7.4.4 and 8.3.3 | IT Operations | Organization-issued device: within 1 business day of the applicable return deadline, or immediately under 8.3.2; personally-owned device: as part of access removal under 7.2 / 8.2, or immediately under 8.3.3 | The route, access revocation, wipe outcome, and application deprovisioning, work-profile removal or MDM unenrolment must be recorded; any full-device wipe must reference the owner's written, recorded consent or the applicable legal requirement; pending or failed actions must be escalated and tracked to resolution |
 | 12 | All privileged accounts revoked | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | PAM vault audit confirms no active privileged sessions |
 | 13 | Service accounts re-assigned or disabled | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | Service account ownership register updated |
 | 14 | Service desk / ITSM account closed | IT Operations | Within 7 calendar days | Account status confirmed in ITSM system |
