@@ -138,6 +138,38 @@ class CitationCoverageTests(unittest.TestCase):
             code = W.main(["--root", str(root), *args])
             return code, out.getvalue(), err.getvalue()
 
+    def test_table_version_column(self):
+        # A framework in a table with an explicit Version column carries its
+        # edition in that column; it resolves clean, not a false UNPINNED.
+        reg = REGISTER + "| COBIT | 2019 | 2018 | Governance | COBIT 5 |\n"
+        import json
+        versioned = (
+            "| Framework | Version | Role |\n"
+            "| --- | --- | --- |\n"
+            "| COBIT | 2019 | Governance |\n"
+        )
+        _, out, _ = self.invoke(
+            versioned, "--format", "json", register=reg
+        )
+        cobit = [
+            f for f in json.loads(out)["findings"]
+            if f["observed"] == "COBIT"
+        ]
+        self.assertEqual(cobit, [])
+        # An ordinary table (no Version/Edition header) must NOT associate a
+        # neighbouring cell: the bare framework stays UNPINNED.
+        plain = (
+            "| Framework | Role |\n"
+            "| --- | --- |\n"
+            "| COBIT | 2019 governance |\n"
+        )
+        _, out2, _ = self.invoke(plain, "--format", "json", register=reg)
+        cobit2 = [
+            f["kind"] for f in json.loads(out2)["findings"]
+            if f["observed"] == "COBIT"
+        ]
+        self.assertEqual(cobit2, ["UNPINNED"])
+
     def test_missing_row_and_deletion(self):
         self.assertEqual(
             self.kinds("ISO 9001:2015"), ["UNREGISTERED"]

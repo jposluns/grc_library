@@ -714,6 +714,41 @@ KINDS = (
     "AMBIGUOUS", "UNRESOLVED_EDITION", "CANDIDATE",
 )
 
+VERSION_CELL = re.compile(
+    r"(?:v)?\d{1,4}(?:\.\d+)*|Rev\.?\s*\d+(?:\.\d+)*|\d{4}", re.I
+)
+TABLE_SEP = re.compile(r"\s*\|?[\s:|-]+\|?\s*")
+
+
+def table_column_version(source, line_no):
+    """A framework cited in a Markdown table whose header has an explicit
+    Version/Edition column carries its edition in THAT column, not inline.
+    Return that row's version-column value (a lone version token) so the
+    citation is not a false UNPINNED. Only an explicit Version/Edition
+    header associates a neighbouring cell, so an unrelated cell in an
+    ordinary table never inherits a value (boundary between cells kept)."""
+    lines = source.splitlines()
+    idx = line_no - 1
+    if not (0 <= idx < len(lines)) or "|" not in lines[idx]:
+        return None
+    top = idx
+    while top > 0 and "|" in lines[top - 1]:
+        top -= 1
+    # A real table has a header row then a |---| separator directly under it.
+    if top + 1 >= len(lines) or not TABLE_SEP.fullmatch(lines[top + 1]):
+        return None
+    header = [c.strip().lower() for c in lines[top].split("|")]
+    col = next(
+        (i for i, h in enumerate(header) if h in ("version", "edition")),
+        None,
+    )
+    if col is None:
+        return None
+    cells = [c.strip() for c in lines[idx].split("|")]
+    if col < len(cells) and VERSION_CELL.fullmatch(cells[col]):
+        return cells[col]
+    return None
+
 
 def coverage_report(
     files, entries, *, repo_root, mode="report", bare_exceptions=None
@@ -746,6 +781,20 @@ def coverage_report(
 
         for occurrence in discover(source, suffix):
             occurrence.update(path=rel, suffix=suffix)
+            # A framework cited in a Markdown table with an explicit
+            # Version/Edition column carries its edition in that column,
+            # not inline; associate it so the citation is not a false
+            # UNPINNED (dev-security baseline table: "| COBIT | 2019 |").
+            if (
+                suffix != ".html"
+                and occurrence["channel"] == "grammar"
+                and not occurrence["version"]
+            ):
+                tv = table_column_version(
+                    source, occurrence["span"][0][0]
+                )
+                if tv:
+                    occurrence["version"] = tv
             occurrences.append(occurrence)
             for kind, detail in resolve(
                 occurrence, entries, bare_exceptions
