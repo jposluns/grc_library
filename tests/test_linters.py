@@ -588,6 +588,36 @@ class StandardsCurrencyTests(LinterTestCase):
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "stale citation")
 
+    def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
+        # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
+        # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the
+        # optional "v?" only admitted an ADDED "v" against a bare marker.
+        fixture = self.make_fixture(
+            "standard-slsa-bare-superseded.md",
+            VALID_METADATA
+            + "\n\nThe build pipeline meets SLSA 1.1 Build L2.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "BLOCKING named 'SLSA' edition='1.1'")
+
+    def test_current_bare_citation_of_v_prefixed_register_not_flagged(self) -> None:
+        # The same widening must not flag the CURRENT edition written bare
+        # ("SLSA 1.2" against current "v1.2"), nor a longer version that merely
+        # starts with a superseded one ("SLSA 1.10" against superseded "v1.1").
+        fixture = self.make_fixture(
+            "standard-slsa-bare-current.md",
+            VALID_METADATA
+            + "\n\nThe build pipeline meets SLSA 1.2 Build L2, not SLSA 1.10, SLSA 1.1.0"
+            + " or SLSA 1.1-rc1.\n",
+        )
+        # "SLSA 1.10" is rejected by the word boundary; "SLSA 1.1.0" and
+        # "SLSA 1.1-rc1" exercise the version-continuation lookahead against the
+        # stripped "1.1" marker (3b34 QA, all three families).
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("stale citation", result.stdout + result.stderr)
+        self.assertNotIn("BLOCKING named 'SLSA'", result.stdout + result.stderr)
+
     def test_current_pci_dss_v4_0_1_not_flagged(self) -> None:
         # The version-continuation guard (?![.\-][\d\w]) must still exempt the
         # current "PCI DSS v4.0.1" from the "v4.0" superseded match.
