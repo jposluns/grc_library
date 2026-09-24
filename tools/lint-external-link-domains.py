@@ -84,6 +84,7 @@ ALLOW_LIST = {
     "aisi.org.uk", "mlcommons.org", "avidml.org",
     # Adopted references mentioned in library content
     "keepachangelog.com", "semver.org", "spdx.org", "calver.org",
+    "spdx.dev",  # SPDX project current site (spdx.org redirects here); citation-verification spec section 7.1
     "creativecommons.org",
     # The project's own public site (grclibrary.ai on Cloudflare Pages; the
     # canonical URLs emitted on the per-domain pages by .web/build.py). Not a

@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.20\
+**Version:** 1.2.21\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,7 +217,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | WTO | `wto.org` | WTO Trade Facilitation Agreement. |
 | World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
 | South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
-| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `spdx.org` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project. |
+| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `spdx.org`, `spdx.dev` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project. |
 | SANS Institute | `sans.org` | SANS Critical AI Security Guidelines. |
 | Google | `saif.google` | Google Secure AI Framework (SAIF). |
 | MLCommons | `mlcommons.org` | AILuminate hazard taxonomy and benchmark. |
@@ -243,7 +243,7 @@ A standard or regulation cited in the library that is not covered by an allow-li
 
 **2026-09-24 (3b32, SANS and Google SAIF register rows):** added the SANS Institute (`sans.org`) and Google (`saif.google`) publisher rows, now that their sources have Canonical Citations Register entries.
 
-**2026-09-24 (3b28, SPDX register row):** added `spdx.org` to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry (spdx.org redirects to the project's current site, spdx.dev).
+**2026-09-24 (3b28, SPDX register row):** added `spdx.org` and `spdx.dev` (the project's current site, to which spdx.org redirects; the register row's upstream-check URL is on spdx.dev so that no fetch crosses a redirect to an unlisted domain) to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry.
 
 ---
 
