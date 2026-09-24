@@ -3943,7 +3943,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "NIS 2 Implementation Annex"
-  version: "1.2.5"
+  version: "1.2.6"
   date: "2026-09-24"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"

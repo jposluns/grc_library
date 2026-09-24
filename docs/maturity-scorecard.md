@@ -55,7 +55,7 @@ _117 documents._
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.8 | 2026-09-13 |
 | [ai/template-ai-system-register.md](../ai/template-ai-system-register.md) | AI System Register Template | Template | 1.1.4 | 2026-08-31 |
 | [ai/template-system-card.md](../ai/template-system-card.md) | System Card Template | Template | 1.1.4 | 2026-08-31 |
-| [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 1.2.5 | 2026-09-24 |
+| [compliance/annex-nis-2-implementation.md](../compliance/annex-nis-2-implementation.md) | NIS 2 Implementation Annex | Annex | 1.2.6 | 2026-09-24 |
 | [compliance/healthcare/annex-healthcare-sector-requirements.md](../compliance/healthcare/annex-healthcare-sector-requirements.md) | Healthcare Sector GRC Requirements Annex | Annex | 1.1.15 | 2026-09-20 |
 | [compliance/logistics/annex-basc-programme-overview.md](../compliance/logistics/annex-basc-programme-overview.md) | BASC Programme Overview Annex | Annex | 1.1.3 | 2026-09-01 |
 | [compliance/logistics/policy-basc-information-security.md](../compliance/logistics/policy-basc-information-security.md) | BASC Information Security Policy | Policy | 1.2.13 | 2026-09-01 |
