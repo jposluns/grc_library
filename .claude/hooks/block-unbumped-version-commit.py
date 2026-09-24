@@ -105,6 +105,43 @@ GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
 # match can still block if the file has other unstaged changes or the auto-bump raises.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
 DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
+# README carries its version under a DIFFERENT key (``**README Version:**``), which VERSION_LINE does
+# not match, so README is outside the body-without-bump check above. The date-lag NOTE below covers
+# both keys: a staged Version (or README Version) change whose staged ``**Date:**`` is not today UTC
+# is the UTC-rollover co-bump miss D4 otherwise catches only at the pre-push guard (2026-09-24, #2492).
+ANY_VERSION_LINE = re.compile(r"^\*\*(?:README )?Version:\*\*")
+
+
+def version_line_changed(lines: list[str]) -> bool:
+    """PURE. True when a +/- changed line (not a diff header) is a Version or README Version line."""
+    for ln in lines:
+        if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+            continue
+        if ln and ln[0] in "+-" and ANY_VERSION_LINE.match(ln[1:]):
+            return True
+    return False
+
+
+def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]:
+    """PURE. Paths whose staged diff changes a Version/README Version line while the staged file's
+    first ``**Date:**`` value is not ``today``. A file with no Date line is not reported."""
+    out, cur, buf = [], None, []
+
+    def flush():
+        if cur and version_line_changed(buf):
+            m = DATE_META.search(staged_text.get(cur, ""))
+            if m and m.group(2) != today:
+                out.append(cur)
+
+    for ln in diff.splitlines():
+        if ln.startswith("diff --git "):
+            flush()
+            parts = ln.split(" b/", 1)
+            cur, buf = (parts[1] if len(parts) == 2 else None), []
+        else:
+            buf.append(ln)
+    flush()
+    return out
 
 
 def project_root() -> Path:
@@ -268,12 +305,31 @@ def main() -> int:
         for p in staged:
             if p.startswith(".corpus-management/"):
                 continue
+            # Generated artefacts carry their own Version lines but are REGENERATED, never hand-bumped
+            # (gates 33/34/85 check them); a regenerated scorecard row is not a body edit to bump.
+            if p in GENERATED:
+                continue
             f = root / p
             try:
                 if f.suffix == ".md" and VERSION_LINE.search(f.read_text(errors="replace")):
                     versioned.add(p)
             except OSError:
                 continue
+        # UTC-rollover co-bump NOTE (non-blocking): covers README's different Version key too.
+        try:
+            md = sorted(p for p in staged if p.endswith(".md") and p not in GENERATED)
+            if md:
+                today_note = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                vdiff = git(root, "diff", "--cached", "--unified=0", "--", *md)
+                texts = {p: git(root, "show", f":{p}") for p in md}
+                lag = stale_date_after_bump(vdiff, texts, today_note)
+                if lag:
+                    print("NOTE (version-bump guard): a staged Version/README Version change carries a "
+                          f"**Date:** that is not today UTC ({today_note}): {', '.join(lag)}. Co-bump the "
+                          "Date in THIS commit (a later Date-only commit fails gate 40); D4 blocks at push.",
+                          file=sys.stderr)
+        except Exception:
+            pass
         if not versioned:
             return 0
         diff = git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
@@ -450,6 +506,41 @@ def self_test() -> int:
     git(d3, "add", "z.md"); git(d3, "commit", "-q", "-m", "init")
     (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nnew body\n"); git(d3, "add", "z.md")
     ck("direct try_auto_bump returns False for a Library-Version-only file (no SEMVER_VERSION match)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
+
+    # --- 2026-09-24: UTC-rollover co-bump NOTE (pure helper) ---
+    rd = ("diff --git a/README.md b/README.md\n@@ -9,1 +9,1 @@\n"
+          "-**README Version:** 1.11.282 (x)\n+**README Version:** 1.11.283 (x)\n")
+    ck("README Version bump with a stale Date is reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-23\\\n"}, "2026-09-24"), ["README.md"])
+    ck("README Version bump with today's Date is not reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-24\\\n"}, "2026-09-24"), [])
+    ck("a body-only change is not reported",
+       stale_date_after_bump("diff --git a/x.md b/x.md\n@@ -1 +1 @@\n-a\n+b\n", {"x.md": "**Date:** 2026-01-01\\\n"}, "2026-09-24"), [])
+    ck("a Version bump on a file with no Date line is not reported",
+       stale_date_after_bump("diff --git a/y.md b/y.md\n@@ -1 +1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n", {"y.md": "no date"}, "2026-09-24"), [])
+    # --- 2026-09-24: generated-artefact exemption, end to end through main() in a scratch repo ---
+    import shutil, subprocess, json as _json
+    d5 = mkrepo()
+    (d5 / ".claude" / "hooks").mkdir(parents=True)
+    shutil.copy(__file__, d5 / ".claude" / "hooks" / "hook.py")
+    (d5 / "docs").mkdir()
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | old |\n")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nold body\n")
+    git(d5, "add", "-A"); git(d5, "commit", "-q", "-m", "init")
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | new |\n")
+    git(d5, "add", "docs/maturity-scorecard.md")
+    # an extra UNSTAGED scorecard change makes auto-bump decline, so without the exemption this would BLOCK
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
+    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d5} commit -q -m x"}})
+    r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                       capture_output=True, text=True)
+    ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
+    # control: an ordinary versioned doc with an extra unstaged change still blocks
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")
+    r2 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                        capture_output=True, text=True)
+    ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")

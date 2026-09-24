@@ -34,7 +34,8 @@ guard that traps the actor on its own malfunction protects nothing; a convenienc
 wrongly blocks a legitimate stop is worse than the mistake it prevents.
 
 PORTABILITY. Three adapter functions couple this hook to a project's tooling (fenced below as the
-ADAPTER SEAM). GRC NOTE: this project ALSO customized main() (a one-shot-escape pre-step) below the
+ADAPTER SEAM). GRC NOTE: this project ALSO customized main() (a one-shot-escape pre-step, and on a
+block a stderr line naming the escape file's path) below the
 seam; see the GRC ADAPTATION note. The default implementations are a MINIMAL, dependency-free, file-based adapter. A project
 with real backlog/mode tooling REPLACES the two adapter bodies with calls into its own tools (lab_infra's
 `tools/flow.py` read_mode and `tools/pipeline.py` load_config+derive are the reference implementation,
@@ -355,7 +356,18 @@ def main(argv):
     payload = _parse_payload(raw)
     if payload is None:
         return 0  # uncertain payload -> fail open (preserve the stop_hook_active loop-guard's reliability)
-    return run(repo_root(), payload)
+    rc = run(repo_root(), payload)
+    if rc == 2:
+        # grc adaptation (2026-09-24, mistakes report item B): name the declared-wait escape PATH, so
+        # a genuine wait (a dispatched QA leg, a running CI check) is escaped at the file this hook
+        # actually reads. Observed: the sentinel was created at the WRONG path (the repo root) for a
+        # whole session because this message did not say where it is read from.
+        try:
+            print("DECLARED-WAIT ESCAPE (grc): for a genuine external wait, record the blocker, then "
+                  f"`touch {_grc_escape_file()}` (honoured once, then deleted).", file=sys.stderr)
+        except Exception:
+            pass
+    return rc
 
 
 def _self_test():
