@@ -1169,6 +1169,13 @@
       "class": "procedure",
       "source_identifier": null,
       "corpus_path": "supply-chain/procedure-third-party-ai-due-diligence.md"
+    },
+    {
+      "id": "GRC-PROC-AEO-UNITED-KINGDOM-SELF-ASSESSMENT",
+      "display_name": "UK AEO IT Self-Assessment Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md"
     }
   ],
   "records": [
@@ -10558,6 +10565,70 @@
       "destination": {
         "id": "EU-AI-ACT",
         "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0315",
+      "source": {
+        "id": "GRC-PROC-AEO-UNITED-KINGDOM-SELF-ASSESSMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0316",
+      "source": {
+        "id": "GRC-PROC-THIRD-PARTY-AI-DUE-DILIGENCE",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
       },
       "relationship_class": "correspondence",
       "layout_role": "associative",

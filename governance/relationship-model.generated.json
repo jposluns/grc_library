@@ -299,6 +299,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md",
+      "display_name": "UK AEO IT Self-Assessment Procedure",
+      "id": "GRC-PROC-AEO-UNITED-KINGDOM-SELF-ASSESSMENT",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "ai/procedure-ai-audit.md",
       "display_name": "AI Audit Procedure",
       "id": "GRC-PROC-AI-AUDIT",
@@ -10567,16 +10574,80 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0315",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-AEO-UNITED-KINGDOM-SELF-ASSESSMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0316",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-THIRD-PARTY-AI-DUE-DILIGENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 165,
-    "record_count": 294,
+    "node_count": 166,
+    "record_count": 296,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 266,
+      "correspondence": 268,
       "implementation": 19,
       "influence": 8
     }
