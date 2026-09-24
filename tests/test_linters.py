@@ -9252,12 +9252,43 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(len(f), 1)
         self.assertIn("exemption rows", f[0])
 
-    def test_row_integrity_new_layout_exemption_read_from_disposition_cell(self) -> None:
-        # Newer layout: tier at c[4], disposition at c[5]. The exemption must be read from c[5].
+    def test_row_integrity_new_layout_exemption_pair_needs_companion_marker(self) -> None:
+        # Exemption is read from c[4] only (Check 1's Findings cell); in the newer layout c[4] is
+        # the tier, so an ordinary + exemption pair there must carry an explicit companion marker.
         mod = self._load_module()
         body = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | SHIP |\n"
                 "| 2026-09-20 | #10 | c | LIGHT | SKIPPED (handoff-PR exception) |\n")
-        self.assertEqual(self._hist(mod, body), [])
+        self.assertEqual(len(self._hist(mod, body)), 1)
+        marked = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | SHIP |\n"
+                  "| 2026-09-20 | #10 addendum | c | LIGHT | SKIPPED (handoff-PR exception) |\n")
+        self.assertEqual(self._hist(mod, marked), [])
+
+    def test_row_integrity_hotfix_handoff_prose_does_not_exempt(self) -> None:
+        # history.md:1019 shape: 'handoff' prose in the legacy Hot-fix cell (c[5]) must not
+        # exempt the row and so must not hide a duplicate.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-08-01 | 1361 | x | RETURNED: SHIP | fallback-skipped for the handoff PR | - |\n"
+                "| 2026-08-01 | 1361 | x | RETURNED: SHIP again | none | - |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("2 canonical rows", f[0])
+
+    def test_row_integrity_returned_row_with_pending_hotfix_plus_addendum_is_clean(self) -> None:
+        # history.md:653 shape: RETURNED in Findings, stale 'pending' prose in Hot-fix.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-07-25 | 1169 | x | RETURNED: SHIP | pending a follow-up note | - |\n"
+                "| 2026-07-25 | 1169 addendum | x | extra evidence | none | - |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._history_row_records(text), "h"), [])
+
+    def test_row_integrity_retro_hyphen_combined_endpoints_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10-#11 | a | lesson |\n"
+                "| 2026-09-13 | #11 | b | lesson |\n")
+        f = mod.row_integrity_findings(mod._retro_row_records(text), "retro")
+        self.assertEqual(len(f), 1)
+        self.assertIn("#11", f[0])
 
     def test_row_integrity_pending_word_outside_disposition_is_not_pending(self) -> None:
         mod = self._load_module()

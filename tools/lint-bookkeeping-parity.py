@@ -539,15 +539,20 @@ COMPANION_PR_CELL = re.compile(
 ROW_PENDING_CELL = re.compile(
     r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
 )
-# The two history layouts put the disposition at c[4] (legacy Findings) or c[5] (newer layout,
-# after a tier cell). Guessing the layout from the tier word misread legacy rows whose Findings
-# begin with a tier word (history.md:1107 ``QUICK-FIX TIER: QA SUBSUMED by #1516``), so no layout
-# is guessed: both candidate cells are examined. An exemption marker in either marks the row
-# exempt; a start-anchored pending marker (without RETURNED) in either marks it pending. Residue:
-# a legacy Hot-fix cell (c[5]) that itself begins with a pending word would read pending.
+# EXEMPTION is read from c[4] only, the same Findings cell Check 1 classifies, because the
+# history's layouts vary too much for a reliable disposition-column guess (a strict tier-cell
+# test left 520 live rows with no recognizable disposition in the guessed cell). A newer-layout
+# row pair that is legitimately ordinary + exemption therefore needs an explicit companion marker.
+# PENDING is a start-anchored marker in c[4] or c[5] (the newer layout's disposition cell), and is
+# suppressed when RETURNED appears ANYWHERE in the row (a legacy row can carry RETURNED in Findings
+# and stale pending prose in Hot-fix, e.g. history.md:653). Residue: a pending-worded Hot-fix cell
+# on a row with no RETURNED anywhere reads pending; it only matters when the PR has another row.
 # The leading run of PR tokens at the START of a retro PR cell (``#10, #11 addendum (/retro)``);
 # later PR mentions in the cell are prose, not the row's identity.
-LEADING_PR_RUN = re.compile(r"^(?:PR\s+)?#?(\d+)" + PR_NUM_BOUNDARY + r"((?:\s*[,&]\s*(?:PR\s+)?#?\d+" + PR_NUM_BOUNDARY + r")*)")
+LEADING_PR_RUN = re.compile(
+    r"^(?:PR\s+)?#?(\d+)" + PR_NUM_BOUNDARY
+    + r"((?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+" + PR_NUM_BOUNDARY + r")*)"
+)
 RETRO_PR_CELL = re.compile(r"^(?:PR\s+)?#?\d")
 
 
@@ -578,14 +583,14 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
         prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
         if not prs:
             continue
-        cands = _disposition_candidates(c)
-        if any(HANDOFF_FINDINGS.search(d) for d in cands):
+        if HANDOFF_FINDINGS.search(c[4]):
             kind = "handoff"
-        elif any(is_subsumption_findings(d) for d in cands):
+        elif is_subsumption_findings(c[4]):
             kind = "subsumption"
         else:
             kind = ""
-        pending = any(_is_pending(d) for d in cands)
+        returned_anywhere = any(RETURNED_MARK.search(x) for x in c[3:])
+        pending = not returned_anywhere and any(ROW_PENDING_CELL.match(d) for d in _disposition_candidates(c))
         out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), pending))
     return out
 
