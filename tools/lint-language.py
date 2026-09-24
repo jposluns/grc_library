@@ -20,7 +20,8 @@ gate 99's entry-point existence check are the wrapper's mechanical coverage.
 Usage:
     python3 tools/lint-language.py [paths...]
 
-Exit codes are the engine's: 0 clean; 1 findings.
+Exit codes are the engine's: 0 clean; 1 findings; plus 2 when an explicit path is
+refused (missing, outside this tree, or relative from outside it).
 """
 from __future__ import annotations
 
@@ -31,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, check_explicit_paths, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 
 def _engine():
@@ -74,6 +75,13 @@ def main(argv: list[str] | None = None) -> int:
     gate_lint_language = _engine()
 
     if argv:
+        # Explicit paths must name files in THIS tree that exist; a missing, out-of-tree,
+        # or outside-relative path is refused (exit 2) rather than silently passing (3b21).
+        refused = check_explicit_paths(argv, repo_root=REPO_ROOT)
+        if refused:
+            for msg in refused:
+                print(f"ERROR: {msg}", file=sys.stderr)
+            return 2
         md_input = list(argv)
         gen_input = list(argv)
     else:
