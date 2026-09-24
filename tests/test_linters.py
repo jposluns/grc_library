@@ -8904,8 +8904,13 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         # with a backtick is not an opener, a closing line with an info string does not close,
         # and a longer run of the same character does close.
         for name, body, flagged in (
-            ("indent4", "    " + tick3 + "\n\nCCC-01 to 09\n", True),
             ("indent4-close", tick3 + "\n    " + tick3 + "\nCCC-01 to 09\n" + tick3 + "\n", False),
+            # round 2: list-contained fences close relative to their opener
+            ("list-3-4", "1. Example:\n\n   " + tick3 + "text\n   example\n    " + tick3
+             + "\n\nCCC-01 to 09\n", True),
+            ("list-4-4", "1. Example:\n\n    " + tick3 + "\n    | S | CCC-01 to 09 |\n    "
+             + tick3 + "\n", False),
+            ("double-backtick-span", "The range ``CCC-01 to 09`` is an example.\n", False),
             ("tick-info", tick3 + "a`b\nCCC-01 to 09\n", True),
             ("info-close", tick3 + "\n" + tick3 + "text\nCCC-01 to 09\n" + tick3 + "\n", False),
             ("longer-close", tick3 + "\n" + tick4 + "\nCCC-01 to 09\n", True),

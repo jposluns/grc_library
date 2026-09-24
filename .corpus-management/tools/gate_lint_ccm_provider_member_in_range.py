@@ -42,27 +42,33 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
 # tracked as (character, run length), and only a same-character run at least as long, with no info
 # string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
 # boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
-# CommonMark: at most three spaces of indentation (four or more is an indented code line, not a
-# fence), and a backtick fence's info string cannot contain a backtick.
-_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+# A backtick fence's info string cannot contain a backtick (CommonMark 4.5). Indentation is
+# measured, not capped: a fence inside a list item is indented relative to the item, so an
+# absolute three-space cap would lose list-contained fences (3b52a round 2). A closer must be
+# indented less than the opener's indentation plus four (the relative rule). Residue, stated: this
+# scan is not container-aware, so a four-space-indented code line that looks like a fence at the
+# top level is still read as a fence; the shared container-aware helper is routed (P-TODO 3b54).
+_FENCE_RE = re.compile(r"^( *)(`{3,}|~{3,})(.*)$")
 
 
 def _fence_marker(line: str):
     m = _FENCE_RE.match(line)
     if not m:
         return None
-    run, info = m.group(1), m.group(2).strip()
+    indent, run, info = len(m.group(1)), m.group(2), m.group(3).strip()
     if run[0] == "`" and "`" in info:
         return None
-    return run[0], len(run), info
+    return run[0], len(run), info, indent
 
 
 def _closes(marker, opener) -> bool:
     return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
+            and marker[1] >= opener[1] and not marker[2] and marker[3] < opener[3] + 4)
 
 
-INLINE_CODE_RE = re.compile(r"`[^`]*`")
+# A code span is delimited by equal backtick runs, so ``CCC-01 to 09`` is one span (not two
+# empty ones around exposed text).
+INLINE_CODE_RE = re.compile(r"(`+)(?!`).*?(?<!`)\1(?!`)")
 
 
 def scan_text(rel: str, text: str) -> list[str]:
