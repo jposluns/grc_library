@@ -9,4 +9,7 @@ an unbalanced (odd) fence count leaves the iterator inside a code block for the
 rest of the file, silently suppressing every fence-aware check's scan of the
 remainder. A balanced fence count is therefore the precondition for any
 fence-aware gate's result to mean what it says: the integrity guard runs before
-the checks whose soundness depends on it.
+the checks whose soundness depends on it. This guard certifies the shared
+toggle model only: a gate that parses fences marker-aware (tracking the opening
+fence's character and run length) uses a model it does not certify, and such a
+gate reports a file that ends inside an open fence itself.

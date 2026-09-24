@@ -33,7 +33,9 @@ Scope notes:
     metadata block (a fenced illustration carrying the narrative type and
     all 8 extension fields) is documentation, not a leak, so lines inside
     fenced code blocks never match. This is why the specification itself
-    needs no named exemption.
+    needs no named exemption. A file that ends inside a fence left open by
+    this marker-aware scan is a fail-loud finding naming the opener line
+    (3b54b), so an unclosed fence cannot silently hide the rest of a file.
   - Detection is LINE-ANCHORED (``**Field:** ...`` at line start), matching
     the corpus metadata-field shape; prose that DISCUSSES a field name in a
     list item or sentence does not match.
@@ -279,6 +281,13 @@ def _self_test() -> int:
         mixedfence = root / "mixed-fence.md"
         mixedfence.write_text("# D\n\nExample:\n\n~~~\n```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n~~~\n\nProse.\n")
         expect("outside-mixed-fence-noescape", scan_outside_file(mixedfence, "docs/mixed-fence.md"), None)
+        # 3b54b: a file ending inside an open fence fails loud (the remainder, here a
+        # real leak, would otherwise go unscanned); a 4-backtick opener is not closed by
+        # a 3-backtick line.
+        openfence = root / "open-fence.md"
+        openfence.write_text("# D\n\n````\nexample\n```\n**Document Type:** Executive Narrative\\\n")
+        expect("outside-open-fence-fails-loud", scan_outside_file(openfence, "docs/open-fence.md"),
+               "docs/open-fence.md:L3: the file ends inside the fence opened here")
         # Prose discussion (not line-anchored): pass.
         prose = root / "prose.md"
         prose.write_text("1. **Narrative Type:** one of the seven subtypes.\nThe **Audience:** value is fixed.\n")
@@ -313,7 +322,7 @@ def _self_test() -> int:
         print(f"self-test: {len(failures)} case(s) failed.")
         return 1
     print("self-test: all symmetric-boundary cases passed (outside: full leak, README-path leak, "
-          "retyped leak, fenced/prose non-leaks; inside: corpus type, missing type, missing "
+          "retyped leak, fenced/prose non-leaks, open fence at end of file; inside: corpus type, missing type, missing "
           "extension; root-anchoring and the path-scoped README exemption).")
     return 0
 

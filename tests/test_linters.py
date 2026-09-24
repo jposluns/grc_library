@@ -3658,7 +3658,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """Gate 86's own self-test. The symmetric narrative-boundary gate runs against a live tree
         with zero pages inside executive/, so its OUTSIDE-leak / INSIDE-form detection is exercised
         here against synthetic files (full leak, README-path leak, retyped leak, fenced/prose
-        non-leaks, corpus-type-inside, missing-type/extension, root-anchoring, path-scoped README)."""
+        non-leaks, open fence at end of file fails loud (3b54b), corpus-type-inside,
+        missing-type/extension, root-anchoring, path-scoped README)."""
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-boundary.py"), "--self-test"]
         )
@@ -3687,6 +3688,32 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(set(bnd.CORPUS_DOCUMENT_TYPES), set(meta.ALLOWED_TYPES),
                          "lint-narrative-boundary CORPUS_DOCUMENT_TYPES has drifted from "
                          "lint-metadata ALLOWED_TYPES; keep them in parity.")
+
+    def test_narrative_boundary_open_fence_at_eof_fails_loud(self) -> None:
+        """3b54b: gate 86 keeps its fence skip (it protects fenced example metadata), so a file
+        that ends inside an open fence would silently leave its remainder unscanned. The gate now
+        reports it, naming the opener line; a closed fence still passes."""
+        import importlib.util
+        tools = REPO_ROOT / "tools"
+        spec = importlib.util.spec_from_file_location("bnd_eof_mod", tools / "lint-narrative-boundary.py")
+        bnd = importlib.util.module_from_spec(spec)
+        sys.path.insert(0, str(tools))
+        try:
+            spec.loader.exec_module(bnd)
+        finally:
+            sys.path.remove(str(tools))
+        td = Path(tempfile.mkdtemp(prefix="nb-open-fence-"))
+        self.addCleanup(shutil.rmtree, td)
+        leak = "**Document Type:** Executive Narrative\\\n"
+        opened = td / "open.md"
+        # a 4-backtick opener is not closed by a 3-backtick line, so the fence stays open
+        opened.write_text("# D\n\n````\nexample\n```\n" + leak, encoding="utf-8")
+        findings = bnd.scan_outside_file(opened, "docs/open.md")
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("docs/open.md:L3: the file ends inside the fence opened here", findings[0])
+        closed = td / "closed.md"
+        closed.write_text("# D\n\n````\n" + leak + "````\n\nProse.\n", encoding="utf-8")
+        self.assertEqual(bnd.scan_outside_file(closed, "docs/closed.md"), [])
 
     def test_lint_narrative_authority_boundary_self_test(self) -> None:
         """Gate 87's own self-test. The one-way authority-boundary gate runs against a live corpus

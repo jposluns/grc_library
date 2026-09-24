@@ -52,8 +52,15 @@ def configure(ref) -> None:
     EXTENSION_FIELD_LINE_RE = ref.extension_field_line_re
 
 
-# Marker-aware fence parser (CommonMark): a fenced block closes only on a line
-# using the SAME marker char and a run length >= the opener, with no info string.
+# Marker-aware fence parser: a fenced block closes only on a line using the SAME
+# marker char and a run length >= the opener, with no info string. It is a local
+# approximation of CommonMark, not a full parser (any leading indentation is
+# accepted, a backtick info string may contain a backtick, and container blocks are
+# not modelled); a file that ends inside an open fence is reported (3b54b), so the
+# residue that remains silent is a fence boundary or extent the model gets wrong while
+# its scan still closes before the end of the file: a line mis-recognized as an opener
+# followed by a later closer, or a fence that CommonMark ends at the edge of its list
+# or blockquote container but this model carries on to a later fence line.
 _FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
 
 
@@ -115,6 +122,7 @@ def scan_outside_file(path: Path, rel: str) -> list[str]:
                 f"read cannot be cleared of narrative markers; fail loud, not open)"]
     findings: list[str] = []
     open_fence: "tuple[str, int] | None" = None
+    open_line = 0
     for lineno, line in enumerate(text.splitlines(), 1):
         marker = _fence_marker(line)
         if open_fence is not None:
@@ -126,6 +134,7 @@ def scan_outside_file(path: Path, rel: str) -> list[str]:
             continue
         if marker is not None:
             open_fence = (marker[0], marker[1])
+            open_line = lineno
             continue
         if NARRATIVE_TYPE_LINE_RE.match(line):
             findings.append(
@@ -140,6 +149,13 @@ def scan_outside_file(path: Path, rel: str) -> list[str]:
                 f"executive/ (extension fields are narrative-only; this closes the "
                 f"retyped-leak escape of the corpus metadata gate)"
             )
+    if open_fence is not None:
+        # 3b54b: fail loud rather than silently skipping the rest of the file.
+        findings.append(
+            f"{rel}:L{open_line}: the file ends inside the fence opened here (per this gate's "
+            f"marker-aware scan), so every line after it went unscanned for narrative markers; "
+            f"close the fence"
+        )
     return findings
 
 
