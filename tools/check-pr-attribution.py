@@ -60,7 +60,7 @@ MARKDOWN_DELETE = str.maketrans("", "", "*_`[]")
 MARKDOWN_MIXED = str.maketrans({"*": None, "`": None, "_": " ", "[": " ", "]": " "})
 # Link syntax reduced to its visible text first, so a destination or reference label never sits
 # between (or glues onto) the words: '[Generated with](url) Claude' and '[CLAUDE.md][1]'.
-_INLINE_LINK = re.compile(r"\]\([^)\n]*\)")
+_INLINE_LINK = re.compile(r"\]\((?:[^()\n]|\([^()\n]*\))*\)")  # one level of balanced parentheses
 _REF_LINK = re.compile(r"\]\[[^\]\n]*\]")
 
 
@@ -203,6 +203,7 @@ def self_test() -> int:
         ("emphasis plus underscore", ("t", "Generated with C**laud**e_Code"), True),
         ("trailer, emphasis plus underscore", ("t", "Co-Authored-By: C**laud**e_Bot <bot@example.org>"), True),
         ("reference-linked CLAUDE.md", ("t", "Generated with [CLAUDE.md][1] as the fixture."), False),
+        ("link destination with parentheses", ("t", "[Generated with](https://example.org/wiki/Tool_(software)) Claude Code"), True),
         ("clean PR", ("tooling: add a check", "Adds a check.\n\nclaude SHIP, codex SHIP."), False),
         ("CLAUDE.md mention", ("t", "Edits .claude/CLAUDE.md and the claude-attribution hook."), False),
         ("model family mention", ("t", "the Claude-family verifier returned HOLD"), False),

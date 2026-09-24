@@ -75,7 +75,7 @@ MARKDOWN_DELETE = str.maketrans("", "", "*_`[]")
 MARKDOWN_MIXED = str.maketrans({"*": None, "`": None, "_": " ", "[": " ", "]": " "})
 # Link syntax reduced to its visible text first, so a destination or reference label never sits
 # between (or glues onto) the words: '[Generated with](url) Claude' and '[CLAUDE.md][1]'.
-_INLINE_LINK = re.compile(r"\]\([^)\n]*\)")
+_INLINE_LINK = re.compile(r"\]\((?:[^()\n]|\([^()\n]*\))*\)")  # one level of balanced parentheses
 _REF_LINK = re.compile(r"\]\[[^\]\n]*\]")
 
 
