@@ -183,12 +183,14 @@ The SLSA cells name the SLSA v1.2 Source-track requirement each control helps me
 
 - Generated artefacts here: `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`,
-  the `## Number allocation` block in `TODO.md`, and every compiler-owned
+  the `## Number allocation` block in `TODO.md`, the section 7.1 publisher table in
+  `governance/specification-citation-verification.md` (generated from its `json citation-publishers`
+  block), and every compiler-owned
   corpus-management output (currently the CLAUDE.md generated-artefacts block, the generated `.claude/rules/corpus-management/language-convention.md` rule, and the generated `.claude/rules/corpus-management/authoring-conventions.md` rule)
   (regenerate via `tools/build-taxonomy.py`,
   `tools/build-narrative-registry.py`, `tools/build-portal.py`,
   `tools/build-relationship-model.py`, `tools/build-todo-number-allocation.py`,
-  and `tools/build-corpus-management.py`;
-  gates 33, 85, 34, 93, 91, and 99 run the `--check` forms).
+  `tools/build-corpus-management.py`, and `tools/build-citation-publishers.py`;
+  gates 33, 85, 34, 93, 91, 99, and 102 run the `--check` forms).
 - Protected-branch force-push procedure and `refs/preservation/` convention: the
   project CLAUDE.md Boundaries section.

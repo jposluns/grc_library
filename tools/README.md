@@ -47,6 +47,7 @@ document metadata, and are regenerated when that source changes:
 ```
 python3 tools/build-relationship-model.py       # from governance/relationship-model-source.json
 python3 tools/build-todo-number-allocation.py   # from tools/todo-number-floor.json + the live TODO ids
+python3 tools/build-citation-publishers.py      # section 7.1 table from its json citation-publishers block
 ```
 
 ## Pre-commit integration

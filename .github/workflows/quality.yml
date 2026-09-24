@@ -311,6 +311,12 @@ jobs:
       - name: Corpus-management generated outputs in sync
         run: python3 tools/build-corpus-management.py --check
 
+      - name: Allow-list and publisher-table parity audit
+        run: python3 tools/lint-allowlist-spec-parity.py
+
+      - name: Citation-publisher table in sync with its source of record
+        run: python3 tools/build-citation-publishers.py --check
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

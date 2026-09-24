@@ -256,7 +256,7 @@ repos:
 
       - id: regenerate-derived-artefacts
         name: Regenerate taxonomy, narrative registry, portal, maturity scorecard, relationship model, and number-allocation block
-        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-narrative-registry.py && python3 tools/build-portal.py && python3 tools/build-relationship-model.py && python3 tools/build-todo-number-allocation.py'
+        entry: bash -c 'python3 tools/build-taxonomy.py && python3 tools/build-narrative-registry.py && python3 tools/build-portal.py && python3 tools/build-relationship-model.py && python3 tools/build-todo-number-allocation.py && python3 tools/build-citation-publishers.py'
         language: system
         pass_filenames: false
         types: [markdown]
@@ -686,6 +686,18 @@ repos:
       - id: build-corpus-management-check
         name: Corpus-management generated outputs in sync
         entry: python3 tools/build-corpus-management.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: lint-allowlist-spec-parity
+        name: Allow-list and publisher-table parity audit
+        entry: python3 tools/lint-allowlist-spec-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: build-citation-publishers-check
+        name: Citation-publisher table in sync with its source of record
+        entry: python3 tools/build-citation-publishers.py --check
         language: system
         pass_filenames: false
         always_run: true

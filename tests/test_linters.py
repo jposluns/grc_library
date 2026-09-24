@@ -15130,6 +15130,226 @@ class ActivityTimingToolTests(LinterTestCase):
         )
 
 
+class AllowlistSpecParityTests(unittest.TestCase):
+    """Gate 101 (3b31b): allow-list and citation-verification section 7.1 parity."""
+
+    SPEC_HEAD = "# S\n\n### 7.1 Initial allow-list\n\n"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_linter_module("tools/lint-allowlist-spec-parity.py", "allowlist_parity_mod")
+
+    def spec(self, domains: list[str], block: str | None = None) -> str:
+        """Section 7.1 with its json citation-publishers block (3b31b redesign: no table parsing)."""
+        import json
+
+        if block is None:
+            entries = [{"publisher": f"P{i}", "domains": [d], "covers": "x"} for i, d in enumerate(domains)]
+            block = "```json citation-publishers\n" + json.dumps(entries) + "\n```\n"
+        return self.SPEC_HEAD + block + "\n### 7.2 Additions\n"
+
+    def allow(self, body: str) -> str:
+        return "ALLOW_LIST = {\n" + body + "}\n"
+
+    def floor(self, n: int = 0):
+        from unittest import mock
+
+        return mock.patch.object(self.mod, "MIN_SPEC_DOMAINS", n)
+
+    def test_live_repository_passes(self) -> None:
+        result = run_linter("tools/lint-allowlist-spec-parity.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unmarked_uncovered_entry_fails(self) -> None:
+        with self.floor():
+            allow = self.mod.allow_entries(self.allow('    "iso.org", "vendor.example",\n'))
+            findings = self.mod.check(allow, self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("vendor.example", findings[0])
+
+    def test_same_line_markers_pass(self) -> None:
+        body = ('    "iso.org",\n'
+                '    "vendor.example",  # non-publisher: a tool vendor\n'
+                '    "pub.example",  # pending-publisher: register entry to come\n')
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(findings, [])
+
+    def test_preceding_line_comment_does_not_mark(self) -> None:
+        body = '    # non-publisher: a group of vendors\n    "vendor.example",\n'
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["vendor.org"])))
+        self.assertTrue(any("vendor.example" in f for f in findings))
+
+    def test_marker_needs_a_reason(self) -> None:
+        body = '    "vendor.example",  # non-publisher:\n'
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertTrue(any("vendor.example" in f for f in findings))
+
+    def check_body(self, body: str, domains: list[str], tail: str = "") -> list[str]:
+        with self.floor():
+            return self.mod.check(self.mod.allow_entries(self.allow(body) + tail),
+                                  self.mod.spec_domains(self.spec(domains)))
+
+    def test_hash_inside_string_is_not_a_marker(self) -> None:
+        # codex r1: an escaped quote must not let string content forge a marker.
+        body = '    "iso.org", "unlisted.example", "bad\\"# non-publisher: forged",\n'
+        findings = self.check_body(body, ["iso.org"])
+        self.assertTrue(any("unlisted.example" in f for f in findings))
+
+    def test_second_assignment_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST = {"x.example"}\n')
+
+    def test_mutating_call_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST.add("x.example")\n')
+
+    def test_augmented_assignment_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST |= {"x.example"}\n')
+
+    def test_unsupported_uses_are_input_errors(self) -> None:
+        # codex r2: alias mutation, slice store and a match-pattern capture.
+        for tail in ('alias = ALLOW_LIST\nalias.add("x.example")\n',
+                     'ALLOW_LIST[:] = ["x.example"]\n',
+                     'match {"x.example"}:\n    case ALLOW_LIST:\n        pass\n',
+                     'import os as ALLOW_LIST\n',
+                     'def f(ALLOW_LIST):\n    return 1\n'):
+            with self.subTest(tail=tail), self.assertRaises(self.mod.InputError):
+                self.mod.allow_entries(self.allow('    "iso.org",\n') + tail)
+
+    def test_chained_definition_is_an_input_error(self) -> None:
+        # r3 (all three families): ALLOW_LIST = alias = {...}; alias.add(...).
+        for src in ('ALLOW_LIST = alias = {\n    "iso.org",\n}\nalias.add("x.example")\n',
+                    'alias = ALLOW_LIST = {\n    "iso.org",\n}\n'):
+            with self.subTest(src=src), self.assertRaises(self.mod.InputError):
+                self.mod.allow_entries(src)
+
+    def test_call_argument_use_is_allowed(self) -> None:
+        entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')
+        self.assertEqual([e for e, _, _ in entries], ["iso.org"])
+
+    def test_read_only_use_is_allowed(self) -> None:
+        entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'X = ALLOW_LIST.copy()\n')
+        self.assertEqual([e for e, _, _ in entries], ["iso.org"])
+
+    def test_noncanonical_spelling_fails(self) -> None:
+        findings = self.check_body('    "ISO.ORG",\n', ["iso.org"])
+        self.assertTrue(any("canonical" in f for f in findings))
+
+    def test_stale_marker_on_covered_entry_fails(self) -> None:
+        findings = self.check_body('    "iso.org",  # pending-publisher: row to come\n', ["iso.org"])
+        self.assertTrue(any("stale marker" in f for f in findings))
+
+    def test_suffix_covered_subdomain_passes(self) -> None:
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow('    "iso.org", "www.iso.org",\n')),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(findings, [])
+
+    def test_reverse_unadmitted_spec_domain_fails(self) -> None:
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow('    "iso.org",\n')),
+                                      self.mod.spec_domains(self.spec(["iso.org", "iec.ch"])))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("iec.ch", findings[0])
+
+    def test_block_input_errors(self) -> None:
+        # The section 7.1 source of record fails loud (tools/citation_publishers.py rules).
+        good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
+        shapes = {
+            "missing block": "No block here.\n",
+            "wrong info string": "```json\n" + good + "\n```\n",
+            "two blocks": ("```json citation-publishers\n" + good + "\n```\n") * 2,
+            "malformed JSON": "```json citation-publishers\n[{\"publisher\": \"ISO\",]\n```\n",
+            "duplicate domain": "```json citation-publishers\n"
+                '[{"publisher": "A", "domains": ["iso.org"], "covers": "x"},'
+                ' {"publisher": "B", "domains": ["iso.org"], "covers": "y"}]\n```\n',
+            "non-canonical domain": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["ISO.org"], "covers": "x"}]\n```\n',
+            "empty publisher": "```json citation-publishers\n"
+                '[{"publisher": "", "domains": ["iso.org"], "covers": "x"}]\n```\n',
+            "unclosed block": "```json citation-publishers\n" + good + "\n",
+            # r10 codex: a second block in any fence style is counted, never silently ignored.
+            "second block, tildes": "```json citation-publishers\n" + good + "\n```\n"
+                "~~~json citation-publishers\n" + good + "\n~~~\n",
+            "second block, indented": "```json citation-publishers\n" + good + "\n```\n"
+                "  ```json citation-publishers\n" + good + "\n  ```\n",
+            "second block, four backticks": "```json citation-publishers\n" + good + "\n```\n"
+                "````json citation-publishers\n" + good + "\n````\n",
+            "second block, trailing space": "```json citation-publishers\n" + good + "\n```\n"
+                "```json citation-publishers  \n" + good + "\n```\n",
+            "non-canonical single opener": "~~~json citation-publishers\n" + good + "\n~~~\n",
+            "nested in an outer fence": "````\n```json citation-publishers\n" + good + "\n```\n````\n",
+            "indented heading ends the section": "  ### 7.2 Outside\n\n```json citation-publishers\n"
+                + good + "\n```\n",
+            "domain with a trailing newline": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["iso.org\\n"], "covers": "x"}]\n```\n',
+            "over-long DNS label": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["' + "a" * 64 + '.org"], "covers": "x"}]\n```\n',
+        }
+        for name, block in shapes.items():
+            with self.subTest(name), self.floor(), self.assertRaises(self.mod.InputError):
+                self.mod.spec_domains(self.spec([], block=block))
+
+    def test_line_endings_and_longer_closing_fence_are_accepted(self) -> None:
+        good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
+        crlf = self.spec([], block="```json citation-publishers\n" + good + "\n```\n").replace("\n", "\r\n")
+        longer = self.spec([], block="```json citation-publishers\n" + good + "\n````\n")
+        with self.floor():
+            self.assertEqual(self.mod.spec_domains(crlf), {"iso.org"})
+            self.assertEqual(self.mod.spec_domains("\ufeff" + longer), {"iso.org"})
+
+    def test_table_shapes_no_longer_matter(self) -> None:
+        # The nine-round class is gone: the gate never reads the table, so a table in any shape
+        # (or none at all) beside a valid block changes nothing.
+        text = self.spec(["iso.org", "iec.ch"]).replace(
+            "### 7.2", "| stray | `evil.example` |\nIEC | `iec.ch`\n--- | ---\n\n### 7.2")
+        with self.floor():
+            self.assertEqual(self.mod.spec_domains(text), {"iso.org", "iec.ch"})
+
+    def test_build_cli_refuses_crlf_and_cr_bytes(self) -> None:
+        """Round-11 codex P2: the CLI must see the RAW bytes, so a CRLF or CR specification is
+        refused (exit 2) rather than silently normalized by text-mode newline translation."""
+        import importlib.util
+        import tempfile
+        from unittest import mock
+        spec = importlib.util.spec_from_file_location(
+            "build_citation_publishers", REPO_ROOT / "tools" / "build-citation-publishers.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        live = (REPO_ROOT / "governance" / "specification-citation-verification.md").read_bytes()
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, data in (("crlf", live.replace(b"\n", b"\r\n")), ("cr", live.replace(b"\n", b"\r")),
+                               ("bom", b"\xef\xbb\xbf" + live), ("non-utf8", live + b"\xff\xfe")):
+                path = Path(tmp) / (name + ".md")
+                path.write_bytes(data)
+                with mock.patch.object(mod, "SPEC", path), mock.patch("sys.stderr"):
+                    self.assertEqual(mod.main(["--check"]), 2, name)
+            path = Path(tmp) / "lf.md"
+            path.write_bytes(live)
+            with mock.patch.object(mod, "SPEC", path), mock.patch("sys.stdout"):
+                self.assertEqual(mod.main(["--check"]), 0)
+
+    def test_build_tool_self_test_and_live_check(self) -> None:
+        for args in (["--self-test"], ["--check"]):
+            result = run_linter("tools/build-citation-publishers.py", *args)
+            self.assertEqual(result.returncode, 0, " ".join(args) + result.stdout + result.stderr)
+
+    def test_domain_floor_is_an_input_error(self) -> None:
+        with self.floor(5), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"]))
+
+    def test_missing_allow_list_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries("OTHER = {\"a.org\"}\n")
+
+
 class UnwiredToolSelfTests(LinterTestCase):
     """Wire the remaining tool ``--self-test`` suites into CI.
 
@@ -18755,6 +18975,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         # These gates retain named-input, configured-root or independent
         # operational scope. Their existing positive regression fixtures apply.
         unchanged = set("""
+        build-citation-publishers.py
         build-corpus-management.py
         build-narrative-registry.py
         build-portal.py
@@ -18773,6 +18994,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         check-todo-floor-monotonic-on-pr.py
         check-todo-rotation-on-pr.py
         lint-aiqt-vendor-digest.py
+        lint-allowlist-spec-parity.py
         lint-audit-gate-parity.py
         lint-audit-spec-detailed-prose.py
         lint-changelog-link-coverage.py
