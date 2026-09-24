@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.45\
-**Date:** 2026-09-23\
+**Version:** 1.71.46\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -491,8 +491,8 @@ These rule files draw on and are aligned to the following external projects and 
 
 **SLSA: Supply-chain Levels for Software Artifacts**
 - URL: `https://slsa.dev/`
-- Coverage: Four levels of build provenance and supply-chain integrity; source integrity, build integrity, dependency tracking
-- Direct application: [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md)
+- Coverage: v1.2; a Build track (L0 to L3: build-platform trustworthiness and provenance) and a Source track (L1 to L4: source history and provenance, enforced organizational controls, and code review)
+- Direct application: [`pipeline/cicd-gates.md`](pipeline/cicd-gates.md), [`governance/artefact-and-branch-discipline.md`](governance/artefact-and-branch-discipline.md)
 
 **Google Secure AI Framework (SAIF)**
 - URL: `https://saif.google/`

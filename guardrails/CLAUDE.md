@@ -161,6 +161,6 @@ These requirements implement controls from:
 - CSA CCM v4.1 / AICM v1.1
 - ISO/IEC 27001:2022 Annex A
 - CISA Secure by Design principles
-- SLSA (Supply-chain Levels for Software Artifacts)
+- SLSA v1.2 (Supply-chain Levels for Software Artifacts): Build and Source tracks
 
 The pack's governance rules and skills are self-contained as behavioural guidance. The audit toolchain (the parent repo's linters and CI) and the extended requirement detail (`dev-security/standard-developer-security-requirements.md`) live in the pack's parent GRC library and do not ship with the pack, so a project that wants mechanical enforcement or that detail supplies it separately.
