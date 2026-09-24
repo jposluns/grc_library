@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.76\
+**Version:** 1.5.77\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -248,6 +248,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | SLSA | v1.2 | 2025-11 | Supply-chain Levels for Software Artifacts (OpenSSF): Build track (L0 to L3) and Source track (L1 to L4) | v1.1, v1.0, v0.1 | https://slsa.dev/spec/ | 2026-09-24 |
+| CycloneDX | 1.7 | 2025-10 | OWASP Bill of Materials specification (ECMA-424, 2nd Edition): software, hardware, services, cryptographic assets and AI models, with dependencies, vulnerabilities, VEX and attestations | 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0 | https://cyclonedx.org/specification/overview/ | 2026-09-24 |
 
 ## Customs and trade
 
