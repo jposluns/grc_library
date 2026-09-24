@@ -3040,6 +3040,20 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_check_commit_on_main_hook_self_test(self) -> None:
+        """The git-native pre-commit commit-on-main guard's --self-test, wired at introduction (P-TODO 3b17).
+
+        Refuses a commit on a grc_library main/master checkout from ANY tool or worktree (a Bash
+        write bypasses the Edit|Write hook block-branch-to-main-edit.py). --self-test exercises
+        decide() and an end-to-end run through the real installer and real git commits.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "check-commit-on-main.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unstamped_turn_end_hook_self_test(self) -> None:
         """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(
