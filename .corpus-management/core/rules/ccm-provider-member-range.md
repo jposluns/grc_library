@@ -6,9 +6,11 @@ controls state a duty the cloud provider owes the tenant rather than a control t
 document's own organization operates; citing a family range (for example "CCC-01 to
 09") that spans such a member silently pulls a provider-duty control into an
 internal-scope claim. The check reads each line outside fenced code blocks and inline
-code spans (and skips blockquote lines as quotation); a marker-aware fence scan tracks
-the opening fence's character, run length and indentation, so a shorter, different
-or over-indented fence line inside a block is content, not a toggle. It finds each single-family
+code spans (and skips blockquote lines as quotation). Fences and code spans are read
+as CommonMark defines them: a fence line is indented at most three spaces relative to its
+list-item container, only a same-character run at least as long with no info string
+closes a fence, and a code span needs a closing backtick run of exactly the opening
+length. It finds each single-family
 range, expands it to its member codes, and flags any that fall in the tracked
 directional-member set, advising that the range be split to exclude them. A
 mixed-family range (a range whose two endpoints name different families) is malformed

@@ -8904,13 +8904,28 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         # with a backtick is not an opener, a closing line with an info string does not close,
         # and a longer run of the same character does close.
         for name, body, flagged in (
+            ("indent4", "    " + tick3 + "\n\nCCC-01 to 09\n", True),
             ("indent4-close", tick3 + "\n    " + tick3 + "\nCCC-01 to 09\n" + tick3 + "\n", False),
+            # round 3: a three-space top-level opener is not closed by a four-space line
+            ("indent3-then-4", "   " + tick3 + "\n    " + tick3 + "\nexample\n" + tick3
+             + "\nCCC-01 to 09\n", True),
+            # a closer indented two spaces inside a list item (column 3) closes; an absolute
+            # three-space cap would also accept it, but a closer at column-relative 4 would not
+            ("list-closer-rel2", "1. Example:\n\n   " + tick3 + "\n   x\n     " + tick3
+             + "\n\nCCC-01 to 09\n", True),
+            ("list-closer-rel4", "1. Example:\n\n   " + tick3 + "\n       " + tick3
+             + "\n   CCC-01 to 09\n", False),
+            # leaving the list item ends a fence opened inside it
+            ("list-exit", "1. Example:\n\n   " + tick3 + "\n   x\n\nCCC-01 to 09\n", True),
             # round 2: list-contained fences close relative to their opener
             ("list-3-4", "1. Example:\n\n   " + tick3 + "text\n   example\n    " + tick3
              + "\n\nCCC-01 to 09\n", True),
             ("list-4-4", "1. Example:\n\n    " + tick3 + "\n    | S | CCC-01 to 09 |\n    "
              + tick3 + "\n", False),
             ("double-backtick-span", "The range ``CCC-01 to 09`` is an example.\n", False),
+            ("unequal-runs", "The range ``CCC-01 to 09` is active.\n", True),
+            ("escaped-backticks", "The range \\`CCC-01 to 09\\` is active.\n", True),
+            ("span-ending-backtick", "Example: `` CCC-01 to 09` `` here.\n", False),
             ("tick-info", tick3 + "a`b\nCCC-01 to 09\n", True),
             ("info-close", tick3 + "\n" + tick3 + "text\nCCC-01 to 09\n" + tick3 + "\n", False),
             ("longer-close", tick3 + "\n" + tick4 + "\nCCC-01 to 09\n", True),

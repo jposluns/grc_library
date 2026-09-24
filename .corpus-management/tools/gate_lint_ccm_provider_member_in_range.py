@@ -42,53 +42,104 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
 # tracked as (character, run length), and only a same-character run at least as long, with no info
 # string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
 # boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
-# A backtick fence's info string cannot contain a backtick (CommonMark 4.5). Indentation is
-# measured, not capped: a fence inside a list item is indented relative to the item, so an
-# absolute three-space cap would lose list-contained fences (3b52a round 2). A closer must be
-# indented less than the opener's indentation plus four (the relative rule). Residue, stated: this
-# scan is not container-aware, so a four-space-indented code line that looks like a fence at the
-# top level is still read as a fence; the shared container-aware helper is routed (P-TODO 3b54).
+# Markdown structure is scanned programmatically, as CommonMark states the rules, not by regex
+# (3b52a: three QA rounds of regex edge cases). Fences: a list item sets a content column; an opener
+# or closer is indented 0 to 3 spaces relative to that column (four or more is an indented code
+# line); a backtick fence's info string cannot contain a backtick; only a same-character run at
+# least as long, with no info string, closes; a non-blank line indented left of the column ends
+# the item and any fence open inside it. Residue, stated: block quotes as containers, lazy
+# continuation, and code spans spanning lines are not modelled.
+_LIST_ITEM = re.compile(r"^( *)([-*+]|\d{1,9}[.)])( {1,4})(?=\S)")
 _FENCE_RE = re.compile(r"^( *)(`{3,}|~{3,})(.*)$")
 
 
-def _fence_marker(line: str):
+def _fence_marker(line: str, container: int):
     m = _FENCE_RE.match(line)
     if not m:
         return None
-    indent, run, info = len(m.group(1)), m.group(2), m.group(3).strip()
-    if run[0] == "`" and "`" in info:
+    rel = len(m.group(1)) - container
+    run, info = m.group(2), m.group(3).strip()
+    if not 0 <= rel <= 3 or (run[0] == "`" and "`" in info):
         return None
-    return run[0], len(run), info, indent
+    return run[0], len(run), info
 
 
 def _closes(marker, opener) -> bool:
     return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2] and marker[3] < opener[3] + 4)
+            and marker[1] >= opener[1] and not marker[2])
 
 
-# A code span is delimited by equal backtick runs, so ``CCC-01 to 09`` is one span (not two
-# empty ones around exposed text).
-INLINE_CODE_RE = re.compile(r"(`+)(?!`).*?(?<!`)\1(?!`)")
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def _strip_code_spans(line: str) -> str:
+    """Remove inline code spans per CommonMark: a backtick run opens a span only when a later run
+    of exactly the same length closes it; a backslash-escaped backtick is literal; an unmatched
+    run is literal text."""
+    out, i, n = [], 0, len(line)
+    while i < n:
+        c = line[i]
+        if c == "\\" and i + 1 < n:
+            out.append(line[i:i + 2])
+            i += 2
+            continue
+        if c != "`":
+            out.append(c)
+            i += 1
+            continue
+        j = i
+        while j < n and line[j] == "`":
+            j += 1
+        run, k, close_end = j - i, j, None
+        while k < n:
+            if line[k] != "`":
+                k += 1
+                continue
+            m = k
+            while m < n and line[m] == "`":
+                m += 1
+            if m - k == run:
+                close_end = m
+                break
+            k = m
+        if close_end is None:
+            out.append(line[i:j])
+            i = j
+        else:
+            out.append(" ")
+            i = close_end
+    return "".join(out)
 
 
 def scan_text(rel: str, text: str) -> list[str]:
     findings: list[str] = []
     opener = None
+    container = 0
     for i, line in enumerate(text.splitlines(), 1):
-        marker = _fence_marker(line)
-        if opener is None:
-            if marker is not None:
-                opener = marker
+        blank = not line.strip()
+        if opener is not None:
+            if not blank and container and _indent(line) < container:
+                opener, container = None, 0  # leaving the list item ends its fence; re-read the line
+            else:
+                if _closes(_fence_marker(line, container), opener):
+                    opener = None
                 continue
-        else:
-            if _closes(marker, opener):
-                opener = None
+        if not blank:
+            item = _LIST_ITEM.match(line)
+            if item:
+                container = len(item.group(0))
+            elif _indent(line) < container:
+                container = 0
+        marker = _fence_marker(line, container)
+        if marker is not None:
+            opener = marker
             continue
         # A blockquote line is an example / quotation, not an active citation.
         if line.lstrip().startswith(">"):
             continue
         # Strip inline-code spans so a range shown as `CCC-01 to 09` is not flagged.
-        scanned = INLINE_CODE_RE.sub("", line)
+        scanned = _strip_code_spans(line)
         for m in RANGE_RE.finditer(scanned):
             fam, start_s, fam2, end_s = m.group(1), m.group(2), m.group(3), m.group(4)
             # A mixed-family range (e.g. "CCC-01 to LOG-09") is malformed, not a
