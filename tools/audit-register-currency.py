@@ -9,8 +9,8 @@ It reports drift between the ``grc_library_ref`` currency ledger (the
 editions and last-checked dates) and this repo's consumer surface, the
 register [`governance/register-canonical-citations.md`]. Neither repository's
 CI can see the other, so no CI gate can check cross-repo currency; the check is
-orchestrator-side by design (the same pattern as
-``tools/audit-brief-freshness.py``).
+orchestrator-side by design (the same pattern as the other sibling-reading
+advisory tools, for example ``tools/audit-claim-precision.py``).
 
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the four-surface
 parity gate, the regression suite gate) does NOT auto-discover it, and it is NOT

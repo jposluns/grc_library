@@ -5,7 +5,7 @@
 # Guarantees the sibling-independence invariant: an adopter who clones ONLY the
 # public grc_library repo (reaching no grc_library_ref / grc_library_scratch /
 # grc_library_private sibling) can still run every audit gate green AND run the
-# advisory tools scoped in PR #996 (ref-holds, audit-brief-freshness)
+# advisory tools scoped in PR #996 (ref-holds; audit-brief-freshness was retired 2026-09-24)
 # without a spurious error. The corpus' QA toolchain is
 # PRODUCT (adopters clone and run it), so it must not depend on the maintainer's
 # private sibling repos. All six maintainer-cadence tools that also reach
@@ -85,7 +85,7 @@ rc=$?
 adv_rc=0
 echo
 echo "Checking the sibling-reaching advisory/generator tools degrade gracefully (1.19.2 (closing PR #996), 1.19.7 (closing PR #1007)) ..."
-for tool in ref-holds.py audit-brief-freshness.py build-reference-manifest.py \
+for tool in ref-holds.py build-reference-manifest.py \
             audit-reference-breadth.py audit-claim-precision.py verify-reference-modules.py \
             audit-register-currency.py audit-reference-acquisition-gaps.py \
             scan-publication-instruction-content.py; do

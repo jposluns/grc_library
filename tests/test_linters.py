@@ -16133,14 +16133,6 @@ class UnwiredToolSelfTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
-    def test_audit_brief_freshness_self_test_passes(self) -> None:
-        result = run_linter("tools/audit-brief-freshness.py", "--self-test")
-        self.assertEqual(
-            result.returncode, 0,
-            f"audit-brief-freshness.py --self-test failed.\n"
-            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-        )
-
     def test_check_retired_section_orphan_self_test_passes(self) -> None:
         """D9's own ``--self-test`` (pure retired-id derivation + anchored-pattern precision),
         wired into CI so its guards cannot silently rot. The self-test operates on inline strings
