@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.73\
-**Date:** 2026-09-12\
+**Version:** 1.5.74\
+**Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -97,6 +97,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | NIST SP 800-34 | Rev. 1 | 2010-05 | Contingency Planning Guide for Federal Information Systems | - | https://csrc.nist.gov/pubs/sp/800/34/r1/final | 2026-06-30 |
 | NIST SP 800-53 | Rev. 5 | 2020-09 | Security and Privacy Controls for Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final | 2026-06-30 |
+| NIST SP 800-53A | Rev. 5 | 2022-01 | Assessing Security and Privacy Controls in Information Systems and Organizations | Rev. 4 | https://csrc.nist.gov/pubs/sp/800/53/a/r5/final | 2026-09-24 |
 | NIST SP 800-61 | Rev. 3 | 2025-04 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/61/r3/final | 2026-06-30 |
 | NIST SP 800-63B | Rev. 4 | 2025-07 | Digital Identity Guidelines: Authentication and Authenticator Management (part of SP 800-63 Rev. 4 family) | Rev. 3 | https://csrc.nist.gov/pubs/sp/800/63/b/4/final | 2026-06-30 |
 | NIST SP 800-88 | Rev. 2 | 2025-09 | Media sanitization (Rev. 2 reframes around an enterprise media-sanitization programme and defers sanitization-technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard, retaining only cryptographic erase directly) | Rev. 1 | https://csrc.nist.gov/pubs/sp/800/88/r2/final | verified 2026-06-30 |
