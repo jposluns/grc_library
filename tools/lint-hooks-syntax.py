@@ -30,15 +30,18 @@ exits 1; a file with null bytes fails the same way. Exit 0 with a scanned-file c
 otherwise.
 
 Residues, stated: a compile under THIS interpreter proves compilability for the Python
-version CI runs, not for every interpreter an adopter might use; and a missing or empty
-hooks directory passes with a count of 0 (an adopter fork without the hook tree stays
-green), so the gate proves "everything present compiles", never "the hooks are present".
+version CI runs, not for every interpreter an adopter might use; and the DEFAULT hooks
+directory, when missing or empty, passes with a count of 0 (an adopter fork without the hook
+tree stays green), so the gate proves "everything present compiles", never "the hooks are
+present". An EXPLICIT --hooks-dir that is empty, not a directory, or holds no hook file is
+refused instead (3b50b2d1).
 
 Usage:
     python3 tools/lint-hooks-syntax.py                # scan .claude/hooks/ (gate 95)
     python3 tools/lint-hooks-syntax.py --hooks-dir D  # fixture/regression override
 
-Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile.
+Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile;
+2 = a refused --hooks-dir (empty value, not a directory, or no hook file in it).
 
 Stdlib-only Python 3.11.
 """
