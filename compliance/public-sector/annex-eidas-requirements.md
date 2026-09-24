@@ -2,8 +2,8 @@
 
 **Document Title:** eIDAS Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-09-20\
+**Version:** 0.0.3\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/public-sector/README.md`](README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md)\
@@ -77,7 +77,7 @@ A phased acceptance obligation applies to certain private-sector relying parties
 
 ### Wallet provider (Article 5a)
 
-- Provide at least one wallet within 24 months of the entry into force of the implementing acts (Article 5a(1); a clock relative to the implementing acts, not a fixed date).
+- Each Member State must provide at least one European Digital Identity Wallet within 24 months of the entry into force of the implementing acts referred to in Articles 5a(23) and 5c(6) (Article 5a(1); a Member State duty on a clock relative to the implementing acts, not a fixed date).
 - Meet assurance level **high**, in particular for identity proofing and verification, provided under an electronic identification scheme with assurance level high (Article 5a(5)(d), (11)).
 - Provide the user-control functions: selective disclosure of person identification data, locally-stored encrypted pseudonyms, wallet-to-wallet authentication, and a common dashboard logging all transactions, listing relying parties, enabling GDPR Article 17 erasure requests, and enabling a report of a relying party to the data protection authority (Article 5a(4)).
 - Ensure that the user has full control and that no use information beyond what is necessary is collected (Article 5a(14)); provision is voluntary for users and free of charge for natural persons (Article 5a(13), (15)).
@@ -94,7 +94,7 @@ The library provides the identity, authentication, and supply-chain baselines th
 | Relying-party authentication and identity proofing (Article 5b(9)) | [`security/policy-identity-and-access-management.md`](../../security/policy-identity-and-access-management.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
 | Assurance-level-high identity context (Article 5a(11)) | [`security/framework-zero-trust-architecture.md`](../../security/framework-zero-trust-architecture.md) (identity pillar) |
 | Data minimization for requested attributes (Article 5b(3)) | [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), the data-minimization principle |
-| Trust-service-provider security and supervision (Articles 16, 19a) | [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) (the trust-service provider is a NIS2 essential entity), plus the library security baselines |
+| Trust-service-provider security and supervision (Articles 16, 19a) | [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) (qualified trust-service providers are NIS2 essential entities regardless of size; a non-qualified provider's classification depends on the Article 3 criteria), plus the library security baselines |
 
 Obligations the adopter meets outside the library:
 

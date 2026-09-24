@@ -2,8 +2,8 @@
 
 **Document Title:** DORA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.0.11\
-**Date:** 2026-09-18\
+**Version:** 0.0.12\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -130,7 +130,7 @@ Voluntary; DORA encourages financial entities to share cyber threat information 
 
 ## Library gaps requiring additional documentation
 
-1. **Register of all contractual arrangements** in the format and granularity DORA requires (Article 28(3) and the related RTS). Entities maintain this in a regulatory-compliant register beyond the library's supplier risk template.
+1. **Register of all contractual arrangements** in the format and granularity DORA requires (Article 28(3)); financial entities maintain and update it using the templates in Annexes I to IV of Commission Implementing Regulation (EU) 2024/2956, the applicable implementing technical standards. Entities maintain this in a regulatory-compliant register beyond the library's supplier risk template.
 2. **Concentration risk register** specific to critical ICT third-party providers and intra-group concentrations.
 3. **Incident reporting templates** matching the EBA/EIOPA/ESMA-published forms.
 4. **TLPT scoping documentation** under TIBER-EU.
