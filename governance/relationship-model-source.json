@@ -10815,7 +10815,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -10975,7 +10975,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11007,7 +11007,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11295,7 +11295,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11423,7 +11423,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11455,7 +11455,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11487,7 +11487,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11519,7 +11519,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11551,7 +11551,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11583,7 +11583,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11615,7 +11615,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -11871,7 +11871,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12351,7 +12351,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12383,7 +12383,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12447,7 +12447,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12543,7 +12543,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12575,7 +12575,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12607,7 +12607,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12639,7 +12639,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12671,7 +12671,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12703,7 +12703,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12735,7 +12735,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12767,7 +12767,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -12799,7 +12799,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -13230,6 +13230,38 @@
       "verb": "maps to",
       "destination": {
         "id": "COBIT",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0397",
+      "source": {
+        "id": "GRC-STD-LOGGING-MONITORING",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-CSF",
         "class": "framework"
       },
       "relationship_class": "correspondence",

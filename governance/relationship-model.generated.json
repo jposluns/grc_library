@@ -10778,7 +10778,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "NIST-CSF"
@@ -10938,7 +10938,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -10970,7 +10970,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11258,7 +11258,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11386,7 +11386,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11418,7 +11418,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11450,7 +11450,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11482,7 +11482,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11514,7 +11514,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11546,7 +11546,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11578,7 +11578,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -11834,7 +11834,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12314,7 +12314,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12346,7 +12346,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12410,7 +12410,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12506,7 +12506,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12538,7 +12538,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12570,7 +12570,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12602,7 +12602,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12634,7 +12634,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12666,7 +12666,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12698,7 +12698,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "NIST-CSF"
@@ -12730,7 +12730,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "COBIT"
@@ -12762,7 +12762,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "industry practice",
       "destination": {
         "class": "framework",
         "id": "NIST-CSF"
@@ -13240,16 +13240,48 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0397",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-LOGGING-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
     "node_count": 172,
-    "record_count": 376,
+    "record_count": 377,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 348,
+      "correspondence": 349,
       "implementation": 19,
       "influence": 8
     }
