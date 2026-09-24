@@ -61,16 +61,23 @@ ESCAPE = "GRC_ALLOW_PR_ATTRIBUTION"
 
 # Strict attribution shapes. Each is an attribution LINE pattern, not a model-family mention:
 # "claude SHIP", "CLAUDE.md", "claude-attribution" must all pass.
-# Markdown formatting characters are replaced by SPACES before matching (the text is normalized,
-# never the patterns widened per delimiter): emphasis, code spans and link brackets cannot split or
-# hide an attribution line, token boundaries survive ('[Claude][1]' and 'Claude_Code' stay two
-# words), a formatted CLAUDE.md still reads as a filename, and offsets are unchanged, so every
-# match is reported from the ORIGINAL text.
+# The patterns run over THREE views of the text (the text is normalized, never the patterns widened
+# per delimiter): the raw text; Markdown formatting characters replaced by spaces (so '[Claude][1]'
+# and 'Claude_Code' keep their word boundaries); and the same characters deleted (so in-word
+# formatting such as 'C**laud**e' or a bold '**Co-Authored-By**:' label rejoins). Newlines survive
+# every view, so a match is reported as its line of the ORIGINAL text. Threat model, stated: this
+# catches accidental or harness-added attribution in its ordinary Markdown shapes; deliberate
+# obfuscation is a visible integrity breach in the PR text, not a parsing target.
 MARKDOWN_FORMATTING = str.maketrans("*_`[]", "     ")
+MARKDOWN_DELETE = str.maketrans("", "", "*_`[]")
+
+
+def text_views(text: str) -> tuple[str, ...]:
+    return (text, text.translate(MARKDOWN_FORMATTING), text.translate(MARKDOWN_DELETE))
 
 ATTRIBUTION = (
     ("a Co-Authored-By trailer naming Claude/Anthropic",
-     re.compile(r"(?i)co-authored-by:[^\n]*\b(?:claude|anthropic)\b")),
+     re.compile(r"(?i)co-authored-by[ \t]*:[^\n]*\b(?:claude|anthropic)\b")),
     ("a 'Generated with/by ... Claude' attribution line",
      re.compile(r"(?i)\bgenerated\s+(?:with|by|using|via)\s+(?:(?:the\s+)?(?:help|assistance|aid)\s+of\s+)?"
                 r"(?:the\s+)?(?:claude|anthropic)(?![a-z0-9]|\.md\b)")),
@@ -160,11 +167,12 @@ def _snippet(s: str) -> str:
 
 
 def find_attribution(text: str):
-    norm = text.translate(MARKDOWN_FORMATTING)
-    for label, rx in ATTRIBUTION:
-        m = rx.search(norm)
-        if m:
-            return label, _snippet(text[m.start():m.end()])
+    raw_lines = text.split("\n")
+    for view in text_views(text):
+        for label, rx in ATTRIBUTION:
+            m = rx.search(view)
+            if m:
+                return label, _snippet(raw_lines[view.count("\n", 0, m.start())])
     return None
 
 
