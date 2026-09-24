@@ -113,6 +113,19 @@ ANY_VERSION_LINE = re.compile(r"^\*\*(?:README )?Version:\*\*")
 HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
+def _lf_lines(s: str, keepends: bool = False) -> list[str]:
+    """PURE. Split on LF only. git diff output and hunk positions are LF-delimited, whereas
+    str.splitlines() also splits on U+2028, U+0085 and similar, which can fabricate a diff line
+    (a fake 'diff --git' or '+++') from content inside one real line (#2496 r4, codex)."""
+    parts = s.split("\n")
+    if keepends:
+        out = [x + "\n" for x in parts[:-1]]
+        if parts[-1]:
+            out.append(parts[-1])
+        return out
+    return parts[:-1] if parts and parts[-1] == "" else parts
+
+
 def version_line_changed(lines: list[str]) -> bool:
     """PURE. True when a +/- changed line (not a diff header) is a Version or README Version line."""
     for ln in lines:
@@ -161,7 +174,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
         if m and m.group(2) != today:
             out.append(cur)
 
-    for ln in diff.splitlines():
+    for ln in _lf_lines(diff):
         if ln.startswith("diff --git "):
             flush()
             parts = ln.split(" b/", 1)
@@ -236,7 +249,7 @@ def offenders(diff: str, versioned: set[str]) -> list[str]:
             if body and not ver:
                 out.append(cur)
 
-    for ln in diff.splitlines():
+    for ln in _lf_lines(diff):
         if ln.startswith("diff --git "):
             flush()
             parts = ln.split(" b/", 1)
@@ -260,7 +273,7 @@ def _metadata_region_end(text: str) -> int:
     before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
     is left untouched."""
     off = 0
-    for line in text.splitlines(keepends=True):
+    for line in _lf_lines(text, keepends=True):
         st = line.strip()
         if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
             off += len(line)
@@ -565,10 +578,17 @@ def self_test() -> int:
     pp_text = "**Date:** 2026-01-01\\\n**Version:** 3.0.0\\\n\n---\n\n++ note\n**Version:** 1.0.1\n"
     pp = ("diff --git a/p.md b/p.md\n--- a/p.md\n+++ b/p.md\n@@ -2,1 +2,2 @@\n-**Version:** 2.0.0\n+**Version:** 3.0.0\n+++ note\n")
     ck("a '+++' added body line in the hunk does not disturb a header bump", stale_date_after_bump(pp, {"p.md": pp_text}, "2026-09-24"), ["p.md"])
-    # No fixture can make the pre-r3 '+++' skip change an OUTCOME: an added '++' line is never
-    # header-shaped, so it sits at or after the header end and skipping it only undercounts body
-    # positions, which stay outside the header. The in-hunk tracking is arithmetic correctness,
-    # and its mutants are equivalent (reported INVALID, not as a coverage gap).
+    # --- 2026-09-24 r4 (codex): the diff itself is split on LF only; a U+2028 inside a deleted line
+    # must not fabricate a '+++' line that shifts a real header Version bump out of the header ---
+    cx = ("diff --git a/x.md b/x.md\n--- a/x.md\n+++ b/x.md\n@@ -2,2 +2 @@\n"
+          "-# title\u2028+++ note\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in a deleted line does not fabricate a '+++' line (header bump still reported)",
+       stale_date_after_bump(cx, {"x.md": "**Date:** 2026-01-01\n**Version:** 1.0.1\n"}, "2026-09-24"), ["x.md"])
+    ob = "diff --git a/a.md b/a.md\n@@ -1 +1 @@\n-old\u2028diff --git a/x b/zz.md\n+new\n"
+    ck("a U+2028 in a changed line does not fabricate a file header in the BLOCKING offender scan",
+       offenders(ob, {"zz.md"}), [])
+    mr = "**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\nbody\n"
+    ck("the metadata region counts a U+2028-bearing line as ONE LF line", _metadata_region_end(mr), len("**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\n"))
     # --- 2026-09-24: generated-artefact exemption, end to end through main() in a scratch repo ---
     import shutil, subprocess, json as _json
     d5 = mkrepo()
