@@ -61,10 +61,12 @@ ESCAPE = "GRC_ALLOW_PR_ATTRIBUTION"
 
 # Strict attribution shapes. Each is an attribution LINE pattern, not a model-family mention:
 # "claude SHIP", "CLAUDE.md", "claude-attribution" must all pass.
-# Markdown formatting characters are removed before matching (the text is normalized, never the
-# patterns widened per delimiter): emphasis, code spans and link brackets cannot split or hide an
-# attribution line, and a formatted CLAUDE.md still reads as a filename.
-MARKDOWN_FORMATTING = str.maketrans("", "", "*_`[]")
+# Markdown formatting characters are replaced by SPACES before matching (the text is normalized,
+# never the patterns widened per delimiter): emphasis, code spans and link brackets cannot split or
+# hide an attribution line, token boundaries survive ('[Claude][1]' and 'Claude_Code' stay two
+# words), a formatted CLAUDE.md still reads as a filename, and offsets are unchanged, so every
+# match is reported from the ORIGINAL text.
+MARKDOWN_FORMATTING = str.maketrans("*_`[]", "     ")
 
 ATTRIBUTION = (
     ("a Co-Authored-By trailer naming Claude/Anthropic",
@@ -147,10 +149,10 @@ def _read_body_file(path: str) -> str | None:
         return None
 
 
-def _snippet(match: re.Match) -> str:
+def _snippet(s: str) -> str:
     """The matched attribution text, made safe for the refusal contract: no em/en dashes and
     no contract-marker substrings, truncated."""
-    s = match.group(0).replace(chr(0x2014), "-").replace(chr(0x2013), "-")
+    s = s.replace(chr(0x2014), "-").replace(chr(0x2013), "-")
     for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
         s = s.replace(marker, "")
     s = s.strip()
@@ -158,11 +160,11 @@ def _snippet(match: re.Match) -> str:
 
 
 def find_attribution(text: str):
-    text = text.translate(MARKDOWN_FORMATTING)
+    norm = text.translate(MARKDOWN_FORMATTING)
     for label, rx in ATTRIBUTION:
-        m = rx.search(text)
+        m = rx.search(norm)
         if m:
-            return label, _snippet(m)
+            return label, _snippet(text[m.start():m.end()])
     return None
 
 
