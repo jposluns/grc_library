@@ -15326,7 +15326,7 @@ class AllowlistSpecParityTests(unittest.TestCase):
         live = (REPO_ROOT / "governance" / "specification-citation-verification.md").read_bytes()
         with tempfile.TemporaryDirectory() as tmp:
             for name, data in (("crlf", live.replace(b"\n", b"\r\n")), ("cr", live.replace(b"\n", b"\r")),
-                               ("bom", b"\xef\xbb\xbf" + live)):
+                               ("bom", b"\xef\xbb\xbf" + live), ("non-utf8", live + b"\xff\xfe")):
                 path = Path(tmp) / (name + ".md")
                 path.write_bytes(data)
                 with mock.patch.object(mod, "SPEC", path), mock.patch("sys.stderr"):

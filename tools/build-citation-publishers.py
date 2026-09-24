@@ -60,7 +60,7 @@ def main(argv: list[str]) -> int:
         if "\r" in text or text.startswith("\ufeff"):
             raise InputError("the specification must use LF line endings without a BOM")
         new = regenerate(text)
-    except (InputError, OSError) as exc:
+    except (InputError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
     if "--check" in argv:
