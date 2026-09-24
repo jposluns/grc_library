@@ -47,7 +47,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/scope
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets  # noqa: E402  # grc-config/scope
 
 try:
     from cobit_iso31000_reference import (
@@ -114,7 +114,8 @@ def _display_path(path: Path) -> str:
 
 
 def main(argv: list[str]) -> int:
-    paths = argv[1:] or [str(REPO_ROOT)]
+    # 3b48: explicit paths are refused when missing (a content check on the held COBIT and ISO 31000 catalogues; #1010 made out-of-tree reporting sound), else normalized.
+    paths = guard_explicit_paths_cwd(argv[1:], repo_root=REPO_ROOT, allow_outside=True) if argv[1:] else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
         paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES)
     all_findings: list[Finding] = []

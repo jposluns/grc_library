@@ -71,7 +71,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -109,8 +109,10 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Detect cross-document numerical drift on canonical-term thresholds."
     )
-    parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
+    parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
     # term -> {normalised_value -> [(doc, raw_text)]}
     aggregate: dict[str, dict[int, list[tuple[str, str]]]] = defaultdict(lambda: defaultdict(list))

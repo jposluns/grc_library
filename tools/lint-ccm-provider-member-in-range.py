@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 from lint_common import (  # noqa: E402  # grc-config/store, stays local
+    guard_explicit_paths_cwd,
     DEFAULT_EXEMPT_DIRS,
     REPO_ROOT,
     iter_markdown_targets,
@@ -68,7 +69,8 @@ def scan_targets(roots: list[Path] | None = None) -> list[Path]:
 
 def main(argv: list[str]) -> int:
     root = Path(REPO_ROOT)
-    scan_roots = [Path(p).resolve() for p in argv[1:]] or [root]
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    scan_roots = [Path(p) for p in guard_explicit_paths_cwd(argv[1:], repo_root=root)] if argv[1:] else [root]
     all_findings: list[str] = []
     try:
         for path in scan_targets(scan_roots):

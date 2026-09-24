@@ -32,7 +32,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Derive the pack tools/ from this file's location, independent of REPO_ROOT.
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
@@ -205,7 +205,9 @@ def main(argv: list[str]) -> int:
         "skill": engine.count_collection(SKILLS_DIR, "*/"),
     }
 
-    paths = argv[1:]
+    # 3b48: explicit paths are refused when missing or outside this tree (the counts are
+    # this tree's inventory), else normalized.
+    paths = guard_explicit_paths_cwd(argv[1:], repo_root=REPO_ROOT) if argv[1:] else []
     targets = iter_targets(paths)
     return engine.run(
         targets,

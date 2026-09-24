@@ -32,7 +32,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import is_default_exempt_root, is_adopter_exempt, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, is_adopter_exempt, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Derive the pack tools/ from this file's location, independent of REPO_ROOT.
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
@@ -143,10 +143,12 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "paths",
         nargs="*",
-        default=DEFAULT_PATHS,
+        default=None,
         help="Files or directories to scan (default: whole repo).",
     )
     args = parser.parse_args(argv[1:])
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     targets = iter_targets(args.paths)
     return _engine().run(targets, repo_root=REPO_ROOT, patterns=_placeholders_config())
 

@@ -44,7 +44,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import head_version, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Thread-pool width for the per-file git queries. The queries are
 # independent read-only subprocesses, so the pool changes wall-clock
@@ -70,8 +70,27 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 GIT_VERSION_REGEX = r"^\*\*(Library )?Version:\*\*"
 
 
+# The repository the git queries read. main() sets it to the resolved --root, so the
+# queries no longer inherit the process cwd (3b48: run from outside --root, `git log`
+# failed with "not a git repository" and every file was skipped as if it had no history).
+GIT_ROOT: Path | None = None
+
+
 def git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], text=True).strip()
+    anchor = ["-C", str(GIT_ROOT)] if GIT_ROOT is not None else []
+    return subprocess.check_output(["git", *anchor, *args], text=True).strip()
+
+
+def require_git_worktree(root: Path) -> str | None:
+    """Return a refusal message when ``root`` is not inside a git work tree, else None."""
+    try:
+        inside = git("rev-parse", "--is-inside-work-tree")
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return f"--root {root} is not inside a git work tree ({exc}); nothing can be checked."
+    # Inside a .git directory the command exits 0 but prints "false" (3b48 r2 codex).
+    if inside != "true":
+        return f"--root {root} is not inside a git work tree (git reports {inside!r}); nothing can be checked."
+    return None
 
 
 def iter_targets(root: Path) -> list[Path]:
@@ -96,11 +115,17 @@ def iter_targets(root: Path) -> list[Path]:
     return sorted(targets)
 
 
+class GitQueryError(RuntimeError):
+    """A per-file git query failed (3b48 r3 codex). A failure is not "no history": an
+    untracked file yields empty output with exit 0, so a non-zero exit means git could not
+    answer, and treating it as absent history let the audit pass without checking."""
+
+
 def last_file_commit(rel: str) -> str | None:
     try:
         out = git("log", "-1", "--format=%H", "--", rel)
-    except subprocess.CalledProcessError:
-        return None
+    except subprocess.CalledProcessError as exc:
+        raise GitQueryError(f"git log failed for {rel} ({exc})") from exc
     return out or None
 
 
@@ -111,8 +136,8 @@ def last_version_commit(rel: str) -> str | None:
     been changed since)."""
     try:
         out = git("log", "-1", "--format=%H", "-G", GIT_VERSION_REGEX, "--", rel)
-    except subprocess.CalledProcessError:
-        return None
+    except subprocess.CalledProcessError as exc:
+        raise GitQueryError(f"git log -G failed for {rel} ({exc})") from exc
     return out or None
 
 
@@ -138,8 +163,20 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     root = Path(args.root).resolve()
+    global GIT_ROOT
+    GIT_ROOT = root
+    # Fail loud when --root is not inside a git work tree, before any per-file query: the
+    # whole audit reads that tree's history (per-file query failures raise GitQueryError).
+    problem = require_git_worktree(root)
+    if problem:
+        print(f"ERROR: {problem}", file=sys.stderr)
+        return 2
 
     if args.paths:
+        # 3b48: explicit paths are refused when missing or outside --root (the check reads
+        # that tree's git history; a missing path used to count as a scanned document with
+        # no history, and an outside one passed over a git fatal), else normalized.
+        args.paths = guard_explicit_paths_cwd(args.paths, repo_root=root)
         targets = [
             Path(p).resolve() for p in args.paths
             if p.endswith(".md")
@@ -169,16 +206,20 @@ def main(argv: list[str]) -> int:
     # the serial form, and duplicate explicit paths are each processed
     # (map iterates the list; it does not key by rel, which would collapse
     # duplicates). Only scheduling is concurrent. last_file_commit /
-    # last_version_commit return None (never raise) on a git failure, so
-    # map's eager submission introduces no observable exception-path change.
+    # last_version_commit raise GitQueryError on a git failure (3b48); map
+    # re-raises the first one here and the audit exits 2 rather than passing.
     def _per_file_history(rel: str) -> tuple[str | None, str | None]:
         file_commit = last_file_commit(rel)
         if file_commit is None:
             return (None, None)
         return (file_commit, last_version_commit(rel))
 
-    with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
-        per_file = list(pool.map(_per_file_history, rels))
+    try:
+        with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
+            per_file = list(pool.map(_per_file_history, rels))
+    except GitQueryError as exc:
+        print(f"ERROR: {exc}; the audit cannot be completed.", file=sys.stderr)
+        return 2
 
     findings: list[tuple[str, str, str]] = []
     scanned = 0
