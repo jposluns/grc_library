@@ -2,7 +2,7 @@
 
 **Document Title:** Semantic Continuity in Migration and Retirement Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-09-24\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
