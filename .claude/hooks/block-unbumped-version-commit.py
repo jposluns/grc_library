@@ -236,6 +236,21 @@ def commit_target(cmd: str, cwd: str):
     # auto-bump here; the git-native commit-msg check in that checkout still refuses it.
     if re.search(r"\b(?:cd|pushd|popd)\b", prefix):
         return None
+    # ALLOWLIST, not a blocklist (3b25 r5, tri-family: env assignments, `env -C`, `source`, an
+    # alias, and quote-spliced `c''d` all move the commit without a literal cd token). The target is
+    # read from the text only when the matched `git` stands alone (not the tail of `repo.git` or a
+    # path), the commit's own command segment has nothing before `git` (no `GIT_DIR=`/`env` prefix),
+    # and every earlier segment is itself a plain `git` invocation, which cannot change the shell's
+    # directory. Anything else steps aside; the git-native commit-msg check in the real target still
+    # refuses. Residue, stated: a user alias or function NAMED `git` is not detectable from text.
+    if m.start() > 0 and flat[m.start() - 1] not in " ;&|":
+        return None
+    segments = re.split(r"&&|\|\||[;|&]", prefix)
+    if segments[-1].strip():
+        return None
+    for seg in segments[:-1]:
+        if seg.strip() and not re.match(r"\s*git\s", seg):
+            return None
     parts = []
     parts += re.findall(r"-C\s+(\S+)", m.group(0))
     target = cwd
@@ -703,6 +718,15 @@ def self_test() -> int:
     ck("commit_target: a cd after a failing && is undeterminable", commit_target("false && cd /x; git commit -m x", "/r"), None)
     ck("commit_target: a failed cd then a skipped cd is undeterminable",
        commit_target("cd /dev/null && cd /x; git commit -m x", "/r"), None)
+    for shape in ("GIT_DIR=/o/.git GIT_WORK_TREE=/o git commit -m x", "env -C /o git commit -m x",
+                  "env --chdir=/o git commit", "git --work-tree=/o --git-dir=/o/.git commit -m x",
+                  "source s.sh && git commit", ". ./s.sh; git commit", "c''d /o; git commit -m x",
+                  "'cd' /o && git commit", "c\\d /o && git commit", "up && git commit",
+                  "git clone /src/repo.git commit-fix"):
+        ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
+    ck("commit_target: earlier plain git segments keep the cwd target",
+       commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")
+    ck("commit_target: a non-git pipe source steps aside", commit_target("true | git commit -F -", "/r"), None)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")

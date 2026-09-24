@@ -88,7 +88,7 @@ def message_opts_out(text, guard, comment_char="#"):
     REFUSING, never toward a false allow, and the override remains (3b25 r2 codex/gemini)."""
     chars = _AUTO_COMMENT_CHARS if comment_char == "auto" else (comment_char[:1] or "#")
     kept = []
-    for line in text.splitlines():
+    for line in text.split("\n"):   # git's lines are \n-only; splitlines() also splits on \v, NEL, U+2028 (3b25 r5 claude)
         if line[:1] and line[:1] in chars and line.rstrip() == line[:1] + _SCISSORS:
             break
         if line[:1] and line[:1] in chars:
@@ -320,6 +320,8 @@ def _self_test():
         ("an opt-out in a comment line does not count",
          message_opts_out("subject\n# VersionBump: none (commented)\n", _G), False),
         ("an opt-out in the body counts", message_opts_out("subject\n\nVersionBump: none (reason)\n", _G), True),
+        ("a vertical tab does not split a stripped comment line into an opt-out",
+         message_opts_out("s\n# junk\x0bVersionBump: none x\n", _G), False),
         ("an opt-out below the scissors line does not count",
          message_opts_out("s\n# ------------------------ >8 ------------------------\n+VersionBump: none x\n", _G), False),
         ("a custom comment character is honoured", message_opts_out("s\n; VersionBump: none x\n", _G, ";"), False),
