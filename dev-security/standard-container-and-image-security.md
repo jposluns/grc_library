@@ -2,8 +2,8 @@
 
 **Document Title:** Container and Image Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`supply-chain/register-sbom.md`](../supply-chain/register-sbom.md)\
@@ -42,7 +42,7 @@ This standard applies to every container image built, stored, distributed, or ex
 | Vendor scanning | Build pipelines fail on Critical vulnerabilities per the SCA standard |
 | Signing | Images signed before push using Sigstore Cosign, Notation, or equivalent; signatures verified at pull and at admission |
 | SBOM | Per the SBOM register; SBOM generated for every image and attached as an attestation |
-| Provenance | Build provenance attestation produced per SLSA Build Level 3 target |
+| Provenance | Build provenance attestation produced per SLSA v1.2 Build L3 target |
 | Image hardening | Unnecessary packages removed; setuid binaries removed; init system minimized |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-09-23\
+**Version:** 1.0.10\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/framework-it-service-management.md`](framework-it-service-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`operations/standard-site-reliability-engineering.md`](standard-site-reliability-engineering.md), [`operations/standard-observability-and-telemetry.md`](standard-observability-and-telemetry.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/procedure-secure-code-review.md`](../dev-security/procedure-secure-code-review.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md)\
@@ -54,7 +54,7 @@ It does not cover patches under the patch management procedure (which has its ow
 
 | Activity | Required output |
 | --- | --- |
-| Build provenance | Build originates from a known commit; build is reproducible or attested per the SLSA expectations |
+| Build provenance | Build originates from a known commit; build is reproducible or attested per SLSA v1.2 Build-track provenance expectations |
 | Artefact signing | Artefacts are signed; signatures verifiable at deployment |
 | Software bill of materials | SBOM attached to the artefact per the SCA standard |
 | Vulnerability gate | No critical or high vulnerabilities exceed the gate threshold without an exception |
