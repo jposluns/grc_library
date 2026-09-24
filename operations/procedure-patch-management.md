@@ -205,6 +205,8 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ## Framework alignment
 
+The NIST SSDF v1.1 column maps the software development and maintenance activities within each control area, including application and dependency vulnerabilities; it does not establish coverage of infrastructure-only activities or complete implementation of each cited task.
+
 | Control Area | NIST SP 800-40r4 | NIST SSDF v1.1 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Patch planning and classification | SP 800-40r4 §2.3.1, §3.2 to 3.4 (prioritization; inventory; risk-response scenarios; maintenance groups) | RV.2.1 | A.8.8 | TVM-08, TVM-01 | Control 7.1 | DSS05.07 |
