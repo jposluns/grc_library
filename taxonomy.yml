@@ -6335,7 +6335,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Canonical Citations Register"
-  version: "1.5.82"
+  version: "1.5.83"
   date: "2026-09-24"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
