@@ -15256,6 +15256,16 @@ class AllowlistSpecParityTests(unittest.TestCase):
             domains = self.mod.spec_domains(self.spec(["iso.org"], "\nThe notation `A | B` means either.\n"))
         self.assertEqual(domains, {"iso.org"})
 
+    def test_backtickless_row_outside_table_is_an_input_error(self) -> None:
+        # r6 (codex, gemini): a stray row without code spans must not vanish.
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "> Note: continued below.\n\n| Lost | lost.example | x |\n"))
+
+    def test_prose_with_one_pipe_and_inline_code_is_ignored(self) -> None:
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nUse a pipe | and a `code` span.\n"))
+        self.assertEqual(domains, {"iso.org"})
+
     def test_row_after_a_stray_line_is_an_input_error(self) -> None:
         # A stray line ends the table; a row after it must fail loud, not vanish.
         with self.floor(), self.assertRaises(self.mod.InputError):

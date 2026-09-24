@@ -166,10 +166,12 @@ def spec_domains(text: str) -> set[str]:
     # header row and ends at the first blank line or the first line without a
     # pipe (a GFM table ends at a blank line or at another block, such as a
     # blockquote note). Inside it every line is a row (a GFM row need not start
-    # with a pipe). Outside it, a line that still has a pipe once inline code
-    # spans are removed, and that carries a code span, looks like a table row
-    # and is an input error (a second table whose domains would otherwise be
-    # missed); prose, including a pipe inside inline code, is ignored.
+    # with a pipe). Outside it, a line with two or more pipe delimiters once
+    # inline code spans are removed is table-structured (a row of at least two
+    # cells), so it is an input error whatever its content (a second table or a
+    # stray row whose domains would otherwise be missed). Prose with a single
+    # pipe, or pipes only inside inline code, is ignored. Residue: prose with
+    # two or more bare pipes outside code fails loud.
     start = next((k for k, line in enumerate(lines)
                   if "|" in line and _cells(line)[0] == "Publisher"), None)
     if start is None:
@@ -180,8 +182,8 @@ def spec_domains(text: str) -> set[str]:
         if start <= k < stop:
             continue
         outside_code = re.sub(r"`[^`]*`", "", line)
-        if "|" in outside_code and "`" in line:
-            raise InputError(f"a table-like row with a code span outside the section 7.1 table: {line.strip()[:80]}")
+        if outside_code.count("|") >= 2:
+            raise InputError(f"a table-structured line outside the section 7.1 table: {line.strip()[:80]}")
     domains: set[str] = set()
     rows = 0
     for line in lines[start + 1:stop]:
