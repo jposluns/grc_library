@@ -113,7 +113,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, dynamic_floor, require_dir, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
@@ -290,7 +290,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,  # a str, so an empty --root= reaches require_dir as "" (Path("") is ".")
         default=None,
         help="repository root to scan (default: the audited repository, whose "
              "detailed mirror resolves via lint_common.resolve_working)",
@@ -300,8 +300,16 @@ def main(argv: list[str]) -> int:
     if args.root is not None:
         # EXPLICIT --root stays verbatim: the regression fixtures build a
         # synthetic tree with its own .working/changelog-details/, read as given.
-        root_changelog = args.root / ROOT_CHANGELOG_REL
-        detailed_mirror = args.root / DETAILED_MIRROR_REL
+        # 3b50b1: an explicit --root must be a directory holding both inputs; a missing input
+        # used to raise a traceback (rc 1, the findings code).
+        root = require_dir(args.root, "--root")
+        root_changelog = root / ROOT_CHANGELOG_REL
+        detailed_mirror = root / DETAILED_MIRROR_REL
+        missing = [str(p) for p in (root_changelog, detailed_mirror) if not p.is_file()]
+        if missing:
+            print(f"ERROR: --root {args.root}: required input(s) missing: {', '.join(missing)}",
+                  file=sys.stderr)
+            return 2
     else:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
         resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")

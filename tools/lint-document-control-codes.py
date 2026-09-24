@@ -79,9 +79,11 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     explicit = bool(args.paths)
+    # 3b50b1: existence is checked on the paths AS GIVEN, before the exempt-root filter, so a
+    # missing path under an exempt directory is refused rather than silently dropped.
     targets = collect_targets(args.paths)
     if explicit:
-        missing = [t for t in targets if not t.is_file()]
+        missing = [Path(p).resolve() for p in args.paths if not Path(p).resolve().is_file()]
         if missing:
             print(f"ERROR: target not found: {missing[0]}", file=sys.stderr)
             return 2

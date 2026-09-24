@@ -218,6 +218,10 @@ def iter_files(paths, *, explicit=True):
 
     def visit(path):
         path = within(path)
+        # 3b50b1: existence is checked BEFORE the exclusion filter, so a missing explicit path
+        # under an excluded prefix is refused rather than silently dropped.
+        if not path.exists():
+            raise OSError(f"missing/unreadable intended input: {path}")
         if excluded(path):
             return
         if path.is_dir():

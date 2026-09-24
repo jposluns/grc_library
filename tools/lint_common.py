@@ -844,6 +844,34 @@ def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
     return True
 
 
+def require_dir(path, flag: str) -> Path:
+    """An explicit directory argument, resolved, or a refusal (stderr, SystemExit(2)) when it is not
+    an existing directory (3b50b1: several --root overrides scanned nothing and exited 0)."""
+    if not str(path).strip():
+        # An empty value (--flag= or --flag "") would resolve to the current directory and pass.
+        print(f"ERROR: {flag} needs a directory argument (an empty value is refused).", file=sys.stderr)
+        raise SystemExit(2)
+    p = Path(path).resolve()
+    if not p.is_dir():
+        print(f"ERROR: {flag} {path}: not a directory; nothing would be checked.", file=sys.stderr)
+        raise SystemExit(2)
+    return p
+
+
+def require_git_worktree_at(root: Path) -> str | None:
+    """A refusal message when ``root`` is not inside a git work tree, else None."""
+    import subprocess
+
+    try:
+        inside = subprocess.run(["git", "-C", str(root), "rev-parse", "--is-inside-work-tree"],
+                                capture_output=True, text=True, check=True).stdout.strip()
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return f"{root} is not inside a git work tree ({exc}); nothing can be checked."
+    if inside != "true":
+        return f"{root} is not inside a git work tree (git reports {inside!r}); nothing can be checked."
+    return None
+
+
 def guard_explicit_paths(
     paths: Iterable[str],
     *,
