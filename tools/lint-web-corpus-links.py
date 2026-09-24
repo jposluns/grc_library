@@ -18,7 +18,9 @@ still resolves to a file in the repo.
 Usage:
     python3 tools/lint-web-corpus-links.py [--manifest PATH] [--self-test]
 
-Exit codes: 0 clean; 1 on findings (or a usage/self-test failure).
+Exit codes: 0 clean; 1 on findings (or a self-test failure); 2 when an explicit --manifest is
+empty, missing or not a regular file, or the manifest cannot be read or parses to zero link rows
+(nothing would be checked).
 """
 
 from __future__ import annotations
@@ -124,7 +126,26 @@ def main(argv: list[str]) -> int:
     if args.self_test:
         return _self_test()
 
+    if args.manifest is not None:
+        # 3b50b2d2: an explicit manifest must be a readable regular file. An empty value was
+        # Path('.'), and an out-of-tree or unrelated file parsed to zero rows and passed.
+        if not args.manifest.strip() or not Path(args.manifest).is_file():
+            print(f"ERROR: --manifest {args.manifest!r}: not a regular file; nothing would be "
+                  f"checked.", file=sys.stderr)
+            return 2
     manifest_path = Path(args.manifest).resolve() if args.manifest else DEFAULT_MANIFEST
+    if manifest_path.is_file():
+        try:
+            n_rows = len(list(parse_manifest(manifest_path.read_text(encoding="utf-8"))))
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"ERROR: cannot read manifest {manifest_path}: {exc}", file=sys.stderr)
+            return 2
+        if n_rows == 0:
+            # 3b50b2d2: zero parsed rows means nothing was checked (a wrong file or a format
+            # drift); it used to print OK.
+            print(f"ERROR: manifest {manifest_path}: no link rows parsed; nothing was checked.",
+                  file=sys.stderr)
+            return 2
     findings = check(manifest_path)
     if not findings:
         print("OK: every web-to-corpus link target resolves.")

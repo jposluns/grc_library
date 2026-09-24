@@ -35,6 +35,8 @@ Exit codes:
         Unavailable-prior-state is treated as a pass with a printed note
         rather than a separate exit code.
     1   one or more versions decreased.
+    2   an explicit --prior-readme is missing, empty, not a regular file, or
+        cannot be read (nothing to compare against).
 """
 
 from __future__ import annotations
@@ -213,7 +215,18 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv if argv is not None else sys.argv[1:])
 
     if args.prior_readme is not None:
-        prior_text = args.prior_readme.read_text(encoding="utf-8")
+        # 3b50b2d2: a missing, empty or non-file --prior-readme used to raise a traceback.
+        if not str(args.prior_readme).strip() or str(args.prior_readme) == "." \
+                or not args.prior_readme.is_file():
+            print(f"ERROR: --prior-readme {args.prior_readme}: not a regular file; nothing to "
+                  f"compare against.", file=sys.stderr)
+            return 2
+        try:
+            prior_text = args.prior_readme.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"ERROR: --prior-readme {args.prior_readme}: cannot be read ({exc}).",
+                  file=sys.stderr)
+            return 2
         lib_ok, lib_msg = check_library_version_against_text(prior_text)
         if lib_ok:
             print(f"OK: library version is monotonic non-decreasing (vs supplied prior).")
