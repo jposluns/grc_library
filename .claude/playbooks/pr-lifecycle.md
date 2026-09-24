@@ -459,7 +459,7 @@ is external. Two mechanisms:
      PUSHED `grc_library_private/changelog-archive/` together by the coupled `rollup-changelog.py`
      (#2066), and git history retains every entry regardless). Any such archiving is an advisory close-out follow-up,
      NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
-     shape as the `/validate-pr` sweep and the `audit-brief-freshness.py` advisory
+     shape as the `/validate-pr` sweep and the `audit-register-currency.py` advisory
      tool, and the sweep removes tree content only (this
      repo's git history and the grc_library_private archive both retain the full trail, and the `.working/
      export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean
