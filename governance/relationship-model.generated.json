@@ -4,6 +4,13 @@
   "generated_by": "tools/build-relationship-model.py",
   "nodes": [
     {
+      "class": "framework",
+      "corpus_path": null,
+      "display_name": "COBIT 2019 Framework",
+      "id": "COBIT",
+      "source_identifier": "COBIT 2019"
+    },
+    {
       "class": "standard",
       "corpus_path": null,
       "display_name": "ETSI EN 304 223 Baseline Cyber Security Requirements for AI",
@@ -169,6 +176,13 @@
       "corpus_path": "supply-chain/framework-supplier-and-cloud-governance.md",
       "display_name": "Supplier and Cloud Governance Framework",
       "id": "GRC-FW-SUPPLIER-CLOUD-GOV",
+      "source_identifier": null
+    },
+    {
+      "class": "framework",
+      "corpus_path": "governance/framework-sustainability-and-responsible-technology.md",
+      "display_name": "Sustainability and Responsible Technology Framework",
+      "id": "GRC-FW-SUSTAINABILITY-RESPONSIBLE-TECHNOLOGY",
       "source_identifier": null
     },
     {
@@ -565,6 +579,20 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "supply-chain/procedure-supplier-audit.md",
+      "display_name": "Supplier Audit Procedure",
+      "id": "GRC-PROC-SUPPLIER-AUDIT",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
+      "corpus_path": "supply-chain/procedure-supplier-due-diligence.md",
+      "display_name": "Supplier Due Diligence Procedure",
+      "id": "GRC-PROC-SUPPLIER-DUE-DILIGENCE",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "supply-chain/procedure-supplier-onboarding-security-review.md",
       "display_name": "Supplier Onboarding Security Review Procedure",
       "id": "GRC-PROC-SUPPLIER-ONBOARDING",
@@ -943,6 +971,13 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "architecture/standard-reference-architecture.md",
+      "display_name": "Reference Architecture Standard",
+      "id": "GRC-STD-REFERENCE-ARCHITECTURE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "security/standard-remote-working-security.md",
       "display_name": "Remote Working Security Standard",
       "id": "GRC-STD-REMOTE-WORKING",
@@ -1136,6 +1171,13 @@
       "display_name": "NIST AI Risk Management Framework",
       "id": "NIST-AI-RMF",
       "source_identifier": "NIST AI RMF 1.0"
+    },
+    {
+      "class": "framework",
+      "corpus_path": null,
+      "display_name": "NIST Cybersecurity Framework 2.0",
+      "id": "NIST-CSF",
+      "source_identifier": "NIST CSWP 29 (CSF 2.0)"
     },
     {
       "class": "standard",
@@ -10638,16 +10680,2608 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0317",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-AI-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0318",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-AI-MODEL-LIFECYCLE-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0319",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TOTAL-COST-OWNERSHIP-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0320",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-ENTERPRISE-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0321",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-ARCHITECTURE-REVIEW"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0322",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-ARCHITECTURE-REVIEW"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0323",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTEGRATION-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0324",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-REFERENCE-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0325",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-COMPLIANCE-AUDIT-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0326",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-LEGAL-REG-COMPLIANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0327",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-AUDIT-PLANNING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0328",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CAPA"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0329",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CONTROL-TESTING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0330",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-MERGERS-ACQUISITIONS-DUE-DILIGENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0331",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-MERGERS-ACQUISITIONS-DUE-DILIGENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0332",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTERNAL-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0333",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SANCTIONS-EXPORT-CONTROL-SCREENING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0334",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SANCTIONS-EXPORT-CONTROL-SCREENING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0335",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-SECURE-DEV"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0336",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-QUALITY-ASSURANCE-TESTING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0337",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SOFTWARE-COMPOSITION-ANALYSIS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0338",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SOFTWARE-EVALUATION-ACCEPTANCE-LIFECYCLE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0339",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-CONTINUOUS-ASSURANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0340",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-GOV-PERFORMANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0341",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-HUMAN-CAPITAL"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0342",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-METRICS-REPORTING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0343",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-SUSTAINABILITY-RESPONSIBLE-TECHNOLOGY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0344",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-DIGITAL-TWIN"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0345",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-EXCEPTION-RISK-ACCEPTANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0346",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CONTINUOUS-IMPROVEMENT-REGISTER"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0347",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-GRC-PROGRAMME-MANAGEMENT-ANNUAL-REVIEW"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0348",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-LIBRARY-QUALITY-REVIEW-CADENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0349",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-STANDARD-VERSION-UPGRADE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0350",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DELEGATION-AUTHORITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0351",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-MATURITY-ASSESSMENT-METHODOLOGY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0352",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-RECORDS-RETENTION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0353",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-ITSM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0354",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CHANGE-MANAGEMENT-CONFIGURATION-CONTROL"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0355",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-ENDPOINT-MANAGEMENT-DEVICE-COMPLIANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0356",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-MEDIA-HANDLING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0357",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-PATCH-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0358",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SEC-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0359",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SEC-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0360",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-THREAT-INTELLIGENCE-SIEM-OPERATIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0361",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-THREAT-INTELLIGENCE-SIEM-OPERATIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0362",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-CERTIFICATE-AUTHORITY-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0363",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-CLOUD-CONFIG-BASELINE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0364",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-IT-FINANCIAL-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0365",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-NETWORK-SEGMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0366",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SERVICE-LEVEL-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0367",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SITE-RELIABILITY-ENGINEERING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0368",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-PRIVACY-DATA-GOV"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0369",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-ENTERPRISE-GRM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0370",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-RISK-ASSESSMENT-METHODOLOGY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0371",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-ERM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0372",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THIRD-PARTY-SUPPLY-CHAIN-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0373",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THIRD-PARTY-SUPPLY-CHAIN-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0374",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "framework",
+        "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0375",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-ACCEPTABLE-USE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0376",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-ACCEPTANCE-INTO-SERVICE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0377",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-ENCRYPTION-KEY-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0378",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-IAM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0379",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-INFOSEC"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0380",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-INFOSEC"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0381",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-NETWORK-COMMS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0382",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-WORKFORCE-NET-MON"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0383",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-ACCESS-CONTROL"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0384",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CRYPTO-KEY-OPS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0385",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-IDENTITY-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0386",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SECURITY-DISCIPLINARY-PROCESS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0387",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SECURITY-INCIDENT-RESPONSE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0388",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-VULN-MGMT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0389",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DATA-CLASSIFICATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0390",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DATA-LOSS-PREVENTION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0391",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-LOGGING-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0392",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-MONITORING-INTEGRITY-COVERAGE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0393",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-PRIVILEGED-ACCESS-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0394",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SAAS-SECURITY-POSTURE-MANAGEMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0395",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SUPPLIER-AUDIT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "COBIT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0396",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-SUPPLIER-DUE-DILIGENCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-CSF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0397",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-LOGGING-MONITORING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 166,
-    "record_count": 296,
+    "node_count": 172,
+    "record_count": 377,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 268,
+      "correspondence": 349,
       "implementation": 19,
       "influence": 8
     }
