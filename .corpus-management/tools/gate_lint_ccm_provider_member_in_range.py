@@ -86,11 +86,16 @@ def _strip_code_spans(line: str) -> str:
     return "".join(out)
 
 
+BLOCKQUOTE_RE = re.compile(r"^ {0,3}>")
+
+
 def scan_text(rel: str, text: str) -> list[str]:
     findings: list[str] = []
     for i, line in enumerate(text.splitlines(), 1):
-        # A blockquote line is an example / quotation, not an active citation.
-        if line.lstrip().startswith(">"):
+        # A blockquote line is an example / quotation, not an active citation. Only a '>' indented
+        # at most three spaces opens a blockquote (CommonMark); a tab- or four-space-indented '>'
+        # line is not skipped (fail closed).
+        if BLOCKQUOTE_RE.match(line):
             continue
         # Strip inline-code spans so a range shown as `CCC-01 to 09` is not flagged.
         scanned = _strip_code_spans(line)

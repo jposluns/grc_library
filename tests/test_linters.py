@@ -8915,6 +8915,9 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
             ("list-closer-rel4", "1. Example:\n\n   " + t3 + "\n       " + t3 + "\n   CCC-01 to 09\n"),
             ("list-exit", "1. Example:\n\n   " + t3 + "\n   x\n\nCCC-01 to 09\n"),
             ("marker-line-example", "- " + tl + "\n  CCC-01 to 09\n  " + tl + "\n"),
+            # round 6: only a '>' indented at most three spaces is a blockquote
+            ("indented-gt", "    > CCC-01 to 09\n"),
+            ("tab-gt", "\t> CCC-01 to 09\n"),
         ):
             self.assertLinterFails(self._run(f"fake-ccm-fence-{name}.md", body), "CCC-05")
 
