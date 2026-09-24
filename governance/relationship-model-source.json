@@ -13,12 +13,15 @@
     "the library's own relationship data; adopters are not required to adopt it.",
     "Regenerate the derived model with python3 tools/build-relationship-model.py",
     "after any edit here.",
-    "Authority rule for maps-to records whose destination is an external framework or",
-    "standard (maintainer ruling 2026-09-24, 3b51): the force comes from the",
-    "governance/matrix-cross-framework-alignment.md Alignment Type of the source artefact's row",
-    "when that row names the destination's family (a compound 'X or Y' type takes the term that",
-    "fits the destination class, industry practice for a standard); otherwise the default is",
-    "industry practice. The value is set per record, never inherited by template copy."
+    "Authority rule for maps-to records whose destination is an external standard",
+    "(maintainer rulings 2026-09-24, 3b51): the force comes from the Alignment Type of the",
+    "source artefact's row in governance/matrix-cross-framework-alignment.md (the row found via",
+    "the document index title) when that row names the destination standard itself or its",
+    "numbered series (for example 'ISO/IEC 27001 Annex A' covers ISO/IEC 27001 and 27002; a",
+    "generic topical phrase such as 'AI management families' does not name a standard). A",
+    "compound 'X or Y' type takes the term that fits a standard, industry practice; a compound",
+    "with no term fitting a standard falls to the default. Otherwise the default is industry",
+    "practice. The value is set per record, never inherited by template copy."
   ],
   "nodes": [
     {
@@ -7276,7 +7279,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -7308,7 +7311,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,

@@ -7233,7 +7233,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "destination": {
         "class": "standard",
         "id": "ISO-IEC-27002"
@@ -7265,7 +7265,7 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "destination": {
         "class": "standard",
         "id": "ISO-IEC-27001"
