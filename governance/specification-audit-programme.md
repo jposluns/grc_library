@@ -2,7 +2,7 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.163\
+**Version:** 1.17.164\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,7 +75,7 @@ Categorization is descriptive, not prescriptive: a gate may bear on multiple cat
 
 ## 6. Gate inventory (current)
 
-The numbering matches the order in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) and [`.github/workflows/quality.yml`](../.github/workflows/quality.yml).
+The row order matches the execution order in [`tools/run_all_audits.sh`](../tools/run_all_audits.sh) and [`.github/workflows/quality.yml`](../.github/workflows/quality.yml); the numbering follows it too, except where a gate keeps its appended number but is execution-ordered beside related gates, as §5 allows and its own appended-order sentence records (gate 100).
 
 | # | Gate | Script |
 | --- | --- | --- |
