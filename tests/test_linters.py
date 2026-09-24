@@ -3161,7 +3161,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         Checks every commit in the committing worktree (the PreToolUse guard is blind to `git -C
         <worktree>` commits); refuses only, never auto-bumps. --self-test runs decide(), the message
         opt-out parsing, and an end-to-end run through the real installer and real commits, including
-        a linked-worktree commit and the commit-msg.local chaining.
+        a linked-worktree commit and the commit-msg-local chaining.
         """
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "check-version-bump-commit.py"), "--self-test"]

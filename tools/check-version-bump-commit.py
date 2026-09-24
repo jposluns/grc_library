@@ -216,7 +216,7 @@ def _integration_self_test():
 
         must(["git", "init", "-q", "-b", "feature"])
         must(["git", "config", "commit.gpgsign", "false"])
-        # A local (unmanaged) commit-msg hook is refused until renamed to commit-msg.local, then chained.
+        # A local (unmanaged) commit-msg hook is refused until renamed to commit-msg-local, then chained.
         hooks = Path(must(["git", "rev-parse", "--git-path", "hooks"]).stdout.strip())
         hooks = hooks if hooks.is_absolute() else repo / hooks
         hooks.mkdir(parents=True, exist_ok=True)
@@ -224,9 +224,9 @@ def _integration_self_test():
         local.write_text("#!/bin/sh\necho 'local hook ran' >> \"$1\"\n")
         local.chmod(0o755)
         cp = run(["sh", "tools/install-git-hooks.sh"])
-        if cp.returncode == 0 or "commit-msg.local" not in cp.stderr:
+        if cp.returncode == 0 or "commit-msg-local" not in cp.stderr:
             failures.append("a foreign commit-msg hook was not refused with the .local migration step")
-        local.rename(hooks / "commit-msg.local")
+        local.rename(hooks / "commit-msg-local")
         cp = run(["sh", "tools/install-git-hooks.sh"])
         if cp.returncode != 0:
             failures.append(f"installer failed after the .local migration: {cp.stderr.strip()}")
@@ -235,7 +235,7 @@ def _integration_self_test():
         must(["git", "add", "d.md"])
         must(["git", "commit", "-q", "-m", "init"])
         if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
-            failures.append("the chained commit-msg.local hook did not run")
+            failures.append("the chained commit-msg-local hook did not run")
         doc(repo / "d.md", "1.0.0", "second body")
         must(["git", "add", "d.md"])
         cp = run(["git", "commit", "-q", "-m", "body only"])
@@ -301,13 +301,13 @@ def _integration_self_test():
         if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a renamed document with an unbumped body edit was allowed")
         must(["git", "reset", "-q", "--hard"])
-        # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg.local.
+        # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg-local.
         (repo / "tools" / "git-hooks" / "commit-msg").rename(repo / "moved-commit-msg")
         (repo / "f.txt").write_text("x\n")
         must(["git", "add", "f.txt"])
         must(["git", "commit", "-q", "-m", "older checkout"])
         if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
-            failures.append("commit-msg.local was skipped in a checkout without the tracked dispatcher")
+            failures.append("commit-msg-local was skipped in a checkout without the tracked dispatcher")
     return failures
 
 

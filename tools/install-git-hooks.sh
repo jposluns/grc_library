@@ -4,7 +4,7 @@
 # Currently: a pre-push dirty-tracked-tree backstop (tools/git-hooks/pre-push), a pre-commit
 # refusal of commits on a main/master checkout (tools/git-hooks/pre-commit, P-TODO 3b17), and a
 # commit-msg per-commit Version-bump check (tools/git-hooks/commit-msg, P-TODO 3b25), which also runs
-# a local unmanaged hook kept as commit-msg.local.
+# a local unmanaged hook kept as commit-msg-local.
 # Run once per clone, alongside `pre-commit install`. Idempotent; refuses rather
 # than clobbering an existing foreign hook, and refuses under a set core.hooksPath.
 #
@@ -77,7 +77,7 @@ cleanup() {
 trap cleanup 0
 trap 'exit 1' HUP INT TERM
 
-# The commit-msg dispatcher runs a LOCAL (unmanaged) hook kept as commit-msg.local FIRST, in every
+# The commit-msg dispatcher runs a LOCAL (unmanaged) hook kept as commit-msg-local FIRST, in every
 # checkout (so a branch older than the tracked dispatcher still runs it), then FAILS OPEN for the
 # tracked check when the active checkout predates it.
 emit_commit_msg() {
@@ -86,7 +86,7 @@ emit_commit_msg() {
 # Managed by tools/install-git-hooks.sh: version-bump commit-msg dispatcher v1.
 set -eu
 hooks="$(git rev-parse --git-path hooks)"
-if [ -x "$hooks/commit-msg.local" ]; then "$hooks/commit-msg.local" "$@"; fi
+if [ -x "$hooks/commit-msg-local" ]; then "$hooks/commit-msg-local" "$@"; fi
 root="$(git rev-parse --show-toplevel)"
 [ -f "$root/tools/git-hooks/commit-msg" ] || exit 0
 exec sh "$root/tools/git-hooks/commit-msg" "$@"
@@ -113,7 +113,7 @@ install_one() {
     echo "install-git-hooks: refusing to overwrite the existing hook at $hook." >&2
     echo "  Remove it or integrate the managed $name check manually, then re-run." >&2
     if [ "$name" = "commit-msg" ]; then
-      echo "  To keep a local commit-msg hook, rename it to commit-msg.local (the managed hook runs" >&2
+      echo "  To keep a local commit-msg hook, rename it to commit-msg-local (the managed hook runs" >&2
       echo "  it first), then re-run this installer." >&2
     fi
     if [ "$name" = "pre-commit" ]; then
