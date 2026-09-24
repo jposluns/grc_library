@@ -262,29 +262,16 @@ def commit_target(cmd: str, cwd: str):
     for seg in segments[:-1]:
         if seg.strip() and not re.match(r"\s*git\s", seg):
             return None
-    parts = []
-    parts += re.findall(r"-C\s+(\S+)", m.group(0))
-    target = cwd
-    for part in parts:
-        # Shell escapes and bracket globs rewrite the operand before git sees it (3b25 r7, codex).
-        if any(ch in part for ch in "'\"$`~*?\\[]{}"):
-            return None
-        joined = os.path.join(target, part)
-        # /proc/self and /dev/fd links resolve against the PROCESS reading them, so the guard would
-        # resolve its own cwd, not git's (3b25 r8, codex). A step git cannot chdir into (a missing
-        # intermediate that `..` would lexically cancel) is not a commit target (3b25 r8, codex):
-        # isdir resolves through the kernel exactly as chdir does. Either way, step aside.
-        if not os.path.isdir(joined):
-            return None
-        # A symlink anywhere in the step can resolve differently in git's process than in this one
-        # (/proc/self/cwd under any spelling: /../proc, //proc, /opt/../proc; 3b25 r8-r9, codex and
-        # claude). Without symlinks the lexical path IS the kernel path in every process, so only a
-        # symlink-free step is trusted; any symlink steps aside (the git-native check still refuses).
-        resolved = os.path.realpath(joined)
-        if resolved != os.path.normpath(os.path.abspath(joined)):
-            return None
-        target = resolved
-    return target
+    # Any `-C` on the commit steps aside (maintainer ruling 2026-09-24 12:45Z, after round 10).
+    # Ten tri-family rounds each found a new -C operand shape (shell escapes, globs, missing
+    # intermediates, symlinks, /proc/self under several spellings, and finally a trailing `..`
+    # cancelling a /proc/self step, 3b25 r10 codex) where this guard resolved a directory git does
+    # not run in. Text plus this process's filesystem view cannot settle git's chdir, so the guard
+    # no longer tries: a -C commit is left to the git-native commit-msg check in the real target.
+    # Cost, accepted: no auto-bump here for a -C commit.
+    if re.search(r"\s-C\s", m.group(0)):
+        return None
+    return cwd
 
 
 def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
@@ -711,7 +698,8 @@ def self_test() -> int:
     git(d5, "add", "docs/maturity-scorecard.md")
     # an extra UNSTAGED scorecard change makes auto-bump decline, so without the exemption this would BLOCK
     (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
-    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d5} commit -q -m x"}})
+    # A plain commit with the payload cwd in this checkout (a -C commit now steps aside, 3b25 r10 ruling).
+    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d5)})
     r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                        capture_output=True, text=True)
     ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
@@ -726,7 +714,7 @@ def self_test() -> int:
     (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nold\n"); git(d6, "add", "-A"); git(d6, "commit", "-q", "-m", "i")
     (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nnew\n"); git(d6, "add", "y.md")
     before = git(d5, "show", ":x.md")
-    p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d6} commit -q -m x"}})
+    p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d6)})
     r3 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
                         capture_output=True, text=True)
     ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
@@ -737,9 +725,11 @@ def self_test() -> int:
     os.symlink(os.path.join(_W, "d"), os.path.join(_W, "lnk")); os.mkdir(os.path.join(_W, "{a,b}"))
     import atexit as _ax, shutil as _sh
     _ax.register(_sh.rmtree, _W, True)
-    ck("commit_target: -C is applied", commit_target(f"git -C {_W} commit -m x", "/r"), _W)
+    ck("commit_target: any -C on the commit steps aside", commit_target(f"git -C {_W} commit -m x", "/r"), None)
     ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
-    ck("commit_target: several -C operands compose", commit_target(f"git -C {_W} -C b commit", "/r"), os.path.join(_W, "b"))
+    ck("commit_target: several -C operands step aside", commit_target(f"git -C {_W} -C b commit", "/r"), None)
+    ck("commit_target: a trailing .. cancelling a /proc/self step steps aside (3b25 r10)",
+       commit_target(f"git -C {_W} -C /proc/self/cwd/../../.. commit -m x", "/r"), None)
     ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
     ck("commit_target: a missing intermediate cancelled by .. steps aside",
        commit_target(f"git -C {_W}/missing/.. commit -m x", "/r"), None)
