@@ -814,6 +814,16 @@ def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-t
     return [a for a in argv if not a.startswith("-")] + tail
 
 
+def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
+    """True when ``flag`` appears before any ``--`` separator (a token after ``--`` is a path).
+
+    Call it only AFTER :func:`positional_args` has validated the same argv, so a flag test can
+    never pre-empt the explicit-path refusal (3b50a round 2: ``-- --self-test missing.md`` ran the
+    self-test and skipped the refusal)."""
+    argv = list(argv)
+    return flag in (argv[:argv.index("--")] if "--" in argv else argv)
+
+
 def guard_explicit_paths(
     paths: Iterable[str],
     *,

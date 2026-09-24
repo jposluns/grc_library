@@ -11329,6 +11329,10 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
         result = run_linter("tools/lint-skill-internal-refs.py", "README.md")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn("SKIP: README.md: not a SKILL.md file", result.stderr)
+        # round 2: '--' is a separator, not a path
+        result = run_linter("tools/lint-skill-internal-refs.py", "--", "README.md")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SKIP: README.md", result.stderr)
         skill = next(iter(sorted((REPO_ROOT / "guardrails" / "skills").glob("*/SKILL.md"))))
         result = run_linter("tools/lint-skill-internal-refs.py", str(skill.relative_to(REPO_ROOT)))
         self.assertNotEqual(result.returncode, 2, result.stdout + result.stderr)
@@ -11364,7 +11368,11 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
         for script in ("tools/lint-directional-dependency.py", "tools/lint-narrative-authority-boundary.py",
                        "tools/lint-narrative-metadata.py", "tools/lint-narrative-vocabulary.py"):
             for args, fragment in ((("--", "-missing-3b50a.md"), "does not exist"),
-                                   (("--bogus",), "unknown option")):
+                                   (("--bogus",), "unknown option"),
+                                   # round 2: a --self-test after '--' is a path, never a flag,
+                                   # and an unknown option is refused before any self-test runs
+                                   (("--", "--self-test", "no/such/file-3b50.md"), "does not exist"),
+                                   (("--bogus", "--self-test"), "unknown option")):
                 result = run_linter(script, *args)
                 self.assertEqual(result.returncode, 2, script + repr(args) + result.stdout + result.stderr)
                 self.assertIn(fragment, result.stderr, script)
