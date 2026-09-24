@@ -83,6 +83,7 @@ HEADING_TIER = {
     "Cybersecurity adversary frameworks": "framework",
     "OWASP": "framework",
     "Customs and trade": "framework",
+    "Software supply-chain frameworks": "framework",
     "Sector-specific (energy, telecom, finance)": "framework",
     "International treaties and conventions": "legislation",
     "OECD and global": "framework",

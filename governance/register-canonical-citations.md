@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.74\
+**Version:** 1.5.76\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -242,6 +242,12 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | OWASP GenAI Red Teaming Guide | 1.0 | 2025-01 | Phased GenAI red-team process blueprint (model, implementation, system, and runtime / human and agentic evaluation phases) with per-phase checklists and agentic and RAG red-team tooling; sub-formal trusted guidance, cited corroboratively (see-also), not normative | - | https://genai.owasp.org/ | 2026-07-24 |
 | OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/www-project-application-security-verification-standard/ | 2026-06-30 |
 | OWASP SAMM | 2.2.0 | 2026-07 | Software Assurance Maturity Model | 2.1.0, 2.0, 1.5 | https://owaspsamm.org/ | verified 2026-08-30 (held _ref v2.2.0; owaspsamm/core tag v2.2.0 released 2026-07-06) |
+
+## Software supply-chain frameworks
+
+| Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
+| --- | --- | --- | --- | --- | --- | --- |
+| SLSA | v1.2 | 2025-11 | Supply-chain Levels for Software Artifacts (OpenSSF): Build track (L0 to L3) and Source track (L1 to L4) | v1.1, v1.0, v0.1 | https://slsa.dev/spec/ | 2026-09-24 |
 
 ## Customs and trade
 

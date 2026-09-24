@@ -2,8 +2,8 @@
 
 **Document Title:** Secure Code Review Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.7\
-**Date:** 2026-09-23\
+**Version:** 0.0.8\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-quality-assurance-and-testing.md`](standard-quality-assurance-and-testing.md), [`dev-security/guideline-ai-coding-assistant-security.md`](guideline-ai-coding-assistant-security.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -284,7 +284,7 @@ Automated findings inform but do not replace the human review.
 | ISO/IEC 27001:2022 | A.8.28 Secure coding; A.8.29 Security testing in development and acceptance | Secure development |
 | ISO/IEC 27002:2022 | 8.28, 8.29, 8.30 | Outsourced development; testing |
 | OpenSSF Best Practices | Code review | Open-source baseline |
-| SLSA | Build integrity | Supply-chain assurance |
+| SLSA v1.2 | Source track: enforced organizational technical controls (L3) and required code review (L4) | Source supply-chain assurance |
 | CIS CSC v8.1 | Control 16 Application Software Security | Critical controls |
 
 ---
