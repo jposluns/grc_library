@@ -317,7 +317,8 @@ def main() -> int:
                 continue
         # UTC-rollover co-bump NOTE (non-blocking): covers README's different Version key too.
         try:
-            md = sorted(p for p in staged if p.endswith(".md") and p not in GENERATED)
+            md = sorted(p for p in staged if p.endswith(".md") and p not in GENERATED
+                        and not p.startswith(".corpus-management/"))
             if md:
                 today_note = datetime.now(timezone.utc).strftime("%Y-%m-%d")
                 vdiff = git(root, "diff", "--cached", "--unified=0", "--", *md)
