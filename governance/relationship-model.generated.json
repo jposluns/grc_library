@@ -152,6 +152,13 @@
     },
     {
       "class": "procedure",
+      "corpus_path": "security/procedure-cryptographic-key-operations.md",
+      "display_name": "Cryptographic Key Operations Procedure",
+      "id": "GRC-PROC-CRYPTO-KEY-OPS",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
       "corpus_path": "operations/procedure-media-handling-and-transport.md",
       "display_name": "Media Handling and Transport Procedure",
       "id": "GRC-PROC-MEDIA-HANDLING",
@@ -197,6 +204,13 @@
       "corpus_path": "security/procedure-vulnerability-management.md",
       "display_name": "Vulnerability Management Procedure",
       "id": "GRC-PROC-VULN-MGMT",
+      "source_identifier": null
+    },
+    {
+      "class": "procedure",
+      "corpus_path": "privacy/procedure-works-council-and-employee-representative-consultation.md",
+      "display_name": "Works Council and Employee Representative Consultation Procedure",
+      "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION",
       "source_identifier": null
     },
     {
@@ -1422,24 +1436,24 @@
       "viewpoint": "governance"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "organizationally mandatory",
       "destination": {
         "class": "procedure",
         "id": "GRC-PROC-VULN-MGMT"
       },
-      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
       "id": "rel-corpus-0053",
       "inverse": {
         "storage": "inferred",
-        "verb": "is referenced by"
+        "verb": "is implemented by"
       },
-      "layout_role": "associative",
+      "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "provenance": null,
-      "relationship_class": "citation",
+      "relationship_class": "implementation",
       "scope": null,
       "source": {
         "class": "procedure",
@@ -1450,7 +1464,7 @@
         "from": null,
         "to": null
       },
-      "verb": "references",
+      "verb": "implements",
       "viewpoint": "governance"
     },
     {
@@ -2348,18 +2362,81 @@
       },
       "verb": "informs",
       "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "framework",
+        "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0082",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-CRYPTO-KEY-OPS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
+    },
+    {
+      "authority_level": "organizationally mandatory",
+      "destination": {
+        "class": "policy",
+        "id": "GRC-POL-WORKFORCE-NET-MON"
+      },
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "evidence_refs": [],
+      "id": "rel-corpus-0083",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is implemented by"
+      },
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "implementation",
+      "scope": null,
+      "source": {
+        "class": "procedure",
+        "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "implements",
+      "viewpoint": "governance"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 56,
-    "record_count": 61,
+    "node_count": 58,
+    "record_count": 63,
     "records_by_relationship_class": {
-      "citation": 1,
       "commitment": 1,
       "correspondence": 35,
-      "implementation": 16,
+      "implementation": 19,
       "influence": 8
     }
   }

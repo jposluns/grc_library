@@ -406,6 +406,20 @@
       "class": "standard",
       "source_identifier": "ISO/IEC 20000-1:2018",
       "corpus_path": null
+    },
+    {
+      "id": "GRC-PROC-CRYPTO-KEY-OPS",
+      "display_name": "Cryptographic Key Operations Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "security/procedure-cryptographic-key-operations.md"
+    },
+    {
+      "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION",
+      "display_name": "Works Council and Employee Representative Consultation Procedure",
+      "class": "procedure",
+      "source_identifier": null,
+      "corpus_path": "privacy/procedure-works-council-and-employee-representative-consultation.md"
     }
   ],
   "records": [
@@ -1439,18 +1453,18 @@
         "id": "GRC-PROC-PATCH-MGMT",
         "class": "procedure"
       },
-      "verb": "references",
+      "verb": "implements",
       "destination": {
         "id": "GRC-PROC-VULN-MGMT",
         "class": "procedure"
       },
-      "relationship_class": "citation",
-      "layout_role": "associative",
+      "relationship_class": "implementation",
+      "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "viewpoint": "governance",
-      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "inverse": {
         "verb": null,
         "storage": "inferred"
@@ -1459,7 +1473,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "organizationally mandatory",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
@@ -2356,6 +2370,70 @@
         "to": null
       },
       "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0082",
+      "source": {
+        "id": "GRC-PROC-CRYPTO-KEY-OPS",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-FW-CRYPTO-KEY-LIFECYCLE",
+        "class": "framework"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0083",
+      "source": {
+        "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION",
+        "class": "procedure"
+      },
+      "verb": "implements",
+      "destination": {
+        "id": "GRC-POL-WORKFORCE-NET-MON",
+        "class": "policy"
+      },
+      "relationship_class": "implementation",
+      "layout_role": "primary",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "governance",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "organizationally mandatory",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,
