@@ -70,7 +70,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, resolve_working, require_dir  # noqa: E402  # grc-config/store, stays local
 
 HISTORY = ".working/guardrail-reviews/history.md"
 SPEC = "governance/specification-audit-programme.md"
@@ -157,6 +157,8 @@ def main(argv: list[str]) -> int:
         help="Repository root (defaults to the live repo; overridden in regression tests).",
     )
     args = parser.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     root = Path(args.root) if args.root is not None else REPO_ROOT
 
     if args.root is not None:

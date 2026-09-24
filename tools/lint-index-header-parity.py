@@ -42,7 +42,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # own-dir (original had one; preserved)
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -121,12 +121,14 @@ def _engine():
 
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Index-header parity audit.")
-    parser.add_argument("--root", type=Path, default=None,
+    parser.add_argument("--root", type=str, default=None,
                         help="Override repository root (for isolation testing).")
     parser.add_argument("--strict-owner", action="store_true",
                         help="Treat an Owner Role mismatch as a finding (exit 1) "
                              "instead of a warning.")
     args = parser.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     root = args.root.resolve() if args.root is not None else REPO_ROOT
 
     index_path = root / INDEX_REL

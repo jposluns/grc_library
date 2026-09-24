@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import AUDITED_DOMAIN_DIRS  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, require_dir  # noqa: E402  # grc-config/store, stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
@@ -264,7 +264,7 @@ def main(argv=None):
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--paths", nargs="+", default=None)
-    parser.add_argument("--root", type=Path)
+    parser.add_argument("--root", type=str)
     parser.add_argument(
         "--coverage-mode", choices=("report", "enforce"), default="report"
     )
@@ -272,6 +272,13 @@ def main(argv=None):
         "--format", choices=("text", "json"), default="text"
     )
     args = parser.parse_args(argv)
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
+    if args.paths is not None and any(not p.strip() for p in args.paths):
+        # 3b50b2d1: an empty --paths entry resolved to the tree root, so the run fell back to a
+        # whole-tree scan while reporting an explicit scope.
+        print("ERROR: --paths: an empty path entry is refused.", file=sys.stderr)
+        return 2
 
     REPO_ROOT = (
         args.root.resolve() if args.root

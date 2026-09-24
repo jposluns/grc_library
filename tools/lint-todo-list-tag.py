@@ -31,7 +31,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header
+from lint_common import resolve_sibling, parse_todo_index, has_todo_index_header, require_dir
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -79,13 +79,15 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,
         default=None,
         help="Override the repository root TODO.md (and, if present, "
              "P-TODO.md) are read from (used by the regression fixtures for "
              "synthetic isolation).",
     )
     args = parser.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     if args.root is not None:
         REPO_ROOT = args.root.resolve()
 

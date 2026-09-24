@@ -92,7 +92,7 @@ from pathlib import Path, PurePosixPath
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 
 # Directory holding the project-local rule copies.
@@ -342,7 +342,7 @@ def _main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,
         default=REPO_ROOT,
         help=(
             "Override the repository root used to resolve both halves of "
@@ -351,6 +351,8 @@ def _main(argv: list[str] | None = None) -> int:
         ),
     )
     args = parser.parse_args(argv)
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     root: Path = args.root.resolve()
 
     findings: list[str] = []

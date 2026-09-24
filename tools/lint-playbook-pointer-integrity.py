@@ -77,7 +77,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT  # noqa: E402
+from lint_common import REPO_ROOT, require_dir  # noqa: E402
 
 CLAUDE_REL = ".claude/CLAUDE.md"
 MANIFEST_REL = ".claude/playbooks/PLAYBOOK-MANIFEST.yml"
@@ -369,6 +369,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--self-test", action="store_true",
                     help="run synthetic positive/negative self-tests and exit")
     args = ap.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     if args.self_test:
         return self_test()
 

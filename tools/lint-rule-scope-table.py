@@ -61,7 +61,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT
+from lint_common import REPO_ROOT, require_dir
 
 CATEGORY_DIRS = ("core", "ai", "pipeline", "governance", "languages")
 DEFAULT_ROOT = REPO_ROOT / "guardrails"
@@ -133,6 +133,8 @@ def main(argv: list[str]) -> int:
         "--root", default=str(DEFAULT_ROOT),
         help="guardrails pack dir holding README.md and the category subdirs")
     args = ap.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     root = Path(args.root)
     readme = root / "README.md"
     if not readme.is_file():

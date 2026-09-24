@@ -30,15 +30,18 @@ exits 1; a file with null bytes fails the same way. Exit 0 with a scanned-file c
 otherwise.
 
 Residues, stated: a compile under THIS interpreter proves compilability for the Python
-version CI runs, not for every interpreter an adopter might use; and a missing or empty
-hooks directory passes with a count of 0 (an adopter fork without the hook tree stays
-green), so the gate proves "everything present compiles", never "the hooks are present".
+version CI runs, not for every interpreter an adopter might use; and the DEFAULT hooks
+directory, when missing or empty, passes with a count of 0 (an adopter fork without the hook
+tree stays green), so the gate proves "everything present compiles", never "the hooks are
+present". An EXPLICIT --hooks-dir that is empty, not a directory, or holds no hook file is
+refused instead (3b50b2d1).
 
 Usage:
     python3 tools/lint-hooks-syntax.py                # scan .claude/hooks/ (gate 95)
     python3 tools/lint-hooks-syntax.py --hooks-dir D  # fixture/regression override
 
-Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile.
+Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile;
+2 = a refused --hooks-dir (empty value, not a directory, or no hook file in it).
 
 Stdlib-only Python 3.11.
 """
@@ -98,9 +101,21 @@ def main(argv: list[str] | None = None) -> int:
     # 3b50: an EXPLICIT --hooks-dir that is missing used to compile zero files and print OK;
     # refuse it (exit 2). The DEFAULT keeps its documented contract: an adopter fork without the
     # hook tree passes with zero files compiled.
+    if args.hooks_dir is not None and not args.hooks_dir.strip():
+        # 3b50b2d1: an empty value is Path(".") and compiled the whole current directory.
+        print("ERROR: --hooks-dir needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
     if args.hooks_dir is not None and not Path(args.hooks_dir).is_dir():
         print(f"ERROR: --hooks-dir {args.hooks_dir}: not a directory; nothing would be compiled.",
               file=sys.stderr)
+        return 2
+    if args.hooks_dir is not None and not _scan_files(Path(args.hooks_dir)):
+        # 3b50b2d1: an explicit directory with no hook file compiled nothing and printed OK. The
+        # predicate is the scan's own file set (recursive, regular files, no __pycache__), so a
+        # nested-only tree is scanned and a directory merely named *.py is not a hook.
+        print(f"ERROR: --hooks-dir {args.hooks_dir}: holds no *.py hook file; nothing would be "
+              f"compiled.", file=sys.stderr)
         return 2
     count, findings = scan(Path(args.hooks_dir) if args.hooks_dir is not None else HOOKS_DIR)
     if findings:
