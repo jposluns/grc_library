@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.20\
+**Version:** 1.0.21\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | OWASP LLM Top 10 | https://genai.owasp.org/llm-top-10/ | all | 2026; published 2026-08; supersedes 2025 (v2.0) (per register) |  |  |  |  |  |  |
 | OWASP Top 10 for Agentic Applications | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | all | 2026; published 2025-12; risks ASI01-ASI10 (per register) |  |  |  |  |  |  |
 | OWASP MCP Top 10 | https://owasp.org/www-project-mcp-top-10/ | all | 2025 (Beta; a living document whose categories may change); published 2025 (per register) |  |  |  |  |  |  |
-| OWASP ASVS | https://owasp.org/www-project-application-security-verification-standard/ | all | 5.0.0; published 2025-05; supersedes 4.0.3, 4.0, 3.0 (per register) |  |  |  |  |  |  |
+| OWASP ASVS | https://owasp.org/projects/asvs | all | 5.0.0; published 2025-05; supersedes 4.0.3, 4.0, 3.0 (per register) |  |  |  |  |  |  |
 | OWASP SAMM | https://owaspsamm.org/ | all | 2.2.0; published 2026-07; supersedes 2.1.0, 2.0, 1.5 (per register) |  |  |  |  |  |  |
 
 ### 3.8 Customs and trade (3 entries)
