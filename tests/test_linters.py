@@ -8888,49 +8888,33 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
     def _run(self, name: str, body: str):
         return run_linter("tools/lint-ccm-provider-member-in-range.py", self.make_fixture(name, body))
 
-    def test_marker_aware_fences(self) -> None:
-        """3b52: a boolean toggle skipped a citation between two four-backtick blocks that each
-        held a literal ``` line; the scan now tracks the opening fence's character and length."""
-        tick3, tick4, tilde = "`" * 3, "`" * 4, "~" * 3
-        between = (tick4 + "text\n" + tick3 + "\n" + tick4 + "\n"
-                   "| Sample | CCC-01 to 09 |\n"
-                   + tick4 + "text\n" + tick3 + "\n" + tick4 + "\n")
-        self.assertLinterFails(self._run("fake-ccm-fence-between.md", between), "CCC-05")
-        inside = tick4 + "text\n" + tick3 + "\n| S | CCC-01 to 09 |\n" + tick4 + "\n"
-        self.assertEqual(self._run("fake-ccm-fence-inside.md", inside).returncode, 0)
-        after_tilde = tilde + "\n" + tick3 + "\n" + tilde + "\n| Sample | CCC-01 to 09 |\n"
-        self.assertLinterFails(self._run("fake-ccm-fence-tilde.md", after_tilde), "CCC-05")
-        # r1 QA (CommonMark 4.5): a four-space-indented run is not a fence, a backtick info string
-        # with a backtick is not an opener, a closing line with an info string does not close,
-        # and a longer run of the same character does close.
-        for name, body, flagged in (
-            ("indent4", "    " + tick3 + "\n\nCCC-01 to 09\n", True),
-            ("indent4-close", tick3 + "\n    " + tick3 + "\nCCC-01 to 09\n" + tick3 + "\n", False),
-            # round 3: a three-space top-level opener is not closed by a four-space line
-            ("indent3-then-4", "   " + tick3 + "\n    " + tick3 + "\nexample\n" + tick3
-             + "\nCCC-01 to 09\n", True),
-            # a closer indented two spaces inside a list item (column 3) closes; an absolute
-            # three-space cap would also accept it, but a closer at column-relative 4 would not
-            ("list-closer-rel2", "1. Example:\n\n   " + tick3 + "\n   x\n     " + tick3
-             + "\n\nCCC-01 to 09\n", True),
-            ("list-closer-rel4", "1. Example:\n\n   " + tick3 + "\n       " + tick3
-             + "\n   CCC-01 to 09\n", False),
-            # leaving the list item ends a fence opened inside it
-            ("list-exit", "1. Example:\n\n   " + tick3 + "\n   x\n\nCCC-01 to 09\n", True),
-            # round 2: list-contained fences close relative to their opener
-            ("list-3-4", "1. Example:\n\n   " + tick3 + "text\n   example\n    " + tick3
-             + "\n\nCCC-01 to 09\n", True),
-            ("list-4-4", "1. Example:\n\n    " + tick3 + "\n    | S | CCC-01 to 09 |\n    "
-             + tick3 + "\n", False),
-            ("double-backtick-span", "The range ``CCC-01 to 09`` is an example.\n", False),
-            ("unequal-runs", "The range ``CCC-01 to 09` is active.\n", True),
-            ("escaped-backticks", "The range \\`CCC-01 to 09\\` is active.\n", True),
-            ("span-ending-backtick", "Example: `` CCC-01 to 09` `` here.\n", False),
-            ("tick-info", tick3 + "a`b\nCCC-01 to 09\n", True),
-            ("info-close", tick3 + "\n" + tick3 + "text\nCCC-01 to 09\n" + tick3 + "\n", False),
-            ("longer-close", tick3 + "\n" + tick4 + "\nCCC-01 to 09\n", True),
+    def test_fenced_ranges_fail_closed(self) -> None:
+        """3b52 (maintainer ruling 2026-09-24, fail closed): fenced blocks are NOT skipped, so no
+        block structure (fence style, nesting, list containers, indentation, tabs) can hide a
+        citation; every fenced range is flagged, including the round-1 to round-4 QA shapes."""
+        t3, t4, tl = "`" * 3, "`" * 4, "~" * 3
+        for name, body in (
+            ("plain", t3 + "text\n| S | CCC-01 to 09 |\n" + t3 + "\n"),
+            ("between", t4 + "\n" + t3 + "\n" + t4 + "\nCCC-01 to 09\n" + t4 + "\n" + t3 + "\n" + t4 + "\n"),
+            ("inside4", t4 + "\n" + t3 + "\nCCC-01 to 09\n" + t4 + "\n"),
+            ("marker-line", "- " + tl + "\n  example\n  " + tl + "\n  CCC-01 to 09\n"),
+            ("nested-return", "1. outer\n   - inner\n\n   " + tl + "\n   x\n    " + tl + "\n\n   CCC-01 to 09\n"),
+            ("nbsp-closer", tl + "\n" + tl + "\u00a0\nexample\n" + tl + "\nCCC-01 to 09\n"),
+            ("tab", "- x\n\n  " + tl + "\n\tCCC-01 to 09\n  " + tl + "\n"),
         ):
-            r = self._run(f"fake-ccm-fence-{name}.md", body)
+            self.assertLinterFails(self._run(f"fake-ccm-fence-{name}.md", body), "CCC-05")
+
+    def test_code_spans_follow_commonmark(self) -> None:
+        """Inline code spans are skipped by CommonMark's line-local rule: an opening backtick run
+        is closed only by a run of exactly the same length; an escaped backtick is literal."""
+        for name, line, flagged in (
+            ("single", "The range `CCC-01 to 09` is an example.", False),
+            ("double", "The range ``CCC-01 to 09`` is an example.", False),
+            ("inner-backtick", "Example: `` ` CCC-01 to 09 `` here.", False),
+            ("unequal", "The range ``CCC-01 to 09` is active.", True),
+            ("escaped", "The range \\`CCC-01 to 09\\` is active.", True),
+        ):
+            r = self._run(f"fake-ccm-span-{name}.md", line + "\n")
             if flagged:
                 self.assertLinterFails(r, "CCC-05")
             else:
@@ -8966,9 +8950,8 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         )
         self.assertLinterFails(result, "CCC-05")
 
-    def test_fenced_or_blockquoted_example_not_flagged(self) -> None:
+    def test_blockquoted_or_inline_code_example_not_flagged(self) -> None:
         for label, body in (
-            ("fenced", "```text\n| S | CCC-01 to 09 |\n```\n"),
             ("blockquote", "> historical bad example: CCC-01 to 09\n"),
             ("inline", "The range `CCC-01 to 09` is a bad example.\n"),
         ):

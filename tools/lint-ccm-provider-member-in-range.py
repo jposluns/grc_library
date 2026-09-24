@@ -5,7 +5,7 @@ Flag a CCM family-range citation (e.g. "CCC-01 to 09") that sweeps in a
 provider-to-tenant ("directional") control member on an internal-scope document.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(RANGE_RE, swept_members, the fence/inline-code regexes, scan_text) is the source
+(RANGE_RE, swept_members, the inline-code-span scan, scan_text; fenced blocks are scanned, fail closed) is the source
 of record in the pack engine
 (.corpus-management/tools/gate_lint_ccm_provider_member_in_range.py); it carries no
 project catalogue and takes the directional-member set via configure(). This wrapper

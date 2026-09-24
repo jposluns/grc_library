@@ -42,35 +42,12 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
 # tracked as (character, run length), and only a same-character run at least as long, with no info
 # string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
 # boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
-# Markdown structure is scanned programmatically, as CommonMark states the rules, not by regex
-# (3b52a: three QA rounds of regex edge cases). Fences: a list item sets a content column; an opener
-# or closer is indented 0 to 3 spaces relative to that column (four or more is an indented code
-# line); a backtick fence's info string cannot contain a backtick; only a same-character run at
-# least as long, with no info string, closes; a non-blank line indented left of the column ends
-# the item and any fence open inside it. Residue, stated: block quotes as containers, lazy
-# continuation, and code spans spanning lines are not modelled.
-_LIST_ITEM = re.compile(r"^( *)([-*+]|\d{1,9}[.)])( {1,4})(?=\S)")
-_FENCE_RE = re.compile(r"^( *)(`{3,}|~{3,})(.*)$")
-
-
-def _fence_marker(line: str, container: int):
-    m = _FENCE_RE.match(line)
-    if not m:
-        return None
-    rel = len(m.group(1)) - container
-    run, info = m.group(2), m.group(3).strip()
-    if not 0 <= rel <= 3 or (run[0] == "`" and "`" in info):
-        return None
-    return run[0], len(run), info
-
-
-def _closes(marker, opener) -> bool:
-    return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
-
-
-def _indent(line: str) -> int:
-    return len(line) - len(line.lstrip(" "))
+# FAIL CLOSED on block structure (maintainer ruling 2026-09-24, 3b52): fenced code blocks are NOT
+# skipped, so no Markdown block structure (a fence, a list container, indentation) can hide an
+# active citation; a range written as an example inside a fence is flagged, and the author writes
+# it as a blockquote line or an inline code span instead. Four QA rounds showed that modelling
+# CommonMark block structure by hand is an open-ended class, and the fail-closed rule costs zero
+# findings on the live corpus. Inline code spans ARE skipped, by the spec's own line-local rule.
 
 
 def _strip_code_spans(line: str) -> str:
@@ -114,27 +91,7 @@ def _strip_code_spans(line: str) -> str:
 
 def scan_text(rel: str, text: str) -> list[str]:
     findings: list[str] = []
-    opener = None
-    container = 0
     for i, line in enumerate(text.splitlines(), 1):
-        blank = not line.strip()
-        if opener is not None:
-            if not blank and container and _indent(line) < container:
-                opener, container = None, 0  # leaving the list item ends its fence; re-read the line
-            else:
-                if _closes(_fence_marker(line, container), opener):
-                    opener = None
-                continue
-        if not blank:
-            item = _LIST_ITEM.match(line)
-            if item:
-                container = len(item.group(0))
-            elif _indent(line) < container:
-                container = 0
-        marker = _fence_marker(line, container)
-        if marker is not None:
-            opener = marker
-            continue
         # A blockquote line is an example / quotation, not an active citation.
         if line.lstrip().startswith(">"):
             continue
