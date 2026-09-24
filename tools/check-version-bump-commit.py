@@ -73,22 +73,25 @@ def load_guard(root):
 
 
 _SCISSORS = " ------------------------ >8 ------------------------"
+_AUTO_COMMENT_CHARS = "#;@!$%^&|:"   # git's candidates for core.commentChar=auto
 
 
 def message_opts_out(text, guard, comment_char="#"):
     """PURE. Does the message carry the opt-out? Mirrors git's strip cleanup: text from the exact
     scissors line down is dropped (`git commit -v` appends the diff there; 3b25 r1), and lines that
-    begin with the comment character are dropped. For core.commentChar=auto the character git picks
-    cannot be recovered from the final message, so '#' (git's usual pick) is used. Residue, stated:
+    begin with the comment character are dropped. For core.commentChar=auto git picks the character
+    BEFORE editing and it cannot be recovered from the final message, so lines beginning with ANY of
+    git's candidates are dropped: that can only IGNORE an opt-out (refuse), never count a stripped
+    comment as one (3b25 r3, codex P1: hard-coding '#' let a ';' comment line falsely allow). Residue, stated:
     under --cleanup=whitespace or verbatim git KEEPS comment-looking lines and text below a scissors
     line, which this treats as removed, so an opt-out written there is ignored: that errs only toward
     REFUSING, never toward a false allow, and the override remains (3b25 r2 codex/gemini)."""
-    char = "#" if comment_char in ("", "auto") else comment_char[:1]
+    chars = _AUTO_COMMENT_CHARS if comment_char == "auto" else (comment_char[:1] or "#")
     kept = []
     for line in text.splitlines():
-        if line.rstrip() == char + _SCISSORS:
+        if line[:1] and line[:1] in chars and line.rstrip() == line[:1] + _SCISSORS:
             break
-        if line.startswith(char):
+        if line[:1] and line[:1] in chars:
             continue
         kept.append(line)
     return bool(guard.OPT_OUT.search("\n".join(kept)))
@@ -318,7 +321,8 @@ def _self_test():
         ("an opt-out below the scissors line does not count",
          message_opts_out("s\n# ------------------------ >8 ------------------------\n+VersionBump: none x\n", _G), False),
         ("a custom comment character is honoured", message_opts_out("s\n; VersionBump: none x\n", _G, ";"), False),
-        ("'auto' uses '#': an '@' line is message text", message_opts_out("s\n@ VersionBump: none x\n", _G, "auto"), True),
+        ("'auto' strips every candidate (refuse-direction): a ';' comment is not an opt-out",
+         message_opts_out("# subject\n; VersionBump: none x\n", _G, "auto"), False),
         ("a scissors marker inside other comment text does not cut",
          message_opts_out("s\n# example ------------------------ >8 ------------------------\nVersionBump: none x\n", _G), True),
         ("a checkout without the guard is allowed", load_guard(Path("/nonexistent-checkout")), None),

@@ -229,10 +229,13 @@ def commit_target(cmd: str, cwd: str):
     raw_prefix = cmd[:cmd.find("commit")] if "commit" in cmd else cmd
     if any(t in prefix for t in ("(", ")", "`", "{", "}")) or "\n" in raw_prefix.strip():
         return None
-    clean = list(re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", prefix))
-    if len(re.findall(r"\bcd\b", prefix)) != len(clean):
-        return None   # a cd the clean pattern cannot place (for example `cd x || exit`)
-    parts = [c.group(1) for c in clean]
+    # A `cd` only counts when the text before the commit is NOTHING BUT `cd <dir> &&` / `;` steps:
+    # mixed with any other command it may run conditionally (`true || cd x;`, `false && cd x;`),
+    # so the target is undeterminable (3b25 r3, codex P1). pushd/popd are treated the same way.
+    if re.search(r"\b(?:cd|pushd|popd)\b", prefix):
+        if not re.fullmatch(r"(?:\s*cd\s+\S+\s*(?:&&|;))+\s*", prefix):
+            return None
+    parts = [c.group(1) for c in re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", prefix)]
     parts += re.findall(r"-C\s+(\S+)", m.group(0))
     target = cwd
     for part in parts:
@@ -694,6 +697,9 @@ def self_test() -> int:
     ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
     ck("commit_target: two commits are undeterminable", commit_target("git -C /a commit -m x && git -C /b commit -m y", "/r"), None)
     ck("commit_target: a newline-separated command is undeterminable", commit_target("cd /x\ngit commit", "/r"), None)
+    ck("commit_target: a cd after || is undeterminable", commit_target("true || cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: a cd after a failing && is undeterminable", commit_target("false && cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: chained cd steps still compose", commit_target("cd /a && cd b; git commit -m x", "/r"), "/a/b")
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
