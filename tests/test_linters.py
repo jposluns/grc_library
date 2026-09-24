@@ -15208,6 +15208,24 @@ class AllowlistSpecParityTests(unittest.TestCase):
         with self.assertRaises(self.mod.InputError):
             self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST |= {"x.example"}\n')
 
+    def test_unsupported_uses_are_input_errors(self) -> None:
+        # codex r2: alias mutation, slice store and a match-pattern capture.
+        for tail in ('alias = ALLOW_LIST\nalias.add("x.example")\n',
+                     'ALLOW_LIST[:] = ["x.example"]\n',
+                     'match {"x.example"}:\n    case ALLOW_LIST:\n        pass\n',
+                     'import os as ALLOW_LIST\n',
+                     'def f(ALLOW_LIST):\n    return 1\n'):
+            with self.subTest(tail=tail), self.assertRaises(self.mod.InputError):
+                self.mod.allow_entries(self.allow('    "iso.org",\n') + tail)
+
+    def test_call_argument_use_is_allowed(self) -> None:
+        entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')
+        self.assertEqual([e for e, _, _ in entries], ["iso.org"])
+
+    def test_compact_empty_publisher_cell_is_an_input_error(self) -> None:
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "|| `hidden.example` | `iso.org` |\n"))
+
     def test_read_only_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'X = ALLOW_LIST.copy()\n')
         self.assertEqual([e for e, _, _ in entries], ["iso.org"])

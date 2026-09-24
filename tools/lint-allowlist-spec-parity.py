@@ -69,6 +69,48 @@ def _comments(src: str) -> dict[int, str]:
     return out
 
 
+def _check_uses(tree: ast.AST, definition: ast.Assign) -> None:
+    """Accept only an allow-list of uses of the name; reject every other form.
+
+    Permitted: the single definition target; a plain load passed directly as a
+    positional or keyword argument to a call; a plain load as the receiver of a
+    read-only method call. Every other occurrence of the name in any AST field
+    (an alias assignment, a subscript or slice store, a match-pattern capture, an
+    import alias, a parameter, an except target, global or nonlocal) is an input
+    error, since the runtime set could then differ from the literal. Residue: a
+    function receiving the set as an argument could still mutate it; the one such
+    call today is gate 24's own scan, which only reads it.
+    """
+    parents: dict[ast.AST, ast.AST] = {}
+    for parent in ast.walk(tree):
+        for child in ast.iter_child_nodes(parent):
+            parents[child] = parent
+    for node in ast.walk(tree):
+        mentions = False
+        for _field, value in ast.iter_fields(node):
+            if value == "ALLOW_LIST" or (isinstance(value, list) and "ALLOW_LIST" in value):
+                mentions = True
+        if not mentions:
+            continue
+        line = getattr(node, "lineno", "?")
+        if isinstance(node, ast.Name):
+            if node in definition.targets:
+                continue
+            parent = parents.get(node)
+            if isinstance(node.ctx, ast.Load):
+                if isinstance(parent, ast.Call) and node in parent.args:
+                    continue
+                if isinstance(parent, ast.keyword):
+                    continue
+                if isinstance(parent, ast.Attribute) and parent.attr in READ_ONLY_ATTRS \
+                        and isinstance(parents.get(parent), ast.Call) \
+                        and parents[parent].func is parent:
+                    continue
+        raise InputError(
+            f"unsupported use of ALLOW_LIST at line {line} ({type(node).__name__}); only the "
+            f"single literal definition, a direct call argument, or a read-only method call is allowed")
+
+
 def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
     """(domain, line, marker kind or None) for each ALLOW_LIST literal element.
 
@@ -85,13 +127,7 @@ def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
     if len(defs) > 1:
         raise InputError(f"ALLOW_LIST is assigned {len(defs)} times at module level")
     definition = defs[0]
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Name) and node.id == "ALLOW_LIST" \
-                and not isinstance(node.ctx, ast.Load) and node not in definition.targets:
-            raise InputError(f"ALLOW_LIST is rebound or deleted at line {node.lineno}")
-        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) \
-                and node.value.id == "ALLOW_LIST" and node.attr not in READ_ONLY_ATTRS:
-            raise InputError(f"ALLOW_LIST.{node.attr} at line {node.lineno} may modify the set")
+    _check_uses(tree, definition)
     if not isinstance(definition.value, (ast.Set, ast.List, ast.Tuple)):
         raise InputError("ALLOW_LIST is not a literal set, list or tuple")
     comments = _comments(src)
@@ -119,7 +155,8 @@ def spec_domains(text: str) -> set[str]:
         stripped = line.strip()
         if not stripped.startswith("|"):
             continue
-        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        inner = stripped[1:-1] if stripped.endswith("|") else stripped[1:]
+        cells = [c.strip() for c in inner.split("|")]
         if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
             continue
         if cells[0] == "Publisher":
