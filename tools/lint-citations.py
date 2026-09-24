@@ -104,7 +104,8 @@ def main(argv: list[str]) -> int:
         help="Paths to scan (files or directories).",
     )
     parser.add_argument(
-        "--paths", dest="legacy_paths", nargs="*", default=None,
+        # nargs="+": a bare --paths selected nothing and passed (3b21); it is now an error.
+        "--paths", dest="legacy_paths", nargs="+", default=None,
         help=argparse.SUPPRESS,
     )
     args = parser.parse_args(argv[1:])

@@ -11014,12 +11014,24 @@ class ExplicitPathGuardTests(LinterTestCase):
 
     def test_non_normalized_absolute_in_tree_path_scans(self) -> None:
         # A spelling that resolves inside the tree but is not lexically under it used to
-        # pass the containment check and then raise in the scanner's relative_to.
+        # pass the containment check and then raise in the scanner's relative_to. After
+        # normalization it must behave exactly like the plain repo-relative path.
         spelled = f"{REPO_ROOT}/../{REPO_ROOT.name}/README.md"
         for script in self.ALL:
+            plain = run_linter(script, "README.md")
             result = run_linter(script, spelled)
             self.assertNotIn("Traceback", result.stderr, script)
-            self.assertNotEqual(result.returncode, 2, script + result.stderr)
+            self.assertEqual(
+                (result.returncode, result.stdout, result.stderr),
+                (plain.returncode, plain.stdout, plain.stderr),
+                script,
+            )
+
+    def test_bare_legacy_paths_flag_refused(self) -> None:
+        # A bare --paths used to select an empty list and pass without scanning.
+        for script in ("tools/lint-citations.py", "tools/lint-filename-title-alignment.py"):
+            result = run_linter(script, "--paths")
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
     def test_absolute_path_in_other_tree(self) -> None:
         outside = self._outside_dir()
