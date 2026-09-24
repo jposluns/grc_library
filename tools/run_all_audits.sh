@@ -199,6 +199,7 @@ run_gate "Skill verdict carrier-completeness audit"            python3 tools/lin
 run_gate "AIQT vendor digest audit"                              python3 tools/lint-aiqt-vendor-digest.py
 run_gate "Corpus-management generated outputs in sync"           python3 tools/build-corpus-management.py --check
 run_gate "Allow-list and publisher-table parity audit"            python3 tools/lint-allowlist-spec-parity.py
+run_gate "Citation-publisher table in sync with its source of record"  python3 tools/build-citation-publishers.py --check
 
 # ----------------------------------------------------------------------
 # Summary

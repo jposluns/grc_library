@@ -169,7 +169,8 @@ content stays citable, cross-linked, and free of drift, secrets, or PII.
 - Pre-commit (mirrors CI): `pre-commit run --all-files`
 - Regenerate derived artefacts (`tools/build-*.py`, `python3`-run; CI `--check` verifies sync):
   `build-taxonomy.py`, `build-narrative-registry.py`, `build-portal.py`,
-  `build-relationship-model.py`, `build-todo-number-allocation.py`, `build-corpus-management.py`
+  `build-relationship-model.py`, `build-todo-number-allocation.py`, `build-corpus-management.py`,
+  `build-citation-publishers.py`
 
 CI source of truth: `.github/workflows/quality.yml`. Keep `quality.yml`,
 `tools/run_all_audits.sh`, and `.pre-commit-config.yaml` in lock-step: a gate added to
@@ -825,7 +826,7 @@ the last commit before push (bump library CalVer and the README Version field)?
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json` (regenerate via `build-relationship-model.py`; gate 93 `--check`), the `## Number allocation` counter block in `TODO.md`
-  between its sentinels, and every compiler-owned corpus-management output, including this file's sentinel-wrapped generated-artefacts block (edit the `.corpus-management/` pack source; regenerate via `build-corpus-management.py`; gate 99 `--check`)); regenerate them (`build-todo-number-allocation.py` for the allocation
+  between its sentinels, the section 7.1 publisher table in `governance/specification-citation-verification.md` between its sentinels (edit the section's `json citation-publishers` block; regenerate via `build-citation-publishers.py`; gate 102 `--check`), and every compiler-owned corpus-management output, including this file's sentinel-wrapped generated-artefacts block (edit the `.corpus-management/` pack source; regenerate via `build-corpus-management.py`; gate 99 `--check`)); regenerate them (`build-todo-number-allocation.py` for the allocation
   block): CI `--check` fails on drift (gate 91). The block generates from the PUBLIC floor
   `tools/todo-number-floor.json` (a hand-maintained SOURCE, bumped when a new number is
   allocated, NOT itself generated) plus the live ids; gate 78 reads the same floor.

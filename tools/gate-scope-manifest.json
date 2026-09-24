@@ -36,6 +36,7 @@
       "lint-version-bump-recency.py"
     ],
     "corpus-structural": [
+      "build-citation-publishers.py",
       "build-portal.py",
       "build-relationship-model.py",
       "build-taxonomy.py",

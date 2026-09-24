@@ -15133,15 +15133,20 @@ class ActivityTimingToolTests(LinterTestCase):
 class AllowlistSpecParityTests(unittest.TestCase):
     """Gate 101 (3b31b): allow-list and citation-verification section 7.1 parity."""
 
-    SPEC_HEAD = "# S\n\n### 7.1 Initial allow-list\n\n| Publisher | Canonical domain | Standards covered |\n| --- | --- | --- |\n"
+    SPEC_HEAD = "# S\n\n### 7.1 Initial allow-list\n\n"
 
     @classmethod
     def setUpClass(cls) -> None:
         cls.mod = load_linter_module("tools/lint-allowlist-spec-parity.py", "allowlist_parity_mod")
 
-    def spec(self, domains: list[str], extra_rows: str = "") -> str:
-        rows = "".join(f"| P{i} | `{d}` | x |\n" for i, d in enumerate(domains))
-        return self.SPEC_HEAD + rows + extra_rows + "\n### 7.2 Additions\n"
+    def spec(self, domains: list[str], block: str | None = None) -> str:
+        """Section 7.1 with its json citation-publishers block (3b31b redesign: no table parsing)."""
+        import json
+
+        if block is None:
+            entries = [{"publisher": f"P{i}", "domains": [d], "covers": "x"} for i, d in enumerate(domains)]
+            block = "```json citation-publishers\n" + json.dumps(entries) + "\n```\n"
+        return self.SPEC_HEAD + block + "\n### 7.2 Additions\n"
 
     def allow(self, body: str) -> str:
         return "ALLOW_LIST = {\n" + body + "}\n"
@@ -15225,86 +15230,13 @@ class AllowlistSpecParityTests(unittest.TestCase):
             with self.subTest(src=src), self.assertRaises(self.mod.InputError):
                 self.mod.allow_entries(src)
 
-    def test_row_without_leading_pipe_is_parsed(self) -> None:
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "Hidden | `hidden.example` | x |\n"))
-        self.assertIn("hidden.example", domains)
-
-    def test_second_publisher_row_is_data(self) -> None:
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "| Publisher | `hidden.example` | x |\n"))
-        self.assertIn("hidden.example", domains)
-
-    def test_prose_with_pipe_after_table_is_ignored(self) -> None:
-        # r4 (codex, gemini): a prose line with a pipe outside the table is not a row.
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nThe notation A | B means either.\n"))
-        self.assertEqual(domains, {"iso.org"})
-
-    def test_code_span_pipe_line_outside_table_is_an_input_error(self) -> None:
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "\n| Second | `second.example` | x |\n"))
-
-    def test_note_directly_after_table_ends_it(self) -> None:
-        # r5 codex: a blockquote note right after the last row ends the table.
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "> Note: domains include subdomains.\n"))
-        self.assertEqual(domains, {"iso.org"})
-
-    def test_pipe_inside_inline_code_prose_is_ignored(self) -> None:
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nThe notation `A | B` means either.\n"))
-        self.assertEqual(domains, {"iso.org"})
-
-    def test_backtickless_row_outside_table_is_an_input_error(self) -> None:
-        # r6 (codex, gemini): a stray row without code spans must not vanish.
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "> Note: continued below.\n\n| Lost | lost.example | x |\n"))
-
-    def test_second_table_without_outer_pipes_is_an_input_error(self) -> None:
-        # r7 codex: a two-column table with no outer pipes has one pipe per row,
-        # but its GFM delimiter row gives it away.
-        extra = "\nPublisher | Canonical domain\n--- | ---\nLost | `lost.example`\n"
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], extra))
-
-    def test_short_delimiter_second_table_is_an_input_error(self) -> None:
-        # r8 (all three families): GFM delimiter cells need only one hyphen.
-        for delim in ("-- | --", ":- | -:", "-|-"):
-            extra = f"\nPublisher | Canonical domain\n{delim}\nLost | `lost.example`\n"
-            with self.subTest(delim=delim), self.floor(), self.assertRaises(self.mod.InputError):
-                self.mod.spec_domains(self.spec(["iso.org"], extra))
-
-    def test_prose_with_one_pipe_and_inline_code_is_ignored(self) -> None:
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nUse a pipe | and a `code` span.\n"))
-        self.assertEqual(domains, {"iso.org"})
-
-    def test_row_after_a_stray_line_is_an_input_error(self) -> None:
-        # A stray line ends the table; a row after it must fail loud, not vanish.
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "stray text\n| Later | `later.example` | x |\n"))
-
     def test_call_argument_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')
         self.assertEqual([e for e, _, _ in entries], ["iso.org"])
 
-    def test_compact_empty_publisher_cell_is_an_input_error(self) -> None:
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "|| `hidden.example` | `iso.org` |\n"))
-
     def test_read_only_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'X = ALLOW_LIST.copy()\n')
         self.assertEqual([e for e, _, _ in entries], ["iso.org"])
-
-    def test_indented_spec_row_is_parsed(self) -> None:
-        with self.floor():
-            domains = self.mod.spec_domains(self.spec(["iso.org"], "  | New | `new.example` | x |\n"))
-        self.assertIn("new.example", domains)
-
-    def test_empty_publisher_cell_is_an_input_error(self) -> None:
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "| | `hidden.example` | x |\n"))
 
     def test_noncanonical_spelling_fails(self) -> None:
         findings = self.check_body('    "ISO.ORG",\n', ["iso.org"])
@@ -15327,9 +15259,39 @@ class AllowlistSpecParityTests(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertIn("iec.ch", findings[0])
 
-    def test_row_without_code_span_is_an_input_error(self) -> None:
-        with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "| IEC | iec.ch | x |\n"))
+    def test_block_input_errors(self) -> None:
+        # The section 7.1 source of record fails loud (tools/citation_publishers.py rules).
+        good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
+        shapes = {
+            "missing block": "No block here.\n",
+            "wrong info string": "```json\n" + good + "\n```\n",
+            "two blocks": ("```json citation-publishers\n" + good + "\n```\n") * 2,
+            "malformed JSON": "```json citation-publishers\n[{\"publisher\": \"ISO\",]\n```\n",
+            "duplicate domain": "```json citation-publishers\n"
+                '[{"publisher": "A", "domains": ["iso.org"], "covers": "x"},'
+                ' {"publisher": "B", "domains": ["iso.org"], "covers": "y"}]\n```\n',
+            "non-canonical domain": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["ISO.org"], "covers": "x"}]\n```\n',
+            "empty publisher": "```json citation-publishers\n"
+                '[{"publisher": "", "domains": ["iso.org"], "covers": "x"}]\n```\n',
+            "unclosed block": "```json citation-publishers\n" + good + "\n",
+        }
+        for name, block in shapes.items():
+            with self.subTest(name), self.floor(), self.assertRaises(self.mod.InputError):
+                self.mod.spec_domains(self.spec([], block=block))
+
+    def test_table_shapes_no_longer_matter(self) -> None:
+        # The nine-round class is gone: the gate never reads the table, so a table in any shape
+        # (or none at all) beside a valid block changes nothing.
+        text = self.spec(["iso.org", "iec.ch"]).replace(
+            "### 7.2", "| stray | `evil.example` |\nIEC | `iec.ch`\n--- | ---\n\n### 7.2")
+        with self.floor():
+            self.assertEqual(self.mod.spec_domains(text), {"iso.org", "iec.ch"})
+
+    def test_build_tool_self_test_and_live_check(self) -> None:
+        for args in (["--self-test"], ["--check"]):
+            result = run_linter("tools/build-citation-publishers.py", *args)
+            self.assertEqual(result.returncode, 0, " ".join(args) + result.stdout + result.stderr)
 
     def test_domain_floor_is_an_input_error(self) -> None:
         with self.floor(5), self.assertRaises(self.mod.InputError):
@@ -18965,6 +18927,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         # These gates retain named-input, configured-root or independent
         # operational scope. Their existing positive regression fixtures apply.
         unchanged = set("""
+        build-citation-publishers.py
         build-corpus-management.py
         build-narrative-registry.py
         build-portal.py
@@ -18983,6 +18946,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         check-todo-floor-monotonic-on-pr.py
         check-todo-rotation-on-pr.py
         lint-aiqt-vendor-digest.py
+        lint-allowlist-spec-parity.py
         lint-audit-gate-parity.py
         lint-audit-spec-detailed-prose.py
         lint-changelog-link-coverage.py

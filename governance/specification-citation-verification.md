@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.23\
+**Version:** 1.2.24\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -172,6 +172,10 @@ The verification process operates against an explicit allow-list of publisher ca
 
 ### 7.1 Initial allow-list
 
+The fenced `json citation-publishers` block at the end of this section is the source of record for the publisher allow-list. The table below is generated from it by [`tools/build-citation-publishers.py`](../tools/build-citation-publishers.py) and is never hand-edited; gate 102 fails on any drift, and gate 101 compares the external-link allow-list with the block's domains.
+
+<!-- BEGIN-GENERATED citation-publishers -->
+
 | Publisher | Canonical domain | Standards covered |
 | --- | --- | --- |
 | ISO | `iso.org` | ISO and ISO/IEC standards. |
@@ -226,7 +230,432 @@ The verification process operates against an explicit allow-list of publisher ca
 | promptfoo | `promptfoo.dev` | promptfoo LLM evaluation and red-team tool (release history on its GitHub releases page). |
 | Wayback Machine | `web.archive.org` | Third-party snapshot capture (not a primary source; an evidence anchor). |
 
+<!-- END-GENERATED citation-publishers -->
+
 The allow-list itself is subject to the same verification discipline as register entries: each domain mapping ("publisher P is hosted at domain D") becomes a verifiable claim. Allow-list verifications use the same workflow as standard verifications and are recorded in the Citation Verifications Register with `Standard ID` set to the publisher name and `Verified Field` set to "allow-list domain mapping."
+
+```json citation-publishers
+[
+  {
+    "publisher": "ISO",
+    "domains": [
+      "iso.org"
+    ],
+    "covers": "ISO and ISO/IEC standards."
+  },
+  {
+    "publisher": "IEC",
+    "domains": [
+      "iec.ch"
+    ],
+    "covers": "IEC standards (including 62443, 61511, 61508)."
+  },
+  {
+    "publisher": "NIST",
+    "domains": [
+      "nist.gov",
+      "csrc.nist.gov",
+      "nvlpubs.nist.gov"
+    ],
+    "covers": "NIST SP, NIST CSF, NIST AI RMF, NIST FIPS."
+  },
+  {
+    "publisher": "ASHRAE",
+    "domains": [
+      "ashrae.org"
+    ],
+    "covers": "ASHRAE 135 (BACnet) and related."
+  },
+  {
+    "publisher": "NFPA",
+    "domains": [
+      "nfpa.org"
+    ],
+    "covers": "NFPA 72 and related fire-and-life-safety codes."
+  },
+  {
+    "publisher": "CEN/CENELEC",
+    "domains": [
+      "cencenelec.eu",
+      "cen.eu",
+      "cenelec.eu"
+    ],
+    "covers": "EN series."
+  },
+  {
+    "publisher": "IETF",
+    "domains": [
+      "ietf.org",
+      "rfc-editor.org",
+      "datatracker.ietf.org"
+    ],
+    "covers": "RFCs."
+  },
+  {
+    "publisher": "W3C",
+    "domains": [
+      "w3.org"
+    ],
+    "covers": "W3C recommendations."
+  },
+  {
+    "publisher": "OASIS",
+    "domains": [
+      "oasis-open.org"
+    ],
+    "covers": "OASIS standards."
+  },
+  {
+    "publisher": "Cloud Security Alliance",
+    "domains": [
+      "cloudsecurityalliance.org"
+    ],
+    "covers": "CSA CCM, AICM, STAR."
+  },
+  {
+    "publisher": "ISACA",
+    "domains": [
+      "isaca.org"
+    ],
+    "covers": "COBIT."
+  },
+  {
+    "publisher": "MITRE",
+    "domains": [
+      "attack.mitre.org",
+      "cve.mitre.org",
+      "cwe.mitre.org",
+      "atlas.mitre.org"
+    ],
+    "covers": "ATT&CK, ATLAS, CVE, CWE."
+  },
+  {
+    "publisher": "NIST FedRAMP",
+    "domains": [
+      "fedramp.gov"
+    ],
+    "covers": "FedRAMP."
+  },
+  {
+    "publisher": "US Federal",
+    "domains": [
+      "federalregister.gov",
+      "ecfr.gov",
+      "congress.gov",
+      "whitehouse.gov",
+      "cisa.gov",
+      "tsa.gov",
+      "dhs.gov",
+      "hhs.gov",
+      "ftc.gov",
+      "sec.gov",
+      "govinfo.gov",
+      "cbp.gov",
+      "dodcio.defense.gov"
+    ],
+    "covers": "US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170; cbp.gov is US Customs and Border Protection, for the CTPAT Minimum Security Criteria; dodcio.defense.gov is the DoD CIO, for CMMC program documentation)."
+  },
+  {
+    "publisher": "EU",
+    "domains": [
+      "eur-lex.europa.eu",
+      "digital-strategy.ec.europa.eu",
+      "enisa.europa.eu",
+      "europa.eu"
+    ],
+    "covers": "EU regulations, directives, ENISA; europa.eu covers the other EU institution hosts the corpus cites, such as the European Commission and the EDPB."
+  },
+  {
+    "publisher": "UK",
+    "domains": [
+      "legislation.gov.uk",
+      "ico.org.uk",
+      "ncsc.gov.uk",
+      "gov.uk"
+    ],
+    "covers": "UK regulation and ICO/NCSC; gov.uk is the UK government parent domain."
+  },
+  {
+    "publisher": "Canada",
+    "domains": [
+      "laws-lois.justice.gc.ca",
+      "gazette.gc.ca",
+      "priv.gc.ca",
+      "cyber.gc.ca",
+      "tbs-sct.canada.ca",
+      "osfi-bsif.gc.ca",
+      "ola.org",
+      "dgc-cgn.org",
+      "canada.ca",
+      "parl.ca"
+    ],
+    "covers": "Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca)."
+  },
+  {
+    "publisher": "Quebec",
+    "domains": [
+      "legisquebec.gouv.qc.ca"
+    ],
+    "covers": "Quebec provincial regulation (Law 25)."
+  },
+  {
+    "publisher": "WCO",
+    "domains": [
+      "wcoomd.org"
+    ],
+    "covers": "WCO SAFE Framework, AEO, customs."
+  },
+  {
+    "publisher": "ICAO",
+    "domains": [
+      "icao.int"
+    ],
+    "covers": "International civil aviation."
+  },
+  {
+    "publisher": "IMO",
+    "domains": [
+      "imo.org"
+    ],
+    "covers": "International maritime."
+  },
+  {
+    "publisher": "BIS",
+    "domains": [
+      "bis.org"
+    ],
+    "covers": "Basel framework."
+  },
+  {
+    "publisher": "NERC",
+    "domains": [
+      "nerc.com"
+    ],
+    "covers": "NERC CIP."
+  },
+  {
+    "publisher": "AICPA",
+    "domains": [
+      "aicpa.org",
+      "aicpa-cima.com"
+    ],
+    "covers": "SOC reporting standards."
+  },
+  {
+    "publisher": "Brazil",
+    "domains": [
+      "gov.br",
+      "planalto.gov.br"
+    ],
+    "covers": "Brazilian federal regulation (LGPD)."
+  },
+  {
+    "publisher": "Singapore",
+    "domains": [
+      "pdpc.gov.sg",
+      "imda.gov.sg",
+      "aiverifyfoundation.sg"
+    ],
+    "covers": "Singapore PDPA; Model AI Governance Framework for Generative AI (IMDA and the AI Verify Foundation)."
+  },
+  {
+    "publisher": "India",
+    "domains": [
+      "pib.gov.in"
+    ],
+    "covers": "India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau)."
+  },
+  {
+    "publisher": "Australia",
+    "domains": [
+      "oaic.gov.au",
+      "legislation.gov.au",
+      "industry.gov.au",
+      "ai.gov.au"
+    ],
+    "covers": "Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act); Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard); National AI Centre (Guidance for AI Adoption, via ai.gov.au)."
+  },
+  {
+    "publisher": "Switzerland",
+    "domains": [
+      "admin.ch",
+      "edoeb.admin.ch"
+    ],
+    "covers": "Swiss nFADP."
+  },
+  {
+    "publisher": "China",
+    "domains": [
+      "npc.gov.cn",
+      "cac.gov.cn"
+    ],
+    "covers": "Chinese regulation (PIPL; CAC cross-border data provisions)."
+  },
+  {
+    "publisher": "Saudi Arabia",
+    "domains": [
+      "sdaia.gov.sa"
+    ],
+    "covers": "Saudi PDPL."
+  },
+  {
+    "publisher": "US States and localities",
+    "domains": [
+      "ilga.gov",
+      "leg.colorado.gov",
+      "nyc.gov",
+      "oag.ca.gov",
+      "cppa.ca.gov",
+      "capitol.texas.gov"
+    ],
+    "covers": "US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov; the California CCPA statute via the Attorney General (oag.ca.gov) and the CCPA Regulations via the California Privacy Protection Agency (cppa.ca.gov); Texas TRAIGA / HB 149 via the Texas Legislature (capitol.texas.gov))."
+  },
+  {
+    "publisher": "Malaysia",
+    "domains": [
+      "pdp.gov.my"
+    ],
+    "covers": "Malaysia PDPA (Personal Data Protection Department)."
+  },
+  {
+    "publisher": "OWASP",
+    "domains": [
+      "owasp.org",
+      "genai.owasp.org",
+      "owaspsamm.org",
+      "cyclonedx.org"
+    ],
+    "covers": "OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424)."
+  },
+  {
+    "publisher": "LINDDUN",
+    "domains": [
+      "linddun.org"
+    ],
+    "covers": "LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet)."
+  },
+  {
+    "publisher": "UK AISI",
+    "domains": [
+      "ukgovernmentbeis.github.io",
+      "aisi.org.uk"
+    ],
+    "covers": "UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
+  },
+  {
+    "publisher": "IEEE",
+    "domains": [
+      "ieee.org",
+      "standards.ieee.org"
+    ],
+    "covers": "IEEE standards (for example IEEE 2883-2022 Sanitizing Storage)."
+  },
+  {
+    "publisher": "ETSI",
+    "domains": [
+      "etsi.org",
+      "www.etsi.org"
+    ],
+    "covers": "ETSI standards, including the Securing AI series (EN 304 223, TR 104 128)."
+  },
+  {
+    "publisher": "PCI SSC",
+    "domains": [
+      "pcisecuritystandards.org"
+    ],
+    "covers": "PCI DSS."
+  },
+  {
+    "publisher": "OECD",
+    "domains": [
+      "oecd.org",
+      "oecd.ai"
+    ],
+    "covers": "OECD AI Principles and OECD Privacy Guidelines."
+  },
+  {
+    "publisher": "WTO",
+    "domains": [
+      "wto.org"
+    ],
+    "covers": "WTO Trade Facilitation Agreement."
+  },
+  {
+    "publisher": "World BASC Organization",
+    "domains": [
+      "wbasco.org"
+    ],
+    "covers": "BASC International Norm and Security Standard (Business Alliance for Secure Commerce)."
+  },
+  {
+    "publisher": "South Korea",
+    "domains": [
+      "law.go.kr"
+    ],
+    "covers": "Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust)."
+  },
+  {
+    "publisher": "OpenSSF / Linux Foundation",
+    "domains": [
+      "openssf.org",
+      "slsa.dev",
+      "linuxfoundation.org",
+      "spdx.org",
+      "spdx.dev"
+    ],
+    "covers": "SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project."
+  },
+  {
+    "publisher": "SANS Institute",
+    "domains": [
+      "sans.org"
+    ],
+    "covers": "SANS Critical AI Security Guidelines."
+  },
+  {
+    "publisher": "Google",
+    "domains": [
+      "saif.google"
+    ],
+    "covers": "Google Secure AI Framework (SAIF)."
+  },
+  {
+    "publisher": "MLCommons",
+    "domains": [
+      "mlcommons.org"
+    ],
+    "covers": "AILuminate hazard taxonomy and benchmark."
+  },
+  {
+    "publisher": "AVID",
+    "domains": [
+      "avidml.org"
+    ],
+    "covers": "AI Vulnerability Database."
+  },
+  {
+    "publisher": "HarmBench (Center for AI Safety)",
+    "domains": [
+      "harmbench.org"
+    ],
+    "covers": "HarmBench automated red-team evaluation framework."
+  },
+  {
+    "publisher": "promptfoo",
+    "domains": [
+      "promptfoo.dev"
+    ],
+    "covers": "promptfoo LLM evaluation and red-team tool (release history on its GitHub releases page)."
+  },
+  {
+    "publisher": "Wayback Machine",
+    "domains": [
+      "web.archive.org"
+    ],
+    "covers": "Third-party snapshot capture (not a primary source; an evidence anchor)."
+  }
+]
+```
 
 ### 7.2 Additions
 

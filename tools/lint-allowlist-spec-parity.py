@@ -3,9 +3,13 @@
 
 Two surfaces list the publishers whose domains the library may link to: the
 external-link gate's ``ALLOW_LIST`` in ``tools/lint-external-link-domains.py``
-(gate 24) and the publisher table in section 7.1 of
+(gate 24) and the publisher allow-list in section 7.1 of
 ``governance/specification-citation-verification.md``. They drifted apart before
-(3b30 reconciled them by hand); this gate keeps them together.
+(3b30 reconciled them by hand); this gate keeps them together. Section 7.1's
+source of record is its fenced ``json citation-publishers`` block (parsed strictly by
+``tools/citation_publishers.py``); its table is generated from the block (gate 102),
+so this gate never parses a Markdown table (3b31b redesign, maintainer ruling
+2026-09-24: nine QA rounds showed hand-parsing a GFM table is an open-ended class).
 
 Clause. Forward: every ``ALLOW_LIST`` entry is either covered by a section 7.1
 domain under gate 24's own suffix semantics (the entry equals a 7.1 domain or is
@@ -24,9 +28,10 @@ so an entry appended to a commented group is still checked. Reverse: every
 section 7.1 domain is admitted by the allow-list under the same matcher.
 
 Fail-closed input checks: the ALLOW_LIST literal must be found and non-empty;
-the section 7.1 table must be found; every 7.1 data row must carry at least one
-code-span domain in its domain cell; and at least MIN_SPEC_DOMAINS domains must
-parse, so a reflowed table cannot silently shrink the checked set.
+the section 7.1 block must satisfy every rule of ``tools/citation_publishers.py``
+(exactly one block inside section 7.1, strict JSON, exact schema, canonical and
+unique domains); and at least MIN_SPEC_DOMAINS domains must be declared, so a
+valid but shrunken block cannot silently shrink the checked set.
 
 Residue, stated: a marker proves a classification was asserted, not that it is
 honest; a ``non-publisher`` marker on a genuine publisher passes mechanically,
@@ -45,12 +50,12 @@ import tokenize
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "tools"))
+import citation_publishers  # noqa: E402  # section 7.1 source of record (shared with gate 102)
 ALLOW_SRC = REPO_ROOT / "tools" / "lint-external-link-domains.py"
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 MIN_SPEC_DOMAINS = 50
 MARKER_RE = re.compile(r"#\s*(non-publisher|pending-publisher):\s*(\S.*)$")
-# GFM delimiter cells need only one hyphen (-, :-, -:, :-:), so match one or more.
-DELIMITER_CELL_RE = re.compile(r":?-+:?")
 # Methods that only read a set; any other attribute use on ALLOW_LIST could
 # change it after the literal and is rejected.
 READ_ONLY_ATTRS = {"copy", "issubset", "issuperset", "isdisjoint", "union",
@@ -147,67 +152,16 @@ def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
     return out
 
 
-def _cells(line: str) -> list[str]:
-    """Table cells with only the outer delimiters removed, so empty cells survive."""
-    inner = line.strip()
-    inner = inner[1:] if inner.startswith("|") else inner
-    inner = inner[:-1] if inner.endswith("|") else inner
-    return [c.strip() for c in inner.split("|")]
-
-
 def spec_domains(text: str) -> set[str]:
-    """Code-span domains in the section 7.1 table's domain cell."""
-    m = re.search(r"^### 7\.1 .*$", text, re.M)
-    if not m:
-        raise InputError("section 7.1 heading not found")
-    end = re.search(r"^#{2,3} ", text[m.end():], re.M)
-    section = text[m.end(): m.end() + end.start()] if end else text[m.end():]
-    lines = section.splitlines()
-    # The table is the contiguous block that starts at its first "Publisher"
-    # header row and ends at the first blank line or the first line without a
-    # pipe (a GFM table ends at a blank line or at another block, such as a
-    # blockquote note). Inside it every line is a row (a GFM row need not start
-    # with a pipe). Outside it, a line with two or more pipe delimiters once
-    # inline code spans are removed is table-structured (a row of at least two
-    # cells), so it is an input error whatever its content (a second table or a
-    # stray row whose domains would otherwise be missed). Prose with a single
-    # pipe, or pipes only inside inline code, is ignored. A GFM delimiter row
-    # outside the block ("--- | ---") also fails, so a second table without
-    # outer pipes cannot hide (every GFM table has a delimiter row). Residue:
-    # prose with two or more bare pipes outside code fails loud; a lone
-    # single-pipe line with no delimiter row is a paragraph, not a table.
-    start = next((k for k, line in enumerate(lines)
-                  if "|" in line and _cells(line)[0] == "Publisher"), None)
-    if start is None:
-        raise InputError("section 7.1 table header (Publisher) not found")
-    stop = next((k for k in range(start + 1, len(lines))
-                 if not lines[k].strip() or "|" not in lines[k]), len(lines))
-    for k, line in enumerate(lines):
-        if start <= k < stop:
-            continue
-        outside_code = re.sub(r"`[^`]*`", "", line)
-        is_delimiter_row = "|" in outside_code and all(
-            DELIMITER_CELL_RE.fullmatch(c) for c in _cells(outside_code))
-        if outside_code.count("|") >= 2 or is_delimiter_row:
-            raise InputError(f"a table-structured line outside the section 7.1 table: {line.strip()[:80]}")
-    domains: set[str] = set()
-    rows = 0
-    for line in lines[start + 1:stop]:
-        stripped = line.strip()
-        cells = _cells(stripped)
-        if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
-            continue
-        if not cells[0]:
-            raise InputError(f"section 7.1 row with an empty Publisher cell: {stripped[:80]}")
-        rows += 1
-        found = re.findall(r"`([^`]+)`", cells[1] if len(cells) > 1 else "")
-        if not found:
-            raise InputError(f"section 7.1 row without a code-span domain: {line[:80]}")
-        domains |= {d.lower() for d in found}
+    """Every domain section 7.1's ``json citation-publishers`` block declares."""
+    try:
+        domains = citation_publishers.domains(text)
+    except citation_publishers.InputError as exc:
+        raise InputError(f"section 7.1 source of record: {exc}") from None
     if len(domains) < MIN_SPEC_DOMAINS:
         raise InputError(
-            f"only {len(domains)} section 7.1 domains parsed from {rows} rows "
-            f"(floor {MIN_SPEC_DOMAINS}); table format changed?")
+            f"only {len(domains)} section 7.1 domains declared (floor {MIN_SPEC_DOMAINS}); "
+            "was the publisher block truncated?")
     return domains
 
 
