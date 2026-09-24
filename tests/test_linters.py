@@ -14984,6 +14984,15 @@ class UnwiredToolSelfTests(LinterTestCase):
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_audit_register_url_redirects_self_test_passes(self) -> None:
+        # 3b37: offline self-test of the advisory upstream-URL redirect audit.
+        result = run_linter("tools/audit-register-url-redirects.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"audit-register-url-redirects.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_build_public_changelog_self_test_passes(self) -> None:
         result = run_linter("tools/build-public-changelog.py", "--self-test")
         self.assertEqual(
