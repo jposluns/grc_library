@@ -76,7 +76,7 @@ New category name in 2025: it expands the former A06 Vulnerable and Outdated Com
 - Verify dependency names exist in approved registries before installing: AI-suggested packages can be hallucinated
 - Pin exact versions in lockfiles committed to source control
 - SBOM generated for every production release
-- Sign all production build artefacts (SLSA provenance) and verify checksums on all downloaded packages and build artefacts
+- Sign all production build artefacts (related to SLSA v1.2 Build-track provenance, which the build platform generates) and verify checksums on all downloaded packages and build artefacts
 
 **Prohibited patterns**:
 - Using a library with a known Critical CVE
