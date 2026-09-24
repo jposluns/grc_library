@@ -8901,6 +8901,20 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
             ("nested-return", "1. outer\n   - inner\n\n   " + tl + "\n   x\n    " + tl + "\n\n   CCC-01 to 09\n"),
             ("nbsp-closer", tl + "\n" + tl + "\u00a0\nexample\n" + tl + "\nCCC-01 to 09\n"),
             ("tab", "- x\n\n  " + tl + "\n\tCCC-01 to 09\n  " + tl + "\n"),
+            # every earlier QA fence shape, now a fail-closed assertion (round 5)
+            ("tilde-inner", tl + "\n" + t3 + "\n" + tl + "\nCCC-01 to 09\n" + tl + "\n"),
+            ("indent4", "    " + t3 + "\n\nCCC-01 to 09\n"),
+            ("indent4-close", t3 + "\n    " + t3 + "\nCCC-01 to 09\n" + t3 + "\n"),
+            ("tick-info", t3 + "a`b\nCCC-01 to 09\n"),
+            ("info-close", t3 + "\n" + t3 + "text\nCCC-01 to 09\n" + t3 + "\n"),
+            ("longer-close", t3 + "\n" + t4 + "\nCCC-01 to 09\n"),
+            ("indent3-then-4", "   " + t3 + "\n    " + t3 + "\nexample\n" + t3 + "\nCCC-01 to 09\n"),
+            ("list-3-4", "1. Example:\n\n   " + t3 + "text\n   example\n    " + t3 + "\n\nCCC-01 to 09\n"),
+            ("list-4-4", "1. Example:\n\n    " + t3 + "\n    | S | CCC-01 to 09 |\n    " + t3 + "\n"),
+            ("list-closer-rel2", "1. Example:\n\n   " + t3 + "\n   x\n     " + t3 + "\n\n   CCC-01 to 09\n"),
+            ("list-closer-rel4", "1. Example:\n\n   " + t3 + "\n       " + t3 + "\n   CCC-01 to 09\n"),
+            ("list-exit", "1. Example:\n\n   " + t3 + "\n   x\n\nCCC-01 to 09\n"),
+            ("marker-line-example", "- " + tl + "\n  CCC-01 to 09\n  " + tl + "\n"),
         ):
             self.assertLinterFails(self._run(f"fake-ccm-fence-{name}.md", body), "CCC-05")
 

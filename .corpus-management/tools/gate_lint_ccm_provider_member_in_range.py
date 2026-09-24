@@ -2,7 +2,8 @@
 """CCM family-range provider-to-tenant member direction - pack engine.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(RANGE_RE, swept_members, the fence/inline-code regexes, and scan_text) is the
+(RANGE_RE, swept_members, the inline-code-span scan, and scan_text; fenced blocks are
+scanned, fail closed) is the
 source of record here in the pack, moved verbatim from the grc gate. The set of
 directional provider-to-tenant control members is supplied by the adopter via
 configure(directional_members), so the engine carries no project catalogue; the
@@ -38,10 +39,6 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
     return [f"{fam}-{n:02d}" for n in range(start, end + 1)]
 
 
-# A marker-aware fence scan (the helper pair of gate_lint_directional_dependency): the open fence is
-# tracked as (character, run length), and only a same-character run at least as long, with no info
-# string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
-# boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
 # FAIL CLOSED on block structure (maintainer ruling 2026-09-24, 3b52): fenced code blocks are NOT
 # skipped, so no Markdown block structure (a fence, a list container, indentation) can hide an
 # active citation; a range written as an example inside a fence is flagged, and the author writes
