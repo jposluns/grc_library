@@ -10957,56 +10957,90 @@ class AuditSpecDetailedProseTests(LinterTestCase):
 
 
 class ExplicitPathGuardTests(LinterTestCase):
-    """lint_common.check_explicit_paths, wired into lint-language and lint-unbalanced-fences (3b21).
+    """lint_common.guard_explicit_paths across every explicit-path wrapper (3b21).
 
-    An explicit path used to pass without scanning the intended file when it was missing,
-    relative from outside the tree (resolved against the linter's own repo root), or, for
-    lint-language, absolute in another tree (a ValueError traceback). Each is now refused
-    with exit 2; the positive controls confirm in-tree paths still scan and still fail.
+    ``iter_scan_roots_markdown`` resolves an explicit entry against the linter's own repo
+    root, never the current directory, and silently drops a missing one. An explicit path
+    therefore used to pass without scanning the intended file when it was missing, or
+    relative while not run from the tree root (from outside the tree OR from one of its
+    subdirectories), and most wrappers raised a ValueError traceback on an out-of-tree or
+    non-normalized absolute path. Each is now refused with exit 2 or normalized; the
+    positive controls confirm in-tree paths still scan and still fail.
     """
 
-    SCRIPTS = ("tools/lint-language.py", "tools/lint-unbalanced-fences.py")
+    STRICT = (
+        "tools/lint-language.py", "tools/lint-bare-normative-shall.py",
+        "tools/lint-citations.py", "tools/lint-filename-title-alignment.py",
+        "tools/lint-links.py", "tools/lint-shall-near-uncertainty.py",
+        "tools/lint-todo-marked-done.py", "tools/lint-roles.py",
+        "tools/lint-positional-backlog-tokens.py",
+    )
+    # Content-only checks: another tree's absolute path is scanned soundly.
+    CONTENT_ONLY = ("tools/lint-unbalanced-fences.py", "tools/lint-nested-markdown-links.py")
+    ALL = STRICT + CONTENT_ONLY
 
     def _outside_dir(self) -> Path:
         d = Path(tempfile.mkdtemp(prefix="guard-outside-"))
         self.addCleanup(shutil.rmtree, d)
         return d
 
+    def _run_from(self, cwd: Path, script: str, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / script), *args],
+            cwd=str(cwd), capture_output=True, text=True,
+        )
+
     def test_missing_path_refused(self) -> None:
-        for script in self.SCRIPTS:
+        for script in self.ALL:
             result = run_linter(script, "no/such/file-3b21.md")
             self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
-            self.assertIn("does not exist", result.stderr)
+            self.assertIn("does not exist", result.stderr, script)
 
     def test_relative_path_from_outside_tree_refused(self) -> None:
         outside = self._outside_dir()
-        (outside / "README.md").write_text("The team finalised it.\n```\n", encoding="utf-8")
-        for script in self.SCRIPTS:
-            result = subprocess.run(
-                [sys.executable, str(REPO_ROOT / script), "README.md"],
-                cwd=str(outside), capture_output=True, text=True,
-            )
+        (outside / "README.md").write_text("# T\n", encoding="utf-8")
+        for script in self.ALL:
+            result = self._run_from(outside, script, "README.md")
             self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
-            self.assertIn("relative path given from outside", result.stderr)
+            self.assertIn("not this linter's tree root", result.stderr, script)
+
+    def test_relative_path_from_subdirectory_refused(self) -> None:
+        # From tools/, "README.md" names nothing there but would silently resolve to the
+        # repository-root README; it must be refused, not scanned.
+        for script in self.ALL:
+            result = self._run_from(REPO_ROOT / "tools", script, "README.md")
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("not this linter's tree root", result.stderr, script)
+
+    def test_non_normalized_absolute_in_tree_path_scans(self) -> None:
+        # A spelling that resolves inside the tree but is not lexically under it used to
+        # pass the containment check and then raise in the scanner's relative_to.
+        spelled = f"{REPO_ROOT}/../{REPO_ROOT.name}/README.md"
+        for script in self.ALL:
+            result = run_linter(script, spelled)
+            self.assertNotIn("Traceback", result.stderr, script)
+            self.assertNotEqual(result.returncode, 2, script + result.stderr)
 
     def test_absolute_path_in_other_tree(self) -> None:
         outside = self._outside_dir()
         bad = outside / "bad.md"
-        bad.write_text("# T\n\nThe team finalised it.\n\n```\nopen\n", encoding="utf-8")
-        language = run_linter("tools/lint-language.py", bad)
-        self.assertEqual(language.returncode, 2, language.stdout + language.stderr)
-        self.assertIn("outside this linter's tree", language.stderr)
-        self.assertNotIn("Traceback", language.stderr)
-        # The fence check is content-only, so another tree's file is scanned and fails.
-        fences = run_linter("tools/lint-unbalanced-fences.py", bad)
-        self.assertLinterFails(fences, "unbalanced fence")
+        bad.write_text(
+            "# T\n\nThe team finalised it. [[a](#)](#)\n\n```\nopen\n", encoding="utf-8"
+        )
+        for script in self.STRICT:
+            result = run_linter(script, bad)
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("outside this linter's tree", result.stderr, script)
+            self.assertNotIn("Traceback", result.stderr, script)
+        self.assertLinterFails(run_linter("tools/lint-unbalanced-fences.py", bad), "unbalanced fence")
+        self.assertLinterFails(run_linter("tools/lint-nested-markdown-links.py", bad), "nested")
 
     def test_in_tree_paths_still_scan(self) -> None:
         bad = self.make_fixture("guard-bad.md", "# T\n\nThe team finalised it.\n\n```\nopen\n")
         self.assertLinterFails(run_linter("tools/lint-language.py", bad), "ise")
         self.assertLinterFails(run_linter("tools/lint-unbalanced-fences.py", bad), "unbalanced fence")
         good = self.make_fixture("guard-good.md", "# T\n\nPlain prose.\n")
-        for script in self.SCRIPTS:
+        for script in ("tools/lint-language.py", "tools/lint-unbalanced-fences.py"):
             result = run_linter(script, good)
             self.assertEqual(result.returncode, 0, script + result.stdout + result.stderr)
 

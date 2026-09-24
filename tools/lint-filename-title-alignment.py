@@ -29,7 +29,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, iter_scan_roots_markdown
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdown
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -129,6 +129,9 @@ def main() -> int:
         else args.legacy_paths if args.legacy_paths is not None
         else DEFAULT_PATHS
     )
+    if paths is not DEFAULT_PATHS and paths:
+        # Explicit paths are refused when unsound and normalized otherwise (3b21).
+        paths = guard_explicit_paths(paths, repo_root=REPO_ROOT)
     synonyms, doctypes = _alignment_config()
     return _engine().run(
         iter_active_files(paths),

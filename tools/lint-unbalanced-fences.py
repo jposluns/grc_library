@@ -27,7 +27,7 @@ Usage:
     python3 tools/lint-unbalanced-fences.py path1 path2 ...
 
 Exit codes are the engine's: 0 clean; 1 findings; plus 2 when an explicit path is
-refused (missing, or relative from outside this tree).
+refused (missing, or relative while not run from the tree root).
 """
 
 from __future__ import annotations
@@ -42,7 +42,7 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys
 from lint_common import (  # noqa: E402  # grc-config/store, stays local
     is_default_exempt_root,
     DEFAULT_EXEMPT_DIRS,
-    check_explicit_paths,
+    guard_explicit_paths,
     iter_scan_roots_markdown,
 )
 
@@ -72,15 +72,12 @@ def iter_targets(paths: list[str]) -> list[Path]:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    # Explicit paths must exist, and a relative one must not be given from outside this
-    # tree (it would resolve against REPO_ROOT, not the current directory); refused with
+    # Explicit paths must exist, and a relative one is accepted only when run from the
+    # tree root (it resolves against REPO_ROOT, not the current directory); refused with
     # exit 2 rather than silently passing (3b21). The fence check is content-only, so an
     # absolute path in another tree is scanned soundly and stays allowed.
-    refused = check_explicit_paths(argv, repo_root=REPO_ROOT, allow_outside=True)
-    if refused:
-        for msg in refused:
-            print(f"ERROR: {msg}", file=sys.stderr)
-        return 2
+    if argv:
+        argv = guard_explicit_paths(argv, repo_root=REPO_ROOT, allow_outside=True)
     engine = _engine()
     return engine.run(iter_targets(argv), repo_root=REPO_ROOT)
 

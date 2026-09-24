@@ -39,6 +39,7 @@ import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys
 from lint_common import (  # noqa: E402  # grc-config/store, stays local
     is_default_exempt_root,
     DEFAULT_EXEMPT_DIRS,
+    guard_explicit_paths,
     iter_scan_roots_markdown,
 )
 
@@ -68,6 +69,10 @@ def iter_targets(paths: list[str]) -> list[Path]:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv:
+        # Refused when missing or relative while not run from the tree root; the check is
+        # content-only, so another tree's absolute path is scanned soundly (3b21).
+        argv = guard_explicit_paths(argv, repo_root=REPO_ROOT, allow_outside=True)
     engine = _engine()
     return engine.run(iter_targets(argv), repo_root=REPO_ROOT)
 
