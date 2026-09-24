@@ -105,6 +105,8 @@ ALLOW_LIST = {
     "code.claude.com",
     # Common Linux Foundation domains
     "linuxfoundation.org", "openssf.org", "slsa.dev", "cncf.io",
+    # OWASP CycloneDX canonical specification site (citation-verification spec section 7.2, 2026-09-24)
+    "cyclonedx.org",
     # AI runtime / observability project canonical homes
     "promptfoo.dev",
     # Schema.org and JSON schema
