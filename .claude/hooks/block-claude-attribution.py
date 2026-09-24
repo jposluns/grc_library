@@ -66,7 +66,7 @@ ATTRIBUTION = (
      re.compile(r"(?i)co-authored-by:[^\n]*\b(?:claude|anthropic)\b")),
     ("a 'Generated with/by ... Claude' attribution line",
      re.compile(r"(?i)\bgenerated\s+(?:with|by|using|via)\s+(?:(?:the\s+)?(?:help|assistance|aid)\s+of\s+)?"
-                r"\[?(?:claude|anthropic)\b(?!\.md\b|-)")),
+                r"(?:the\s+)?[\[*_`]{0,3}(?:claude|anthropic)\b(?!\.md\b|-)")),
     ("a claude.ai/code link",
      re.compile(r"(?i)\bclaude\.ai/code")),
     ("a claude.com/claude-code link",
@@ -127,6 +127,10 @@ def body_file_paths(command: str) -> list[str]:
             paths.append(tokens[i + 1])
         elif tok.startswith("-F") and len(tok) > 2 and "=" not in tok:
             paths.append(tok[2:])
+        elif tok in ("-F", "--field") and i + 1 < len(tokens) and "=@" in tokens[i + 1]:
+            paths.append(tokens[i + 1].split("=@", 1)[1])  # gh api key=@file reads the file
+        elif (tok.startswith("--field=") or (tok.startswith("-F") and len(tok) > 2)) and "=@" in tok:
+            paths.append(tok.split("=@", 1)[1])
     return [p for p in paths if p]
 
 
@@ -304,7 +308,9 @@ def self_test() -> int:
                  ("gh pr create --title t -F " + dirty, True),
                  ("gh pr create --title t --body-file " + clean, False),
                  ("gh pr create --title t --body-file /nonexistent/x.md", False),
-                 ("gh pr create --title t -F" + dirty, True)]
+                 ("gh pr create --title t -F" + dirty, True),
+                 ("gh api repos/o/r/pulls -F body=@" + dirty, True),
+                 ("gh api repos/o/r/pulls --field body=@" + dirty, True)]
         base, name = os.path.split(dirty)
         for command, should_block, cwd in [(c, b, None) for c, b in cases] + [
                 ("gh pr create --title t --body-file " + name, True, base),
@@ -319,7 +325,7 @@ def self_test() -> int:
                 os.unlink(p)
             except OSError:
                 pass
-    total = len(SELF_TEST) + 7
+    total = len(SELF_TEST) + 9
     print(str(total - bad) + "/" + str(total) + " self-test cases pass")
     return 1 if bad else 0
 
