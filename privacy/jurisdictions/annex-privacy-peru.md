@@ -2,8 +2,8 @@
 
 **Document Title:** Peru Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-09-04\
+**Version:** 0.0.3\
+**Date:** 2026-09-24\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/jurisdictions/annex-privacy-latin-america.md`](annex-privacy-latin-america.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -75,7 +75,7 @@ Where the organization monitors the network and device activity of workers in Pe
 - **Private-communications limit**: private communications, telecommunications, and IT systems may be opened, seized, intercepted, or accessed only by a motivated judicial order or with the holder's authorization, and data obtained in violation have no legal effect [Ley Art 13.4]. This governs interception-type monitoring directly.
 - **Lawful footing**: consent is the primary basis [Ley Arts 5, 13.5], but the regulation treats consent conditioned on a service or benefit as not free where the data are not indispensable [DS Art 3.2], so where employment consent is not a sound footing the operative basis is a statutory authorization or an applicable Article 14 exception, not "general principles" and not a controller legitimate-interest basis (Article 14.9 concerns the data subject's legitimate interest). The Legitimate Interest Assessment for Employment Monitoring Annex is used only as an analytic aid, adapted to Ley 29733's consent-and-authorization scheme rather than to GDPR Article 6(1)(f).
 - **Sensitive data**: monitoring that would capture sensitive data (expansively defined at DS Art III.6) requires written consent or a legal authorization [Ley Art 13.6].
-- **Automated decisions and profiling**: workers retain the objective-treatment right against decisions based solely on automated processing that produce legal or significant effects, subject to the Article 23 exceptions [Ley Art 23; DS Art 87].
+- **Automated decisions and profiling**: workers retain the objective-treatment right against decisions, automated or otherwise, that produce legal effects, discrimination, or significant effects on them (including those based solely on automated processing), subject to the Article 23 exceptions [Ley Art 23; DS Art 87].
 - Purpose limitation, quality, proportionality, and security apply [Ley Arts 6, 7, 8, 9, 16]. Consultation, telemetry, and presence signals are handled through the Works Council and Employee Representative Consultation Procedure, the Network Telemetry and DPI Controls Standard, and the Presence Inference Limitations Standard, with scope stated to workers mirroring the parent policy's boundaries; the Employee Monitoring Notice Template provides content adapted to the Article 18 / DS Art 6 information duty.
 
 ## Limitations
