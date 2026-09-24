@@ -267,11 +267,18 @@ def commit_target(cmd: str, cwd: str):
     target = cwd
     for part in parts:
         # Shell escapes and bracket globs rewrite the operand before git sees it (3b25 r7, codex).
-        if any(ch in part for ch in "'\"$`~*?\\[]"):
+        if any(ch in part for ch in "'\"$`~*?\\[]{}"):
+            return None
+        joined = os.path.join(target, part)
+        # /proc/self and /dev/fd links resolve against the PROCESS reading them, so the guard would
+        # resolve its own cwd, not git's (3b25 r8, codex). A step git cannot chdir into (a missing
+        # intermediate that `..` would lexically cancel) is not a commit target (3b25 r8, codex):
+        # isdir resolves through the kernel exactly as chdir does. Either way, step aside.
+        if joined.startswith(("/proc/", "/dev/fd/")) or not os.path.isdir(joined):
             return None
         # git chdirs into each -C operand in turn, so a symlink changes where the next relative
-        # operand lands: resolve like chdir does, not lexically (3b25 r7, codex: /proc/self/cwd).
-        target = os.path.realpath(os.path.join(target, part))
+        # operand lands: resolve like chdir does, not lexically (3b25 r7, codex).
+        target = os.path.realpath(joined)
     return target
 
 
@@ -720,9 +727,21 @@ def self_test() -> int:
     ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
     ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
     ck("commit_target: plain commit runs in cwd", commit_target("git commit -m x", "/r"), "/r")
-    ck("commit_target: -C is applied", commit_target("git -C /w commit -m x", "/r"), "/w")
+    import tempfile as _tfm
+    _W = os.path.realpath(_tfm.mkdtemp()); os.mkdir(os.path.join(_W, "b")); os.mkdir(os.path.join(_W, "d"))
+    os.symlink(os.path.join(_W, "d"), os.path.join(_W, "lnk")); os.mkdir(os.path.join(_W, "{a,b}"))
+    import atexit as _ax, shutil as _sh
+    _ax.register(_sh.rmtree, _W, True)
+    ck("commit_target: -C is applied", commit_target(f"git -C {_W} commit -m x", "/r"), _W)
     ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
-    ck("commit_target: several -C operands compose", commit_target("git -C /a -C b commit", "/r"), "/a/b")
+    ck("commit_target: several -C operands compose", commit_target(f"git -C {_W} -C b commit", "/r"), os.path.join(_W, "b"))
+    ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
+    ck("commit_target: a missing intermediate cancelled by .. steps aside",
+       commit_target(f"git -C {_W}/missing/.. commit -m x", "/r"), None)
+    ck("commit_target: a symlinked -C step is followed like chdir",
+       commit_target(f"git -C {_W}/lnk -C .. commit -m x", "/r"), _W)
+    ck("commit_target: a braced operand steps aside even when a directory of that name exists",
+       commit_target(f"git -C {_W}/{{a,b}} commit -m x", "/r"), None)
     ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
     ck("commit_target: a subshell cd does not move the commit", commit_target("(cd /x && true); git commit -m x", "/r"), None)
     ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
@@ -741,8 +760,8 @@ def self_test() -> int:
                   "git status -- commit\nc\\d /o && git commit -m x", "git submodule foreach :\\; git commit -m x",
                   "git -C /o\\-v commit -m x", "git -C /o-[v] commit -m x"):
         ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
-    ck("commit_target: a symlinked -C operand resolves like chdir",
-       commit_target("git -C /proc/self/cwd -C . commit -m x", os.getcwd()), os.path.realpath(os.getcwd()))
+    ck("commit_target: a /proc/self operand resolves against the guard, so it steps aside",
+       commit_target(f"git -C {_W} -C /proc/self/cwd commit -m x", "/r"), None)
     ck("commit_target: earlier plain git segments keep the cwd target",
        commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")
     ck("commit_target: a non-git pipe source steps aside", commit_target("true | git commit -F -", "/r"), None)
