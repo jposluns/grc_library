@@ -322,7 +322,7 @@ def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
         # 3b50b1 r3: --self-test takes no other argument (no --root). Combined with --root, the self-test ran and the root was
         # silently dropped (exit 0 that validated nothing of the named tree); refuse instead.
-        if [x for x in argv[1:] if x != "--self-test"]:
+        if argv[1:] != ["--self-test"]:  # exactly one --self-test and nothing else (r4)
             print("ERROR: --self-test takes no --root or other argument; run the self-test and "
                   "the root scan separately.", file=sys.stderr)
             return 2

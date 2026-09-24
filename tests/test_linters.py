@@ -11632,6 +11632,7 @@ class ExplicitRootGuardTests(LinterTestCase):
             (("tools/lint-narrative-boundary.py", "--self-test", "--root=/nonexistent-3b50b1"),
              "takes no --root"),
             (("tools/lint-narrative-boundary.py", "--root", "--self-test"), "takes no --root"),
+            (("tools/lint-narrative-boundary.py", "--self-test", "--self-test"), "takes no --root"),
             # r3: unknown and repeated arguments are refused (they used to be skipped, so the
             # default tree was scanned and the run exited 0)
             (("tools/lint-narrative-boundary.py", "--roott=/tmp"), "unrecognized argument"),
