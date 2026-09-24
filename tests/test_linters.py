@@ -3454,6 +3454,21 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test:", result.stdout)
 
+    def test_block_claude_attribution_hook_self_test(self) -> None:
+        """The PR-attribution guard's --self-test, wired at introduction.
+
+        Maintainer directive 2026-08-17 (re-confirmed 2026-09-24): no Claude or Anthropic
+        attribution on any commit, push or PR; the hook refuses a PR-writing gh command whose
+        text or body file carries an attribution pattern, and a stdin body it cannot inspect."""
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-claude-attribution.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test cases pass", result.stdout)
+
     def test_block_unstamped_turn_end_behaviour(self) -> None:
         """Behavioural: the Stop hook actually BLOCKS a non-conforming final message (exit 2) and
         ALLOWS a conforming one (exit 0), and is loop-safe. A pure --self-test missed the
@@ -22570,6 +22585,36 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             add("commit-" + flag, "git commit " + flag, evidence=("commits every tracked",),
                 sites=(("violation", "commits every tracked"),))
 
+        add = group("block-claude-attribution", "rewrite")
+        for name, command, fragment in (
+            ("create-generated",
+             'gh pr create --title t --body "Change.\n\n\U0001F916 Generated with '
+             '[Claude Code](https://claude.com/claude-code)"',
+             "Generated with [Claude Code]"),
+            ("create-coauthored",
+             "gh pr create -t x -b 'Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>'",
+             "Co-Authored-By"),
+            ("edit-session-url",
+             'gh pr edit 9 --body "see https://claude.ai/code/session_abc123"',
+             "claude.ai/code"),
+            ("comment-generated",
+             'gh pr comment 9 --body "Generated with Claude Code"',
+             "'Generated with ... Claude' attribution line"),
+            ("review-trailer-email",
+             'gh pr review 9 --approve --body "thanks <noreply@anthropic.com>"',
+             "noreply@anthropic.com trailer address"),
+            ("merge-body",
+             'gh pr merge 9 --squash --body "co-authored-by: Claude <noreply@anthropic.com>"',
+             "Co-Authored-By trailer"),
+            ("api-field",
+             "gh api repos/o/r/pulls -f title=t -f body='Generated with Claude Code'",
+             "Generated with"),
+            ("heredoc-body",
+             'gh pr create --title t --body "$(cat <<\'EOF\'\nBody.\n\U0001F916 Generated '
+             'with [Claude Code](https://claude.com/claude-code)\nEOF\n)"',
+             "Generated with"),
+        ):
+            add(name, command, evidence=(fragment,))
         add = group("block-on-open-findings", "give",
                     ("decide_exit", "print('\\n'.join(lines),", 1), "open-findings")
         for name in ("error", "error-many", "error-precedence"):
@@ -22851,7 +22896,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 elif hook == "block-branch-to-main-edit":
                     payload.update(tool_name="Edit", tool_input={"file_path": self.P + "/doc.md"})
                     m(mod, "_current_branch", arg)
-                elif hook in ("block-bulk-git-add", "block-verification-pipes"):
+                elif hook in ("block-bulk-git-add", "block-verification-pipes",
+                              "block-claude-attribution"):
                     bash(arg)
                 elif hook == "block-on-open-findings":
                     bash("gh pr create")
@@ -23070,7 +23116,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
-        self.assertEqual(len(registered), 17)
+        self.assertEqual(len(registered), 18)
         self.assertEqual(registered, set(self._case_registry()))
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)
