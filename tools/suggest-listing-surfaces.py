@@ -37,7 +37,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, REPO_ROOT, positional_args  # noqa: E402  # grc-config/store, stays local
 
 REGISTER = "governance/register-document-index-and-classification.md"
 PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
@@ -209,7 +209,10 @@ def report_one(doc_path: str) -> None:
 
 
 def main(argv: list[str]) -> int:
-    docs = argv[1:]
+    # 3b50b2e2: a flag-like token used to be treated as a document name; parse strictly (use '--'
+    # before a path that begins with '-'). A path that does not exist yet stays valid: this tool
+    # plans listing surfaces for PROPOSED documents (SuggestListingSurfacesTests).
+    docs = positional_args(argv[1:], known_flags=())
     if not docs:
         print(__doc__)
         print("ERROR: provide at least one document path.", file=sys.stderr)

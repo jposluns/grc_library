@@ -668,14 +668,30 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--umbrella", default=None,
                     help="--pipeline: scope to the umbrella whose header matches this substring")
     ap.add_argument("--self-test", action="store_true", help="run internal self-test")
-    ap.add_argument("--todo", default=str(TODO_PATH), help="public TODO.md path")
-    ap.add_argument("--ptodo", default=str(PTODO_PATH),
+    ap.add_argument("--todo", default=None, help="public TODO.md path")
+    ap.add_argument("--ptodo", default=None,
                     help="private P-TODO.md path (no-op if absent)")
     ap.add_argument("--private-root", default=None,
                     help="override the private-sibling dir the reference (detail) bodies "
                          "load from (F1793-5 / P-1.53), at parity with the index-reference "
                          "parity gate's --private-root; a fixture run scopes it hermetically")
     args = ap.parse_args(argv)
+    # 3b50b2e2: an EXPLICIT --todo, --ptodo or --private-root that does not exist is refused; it
+    # used to become a portable-clone no-op, a silent public-only run, or be ignored. The defaults
+    # keep their documented portable-clone behaviour.
+    for flag, value, want in (("--todo", args.todo, "file"), ("--ptodo", args.ptodo, "file"),
+                              ("--private-root", args.private_root, "dir")):
+        if value is None:
+            continue
+        ok = value.strip() and (Path(value).is_file() if want == "file" else Path(value).is_dir())
+        if not ok:
+            print(f"ERROR: {flag} {value!r}: not an existing {'file' if want == 'file' else 'directory'}.",
+                  file=sys.stderr)
+            return 2
+    if args.todo is None:
+        args.todo = str(TODO_PATH)
+    if args.ptodo is None:
+        args.ptodo = str(PTODO_PATH)
     private_dir = Path(args.private_root).resolve() if args.private_root else None
 
     if args.self_test:

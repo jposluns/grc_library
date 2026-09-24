@@ -138,6 +138,11 @@ def main(argv: list[str] | None = None) -> int:
               file=sys.stderr)
         return 2
     entries = parse_manifest(path.read_text(encoding="utf-8"))
+    if not entries:
+        # 3b50b2e2: a file that parses to no manifest entry used to yield an empty plan, exit 0.
+        print(f"adopt-bootstrap-ref: {path} holds no manifest entries; nothing to plan.",
+              file=sys.stderr)
+        return 2
     plan = categorize(entries)
     if args.json:
         print(json.dumps({"guardrails": _GUARDRAIL, "counts": {k: len(v) for k, v in plan.items()},

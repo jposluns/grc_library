@@ -11621,6 +11621,36 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class AdvisoryAidInputRefusalTests(LinterTestCase):
+    """3b50b2e2: the remaining advisory aids refuse an explicit input that selects nothing.
+
+    audit-claim-precision degraded an explicit --ref-base with no catalogue to held-state unknown;
+    audit-selftest-discriminability probed a missing tool path as nothing; an explicit missing
+    --todo/--ptodo/--private-root in audit-backlog-actionability became a no-op, a public-only run
+    or was ignored; adopt-bootstrap-ref planned from a file with no manifest entries; and
+    suggest-listing-surfaces treated a flag as a document (a proposed, not-yet-existing document
+    stays valid input there)."""
+
+    def test_explicit_inputs_that_select_nothing_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aidinputs-"))
+        self.addCleanup(shutil.rmtree, td)
+        plain = td / "plain.md"
+        plain.write_text("Nothing here.\n", encoding="utf-8")
+        cases = (
+            ("tools/audit-claim-precision.py", "--ref-base", str(td)),
+            ("tools/audit-selftest-discriminability.py", str(td / "missing.py")),
+            ("tools/audit-backlog-actionability.py", "--todo", str(td / "missing.md")),
+            ("tools/audit-backlog-actionability.py", "--ptodo", str(td / "missing.md")),
+            ("tools/audit-backlog-actionability.py", "--private-root", str(td / "missing")),
+            ("tools/adopt-bootstrap-ref.py", "--manifest", str(plain)),
+            ("tools/suggest-listing-surfaces.py", "--bogus"),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+
+
 class StrictArgvLiveDefectTests(LinterTestCase):
     """3b50b2a: live defects where a bad argument ran the wrong branch or scanned nothing.
 
