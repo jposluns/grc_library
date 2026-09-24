@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -71,7 +71,7 @@ Dual control is required for all key generation, export, and destruction operati
 - Validity period (issue and expiry dates).
 - Rotation schedule.
 - Storage location (HSM slot, certificate store, etc.).
-- Status: Active.
+- Status: Pre-activation on generation, changed to Active only when the key is authorized and available for use (NIST SP 800-57 Part 1 Rev. 5, section 7.1).
 
 ---
 
@@ -128,7 +128,7 @@ Dual control is required for all key generation, export, and destruction operati
 1. CISO or Key Custodian initiates revocation with documented justification.
 2. Key status is updated to Revoked in the KLR immediately.
 3. For certificate keys: Certificate Revocation List (CRL) or OCSP is updated.
-4. Key is removed from all dependent systems.
+4. Key is removed from use for applying new cryptographic protection; controlled access for decryption or verification may be retained where the key's state and recipient-usage period permit, until dependent data is re-encrypted or destroyed (NIST SP 800-57 Part 1 Rev. 5, sections 5.3.6 and 7.4).
 5. All systems dependent on the revoked key are identified and migrated to replacement keys within 24 hours for critical systems and 72 hours for non-critical systems.
 6. Revocation event is logged with: key ID, reason, operator, date/time.
 
