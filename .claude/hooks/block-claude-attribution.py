@@ -21,10 +21,11 @@ and claude.com/claude-code links, noreply@anthropic.com); ordinary prose mention
 model family ("claude SHIP", "CLAUDE.md", "the Claude-family verifier") passes.
 
 GUARD-INPUT RESIDUE, stated at the point of use: this reads the command STRING plus any local
-body FILE it names. A body read from STDIN (`--body-file -` or `-F -`) is REFUSED unless the same
-command carries a heredoc (whose text is scanned), because a piped body is invisible to this
-guard and ignorance must refuse rather than permit. An unreadable body-file path is skipped (gh
-cannot read it either, so no PR text is written from it). Also not seen: a
+body FILE it names. A body read from STDIN (`--body-file -` or `-F -`) is always REFUSED, because
+a piped body is invisible to this guard and ignorance must refuse rather than permit (pass a
+heredoc through `--body "$(cat <<'EOF' ... EOF)"` instead, whose text is scanned). An unreadable
+body-file path is skipped: in the common case gh cannot read it either, but a file materialized
+mid-command from a non-literal source is a stated miss. Also not seen: a
 gh api GraphQL mutation that never says pulls/issues; gh global flags between `gh` and the
 subcommand (`gh -R o/r pr create`); or a PR written by any route other than a gh command in a
 Bash tool call. The attribution scan is whole-command and quote-blind by design, so a command
@@ -41,8 +42,8 @@ BEST-EFFORT EARLY WARNING, NOT THE AUTHORITY (maintainer ruling 2026-09-24): rec
 shell shape that can write a PR body is an open-ended class, so this hook catches the common
 shapes only. The authoritative check is `tools/check-pr-attribution.py`, run by
 `.github/workflows/pr-attribution.yml` on every PR open, edit, and push; it reads the stored PR
-title and body from the event payload and fails the PR, so a shape this hook misses still cannot
-merge. Do not grow this hook to chase further shell shapes; fix the CI check instead.
+title and body from the event payload and fails the PR, so a shape this hook misses still fails
+CI (unless the same PR also weakens the checker, a change visible in its diff under review). Do not grow this hook to chase further shell shapes; fix the CI check instead.
 
 Fails OPEN on a malformed payload or an internal error.
 Self-test: `python3 .claude/hooks/block-claude-attribution.py --self-test`.
@@ -63,8 +64,9 @@ ESCAPE = "GRC_ALLOW_PR_ATTRIBUTION"
 ATTRIBUTION = (
     ("a Co-Authored-By trailer naming Claude/Anthropic",
      re.compile(r"(?i)co-authored-by:[^\n]*\b(?:claude|anthropic)\b")),
-    ("a 'Generated with ... Claude' attribution line",
-     re.compile(r"(?i)\bgenerated\s+with\b[^\n]{0,60}\bclaude\b")),
+    ("a 'Generated with/by ... Claude' attribution line",
+     re.compile(r"(?i)\bgenerated\s+(?:with|by|using|via)\s+(?:(?:the\s+)?(?:help|assistance|aid)\s+of\s+)?"
+                r"\[?(?:claude|anthropic)\b(?!\.md\b|-)")),
     ("a claude.ai/code link",
      re.compile(r"(?i)\bclaude\.ai/code")),
     ("a claude.com/claude-code link",
@@ -95,7 +97,7 @@ def _api_segment(command: str, start: int) -> str:
     """The gh api invocation's own segment: from its match to the next pipe, list operator, or
     newline, so a flag belonging to a later command (`| grep -F x`) is not read as a gh api
     field flag."""
-    return re.split(r"\|\||&&|[|;\n]", command[start:], maxsplit=1)[0]
+    return re.split(r"\|\||&&|[|;&\n]", command[start:], maxsplit=1)[0]
 
 
 def writes_pr_surface(command: str) -> bool:
@@ -154,9 +156,6 @@ def find_attribution(text: str):
     return None
 
 
-HEREDOC = re.compile(r"<<-?\s*(['\"]?)[A-Za-z_][A-Za-z0-9_]*\1")
-
-
 def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
     """Pure decision: the full refusal message, or None to allow. The observer half (payload
     parse, env escape, file reads) stays in main/_read_body_file so both halves are testable."""
@@ -167,7 +166,7 @@ def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
     reader = read_file or _read_body_file
     texts = [("the command text", command)]
     paths = body_file_paths(command)
-    if "-" in paths and not HEREDOC.search(command):
+    if "-" in paths:
         return (
             "BLOCKED (claude-attribution): this gh command writes a PR surface with its body read "
             "from stdin, which this guard cannot inspect.\n"
@@ -202,20 +201,15 @@ def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
     return None
 
 
+ESCAPE_RE = re.compile(r"\A\s*(?:[A-Za-z_][A-Za-z0-9_]*=[^\s'\"\\]*\s+)*" + ESCAPE + r"=1(?:\s|\Z)")
+
+
 def escaped(command: str) -> bool:
-    """The escape must be a real LEADING assignment of the whole command, read quote-aware, so a
-    mention inside a quoted argument or a heredoc body line never counts."""
-    lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
-    lexer.whitespace_split = True
-    try:
-        for tok in lexer:
-            if tok == ESCAPE + "=1":
-                return True
-            if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", tok):
-                return False
-    except ValueError:
-        return False
-    return False
+    """The escape must be a real LEADING assignment of the whole command, matched on the RAW
+    text: an unquoted name at the start, optionally after other simple unquoted assignments. A
+    quoted word (a command name, not an assignment), a mention in an argument, or a heredoc line
+    never counts; an earlier assignment whose value is quoted also disqualifies (refuse on doubt)."""
+    return bool(ESCAPE_RE.match(command))
 
 
 def main() -> int:
@@ -256,7 +250,7 @@ SELF_TEST = [
     ('gh pr close 12 --comment "wontfix. ' + _GEN + '"', True),
     ('gh issue comment 7 --body "' + _COA + '"', False),  # scope: PR writes only
     ("printf 'x' | gh pr create --title t --body-file -", True),  # stdin body refused
-    ("gh pr create --title t --body-file - <<'EOF'\nClean body.\nEOF", False),
+    ("gh pr create --title t --body-file - <<'EOF'\nClean body.\nEOF", True),  # stdin always refused
     ("gh pr create --title t --body \"$(cat <<'EOF'\nBody.\n" + _GEN + "\nEOF\n)\"", True),
     ("gh api repos/o/r/pulls -f title=t -f body='Generated with Claude Code'", True),
     ("gh api -X PATCH repos/o/r/pulls/9 -f body='x " + _COA + "'", True),
@@ -281,6 +275,12 @@ SELF_TEST = [
     ("gh pr create -b \"" + ESCAPE + "=1 " + _GEN + "\"", True),  # quoted mention, not an escape
     ("gh api repos/o/r/pulls/9 | grep -F 'Generated with Claude'", False),  # grep's -F
     ("gh api repos/o/r/pulls/9 --jq .body; grep -f pats x", False),
+    ("cat body.md | gh pr create --title '<<EOF' --body-file -", True),  # quoted '<<EOF' is not a heredoc
+    ("gh api repos/o/r/pulls/9 & grep -F 'Generated with Claude'", False),  # background '&'
+    ("gh pr create -b 'Generated by Claude Code'", True),
+    ("gh pr create -b 'Generated with CLAUDE.md as the fixture'", False),
+    ("'" + ESCAPE + "=1'; gh pr create --body '" + _GEN + "'", True),  # quoted word is not an escape
+    ("X=1 " + ESCAPE + "=1 gh pr create -b '" + _GEN + "'", False),
 ]
 
 
