@@ -11828,6 +11828,43 @@ class QuickGuardSeparatorTests(LinterTestCase):
             self.assertEqual(r.returncode, 0, (tool, r.stdout, r.stderr))
 
 
+class RootOverrideResidueTests(LinterTestCase):
+    """3b50b2d1: wired gates whose --root override passed an empty value.
+
+    An empty --root= resolved to the current directory (argparse type=Path turns '' into '.'),
+    so the gate scanned whatever tree the caller stood in and passed. Every gate below now refuses
+    a missing, empty or non-directory root with exit 2; their no-argument wired runs are
+    unchanged. standards-currency also refuses an empty --paths entry, and hooks-syntax an empty
+    --hooks-dir or an explicit directory holding no hook file."""
+
+    ROOT_GATES = (
+        "lint-audit-gate-parity", "lint-citation-verification-freshness", "lint-claude-rules-sync",
+        "lint-guardrail-cadence", "lint-index-header-parity", "lint-playbook-pointer-integrity",
+        "lint-retention-consistency", "lint-rule-scope-table", "lint-structure",
+        "lint-todo-list-tag", "lint-todo-number-permanence", "lint-tooling-provenance-freshness",
+        "lint-skill-verdict-carrier-completeness", "lint-standards-currency",
+    )
+
+    def test_empty_or_missing_root_refused(self) -> None:
+        for gate in self.ROOT_GATES:
+            for args in (("--root=",), ("--root", "/nonexistent-3b50b2d1")):
+                r = run_linter(f"tools/{gate}.py", *args)
+                self.assertEqual(r.returncode, 2, (gate, args, r.stdout[-200:], r.stderr[-200:]))
+                self.assertIn("--root", r.stderr)
+
+    def test_standards_currency_empty_paths_entry_refused(self) -> None:
+        for args in (("--paths=",), ("--paths", "")):
+            r = run_linter("tools/lint-standards-currency.py", *args)
+            self.assertEqual(r.returncode, 2, (args, r.stdout[-200:], r.stderr))
+
+    def test_hooks_syntax_empty_or_hookless_dir_refused(self) -> None:
+        empty = Path(tempfile.mkdtemp(prefix="hooks-none-"))
+        self.addCleanup(shutil.rmtree, empty)
+        for args in (("--hooks-dir=",), ("--hooks-dir", str(empty))):
+            r = run_linter("tools/lint-hooks-syntax.py", *args)
+            self.assertEqual(r.returncode, 2, (args, r.stdout, r.stderr))
+
+
 class ExplicitRootGuardTests(LinterTestCase):
     """Explicit --root / --private-root overrides and exempt-prefix paths refuse (3b50b1).
 

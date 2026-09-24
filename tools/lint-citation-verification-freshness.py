@@ -31,11 +31,10 @@ import argparse
 import re
 import sys
 from datetime import date, datetime
-from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import add_months  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 VERIFICATIONS = REPO_ROOT / ".project-governance" / "register-citation-verifications.md"
 CADENCE_MONTHS = 12  # per Citation Verification Specification §12.1
@@ -87,7 +86,7 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,
         default=None,
         help="Override repository root the verifications register is "
              "read from (used by the gate-36 regression test suite for "
@@ -95,6 +94,8 @@ def main(argv: list[str]) -> int:
              "repository root derived from this file's location.",
     )
     args = parser.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        args.root = require_dir(args.root, "--root")
     if args.root is not None:
         VERIFICATIONS = args.root.resolve() / ".project-governance" / "register-citation-verifications.md"
     today = args.today

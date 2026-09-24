@@ -98,9 +98,19 @@ def main(argv: list[str] | None = None) -> int:
     # 3b50: an EXPLICIT --hooks-dir that is missing used to compile zero files and print OK;
     # refuse it (exit 2). The DEFAULT keeps its documented contract: an adopter fork without the
     # hook tree passes with zero files compiled.
+    if args.hooks_dir is not None and not args.hooks_dir.strip():
+        # 3b50b2d1: an empty value is Path(".") and compiled the whole current directory.
+        print("ERROR: --hooks-dir needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
     if args.hooks_dir is not None and not Path(args.hooks_dir).is_dir():
         print(f"ERROR: --hooks-dir {args.hooks_dir}: not a directory; nothing would be compiled.",
               file=sys.stderr)
+        return 2
+    if args.hooks_dir is not None and not any(Path(args.hooks_dir).glob("*.py")):
+        # 3b50b2d1: an explicit directory with no hook file compiled nothing and printed OK.
+        print(f"ERROR: --hooks-dir {args.hooks_dir}: holds no *.py hook file; nothing would be "
+              f"compiled.", file=sys.stderr)
         return 2
     count, findings = scan(Path(args.hooks_dir) if args.hooks_dir is not None else HOOKS_DIR)
     if findings:

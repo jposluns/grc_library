@@ -315,6 +315,10 @@ def main(argv=None):
     ap.add_argument("--root", default=str(REPO_ROOT))
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv)
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from lint_common import require_dir
+        args.root = require_dir(args.root, "--root")
     if args.self_test:
         return _self_test()
     code, findings, n_skills, counts = run(args.manifest, Path(args.root))

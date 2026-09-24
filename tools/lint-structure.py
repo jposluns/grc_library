@@ -69,11 +69,15 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,
         default=None,
         help="Override repository root (for isolation testing).",
     )
     args = parser.parse_args(argv[1:])
+    if args.root is not None:  # 3b50b2d1: a missing, empty or non-directory --root is refused
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from lint_common import require_dir
+        args.root = require_dir(args.root, "--root")
     if args.root is not None:
         REPO_ROOT = args.root.resolve()
 
