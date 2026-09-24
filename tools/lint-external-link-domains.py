@@ -139,7 +139,7 @@ ALLOW_LIST = {
     "fedlex.admin.ch",  # Swiss federal legislation
     "harmbench.org",  # HarmBench official site
     "owaspsamm.org",  # OWASP SAMM official site
-    "wbasco.org",  # WBASCO (Western Business Alliance Security Council)
+    "wbasco.org",  # World BASC Organization (Business Alliance for Secure Commerce)
     "cbp.gov",  # US Customs and Border Protection
     "pcisecuritystandards.org",  # PCI Security Standards Council
     "oecd.ai", "oecd.org",  # OECD

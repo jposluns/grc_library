@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.16\
+**Version:** 1.2.17\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -185,12 +185,12 @@ The verification process operates against an explicit allow-list of publisher ca
 | OASIS | `oasis-open.org` | OASIS standards. |
 | Cloud Security Alliance | `cloudsecurityalliance.org` | CSA CCM, AICM, STAR. |
 | ISACA | `isaca.org` | COBIT. |
-| MITRE | `attack.mitre.org`, `cve.mitre.org`, `cwe.mitre.org` | ATT&CK, CVE, CWE. |
+| MITRE | `attack.mitre.org`, `cve.mitre.org`, `cwe.mitre.org`, `atlas.mitre.org` | ATT&CK, ATLAS, CVE, CWE. |
 | NIST FedRAMP | `fedramp.gov` | FedRAMP. |
-| US Federal | `federalregister.gov`, `ecfr.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170). |
-| EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu` | EU regulations, directives, ENISA. |
-| UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk` | UK regulation and ICO/NCSC. |
-| Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025). |
+| US Federal | `federalregister.gov`, `ecfr.gov`, `congress.gov`, `whitehouse.gov`, `cisa.gov`, `tsa.gov`, `dhs.gov`, `hhs.gov`, `ftc.gov`, `sec.gov`, `govinfo.gov`, `cbp.gov`, `dodcio.defense.gov` | US federal regulation, directives, and public laws (govinfo.gov is the US GPO public-law repository: HITECH, SOX; ecfr.gov is the Electronic Code of Federal Regulations, e.g. CMMC 32 CFR 170; cbp.gov is US Customs and Border Protection, for the CTPAT Minimum Security Criteria; dodcio.defense.gov is the DoD CIO, for CMMC program documentation). |
+| EU | `eur-lex.europa.eu`, `digital-strategy.ec.europa.eu`, `enisa.europa.eu`, `europa.eu` | EU regulations, directives, ENISA; europa.eu covers the other EU institution hosts the corpus cites, such as the European Commission and the EDPB. |
+| UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk`, `gov.uk` | UK regulation and ICO/NCSC; gov.uk is the UK government parent domain. |
+| Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org`, `canada.ca`, `parl.ca` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca). |
 | Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial regulation (Law 25). |
 | WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
 | ICAO | `icao.int` | International civil aviation. |
@@ -199,17 +199,31 @@ The verification process operates against an explicit allow-list of publisher ca
 | NERC | `nerc.com` | NERC CIP. |
 | AICPA | `aicpa.org`, `aicpa-cima.com` | SOC reporting standards. |
 | Brazil | `gov.br`, `planalto.gov.br` | Brazilian federal regulation (LGPD). |
-| Singapore | `pdpc.gov.sg` | Singapore PDPA. |
+| Singapore | `pdpc.gov.sg`, `imda.gov.sg`, `aiverifyfoundation.sg` | Singapore PDPA; Model AI Governance Framework for Generative AI (IMDA and the AI Verify Foundation). |
 | India | `pib.gov.in` | India DPDPA (the DPDP Rules 2025 notification via the Press Information Bureau). |
 | Australia | `oaic.gov.au`, `legislation.gov.au`, `industry.gov.au`, `ai.gov.au` | Australian privacy (OAIC; Federal Register of Legislation for the Privacy Act); Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard); National AI Centre (Guidance for AI Adoption, via ai.gov.au). |
 | Switzerland | `admin.ch`, `edoeb.admin.ch` | Swiss nFADP. |
 | China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
 | Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
-| US States and localities | `ilga.gov`, `leg.colorado.gov`, `nyc.gov` | US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov). |
+| US States and localities | `ilga.gov`, `leg.colorado.gov`, `nyc.gov`, `oag.ca.gov`, `cppa.ca.gov`, `capitol.texas.gov` | US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov; the California CCPA statute via the Attorney General (oag.ca.gov) and the CCPA Regulations via the California Privacy Protection Agency (cppa.ca.gov); Texas TRAIGA / HB 149 via the Texas Legislature (capitol.texas.gov)). |
 | Malaysia | `pdp.gov.my` | Malaysia PDPA (Personal Data Protection Department). |
-| OWASP CycloneDX | `cyclonedx.org` | CycloneDX Bill of Materials specification (ECMA-424). |
+| OWASP | `owasp.org`, `genai.owasp.org`, `owaspsamm.org`, `cyclonedx.org` | OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424). |
 | LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
-| UK AISI | `ukgovernmentbeis.github.io` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages). |
+| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
+| IEEE | `ieee.org`, `standards.ieee.org` | IEEE standards (for example IEEE 2883-2022 Sanitizing Storage). |
+| ETSI | `etsi.org`, `www.etsi.org` | ETSI standards, including the Securing AI series (EN 304 223, TR 104 128). |
+| PCI SSC | `pcisecuritystandards.org` | PCI DSS. |
+| CIS | `cisecurity.org` | CIS Controls and CIS Benchmarks. |
+| SANS | `sans.org` | SANS Critical AI Security Guidelines. |
+| OECD | `oecd.org`, `oecd.ai` | OECD AI Principles and OECD Privacy Guidelines. |
+| WTO | `wto.org` | WTO Trade Facilitation Agreement. |
+| World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
+| South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
+| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `cncf.io`, `spdx.org` | SLSA and OpenSSF guidance; CNCF specifications and the Cloud Native Security Whitepaper; the SPDX specification. |
+| MLCommons | `mlcommons.org` | AILuminate hazard taxonomy and benchmark. |
+| AVID | `avidml.org` | AI Vulnerability Database. |
+| HarmBench (Center for AI Safety) | `harmbench.org` | HarmBench automated red-team evaluation framework. |
+| Google | `saif.google` | Secure AI Framework (SAIF). |
 | Wayback Machine | `web.archive.org` | Third-party snapshot capture (not a primary source; an evidence anchor). |
 
 The allow-list itself is subject to the same verification discipline as register entries: each domain mapping ("publisher P is hosted at domain D") becomes a verifiable claim. Allow-list verifications use the same workflow as standard verifications and are recorded in the Citation Verifications Register with `Standard ID` set to the publisher name and `Verified Field` set to "allow-list domain mapping."
@@ -225,6 +239,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
 
 **2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
+
+**2026-09-24 (3b30, publisher-list reconciliation):** section 7.1 reconciled with the gate's allow-list. Domains added to existing rows: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada; `canada.ca` also reconciles the 2026-07-11 note that `tbs-sct.canada.ca` is suffix-covered by it); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). The OWASP CycloneDX row became a general OWASP row. New rows: IEEE, ETSI, PCI SSC, CIS, SANS, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, HarmBench, Google (SAIF). Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design.
 
 ---
 
