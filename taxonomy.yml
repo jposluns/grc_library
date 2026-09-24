@@ -7498,7 +7498,7 @@ documents:
   domain: "operations"
   type: "Procedure"
   title: "Release Management Procedure"
-  version: "1.0.10"
+  version: "1.0.11"
   date: "2026-09-24"
   owner: "Chief Information Officer"
   approving_authority: "Governance Library Maintainer"

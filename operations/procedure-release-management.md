@@ -2,7 +2,7 @@
 
 **Document Title:** Release Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,7 +54,7 @@ It does not cover patches under the patch management procedure (which has its ow
 
 | Activity | Required output |
 | --- | --- |
-| Build provenance | Build originates from a known commit; build is reproducible or attested per SLSA v1.2 Build-track provenance expectations |
+| Build provenance | Build originates from a known commit; build provenance is attested per SLSA v1.2 Build-track expectations, or the build is reproducible (an organizational alternative that does not by itself meet a SLSA Build level) |
 | Artefact signing | Artefacts are signed; signatures verifiable at deployment |
 | Software bill of materials | SBOM attached to the artefact per the SCA standard |
 | Vulnerability gate | No critical or high vulnerabilities exceed the gate threshold without an exception |
