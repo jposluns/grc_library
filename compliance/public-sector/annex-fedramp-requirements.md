@@ -2,8 +2,8 @@
 
 **Document Title:** FedRAMP Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.16\
-**Date:** 2026-09-18\
+**Version:** 0.0.17\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-cloud-security-configuration-baseline.md`](../../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -98,7 +98,7 @@ Library gaps requiring additional documentation for a FedRAMP authorization pack
 4. **Independent assessment.** The 2026 rules do not require a separate Security Assessment Plan or Security Assessment Report for either 20x or Rev5 certifications; the assessment information is captured in the Security Decision Record. Under the legacy Agency path an agency authorizing official may still request the traditional Security Assessment Plan and Report in addition to FedRAMP's materials.
 5. **Incident Response Reporting per FedRAMP's Incident Evaluation and Communication rules.** Library incident procedures cover the lifecycle; the 2026 Consolidated Rules layer FedRAMP-specific reporting on top. A FedRAMP Reportable Incident (one affecting, or likely to affect, the confidentiality or integrity of federal customer data) is filed on class-graded Initial Incident Report clocks keyed to a Potential Agency Impact N-rating (PAIN): for example Class B within 6 hours for PAIN-5 to PAIN-3 and 1 business day for PAIN-2 to PAIN-1, with class-specific clocks for Classes C and D, plus ongoing and final reports and any agency-specific procedures.
 6. **FIPS-validated cryptography.** Library cryptographic key lifecycle framework establishes the practice; under the 2026 Consolidated Rules a provider documents its use of cryptographic modules, and the expectation to use cryptographic modules (or update streams of such modules) with an active NIST Cryptographic Module Validation Program validation is class-dependent (Classes A and B may, Class C should, Class D must).
-7. **Personnel screening (NIST SP 800-53 PS-3).** The Rev5 PS-3 personnel-screening control applies to Classes B to D; the 2026 rules assign no FedRAMP-specific parameter values, screening is required before access is authorized, and the provider defines its own rescreening conditions and frequency, beyond the library's screening standard.
+7. **Personnel screening (NIST SP 800-53 Rev. 5 PS-3).** The Rev5 PS-3 personnel-screening control applies to Classes B to D; the 2026 rules assign no FedRAMP-specific parameter values, screening is required before access is authorized, and the provider defines its own rescreening conditions and frequency, beyond the library's screening standard.
 8. **CUI handling, where applicable.** Where the service handles Controlled Unclassified Information, CUI-protection obligations (for example NIST SP 800-171 / 800-172) arise from the CUI program and contract terms under their own authority; the 2026 FedRAMP rules do not themselves impose them.
 
 ---

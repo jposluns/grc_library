@@ -2,7 +2,7 @@
 
 **Document Title:** Semantic Continuity in Migration and Retirement Standard\
 **Document Type:** Standard\
-**Version:** 0.0.3\
+**Version:** 0.0.5\
 **Date:** 2026-09-24\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,15 +60,15 @@ This standard is additive and composes with, rather than duplicates, the existin
 
 ## 9. Framework alignment
 
-| Requirement | ISO/IEC 42001:2023 | NIST AI RMF 1.0 | ISO/IEC 20000-1:2018 | NIST SP 800-53 Rev 5 | CSA CCM v4.1 | ISO/IEC 27001:2022 |
+| Requirement | ISO/IEC 42001:2023 | NIST AI RMF 1.0 | ISO/IEC 20000-1:2018 | NIST SP 800-53 Rev. 5 | CSA CCM v4.1 | ISO/IEC 27001:2022 |
 | --- | --- | --- | --- | --- | --- | --- |
 | Retirement and decommissioning governed as a lifecycle stage | A.6.2 | MANAGE 4.1 | 8.5.2 (service transition, including removal) | SR-12 | CCC-03 | A.8.32 |
 | Successor outcome-consistency before supersession (novel; no framework mapping) | n/a | n/a | n/a | n/a | n/a | n/a |
 | Impact analysis before the change is implemented | n/a | n/a | 8.5.2 | CM-4 | CCC-03 | A.8.32 |
 | Retention of comparison evidence | n/a | n/a | n/a | n/a | DSP-16 | 7.5.3 |
 
-Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow, and the standard's core requirement, successor outcome-consistency, has no framework mapping at all, which reinforces its novelty. The mapped sources govern the surrounding activities: decommissioning as a lifecycle stage (ISO/IEC 42001 A.6.2 on the AI system life cycle; NIST AI RMF MANAGE 4.1, which names decommissioning within post-deployment monitoring; NIST SP 800-53 SR-12 on component disposal), service removal (ISO/IEC 20000-1 8.5.2), pre-change impact analysis (NIST SP 800-53 CM-4), and evidence retention (ISO/IEC 27001:2022 7.5.3 (Control of documented information), which covers the retention and disposition of documented information). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
+Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow, and the standard's core requirement, successor outcome-consistency, has no framework mapping at all, which reinforces its novelty. The mapped sources govern the surrounding activities: decommissioning as a lifecycle stage (ISO/IEC 42001 A.6.2 on the AI system life cycle; NIST AI RMF MANAGE 4.1, which names decommissioning within post-deployment monitoring; NIST SP 800-53 Rev. 5 SR-12 on component disposal), service removal (ISO/IEC 20000-1 8.5.2), pre-change impact analysis (NIST SP 800-53 Rev. 5 CM-4), and evidence retention (ISO/IEC 27001:2022 7.5.3 (Control of documented information), which covers the retention and disposition of documented information). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
 
 ## 10. Limitations
 
-The core requirement of this standard, a meaning-preserving comparison as a precondition of retiring a predecessor, is a corpus-novel organizational control. No held normative source prescribes it in these terms: the nearest anchors are NIST AI RMF 1.0 MANAGE 2.4 (mechanisms to supersede or deactivate systems whose outcomes are inconsistent with intended use) and NIST SP 800-53 CM-4 (analyze changes for impact before implementation), both of which this standard exceeds rather than restates. The gate reduces, but does not eliminate, the risk of an undetected semantic change: a comparison is only as good as the representativeness of the cases it replays, and a divergence outside the sampled set can still escape. The standard governs the retirement precondition; it does not govern how the successor is designed or how the migration is executed, which the design, change-management, and portability controls in Related Documents own. Retirement without a successor is out of scope and is governed by the existing completeness and destruction controls.
+The core requirement of this standard, a meaning-preserving comparison as a precondition of retiring a predecessor, is a corpus-novel organizational control. No held normative source prescribes it in these terms: the nearest anchors are NIST AI RMF 1.0 MANAGE 2.4 (mechanisms to supersede or deactivate systems whose outcomes are inconsistent with intended use) and NIST SP 800-53 Rev. 5 CM-4 (analyze changes for impact before implementation), both of which this standard exceeds rather than restates. The gate reduces, but does not eliminate, the risk of an undetected semantic change: a comparison is only as good as the representativeness of the cases it replays, and a divergence outside the sampled set can still escape. The standard governs the retirement precondition; it does not govern how the successor is designed or how the migration is executed, which the design, change-management, and portability controls in Related Documents own. Retirement without a successor is out of scope and is governed by the existing completeness and destruction controls.

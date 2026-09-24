@@ -2,7 +2,7 @@
 
 **Document Title:** Penetration Testing and Red Team Standard\
 **Document Type:** Standard\
-**Version:** 1.0.13\
+**Version:** 1.0.14\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@ This standard defines the requirements for the organization's penetration testin
 
 The programme complements the Vulnerability Management Procedure and the Logging and Monitoring Standard by validating that controls are effective in practice, not merely in configuration. Vulnerability scanning identifies what is present; penetration testing determines what is exploitable. Together they provide assurance that the organization's defensive posture reflects its intended security architecture.
 
-This standard supports the Information Security Policy and addresses NIST SP 800-53 CA-8 (Penetration Testing).
+This standard supports the Information Security Policy and addresses NIST SP 800-53 Rev. 5 CA-8 (Penetration Testing).
 
 ---
 

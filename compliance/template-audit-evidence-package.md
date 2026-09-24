@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-08-29\
+**Version:** 1.1.2\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -95,7 +95,7 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 ```
 | # | Control ID | Control title | Framework reference | Implementation status | Operating effectiveness | Section link |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO/IEC 27001 Annex A.5.16 / NIST SP 800-53 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
+| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO/IEC 27001 Annex A.5.16 / NIST SP 800-53 Rev. 5 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
 | 2 | ... | ... | ... | ... | ... | ... |
 [continue per in-scope control]
 ```
@@ -127,7 +127,7 @@ For each control in the inventory, the bundle contains a section using the templ
 ### Framework references
 
 - Primary: <e.g. ISO/IEC 27001:2022 Annex A.5.16>
-- Secondary (where the same control maps to multiple frameworks): <e.g. NIST SP 800-53 AC-2; CIS Control 5; SOC 2 CC6.1>
+- Secondary (where the same control maps to multiple frameworks): <e.g. NIST SP 800-53 Rev. 5 AC-2; CIS Control 5; SOC 2 CC6.1>
 - Internal control identifier (if different): <e.g. organization's internal control number>
 
 ### Control description
@@ -227,7 +227,7 @@ The per-domain summary is intended for auditor orientation, not for asserting st
 
 ## Cross-reference index (optional)
 
-For audits where the same evidence supports multiple controls (e.g., an access-review record supports both AC-2 and AC-6), include a cross-reference index at the back of the package. The index maps evidence artefacts to the controls they support, so the auditor can confirm an artefact's reuse without independently locating it for each control.
+For audits where the same evidence supports multiple controls (e.g., an access-review record supports both NIST SP 800-53 Rev. 5 AC-2 and AC-6), include a cross-reference index at the back of the package. The index maps evidence artefacts to the controls they support, so the auditor can confirm an artefact's reuse without independently locating it for each control.
 
 ```
 | Evidence artefact | Supports controls |

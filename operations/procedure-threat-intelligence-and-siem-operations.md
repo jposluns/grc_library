@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.11\
-**Date:** 2026-09-14\
+**Version:** 1.3.12\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -328,7 +328,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 | --- | --- |
 | Threat intelligence programme | NIST SP 800-150; ISO/IEC 27001:2022 Annex A.5.7; CSA CCM TVM-01, TVM-04, TVM-05 |
 | SIEM operations and monitoring | CSA CCM LOG-03, LOG-05; NIST CSF DE.CM-01, DE.CM-09; ISO/IEC 27002:2022 §8.16 |
-| Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 SI-4; CSA CCM LOG-05 |
+| Correlation rule development | MITRE ATT&CK Enterprise; NIST SP 800-53 Rev. 5 SI-4; CSA CCM LOG-05 |
 | Threat hunting | MITRE ATT&CK; NIST CSF DE.AE-02, DE.AE-03, DE.AE-07; ISO/IEC 27002:2022 §8.16; CSA CCM LOG-05 |
 | Intelligence sharing | NIST SP 800-150 §4; no CSA CCM control specific to intelligence sharing (N/A); CISA TLP Policy |
 | Incident escalation | ISO/IEC 27035; NIST SP 800-61 Rev. 3; CSA CCM SEF-06, SEF-07 |
