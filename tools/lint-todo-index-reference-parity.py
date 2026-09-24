@@ -367,14 +367,23 @@ def main(argv: list[str]) -> int:
     args = argv[1:]
     i = 0
     while i < len(args):
-        if args[i] == "--root" and i + 1 < len(args):
-            root = Path(args[i + 1]).resolve()
-            i += 2
-        elif args[i] == "--private-root" and i + 1 < len(args):
-            # 3b50b1: an explicit private root must exist (a typo used to no-op silently).
-            private_override = require_dir(args[i + 1], "--private-root")
-            have_private_override = True
-            i += 2
+        flag, eq, inline = args[i].partition("=")
+        if flag in ("--root", "--private-root"):
+            # 3b50b1: a flag with no value, or with a value that is not a directory, is refused
+            # (a trailing flag used to be skipped and a --flag=value form ignored).
+            if eq:
+                value, step = inline, 1
+            elif i + 1 < len(args) and not args[i + 1].startswith("-"):
+                value, step = args[i + 1], 2
+            else:
+                print(f"ERROR: {flag} needs a directory argument.", file=sys.stderr)
+                return 2
+            if flag == "--root":
+                root = require_dir(value, "--root")
+            else:
+                private_override = require_dir(value, "--private-root")
+                have_private_override = True
+            i += step
         else:
             i += 1
     # Default the private sibling to the real one; --private-root scopes it to a

@@ -201,7 +201,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--root",
         type=Path,
-        default=REPO_ROOT,
+        default=None,
         help=(
             "Override the repository root used both for resolving "
             "scan paths and for running `git log`. Defaults to the "
@@ -307,13 +307,17 @@ def get_file_commit_date(
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    root: Path = require_dir(args.root, "--root")
-    # 3b50b1: the check reads the root's git history; a root outside a work tree used to scan
-    # nothing and exit 0.
-    problem = require_git_worktree_at(root)
-    if problem:
-        print(f"ERROR: --root {problem}", file=sys.stderr)
-        return 2
+    if args.root is None:
+        # The default root keeps its contract (a copy without git history scans nothing, exit 0).
+        root: Path = Path(REPO_ROOT).resolve()
+    else:
+        # 3b50b1: an EXPLICIT --root must be a directory inside a git work tree (the check reads
+        # its git history); a bad override used to scan nothing and exit 0.
+        root = require_dir(args.root, "--root")
+        problem = require_git_worktree_at(root)
+        if problem:
+            print(f"ERROR: --root {problem}", file=sys.stderr)
+            return 2
     max_lag_days: int = args.max_lag_days
     max_future_days: int = args.max_future_days
     baseline_date: datetime.date = args.baseline_date

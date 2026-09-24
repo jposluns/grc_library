@@ -11620,12 +11620,22 @@ class ExplicitRootGuardTests(LinterTestCase):
             (("tools/lint-narrative-boundary.py", "--root"), "needs a directory"),
             (("tools/lint-changelog-mirror-header-parity.py", "--root", str(empty)), "required input"),
             (("tools/lint-document-date-staleness.py", "--root", str(empty)), "not inside a git work tree"),
+            (("tools/lint-todo-index-reference-parity.py", "--private-root"), "needs a directory"),
+            (("tools/lint-todo-index-reference-parity.py", "--private-root=/nonexistent-3b50b1"), "not a directory"),
         )
         for args, fragment in cases:
             result = run_linter(*args)
             self.assertEqual(result.returncode, 2, repr(args) + result.stdout + result.stderr)
             self.assertIn(fragment, result.stderr, repr(args))
             self.assertNotIn("Traceback", result.stderr, repr(args))
+
+    def test_date_staleness_default_run_without_git_keeps_contract(self) -> None:
+        """r1 QA: the git preflight applies only to an EXPLICIT --root; a default run on a copy
+        without git (PATH lacking git) keeps its exit-0 contract."""
+        env = dict(os.environ, PATH="/nonexistent-3b50b1")
+        result = subprocess.run([sys.executable, str(REPO_ROOT / "tools" / "lint-document-date-staleness.py")],
+                                cwd=str(REPO_ROOT), capture_output=True, text=True, env=env)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_missing_path_under_exempt_prefix_refused(self) -> None:
         for args in (
