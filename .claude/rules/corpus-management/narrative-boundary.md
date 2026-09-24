@@ -17,8 +17,11 @@ mismatched fence inside it is content, not a toggle). A file that ends inside an
 fence is a fail-loud finding naming the opening line, never a silent skip of the remainder.
 The fence model is a local marker-aware approximation, not a full CommonMark parser (any
 leading indentation is accepted, a backtick info string may contain a backtick, and
-container blocks are not modelled), so the residue that stays silent is a line it
-mis-recognizes as an opener followed by a later closer. An unreadable or non-UTF-8 file on
+container blocks are not modelled), so the residue that stays silent is a fence
+boundary or extent the model gets wrong while its scan still closes before the end of
+the file: a line it mis-recognizes as an opener followed by a later closer, or a fence
+that CommonMark ends at the edge of its list or blockquote container but this model
+carries on to a later fence line. An unreadable or non-UTF-8 file on
 either side is a fail-loud finding, never a silent pass. The narrative document type, the
 path-scoped entry-point exemption, the narrative-extension field set, the allowed corpus
 document-type set, the two line-anchored marker patterns, and the repository scan scope

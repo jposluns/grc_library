@@ -57,7 +57,10 @@ def configure(ref) -> None:
 # approximation of CommonMark, not a full parser (any leading indentation is
 # accepted, a backtick info string may contain a backtick, and container blocks are
 # not modelled); a file that ends inside an open fence is reported (3b54b), so the
-# residue that remains silent is a mis-recognized opener with a later closer.
+# residue that remains silent is a fence boundary or extent the model gets wrong while
+# its scan still closes before the end of the file: a line mis-recognized as an opener
+# followed by a later closer, or a fence that CommonMark ends at the edge of its list
+# or blockquote container but this model carries on to a later fence line.
 _FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
 
 
