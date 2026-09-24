@@ -526,7 +526,7 @@ def parse_retro_prs(text: str) -> set[int]:
 # a companion never stands alone. One ordinary row plus one handoff/subsumption exemption row is
 # the documented legitimate pair. A row whose disposition cell BEGINS with a pending marker
 # (IN PROGRESS / DISPATCHED / RESULT PENDING / PENDING) may not coexist with any other row for the
-# same PR. The marker is matched at the start of ANY cell after the PR cell, because the history
+# same PR. The marker is matched at the start of c[4] or c[5] (see below), because the history
 # has two layouts (Findings at c[4] in the legacy layout, the disposition at c[5] in the newer
 # one), which the fixed-index classifier above cannot see. A lone IN-PROGRESS row is allowed (it
 # is the normal state between opening a PR and its close-out upsert).
@@ -534,7 +534,7 @@ def parse_retro_prs(text: str) -> set[int]:
 # (``#2429 iteration``, ``1329 addendum``, ``#10, #11 addendum``), so a PR cell that merely
 # describes an addendum (``#10 (addendum detector fix)``) is not a companion.
 COMPANION_PR_CELL = re.compile(
-    r"^(?:PR\s+)?#?\d+(?:\s*[,&]\s*(?:PR\s+)?#?\d+)*\s+(?:iteration|addendum)\b", re.IGNORECASE
+    r"^(?:PR\s+)?#?\d+(?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+)*\s+(?:iteration|addendum)\b", re.IGNORECASE
 )
 ROW_PENDING_CELL = re.compile(
     r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
@@ -544,7 +544,7 @@ ROW_PENDING_CELL = re.compile(
 # test left 520 live rows with no recognizable disposition in the guessed cell). A newer-layout
 # row pair that is legitimately ordinary + exemption therefore needs an explicit companion marker.
 # PENDING is a start-anchored marker in c[4] or c[5] (the newer layout's disposition cell), and is
-# suppressed when RETURNED appears ANYWHERE in the row (a legacy row can carry RETURNED in Findings
+# suppressed when RETURNED appears in any cell from c[4] on (not the Touched/Families cell c[3]) (a legacy row can carry RETURNED in Findings
 # and stale pending prose in Hot-fix, e.g. history.md:653). Residue: a pending-worded Hot-fix cell
 # on a row with no RETURNED anywhere reads pending; it only matters when the PR has another row.
 # The leading run of PR tokens at the START of a retro PR cell (``#10, #11 addendum (/retro)``);
@@ -567,10 +567,6 @@ def _disposition_candidates(c: list[str]) -> list[str]:
     return [c[4]] + ([c[5]] if len(c) > 5 else [])
 
 
-def _is_pending(disp: str) -> bool:
-    return bool(ROW_PENDING_CELL.match(disp)) and not RETURNED_MARK.search(disp)
-
-
 def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
     """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row."""
     out: list[tuple[int, list[int], str, bool, bool]] = []
@@ -589,7 +585,7 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
             kind = "subsumption"
         else:
             kind = ""
-        returned_anywhere = any(RETURNED_MARK.search(x) for x in c[3:])
+        returned_anywhere = any(RETURNED_MARK.search(x) for x in c[4:])
         pending = not returned_anywhere and any(ROW_PENDING_CELL.match(d) for d in _disposition_candidates(c))
         out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), pending))
     return out

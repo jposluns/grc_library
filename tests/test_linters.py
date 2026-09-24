@@ -9341,6 +9341,22 @@ class BookkeepingParityTests(LinterTestCase):
                 "| 2026-09-13 | #11 (/retro) | b | lesson |\n")
         self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(text), "retro"), [])
 
+    def test_row_integrity_hyphen_companion_cell_is_companion(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10 | a | lesson |\n"
+                "| 2026-09-13 | #11 | a | lesson |\n"
+                "| 2026-09-13 | #10-#11 addendum | b | more |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(text), "retro"), [])
+
+    def test_row_integrity_returned_in_touched_cell_does_not_suppress_pending(self) -> None:
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
+                "| 2026-08-02 | 500 | ORDER_RETURNED.md | DISPATCHED to worker | none |\n"
+                "| 2026-08-02 | 500 | x | SHIP | none |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("pending/IN-PROGRESS", f[0])
+
     # ---- P-3.245: PR-token boundary hardening (the #1709-window dotted-id mis-parse).
 
     def test_pr_cell_dotted_ids_not_read_as_prs(self) -> None:
