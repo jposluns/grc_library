@@ -2438,6 +2438,454 @@
       "provenance": null,
       "scope": null,
       "status": "active"
+    },
+    {
+      "id": "rel-corpus-0084",
+      "source": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0085",
+      "source": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0086",
+      "source": {
+        "id": "GRC-STD-RECORDS-RETENTION",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0087",
+      "source": {
+        "id": "GRC-POL-WORKFORCE-NET-MON",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0088",
+      "source": {
+        "id": "GRC-STD-NET-TELEMETRY-DPI",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0089",
+      "source": {
+        "id": "GRC-PROC-WORKS-COUNCIL-CONSULTATION",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0090",
+      "source": {
+        "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-SP-800-53",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0091",
+      "source": {
+        "id": "GRC-PROC-CRYPTO-KEY-OPS",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27002",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0092",
+      "source": {
+        "id": "GRC-PROC-AUDIT-PLANNING",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0093",
+      "source": {
+        "id": "GRC-PROC-AUDIT-PLANNING",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-19011",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0094",
+      "source": {
+        "id": "GRC-PROC-MEDIA-HANDLING",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0095",
+      "source": {
+        "id": "GRC-STD-DATA-CLASSIFICATION",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27701",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0096",
+      "source": {
+        "id": "GRC-STD-PRODUCTION-SECURITY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-SP-800-53",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0097",
+      "source": {
+        "id": "GRC-PROC-AI-SYSTEM-IMPACT-ASSESSMENT",
+        "class": "procedure"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42005",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
     }
   ]
 }
