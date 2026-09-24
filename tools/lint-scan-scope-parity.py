@@ -50,8 +50,11 @@ Usage:
 
 With no arguments, scans the ``tools/`` directory next to this script. A
 path argument overrides the scan directory, which the regression
-fixtures rely on to point the gate at a temporary directory. Exits
-non-zero if any finding is reported.
+fixtures rely on to point the gate at a temporary directory. Exits 1 if
+any finding is reported, and 2 (before scanning) when the argument is refused:
+a missing, empty or non-directory value, a directory holding no ``*.py`` file,
+an unknown flag, or more than one directory. An existing directory outside the
+repository that holds ``*.py`` files is accepted and scanned.
 """
 
 from __future__ import annotations
@@ -143,8 +146,8 @@ def distinct_domain_literals(text: str) -> set[str]:
 
 
 def main(argv: list[str]) -> int:
-    # 3b50b2a: an explicit scan directory is validated. It used to be consumed blind, so a missing,
-    # out-of-tree or empty value, or even an unknown flag, globbed nothing and passed.
+    # 3b50b2a: an explicit scan directory is validated. It used to be consumed blind, so a missing
+    # or empty value, a directory with no *.py, or even an unknown flag globbed nothing and passed.
     args = positional_args(argv[1:], known_flags=())
     if len(args) > 1:
         print(f"ERROR: at most one scan directory is accepted; got {len(args)}.", file=sys.stderr)

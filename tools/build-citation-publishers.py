@@ -14,7 +14,8 @@ Usage:
     python3 tools/build-citation-publishers.py --self-test
 
 Exit codes: 0 in sync (or regenerated); 1 drift under --check; 2 malformed or missing source of
-record, sentinels, or specification.
+record, sentinels, or specification, or a refused argument (an unknown flag, a positional, a
+repeated flag, or --check with --self-test), which is refused before anything is read or written.
 """
 from __future__ import annotations
 
