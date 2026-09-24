@@ -128,10 +128,19 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
     out, cur, buf = [], None, []
 
     def flush():
-        if cur and version_line_changed(buf):
-            m = DATE_META.search(staged_text.get(cur, ""))
-            if m and m.group(2) != today:
-                out.append(cur)
+        if not cur:
+            return
+        text = staged_text.get(cur, "")
+        head = text[:_metadata_region_end(text)]
+        # Only a Version line that sits in the METADATA header counts (a body/fenced example
+        # changing is not a bump), and only the header Date is compared.
+        added = [ln[1:] for ln in buf if ln.startswith("+") and not ln.startswith("+++")
+                 and ANY_VERSION_LINE.match(ln[1:])]
+        if not any(a.rstrip() in head for a in added):
+            return
+        m = DATE_META.search(head)
+        if m and m.group(2) != today:
+            out.append(cur)
 
     for ln in diff.splitlines():
         if ln.startswith("diff --git "):
@@ -512,13 +521,17 @@ def self_test() -> int:
     rd = ("diff --git a/README.md b/README.md\n@@ -9,1 +9,1 @@\n"
           "-**README Version:** 1.11.282 (x)\n+**README Version:** 1.11.283 (x)\n")
     ck("README Version bump with a stale Date is reported",
-       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-23\\\n"}, "2026-09-24"), ["README.md"])
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-23\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), ["README.md"])
     ck("README Version bump with today's Date is not reported",
-       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-24\\\n"}, "2026-09-24"), [])
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-24\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), [])
     ck("a body-only change is not reported",
        stale_date_after_bump("diff --git a/x.md b/x.md\n@@ -1 +1 @@\n-a\n+b\n", {"x.md": "**Date:** 2026-01-01\\\n"}, "2026-09-24"), [])
     ck("a Version bump on a file with no Date line is not reported",
        stale_date_after_bump("diff --git a/y.md b/y.md\n@@ -1 +1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n", {"y.md": "no date"}, "2026-09-24"), [])
+    # --- 2026-09-24 r1: a body/fenced Version example change is not a header bump ---
+    ex = ("diff --git a/e.md b/e.md\n@@ -30,1 +30,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ex_text = "**Version:** 3.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\nbody\n\n```\n**Version:** 1.0.1\n```\n"
+    ck("a body Version example change is not reported", stale_date_after_bump(ex, {"e.md": ex_text}, "2026-09-24"), [])
     # --- 2026-09-24: generated-artefact exemption, end to end through main() in a scratch repo ---
     import shutil, subprocess, json as _json
     d5 = mkrepo()
