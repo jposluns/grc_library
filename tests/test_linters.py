@@ -18430,6 +18430,9 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                     selected.append(self.root / rel)
                     return None
                 stack.enter_context(self.patch.object(m, "last_file_commit", history))
+                # The synthetic root is not a git work tree; git is simulated above, so the
+                # work-tree preflight (3b48) is simulated too.
+                stack.enter_context(self.patch.object(m, "require_git_worktree", lambda root: None))
                 stack.enter_context(self.patch.object(m, "GIT_POOL_WORKERS", 1))
                 self.assertEqual(m.main([name, "--root", str(self.root), *paths]), 0)
                 return selected if paths else list(self.reads)

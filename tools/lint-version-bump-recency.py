@@ -81,6 +81,15 @@ def git(*args: str) -> str:
     return subprocess.check_output(["git", *anchor, *args], text=True).strip()
 
 
+def require_git_worktree(root: Path) -> str | None:
+    """Return a refusal message when ``root`` is not inside a git work tree, else None."""
+    try:
+        git("rev-parse", "--is-inside-work-tree")
+    except (subprocess.CalledProcessError, OSError) as exc:
+        return f"--root {root} is not inside a git work tree ({exc}); nothing can be checked."
+    return None
+
+
 def iter_targets(root: Path) -> list[Path]:
     """Walk the repository root, yielding markdown files with a
     metadata-block Version field, minus the exempt set."""
@@ -149,10 +158,9 @@ def main(argv: list[str]) -> int:
     GIT_ROOT = root
     # Fail loud when --root is not inside a git work tree: every per-file query below
     # treats a git failure as "no history" and skips, which would otherwise pass silently.
-    try:
-        git("rev-parse", "--is-inside-work-tree")
-    except (subprocess.CalledProcessError, OSError) as exc:
-        print(f"ERROR: --root {root} is not inside a git work tree ({exc}); nothing can be checked.", file=sys.stderr)
+    problem = require_git_worktree(root)
+    if problem:
+        print(f"ERROR: {problem}", file=sys.stderr)
         return 2
 
     if args.paths:
