@@ -115,11 +115,17 @@ def iter_targets(root: Path) -> list[Path]:
     return sorted(targets)
 
 
+class GitQueryError(RuntimeError):
+    """A per-file git query failed (3b48 r3 codex). A failure is not "no history": an
+    untracked file yields empty output with exit 0, so a non-zero exit means git could not
+    answer, and treating it as absent history let the audit pass without checking."""
+
+
 def last_file_commit(rel: str) -> str | None:
     try:
         out = git("log", "-1", "--format=%H", "--", rel)
-    except subprocess.CalledProcessError:
-        return None
+    except subprocess.CalledProcessError as exc:
+        raise GitQueryError(f"git log failed for {rel} ({exc})") from exc
     return out or None
 
 
@@ -130,8 +136,8 @@ def last_version_commit(rel: str) -> str | None:
     been changed since)."""
     try:
         out = git("log", "-1", "--format=%H", "-G", GIT_VERSION_REGEX, "--", rel)
-    except subprocess.CalledProcessError:
-        return None
+    except subprocess.CalledProcessError as exc:
+        raise GitQueryError(f"git log -G failed for {rel} ({exc})") from exc
     return out or None
 
 
@@ -200,16 +206,20 @@ def main(argv: list[str]) -> int:
     # the serial form, and duplicate explicit paths are each processed
     # (map iterates the list; it does not key by rel, which would collapse
     # duplicates). Only scheduling is concurrent. last_file_commit /
-    # last_version_commit return None (never raise) on a git failure, so
-    # map's eager submission introduces no observable exception-path change.
+    # last_version_commit raise GitQueryError on a git failure (3b48); map
+    # re-raises the first one here and the audit exits 2 rather than passing.
     def _per_file_history(rel: str) -> tuple[str | None, str | None]:
         file_commit = last_file_commit(rel)
         if file_commit is None:
             return (None, None)
         return (file_commit, last_version_commit(rel))
 
-    with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
-        per_file = list(pool.map(_per_file_history, rels))
+    try:
+        with ThreadPoolExecutor(max_workers=GIT_POOL_WORKERS) as pool:
+            per_file = list(pool.map(_per_file_history, rels))
+    except GitQueryError as exc:
+        print(f"ERROR: {exc}; the audit cannot be completed.", file=sys.stderr)
+        return 2
 
     findings: list[tuple[str, str, str]] = []
     scanned = 0

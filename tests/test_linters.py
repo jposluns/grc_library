@@ -11134,6 +11134,22 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
             self.assertNotIn("Traceback", result.stderr, script)
             self.assertLinterFails(result, expected[script])
 
+    def test_version_recency_failed_git_query_is_not_absent_history(self) -> None:
+        # A failed per-file `git log` used to read as "no history" and the audit exited 0.
+        m = load_linter_module("tools/lint-version-bump-recency.py", "vbr_gitfail_3b48")
+        real_git = m.git
+
+        def failing_git(*args):
+            if args and args[0] == "log":
+                raise subprocess.CalledProcessError(128, ["git", *args], "fatal: bad object HEAD")
+            return real_git(*args)
+
+        from unittest.mock import patch
+
+        with patch.object(m, "git", failing_git):
+            rc = m.main(["lint-version-bump-recency.py", "--root", str(REPO_ROOT), str(REPO_ROOT / "README.md")])
+        self.assertEqual(rc, 2)
+
     def test_version_recency_git_is_anchored_to_root(self) -> None:
         # Run from outside --root, git used to inherit the cwd, fail with "not a git
         # repository", and every file was skipped as if it had no history (exit 0).
