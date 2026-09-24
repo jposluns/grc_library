@@ -132,6 +132,13 @@ def check(title: str, body: str) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
+    # 3b50b2f: only the documented forms are accepted; a surplus or unknown argument used to be
+    # ignored (a valid --text-file plus a stray flag passed with exit 0).
+    if not (argv == [] or argv == ["--self-test"]
+            or (len(argv) == 2 and argv[0] in ("--event", "--text-file"))):
+        print("usage: check-pr-attribution.py [--event FILE | --text-file FILE | --self-test] "
+              "(no argument reads $GITHUB_EVENT_PATH)", file=sys.stderr)
+        return 2
     if "--self-test" in argv:
         return self_test()
     try:

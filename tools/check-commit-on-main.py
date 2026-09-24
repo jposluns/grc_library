@@ -221,9 +221,9 @@ def _self_test():
 
 
 def main(argv):
-    if len(argv) > 1 and argv[1] == "--self-test":
+    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
-    if len(argv) > 1 and argv[1] == "--pre-commit":
+    if argv[1:] == ["--pre-commit"]:
         return _pre_commit()
     print("usage: check-commit-on-main.py --pre-commit | --self-test", file=sys.stderr)
     return 2

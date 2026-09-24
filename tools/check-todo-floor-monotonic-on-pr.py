@@ -61,6 +61,9 @@ def find_violations(base, head):
 
 
 def main(argv):
+    if len(argv) > 3 or any(a.startswith("-") for a in argv[1:]):  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+        sys.stderr.write("usage: check-todo-floor-monotonic-on-pr.py [<base-ref> [<head-ref>]]\n")
+        return 2
     if len(argv) > 1:
         base_ref = argv[1]
     else:

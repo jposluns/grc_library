@@ -502,10 +502,20 @@ def _self_test():
 
 
 def main(argv):
-    if len(argv) > 1 and argv[1] == "--self-test":
+    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if len(argv) > 1 and argv[1] == "--pre-push":
+        # git passes the remote name and URL to a pre-push hook: at most two positionals, and
+        # none that looks like an option.
+        extra = argv[2:]
+        if len(extra) > 2 or any(a.startswith("-") for a in extra):
+            print("usage: check-dirty-tree-push.py --pre-push [<remote> <url>]", file=sys.stderr)
+            return 2
         return _pre_push()
+    if len(argv) > 1:
+        print("usage: check-dirty-tree-push.py [--pre-push [<remote> <url>] | --self-test]",
+              file=sys.stderr)
+        return 2
     # No-arg: unconditional tree check (manual parity with pre-push-guard.sh).
     return _check_tree()
 

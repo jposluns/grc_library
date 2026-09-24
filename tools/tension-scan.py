@@ -152,7 +152,7 @@ def block_keys(line: str) -> set[str]:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) < 2:
+    if len(argv) < 2 or len(argv) > 3 or any(a.startswith("-") for a in argv[1:]):  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         print("usage: tension-scan.py <base-ref> [head-ref]", file=sys.stderr)
         return 2
     base, head = argv[1], (argv[2] if len(argv) > 2 else "HEAD")
