@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.4\
-**Date:** 2026-09-02\
+**Version:** 1.2.5\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -68,12 +68,13 @@ Article 21 sets ten categories of cybersecurity risk-management measures. The li
 
 ## Article 20 management body responsibilities
 
-NIS 2 places direct accountability on the management body. Members can be held personally liable for non-compliance with Article 21 measures and Article 23 reporting. The management body must:
+NIS 2 places direct accountability on the management body. Members can be held personally liable for non-compliance with Article 21 measures and Article 23 reporting. Under Article 20 the management body must:
 
 1. Approve the cybersecurity risk-management measures.
 2. Oversee implementation.
 3. Receive training to identify cybersecurity risks and management practices and assess them.
-4. Offer similar training to staff on a regular basis.
+
+Article 20(2) also requires Member States to encourage essential and important entities to offer similar training to their employees on a regular basis; this is an encouragement, not a mandatory duty of the management body.
 
 Library support: [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`security/standard-security-awareness-and-training.md`](../security/standard-security-awareness-and-training.md). Each adopting entity additionally maintains a record of management-body training and approval evidence.
 
