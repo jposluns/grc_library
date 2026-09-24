@@ -23,7 +23,9 @@ three other audit surfaces; it is deliberately NOT added to the pre-push
 history-aware runner (which is for delta and commit-graph gates), because
 the post-commit ``run_all_audits.sh`` already runs it before any push.
 
-The six checks:
+The six checks (plus the per-PR row-integrity pass, GATE50-UNIQUE, documented at
+``row_integrity_findings``: one canonical row per PR per register; explicit ``iteration`` /
+``addendum`` companions; no pending/IN-PROGRESS row beside another row for the same PR):
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
@@ -514,6 +516,135 @@ def parse_retro_prs(text: str) -> set[int]:
     return prs
 
 
+# GATE50-UNIQUE (row integrity, 2026-09-24): Check 1 above tests PRESENCE and reduces each
+# register to one status per PR (``setdefault`` / a set), so a stale IN-PROGRESS row left beside a
+# final row, or two retro rows for one PR, read green. Observed: after a context compaction the
+# orchestrator appended final rows beside its own pre-compaction IN-PROGRESS rows for PR #2490.
+# This check keeps every row occurrence and enforces ONE canonical row per PR per register.
+# A row is a COMPANION (allowed alongside the canonical row) only when its PR cell says so with an
+# explicit ``iteration`` or ``addendum`` keyword (``#2429 iteration``, ``#2398 addendum``);
+# a companion never stands alone. One ordinary row plus one handoff/subsumption exemption row is
+# the documented legitimate pair. A row whose disposition cell BEGINS with a pending marker
+# (IN PROGRESS / DISPATCHED / RESULT PENDING / PENDING) may not coexist with any other row for the
+# same PR. The marker is matched at the start of c[4] or c[5] (see below), because the history
+# has two layouts (Findings at c[4] in the legacy layout, the disposition at c[5] in the newer
+# one), which the fixed-index classifier above cannot see. A lone IN-PROGRESS row is allowed (it
+# is the normal state between opening a PR and its close-out upsert).
+# The companion keyword must sit IMMEDIATELY after the PR token(s) at the start of the PR cell
+# (``#2429 iteration``, ``1329 addendum``, ``#10, #11 addendum``), so a PR cell that merely
+# describes an addendum (``#10 (addendum detector fix)``) is not a companion.
+COMPANION_PR_CELL = re.compile(
+    r"^(?:PR\s+)?#?\d+(?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+)*\s+(?:iteration|addendum)\b", re.IGNORECASE
+)
+ROW_PENDING_CELL = re.compile(
+    r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
+)
+# EXEMPTION is read from c[4] only, the same Findings cell Check 1 classifies, because the
+# history's layouts vary too much for a reliable disposition-column guess (a strict tier-cell
+# test left 520 live rows with no recognizable disposition in the guessed cell). A newer-layout
+# row pair that is legitimately ordinary + exemption therefore needs an explicit companion marker.
+# PENDING is a start-anchored marker in c[4] or c[5] (the newer layout's disposition cell), and is
+# suppressed when RETURNED appears in any cell from c[4] on (not the Touched/Families cell c[3]) (a legacy row can carry RETURNED in Findings
+# and stale pending prose in Hot-fix, e.g. history.md:653). Residue: a pending-worded Hot-fix cell
+# on a row with no RETURNED anywhere reads pending; it only matters when the PR has another row.
+# The leading run of PR tokens at the START of a retro PR cell (``#10, #11 addendum (/retro)``);
+# later PR mentions in the cell are prose, not the row's identity.
+LEADING_PR_RUN = re.compile(
+    r"^(?:PR\s+)?#?(\d+)" + PR_NUM_BOUNDARY
+    + r"((?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+" + PR_NUM_BOUNDARY + r")*)"
+)
+RETRO_PR_CELL = re.compile(r"^(?:PR\s+)?#?\d")
+
+
+def _mask_examples(text: str) -> str:
+    """Blank fenced blocks and HTML comments, preserving line count (examples are not records)."""
+    def blank(m: "re.Match[str]") -> str:
+        return re.sub(r"[^\n]", " ", m.group(0))
+    return FENCED_BLOCK.sub(blank, HTML_COMMENT.sub(blank, text))
+
+
+def _disposition_candidates(c: list[str]) -> list[str]:
+    return [c[4]] + ([c[5]] if len(c) > 5 else [])
+
+
+def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
+    """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row."""
+    out: list[tuple[int, list[int], str, bool, bool]] = []
+    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
+        if not TABLE_ROW.match(line):
+            continue
+        c = cells(line)
+        if len(c) < 5:
+            continue
+        prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
+        if not prs:
+            continue
+        if HANDOFF_FINDINGS.search(c[4]):
+            kind = "handoff"
+        elif is_subsumption_findings(c[4]):
+            kind = "subsumption"
+        else:
+            kind = ""
+        returned_anywhere = any(RETURNED_MARK.search(x) for x in c[4:])
+        pending = not returned_anywhere and any(ROW_PENDING_CELL.match(d) for d in _disposition_candidates(c))
+        out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), pending))
+    return out
+
+
+def _retro_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
+    """Every retro data row whose PR cell starts with a PR token; the LEADING run of PR tokens is
+    the row's identity (a combined ``#10, #11`` cell names both; later mentions are prose)."""
+    out: list[tuple[int, list[int], str, bool, bool]] = []
+    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
+        if not TABLE_ROW.match(line):
+            continue
+        c = cells(line)
+        if len(c) < 3 or not RETRO_PR_CELL.match(c[2]):
+            continue
+        m = LEADING_PR_RUN.match(c[2])
+        if not m:
+            continue
+        prs = sorted({int(x) for x in re.findall(r"\d+", m.group(0))})
+        out.append((lineno, prs, "", bool(COMPANION_PR_CELL.match(c[2])), False))
+    return out
+
+
+def row_integrity_findings(
+    records: list[tuple[int, list[int], str, bool, bool]], register: str
+) -> list[str]:
+    """One grouped finding per PR whose rows in ``register`` break the one-canonical-row rule."""
+    by_pr: dict[int, list[tuple[int, str, bool, bool]]] = {}
+    for lineno, prs, kind, companion, pending in records:
+        for pr in prs:
+            by_pr.setdefault(pr, []).append((lineno, kind, companion, pending))
+    findings: list[str] = []
+    for pr in sorted(by_pr):
+        rows = by_pr[pr]
+        if len(rows) == 1:
+            if rows[0][2]:
+                findings.append(
+                    f"  [row-integrity] PR #{pr}: {register} line {rows[0][0]} is a companion "
+                    f"(iteration/addendum) row with no canonical row for the PR."
+                )
+            continue
+        lines = ", ".join(str(r[0]) for r in rows)
+        canonical = [r for r in rows if not r[2]]
+        ordinary = [r for r in canonical if not r[1]]
+        exempt = [r for r in canonical if r[1]]
+        reasons: list[str] = []
+        if any(r[3] for r in rows):
+            reasons.append("a pending/IN-PROGRESS row coexists with another row (upsert it instead)")
+        if len(ordinary) > 1:
+            reasons.append(f"{len(ordinary)} canonical rows (keep one; mark earlier rounds 'iteration' or 'addendum')")
+        if len(exempt) > 1:
+            reasons.append(f"{len(exempt)} exemption rows (consolidate into one disposition)")
+        if not canonical:
+            reasons.append("only companion rows, no canonical row")
+        if reasons:
+            findings.append(f"  [row-integrity] PR #{pr}: {register} lines {lines}: " + "; ".join(reasons) + ".")
+    return findings
+
+
 BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
 BYPASS_LOG_REL = "merge-bypass-log.md"
 
@@ -875,6 +1006,16 @@ def main() -> int:
     # effective floor collapses to INCEPTION and EVERY in-window PR is flagged
     # as missing its row, so a half-run is a false-positive storm, not a weaker
     # check. Skip unless both are present.
+    # GATE50-UNIQUE: row integrity runs on EACH register that is available (independently of
+    # Check 1's both-registers requirement, so one absent register never hides duplicates in the
+    # other), before the presence check.
+    if vp_text is None and retro_text is None:
+        skipped.append("per-PR row integrity")
+    if vp_text is not None:
+        all_findings.extend(row_integrity_findings(_history_row_records(vp_text), "validate-pr/history.md"))
+    if retro_text is not None:
+        all_findings.extend(row_integrity_findings(_retro_row_records(retro_text), "improvement-log.md"))
+
     if vp_text is None or retro_text is None:
         skipped.append(f"QA-cadence parity (from PR #{INCEPTION})")
     else:
@@ -922,6 +1063,7 @@ def main() -> int:
         ran = [
             name
             for name in (
+                "per-PR row integrity",
                 f"QA-cadence parity (from PR #{INCEPTION})",
                 "TODO/DONE rotation",
                 "version-history parity",

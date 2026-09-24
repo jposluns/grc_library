@@ -9153,6 +9153,210 @@ class BookkeepingParityTests(LinterTestCase):
         )
         self.assertEqual(mod.parse_validate_pr_status(text).get(500), "normal")
 
+    # ---- GATE50-UNIQUE: per-PR row integrity (duplicate / stale IN-PROGRESS rows).
+
+    _NEW_HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
+
+    def _hist(self, mod, body: str) -> list:
+        return mod.row_integrity_findings(mod._history_row_records(self._NEW_HDR + body), "history")
+
+    def test_row_integrity_stale_in_progress_beside_final_flags_both_orders(self) -> None:
+        # The #2490 reproduction: a pre-compaction IN-PROGRESS row left beside the final row.
+        mod = self._load_module()
+        final = "| 2026-09-23 | #2490 | c+x+g | SUBSTANTIVE | SHIP (converged r7) |\n"
+        stale = "| 2026-09-23 | #2490 | c+x+g | SUBSTANTIVE | IN PROGRESS: r1 dispatched |\n"
+        for body in (final + stale, stale + final):
+            f = self._hist(mod, body)
+            self.assertEqual(len(f), 1, body)
+            self.assertIn("#2490", f[0])
+            self.assertIn("pending/IN-PROGRESS", f[0])
+
+    def test_row_integrity_lone_in_progress_row_is_allowed(self) -> None:
+        mod = self._load_module()
+        self.assertEqual(self._hist(mod, "| 2026-09-24 | #2495 | c | LIGHT | IN PROGRESS: QA dispatched |\n"), [])
+
+    def test_row_integrity_two_canonical_rows_flag(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP a |\n"
+                "| 2026-09-20 | #10 | c | T | SHIP b |\n")
+        f = self._hist(mod, body)
+        self.assertEqual(len(f), 1)
+        self.assertIn("2 canonical rows", f[0])
+
+    def test_row_integrity_iteration_companion_is_allowed(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-21 | #10 | c | T | SHIP final |\n"
+                "| 2026-09-20 | #10 iteration (HELD) | c | T | HOLD earlier round |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_companion_without_canonical_flags(self) -> None:
+        mod = self._load_module()
+        f = self._hist(mod, "| 2026-09-20 | #10 addendum | c | T | note |\n")
+        self.assertEqual(len(f), 1)
+        self.assertIn("companion", f[0])
+
+    def test_row_integrity_ordinary_plus_exemption_companion_is_allowed(self) -> None:
+        # Legacy layout (Findings at c[4]): one ordinary row plus one handoff exemption row.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
+                "| 2026-08-02 | 500 | x | **RETURNED: SHIP, clean** | none |\n"
+                "| 2026-08-01 | 500 | x | SKIPPED (handoff-PR exception) | none |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._history_row_records(text), "h"), [])
+
+    def test_row_integrity_newest_row_wins_fixture_now_flags(self) -> None:
+        # The 3.150 fixture (newer RETURNED above an older DISPATCHED row) still classifies
+        # `normal` for Check 1, but the pair is itself a supersession defect for this check.
+        mod = self._load_module()
+        text = (
+            "| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
+            "|---|---|---|---|---|---|---|\n"
+            "| 2026-08-02 | 500 | x | **RETURNED: SHIP, clean** | none | - | s |\n"
+            "| 2026-08-01 | 500 | x | DISPATCHED to worker, pending | none | - | s |\n"
+        )
+        self.assertEqual(mod.parse_validate_pr_status(text).get(500), "normal")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("pending/IN-PROGRESS", f[0])
+
+    def test_row_integrity_retro_duplicates_flag_and_addendum_passes(self) -> None:
+        mod = self._load_module()
+        dup = ("| 2026-09-13 | #2206 (/retro) | a | lesson one |\n"
+               "| 2026-09-13 | #2206 (/retro) | b | lesson two |\n")
+        f = mod.row_integrity_findings(mod._retro_row_records(dup), "retro")
+        self.assertEqual(len(f), 1)
+        self.assertIn("#2206", f[0])
+        ok = ("| 2026-09-13 | #2206 (/retro) | a | lesson one |\n"
+              "| 2026-09-13 | #2206 addendum (/retro) | b | lesson two |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(ok), "retro"), [])
+
+    def test_row_integrity_distinct_prs_do_not_collide(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
+                "| 2026-09-20 | #11 | c | T | IN PROGRESS |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_multiple_orphan_companions_flag(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 addendum | c | T | a |\n"
+                "| 2026-09-20 | #10 iteration | c | T | b |\n")
+        f = self._hist(mod, body)
+        self.assertEqual(len(f), 1)
+        self.assertIn("only companion rows", f[0])
+
+    def test_row_integrity_multiple_exemptions_flag(self) -> None:
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
+                "| 2026-08-02 | 500 | x | SKIPPED (handoff-PR exception) | none |\n"
+                "| 2026-08-01 | 500 | x | SKIPPED (handoff-PR exception) | none |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("exemption rows", f[0])
+
+    def test_row_integrity_new_layout_exemption_pair_needs_companion_marker(self) -> None:
+        # Exemption is read from c[4] only (Check 1's Findings cell); in the newer layout c[4] is
+        # the tier, so an ordinary + exemption pair there must carry an explicit companion marker.
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | SHIP |\n"
+                "| 2026-09-20 | #10 | c | LIGHT | SKIPPED (handoff-PR exception) |\n")
+        self.assertEqual(len(self._hist(mod, body)), 1)
+        marked = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | SHIP |\n"
+                  "| 2026-09-20 | #10 addendum | c | LIGHT | SKIPPED (handoff-PR exception) |\n")
+        self.assertEqual(self._hist(mod, marked), [])
+
+    def test_row_integrity_hotfix_handoff_prose_does_not_exempt(self) -> None:
+        # history.md:1019 shape: 'handoff' prose in the legacy Hot-fix cell (c[5]) must not
+        # exempt the row and so must not hide a duplicate.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-08-01 | 1361 | x | RETURNED: SHIP | fallback-skipped for the handoff PR | - |\n"
+                "| 2026-08-01 | 1361 | x | RETURNED: SHIP again | none | - |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("2 canonical rows", f[0])
+
+    def test_row_integrity_returned_row_with_pending_hotfix_plus_addendum_is_clean(self) -> None:
+        # history.md:653 shape: RETURNED in Findings, stale 'pending' prose in Hot-fix.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-07-25 | 1169 | x | RETURNED: SHIP | pending a follow-up note | - |\n"
+                "| 2026-07-25 | 1169 addendum | x | extra evidence | none | - |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._history_row_records(text), "h"), [])
+
+    def test_row_integrity_retro_hyphen_combined_endpoints_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10-#11 | a | lesson |\n"
+                "| 2026-09-13 | #11 | b | lesson |\n")
+        f = mod.row_integrity_findings(mod._retro_row_records(text), "retro")
+        self.assertEqual(len(f), 1)
+        self.assertIn("#11", f[0])
+
+    def test_row_integrity_pending_word_outside_disposition_is_not_pending(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | Pending-marker documentation | SUBSTANTIVE | SHIP |\n"
+                "| 2026-09-20 | #10 addendum | c | SUBSTANTIVE | SHIP (later round) |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_dispatched_then_returned_is_not_pending(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | DISPATCHED r1; RETURNED SHIP |\n"
+                "| 2026-09-20 | #10 addendum | c | SUBSTANTIVE | SHIP |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_description_keyword_is_not_a_companion(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP a |\n"
+                "| 2026-09-20 | #10 (addendum detector fix) | c | T | SHIP b |\n")
+        f = self._hist(mod, body)
+        self.assertEqual(len(f), 1)
+        self.assertIn("2 canonical rows", f[0])
+
+    def test_row_integrity_retro_combined_and_prefixed_cells_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10, #11 | a | lesson |\n"
+                "| 2026-09-13 | PR #11 | b | lesson |\n")
+        f = mod.row_integrity_findings(mod._retro_row_records(text), "retro")
+        self.assertEqual(len(f), 1)
+        self.assertIn("#11", f[0])
+
+    def test_row_integrity_fenced_and_commented_examples_ignored(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
+                "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
+                "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_legacy_tier_word_findings_keeps_exemption(self) -> None:
+        # history.md:1107 shape: legacy Findings at c[4] begins with a tier word, c[5] is Hot-fix.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-08-10 | 1517 | x | QUICK-FIX TIER: QA SUBSUMED by #1516 | none (identical to #1516) | - |\n"
+                "| 2026-08-10 | 1517 | x | RETURNED: SHIP | none | - |\n")
+        recs = mod._history_row_records(text)
+        self.assertEqual(recs[0][2], "subsumption")
+        self.assertEqual(mod.row_integrity_findings(recs, "h"), [])
+
+    def test_row_integrity_retro_later_pr_mention_not_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10 (/retro) follows up #11 | a | lesson |\n"
+                "| 2026-09-13 | #11 (/retro) | b | lesson |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(text), "retro"), [])
+
+    def test_row_integrity_hyphen_companion_cell_is_companion(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10 | a | lesson |\n"
+                "| 2026-09-13 | #11 | a | lesson |\n"
+                "| 2026-09-13 | #10-#11 addendum | b | more |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(text), "retro"), [])
+
+    def test_row_integrity_returned_in_touched_cell_does_not_suppress_pending(self) -> None:
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
+                "| 2026-08-02 | 500 | ORDER-RETURNED.md | DISPATCHED to worker | none |\n"
+                "| 2026-08-02 | 500 | x | SHIP | none |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("pending/IN-PROGRESS", f[0])
+
     # ---- P-3.245: PR-token boundary hardening (the #1709-window dotted-id mis-parse).
 
     def test_pr_cell_dotted_ids_not_read_as_prs(self) -> None:
