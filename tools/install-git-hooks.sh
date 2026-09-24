@@ -77,12 +77,16 @@ cleanup() {
 trap cleanup 0
 trap 'exit 1' HUP INT TERM
 
-# The commit-msg dispatcher also FAILS OPEN when the active checkout predates it.
+# The commit-msg dispatcher runs a LOCAL (unmanaged) hook kept as commit-msg.local FIRST, in every
+# checkout (so a branch older than the tracked dispatcher still runs it), then FAILS OPEN for the
+# tracked check when the active checkout predates it.
 emit_commit_msg() {
   cat <<'HOOK'
 #!/bin/sh
 # Managed by tools/install-git-hooks.sh: version-bump commit-msg dispatcher v1.
 set -eu
+hooks="$(git rev-parse --git-path hooks)"
+if [ -x "$hooks/commit-msg.local" ]; then "$hooks/commit-msg.local" "$@"; fi
 root="$(git rev-parse --show-toplevel)"
 [ -f "$root/tools/git-hooks/commit-msg" ] || exit 0
 exec sh "$root/tools/git-hooks/commit-msg" "$@"

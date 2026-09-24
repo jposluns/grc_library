@@ -1,9 +1,5 @@
 #!/bin/sh
-# git-native commit-msg hook (P-TODO 3b25). Installed shim -> this tracked file. Runs a LOCAL
-# (unmanaged) hook kept beside the shim as commit-msg.local first, if present, then the per-commit
-# Version-bump check (tools/check-version-bump-commit.py). Any failure fails the commit.
-hooks="$(git rev-parse --git-path hooks)"
-if [ -x "$hooks/commit-msg.local" ]; then
-  "$hooks/commit-msg.local" "$@" || exit 1
-fi
+# git-native commit-msg hook (P-TODO 3b25). The installed shim (tools/install-git-hooks.sh) runs a
+# local commit-msg.local hook first, then execs THIS tracked file, which runs the per-commit
+# Version-bump check (tools/check-version-bump-commit.py).
 exec python3 "$(git rev-parse --show-toplevel)/tools/check-version-bump-commit.py" --commit-msg "$1"

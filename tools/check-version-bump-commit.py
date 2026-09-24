@@ -72,28 +72,63 @@ def load_guard(root):
     return mod
 
 
-def message_opts_out(text, guard):
-    body = "\n".join(line for line in text.splitlines() if not line.startswith("#"))
-    return bool(guard.OPT_OUT.search(body))
+_AUTO_COMMENT_CHARS = "#;@!$%^&|:"   # the candidates git picks from for core.commentChar=auto
+
+
+def message_opts_out(text, guard, comment_char="#"):
+    """PURE. Does the message that git will RECORD carry the opt-out? Everything from the scissors
+    line down (`git commit -v` appends the diff there, 3b25 r1 codex/gemini) is discarded, and so are
+    comment lines under the repository's comment character ("auto" means any of git's candidates)."""
+    chars = _AUTO_COMMENT_CHARS if comment_char == "auto" else (comment_char or "#")
+    kept = []
+    for line in text.splitlines():
+        if line[:1] and line[:1] in chars and "------------------------ >8 ------------------------" in line:
+            break
+        if line[:1] and line[:1] in chars:
+            continue
+        kept.append(line)
+    return bool(guard.OPT_OUT.search("\n".join(kept)))
+
+
+def _comment_char(root):
+    cp = subprocess.run(["git", "-C", str(root), "config", "--get", "core.commentChar"],
+                        capture_output=True, text=True)
+    return cp.stdout.strip() or "#"
+
+
+def _gitz(guard, root, *args):
+    """git diff plumbing with presentation settings pinned, so user config cannot reshape the output."""
+    return guard.git(root, "-c", "diff.noprefix=false", "-c", "core.quotePath=false", *args)
 
 
 def staged_offenders(root, guard):
-    """Thin observer: offenders from the STAGED content (not the working tree)."""
-    names = [p for p in guard.git(root, "diff", "--cached", "--name-only", "-z").split("\0") if p]
-    versioned = set()
-    for p in names:
-        if not p.endswith(".md") or p in guard.GENERATED or p.startswith(".corpus-management/"):
+    """Thin observer, PER FILE, from STAGED content (3b25 r1 codex): no diff-header parsing (so
+    diff.noprefix, quoted names, and paths containing ' b/' cannot hide an offender); a rename is
+    diffed old->new so a renamed document with a body edit is not mistaken for a new one; only a
+    structurally reported deletion is skipped, and any other read failure raises (ignorance refuses)."""
+    raw = _gitz(guard, root, "diff", "--cached", "--name-status", "-M", "-z").split("\0")
+    entries, k = [], 0
+    while k < len(raw) and raw[k]:
+        status = raw[k]
+        if status[:1] in "RC":
+            entries.append((status[:1], raw[k + 1], raw[k + 2])); k += 3
+        else:
+            entries.append((status[:1], None, raw[k + 1])); k += 2
+    bad = []
+    for status, old, new in entries:
+        if status == "D" or not new.endswith(".md") or new in guard.GENERATED \
+                or new.startswith(".corpus-management/"):
             continue
-        try:
-            text = guard.git(root, "show", f":{p}")
-        except subprocess.CalledProcessError:
-            continue  # staged as deleted: nothing to bump
-        if guard.VERSION_LINE.search(text):
-            versioned.add(p)
-    if not versioned:
-        return []
-    diff = guard.git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
-    return guard.offenders(diff, versioned)
+        text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
+        if not guard.VERSION_LINE.search(text):
+            continue
+        paths = [old, new] if old else [new]
+        diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",
+                     "--no-textconv", "--unified=0", "--", *paths)
+        body, version = guard.classify_hunk(guard._lf_lines(diff))
+        if body and not version:
+            bad.append(new)
+    return bad
 
 
 def _in_sequencer(root):
@@ -115,7 +150,7 @@ def _commit_msg(msgfile):
         if guard is None:
             return 0
         text = Path(msgfile).read_text(encoding="utf-8", errors="replace")
-        sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard)
+        sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard, _comment_char(root))
         bad = [] if (sequencer or opt_out) else staged_offenders(root, guard)
         ok = True
     except Exception:
@@ -185,7 +220,7 @@ def _integration_self_test():
         doc(repo / "d.md", "1.0.0", "second body")
         must(["git", "add", "d.md"])
         cp = run(["git", "commit", "-q", "-m", "body only"])
-        if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a body-only change without a Version bump was not refused")
         cp = run(["git", "commit", "-q", "-m", "body only\n\nVersionBump: none (test)"])
         if cp.returncode != 0:
@@ -209,12 +244,51 @@ def _integration_self_test():
         doc(linked / "d.md", "1.0.1", "worktree body")
         must(["git", "-C", str(linked), "add", "d.md"])
         cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree body only"], cwd=base)
-        if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a body-only commit made with git -C in a linked worktree was not refused")
         cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "override"], cwd=base,
                  extra={_OVERRIDE: "1"})
         if cp.returncode != 0:
             failures.append(f"the override did not allow the commit: {cp.stderr.strip()}")
+        # --- 3b25 r1 regressions (codex, gemini, claude) ---
+        # (a) diff.noprefix cannot hide an offender (no diff-header parsing any more).
+        must(["git", "config", "diff.noprefix", "true"])
+        doc(repo / "d.md", "1.0.1", "noprefix body")
+        must(["git", "add", "d.md"])
+        cp = run(["git", "commit", "-q", "-m", "noprefix"])
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
+            failures.append("diff.noprefix=true hid an unbumped body change")
+        must(["git", "config", "--unset", "diff.noprefix"])
+        # (b) an opt-out below the scissors line (git commit -v) is not part of the message.
+        msg = repo / "verbose-msg.txt"
+        msg.write_text("subject\n\n# ------------------------ >8 ------------------------\n"
+                       "+VersionBump: none (inside the appended diff)\n")
+        cp = run(["git", "commit", "-q", "-F", str(msg), "--cleanup=scissors"])
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
+            failures.append("an opt-out below the scissors line waived the check")
+        # (c) a custom comment character: its comment lines are not the message either.
+        must(["git", "config", "core.commentChar", ";"])
+        msg.write_text("subject\n; VersionBump: none (a comment under ';')\n")
+        cp = run(["git", "commit", "-q", "-F", str(msg), "--cleanup=strip"])
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
+            failures.append("an opt-out in a custom-comment-character line waived the check")
+        must(["git", "config", "--unset", "core.commentChar"])
+        must(["git", "restore", "--staged", "d.md"]); must(["git", "checkout", "--", "d.md"])
+        # (d) a rename with a body edit is diffed old -> new, not treated as a new document.
+        must(["git", "mv", "d.md", "e.md"])
+        doc(repo / "e.md", "1.0.1", "renamed and edited")
+        must(["git", "add", "e.md"])
+        cp = run(["git", "commit", "-q", "-m", "rename with body edit"])
+        if cp.returncode == 0 or "without a Version change" not in cp.stderr:
+            failures.append("a renamed document with an unbumped body edit was allowed")
+        must(["git", "reset", "-q", "--hard"])
+        # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg.local.
+        (repo / "tools" / "git-hooks" / "commit-msg").rename(repo / "moved-commit-msg")
+        (repo / "f.txt").write_text("x\n")
+        must(["git", "add", "f.txt"])
+        must(["git", "commit", "-q", "-m", "older checkout"])
+        if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
+            failures.append("commit-msg.local was skipped in a checkout without the tracked dispatcher")
     return failures
 
 
@@ -234,12 +308,16 @@ def _self_test():
         ("an opt-out in a comment line does not count",
          message_opts_out("subject\n# VersionBump: none (commented)\n", _G), False),
         ("an opt-out in the body counts", message_opts_out("subject\n\nVersionBump: none (reason)\n", _G), True),
+        ("an opt-out below the scissors line does not count",
+         message_opts_out("s\n# ------------------------ >8 ------------------------\n+VersionBump: none x\n", _G), False),
+        ("a custom comment character is honoured", message_opts_out("s\n; VersionBump: none x\n", _G, ";"), False),
+        ("'auto' strips every candidate comment character", message_opts_out("s\n@ VersionBump: none x\n", _G, "auto"), False),
         ("a checkout without the guard is allowed", load_guard(Path("/nonexistent-checkout")), None),
     ]
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 9
+    total = len(cases) + 14
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

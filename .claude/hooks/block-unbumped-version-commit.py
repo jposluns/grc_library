@@ -78,6 +78,7 @@ hatch that, by convention, leaves a reason in the commit message where a reviewe
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -209,6 +210,27 @@ def is_commit(cmd: str) -> bool:
     return "--amend" not in flat
 
 
+def commit_target(cmd: str, cwd: str):
+    """PURE. The directory a `git ... commit` in `cmd` runs in: `cwd`, then any `cd <dir>` earlier in
+    the same command, then the commit's own `-C` operands, applied in order as git applies them.
+    Returns None when the target cannot be determined from the text (a quoted, variable, or `~`
+    operand), so the caller steps aside rather than inspect a checkout the commit may not touch
+    (3b25 r1, codex P1: the guard used to read and even auto-bump ITS OWN checkout for a commit
+    aimed at another worktree)."""
+    flat = " ".join(cmd.split())
+    m = COMMIT_RE.search(flat)
+    if not m:
+        return None
+    parts = [c.group(1) for c in re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", flat[:m.start()])]
+    parts += re.findall(r"-C\s+(\S+)", m.group(0))
+    target = cwd
+    for part in parts:
+        if any(ch in part for ch in "'\"$`~*?"):
+            return None
+        target = os.path.normpath(os.path.join(target, part))
+    return target
+
+
 def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
     """PURE. (body_changed, version_changed) for one file's unified-diff lines.
 
@@ -338,6 +360,21 @@ def main() -> int:
         return 0
     cmd = (payload.get("tool_input") or {}).get("command", "") or ""
     if not is_commit(cmd) or OPT_OUT.search(cmd):
+        return 0
+    # Act ONLY on this guard's own checkout. A commit aimed elsewhere (another worktree via `git -C`
+    # or `cd`) is left to that checkout's git-native commit-msg check (3b25); an undeterminable
+    # target is also left alone rather than guessed.
+    # With no payload cwd and no `cd`/`-C` in the command there is nothing to resolve: the commit
+    # runs where this guard runs (the previous behaviour). Resolution goes through git() only.
+    try:
+        target = commit_target(cmd, payload.get("cwd") or "")
+        if target is None:
+            return 0
+        if target:
+            top = git(Path(target), "rev-parse", "--show-toplevel").strip()
+            if Path(top).resolve() != project_root().resolve():
+                return 0
+    except Exception:
         return 0
 
     try:
@@ -628,6 +665,20 @@ def self_test() -> int:
     r2 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                         capture_output=True, text=True)
     ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
+    # --- 3b25 r1 (codex P1): a commit aimed at ANOTHER checkout is not inspected or auto-bumped here ---
+    d6 = mkrepo()
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nold\n"); git(d6, "add", "-A"); git(d6, "commit", "-q", "-m", "i")
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nnew\n"); git(d6, "add", "y.md")
+    before = git(d5, "show", ":x.md")
+    p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d6} commit -q -m x"}})
+    r3 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
+                        capture_output=True, text=True)
+    ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
+    ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
+    ck("commit_target: plain commit runs in cwd", commit_target("git commit -m x", "/r"), "/r")
+    ck("commit_target: -C is applied", commit_target("git -C /w commit -m x", "/r"), "/w")
+    ck("commit_target: cd then relative -C compose", commit_target("cd /a && git -C b commit", "/r"), "/a/b")
+    ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
