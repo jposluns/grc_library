@@ -23,7 +23,7 @@ import types
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, positional_args  # noqa: E402  # grc-config/store, stays local
 
 try:
     from ccm_aicm_reference import (  # noqa: E402  # grc reference catalogue (fair-use citation index)
@@ -85,7 +85,8 @@ def scan_file(path: Path) -> list:
 
 def main(argv: list[str]) -> int:
     # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
-    paths = guard_explicit_paths_cwd(argv[1:], repo_root=REPO_ROOT) if argv[1:] else [str(REPO_ROOT)]
+    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    paths = guard_explicit_paths_cwd(args, repo_root=REPO_ROOT) if args else [str(REPO_ROOT)]
     targets = iter_markdown_targets(
         paths, exempt_dirs=DEFAULT_EXEMPT_DIRS, exempt_files=EXEMPT_FILES)
     all_findings: list = []

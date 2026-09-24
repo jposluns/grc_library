@@ -25,7 +25,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import guard_explicit_paths, is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT
+from lint_common import guard_explicit_paths, positional_args, is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -227,7 +227,8 @@ def main(argv: list[str]) -> int:
     # guard (#2533): refused when missing, outside the tree, or relative while not run from
     # the root; otherwise normalized, so a spelling such as governance/../CHANGELOG.md hits
     # the same exemptions as CHANGELOG.md.
-    paths = guard_explicit_paths(argv[1:], repo_root=REPO_ROOT) if argv[1:] else [
+    args = positional_args(argv[1:], known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
+    paths = guard_explicit_paths(args, repo_root=REPO_ROOT) if args else [
         "README.md",
         "NOTICE.md",
         "specification-master-project.md",
