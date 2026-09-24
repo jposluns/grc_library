@@ -211,7 +211,7 @@ def is_commit(cmd: str) -> bool:
 
 
 def commit_target(cmd: str, cwd: str):
-    """PURE. The directory a `git ... commit` in `cmd` runs in: `cwd`, then any `cd <dir>` earlier in
+    """Text-derived, reading the filesystem only to resolve -C symlinks as chdir does. The directory a `git ... commit` in `cmd` runs in: `cwd`, then any `cd <dir>` earlier in
     the same command, then the commit's own `-C` operands, applied in order as git applies them.
     Returns None when the target cannot be determined from the text (a quoted, variable, or `~`
     operand), so the caller steps aside rather than inspect a checkout the commit may not touch
@@ -236,7 +236,9 @@ def commit_target(cmd: str, cwd: str):
     # segment" (3b25 r6, claude: `git submodule foreach ':; git commit'`, `-c alias.x='!:; git
     # commit'`), so quotes are undeterminable too. Cost, accepted: `git add 'a b' && git commit`
     # steps aside; the git-native check still refuses in the real target.
-    if any(t in prefix for t in ("(", ")", "`", "{", "}", "'", '"')) or "\n" in raw_prefix.strip():
+    # The backslash is the third POSIX quoting mechanism (3b25 r7, claude: `git submodule foreach
+    # :\; git commit` runs the commit in each submodule), so it is undeterminable too.
+    if any(t in prefix for t in ("(", ")", "`", "{", "}", "'", '"', "\\")) or "\n" in raw_prefix.strip():
         return None
     # ANY cd/pushd/popd before the commit makes the target undeterminable: whether it runs depends
     # on execution (a failed cd, `||`, a `;` after a failed step), which text cannot settle
@@ -264,9 +266,12 @@ def commit_target(cmd: str, cwd: str):
     parts += re.findall(r"-C\s+(\S+)", m.group(0))
     target = cwd
     for part in parts:
-        if any(ch in part for ch in "'\"$`~*?"):
+        # Shell escapes and bracket globs rewrite the operand before git sees it (3b25 r7, codex).
+        if any(ch in part for ch in "'\"$`~*?\\[]"):
             return None
-        target = os.path.normpath(os.path.join(target, part))
+        # git chdirs into each -C operand in turn, so a symlink changes where the next relative
+        # operand lands: resolve like chdir does, not lexically (3b25 r7, codex: /proc/self/cwd).
+        target = os.path.realpath(os.path.join(target, part))
     return target
 
 
@@ -733,8 +738,11 @@ def self_test() -> int:
                   "'cd' /o && git commit", "c\\d /o && git commit", "up && git commit",
                   "git clone /src/repo.git commit-fix", "git submodule foreach ':; git commit -m x'",
                   "git -C /o -c alias.ci='!:; git commit -m x' ci", "git tag -a -m 'x; git commit' v1",
-                  "git status -- commit\nc\\d /o && git commit -m x"):
+                  "git status -- commit\nc\\d /o && git commit -m x", "git submodule foreach :\\; git commit -m x",
+                  "git -C /o\\-v commit -m x", "git -C /o-[v] commit -m x"):
         ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
+    ck("commit_target: a symlinked -C operand resolves like chdir",
+       commit_target("git -C /proc/self/cwd -C . commit -m x", os.getcwd()), os.path.realpath(os.getcwd()))
     ck("commit_target: earlier plain git segments keep the cwd target",
        commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")
     ck("commit_target: a non-git pipe source steps aside", commit_target("true | git commit -F -", "/r"), None)
