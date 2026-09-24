@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -205,7 +205,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to CCC-04, CCC-06 to CCC-09, AIS-04 | PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 | SA-10, SA-15 | Level 2 to 3 |
 | Pipeline secret scanning | A.8.28 | AIS-05 | PW.7.2 | SA-11 | N/A |
-| Artifact signing and integrity | A.8.27 | CCC-04 | PS.2 | SR-4; SI-7 | Level 3 |
+| Artifact signing and integrity | A.8.27 | CCC-04 | PS.2 | SR-4; SI-7 | Level 2 to 3 |
 | IaC security | A.8.25 | CCC-06 | PW.7.2 | CM-2, CM-3 | N/A |
 | Environment separation | A.8.31 | I&S-05 | PO.5.1 | CM-2(6), CM-4(1), SC-7 | N/A |
 | Container security | A.8.25 | I&S-04 | PW.9.1, PW.4.4, RV.1.1 | CM-7, SI-3 | N/A |
