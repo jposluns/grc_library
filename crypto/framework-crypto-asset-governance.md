@@ -2,8 +2,8 @@
 
 **Document Title:** Crypto-Asset Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.1.2\
-**Date:** 2026-09-05\
+**Version:** 0.1.3\
+**Date:** 2026-09-24\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/README.md`](README.md), [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -30,7 +30,7 @@ Anti-money-laundering, counter-terrorist-financing, and the crypto-asset transfe
 
 ## Crypto-asset classification
 
-Classification is the first control: what an asset is determines which obligations attach to it, so no crypto-asset activity should proceed before the asset is classified. Under Regulation (EU) 2023/1114 (MiCA), the primary classification is three-way: an asset-referenced token (ART), an electronic money token (EMT), or a crypto-asset that is neither (the residual "other" category): MiCA Recital 18 sets out this three-way classification, Article 3 defines the ART and EMT types, and Titles III, IV, and II respectively carry the issuer and offeror obligations for ARTs, EMTs, and other crypto-assets. Two exclusions bound the field before classification begins: a crypto-asset that qualifies as a financial instrument within the meaning of Directive 2014/65/EU is regulated as such and falls outside MiCA, and a crypto-asset that is genuinely unique and not fungible with other crypto-assets is likewise outside MiCA's scope (MiCA Article 2). An organization outside the European Union applies the same classification discipline against its own governing regime; the three-category structure is used here as the worked model because it is the regime the library currently holds in full.
+Classification is the first control: what an asset is determines which obligations attach to it, so no crypto-asset activity should proceed before the asset is classified. Under Regulation (EU) 2023/1114 (MiCA), the primary classification is three-way: an asset-referenced token (ART), an electronic money token (EMT), or a crypto-asset that is neither (the residual "other" category): MiCA Recital 18 sets out this three-way classification, Article 3 defines the ART and EMT types, and Titles III, IV, and II respectively carry the issuer and offeror obligations for ARTs, EMTs, and other crypto-assets. MiCA Article 2 excludes several categories (among them deposits, including structured deposits, and funds other than e-money tokens); two of its exclusions matter most for classification: a crypto-asset that qualifies as a financial instrument within the meaning of Directive 2014/65/EU is regulated as such and falls outside MiCA, and a crypto-asset that is genuinely unique and not fungible with other crypto-assets is likewise outside MiCA's scope (MiCA Article 2(4)(a) and Article 2(3) respectively). An organization outside the European Union applies the same classification discipline against its own governing regime; the three-category structure is used here as the worked model because it is the regime the library currently holds in full.
 
 The governing control is that classification is documented, re-checked when an asset or its terms change, and recorded in the domain inventory (see Governance requirements) before the asset is issued, offered, custodied, traded, or otherwise used.
 
