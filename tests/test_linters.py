@@ -11621,6 +11621,63 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class StrictArgvLiveDefectTests(LinterTestCase):
+    """3b50b2a: live defects where a bad argument ran the wrong branch or scanned nothing.
+
+    A mistyped --check used to fall through to a generator's in-place WRITE path (exit 0, artefact
+    regenerated, no check run); lint-scan-scope-parity consumed its one argument blind, so a
+    missing, empty or unknown value globbed nothing and passed; and an empty explicit path in the
+    shared guards resolved to the tree root and scanned everything as an explicit path."""
+
+    def _rc(self, *args: str) -> subprocess.CompletedProcess:
+        return run_linter(*args)
+
+    def test_citation_publishers_bad_flags_refused_without_writing(self) -> None:
+        spec = REPO_ROOT / "governance" / "specification-citation-verification.md"
+        before = spec.read_bytes()
+        for args in (("--chck",), ("--check", "--check"), ("--check", "--self-test"), ("stray",)):
+            r = self._rc("tools/build-citation-publishers.py", *args)
+            self.assertEqual(r.returncode, 2, (args, r.stdout, r.stderr))
+            self.assertIn("ERROR:", r.stderr)
+        self.assertEqual(spec.read_bytes(), before, "a refused argument must never write the spec")
+
+    def test_reference_manifest_bad_flag_refused(self) -> None:
+        r = self._rc("tools/build-reference-manifest.py", "--chck")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("unknown option", r.stderr)
+
+    def test_scan_scope_parity_explicit_dir_validated(self) -> None:
+        empty = Path(tempfile.mkdtemp(prefix="ssp-no-py-"))
+        self.addCleanup(shutil.rmtree, empty)
+        for arg, needle in (("/nonexistent-3b50b2a", "not a directory"), ("", "empty value"),
+                            ("--bogus", "unknown option"), (str(empty), "holds no *.py")):
+            r = self._rc("tools/lint-scan-scope-parity.py", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout, r.stderr))
+            self.assertIn(needle, r.stderr)
+        r = self._rc("tools/lint-scan-scope-parity.py", str(REPO_ROOT / "tools"))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_empty_explicit_path_refused_in_both_guard_families(self) -> None:
+        for script in ("tools/lint-metadata.py", "tools/lint-ssdf-control-ids.py"):
+            r = self._rc(script, "")
+            self.assertEqual(r.returncode, 2, (script, r.stdout, r.stderr))
+            self.assertIn("an empty path argument is refused", r.stderr)
+
+    def test_strict_flags_helper(self) -> None:
+        import contextlib
+        sys.path.insert(0, str(REPO_ROOT / "tools"))
+        try:
+            import lint_common
+        finally:
+            sys.path.remove(str(REPO_ROOT / "tools"))
+        self.assertEqual(lint_common.strict_flags([], ("--check",)), set())
+        self.assertEqual(lint_common.strict_flags(["--check"], ("--check",)), {"--check"})
+        for bad in (["--chck"], ["x"], ["--check", "--check"], ["--"]):
+            with self.assertRaises(SystemExit) as cm, contextlib.redirect_stderr(io.StringIO()):
+                lint_common.strict_flags(bad, ("--check",))
+            self.assertEqual(cm.exception.code, 2, bad)
+
+
 class ExplicitRootGuardTests(LinterTestCase):
     """Explicit --root / --private-root overrides and exempt-prefix paths refuse (3b50b1).
 

@@ -50,8 +50,11 @@ Usage:
 
 With no arguments, scans the ``tools/`` directory next to this script. A
 path argument overrides the scan directory, which the regression
-fixtures rely on to point the gate at a temporary directory. Exits
-non-zero if any finding is reported.
+fixtures rely on to point the gate at a temporary directory. Exits 1 if
+any finding is reported, and 2 (before scanning) when the argument is refused:
+a missing, empty or non-directory value, a directory holding no ``*.py`` file,
+an unknown flag, or more than one directory. An existing directory outside the
+repository that holds ``*.py`` files is accepted and scanned.
 """
 
 from __future__ import annotations
@@ -62,7 +65,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, positional_args, require_dir  # noqa: E402  # grc-config/store, stays local
 
 TOOLS_DIR = Path(__file__).resolve().parent
 
@@ -143,7 +146,17 @@ def distinct_domain_literals(text: str) -> set[str]:
 
 
 def main(argv: list[str]) -> int:
-    scan_dir = Path(argv[1]).resolve() if len(argv) > 1 else TOOLS_DIR
+    # 3b50b2a: an explicit scan directory is validated. It used to be consumed blind, so a missing
+    # or empty value, a directory with no *.py, or even an unknown flag globbed nothing and passed.
+    args = positional_args(argv[1:], known_flags=())
+    if len(args) > 1:
+        print(f"ERROR: at most one scan directory is accepted; got {len(args)}.", file=sys.stderr)
+        return 2
+    scan_dir = require_dir(args[0], "scan directory") if args else TOOLS_DIR
+    if args and not any(scan_dir.glob("*.py")):
+        print(f"ERROR: scan directory {args[0]}: holds no *.py file; nothing would be checked.",
+              file=sys.stderr)
+        return 2
 
     findings: list[str] = []
 

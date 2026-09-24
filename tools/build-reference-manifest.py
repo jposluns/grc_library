@@ -244,7 +244,9 @@ def render(catalogue: dict) -> str:
 
 
 def main() -> int:
-    check = "--check" in sys.argv[1:]
+    # 3b50b2a: parse strictly first, so a mistyped --check can never fall through to the WRITE
+    # below (and is refused even in an adopter clone, before the no-op branch).
+    check = "--check" in lint_common.strict_flags(sys.argv[1:], ("--check",))
     ref = lint_common.resolve_sibling("ref")
     if ref is None:
         # Adopter / portable clone: no reference sibling. No-op (exit 0); the committed

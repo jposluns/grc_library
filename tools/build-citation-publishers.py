@@ -14,7 +14,8 @@ Usage:
     python3 tools/build-citation-publishers.py --self-test
 
 Exit codes: 0 in sync (or regenerated); 1 drift under --check; 2 malformed or missing source of
-record, sentinels, or specification.
+record, sentinels, or specification, or a refused argument (an unknown flag, a positional, a
+repeated flag, or --check with --self-test), which is refused before anything is read or written.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "tools"))
 from citation_publishers import BEGIN, END, InputError, _fence_scan, parse_block, render, section_bounds, source_span  # noqa: E402
+from lint_common import strict_flags  # noqa: E402
 
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 
@@ -53,7 +55,13 @@ def regenerate(text: str) -> str:
 
 
 def main(argv: list[str]) -> int:
-    if "--self-test" in argv:
+    # 3b50b2a: parse strictly before anything else. A membership test used to let a mistyped
+    # --check fall through to the in-place WRITE below (exit 0, spec regenerated, no check run).
+    flags = strict_flags(argv, ("--check", "--self-test"))
+    if flags == {"--check", "--self-test"}:
+        print("ERROR: --check and --self-test are separate runs; give one.", file=sys.stderr)
+        return 2
+    if "--self-test" in flags:
         return self_test()
     try:
         text = SPEC.read_bytes().decode("utf-8")
@@ -63,7 +71,7 @@ def main(argv: list[str]) -> int:
     except (InputError, OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
-    if "--check" in argv:
+    if "--check" in flags:
         if new != text:
             print(
                 "FAIL: the section 7.1 publisher table is out of sync with its json citation-publishers "
