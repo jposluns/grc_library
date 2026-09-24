@@ -53,8 +53,8 @@ EXEMPT_FILES = {
 ALLOW_LIST = {
     # Standards publishers
     "iso.org", "iec.ch", "nist.gov", "csrc.nist.gov", "nvlpubs.nist.gov",
-    "ieee.org", "standards.ieee.org",
-    "etsi.org", "www.etsi.org",
+    "ieee.org",
+    "etsi.org",
     "ashrae.org", "nfpa.org", "cencenelec.eu", "cen.eu", "cenelec.eu",
     "ietf.org", "rfc-editor.org", "datatracker.ietf.org",
     "w3.org", "oasis-open.org",
@@ -78,13 +78,10 @@ ALLOW_LIST = {
     "web.archive.org",
     # OSS hosting
     "github.com", "raw.githubusercontent.com", "huggingface.co", "pypi.org",
-    "gitlab.com",
-    # Citation / DOI / ORCID
-    "doi.org", "orcid.org", "arxiv.org",
+    # Citation identifiers and preprints
+    "orcid.org", "arxiv.org",
     # AI/ML safety bodies
-    "aisi.org.uk", "inspect.aisi.org.uk", "mlcommons.org", "avidml.org",
-    # OWASP GenAI subdomain
-    "genai.owasp.org",
+    "aisi.org.uk", "mlcommons.org", "avidml.org",
     # Adopted references mentioned in library content
     "keepachangelog.com", "semver.org", "spdx.org", "calver.org",
     "creativecommons.org",
@@ -99,8 +96,6 @@ ALLOW_LIST = {
     # schema $id namespace and publication orientation). Own domain, not a
     # citation publisher, so the citation-verification spec (S7) is not updated.
     "aiqt.ai",
-    # Library maintainer documentation
-    "claude.ai",
     # Anthropic Claude Code official documentation domain
     "code.claude.com",
     # Common Linux Foundation domains
@@ -114,7 +109,7 @@ ALLOW_LIST = {
     # Sitemaps.org: the XML namespace URI required in the generated sitemap.xml
     # (.web/build.py). A protocol namespace, not a citation publisher, so the
     # citation-verification spec (§7) is not updated (as with grclibrary.ai).
-    "sitemaps.org", "www.sitemaps.org",
+    "sitemaps.org",
     # SANS / CIS
     "sans.org", "cisecurity.org",
     # Library maintainer profile
@@ -136,7 +131,6 @@ ALLOW_LIST = {
     "cppa.ca.gov",  # California Privacy Protection Agency (CCPA regulations publisher)
     "dodcio.defense.gov",  # US DoD CIO
     "parl.ca",  # Canadian Parliament
-    "fedlex.admin.ch",  # Swiss federal legislation
     "harmbench.org",  # HarmBench official site
     "owaspsamm.org",  # OWASP SAMM official site
     "wbasco.org",  # World BASC Organization (Business Alliance for Secure Commerce)
