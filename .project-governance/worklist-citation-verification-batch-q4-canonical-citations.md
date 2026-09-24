@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.22\
+**Version:** 1.0.23\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -147,7 +147,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | WCO SAFE Framework | https://www.wcoomd.org/en/topics/facilitation/instrument-and-tools/frameworks-of-standards/safe_package.aspx | all | 2025 edition; published 2025-06; WCO Framework of Standards to Secure and Facilitate Global Trade; supersedes 2018, 2021 (per register) |  |  |  |  |  |  |
-| BASC International Standard | https://www.wbasco.org/en/certification/basc-certification | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
+| BASC International Standard | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
 | CTPAT MSC | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat | all | 2020, Minimum Security Criteria |  |  |  |  |  |  |
 
 ### 3.9 Sector-specific: IEC 62443 family (7 entries): publisher `webstore.iec.ch`
@@ -168,7 +168,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | IEC 61511 | https://webstore.iec.ch/publication/24241 | all | 2016 (Edition 2, Amendment 1 in 2017); supersedes Edition 1 (2003) |  |  |  |  |  |  |
 | IEC 61508 | https://webstore.iec.ch/publication/22273 | all | 2010, Functional safety; supersedes 1998 |  |  |  |  |  |  |
-| ISO 16484 | https://www.iso.org/standard/84890.html | all | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); supersedes parts published 2010 to 2020 (per register); BACS |  |  |  |  |  |  |
+| ISO 16484 | https://www.iso.org/committee/54740/x/catalogue/ | all | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); supersedes parts published 2010 to 2020 (per register); BACS |  |  |  |  |  |  |
 | ASHRAE 135 | https://www.ashrae.org/technical-resources/bookstore/bacnet | all | 2020 (with addenda), BACnet protocol |  |  |  |  |  |  |
 | NIST SP 1900 series | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | all | 2023, Smart-building cybersecurity and IoT |  |  |  |  |  |  |
 | NFPA 72 | https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=72 | all | 2025, National Fire Alarm and Signaling Code; supersedes 2022, 2019 |  |  |  |  |  |  |
@@ -186,7 +186,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | OECD Privacy Guidelines | https://www.oecd.org/digital/ieconomy/privacy-guidelines.htm | all | 2013 revised, Privacy and transborder data flows; supersedes 1980 |  |  |  |  |  |  |
 | WTO TFA | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | all | 2017, Trade Facilitation Agreement |  |  |  |  |  |  |
 | ICAO Annex 17 (Chicago Convention) | https://store.icao.int/en/annex-17-security | all | Edition 12, 2022; Security (safeguarding international civil aviation against acts of unlawful interference). Corrected 2026-07-10: the prior "Doc 10026 / Manual on Aviation Security" pre-fill was wrong (its store URL 404s; Doc 10026 is the Report of the Legal Commission, and the AVSEC manual is the Restricted Doc 8973). |  |  |  |  |  |  |
-| ICAO Doc 10055 | https://www.icao.int/aviation-cybersecurity/strategy | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
+| ICAO Aviation Cybersecurity Strategy | https://www.icao.int/aviation-cybersecurity/strategy | all | October 2019 (no ICAO Doc number), Aviation Cybersecurity Strategy |  |  |  |  |  |  |
 | IMO MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 3, 2025-04, Maritime cyber risk management guidelines; supersedes Rev. 2 and Rev. 1 |  |  |  |  |  |  |
 
 ### 3.12 AI safety evaluation programmes (3 entries; note that AI tooling references cluster separately covered in Q3)
