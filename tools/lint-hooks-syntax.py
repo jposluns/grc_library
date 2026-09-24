@@ -107,8 +107,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"ERROR: --hooks-dir {args.hooks_dir}: not a directory; nothing would be compiled.",
               file=sys.stderr)
         return 2
-    if args.hooks_dir is not None and not any(Path(args.hooks_dir).glob("*.py")):
-        # 3b50b2d1: an explicit directory with no hook file compiled nothing and printed OK.
+    if args.hooks_dir is not None and not _scan_files(Path(args.hooks_dir)):
+        # 3b50b2d1: an explicit directory with no hook file compiled nothing and printed OK. The
+        # predicate is the scan's own file set (recursive, regular files, no __pycache__), so a
+        # nested-only tree is scanned and a directory merely named *.py is not a hook.
         print(f"ERROR: --hooks-dir {args.hooks_dir}: holds no *.py hook file; nothing would be "
               f"compiled.", file=sys.stderr)
         return 2

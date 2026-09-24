@@ -11860,9 +11860,21 @@ class RootOverrideResidueTests(LinterTestCase):
     def test_hooks_syntax_empty_or_hookless_dir_refused(self) -> None:
         empty = Path(tempfile.mkdtemp(prefix="hooks-none-"))
         self.addCleanup(shutil.rmtree, empty)
-        for args in (("--hooks-dir=",), ("--hooks-dir", str(empty))):
+        dirnamed = Path(tempfile.mkdtemp(prefix="hooks-dirpy-"))
+        self.addCleanup(shutil.rmtree, dirnamed)
+        (dirnamed / "only.py").mkdir()  # a directory named *.py is not a hook file
+        for args in (("--hooks-dir=",), ("--hooks-dir", str(empty)), ("--hooks-dir", str(dirnamed))):
             r = run_linter("tools/lint-hooks-syntax.py", *args)
             self.assertEqual(r.returncode, 2, (args, r.stdout, r.stderr))
+
+    def test_hooks_syntax_nested_only_tree_is_scanned(self) -> None:
+        nested = Path(tempfile.mkdtemp(prefix="hooks-nested-"))
+        self.addCleanup(shutil.rmtree, nested)
+        (nested / "helpers").mkdir()
+        (nested / "helpers" / "broken.py").write_text("def x(:\n", encoding="utf-8")
+        r = run_linter("tools/lint-hooks-syntax.py", "--hooks-dir", str(nested))
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("broken.py", r.stdout)
 
 
 class ExplicitRootGuardTests(LinterTestCase):
