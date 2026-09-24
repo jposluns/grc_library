@@ -11374,7 +11374,9 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
                                    (("--", "--self-test", "no/such/file-3b50.md"), "does not exist"),
                                    (("--bogus", "--self-test"), "unknown option"),
                                    # round 3: a self-test must not swallow explicit paths
-                                   (("--self-test", "--", "no/such/file-3b50.md"), "takes no paths")):
+                                   (("--self-test", "--", "no/such/file-3b50.md"), "takes no paths"),
+                                   # round 4: a repeated flag is refused, never collapsed
+                                   (("--self-test", "--self-test"), "more than once")):
                 result = run_linter(script, *args)
                 self.assertEqual(result.returncode, 2, script + repr(args) + result.stdout + result.stderr)
                 self.assertIn(fragment, result.stderr, script)

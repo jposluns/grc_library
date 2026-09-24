@@ -805,6 +805,12 @@ def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-t
         i = argv.index("--")
         argv, tail = argv[:i], argv[i + 1:]
     known = set(known_flags)
+    repeated = sorted({a for a in argv if a in known and argv.count(a) > 1})
+    if repeated:
+        for a in repeated:
+            print(f"ERROR: {a}: given more than once (use -- before a path that looks like an "
+                  f"option).", file=sys.stderr)
+        raise SystemExit(2)
     unknown = [a for a in argv if a.startswith("-") and a not in known]
     if unknown:
         for a in unknown:
