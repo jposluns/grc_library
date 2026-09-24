@@ -2,7 +2,7 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
