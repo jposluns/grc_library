@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Fail a pull request whose title or body carries Claude/Anthropic attribution (PR-time check).
+
+Maintainer directive (2026-08-17, re-confirmed 2026-09-24): no Claude/Anthropic attribution on
+any commit, push, or PR; author identity is the maintainer only. This is the AUTHORITATIVE
+enforcement for PR text (maintainer ruling 2026-09-24, option A): it runs in its own workflow,
+`.github/workflows/pr-attribution.yml`, on the `pull_request` event (opened, edited,
+synchronize, reopened), so it re-runs whenever the title or body is edited, and it reads the PR
+title and body from the event payload GitHub itself writes (`$GITHUB_EVENT_PATH`). Reading the
+authoritative stored text, rather than parsing the shell command that produced it, is the point:
+nine QA rounds on the PreToolUse hook showed that recognizing every shell shape that can write a
+PR body is an open-ended class. The hook (`.claude/hooks/block-claude-attribution.py`) remains a
+best-effort early warning; this check is the one a merge depends on.
+
+The title and body never pass through a shell: they are read from the event JSON in Python, so
+the workflow is not exposed to script injection from PR text.
+
+GUARD-INPUT RESIDUE, stated at the point of use: this sees the PR title and body only. PR
+comments and review bodies are not in the pull_request event and are not checked here; commit
+messages are guarded by the local commit-msg hook. A null body is treated as empty text.
+
+Usage:
+    python3 tools/check-pr-attribution.py                 # reads $GITHUB_EVENT_PATH
+    python3 tools/check-pr-attribution.py --event FILE    # an explicit event JSON
+    python3 tools/check-pr-attribution.py --text-file F   # scan a local PR body draft
+    python3 tools/check-pr-attribution.py --self-test
+
+Exit codes: 0 clean; 1 attribution found; 2 unreadable or malformed input (fail closed).
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+
+# Strict attribution shapes. Each is an attribution LINE pattern, not a model-family mention:
+# "claude SHIP", "CLAUDE.md", "claude-attribution" must all pass. The PreToolUse hook carries a
+# copy of this tuple; a test pins the two to identical pattern sources.
+ATTRIBUTION = (
+    ("a Co-Authored-By trailer naming Claude/Anthropic",
+     re.compile(r"(?i)co-authored-by:[^\n]*\b(?:claude|anthropic)\b")),
+    ("a 'Generated with ... Claude' attribution line",
+     re.compile(r"(?i)\bgenerated\s+with\b[^\n]{0,60}\bclaude\b")),
+    ("a claude.ai/code link",
+     re.compile(r"(?i)\bclaude\.ai/code")),
+    ("a claude.com/claude-code link",
+     re.compile(r"(?i)\bclaude\.com/claude-code")),
+    ("the noreply@anthropic.com trailer address",
+     re.compile(r"(?i)\bnoreply@anthropic\.com")),
+)
+
+
+class InputError(Exception):
+    """The event payload or text file is missing or malformed."""
+
+
+def findings(text: str) -> list[tuple[int, str, str]]:
+    """(line number, label, matched text) for every attribution match, line by line."""
+    out = []
+    for n, line in enumerate(text.replace("\r\n", "\n").replace("\r", "\n").split("\n"), 1):
+        for label, rx in ATTRIBUTION:
+            m = rx.search(line)
+            if m:
+                out.append((n, label, m.group(0)[:120]))
+    return out
+
+
+def pr_text(event: object) -> tuple[str, str]:
+    """(title, body) from a pull_request event payload; fails closed on an unexpected shape."""
+    if not isinstance(event, dict) or not isinstance(event.get("pull_request"), dict):
+        raise InputError("the event payload has no pull_request object")
+    pr = event["pull_request"]
+    title, body = pr.get("title"), pr.get("body")
+    if not isinstance(title, str):
+        raise InputError("pull_request.title is missing or not a string")
+    if body is None:
+        body = ""
+    if not isinstance(body, str):
+        raise InputError("pull_request.body is not a string or null")
+    return title, body
+
+
+def check(title: str, body: str) -> list[str]:
+    """Human-readable finding lines; empty when clean."""
+    lines = []
+    for where, text in (("title", title), ("body", body)):
+        for n, label, snippet in findings(text):
+            lines.append(f"PR {where} line {n}: {label}: {snippet!r}")
+    return lines
+
+
+def main(argv: list[str]) -> int:
+    if "--self-test" in argv:
+        return self_test()
+    try:
+        if "--text-file" in argv:
+            path = argv[argv.index("--text-file") + 1]
+            with open(path, encoding="utf-8") as fh:
+                title, body = "", fh.read()
+        else:
+            path = (argv[argv.index("--event") + 1] if "--event" in argv
+                    else os.environ.get("GITHUB_EVENT_PATH"))
+            if not path:
+                raise InputError("no --event file and GITHUB_EVENT_PATH is unset")
+            with open(path, encoding="utf-8") as fh:
+                title, body = pr_text(json.load(fh))
+    except IndexError:
+        print("ERROR: --event and --text-file need a path argument", file=sys.stderr)
+        return 2
+    except (InputError, OSError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    found = check(title, body)
+    if found:
+        for line in found:
+            print("FAIL: " + line, file=sys.stderr)
+        print(
+            "FAIL: the PR carries Claude/Anthropic attribution, which the maintainer directive "
+            "(2026-08-17) forbids. Edit the PR title/body to remove those lines; this check "
+            "re-runs on edit.",
+            file=sys.stderr,
+        )
+        return 1
+    print("OK: no Claude/Anthropic attribution in the PR title or body.")
+    return 0
+
+
+def self_test() -> int:
+    gen = "\U0001F916 Generated with [Claude Code](https://claude.com/claude-code)"
+    coa = "Co-Authored-By: Claude Opus <noreply@anthropic.com>"
+    cases = [
+        ("generated line in body", ("t", "Summary.\n\n" + gen), True),
+        ("co-authored trailer in body", ("t", "Body.\n\n" + coa), True),
+        ("session link in body", ("t", "see https://claude.ai/code/session_abc"), True),
+        ("attribution in title", ("Generated with Claude Code", ""), True),
+        ("lowercase trailer", ("t", "co-authored-by: anthropic bot"), True),
+        ("CRLF body", ("t", "a\r\n" + gen + "\r\n"), True),
+        ("clean PR", ("tooling: add a check", "Adds a check.\n\nclaude SHIP, codex SHIP."), False),
+        ("CLAUDE.md mention", ("t", "Edits .claude/CLAUDE.md and the claude-attribution hook."), False),
+        ("model family mention", ("t", "the Claude-family verifier returned HOLD"), False),
+        ("empty body", ("t", ""), False),
+    ]
+    bad = []
+    for name, (title, body), expect in cases:
+        got = bool(check(title, body))
+        if got != expect:
+            bad.append(name)
+        print(("PASS" if got == expect else "FAIL") + ": " + name)
+    for name, event, expect in (
+        ("null body accepted", {"pull_request": {"title": "t", "body": None}}, ("t", "")),
+        ("missing pull_request refused", {"issue": {}}, InputError),
+        ("non-string title refused", {"pull_request": {"title": 5, "body": ""}}, InputError),
+        ("non-string body refused", {"pull_request": {"title": "t", "body": []}}, InputError),
+    ):
+        try:
+            got = pr_text(event)
+        except InputError:
+            got = InputError
+        ok = got == expect
+        if not ok:
+            bad.append(name)
+        print(("PASS" if ok else "FAIL") + ": " + name)
+    total = len(cases) + 4
+    print(f"self-test: {total - len(bad)}/{total} passed")
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

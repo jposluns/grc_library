@@ -29,13 +29,20 @@ gh api GraphQL mutation that never says pulls/issues; gh global flags between `g
 subcommand (`gh -R o/r pr create`); or a PR written by any route other than a gh command in a
 Bash tool call. The attribution scan is whole-command and quote-blind by design, so a command
 that both writes a PR and QUOTES an attribution pattern in an unrelated argument blocks (split
-the command, or use the escape). A body line consisting of the bare escape assignment inside a
-heredoc reads as an escape (the leading-assignment scan is line-based); the escape is an
-audited speed bump, not a security boundary.
+the command, or use the escape). A relative body-file path is resolved against the payload's
+cwd; a later `cd` inside the same command is not followed.
 
-ESCAPE: lead the command with GRC_ALLOW_PR_ATTRIBUTION=1 (a real leading assignment, not a
-mention). The standing directive is absolute, so using the escape requires express maintainer
+ESCAPE: lead the WHOLE command with GRC_ALLOW_PR_ATTRIBUTION=1 (a real leading assignment,
+read quote-aware; a mention in a quoted argument or a heredoc line does not count). The escape
+is an audited speed bump, not a security boundary, and it does not bypass the CI check. The standing directive is absolute, so using the escape requires express maintainer
 authorization, recorded where the exception is made.
+
+BEST-EFFORT EARLY WARNING, NOT THE AUTHORITY (maintainer ruling 2026-09-24): recognizing every
+shell shape that can write a PR body is an open-ended class, so this hook catches the common
+shapes only. The authoritative check is `tools/check-pr-attribution.py`, run by
+`.github/workflows/pr-attribution.yml` on every PR open, edit, and push; it reads the stored PR
+title and body from the event payload and fails the PR, so a shape this hook misses still cannot
+merge. Do not grow this hook to chase further shell shapes; fix the CI check instead.
 
 Fails OPEN on a malformed payload or an internal error.
 Self-test: `python3 .claude/hooks/block-claude-attribution.py --self-test`.
@@ -84,11 +91,21 @@ API_WRITE = re.compile(
     r"|(?:^|\s)(?:-f|-F|--field|--raw-field|--input)\b")
 
 
+def _api_segment(command: str, start: int) -> str:
+    """The gh api invocation's own segment: from its match to the next pipe, list operator, or
+    newline, so a flag belonging to a later command (`| grep -F x`) is not read as a gh api
+    field flag."""
+    return re.split(r"\|\||&&|[|;\n]", command[start:], maxsplit=1)[0]
+
+
 def writes_pr_surface(command: str) -> bool:
     if WRITE_CMD.search(command):
         return True
-    return bool(API_CMD.search(command) and API_TARGET.search(command)
-                and API_WRITE.search(command))
+    for m in API_CMD.finditer(command):
+        seg = _api_segment(command, m.end() - 1)
+        if API_TARGET.search(seg) and API_WRITE.search(seg):
+            return True
+    return False
 
 
 def body_file_paths(command: str) -> list[str]:
@@ -106,6 +123,8 @@ def body_file_paths(command: str) -> list[str]:
             paths.append(tok.split("=", 1)[1])
         elif tok == "-F" and i + 1 < len(tokens) and "=" not in tokens[i + 1]:
             paths.append(tokens[i + 1])
+        elif tok.startswith("-F") and len(tok) > 2 and "=" not in tok:
+            paths.append(tok[2:])
     return [p for p in paths if p]
 
 
@@ -120,7 +139,7 @@ def _read_body_file(path: str) -> str | None:
 def _snippet(match: re.Match) -> str:
     """The matched attribution text, made safe for the refusal contract: no em/en dashes and
     no contract-marker substrings, truncated."""
-    s = match.group(0).replace("\u2014", "-").replace("\u2013", "-")
+    s = match.group(0).replace(chr(0x2014), "-").replace(chr(0x2013), "-")
     for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
         s = s.replace(marker, "")
     s = s.strip()
@@ -135,7 +154,10 @@ def find_attribution(text: str):
     return None
 
 
-def decide(command: str, read_file=None) -> str | None:
+HEREDOC = re.compile(r"<<-?\s*(['\"]?)[A-Za-z_][A-Za-z0-9_]*\1")
+
+
+def decide(command: str, read_file=None, cwd: str | None = None) -> str | None:
     """Pure decision: the full refusal message, or None to allow. The observer half (payload
     parse, env escape, file reads) stays in main/_read_body_file so both halves are testable."""
     if not isinstance(command, str) or not command:
@@ -145,7 +167,7 @@ def decide(command: str, read_file=None) -> str | None:
     reader = read_file or _read_body_file
     texts = [("the command text", command)]
     paths = body_file_paths(command)
-    if "-" in paths and "<<" not in command:
+    if "-" in paths and not HEREDOC.search(command):
         return (
             "BLOCKED (claude-attribution): this gh command writes a PR surface with its body read "
             "from stdin, which this guard cannot inspect.\n"
@@ -156,6 +178,8 @@ def decide(command: str, read_file=None) -> str | None:
     for path in paths:
         if path == "-":
             continue
+        if cwd and not os.path.isabs(path):
+            path = os.path.join(cwd, path)
         content = reader(path)
         if content is not None:
             texts.append(("the body file " + path, content))
@@ -179,17 +203,18 @@ def decide(command: str, read_file=None) -> str | None:
 
 
 def escaped(command: str) -> bool:
-    """The escape must be a real leading assignment, not a mention anywhere in the text."""
-    for raw in re.split(r"&&|\|\||[;\n]", command):
-        try:
-            tokens = shlex.split(raw.strip())
-        except ValueError:
-            continue
-        for tok in tokens:
+    """The escape must be a real LEADING assignment of the whole command, read quote-aware, so a
+    mention inside a quoted argument or a heredoc body line never counts."""
+    lexer = shlex.shlex(command, posix=True, punctuation_chars=True)
+    lexer.whitespace_split = True
+    try:
+        for tok in lexer:
             if tok == ESCAPE + "=1":
                 return True
             if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", tok):
-                break
+                return False
+    except ValueError:
+        return False
     return False
 
 
@@ -203,7 +228,8 @@ def main() -> int:
         command = payload.get("tool_input", {}).get("command", "") or ""
         if escaped(command):
             return 0
-        reason = decide(command)
+        cwd = payload.get("cwd")
+        reason = decide(command, cwd=cwd if isinstance(cwd, str) else None)
         if reason:
             try:
                 from _hook_state import record_block
@@ -249,6 +275,12 @@ SELF_TEST = [
     ("echo 'gh pr create must never carry " + _COA + "'", False),
     ("gh pr merge 2534 --squash --admin", False),
     (ESCAPE + "=1 gh pr create -b '" + _GEN + "'", False),
+    # 2026-09-24 cheap fixes (best-effort scope)
+    ("printf x | gh pr create --title t --body-file - && echo '<<'", True),  # '<<' is not a heredoc
+    ("gh pr create --title t --body-file - <<'EOF'\n" + ESCAPE + "=1\n" + _GEN + "\nEOF", True),
+    ("gh pr create -b \"" + ESCAPE + "=1 " + _GEN + "\"", True),  # quoted mention, not an escape
+    ("gh api repos/o/r/pulls/9 | grep -F 'Generated with Claude'", False),  # grep's -F
+    ("gh api repos/o/r/pulls/9 --jq .body; grep -f pats x", False),
 ]
 
 
@@ -271,9 +303,13 @@ def self_test() -> int:
         cases = [("gh pr create --title t --body-file " + dirty, True),
                  ("gh pr create --title t -F " + dirty, True),
                  ("gh pr create --title t --body-file " + clean, False),
-                 ("gh pr create --title t --body-file /nonexistent/x.md", False)]
-        for command, should_block in cases:
-            got = decide(command) is not None
+                 ("gh pr create --title t --body-file /nonexistent/x.md", False),
+                 ("gh pr create --title t -F" + dirty, True)]
+        base, name = os.path.split(dirty)
+        for command, should_block, cwd in [(c, b, None) for c, b in cases] + [
+                ("gh pr create --title t --body-file " + name, True, base),
+                ("gh pr create --title t --body-file " + name, False, "/nonexistent")]:
+            got = decide(command, cwd=cwd) is not None
             if got != should_block:
                 bad += 1
                 print("FAIL (body-file) want=" + str(should_block) + ": " + repr(command))
@@ -283,7 +319,7 @@ def self_test() -> int:
                 os.unlink(p)
             except OSError:
                 pass
-    total = len(SELF_TEST) + 4
+    total = len(SELF_TEST) + 7
     print(str(total - bad) + "/" + str(total) + " self-test cases pass")
     return 1 if bad else 0
 

@@ -3469,6 +3469,52 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test cases pass", result.stdout)
 
+    def test_pr_attribution_ci_check(self) -> None:
+        """The AUTHORITATIVE PR-attribution check (maintainer ruling 2026-09-24): its self-test,
+        end-to-end runs on event payloads, pattern parity with the best-effort hook, and the
+        workflow shape (re-runs on edit; PR text never interpolated into a shell)."""
+        import importlib.util
+        import json
+        import tempfile
+        tool = REPO_ROOT / "tools" / "check-pr-attribution.py"
+        result = self._run_selftest([sys.executable, str(tool), "--self-test"])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        gen = "Generated with [Claude Code](https://claude.com/claude-code)"
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, event, rc in (
+                ("dirty-body", {"pull_request": {"title": "t", "body": "x\n\n" + gen}}, 1),
+                ("dirty-title", {"pull_request": {"title": "t " + gen, "body": ""}}, 1),
+                ("clean", {"pull_request": {"title": "t", "body": "claude SHIP; CLAUDE.md"}}, 0),
+                ("null-body", {"pull_request": {"title": "t", "body": None}}, 0),
+                ("not-a-pr", {"issue": {}}, 2),
+            ):
+                path = Path(tmp) / (name + ".json")
+                path.write_text(json.dumps(event), encoding="utf-8")
+                run = subprocess.run([sys.executable, str(tool), "--event", str(path)],
+                                     capture_output=True, text=True, timeout=60)
+                self.assertEqual(run.returncode, rc, name + ": " + run.stdout + run.stderr)
+            run = subprocess.run([sys.executable, str(tool), "--event", str(Path(tmp) / "absent.json")],
+                                 capture_output=True, text=True, timeout=60)
+            self.assertEqual(run.returncode, 2)
+
+        def load(path, name):
+            spec = importlib.util.spec_from_file_location(name, path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        ci = load(tool, "check_pr_attribution")
+        hook = load(REPO_ROOT / ".claude" / "hooks" / "block-claude-attribution.py",
+                    "block_claude_attribution")
+        self.assertEqual([(lbl, rx.pattern) for lbl, rx in ci.ATTRIBUTION],
+                         [(lbl, rx.pattern) for lbl, rx in hook.ATTRIBUTION],
+                         "the hook's attribution patterns drifted from the CI check's")
+        wf = (REPO_ROOT / ".github" / "workflows" / "pr-attribution.yml").read_text(encoding="utf-8")
+        self.assertIn("types: [opened, edited, synchronize, reopened]", wf)
+        self.assertIn("run: python3 tools/check-pr-attribution.py", wf)
+        self.assertNotIn("github.event.pull_request", wf,
+                         "PR text must be read from the event file, never interpolated")
+        self.assertNotIn("pull_request_target", wf)
+
     def test_block_unstamped_turn_end_behaviour(self) -> None:
         """Behavioural: the Stop hook actually BLOCKS a non-conforming final message (exit 2) and
         ALLOWS a conforming one (exit 0), and is loop-safe. A pure --self-test missed the
