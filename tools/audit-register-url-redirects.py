@@ -130,21 +130,26 @@ class _Recorder(urllib.request.HTTPRedirectHandler):
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
-def from_http_error(chain: list[str], code: int,
-                    location: str | None) -> tuple[list[str], int | None, str | None]:
-    """Pure: interpret an HTTPError raised at the end of ``chain``.
+REDIRECT_CODES = {301, 302, 303, 307, 308}
 
-    A 4xx or 5xx is a real final status. A 3xx means urllib stopped following
-    redirects (a loop, or a target it refused, such as an unsupported scheme), so
-    the chain did not complete: that is UNKNOWN, and the refused target, when the
-    response named one, is appended so an off-list destination is still judged.
+
+def from_http_error(chain: list[str], code: int, location: str | None,
+                    response_url: str | None) -> tuple[list[str], int | None, str | None]:
+    """Pure: interpret an HTTPError raised while following ``chain``.
+
+    Only a redirect status that names a Location means urllib stopped following
+    redirects (a loop, or a target it refused, such as an unsupported scheme): the
+    chain did not complete, so that is UNKNOWN. Any other status, including a
+    terminal 300 or 304 with no Location, is a real final status. The Location is
+    resolved against the URL of the response that carried it (not the last
+    recorded hop, which may already be the next target), and a target already in
+    the chain is not appended again, since it has already been judged.
     """
-    if not 300 <= code < 400:
+    if code not in REDIRECT_CODES or not location:
         return chain, code, None
-    if location:
-        target = urllib.parse.urljoin(chain[-1], location)
-        if target != chain[-1]:
-            chain = chain + [target]
+    target = urllib.parse.urljoin(response_url or chain[-1], location)
+    if target not in chain:
+        chain = chain + [target]
     return chain, None, f"redirect not completed (HTTP {code})"
 
 
@@ -158,7 +163,8 @@ def fetch_chain(url: str, timeout: float) -> tuple[list[str], int | None, str | 
             return [url] + rec.chain, resp.status, None
     except urllib.error.HTTPError as exc:
         location = exc.headers.get("Location") if exc.headers else None
-        return from_http_error([url] + rec.chain, exc.code, location)
+        return from_http_error([url] + rec.chain, exc.code, location,
+                               getattr(exc, "filename", None))
     except Exception as exc:  # noqa: BLE001 (any fetch failure is reported as UNKNOWN)
         return [url] + rec.chain, None, f"{type(exc).__name__}: {exc}"[:160]
 
@@ -250,12 +256,27 @@ class _SelfTest(unittest.TestCase):
         self.assertEqual(n, [])
 
     def test_http_error_4xx_is_final_status(self):
-        self.assertEqual(from_http_error(["https://iso.org/a"], 404, None),
+        self.assertEqual(from_http_error(["https://iso.org/a"], 404, None, None),
                          (["https://iso.org/a"], 404, None))
+
+    def test_terminal_3xx_without_location_is_final_status(self):
+        for code in (300, 304, 302):
+            self.assertEqual(from_http_error(["https://iso.org/a"], code, None, None),
+                             (["https://iso.org/a"], code, None))
+
+    def test_relative_location_resolves_against_response_url(self):
+        # /a/start -> b/next (recorded as /a/b/next) -> /a/start loop: the loop is
+        # raised on the response for /a/start, whose Location resolves to the
+        # already-recorded /a/b/next, so no hop is invented.
+        chain = ["https://iso.org/a/start", "https://iso.org/a/b/next", "https://iso.org/a/start"]
+        out, status, error = from_http_error(chain, 302, "b/next", "https://iso.org/a/start")
+        self.assertEqual(out, chain)
+        self.assertIsNone(status)
+        self.assertIsNotNone(error)
 
     def test_http_error_3xx_is_unknown_and_keeps_refused_target(self):
         chain, status, error = from_http_error(
-            ["https://spdx.dev/a"], 302, "gopher://refused.invalid/x")
+            ["https://spdx.dev/a"], 302, "gopher://refused.invalid/x", "https://spdx.dev/a")
         self.assertIsNone(status)
         self.assertEqual(error, "redirect not completed (HTTP 302)")
         f, _ = classify(chain, status, error, self.ok)
@@ -263,7 +284,7 @@ class _SelfTest(unittest.TestCase):
         self.assertTrue(any(x.startswith("UNKNOWN") for x in f))
 
     def test_redirect_loop_is_unknown(self):
-        chain, status, error = from_http_error(["https://spdx.dev/a"], 302, "/a")
+        chain, status, error = from_http_error(["https://spdx.dev/a"], 302, "/a", "https://spdx.dev/a")
         self.assertEqual((chain, status), (["https://spdx.dev/a"], None))
         self.assertIsNotNone(error)
 
