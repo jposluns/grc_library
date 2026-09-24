@@ -118,8 +118,15 @@ def _integration_self_test():
             return subprocess.run(args, cwd=cwd, capture_output=True, text=True,
                                   env={**env, **(extra or {})})
 
-        run(["git", "init", "-q", "-b", "main"])
-        run(["git", "config", "commit.gpgsign", "false"])
+        def must(args, cwd=repo):
+            # Fixture setup: a failed step makes the later assertions meaningless, so it is recorded.
+            cp = run(args, cwd=cwd)
+            if cp.returncode != 0:
+                failures.append(f"fixture step failed: {' '.join(map(str, args))}: {cp.stderr.strip()}")
+            return cp
+
+        must(["git", "init", "-q", "-b", "main"])
+        must(["git", "config", "commit.gpgsign", "false"])
         inst = run(["sh", "tools/install-git-hooks.sh"])
         if inst.returncode != 0:
             failures.append(f"installer failed: {inst.stderr.strip()}")
@@ -131,14 +138,14 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "override"], extra={_OVERRIDE: "1"})
         if cp.returncode != 0:
             failures.append(f"the override did not allow a commit on main: {cp.stderr.strip()}")
-        run(["git", "switch", "-q", "-c", "feature"])
+        must(["git", "switch", "-q", "-c", "feature"])
         (repo / "a.txt").write_text("2\n")
         run(["git", "add", "a.txt"])
         cp = run(["git", "commit", "-q", "-m", "on feature"])
         if cp.returncode != 0:
             failures.append(f"a commit on a feature branch was refused: {cp.stderr.strip()}")
         linked = Path(base) / "wt"
-        run(["git", "worktree", "add", "-q", str(linked), "main"])
+        must(["git", "worktree", "add", "-q", str(linked), "main"])
         (linked / "b.txt").write_text("x\n")
         run(["git", "add", "b.txt"], cwd=linked)
         cp = run(["git", "commit", "-q", "-m", "worktree main"], cwd=linked)
@@ -153,11 +160,11 @@ def _integration_self_test():
             failures.append(f"the shim did not fail open without the tracked hook: {cp.stderr.strip()}")
         (repo / "moved-pre-commit").rename(repo / "tools" / "git-hooks" / "pre-commit")
         # A tag named 'main' makes git's SHORT name for the branch 'heads/main'; the full ref is compared.
-        run(["git", "worktree", "remove", "--force", str(linked)])  # frees 'main' for the switch
+        must(["git", "worktree", "remove", "--force", str(linked)])  # frees 'main' for the switch
         sw = run(["git", "switch", "-q", "main"])
         if sw.returncode != 0:
             failures.append(f"fixture: could not switch to main: {sw.stderr.strip()}")
-        run(["git", "tag", "main", "feature"])
+        must(["git", "tag", "main", "feature"])
         (repo / "a.txt").write_text("4\n")
         run(["git", "add", "a.txt"])
         cp = run(["git", "commit", "-q", "-m", "tag named main"])
@@ -176,6 +183,13 @@ def _integration_self_test():
             cp = run(["sh", "tools/install-git-hooks.sh"])
             if "chained by the pre-commit framework" not in cp.stdout:
                 failures.append("the installer did not report the framework-chained hook")
+            # A FOREIGN active hook beside a managed .legacy is not a chain: it must be refused.
+            hooks = Path(run(["git", "rev-parse", "--git-path", "hooks"]).stdout.strip())
+            hooks = hooks if hooks.is_absolute() else repo / hooks
+            (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n")
+            cp = run(["sh", "tools/install-git-hooks.sh"])
+            if "chained by the pre-commit framework" in cp.stdout or cp.returncode == 0:
+                failures.append("a foreign active hook beside a managed .legacy was reported as chained")
     return failures
 
 
@@ -196,7 +210,7 @@ def _self_test():
     ]
     failures = [f"{name}: got {got!r}, want {want!r}" for name, got, want in cases if got != want]
     failures += _integration_self_test()
-    total = len(cases) + 7 + (3 if shutil.which("pre-commit") else 0)
+    total = len(cases) + 7 + (4 if shutil.which("pre-commit") else 0)
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures
