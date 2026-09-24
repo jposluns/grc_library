@@ -163,7 +163,7 @@ def from_http_error(chain: list[str], code: int, location: str | None,
     the refused target itself, which is absolute, so it resolves to itself. A
     target already in the chain is not appended again, since it has been judged.
     """
-    if code not in REDIRECT_CODES or not location:
+    if code not in REDIRECT_CODES or location is None:
         return chain, code, None
     target = urllib.parse.urljoin(response_url or chain[-1], location)
     if target not in chain:
@@ -322,6 +322,13 @@ class _SelfTest(unittest.TestCase):
         msg["URI"] = "/off"
         self.assertEqual(redirect_header(msg), "")
         self.assertIsNone(redirect_header(None))
+
+    def test_empty_location_is_unknown_not_final(self):
+        # urllib follows an empty Location back to the same URL and loops, so the
+        # chain never completed: absent (None) and empty ("") differ.
+        chain, status, error = from_http_error(["https://spdx.dev/a"], 302, "", "https://spdx.dev/a")
+        self.assertIsNone(status)
+        self.assertIsNotNone(error)
 
     def test_redirect_loop_is_unknown(self):
         chain, status, error = from_http_error(["https://spdx.dev/a"], 302, "/a", "https://spdx.dev/a")
