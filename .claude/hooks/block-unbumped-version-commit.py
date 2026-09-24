@@ -105,6 +105,84 @@ GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
 # match can still block if the file has other unstaged changes or the auto-bump raises.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
 DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
+# README carries its version under a DIFFERENT key (``**README Version:**``), which VERSION_LINE does
+# not match, so README is outside the body-without-bump check above. The date-lag NOTE below covers
+# both keys: a staged Version (or README Version) change whose staged ``**Date:**`` is not today UTC
+# is the UTC-rollover co-bump miss D4 otherwise catches only at the pre-push guard (2026-09-24, #2492).
+ANY_VERSION_LINE = re.compile(r"^\*\*(?:README )?Version:\*\*")
+HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+
+
+def _lf_lines(s: str, keepends: bool = False) -> list[str]:
+    """PURE. Split on LF only. git diff output and hunk positions are LF-delimited, whereas
+    str.splitlines() also splits on U+2028, U+0085 and similar, which can fabricate a diff line
+    (a fake 'diff --git' or '+++') from content inside one real line (#2496 r4, codex)."""
+    parts = s.split("\n")
+    if keepends:
+        out = [x + "\n" for x in parts[:-1]]
+        if parts[-1]:
+            out.append(parts[-1])
+        return out
+    return parts[:-1] if parts and parts[-1] == "" else parts
+
+
+def version_line_changed(lines: list[str]) -> bool:
+    """PURE. True when a +/- changed line (not a diff header) is a Version or README Version line."""
+    for ln in lines:
+        if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+            continue
+        if ln and ln[0] in "+-" and ANY_VERSION_LINE.match(ln[1:]):
+            return True
+    return False
+
+
+def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]:
+    """PURE. Paths whose staged diff changes a Version/README Version line while the staged file's
+    first ``**Date:**`` value is not ``today``. A file with no Date line is not reported."""
+    out, cur, buf = [], None, []
+
+    def flush():
+        if not cur:
+            return
+        text = staged_text.get(cur, "")
+        head = text[:_metadata_region_end(text)]
+        # Only a Version line that sits in the METADATA header counts (a body/fenced example
+        # changing is not a bump), and only the header Date is compared.
+        # Position-based (not text-membership): track new-file line numbers from the hunk headers
+        # and count an added Version line only when it LIES within the header, so a body/fenced
+        # example whose new value equals the unchanged header Version is not mistaken for a bump.
+        # Count LF-delimited lines only (git hunk positions do; str.splitlines() also splits on
+        # U+2028 and similar). Inside a hunk every '+' line is an added line, including one whose
+        # content begins '++' (rendered '+++'); the '+++ b/...' file header precedes the first '@@'.
+        header_lines = head.count("\n") + (1 if head and not head.endswith("\n") else 0)
+        n, hit, in_hunk = 0, False, False
+        for ln in buf:
+            h = HUNK_NEW.match(ln)
+            if h:
+                n, in_hunk = int(h.group(1)), True
+            elif not in_hunk:
+                continue
+            elif ln.startswith("+"):
+                if ANY_VERSION_LINE.match(ln[1:]) and 1 <= n <= header_lines:
+                    hit = True
+                n += 1
+            elif ln.startswith(" "):
+                n += 1
+        if not hit:
+            return
+        m = DATE_META.search(head)
+        if m and m.group(2) != today:
+            out.append(cur)
+
+    for ln in _lf_lines(diff):
+        if ln.startswith("diff --git "):
+            flush()
+            parts = ln.split(" b/", 1)
+            cur, buf = (parts[1] if len(parts) == 2 else None), []
+        else:
+            buf.append(ln)
+    flush()
+    return out
 
 
 def project_root() -> Path:
@@ -171,7 +249,7 @@ def offenders(diff: str, versioned: set[str]) -> list[str]:
             if body and not ver:
                 out.append(cur)
 
-    for ln in diff.splitlines():
+    for ln in _lf_lines(diff):
         if ln.startswith("diff --git "):
             flush()
             parts = ln.split(" b/", 1)
@@ -195,7 +273,7 @@ def _metadata_region_end(text: str) -> int:
     before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
     is left untouched."""
     off = 0
-    for line in text.splitlines(keepends=True):
+    for line in _lf_lines(text, keepends=True):
         st = line.strip()
         if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
             off += len(line)
@@ -268,12 +346,32 @@ def main() -> int:
         for p in staged:
             if p.startswith(".corpus-management/"):
                 continue
+            # Generated artefacts carry their own Version lines but are REGENERATED, never hand-bumped
+            # (gates 33/34/85 check them); a regenerated scorecard row is not a body edit to bump.
+            if p in GENERATED:
+                continue
             f = root / p
             try:
                 if f.suffix == ".md" and VERSION_LINE.search(f.read_text(errors="replace")):
                     versioned.add(p)
             except OSError:
                 continue
+        # UTC-rollover co-bump NOTE (non-blocking): covers README's different Version key too.
+        try:
+            md = sorted(p for p in staged if p.endswith(".md") and p not in GENERATED
+                        and not p.startswith(".corpus-management/"))
+            if md:
+                today_note = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+                vdiff = git(root, "diff", "--cached", "--unified=0", "--", *md)
+                texts = {p: git(root, "show", f":{p}") for p in md}
+                lag = stale_date_after_bump(vdiff, texts, today_note)
+                if lag:
+                    print("NOTE (version-bump guard): a staged Version/README Version change carries a "
+                          f"**Date:** that is not today UTC ({today_note}): {', '.join(lag)}. Co-bump the "
+                          "Date in THIS commit (a later Date-only commit fails gate 40); D4 blocks at push.",
+                          file=sys.stderr)
+        except Exception:
+            pass
         if not versioned:
             return 0
         diff = git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
@@ -450,6 +548,70 @@ def self_test() -> int:
     git(d3, "add", "z.md"); git(d3, "commit", "-q", "-m", "init")
     (d3 / "z.md").write_text("**Library Version:** 2026.07.725\\\n\nnew body\n"); git(d3, "add", "z.md")
     ck("direct try_auto_bump returns False for a Library-Version-only file (no SEMVER_VERSION match)", try_auto_bump(d3, "z.md", "2026-07-29"), False)
+
+    # --- 2026-09-24: UTC-rollover co-bump NOTE (pure helper) ---
+    rd = ("diff --git a/README.md b/README.md\n@@ -2,1 +2,1 @@\n"
+          "-**README Version:** 1.11.282 (x)\n+**README Version:** 1.11.283 (x)\n")
+    ck("README Version bump with a stale Date is reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-23\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), ["README.md"])
+    ck("README Version bump with today's Date is not reported",
+       stale_date_after_bump(rd, {"README.md": "**Date:** 2026-09-24\\\n**README Version:** 1.11.283 (x)\\\n"}, "2026-09-24"), [])
+    ck("a body-only change is not reported",
+       stale_date_after_bump("diff --git a/x.md b/x.md\n@@ -1 +1 @@\n-a\n+b\n", {"x.md": "**Date:** 2026-01-01\\\n"}, "2026-09-24"), [])
+    ck("a Version bump on a file with no Date line is not reported",
+       stale_date_after_bump("diff --git a/y.md b/y.md\n@@ -1 +1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n", {"y.md": "no date"}, "2026-09-24"), [])
+    # --- 2026-09-24 r1: a body/fenced Version example change is not a header bump ---
+    ex = ("diff --git a/e.md b/e.md\n@@ -30,1 +30,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ex_text = "**Version:** 3.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\nbody\n\n```\n**Version:** 1.0.1\n```\n"
+    ck("a body Version example change is not reported", stale_date_after_bump(ex, {"e.md": ex_text}, "2026-09-24"), [])
+    # --- 2026-09-24 r2 (codex): a fenced example whose NEW value equals the unchanged header Version ---
+    col = ("diff --git a/c.md b/c.md\n@@ -9,1 +9,1 @@\n-**Version:** 2.9.9\n+**Version:** 3.0.0\n")
+    col_text = "**Version:** 3.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\nbody\n\n```\n**Version:** 3.0.0\n```\n"
+    ck("a fenced example colliding with the header Version text is not reported", stale_date_after_bump(col, {"c.md": col_text}, "2026-09-24"), [])
+    hdr = ("diff --git a/h.md b/h.md\n@@ -1,1 +1,1 @@\n-**Version:** 2.9.9\n+**Version:** 3.0.0\n")
+    ck("a header-position Version bump with a stale Date is reported", stale_date_after_bump(hdr, {"h.md": col_text}, "2026-09-24"), ["h.md"])
+    # --- 2026-09-24 r3 (codex, gemini): U+2028 in the header must not shift the LF line count; an
+    # added body line beginning '++' (rendered '+++') must still advance the new-file position ---
+    u_text = "**Date:** 2026-01-01\n# t\u2028# c\u2028# c\n---\n**Version:** 1.0.1\n"
+    u = ("diff --git a/u.md b/u.md\n@@ -4,1 +4,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in the header does not pull a body Version line into it", stale_date_after_bump(u, {"u.md": u_text}, "2026-09-24"), [])
+    pp_text = "**Date:** 2026-01-01\\\n**Version:** 3.0.0\\\n\n---\n\n++ note\n**Version:** 1.0.1\n"
+    pp = ("diff --git a/p.md b/p.md\n--- a/p.md\n+++ b/p.md\n@@ -2,1 +2,2 @@\n-**Version:** 2.0.0\n+**Version:** 3.0.0\n+++ note\n")
+    ck("a '+++' added body line in the hunk does not disturb a header bump", stale_date_after_bump(pp, {"p.md": pp_text}, "2026-09-24"), ["p.md"])
+    # --- 2026-09-24 r4 (codex): the diff itself is split on LF only; a U+2028 inside a deleted line
+    # must not fabricate a '+++' line that shifts a real header Version bump out of the header ---
+    cx = ("diff --git a/x.md b/x.md\n--- a/x.md\n+++ b/x.md\n@@ -2,2 +2 @@\n"
+          "-# title\u2028+++ note\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in a deleted line does not fabricate a '+++' line (header bump still reported)",
+       stale_date_after_bump(cx, {"x.md": "**Date:** 2026-01-01\n**Version:** 1.0.1\n"}, "2026-09-24"), ["x.md"])
+    ob = "diff --git a/a.md b/a.md\n@@ -1 +1 @@\n-old\u2028diff --git a/x b/zz.md\n+new\n"
+    ck("a U+2028 in a changed line does not fabricate a file header in the BLOCKING offender scan",
+       offenders(ob, {"zz.md"}), [])
+    mr = "**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\nbody\n"
+    ck("the metadata region counts a U+2028-bearing line as ONE LF line", _metadata_region_end(mr), len("**Date:** 2026-01-01\u2028note\n**Version:** 1.0.1\n\n"))
+    # --- 2026-09-24: generated-artefact exemption, end to end through main() in a scratch repo ---
+    import shutil, subprocess, json as _json
+    d5 = mkrepo()
+    (d5 / ".claude" / "hooks").mkdir(parents=True)
+    shutil.copy(__file__, d5 / ".claude" / "hooks" / "hook.py")
+    (d5 / "docs").mkdir()
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | old |\n")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nold body\n")
+    git(d5, "add", "-A"); git(d5, "commit", "-q", "-m", "init")
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | new |\n")
+    git(d5, "add", "docs/maturity-scorecard.md")
+    # an extra UNSTAGED scorecard change makes auto-bump decline, so without the exemption this would BLOCK
+    (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
+    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d5} commit -q -m x"}})
+    r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                       capture_output=True, text=True)
+    ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
+    # control: an ordinary versioned doc with an extra unstaged change still blocks
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
+    (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")
+    r2 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+                        capture_output=True, text=True)
+    ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")

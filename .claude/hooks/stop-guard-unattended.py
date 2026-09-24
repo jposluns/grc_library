@@ -34,7 +34,8 @@ guard that traps the actor on its own malfunction protects nothing; a convenienc
 wrongly blocks a legitimate stop is worse than the mistake it prevents.
 
 PORTABILITY. Three adapter functions couple this hook to a project's tooling (fenced below as the
-ADAPTER SEAM). GRC NOTE: this project ALSO customized main() (a one-shot-escape pre-step) below the
+ADAPTER SEAM). GRC NOTE: this project ALSO customized main() (a one-shot-escape pre-step) and
+MODE_SET_HINT (which names the escape file's path) below the
 seam; see the GRC ADAPTATION note. The default implementations are a MINIMAL, dependency-free, file-based adapter. A project
 with real backlog/mode tooling REPLACES the two adapter bodies with calls into its own tools (lab_infra's
 `tools/flow.py` read_mode and `tools/pipeline.py` load_config+derive are the reference implementation,
@@ -83,7 +84,16 @@ PRODUCER_TIMEOUT_S = 8
 # The block message's operator-stop hint. Generalize this to your project's mode-set command, e.g.
 #   "run `python3 tools/flow.py mode set attended --by \"...\"`"
 # so a genuine operator stop has a named, correct escape hatch.
-MODE_SET_HINT = "set the operating mode to attended in your project's mode record (the operator-set escape hatch)"
+# grc adaptation (2026-09-24, mistakes report item B): the hint also NAMES the declared-wait escape
+# path (resolved like _grc_escape_file, honouring GRC_DROP_ROOT), because the sentinel was once created
+# at the WRONG path for a whole session when the message did not say where it is read from. Carried in
+# the single refusal message (the blocking-hook message contract allows no trailing extra line).
+MODE_SET_HINT = (
+    "set the operating mode to attended in your project's mode record (the operator-set escape hatch); "
+    "for a genuine external wait (a running QA leg or CI check), record the blocker, then touch "
+    + os.path.join(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working", ".allow-idle-stop")
+    + " (the grc one-shot declared-wait escape, honoured once)"
+)
 
 
 def repo_root():
