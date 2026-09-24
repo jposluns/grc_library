@@ -155,15 +155,15 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
     # 3b50: scan() used to return no findings for a path that does not exist, so a mistyped
     # explicit path passed silently. Explicit paths are guarded (exit 2 when missing; content-
-    # only, since the check is generic); the default target must exist too.
+    # only, since the check is generic). The DEFAULT keeps its skip-when-absent contract, now
+    # with a visible note instead of a silent pass.
     if args.paths:
         targets = guard_explicit_paths_cwd(args.paths, allow_outside=True)
-    else:
-        if not DEFAULT_TARGET.is_file():
-            print(f"ERROR: default target {DEFAULT_TARGET} does not exist; nothing would be scanned.",
-                  file=sys.stderr)
-            return 2
+    elif DEFAULT_TARGET.is_file():
         targets = [str(DEFAULT_TARGET)]
+    else:
+        print(f"SKIP: default target {DEFAULT_TARGET} is absent; nothing to check.")
+        return 0
     grouped: dict[Path, list[tuple[int, str]]] = {}
     for p in targets:
         path = Path(p)

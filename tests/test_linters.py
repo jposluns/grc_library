@@ -11358,6 +11358,39 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
         default = run_linter("tools/lint-followup-ageing.py", "--root", str(root))
         self.assertEqual(default.returncode, 0, default.stdout + default.stderr)
 
+    def test_dash_prefixed_and_unknown_arguments_refused(self) -> None:
+        # Round-1 codex: a dash-prefixed filename after '--' was discarded and the defaults
+        # scanned (exit 0); an unknown option was silently ignored.
+        for script in ("tools/lint-directional-dependency.py", "tools/lint-narrative-authority-boundary.py",
+                       "tools/lint-narrative-metadata.py", "tools/lint-narrative-vocabulary.py"):
+            for args, fragment in ((("--", "-missing-3b50a.md"), "does not exist"),
+                                   (("--bogus",), "unknown option")):
+                result = run_linter(script, *args)
+                self.assertEqual(result.returncode, 2, script + repr(args) + result.stdout + result.stderr)
+                self.assertIn(fragment, result.stderr, script)
+
+    def test_absent_default_targets_keep_their_contracts(self) -> None:
+        # Round-1 codex/gemini: only an EXPLICIT argument refuses; an absent DEFAULT keeps the
+        # documented skip (an adopter fork without the hook tree, or without a CHANGELOG).
+        import importlib.util
+        from unittest import mock
+        absent = Path(tempfile.mkdtemp(prefix="guard-own-absent-")) / "gone"
+        self.addCleanup(shutil.rmtree, absent.parent)
+
+        def load(name):
+            spec = importlib.util.spec_from_file_location(name.replace("-", "_"), REPO_ROOT / "tools" / name)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        hooks = load("lint-hooks-syntax.py")
+        with mock.patch.object(hooks, "HOOKS_DIR", absent), mock.patch("sys.stdout"):
+            self.assertEqual(hooks.main([]), 0)
+        with mock.patch("sys.stderr"):
+            self.assertEqual(hooks.main(["--hooks-dir", str(absent)]), 2)
+        cov = load("lint-changelog-link-coverage.py")
+        with mock.patch.object(cov, "DEFAULT_TARGET", absent / "CHANGELOG.md"), mock.patch("sys.stdout"):
+            self.assertEqual(cov.main(["lint-changelog-link-coverage.py"]), 0)
+
     def test_default_runs_do_not_refuse(self) -> None:
         for script in self.STRICT + self.CONTENT_ONLY + (
                 "tools/lint-followup-ageing.py", "tools/lint-hooks-syntax.py"):

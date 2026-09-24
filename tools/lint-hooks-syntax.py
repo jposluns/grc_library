@@ -92,15 +92,17 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(
         description="Hooks Python-syntax audit (gate 95): compile every "
                     ".claude/hooks/*.py and fail on any syntax error.")
-    ap.add_argument("--hooks-dir", default=str(HOOKS_DIR),
+    ap.add_argument("--hooks-dir", default=None,
                     help="directory to scan (default: .claude/hooks/; regression override)")
     args = ap.parse_args(argv)
-    # 3b50: a missing --hooks-dir used to compile zero files and print OK; refuse it (exit 2).
-    if not Path(args.hooks_dir).is_dir():
+    # 3b50: an EXPLICIT --hooks-dir that is missing used to compile zero files and print OK;
+    # refuse it (exit 2). The DEFAULT keeps its documented contract: an adopter fork without the
+    # hook tree passes with zero files compiled.
+    if args.hooks_dir is not None and not Path(args.hooks_dir).is_dir():
         print(f"ERROR: --hooks-dir {args.hooks_dir}: not a directory; nothing would be compiled.",
               file=sys.stderr)
         return 2
-    count, findings = scan(Path(args.hooks_dir))
+    count, findings = scan(Path(args.hooks_dir) if args.hooks_dir is not None else HOOKS_DIR)
     if findings:
         print("FAIL: hook file(s) that do not compile as Python (a syntax-broken hook "
               "fails open and silently stops protecting; fix the file, never delete "

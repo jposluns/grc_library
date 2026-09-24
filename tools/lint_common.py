@@ -790,6 +790,30 @@ def check_explicit_paths(
     return errors
 
 
+def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-test",)) -> list[str]:
+    """Positional (path) arguments from a hand-parsed argv, refusing what would be dropped (3b50a).
+
+    Several linters filtered argv with ``not a.startswith("-")``, which silently discarded an
+    unknown option AND a dash-prefixed filename even after ``--``, so ``-- -missing.md`` scanned
+    the defaults and exited 0. Every token after a ``--`` separator is positional; before it, a
+    dash token must be one of ``known_flags`` or the call prints an error and raises
+    ``SystemExit(2)``. Pass the result to the explicit-path guard.
+    """
+    argv = list(argv)
+    tail: list[str] = []
+    if "--" in argv:
+        i = argv.index("--")
+        argv, tail = argv[:i], argv[i + 1:]
+    known = set(known_flags)
+    unknown = [a for a in argv if a.startswith("-") and a not in known]
+    if unknown:
+        for a in unknown:
+            print(f"ERROR: {a}: unknown option (use -- before a path that begins with '-').",
+                  file=sys.stderr)
+        raise SystemExit(2)
+    return [a for a in argv if not a.startswith("-")] + tail
+
+
 def guard_explicit_paths(
     paths: Iterable[str],
     *,
