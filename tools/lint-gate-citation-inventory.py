@@ -736,4 +736,10 @@ def _self_test() -> int:
 
 
 if __name__ == "__main__":
+    # 3b50b2g: this tool takes no argument other than --self-test; an unknown or surplus one
+    # used to be ignored with exit 0, so it is refused (exit 2) before the check runs.
+    import os as _os
+    sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    from lint_common import strict_flags as _strict_flags
+    _strict_flags(sys.argv[1:], ("--self-test",))
     sys.exit(main(sys.argv))
