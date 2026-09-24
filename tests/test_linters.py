@@ -23850,6 +23850,9 @@ class FileArgRefusalTests(LinterTestCase):
             # after checking nothing (matrix-control-codes).
             ("tools/lint-version-date-consistency.py", "--changelog", str(binary)),
             ("tools/lint-version-date-consistency.py", "--readme", str(binary)),
+            # r2: an explicitly passed path equal to the default is still explicit
+            ("tools/lint-version-date-consistency.py", "--changelog", str(REPO_ROOT / "CHANGELOG.md"),
+             "--readme", str(binary)),
             ("tools/lint-matrix-control-codes.py", str(binary)),
         )
         for script, *args in cases:

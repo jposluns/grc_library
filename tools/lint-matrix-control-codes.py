@@ -13,8 +13,9 @@ scan_matrix) is the source of record in the pack engine
 takes the five framework-reference predicates via configure(ref). This wrapper imports
 the shared grc reference modules, configures the engine, and keeps the matrix scan
 scope (MATRIX_PATH), a module-global scan_matrix(path) shim, lint_target, main, and
-the exit codes: 0 clean (a readable file with no matrix table is clean, since quick-guard passes
-every changed .md file), 1 on findings, 2 when a target is missing or cannot be read as UTF-8.
+the exit codes: 0 clean (a readable file with no matrix table is clean, as the #1245
+positional-multifile contract requires), 1 on findings, 2 when a target is missing or cannot be
+read as UTF-8.
 """
 
 from __future__ import annotations
@@ -66,8 +67,9 @@ def lint_target(target: Path) -> int:
         print(f"ERROR: target not found: {target}", file=sys.stderr)
         return 2
     # 3b50b2d2: an unreadable (or non-UTF-8) file used to print OK after checking nothing. A
-    # readable file with no matrix table stays a clean pass: quick-guard feeds this fast gate every
-    # changed .md file, most of which carry no matrix (the #1245 positional-multifile contract).
+    # readable file with no matrix table stays a clean pass: NormalizedPositionalArgsTests (#1245)
+    # requires table-less .md input to exit 0. quick-guard itself runs this gate fixed-target, with
+    # no arguments, since #1246.
     try:
         target.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:

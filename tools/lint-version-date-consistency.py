@@ -99,12 +99,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--changelog",
-        default=str(REPO_ROOT / "CHANGELOG.md"),
+        default=None,
         help="Path to the CHANGELOG file (default: repo root CHANGELOG.md).",
     )
     parser.add_argument(
         "--readme",
-        default=str(REPO_ROOT / "README.md"),
+        default=None,
         help="Path to the README file (default: repo root README.md).",
     )
     return parser.parse_args()
@@ -112,12 +112,17 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    changelog_path = Path(args.changelog)
-    readme_path = Path(args.readme)
     # 3b50b2d2: an explicitly named file must be a regular file; an empty value was Path('.'),
     # a directory read failed only with exit 1, and a wrong file passed as "nothing to verify".
-    explicit = {"--changelog": args.changelog != str(REPO_ROOT / "CHANGELOG.md"),
-                "--readme": args.readme != str(REPO_ROOT / "README.md")}
+    # Explicitness is whether the flag was given at all (r2: comparing the value to the default
+    # string treated an explicitly passed default path as omitted).
+    explicit = {"--changelog": args.changelog is not None, "--readme": args.readme is not None}
+    if args.changelog is None:
+        args.changelog = str(REPO_ROOT / "CHANGELOG.md")
+    if args.readme is None:
+        args.readme = str(REPO_ROOT / "README.md")
+    changelog_path = Path(args.changelog)
+    readme_path = Path(args.readme)
     for flag, value in (("--changelog", args.changelog), ("--readme", args.readme)):
         if explicit[flag] and (not value.strip() or not Path(value).is_file()):
             print(f"ERROR: {flag} {value!r}: not a regular file; nothing would be verified.",
