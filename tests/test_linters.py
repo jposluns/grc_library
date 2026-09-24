@@ -11785,7 +11785,8 @@ class DocsArgNormalizationTests(LinterTestCase):
 class QuickGuardSeparatorTests(LinterTestCase):
     """3b50b2c: quick-guard passes changed files after '--', so every FAST_TOOL must accept it.
 
-    The tool list is parsed from tools/quick-guard.sh itself, so a tool added later is covered.
+    The tool list is parsed from tools/quick-guard.sh itself, so a tool added later is covered,
+    both for refusing '--' and for silently dropping the paths after it.
     Eight fast tools used to treat '--' as a path and refuse it as missing, which blocked the
     separator; a changed file whose name begins with '-' would otherwise be read as an option."""
 
@@ -11809,6 +11810,11 @@ class QuickGuardSeparatorTests(LinterTestCase):
             sep = run_linter(f"tools/{tool}", "--", self.DOC)
             self.assertEqual(plain.returncode, sep.returncode,
                              (tool, plain.stderr[-300:], sep.stderr[-300:]))
+            # The paths after '--' must be READ, not dropped: a tool that discarded them would fall
+            # back to its default scan and pass on a green corpus. A missing path must be refused.
+            for missing in ("security/no-such-3b50b2c.md", "-no-such-3b50b2c.md"):
+                r = run_linter(f"tools/{tool}", "--", missing)
+                self.assertEqual(r.returncode, 2, (tool, missing, r.stdout[-200:], r.stderr[-200:]))
 
     def test_dash_named_file_is_a_path_after_the_separator(self) -> None:
         # quick-guard's CHANGED paths are repo-relative, so only a ROOT-level file's argument begins
