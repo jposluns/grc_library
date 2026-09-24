@@ -33,7 +33,9 @@ Scope notes:
     metadata block (a fenced illustration carrying the narrative type and
     all 8 extension fields) is documentation, not a leak, so lines inside
     fenced code blocks never match. This is why the specification itself
-    needs no named exemption.
+    needs no named exemption. A file that ends inside a fence left open by
+    this marker-aware scan is a fail-loud finding naming the opener line
+    (3b54b), so an unclosed fence cannot silently hide the rest of a file.
   - Detection is LINE-ANCHORED (``**Field:** ...`` at line start), matching
     the corpus metadata-field shape; prose that DISCUSSES a field name in a
     list item or sentence does not match.
