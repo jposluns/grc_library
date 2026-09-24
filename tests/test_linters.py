@@ -15275,10 +15275,35 @@ class AllowlistSpecParityTests(unittest.TestCase):
             "empty publisher": "```json citation-publishers\n"
                 '[{"publisher": "", "domains": ["iso.org"], "covers": "x"}]\n```\n',
             "unclosed block": "```json citation-publishers\n" + good + "\n",
+            # r10 codex: a second block in any fence style is counted, never silently ignored.
+            "second block, tildes": "```json citation-publishers\n" + good + "\n```\n"
+                "~~~json citation-publishers\n" + good + "\n~~~\n",
+            "second block, indented": "```json citation-publishers\n" + good + "\n```\n"
+                "  ```json citation-publishers\n" + good + "\n  ```\n",
+            "second block, four backticks": "```json citation-publishers\n" + good + "\n```\n"
+                "````json citation-publishers\n" + good + "\n````\n",
+            "second block, trailing space": "```json citation-publishers\n" + good + "\n```\n"
+                "```json citation-publishers  \n" + good + "\n```\n",
+            "non-canonical single opener": "~~~json citation-publishers\n" + good + "\n~~~\n",
+            "nested in an outer fence": "````\n```json citation-publishers\n" + good + "\n```\n````\n",
+            "indented heading ends the section": "  ### 7.2 Outside\n\n```json citation-publishers\n"
+                + good + "\n```\n",
+            "domain with a trailing newline": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["iso.org\\n"], "covers": "x"}]\n```\n',
+            "over-long DNS label": "```json citation-publishers\n"
+                '[{"publisher": "ISO", "domains": ["' + "a" * 64 + '.org"], "covers": "x"}]\n```\n',
         }
         for name, block in shapes.items():
             with self.subTest(name), self.floor(), self.assertRaises(self.mod.InputError):
                 self.mod.spec_domains(self.spec([], block=block))
+
+    def test_line_endings_and_longer_closing_fence_are_accepted(self) -> None:
+        good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
+        crlf = self.spec([], block="```json citation-publishers\n" + good + "\n```\n").replace("\n", "\r\n")
+        longer = self.spec([], block="```json citation-publishers\n" + good + "\n````\n")
+        with self.floor():
+            self.assertEqual(self.mod.spec_domains(crlf), {"iso.org"})
+            self.assertEqual(self.mod.spec_domains("\ufeff" + longer), {"iso.org"})
 
     def test_table_shapes_no_longer_matter(self) -> None:
         # The nine-round class is gone: the gate never reads the table, so a table in any shape

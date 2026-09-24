@@ -25,7 +25,14 @@ BLOCK_INFO = "json citation-publishers"
 BEGIN = "<!-- BEGIN-GENERATED citation-publishers -->"
 END = "<!-- END-GENERATED citation-publishers -->"
 KEYS = ("publisher", "domains", "covers")
-HOST_RE = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$")
+HOST_RE = re.compile(r"[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+")
+# Any fence-like line naming the block, in ANY fence style (indentation, tildes, longer runs,
+# trailing space), is counted, so a second or non-canonical block cannot be silently ignored.
+LOOSE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})[ \t]*json[ \t]+citation-publishers\b.*$")
+CANONICAL_OPEN = "```" + BLOCK_INFO
+CLOSE_RE = re.compile(r"^`{3,}[ \t]*$")
+HEADING_RE = re.compile(r"^ {0,3}#{1,3}[ \t]")
+SECTION_RE = re.compile(r"^ {0,3}### 7\.1[ \t]")
 HEADER = "| Publisher | Canonical domain | Standards covered |\n| --- | --- | --- |\n"
 
 
@@ -33,13 +40,51 @@ class InputError(Exception):
     """The section 7.1 source of record is missing or malformed."""
 
 
+def normalize(text: str) -> str:
+    """CRLF and CR line endings to LF, and a leading BOM removed, before any structural read."""
+    return text.lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n")
+
+
+def _fence_scan(lines: list[str]) -> tuple[set[int], set[int]]:
+    """(lines inside a fenced code block, lines that OPEN a top-level fence), for any backtick or
+    tilde fence of 3 or more, so a heading or block inside an example code block is not structure."""
+    inside, marker, out, starts = False, "", set(), set()
+    for i, line in enumerate(lines):
+        m = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
+        if not inside and m:
+            inside, marker = True, m.group(1)
+            out.add(i)
+            starts.add(i)
+            continue
+        if inside:
+            out.add(i)
+            if re.match(r"^ {0,3}" + re.escape(marker[0]) + "{" + str(len(marker)) + r",}[ \t]*$", line):
+                inside = False
+    return out, starts
+
+
+def opener_line(text: str) -> int:
+    """Line index of the single canonical block opener (validated as in block_text)."""
+    lines = text.split("\n")
+    loose = [i for i, line in enumerate(lines) if LOOSE_OPEN_RE.match(line)]
+    if len(loose) != 1:
+        raise InputError(f"expected exactly one ```{BLOCK_INFO} block (any fence style counts), found {len(loose)}")
+    return loose[0]
+
+
 def section_bounds(text: str) -> tuple[int, int]:
-    """Character span of section 7.1's body (after its heading, up to the next ## or ### heading)."""
-    m = re.search(r"^### 7\.1 .*$", text, re.M)
-    if not m:
-        raise InputError("section 7.1 heading not found")
-    nxt = re.search(r"^#{1,3} ", text[m.end():], re.M)
-    return m.end(), (m.end() + nxt.start()) if nxt else len(text)
+    """Character span of section 7.1's body (after its heading, up to the next #, ## or ### heading),
+    reading headings only outside fenced code blocks and allowing up to three spaces of indent."""
+    lines = text.split("\n")
+    fenced, _ = _fence_scan(lines)
+    heads = [i for i, line in enumerate(lines) if i not in fenced and SECTION_RE.match(line)]
+    if len(heads) != 1:
+        raise InputError(f"expected exactly one section 7.1 heading outside code blocks, found {len(heads)}")
+    h = heads[0]
+    nxt = next((k for k in range(h + 1, len(lines)) if k not in fenced and HEADING_RE.match(lines[k])), len(lines))
+    start = sum(len(line) + 1 for line in lines[:h + 1])
+    end = sum(len(line) + 1 for line in lines[:nxt]) if nxt < len(lines) else len(text)
+    return start, end
 
 
 def _reject_duplicate_keys(pairs):
@@ -58,15 +103,16 @@ def block_text(text: str) -> str:
     """The JSON body of the single ``json citation-publishers`` block inside section 7.1."""
     start, end = section_bounds(text)
     lines = text.split("\n")
-    opens = [i for i, line in enumerate(lines) if line == "```" + BLOCK_INFO]
-    if len(opens) != 1:
-        raise InputError(f"expected exactly one ```{BLOCK_INFO} block, found {len(opens)}")
-    i = opens[0]
+    i = opener_line(text)
+    if i not in _fence_scan(lines)[1]:
+        raise InputError(f"the {BLOCK_INFO} block is nested inside another code block")
+    if lines[i] != CANONICAL_OPEN:
+        raise InputError(f"the {BLOCK_INFO} block must open with exactly ```{BLOCK_INFO} (unindented, backticks)")
     offset = sum(len(line) + 1 for line in lines[:i])
     if not start <= offset < end:
         raise InputError(f"the ```{BLOCK_INFO} block is not inside section 7.1")
     try:
-        close = next(k for k in range(i + 1, len(lines)) if lines[k] == "```")
+        close = next(k for k in range(i + 1, len(lines)) if CLOSE_RE.match(lines[k]))
     except StopIteration:
         raise InputError(f"the ```{BLOCK_INFO} block is not closed") from None
     if sum(len(line) + 1 for line in lines[:close]) >= end:
@@ -76,7 +122,7 @@ def block_text(text: str) -> str:
 
 def parse_block(text: str) -> list[dict]:
     """Validated publisher entries, in render order, from the specification text."""
-    raw = block_text(text)
+    raw = block_text(normalize(text))
     try:
         data = json.loads(raw, object_pairs_hook=_reject_duplicate_keys, parse_constant=_reject_constant)
     except json.JSONDecodeError as exc:
@@ -103,7 +149,7 @@ def parse_block(text: str) -> list[dict]:
         if not isinstance(domains, list) or not domains:
             raise InputError(f"{where} ({pub}): 'domains' must be a non-empty array")
         for dom in domains:
-            if not isinstance(dom, str) or not HOST_RE.match(dom):
+            if not isinstance(dom, str) or len(dom) > 253 or not HOST_RE.fullmatch(dom):
                 raise InputError(f"{where} ({pub}): {dom!r} is not a canonical lowercase host")
             if dom in seen_dom:
                 raise InputError(f"{where} ({pub}): duplicate domain {dom!r}")

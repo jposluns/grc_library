@@ -23,7 +23,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "tools"))
-from citation_publishers import BEGIN, END, InputError, parse_block, render, section_bounds  # noqa: E402
+from citation_publishers import BEGIN, END, InputError, opener_line, parse_block, render, section_bounds  # noqa: E402
 
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 
@@ -37,6 +37,10 @@ def regenerate(text: str) -> str:
     b, e = text.index(BEGIN), text.index(END)
     if not (start <= b < e < end):
         raise InputError("the sentinel pair must be in order and inside section 7.1")
+    # The source block must lie OUTSIDE the generated region, or regenerating would erase it.
+    op = sum(len(line) + 1 for line in text.split("\n")[:opener_line(text)])
+    if b <= op <= e:
+        raise InputError("the json citation-publishers block must not be inside the generated region")
     table = render(parse_block(text))
     return text[: b + len(BEGIN)] + "\n\n" + table + "\n" + text[e:]
 
@@ -46,6 +50,8 @@ def main(argv: list[str]) -> int:
         return self_test()
     try:
         text = SPEC.read_text(encoding="utf-8")
+        if "\r" in text or text.startswith("\ufeff"):
+            raise InputError("the specification must use LF line endings without a BOM")
         new = regenerate(text)
     except (InputError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
@@ -124,6 +130,8 @@ def self_test() -> int:
     case("pipe in covers refused", refuses(doc.replace("ISO standards.", "ISO | IEC"), "pipe"))
     case("NaN refused", refuses(doc.replace('["iso.org"]', '["iso.org", NaN]'), "non-finite"))
     case("empty domains refused", refuses(doc.replace('["iso.org"]', "[]"), "non-empty array"))
+    case("block inside the generated region refused (regeneration would erase it)",
+         refuses(doc.replace(block, "").replace(END, block + END), "inside the generated region"))
     case("block outside 7.1 refused",
          refuses(doc.replace(block, "").replace("### 7.2 Next\n", "### 7.2 Next\n\n" + block), "not inside section 7.1"))
     bad = [name for name, ok in cases if ok is not True]
