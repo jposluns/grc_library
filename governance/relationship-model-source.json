@@ -438,6 +438,13 @@
       "corpus_path": null
     },
     {
+      "id": "CSA-AICM",
+      "display_name": "CSA AI Controls Matrix v1.1",
+      "class": "framework",
+      "source_identifier": "CSA AICM v1.1",
+      "corpus_path": null
+    },
+    {
       "id": "GRC-PROC-CRYPTO-KEY-OPS",
       "display_name": "Cryptographic Key Operations Procedure",
       "class": "procedure",
@@ -15486,6 +15493,390 @@
       "verb": "maps to",
       "destination": {
         "id": "CSA-CCM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0467",
+      "source": {
+        "id": "GRC-FW-AI-AUDIT-CERTIFICATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0468",
+      "source": {
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0469",
+      "source": {
+        "id": "GRC-STD-AI-AGENTIC-DEVELOPMENT-SECURITY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0470",
+      "source": {
+        "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0471",
+      "source": {
+        "id": "GRC-POL-SECURE-DEV",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0472",
+      "source": {
+        "id": "GRC-STD-DEVELOPER-SECURITY-REQUIREMENTS",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0473",
+      "source": {
+        "id": "GRC-FW-HUMAN-CAPITAL",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0474",
+      "source": {
+        "id": "GRC-FW-SUSTAINABILITY-RESPONSIBLE-TECHNOLOGY",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0475",
+      "source": {
+        "id": "GRC-STD-EMERGENCY-AUTHORITY",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0476",
+      "source": {
+        "id": "GRC-POL-PRIVACY-DATA-GOV",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0477",
+      "source": {
+        "id": "GRC-POL-ENTERPRISE-GRM",
+        "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0478",
+      "source": {
+        "id": "GRC-STD-ERM",
+        "class": "organizational standard"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "CSA-AICM",
         "class": "framework"
       },
       "relationship_class": "correspondence",
