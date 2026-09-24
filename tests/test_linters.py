@@ -647,6 +647,17 @@ class StandardsCurrencyTests(LinterTestCase):
         )
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "COBIT")
+        # The legacy-API finding message names the id once, not "COBIT COBIT 5".
+        mod = load_linter_module(
+            ".corpus-management/tools/gate_lint_standards_currency.py", "gate_currency_3b38"
+        )
+        messages = [
+            msg
+            for _pre, _pat, msg in mod.compile_entry_patterns(
+                [{"id": "COBIT", "current": "2019", "superseded": ["COBIT 5"]}]
+            )
+        ]
+        self.assertEqual(messages, ["stale citation 'COBIT 5' (current: 2019)"])
 
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
         # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must

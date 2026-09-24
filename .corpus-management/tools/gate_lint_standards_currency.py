@@ -93,7 +93,7 @@ def compile_entry_patterns(
                 (
                     prefilter,
                     pattern,
-                    f"stale citation '{std_id} {superseded}' "
+                    f"stale citation '{std_id} {superseded_core}' "
                     f"(current: {current})",
                 )
             )
