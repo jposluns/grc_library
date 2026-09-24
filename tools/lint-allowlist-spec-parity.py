@@ -127,6 +127,10 @@ def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
     if len(defs) > 1:
         raise InputError(f"ALLOW_LIST is assigned {len(defs)} times at module level")
     definition = defs[0]
+    if len(definition.targets) != 1 or not isinstance(definition.targets[0], ast.Name):
+        raise InputError(
+            f"ALLOW_LIST must be the only target of its assignment (line {definition.lineno}); "
+            f"a chained assignment would create an unchecked alias")
     _check_uses(tree, definition)
     if not isinstance(definition.value, (ast.Set, ast.List, ast.Tuple)):
         raise InputError("ALLOW_LIST is not a literal set, list or tuple")
@@ -151,15 +155,20 @@ def spec_domains(text: str) -> set[str]:
     section = text[m.end(): m.end() + end.start()] if end else text[m.end():]
     domains: set[str] = set()
     rows = 0
+    header_seen = False
     for line in section.splitlines():
         stripped = line.strip()
-        if not stripped.startswith("|"):
+        # A GFM table row need not start with a pipe, so any line with a pipe
+        # is treated as a row; only the outer delimiters are removed.
+        if "|" not in stripped:
             continue
-        inner = stripped[1:-1] if stripped.endswith("|") else stripped[1:]
+        inner = stripped[1:] if stripped.startswith("|") else stripped
+        inner = inner[:-1] if inner.endswith("|") else inner
         cells = [c.strip() for c in inner.split("|")]
         if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
             continue
-        if cells[0] == "Publisher":
+        if cells[0] == "Publisher" and not header_seen:
+            header_seen = True
             continue
         if not cells[0]:
             raise InputError(f"section 7.1 row with an empty Publisher cell: {stripped[:80]}")

@@ -15218,6 +15218,23 @@ class AllowlistSpecParityTests(unittest.TestCase):
             with self.subTest(tail=tail), self.assertRaises(self.mod.InputError):
                 self.mod.allow_entries(self.allow('    "iso.org",\n') + tail)
 
+    def test_chained_definition_is_an_input_error(self) -> None:
+        # r3 (all three families): ALLOW_LIST = alias = {...}; alias.add(...).
+        for src in ('ALLOW_LIST = alias = {\n    "iso.org",\n}\nalias.add("x.example")\n',
+                    'alias = ALLOW_LIST = {\n    "iso.org",\n}\n'):
+            with self.subTest(src=src), self.assertRaises(self.mod.InputError):
+                self.mod.allow_entries(src)
+
+    def test_row_without_leading_pipe_is_parsed(self) -> None:
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "Hidden | `hidden.example` | x |\n"))
+        self.assertIn("hidden.example", domains)
+
+    def test_second_publisher_row_is_data(self) -> None:
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "| Publisher | `hidden.example` | x |\n"))
+        self.assertIn("hidden.example", domains)
+
     def test_call_argument_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')
         self.assertEqual([e for e, _, _ in entries], ["iso.org"])
