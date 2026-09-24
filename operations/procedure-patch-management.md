@@ -2,7 +2,7 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.24\
+**Version:** 1.0.25\
 **Date:** 2026-09-24\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
