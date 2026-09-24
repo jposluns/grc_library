@@ -38,8 +38,10 @@ Exit codes: 0 in parity; 1 findings; 2 input error.
 from __future__ import annotations
 
 import ast
+import io
 import re
 import sys
+import tokenize
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -47,46 +49,61 @@ ALLOW_SRC = REPO_ROOT / "tools" / "lint-external-link-domains.py"
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 MIN_SPEC_DOMAINS = 50
 MARKER_RE = re.compile(r"#\s*(non-publisher|pending-publisher):\s*(\S.*)$")
+DELIMITER_CELL_RE = re.compile(r":?-{3,}:?")
+# Methods that only read a set; any other attribute use on ALLOW_LIST could
+# change it after the literal and is rejected.
+READ_ONLY_ATTRS = {"copy", "issubset", "issuperset", "isdisjoint", "union",
+                   "intersection", "difference", "symmetric_difference"}
 
 
 class InputError(Exception):
     pass
 
 
+def _comments(src: str) -> dict[int, str]:
+    """Line number -> comment text, from the tokenizer (so no string can fake one)."""
+    out: dict[int, str] = {}
+    for tok in tokenize.generate_tokens(io.StringIO(src).readline):
+        if tok.type == tokenize.COMMENT:
+            out[tok.start[0]] = tok.string
+    return out
+
+
 def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
-    """(domain, line, marker kind or None) for each ALLOW_LIST literal element."""
+    """(domain, line, marker kind or None) for each ALLOW_LIST literal element.
+
+    Exactly one module-level ``ALLOW_LIST = <literal>`` is supported. Any other
+    binding, augmented assignment, deletion or non-read-only attribute use of the
+    name is an input error, because the runtime set would then differ from the
+    literal this gate reads.
+    """
     tree = ast.parse(src)
-    lines = src.splitlines()
+    defs = [n for n in tree.body if isinstance(n, ast.Assign)
+            and any(getattr(t, "id", None) == "ALLOW_LIST" for t in n.targets)]
+    if not defs:
+        raise InputError("ALLOW_LIST assignment not found")
+    if len(defs) > 1:
+        raise InputError(f"ALLOW_LIST is assigned {len(defs)} times at module level")
+    definition = defs[0]
     for node in ast.walk(tree):
-        if isinstance(node, ast.Assign) and any(
-            getattr(t, "id", None) == "ALLOW_LIST" for t in node.targets
-        ):
-            if not isinstance(node.value, (ast.Set, ast.List, ast.Tuple)):
-                raise InputError("ALLOW_LIST is not a literal set, list or tuple")
-            out: list[tuple[str, int, str | None]] = []
-            for elt in node.value.elts:
-                if not (isinstance(elt, ast.Constant) and isinstance(elt.value, str)):
-                    raise InputError(f"non-string ALLOW_LIST element at line {elt.lineno}")
-                m = MARKER_RE.search(_comment(lines[elt.lineno - 1]))
-                out.append((elt.value.lower(), elt.lineno, m.group(1) if m else None))
-            if not out:
-                raise InputError("ALLOW_LIST is empty")
-            return out
-    raise InputError("ALLOW_LIST assignment not found")
-
-
-def _comment(line: str) -> str:
-    """The trailing comment of a source line, ignoring '#' inside string literals."""
-    in_str: str | None = None
-    for i, ch in enumerate(line):
-        if in_str:
-            if ch == in_str:
-                in_str = None
-        elif ch in "\"'":
-            in_str = ch
-        elif ch == "#":
-            return line[i:]
-    return ""
+        if isinstance(node, ast.Name) and node.id == "ALLOW_LIST" \
+                and not isinstance(node.ctx, ast.Load) and node not in definition.targets:
+            raise InputError(f"ALLOW_LIST is rebound or deleted at line {node.lineno}")
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name) \
+                and node.value.id == "ALLOW_LIST" and node.attr not in READ_ONLY_ATTRS:
+            raise InputError(f"ALLOW_LIST.{node.attr} at line {node.lineno} may modify the set")
+    if not isinstance(definition.value, (ast.Set, ast.List, ast.Tuple)):
+        raise InputError("ALLOW_LIST is not a literal set, list or tuple")
+    comments = _comments(src)
+    out: list[tuple[str, int, str | None]] = []
+    for elt in definition.value.elts:
+        if not (isinstance(elt, ast.Constant) and isinstance(elt.value, str)):
+            raise InputError(f"non-string ALLOW_LIST element at line {elt.lineno}")
+        m = MARKER_RE.search(comments.get(elt.lineno, ""))
+        out.append((elt.value, elt.lineno, m.group(1) if m else None))
+    if not out:
+        raise InputError("ALLOW_LIST is empty")
+    return out
 
 
 def spec_domains(text: str) -> set[str]:
@@ -99,11 +116,16 @@ def spec_domains(text: str) -> set[str]:
     domains: set[str] = set()
     rows = 0
     for line in section.splitlines():
-        if not line.startswith("|"):
+        stripped = line.strip()
+        if not stripped.startswith("|"):
             continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if cells[0] == "Publisher" or set(cells[0]) <= set("-: "):
+        cells = [c.strip() for c in stripped.strip("|").split("|")]
+        if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
             continue
+        if cells[0] == "Publisher":
+            continue
+        if not cells[0]:
+            raise InputError(f"section 7.1 row with an empty Publisher cell: {stripped[:80]}")
         rows += 1
         found = re.findall(r"`([^`]+)`", cells[1] if len(cells) > 1 else "")
         if not found:
@@ -123,6 +145,15 @@ def covered(entry: str, domains: set[str]) -> bool:
 def check(allow: list[tuple[str, int, str | None]], domains: set[str]) -> list[str]:
     findings: list[str] = []
     for entry, line, marker in allow:
+        if entry != entry.strip().lower().rstrip(".") or not entry.strip():
+            findings.append(
+                f"L{line} [allowlist-spec-parity] {entry!r}: not a canonical lowercase host "
+                f"(gate 24 lowercases the URL host, not the allow-list)")
+            continue
+        if marker is not None and covered(entry, domains):
+            findings.append(
+                f"L{line} [allowlist-spec-parity] {entry}: marked {marker} but covered by "
+                f"section 7.1; remove the stale marker")
         if marker is None and not covered(entry, domains):
             findings.append(
                 f"L{line} [allowlist-spec-parity] {entry}: not covered by a section 7.1 "

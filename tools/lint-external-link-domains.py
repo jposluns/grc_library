@@ -106,7 +106,7 @@ ALLOW_LIST = {
     # OWASP CycloneDX canonical specification site (citation-verification spec section 7.2, 2026-09-24)
     "cyclonedx.org",
     # AI runtime / observability project canonical homes
-    "promptfoo.dev",  # non-publisher: tool project home
+    "promptfoo.dev",
     # Schema.org and JSON schema
     "schema.org", "json-schema.org",  # non-publisher: format conventions
     # Sitemaps.org: the XML namespace URI required in the generated sitemap.xml

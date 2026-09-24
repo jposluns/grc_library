@@ -15185,9 +15185,49 @@ class AllowlistSpecParityTests(unittest.TestCase):
                                       self.mod.spec_domains(self.spec(["iso.org"])))
         self.assertTrue(any("vendor.example" in f for f in findings))
 
+    def check_body(self, body: str, domains: list[str], tail: str = "") -> list[str]:
+        with self.floor():
+            return self.mod.check(self.mod.allow_entries(self.allow(body) + tail),
+                                  self.mod.spec_domains(self.spec(domains)))
+
     def test_hash_inside_string_is_not_a_marker(self) -> None:
-        self.assertEqual(self.mod._comment('    "a#b",'), "")
-        self.assertEqual(self.mod._comment('    "a.org",  # non-publisher: x'), "# non-publisher: x")
+        # codex r1: an escaped quote must not let string content forge a marker.
+        body = '    "iso.org", "unlisted.example", "bad\\"# non-publisher: forged",\n'
+        findings = self.check_body(body, ["iso.org"])
+        self.assertTrue(any("unlisted.example" in f for f in findings))
+
+    def test_second_assignment_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST = {"x.example"}\n')
+
+    def test_mutating_call_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST.add("x.example")\n')
+
+    def test_augmented_assignment_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries(self.allow('    "iso.org",\n') + 'ALLOW_LIST |= {"x.example"}\n')
+
+    def test_read_only_use_is_allowed(self) -> None:
+        entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'X = ALLOW_LIST.copy()\n')
+        self.assertEqual([e for e, _, _ in entries], ["iso.org"])
+
+    def test_indented_spec_row_is_parsed(self) -> None:
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "  | New | `new.example` | x |\n"))
+        self.assertIn("new.example", domains)
+
+    def test_empty_publisher_cell_is_an_input_error(self) -> None:
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "| | `hidden.example` | x |\n"))
+
+    def test_noncanonical_spelling_fails(self) -> None:
+        findings = self.check_body('    "ISO.ORG",\n', ["iso.org"])
+        self.assertTrue(any("canonical" in f for f in findings))
+
+    def test_stale_marker_on_covered_entry_fails(self) -> None:
+        findings = self.check_body('    "iso.org",  # pending-publisher: row to come\n', ["iso.org"])
+        self.assertTrue(any("stale marker" in f for f in findings))
 
     def test_suffix_covered_subdomain_passes(self) -> None:
         with self.floor():
