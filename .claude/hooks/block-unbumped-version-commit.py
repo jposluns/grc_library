@@ -274,11 +274,16 @@ def commit_target(cmd: str, cwd: str):
         # resolve its own cwd, not git's (3b25 r8, codex). A step git cannot chdir into (a missing
         # intermediate that `..` would lexically cancel) is not a commit target (3b25 r8, codex):
         # isdir resolves through the kernel exactly as chdir does. Either way, step aside.
-        if joined.startswith(("/proc/", "/dev/fd/")) or not os.path.isdir(joined):
+        if not os.path.isdir(joined):
             return None
-        # git chdirs into each -C operand in turn, so a symlink changes where the next relative
-        # operand lands: resolve like chdir does, not lexically (3b25 r7, codex).
-        target = os.path.realpath(joined)
+        # A symlink anywhere in the step can resolve differently in git's process than in this one
+        # (/proc/self/cwd under any spelling: /../proc, //proc, /opt/../proc; 3b25 r8-r9, codex and
+        # claude). Without symlinks the lexical path IS the kernel path in every process, so only a
+        # symlink-free step is trusted; any symlink steps aside (the git-native check still refuses).
+        resolved = os.path.realpath(joined)
+        if resolved != os.path.normpath(os.path.abspath(joined)):
+            return None
+        target = resolved
     return target
 
 
@@ -738,8 +743,11 @@ def self_test() -> int:
     ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
     ck("commit_target: a missing intermediate cancelled by .. steps aside",
        commit_target(f"git -C {_W}/missing/.. commit -m x", "/r"), None)
-    ck("commit_target: a symlinked -C step is followed like chdir",
-       commit_target(f"git -C {_W}/lnk -C .. commit -m x", "/r"), _W)
+    ck("commit_target: a symlinked -C step steps aside",
+       commit_target(f"git -C {_W}/lnk -C .. commit -m x", "/r"), None)
+    for spelling in ("/proc/self/cwd", "/../proc/self/cwd", "//proc/self/cwd", "/opt/../proc/self/cwd"):
+        ck(f"commit_target: a /proc/self spelling steps aside: {spelling}",
+           commit_target(f"git -C {_W} -C {spelling} commit -m x", "/r"), None)
     ck("commit_target: a braced operand steps aside even when a directory of that name exists",
        commit_target(f"git -C {_W}/{{a,b}} commit -m x", "/r"), None)
     ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
