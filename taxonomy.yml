@@ -5906,7 +5906,7 @@ documents:
   domain: "governance"
   type: "Specification"
   title: "Citation Verification Specification"
-  version: "1.2.17"
+  version: "1.2.18"
   date: "2026-09-24"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"
