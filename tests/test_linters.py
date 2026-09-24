@@ -11118,13 +11118,35 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
             self.assertNotIn("Traceback", result.stderr, script)
 
     def test_content_only_scans_another_tree(self) -> None:
+        # Content-only linters must really scan another tree's file: each must report the
+        # planted finding (a bare "no refusal" check would pass a silent no-op).
         outside = self._outside_dir()
         probe = outside / "probe.md"
-        probe.write_text("# Probe\n\nPlain text.\n", encoding="utf-8")
+        probe.write_text(
+            "# Probe\n\nThe team applies ISO/IEC 31000 here \u2014 always.\n", encoding="utf-8"
+        )
+        expected = {
+            "tools/lint-cobit-iso31000-citations.py": "iso31000-wrong-designation",
+            "tools/lint-working-prose-hygiene.py": "prose-dash",
+        }
         for script in self.CONTENT_ONLY:
             result = run_linter(script, str(probe))
-            self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
             self.assertNotIn("Traceback", result.stderr, script)
+            self.assertLinterFails(result, expected[script])
+
+    def test_version_recency_git_is_anchored_to_root(self) -> None:
+        # Run from outside --root, git used to inherit the cwd, fail with "not a git
+        # repository", and every file was skipped as if it had no history (exit 0).
+        outside = self._outside_dir()
+        result = self._run_from(
+            outside, "tools/lint-version-bump-recency.py",
+            "--root", str(REPO_ROOT), str(REPO_ROOT / "README.md"),
+        )
+        self.assertNotIn("not a git repository", result.stderr, result.stderr)
+        self.assertIn("1 versioned document(s) scanned", result.stdout, result.stdout + result.stderr)
+        not_repo = run_linter("tools/lint-version-bump-recency.py", "--root", str(outside))
+        self.assertEqual(not_repo.returncode, 2, not_repo.stdout + not_repo.stderr)
+        self.assertIn("not inside a git work tree", not_repo.stderr)
 
     def test_relative_path_keeps_current_directory_meaning(self) -> None:
         # From tools/, "README.md" names tools/README.md if it exists and nothing else;

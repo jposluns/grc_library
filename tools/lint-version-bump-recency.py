@@ -70,8 +70,15 @@ EXEMPT_FILES: frozenset[str] = frozenset(
 GIT_VERSION_REGEX = r"^\*\*(Library )?Version:\*\*"
 
 
+# The repository the git queries read. main() sets it to the resolved --root, so the
+# queries no longer inherit the process cwd (3b48: run from outside --root, `git log`
+# failed with "not a git repository" and every file was skipped as if it had no history).
+GIT_ROOT: Path | None = None
+
+
 def git(*args: str) -> str:
-    return subprocess.check_output(["git", *args], text=True).strip()
+    anchor = ["-C", str(GIT_ROOT)] if GIT_ROOT is not None else []
+    return subprocess.check_output(["git", *anchor, *args], text=True).strip()
 
 
 def iter_targets(root: Path) -> list[Path]:
@@ -138,6 +145,15 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
     root = Path(args.root).resolve()
+    global GIT_ROOT
+    GIT_ROOT = root
+    # Fail loud when --root is not inside a git work tree: every per-file query below
+    # treats a git failure as "no history" and skips, which would otherwise pass silently.
+    try:
+        git("rev-parse", "--is-inside-work-tree")
+    except (subprocess.CalledProcessError, OSError) as exc:
+        print(f"ERROR: --root {root} is not inside a git work tree ({exc}); nothing can be checked.", file=sys.stderr)
+        return 2
 
     if args.paths:
         # 3b48: explicit paths are refused when missing or outside --root (the check reads
