@@ -9294,6 +9294,22 @@ class BookkeepingParityTests(LinterTestCase):
                 "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
         self.assertEqual(self._hist(mod, body), [])
 
+    def test_row_integrity_legacy_tier_word_findings_keeps_exemption(self) -> None:
+        # history.md:1107 shape: legacy Findings at c[4] begins with a tier word, c[5] is Hot-fix.
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix | Detail |\n|---|---|---|---|---|---|\n"
+                "| 2026-08-10 | 1517 | x | QUICK-FIX TIER: QA SUBSUMED by #1516 | none (identical to #1516) | - |\n"
+                "| 2026-08-10 | 1517 | x | RETURNED: SHIP | none | - |\n")
+        recs = mod._history_row_records(text)
+        self.assertEqual(recs[0][2], "subsumption")
+        self.assertEqual(mod.row_integrity_findings(recs, "h"), [])
+
+    def test_row_integrity_retro_later_pr_mention_not_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10 (/retro) follows up #11 | a | lesson |\n"
+                "| 2026-09-13 | #11 (/retro) | b | lesson |\n")
+        self.assertEqual(mod.row_integrity_findings(mod._retro_row_records(text), "retro"), [])
+
     # ---- P-3.245: PR-token boundary hardening (the #1709-window dotted-id mis-parse).
 
     def test_pr_cell_dotted_ids_not_read_as_prs(self) -> None:

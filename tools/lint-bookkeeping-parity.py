@@ -539,9 +539,15 @@ COMPANION_PR_CELL = re.compile(
 ROW_PENDING_CELL = re.compile(
     r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
 )
-# A newer-layout history row carries a tier cell (``SUBSTANTIVE (...)``, ``LIGHT``, ...) at c[4] and
-# its disposition at c[5]; the legacy layout carries the Findings/disposition at c[4].
-TIER_CELL = re.compile(r"^\**\s*(?:SUBSTANTIVE|SENSITIVE|LIGHT|ANCILLARY|QUICK-FIX|quick-fix)\b", re.IGNORECASE)
+# The two history layouts put the disposition at c[4] (legacy Findings) or c[5] (newer layout,
+# after a tier cell). Guessing the layout from the tier word misread legacy rows whose Findings
+# begin with a tier word (history.md:1107 ``QUICK-FIX TIER: QA SUBSUMED by #1516``), so no layout
+# is guessed: both candidate cells are examined. An exemption marker in either marks the row
+# exempt; a start-anchored pending marker (without RETURNED) in either marks it pending. Residue:
+# a legacy Hot-fix cell (c[5]) that itself begins with a pending word would read pending.
+# The leading run of PR tokens at the START of a retro PR cell (``#10, #11 addendum (/retro)``);
+# later PR mentions in the cell are prose, not the row's identity.
+LEADING_PR_RUN = re.compile(r"^(?:PR\s+)?#?(\d+)" + PR_NUM_BOUNDARY + r"((?:\s*[,&]\s*(?:PR\s+)?#?\d+" + PR_NUM_BOUNDARY + r")*)")
 RETRO_PR_CELL = re.compile(r"^(?:PR\s+)?#?\d")
 
 
@@ -552,8 +558,8 @@ def _mask_examples(text: str) -> str:
     return FENCED_BLOCK.sub(blank, HTML_COMMENT.sub(blank, text))
 
 
-def _disposition_cell(c: list[str]) -> str:
-    return c[5] if len(c) > 5 and TIER_CELL.match(c[4]) else c[4]
+def _disposition_candidates(c: list[str]) -> list[str]:
+    return [c[4]] + ([c[5]] if len(c) > 5 else [])
 
 
 def _is_pending(disp: str) -> bool:
@@ -572,20 +578,21 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
         prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
         if not prs:
             continue
-        disp = _disposition_cell(c)
-        if HANDOFF_FINDINGS.search(disp):
+        cands = _disposition_candidates(c)
+        if any(HANDOFF_FINDINGS.search(d) for d in cands):
             kind = "handoff"
-        elif is_subsumption_findings(disp):
+        elif any(is_subsumption_findings(d) for d in cands):
             kind = "subsumption"
         else:
             kind = ""
-        out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), _is_pending(disp)))
+        pending = any(_is_pending(d) for d in cands)
+        out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), pending))
     return out
 
 
 def _retro_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
-    """Every retro data row whose PR cell starts with a PR token; ALL boundary-checked PR tokens
-    in the cell are counted (a combined ``#10, #11`` cell names both)."""
+    """Every retro data row whose PR cell starts with a PR token; the LEADING run of PR tokens is
+    the row's identity (a combined ``#10, #11`` cell names both; later mentions are prose)."""
     out: list[tuple[int, list[int], str, bool, bool]] = []
     for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
         if not TABLE_ROW.match(line):
@@ -593,9 +600,10 @@ def _retro_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]
         c = cells(line)
         if len(c) < 3 or not RETRO_PR_CELL.match(c[2]):
             continue
-        prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
-        if not prs:
+        m = LEADING_PR_RUN.match(c[2])
+        if not m:
             continue
+        prs = sorted({int(x) for x in re.findall(r"\d+", m.group(0))})
         out.append((lineno, prs, "", bool(COMPANION_PR_CELL.match(c[2])), False))
     return out
 
