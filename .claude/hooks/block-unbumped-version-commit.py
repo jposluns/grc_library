@@ -138,12 +138,18 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
         # Position-based (not text-membership): track new-file line numbers from the hunk headers
         # and count an added Version line only when it LIES within the header, so a body/fenced
         # example whose new value equals the unchanged header Version is not mistaken for a bump.
-        header_lines, n, hit = len(head.splitlines()), 0, False
+        # Count LF-delimited lines only (git hunk positions do; str.splitlines() also splits on
+        # U+2028 and similar). Inside a hunk every '+' line is an added line, including one whose
+        # content begins '++' (rendered '+++'); the '+++ b/...' file header precedes the first '@@'.
+        header_lines = head.count("\n") + (1 if head and not head.endswith("\n") else 0)
+        n, hit, in_hunk = 0, False, False
         for ln in buf:
             h = HUNK_NEW.match(ln)
             if h:
-                n = int(h.group(1))
-            elif ln.startswith("+") and not ln.startswith("+++"):
+                n, in_hunk = int(h.group(1)), True
+            elif not in_hunk:
+                continue
+            elif ln.startswith("+"):
                 if ANY_VERSION_LINE.match(ln[1:]) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
@@ -551,6 +557,18 @@ def self_test() -> int:
     ck("a fenced example colliding with the header Version text is not reported", stale_date_after_bump(col, {"c.md": col_text}, "2026-09-24"), [])
     hdr = ("diff --git a/h.md b/h.md\n@@ -1,1 +1,1 @@\n-**Version:** 2.9.9\n+**Version:** 3.0.0\n")
     ck("a header-position Version bump with a stale Date is reported", stale_date_after_bump(hdr, {"h.md": col_text}, "2026-09-24"), ["h.md"])
+    # --- 2026-09-24 r3 (codex, gemini): U+2028 in the header must not shift the LF line count; an
+    # added body line beginning '++' (rendered '+++') must still advance the new-file position ---
+    u_text = "**Date:** 2026-01-01\n# t\u2028# c\u2028# c\n---\n**Version:** 1.0.1\n"
+    u = ("diff --git a/u.md b/u.md\n@@ -4,1 +4,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n")
+    ck("a U+2028 in the header does not pull a body Version line into it", stale_date_after_bump(u, {"u.md": u_text}, "2026-09-24"), [])
+    pp_text = "**Date:** 2026-01-01\\\n**Version:** 3.0.0\\\n\n---\n\n++ note\n**Version:** 1.0.1\n"
+    pp = ("diff --git a/p.md b/p.md\n--- a/p.md\n+++ b/p.md\n@@ -2,1 +2,2 @@\n-**Version:** 2.0.0\n+**Version:** 3.0.0\n+++ note\n")
+    ck("a '+++' added body line in the hunk does not disturb a header bump", stale_date_after_bump(pp, {"p.md": pp_text}, "2026-09-24"), ["p.md"])
+    # No fixture can make the pre-r3 '+++' skip change an OUTCOME: an added '++' line is never
+    # header-shaped, so it sits at or after the header end and skipping it only undercounts body
+    # positions, which stay outside the header. The in-hunk tracking is arithmetic correctness,
+    # and its mutants are equivalent (reported INVALID, not as a coverage gap).
     # --- 2026-09-24: generated-artefact exemption, end to end through main() in a scratch repo ---
     import shutil, subprocess, json as _json
     d5 = mkrepo()
