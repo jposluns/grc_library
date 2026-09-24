@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.21\
+**Version:** 1.0.22\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -64,7 +64,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | NIST SP 800-207 | https://csrc.nist.gov/pubs/sp/800/207/final | all | 1.0, 2020-08, Zero Trust Architecture |  |  |  |  |  |  |
 | NIST CSF | https://www.nist.gov/cyberframework | all | 2.0, 2024-02, Cybersecurity Framework; supersedes 1.1 |  |  |  |  |  |  |
 | NIST AI RMF | https://www.nist.gov/itl/ai-risk-management-framework | all | 1.0, 2023-01, AI Risk Management Framework |  |  |  |  |  |  |
-| NIST AI 600-1 | https://csrc.nist.gov/pubs/ai/600/1/final | all | 1.0, 2024-07, Generative AI Profile for AI RMF |  |  |  |  |  |  |
+| NIST AI 600-1 | https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-generative-artificial-intelligence | all | 1.0, 2024-07, Generative AI Profile for AI RMF |  |  |  |  |  |  |
 | NIST SP 800-218 | https://csrc.nist.gov/pubs/sp/800/218/final | all | 1.1, 2022-02, Secure Software Development Framework (SSDF); supersedes 1.0 |  |  |  |  |  |  |
 | NIST SP 800-218A | https://csrc.nist.gov/pubs/sp/800/218/a/final | all | Final, 2024, Secure SDF GenAI profile |  |  |  |  |  |  |
 | NIST SP 800-161 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | all | Rev. 1, 2022-05, Cybersecurity Supply Chain Risk Management; supersedes Rev. 0 |  |  |  |  |  |  |
@@ -92,7 +92,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | US HITECH | https://www.hhs.gov/hipaa/for-professionals/special-topics/hitech-act-enforcement-interim-final-rule/index.html | all | 2009, HITECH Act |  |  |  |  |  |  |
 | US SOX | https://www.congress.gov/bill/107th-congress/house-bill/3763 | all | 2002-07, Sarbanes-Oxley Act |  |  |  |  |  |  |
 | US CCPA | https://oag.ca.gov/privacy/ccpa | all | 2018 (with CPRA 2020 amendments) |  |  |  |  |  |  |
-| US FedRAMP | https://www.fedramp.gov/rev5-baselines/ | all | Rev. 5, 2023, aligned with NIST SP 800-53 Rev. 5; supersedes Rev. 4 |  |  |  |  |  |  |
+| US FedRAMP | https://www.fedramp.gov/ | all | Rev. 5, 2023, aligned with NIST SP 800-53 Rev. 5; supersedes Rev. 4 |  |  |  |  |  |  |
 | US CMMC | https://dodcio.defense.gov/CMMC/ | all | 2.0, 2024, Cybersecurity Maturity Model Certification; supersedes 1.0, 1.02 |  |  |  |  |  |  |
 | Canada CPPA | https://www.parl.ca/legisinfo/en/bill/44-1/c-27 | all | Lapsed 2025-01-06 (Bill C-27 died on prorogation, never enacted); PIPEDA remains in force |  |  |  |  |  |  |
 | Canada PIPEDA | https://laws-lois.justice.gc.ca/eng/acts/P-8.6/ | all | 2000, as amended by the Digital Privacy Act, S.C. 2015, c. 32 (last amended 2025-03-04) |  |  |  |  |  |  |
@@ -147,7 +147,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | Standard ID | Expected primary URL | Field(s) | Expected value | Captured text | Wayback URL | Result | Captured by | Confidence | Date |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | WCO SAFE Framework | https://www.wcoomd.org/en/topics/facilitation/instrument-and-tools/frameworks-of-standards/safe_package.aspx | all | 2025 edition; published 2025-06; WCO Framework of Standards to Secure and Facilitate Global Trade; supersedes 2018, 2021 (per register) |  |  |  |  |  |  |
-| BASC International Standard | https://www.wbasco.org/en/programs-of-certification | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
+| BASC International Standard | https://www.wbasco.org/en/certification/basc-certification | all | v6 (2022); supersedes v5 |  |  |  |  |  |  |
 | CTPAT MSC | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat | all | 2020, Minimum Security Criteria |  |  |  |  |  |  |
 
 ### 3.9 Sector-specific: IEC 62443 family (7 entries): publisher `webstore.iec.ch`
@@ -168,11 +168,11 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | IEC 61511 | https://webstore.iec.ch/publication/24241 | all | 2016 (Edition 2, Amendment 1 in 2017); supersedes Edition 1 (2003) |  |  |  |  |  |  |
 | IEC 61508 | https://webstore.iec.ch/publication/22273 | all | 2010, Functional safety; supersedes 1998 |  |  |  |  |  |  |
-| ISO 16484 | https://www.iso.org/standard/72074.html | all | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); supersedes parts published 2010 to 2020 (per register); BACS |  |  |  |  |  |  |
-| ASHRAE 135 | https://www.ashrae.org/technical-resources/bookstore/standard-135 | all | 2020 (with addenda), BACnet protocol |  |  |  |  |  |  |
-| NIST SP 1900 series | https://www.nist.gov/programs-projects/cyber-physical-systems | all | 2023, Smart-building cybersecurity and IoT |  |  |  |  |  |  |
+| ISO 16484 | https://www.iso.org/standard/84890.html | all | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025, Part 3 at draft (DIS); supersedes parts published 2010 to 2020 (per register); BACS |  |  |  |  |  |  |
+| ASHRAE 135 | https://www.ashrae.org/technical-resources/bookstore/bacnet | all | 2020 (with addenda), BACnet protocol |  |  |  |  |  |  |
+| NIST SP 1900 series | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | all | 2023, Smart-building cybersecurity and IoT |  |  |  |  |  |  |
 | NFPA 72 | https://www.nfpa.org/codes-and-standards/all-codes-and-standards/list-of-codes-and-standards/detail?code=72 | all | 2025, National Fire Alarm and Signaling Code; supersedes 2022, 2019 |  |  |  |  |  |  |
-| EN 54 | https://standards.cencenelec.eu/dyn/www/f?p=205:32:0::::FSP_ORG_ID,FSP_LANG_ID:6196,25 | all | Series, current parts published 2017 to 2023 |  |  |  |  |  |  |
+| EN 54 | https://standards.cencenelec.eu/ | all | Series, current parts published 2017 to 2023 |  |  |  |  |  |  |
 | TSA Pipeline Security Directive | https://www.tsa.gov/sites/default/files/signed_security_directive_pipeline-2021-02g_and_transmittal_memo_508c.pdf | all | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes 02F) |  |  |  |  |  |  |
 | Basel III | https://www.bis.org/basel_framework/ | all | 2017 (with 2023 finalization, in force 2025); supersedes Basel II |  |  |  |  |  |  |
 | NERC CIP | https://www.nerc.com/pa/Stand/Pages/CIPStandards.aspx | all | 014-3 (latest revision), various |  |  |  |  |  |  |
@@ -186,7 +186,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | OECD Privacy Guidelines | https://www.oecd.org/digital/ieconomy/privacy-guidelines.htm | all | 2013 revised, Privacy and transborder data flows; supersedes 1980 |  |  |  |  |  |  |
 | WTO TFA | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | all | 2017, Trade Facilitation Agreement |  |  |  |  |  |  |
 | ICAO Annex 17 (Chicago Convention) | https://store.icao.int/en/annex-17-security | all | Edition 12, 2022; Security (safeguarding international civil aviation against acts of unlawful interference). Corrected 2026-07-10: the prior "Doc 10026 / Manual on Aviation Security" pre-fill was wrong (its store URL 404s; Doc 10026 is the Report of the Legal Commission, and the AVSEC manual is the Restricted Doc 8973). |  |  |  |  |  |  |
-| ICAO Doc 10055 | https://store.icao.int/en/aviation-cybersecurity-strategy-doc-10055 | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
+| ICAO Doc 10055 | https://www.icao.int/aviation-cybersecurity/strategy | all | 2024, Aviation Cybersecurity Strategy |  |  |  |  |  |  |
 | IMO MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 3, 2025-04, Maritime cyber risk management guidelines; supersedes Rev. 2 and Rev. 1 |  |  |  |  |  |  |
 
 ### 3.12 AI safety evaluation programmes (3 entries; note that AI tooling references cluster separately covered in Q3)

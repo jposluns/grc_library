@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3.1 (New Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.2\
-**Date:** 2026-06-25\
+**Version:** 1.0.3\
+**Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -61,7 +61,7 @@ At batch close, the AI verifier appends rows to the Citation Verifications Regis
 | AVID | AVID community | `https://avidml.org/` | (search the publisher's site for "AVID AI Vulnerability Database") | all | continuous; 2023; AI Vulnerability Database, open knowledge base of AI failure modes and harms |  |  |  |  |  |  |  |  |  |  |
 | MLCommons AILuminate | MLCommons | `https://mlcommons.org/benchmarks/ailuminate/` | (search the publisher site) | all | v1.0; 2024; AI risk taxonomy and benchmark, 14-category hazard taxonomy |  |  |  |  |  |  |  |  |  |  |
 | OWASP GenAI Security Project | OWASP | `https://genai.owasp.org/` | `https://owasp.org/www-project-top-10-for-large-language-model-applications/` | existence, current status | continuous; 2024; GenAI security risks, controls, reference test cases |  |  |  |  |  |  |  |  |  |  |
-| OWASP Agentic AI Top 10 2026 | OWASP | `https://owasp.org/www-project-agentic-ai-top-10/` | (search the publisher site) | publication status, version | 2026; Top 10 risks for agentic AI systems |  |  |  |  |  |  |  |  |  | Verify status (published / draft / under review). |
+| OWASP Agentic AI Top 10 2026 | OWASP | `https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/` | (search the publisher site) | publication status, version | 2026; Top 10 risks for agentic AI systems |  |  |  |  |  |  |  |  |  | Verify status (published / draft / under review). |
 | OWASP MCP Top 10 2025 | OWASP | `https://owasp.org/www-project-mcp-top-10/` | (search the publisher site) | publication status, version | 2025; Security risks for Model Context Protocol integrations |  |  |  |  |  |  |  |  |  | Verify status. |
 | NIST SP 800-218A | NIST | `https://csrc.nist.gov/pubs/sp/800/218/a/final` | (search the publisher site) | all | Final; 2024; Secure Software Development Practices for Generative AI and Dual-Use Foundation Models |  |  |  |  |  |  |  |  |  |  |
 
