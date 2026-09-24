@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.12\
-**Date:** 2026-09-23\
+**Version:** 1.0.13\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -228,6 +228,8 @@ Devices used to administer production environments meet a stricter baseline.
 | Microsoft Security Compliance Toolkit | Vendor baseline | Where applicable |
 | macOS Security Compliance Project | Open standard | Where applicable |
 | Apple Platform Security and Android Enterprise security models | Vendor documentation | Mobile baselines |
+
+See also the OWASP Subtractive Security Top 10 variants for Windows, macOS, and Linux, and their platform-agnostic Universal Subtractive Laws (version 1.0.0, an OWASP Incubator project by a single author). They are cited here as complementary guidance rather than a normative mapping for the workstation operating systems in scope: they approach hardening by removing execution, trust, and persistence paths an attacker could reach, which complements the additive controls in this standard.
 
 ---
 
