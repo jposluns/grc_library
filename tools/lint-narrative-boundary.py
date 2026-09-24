@@ -320,6 +320,12 @@ def _self_test() -> int:
 
 def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
+        # 3b50b1 r3: --self-test takes no --root. Combined, the self-test ran and the root was
+        # silently dropped (exit 0 that validated nothing of the named tree); refuse instead.
+        if any(x == "--root" or x.startswith("--root=") for x in argv[1:]):
+            print("ERROR: --self-test takes no --root; run the self-test and the root scan "
+                  "separately.", file=sys.stderr)
+            return 2
         return _self_test()
     root = REPO_ROOT
     for k, arg in enumerate(argv[1:], 1):

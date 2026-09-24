@@ -11629,6 +11629,9 @@ class ExplicitRootGuardTests(LinterTestCase):
             (("tools/lint-skill-derives-from.py", "--root="), "needs a directory"),
             (("tools/lint-narrative-boundary.py", "--root=/nonexistent-3b50b1"), "not a directory"),
             (("tools/lint-narrative-boundary.py", "--root="), "needs a directory"),
+            (("tools/lint-narrative-boundary.py", "--self-test", "--root=/nonexistent-3b50b1"),
+             "takes no --root"),
+            (("tools/lint-narrative-boundary.py", "--root", "--self-test"), "takes no --root"),
         )
         for args, fragment in cases:
             result = run_linter(*args)
