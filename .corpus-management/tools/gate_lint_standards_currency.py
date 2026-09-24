@@ -64,7 +64,17 @@ def compile_entry_patterns(
             # v-prefixed marker ("SLSA 1.1" for "v1.1"). Only a "v" directly before
             # a digit is treated as a prefix, so a marker such as "Version 2" is
             # left intact.
-            bare = superseded[1:] if re.match(r"[vV]\d", superseded) else superseded
+            # A marker may carry the standard's own id prefix (COBIT lists "COBIT 5");
+            # strip it, as the discovery path does, so the pattern is "COBIT 5" and not
+            # "COBIT COBIT 5" (3b38).
+            superseded_core = re.sub(
+                r"^" + re.escape(str(std_id)) + r"\s+", "", superseded, flags=re.IGNORECASE
+            )
+            bare = (
+                superseded_core[1:]
+                if re.match(r"[vV]\d", superseded_core)
+                else superseded_core
+            )
             sup_re = re.escape(bare)
             # The ID is bounded by (?<!\w) and (?!\w) rather than \b: for an ID that
             # starts and ends with a word character they are equivalent, but \b makes
@@ -83,7 +93,7 @@ def compile_entry_patterns(
                 (
                     prefilter,
                     pattern,
-                    f"stale citation '{std_id} {superseded}' "
+                    f"stale citation '{std_id} {superseded_core}' "
                     f"(current: {current})",
                 )
             )
