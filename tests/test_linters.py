@@ -3155,6 +3155,21 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_check_version_bump_commit_hook_self_test(self) -> None:
+        """The git-native commit-msg Version-bump check's --self-test, wired at introduction (P-TODO 3b25).
+
+        Checks every commit in the committing worktree (the PreToolUse guard is blind to `git -C
+        <worktree>` commits); refuses only, never auto-bumps. --self-test runs decide(), the message
+        opt-out parsing, and an end-to-end run through the real installer and real commits, including
+        a linked-worktree commit and the commit-msg.local chaining.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "check-version-bump-commit.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_block_unstamped_turn_end_hook_self_test(self) -> None:
         """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(

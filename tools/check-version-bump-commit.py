@@ -1,0 +1,260 @@
+#!/usr/bin/env python3
+"""Git-native commit-msg check: refuse a commit whose staged versioned document changed its body
+without its own Version change (P-TODO 3b25, 2026-09-24).
+
+Why a git hook. The PreToolUse guard .claude/hooks/block-unbumped-version-commit.py resolves the
+repository from its OWN location, so a commit made in a linked worktree (`git -C <worktree> commit`)
+is never checked by it: on 2026-09-24 three worktree commits changed document bodies without their
+per-commit bump and only gate 40 caught them, at pre-push. git runs commit-msg inside every commit,
+in the committing worktree, with that worktree's index, however the command was spelled.
+
+Why commit-msg and not pre-commit. The sanctioned opt-out is a `VersionBump: none <reason>` line in the
+commit MESSAGE, which does not exist yet when pre-commit runs.
+
+What it checks (the same rule as the PreToolUse guard, from the same source: the guard's pure
+functions are LOADED from .claude/hooks/block-unbumped-version-commit.py, not copied). A staged
+Markdown file whose STAGED content carries a `**Version:**` line, outside the generated artefacts and
+.corpus-management/, is versioned; an offender is a versioned file whose staged diff changes its body
+but not its Version line. This hook REFUSES and never auto-bumps: the PreToolUse guard auto-bumps
+same-checkout commits before git runs, and a git hook that rewrites the index mid-commit is riskier
+than a refusal naming the fix.
+
+Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff
+then carries other commits' changes); a message carrying `VersionBump: none <reason>` (comment lines
+ignored); the override GRC_ALLOW_UNBUMPED_COMMIT=1. A checkout without the guard file (older branch)
+is allowed (fail OPEN, stated). A git error while checking REFUSES, naming the override (ignorance
+refuses, as in check-commit-on-main.py).
+
+Residue, stated: `git commit --amend` is indistinguishable here, and an amend whose earlier commit
+already bumped can be refused (use the opt-out or the override); `--no-verify` skips the hook; and it
+guards nothing until tools/install-git-hooks.sh has installed the commit-msg shim in the clone.
+"""
+import importlib.util
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+_OVERRIDE = "GRC_ALLOW_UNBUMPED_COMMIT"
+_GUARD = Path(".claude") / "hooks" / "block-unbumped-version-commit.py"
+_SEQUENCER = ("MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD")
+
+
+def decide(allow, sequencer, opt_out, ok, bad):
+    """PURE. Returns (exit_code, stderr_message).
+
+    allow: override set; sequencer: concluding a merge/cherry-pick/revert; opt_out: the message carries
+    the opt-out; ok: the staged state was read; bad: the offender paths (meaningful only when ok)."""
+    if allow:
+        return 0, f"check-version-bump-commit: NOTE: {_OVERRIDE} is set; skipping the Version-bump check."
+    if sequencer or opt_out:
+        return 0, ""
+    if not ok:
+        return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, so "
+                   f"it is unknown whether a Version bump is missing. Deliberate override: {_OVERRIDE}=1.")
+    if bad:
+        return 1, ("check-version-bump-commit: REFUSING the commit: these staged documents changed their body "
+                   f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (patch) and set "
+                   "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a commit that "
+                   "genuinely needs no bump carries a `VersionBump: none <reason>` line in its message. "
+                   f"Deliberate override: {_OVERRIDE}=1.")
+    return 0, ""
+
+
+def load_guard(root):
+    """The PreToolUse guard module, or None when this checkout predates it."""
+    path = root / _GUARD
+    if not path.is_file():
+        return None
+    spec = importlib.util.spec_from_file_location("_vbump_guard", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def message_opts_out(text, guard):
+    body = "\n".join(line for line in text.splitlines() if not line.startswith("#"))
+    return bool(guard.OPT_OUT.search(body))
+
+
+def staged_offenders(root, guard):
+    """Thin observer: offenders from the STAGED content (not the working tree)."""
+    names = [p for p in guard.git(root, "diff", "--cached", "--name-only", "-z").split("\0") if p]
+    versioned = set()
+    for p in names:
+        if not p.endswith(".md") or p in guard.GENERATED or p.startswith(".corpus-management/"):
+            continue
+        try:
+            text = guard.git(root, "show", f":{p}")
+        except subprocess.CalledProcessError:
+            continue  # staged as deleted: nothing to bump
+        if guard.VERSION_LINE.search(text):
+            versioned.add(p)
+    if not versioned:
+        return []
+    diff = guard.git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
+    return guard.offenders(diff, versioned)
+
+
+def _in_sequencer(root):
+    for name in _SEQUENCER:
+        cp = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-path", name],
+                            capture_output=True, text=True)
+        p = Path(cp.stdout.strip())
+        if cp.returncode == 0 and (p if p.is_absolute() else root / p).exists():
+            return True
+    return False
+
+
+def _commit_msg(msgfile):
+    try:
+        top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
+                             check=True).stdout.strip()
+        root = Path(top)
+        guard = load_guard(root)
+        if guard is None:
+            return 0
+        text = Path(msgfile).read_text(encoding="utf-8", errors="replace")
+        sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard)
+        bad = [] if (sequencer or opt_out) else staged_offenders(root, guard)
+        ok = True
+    except Exception:
+        sequencer = opt_out = False
+        bad, ok = [], False
+    code, msg = decide(bool(os.environ.get(_OVERRIDE)), sequencer, opt_out, ok, bad)
+    if msg:
+        print(msg, file=sys.stderr)
+    return code
+
+
+def _integration_self_test():
+    """End to end: a real repository under a spaced path, the real installer, real commits."""
+    import shutil
+    import tempfile
+    src = Path(__file__).resolve().parents[1]
+    failures = []
+    with tempfile.TemporaryDirectory() as base:
+        repo = Path(base) / "clone with space" / "r"
+        for rel in ("tools/check-version-bump-commit.py", "tools/check-commit-on-main.py",
+                    "tools/install-git-hooks.sh", "tools/git-hooks/pre-commit",
+                    "tools/git-hooks/pre-push", "tools/git-hooks/commit-msg", str(_GUARD)):
+            (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src / rel, repo / rel)
+        env = {k: v for k, v in os.environ.items()
+               if not k.startswith("GIT_") and k not in (_OVERRIDE, "GRC_ALLOW_MAIN_COMMIT")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0",
+                   GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
+                   GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid")
+
+        def run(args, cwd=repo, extra=None):
+            return subprocess.run([str(a) for a in args], cwd=cwd, capture_output=True, text=True,
+                                  env={**env, **(extra or {})})
+
+        def must(args, cwd=repo):
+            cp = run(args, cwd=cwd)
+            if cp.returncode != 0:
+                failures.append(f"fixture step failed: {' '.join(map(str, args))}: {cp.stderr.strip()}")
+            return cp
+
+        def doc(path, version, body):
+            (path).parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(f"**Version:** {version}\\\n**Date:** 2026-01-01\\\n\n---\n\n{body}\n")
+
+        must(["git", "init", "-q", "-b", "feature"])
+        must(["git", "config", "commit.gpgsign", "false"])
+        # A local (unmanaged) commit-msg hook is refused until renamed to commit-msg.local, then chained.
+        hooks = Path(must(["git", "rev-parse", "--git-path", "hooks"]).stdout.strip())
+        hooks = hooks if hooks.is_absolute() else repo / hooks
+        hooks.mkdir(parents=True, exist_ok=True)
+        local = hooks / "commit-msg"
+        local.write_text("#!/bin/sh\necho 'local hook ran' >> \"$1\"\n")
+        local.chmod(0o755)
+        cp = run(["sh", "tools/install-git-hooks.sh"])
+        if cp.returncode == 0 or "commit-msg.local" not in cp.stderr:
+            failures.append("a foreign commit-msg hook was not refused with the .local migration step")
+        local.rename(hooks / "commit-msg.local")
+        cp = run(["sh", "tools/install-git-hooks.sh"])
+        if cp.returncode != 0:
+            failures.append(f"installer failed after the .local migration: {cp.stderr.strip()}")
+        must(["git", "add", "tools", ".claude"])
+        doc(repo / "d.md", "1.0.0", "first body")
+        must(["git", "add", "d.md"])
+        must(["git", "commit", "-q", "-m", "init"])
+        if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
+            failures.append("the chained commit-msg.local hook did not run")
+        doc(repo / "d.md", "1.0.0", "second body")
+        must(["git", "add", "d.md"])
+        cp = run(["git", "commit", "-q", "-m", "body only"])
+        if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
+            failures.append("a body-only change without a Version bump was not refused")
+        cp = run(["git", "commit", "-q", "-m", "body only\n\nVersionBump: none (test)"])
+        if cp.returncode != 0:
+            failures.append(f"the VersionBump opt-out did not allow the commit: {cp.stderr.strip()}")
+        doc(repo / "d.md", "1.0.1", "third body")
+        must(["git", "add", "d.md"])
+        cp = run(["git", "commit", "-q", "-m", "bumped"])
+        if cp.returncode != 0:
+            failures.append(f"a bumped change was refused: {cp.stderr.strip()}")
+        doc(repo / "docs" / "maturity-scorecard.md", "1.0.0", "generated")
+        must(["git", "add", "docs"])
+        must(["git", "commit", "-q", "-m", "add scorecard"])
+        doc(repo / "docs" / "maturity-scorecard.md", "1.0.0", "regenerated")
+        must(["git", "add", "docs"])
+        cp = run(["git", "commit", "-q", "-m", "regen"])
+        if cp.returncode != 0:
+            failures.append(f"a generated-artefact body change was refused: {cp.stderr.strip()}")
+        # The crux: a commit made with `git -C` in a LINKED worktree is checked too.
+        linked = Path(base) / "wt"
+        must(["git", "worktree", "add", "-q", "-b", "other", str(linked)])
+        doc(linked / "d.md", "1.0.1", "worktree body")
+        must(["git", "-C", str(linked), "add", "d.md"])
+        cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree body only"], cwd=base)
+        if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
+            failures.append("a body-only commit made with git -C in a linked worktree was not refused")
+        cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "override"], cwd=base,
+                 extra={_OVERRIDE: "1"})
+        if cp.returncode != 0:
+            failures.append(f"the override did not allow the commit: {cp.stderr.strip()}")
+    return failures
+
+
+def _self_test():
+    class _G:  # a stand-in guard exposing only OPT_OUT
+        import re as _re
+        OPT_OUT = _re.compile(r"VersionBump:\s*none\b", _re.I)
+    cases = [
+        ("override allows", decide(True, False, False, True, ["a.md"])[0], 0),
+        ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
+        ("opt-out allows", decide(False, False, True, True, ["a.md"])[0], 0),
+        ("unreadable state refuses", decide(False, False, False, False, [])[0], 1),
+        ("an offender refuses", decide(False, False, False, True, ["a.md"])[0], 1),
+        ("no offender allows", decide(False, False, False, True, [])[0], 0),
+        ("the refusal names the offender and the override",
+         all(s in decide(False, False, False, True, ["x/a.md"])[1] for s in ("x/a.md", _OVERRIDE)), True),
+        ("an opt-out in a comment line does not count",
+         message_opts_out("subject\n# VersionBump: none (commented)\n", _G), False),
+        ("an opt-out in the body counts", message_opts_out("subject\n\nVersionBump: none (reason)\n", _G), True),
+        ("a checkout without the guard is allowed", load_guard(Path("/nonexistent-checkout")), None),
+    ]
+    failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
+    integ = _integration_self_test()
+    failures += integ
+    total = len(cases) + 9
+    for f in failures:
+        print(f"  FAIL: {f}")
+    print(f"self-test: {total - len(failures)}/{total} passed" if not failures
+          else f"self-test: FAILED ({len(failures)} of {total})")
+    return 1 if failures else 0
+
+
+def main(argv):
+    if len(argv) > 1 and argv[1] == "--self-test":
+        return _self_test()
+    if len(argv) > 2 and argv[1] == "--commit-msg":
+        return _commit_msg(argv[2])
+    print("usage: check-version-bump-commit.py --commit-msg <file> | --self-test", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))

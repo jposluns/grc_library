@@ -339,7 +339,7 @@ detail and rationale for everything below live in
    - Pack-README `Version` bumped on a body change: D2 + gate 40 (the `## Version history` section and its D6 gate were retired 2026-08-03, maintainer-directed).
    - In a gate-39-SCANNED surface (`.md`/`.py`/`.sh`, NOT `.claude/` or `references/`), gate-cited prose phrased `gates N and M` (P7 trap): gate 39.
    - Audit-gate add/renumber/logic-change updates all parallel surfaces: gates 35/64/39 (gated half; the §5 grouped-list and per-gate narrative are free-prose, see the grep reminders).
-   - `Version` and `Date` co-bumped in the SAME edit (watch UTC rollover): D2/D4 + hook [`block-unbumped-version-commit.py`](hooks/block-unbumped-version-commit.py) + gate 40. Run `python3 tools/lint-version-bump-recency.py` before each commit.
+   - `Version` and `Date` co-bumped in the SAME edit (watch UTC rollover): D2/D4 + hook [`block-unbumped-version-commit.py`](hooks/block-unbumped-version-commit.py) (same checkout) + the git-native commit-msg check [`check-version-bump-commit.py`](../tools/check-version-bump-commit.py) (every worktree) + gate 40. Run `python3 tools/lint-version-bump-recency.py` before each commit.
    - After any per-document `Version` bump, regenerate `taxonomy.yml` FIRST then the portal/scorecard: gates 33/34. An `executive/` page bump regenerates `narrative.yml` instead: gate 85.
    - Detailed-mirror current-week sweep (advisory, cross-repo, NOT gated); gate 59 checks mirror-header parity. Daily roll-up when D8 prints `DAILY SUMMARY DUE`: D8 (advisory). The ROOT `CHANGELOG.md` is summarized-in-place, NEVER removed.
    - CHANGELOG (root + detailed) and version bumps present; pre-push guard green.
