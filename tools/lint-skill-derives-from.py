@@ -55,7 +55,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 SKILLS_DIR_REL = "guardrails/skills"
 
@@ -162,7 +162,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    root = args.root.resolve()
+    root = require_dir(args.root, "--root")  # 3b50b1: a missing root used to scan nothing
     skill_files = find_skill_files(root)
 
     if not skill_files:

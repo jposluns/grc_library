@@ -112,7 +112,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, require_dir, require_git_worktree_at  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -307,7 +307,13 @@ def get_file_commit_date(
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
-    root: Path = args.root.resolve()
+    root: Path = require_dir(args.root, "--root")
+    # 3b50b1: the check reads the root's git history; a root outside a work tree used to scan
+    # nothing and exit 0.
+    problem = require_git_worktree_at(root)
+    if problem:
+        print(f"ERROR: --root {problem}", file=sys.stderr)
+        return 2
     max_lag_days: int = args.max_lag_days
     max_future_days: int = args.max_future_days
     baseline_date: datetime.date = args.baseline_date

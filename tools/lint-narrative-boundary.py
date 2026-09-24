@@ -64,7 +64,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -323,7 +323,12 @@ def main(argv: list[str]) -> int:
         return _self_test()
     root = REPO_ROOT
     if "--root" in argv[1:]:
-        root = Path(argv[argv.index("--root") + 1]).resolve()
+        # 3b50b1: a missing value or a non-directory used to scan nothing and exit 0.
+        k = argv.index("--root") + 1
+        if k >= len(argv) or argv[k].startswith("-"):
+            print("ERROR: --root needs a directory argument.", file=sys.stderr)
+            return 2
+        root = require_dir(argv[k], "--root")
     findings = run(root)
     if findings:
         for f in findings:

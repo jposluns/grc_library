@@ -43,7 +43,7 @@ if _TOOLS_DIR not in sys.path:
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import split_row, is_separator_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, TODO_ID_RE, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, TODO_ID_RE, require_dir, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
 
 TODO_REL = "TODO.md"
 REFERENCE_REL = "TODO-REFERENCE.md"
@@ -371,7 +371,8 @@ def main(argv: list[str]) -> int:
             root = Path(args[i + 1]).resolve()
             i += 2
         elif args[i] == "--private-root" and i + 1 < len(args):
-            private_override = Path(args[i + 1]).resolve()
+            # 3b50b1: an explicit private root must exist (a typo used to no-op silently).
+            private_override = require_dir(args[i + 1], "--private-root")
             have_private_override = True
             i += 2
         else:

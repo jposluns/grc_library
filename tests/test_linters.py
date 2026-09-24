@@ -11594,6 +11594,49 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class ExplicitRootGuardTests(LinterTestCase):
+    """Explicit --root / --private-root overrides and exempt-prefix paths refuse (3b50b1).
+
+    Each of these used to scan nothing and exit 0, raise a traceback on rc 1 (the findings
+    code), or silently drop a missing explicit path that sat under an exempt prefix."""
+
+    def test_missing_root_refused(self) -> None:
+        for script, flag in (
+            ("tools/lint-changelog-mirror-header-parity.py", "--root"),
+            ("tools/lint-narrative-boundary.py", "--root"),
+            ("tools/lint-skill-derives-from.py", "--root"),
+            ("tools/lint-document-date-staleness.py", "--root"),
+            ("tools/lint-todo-index-reference-parity.py", "--private-root"),
+        ):
+            result = run_linter(script, flag, "/nonexistent-3b50b1")
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("not a directory", result.stderr, script)
+            self.assertNotIn("Traceback", result.stderr, script)
+
+    def test_root_shape_refusals(self) -> None:
+        empty = Path(tempfile.mkdtemp(prefix="guard-root-empty-"))
+        self.addCleanup(shutil.rmtree, empty)
+        cases = (
+            (("tools/lint-narrative-boundary.py", "--root"), "needs a directory"),
+            (("tools/lint-changelog-mirror-header-parity.py", "--root", str(empty)), "required input"),
+            (("tools/lint-document-date-staleness.py", "--root", str(empty)), "not inside a git work tree"),
+        )
+        for args, fragment in cases:
+            result = run_linter(*args)
+            self.assertEqual(result.returncode, 2, repr(args) + result.stdout + result.stderr)
+            self.assertIn(fragment, result.stderr, repr(args))
+            self.assertNotIn("Traceback", result.stderr, repr(args))
+
+    def test_missing_path_under_exempt_prefix_refused(self) -> None:
+        for args in (
+            ("tools/lint-document-control-codes.py", ".corpus-management/no-such-3b50b1.md"),
+            ("tools/lint-document-iso-annex-a.py", ".corpus-management/no-such-3b50b1.md"),
+            ("tools/lint-standards-currency.py", "--paths", ".corpus-management/no-such-3b50b1.md"),
+        ):
+            result = run_linter(*args)
+            self.assertEqual(result.returncode, 2, repr(args) + result.stdout + result.stderr)
+
+
 class UnbalancedFenceTests(LinterTestCase):
     """tools/lint-unbalanced-fences.py (gate 66).
 
@@ -19028,6 +19071,9 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
                     selected.append(p)
                     return ""
                 stack.enter_context(self.patch.object(m, "read_text_safe", read_target))
+                # The synthetic root is not a git work tree; the --root preflight (3b50b1) is
+                # simulated, as version-bump-recency's is below.
+                stack.enter_context(self.patch.object(m, "require_git_worktree_at", lambda root: None))
                 self.assertEqual(m.main(["--root", str(self.root), *paths]), 0)
                 return selected
             if name == "lint-version-bump-recency.py":
