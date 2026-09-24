@@ -94,7 +94,9 @@ def message_opts_out(text, guard, comment_char="#"):
         if line[:1] and line[:1] in chars:
             continue
         kept.append(line)
-    return bool(guard.OPT_OUT.search("\n".join(kept)))
+    # Line by line: OPT_OUT's `\s*` would otherwise match across a newline, so removing a comment line
+    # between "VersionBump:" and "none" could MANUFACTURE an opt-out (3b25 r4, codex).
+    return any(guard.OPT_OUT.search(line) for line in kept)
 
 
 def _comment_char(root):
@@ -323,6 +325,8 @@ def _self_test():
         ("a custom comment character is honoured", message_opts_out("s\n; VersionBump: none x\n", _G, ";"), False),
         ("'auto' strips every candidate (refuse-direction): a ';' comment is not an opt-out",
          message_opts_out("# subject\n; VersionBump: none x\n", _G, "auto"), False),
+        ("an opt-out cannot be assembled across lines",
+         message_opts_out("subject\n\nVersionBump:\n@ retained text\nnone\n", _G, "auto"), False),
         ("a scissors marker inside other comment text does not cut",
          message_opts_out("s\n# example ------------------------ >8 ------------------------\nVersionBump: none x\n", _G), True),
         ("a checkout without the guard is allowed", load_guard(Path("/nonexistent-checkout")), None),

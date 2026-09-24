@@ -229,13 +229,14 @@ def commit_target(cmd: str, cwd: str):
     raw_prefix = cmd[:cmd.find("commit")] if "commit" in cmd else cmd
     if any(t in prefix for t in ("(", ")", "`", "{", "}")) or "\n" in raw_prefix.strip():
         return None
-    # A `cd` only counts when the text before the commit is NOTHING BUT `cd <dir> &&` / `;` steps:
-    # mixed with any other command it may run conditionally (`true || cd x;`, `false && cd x;`),
-    # so the target is undeterminable (3b25 r3, codex P1). pushd/popd are treated the same way.
+    # ANY cd/pushd/popd before the commit makes the target undeterminable: whether it runs depends
+    # on execution (a failed cd, `||`, a `;` after a failed step), which text cannot settle
+    # (3b25 r2-r4, codex). Only the commit's own -C operands are used; those cannot fail silently
+    # (git exits instead of committing). The cost, accepted: a `cd x && ... && git commit` gets no
+    # auto-bump here; the git-native commit-msg check in that checkout still refuses it.
     if re.search(r"\b(?:cd|pushd|popd)\b", prefix):
-        if not re.fullmatch(r"(?:\s*cd\s+\S+\s*(?:&&|;))+\s*", prefix):
-            return None
-    parts = [c.group(1) for c in re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", prefix)]
+        return None
+    parts = []
     parts += re.findall(r"-C\s+(\S+)", m.group(0))
     target = cwd
     for part in parts:
@@ -691,7 +692,8 @@ def self_test() -> int:
     ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
     ck("commit_target: plain commit runs in cwd", commit_target("git commit -m x", "/r"), "/r")
     ck("commit_target: -C is applied", commit_target("git -C /w commit -m x", "/r"), "/w")
-    ck("commit_target: cd then relative -C compose", commit_target("cd /a && git -C b commit", "/r"), "/a/b")
+    ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
+    ck("commit_target: several -C operands compose", commit_target("git -C /a -C b commit", "/r"), "/a/b")
     ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
     ck("commit_target: a subshell cd does not move the commit", commit_target("(cd /x && true); git commit -m x", "/r"), None)
     ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
@@ -699,7 +701,8 @@ def self_test() -> int:
     ck("commit_target: a newline-separated command is undeterminable", commit_target("cd /x\ngit commit", "/r"), None)
     ck("commit_target: a cd after || is undeterminable", commit_target("true || cd /x; git commit -m x", "/r"), None)
     ck("commit_target: a cd after a failing && is undeterminable", commit_target("false && cd /x; git commit -m x", "/r"), None)
-    ck("commit_target: chained cd steps still compose", commit_target("cd /a && cd b; git commit -m x", "/r"), "/a/b")
+    ck("commit_target: a failed cd then a skipped cd is undeterminable",
+       commit_target("cd /dev/null && cd /x; git commit -m x", "/r"), None)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")
