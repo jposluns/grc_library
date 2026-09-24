@@ -34,7 +34,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -73,8 +73,10 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Enforce uniform License field across artefact documents."
     )
-    parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
+    parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv[1:])
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     canonical = _engine().CANONICAL_LICENSE
     targets = iter_markdown_targets(args.paths, exempt_files=EXEMPT_FILES)
     grouped: dict[Path, list[tuple[int, str]]] = {}

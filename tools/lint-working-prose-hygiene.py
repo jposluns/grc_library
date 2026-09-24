@@ -56,7 +56,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import CODE_SPAN_RE, iter_non_code_lines, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, iter_markdown_targets, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 def default_scan_root() -> Path | None:
@@ -128,6 +128,11 @@ def check_file(path: Path) -> list[tuple[int, str]]:
 
 def main(argv: list[str]) -> int:
     paths = argv[1:]
+    if paths:
+        # 3b48: explicit paths are refused when missing, else normalized; the default
+        # target is the operational store OUTSIDE this tree by design, so outside paths
+        # stay allowed.
+        paths = guard_explicit_paths_cwd(paths, repo_root=REPO_ROOT, allow_outside=True)
     if not paths:
         scan_root = default_scan_root()
         if scan_root is None:

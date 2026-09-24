@@ -39,7 +39,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import CROSS_ADJACENCY_WINDOW as ADJACENCY_WINDOW, CROSS_BINDING_SENTINEL as BINDING_SENTINEL, CROSS_EXTERNAL_CONTEXT_RE as EXTERNAL_CONTEXT_RE, CROSS_MD_LINK_RE as MD_LINK_RE, CROSS_REF_PATTERNS as REF_PATTERNS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, CROSS_ADJACENCY_WINDOW as ADJACENCY_WINDOW, CROSS_BINDING_SENTINEL as BINDING_SENTINEL, CROSS_EXTERNAL_CONTEXT_RE as EXTERNAL_CONTEXT_RE, CROSS_MD_LINK_RE as MD_LINK_RE, CROSS_REF_PATTERNS as REF_PATTERNS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -80,8 +80,10 @@ def check_file(path: Path) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
+    parser.add_argument("paths", nargs="*", default=None)
     args = parser.parse_args(argv)
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
 
     findings: list[str] = []
     for path in iter_markdown_targets([Path(p) for p in args.paths]):

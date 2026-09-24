@@ -112,7 +112,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths_cwd, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -242,7 +242,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "paths",
         nargs="*",
-        default=list(DEFAULT_SCAN_PATHS),
+        default=None,
         help=(
             "Paths to scan (relative to --root). Defaults to the "
             "standard corpus, guardrails pack, and repo-root meta file set."
@@ -319,7 +319,13 @@ def main(argv: list[str] | None = None) -> int:
     eng = _engine()
 
     # Resolve scan paths against --root.
-    scan_paths = [root / p for p in args.paths]
+    # 3b48: explicit paths keep their documented --root-relative meaning and are refused
+    # when missing or outside --root (the check reads that tree's git history); the
+    # default list may legitimately lack entries in an adopter clone, so it is not guarded.
+    if args.paths:
+        scan_paths = [Path(p) for p in guard_explicit_paths_cwd(args.paths, repo_root=root, base=root)]
+    else:
+        scan_paths = [root / p for p in DEFAULT_SCAN_PATHS]
     files = iter_markdown_targets(
         scan_paths,
         repo_root=root,

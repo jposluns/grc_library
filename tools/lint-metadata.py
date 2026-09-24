@@ -25,7 +25,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
-from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT
+from lint_common import guard_explicit_paths, is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -223,7 +223,11 @@ def check_file(path: Path) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
-    paths = argv[1:] or [
+    # 3b48: this walker resolves against REPO_ROOT, so explicit paths take the root-semantics
+    # guard (#2533): refused when missing, outside the tree, or relative while not run from
+    # the root; otherwise normalized, so a spelling such as governance/../CHANGELOG.md hits
+    # the same exemptions as CHANGELOG.md.
+    paths = guard_explicit_paths(argv[1:], repo_root=REPO_ROOT) if argv[1:] else [
         "README.md",
         "NOTICE.md",
         "specification-master-project.md",

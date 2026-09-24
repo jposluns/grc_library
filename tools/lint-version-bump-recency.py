@@ -44,7 +44,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import head_version, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Thread-pool width for the per-file git queries. The queries are
 # independent read-only subprocesses, so the pool changes wall-clock
@@ -140,6 +140,10 @@ def main(argv: list[str]) -> int:
     root = Path(args.root).resolve()
 
     if args.paths:
+        # 3b48: explicit paths are refused when missing or outside --root (the check reads
+        # that tree's git history; a missing path used to count as a scanned document with
+        # no history, and an outside one passed over a git fatal), else normalized.
+        args.paths = guard_explicit_paths_cwd(args.paths, repo_root=root)
         targets = [
             Path(p).resolve() for p in args.paths
             if p.endswith(".md")

@@ -438,7 +438,14 @@ def main(argv=None):
     if args.self_test:
         return _self_test()
     enforce = not args.report
-    return run(args.paths, enforce=enforce, ignore_markers=args.ignore_markers)
+    paths = args.paths
+    if paths:
+        # 3b48: explicit files are refused when missing (was a raw FileNotFoundError
+        # traceback), else normalized; external files stay allowed (a supported case,
+        # test_external_skipped_path_does_not_crash).
+        from lint_common import guard_explicit_paths_cwd
+        paths = guard_explicit_paths_cwd(paths, repo_root=REPO_ROOT, allow_outside=True)
+    return run(paths, enforce=enforce, ignore_markers=args.ignore_markers)
 
 
 if __name__ == "__main__":

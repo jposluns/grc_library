@@ -824,6 +824,57 @@ def guard_explicit_paths(
     return out
 
 
+
+def guard_explicit_paths_cwd(
+    paths: Iterable[str],
+    *,
+    repo_root: Path | None = None,
+    allow_outside: bool = False,
+    base: Path | None = None,
+) -> list[str]:
+    """Explicit-path guard for the :func:`iter_targets` family (3b48): refuse or normalize.
+
+    :func:`iter_targets` resolves a relative entry against the CURRENT DIRECTORY (the
+    conventional CLI meaning, kept here) and silently drops an entry that is neither a
+    file nor a directory, so a missing explicit path used to scan nothing and exit 0.
+    This guard resolves each user-given entry against ``base`` (default: the current
+    directory; a linter whose documented contract is ``--root``-relative passes its live
+    root) and refuses, with messages on stderr and ``SystemExit(2)``:
+
+    * an entry that does not exist, since nothing would be scanned;
+    * with ``allow_outside=False``, an entry that resolves outside ``repo_root``, since a
+      linter whose checks read this tree's registers, glossary, inventory or git history,
+      or whose reporting is repo-relative, cannot scan another tree soundly (run the
+      ``tools/`` copy in the tree that holds the file).
+
+    Returns the entries resolved to ABSOLUTE paths (``..`` and ``//`` spellings
+    normalized), which the cwd-resolving walkers consume unchanged. Call it only on
+    user-given paths, never on a linter's default or computed scan list. Residue, stated:
+    an existing entry can still yield no scan through the linter's own exemptions or
+    file-type filter, and a directory's descendants are walked without a per-file
+    containment check (no symlinks exist in the corpus).
+    """
+    root = (repo_root if repo_root is not None else REPO_ROOT).resolve()
+    anchor = (base if base is not None else Path.cwd()).resolve()
+    errors: list[str] = []
+    out: list[str] = []
+    for p in paths:
+        resolved = (anchor / Path(p)).resolve()
+        if not allow_outside and resolved != root and root not in resolved.parents:
+            errors.append(
+                f"{p}: outside this linter's tree ({root}); run the tools/ copy in the "
+                f"tree that holds the file."
+            )
+        elif not resolved.exists():
+            errors.append(f"{p}: does not exist (resolved to {resolved}); nothing would be scanned.")
+        else:
+            out.append(str(resolved))
+    if errors:
+        for msg in errors:
+            print(f"ERROR: {msg}", file=sys.stderr)
+        raise SystemExit(2)
+    return out
+
 def iter_scan_roots_markdown(
     paths: Iterable[str],
     *,

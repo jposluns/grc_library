@@ -11057,6 +11057,150 @@ class ExplicitPathGuardTests(LinterTestCase):
             self.assertEqual(result.returncode, 0, script + result.stdout + result.stderr)
 
 
+class ExplicitPathGuardCwdTests(LinterTestCase):
+    """lint_common.guard_explicit_paths_cwd across the iter_targets walker family (3b48).
+
+    iter_targets resolves a relative explicit path against the CURRENT DIRECTORY (kept:
+    it is the conventional CLI meaning) and silently drops an entry that does not exist,
+    so a missing explicit path used to scan nothing and exit 0, and several wrappers
+    raised a ValueError traceback on an out-of-tree path. Each wrapper now refuses a
+    missing path (exit 2) and, unless its check is content-only, an out-of-tree path.
+    """
+
+    STRICT = (
+        "tools/lint-acronym-consistency.py", "tools/lint-alignment-citation-existence.py",
+        "tools/lint-ccm-aicm-citations.py", "tools/lint-ccm-provider-member-in-range.py",
+        "tools/lint-cobit-title-text.py", "tools/lint-cross-doc-numbers.py",
+        "tools/lint-cross-file-section-names.py", "tools/lint-cross-file-section-refs.py",
+        "tools/lint-date-format.py", "tools/lint-external-link-domains.py",
+        "tools/lint-internal-references.py", "tools/lint-intra-doc-refs.py",
+        "tools/lint-license-consistency.py", "tools/lint-pii-in-content.py",
+        "tools/lint-placeholder-leakage.py", "tools/lint-required-sections.py",
+        "tools/lint-secrets-in-content.py", "tools/lint-section-anchors.py",
+        "tools/lint-section-placement.py", "tools/lint-ssdf-control-ids.py",
+        "tools/lint-stub-documents.py", "tools/lint-gate-count-consistency.py",
+        "tools/lint-version-bump-recency.py",
+    )
+    # Content checks that scan another tree soundly: cobit-iso31000 (held catalogues, #1010
+    # reporting fallback) and working-prose-hygiene (its default target is the operational
+    # store outside the tree by design).
+    CONTENT_ONLY = ("tools/lint-cobit-iso31000-citations.py", "tools/lint-working-prose-hygiene.py")
+    MARKDOWN = STRICT + CONTENT_ONLY
+
+    def _outside_dir(self) -> Path:
+        d = Path(tempfile.mkdtemp(prefix="guard-cwd-outside-"))
+        self.addCleanup(shutil.rmtree, d)
+        return d
+
+    def _run_from(self, cwd: Path, script: str, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / script), *args],
+            cwd=str(cwd), capture_output=True, text=True,
+        )
+
+    def test_missing_path_refused(self) -> None:
+        for script in self.MARKDOWN:
+            result = run_linter(script, "no/such/file-3b48.md")
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("does not exist", result.stderr, script)
+        result = run_linter("tools/lint-unused-imports.py", "--paths", "no/such/file-3b48.py")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_strict_out_of_tree_refused_without_traceback(self) -> None:
+        outside = self._outside_dir()
+        probe = outside / "probe.md"
+        probe.write_text("# Probe\n\nPlain text.\n", encoding="utf-8")
+        for script in self.STRICT:
+            result = run_linter(script, str(probe))
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("outside this linter's tree", result.stderr, script)
+            self.assertNotIn("Traceback", result.stderr, script)
+
+    def test_content_only_scans_another_tree(self) -> None:
+        outside = self._outside_dir()
+        probe = outside / "probe.md"
+        probe.write_text("# Probe\n\nPlain text.\n", encoding="utf-8")
+        for script in self.CONTENT_ONLY:
+            result = run_linter(script, str(probe))
+            self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertNotIn("Traceback", result.stderr, script)
+
+    def test_relative_path_keeps_current_directory_meaning(self) -> None:
+        # From tools/, "README.md" names tools/README.md if it exists and nothing else;
+        # it must never silently resolve to the repository-root README.
+        subdir = REPO_ROOT / "tools"
+        target = subdir / "README.md"
+        for script in self.MARKDOWN:
+            result = self._run_from(subdir, script, "README.md")
+            if target.exists():
+                self.assertNotEqual(result.returncode, 2, script + result.stderr)
+            else:
+                self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+                self.assertIn("does not exist", result.stderr, script)
+
+    def test_non_normalized_absolute_matches_plain_path(self) -> None:
+        spelled = f"{REPO_ROOT}/../{REPO_ROOT.name}/README.md"
+        plain = str(REPO_ROOT / "README.md")
+        for script in self.MARKDOWN:
+            a = run_linter(script, plain)
+            b = run_linter(script, spelled)
+            self.assertNotIn("Traceback", b.stderr, script)
+            self.assertEqual(
+                (a.returncode, a.stdout, a.stderr), (b.returncode, b.stdout, b.stderr), script
+            )
+
+    def test_metadata_non_normalized_path_hits_exemptions(self) -> None:
+        # Reality fixture: governance/../CHANGELOG.md bypassed the CHANGELOG exemption and
+        # produced false "missing required metadata field" findings.
+        plain = run_linter("tools/lint-metadata.py", "CHANGELOG.md")
+        spelled = run_linter("tools/lint-metadata.py", "governance/../CHANGELOG.md")
+        self.assertEqual(
+            (plain.returncode, plain.stdout, plain.stderr),
+            (spelled.returncode, spelled.stdout, spelled.stderr),
+        )
+        self.assertNotIn("missing required metadata field", spelled.stdout)
+        self.assertEqual(run_linter("tools/lint-metadata.py", "no/such/file-3b48.md").returncode, 2)
+
+    def test_date_staleness_paths_stay_root_relative(self) -> None:
+        # Documented contract: positional paths are relative to --root, not the cwd.
+        result = self._run_from(REPO_ROOT / "tools", "tools/lint-document-date-staleness.py", "README.md")
+        self.assertNotEqual(result.returncode, 2, result.stdout + result.stderr)
+        missing = run_linter("tools/lint-document-date-staleness.py", "no/such/file-3b48.md")
+        self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
+
+    def test_in_tree_positive_control_still_fails(self) -> None:
+        bad = self.make_fixture("guard-cwd-bad.md", "# T\n\n**Date:** 2026-13-45\n")
+        self.assertLinterFails(run_linter("tools/lint-date-format.py", bad), "invalid calendar date")
+
+    def test_every_iter_targets_caller_has_a_reviewed_policy(self) -> None:
+        # Class-completeness: a new tool that feeds paths to the iter_targets family (or a
+        # local copy) must be classified here, so it cannot join the family unguarded.
+        reviewed = {Path(s).name for s in self.MARKDOWN} | {
+            "lint-unused-imports.py", "lint-metadata.py", "lint-document-date-staleness.py",
+            # Own missing-path refusal predating 3b48:
+            "lint-document-control-codes.py", "lint-document-iso-annex-a.py",
+            # Guarded by #2533 (iter_scan_roots_markdown family):
+            "lint-unbalanced-fences.py", "lint-nested-markdown-links.py",
+            # No explicit-path command line (internal walk only):
+            "sweep-preflight-scanner.py",
+        }
+        pattern = re.compile(r"\biter_(?:markdown_)?targets\(")
+        callers = {
+            p.name for p in (REPO_ROOT / "tools").glob("*.py")
+            if p.name != "lint_common.py" and pattern.search(p.read_text(encoding="utf-8"))
+        }
+        unreviewed = sorted(callers - reviewed)
+        self.assertEqual(unreviewed, [], f"iter_targets callers without a reviewed explicit-path policy: {unreviewed}")
+
+    def test_default_runs_unchanged_without_arguments(self) -> None:
+        # The guard sits only on the explicit branch: a no-argument run never refuses.
+        for script in ("tools/lint-date-format.py", "tools/lint-working-prose-hygiene.py",
+                       "tools/lint-document-date-staleness.py"):
+            result = run_linter(script)
+            self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+
+
 class UnbalancedFenceTests(LinterTestCase):
     """tools/lint-unbalanced-fences.py (gate 66).
 

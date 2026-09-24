@@ -56,7 +56,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
+from lint_common import guard_explicit_paths_cwd, DEFAULT_EXEMPT_DIRS, is_narrative_root, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -110,7 +110,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description="Verify acronym expansion consistency against the glossary."
     )
-    parser.add_argument("paths", nargs="*", default=DEFAULT_PATHS)
+    parser.add_argument("paths", nargs="*", default=None)
     parser.add_argument(
         "--root",
         type=Path,
@@ -121,6 +121,8 @@ def main(argv: list[str]) -> int:
              "actual repository root derived from this file's location.",
     )
     args = parser.parse_args(argv[1:])
+    # 3b48: explicit paths are refused when missing or outside this tree, else normalized.
+    args.paths = guard_explicit_paths_cwd(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     if args.root is not None:
         GLOSSARY = args.root.resolve() / "governance" / "register-glossary.md"
     glossary = parse_glossary()
