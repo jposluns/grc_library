@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.19\
+**Version:** 1.2.20\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -217,7 +217,7 @@ The verification process operates against an explicit allow-list of publisher ca
 | WTO | `wto.org` | WTO Trade Facilitation Agreement. |
 | World BASC Organization | `wbasco.org` | BASC International Norm and Security Standard (Business Alliance for Secure Commerce). |
 | South Korea | `law.go.kr` | Korean legislation, including the AI Basic Act (Framework Act on the Development of Artificial Intelligence and the Establishment of Trust). |
-| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation. |
+| OpenSSF / Linux Foundation | `openssf.org`, `slsa.dev`, `linuxfoundation.org`, `spdx.org` | SLSA (Supply-chain Levels for Software Artifacts), an OpenSSF project of the Linux Foundation; the SPDX specification, a Linux Foundation project. |
 | SANS Institute | `sans.org` | SANS Critical AI Security Guidelines. |
 | Google | `saif.google` | Google Secure AI Framework (SAIF). |
 | MLCommons | `mlcommons.org` | AILuminate hazard taxonomy and benchmark. |
@@ -242,6 +242,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-09-24 (3b30, publisher-list reconciliation):** section 7.1 reconciled with the gate's allow-list. Domains added to existing rows: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada; `canada.ca` also reconciles the 2026-07-11 note that `tbs-sct.canada.ca` is suffix-covered by it); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). The OWASP CycloneDX row became a general OWASP row. New rows: IEEE, ETSI, PCI SSC, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, HarmBench. The allow-listed publisher domains `cisecurity.org`, `sans.org`, `saif.google`, `cncf.io` and `spdx.org` get rows when their sources gain Canonical Citations Register entries (tracked follow-ups). Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design. Eligibility follows section 2.1: a publisher qualifies for a row when the Canonical Citations Register carries an entry for its source, whether that source is normative (a standard or regulation) or informative (a benchmark, a vulnerability database, or guidance).
 
 **2026-09-24 (3b32, SANS and Google SAIF register rows):** added the SANS Institute (`sans.org`) and Google (`saif.google`) publisher rows, now that their sources have Canonical Citations Register entries.
+
+**2026-09-24 (3b28, SPDX register row):** added `spdx.org` to the OpenSSF / Linux Foundation row, now that the SPDX specification has a Canonical Citations Register entry (spdx.org redirects to the project's current site, spdx.dev).
 
 ---
 
