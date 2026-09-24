@@ -607,9 +607,14 @@ class StandardsCurrencyTests(LinterTestCase):
         fixture = self.make_fixture(
             "standard-slsa-bare-current.md",
             VALID_METADATA
-            + "\n\nThe build pipeline meets SLSA 1.2 Build L2, not SLSA 1.10.\n",
+            + "\n\nThe build pipeline meets SLSA 1.2 Build L2, not SLSA 1.10, SLSA 1.1.0"
+            + " or SLSA 1.1-rc1.\n",
         )
+        # "SLSA 1.10" is rejected by the word boundary; "SLSA 1.1.0" and
+        # "SLSA 1.1-rc1" exercise the version-continuation lookahead against the
+        # stripped "1.1" marker (3b34 QA, all three families).
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn("stale citation", result.stdout + result.stderr)
         self.assertNotIn("BLOCKING named 'SLSA'", result.stdout + result.stderr)
 
