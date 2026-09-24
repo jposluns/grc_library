@@ -73,8 +73,8 @@ WHAT IT SCANS:
     alignment`` section (table ``| Framework | Reference | Topic |``); subject =
     the document's H1 title.
 
-Exit code: 0 for any worklist; 2 when a --docs argument is refused (missing, out-of-tree or
-empty, 3b50b2b). Usage:
+Exit code: 0 for any worklist; 2 on a usage error: a refused --docs argument (missing,
+out-of-tree, empty, or not a .md document) or --self-test combined with --docs (3b50b2b). Usage:
     python3 tools/audit-matrix-semantic-fit.py                 # scan both surfaces
     python3 tools/audit-matrix-semantic-fit.py --matrix-only
     python3 tools/audit-matrix-semantic-fit.py --source-docs-only
