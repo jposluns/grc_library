@@ -588,6 +588,18 @@ class StandardsCurrencyTests(LinterTestCase):
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "stale citation")
 
+    def test_superseded_marker_after_id_ending_in_parenthesis_flagged(self) -> None:
+        # 3b35: a register ID ending in ")" (ICAO Annex 17 (Chicago Convention),
+        # superseded "Edition 11") previously produced a pattern that could never
+        # match, because \b after ")" demands a following word character.
+        fixture = self.make_fixture(
+            "standard-icao-parenthesis-superseded.md",
+            VALID_METADATA
+            + "\n\nScreening follows ICAO Annex 17 (Chicago Convention) Edition 11.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "ICAO Annex 17")
+
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
         # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
         # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the
