@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.84\
+**Version:** 1.5.85\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -263,9 +263,9 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | WCO SAFE Framework | 2025 edition | 2025-06 | World Customs Organization Framework of Standards to Secure and Facilitate Global Trade | 2018, 2021 | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | verified 2026-07-11 |
-| BASC International Norm V6-2022 (Control and Security Management System, CSMS) | V6-2022 | 2022-03 | Business Alliance for Secure Commerce control and security management system norm (CSMS) | V5 | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
-| BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) | 6.0.2 | 2022 | BASC security standard for companies with indirect relation to the cargo | - | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
-| BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) | 6.0.3 | 2022 | BASC security standard for companies implementing basic security operational controls | - | https://www.wbasco.org/en/certification/basc-certification | needs-reconfirm |
+| BASC International Norm V6-2022 (Control and Security Management System, CSMS) | V6-2022 | 2022-03 | Business Alliance for Secure Commerce control and security management system norm (CSMS) | V5 | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
+| BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) | 6.0.2 | 2022 | BASC security standard for companies with indirect relation to the cargo | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
+| BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) | 6.0.3 | 2022 | BASC security standard for companies implementing basic security operational controls | - | https://www.wbasco.org/en/document/basc-international-norm-and-standards-implementation-guide-v6-2022 | needs-reconfirm |
 | CTPAT MSC | 2020 | 2020 | Customs-Trade Partnership Against Terrorism Minimum Security Criteria | - | https://www.cbp.gov/border-security/ports-entry/cargo-security/ctpat-customs-trade-partnership-against-terrorism/apply/security-criteria | verified 2026-07-09 |
 
 ## Sector-specific (energy, telecom, finance)
@@ -283,7 +283,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | IEC 62443-4-2 | 2019 | 2019 | Security for industrial automation and control systems: Part 4-2: Technical security requirements for IACS components | - | https://webstore.iec.ch/en/publication/34421 | verified 2026-07-09 |
 | IEC 61511 | 2016 (Edition 2, Amendment 1 in 2017) | 2016 | Functional safety: Safety instrumented systems for the process industry sector | Edition 1 (2003) | https://webstore.iec.ch/en/publication/61289 | verified 2026-07-09 |
 | IEC 61508 | 2010 | 2010 | Functional safety of electrical/electronic/programmable electronic safety-related systems | 1998 | https://webstore.iec.ch/en/publication/5515 | verified 2026-07-09 |
-| ISO 16484 | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025; Part 3 at draft (DIS) | 2024 to 2025 | Building automation and control systems (BACS) Earlier editions of the parts were published 2010 to 2020. | - | https://www.iso.org/standard/84890.html | verified 2026-07-09 |
+| ISO 16484 | Part 1:2024 (Ed.2), Part 2:2025 (Ed.2), Part 4:2025; Part 3 at draft (DIS) | 2024 to 2025 | Building automation and control systems (BACS) Earlier editions of the parts were published 2010 to 2020. | - | https://www.iso.org/committee/54740/x/catalogue/ | verified 2026-07-09 |
 | ASHRAE 135 | 2020 (with subsequent addenda) | 2020 | BACnet protocol for building automation and control networks (incl. BACnet/SC) | - | https://www.ashrae.org/technical-resources/bookstore/bacnet | 2026-06-30 |
 | NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
@@ -304,7 +304,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
 | ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
-| ICAO Doc 10055 | 2024 | 2024 | Aviation Cybersecurity Strategy | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-06-30 |
+| ICAO Aviation Cybersecurity Strategy | October 2019 | 2019-10 | Aviation cybersecurity framework of seven pillars (non-binding; published under the Secretary General's authority; no ICAO Doc number, Doc 10055 being the Manual on Notification and Publication of Differences) | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-09-24 |
 | IMO MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
 
 ## International treaties and conventions

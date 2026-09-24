@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.17\
-**Date:** 2026-09-04\
+**Version:** 1.0.19\
+**Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -89,7 +89,7 @@ This annex applies where an organization:
 | Standard / Programme | Body | Scope |
 |---|---|---|
 | **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
-| **ICAO Doc 10055: Aviation Cybersecurity Strategy** | ICAO | States; airlines; ANSPs; airports |
+| **ICAO Aviation Cybersecurity Strategy (October 2019)** | ICAO | States; airlines; ANSPs; airports |
 | **IMO MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management (guidelines) | International Maritime Organization | Shipping companies; port operators |
 | **IMO MSC-FAL.1/Circ.3/Rev.3** (4 April 2025) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
@@ -163,20 +163,20 @@ The IMO maritime cyber risk management guidelines (MSC-FAL.1/Circ.3) support the
 
 **Critical OT systems requiring risk assessment:** ECDIS (navigation); GPS/AIS; GMDSS (communications); cargo management systems; engine monitoring; access control systems.
 
-### ICAO aviation cybersecurity (doc 10055)
+### ICAO Aviation Cybersecurity Strategy (October 2019)
 
-ICAO's Aviation Cybersecurity Strategy requires states and aviation organizations to implement cybersecurity measures across the aviation ecosystem. Key areas:
+ICAO's Aviation Cybersecurity Strategy (October 2019, published under the authority of the Secretary General; it carries no ICAO Doc number) is a non-binding framework of seven pillars: international cooperation; governance; effective legislation and regulations; cybersecurity policy; information sharing; incident management and emergency planning; and capacity building, training and cybersecurity culture. It encourages States and the civil aviation sector to act rather than setting binding requirements. Its focus areas map to the library as follows:
 
-| ICAO Area | Requirement | GRC Library Mapping |
+| ICAO Area | Strategy focus | GRC Library Mapping |
 |---|---|---|
-| Governance | Cybersecurity governance framework; designated accountable executive | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) |
-| Risk management | Cyber risk identification and mitigation | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
-| Incident management | Aviation-specific incident response; reporting to national aviation authority | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
-| Supply chain | Cybersecurity requirements for aviation suppliers | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
-| Training and awareness | Aviation-specific cybersecurity training | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
-| Resilience | Cyber resilience for safety-critical systems | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
+| Governance | Clear national governance and accountability for civil aviation cybersecurity, coordinated with the national cybersecurity authority (section 2.2) | [`risk/policy-enterprise-governance-and-risk-management.md`](../../risk/policy-enterprise-governance-and-risk-management.md) |
+| Risk management | Cybersecurity within aviation security and safety oversight as part of a comprehensive risk management framework (sections 4.1 and 4.2) | [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md) |
+| Incident management | Scalable plans for the continuity of air transport during cyber incidents, and cybersecurity exercises (sections 6.1 and 6.2) | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md): supplement with CAA/FAA notification procedure |
+| Supply chain | Supply chain security for software and hardware as an element of cybersecurity policy (section 4.3) | [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md) |
+| Training and awareness | Capacity building, training and cybersecurity culture (pillar 7) | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
+| Resilience | A civil aviation sector resilient to cyber-attacks (the Strategy's vision; section 6.2 exercises test resilience) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
 
-**CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework aligns with ICAO Doc 10055 and maps to the CAF (Cyber Assessment Framework). UK aviation organizations must demonstrate compliance through CAF self-assessment.
+**CAA CAP 1753 (UK):** The Cyber Security Oversight Process for Aviation (CAP 1753, 2024) applies to aviation organizations the Civil Aviation Authority notifies as in scope under applicable regulations, including the Network and Information Systems (NIS) Regulations 2018. In-scope organizations complete a cyber assessment for their tier: the CAF for Aviation, or, for Tier 3 organizations, the Tier 3 Cyber Assessment Tool (the CAF for Aviation may be used instead).
 
 ### HMRC post-brexit customs obligations (UK)
 
@@ -238,7 +238,7 @@ For organizations operating or managing connected vehicle fleets:
 | UNECE R155 CSMS documentation | UNECE WP.29 R155 | Create CSMS documentation framework (vehicle fleet operators/manufacturers) |
 | HMRC CDS API compliance | HMRC CDS | Verify customs declaration systems are CDS-compliant; maintain API access credentials |
 | CIRCIA cyber incident reporting procedure | CIRCIA; TSA | Create CIRCIA-compliant reporting procedure for US critical infrastructure |
-| Aviation cybersecurity programme | ICAO Doc 10055; CAA CAP 1753 | Create aviation cybersecurity programme document (aviation operators) |
+| Aviation cybersecurity programme | ICAO Aviation Cybersecurity Strategy; CAA CAP 1753 | Create aviation cybersecurity programme document (aviation operators) |
 
 ---
 
