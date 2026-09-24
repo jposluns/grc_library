@@ -884,7 +884,8 @@ def main(argv):
     ap.add_argument("--ref-base", help="path to the grc_library_ref checkout")
     ap.add_argument("--tier", choices=["A", "B", "all"], default="all")
     ap.add_argument("--docs", nargs="+", metavar="PATH",
-                    help="scope to these repo-relative doc path(s) (the per-batch cadence)")
+                    help="scope to these doc path(s), relative to the repo root (run from it) or absolute "
+                         "(the per-batch cadence)")
     ap.add_argument("--json", action="store_true", dest="as_json",
                     help="emit the worklist as JSON (for a dispatch brief or a run-over-run diff)")
     ap.add_argument("--self-test", action="store_true",
@@ -900,6 +901,9 @@ def main(argv):
     ap.add_argument("--date", help="date stamp written into the emitted record "
                                    "(metadata only; NOT used in the draw)")
     args = ap.parse_args(argv[1:])
+    if args.self_test and args.docs:
+        # 3b50b2b: --self-test ignored --docs, so an invalid --docs passed unvalidated.
+        ap.error("--self-test takes no --docs; run the self-test and the scoped audit separately.")
     if args.self_test:
         return self_test()
     if args.sample:

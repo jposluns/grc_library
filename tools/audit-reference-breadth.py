@@ -362,6 +362,20 @@ def main(argv: list[str] | None = None) -> int:
         # (./x.md, tools/../x.md, an absolute path) used to miss the repo-relative comparison and
         # select nothing; a missing, out-of-tree or empty path is refused (exit 2).
         args.docs = guard_explicit_paths(args.docs)
+        # A named document outside the scanned corpus set is refused here, before the reference
+        # catalogue is parsed and before any state is touched (the full scan takes about a minute).
+        try:
+            corpus_set = set(tracked_corpus_md(REPO_ROOT))
+        except (OSError, subprocess.CalledProcessError) as exc:
+            print(f"ERROR: cannot list the corpus to validate --docs: {exc}", file=sys.stderr)
+            return 2
+        outside_early = [rel for rel in args.docs if rel not in corpus_set]
+        if outside_early:
+            for rel in outside_early:
+                print(f"ERROR: --docs {rel}: not in the scanned corpus set (domain dirs, docs/, and "
+                      f"the root citable documents only); nothing would be assessed.",
+                      file=sys.stderr)
+            return 2
 
     # Working-state (.working/) resolution (post-.working-move): reads resolve via the read
     # resolver (private sibling then in-repo, None when neither holds it -> empty history);

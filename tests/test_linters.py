@@ -11708,6 +11708,40 @@ class DocsArgNormalizationTests(LinterTestCase):
                 self.assertEqual(r.returncode, 2, (script, arg, r.stdout, r.stderr))
                 self.assertIn("ERROR:", r.stderr)
 
+    def test_out_of_scope_docs_refused_before_any_state_write(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="docs-scope-"))
+        self.addCleanup(shutil.rmtree, td)
+        r = run_linter("tools/audit-claim-precision.py", "--docs", "CHANGELOG.md")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("not in the corpus scan set", r.stderr)
+        state = td / "state.md"
+        r = run_linter("tools/audit-reference-breadth.py", "--docs", self.DOC, "CHANGELOG.md",
+                       "--update-state", "--state", str(state))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("not in the scanned corpus set", r.stderr)
+        self.assertFalse(state.exists(), "a refused --docs must write no state")
+
+    def test_matrix_fit_spellings_and_non_document_refusal(self) -> None:
+        import json
+        def counts(spelling: str) -> tuple:
+            r = run_linter("tools/audit-matrix-semantic-fit.py", "--docs", spelling, "--json")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            d = json.loads(r.stdout)
+            return tuple(sorted((k, v.get("assessed")) for k, v in d.items()
+                                if isinstance(v, dict) and "assessed" in v))
+        base = counts(self.DOC)
+        self.assertTrue(base and any(v for _, v in base), f"positive control selects rows: {base}")
+        for spelling in ("./" + self.DOC, str(REPO_ROOT / self.DOC)):
+            self.assertEqual(counts(spelling), base, spelling)
+        for arg in ("security", "."):
+            r = run_linter("tools/audit-matrix-semantic-fit.py", "--docs", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout, r.stderr))
+
+    def test_self_test_with_docs_refused(self) -> None:
+        for script in ("tools/audit-claim-precision.py", "tools/audit-matrix-semantic-fit.py"):
+            r = run_linter(script, "--self-test", "--docs", "no/such-3b50b2b.md")
+            self.assertEqual(r.returncode, 2, (script, r.stdout[-200:], r.stderr))
+
     def test_publication_scanner_refuses_unscreenable_input(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="pubscan-"))
         self.addCleanup(shutil.rmtree, td)
@@ -11726,6 +11760,7 @@ class DocsArgNormalizationTests(LinterTestCase):
             r = run_linter("tools/scan-publication-instruction-content.py", "--files", str(locked))
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn("could not be read", r.stderr)
+            self.assertIn("across 0 flagged extract(s)", r.stdout)
 
 
 class ExplicitRootGuardTests(LinterTestCase):

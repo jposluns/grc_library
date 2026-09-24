@@ -110,10 +110,18 @@ def main(argv: list[str] | None = None) -> int:
         # 3b50b2b: every named extract must be a readable regular file, checked before scanning.
         # A missing or empty value used to print UNREADABLE and exit 0 with zero findings, so a
         # screen could finish without reading the extract it was asked to screen.
-        bad = [f for f in args.files if not f.strip() or not Path(f).is_file()]
+        bad: list[tuple[str, str]] = []
+        for f in args.files:
+            if not f.strip():
+                bad.append((f, "an empty value"))
+                continue
+            try:
+                if not Path(f).is_file():
+                    bad.append((f, "not a regular file"))
+            except OSError as exc:  # an inaccessible parent directory raises on some Python versions
+                bad.append((f, f"cannot be checked ({exc})"))
         if bad:
-            for f in bad:
-                why = "an empty value" if not f.strip() else "not a regular file"
+            for f, why in bad:
                 print(f"ERROR: --files {f!r}: {why}; nothing would be screened.", file=sys.stderr)
             return 2
     try:

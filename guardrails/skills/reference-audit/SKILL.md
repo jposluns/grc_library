@@ -11,7 +11,7 @@ derives_from: ../../governance/evidence-grounded-completion.md
 Portable procedure, concrete names. In the parent GRC library this skill runs with:
 
 - Worklist tool (the recall-oriented triage half): `tools/audit-reference-breadth.py`
-  (advisory, exits 0 whatever it finds (2 only on a refused input), explicitly not a gate; every mode passes `--ref-base
+  (advisory, exits 0 whatever it finds (2 on a refused input or an internal or usage error), explicitly not a gate; every mode passes `--ref-base
   <path-to-the-reference-base-checkout>`; bare beyond that for FULL mode, `--docs <path>
   [<path> ...]` for per-touch with `--update-state` for the state refresh, `--ref-since
   <sha>` / `--ref-items <substring>` for new-ingest, `--include-publications` only under
@@ -288,7 +288,7 @@ The pass is complete on a given run when:
   row is `screened` (recommendation tier, never authoritative), and `pending` /
   `quarantined` items are never candidates.
 - The advisory worklist tool named in the project wiring: the recall-oriented triage
-  step that feeds this skill's worklist (not a gate; exits 0 whatever it finds (2 only on a refused input); a per-touch form
+  step that feeds this skill's worklist (not a gate; exits 0 whatever it finds (2 on a refused input or an internal or usage error); a per-touch form
   with a state-refresh flag for the delta anchor, new-ingest forms for reference deltas,
   and publications included only under an explicit screening decision), with its curated
   alias map, also named in the project wiring.
