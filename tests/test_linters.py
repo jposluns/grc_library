@@ -11650,6 +11650,21 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
             self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
             self.assertNotIn("Traceback", r.stderr)
 
+    def test_adopt_bootstrap_ref_accepts_a_valid_empty_manifest(self) -> None:
+        # r1 (codex): the docstring promises exit 0 for a clean empty manifest; only a file that is
+        # not a manifest at all is refused.
+        import json
+        import runpy
+        td = Path(tempfile.mkdtemp(prefix="aidinputs-"))
+        self.addCleanup(shutil.rmtree, td)
+        gen = runpy.run_path(str(REPO_ROOT / "tools/build-reference-manifest.py"))
+        empty = td / "empty-manifest.md"
+        empty.write_text(gen["render"]({}), encoding="utf-8")
+        r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(empty), "--json")
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+        counts = json.loads(r.stdout)["counts"]
+        self.assertTrue(counts and all(v == 0 for v in counts.values()), counts)
+
 
 class StrictArgvLiveDefectTests(LinterTestCase):
     """3b50b2a: live defects where a bad argument ran the wrong branch or scanned nothing.

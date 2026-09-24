@@ -52,6 +52,11 @@ ROW = re.compile(
 )
 
 
+# The top-level heading tools/build-reference-manifest.py renders: it separates a valid empty
+# manifest from an unrelated file.
+MANIFEST_HEADING = "# Reference-acquisition manifest"
+
+
 def parse_manifest(text: str) -> list[dict]:
     """Return [{bucket, title, version, issuer, url, acquisition}, ...] from the
     manifest's per-bucket tables. Keyed on the FREE/LICENSED acquisition cell, so
@@ -137,11 +142,14 @@ def main(argv: list[str] | None = None) -> int:
         print(f"adopt-bootstrap-ref: manifest not found at {path} (broken clone?).",
               file=sys.stderr)
         return 2
-    entries = parse_manifest(path.read_text(encoding="utf-8"))
-    if not entries:
-        # 3b50b2e2: a file that parses to no manifest entry used to yield an empty plan, exit 0.
-        print(f"adopt-bootstrap-ref: {path} holds no manifest entries; nothing to plan.",
-              file=sys.stderr)
+    text = path.read_text(encoding="utf-8")
+    entries = parse_manifest(text)
+    if not entries and MANIFEST_HEADING not in text.splitlines():
+        # 3b50b2e2: a file that is not a manifest at all (no generator heading, no entry) used to
+        # yield an empty plan, exit 0. A structurally valid EMPTY manifest (the heading, zero rows)
+        # keeps its documented exit-0 empty plan.
+        print(f"adopt-bootstrap-ref: {path} is not a reference-acquisition manifest (no "
+              f"'{MANIFEST_HEADING}' heading and no entries); nothing to plan.", file=sys.stderr)
         return 2
     plan = categorize(entries)
     if args.json:
