@@ -18,7 +18,9 @@ still resolves to a file in the repo.
 Usage:
     python3 tools/lint-web-corpus-links.py [--manifest PATH] [--self-test]
 
-Exit codes: 0 clean; 1 on findings (or a usage/self-test failure).
+Exit codes: 0 clean; 1 on findings (or a self-test failure); 2 when an explicit --manifest is
+empty, missing or not a regular file, or the manifest cannot be read or parses to zero link rows
+(nothing would be checked).
 """
 
 from __future__ import annotations

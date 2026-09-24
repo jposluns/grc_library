@@ -47,9 +47,13 @@ and are used by the gate-36 regression test suite for synthetic
 fixtures.
 
 Exit codes:
-    0 - both invariants hold (or the CHANGELOG has no Library Version
-        headings yet, treated as a pass-with-note).
-    1 - one or more inconsistency findings.
+    0 - both invariants hold (or, for the DEFAULT changelog only, it has no
+        Library Version headings yet, treated as a pass-with-note).
+    1 - one or more inconsistency findings, or the default changelog or
+        readme cannot be read.
+    2 - an explicit --changelog or --readme is empty, not a regular file,
+        unreadable or not UTF-8, or an explicit changelog has no Library
+        Version heading (nothing would be verified).
 """
 
 from __future__ import annotations
@@ -123,14 +127,14 @@ def main() -> int:
 
     try:
         changelog_text = changelog_path.read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeDecodeError) as exc:  # 3b50b2d2: a non-UTF-8 file raised a traceback
         print(f"ERROR: cannot read changelog at {changelog_path}: {exc}", file=sys.stderr)
-        return 1
+        return 2 if explicit["--changelog"] else 1
     try:
         readme_text = readme_path.read_text(encoding="utf-8")
-    except OSError as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read readme at {readme_path}: {exc}", file=sys.stderr)
-        return 1
+        return 2 if explicit["--readme"] else 1
 
     # Find the FIRST (most recent) Library-Version heading in the CHANGELOG.
     candidates = [m for m in (CHANGELOG_HEADING_RE.search(changelog_text),

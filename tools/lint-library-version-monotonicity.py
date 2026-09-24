@@ -35,6 +35,8 @@ Exit codes:
         Unavailable-prior-state is treated as a pass with a printed note
         rather than a separate exit code.
     1   one or more versions decreased.
+    2   an explicit --prior-readme is missing, empty, not a regular file, or
+        cannot be read (nothing to compare against).
 """
 
 from __future__ import annotations

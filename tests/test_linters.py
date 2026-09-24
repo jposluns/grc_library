@@ -23835,6 +23835,8 @@ class FileArgRefusalTests(LinterTestCase):
         self.addCleanup(shutil.rmtree, td)
         norows = td / "norows.md"
         norows.write_text("No link rows here.\n", encoding="utf-8")
+        binary = td / "binary.md"
+        binary.write_bytes(b"\x89PNG\r\n\x1a\n\xff\xfe not utf-8")
         cases = (
             ("tools/lint-web-corpus-links.py", "--manifest="),
             ("tools/lint-web-corpus-links.py", "--manifest", str(norows)),
@@ -23844,6 +23846,11 @@ class FileArgRefusalTests(LinterTestCase):
             ("tools/lint-version-date-consistency.py", "--readme", str(td)),
             ("tools/lint-library-version-monotonicity.py", "--prior-readme", str(td / "missing.md")),
             ("tools/lint-library-version-monotonicity.py", "--prior-readme", str(td)),
+            # r1: a non-UTF-8 explicit file used to raise a traceback (version-date) or print OK
+            # after checking nothing (matrix-control-codes).
+            ("tools/lint-version-date-consistency.py", "--changelog", str(binary)),
+            ("tools/lint-version-date-consistency.py", "--readme", str(binary)),
+            ("tools/lint-matrix-control-codes.py", str(binary)),
         )
         for script, *args in cases:
             r = run_linter(script, *args)
@@ -23851,7 +23858,8 @@ class FileArgRefusalTests(LinterTestCase):
             self.assertNotIn("Traceback", r.stderr)
 
     def test_default_runs_unchanged(self) -> None:
-        for script in ("tools/lint-web-corpus-links.py", "tools/lint-version-date-consistency.py"):
+        for script in ("tools/lint-web-corpus-links.py", "tools/lint-version-date-consistency.py",
+                       "tools/lint-matrix-control-codes.py"):
             r = run_linter(script)
             self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
 
