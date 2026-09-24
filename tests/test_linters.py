@@ -8866,6 +8866,24 @@ class MatrixControlCodeTests(LinterTestCase):
 class CcmProviderMemberInRangeTests(LinterTestCase):
     """tools/lint-ccm-provider-member-in-range.py"""
 
+    def test_provider_facing_exemption_is_explicit(self) -> None:
+        """3b52: the internal-scope qualification is enforced by an explicit, reviewed set. A listed
+        document is skipped; the same content unlisted still fails; the shipped set is empty."""
+        import importlib.util
+        from unittest import mock
+        spec = importlib.util.spec_from_file_location(
+            "ccm_provider_member_wrapper", REPO_ROOT / "tools" / "lint-ccm-provider-member-in-range.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        self.assertEqual(mod.PROVIDER_FACING_DOCS, frozenset())
+        fixture = self.make_fixture("fake-ccm-provider-facing.md",
+                                    "| Control | CSA CCM v4.1 |\n| --- | --- |\n| S | CCC-01 to 09 |\n")
+        rel = str(Path(fixture).resolve().relative_to(REPO_ROOT))
+        with mock.patch("sys.stderr"), mock.patch("sys.stdout"):
+            self.assertEqual(mod.main(["x", fixture]), 1)
+            with mock.patch.object(mod, "PROVIDER_FACING_DOCS", frozenset({rel})):
+                self.assertEqual(mod.main(["x", fixture]), 0)
+
     def test_family_range_sweeping_provider_member_flagged(self) -> None:
         fixture = self.make_fixture(
             "fake-ccm-provider-member-range.md",

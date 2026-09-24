@@ -14,5 +14,7 @@ directional-member set, advising that the range be split to exclude them. A
 mixed-family range (a range whose two endpoints name different families) is malformed
 rather than a single-family citation and is not expanded. The tracked set of
 directional provider-to-tenant members is supplied by the adopter and is not part of
-this clause; it is extended as new directional members surface. A document whose
+this clause; it is extended as new directional members surface. Which documents are
+provider-facing, and so outside the internal-scope claim, is likewise project
+configuration, declared explicitly rather than inferred from prose. A document whose
 family-range citations sweep in no directional member contributes no findings.
