@@ -90,6 +90,7 @@ Clean up and tooling: the gate/lint machinery and internal-apparatus items.
 
 | ID | Item | Tags |
 | --- | --- | --- |
+| 3.47 | TODO adoptability: strip internal working-provenance annotations (S) | `[public]` |
 
 ## Priority 4 — Adopter experience and future
 
