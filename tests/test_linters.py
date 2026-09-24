@@ -15235,6 +15235,20 @@ class AllowlistSpecParityTests(unittest.TestCase):
             domains = self.mod.spec_domains(self.spec(["iso.org"], "| Publisher | `hidden.example` | x |\n"))
         self.assertIn("hidden.example", domains)
 
+    def test_prose_with_pipe_after_table_is_ignored(self) -> None:
+        # r4 (codex, gemini): a prose line with a pipe outside the table is not a row.
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nThe notation A | B means either.\n"))
+        self.assertEqual(domains, {"iso.org"})
+
+    def test_code_span_pipe_line_outside_table_is_an_input_error(self) -> None:
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "\n| Second | `second.example` | x |\n"))
+
+    def test_line_without_pipe_inside_table_is_an_input_error(self) -> None:
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "stray text inside the table\n"))
+
     def test_call_argument_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')
         self.assertEqual([e for e, _, _ in entries], ["iso.org"])

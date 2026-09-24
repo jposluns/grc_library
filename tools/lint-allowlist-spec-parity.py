@@ -146,6 +146,14 @@ def allow_entries(src: str) -> list[tuple[str, int, str | None]]:
     return out
 
 
+def _cells(line: str) -> list[str]:
+    """Table cells with only the outer delimiters removed, so empty cells survive."""
+    inner = line.strip()
+    inner = inner[1:] if inner.startswith("|") else inner
+    inner = inner[:-1] if inner.endswith("|") else inner
+    return [c.strip() for c in inner.split("|")]
+
+
 def spec_domains(text: str) -> set[str]:
     """Code-span domains in the section 7.1 table's domain cell."""
     m = re.search(r"^### 7\.1 .*$", text, re.M)
@@ -153,22 +161,29 @@ def spec_domains(text: str) -> set[str]:
         raise InputError("section 7.1 heading not found")
     end = re.search(r"^#{2,3} ", text[m.end():], re.M)
     section = text[m.end(): m.end() + end.start()] if end else text[m.end():]
+    lines = section.splitlines()
+    # The table is the contiguous block that starts at its first "Publisher"
+    # header row and ends at the first blank line (the GFM model). Inside it
+    # every line is a row (a GFM row need not start with a pipe); a line
+    # without a pipe there is an input error. Outside it, a pipe line that
+    # carries a code span could be a second table and is an input error;
+    # plain prose outside the block is ignored.
+    start = next((k for k, line in enumerate(lines)
+                  if "|" in line and _cells(line)[0] == "Publisher"), None)
+    if start is None:
+        raise InputError("section 7.1 table header (Publisher) not found")
+    stop = next((k for k in range(start + 1, len(lines)) if not lines[k].strip()), len(lines))
+    for k, line in enumerate(lines):
+        if not (start <= k < stop) and "|" in line and "`" in line:
+            raise InputError(f"a pipe line with a code span outside the section 7.1 table: {line.strip()[:80]}")
     domains: set[str] = set()
     rows = 0
-    header_seen = False
-    for line in section.splitlines():
+    for line in lines[start + 1:stop]:
         stripped = line.strip()
-        # A GFM table row need not start with a pipe, so any line with a pipe
-        # is treated as a row; only the outer delimiters are removed.
         if "|" not in stripped:
-            continue
-        inner = stripped[1:] if stripped.startswith("|") else stripped
-        inner = inner[:-1] if inner.endswith("|") else inner
-        cells = [c.strip() for c in inner.split("|")]
+            raise InputError(f"a line without a pipe inside the section 7.1 table: {stripped[:80]}")
+        cells = _cells(stripped)
         if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
-            continue
-        if cells[0] == "Publisher" and not header_seen:
-            header_seen = True
             continue
         if not cells[0]:
             raise InputError(f"section 7.1 row with an empty Publisher cell: {stripped[:80]}")
