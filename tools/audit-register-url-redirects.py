@@ -134,10 +134,18 @@ REDIRECT_CODES = {301, 302, 303, 307, 308}
 
 
 def redirect_header(headers) -> str | None:
-    """The redirect target urllib would follow: Location, else the older URI header."""
+    """The redirect target urllib would follow: Location, else the older URI header.
+
+    urllib selects by header PRESENCE (``"location" in headers``), not by value,
+    so an empty Location still wins over a URI header; mirror that exactly.
+    """
     if not headers:
         return None
-    return headers.get("Location") or headers.get("URI")
+    if "Location" in headers:
+        return headers["Location"]
+    if "URI" in headers:
+        return headers["URI"]
+    return None
 
 
 def from_http_error(chain: list[str], code: int, location: str | None,
@@ -307,6 +315,12 @@ class _SelfTest(unittest.TestCase):
         self.assertEqual(redirect_header({"URI": "/y"}), "/y")
         self.assertEqual(redirect_header({"Location": "/x", "URI": "/y"}), "/x")
         self.assertIsNone(redirect_header({}))
+        # Presence, not truthiness: an empty Location wins over URI, as in urllib.
+        from email.message import Message
+        msg = Message()
+        msg["location"] = ""
+        msg["URI"] = "/off"
+        self.assertEqual(redirect_header(msg), "")
         self.assertIsNone(redirect_header(None))
 
     def test_redirect_loop_is_unknown(self):
