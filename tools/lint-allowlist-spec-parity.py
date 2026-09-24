@@ -170,8 +170,11 @@ def spec_domains(text: str) -> set[str]:
     # inline code spans are removed is table-structured (a row of at least two
     # cells), so it is an input error whatever its content (a second table or a
     # stray row whose domains would otherwise be missed). Prose with a single
-    # pipe, or pipes only inside inline code, is ignored. Residue: prose with
-    # two or more bare pipes outside code fails loud.
+    # pipe, or pipes only inside inline code, is ignored. A GFM delimiter row
+    # outside the block ("--- | ---") also fails, so a second table without
+    # outer pipes cannot hide (every GFM table has a delimiter row). Residue:
+    # prose with two or more bare pipes outside code fails loud; a lone
+    # single-pipe line with no delimiter row is a paragraph, not a table.
     start = next((k for k, line in enumerate(lines)
                   if "|" in line and _cells(line)[0] == "Publisher"), None)
     if start is None:
@@ -182,7 +185,9 @@ def spec_domains(text: str) -> set[str]:
         if start <= k < stop:
             continue
         outside_code = re.sub(r"`[^`]*`", "", line)
-        if outside_code.count("|") >= 2:
+        is_delimiter_row = "|" in outside_code and all(
+            DELIMITER_CELL_RE.fullmatch(c) for c in _cells(outside_code))
+        if outside_code.count("|") >= 2 or is_delimiter_row:
             raise InputError(f"a table-structured line outside the section 7.1 table: {line.strip()[:80]}")
     domains: set[str] = set()
     rows = 0

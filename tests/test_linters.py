@@ -15261,6 +15261,13 @@ class AllowlistSpecParityTests(unittest.TestCase):
         with self.floor(), self.assertRaises(self.mod.InputError):
             self.mod.spec_domains(self.spec(["iso.org"], "> Note: continued below.\n\n| Lost | lost.example | x |\n"))
 
+    def test_second_table_without_outer_pipes_is_an_input_error(self) -> None:
+        # r7 codex: a two-column table with no outer pipes has one pipe per row,
+        # but its GFM delimiter row gives it away.
+        extra = "\nPublisher | Canonical domain\n--- | ---\nLost | `lost.example`\n"
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], extra))
+
     def test_prose_with_one_pipe_and_inline_code_is_ignored(self) -> None:
         with self.floor():
             domains = self.mod.spec_domains(self.spec(["iso.org"], "\nUse a pipe | and a `code` span.\n"))
