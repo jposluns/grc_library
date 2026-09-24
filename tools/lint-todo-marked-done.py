@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import REPO_ROOT, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -52,7 +52,8 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
     args = parser.parse_args(argv[1:])
-    paths = args.paths or DEFAULT_PATHS
+    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     return _engine().run(iter_markdown_files(paths), repo_root=REPO_ROOT)
 
 

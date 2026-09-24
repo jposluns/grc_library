@@ -733,6 +733,97 @@ def iter_markdown_targets(
     )
 
 
+def check_explicit_paths(
+    paths: Iterable[str],
+    *,
+    repo_root: Path | None = None,
+    allow_outside: bool = False,
+) -> list[str]:
+    """Refusal messages for explicit linter arguments that would be mis-targeted or skipped.
+
+    A content linter given explicit paths is a control only if it scans what the caller
+    named. :func:`iter_scan_roots_markdown` resolves each entry against ``repo_root``
+    (never the current directory) and silently drops an entry that does not exist, so
+    three inputs used to pass without scanning the intended file (P-TODO 3b21):
+
+    * a path that does not exist (a typo, or a file in another worktree), which scanned
+      nothing and exited 0;
+    * a RELATIVE path given while the current directory is not ``repo_root`` itself
+      (outside the tree, or a subdirectory of it), which scanned the file at that path
+      under ``repo_root``, not the file the caller was looking at;
+    * an absolute path outside ``repo_root`` (``allow_outside=False``), which a linter
+      whose vocabulary and repo-relative reporting belong to its own tree cannot scan
+      soundly (``lint-language`` raised a ValueError traceback). Run the target tree's
+      own ``tools/`` copy instead.
+
+    Returns one message per refused argument; an empty list means none of the three
+    shapes above applies, NOT that every argument will be scanned. Residue, stated: an
+    existing path can still yield no scan through the linter's own documented
+    exemptions or file-type filter (for example ``.corpus-management/``, a generated
+    ``docs/`` artefact, or a non-``.md`` file), and a DIRECTORY argument's descendants
+    are walked without a per-file containment check (no symlinks exist in the corpus).
+    Use :func:`guard_explicit_paths` in a wrapper: it refuses and normalizes.
+    """
+    root = (repo_root if repo_root is not None else REPO_ROOT).resolve()
+    cwd = Path.cwd().resolve()
+    errors: list[str] = []
+    for p in paths:
+        given = Path(p)
+        if not given.is_absolute() and cwd != root:
+            errors.append(
+                f"{p}: relative path given from {cwd}, which is not this linter's tree root "
+                f"{root}; it would resolve against {root}, not the current directory. Pass an "
+                f"absolute path, run from {root}, or run the linter copy in the tree you are "
+                f"working in."
+            )
+            continue
+        target = root / given
+        resolved = target.resolve()
+        if not allow_outside and resolved != root and root not in resolved.parents:
+            errors.append(
+                f"{p}: outside this linter's tree ({root}); run the tools/ copy in the "
+                f"tree that holds the file."
+            )
+            continue
+        if not target.exists():
+            errors.append(f"{p}: does not exist (resolved to {target}); nothing would be scanned.")
+    return errors
+
+
+def guard_explicit_paths(
+    paths: Iterable[str],
+    *,
+    repo_root: Path | None = None,
+    allow_outside: bool = False,
+) -> list[str]:
+    """Refuse unsound explicit linter arguments (exit 2), else return them normalized.
+
+    Prints each :func:`check_explicit_paths` message to stderr and raises
+    ``SystemExit(2)`` when any argument is refused. Otherwise returns each argument
+    resolved: repo-relative when it lies inside ``repo_root`` (so a spelling such as
+    ``/abs/../abs/tree/file.md`` or ``tools/../README.md`` reaches the scanner in the
+    form its repo-relative reporting expects), and absolute when it lies outside
+    (only possible with ``allow_outside=True``). Call it only on user-given paths,
+    never on a linter's default scan roots.
+    """
+    root = (repo_root if repo_root is not None else REPO_ROOT).resolve()
+    paths = list(paths)
+    refused = check_explicit_paths(paths, repo_root=root, allow_outside=allow_outside)
+    if refused:
+        for msg in refused:
+            print(f"ERROR: {msg}", file=sys.stderr)
+        raise SystemExit(2)
+    out: list[str] = []
+    for p in paths:
+        resolved = (root / p).resolve()
+        if resolved == root or root in resolved.parents:
+            rel = resolved.relative_to(root)
+            out.append(str(rel) if rel.parts else ".")
+        else:
+            out.append(str(resolved))
+    return out
+
+
 def iter_scan_roots_markdown(
     paths: Iterable[str],
     *,

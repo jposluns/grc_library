@@ -36,7 +36,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, iter_scan_roots_markdown
+from lint_common import AUDITED_DOMAIN_DIRS, guard_explicit_paths, iter_scan_roots_markdown
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ROLE_REGISTER = REPO_ROOT / "governance" / "register-role-authority.md"
@@ -144,7 +144,8 @@ def main(argv: list[str]) -> int:
         print("FAIL: could not load role authority register.")
         return 2
 
-    paths = args.paths or DEFAULT_PATHS
+    # Explicit paths are refused when unsound and normalized otherwise (3b21).
+    paths = guard_explicit_paths(args.paths, repo_root=REPO_ROOT) if args.paths else DEFAULT_PATHS
     files = iter_markdown_files(paths)
     return _engine().run(files, known=known, repo_root=REPO_ROOT)
 
