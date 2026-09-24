@@ -6,7 +6,7 @@ corpus document metadata field or link, and no taxonomy.yml row, may reference t
 executive/ narrative tree (the one-way authority boundary).
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family): the
-PURE scan (the link/fence regexes + helpers + _resolves_into_narrative + check_file +
+PURE scan (the link regexes + _resolves_into_narrative + check_file +
 check_taxonomy) is the source of record in the pack engine
 (.corpus-management/tools/gate_lint_narrative_authority_boundary.py); it is
 narrative-root-agnostic and takes the narrative root + its mention regexes via
@@ -46,7 +46,7 @@ TAXONOMY_MENTION_RE = re.compile(r"[\"'](?:\.\./)*executive/")
 # front matter). Matches gate 53's root set PLUS the narrative authoring
 # specification (deliberately in scope: it is a corpus document and must
 # itself honour the one-way rule; it passes because its executive-path
-# examples are fenced or inline-code prose).
+# examples are inline-code prose; fenced blocks are scanned too, fail closed, 3b54).
 ROOT_DELIVERABLE_DOCS: tuple[str, ...] = (
     "README.md",
     "NOTICE.md",
@@ -140,12 +140,15 @@ def _self_test() -> int:
             return p
 
         # Clean corpus doc: corpus-to-corpus link, prose MENTION of executive/ in
-        # backticks (legal), fenced example link into executive/ (legal).
+        # backticks (legal).
         clean = write("risk/policy-a.md",
                       "# A\n\n**Document Title:** A\\\n**Related Documents:** "
-                      "[`risk/annex-b.md`](annex-b.md)\n\n---\n\nSee `executive/README.md` for framing.\n"
-                      "```markdown\n[`executive/brief-x.md`](../executive/brief-x.md)\n```\n")
+                      "[`risk/annex-b.md`](annex-b.md)\n\n---\n\nSee `executive/README.md` for framing.\n")
         expect("clean-corpus-doc", check_file(clean, root), None)
+        # FAIL CLOSED (3b54): a fenced example link into executive/ is scanned and flagged.
+        fenced_link = write("risk/policy-fencedlink.md",
+                            "# A\n\n---\n\n```markdown\n[`executive/brief-x.md`](../executive/brief-x.md)\n```\n")
+        expect("fenced-link-flagged", check_file(fenced_link, root), "corpus-to-narrative link")
 
         # Fail-loud: an unreadable / non-UTF-8 corpus file is flagged, not skipped.
         unreadable = root / "risk" / "binary.md"
@@ -176,9 +179,9 @@ def _self_test() -> int:
         # F1 neg: a 4-space-indented ref-def is a CODE block, not a link -> pass.
         indent_ref = write("risk/policy-indentref.md", "# R\n\n---\n\n    [n]: ../executive/brief-x.md\n")
         expect("ref-style-indented-code-pass", check_file(indent_ref, root), None)
-        # F1 neg: a ref-def INSIDE a ~~~ fence (with an internal ```) is content -> pass.
+        # FAIL CLOSED (3b54): a ref-def inside a fence is scanned and flagged.
         fenced_ref = write("risk/policy-fencedref.md", "# R\n\n---\n\n~~~\n```\n[n]: ../executive/brief-x.md\n~~~\n")
-        expect("ref-style-fenced-pass", check_file(fenced_ref, root), None)
+        expect("ref-style-fenced-flagged", check_file(fenced_ref, root), "corpus-to-narrative link")
 
         # Root-doc link shape (no ../ prefix).
         bad_root = write("README.md", "# R\n\nSee [brief](executive/brief-x.md).\n")
@@ -227,7 +230,7 @@ def _self_test() -> int:
         return 1
     print("self-test: all one-way authority-boundary cases passed (body link, root-doc link, "
           "Related Documents field, any-field mention, taxonomy row; hyphenated and "
-          "nested-executive non-matches; prose/fenced mentions legal; scan-set guard).")
+          "nested-executive non-matches; prose mentions legal; fenced links flagged (fail closed); scan-set guard).")
     return 0
 
 

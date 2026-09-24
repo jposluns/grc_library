@@ -10289,23 +10289,20 @@ class DirectionalDependencyTests(LinterTestCase):
                 f"an ordinary corpus link must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
             )
 
-    def test_fenced_block_link_not_flagged(self) -> None:
-        # A link-like token inside a fenced code block is documentation, skipped.
+    def test_fenced_block_link_flagged_fail_closed(self) -> None:
+        # FAIL CLOSED (3b54): a link inside a fenced code block is scanned and flagged.
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "fenced.md").write_text(
                 "# Fenced\n\n```\n[reg](.project-governance/register.md)\n```\n",
                 encoding="utf-8",
             )
             result = run_linter("tools/lint-directional-dependency.py", d)
-            self.assertEqual(
-                result.returncode, 0,
-                f"a fenced-block link must not flag.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
-            )
+            self.assertLinterFails(result, "register.md")
 
     def test_self_test_passes(self) -> None:
         """Gate 53's own --self-test (P-1.25.25): the hardened LINK_RE (titled/angle),
-        the REF_DEF_RE reference-definition check, and the marker-aware fence parser
-        (ported from gate 87 / #1426) are exercised synthetically so the fail-open
+        the REF_DEF_RE reference-definition check, and fail-closed scanning of fenced
+        blocks (3b54, which retired the #1426 fence parser) are exercised synthetically so the fail-open
         hardening cannot silently rot."""
         result = run_linter("tools/lint-directional-dependency.py", "--self-test")
         self.assertEqual(result.returncode, 0,

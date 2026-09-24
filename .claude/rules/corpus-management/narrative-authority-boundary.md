@@ -11,11 +11,11 @@ narrative path is legal and not flagged. For each corpus document (which must be
 and valid UTF-8, an unreadable or non-UTF-8 file being itself a fail-loud finding), the
 check flags a metadata field value that mentions the narrative root (Related Documents
 included), and a markdown link, inline or via a reference definition, that resolves into
-the root narrative tree (external-scheme links are skipped, fenced blocks are excluded by
-a marker-aware fence scan, and a nested narrative directory elsewhere does not count). As
+the root narrative tree (external-scheme links are skipped; fenced blocks are scanned
+too, fail closed; a nested narrative directory elsewhere does not count). As
 defence in depth it also flags any quoted narrative-root path in the generated taxonomy
 (an unreadable or non-UTF-8 taxonomy is likewise a fail-loud finding). The narrative root,
 its two derived mention patterns, and the corpus scan scope are supplied by the adopter
-and are not part of this clause; the link, fence, and path-resolution logic is fixed by
+and are not part of this clause; the link and path-resolution logic is fixed by
 the check. A corpus whose documents and taxonomy are readable and valid UTF-8 and carry no
 metadata mention, link, or taxonomy target into the narrative tree contributes no findings.
