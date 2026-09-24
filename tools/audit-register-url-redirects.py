@@ -133,6 +133,13 @@ class _Recorder(urllib.request.HTTPRedirectHandler):
 REDIRECT_CODES = {301, 302, 303, 307, 308}
 
 
+def redirect_header(headers) -> str | None:
+    """The redirect target urllib would follow: Location, else the older URI header."""
+    if not headers:
+        return None
+    return headers.get("Location") or headers.get("URI")
+
+
 def from_http_error(chain: list[str], code: int, location: str | None,
                     response_url: str | None) -> tuple[list[str], int | None, str | None]:
     """Pure: interpret an HTTPError raised while following ``chain``.
@@ -141,9 +148,12 @@ def from_http_error(chain: list[str], code: int, location: str | None,
     redirects (a loop, or a target it refused, such as an unsupported scheme): the
     chain did not complete, so that is UNKNOWN. Any other status, including a
     terminal 300 or 304 with no Location, is a real final status. The Location is
-    resolved against the URL of the response that carried it (not the last
-    recorded hop, which may already be the next target), and a target already in
-    the chain is not appended again, since it has already been judged.
+    resolved against ``response_url`` rather than the last recorded hop, because on
+    loop detection the recorder has already appended the next target. The caller
+    passes ``HTTPError.filename``: on the loop and default-handler paths that is
+    the URL whose response carried the Location; on the refused-scheme path it is
+    the refused target itself, which is absolute, so it resolves to itself. A
+    target already in the chain is not appended again, since it has been judged.
     """
     if code not in REDIRECT_CODES or not location:
         return chain, code, None
@@ -162,7 +172,7 @@ def fetch_chain(url: str, timeout: float) -> tuple[list[str], int | None, str | 
         with opener.open(req, timeout=timeout) as resp:
             return [url] + rec.chain, resp.status, None
     except urllib.error.HTTPError as exc:
-        location = exc.headers.get("Location") if exc.headers else None
+        location = redirect_header(exc.headers)
         return from_http_error([url] + rec.chain, exc.code, location,
                                getattr(exc, "filename", None))
     except Exception as exc:  # noqa: BLE001 (any fetch failure is reported as UNKNOWN)
@@ -268,7 +278,11 @@ class _SelfTest(unittest.TestCase):
         # /a/start -> b/next (recorded as /a/b/next) -> /a/start loop: the loop is
         # raised on the response for /a/start, whose Location resolves to the
         # already-recorded /a/b/next, so no hop is invented.
-        chain = ["https://iso.org/a/start", "https://iso.org/a/b/next", "https://iso.org/a/start"]
+        # At raise time the recorder has already appended the next target, so the
+        # chain ends past the response URL; resolving against chain[-1] would
+        # invent /a/b/b/next.
+        chain = ["https://iso.org/a/start", "https://iso.org/a/b/next",
+                 "https://iso.org/a/start", "https://iso.org/a/b/next"]
         out, status, error = from_http_error(chain, 302, "b/next", "https://iso.org/a/start")
         self.assertEqual(out, chain)
         self.assertIsNone(status)
@@ -282,6 +296,18 @@ class _SelfTest(unittest.TestCase):
         f, _ = classify(chain, status, error, self.ok)
         self.assertTrue(any(x.startswith("OFF-LIST") for x in f))
         self.assertTrue(any(x.startswith("UNKNOWN") for x in f))
+
+    def test_target_already_in_chain_is_not_appended(self):
+        chain = ["https://iso.org/a", "https://iso.org/b"]
+        out, _, _ = from_http_error(chain, 302, "/a", "https://iso.org/b")
+        self.assertEqual(out, chain)
+
+    def test_redirect_header_mirrors_urllib(self):
+        self.assertEqual(redirect_header({"Location": "/x"}), "/x")
+        self.assertEqual(redirect_header({"URI": "/y"}), "/y")
+        self.assertEqual(redirect_header({"Location": "/x", "URI": "/y"}), "/x")
+        self.assertIsNone(redirect_header({}))
+        self.assertIsNone(redirect_header(None))
 
     def test_redirect_loop_is_unknown(self):
         chain, status, error = from_http_error(["https://spdx.dev/a"], 302, "/a", "https://spdx.dev/a")
