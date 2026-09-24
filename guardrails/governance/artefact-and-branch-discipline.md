@@ -173,6 +173,6 @@ Both exception paths are slow by design; the friction is proportional to the res
 | Generator-output discipline | PO.3.2 | CCC-01 to 04, AIS-04 | A.8.32 | N/A |
 | Branch protection | PS.1.1 | CCC-04 | A.8.32 | Source L2 (access and history controls); Source L4 where review is required |
 | Audit-trail preservation | PS.1.1 | LOG-02, LOG-04, LOG-10 | A.8.15 | Source L2 (continuous, immutable history) |
-| Change classification of forced rewrites | PS.1.1 | CCC-02, CCC-03 | A.5.4, A.8.32 | Source L2 (Safe Expunging Process) |
+| Change classification of forced rewrites | PS.1.1 | CCC-02, CCC-03 | A.5.4, A.8.32 | Source L2 (Safe Expunging Process, for legal or privacy removals only) |
 
-The SLSA cells name the SLSA v1.2 Source-track requirement each control helps meet; a Source level is a property of the source control system and its continuous enforcement, not something this rule achieves on its own. Generator-output discipline has no SLSA counterpart, because a Build level concerns the build platform and the provenance it generates.
+The SLSA cells name the SLSA v1.2 Source-track requirement each control helps meet; a Source level is a property of the source control system and its continuous enforcement, not something this rule achieves on its own. Generator-output discipline has no dedicated SLSA requirement; its drift check, where the source control system enforces it before merge, is one of the organizational technical controls the Source track counts from L3. SLSA v1.2 allows the Safe Expunging Process only for legal or privacy compliance, so a force-push for another reason (such as repairing a malformed merge) falls outside it, and continuity of each Source-track control must then be re-established from a new revision.
