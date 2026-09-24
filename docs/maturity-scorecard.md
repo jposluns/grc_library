@@ -98,10 +98,10 @@ _117 documents._
 | [operations/procedure-threat-intelligence-and-siem-operations.md](../operations/procedure-threat-intelligence-and-siem-operations.md) | Threat Intelligence and SIEM Operations Procedure | Procedure | 1.3.11 | 2026-09-14 |
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.6 | 2026-09-23 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.12 | 2026-09-16 |
-| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.17 | 2026-09-07 |
-| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.14 | 2026-09-23 |
-| [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.8 | 2026-09-21 |
-| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.31 | 2026-09-23 |
+| [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.18 | 2026-09-24 |
+| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.15 | 2026-09-24 |
+| [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.9 | 2026-09-24 |
+| [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.32 | 2026-09-24 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.15 | 2026-09-22 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.10 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.23 | 2026-09-15 |
@@ -141,13 +141,13 @@ _117 documents._
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.14 | 2026-09-22 |
 | [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.10 | 2026-09-14 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
-| [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.6 | 2026-09-23 |
+| [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.7 | 2026-09-24 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.2.1 | 2026-09-23 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.3.26 | 2026-09-20 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.26 | 2026-09-13 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.31 | 2026-09-13 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.17 | 2026-09-20 |
-| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.13 | 2026-09-13 |
+| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.14 | 2026-09-24 |
 | [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.3.32 | 2026-09-18 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.18 | 2026-09-18 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.7 | 2026-09-01 |
@@ -160,7 +160,7 @@ _117 documents._
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.24 | 2026-09-06 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.12 | 2026-08-31 |
-| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.7 | 2026-09-21 |
+| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.8 | 2026-09-24 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.13 | 2026-09-01 |
 
 ---
@@ -220,9 +220,9 @@ _163 documents._
 | [dev-security/policy-secure-development-and-engineering.md](../dev-security/policy-secure-development-and-engineering.md) | Secure Development and Engineering Policy | Policy | 1.0.18 | 2026-09-18 |
 | [dev-security/register-compliance-controls-and-gap-register.md](../dev-security/register-compliance-controls-and-gap-register.md) | Compliance Controls and Gap Register Template | Register | 1.0.6 | 2026-07-23 |
 | [dev-security/standard-container-and-image-security.md](../dev-security/standard-container-and-image-security.md) | Container and Image Security Standard | Standard | 1.0.3 | 2026-07-02 |
-| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.23 | 2026-09-23 |
-| [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.6 | 2026-09-20 |
-| [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.12 | 2026-09-23 |
+| [dev-security/standard-devops-security-requirements.md](../dev-security/standard-devops-security-requirements.md) | DevOps Security Requirements | Standard | 1.0.24 | 2026-09-24 |
+| [dev-security/standard-quality-assurance-and-testing.md](../dev-security/standard-quality-assurance-and-testing.md) | Quality Assurance and Testing Standard | Standard | 1.0.7 | 2026-09-24 |
+| [dev-security/standard-software-evaluation-acceptance-and-lifecycle.md](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md) | Software Evaluation, Acceptance and Lifecycle Management Standard | Standard | 1.0.13 | 2026-09-24 |
 | [governance/framework-governance-performance-and-improvement.md](../governance/framework-governance-performance-and-improvement.md) | Governance Performance and Improvement Framework | Framework | 1.0.14 | 2026-09-22 |
 | [governance/framework-governance-relationship-and-flow-modelling.md](../governance/framework-governance-relationship-and-flow-modelling.md) | Governance Relationship and Flow Modelling Framework | Framework | 1.0.8 | 2026-09-14 |
 | [governance/framework-human-capital-and-ethical-conduct.md](../governance/framework-human-capital-and-ethical-conduct.md) | Human Capital and Ethical Conduct Framework | Framework | 1.0.12 | 2026-09-18 |
@@ -250,7 +250,7 @@ _163 documents._
 | [operations/procedure-patch-management.md](../operations/procedure-patch-management.md) | Patch Management Procedure | Procedure | 1.0.23 | 2026-09-23 |
 | [operations/procedure-release-management.md](../operations/procedure-release-management.md) | Release Management Procedure | Procedure | 1.0.9 | 2026-09-23 |
 | [operations/register-asset-inventory.md](../operations/register-asset-inventory.md) | Asset Inventory Register | Register | 1.0.10 | 2026-09-20 |
-| [operations/register-it-security-operations.md](../operations/register-it-security-operations.md) | IT Security Operations Register | Register | 1.0.3 | 2026-08-01 |
+| [operations/register-it-security-operations.md](../operations/register-it-security-operations.md) | IT Security Operations Register | Register | 1.0.4 | 2026-09-24 |
 | [operations/standard-capacity-and-performance-management.md](../operations/standard-capacity-and-performance-management.md) | Capacity and Performance Management Standard | Standard | 1.0.5 | 2026-07-14 |
 | [operations/standard-it-financial-management.md](../operations/standard-it-financial-management.md) | IT Financial Management Standard | Standard | 1.0.7 | 2026-09-07 |
 | [operations/standard-service-level-management.md](../operations/standard-service-level-management.md) | Service Level Management Standard | Standard | 1.0.7 | 2026-09-14 |
@@ -310,9 +310,9 @@ _163 documents._
 | [security/procedure-security-disciplinary-process.md](../security/procedure-security-disciplinary-process.md) | Security Disciplinary Process Procedure | Procedure | 1.0.6 | 2026-09-24 |
 | [security/standard-email-security.md](../security/standard-email-security.md) | Email Security Standard | Standard | 1.0.5 | 2026-08-05 |
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.0.13 | 2026-09-24 |
-| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.12 | 2026-09-18 |
+| [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.13 | 2026-09-24 |
 | [security/standard-personnel-security-screening.md](../security/standard-personnel-security-screening.md) | Personnel Security Screening Standard | Standard | 1.0.12 | 2026-09-24 |
-| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.10 | 2026-09-19 |
+| [security/standard-privileged-access-management.md](../security/standard-privileged-access-management.md) | Privileged Access Management Standard | Standard | 2.0.11 | 2026-09-24 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.0.31 | 2026-09-23 |
 | [security/standard-saas-security-posture-management.md](../security/standard-saas-security-posture-management.md) | SaaS Security Posture Management Standard | Standard | 1.0.8 | 2026-09-23 |
 | [security/standard-security-awareness-and-training.md](../security/standard-security-awareness-and-training.md) | Security Awareness and Training Standard | Standard | 1.0.8 | 2026-09-24 |

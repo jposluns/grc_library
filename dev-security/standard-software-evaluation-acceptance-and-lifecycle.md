@@ -2,8 +2,8 @@
 
 **Document Title:** Software Evaluation, Acceptance and Lifecycle Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.12\
-**Date:** 2026-09-23\
+**Version:** 1.0.13\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -142,7 +142,7 @@ Obsolete or unsupported software must be retired following the AIS lifecycle ter
 | COBIT 2019 | BAI07: Managed IT Change Acceptance and Transitioning | Deployment and acceptance |
 | COBIT 2019 | BAI09: Managed Assets | Software asset management |
 | COBIT 2019 | DSS05 / DSS06 | Security and operational controls |
-| NIST SP 800-53 | SA, CM, SI Control Families | Software assurance controls |
+| NIST SP 800-53 Rev. 5 | SA, CM, SI Control Families | Software assurance controls |
 | CSA CCM v4.1 | AIS, TVM Domains | Cloud software security evaluation |
 
 ---

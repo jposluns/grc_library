@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.14\
-**Date:** 2026-09-23\
+**Version:** 1.4.15\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -170,7 +170,7 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 |---|---|
 | ISO/IEC 27001:2022 | A.8.20, A.8.21, A.8.22: Network Controls |
 | ISO/IEC 27033-1:2015 | Overview and concepts |
-| NIST SP 800-53 | SC-7: Boundary Protection |
+| NIST SP 800-53 Rev. 5 | SC-7: Boundary Protection |
 | NIST SP 800-207 | Zero Trust Architecture |
 | NIST SP 800-41 Rev. 1 | Guidelines on Firewalls and Firewall Policy |
 | NIST SP 800-94 | Guide to Intrusion Detection and Prevention Systems (IDPS) |

@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptable Use Policy\
 **Document Type:** Policy\
-**Version:** 1.3.6\
-**Date:** 2026-09-23\
+**Version:** 1.3.7\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -100,7 +100,7 @@ All personnel must sign or electronically acknowledge this policy upon hire and 
 | Framework | Reference |
 |---|---|
 | ISO/IEC 27001:2022 | A.5.10: Acceptable Use of Information and Other Associated Assets |
-| NIST SP 800-53 | PL-4: Rules of Behaviour |
+| NIST SP 800-53 Rev. 5 | PL-4: Rules of Behaviour |
 | CSA CCM v4.1 | HRS-02: Acceptable Use Policy |
 | COBIT 2019 | APO01.09: Define and communicate policies and procedures |
 
