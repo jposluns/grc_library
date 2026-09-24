@@ -11147,6 +11147,14 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
         not_repo = run_linter("tools/lint-version-bump-recency.py", "--root", str(outside))
         self.assertEqual(not_repo.returncode, 2, not_repo.stdout + not_repo.stderr)
         self.assertIn("not inside a git work tree", not_repo.stderr)
+        # Inside the git directory itself, rev-parse exits 0 but prints "false".
+        git_dir = subprocess.run(
+            ["git", "-C", str(REPO_ROOT), "rev-parse", "--absolute-git-dir"],
+            capture_output=True, text=True, check=True,
+        ).stdout.strip()
+        in_git_dir = run_linter("tools/lint-version-bump-recency.py", "--root", git_dir)
+        self.assertEqual(in_git_dir.returncode, 2, in_git_dir.stdout + in_git_dir.stderr)
+        self.assertIn("not inside a git work tree", in_git_dir.stderr)
 
     def test_relative_path_keeps_current_directory_meaning(self) -> None:
         # From tools/, "README.md" names tools/README.md if it exists and nothing else;

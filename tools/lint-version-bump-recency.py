@@ -84,9 +84,12 @@ def git(*args: str) -> str:
 def require_git_worktree(root: Path) -> str | None:
     """Return a refusal message when ``root`` is not inside a git work tree, else None."""
     try:
-        git("rev-parse", "--is-inside-work-tree")
+        inside = git("rev-parse", "--is-inside-work-tree")
     except (subprocess.CalledProcessError, OSError) as exc:
         return f"--root {root} is not inside a git work tree ({exc}); nothing can be checked."
+    # Inside a .git directory the command exits 0 but prints "false" (3b48 r2 codex).
+    if inside != "true":
+        return f"--root {root} is not inside a git work tree (git reports {inside!r}); nothing can be checked."
     return None
 
 
