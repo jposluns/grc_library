@@ -2495,43 +2495,11 @@
       "authority_level": "industry practice",
       "destination": {
         "class": "standard",
-        "id": "ISO-IEC-27701"
-      },
-      "direction_rule": "the entity that confers force places above the entity that receives it",
-      "evidence_refs": [],
-      "id": "rel-corpus-0086",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is mapped from"
-      },
-      "layout_role": "associative",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "correspondence",
-      "scope": null,
-      "source": {
-        "class": "organizational standard",
-        "id": "GRC-STD-RECORDS-RETENTION"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "maps to",
-      "viewpoint": "authority"
-    },
-    {
-      "authority_level": "industry practice",
-      "destination": {
-        "class": "standard",
         "id": "ISO-IEC-42001"
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0087",
+      "id": "rel-corpus-0086",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2563,7 +2531,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0088",
+      "id": "rel-corpus-0087",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2595,7 +2563,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0089",
+      "id": "rel-corpus-0088",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2627,7 +2595,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0090",
+      "id": "rel-corpus-0089",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2659,7 +2627,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0091",
+      "id": "rel-corpus-0090",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2684,38 +2652,6 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "industry practice",
-      "destination": {
-        "class": "standard",
-        "id": "NIST-SP-800-57"
-      },
-      "direction_rule": "the entity that confers force places above the entity that receives it",
-      "evidence_refs": [],
-      "id": "rel-corpus-0092",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is mapped from"
-      },
-      "layout_role": "associative",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "correspondence",
-      "scope": null,
-      "source": {
-        "class": "procedure",
-        "id": "GRC-PROC-CRYPTO-KEY-OPS"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "maps to",
-      "viewpoint": "authority"
-    },
-    {
       "authority_level": "architectural recommendation",
       "destination": {
         "class": "standard",
@@ -2723,7 +2659,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0093",
+      "id": "rel-corpus-0091",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2755,7 +2691,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0094",
+      "id": "rel-corpus-0092",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2787,7 +2723,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0095",
+      "id": "rel-corpus-0093",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2819,7 +2755,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0096",
+      "id": "rel-corpus-0094",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2851,7 +2787,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0097",
+      "id": "rel-corpus-0095",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2883,7 +2819,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0098",
+      "id": "rel-corpus-0096",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2915,7 +2851,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0099",
+      "id": "rel-corpus-0097",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -2944,10 +2880,10 @@
   "source": "governance/relationship-model-source.json",
   "summary": {
     "node_count": 58,
-    "record_count": 79,
+    "record_count": 77,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 51,
+      "correspondence": 49,
       "implementation": 19,
       "influence": 8
     }
