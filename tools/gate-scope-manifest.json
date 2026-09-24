@@ -69,6 +69,7 @@
       "check-class-attestation-on-pr.py",
       "check-claude-md-size.py",
       "check-commit-on-main.py",
+      "check-version-bump-commit.py",
       "check-date-cobump-on-pr.py",
       "check-dirty-tree-push.py",
       "check-narrative-corpus-mixed-diff-on-pr.py",

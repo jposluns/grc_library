@@ -78,6 +78,7 @@ hatch that, by convention, leaves a reason in the commit message where a reviewe
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -209,6 +210,70 @@ def is_commit(cmd: str) -> bool:
     return "--amend" not in flat
 
 
+def commit_target(cmd: str, cwd: str):
+    """Text-derived, reading the filesystem only to resolve -C symlinks as chdir does. The directory a `git ... commit` in `cmd` runs in: `cwd`, then any `cd <dir>` earlier in
+    the same command, then the commit's own `-C` operands, applied in order as git applies them.
+    Returns None when the target cannot be determined from the text (a quoted, variable, or `~`
+    operand), so the caller steps aside rather than inspect a checkout the commit may not touch
+    (3b25 r1, codex P1: the guard used to read and even auto-bump ITS OWN checkout for a commit
+    aimed at another worktree)."""
+    flat = " ".join(cmd.split())
+    matches = list(COMMIT_RE.finditer(flat))
+    if len(matches) != 1:
+        return None   # no commit, or several commits whose targets may differ
+    m = matches[0]
+    prefix = flat[:m.start()]
+    # Shell scope the text cannot settle (3b25 r2, codex P1): a subshell, group, or command
+    # substitution before the commit, or a newline-separated command, may change or hide the
+    # directory. Newlines are checked on the RAW command (flat folds them into spaces).
+    # The raw prefix ends at the MATCHED commit, not the first "commit" substring anywhere (3b25 r6,
+    # codex: a filename `commit` earlier on a newline-joined line cut the check short).
+    raw_matches = list(COMMIT_RE.finditer(cmd))
+    if len(raw_matches) != 1:
+        return None
+    raw_prefix = cmd[:raw_matches[0].start()]
+    # A quote in the prefix can hide a separator inside one argument and forge a "plain git
+    # segment" (3b25 r6, claude: `git submodule foreach ':; git commit'`, `-c alias.x='!:; git
+    # commit'`), so quotes are undeterminable too. Cost, accepted: `git add 'a b' && git commit`
+    # steps aside; the git-native check still refuses in the real target.
+    # The backslash is the third POSIX quoting mechanism (3b25 r7, claude: `git submodule foreach
+    # :\; git commit` runs the commit in each submodule), so it is undeterminable too.
+    if any(t in prefix for t in ("(", ")", "`", "{", "}", "'", '"', "\\")) or "\n" in raw_prefix.strip():
+        return None
+    # ANY cd/pushd/popd before the commit makes the target undeterminable: whether it runs depends
+    # on execution (a failed cd, `||`, a `;` after a failed step), which text cannot settle
+    # (3b25 r2-r4, codex). Only the commit's own -C operands are used; those cannot fail silently
+    # (git exits instead of committing). The cost, accepted: a `cd x && ... && git commit` gets no
+    # auto-bump here; the git-native commit-msg check in that checkout still refuses it.
+    if re.search(r"\b(?:cd|pushd|popd)\b", prefix):
+        return None
+    # ALLOWLIST, not a blocklist (3b25 r5, tri-family: env assignments, `env -C`, `source`, an
+    # alias, and quote-spliced `c''d` all move the commit without a literal cd token). The target is
+    # read from the text only when the matched `git` stands alone (not the tail of `repo.git` or a
+    # path), the commit's own command segment has nothing before `git` (no `GIT_DIR=`/`env` prefix),
+    # and every earlier segment is itself a plain `git` invocation, which cannot change the shell's
+    # directory. Anything else steps aside; the git-native commit-msg check in the real target still
+    # refuses. Residue, stated: a user alias or function NAMED `git` is not detectable from text.
+    if m.start() > 0 and flat[m.start() - 1] not in " ;&|":
+        return None
+    segments = re.split(r"&&|\|\||[;|&]", prefix)
+    if segments[-1].strip():
+        return None
+    for seg in segments[:-1]:
+        if seg.strip() and not re.match(r"\s*git\s", seg):
+            return None
+    # Any `-C` on the commit steps aside (maintainer ruling 2026-09-24 12:45Z, after round 10).
+    # Ten tri-family rounds each found a new -C operand shape (shell escapes, globs, missing
+    # intermediates, symlinks, /proc/self under several spellings, and finally a trailing `..`
+    # cancelling a /proc/self step, 3b25 r10 codex) where this guard resolved a directory git does
+    # not run in. Text plus this process's filesystem view cannot settle git's chdir, so the guard
+    # no longer tries: a -C commit is left to the git-native commit-msg check in the real target.
+    # Cost, accepted: no auto-bump here for a -C commit.
+    if re.search(r"\s-C\s", m.group(0)):
+        return None
+    return cwd
+
+
 def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
     """PURE. (body_changed, version_changed) for one file's unified-diff lines.
 
@@ -338,6 +403,21 @@ def main() -> int:
         return 0
     cmd = (payload.get("tool_input") or {}).get("command", "") or ""
     if not is_commit(cmd) or OPT_OUT.search(cmd):
+        return 0
+    # Act ONLY on this guard's own checkout. A commit aimed elsewhere (another worktree via `git -C`
+    # or `cd`) is left to that checkout's git-native commit-msg check (3b25); an undeterminable
+    # target is also left alone rather than guessed.
+    # With no payload cwd and no `cd`/`-C` in the command there is nothing to resolve: the commit
+    # runs where this guard runs (the previous behaviour). Resolution goes through git() only.
+    try:
+        target = commit_target(cmd, payload.get("cwd") or "")
+        if target is None:
+            return 0
+        if target:
+            top = git(Path(target), "rev-parse", "--show-toplevel").strip()
+            if Path(top).resolve() != project_root().resolve():
+                return 0
+    except Exception:
         return 0
 
     try:
@@ -618,7 +698,8 @@ def self_test() -> int:
     git(d5, "add", "docs/maturity-scorecard.md")
     # an extra UNSTAGED scorecard change makes auto-bump decline, so without the exemption this would BLOCK
     (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
-    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": f"git -C {d5} commit -q -m x"}})
+    # A plain commit with the payload cwd in this checkout (a -C commit now steps aside, 3b25 r10 ruling).
+    payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d5)})
     r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                        capture_output=True, text=True)
     ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
@@ -628,6 +709,60 @@ def self_test() -> int:
     r2 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                         capture_output=True, text=True)
     ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
+    # --- 3b25 r1 (codex P1): a commit aimed at ANOTHER checkout is not inspected or auto-bumped here ---
+    d6 = mkrepo()
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nold\n"); git(d6, "add", "-A"); git(d6, "commit", "-q", "-m", "i")
+    (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nnew\n"); git(d6, "add", "y.md")
+    before = git(d5, "show", ":x.md")
+    p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d6)})
+    r3 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
+                        capture_output=True, text=True)
+    ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
+    ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
+    ck("commit_target: plain commit runs in cwd", commit_target("git commit -m x", "/r"), "/r")
+    import tempfile as _tfm
+    _W = os.path.realpath(_tfm.mkdtemp()); os.mkdir(os.path.join(_W, "b")); os.mkdir(os.path.join(_W, "d"))
+    os.symlink(os.path.join(_W, "d"), os.path.join(_W, "lnk")); os.mkdir(os.path.join(_W, "{a,b}"))
+    import atexit as _ax, shutil as _sh
+    _ax.register(_sh.rmtree, _W, True)
+    ck("commit_target: any -C on the commit steps aside", commit_target(f"git -C {_W} commit -m x", "/r"), None)
+    ck("commit_target: any cd before the commit is undeterminable", commit_target("cd /a && git -C b commit", "/r"), None)
+    ck("commit_target: several -C operands step aside", commit_target(f"git -C {_W} -C b commit", "/r"), None)
+    ck("commit_target: a trailing .. cancelling a /proc/self step steps aside (3b25 r10)",
+       commit_target(f"git -C {_W} -C /proc/self/cwd/../../.. commit -m x", "/r"), None)
+    ck("commit_target: a -C step that does not exist steps aside", commit_target("git -C /nonexistent/w commit", "/r"), None)
+    ck("commit_target: a missing intermediate cancelled by .. steps aside",
+       commit_target(f"git -C {_W}/missing/.. commit -m x", "/r"), None)
+    ck("commit_target: a symlinked -C step steps aside",
+       commit_target(f"git -C {_W}/lnk -C .. commit -m x", "/r"), None)
+    for spelling in ("/proc/self/cwd", "/../proc/self/cwd", "//proc/self/cwd", "/opt/../proc/self/cwd"):
+        ck(f"commit_target: a /proc/self spelling steps aside: {spelling}",
+           commit_target(f"git -C {_W} -C {spelling} commit -m x", "/r"), None)
+    ck("commit_target: a braced operand steps aside even when a directory of that name exists",
+       commit_target(f"git -C {_W}/{{a,b}} commit -m x", "/r"), None)
+    ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
+    ck("commit_target: a subshell cd does not move the commit", commit_target("(cd /x && true); git commit -m x", "/r"), None)
+    ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
+    ck("commit_target: two commits are undeterminable", commit_target("git -C /a commit -m x && git -C /b commit -m y", "/r"), None)
+    ck("commit_target: a newline-separated command is undeterminable", commit_target("cd /x\ngit commit", "/r"), None)
+    ck("commit_target: a cd after || is undeterminable", commit_target("true || cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: a cd after a failing && is undeterminable", commit_target("false && cd /x; git commit -m x", "/r"), None)
+    ck("commit_target: a failed cd then a skipped cd is undeterminable",
+       commit_target("cd /dev/null && cd /x; git commit -m x", "/r"), None)
+    for shape in ("GIT_DIR=/o/.git GIT_WORK_TREE=/o git commit -m x", "env -C /o git commit -m x",
+                  "env --chdir=/o git commit", "git --work-tree=/o --git-dir=/o/.git commit -m x",
+                  "source s.sh && git commit", ". ./s.sh; git commit", "c''d /o; git commit -m x",
+                  "'cd' /o && git commit", "c\\d /o && git commit", "up && git commit",
+                  "git clone /src/repo.git commit-fix", "git submodule foreach ':; git commit -m x'",
+                  "git -C /o -c alias.ci='!:; git commit -m x' ci", "git tag -a -m 'x; git commit' v1",
+                  "git status -- commit\nc\\d /o && git commit -m x", "git submodule foreach :\\; git commit -m x",
+                  "git -C /o\\-v commit -m x", "git -C /o-[v] commit -m x"):
+        ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
+    ck("commit_target: a /proc/self operand resolves against the guard, so it steps aside",
+       commit_target(f"git -C {_W} -C /proc/self/cwd commit -m x", "/r"), None)
+    ck("commit_target: earlier plain git segments keep the cwd target",
+       commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")
+    ck("commit_target: a non-git pipe source steps aside", commit_target("true | git commit -F -", "/r"), None)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")

@@ -1,8 +1,10 @@
 #!/bin/sh
 # Install the git-native hooks the pre-commit framework does not manage.
 #
-# Currently: a pre-push dirty-tracked-tree backstop (tools/git-hooks/pre-push) and a pre-commit
-# refusal of commits on a main/master checkout (tools/git-hooks/pre-commit, P-TODO 3b17).
+# Currently: a pre-push dirty-tracked-tree backstop (tools/git-hooks/pre-push), a pre-commit
+# refusal of commits on a main/master checkout (tools/git-hooks/pre-commit, P-TODO 3b17), and a
+# commit-msg per-commit Version-bump check (tools/git-hooks/commit-msg, P-TODO 3b25), which also runs
+# a local unmanaged hook kept as commit-msg-local.
 # Run once per clone, alongside `pre-commit install`. Idempotent; refuses rather
 # than clobbering an existing foreign hook, and refuses under a set core.hooksPath.
 #
@@ -75,6 +77,22 @@ cleanup() {
 trap cleanup 0
 trap 'exit 1' HUP INT TERM
 
+# The commit-msg dispatcher runs a LOCAL (unmanaged) hook kept as commit-msg-local FIRST, in every
+# checkout (so a branch older than the tracked dispatcher still runs it), then FAILS OPEN for the
+# tracked check when the active checkout predates it.
+emit_commit_msg() {
+  cat <<'HOOK'
+#!/bin/sh
+# Managed by tools/install-git-hooks.sh: version-bump commit-msg dispatcher v1.
+set -eu
+hooks="$(git rev-parse --git-path hooks)"
+if [ -x "$hooks/commit-msg-local" ]; then "$hooks/commit-msg-local" "$@"; fi
+root="$(git rev-parse --show-toplevel)"
+[ -f "$root/tools/git-hooks/commit-msg" ] || exit 0
+exec sh "$root/tools/git-hooks/commit-msg" "$@"
+HOOK
+}
+
 # install_one NAME EMITTER: idempotent; refuses rather than clobbering a foreign
 # hook. Every step is checked explicitly, because a function called as
 # `install_one ... || status=1` runs with `set -e` disabled. Returns 1 on any
@@ -94,6 +112,10 @@ install_one() {
   if [ -e "$hook" ] || [ -L "$hook" ]; then
     echo "install-git-hooks: refusing to overwrite the existing hook at $hook." >&2
     echo "  Remove it or integrate the managed $name check manually, then re-run." >&2
+    if [ "$name" = "commit-msg" ]; then
+      echo "  To keep a local commit-msg hook, rename it to commit-msg-local (the managed hook runs" >&2
+      echo "  it first), then re-run this installer." >&2
+    fi
     if [ "$name" = "pre-commit" ]; then
       echo "  If it is the pre-commit framework's hook: run 'pre-commit uninstall', re-run this" >&2
       echo "  installer, then 'pre-commit install' (the framework chains the managed hook as" >&2
@@ -138,4 +160,5 @@ $tmp"; tmp=""; return 1
 status=0
 install_one pre-push emit_pre_push || status=1
 install_one pre-commit emit_pre_commit || status=1
+install_one commit-msg emit_commit_msg || status=1
 exit "$status"
