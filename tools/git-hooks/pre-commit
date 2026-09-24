@@ -1,0 +1,7 @@
+#!/bin/sh
+# git-native pre-commit hook: refuse a commit on a grc_library main/master checkout (P-TODO 3b17).
+#
+# A persistent shim installed by tools/install-git-hooks.sh in the shared hooks dir resolves the
+# active checkout and execs THIS tracked file at commit time, which delegates to the tested Python
+# implementation in tools/check-commit-on-main.py. NOT a pre-commit-framework hook.
+exec python3 "$(git rev-parse --show-toplevel)/tools/check-commit-on-main.py" --pre-commit
