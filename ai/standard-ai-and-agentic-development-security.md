@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.39\
-**Date:** 2026-09-23\
+**Version:** 1.8.40\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -546,6 +546,8 @@ Log retention per Data Retention Schedule.
 | Garak scan | Pre-release | Model version change, major system prompt change |
 | PyRIT red team | Quarterly | Continuous operation; or major architecture change |
 | Manual penetration test | Annually | Per Penetration Testing and Red Team Standard |
+
+**Framework anchors.** This schedule aligns with NIST SP 800-218A RV.1.2 (review, analyze, and/or test the software's code to identify or confirm the presence of previously undetected vulnerabilities), whose AI-specific recommendations are to scan and test AI models frequently, to rely mainly on automation with a human in the loop as needed, and to conduct periodic audits of AI models: the every-PR and pre-release rows are the frequent automated testing, and the quarterly red team and the annual manual test are the periodic audits.
 
 ---
 

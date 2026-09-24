@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.23\
-**Date:** 2026-09-23\
+**Version:** 1.0.25\
+**Date:** 2026-09-24\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -205,15 +205,17 @@ Retention timelines are subject to the Records Retention and Destruction Standar
 
 ## Framework alignment
 
-| Control Area | NIST SP 800-40r4 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
-| --- | --- | --- | --- | --- | --- |
-| Patch planning and classification | SP 800-40r4 §2.3.1, §3.2 to 3.4 (prioritization; inventory; risk-response scenarios; maintenance groups) | A.8.8 | TVM-08, TVM-01 | Control 7.1 | DSS05.07 |
-| Patch testing | SP 800-40r4 §2.3.1 (Prepare to deploy the patch) | A.8.8 | CCC-02 | N/A | BAI07.03, BAI07.04, BAI07.05 |
-| Deployment authorization | SP 800-40r4 §2.3.1, §2.3.2 (scheduling through enterprise change management; deploy the patch) | A.8.8 | TVM-08, CCC-01 | Control 7.3 | BAI06.01 |
-| Exception governance | SP 800-40r4 §3.5.5 (Exceptions to maintenance plans) | A.5.36 | GRC-04 | Control 7.2 | APO12.06 |
-| EOL lifecycle management | SP 800-40r4 §3.5.4 (Maintenance plans for Scenario 4, unpatchable assets) | A.8.8 | DCS-07 | 2.2 | BAI09.03, DSS05.07 |
-| Third-party / library patching | SP 800-40r4 §3.7 (Consider software maintenance in procurement) | A.8.8 | TVM-06 | 16.4, 16.5, 7.7 | DSS05.07 |
-| Monitoring and reporting | SP 800-40r4 §2.3.4, §3.6 (Monitor deployed patches; actionable enterprise-level patching metrics) | A.8.8 | TVM-11 | Control 7.7 | MEA01.04 |
+The NIST SSDF v1.1 column maps the software development and maintenance activities within each control area, including application and dependency vulnerabilities; it does not establish coverage of infrastructure-only activities or complete implementation of each cited task.
+
+| Control Area | NIST SP 800-40r4 | NIST SSDF v1.1 | ISO/IEC 27001:2022 | CSA CCM v4.1 | CIS Controls v8.1 | COBIT 2019 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Patch planning and classification | SP 800-40r4 §2.3.1, §3.2 to 3.4 (prioritization; inventory; risk-response scenarios; maintenance groups) | RV.2.1 | A.8.8 | TVM-08, TVM-01 | Control 7.1 | DSS05.07 |
+| Patch testing | SP 800-40r4 §2.3.1 (Prepare to deploy the patch) | N/A | A.8.8 | CCC-02 | N/A | BAI07.03, BAI07.04, BAI07.05 |
+| Deployment authorization | SP 800-40r4 §2.3.1, §2.3.2 (scheduling through enterprise change management; deploy the patch) | RV.2.2 | A.8.8 | TVM-08, CCC-01 | Control 7.3 | BAI06.01 |
+| Exception governance | SP 800-40r4 §3.5.5 (Exceptions to maintenance plans) | RV.2.2 | A.5.36 | GRC-04 | Control 7.2 | APO12.06 |
+| EOL lifecycle management | SP 800-40r4 §3.5.4 (Maintenance plans for Scenario 4, unpatchable assets) | PW.4.4, RV.2.2 | A.8.8 | DCS-07 | 2.2 | BAI09.03, DSS05.07 |
+| Third-party / library patching | SP 800-40r4 §3.7 (Consider software maintenance in procurement) | RV.1.1, RV.2.2 | A.8.8 | TVM-06 | 16.4, 16.5, 7.7 | DSS05.07 |
+| Monitoring and reporting | SP 800-40r4 §2.3.4, §3.6 (Monitor deployed patches; actionable enterprise-level patching metrics) | N/A | A.8.8 | TVM-11 | Control 7.7 | MEA01.04 |
 
 ---
 
