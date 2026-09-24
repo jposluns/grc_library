@@ -38,18 +38,41 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
     return [f"{fam}-{n:02d}" for n in range(start, end + 1)]
 
 
-FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
+# A marker-aware fence scan (the helper pair of gate_lint_directional_dependency): the open fence is
+# tracked as (character, run length), and only a same-character run at least as long, with no info
+# string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
+# boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
+_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+
+
+def _fence_marker(line: str):
+    m = _FENCE_RE.match(line)
+    if not m:
+        return None
+    run = m.group(1)
+    return run[0], len(run), m.group(2).strip()
+
+
+def _closes(marker, opener) -> bool:
+    return (marker is not None and marker[0] == opener[0]
+            and marker[1] >= opener[1] and not marker[2])
+
+
 INLINE_CODE_RE = re.compile(r"`[^`]*`")
 
 
 def scan_text(rel: str, text: str) -> list[str]:
     findings: list[str] = []
-    in_fence = False
+    opener = None
     for i, line in enumerate(text.splitlines(), 1):
-        if FENCE_RE.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
+        marker = _fence_marker(line)
+        if opener is None:
+            if marker is not None:
+                opener = marker
+                continue
+        else:
+            if _closes(marker, opener):
+                opener = None
             continue
         # A blockquote line is an example / quotation, not an active citation.
         if line.lstrip().startswith(">"):

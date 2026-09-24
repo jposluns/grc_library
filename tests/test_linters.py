@@ -8866,6 +8866,7 @@ class MatrixControlCodeTests(LinterTestCase):
 class CcmProviderMemberInRangeTests(LinterTestCase):
     """tools/lint-ccm-provider-member-in-range.py"""
 
+<<<<<<< HEAD
     def test_provider_facing_exemption_is_explicit(self) -> None:
         """3b52: the internal-scope qualification is enforced by an explicit, reviewed set. A listed
         document is skipped; the same content unlisted still fails; the shipped set is empty."""
@@ -8883,6 +8884,40 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
             self.assertEqual(mod.main(["x", fixture]), 1)
             with mock.patch.object(mod, "PROVIDER_FACING_DOCS", frozenset({rel})):
                 self.assertEqual(mod.main(["x", fixture]), 0)
+=======
+    def _run(self, name: str, body: str):
+        return run_linter("tools/lint-ccm-provider-member-in-range.py", self.make_fixture(name, body))
+
+    def test_marker_aware_fences(self) -> None:
+        """3b52: a boolean toggle skipped a citation between two four-backtick blocks that each
+        held a literal ``` line; the scan now tracks the opening fence's character and length."""
+        tick3, tick4, tilde = "`" * 3, "`" * 4, "~" * 3
+        between = (tick4 + "text\n" + tick3 + "\n" + tick4 + "\n"
+                   "| Sample | CCC-01 to 09 |\n"
+                   + tick4 + "text\n" + tick3 + "\n" + tick4 + "\n")
+        self.assertLinterFails(self._run("fake-ccm-fence-between.md", between), "CCC-05")
+        inside = tick4 + "text\n" + tick3 + "\n| S | CCC-01 to 09 |\n" + tick4 + "\n"
+        self.assertEqual(self._run("fake-ccm-fence-inside.md", inside).returncode, 0)
+        after_tilde = tilde + "\n" + tick3 + "\n" + tilde + "\n| Sample | CCC-01 to 09 |\n"
+        self.assertLinterFails(self._run("fake-ccm-fence-tilde.md", after_tilde), "CCC-05")
+
+    def test_ampersand_family_and_ipy_members(self) -> None:
+        """3b52: the I&S family (whose token depends on '&' handling) and the IPY member."""
+        head = "| Control | CSA CCM v4.1 |\n| --- | --- |\n"
+        for name, row, expect in (
+            ("is-bare", "| S | I&S-01 to 09 |", "I&S-06"),
+            ("is-both", "| S | I&S-01 through I&S-09 |", "I&S-06"),
+            ("ipy", "| S | IPY-01 to 04 |", "IPY-02"),
+        ):
+            self.assertLinterFails(self._run(f"fake-ccm-{name}.md", head + row + "\n"), expect)
+        for name, row in (
+            ("is-split", "| S | I&S-01 to I&S-05, I&S-07 to I&S-09 |"),
+            ("ipy-split", "| S | IPY-01, IPY-03 through IPY-04 |"),
+            ("is-mixed", "| S | I&S-01 to LOG-05 |"),
+        ):
+            r = self._run(f"fake-ccm-{name}.md", head + row + "\n")
+            self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
+>>>>>>> db1173f6 (tooling: 3b52a gate 100 marker-aware fence scan; I&S, IPY and fence regression cases)
 
     def test_family_range_sweeping_provider_member_flagged(self) -> None:
         fixture = self.make_fixture(
