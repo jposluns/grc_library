@@ -33,6 +33,14 @@ DIRECTIONAL_PROVIDER_MEMBERS: frozenset[str] = frozenset(
     {"I&S-06", "CCC-05", "LOG-08", "STA-04", "DSP-18", "CEK-08", "IAM-11", "IPY-02"}
 )
 
+# The convention's 'where the citing document is internal in scope' qualification
+# (compliance/matrix-grc-compliance-alignment.md) is enforced by this explicit, reviewed set of
+# repo-relative paths whose content is PROVIDER-facing (a provider's duties to its tenants), not by
+# inferring scope from prose (3b52). It is empty: the corpus is an adopter-organization library
+# with no provider-facing document. Residue, stated: a listed path is exempt because scope was
+# asserted here, which proves the assertion was made, not that it is right.
+PROVIDER_FACING_DOCS: frozenset[str] = frozenset()
+
 
 def _engine():
     """Import the pack-owned engine, ensuring its tools/ dir is importable."""
@@ -78,6 +86,8 @@ def main(argv: list[str]) -> int:
             if text is None:
                 continue
             rel = str(path.relative_to(root))
+            if rel in PROVIDER_FACING_DOCS:
+                continue
             all_findings.extend(scan_text(rel, text))
     except Exception as exc:  # top-level guard: any internal error -> exit 2 (the contract)
         print(f"ERROR: internal error during CCM range-direction scan: {exc}", file=sys.stderr)
