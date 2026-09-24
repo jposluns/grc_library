@@ -165,8 +165,8 @@ def main(argv: list[str]) -> int:
     root = Path(args.root).resolve()
     global GIT_ROOT
     GIT_ROOT = root
-    # Fail loud when --root is not inside a git work tree: every per-file query below
-    # treats a git failure as "no history" and skips, which would otherwise pass silently.
+    # Fail loud when --root is not inside a git work tree, before any per-file query: the
+    # whole audit reads that tree's history (per-file query failures raise GitQueryError).
     problem = require_git_worktree(root)
     if problem:
         print(f"ERROR: {problem}", file=sys.stderr)
