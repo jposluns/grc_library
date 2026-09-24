@@ -261,8 +261,10 @@ def offenders(diff: str, versioned: set[str]) -> list[str]:
 
 
 def git(root: Path, *args: str) -> str:
-    return subprocess.run(["git", "-C", str(root), *args],
-                          capture_output=True, text=True, check=True).stdout
+    # Raw bytes, decoded WITHOUT newline translation: text=True would apply universal newlines and
+    # turn a lone CR inside a tracked line into a line break before any parser sees it (#2496 r5).
+    out = subprocess.run(["git", "-C", str(root), *args], capture_output=True, check=True).stdout
+    return out.decode("utf-8", "surrogateescape")
 
 
 def _metadata_region_end(text: str) -> int:
@@ -315,11 +317,12 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
         if git(root, "diff", "--name-only", "--", path).strip():
             return False
         f = root / path
-        text = f.read_text()
+        # newline="" on both sides: a CRLF file keeps its line endings when auto-bumped.
+        text = f.read_text(newline="")
         bumped = bump_semver(text)
         if bumped is None:
             return False
-        f.write_text(set_date(bumped, today))
+        f.write_text(set_date(bumped, today), newline="")
         git(root, "add", "--", path)
         return True
     except Exception:
@@ -534,6 +537,19 @@ def self_test() -> int:
     ck("clear offender auto-bumps", try_auto_bump(d, "x.md", "2026-07-29"), True)
     ck("auto-bumped Version is staged", "**Version:** 1.0.1" in git(d, "show", ":x.md"), True)
     ck("auto-bumped Date is staged", "**Date:** 2026-07-29" in git(d, "show", ":x.md"), True)
+    # --- 3b24 (#2496 r5 residue): no newline translation anywhere on the auto-bump path ---
+    dc = mkrepo()
+    (dc / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nold body\r\n")
+    git(dc, "add", "c.md"); git(dc, "commit", "-q", "-m", "init")
+    (dc / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nnew body\r\n")
+    git(dc, "add", "c.md")
+    ck("a CRLF offender auto-bumps", try_auto_bump(dc, "c.md", "2026-07-29"), True)
+    ck("the auto-bump keeps CRLF line endings",
+       (dc / "c.md").read_bytes(), b"**Version:** 1.0.1\\\r\n**Date:** 2026-07-29\\\r\n\r\nnew body\r\n")
+    dr = mkrepo()
+    (dr / "r.md").write_bytes(b"line one\rstill line one\n")
+    git(dr, "add", "r.md"); git(dr, "commit", "-q", "-m", "init")
+    ck("git() returns a lone CR untranslated", "one\rstill" in git(dr, "show", "HEAD:r.md"), True)
     # unstaged changes present -> ambiguous -> not auto-bumped
     d2 = mkrepo()
     (d2 / "y.md").write_text("**Version:** 2.0.0\\\n\nbody\n")

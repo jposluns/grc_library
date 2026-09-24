@@ -46,8 +46,9 @@ Self-test: `python3 stop-guard-unattended.py --self-test` (self-contained; no pr
 
 GRC ADAPTATION (2026-09-03). Adopted from the lab_infra "No Manufactured Wind-Down" delivery
 (inbox msg 20260903T002018Z.from-lab_infra), Architect-directed cross-project adoption. The delivered
-decide()/run()/actionable_items/is_orchestrator_session/_parse_payload/self-test are byte-UNEDITED;
-exception: P-1.36 changes emitted message text only; predicates/decisions/exit unchanged.
+decide()/run()/actionable_items/is_orchestrator_session/_parse_payload/self-test keep the vendored
+LOGIC unchanged (predicates, decisions, exit codes), but the file is NOT byte-identical to the vendored
+source: emitted message text carries grc adaptations (P-1.36, and the escape-path hint added in #2496).
 read_operating_mode carries a grc branch (session-state.md mode), main() carries a grc one-shot
 declared-wait escape pre-step (.allow-idle-stop, via _grc_consume_escape), and the _grc_* helpers are
 added; all gated on the grc repo root so --self-test (which never calls main()) stays hermetic. Actionable items come from the grc producer
