@@ -2,7 +2,7 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.27\
+**Version:** 1.0.28\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -45,7 +45,7 @@ The following gates are mandatory in every pipeline deploying to Test or Product
 
 Gate results are logged and retained as acceptance-into-service gate audit evidence.
 
-*CCM: CCC-01 through CCC-04, CCC-06 through CCC-09, AIS-04 / NIST SSDF PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 / contributes toward SLSA Build L2+*
+*CCM: CCC-01 through CCC-04, CCC-06 through CCC-09, AIS-04 / NIST SSDF PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 / contributes toward SLSA v1.2 Build L2+*
 
 ### 2.3 Pipeline identity
 
@@ -63,7 +63,7 @@ Production deployments require manual approval from a designated approver who is
 
 All build artefacts deployed to Production must be signed (signing key in the organization's secrets management service) and the signature verified before deployment. An artefact with an invalid or absent signature must not be deployed.
 
-*CCM: CCC-04 / contributes toward SLSA Build L3*
+*CCM: CCC-04 / contributes toward SLSA v1.2 Build L3*
 
 ---
 
@@ -201,7 +201,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ## 13. Framework alignment
 
-| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 Rev. 5 | SLSA |
+| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 Rev. 5 | SLSA v1.2 Build |
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to CCC-04, CCC-06 to CCC-09, AIS-04 | PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 | SA-10, SA-15 | Level 2 to 3 |
 | Pipeline secret scanning | A.8.28 | AIS-05 | PW.7.2 | SA-11 | N/A |
@@ -212,7 +212,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4, RV.2.1, RV.2.2 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | N/A | CM-3 | N/A |
 
-**On the SLSA column.** SLSA Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the SLSA maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level. Scanning controls such as pipeline secret scanning carry no Build level (N/A above): the Build track's primary purpose is verifying that an artifact was built as expected, which scanning does not establish.
+**On the SLSA v1.2 Build column.** SLSA v1.2 Build levels (L0 to L3) describe the trustworthiness of the build platform and the provenance it generates, not a per-control certification. The levels above indicate the Build-track maturity each control area contributes toward or requires (for example, signed build-platform-generated provenance underpins L2 and L3), not that an individual control confers a level. Scanning controls such as pipeline secret scanning carry no Build level (N/A above): the Build track's primary purpose is verifying that an artifact was built as expected, which scanning does not establish.
 
 This standard also aligns with NIST SP 800-204D (Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines) for the software supply-chain security of the CI/CD pipeline.
 

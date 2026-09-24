@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.32\
+**Version:** 1.1.33\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -192,7 +192,7 @@ An SBOM must be generated for every production release and retained. See penetra
 - AI-suggested dependency names must be verified to exist in approved registries before installation (hallucinated package names are an active supply-chain attack vector).
 - Python: a dependency management tool is required (pinned requirements.txt or equivalent). SCA scanning covers Python packages.
 
-*CCM: TVM-06, AIS-04 / contributes toward SLSA Build L2+*
+*CCM: TVM-06, AIS-04 / contributes toward SLSA v1.2 Build L2+*
 
 ---
 
