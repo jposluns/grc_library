@@ -77,51 +77,54 @@ ALLOW_LIST = {
     # Internet Archive (third-party anchor)
     "web.archive.org",
     # OSS hosting
-    "github.com", "raw.githubusercontent.com", "huggingface.co", "pypi.org",
+    "github.com", "raw.githubusercontent.com", "huggingface.co", "pypi.org",  # non-publisher: code and package hosting
     # Citation identifiers and preprints
-    "orcid.org", "arxiv.org",
+    "orcid.org", "arxiv.org",  # non-publisher: citation identifiers and preprints
     # AI/ML safety bodies
     "aisi.org.uk", "mlcommons.org", "avidml.org",
     # Adopted references mentioned in library content
-    "keepachangelog.com", "semver.org", "spdx.org", "calver.org",
+    "spdx.org",
+    "keepachangelog.com", "semver.org", "calver.org",  # non-publisher: format conventions
     "spdx.dev",  # SPDX project current site (spdx.org redirects here); citation-verification spec section 7.1
-    "creativecommons.org",
+    "creativecommons.org",  # non-publisher: the corpus licence
     # The project's own public site (grclibrary.ai on Cloudflare Pages; the
     # canonical URLs emitted on the per-domain pages by .web/build.py). Not a
     # citation publisher, so the citation-verification spec (§7) is not updated.
-    "grclibrary.ai",
+    "grclibrary.ai",  # non-publisher: the project's own site
     # Clean Language, the maintainer's AI-writing editorial standard
     # (jposluns/cleanlanguage); linked from the CHANGELOG milestone entry.
-    "cleanlanguage.ai",
+    "cleanlanguage.ai",  # non-publisher: the maintainer's editorial standard site
     # AIQT, the maintainer's cross-family QA product (the pack's aiqt/ subtree
     # schema $id namespace and publication orientation). Own domain, not a
     # citation publisher, so the citation-verification spec (S7) is not updated.
-    "aiqt.ai",
+    "aiqt.ai",  # non-publisher: the maintainer's own product domain
     # Anthropic Claude Code official documentation domain
-    "code.claude.com",
+    "code.claude.com",  # non-publisher: tool vendor documentation
     # Common Linux Foundation domains
-    "linuxfoundation.org", "openssf.org", "slsa.dev", "cncf.io",
+    "linuxfoundation.org", "openssf.org", "slsa.dev",
+    "cncf.io",  # pending-publisher: no Canonical Citations Register entry yet (spec section 7.2, 3b30 note)
     # OWASP CycloneDX canonical specification site (citation-verification spec section 7.2, 2026-09-24)
     "cyclonedx.org",
     # AI runtime / observability project canonical homes
-    "promptfoo.dev",
+    "promptfoo.dev",  # non-publisher: tool project home
     # Schema.org and JSON schema
-    "schema.org", "json-schema.org",
+    "schema.org", "json-schema.org",  # non-publisher: format conventions
     # Sitemaps.org: the XML namespace URI required in the generated sitemap.xml
     # (.web/build.py). A protocol namespace, not a citation publisher, so the
     # citation-verification spec (§7) is not updated (as with grclibrary.ai).
-    "sitemaps.org",
+    "sitemaps.org",  # non-publisher: sitemap XML namespace URI
     # SANS / CIS
-    "sans.org", "cisecurity.org",
+    "sans.org",
+    "cisecurity.org",  # pending-publisher: CIS Controls v8.1 acquisition and register entry (3b33)
     # Library maintainer profile
-    "linkedin.com",
+    "linkedin.com",  # non-publisher: maintainer profile
     # Google Secure AI Framework
     "saif.google",
     # Anthropic Claude documentation
-    "anthropic.com",
+    "anthropic.com",  # non-publisher: tool vendor documentation
     # Commercial AI security vendors referenced in the tooling landscape register
-    "lakera.ai", "promptarmor.com", "hiddenlayer.com",
-    "calypsoai.com", "mindgard.ai", "splx.ai",
+    "lakera.ai", "promptarmor.com", "hiddenlayer.com",  # non-publisher: tool vendors
+    "calypsoai.com", "mindgard.ai", "splx.ai",  # non-publisher: tool vendors
     # (Phase 23.63 removed checkpoint.com and zscaler.com from the
     # "other commercial security vendors that may be referenced"
     # block: neither was cited in any document and the library is

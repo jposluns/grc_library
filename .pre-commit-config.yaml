@@ -689,3 +689,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-allowlist-spec-parity
+        name: Allow-list and publisher-table parity audit
+        entry: python3 tools/lint-allowlist-spec-parity.py
+        language: system
+        pass_filenames: false
+        always_run: true

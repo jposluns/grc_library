@@ -15130,6 +15130,91 @@ class ActivityTimingToolTests(LinterTestCase):
         )
 
 
+class AllowlistSpecParityTests(unittest.TestCase):
+    """Gate 101 (3b31b): allow-list and citation-verification section 7.1 parity."""
+
+    SPEC_HEAD = "# S\n\n### 7.1 Initial allow-list\n\n| Publisher | Canonical domain | Standards covered |\n| --- | --- | --- |\n"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.mod = load_linter_module("tools/lint-allowlist-spec-parity.py", "allowlist_parity_mod")
+
+    def spec(self, domains: list[str], extra_rows: str = "") -> str:
+        rows = "".join(f"| P{i} | `{d}` | x |\n" for i, d in enumerate(domains))
+        return self.SPEC_HEAD + rows + extra_rows + "\n### 7.2 Additions\n"
+
+    def allow(self, body: str) -> str:
+        return "ALLOW_LIST = {\n" + body + "}\n"
+
+    def floor(self, n: int = 0):
+        from unittest import mock
+
+        return mock.patch.object(self.mod, "MIN_SPEC_DOMAINS", n)
+
+    def test_live_repository_passes(self) -> None:
+        result = run_linter("tools/lint-allowlist-spec-parity.py")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_unmarked_uncovered_entry_fails(self) -> None:
+        with self.floor():
+            allow = self.mod.allow_entries(self.allow('    "iso.org", "vendor.example",\n'))
+            findings = self.mod.check(allow, self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("vendor.example", findings[0])
+
+    def test_same_line_markers_pass(self) -> None:
+        body = ('    "iso.org",\n'
+                '    "vendor.example",  # non-publisher: a tool vendor\n'
+                '    "pub.example",  # pending-publisher: register entry to come\n')
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(findings, [])
+
+    def test_preceding_line_comment_does_not_mark(self) -> None:
+        body = '    # non-publisher: a group of vendors\n    "vendor.example",\n'
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["vendor.org"])))
+        self.assertTrue(any("vendor.example" in f for f in findings))
+
+    def test_marker_needs_a_reason(self) -> None:
+        body = '    "vendor.example",  # non-publisher:\n'
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow(body)),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertTrue(any("vendor.example" in f for f in findings))
+
+    def test_hash_inside_string_is_not_a_marker(self) -> None:
+        self.assertEqual(self.mod._comment('    "a#b",'), "")
+        self.assertEqual(self.mod._comment('    "a.org",  # non-publisher: x'), "# non-publisher: x")
+
+    def test_suffix_covered_subdomain_passes(self) -> None:
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow('    "iso.org", "www.iso.org",\n')),
+                                      self.mod.spec_domains(self.spec(["iso.org"])))
+        self.assertEqual(findings, [])
+
+    def test_reverse_unadmitted_spec_domain_fails(self) -> None:
+        with self.floor():
+            findings = self.mod.check(self.mod.allow_entries(self.allow('    "iso.org",\n')),
+                                      self.mod.spec_domains(self.spec(["iso.org", "iec.ch"])))
+        self.assertEqual(len(findings), 1)
+        self.assertIn("iec.ch", findings[0])
+
+    def test_row_without_code_span_is_an_input_error(self) -> None:
+        with self.floor(), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"], "| IEC | iec.ch | x |\n"))
+
+    def test_domain_floor_is_an_input_error(self) -> None:
+        with self.floor(5), self.assertRaises(self.mod.InputError):
+            self.mod.spec_domains(self.spec(["iso.org"]))
+
+    def test_missing_allow_list_is_an_input_error(self) -> None:
+        with self.assertRaises(self.mod.InputError):
+            self.mod.allow_entries("OTHER = {\"a.org\"}\n")
+
+
 class UnwiredToolSelfTests(LinterTestCase):
     """Wire the remaining tool ``--self-test`` suites into CI.
 

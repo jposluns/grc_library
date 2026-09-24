@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.21\
+**Version:** 1.2.22\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -238,6 +238,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
 
 **2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
+
+**2026-09-24 (3b31b, parity gate):** gate 101 ([`tools/lint-allowlist-spec-parity.py`](../tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 28 entries carry a marker: 26 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
 
 **2026-09-24 (3b30, publisher-list reconciliation):** section 7.1 reconciled with the gate's allow-list. Domains added to existing rows: `atlas.mitre.org` (MITRE); `cbp.gov` and `dodcio.defense.gov` (US Federal); `europa.eu` (EU); `gov.uk` (UK); `canada.ca` and `parl.ca` (Canada; `canada.ca` also reconciles the 2026-07-11 note that `tbs-sct.canada.ca` is suffix-covered by it); `oag.ca.gov`, `cppa.ca.gov` and `capitol.texas.gov` (US States and localities); `imda.gov.sg` and `aiverifyfoundation.sg` (Singapore); `aisi.org.uk` (UK AISI). The OWASP CycloneDX row became a general OWASP row. New rows: IEEE, ETSI, PCI SSC, OECD, WTO, World BASC Organization, South Korea, OpenSSF / Linux Foundation, MLCommons, AVID, HarmBench. The allow-listed publisher domains `cisecurity.org`, `sans.org`, `saif.google`, `cncf.io` and `spdx.org` get rows when their sources gain Canonical Citations Register entries (tracked follow-ups). Allow-listed domains that are not citation publishers (code hosting, identifiers, package registries, format conventions, vendors and tools, and the project's own sites) stay allow-listed without a row, by design. Eligibility follows section 2.1: a publisher qualifies for a row when the Canonical Citations Register carries an entry for its source, whether that source is normative (a standard or regulation) or informative (a benchmark, a vulnerability database, or guidance).
 
