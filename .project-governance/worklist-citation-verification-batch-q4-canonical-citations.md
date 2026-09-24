@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.19\
-**Date:** 2026-09-17\
+**Version:** 1.0.20\
+**Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -118,7 +118,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | CSA CCM | https://cloudsecurityalliance.org/research/cloud-controls-matrix | all | v4.1, 2026-01, Cloud Controls Matrix; supersedes v3.0.1, v4.0, v4.0.13 |  |  |  |  |  |  |
 | CSA AICM | https://cloudsecurityalliance.org/artifacts/ai-controls-matrix | all | v1.1, 2026, AI Controls Matrix; supersedes v1.0.0, v1.0.1, v1.0.2, v1.0.3 |  |  |  |  |  |  |
 | CSA STAR | https://cloudsecurityalliance.org/star | all | Continuous, Security Trust Assurance and Risk programme |  |  |  |  |  |  |
-| COBIT | https://www.isaca.org/resources/cobit | all | 2019, 2018-11 (with Design/Implementation Guide updates 2019, 2020); supersedes COBIT 5, COBIT 4.1; "COBIT 2025" is hallucinated |  |  |  |  |  |  |
+| COBIT | https://www.isaca.org/resources/cobit | all | 2019, 2018-11 (with Design/Implementation Guide updates 2019, 2020); supersedes the earlier editions 5 and 4.1; "COBIT 2025" is hallucinated |  |  |  |  |  |  |
 
 ### 3.6 Cybersecurity adversary frameworks (6 entries)
 

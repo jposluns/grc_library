@@ -637,6 +637,17 @@ class StandardsCurrencyTests(LinterTestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertNotIn("stale citation", result.stdout + result.stderr)
 
+    def test_superseded_marker_with_id_prefix_flagged(self) -> None:
+        # 3b38: COBIT's superseded markers are written "COBIT 5" and "COBIT 4.1";
+        # the pattern must not require the id twice ("COBIT COBIT 5").
+        fixture = self.make_fixture(
+            "standard-cobit-5-superseded.md",
+            VALID_METADATA
+            + "\n\nThe control objectives follow COBIT 5 governance guidance.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "COBIT")
+
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
         # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
         # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the
