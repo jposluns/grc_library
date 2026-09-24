@@ -3691,8 +3691,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
     def test_lint_narrative_authority_boundary_self_test(self) -> None:
         """Gate 87's own self-test. The one-way authority-boundary gate runs against a live corpus
         with no executive/ references, so its detection (body link, root-doc link, metadata-field
-        mention, taxonomy row, hyphenated/nested non-matches, prose/fenced-legal, unreadable
-        fail-loud) is exercised here synthetically."""
+        mention, taxonomy row, hyphenated/nested non-matches, plain-path mentions legal, fenced
+        links and reference definitions flagged (fail closed, 3b54), unreadable fail-loud) is exercised here synthetically."""
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "lint-narrative-authority-boundary.py"), "--self-test"]
         )

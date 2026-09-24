@@ -10,6 +10,7 @@ dependency rule that published content must not depend on project-internal gover
 An external target (an ``http:``, ``https:``, ``mailto:``, ``tel:``, ``ftp:``, or pure
 ``#`` link) is not checked and a fragment is stripped before resolution. A link inside a
 fenced code block is counted too (fail closed: no block structure can hide a dependency),
-so an example link is written in an inline code span or prose instead. The
+so an example drops the link syntax and keeps a plain path mention (link syntax is
+matched inside inline code spans too). The
 project-governance directory name and the deliverable-corpus scan scope are project
 configuration and are not part of this clause.
