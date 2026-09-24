@@ -768,6 +768,12 @@ def check_explicit_paths(
     cwd = Path.cwd().resolve()
     errors: list[str] = []
     for p in paths:
+        if not str(p).strip():
+            # 3b50b2a: an empty entry resolves to the tree root, so the linter would scan the
+            # whole tree as an EXPLICIT path, bypassing its default exemptions.
+            errors.append(f"{p!r}: an empty path argument is refused (it would resolve to the tree "
+                          f"root and scan everything as an explicit path).")
+            continue
         given = Path(p)
         if not given.is_absolute() and cwd != root:
             errors.append(
@@ -818,6 +824,31 @@ def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-t
                   file=sys.stderr)
         raise SystemExit(2)
     return [a for a in argv if not a.startswith("-")] + tail
+
+
+def strict_flags(argv: Iterable[str], allowed: Iterable[str]) -> set[str]:
+    """The flags of a tool that takes flags only, refusing anything else (3b50b2a).
+
+    Several build and check tools tested ``"--check" in argv`` and ran their DEFAULT branch for
+    any other input, so a mistyped ``--chck`` silently regenerated a committed artefact instead of
+    checking it, and exited 0. Every token must be one of ``allowed``, given at most once; an
+    unknown flag, a positional argument, a ``--`` separator, or a repeated flag prints an error and
+    raises ``SystemExit(2)`` BEFORE the tool does anything. Returns the set of flags given.
+    """
+    argv = list(argv)
+    known = set(allowed)
+    errors: list[str] = []
+    for a in argv:
+        if a not in known:
+            kind = "unknown option" if a.startswith("-") else "unexpected argument"
+            errors.append(f"{a!r}: {kind} (allowed: {', '.join(sorted(known)) or 'none'}).")
+    for a in sorted({a for a in argv if a in known and argv.count(a) > 1}):
+        errors.append(f"{a}: given more than once.")
+    if errors:
+        for msg in errors:
+            print(f"ERROR: {msg}", file=sys.stderr)
+        raise SystemExit(2)
+    return set(argv)
 
 
 def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
@@ -941,6 +972,11 @@ def guard_explicit_paths_cwd(
     errors: list[str] = []
     out: list[str] = []
     for p in paths:
+        if not str(p).strip():
+            # 3b50b2a: an empty entry resolves to the anchor directory and scans all of it.
+            errors.append(f"{p!r}: an empty path argument is refused (it would resolve to "
+                          f"{anchor} and scan everything there as an explicit path).")
+            continue
         resolved = (anchor / Path(p)).resolve()
         if not allow_outside and resolved != root and root not in resolved.parents:
             errors.append(
