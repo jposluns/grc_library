@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.78\
+**Version:** 1.5.79\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -222,7 +222,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| SANS Critical AI Security Guidelines | v1.4 | 2026-03 | SANS Institute consensus guidance for securing AI systems, aligned with the OWASP AI Exchange (informative; living document with numbered editions) | v1.1, v1.0 | https://www.sans.org/mlp/critical-ai-security-guidelines | 2026-09-24 |
+| SANS Critical AI Security Guidelines | v1.4 | 2026-03 | SANS Institute consensus guidance for securing AI systems, aligned with the OWASP AI Exchange (informative; living document with numbered editions) | v1.3, v1.2, v1.1, v1.0 | https://www.sans.org/mlp/critical-ai-security-guidelines | 2026-09-24 |
 | Google SAIF | 2.0 | 2025-10 | Google Secure AI Framework: AI security risk and control framework, extended in 2.0 to agent security (informative; single-vendor authorship) | 2023 | https://saif.google/ | 2026-09-24 |
 
 ## Cybersecurity adversary frameworks
