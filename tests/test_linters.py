@@ -3478,9 +3478,16 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         bad = _tx("no stamp and no duration")
         good = _tx(cur_stamp + " fine (session: 1h 0m)")
         try:
+            # The hook deliberately no-ops inside a dispatched orch-verify worker (the
+            # ORCH_VERIFY_OWNER marker or a worker CLAUDE_CONFIG_DIR, _hookutil.is_verify_worker),
+            # so a QA worker running this suite saw a false failure (P-TODO 3b49). Run the hook
+            # with those two signals removed, so the behaviour is tested in every environment.
+            env = {k: v for k, v in os.environ.items()
+                   if k not in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+
             def _run(payload):
                 return subprocess.run([sys.executable, hook], input=json.dumps(payload),
-                                      capture_output=True, text=True)
+                                      capture_output=True, text=True, env=env)
             stale = _tx("[2020-01-01 00:00Z] old (session: 1h 0m)")
             r_bad = _run({"transcript_path": bad})
             r_good = _run({"transcript_path": good})
