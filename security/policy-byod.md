@@ -2,8 +2,8 @@
 
 **Document Title:** Bring Your Own Device (BYOD) Policy\
 **Document Type:** Policy\
-**Version:** 1.2.1\
-**Date:** 2026-09-23\
+**Version:** 1.2.2\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md)\
@@ -105,13 +105,13 @@ When accessing corporate applications on a personal device, the Acceptable Use P
 
 ## 9. Incident and loss reporting
 
-If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations must initiate the model-appropriate wipe within 1 hour of notification: a selective wipe of corporate application data under the MAM model, a container-only wipe under the managed-work-profile route, or a consented full-device wipe under the MDM model. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
+If a personal device with active access to corporate applications is lost, stolen, or compromised, the employee must notify the IT service desk immediately. IT Operations must initiate the model-appropriate wipe within 1 hour of notification: a selective wipe of corporate application data under the MAM model, a container-only wipe under the managed-work-profile route, or a full-device wipe under the MDM model only with the owner's written, recorded consent expressly authorizing it, except where required by law. The corporate credentials and sessions associated with the device must be revoked through the enterprise identity provider at the same time as the wipe is initiated, and a pending or failed wipe must not delay that revocation. IT Operations must record the route, wipe scope and outcome, and any consent reference or applicable legal requirement. The individual is responsible for reporting the loss to their mobile carrier and taking appropriate personal data protection steps for the device itself.
 
 ---
 
 ## 10. Termination and offboarding
 
-Upon departure, corporate access is removed from personal devices as part of the standard offboarding process. Under the MAM model, corporate application data is selectively wiped and personal data is unaffected; under the MDM model, the device is unenrolled and, where required by the enrolment consent terms, a full-device wipe is performed. Under the managed-work-profile route, IT Operations must wipe the corporate container before removing its management. The individual does not need to surrender the device.
+Upon departure, corporate access is removed from personal devices as part of the standard offboarding process. Under the MAM model, corporate application data is selectively wiped and personal data is unaffected; under the MDM model, where the enrolment consent terms require a full-device wipe, the wipe is performed while management remains available and the device is then unenrolled; otherwise the device is unenrolled. Under the managed-work-profile route, IT Operations must wipe the corporate container before removing its management. The individual does not need to surrender the device.
 
 ---
 

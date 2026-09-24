@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.13\
-**Date:** 2026-09-23\
+**Version:** 1.0.14\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -260,11 +260,11 @@ The following checklist must be completed for every departure. IT Operations is 
 | 6 | Email forwarding to personal account removed and blocked | IT Operations | Last day | Mail routing confirmed; no forwarding rules active |
 | 7 | Shared mailbox access removed | IT Operations | Within 24 hours | Access list confirmed in mail admin console |
 | 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | User removed from collaboration platform tenant |
-| 9 | Collaboration and file storage platform access removed | IT Operations | Within 4 hours of departure | Access confirmed removed; data transferred to line manager |
+| 9 | Collaboration and file storage platform access removed | IT Operations | Within 4 hours of departure | Access confirmed removed; data transferred to line manager (for a voluntary departure, the data review and any required transfer may take up to 7 calendar days under 7.5.1) |
 | 10 | Organization-issued managed device must be returned and receipt confirmed; personal devices must not be required to be surrendered | Line Manager / IT Operations | Last day (voluntary; remote returns within 5 calendar days under 7.4.2) / 1 business day (involuntary) | Device ownership must be recorded; returned device serial number and chain of custody must be documented; personal-device return must be marked not applicable |
 | 11 | Remote wipe of an unreturned organization-issued device must be initiated; for personally-owned devices, BYOD access removal and the route-specific wipe and deprovisioning must be performed under 7.4.4 and 8.3.3 | IT Operations | Organization-issued device: within 1 business day of the applicable return deadline, or immediately under 8.3.2; personally-owned device: as part of access removal under 7.2 / 8.2, or immediately under 8.3.3 | The route, access revocation, wipe outcome, and application deprovisioning, work-profile removal or MDM unenrolment must be recorded; any full-device wipe must reference the owner's written, recorded consent or the applicable legal requirement; pending or failed actions must be escalated and tracked to resolution |
 | 12 | All privileged accounts revoked | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | PAM vault audit confirms no active privileged sessions |
-| 13 | Service accounts re-assigned or disabled | IT Operations | Within 2 hours of departure notification (voluntary) / 1 hour, first priority (involuntary) | Service account ownership register updated |
+| 13 | Service accounts re-assigned or disabled | IT Operations | Immediately, per Section 10.3; first priority for an involuntary departure | Service account ownership register updated |
 | 14 | Service desk / ITSM account closed | IT Operations | Within 7 calendar days | Account status confirmed in ITSM system |
 | 15 | Third-party portal access removed | IT Operations / Line Manager | Within 7 calendar days | Each portal confirmed; documented in offboarding record |
 | 16 | Shared credentials rotated (contractors/third parties) | IT Operations | Immediately upon departure | Credential rotation confirmed; new credentials distributed to remaining authorized users |

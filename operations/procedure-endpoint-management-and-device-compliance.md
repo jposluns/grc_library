@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.23\
-**Date:** 2026-09-23\
+**Version:** 1.3.24\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/policy-byod.md`](../security/policy-byod.md)\
@@ -41,7 +41,7 @@ To ensure that all organizational endpoints, including workstations, laptops, se
 | **IT Operations** | Manages the endpoint management platform; deploys and maintains endpoint protection and hardening baselines; maintains the asset register; executes decommissioning and disposal. |
 | **Security Operations (SOC)** | Monitors endpoint protection alerts forwarded to the SIEM; triages endpoint-related security events; escalates confirmed incidents to the Incident Response Procedure. |
 | **System Owners** | Accountable for the compliance status of servers and applications within their scope; coordinate patch and remediation activities within defined SLAs. |
-| **All Employees and Contractors** | Responsible for adhering to device compliance requirements, reporting lost or stolen devices promptly, and completing mandatory security awareness training covering endpoint obligations. |
+| **All Employees and Contractors** | Responsible for adhering to device compliance requirements, reporting lost or stolen devices immediately (a remote worker no later than 1 hour after discovery, per Section 9.1.1 of the Remote Working Security Standard), and completing mandatory security awareness training covering endpoint obligations. |
 | **Internal Audit** | Reviews programme effectiveness, coverage metrics, and exception governance annually. |
 
 ---
