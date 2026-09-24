@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.192\
+**Version:** 1.27.193\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -283,7 +283,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Governance | Template | Executive Narrative Subtype Templates | [`governance/template-executive-narrative-subtypes.md`](template-executive-narrative-subtypes.md) | Governance Library Maintainer | Annual |  ISO 9001 §7.5, ISO/IEC 27001 §7.5 | template |
 | Governance | Template | Library Health Report Template | [`governance/template-library-health-report.md`](../governance/template-library-health-report.md) | Governance Library Maintainer | Annual | ISO 9001 §9, ISO/IEC 27001 §9.3, ISO/IEC 42001 §9.3, COBIT 2019 MEA01, ITIL 4 continual improvement | library-internal |
 | Risk | Procedure | Risk Assessment Methodology Procedure | [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md) | GRC Programme Manager | Annual | ISO 31000:2018, ISO/IEC 27005:2022, ISO/IEC 42001 §6, NIST SP 800-30r1, COBIT APO12 | template |
-| Compliance | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) | Chief Compliance Officer | Annual | ISO/IEC 27001 §9.1, ISO 19011:2026, NIST SP 800-53A, COBIT MEA01 | template |
+| Compliance | Procedure | Control Testing Procedure | [`compliance/procedure-control-testing.md`](../compliance/procedure-control-testing.md) | Chief Compliance Officer | Annual | ISO/IEC 27001 §9.1, ISO 19011:2026, NIST SP 800-53A Rev. 5, COBIT MEA01 | template |
 | Compliance | Procedure | Mergers and Acquisitions Due Diligence Procedure | [`compliance/procedure-mergers-acquisitions-due-diligence.md`](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Chief Compliance Officer | Annual | ISO 31000:2018, ISO 37301:2021, COBIT 2019 EDM03/APO12/BAI05, NIST CSF 2.0 GV | template |
 | Compliance | Template | Regulator Interaction Templates | [`compliance/template-regulator-interaction.md`](../compliance/template-regulator-interaction.md) | Chief Compliance Officer | Annual | Five sub-templates (breach notification, attestation submission, examination support, periodic report submission, regulatory inquiry response); shape-only with cross-references to jurisdiction- and sector-specific framework requirements | template |
 | Compliance | Template | Audit Evidence Package Template | [`compliance/template-audit-evidence-package.md`](../compliance/template-audit-evidence-package.md) | Chief Compliance Officer | Annual | Packages per-control evidence into an audit-ready bundle: cover page, control inventory index, per-control sections, optional per-domain summaries, optional cross-reference index, package-level sign-off | template |
