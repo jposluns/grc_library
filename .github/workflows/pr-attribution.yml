@@ -1,0 +1,32 @@
+name: PR attribution
+
+# NOT an audit gate. The authoritative PR-time check for the maintainer directive (2026-08-17)
+# that no PR title or body carries Claude/Anthropic attribution (maintainer ruling 2026-09-24).
+# It is deliberately SEPARATE from quality.yml so that editing a PR title or body re-runs only
+# this small check, not the whole audit suite; the four-surface parity gate counts only the
+# quality.yml gates. The PR text is read from the event JSON by the Python tool and never
+# interpolated into a shell command, so a PR body cannot inject into this job.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+# Least-privilege token: this job only reads the checked-out tool and the event payload.
+permissions:
+  contents: read
+
+jobs:
+  pr-attribution:
+    name: PR attribution (title and body)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Check the PR title and body for attribution
+        run: python3 tools/check-pr-attribution.py

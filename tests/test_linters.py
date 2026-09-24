@@ -3454,6 +3454,107 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test:", result.stdout)
 
+    def test_block_claude_attribution_hook_self_test(self) -> None:
+        """The PR-attribution guard's --self-test, wired at introduction.
+
+        Maintainer directive 2026-08-17 (re-confirmed 2026-09-24): no Claude or Anthropic
+        attribution on any commit, push or PR; the hook refuses a PR-writing gh command whose
+        text or body file carries an attribution pattern, and a stdin body it cannot inspect."""
+        result = self._run_selftest(
+            [sys.executable,
+             str(REPO_ROOT / ".claude" / "hooks" / "block-claude-attribution.py"),
+             "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test cases pass", result.stdout)
+
+    def test_pr_attribution_ci_check(self) -> None:
+        """The AUTHORITATIVE PR-attribution check (maintainer ruling 2026-09-24): its self-test,
+        end-to-end runs on event payloads, pattern parity with the best-effort hook, and the
+        workflow shape (re-runs on edit; PR text never interpolated into a shell)."""
+        import importlib.util
+        import json
+        import tempfile
+        tool = REPO_ROOT / "tools" / "check-pr-attribution.py"
+        result = self._run_selftest([sys.executable, str(tool), "--self-test"])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        gen = "Generated with [Claude Code](https://claude.com/claude-code)"
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, event, rc in (
+                ("dirty-body", {"pull_request": {"title": "t", "body": "x\n\n" + gen}}, 1),
+                ("dirty-title", {"pull_request": {"title": "t " + gen, "body": ""}}, 1),
+                ("clean", {"pull_request": {"title": "t", "body": "claude SHIP; CLAUDE.md"}}, 0),
+                ("null-body", {"pull_request": {"title": "t", "body": None}}, 0),
+                ("not-a-pr", {"issue": {}}, 2),
+            ):
+                path = Path(tmp) / (name + ".json")
+                path.write_text(json.dumps(event), encoding="utf-8")
+                run = subprocess.run([sys.executable, str(tool), "--event", str(path)],
+                                     capture_output=True, text=True, timeout=60)
+                self.assertEqual(run.returncode, rc, name + ": " + run.stdout + run.stderr)
+            run = subprocess.run([sys.executable, str(tool), "--event", str(Path(tmp) / "absent.json")],
+                                 capture_output=True, text=True, timeout=60)
+            self.assertEqual(run.returncode, 2)
+
+        def load(path, name):
+            spec = importlib.util.spec_from_file_location(name, path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        ci = load(tool, "check_pr_attribution")
+        hook = load(REPO_ROOT / ".claude" / "hooks" / "block-claude-attribution.py",
+                    "block_claude_attribution")
+        self.assertEqual([(lbl, rx.pattern) for lbl, rx in ci.ATTRIBUTION],
+                         [(lbl, rx.pattern) for lbl, rx in hook.ATTRIBUTION],
+                         "the hook's attribution patterns drifted from the CI check's")
+        self.assertEqual(ci.MARKDOWN_FORMATTING, hook.MARKDOWN_FORMATTING,
+                         "the hook's text normalization drifted from the CI check's")
+        self.assertEqual(ci.MARKDOWN_DELETE, hook.MARKDOWN_DELETE,
+                         "the hook's deletion view drifted from the CI check's")
+        self.assertEqual(ci.MARKDOWN_MIXED, hook.MARKDOWN_MIXED)
+        for sample in ("[Generated with](u) C**laud**e_Code", "a\nb [x][1] `y`"):
+            self.assertEqual(ci.text_views(sample), hook.text_views(sample),
+                             "the hook's text views drifted from the CI check's")
+        wf = (REPO_ROOT / ".github" / "workflows" / "pr-attribution.yml").read_text(encoding="utf-8")
+        self.assertIn("types: [opened, edited, synchronize, reopened]", wf)
+        self.assertIn("run: python3 tools/check-pr-attribution.py", wf)
+        self.assertNotIn("github.event.pull_request", wf,
+                         "PR text must be read from the event file, never interpolated")
+        self.assertNotIn("pull_request_target", wf)
+        self.assertIn("permissions:\n  contents: read\n", wf)
+        self.assertNotRegex(wf, r"(?m)^\s*if:", "no job or step may be conditionally skipped")
+        self.assertNotIn("continue-on-error", wf)
+        # The workflow's own invocation path: GITHUB_EVENT_PATH, no --event flag.
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "event.json"
+            path.write_text(json.dumps({"pull_request": {"title": "t", "body": gen}}), encoding="utf-8")
+            env = dict(os.environ, GITHUB_EVENT_PATH=str(path))
+            run = subprocess.run([sys.executable, str(tool)], capture_output=True, text=True,
+                                 timeout=60, env=env)
+            self.assertEqual(run.returncode, 1, run.stdout + run.stderr)
+        # Shared behaviour, not only shared pattern source: both matchers agree on each case.
+        for text, expect in (
+            ("Generated by Claude Code", True), ("Generated\nwith Claude Code", True),
+            ("Co-Authored-By: Claude <noreply@anthropic.com>", True),
+            ("see https://claude.ai/code/session_x", True),
+            ("docs/portal.md is generated with build-portal.py (claude SHIP)", False),
+            ("Generated with CLAUDE.md as the fixture", False),
+            ("Generated with **Claude Code**", True), ("Generated by the Claude app", True),
+            ("Generated by _Claude_", True), ("Generated by Claude-3.5-Sonnet", True),
+            ("Generated with _CLAUDE.md_ as the fixture", False),
+            ("Generated by [Claude][1]", True), ("Generated by Claude_Code", True),
+            ("Co-Authored-By: Claude_Bot <bot@example.org>", True),
+            ("**Co-Authored-By**: Claude Code <bot@example.org>", True),
+            ("Generated with C**laud**e", True),
+            ("[Generated with](https://example.org/t) Claude Code", True),
+            ("Generated by [C**laud**e][1]", True), ("Generated with C**laud**e_Code", True),
+            ("Generated with [CLAUDE.md][1] as the fixture.", False),
+            ("the Claude-family verifier returned HOLD", False),
+        ):
+            self.assertEqual(bool(ci.findings(text)), expect, text)
+            self.assertEqual(hook.find_attribution(text) is not None, expect, text)
+
     def test_block_unstamped_turn_end_behaviour(self) -> None:
         """Behavioural: the Stop hook actually BLOCKS a non-conforming final message (exit 2) and
         ALLOWS a conforming one (exit 0), and is loop-safe. A pure --self-test missed the
@@ -22570,6 +22671,36 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             add("commit-" + flag, "git commit " + flag, evidence=("commits every tracked",),
                 sites=(("violation", "commits every tracked"),))
 
+        add = group("block-claude-attribution", "rewrite")
+        for name, command, fragment in (
+            ("create-generated",
+             'gh pr create --title t --body "Change.\n\n\U0001F916 Generated with '
+             '[Claude Code](https://claude.com/claude-code)"',
+             "Generated with [Claude"),
+            ("create-coauthored",
+             "gh pr create -t x -b 'Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>'",
+             "Co-Authored-By"),
+            ("edit-session-url",
+             'gh pr edit 9 --body "see https://claude.ai/code/session_abc123"',
+             "claude.ai/code"),
+            ("comment-generated",
+             'gh pr comment 9 --body "Generated with Claude Code"',
+             "'Generated with/by ... Claude' attribution line"),
+            ("review-trailer-email",
+             'gh pr review 9 --approve --body "thanks <noreply@anthropic.com>"',
+             "noreply@anthropic.com trailer address"),
+            ("merge-body",
+             'gh pr merge 9 --squash --body "co-authored-by: Claude <noreply@anthropic.com>"',
+             "Co-Authored-By trailer"),
+            ("api-field",
+             "gh api repos/o/r/pulls -f title=t -f body='Generated with Claude Code'",
+             "Generated with"),
+            ("heredoc-body",
+             'gh pr create --title t --body "$(cat <<\'EOF\'\nBody.\n\U0001F916 Generated '
+             'with [Claude Code](https://claude.com/claude-code)\nEOF\n)"',
+             "Generated with"),
+        ):
+            add(name, command, evidence=(fragment,))
         add = group("block-on-open-findings", "give",
                     ("decide_exit", "print('\\n'.join(lines),", 1), "open-findings")
         for name in ("error", "error-many", "error-precedence"):
@@ -22851,7 +22982,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                 elif hook == "block-branch-to-main-edit":
                     payload.update(tool_name="Edit", tool_input={"file_path": self.P + "/doc.md"})
                     m(mod, "_current_branch", arg)
-                elif hook in ("block-bulk-git-add", "block-verification-pipes"):
+                elif hook in ("block-bulk-git-add", "block-verification-pipes",
+                              "block-claude-attribution"):
                     bash(arg)
                 elif hook == "block-on-open-findings":
                     bash("gh pr create")
@@ -23070,7 +23202,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
     def test_population_matches_registered_blocking_hooks(self):
         registered = self._registered_blocking_hooks()
-        self.assertEqual(len(registered), 17)
+        self.assertEqual(len(registered), 18)
         self.assertEqual(registered, set(self._case_registry()))
         for hook, cases in self._case_registry().items():
             self.assertTrue(cases, hook)

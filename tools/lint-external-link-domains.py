@@ -46,6 +46,9 @@ EXEMPT_FILES = {
     # The pack-owned engine (gate_lint_external_link_domains.py) holds URL_RE +
     # is_allowed + scan; exempt it so its own regex source is not scanned.
     "gate_lint_external_link_domains.py",
+    # The PR-attribution check's patterns and self-test cases name the forbidden attribution
+    # links and example link destinations by design; they are test data, not corpus links.
+    "check-pr-attribution.py",
 }
 
 # Allow-listed domains and parent-domain suffixes. A URL matches if its

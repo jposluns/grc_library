@@ -96,6 +96,9 @@ EXEMPT_FILES = {
     # detection regexes, so it documents the PII formats by design exactly as
     # this wrapper did before the PR-38 transfer; exempt it for the same reason.
     "gate_lint_pii_in_content.py",
+    # The PR-attribution check matches the attribution trailer address by design (its
+    # pattern and self-test cases document the forbidden attribution shapes).
+    "check-pr-attribution.py",
 }
 
 # Domains acceptable in documentation examples. An email on one of
