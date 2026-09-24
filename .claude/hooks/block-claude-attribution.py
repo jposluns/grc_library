@@ -70,17 +70,29 @@ ESCAPE = "GRC_ALLOW_PR_ATTRIBUTION"
 # obfuscation is a visible integrity breach in the PR text, not a parsing target.
 MARKDOWN_FORMATTING = str.maketrans("*_`[]", "     ")
 MARKDOWN_DELETE = str.maketrans("", "", "*_`[]")
+# Emphasis and code markers deleted (they split a word), underscores and brackets spaced (they
+# separate words): 'C**laud**e_Code' reads 'Claude Code'.
+MARKDOWN_MIXED = str.maketrans({"*": None, "`": None, "_": " ", "[": " ", "]": " "})
+# Link syntax reduced to its visible text first, so a destination or reference label never sits
+# between (or glues onto) the words: '[Generated with](url) Claude' and '[CLAUDE.md][1]'.
+_INLINE_LINK = re.compile(r"\]\([^)\n]*\)")
+_REF_LINK = re.compile(r"\]\[[^\]\n]*\]")
 
 
 def text_views(text: str) -> tuple[str, ...]:
-    return (text, text.translate(MARKDOWN_FORMATTING), text.translate(MARKDOWN_DELETE))
+    plain = _REF_LINK.sub("]", _INLINE_LINK.sub("]", text))
+    views = [text]
+    for base in (text, plain):
+        views += [base.translate(MARKDOWN_FORMATTING), base.translate(MARKDOWN_DELETE),
+                  base.translate(MARKDOWN_MIXED)]
+    return tuple(views)
 
 ATTRIBUTION = (
     ("a Co-Authored-By trailer naming Claude/Anthropic",
      re.compile(r"(?i)co-authored-by[ \t]*:[^\n]*\b(?:claude|anthropic)\b")),
     ("a 'Generated with/by ... Claude' attribution line",
      re.compile(r"(?i)\bgenerated\s+(?:with|by|using|via)\s+(?:(?:the\s+)?(?:help|assistance|aid)\s+of\s+)?"
-                r"(?:the\s+)?(?:claude|anthropic)(?![a-z0-9]|\.md\b)")),
+                r"(?:the\s+)?(?:claude|anthropic)(?![a-z0-9]|\.md)")),
     ("a claude.ai/code link",
      re.compile(r"(?i)\bclaude\.ai/code")),
     ("a claude.com/claude-code link",
