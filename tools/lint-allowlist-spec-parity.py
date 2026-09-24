@@ -49,7 +49,8 @@ ALLOW_SRC = REPO_ROOT / "tools" / "lint-external-link-domains.py"
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 MIN_SPEC_DOMAINS = 50
 MARKER_RE = re.compile(r"#\s*(non-publisher|pending-publisher):\s*(\S.*)$")
-DELIMITER_CELL_RE = re.compile(r":?-{3,}:?")
+# GFM delimiter cells need only one hyphen (-, :-, -:, :-:), so match one or more.
+DELIMITER_CELL_RE = re.compile(r":?-+:?")
 # Methods that only read a set; any other attribute use on ALLOW_LIST could
 # change it after the literal and is rejected.
 READ_ONLY_ATTRS = {"copy", "issubset", "issuperset", "isdisjoint", "union",
