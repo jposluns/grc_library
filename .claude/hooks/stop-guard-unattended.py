@@ -40,14 +40,16 @@ seam; see the GRC ADAPTATION note. The default implementations are a MINIMAL, de
 with real backlog/mode tooling REPLACES the two adapter bodies with calls into its own tools (lab_infra's
 `tools/flow.py` read_mode and `tools/pipeline.py` load_config+derive are the reference implementation,
 deliberately NOT bundled). Everything below the seam is portable as-is; do not edit the pure `decide()`.
-Exception: P-1.36 changes emitted message text only; predicates/decisions/exit unchanged.
+Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
 
 Self-test: `python3 stop-guard-unattended.py --self-test` (self-contained; no project tooling required).
 
 GRC ADAPTATION (2026-09-03). Adopted from the lab_infra "No Manufactured Wind-Down" delivery
 (inbox msg 20260903T002018Z.from-lab_infra), Architect-directed cross-project adoption. The delivered
-decide()/run()/actionable_items/is_orchestrator_session/_parse_payload/self-test are byte-UNEDITED;
-exception: P-1.36 changes emitted message text only; predicates/decisions/exit unchanged.
+decide()/run()/actionable_items/is_orchestrator_session/_parse_payload/self-test keep the vendored
+LOGIC unchanged (predicates, decisions, exit codes), but the file is NOT byte-identical to the vendored
+source: emitted message text carries grc adaptations (P-1.36; the #2291 terse backlog count; the
+#2496 escape-path hint).
 read_operating_mode carries a grc branch (session-state.md mode), main() carries a grc one-shot
 declared-wait escape pre-step (.allow-idle-stop, via _grc_consume_escape), and the _grc_* helpers are
 added; all gated on the grc repo root so --self-test (which never calls main()) stays hermetic. Actionable items come from the grc producer
@@ -107,7 +109,7 @@ def repo_root():
 # GRC ADAPTATION (project wiring; see the module docstring's GRC note). Only the
 # read_operating_mode() adapter body and main() (a grc one-shot-escape pre-step) are customized;
 # decide()/run() and the other two adapters are the delivered portable core, unedited. The grc code is
-# Exception: P-1.36 changes emitted message text only; predicates/decisions/exit unchanged.
+# Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
 # gated on the grc repo root so the bundled --self-test stays hermetic on this host.
 # ---------------------------------------------------------------------------
 _GRC_REPO_ROOT = "/opt/grc/grc_library"
@@ -289,7 +291,7 @@ def is_orchestrator_session(root):
 
 # ============================================================================
 # END ADAPTER SEAM -- decide()/run() below are portable and unedited; do not edit decide(). (GRC:
-# Exception: P-1.36 changes emitted message text only; predicates/decisions/exit unchanged.
+# Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
 # main() below carries a one-shot-escape pre-step; see the GRC ADAPTATION note.)
 # ============================================================================
 
