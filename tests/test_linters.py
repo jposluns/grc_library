@@ -11664,6 +11664,18 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
         self.assertEqual(r.returncode, 0, r.stderr[-300:])
         counts = json.loads(r.stdout)["counts"]
         self.assertTrue(counts and all(v == 0 for v in counts.values()), counts)
+        # r2: only the COMPLETE empty render qualifies: a heading quoted in a fence, a bare
+        # heading, or a render truncated before its zero-total line is refused.
+        rendered = gen["render"]({})
+        cut = rendered[:rendered.index("**Total:")]
+        for name, body in (("fenced.md", "# README\n```markdown\n# Reference-acquisition manifest\n"
+                                         "**Total: 0 sources (0 free, 0 licensed).**\n```\n"),
+                           ("heading.md", "# Reference-acquisition manifest\n"),
+                           ("truncated.md", cut)):
+            f = td / name
+            f.write_text(body, encoding="utf-8")
+            r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
+            self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
 
 
 class StrictArgvLiveDefectTests(LinterTestCase):

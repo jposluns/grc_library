@@ -31,8 +31,9 @@ repositories and runs green on a bare adopter clone (the sibling-independence in
 It is NOT an audit gate and is NOT wired into run_all_audits; it is an on-demand planner
 the `/adopt` skill invokes.
 
-Exit codes: 0 = plan emitted (or a clean empty manifest); 2 = the manifest is missing or
-unparseable (a broken clone).
+Exit codes: 0 = plan emitted (or a clean empty manifest: the generator's complete render of an
+empty catalogue, heading and zero-total line outside code fences); 2 = the manifest is missing,
+unparseable, or not a complete manifest (a broken clone, a truncated render, an unrelated file).
 """
 import argparse
 import json
@@ -55,6 +56,24 @@ ROW = re.compile(
 # The top-level heading tools/build-reference-manifest.py renders: it separates a valid empty
 # manifest from an unrelated file.
 MANIFEST_HEADING = "# Reference-acquisition manifest"
+_EMPTY_TOTAL = "**Total: 0 sources (0 free, 0 licensed).**"
+
+
+def _is_clean_empty_manifest(text: str) -> bool:
+    """True only for the generator's complete render of an empty catalogue: its heading AND its
+    zero-total line, both outside fenced code blocks (a heading quoted in a fence, a bare heading,
+    or a render truncated before its total line is not a manifest)."""
+    heading = total = False
+    in_fence = False
+    for line in text.splitlines():
+        if line.lstrip().startswith(("```", "~~~")):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        heading = heading or line == MANIFEST_HEADING
+        total = total or line.strip() == _EMPTY_TOTAL
+    return heading and total
 
 
 def parse_manifest(text: str) -> list[dict]:
@@ -144,7 +163,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     text = path.read_text(encoding="utf-8")
     entries = parse_manifest(text)
-    if not entries and MANIFEST_HEADING not in text.splitlines():
+    if not entries and not _is_clean_empty_manifest(text):
         # 3b50b2e2: a file that is not a manifest at all (no generator heading, no entry) used to
         # yield an empty plan, exit 0. A structurally valid EMPTY manifest (the heading, zero rows)
         # keeps its documented exit-0 empty plan.
