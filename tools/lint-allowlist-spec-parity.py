@@ -12,8 +12,8 @@ so this gate never parses a Markdown table (3b31b redesign, maintainer ruling
 2026-09-24: nine QA rounds showed hand-parsing a GFM table is an open-ended class).
 
 Clause. Forward: every ``ALLOW_LIST`` entry is either covered by a section 7.1
-domain under gate 24's own suffix semantics (the entry equals a 7.1 domain or is
-a subdomain of one), or carries a same-line trailing marker comment naming its
+domain under gate 24's own suffix matcher, imported from its pack engine rather than
+re-implemented (the entry equals a 7.1 domain or is a subdomain of one), or carries a same-line trailing marker comment naming its
 classification with a non-empty reason:
 
     "linkedin.com",  # non-publisher: maintainer profile
@@ -165,8 +165,21 @@ def spec_domains(text: str) -> set[str]:
     return domains
 
 
+PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
+
+
+def _link_engine():
+    """Gate 24's pack-owned engine, the single owner of allow-list suffix matching (3b52c)."""
+    if str(PACK_TOOLS) not in sys.path:
+        sys.path.insert(0, str(PACK_TOOLS))
+    import gate_lint_external_link_domains
+    return gate_lint_external_link_domains
+
+
 def covered(entry: str, domains: set[str]) -> bool:
-    return any(entry == d or entry.endswith("." + d) for d in domains)
+    """Whether `entry` is admitted by `domains` under gate 24's OWN matcher (imported, never
+    re-implemented, so the two gates cannot disagree on what a suffix match is)."""
+    return _link_engine().is_allowed(entry, allow_list=domains)
 
 
 def check(allow: list[tuple[str, int, str | None]], domains: set[str]) -> list[str]:
