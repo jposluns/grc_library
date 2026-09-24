@@ -505,10 +505,10 @@ def main(argv):
     if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
     if len(argv) > 1 and argv[1] == "--pre-push":
-        # git passes the remote name and URL to a pre-push hook: at most two positionals, and
-        # none that looks like an option.
+        # git passes the remote name and URL to a pre-push hook: at most two positionals. A remote
+        # name may legitimately begin with '-', and this hook reads stdin, never these arguments.
         extra = argv[2:]
-        if len(extra) > 2 or any(a.startswith("-") for a in extra):
+        if len(extra) > 2:
             print("usage: check-dirty-tree-push.py --pre-push [<remote> <url>]", file=sys.stderr)
             return 2
         return _pre_push()

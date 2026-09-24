@@ -360,7 +360,7 @@ def _self_test():
 def main(argv):
     if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
         return _self_test()
-    if len(argv) == 3 and argv[1] == "--commit-msg":
+    if len(argv) == 3 and argv[1] == "--commit-msg" and not argv[2].startswith("-"):
         return _commit_msg(argv[2])
     print("usage: check-version-bump-commit.py --commit-msg <file> | --self-test", file=sys.stderr)
     return 2

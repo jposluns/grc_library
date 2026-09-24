@@ -21017,11 +21017,13 @@ class HookParserStrictnessTests(LinterTestCase):
         cases = (
             ("tools/check-pr-attribution.py", "--text-file", str(text), "--stray"),
             ("tools/check-pr-attribution.py", "--stray"),
+            ("tools/check-pr-attribution.py", "--event", "--self-test"),
+            ("tools/check-pr-attribution.py", "--text-file", "--self-test"),
+            ("tools/check-version-bump-commit.py", "--commit-msg", "--stray"),
             ("tools/check-version-bump-commit.py", "--self-test", "--stray"),
             ("tools/check-commit-on-main.py", "--pre-commit", "--stray"),
             ("tools/check-dirty-tree-push.py", "--stray"),
             ("tools/check-dirty-tree-push.py", "--pre-push", "origin", "url", "extra"),
-            ("tools/check-dirty-tree-push.py", "--pre-push", "--stray"),
             ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD", "--stray"),
             ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD", "HEAD"),
             ("tools/tension-scan.py", "HEAD", "HEAD", "--stray"),
@@ -21032,18 +21034,25 @@ class HookParserStrictnessTests(LinterTestCase):
             r = run_linter(script, *args)
             self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
             self.assertNotIn("Traceback", r.stderr)
+            # The refusal must come from the new argument check (a usage message), not from some
+            # later failure the old code also produced, so each case discriminates.
+            self.assertIn("usage", r.stderr.lower(), (script, args, r.stderr[-300:]))
 
     def test_documented_forms_still_accepted(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="hookparse-ok-"))
         self.addCleanup(shutil.rmtree, td)
         text = td / "body.md"
         text.write_text("Plain PR body.\n", encoding="utf-8")
+        event = td / "event.json"
+        event.write_text('{"pull_request": {"title": "A title", "body": "A body."}}', encoding="utf-8")
         for script, *args in (
             ("tools/check-pr-attribution.py", "--text-file", str(text)),
             ("tools/check-version-bump-commit.py", "--self-test"),
             ("tools/check-commit-on-main.py", "--self-test"),
             ("tools/check-dirty-tree-push.py", "--self-test"),
             ("tools/tension-scan.py", "HEAD", "HEAD"),
+            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD"),
+            ("tools/check-pr-attribution.py", "--event", str(event)),
         ):
             r = run_linter(script, *args)
             self.assertEqual(r.returncode, 0, (script, args, r.stdout[-200:], r.stderr[-200:]))
