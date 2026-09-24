@@ -365,10 +365,15 @@ def main(argv: list[str]) -> int:
     private_override: Path | None = None
     have_private_override = False
     args = argv[1:]
+    seen: set[str] = set()
     i = 0
     while i < len(args):
         flag, eq, inline = args[i].partition("=")
         if flag in ("--root", "--private-root"):
+            if flag in seen:
+                print(f"ERROR: {flag} given more than once.", file=sys.stderr)
+                return 2
+            seen.add(flag)
             # 3b50b1: a flag with no value, or with a value that is not a directory, is refused
             # (a trailing flag used to be skipped and a --flag=value form ignored).
             if eq:
@@ -385,7 +390,11 @@ def main(argv: list[str]) -> int:
                 have_private_override = True
             i += step
         else:
-            i += 1
+            # 3b50b1 r3: an unknown argument (a typo such as --roott) is refused; it used to be
+            # skipped, so the gate scanned the default roots and exited 0.
+            print(f"ERROR: unrecognized argument {args[i]!r} "
+                  f"(usage: [--root DIR] [--private-root DIR]).", file=sys.stderr)
+            return 2
     # Default the private sibling to the real one; --private-root scopes it to a
     # fixture so `--root` regression tests stay hermetic.
     private_dir = private_override if have_private_override else resolve_sibling("private")

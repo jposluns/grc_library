@@ -320,27 +320,41 @@ def _self_test() -> int:
 
 def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
-        # 3b50b1 r3: --self-test takes no --root. Combined, the self-test ran and the root was
+        # 3b50b1 r3: --self-test takes no other argument (no --root). Combined with --root, the self-test ran and the root was
         # silently dropped (exit 0 that validated nothing of the named tree); refuse instead.
-        if any(x == "--root" or x.startswith("--root=") for x in argv[1:]):
-            print("ERROR: --self-test takes no --root; run the self-test and the root scan "
-                  "separately.", file=sys.stderr)
+        if [x for x in argv[1:] if x != "--self-test"]:
+            print("ERROR: --self-test takes no --root or other argument; run the self-test and "
+                  "the root scan separately.", file=sys.stderr)
             return 2
         return _self_test()
     root = REPO_ROOT
-    for k, arg in enumerate(argv[1:], 1):
+    seen_root = False
+    args = argv[1:]
+    k = 0
+    while k < len(args):
+        arg = args[k]
         # 3b50b1: --root VALUE and --root=VALUE are both honoured; a missing, empty or
         # non-directory value is refused (it used to scan nothing and exit 0, and the = form was
-        # silently ignored).
-        if arg == "--root":
-            if k + 1 >= len(argv) or argv[k + 1].startswith("-"):
-                print("ERROR: --root needs a directory argument.", file=sys.stderr)
+        # silently ignored). r3: every argument is parsed, so a repeated --root or an unknown
+        # argument (a typo such as --roott) is refused instead of silently scanning the default.
+        if arg == "--root" or arg.startswith("--root="):
+            if seen_root:
+                print("ERROR: --root given more than once.", file=sys.stderr)
                 return 2
-            root = require_dir(argv[k + 1], "--root")
-            break
-        if arg.startswith("--root="):
-            root = require_dir(arg.partition("=")[2], "--root")
-            break
+            seen_root = True
+            if arg == "--root":
+                if k + 1 >= len(args) or args[k + 1].startswith("-"):
+                    print("ERROR: --root needs a directory argument.", file=sys.stderr)
+                    return 2
+                root = require_dir(args[k + 1], "--root")
+                k += 2
+            else:
+                root = require_dir(arg.partition("=")[2], "--root")
+                k += 1
+            continue
+        print(f"ERROR: unrecognized argument {arg!r} (usage: [--self-test | --root DIR]).",
+              file=sys.stderr)
+        return 2
     findings = run(root)
     if findings:
         for f in findings:
