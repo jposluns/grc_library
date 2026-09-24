@@ -80,7 +80,9 @@ FAST_FIXED_TARGET=(
 
 FAILED=()
 for tool in "${FAST_TOOLS[@]}"; do
-  out="$(python3 "tools/$tool" "${CHANGED[@]}" 2>&1)"; rc=$?
+  # 3b50b2c: "--" ends option parsing, so a changed file whose name begins with "-" is read as
+  # a path; every FAST_TOOL accepts it (QuickGuardSeparatorTests keeps that true).
+  out="$(python3 "tools/$tool" -- "${CHANGED[@]}" 2>&1)"; rc=$?
   if [ "$rc" -ne 0 ]; then
     FAILED+=("$tool")
     echo "[FAIL rc=$rc] $tool"

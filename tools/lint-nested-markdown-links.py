@@ -40,6 +40,7 @@ from lint_common import (  # noqa: E402  # grc-config/store, stays local
     is_default_exempt_root,
     DEFAULT_EXEMPT_DIRS,
     guard_explicit_paths,
+    positional_args,
     iter_scan_roots_markdown,
 )
 
@@ -68,7 +69,7 @@ def iter_targets(paths: list[str]) -> list[Path]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
+    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
     if argv:
         # Refused when missing or relative while not run from the tree root; the check is
         # content-only, so another tree's absolute path is scanned soundly (3b21).

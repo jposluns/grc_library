@@ -32,7 +32,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import AUDITED_DOMAIN_DIRS, guard_explicit_paths, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import AUDITED_DOMAIN_DIRS, guard_explicit_paths, iter_scan_roots_markdown, positional_args  # noqa: E402  # grc-config/store, stays local
 
 
 def _engine():
@@ -71,7 +71,7 @@ def iter_markdown_files(paths: list[str]) -> list:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = list(sys.argv[1:] if argv is None else argv)
+    argv = positional_args(list(sys.argv[1:] if argv is None else argv), known_flags=())  # 3b50b2c: '--' separates paths (quick-guard passes one)
     gate_lint_language = _engine()
 
     if argv:
