@@ -2,8 +2,8 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.26\
-**Date:** 2026-09-21\
+**Version:** 1.1.27\
+**Date:** 2026-09-24\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/framework-ai-model-risk.md`](framework-ai-model-risk.md)\
@@ -63,6 +63,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md) |
 | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](jurisdictions/annex-ai-us-colorado.md) |
 | Annex | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-texas.md`](jurisdictions/annex-ai-us-texas.md) |
+| Annex | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-federal.md`](jurisdictions/annex-ai-us-federal.md) |
 | Annex | Illinois AI in Employment (HB 3773) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-illinois.md`](jurisdictions/annex-ai-us-illinois.md) |
 | Annex | New York City Automated Employment Decision Tool Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-new-york-city.md`](jurisdictions/annex-ai-us-new-york-city.md) |
 | Annex | Canada AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-canada.md`](jurisdictions/annex-ai-canada.md) |
