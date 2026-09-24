@@ -532,6 +532,83 @@
       "class": "policy",
       "source_identifier": null,
       "corpus_path": "security/policy-network-communications-security.md"
+    },
+    {
+      "id": "GRC-FW-AGENTIC-RESPONSE-STATE",
+      "display_name": "Agentic Response State Model Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-agentic-response-state-model.md"
+    },
+    {
+      "id": "GRC-FW-AI-MATURITY",
+      "display_name": "AI Maturity Model Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-ai-maturity-model.md"
+    },
+    {
+      "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+      "display_name": "AI Model Documentation and Transparency Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-ai-model-documentation-and-transparency.md"
+    },
+    {
+      "id": "GRC-FW-AI-VALUE-DECISION-GOV",
+      "display_name": "AI Value and Decision-Governance Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "ai/framework-ai-value-and-decision-governance.md"
+    },
+    {
+      "id": "GRC-FW-ENTERPRISE-ARCHITECTURE",
+      "display_name": "Enterprise Architecture Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "architecture/framework-enterprise-architecture.md"
+    },
+    {
+      "id": "GRC-FW-GOV-PERFORMANCE",
+      "display_name": "Governance Performance and Improvement Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "governance/framework-governance-performance-and-improvement.md"
+    },
+    {
+      "id": "GRC-FW-GOV-RELATIONSHIP-MODELLING",
+      "display_name": "Governance Relationship and Flow Modelling Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "governance/framework-governance-relationship-and-flow-modelling.md"
+    },
+    {
+      "id": "GRC-FW-HUMAN-CAPITAL",
+      "display_name": "Human Capital and Ethical Conduct Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "governance/framework-human-capital-and-ethical-conduct.md"
+    },
+    {
+      "id": "GRC-FW-METRICS-REPORTING",
+      "display_name": "Metrics, Monitoring and Performance Reporting Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "governance/framework-metrics-monitoring-and-performance-reporting.md"
+    },
+    {
+      "id": "GRC-FW-CHILDRENS-DATA",
+      "display_name": "Children's Data Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "privacy/framework-childrens-data.md"
+    },
+    {
+      "id": "GRC-FW-INSIDER-RISK",
+      "display_name": "Insider Risk Programme Framework",
+      "class": "framework",
+      "source_identifier": null,
+      "corpus_path": "security/framework-insider-risk-programme.md"
     }
   ],
   "records": [
@@ -4348,6 +4425,646 @@
       "source": {
         "id": "GRC-POL-NETWORK-COMMS",
         "class": "policy"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0141",
+      "source": {
+        "id": "GRC-FW-AGENTIC-RESPONSE-STATE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "EU-AI-ACT",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0142",
+      "source": {
+        "id": "GRC-FW-AGENTIC-RESPONSE-STATE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0143",
+      "source": {
+        "id": "GRC-FW-AGENTIC-RESPONSE-STATE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0144",
+      "source": {
+        "id": "GRC-FW-AI-MATURITY",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0145",
+      "source": {
+        "id": "GRC-FW-AI-MATURITY",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0146",
+      "source": {
+        "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0147",
+      "source": {
+        "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "EU-AI-ACT",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0148",
+      "source": {
+        "id": "GRC-FW-AI-MODEL-DOCUMENTATION",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0149",
+      "source": {
+        "id": "GRC-FW-AI-VALUE-DECISION-GOV",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0150",
+      "source": {
+        "id": "GRC-FW-AI-VALUE-DECISION-GOV",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "NIST-AI-RMF",
+        "class": "framework"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0151",
+      "source": {
+        "id": "GRC-FW-ENTERPRISE-ARCHITECTURE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0152",
+      "source": {
+        "id": "GRC-FW-GOV-PERFORMANCE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-9001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0153",
+      "source": {
+        "id": "GRC-FW-GOV-PERFORMANCE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-27001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0154",
+      "source": {
+        "id": "GRC-FW-GOV-PERFORMANCE",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0155",
+      "source": {
+        "id": "GRC-FW-GOV-RELATIONSHIP-MODELLING",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-31000",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "architectural recommendation",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0156",
+      "source": {
+        "id": "GRC-FW-HUMAN-CAPITAL",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0157",
+      "source": {
+        "id": "GRC-FW-METRICS-REPORTING",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-9001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0158",
+      "source": {
+        "id": "GRC-FW-METRICS-REPORTING",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "ISO-IEC-42001",
+        "class": "standard"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0159",
+      "source": {
+        "id": "GRC-FW-CHILDRENS-DATA",
+        "class": "framework"
+      },
+      "verb": "maps to",
+      "destination": {
+        "id": "EU-AI-ACT",
+        "class": "regulation or law"
+      },
+      "relationship_class": "correspondence",
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "viewpoint": "authority",
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "inverse": {
+        "verb": null,
+        "storage": "inferred"
+      },
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "authority_level": "industry practice",
+      "evidence_refs": [],
+      "provenance": null,
+      "scope": null,
+      "status": "active"
+    },
+    {
+      "id": "rel-corpus-0160",
+      "source": {
+        "id": "GRC-FW-INSIDER-RISK",
+        "class": "framework"
       },
       "verb": "maps to",
       "destination": {
