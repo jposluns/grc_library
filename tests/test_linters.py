@@ -15313,6 +15313,29 @@ class AllowlistSpecParityTests(unittest.TestCase):
         with self.floor():
             self.assertEqual(self.mod.spec_domains(text), {"iso.org", "iec.ch"})
 
+    def test_build_cli_refuses_crlf_and_cr_bytes(self) -> None:
+        """Round-11 codex P2: the CLI must see the RAW bytes, so a CRLF or CR specification is
+        refused (exit 2) rather than silently normalized by text-mode newline translation."""
+        import importlib.util
+        import tempfile
+        from unittest import mock
+        spec = importlib.util.spec_from_file_location(
+            "build_citation_publishers", REPO_ROOT / "tools" / "build-citation-publishers.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        live = (REPO_ROOT / "governance" / "specification-citation-verification.md").read_bytes()
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, data in (("crlf", live.replace(b"\n", b"\r\n")), ("cr", live.replace(b"\n", b"\r")),
+                               ("bom", b"\xef\xbb\xbf" + live)):
+                path = Path(tmp) / (name + ".md")
+                path.write_bytes(data)
+                with mock.patch.object(mod, "SPEC", path), mock.patch("sys.stderr"):
+                    self.assertEqual(mod.main(["--check"]), 2, name)
+            path = Path(tmp) / "lf.md"
+            path.write_bytes(live)
+            with mock.patch.object(mod, "SPEC", path), mock.patch("sys.stdout"):
+                self.assertEqual(mod.main(["--check"]), 0)
+
     def test_build_tool_self_test_and_live_check(self) -> None:
         for args in (["--self-test"], ["--check"]):
             result = run_linter("tools/build-citation-publishers.py", *args)

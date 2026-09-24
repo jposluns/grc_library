@@ -30,7 +30,7 @@ HOST_RE = re.compile(r"[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0
 # trailing space), is counted, so a second or non-canonical block cannot be silently ignored.
 LOOSE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})[ \t]*json[ \t]+citation-publishers\b.*$")
 CANONICAL_OPEN = "```" + BLOCK_INFO
-CLOSE_RE = re.compile(r"^`{3,}[ \t]*$")
+CLOSE_RE = re.compile(r"^ {0,3}`{3,}[ \t]*$")
 HEADING_RE = re.compile(r"^ {0,3}#{1,3}[ \t]")
 SECTION_RE = re.compile(r"^ {0,3}### 7\.1[ \t]")
 HEADER = "| Publisher | Canonical domain | Standards covered |\n| --- | --- | --- |\n"
@@ -99,8 +99,8 @@ def _reject_constant(name):
     raise InputError(f"non-finite number {name} is not allowed")
 
 
-def block_text(text: str) -> str:
-    """The JSON body of the single ``json citation-publishers`` block inside section 7.1."""
+def block_lines(text: str) -> tuple[int, int]:
+    """(opener line index, closing-fence line index) of the single validated block in section 7.1."""
     start, end = section_bounds(text)
     lines = text.split("\n")
     i = opener_line(text)
@@ -117,7 +117,20 @@ def block_text(text: str) -> str:
         raise InputError(f"the ```{BLOCK_INFO} block is not closed") from None
     if sum(len(line) + 1 for line in lines[:close]) >= end:
         raise InputError(f"the ```{BLOCK_INFO} block runs past the end of section 7.1")
-    return "\n".join(lines[i + 1:close])
+    return i, close
+
+
+def source_span(text: str) -> tuple[int, int]:
+    """Character span of the whole source block, opener line through closing-fence line."""
+    i, close = block_lines(text)
+    lines = text.split("\n")
+    return sum(len(line) + 1 for line in lines[:i]), sum(len(line) + 1 for line in lines[:close + 1])
+
+
+def block_text(text: str) -> str:
+    """The JSON body of the single ``json citation-publishers`` block inside section 7.1."""
+    i, close = block_lines(text)
+    return "\n".join(text.split("\n")[i + 1:close])
 
 
 def parse_block(text: str) -> list[dict]:

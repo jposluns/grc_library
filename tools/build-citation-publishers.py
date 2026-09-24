@@ -23,7 +23,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "tools"))
-from citation_publishers import BEGIN, END, InputError, opener_line, parse_block, render, section_bounds  # noqa: E402
+from citation_publishers import BEGIN, END, InputError, _fence_scan, parse_block, render, section_bounds, source_span  # noqa: E402
 
 SPEC = REPO_ROOT / "governance" / "specification-citation-verification.md"
 
@@ -34,13 +34,20 @@ def regenerate(text: str) -> str:
     nb, ne = text.count(BEGIN), text.count(END)
     if nb != 1 or ne != 1:
         raise InputError(f"expected exactly one sentinel pair, found {nb} BEGIN and {ne} END")
+    lines = text.split("\n")
+    fenced, _ = _fence_scan(lines)
+    for marker in (BEGIN, END):
+        at = [k for k, line in enumerate(lines) if line == marker and k not in fenced]
+        if len(at) != 1:
+            raise InputError(f"the sentinel {marker} must be a whole line of its own, outside code blocks")
     b, e = text.index(BEGIN), text.index(END)
     if not (start <= b < e < end):
         raise InputError("the sentinel pair must be in order and inside section 7.1")
-    # The source block must lie OUTSIDE the generated region, or regenerating would erase it.
-    op = sum(len(line) + 1 for line in text.split("\n")[:opener_line(text)])
-    if b <= op <= e:
-        raise InputError("the json citation-publishers block must not be inside the generated region")
+    # The generated region must not overlap ANY part of the source block, or regenerating would
+    # erase some or all of it.
+    src_start, src_end = source_span(text)
+    if b < src_end and src_start < e + len(END):
+        raise InputError("the json citation-publishers block must not overlap the generated region")
     table = render(parse_block(text))
     return text[: b + len(BEGIN)] + "\n\n" + table + "\n" + text[e:]
 
@@ -49,7 +56,7 @@ def main(argv: list[str]) -> int:
     if "--self-test" in argv:
         return self_test()
     try:
-        text = SPEC.read_text(encoding="utf-8")
+        text = SPEC.read_bytes().decode("utf-8")
         if "\r" in text or text.startswith("\ufeff"):
             raise InputError("the specification must use LF line endings without a BOM")
         new = regenerate(text)
@@ -68,7 +75,7 @@ def main(argv: list[str]) -> int:
         print("OK: section 7.1 publisher table is in sync with its source of record.")
         return 0
     if new != text:
-        SPEC.write_text(new, encoding="utf-8")
+        SPEC.write_bytes(new.encode("utf-8"))
         print("Regenerated the section 7.1 publisher table.")
     else:
         print("OK: section 7.1 publisher table already in sync.")
@@ -131,7 +138,14 @@ def self_test() -> int:
     case("NaN refused", refuses(doc.replace('["iso.org"]', '["iso.org", NaN]'), "non-finite"))
     case("empty domains refused", refuses(doc.replace('["iso.org"]', "[]"), "non-empty array"))
     case("block inside the generated region refused (regeneration would erase it)",
-         refuses(doc.replace(block, "").replace(END, block + END), "inside the generated region"))
+         refuses(doc.replace(block, "").replace(END, block + END), "overlap"))
+    case("sentinel inside a JSON string refused (partial overlap would erase the source)",
+         refuses(doc.replace(BEGIN + "\n", "").replace('"ISO standards."', '"' + BEGIN + '"')
+                 .replace(block, block + "\n"), "whole line"))
+    case("sentinel line inside the source block refused",
+         refuses(doc.replace(BEGIN + "\n\nstale\n\n", "")
+                 .replace(' {"publisher": "NIST"', BEGIN + '\n {"publisher": "NIST"'), "whole line"))
+    case("indented closing fence accepted", lambda: table in regenerate(doc.replace("}]\n" + fence + "\n", "}]\n  " + fence + "\n")))
     case("block outside 7.1 refused",
          refuses(doc.replace(block, "").replace("### 7.2 Next\n", "### 7.2 Next\n\n" + block), "not inside section 7.1"))
     bad = [name for name, ok in cases if ok is not True]
