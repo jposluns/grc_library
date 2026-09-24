@@ -11678,6 +11678,56 @@ class StrictArgvLiveDefectTests(LinterTestCase):
             self.assertEqual(cm.exception.code, 2, bad)
 
 
+class DocsArgNormalizationTests(LinterTestCase):
+    """3b50b2b: the QA-feeding audits' --docs and the publication scanner's --files.
+
+    claim-precision, matrix-semantic-fit and reference-breadth compared --docs against
+    repo-relative strings without normalizing, so an equivalent spelling (./x.md, an absolute
+    path) selected nothing and exited 0; a missing path did the same; and the publication scanner
+    printed UNREADABLE for a missing extract yet exited 0 having screened nothing."""
+
+    DOC = "security/policy-information-security.md"
+
+    def _claim_rows(self, spelling: str) -> int:
+        import json
+        r = run_linter("tools/audit-claim-precision.py", "--docs", spelling, "--json")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return len(json.loads(r.stdout)["rows"])
+
+    def test_claim_precision_equivalent_spellings_select_the_same_rows(self) -> None:
+        base = self._claim_rows(self.DOC)
+        self.assertGreater(base, 0, "positive control: the document carries Tier-B claims")
+        for spelling in ("./" + self.DOC, "tools/../" + self.DOC, str(REPO_ROOT / self.DOC)):
+            self.assertEqual(self._claim_rows(spelling), base, spelling)
+
+    def test_missing_or_empty_docs_refused(self) -> None:
+        for script in ("tools/audit-claim-precision.py", "tools/audit-matrix-semantic-fit.py",
+                       "tools/audit-reference-breadth.py"):
+            for arg in ("no/such-3b50b2b.md", ""):
+                r = run_linter(script, "--docs", arg)
+                self.assertEqual(r.returncode, 2, (script, arg, r.stdout, r.stderr))
+                self.assertIn("ERROR:", r.stderr)
+
+    def test_publication_scanner_refuses_unscreenable_input(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="pubscan-"))
+        self.addCleanup(shutil.rmtree, td)
+        for arg in (str(td / "missing--full-text.md"), "", str(td)):
+            r = run_linter("tools/scan-publication-instruction-content.py", "--files", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout, r.stderr))
+        ok = td / "ok--full-text.md"
+        ok.write_text("Plain extract text.\n", encoding="utf-8")
+        r = run_linter("tools/scan-publication-instruction-content.py", "--files", str(ok))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        if os.geteuid() != 0:  # root reads a mode-000 file, so this case needs an ordinary user
+            locked = td / "locked--full-text.md"
+            locked.write_text("x\n", encoding="utf-8")
+            locked.chmod(0)
+            self.addCleanup(locked.chmod, 0o600)
+            r = run_linter("tools/scan-publication-instruction-content.py", "--files", str(locked))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("could not be read", r.stderr)
+
+
 class ExplicitRootGuardTests(LinterTestCase):
     """Explicit --root / --private-root overrides and exempt-prefix paths refuse (3b50b1).
 

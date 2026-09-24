@@ -43,7 +43,8 @@ audit-brief-freshness.py): absent checkout means held-state reads
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the
 four-surface parity gate 35, the regression suite gate 36) does NOT
 auto-discover it, and it is NOT wired into ``run_all_audits.sh`` /
-``quality.yml`` / ``.pre-commit-config.yaml``. It always exits 0: its
+``quality.yml`` / ``.pre-commit-config.yaml``. A worklist run exits 0 (2 when a --docs argument
+is refused: missing, out-of-tree, empty, or outside the corpus scan set, 3b50b2b): its
 output is a worklist, and a lexical extractor is deliberately
 recall-oriented (a miss is worse than a spurious row the judge dismisses in
 seconds). CI additionally CANNOT host this check because the ground truth
@@ -921,6 +922,20 @@ def main(argv):
             except Exception:
                 record_path = None
         return run_sample(args.n, record_path, date=args.date, as_json=args.as_json)
+    if args.docs:
+        # 3b50b2b: normalize and validate the named documents, then require each to be in the
+        # corpus scan set. An equivalent spelling (./x.md, an absolute path) used to miss the
+        # repo-relative comparison, and a non-corpus document was silently dropped, so the worklist
+        # came back empty with exit 0 and no note.
+        import lint_common
+        args.docs = lint_common.guard_explicit_paths(args.docs)
+        in_scope = {str(rel) for rel, _ in corpus_files(docs=args.docs)}
+        outside = [d for d in args.docs if d not in in_scope]
+        if outside:
+            for d in outside:
+                print(f"ERROR: --docs {d}: not in the corpus scan set (excluded tree, excluded file, "
+                      f"or not a markdown document); nothing would be assessed.", file=sys.stderr)
+            return 2
     run_report(args.tier, find_ref_base(args.ref_base), docs=args.docs,
                as_json=args.as_json)
     return 0

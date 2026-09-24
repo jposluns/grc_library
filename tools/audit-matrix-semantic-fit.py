@@ -28,7 +28,7 @@ So the tool is the audit's input-narrowing step, not a standalone reporter.
 It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the four-surface
 parity gate 35, the regression suite gate 36) does NOT auto-discover it, and it
 is NOT wired into ``run_all_audits.sh`` / ``quality.yml`` / ``.pre-commit-config.yaml``.
-It always exits 0 (it reports candidates; it never fails a workflow), because a
+It exits 0 whatever it finds (it reports candidates; it never fails a workflow), because a
 lexical pre-filter is intentionally low-recall and its "flags" are candidates,
 not defects. Making it a blocking gate would be a decorative gate (gate-discipline
 rule): it would either be too noisy to trust or too strict to add value, and the
@@ -72,7 +72,8 @@ WHAT IT SCANS:
     alignment`` section (table ``| Framework | Reference | Topic |``); subject =
     the document's H1 title.
 
-Exit code: always 0. Usage:
+Exit code: 0 for any worklist; 2 when a --docs argument is refused (missing, out-of-tree or
+empty, 3b50b2b). Usage:
     python3 tools/audit-matrix-semantic-fit.py                 # scan both surfaces
     python3 tools/audit-matrix-semantic-fit.py --matrix-only
     python3 tools/audit-matrix-semantic-fit.py --source-docs-only
@@ -551,7 +552,7 @@ def run(matrix: bool, source_docs: bool, docs=None, as_json=False, all_rows=Fals
                 out["source_docs"]["all_rows"] = stats["all_rows"]
         print(_json.dumps(out, indent=2))
         return 0
-    print("ADVISORY semantic-fit TRIAGE worklist for the /matrix-fit audit (NOT a gate; exit 0 always).")
+    print("ADVISORY semantic-fit TRIAGE worklist for the /matrix-fit audit (NOT a gate; a worklist run exits 0).")
     print("Listed rows lack a lexical anchor; they are the audit's worklist, NOT confirmed defects.")
     print("Non-listed rows are deprioritized, NOT certified; the /matrix-fit skill adjudicates fit.\n")
     if matrix:
@@ -1077,6 +1078,14 @@ def main(argv: list[str]) -> int:
     args = parser.parse_args(argv[1:])
     if args.self_test:
         return _self_test()
+    if args.docs:
+        # 3b50b2b: normalize and validate the named documents. An equivalent spelling (./x.md,
+        # tools/../x.md, an absolute path) used to miss the repo-relative Path-cell comparison and
+        # assess nothing with exit 0; a missing, out-of-tree or empty path is refused (exit 2).
+        # Residue, stated: an existing document with no matrix row and no framework table still
+        # selects nothing, which the printed assessed counts show.
+        import lint_common
+        args.docs = lint_common.guard_explicit_paths(args.docs)
     matrix = not args.source_docs_only
     source_docs = not args.matrix_only
     return run(matrix, source_docs, docs=args.docs, as_json=args.as_json, all_rows=args.all_rows)
