@@ -189,9 +189,10 @@ def classify(rel: str) -> str:
 # (operational-state privatization + adopter-clone portability).
 _SIBLING_REPO_DIRS: dict[str, str] = {
     "ref": "grc_library_ref",
-    # RETIRED 2026-09-23 (maintainer-directed); its last reader, audit-brief-freshness.py, was retired
-    # 2026-09-24. Kept so the shared placeholder helpers still accept the ``.scratch`` slot that
-    # lint-sibling-placeholders guards. Never clone/sync it.
+    # RETIRED 2026-09-23 (maintainer-directed); its last data reader, audit-brief-freshness.py, was
+    # retired 2026-09-24. Kept because audit-cross-repo-references.py classifies grc_library_scratch
+    # pointers through resolve_sibling and sibling_placeholder_present, which raise on an unknown
+    # name; deleting it breaks that audit on every retired-sibling pointer. Never clone/sync it.
     "scratch": "grc_library_scratch",
     "private": "grc_library_private",
 }
