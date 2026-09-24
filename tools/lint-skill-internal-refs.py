@@ -63,9 +63,10 @@ import sys
 from pathlib import Path
 
 try:
-    from lint_common import REPO_ROOT
+    from lint_common import REPO_ROOT, guard_explicit_paths, positional_args, self_test_requested
 except Exception:  # pragma: no cover - allow standalone/self-test import
     REPO_ROOT = Path(__file__).resolve().parent.parent
+    guard_explicit_paths = positional_args = self_test_requested = None
 
 SKILLS_DIR = "guardrails/skills"
 
@@ -167,9 +168,22 @@ def scan_skill(path: Path, tools_dir: Path) -> list[str]:
 
 
 def main(argv: list[str]) -> int:
-    if len(argv) > 1 and argv[1] == "--self-test":
+    raw = positional_args(argv[1:]) if positional_args else argv[1:]
+    if (self_test_requested(argv[1:], raw) if self_test_requested
+            else "--self-test" in argv[1:]):
         return _self_test()
-    paths = [Path(a) for a in argv[1:]] if len(argv) > 1 else None
+    paths = None
+    if raw:
+        # 3b50: an explicit path that is missing or outside this tree used to be dropped
+        # silently ("OK: 0 pack skill(s) scanned"); refuse it (exit 2). An EXISTING file that is
+        # not a SKILL.md is skipped VISIBLY rather than refused: quick-guard passes every changed
+        # file to every fast linter, so a non-skill file is an expected, per-file-sound input.
+        given = guard_explicit_paths(raw) if guard_explicit_paths else raw
+        for g in given:
+            if Path(g).name != "SKILL.md" or not (REPO_ROOT / g).is_file():
+                print(f"SKIP: {g}: not a SKILL.md file (this linter scans pack skill files only).",
+                      file=sys.stderr)
+        paths = [Path(g) for g in given]
     tools_dir = REPO_ROOT / "tools"
     all_findings: list[str] = []
     skills = _iter_skill_files(paths)

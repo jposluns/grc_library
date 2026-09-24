@@ -23,7 +23,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, positional_args, self_test_requested  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -232,9 +232,12 @@ def _self_test() -> int:
 
 
 def main(argv: list[str]) -> int:
-    if "--self-test" in argv[1:]:
+    explicit = positional_args(argv[1:])
+    if self_test_requested(argv[1:], explicit):
         return _self_test()
-    paths = [a for a in argv[1:] if not a.startswith("-")] or DEFAULT_CORPUS_ROOTS
+    # 3b50: refuse (exit 2) a missing or out-of-tree explicit path; the check also reads this
+    # checkout's taxonomy, so another tree's file cannot be judged soundly here.
+    paths = guard_explicit_paths(explicit) if explicit else DEFAULT_CORPUS_ROOTS
     files = iter_markdown_files(paths)
     grouped: dict[str, list[tuple[int, str]]] = defaultdict(list)
     total = 0

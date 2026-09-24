@@ -11269,6 +11269,147 @@ class ExplicitPathGuardCwdTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
+    """Explicit-path refusal for linters with their OWN walkers (3b50a).
+
+    These linters call neither iter_scan_roots_markdown nor iter_targets, so the #2533 and
+    #2535 guards did not reach them: a missing explicit path scanned nothing and exited 0
+    (lint-skill-internal-refs printed "OK: 0 pack skill(s) scanned"), crashed with a
+    FileNotFoundError traceback on rc 1 (the findings code), or an out-of-tree path raised a
+    ValueError when reported. Each now refuses a missing path with exit 2 and, unless its
+    check is content-only, an out-of-tree path.
+    """
+
+    STRICT = (
+        "tools/lint-skill-internal-refs.py", "tools/lint-metadata-line-breaks.py",
+        "tools/check-review-cadence.py",
+        "tools/lint-narrative-authority-boundary.py", "tools/lint-narrative-metadata.py",
+    )
+    # Content-only: directional-dependency's regression fixtures live in temp directories by
+    # design (DirectionalDependencyTests), and the two below scan generic text.
+    CONTENT_ONLY = ("tools/lint-narrative-vocabulary.py", "tools/lint-changelog-link-coverage.py",
+                    "tools/lint-directional-dependency.py")
+
+    def _outside(self, name: str, text: str) -> Path:
+        d = Path(tempfile.mkdtemp(prefix="guard-own-outside-"))
+        self.addCleanup(shutil.rmtree, d)
+        f = d / name
+        f.write_text(text, encoding="utf-8")
+        return f
+
+    def test_missing_path_refused_without_traceback(self) -> None:
+        for script in self.STRICT + self.CONTENT_ONLY + ("tools/lint-followup-ageing.py",):
+            result = run_linter(script, "no/such/file-3b50.md")
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("does not exist", result.stderr, script)
+            self.assertNotIn("Traceback", result.stderr, script)
+
+    def test_strict_out_of_tree_refused(self) -> None:
+        probe = self._outside("SKILL.md", "---\n**Date:** 2026-01-01\n**Version:** 1\n---\n")
+        for script in self.STRICT:
+            result = run_linter(script, str(probe))
+            self.assertEqual(result.returncode, 2, script + result.stdout + result.stderr)
+            self.assertIn("outside this linter's tree", result.stderr, script)
+            self.assertNotIn("Traceback", result.stderr, script)
+
+    def test_content_only_scans_another_tree(self) -> None:
+        # Each must report the planted finding: a bare "no refusal" would pass a silent no-op.
+        vocab = self._outside("page.md", "# Page\n\nThe team shall comply.\n")
+        result = run_linter("tools/lint-narrative-vocabulary.py", str(vocab))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("shall", result.stdout + result.stderr)
+        log = self._outside("CHANGELOG.md", "# Log\n\nChanged `tools/lint_common.py` today.\n")
+        result = run_linter("tools/lint-changelog-link-coverage.py", str(log))
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("tools/lint_common.py", result.stdout + result.stderr)
+
+    def test_skill_refs_skips_a_non_skill_file_visibly(self) -> None:
+        # quick-guard passes every changed file to every fast linter, so an existing non-skill
+        # file is skipped with a visible note, never silently and never refused.
+        result = run_linter("tools/lint-skill-internal-refs.py", "README.md")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SKIP: README.md: not a SKILL.md file", result.stderr)
+        # round 2: '--' is a separator, not a path
+        result = run_linter("tools/lint-skill-internal-refs.py", "--", "README.md")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("SKIP: README.md", result.stderr)
+        skill = next(iter(sorted((REPO_ROOT / "guardrails" / "skills").glob("*/SKILL.md"))))
+        result = run_linter("tools/lint-skill-internal-refs.py", str(skill.relative_to(REPO_ROOT)))
+        self.assertNotEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("1 pack skill", result.stdout + result.stderr)
+
+    def test_hooks_syntax_refuses_a_missing_dir(self) -> None:
+        result = run_linter("tools/lint-hooks-syntax.py", "--hooks-dir", "no/such/hooks-3b50")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("not a directory", result.stderr)
+
+    def test_followup_ageing_explicit_target_resolves_against_root(self) -> None:
+        root = Path(tempfile.mkdtemp(prefix="guard-own-root-"))
+        self.addCleanup(shutil.rmtree, root)
+        (root / "notes.md").write_text("# Notes\n\nNothing deferred.\n", encoding="utf-8")
+        ok = run_linter("tools/lint-followup-ageing.py", "--root", str(root), "--target", "notes.md")
+        self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+        self.assertIn("1 of 1", ok.stdout + ok.stderr)
+        missing = run_linter("tools/lint-followup-ageing.py", "--root", str(root), "--target", "gone.md")
+        self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
+        outside = self._outside("x.md", "# X\n")
+        out = run_linter("tools/lint-followup-ageing.py", "--root", str(root), str(outside))
+        self.assertEqual(out.returncode, 2, out.stdout + out.stderr)
+        self.assertIn("outside this linter's tree", out.stderr)
+        bad_root = run_linter("tools/lint-followup-ageing.py", "--root", str(root / "absent"))
+        self.assertEqual(bad_root.returncode, 2, bad_root.stdout + bad_root.stderr)
+        # The DEFAULT target set keeps its skip-when-absent contract under an explicit root.
+        default = run_linter("tools/lint-followup-ageing.py", "--root", str(root))
+        self.assertEqual(default.returncode, 0, default.stdout + default.stderr)
+
+    def test_dash_prefixed_and_unknown_arguments_refused(self) -> None:
+        # Round-1 codex: a dash-prefixed filename after '--' was discarded and the defaults
+        # scanned (exit 0); an unknown option was silently ignored.
+        for script in ("tools/lint-directional-dependency.py", "tools/lint-narrative-authority-boundary.py",
+                       "tools/lint-narrative-metadata.py", "tools/lint-narrative-vocabulary.py"):
+            for args, fragment in ((("--", "-missing-3b50a.md"), "does not exist"),
+                                   (("--bogus",), "unknown option"),
+                                   # round 2: a --self-test after '--' is a path, never a flag,
+                                   # and an unknown option is refused before any self-test runs
+                                   (("--", "--self-test", "no/such/file-3b50.md"), "does not exist"),
+                                   (("--bogus", "--self-test"), "unknown option"),
+                                   # round 3: a self-test must not swallow explicit paths
+                                   (("--self-test", "--", "no/such/file-3b50.md"), "takes no paths"),
+                                   # round 4: a repeated flag is refused, never collapsed
+                                   (("--self-test", "--self-test"), "more than once")):
+                result = run_linter(script, *args)
+                self.assertEqual(result.returncode, 2, script + repr(args) + result.stdout + result.stderr)
+                self.assertIn(fragment, result.stderr, script)
+
+    def test_absent_default_targets_keep_their_contracts(self) -> None:
+        # Round-1 codex/gemini: only an EXPLICIT argument refuses; an absent DEFAULT keeps the
+        # documented skip (an adopter fork without the hook tree, or without a CHANGELOG).
+        import importlib.util
+        from unittest import mock
+        absent = Path(tempfile.mkdtemp(prefix="guard-own-absent-")) / "gone"
+        self.addCleanup(shutil.rmtree, absent.parent)
+
+        def load(name):
+            spec = importlib.util.spec_from_file_location(name.replace("-", "_"), REPO_ROOT / "tools" / name)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            return mod
+        hooks = load("lint-hooks-syntax.py")
+        with mock.patch.object(hooks, "HOOKS_DIR", absent), mock.patch("sys.stdout"):
+            self.assertEqual(hooks.main([]), 0)
+        with mock.patch("sys.stderr"):
+            self.assertEqual(hooks.main(["--hooks-dir", str(absent)]), 2)
+        cov = load("lint-changelog-link-coverage.py")
+        with mock.patch.object(cov, "DEFAULT_TARGET", absent / "CHANGELOG.md"), mock.patch("sys.stdout"):
+            self.assertEqual(cov.main(["lint-changelog-link-coverage.py"]), 0)
+
+    def test_default_runs_do_not_refuse(self) -> None:
+        for script in self.STRICT + self.CONTENT_ONLY + (
+                "tools/lint-followup-ageing.py", "tools/lint-hooks-syntax.py"):
+            result = run_linter(script)
+            self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+
+
 class UnbalancedFenceTests(LinterTestCase):
     """tools/lint-unbalanced-fences.py (gate 66).
 

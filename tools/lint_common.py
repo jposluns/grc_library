@@ -790,6 +790,60 @@ def check_explicit_paths(
     return errors
 
 
+def positional_args(argv: Iterable[str], known_flags: Iterable[str] = ("--self-test",)) -> list[str]:
+    """Positional (path) arguments from a hand-parsed argv, refusing what would be dropped (3b50a).
+
+    Several linters filtered argv with ``not a.startswith("-")``, which silently discarded an
+    unknown option AND a dash-prefixed filename even after ``--``, so ``-- -missing.md`` scanned
+    the defaults and exited 0. Every token after a ``--`` separator is positional; before it, a
+    dash token must be one of ``known_flags`` or the call prints an error and raises
+    ``SystemExit(2)``. Pass the result to the explicit-path guard.
+    """
+    argv = list(argv)
+    tail: list[str] = []
+    if "--" in argv:
+        i = argv.index("--")
+        argv, tail = argv[:i], argv[i + 1:]
+    known = set(known_flags)
+    repeated = sorted({a for a in argv if a in known and argv.count(a) > 1})
+    if repeated:
+        for a in repeated:
+            print(f"ERROR: {a}: given more than once (use -- before a path that looks like an "
+                  f"option).", file=sys.stderr)
+        raise SystemExit(2)
+    unknown = [a for a in argv if a.startswith("-") and a not in known]
+    if unknown:
+        for a in unknown:
+            print(f"ERROR: {a}: unknown option (use -- before a path that begins with '-').",
+                  file=sys.stderr)
+        raise SystemExit(2)
+    return [a for a in argv if not a.startswith("-")] + tail
+
+
+def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
+    """True when ``flag`` appears before any ``--`` separator (a token after ``--`` is a path).
+
+    Call it only AFTER :func:`positional_args` has validated the same argv, so a flag test can
+    never pre-empt the explicit-path refusal (3b50a round 2: ``-- --self-test missing.md`` ran the
+    self-test and skipped the refusal)."""
+    argv = list(argv)
+    return flag in (argv[:argv.index("--")] if "--" in argv else argv)
+
+
+def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
+    """True when ``--self-test`` was given before any ``--``; refuses (exit 2) when paths were also
+    given, since a self-test would ignore them and they would escape the explicit-path guard
+    (3b50a round 3: ``--self-test -- missing.md`` exited 0)."""
+    if not flag_before_separator(argv, "--self-test"):
+        return False
+    paths = list(paths)
+    if paths:
+        print(f"ERROR: --self-test takes no paths (given: {' '.join(paths)}); run the self-test "
+              f"and the path scan separately.", file=sys.stderr)
+        raise SystemExit(2)
+    return True
+
+
 def guard_explicit_paths(
     paths: Iterable[str],
     *,

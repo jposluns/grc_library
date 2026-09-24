@@ -37,7 +37,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd  # noqa: E402  # grc-config/store, stays local
 
 DEFAULT_TARGET = REPO_ROOT / "CHANGELOG.md"
 
@@ -100,8 +100,6 @@ def scan(path: Path) -> list[tuple[int, str]]:
     Each finding is a backtick-wrapped file reference that is NOT wrapped in
     a markdown link.
     """
-    if not path.exists():
-        return []
     findings: list[tuple[int, str]] = []
     text = path.read_text(encoding="utf-8")
     # Strip fenced code blocks (backtick or tilde, via the shared
@@ -151,12 +149,23 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "paths",
         nargs="*",
-        default=[str(DEFAULT_TARGET)],
+        default=None,
         help="Path(s) to check (default: CHANGELOG.md at repo root).",
     )
     args = parser.parse_args(argv[1:])
+    # 3b50: scan() used to return no findings for a path that does not exist, so a mistyped
+    # explicit path passed silently. Explicit paths are guarded (exit 2 when missing; content-
+    # only, since the check is generic). The DEFAULT keeps its skip-when-absent contract, now
+    # with a visible note instead of a silent pass.
+    if args.paths:
+        targets = guard_explicit_paths_cwd(args.paths, allow_outside=True)
+    elif DEFAULT_TARGET.is_file():
+        targets = [str(DEFAULT_TARGET)]
+    else:
+        print(f"SKIP: default target {DEFAULT_TARGET} is absent; nothing to check.")
+        return 0
     grouped: dict[Path, list[tuple[int, str]]] = {}
-    for p in args.paths:
+    for p in targets:
         path = Path(p)
         findings = scan(path)
         if findings:

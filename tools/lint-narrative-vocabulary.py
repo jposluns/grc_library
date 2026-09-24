@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import CROSS_EXTERNAL_CONTEXT_RE, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import CROSS_EXTERNAL_CONTEXT_RE, REPO_ROOT, guard_explicit_paths_cwd, positional_args, self_test_requested  # noqa: E402  # grc-config/store, stays local
 
 import re  # noqa: E402  # for the grc absolutes denylist patterns below
 
@@ -169,10 +169,13 @@ def _self_test() -> int:
 
 
 def main(argv: list[str]) -> int:
-    if "--self-test" in argv[1:]:
+    args = positional_args(argv[1:])
+    if self_test_requested(argv[1:], args):
         return _self_test()
-    args = [a for a in argv[1:] if not a.startswith("-")]
-    files = [Path(a).resolve() for a in args] if args else discover()
+    # 3b50: a missing path used to raise a FileNotFoundError traceback (rc 1, the findings code);
+    # refuse it with exit 2. Content-only: the vocabulary check is sound on any narrative file.
+    files = ([Path(a) for a in guard_explicit_paths_cwd(args, allow_outside=True)]
+             if args else discover())
     all_findings: list[str] = []
     for f in files:
         try:
