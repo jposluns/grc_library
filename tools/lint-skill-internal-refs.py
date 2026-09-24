@@ -63,10 +63,10 @@ import sys
 from pathlib import Path
 
 try:
-    from lint_common import REPO_ROOT, flag_before_separator, guard_explicit_paths, positional_args
+    from lint_common import REPO_ROOT, guard_explicit_paths, positional_args, self_test_requested
 except Exception:  # pragma: no cover - allow standalone/self-test import
     REPO_ROOT = Path(__file__).resolve().parent.parent
-    guard_explicit_paths = positional_args = flag_before_separator = None
+    guard_explicit_paths = positional_args = self_test_requested = None
 
 SKILLS_DIR = "guardrails/skills"
 
@@ -169,7 +169,7 @@ def scan_skill(path: Path, tools_dir: Path) -> list[str]:
 
 def main(argv: list[str]) -> int:
     raw = positional_args(argv[1:]) if positional_args else argv[1:]
-    if (flag_before_separator(argv[1:], "--self-test") if flag_before_separator
+    if (self_test_requested(argv[1:], raw) if self_test_requested
             else "--self-test" in argv[1:]):
         return _self_test()
     paths = None

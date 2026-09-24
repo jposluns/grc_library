@@ -25,7 +25,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, positional_args, flag_before_separator
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, positional_args, self_test_requested
 
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
@@ -100,7 +100,7 @@ def _engine():
 
 def main(argv: list[str]) -> int:
     explicit = positional_args(argv[1:])
-    if flag_before_separator(argv[1:], "--self-test"):
+    if self_test_requested(argv[1:], explicit):
         return _engine()._self_test()
     # 3b50: refuse (exit 2) a missing explicit path instead of passing silently. Content-only:
     # the check resolves each link against the file's own location and tests it against this

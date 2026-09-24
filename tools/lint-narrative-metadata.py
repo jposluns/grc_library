@@ -38,7 +38,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import REPO_ROOT, guard_explicit_paths_cwd, is_narrative_root, positional_args, flag_before_separator  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, is_narrative_root, positional_args, self_test_requested  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -242,7 +242,7 @@ Body cites [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-method
 
 def main(argv: list[str]) -> int:
     args = positional_args(argv[1:])
-    if flag_before_separator(argv[1:], "--self-test"):
+    if self_test_requested(argv[1:], args):
         return _self_test()
     if args:
         # 3b50: a missing path used to raise a FileNotFoundError traceback (rc 1); refuse it,

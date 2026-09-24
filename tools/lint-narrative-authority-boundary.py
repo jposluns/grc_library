@@ -23,7 +23,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, positional_args, flag_before_separator  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, positional_args, self_test_requested  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -233,7 +233,7 @@ def _self_test() -> int:
 
 def main(argv: list[str]) -> int:
     explicit = positional_args(argv[1:])
-    if flag_before_separator(argv[1:], "--self-test"):
+    if self_test_requested(argv[1:], explicit):
         return _self_test()
     # 3b50: refuse (exit 2) a missing or out-of-tree explicit path; the check also reads this
     # checkout's taxonomy, so another tree's file cannot be judged soundly here.

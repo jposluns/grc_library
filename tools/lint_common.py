@@ -824,6 +824,20 @@ def flag_before_separator(argv: Iterable[str], flag: str) -> bool:
     return flag in (argv[:argv.index("--")] if "--" in argv else argv)
 
 
+def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
+    """True when ``--self-test`` was given before any ``--``; refuses (exit 2) when paths were also
+    given, since a self-test would ignore them and they would escape the explicit-path guard
+    (3b50a round 3: ``--self-test -- missing.md`` exited 0)."""
+    if not flag_before_separator(argv, "--self-test"):
+        return False
+    paths = list(paths)
+    if paths:
+        print(f"ERROR: --self-test takes no paths (given: {' '.join(paths)}); run the self-test "
+              f"and the path scan separately.", file=sys.stderr)
+        raise SystemExit(2)
+    return True
+
+
 def guard_explicit_paths(
     paths: Iterable[str],
     *,
