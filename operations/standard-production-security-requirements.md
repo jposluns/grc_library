@@ -2,8 +2,8 @@
 
 **Document Title:** Production Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.31\
-**Date:** 2026-09-23\
+**Version:** 1.1.32\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](../dev-security/standard-security-quick-reference.md)\
@@ -214,7 +214,7 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ## 12. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | NIST SP 800-53 | NIST SSDF |
+| Control Area | ISO/IEC 27001:2022 | CSA CCM v4.1 | NIST SP 800-53 Rev. 5 | NIST SSDF |
 | --- | --- | --- | --- | --- |
 | Network security | A.8.20 to 8.22 | I&S-01 to I&S-05, I&S-07 to I&S-09 | SC-7, SC-8 | N/A |
 | Backup and recovery | A.8.13 to 8.14 | BCR-08 to 10 | CP-9, CP-10 | N/A |

@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.23\
-**Date:** 2026-09-23\
+**Version:** 1.0.25\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -201,13 +201,13 @@ The EOL classification policy and remediation SLAs are defined in the Security B
 
 ## 13. Framework alignment
 
-| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 | SLSA |
+| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SSDF | NIST SP 800-53 Rev. 5 | SLSA |
 | --- | --- | --- | --- | --- | --- |
 | CI/CD pipeline security | A.8.25 to 8.27 | CCC-01 to CCC-04, CCC-06 to CCC-09, AIS-04 | PW.7.1, PW.7.2, PW.4.1, PW.4.4, PS.3.2, RV.1.1, RV.2.1, RV.2.2 | SA-10, SA-15 | Level 2 to 3 |
 | Pipeline secret scanning | A.8.28 | AIS-05 | PW.7.2 | SA-11 | Level 2 |
 | Artifact signing and integrity | A.8.27 | CCC-04 | PS.2 | SR-4; SI-7 | Level 3 |
 | IaC security | A.8.25 | CCC-06 | PW.7.2 | CM-2, CM-3 | N/A |
-| Environment separation | A.8.31 | I&S-05 | PO.5.1 | SC-3, SC-7 | N/A |
+| Environment separation | A.8.31 | I&S-05 | PO.5.1 | CM-2(6), CM-4(1), SC-7 | N/A |
 | Container security | A.8.25 | I&S-04 | PW.9.1, PW.4.4, RV.1.1 | CM-7, SI-3 | N/A |
 | EOL and patch management | A.8.8 | TVM-01 to 10 | PW.4.4, RV.2.1, RV.2.2 | SI-2 | N/A |
 | Change management | A.8.32 | CCC-01 to CCC-04, CCC-06 to CCC-09 | N/A | CM-3 | N/A |
