@@ -22,18 +22,24 @@ Decision (``decide``, pure):
   - HEAD on ``main`` or ``master``: REFUSE;
   - otherwise allow.
 
-Residue, stated: git runs pre-commit for ``git commit`` (including ``--amend``) and for a merge that
-stops for a commit, but NOT for ``git cherry-pick``, ``git revert``, a fast-forward, or ``git merge``
-that creates its commit directly (that is ``pre-merge-commit``); ``--no-verify`` skips it. The
-PR-only workflow never makes any of those on local ``main``, and the remote ruleset remains the push
-barrier.
+Residue, stated: git runs pre-commit for ``git commit`` (including ``--amend``, and a ``git commit``
+that concludes a conflicted merge, cherry-pick, or revert), but NOT for the commits that ``git am``,
+``git rebase``, or an automatic ``git cherry-pick`` / ``git revert`` create themselves, nor for a
+fast-forward or a ``git merge`` that records its commit directly (that is ``pre-merge-commit``);
+``--no-verify`` skips it; and it guards nothing until ``tools/install-git-hooks.sh`` has installed
+the shim in this clone. The PR-only workflow never makes any of those on local ``main``, and the
+remote ruleset remains the push barrier.
+
+Branch identity is compared on the FULL ref (``refs/heads/main``), never a shortened name: git shortens
+ambiguity-aware, so with a tag named ``main`` the short form of the branch is ``heads/main``.
 """
 import os
+import shutil
 import subprocess
 import sys
 
 _OVERRIDE = "GRC_ALLOW_MAIN_COMMIT"
-PROTECTED = ("main", "master")
+PROTECTED = ("refs/heads/main", "refs/heads/master")
 _REFUSE_MAIN = (
     "check-commit-on-main: REFUSING the commit: this grc_library checkout is on '{branch}', which is "
     "PR-only. Move the work to a feature branch first: `git switch -c <branch>` (the staged changes "
@@ -54,14 +60,14 @@ def decide(allow, head_ok, branch):
 
     allow:   the override env var is set to a non-empty value.
     head_ok: HEAD was read (``git symbolic-ref`` succeeded, or failed only because HEAD is detached).
-    branch:  the short branch name, or None when HEAD is detached (meaningful only when head_ok).
+    branch:  the FULL ref HEAD points at (refs/heads/...), or None when HEAD is detached.
     """
     if allow:
         return 0, _NOTE_OVERRIDE
     if not head_ok:
         return 1, _REFUSE_UNREADABLE
     if branch in PROTECTED:
-        return 1, _REFUSE_MAIN.format(branch=branch)
+        return 1, _REFUSE_MAIN.format(branch=branch[len("refs/heads/"):])
     return 0, ""
 
 
@@ -69,12 +75,12 @@ def read_head():
     """Thin observer: (head_ok, branch). ``git symbolic-ref -q HEAD`` exits 1 (quietly) exactly when
     HEAD is detached; any other failure (not a repository, a corrupt HEAD, git missing) is unreadable."""
     try:
-        cp = subprocess.run(["git", "symbolic-ref", "-q", "--short", "HEAD"],
+        cp = subprocess.run(["git", "symbolic-ref", "-q", "HEAD"],
                             capture_output=True, text=True, timeout=30)
     except (OSError, subprocess.SubprocessError):
         return False, None
     if cp.returncode == 0:
-        return True, cp.stdout.strip() or None
+        return True, cp.stdout.rstrip("\n") or None
     if cp.returncode == 1 and not cp.stderr.strip():
         return True, None
     return False, None
@@ -100,9 +106,13 @@ def _integration_self_test():
         for rel in ("tools/check-commit-on-main.py", "tools/install-git-hooks.sh",
                     "tools/git-hooks/pre-commit", "tools/git-hooks/pre-push"):
             shutil.copy2(src / rel, repo / rel)
-        env = {k: v for k, v in os.environ.items() if k != _OVERRIDE}
-        env.update(GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
-                   GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid")
+        # Isolated from the caller: no inherited GIT_* (GIT_DIR, GIT_INDEX_FILE, ...), no global or
+        # system config, as in check-dirty-tree-push.py's integration self-test.
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_") and k != _OVERRIDE}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0",
+                   GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
+                   GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid",
+                   PRE_COMMIT_HOME=str(Path(base) / "pc-home"))
 
         def run(args, cwd=repo, extra=None):
             return subprocess.run(args, cwd=cwd, capture_output=True, text=True,
@@ -141,6 +151,31 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "no tracked hook"])
         if cp.returncode != 0:
             failures.append(f"the shim did not fail open without the tracked hook: {cp.stderr.strip()}")
+        (repo / "moved-pre-commit").rename(repo / "tools" / "git-hooks" / "pre-commit")
+        # A tag named 'main' makes git's SHORT name for the branch 'heads/main'; the full ref is compared.
+        run(["git", "worktree", "remove", "--force", str(linked)])  # frees 'main' for the switch
+        sw = run(["git", "switch", "-q", "main"])
+        if sw.returncode != 0:
+            failures.append(f"fixture: could not switch to main: {sw.stderr.strip()}")
+        run(["git", "tag", "main", "feature"])
+        (repo / "a.txt").write_text("4\n")
+        run(["git", "add", "a.txt"])
+        cp = run(["git", "commit", "-q", "-m", "tag named main"])
+        if cp.returncode == 0:
+            failures.append("a commit on main was allowed when a tag named 'main' exists")
+        # Coexistence with the pre-commit framework (when installed): it chains the managed hook as
+        # pre-commit.legacy, the commit on main is still refused, and a re-install reports the chain.
+        if shutil.which("pre-commit"):
+            (repo / ".pre-commit-config.yaml").write_text("repos: []\n")
+            cp = run(["pre-commit", "install"])
+            if cp.returncode != 0:
+                failures.append(f"pre-commit install failed: {cp.stderr.strip()}")
+            cp = run(["git", "commit", "-q", "-m", "framework chained"])
+            if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
+                failures.append("the framework-chained guard did not refuse a commit on main")
+            cp = run(["sh", "tools/install-git-hooks.sh"])
+            if "chained by the pre-commit framework" not in cp.stdout:
+                failures.append("the installer did not report the framework-chained hook")
     return failures
 
 
@@ -149,16 +184,19 @@ def _self_test():
         ("override allows even on main", decide(True, True, "main")[0], 0),
         ("override allows an unreadable HEAD", decide(True, False, None)[0], 0),
         ("unreadable HEAD refuses", decide(False, False, None)[0], 1),
-        ("main refuses", decide(False, True, "main")[0], 1),
-        ("master refuses", decide(False, True, "master")[0], 1),
+        ("main refuses", decide(False, True, "refs/heads/main")[0], 1),
+        ("master refuses", decide(False, True, "refs/heads/master")[0], 1),
         ("detached HEAD allows", decide(False, True, None)[0], 0),
-        ("feature branch allows", decide(False, True, "tooling/x")[0], 0),
-        ("a branch merely containing 'main' allows", decide(False, True, "main-fix")[0], 0),
-        ("the refusal names the override", "GRC_ALLOW_MAIN_COMMIT=1" in decide(False, True, "main")[1], True),
+        ("feature branch allows", decide(False, True, "refs/heads/tooling/x")[0], 0),
+        ("a branch merely containing 'main' allows", decide(False, True, "refs/heads/main-fix")[0], 0),
+        ("a branch named 'heads/main' is not main", decide(False, True, "refs/heads/heads/main")[0], 0),
+        ("a distinct branch 'main' + U+00A0 is not main", decide(False, True, "refs/heads/main\u00a0")[0], 0),
+        ("the refusal names the override", "GRC_ALLOW_MAIN_COMMIT=1" in decide(False, True, "refs/heads/main")[1], True),
+        ("the refusal names the short branch", "on 'main'" in decide(False, True, "refs/heads/main")[1], True),
     ]
     failures = [f"{name}: got {got!r}, want {want!r}" for name, got, want in cases if got != want]
     failures += _integration_self_test()
-    total = len(cases) + 6
+    total = len(cases) + 7 + (3 if shutil.which("pre-commit") else 0)
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

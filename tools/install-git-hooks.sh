@@ -61,33 +61,58 @@ exec sh "$root/tools/git-hooks/pre-commit" "$@"
 HOOK
 }
 
+# One temp file at a time; the EXIT trap removes it if the installer is interrupted.
+tmp=""
+trap '[ -n "$tmp" ] && rm -f "$tmp"' 0
+trap 'exit 1' HUP INT TERM
+
 # install_one NAME EMITTER: idempotent; refuses rather than clobbering a foreign
-# hook. Returns 1 on refusal so the caller can report it after trying every hook.
+# hook. Every step is checked explicitly, because a function called as
+# `install_one ... || status=1` runs with `set -e` disabled. Returns 1 on any
+# refusal or failure so the caller can report it after trying every hook.
 install_one() {
-  name="$1"; emit="$2"; hook="$dest/$name"
+  name="$1"; emit="$2"; hook="$dest/$name"; legacy="$hook.legacy"
   # Compare the complete managed contents, not just a marker. Never follow or
   # overwrite an existing symlink, including a dangling/legacy installation.
   if [ ! -L "$hook" ] && [ -f "$hook" ] && "$emit" | cmp -s - "$hook"; then
-    chmod 755 "$hook"
+    if ! chmod 755 "$hook"; then
+      echo "install-git-hooks: could not make $hook executable." >&2
+      return 1
+    fi
     echo "install-git-hooks: already installed ($hook)."
+    return 0
+  fi
+  # The pre-commit framework's migration mode moves an existing hook to <name>.legacy
+  # and runs it first, so a managed hook there is still active.
+  if [ -f "$hook" ] && [ ! -L "$legacy" ] && [ -f "$legacy" ] && "$emit" | cmp -s - "$legacy"; then
+    echo "install-git-hooks: installed and chained by the pre-commit framework ($legacy)."
     return 0
   fi
   if [ -e "$hook" ] || [ -L "$hook" ]; then
     echo "install-git-hooks: refusing to overwrite the existing hook at $hook." >&2
     echo "  Remove it or integrate the managed $name check manually, then re-run." >&2
+    if [ "$name" = "pre-commit" ]; then
+      echo "  If it is the pre-commit framework's hook: run 'pre-commit uninstall', re-run this" >&2
+      echo "  installer, then 'pre-commit install' (the framework chains the managed hook as" >&2
+      echo "  pre-commit.legacy)." >&2
+    fi
     return 1
   fi
   # Publish a complete, executable file without replacing a concurrently installed
   # hook. The temporary file and destination share a filesystem, so ln is atomic.
-  tmp="$(mktemp "$dest/.$name.XXXXXX")"
-  "$emit" > "$tmp"
-  chmod 755 "$tmp"
-  if ! ln "$tmp" "$hook"; then
-    rm -f "$tmp"
-    echo "install-git-hooks: could not install $hook without overwriting an existing hook." >&2
-    return 1
+  if ! tmp="$(mktemp "$dest/.$name.XXXXXX")"; then
+    echo "install-git-hooks: could not create a temporary file in $dest." >&2
+    tmp=""; return 1
   fi
-  rm -f "$tmp"
+  if ! "$emit" > "$tmp" || ! chmod 755 "$tmp"; then
+    echo "install-git-hooks: could not prepare the $name hook." >&2
+    rm -f "$tmp"; tmp=""; return 1
+  fi
+  if ! ln "$tmp" "$hook"; then
+    echo "install-git-hooks: could not install $hook without overwriting an existing hook." >&2
+    rm -f "$tmp"; tmp=""; return 1
+  fi
+  rm -f "$tmp"; tmp=""
   echo "installed: $hook (resolves the active checkout at run time)"
   return 0
 }
