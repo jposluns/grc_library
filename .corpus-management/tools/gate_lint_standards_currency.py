@@ -58,10 +58,16 @@ def compile_entry_patterns(
 
         std_id_re = re.escape(str(std_id))
         for superseded in superseded_list:
-            sup_re = re.escape(superseded)
+            # A register marker written "v1.1" is matched without its "v", so the
+            # optional "v?" below admits BOTH forms: an added "v" against a bare
+            # marker ("PCI DSS v4.0" for "4.0") and a dropped "v" against a
+            # v-prefixed marker ("SLSA 1.1" for "v1.1"). Only a "v" directly before
+            # a digit is treated as a prefix, so a marker such as "Version 2" is
+            # left intact.
+            bare = superseded[1:] if re.match(r"[vV]\d", superseded) else superseded
+            sup_re = re.escape(bare)
             # The negative lookahead (?![.\-][\d\w]) prevents matching inside a longer
             # version string (e.g. "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1").
-            # The optional "v?" admits a "v"-prefixed version label ("PCI DSS v4.0").
             pattern = re.compile(
                 rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
                 flags=re.IGNORECASE,
