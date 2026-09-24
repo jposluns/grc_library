@@ -61,12 +61,17 @@ ESCAPE = "GRC_ALLOW_PR_ATTRIBUTION"
 
 # Strict attribution shapes. Each is an attribution LINE pattern, not a model-family mention:
 # "claude SHIP", "CLAUDE.md", "claude-attribution" must all pass.
+# Markdown formatting characters are removed before matching (the text is normalized, never the
+# patterns widened per delimiter): emphasis, code spans and link brackets cannot split or hide an
+# attribution line, and a formatted CLAUDE.md still reads as a filename.
+MARKDOWN_FORMATTING = str.maketrans("", "", "*_`[]")
+
 ATTRIBUTION = (
     ("a Co-Authored-By trailer naming Claude/Anthropic",
      re.compile(r"(?i)co-authored-by:[^\n]*\b(?:claude|anthropic)\b")),
     ("a 'Generated with/by ... Claude' attribution line",
      re.compile(r"(?i)\bgenerated\s+(?:with|by|using|via)\s+(?:(?:the\s+)?(?:help|assistance|aid)\s+of\s+)?"
-                r"(?:the\s+)?[\[*_`]{0,3}(?:claude|anthropic)\b(?!\.md\b|-)")),
+                r"(?:the\s+)?(?:claude|anthropic)(?![a-z0-9]|\.md\b)")),
     ("a claude.ai/code link",
      re.compile(r"(?i)\bclaude\.ai/code")),
     ("a claude.com/claude-code link",
@@ -153,6 +158,7 @@ def _snippet(match: re.Match) -> str:
 
 
 def find_attribution(text: str):
+    text = text.translate(MARKDOWN_FORMATTING)
     for label, rx in ATTRIBUTION:
         m = rx.search(text)
         if m:
