@@ -11715,8 +11715,13 @@ class DocsArgNormalizationTests(LinterTestCase):
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("not in the corpus scan set", r.stderr)
         state = td / "state.md"
+        # An empty --ref-base makes the check environment-independent: the early scope refusal
+        # returns before the reference base is read, while code that checked scope only after the
+        # catalogue scan would fail in parse_catalogue with a different message.
+        emptyref = td / "empty-ref"
+        emptyref.mkdir()
         r = run_linter("tools/audit-reference-breadth.py", "--docs", self.DOC, "CHANGELOG.md",
-                       "--update-state", "--state", str(state))
+                       "--update-state", "--state", str(state), "--ref-base", str(emptyref))
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("not in the scanned corpus set", r.stderr)
         self.assertFalse(state.exists(), "a refused --docs must write no state")
@@ -11741,6 +11746,20 @@ class DocsArgNormalizationTests(LinterTestCase):
         for script in ("tools/audit-claim-precision.py", "tools/audit-matrix-semantic-fit.py"):
             r = run_linter(script, "--self-test", "--docs", "no/such-3b50b2b.md")
             self.assertEqual(r.returncode, 2, (script, r.stdout[-200:], r.stderr))
+
+    def test_publication_scanner_refuses_an_uncheckable_path(self) -> None:
+        # On some Python versions Path.is_file() raises for an inaccessible parent; the pre-check
+        # must refuse (exit 2) rather than crash (exit 1). Fault-injected, since this Python
+        # swallows the permission error.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module("tools/scan-publication-instruction-content.py", "pubscan_oserr")
+        err = io.StringIO()
+        with mock.patch.object(Path, "is_file", side_effect=PermissionError(13, "Permission denied")), \
+                contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            rc = mod.main(["--files", "/dev/shm/locked-3b50b2b/x.md"])
+        self.assertEqual(rc, 2)
+        self.assertIn("cannot be checked", err.getvalue())
 
     def test_publication_scanner_refuses_unscreenable_input(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="pubscan-"))

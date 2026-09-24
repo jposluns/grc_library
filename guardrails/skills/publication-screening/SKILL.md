@@ -221,8 +221,8 @@ The pass is complete on a given run when:
   audit for claims the corpus attributes to sources; a screened publication's claim
   entering the corpus hands off to its cadence like any other.
 - The advisory scanner named in the project wiring: the mechanical half
-  (recall-oriented pattern classes; per-file and whole-base modes; not a gate; always
-  exits 0).
+  (recall-oriented pattern classes; per-file and whole-base modes; not a gate; exits 0
+  whatever it finds, 2 on a refused input, an unreadable extract, or an internal error).
 - The reference base's own conventions: its publications-bucket README (bucket trust
   posture and the ingest steps), the screening register this protocol writes, and the
   reference-base validation gate (the enforcement half; never weaken it to pass, fix

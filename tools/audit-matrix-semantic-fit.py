@@ -29,7 +29,7 @@ It is named ``audit-*`` (not ``lint-*``) so the gate machinery (the four-surface
 parity gate 35, the regression suite gate 36) does NOT auto-discover it, and it
 is NOT wired into ``run_all_audits.sh`` / ``quality.yml`` / ``.pre-commit-config.yaml``.
 It exits 0 whatever it finds (it reports candidates; its findings never fail a workflow;
-2 only on a refused --docs argument), because a
+2 only on a usage error, including a refused --docs argument), because a
 lexical pre-filter is intentionally low-recall and its "flags" are candidates,
 not defects. Making it a blocking gate would be a decorative gate (gate-discipline
 rule): it would either be too noisy to trust or too strict to add value, and the
