@@ -170,6 +170,7 @@ PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 def _link_engine():
     """Gate 24's pack-owned engine, the single owner of allow-list suffix matching (3b52c)."""
+    import aiqt_bootstrap  # noqa: F401  # the AIQT generic core the engine imports, as gate 24's wrapper does
     if str(PACK_TOOLS) not in sys.path:
         sys.path.insert(0, str(PACK_TOOLS))
     import gate_lint_external_link_domains
