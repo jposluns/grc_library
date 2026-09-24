@@ -15245,9 +15245,21 @@ class AllowlistSpecParityTests(unittest.TestCase):
         with self.floor(), self.assertRaises(self.mod.InputError):
             self.mod.spec_domains(self.spec(["iso.org"], "\n| Second | `second.example` | x |\n"))
 
-    def test_line_without_pipe_inside_table_is_an_input_error(self) -> None:
+    def test_note_directly_after_table_ends_it(self) -> None:
+        # r5 codex: a blockquote note right after the last row ends the table.
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "> Note: domains include subdomains.\n"))
+        self.assertEqual(domains, {"iso.org"})
+
+    def test_pipe_inside_inline_code_prose_is_ignored(self) -> None:
+        with self.floor():
+            domains = self.mod.spec_domains(self.spec(["iso.org"], "\nThe notation `A | B` means either.\n"))
+        self.assertEqual(domains, {"iso.org"})
+
+    def test_row_after_a_stray_line_is_an_input_error(self) -> None:
+        # A stray line ends the table; a row after it must fail loud, not vanish.
         with self.floor(), self.assertRaises(self.mod.InputError):
-            self.mod.spec_domains(self.spec(["iso.org"], "stray text inside the table\n"))
+            self.mod.spec_domains(self.spec(["iso.org"], "stray text\n| Later | `later.example` | x |\n"))
 
     def test_call_argument_use_is_allowed(self) -> None:
         entries = self.mod.allow_entries(self.allow('    "iso.org",\n') + 'scan(allow_list=ALLOW_LIST)\nscan(ALLOW_LIST)\n')

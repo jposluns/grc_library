@@ -163,25 +163,29 @@ def spec_domains(text: str) -> set[str]:
     section = text[m.end(): m.end() + end.start()] if end else text[m.end():]
     lines = section.splitlines()
     # The table is the contiguous block that starts at its first "Publisher"
-    # header row and ends at the first blank line (the GFM model). Inside it
-    # every line is a row (a GFM row need not start with a pipe); a line
-    # without a pipe there is an input error. Outside it, a pipe line that
-    # carries a code span could be a second table and is an input error;
-    # plain prose outside the block is ignored.
+    # header row and ends at the first blank line or the first line without a
+    # pipe (a GFM table ends at a blank line or at another block, such as a
+    # blockquote note). Inside it every line is a row (a GFM row need not start
+    # with a pipe). Outside it, a line that still has a pipe once inline code
+    # spans are removed, and that carries a code span, looks like a table row
+    # and is an input error (a second table whose domains would otherwise be
+    # missed); prose, including a pipe inside inline code, is ignored.
     start = next((k for k, line in enumerate(lines)
                   if "|" in line and _cells(line)[0] == "Publisher"), None)
     if start is None:
         raise InputError("section 7.1 table header (Publisher) not found")
-    stop = next((k for k in range(start + 1, len(lines)) if not lines[k].strip()), len(lines))
+    stop = next((k for k in range(start + 1, len(lines))
+                 if not lines[k].strip() or "|" not in lines[k]), len(lines))
     for k, line in enumerate(lines):
-        if not (start <= k < stop) and "|" in line and "`" in line:
-            raise InputError(f"a pipe line with a code span outside the section 7.1 table: {line.strip()[:80]}")
+        if start <= k < stop:
+            continue
+        outside_code = re.sub(r"`[^`]*`", "", line)
+        if "|" in outside_code and "`" in line:
+            raise InputError(f"a table-like row with a code span outside the section 7.1 table: {line.strip()[:80]}")
     domains: set[str] = set()
     rows = 0
     for line in lines[start + 1:stop]:
         stripped = line.strip()
-        if "|" not in stripped:
-            raise InputError(f"a line without a pipe inside the section 7.1 table: {stripped[:80]}")
         cells = _cells(stripped)
         if all(DELIMITER_CELL_RE.fullmatch(c) for c in cells):
             continue
