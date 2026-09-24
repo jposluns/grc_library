@@ -600,6 +600,21 @@ class StandardsCurrencyTests(LinterTestCase):
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "ICAO Annex 17")
 
+    def test_register_prose_is_not_a_superseded_marker(self) -> None:
+        # 3b35 QA (codex): once IDs ending in ")" could match, prose left in a
+        # superseded cell (Canada CPPA's PIPEDA note) became a pseudo-marker that
+        # blocked an ordinary sentence. The register now keeps prose in the Topic
+        # cell, so this sentence must not block.
+        fixture = self.make_fixture(
+            "standard-cppa-prose-not-marker.md",
+            VALID_METADATA
+            + "\n\nThe proposal would replace Canada CPPA / successor C-36 (PPCDA)"
+            + " and create a Privacy and Consumer Data Commissioner.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("stale citation", result.stdout + result.stderr)
+
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
         # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
         # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the
