@@ -15398,6 +15398,20 @@ class AllowlistSpecParityTests(unittest.TestCase):
 
         return mock.patch.object(self.mod, "MIN_SPEC_DOMAINS", n)
 
+    def test_suffix_matching_is_gate_24s_own_matcher(self) -> None:
+        """3b52c: gate 101 delegates to gate 24's is_allowed, so the two cannot drift; the label
+        boundary still holds (a near-miss host is not a subdomain)."""
+        from unittest import mock
+
+        self.assertTrue(self.mod.covered("sub.iso.org", {"iso.org"}))
+        self.assertTrue(self.mod.covered("iso.org", {"iso.org"}))
+        self.assertFalse(self.mod.covered("evil-iso.org", {"iso.org"}))
+        self.assertFalse(self.mod.covered("iso.org.evil.com", {"iso.org"}))
+        engine = self.mod._link_engine()
+        with mock.patch.object(engine, "is_allowed", return_value=True) as spy:
+            self.assertTrue(self.mod.covered("x.example", {"y.example"}))
+        spy.assert_called_once_with("x.example", allow_list={"y.example"})
+
     def test_live_repository_passes(self) -> None:
         result = run_linter("tools/lint-allowlist-spec-parity.py")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
