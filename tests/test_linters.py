@@ -8866,7 +8866,6 @@ class MatrixControlCodeTests(LinterTestCase):
 class CcmProviderMemberInRangeTests(LinterTestCase):
     """tools/lint-ccm-provider-member-in-range.py"""
 
-<<<<<<< HEAD
     def test_provider_facing_exemption_is_explicit(self) -> None:
         """3b52: the internal-scope qualification is enforced by an explicit, reviewed set. A listed
         document is skipped; the same content unlisted still fails; the shipped set is empty."""
@@ -8884,7 +8883,7 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
             self.assertEqual(mod.main(["x", fixture]), 1)
             with mock.patch.object(mod, "PROVIDER_FACING_DOCS", frozenset({rel})):
                 self.assertEqual(mod.main(["x", fixture]), 0)
-=======
+
     def _run(self, name: str, body: str):
         return run_linter("tools/lint-ccm-provider-member-in-range.py", self.make_fixture(name, body))
 
@@ -8953,7 +8952,6 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         ):
             r = self._run(f"fake-ccm-{name}.md", head + row + "\n")
             self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
->>>>>>> db1173f6 (tooling: 3b52a gate 100 marker-aware fence scan; I&S, IPY and fence regression cases)
 
     def test_family_range_sweeping_provider_member_flagged(self) -> None:
         fixture = self.make_fixture(
