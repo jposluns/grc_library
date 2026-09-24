@@ -82,7 +82,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.33 | Canada-specific executive/jurisdiction document series (content) | `[public]` |
 | 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` `[BLOCKED:source-acquisition (awaiting maintainer source drop)]` |
 | 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked, pending upload before source-verification and registration) | `[content]` `[public]` |
-| 3.14 | ETSI Securing-AI alignment map (L, M) | `[public]` |
 
 ## Priority 3 — Clean up and tooling
 
