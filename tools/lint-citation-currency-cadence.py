@@ -80,6 +80,7 @@ HEADING_TIER = {
     "CSA frameworks": "framework",
     "ISACA frameworks": "framework",
     "AICPA assurance criteria": "framework",
+    "Cybersecurity and AI security guidance": "framework",
     "Cybersecurity adversary frameworks": "framework",
     "OWASP": "framework",
     "Customs and trade": "framework",
