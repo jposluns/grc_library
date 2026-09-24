@@ -25,7 +25,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths
 
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
@@ -101,7 +101,12 @@ def _engine():
 def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
         return _engine()._self_test()
-    paths = [a for a in argv[1:] if not a.startswith("-")] or DEFAULT_CORPUS_ROOTS
+    explicit = [a for a in argv[1:] if not a.startswith("-")]
+    # 3b50: refuse (exit 2) a missing explicit path instead of passing silently. Content-only:
+    # the check resolves each link against the file's own location and tests it against this
+    # tree's project-governance directory, which is sound for a file in another tree (the
+    # regression fixtures live in temp directories by design).
+    paths = guard_explicit_paths(explicit, allow_outside=True) if explicit else DEFAULT_CORPUS_ROOTS
     return _engine().run(
         iter_markdown_files(paths), project_gov_dir=PROJECT_GOV_DIR, repo_root=REPO_ROOT
     )

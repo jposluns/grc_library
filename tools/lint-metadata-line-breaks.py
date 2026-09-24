@@ -37,7 +37,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, AUDITED_DOMAIN_DIRS, DEFAULT_EXEMPT_DIRS, REPO_ROOT, guard_explicit_paths  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -105,8 +105,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.paths:
+        # 3b50: refuse (exit 2) a missing or out-of-tree explicit path; out-of-tree reporting
+        # used to raise a ValueError traceback, and a missing path passed silently.
         files = []
-        for raw in args.paths:
+        for raw in guard_explicit_paths(args.paths):
             target = Path(raw)
             if not target.is_absolute():
                 target = REPO_ROOT / target

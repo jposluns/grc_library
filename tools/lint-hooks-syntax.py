@@ -95,6 +95,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--hooks-dir", default=str(HOOKS_DIR),
                     help="directory to scan (default: .claude/hooks/; regression override)")
     args = ap.parse_args(argv)
+    # 3b50: a missing --hooks-dir used to compile zero files and print OK; refuse it (exit 2).
+    if not Path(args.hooks_dir).is_dir():
+        print(f"ERROR: --hooks-dir {args.hooks_dir}: not a directory; nothing would be compiled.",
+              file=sys.stderr)
+        return 2
     count, findings = scan(Path(args.hooks_dir))
     if findings:
         print("FAIL: hook file(s) that do not compile as Python (a syntax-broken hook "

@@ -38,7 +38,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
-from lint_common import REPO_ROOT, is_narrative_root  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, is_narrative_root  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -245,7 +245,9 @@ def main(argv: list[str]) -> int:
         return _self_test()
     args = [a for a in argv[1:] if not a.startswith("-")]
     if args:
-        pages = [Path(a).resolve() for a in args]
+        # 3b50: a missing path used to raise a FileNotFoundError traceback (rc 1); refuse it,
+        # and an out-of-tree page (its pins resolve against THIS corpus), with exit 2.
+        pages = [Path(a) for a in guard_explicit_paths_cwd(args)]
     else:
         pages = discover_pages()
     all_findings: list[str] = []

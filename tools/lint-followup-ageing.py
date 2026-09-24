@@ -49,7 +49,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths_cwd, resolve_working  # noqa: E402  # grc-config/store, stays local
 
 
 TARGET_FILES: list[str] = [
@@ -219,7 +219,18 @@ def main() -> int:
         today = datetime.date.today()
 
     root = Path(args.root).resolve() if args.root else REPO_ROOT
-    targets = args.paths if args.paths else (args.target if args.target else TARGET_FILES)
+    if args.root and not root.is_dir():
+        print(f"ERROR: --root {args.root}: not a directory; nothing would be scanned.", file=sys.stderr)
+        return 2
+    # 3b50: an EXPLICIT path or --target that is missing, or outside the selected root, used to
+    # be skipped silently ("0 of 1 target(s) scanned"). Refuse it (exit 2), resolving relative
+    # entries against the selected root (the documented --target contract). The DEFAULT target
+    # set keeps its skip-when-absent contract: the default sweep history is maintainer-only
+    # working state, absent in public CI and adopter clones.
+    if args.paths or args.target:
+        targets = guard_explicit_paths_cwd(args.paths or args.target, repo_root=root, base=root)
+    else:
+        targets = TARGET_FILES
     explicit = bool(args.paths) or args.target is not None or args.root is not None
 
     expired: list[str] = []

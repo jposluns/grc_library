@@ -32,7 +32,7 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT
+from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths
 
 
 # The review-cadence scan roots are exactly the audited domain
@@ -203,7 +203,10 @@ def main(argv: list[str]) -> int:
     rows: list[tuple[str, str, dt.date, int | None, dt.date | None, str, int, str]] = []
     skipped: list[tuple[str, str]] = []
 
-    scan_paths = [Path(p) for p in args.paths] if args.paths else None
+    # 3b50: a missing or out-of-tree explicit path used to be dropped silently (zero documents,
+    # an OK verdict); refuse it (exit 2). Residue: an existing in-tree path can still yield no
+    # scan through this tool's own domain and exemption filters.
+    scan_paths = [Path(p) for p in guard_explicit_paths(args.paths)] if args.paths else None
     for path in iter_active_docs(scan_paths):
         rel = path.relative_to(REPO_ROOT).as_posix()
         text = path.read_text(encoding="utf-8")
