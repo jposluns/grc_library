@@ -218,10 +218,21 @@ def commit_target(cmd: str, cwd: str):
     (3b25 r1, codex P1: the guard used to read and even auto-bump ITS OWN checkout for a commit
     aimed at another worktree)."""
     flat = " ".join(cmd.split())
-    m = COMMIT_RE.search(flat)
-    if not m:
+    matches = list(COMMIT_RE.finditer(flat))
+    if len(matches) != 1:
+        return None   # no commit, or several commits whose targets may differ
+    m = matches[0]
+    prefix = flat[:m.start()]
+    # Shell scope the text cannot settle (3b25 r2, codex P1): a subshell, group, or command
+    # substitution before the commit, or a newline-separated command, may change or hide the
+    # directory. Newlines are checked on the RAW command (flat folds them into spaces).
+    raw_prefix = cmd[:cmd.find("commit")] if "commit" in cmd else cmd
+    if any(t in prefix for t in ("(", ")", "`", "{", "}")) or "\n" in raw_prefix.strip():
         return None
-    parts = [c.group(1) for c in re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", flat[:m.start()])]
+    clean = list(re.finditer(r"\bcd\s+(\S+)\s*(?:&&|;)", prefix))
+    if len(re.findall(r"\bcd\b", prefix)) != len(clean):
+        return None   # a cd the clean pattern cannot place (for example `cd x || exit`)
+    parts = [c.group(1) for c in clean]
     parts += re.findall(r"-C\s+(\S+)", m.group(0))
     target = cwd
     for part in parts:
@@ -679,6 +690,10 @@ def self_test() -> int:
     ck("commit_target: -C is applied", commit_target("git -C /w commit -m x", "/r"), "/w")
     ck("commit_target: cd then relative -C compose", commit_target("cd /a && git -C b commit", "/r"), "/a/b")
     ck("commit_target: a variable operand is undeterminable", commit_target('git -C "$W" commit', "/r"), None)
+    ck("commit_target: a subshell cd does not move the commit", commit_target("(cd /x && true); git commit -m x", "/r"), None)
+    ck("commit_target: a cd with || is undeterminable", commit_target("cd /x || exit 1; git commit", "/r"), None)
+    ck("commit_target: two commits are undeterminable", commit_target("git -C /a commit -m x && git -C /b commit -m y", "/r"), None)
+    ck("commit_target: a newline-separated command is undeterminable", commit_target("cd /x\ngit commit", "/r"), None)
 
     if fails:
         print(f"\nself-test: FAILED ({len(fails)} of {cases})")

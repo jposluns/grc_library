@@ -72,19 +72,23 @@ def load_guard(root):
     return mod
 
 
-_AUTO_COMMENT_CHARS = "#;@!$%^&|:"   # the candidates git picks from for core.commentChar=auto
+_SCISSORS = " ------------------------ >8 ------------------------"
 
 
 def message_opts_out(text, guard, comment_char="#"):
-    """PURE. Does the message that git will RECORD carry the opt-out? Everything from the scissors
-    line down (`git commit -v` appends the diff there, 3b25 r1 codex/gemini) is discarded, and so are
-    comment lines under the repository's comment character ("auto" means any of git's candidates)."""
-    chars = _AUTO_COMMENT_CHARS if comment_char == "auto" else (comment_char or "#")
+    """PURE. Does the message carry the opt-out? Mirrors git's strip cleanup: text from the exact
+    scissors line down is dropped (`git commit -v` appends the diff there; 3b25 r1), and lines that
+    begin with the comment character are dropped. For core.commentChar=auto the character git picks
+    cannot be recovered from the final message, so '#' (git's usual pick) is used. Residue, stated:
+    under --cleanup=whitespace or verbatim git KEEPS comment-looking lines and text below a scissors
+    line, which this treats as removed, so an opt-out written there is ignored: that errs only toward
+    REFUSING, never toward a false allow, and the override remains (3b25 r2 codex/gemini)."""
+    char = "#" if comment_char in ("", "auto") else comment_char[:1]
     kept = []
     for line in text.splitlines():
-        if line[:1] and line[:1] in chars and "------------------------ >8 ------------------------" in line:
+        if line.rstrip() == char + _SCISSORS:
             break
-        if line[:1] and line[:1] in chars:
+        if line.startswith(char):
             continue
         kept.append(line)
     return bool(guard.OPT_OUT.search("\n".join(kept)))
@@ -106,18 +110,21 @@ def staged_offenders(root, guard):
     diff.noprefix, quoted names, and paths containing ' b/' cannot hide an offender); a rename is
     diffed old->new so a renamed document with a body edit is not mistaken for a new one; only a
     structurally reported deletion is skipped, and any other read failure raises (ignorance refuses)."""
-    raw = _gitz(guard, root, "diff", "--cached", "--name-status", "-M", "-z").split("\0")
+    # --raw carries the index modes, so a submodule (gitlink, mode 160000) at a *.md path is
+    # skipped rather than read as a document blob (3b25 r2 codex/gemini).
+    raw = _gitz(guard, root, "diff", "--cached", "--raw", "-M", "-z").split("\0")
     entries, k = [], 0
     while k < len(raw) and raw[k]:
-        status = raw[k]
+        meta = raw[k].split()
+        dst_mode, status = meta[1], meta[4]
         if status[:1] in "RC":
-            entries.append((status[:1], raw[k + 1], raw[k + 2])); k += 3
+            entries.append((status[:1], dst_mode, raw[k + 1], raw[k + 2])); k += 3
         else:
-            entries.append((status[:1], None, raw[k + 1])); k += 2
+            entries.append((status[:1], dst_mode, None, raw[k + 1])); k += 2
     bad = []
-    for status, old, new in entries:
-        if status == "D" or not new.endswith(".md") or new in guard.GENERATED \
-                or new.startswith(".corpus-management/"):
+    for status, dst_mode, old, new in entries:
+        if status == "D" or dst_mode == "160000" or not new.endswith(".md") \
+                or new in guard.GENERATED or new.startswith(".corpus-management/"):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
         if not guard.VERSION_LINE.search(text):
@@ -311,7 +318,9 @@ def _self_test():
         ("an opt-out below the scissors line does not count",
          message_opts_out("s\n# ------------------------ >8 ------------------------\n+VersionBump: none x\n", _G), False),
         ("a custom comment character is honoured", message_opts_out("s\n; VersionBump: none x\n", _G, ";"), False),
-        ("'auto' strips every candidate comment character", message_opts_out("s\n@ VersionBump: none x\n", _G, "auto"), False),
+        ("'auto' uses '#': an '@' line is message text", message_opts_out("s\n@ VersionBump: none x\n", _G, "auto"), True),
+        ("a scissors marker inside other comment text does not cut",
+         message_opts_out("s\n# example ------------------------ >8 ------------------------\nVersionBump: none x\n", _G), True),
         ("a checkout without the guard is allowed", load_guard(Path("/nonexistent-checkout")), None),
     ]
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
