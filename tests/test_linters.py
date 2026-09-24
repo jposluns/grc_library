@@ -588,6 +588,55 @@ class StandardsCurrencyTests(LinterTestCase):
         result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
         self.assertLinterFails(result, "stale citation")
 
+    def test_superseded_marker_after_id_ending_in_parenthesis_flagged(self) -> None:
+        # 3b35: a register ID ending in ")" (ICAO Annex 17 (Chicago Convention),
+        # superseded "Edition 11") previously produced a pattern that could never
+        # match, because \b after ")" demands a following word character.
+        fixture = self.make_fixture(
+            "standard-icao-parenthesis-superseded.md",
+            VALID_METADATA
+            + "\n\nScreening follows ICAO Annex 17 (Chicago Convention) Edition 11.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "ICAO Annex 17")
+
+    def test_superseded_marker_ending_in_parenthesis_flagged(self) -> None:
+        # 3b35 r2 (claude): the marker side had the same boundary defect; the
+        # OWASP LLM Top 10 marker "2025 (v2.0)" ends in ")" and never matched.
+        fixture = self.make_fixture(
+            "standard-owasp-llm-marker-parenthesis.md",
+            VALID_METADATA
+            + "\n\nThe review used the OWASP LLM Top 10 2025 (v2.0) list.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertLinterFails(result, "OWASP LLM Top 10")
+
+    def test_bare_draft_is_not_a_superseded_marker(self) -> None:
+        # 3b35 r2 (codex): a bare "draft" marker read an ordinary word as an edition.
+        fixture = self.make_fixture(
+            "standard-iso-42006-draft-word.md",
+            VALID_METADATA
+            + "\n\nCertification bodies applying ISO/IEC 42006 draft audit plans before"
+            + " conducting assessments.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_register_prose_is_not_a_superseded_marker(self) -> None:
+        # 3b35 QA (codex): once IDs ending in ")" could match, prose left in a
+        # superseded cell (Canada CPPA's PIPEDA note) became a pseudo-marker that
+        # blocked an ordinary sentence. The register now keeps prose in the Topic
+        # cell, so this sentence must not block.
+        fixture = self.make_fixture(
+            "standard-cppa-prose-not-marker.md",
+            VALID_METADATA
+            + "\n\nThe proposal would replace Canada CPPA / successor C-36 (PPCDA)"
+            + " and create a Privacy and Consumer Data Commissioner.\n",
+        )
+        result = run_linter("tools/lint-standards-currency.py", "--paths", str(fixture))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("stale citation", result.stdout + result.stderr)
+
     def test_superseded_v_prefixed_marker_matches_bare_citation(self) -> None:
         # 3b34: a register marker written with a "v" (SLSA superseded "v1.1") must
         # also match a citation that drops the "v" ("SLSA 1.1"); before the fix the

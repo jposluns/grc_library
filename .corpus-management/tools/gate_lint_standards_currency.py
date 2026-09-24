@@ -66,10 +66,15 @@ def compile_entry_patterns(
             # left intact.
             bare = superseded[1:] if re.match(r"[vV]\d", superseded) else superseded
             sup_re = re.escape(bare)
+            # The ID is bounded by (?<!\w) and (?!\w) rather than \b: for an ID that
+            # starts and ends with a word character they are equivalent, but \b makes
+            # the pattern for an ID ending in punctuation (for example a closing
+            # parenthesis) impossible to match (3b35). The marker end uses (?!\w) for the
+            # same reason: a marker ending in ")", such as "2025 (v2.0)", could never match.
             # The negative lookahead (?![.\-][\d\w]) prevents matching inside a longer
             # version string (e.g. "PCI DSS 4.0" must NOT match within "PCI DSS 4.0.1").
             pattern = re.compile(
-                rf"\b{std_id_re}\b\s*(?::|\(|\s+)\s*v?{sup_re}\b(?![.\-][\d\w])",
+                rf"(?<!\w){std_id_re}(?!\w)\s*(?::|\(|\s+)\s*v?{sup_re}(?!\w)(?![.\-][\d\w])",
                 flags=re.IGNORECASE,
             )
             id_text = str(std_id)
