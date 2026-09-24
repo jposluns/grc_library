@@ -23822,6 +23822,40 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         self.assert_refusal(render(changed_docs), guard="probe", imperative="run")
         with self.assertRaises(AssertionError):
             self.assert_refusal(render(new_branch, new=True), guard="probe", imperative="run")
+class FileArgRefusalTests(LinterTestCase):
+    """3b50b2d2: explicit file arguments that passed vacuously or crashed.
+
+    web-corpus-links accepted an empty, missing-row or unrelated --manifest and printed OK after
+    checking nothing; version-date-consistency passed an unrelated --changelog as "nothing to
+    verify" and read an empty value as the current directory; library-version-monotonicity raised
+    a traceback on a missing or non-file --prior-readme. Each now refuses with exit 2."""
+
+    def test_file_argument_refusals(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="filearg-"))
+        self.addCleanup(shutil.rmtree, td)
+        norows = td / "norows.md"
+        norows.write_text("No link rows here.\n", encoding="utf-8")
+        cases = (
+            ("tools/lint-web-corpus-links.py", "--manifest="),
+            ("tools/lint-web-corpus-links.py", "--manifest", str(norows)),
+            ("tools/lint-web-corpus-links.py", "--manifest", str(td / "missing.md")),
+            ("tools/lint-version-date-consistency.py", "--changelog="),
+            ("tools/lint-version-date-consistency.py", "--changelog", str(norows)),
+            ("tools/lint-version-date-consistency.py", "--readme", str(td)),
+            ("tools/lint-library-version-monotonicity.py", "--prior-readme", str(td / "missing.md")),
+            ("tools/lint-library-version-monotonicity.py", "--prior-readme", str(td)),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-300:]))
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_default_runs_unchanged(self) -> None:
+        for script in ("tools/lint-web-corpus-links.py", "tools/lint-version-date-consistency.py"):
+            r = run_linter(script)
+            self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
+
+
 from tests.test_standards_currency_coverage import CitationCoverageTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers it)
 
 if __name__ == "__main__":

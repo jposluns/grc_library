@@ -110,6 +110,15 @@ def main() -> int:
     args = parse_args()
     changelog_path = Path(args.changelog)
     readme_path = Path(args.readme)
+    # 3b50b2d2: an explicitly named file must be a regular file; an empty value was Path('.'),
+    # a directory read failed only with exit 1, and a wrong file passed as "nothing to verify".
+    explicit = {"--changelog": args.changelog != str(REPO_ROOT / "CHANGELOG.md"),
+                "--readme": args.readme != str(REPO_ROOT / "README.md")}
+    for flag, value in (("--changelog", args.changelog), ("--readme", args.readme)):
+        if explicit[flag] and (not value.strip() or not Path(value).is_file()):
+            print(f"ERROR: {flag} {value!r}: not a regular file; nothing would be verified.",
+                  file=sys.stderr)
+            return 2
     findings: list[str] = []
 
     try:
@@ -127,6 +136,10 @@ def main() -> int:
     candidates = [m for m in (CHANGELOG_HEADING_RE.search(changelog_text),
                               COMPACT_HEADING_RE.search(changelog_text)) if m]
     first_match = min(candidates, key=lambda m: m.start()) if candidates else None
+    if not first_match and explicit["--changelog"]:
+        print(f"ERROR: --changelog {changelog_path}: no Library Version section heading found; "
+              f"an explicitly named changelog must carry one.", file=sys.stderr)
+        return 2
     if not first_match:
         print(
             f"OK: no Library Version section heading found in "
