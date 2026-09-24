@@ -9235,6 +9235,65 @@ class BookkeepingParityTests(LinterTestCase):
                 "| 2026-09-20 | #11 | c | T | IN PROGRESS |\n")
         self.assertEqual(self._hist(mod, body), [])
 
+    def test_row_integrity_multiple_orphan_companions_flag(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 addendum | c | T | a |\n"
+                "| 2026-09-20 | #10 iteration | c | T | b |\n")
+        f = self._hist(mod, body)
+        self.assertEqual(len(f), 1)
+        self.assertIn("only companion rows", f[0])
+
+    def test_row_integrity_multiple_exemptions_flag(self) -> None:
+        mod = self._load_module()
+        text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
+                "| 2026-08-02 | 500 | x | SKIPPED (handoff-PR exception) | none |\n"
+                "| 2026-08-01 | 500 | x | SKIPPED (handoff-PR exception) | none |\n")
+        f = mod.row_integrity_findings(mod._history_row_records(text), "h")
+        self.assertEqual(len(f), 1)
+        self.assertIn("exemption rows", f[0])
+
+    def test_row_integrity_new_layout_exemption_read_from_disposition_cell(self) -> None:
+        # Newer layout: tier at c[4], disposition at c[5]. The exemption must be read from c[5].
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | SHIP |\n"
+                "| 2026-09-20 | #10 | c | LIGHT | SKIPPED (handoff-PR exception) |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_pending_word_outside_disposition_is_not_pending(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | Pending-marker documentation | SUBSTANTIVE | SHIP |\n"
+                "| 2026-09-20 | #10 addendum | c | SUBSTANTIVE | SHIP (later round) |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_dispatched_then_returned_is_not_pending(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | SUBSTANTIVE | DISPATCHED r1; RETURNED SHIP |\n"
+                "| 2026-09-20 | #10 addendum | c | SUBSTANTIVE | SHIP |\n")
+        self.assertEqual(self._hist(mod, body), [])
+
+    def test_row_integrity_description_keyword_is_not_a_companion(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP a |\n"
+                "| 2026-09-20 | #10 (addendum detector fix) | c | T | SHIP b |\n")
+        f = self._hist(mod, body)
+        self.assertEqual(len(f), 1)
+        self.assertIn("2 canonical rows", f[0])
+
+    def test_row_integrity_retro_combined_and_prefixed_cells_counted(self) -> None:
+        mod = self._load_module()
+        text = ("| 2026-09-13 | #10, #11 | a | lesson |\n"
+                "| 2026-09-13 | PR #11 | b | lesson |\n")
+        f = mod.row_integrity_findings(mod._retro_row_records(text), "retro")
+        self.assertEqual(len(f), 1)
+        self.assertIn("#11", f[0])
+
+    def test_row_integrity_fenced_and_commented_examples_ignored(self) -> None:
+        mod = self._load_module()
+        body = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
+                "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
+                "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
+        self.assertEqual(self._hist(mod, body), [])
+
     # ---- P-3.245: PR-token boundary hardening (the #1709-window dotted-id mis-parse).
 
     def test_pr_cell_dotted_ids_not_read_as_prs(self) -> None:

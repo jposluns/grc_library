@@ -530,16 +530,40 @@ def parse_retro_prs(text: str) -> set[int]:
 # has two layouts (Findings at c[4] in the legacy layout, the disposition at c[5] in the newer
 # one), which the fixed-index classifier above cannot see. A lone IN-PROGRESS row is allowed (it
 # is the normal state between opening a PR and its close-out upsert).
-COMPANION_PR_CELL = re.compile(r"\b(?:iteration|addendum)\b", re.IGNORECASE)
+# The companion keyword must sit IMMEDIATELY after the PR token(s) at the start of the PR cell
+# (``#2429 iteration``, ``1329 addendum``, ``#10, #11 addendum``), so a PR cell that merely
+# describes an addendum (``#10 (addendum detector fix)``) is not a companion.
+COMPANION_PR_CELL = re.compile(
+    r"^(?:PR\s+)?#?\d+(?:\s*[,&]\s*(?:PR\s+)?#?\d+)*\s+(?:iteration|addendum)\b", re.IGNORECASE
+)
 ROW_PENDING_CELL = re.compile(
     r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
 )
+# A newer-layout history row carries a tier cell (``SUBSTANTIVE (...)``, ``LIGHT``, ...) at c[4] and
+# its disposition at c[5]; the legacy layout carries the Findings/disposition at c[4].
+TIER_CELL = re.compile(r"^\**\s*(?:SUBSTANTIVE|SENSITIVE|LIGHT|ANCILLARY|QUICK-FIX|quick-fix)\b", re.IGNORECASE)
+RETRO_PR_CELL = re.compile(r"^(?:PR\s+)?#?\d")
+
+
+def _mask_examples(text: str) -> str:
+    """Blank fenced blocks and HTML comments, preserving line count (examples are not records)."""
+    def blank(m: "re.Match[str]") -> str:
+        return re.sub(r"[^\n]", " ", m.group(0))
+    return FENCED_BLOCK.sub(blank, HTML_COMMENT.sub(blank, text))
+
+
+def _disposition_cell(c: list[str]) -> str:
+    return c[5] if len(c) > 5 and TIER_CELL.match(c[4]) else c[4]
+
+
+def _is_pending(disp: str) -> bool:
+    return bool(ROW_PENDING_CELL.match(disp)) and not RETURNED_MARK.search(disp)
 
 
 def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
     """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row."""
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
+    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
         if not TABLE_ROW.match(line):
             continue
         c = cells(line)
@@ -548,28 +572,31 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
         prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
         if not prs:
             continue
-        findings = c[4]
-        if HANDOFF_FINDINGS.search(findings):
+        disp = _disposition_cell(c)
+        if HANDOFF_FINDINGS.search(disp):
             kind = "handoff"
-        elif is_subsumption_findings(findings):
+        elif is_subsumption_findings(disp):
             kind = "subsumption"
         else:
             kind = ""
-        pending = any(ROW_PENDING_CELL.match(x) for x in c[3:])
-        out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.search(c[2])), pending))
+        out.append((lineno, prs, kind, bool(COMPANION_PR_CELL.match(c[2])), _is_pending(disp)))
     return out
 
 
 def _retro_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
+    """Every retro data row whose PR cell starts with a PR token; ALL boundary-checked PR tokens
+    in the cell are counted (a combined ``#10, #11`` cell names both)."""
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
-        m = RETRO_ROW_PR.match(line)
-        if not m:
+    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
+        if not TABLE_ROW.match(line):
             continue
         c = cells(line)
-        pr_cell = c[2] if len(c) > 2 else ""
-        pending = any(ROW_PENDING_CELL.match(x) for x in c[3:])
-        out.append((lineno, [int(m.group(1))], "", bool(COMPANION_PR_CELL.search(pr_cell)), pending))
+        if len(c) < 3 or not RETRO_PR_CELL.match(c[2]):
+            continue
+        prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
+        if not prs:
+            continue
+        out.append((lineno, prs, "", bool(COMPANION_PR_CELL.match(c[2])), False))
     return out
 
 
