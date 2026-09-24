@@ -42,15 +42,19 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
 # tracked as (character, run length), and only a same-character run at least as long, with no info
 # string, closes it, so a ``` line inside a ```` or ~~~ block is content, not a toggle (3b52: a
 # boolean toggle skipped a citation lying between two four-backtick blocks that each held a ``` line).
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+# CommonMark: at most three spaces of indentation (four or more is an indented code line, not a
+# fence), and a backtick fence's info string cannot contain a backtick.
+_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
 
 def _fence_marker(line: str):
     m = _FENCE_RE.match(line)
     if not m:
         return None
-    run = m.group(1)
-    return run[0], len(run), m.group(2).strip()
+    run, info = m.group(1), m.group(2).strip()
+    if run[0] == "`" and "`" in info:
+        return None
+    return run[0], len(run), info
 
 
 def _closes(marker, opener) -> bool:

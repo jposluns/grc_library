@@ -8900,6 +8900,21 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         self.assertEqual(self._run("fake-ccm-fence-inside.md", inside).returncode, 0)
         after_tilde = tilde + "\n" + tick3 + "\n" + tilde + "\n| Sample | CCC-01 to 09 |\n"
         self.assertLinterFails(self._run("fake-ccm-fence-tilde.md", after_tilde), "CCC-05")
+        # r1 QA (CommonMark 4.5): a four-space-indented run is not a fence, a backtick info string
+        # with a backtick is not an opener, a closing line with an info string does not close,
+        # and a longer run of the same character does close.
+        for name, body, flagged in (
+            ("indent4", "    " + tick3 + "\n\nCCC-01 to 09\n", True),
+            ("indent4-close", tick3 + "\n    " + tick3 + "\nCCC-01 to 09\n" + tick3 + "\n", False),
+            ("tick-info", tick3 + "a`b\nCCC-01 to 09\n", True),
+            ("info-close", tick3 + "\n" + tick3 + "text\nCCC-01 to 09\n" + tick3 + "\n", False),
+            ("longer-close", tick3 + "\n" + tick4 + "\nCCC-01 to 09\n", True),
+        ):
+            r = self._run(f"fake-ccm-fence-{name}.md", body)
+            if flagged:
+                self.assertLinterFails(r, "CCC-05")
+            else:
+                self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
 
     def test_ampersand_family_and_ipy_members(self) -> None:
         """3b52: the I&S family (whose token depends on '&' handling) and the IPY member."""
@@ -8913,7 +8928,7 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         for name, row in (
             ("is-split", "| S | I&S-01 to I&S-05, I&S-07 to I&S-09 |"),
             ("ipy-split", "| S | IPY-01, IPY-03 through IPY-04 |"),
-            ("is-mixed", "| S | I&S-01 to LOG-05 |"),
+            ("is-mixed", "| S | I&S-01 to LOG-09 |"),
         ):
             r = self._run(f"fake-ccm-{name}.md", head + row + "\n")
             self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
