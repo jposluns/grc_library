@@ -74,6 +74,7 @@
       "check-date-cobump-on-pr.py",
       "check-dirty-tree-push.py",
       "check-narrative-corpus-mixed-diff-on-pr.py",
+      "check-pr-attribution.py",
       "check-retired-section-orphan-on-pr.py",
       "check-stranded-control-code-on-pr.py",
       "check-todo-floor-monotonic-on-pr.py",
