@@ -4747,7 +4747,7 @@ documents:
   domain: "dev-security"
   type: "Standard"
   title: "DevOps Security Requirements"
-  version: "1.0.24"
+  version: "1.0.25"
   date: "2026-09-24"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
