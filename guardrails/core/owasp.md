@@ -4,7 +4,7 @@ These rules map OWASP Top 10 risks to specific coding requirements. For each ris
 
 **Editions covered:**
 - OWASP Top 10:2025 (eighth edition; final release published January 2026): `https://owasp.org/Top10/2025/`. The prior 2021 edition (now superseded) remains accessible at `https://owasp.org/Top10/2021/` for transition reference.
-- OWASP ASVS v5.0.0: `https://owasp.org/www-project-application-security-verification-standard/`
+- OWASP ASVS v5.0.0: `https://owasp.org/projects/asvs`
 - OWASP MCP Top 10: `https://owasp.org/www-project-mcp-top-10/`
 
 The sections below follow the 2025 ordering. Two 2021 categories were restructured for 2025: Server-Side Request Forgery (2021 A10) is rolled into A01 Broken Access Control, and Software Supply Chain Failures (A03) expands the former A06 Vulnerable and Outdated Components; Mishandling of Exceptional Conditions is new at A10. The underlying security principles are stable across editions.
@@ -223,7 +223,7 @@ Security risks for systems using the Model Context Protocol (MCP). Full detail i
 
 Default target: ASVS Level 2 for all applications handling data classified as sensitive under the adopting project's scheme (Confidential or Restricted in the parent GRC library). The cells above are an indicative per-area progression; ASVS 5.0 assigns levels per individual requirement (for example MFA is V6.3.3 at L2, and TLS 1.2/1.3 is V12.1.1 at L1), so consult the standard for the authoritative per-requirement level. The pack's own transport-security floor is stricter than the ASVS baseline: TLS 1.3 at every level, per [`core/cryptography.md`](cryptography.md).
 
-ASVS v5.0.0 reference: `https://owasp.org/www-project-application-security-verification-standard/`
+ASVS v5.0.0 reference: `https://owasp.org/projects/asvs`
 
 ---
 
