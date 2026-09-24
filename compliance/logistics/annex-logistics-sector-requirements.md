@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-09-24\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -176,7 +176,7 @@ ICAO's Aviation Cybersecurity Strategy (October 2019, published under the author
 | Training and awareness | Capacity building, training and cybersecurity culture (pillar 7) | [`governance/framework-human-capital-and-ethical-conduct.md`](../../governance/framework-human-capital-and-ethical-conduct.md) |
 | Resilience | A civil aviation sector resilient to cyber-attacks (the Strategy's vision; section 6.2 exercises test resilience) | [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md) |
 
-**CAA CAP 1753 (UK):** The UK Civil Aviation Authority's aviation cybersecurity framework maps to the CAF (Cyber Assessment Framework). UK aviation organizations must demonstrate compliance through CAF self-assessment.
+**CAA CAP 1753 (UK):** The Cyber Security Oversight Process for Aviation (CAP 1753, 2024) applies to aviation organizations the Civil Aviation Authority notifies as in scope under applicable regulations, including the Network and Information Systems (NIS) Regulations 2018. In-scope organizations complete a cyber assessment for their tier: the CAF for Aviation, or, for Tier 3 organizations, the Tier 3 Cyber Assessment Tool (the CAF for Aviation may be used instead).
 
 ### HMRC post-brexit customs obligations (UK)
 
