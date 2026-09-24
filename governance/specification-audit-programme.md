@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Programme Specification\
 **Document Type:** Specification\
-**Version:** 1.17.156\
-**Date:** 2026-09-23\
+**Version:** 1.17.157\
+**Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`CHANGELOG.md`](../CHANGELOG.md), [`TODO.md`](../TODO.md)\
@@ -379,9 +379,9 @@ These limitations are not defects in the audit programme; they are the natural b
 
 The audit programme contributes to control objectives in the following frameworks (cross-referenced for adopter convenience, not authoritative attribution):
 
-- **ISO/IEC 27001 Annex A.5.36 (compliance with policies, rules and standards)**: automated regular review of governance artefacts' compliance with the library's documented rules.
+- **ISO/IEC 27001:2022 Annex A.5.36 (Compliance with policies, rules and standards for information security)**: automated regular review of governance artefacts' compliance with the library's documented rules.
 - **NIST CSF 2.0 GV.OC (organizational context)**: documented internal consistency mechanisms.
-- **COBIT 2019 BAI06 (managed changes)**: pre-commit and pre-merge gating preventing unreviewed changes.
+- **COBIT 2019 BAI06 (Managed IT Changes)**: pre-commit and pre-merge gating preventing unreviewed changes.
 - **NIST SSDF: N/A**: the pre-commit hooks and CI enforcement of repository quality are documentation-quality automation, not secure development tooling.
 
 These mappings illustrate where automated audit-programme work touches recognized frameworks; they do not claim equivalence.

@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Modelling Standard\
 **Document Type:** Standard\
-**Version:** 1.0.15\
-**Date:** 2026-09-23\
+**Version:** 1.0.16\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -174,7 +174,7 @@ A system's threat model is refreshed when any of the following occurs:
 
 ## 8. Framework alignment
 
-| Requirement | NIST SSDF | NIST SP 800-53 | ISO/IEC 27001:2022 | OWASP ASVS | CSA CCM |
+| Requirement | NIST SSDF | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | OWASP ASVS | CSA CCM |
 | --- | --- | --- | --- | --- | --- |
 | Design-time threat analysis | PW.1.1, PW.1.2, PW.2 | SA-11, SA-15 | A.8.25, A.8.27 | V15.1 | AIS-04, TVM-04 |
 | Documented data-flow diagrams | PW.1.1, PW.1.2 | SA-15 | A.8.27 | V15.1 | TVM-04 |

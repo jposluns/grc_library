@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 2.0.5\
-**Date:** 2026-09-13\
+**Version:** 2.0.6\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -153,7 +153,7 @@ Applies to all user identities, service accounts, and machine identities across 
 | ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Identity lifecycle governance |
 | ISO/IEC 27002:2022 | §5.16 to 5.17: Identity Management | Identity and authentication controls |
 | ISO/IEC 24760 (Parts 1 to 3, 2025) | A framework for identity management | Identity-management concepts, reference architecture, and practice |
-| NIST SP 800-53 | IA: Identification and Authentication Family | Identity assurance controls |
+| NIST SP 800-53 Rev. 5 | IA: Identification and Authentication Family | Identity assurance controls |
 | NIST SP 800-63A-4 | Digital Identity Guidelines: Identity Proofing and Enrollment | Identity proofing and enrolment assurance |
 | NIST SP 800-207 | Zero Trust Architecture | Continuous identity validation |
 | COBIT 2019 | DSS05.04 | Identity security operations |

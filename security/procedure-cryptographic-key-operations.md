@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.7\
-**Date:** 2026-09-13\
+**Version:** 1.0.8\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -163,7 +163,9 @@ Dual control is required for all key generation, export, and destruction operati
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography | Key operation controls |
-| NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key operational procedures |
+| NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management, Part 1: General | Key operational procedures |
+| NIST SP 800-57 Part 2 Rev. 1 | Recommendation for Key Management, Part 2: Best Practices for Key Management Organizations | Key management organization procedures |
+| NIST SP 800-57 Part 3 Rev. 1 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | Application-specific key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
 | COBIT 2019 | DSS05: Managed Security Services | Security service operations |
 | CSA CCM v4.1 | CEK-02, CEK-10, CEK-11, CEK-12, CEK-13, CEK-14, CEK-15, CEK-21, LOG-12 | Cloud key management operations |

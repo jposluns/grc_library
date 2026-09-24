@@ -2,8 +2,8 @@
 
 **Document Title:** Digital Twin and Simulation Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.8\
-**Date:** 2026-09-14\
+**Version:** 1.0.9\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -96,10 +96,10 @@ Digital twin systems are reviewed annually by the system owner to confirm: conti
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 42001:2023 | §8: AI system operation | AI-enabled digital twin governance |
+| ISO/IEC 42001:2023 | §8: Operation | AI-enabled digital twin governance |
 | ISO/IEC 27001:2022 | A.5.15, A.8.15, A.8.22, A.8.24 | Access control, logging, network segregation, and cryptography for digital twins |
 | ISO 23247 | Digital Twin Framework for Manufacturing | Digital twin reference architecture |
-| NIST SP 800-82r3 | Section 5.2.3 Network Security (network segmentation and isolation) | OT-connected digital twin security |
+| NIST SP 800-82r3 | Section 5.2.3: Layer 3, Network Security (network segmentation and isolation) | OT-connected digital twin security |
 | COBIT 2019 | APO14: Managed Data | Data governance for digital twins |
 
 ---
