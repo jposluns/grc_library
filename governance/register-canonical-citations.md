@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.75\
+**Version:** 1.5.76\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -247,7 +247,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| SLSA | v1.2 | 2025-11 | Supply-chain Levels for Software Artifacts (OpenSSF): Build track (L0 to L3) and Source track (L1 to L4) | v1.1 and earlier | https://slsa.dev/spec/ | 2026-09-24 |
+| SLSA | v1.2 | 2025-11 | Supply-chain Levels for Software Artifacts (OpenSSF): Build track (L0 to L3) and Source track (L1 to L4) | v1.1, v1.0, v0.1 | https://slsa.dev/spec/ | 2026-09-24 |
 
 ## Customs and trade
 
