@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.46\
+**Version:** 1.71.47\
 **Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -432,7 +432,7 @@ These rule files draw on and are aligned to the following external projects and 
 - Direct application: [`ai/mcp-security.md`](ai/mcp-security.md), [`core/owasp.md`](core/owasp.md)
 
 **OWASP Application Security Verification Standard (ASVS) v5.0.0**
-- URL: `https://owasp.org/www-project-application-security-verification-standard/`
+- URL: `https://owasp.org/projects/asvs`
 - Direct application: [`core/owasp.md`](core/owasp.md), [`core/authentication.md`](core/authentication.md), [`core/cryptography.md`](core/cryptography.md)
 
 **OWASP Cheat Sheet Series**

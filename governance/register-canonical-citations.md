@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.83\
+**Version:** 1.5.84\
 **Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -191,7 +191,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Resolution CD/ANPD No. 4/2023 | 2023 | 2023-02-27 | ANPD Regulation on Dosimetry and Application of Sanctions: the parameters and criteria for calculating the base value of a fine sanction and applying the LGPD Article 52 administrative sanctions; amended the fiscalization-and-sanctioning-process regulation approved by Resolution CD/ANPD No. 1/2021 (enacted 24 February 2023; DOU-published 27 February 2023, the date in the Publication column) | - | https://www.gov.br/anpd/pt-br/acesso-a-informacao/institucional/atos-normativos/regulamentacoes_anpd | verified 2026-07-13 |
 | China PIPL | 2021 | 2021-11 | Personal Information Protection Law | - | https://www.cac.gov.cn/ | verified 2026-07-09 |
 | China Cross-Border Data Provisions (2024) | 2024-03-22 (immediate effect) | 2024-03-22 | Provisions on Promoting and Regulating the Cross-Border Flow of Data (CAC); revises personal-data export thresholds and exemptions; extends CAC security-assessment validity from two to three years | - | https://www.cac.gov.cn/2024-03/22/c_1712776611775634.htm | 2026-06-30 |
-| Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.kmu.admin.ch/kmu/en/home/facts-and-trends/digitization/data-protection/new-federal-act-on-data-protection-nfadp.html | verified 2026-07-09 |
+| Switzerland nFADP | 2023 | 2023-09 | New Federal Act on Data Protection (revDSG) | FADP 1992 | https://www.fedlex.admin.ch/eli/cc/2022/491/en | 2026-09-24 |
 | Saudi Arabia PDPL | 2023 | 2023-09 | Personal Data Protection Law | - | https://sdaia.gov.sa/en/SDAIA/about/Pages/RegulationsAndPolicies.aspx | verified 2026-07-09 |
 | Singapore PDPA | 2012 (with 2020 amendments) | 2012 | Personal Data Protection Act | - | https://www.pdpc.gov.sg/ | verified 2026-07-09 |
 | Australia Privacy Act | 1988, as amended by the Privacy and Other Legislation Amendment Act 2024 (Cth) No. 128, 2024 (Royal Assent 10 December 2024); the automated-decision transparency obligation (Australian Privacy Principles 1.7 to 1.9, Schedule 1 Part 15) commences 10 December 2026 | 1988 | Privacy Act (including the automated-decision-making privacy-policy transparency obligation) | - | https://www.legislation.gov.au/C2004A03712/latest | verified 2026-07-11 |
@@ -247,7 +247,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | OWASP Top 10 for Agentic Applications | 2026 | 2025-12 | Top 10 risks for agentic AI systems (ASI01-ASI10) | - | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ | 2026-07-23 |
 | OWASP MCP Top 10 | 2025 (Beta; a living document whose categories may change) | 2025 | Security risks for Model Context Protocol integrations; anchor controls corroboratively rather than normatively while it remains Beta | - | https://owasp.org/www-project-mcp-top-10/ | 2026-06-30 |
 | OWASP GenAI Red Teaming Guide | 1.0 | 2025-01 | Phased GenAI red-team process blueprint (model, implementation, system, and runtime / human and agentic evaluation phases) with per-phase checklists and agentic and RAG red-team tooling; sub-formal trusted guidance, cited corroboratively (see-also), not normative | - | https://genai.owasp.org/ | 2026-07-24 |
-| OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/www-project-application-security-verification-standard/ | 2026-06-30 |
+| OWASP ASVS | 5.0.0 | 2025-05 | Application Security Verification Standard (released May 2025 at Global AppSec EU Barcelona; ~350 requirements across 17 chapters in a three-tier model) | 4.0.3, 4.0, 3.0 | https://owasp.org/projects/asvs | 2026-09-24 |
 | OWASP SAMM | 2.2.0 | 2026-07 | Software Assurance Maturity Model | 2.1.0, 2.0, 1.5 | https://owaspsamm.org/ | verified 2026-08-30 (held _ref v2.2.0; owaspsamm/core tag v2.2.0 released 2026-07-06) |
 
 ## Software supply-chain frameworks
