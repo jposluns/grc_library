@@ -2,7 +2,8 @@
 """CCM family-range provider-to-tenant member direction - pack engine.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
-(RANGE_RE, swept_members, the fence/inline-code regexes, and scan_text) is the
+(RANGE_RE, swept_members, the inline-code-span scan, and scan_text; fenced blocks are
+scanned, fail closed) is the
 source of record here in the pack, moved verbatim from the grc gate. The set of
 directional provider-to-tenant control members is supplied by the adopter via
 configure(directional_members), so the engine carries no project catalogue; the
@@ -38,24 +39,66 @@ def swept_members(fam: str, start: int, end: int) -> list[str]:
     return [f"{fam}-{n:02d}" for n in range(start, end + 1)]
 
 
-FENCE_RE = re.compile(r"^\s*(?:```|~~~)")
-INLINE_CODE_RE = re.compile(r"`[^`]*`")
+# FAIL CLOSED on block structure (maintainer ruling 2026-09-24, 3b52): fenced code blocks are NOT
+# skipped, so no Markdown block structure (a fence, a list container, indentation) can hide an
+# active citation; a range written as an example inside a fence is flagged, and the author writes
+# it as a blockquote line or an inline code span instead. Four QA rounds showed that modelling
+# CommonMark block structure by hand is an open-ended class, and the fail-closed rule costs zero
+# findings on the live corpus. Inline code spans ARE skipped, by the spec's own line-local rule.
+
+
+def _strip_code_spans(line: str) -> str:
+    """Remove inline code spans per CommonMark: a backtick run opens a span only when a later run
+    of exactly the same length closes it; a backslash-escaped backtick is literal; an unmatched
+    run is literal text."""
+    out, i, n = [], 0, len(line)
+    while i < n:
+        c = line[i]
+        if c == "\\" and i + 1 < n:
+            out.append(line[i:i + 2])
+            i += 2
+            continue
+        if c != "`":
+            out.append(c)
+            i += 1
+            continue
+        j = i
+        while j < n and line[j] == "`":
+            j += 1
+        run, k, close_end = j - i, j, None
+        while k < n:
+            if line[k] != "`":
+                k += 1
+                continue
+            m = k
+            while m < n and line[m] == "`":
+                m += 1
+            if m - k == run:
+                close_end = m
+                break
+            k = m
+        if close_end is None:
+            out.append(line[i:j])
+            i = j
+        else:
+            out.append(" ")
+            i = close_end
+    return "".join(out)
+
+
+BLOCKQUOTE_RE = re.compile(r"^ {0,3}>")
 
 
 def scan_text(rel: str, text: str) -> list[str]:
     findings: list[str] = []
-    in_fence = False
     for i, line in enumerate(text.splitlines(), 1):
-        if FENCE_RE.match(line):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        # A blockquote line is an example / quotation, not an active citation.
-        if line.lstrip().startswith(">"):
+        # A blockquote line is an example / quotation, not an active citation. Only a '>' indented
+        # at most three spaces opens a blockquote (CommonMark); a tab- or four-space-indented '>'
+        # line is not skipped (fail closed).
+        if BLOCKQUOTE_RE.match(line):
             continue
         # Strip inline-code spans so a range shown as `CCC-01 to 09` is not flagged.
-        scanned = INLINE_CODE_RE.sub("", line)
+        scanned = _strip_code_spans(line)
         for m in RANGE_RE.finditer(scanned):
             fam, start_s, fam2, end_s = m.group(1), m.group(2), m.group(3), m.group(4)
             # A mixed-family range (e.g. "CCC-01 to LOG-09") is malformed, not a

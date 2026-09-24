@@ -8884,6 +8884,75 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
             with mock.patch.object(mod, "PROVIDER_FACING_DOCS", frozenset({rel})):
                 self.assertEqual(mod.main(["x", fixture]), 0)
 
+    def _run(self, name: str, body: str):
+        return run_linter("tools/lint-ccm-provider-member-in-range.py", self.make_fixture(name, body))
+
+    def test_fenced_ranges_fail_closed(self) -> None:
+        """3b52 (maintainer ruling 2026-09-24, fail closed): fenced blocks are NOT skipped, so no
+        block structure (fence style, nesting, list containers, indentation, tabs) can hide a
+        citation; every fenced range is flagged, including the round-1 to round-4 QA shapes."""
+        t3, t4, tl = "`" * 3, "`" * 4, "~" * 3
+        for name, body in (
+            ("plain", t3 + "text\n| S | CCC-01 to 09 |\n" + t3 + "\n"),
+            ("between", t4 + "\n" + t3 + "\n" + t4 + "\nCCC-01 to 09\n" + t4 + "\n" + t3 + "\n" + t4 + "\n"),
+            ("inside4", t4 + "\n" + t3 + "\nCCC-01 to 09\n" + t4 + "\n"),
+            ("marker-line", "- " + tl + "\n  example\n  " + tl + "\n  CCC-01 to 09\n"),
+            ("nested-return", "1. outer\n   - inner\n\n   " + tl + "\n   x\n    " + tl + "\n\n   CCC-01 to 09\n"),
+            ("nbsp-closer", tl + "\n" + tl + "\u00a0\nexample\n" + tl + "\nCCC-01 to 09\n"),
+            ("tab", "- x\n\n  " + tl + "\n\tCCC-01 to 09\n  " + tl + "\n"),
+            # every earlier QA fence shape, now a fail-closed assertion (round 5)
+            ("tilde-inner", tl + "\n" + t3 + "\n" + tl + "\nCCC-01 to 09\n" + tl + "\n"),
+            ("indent4", "    " + t3 + "\n\nCCC-01 to 09\n"),
+            ("indent4-close", t3 + "\n    " + t3 + "\nCCC-01 to 09\n" + t3 + "\n"),
+            ("tick-info", t3 + "a`b\nCCC-01 to 09\n"),
+            ("info-close", t3 + "\n" + t3 + "text\nCCC-01 to 09\n" + t3 + "\n"),
+            ("longer-close", t3 + "\n" + t4 + "\nCCC-01 to 09\n"),
+            ("indent3-then-4", "   " + t3 + "\n    " + t3 + "\nexample\n" + t3 + "\nCCC-01 to 09\n"),
+            ("list-3-4", "1. Example:\n\n   " + t3 + "text\n   example\n    " + t3 + "\n\nCCC-01 to 09\n"),
+            ("list-4-4", "1. Example:\n\n    " + t3 + "\n    | S | CCC-01 to 09 |\n    " + t3 + "\n"),
+            ("list-closer-rel2", "1. Example:\n\n   " + t3 + "\n   x\n     " + t3 + "\n\n   CCC-01 to 09\n"),
+            ("list-closer-rel4", "1. Example:\n\n   " + t3 + "\n       " + t3 + "\n   CCC-01 to 09\n"),
+            ("list-exit", "1. Example:\n\n   " + t3 + "\n   x\n\nCCC-01 to 09\n"),
+            ("marker-line-example", "- " + tl + "\n  CCC-01 to 09\n  " + tl + "\n"),
+            # round 6: only a '>' indented at most three spaces is a blockquote
+            ("indented-gt", "    > CCC-01 to 09\n"),
+            ("tab-gt", "\t> CCC-01 to 09\n"),
+        ):
+            self.assertLinterFails(self._run(f"fake-ccm-fence-{name}.md", body), "CCC-05")
+
+    def test_code_spans_follow_commonmark(self) -> None:
+        """Inline code spans are skipped by CommonMark's line-local rule: an opening backtick run
+        is closed only by a run of exactly the same length; an escaped backtick is literal."""
+        for name, line, flagged in (
+            ("single", "The range `CCC-01 to 09` is an example.", False),
+            ("double", "The range ``CCC-01 to 09`` is an example.", False),
+            ("inner-backtick", "Example: `` ` CCC-01 to 09 `` here.", False),
+            ("unequal", "The range ``CCC-01 to 09` is active.", True),
+            ("escaped", "The range \\`CCC-01 to 09\\` is active.", True),
+        ):
+            r = self._run(f"fake-ccm-span-{name}.md", line + "\n")
+            if flagged:
+                self.assertLinterFails(r, "CCC-05")
+            else:
+                self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
+
+    def test_ampersand_family_and_ipy_members(self) -> None:
+        """3b52: the I&S family (whose token depends on '&' handling) and the IPY member."""
+        head = "| Control | CSA CCM v4.1 |\n| --- | --- |\n"
+        for name, row, expect in (
+            ("is-bare", "| S | I&S-01 to 09 |", "I&S-06"),
+            ("is-both", "| S | I&S-01 through I&S-09 |", "I&S-06"),
+            ("ipy", "| S | IPY-01 to 04 |", "IPY-02"),
+        ):
+            self.assertLinterFails(self._run(f"fake-ccm-{name}.md", head + row + "\n"), expect)
+        for name, row in (
+            ("is-split", "| S | I&S-01 to I&S-05, I&S-07 to I&S-09 |"),
+            ("ipy-split", "| S | IPY-01, IPY-03 through IPY-04 |"),
+            ("is-mixed", "| S | I&S-01 to LOG-09 |"),
+        ):
+            r = self._run(f"fake-ccm-{name}.md", head + row + "\n")
+            self.assertEqual(r.returncode, 0, name + r.stdout + r.stderr)
+
     def test_family_range_sweeping_provider_member_flagged(self) -> None:
         fixture = self.make_fixture(
             "fake-ccm-provider-member-range.md",
@@ -8896,9 +8965,8 @@ class CcmProviderMemberInRangeTests(LinterTestCase):
         )
         self.assertLinterFails(result, "CCC-05")
 
-    def test_fenced_or_blockquoted_example_not_flagged(self) -> None:
+    def test_blockquoted_or_inline_code_example_not_flagged(self) -> None:
         for label, body in (
-            ("fenced", "```text\n| S | CCC-01 to 09 |\n```\n"),
             ("blockquote", "> historical bad example: CCC-01 to 09\n"),
             ("inline", "The range `CCC-01 to 09` is a bad example.\n"),
         ):

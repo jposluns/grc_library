@@ -5,8 +5,12 @@ provider-to-tenant ("directional") control member. Some CSA Cloud Controls Matri
 controls state a duty the cloud provider owes the tenant rather than a control the
 document's own organization operates; citing a family range (for example "CCC-01 to
 09") that spans such a member silently pulls a provider-duty control into an
-internal-scope claim. The check reads each line outside fenced code blocks and inline
-code spans (and skips blockquote lines as quotation), finds each single-family
+internal-scope claim. The check reads every line, fenced code blocks included, so no
+block structure can hide an active citation; it skips only blockquote lines (quotation)
+and inline code spans, read as CommonMark defines them (a code span needs a closing
+backtick run of exactly the opening length, and a backslash-escaped backtick is literal).
+A range written as an example is therefore placed in a blockquote or an inline code span,
+not a fenced block. It finds each single-family
 range, expands it to its member codes, and flags any that fall in the tracked
 directional-member set, advising that the range be split to exclude them. A
 mixed-family range (a range whose two endpoints name different families) is malformed
