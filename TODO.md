@@ -81,7 +81,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26 | OSCAL machine-readable representation (umbrella; H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (content) | `[public]` |
 | 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` `[BLOCKED:source-acquisition (awaiting maintainer source drop)]` |
-| 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered #1972; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked and in the maintainer-egress queue, pending console-upload before source-verification and registration) | `[content]` `[public]` |
+| 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked, pending upload before source-verification and registration) | `[content]` `[public]` |
 | 3.14 | ETSI Securing-AI alignment map (L, M) | `[public]` |
 
 ## Priority 3 — Clean up and tooling
@@ -100,7 +100,7 @@ Adopter experience and future work: capability and guidance for organizations ad
 | --- | --- | --- |
 | 4.1 | Corpus-management discipline as a shareable skill (M, XL) | `[public]` |
 | 4.5 | Adopter reference-base specification: build-your-own-ref guide, source lists, and the corpus-to-sources relevance map (L, L) | `[public]` |
-| 4.6 | Fork update-assessment tooling (upstream-change applicability report) (S-f, maintainer-requested 2026-07-04, M-L) | `[public]` |
+| 4.6 | Fork update-assessment tooling (upstream-change applicability report) (S-f, M-L) | `[public]` |
 | 4.29 | `/adopt` adjustment + non-destructive tooling-update mode (L) | `[machinery]` `[public]` |
 | 4.30 | Full adopter-experience assessment + `.adopt/` adoption kit (P4 umbrella, M-L, multi-phase) | `[public]` |
 | 5.2 | Logistics country / programme expansion | `[public]` |
