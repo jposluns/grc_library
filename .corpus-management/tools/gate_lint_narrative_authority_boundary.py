@@ -2,7 +2,7 @@
 """One-way narrative authority-boundary - pack engine.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A; narrative-family):
-the PURE scan (the link/fence regexes + _fence_marker/_closes + _resolves_into_narrative
+the PURE scan (the link regexes + _resolves_into_narrative
 + check_file + check_taxonomy) is the source of record here in the pack, moved verbatim
 from the grc gate. The narrative root and its two derived mention regexes are supplied
 by the adopter via configure(ref), so the engine's LOGIC is narrative-root-agnostic (its
@@ -63,29 +63,8 @@ EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 # not ``]:``) or a body reference ``[text][label]``, so there is no double-count.
 # 0-3 leading spaces only (4+ is an indented code block, not a link def), an
 # optional blockquote prefix (a blockquoted ref-def still renders a link), then
-# the label. Marker-aware fence tracking (below) excludes fenced ref-defs.
+# the label. Fenced blocks are scanned too (fail closed, 3b54).
 REF_DEF_RE = re.compile(r"^ {0,3}(?:>[ \t]?)*\[[^\]]+\]:\s*<?([^\s>]+)")
-
-# Marker-aware fence parser (CommonMark): a fenced block closes only on the same
-# marker char and a run length >= the opener, no info string; the shared
-# ``is_fence_line`` toggle is marker-blind, so a ``` inside a ~~~ example would
-# wrongly flip the scan and mis-read fenced content (a ref-def inside a fenced
-# block is not a rendered link). Local to gate 87, mirroring gate 86.
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
-
-
-def _fence_marker(line: str):
-    m = _FENCE_RE.match(line)
-    if not m:
-        return None
-    run = m.group(1)
-    return run[0], len(run), m.group(2).strip()
-
-
-def _closes(marker, opener) -> bool:
-    return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
-
 
 def _resolves_into_narrative(source: Path, target: str, root: Path) -> bool:
     """True iff ``target`` (a link in ``source``) resolves into the ROOT
@@ -124,16 +103,9 @@ def check_file(path: Path, root: Path = REPO_ROOT) -> list[tuple[int, str]]:
             )
 
     # LINK check: any markdown link resolving into the root executive/ tree.
-    open_fence = None  # marker-aware: (char, run-length); ``` inside ~~~ is content
+    # FAIL CLOSED (3b54, the gate-100 precedent): fenced code blocks are scanned too, so no block
+    # structure can hide a corpus-to-narrative link; measured cost on the live corpus: zero.
     for lineno, raw in enumerate(text.splitlines(), 1):
-        marker = _fence_marker(raw)
-        if open_fence is not None:
-            if _closes(marker, open_fence):
-                open_fence = None
-            continue
-        if marker is not None:
-            open_fence = (marker[0], marker[1])
-            continue
         for m in LINK_RE.finditer(raw):
             target = m.group(1)
             if EXTERNAL.match(target):

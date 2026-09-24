@@ -5,12 +5,12 @@ Flag a deliverable-corpus document that links INTO a project-internal governance
 directory: a link (inline ``](dest)``, titled, angle-bracketed, or a reference-style
 definition) whose target resolves into the ``project_gov_dir`` subtree violates the
 one-way dependency rule (a deliverable document must not depend on project-internal
-governance). External targets (http/https/mailto/tel/ftp/#) are ignored. A marker-aware
-fence scan skips fenced code blocks (a ``` inside a ~~~ block is content, not a fence
-toggle), so a link inside a fenced example is not flagged.
+governance). External targets (http/https/mailto/tel/ftp/#) are ignored. Fenced code
+blocks are scanned too (fail closed, 3b54): no block structure can hide such a link, so an
+example drops the link syntax and keeps a plain path mention (backticked or not).
 
 Engine/wrapper split (compile PR-20): this engine carries the PURE check (the link and
-ref-def patterns, the marker-aware fence helpers, ``links_into_project_gov``,
+ref-def patterns, ``links_into_project_gov``,
 ``check_file``, a ``_self_test``) and a ``run`` that groups + reports, taking the
 project-governance directory name and the repository root in. The project wrapper
 (``tools/lint-directional-dependency.py``) supplies the scan scope (the derived corpus
@@ -30,25 +30,6 @@ EXTERNAL = re.compile(r"^(https?:|mailto:|tel:|ftp:|#)")
 # A reference-style link definition line (optionally blockquoted): [label]: dest
 REF_DEF_RE = re.compile(r"^ {0,3}(?:>[ \t]?)*\[[^\]]+\]:\s*<?([^\s>]+)")
 
-# Marker-aware fenced-code detection: a fence line is a run of >=3 backticks or tildes
-# at line start. The shared is_fence_line toggle is marker-blind, so a ``` inside a ~~~
-# example would wrongly flip the scan; this local helper tracks the opener's char + run.
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
-
-
-def _fence_marker(line: str):
-    m = _FENCE_RE.match(line)
-    if not m:
-        return None
-    run = m.group(1)
-    return run[0], len(run), m.group(2).strip()
-
-
-def _closes(marker, opener) -> bool:
-    return (marker is not None and marker[0] == opener[0]
-            and marker[1] >= opener[1] and not marker[2])
-
-
 def links_into_project_gov(source: Path, target: str, project_gov_dir: str) -> bool:
     """True if ``target`` (a link in ``source``) resolves into project governance."""
     target_no_anchor = target.split("#", 1)[0]
@@ -60,18 +41,12 @@ def links_into_project_gov(source: Path, target: str, project_gov_dir: str) -> b
 
 def check_file(path: Path, *, project_gov_dir: str) -> list[tuple[int, str]]:
     findings: list[tuple[int, str]] = []
-    open_fence = None  # marker-aware: (char, run-length); ``` inside ~~~ is content
+    # FAIL CLOSED (3b54, the gate-100 precedent): fenced code blocks are scanned too, so no block
+    # structure can hide a link into project governance; an example drops the link syntax and
+    # keeps a plain path mention. Measured cost on the live corpus: zero findings.
     with path.open("r", encoding="utf-8") as fh:
         for lineno, raw in enumerate(fh, 1):
             line = raw.rstrip("\n")
-            marker = _fence_marker(line)
-            if open_fence is not None:
-                if _closes(marker, open_fence):
-                    open_fence = None
-                continue
-            if marker is not None:
-                open_fence = (marker[0], marker[1])
-                continue
             for m in LINK_RE.finditer(line):
                 target = m.group(1)
                 if EXTERNAL.match(target):
@@ -116,9 +91,9 @@ def _self_test() -> int:
         expect("ref-def-flagged", cf(write("ref.md", "# R\n\nSee [reg][n].\n\n[n]: .project-governance/register.md\n")), True)
         expect("blockquote-ref-def-flagged", cf(write("bqref.md", "# R\n\n> See [reg][n].\n> [n]: .project-governance/register.md\n")), True)
         expect("indented-ref-def-pass", cf(write("indent.md", "# R\n\n    [n]: .project-governance/register.md\n")), False)
-        expect("fenced-ref-def-pass", cf(write("fencedref.md", "# R\n\n~~~\n```\n[n]: .project-governance/register.md\n~~~\n")), False)
+        expect("fenced-ref-def-flagged", cf(write("fencedref.md", "# R\n\n~~~\n```\n[n]: .project-governance/register.md\n~~~\n")), True)
         expect("non-project-gov-link-pass", cf(write("clean.md", "# C\n\nSee [spec](../governance/specification-master-project.md).\n")), False)
-        expect("fenced-inline-link-pass", cf(write("fenced.md", "# F\n\n```\n[reg](.project-governance/register.md)\n```\n")), False)
+        expect("fenced-inline-link-flagged", cf(write("fenced.md", "# F\n\n```\n[reg](.project-governance/register.md)\n```\n")), True)
 
     if failures:
         for fl in failures:
@@ -127,8 +102,8 @@ def _self_test() -> int:
         return 1
     print("self-test: all directional-dependency cases passed (inline/titled/angle "
           "links and reference-style defs into .project-governance/ flagged; blockquoted "
-          "ref-def flagged; indented and fenced ref-defs and fenced inline link, plus a "
-          "non-project-gov link, not flagged).")
+          "ref-def flagged; fenced ref-defs and fenced inline links flagged (fail closed); "
+          "an indented ref-def and a non-project-gov link not flagged).")
     return 0
 
 
