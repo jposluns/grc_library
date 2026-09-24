@@ -21000,6 +21000,64 @@ class UnusedImportsGateTests(unittest.TestCase):
             self.assertEqual(got, expected)
 
 
+class HookParserStrictnessTests(LinterTestCase):
+    """3b50b2f: hook and revision-tool parsers accept only their documented forms.
+
+    Each used to ignore a surplus or unknown argument and run its normal path with exit 0 (for
+    example check-pr-attribution --text-file FILE --stray, or tension-scan BASE HEAD --stray).
+    The real caller shapes stay accepted: the commit-msg and pre-commit hooks' single flag, the
+    pre-push hook's --pre-push plus git's remote name and URL, and the PR-time floor check's two
+    refs."""
+
+    def test_surplus_or_unknown_arguments_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="hookparse-"))
+        self.addCleanup(shutil.rmtree, td)
+        text = td / "body.md"
+        text.write_text("Plain PR body.\n", encoding="utf-8")
+        cases = (
+            ("tools/check-pr-attribution.py", "--text-file", str(text), "--stray"),
+            ("tools/check-pr-attribution.py", "--stray"),
+            ("tools/check-pr-attribution.py", "--event", "--self-test"),
+            ("tools/check-pr-attribution.py", "--text-file", "--self-test"),
+            ("tools/check-version-bump-commit.py", "--commit-msg", "--stray"),
+            ("tools/check-version-bump-commit.py", "--self-test", "--stray"),
+            ("tools/check-commit-on-main.py", "--pre-commit", "--stray"),
+            ("tools/check-dirty-tree-push.py", "--stray"),
+            ("tools/check-dirty-tree-push.py", "--pre-push", "origin", "url", "extra"),
+            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD", "--stray"),
+            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD", "HEAD"),
+            ("tools/tension-scan.py", "HEAD", "HEAD", "--stray"),
+            ("tools/verify-reference-modules.py", str(td), "--stray"),
+            ("tools/verify-reference-modules.py", ""),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+            # The refusal must come from the new argument check (a usage message), not from some
+            # later failure the old code also produced, so each case discriminates.
+            self.assertIn("usage", r.stderr.lower(), (script, args, r.stderr[-300:]))
+
+    def test_documented_forms_still_accepted(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="hookparse-ok-"))
+        self.addCleanup(shutil.rmtree, td)
+        text = td / "body.md"
+        text.write_text("Plain PR body.\n", encoding="utf-8")
+        event = td / "event.json"
+        event.write_text('{"pull_request": {"title": "A title", "body": "A body."}}', encoding="utf-8")
+        for script, *args in (
+            ("tools/check-pr-attribution.py", "--text-file", str(text)),
+            ("tools/check-version-bump-commit.py", "--self-test"),
+            ("tools/check-commit-on-main.py", "--self-test"),
+            ("tools/check-dirty-tree-push.py", "--self-test"),
+            ("tools/tension-scan.py", "HEAD", "HEAD"),
+            ("tools/check-todo-floor-monotonic-on-pr.py", "HEAD", "HEAD"),
+            ("tools/check-pr-attribution.py", "--event", str(event)),
+        ):
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 0, (script, args, r.stdout[-200:], r.stderr[-200:]))
+
+
 class HooksSyntaxGateTests(unittest.TestCase):
     """tools/lint-hooks-syntax.py (gate 95): every .claude/hooks/*.py must compile.
     Positive: a syntax-broken hook fixture fails (exit 1, path:line: message finding).

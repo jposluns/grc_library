@@ -132,6 +132,11 @@ def locate_source(argv: list[str]) -> Path | None:
     path must not produce a green result computed against a different tree).
     """
     candidates: list[Path] = []
+    if len(argv) > 2 or (len(argv) > 1 and (argv[1].startswith("-") or not argv[1].strip())):
+        # 3b50b2f: one optional source directory only; a surplus, option-like or empty argument
+        # used to be ignored or read as the current directory.
+        print("usage: verify-reference-modules.py [<grc_library_ref directory>]", file=sys.stderr)
+        raise SystemExit(2)
     if len(argv) > 1:
         given = Path(argv[1])
         # Back-compat: a path ending in a bucket dir (standards) resolves to its parent (the root).
