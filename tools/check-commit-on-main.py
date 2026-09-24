@@ -101,7 +101,7 @@ def _integration_self_test():
     src = Path(__file__).resolve().parents[1]
     failures = []
     with tempfile.TemporaryDirectory() as base:
-        repo = Path(base) / "r"
+        repo = Path(base) / "clone with space" / "r"  # exercises the installer's path quoting
         (repo / "tools" / "git-hooks").mkdir(parents=True)
         for rel in ("tools/check-commit-on-main.py", "tools/install-git-hooks.sh",
                     "tools/git-hooks/pre-commit", "tools/git-hooks/pre-push"):

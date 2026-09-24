@@ -63,8 +63,16 @@ HOOK
 
 # The temp file in flight ($tmp) and any whose removal failed ($leftover) are retried
 # by the EXIT trap, so an interrupted or partly failed run leaves nothing behind it can clean.
+# $leftover is a NEWLINE-separated list, read back one quoted path per line, so a clone path with
+# spaces or glob characters survives intact; each removal failure is tolerated so the rest still run.
 tmp=""; leftover=""
-trap 'for f in $tmp $leftover; do rm -f "$f"; done' 0
+cleanup() {
+  if [ -n "$tmp" ]; then rm -f -- "$tmp" || :; fi
+  printf '%s\n' "$leftover" | while IFS= read -r f; do
+    if [ -n "$f" ]; then rm -f -- "$f" || :; fi
+  done
+}
+trap cleanup 0
 trap 'exit 1' HUP INT TERM
 
 # install_one NAME EMITTER: idempotent; refuses rather than clobbering a foreign
@@ -108,17 +116,20 @@ install_one() {
   fi
   if ! "$emit" > "$tmp" || ! chmod 755 "$tmp"; then
     echo "install-git-hooks: could not prepare the $name hook." >&2
-    rm -f "$tmp" || leftover="$leftover $tmp"; tmp=""; return 1
+    rm -f -- "$tmp" || leftover="$leftover
+$tmp"; tmp=""; return 1
   fi
   if ! ln "$tmp" "$hook"; then
     echo "install-git-hooks: could not install $hook without overwriting an existing hook." >&2
-    rm -f "$tmp" || leftover="$leftover $tmp"; tmp=""; return 1
+    rm -f -- "$tmp" || leftover="$leftover
+$tmp"; tmp=""; return 1
   fi
   echo "installed: $hook (resolves the active checkout at run time)"
   # A failed temp removal is recorded for the EXIT trap and makes this hook's result a failure.
-  if ! rm -f "$tmp"; then
+  if ! rm -f -- "$tmp"; then
     echo "install-git-hooks: could not remove the temporary file $tmp (retried at exit)." >&2
-    leftover="$leftover $tmp"; tmp=""; return 1
+    leftover="$leftover
+$tmp"; tmp=""; return 1
   fi
   tmp=""
   return 0
