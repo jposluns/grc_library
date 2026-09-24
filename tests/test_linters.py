@@ -18648,6 +18648,37 @@ class TagGateTests(LinterTestCase):
             import shutil; shutil.rmtree(root, ignore_errors=True)
 
 
+class FixedTargetStrictFlagsTests(LinterTestCase):
+    """3b50b2g: fixed-target gates and dev aids that take no argument (or only --self-test).
+
+    Each used to ignore any argument and run with exit 0, so a typo such as --slef-test or a
+    stray path looked like a clean check. Each now refuses an unknown or surplus argument with
+    exit 2 before doing any work (lint_common.strict_flags)."""
+
+    TOOLS = (
+        "detect-collection-candidates", "lint-aiqt-vendor-digest", "lint-allowlist-spec-parity",
+        "lint-bookkeeping-parity", "lint-citation-currency-cadence",
+        "lint-collection-enumeration-consistency", "lint-doctype-parity",
+        "lint-external-overlay-license", "lint-gate-citation-inventory",
+        "lint-listing-surface-completeness", "lint-overnight-file", "lint-paired-skill-step-parity",
+        "lint-session-state", "lint-sibling-placeholders", "lint-todo-staleness",
+        "lint-ungated-dashes", "sweep-preflight-scanner",
+    )
+
+    def test_unknown_argument_refused(self) -> None:
+        for tool in self.TOOLS:
+            for args in (("--stray-3b50b2g",), ("some/path.md",)):
+                r = run_linter(f"tools/{tool}.py", *args)
+                self.assertEqual(r.returncode, 2, (tool, args, r.stdout[-200:], r.stderr[-200:]))
+                self.assertIn("ERROR:", r.stderr)
+                self.assertNotIn("Traceback", r.stderr)
+
+    def test_self_test_still_accepted(self) -> None:
+        for tool in ("lint-gate-citation-inventory", "lint-ungated-dashes"):
+            r = run_linter(f"tools/{tool}.py", "--self-test")
+            self.assertEqual(r.returncode, 0, (tool, r.stdout[-300:], r.stderr[-300:]))
+
+
 class NormalizedPositionalArgsTests(LinterTestCase):
     """PR #1245: the fast-ready gate tools were normalized to accept a uniform
     positional multi-file ``.md`` list (the ``tools/quick-guard.sh`` contract).
