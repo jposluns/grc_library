@@ -369,9 +369,79 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-access-and-agent-permissions.md",
+      "display_name": "AI Access and Agent Permissions Standard",
+      "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-and-agentic-development-security.md",
+      "display_name": "AI and Agentic Development Security Standard",
+      "id": "GRC-STD-AI-AGENTIC-DEVELOPMENT-SECURITY",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-data-quality-and-readiness-validation.md",
+      "display_name": "AI Data Quality and Readiness Validation Standard",
+      "id": "GRC-STD-AI-DATA-QUALITY-READINESS-VALIDATION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-human-oversight.md",
+      "display_name": "AI Human-Oversight Standard",
+      "id": "GRC-STD-AI-HUMAN-OVERSIGHT",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-inference-cost-governance.md",
+      "display_name": "AI Inference Cost Governance Standard",
+      "id": "GRC-STD-AI-INFERENCE-COST-GOVERNANCE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "ai/standard-ai-model-risk.md",
       "display_name": "AI Model Risk Standard",
       "id": "GRC-STD-AI-MODEL-RISK",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-model-succession-and-identity.md",
+      "display_name": "AI Model Succession and Identity Continuity Standard",
+      "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-security-and-risk.md",
+      "display_name": "AI Security and Risk Standard",
+      "id": "GRC-STD-AI-SECURITY-RISK",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-testing-validation-and-documentation.md",
+      "display_name": "AI Testing, Validation and Documentation Standard",
+      "id": "GRC-STD-AI-TESTING-VALIDATION-DOCUMENTATION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "ai/standard-ai-total-cost-of-ownership-governance.md",
+      "display_name": "AI Total Cost of Ownership Governance Standard",
+      "id": "GRC-STD-AI-TOTAL-COST-OWNERSHIP-GOVERNANCE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "architecture/standard-api-design.md",
+      "display_name": "API Design Standard",
+      "id": "GRC-STD-API-DESIGN",
       "source_identifier": null
     },
     {
@@ -383,9 +453,30 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "architecture/standard-data-architecture.md",
+      "display_name": "Data Architecture Standard",
+      "id": "GRC-STD-DATA-ARCHITECTURE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "security/standard-data-classification-and-handling.md",
       "display_name": "Data Classification and Handling Standard",
       "id": "GRC-STD-DATA-CLASSIFICATION",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "governance/standard-delegation-of-authority.md",
+      "display_name": "Delegation-of-Authority Standard",
+      "id": "GRC-STD-DELEGATION-AUTHORITY",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "governance/standard-emergency-authority.md",
+      "display_name": "Emergency Authority Standard",
+      "id": "GRC-STD-EMERGENCY-AUTHORITY",
       "source_identifier": null
     },
     {
@@ -404,6 +495,13 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "architecture/standard-integration-architecture.md",
+      "display_name": "Integration Architecture Standard",
+      "id": "GRC-STD-INTEGRATION-ARCHITECTURE",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "compliance/standard-internal-audit.md",
       "display_name": "Internal Audit Standard",
       "id": "GRC-STD-INTERNAL-AUDIT",
@@ -414,6 +512,13 @@
       "corpus_path": "security/standard-logging-and-monitoring.md",
       "display_name": "Logging and Monitoring Standard",
       "id": "GRC-STD-LOGGING-MONITORING",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "governance/standard-maturity-assessment-methodology.md",
+      "display_name": "Maturity Assessment Methodology Standard",
+      "id": "GRC-STD-MATURITY-ASSESSMENT-METHODOLOGY",
       "source_identifier": null
     },
     {
@@ -467,9 +572,37 @@
     },
     {
       "class": "organizational standard",
+      "corpus_path": "compliance/standard-sanctions-and-export-control-screening.md",
+      "display_name": "Sanctions and Export-Control Screening Standard",
+      "id": "GRC-STD-SANCTIONS-EXPORT-CONTROL-SCREENING",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "governance/standard-semantic-continuity-in-migration-and-retirement.md",
+      "display_name": "Semantic Continuity in Migration and Retirement Standard",
+      "id": "GRC-STD-SEMANTIC-CONTINUITY-MIGRATION-RETIREMENT",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
       "corpus_path": "supply-chain/standard-supplier-security-and-privacy-assurance.md",
       "display_name": "Supplier Security and Privacy Assurance Standard",
       "id": "GRC-STD-SUPPLIER-SEC-PRIVACY",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "architecture/standard-technology-radar.md",
+      "display_name": "Technology Radar Standard",
+      "id": "GRC-STD-TECHNOLOGY-RADAR",
+      "source_identifier": null
+    },
+    {
+      "class": "organizational standard",
+      "corpus_path": "risk/standard-third-party-and-supply-chain-risk.md",
+      "display_name": "Third-Party and Supply Chain Risk Standard",
+      "id": "GRC-STD-THIRD-PARTY-SUPPLY-CHAIN-RISK",
       "source_identifier": null
     },
     {
@@ -5079,16 +5212,1488 @@
       },
       "verb": "maps to",
       "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0161",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0162",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0163",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0164",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0165",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ETSI-EN-304-223"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0166",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-ACCESS-AGENT-PERMISSIONS"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0167",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-AGENTIC-DEVELOPMENT-SECURITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42005"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0168",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-DATA-QUALITY-READINESS-VALIDATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0169",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-DATA-QUALITY-READINESS-VALIDATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0170",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-DATA-QUALITY-READINESS-VALIDATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0171",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-HUMAN-OVERSIGHT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0172",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-HUMAN-OVERSIGHT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ETSI-EN-304-223"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0173",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-HUMAN-OVERSIGHT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0174",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-INFERENCE-COST-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0175",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-INFERENCE-COST-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0176",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-INFERENCE-COST-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0177",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0178",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0179",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0180",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-MODEL-SUCCESSION-IDENTITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ETSI-EN-304-223"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0181",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-SECURITY-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0182",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-SECURITY-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0183",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-SECURITY-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0184",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TESTING-VALIDATION-DOCUMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "EU-AI-ACT"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0185",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TESTING-VALIDATION-DOCUMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0186",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TESTING-VALIDATION-DOCUMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ETSI-EN-304-223"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0187",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TESTING-VALIDATION-DOCUMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0188",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-AI-TOTAL-COST-OWNERSHIP-GOVERNANCE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0189",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-API-DESIGN"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0190",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DATA-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0191",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-INTEGRATION-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0192",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-TECHNOLOGY-RADAR"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-31000"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0193",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SANCTIONS-EXPORT-CONTROL-SCREENING"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0194",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DELEGATION-AUTHORITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0195",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DELEGATION-AUTHORITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0196",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-EMERGENCY-AUTHORITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0197",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-EMERGENCY-AUTHORITY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-42001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0198",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-MATURITY-ASSESSMENT-METHODOLOGY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-9001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0199",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-MATURITY-ASSESSMENT-METHODOLOGY"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "framework",
+        "id": "NIST-AI-RMF"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0200",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SEMANTIC-CONTINUITY-MIGRATION-RETIREMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0201",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SEMANTIC-CONTINUITY-MIGRATION-RETIREMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0202",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SEMANTIC-CONTINUITY-MIGRATION-RETIREMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-20000-1"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0203",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-SEMANTIC-CONTINUITY-MIGRATION-RETIREMENT"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "architectural recommendation",
+      "destination": {
+        "class": "standard",
+        "id": "ISO-IEC-27001"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0204",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THIRD-PARTY-SUPPLY-CHAIN-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0205",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-THIRD-PARTY-SUPPLY-CHAIN-RISK"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "regulation or law",
+        "id": "GDPR-ART-25"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0206",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-DATA-ARCHITECTURE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
     }
   ],
   "schema_version": 2,
   "source": "governance/relationship-model-source.json",
   "summary": {
-    "node_count": 85,
-    "record_count": 140,
+    "node_count": 104,
+    "record_count": 186,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 112,
+      "correspondence": 158,
       "implementation": 19,
       "influence": 8
     }
