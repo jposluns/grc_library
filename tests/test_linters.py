@@ -9351,7 +9351,7 @@ class BookkeepingParityTests(LinterTestCase):
     def test_row_integrity_returned_in_touched_cell_does_not_suppress_pending(self) -> None:
         mod = self._load_module()
         text = ("| Date | PR | Touched | Findings | Hot-fix |\n|---|---|---|---|---|\n"
-                "| 2026-08-02 | 500 | ORDER_RETURNED.md | DISPATCHED to worker | none |\n"
+                "| 2026-08-02 | 500 | ORDER-RETURNED.md | DISPATCHED to worker | none |\n"
                 "| 2026-08-02 | 500 | x | SHIP | none |\n")
         f = mod.row_integrity_findings(mod._history_row_records(text), "h")
         self.assertEqual(len(f), 1)
