@@ -226,8 +226,17 @@ def commit_target(cmd: str, cwd: str):
     # Shell scope the text cannot settle (3b25 r2, codex P1): a subshell, group, or command
     # substitution before the commit, or a newline-separated command, may change or hide the
     # directory. Newlines are checked on the RAW command (flat folds them into spaces).
-    raw_prefix = cmd[:cmd.find("commit")] if "commit" in cmd else cmd
-    if any(t in prefix for t in ("(", ")", "`", "{", "}")) or "\n" in raw_prefix.strip():
+    # The raw prefix ends at the MATCHED commit, not the first "commit" substring anywhere (3b25 r6,
+    # codex: a filename `commit` earlier on a newline-joined line cut the check short).
+    raw_matches = list(COMMIT_RE.finditer(cmd))
+    if len(raw_matches) != 1:
+        return None
+    raw_prefix = cmd[:raw_matches[0].start()]
+    # A quote in the prefix can hide a separator inside one argument and forge a "plain git
+    # segment" (3b25 r6, claude: `git submodule foreach ':; git commit'`, `-c alias.x='!:; git
+    # commit'`), so quotes are undeterminable too. Cost, accepted: `git add 'a b' && git commit`
+    # steps aside; the git-native check still refuses in the real target.
+    if any(t in prefix for t in ("(", ")", "`", "{", "}", "'", '"')) or "\n" in raw_prefix.strip():
         return None
     # ANY cd/pushd/popd before the commit makes the target undeterminable: whether it runs depends
     # on execution (a failed cd, `||`, a `;` after a failed step), which text cannot settle
@@ -722,7 +731,9 @@ def self_test() -> int:
                   "env --chdir=/o git commit", "git --work-tree=/o --git-dir=/o/.git commit -m x",
                   "source s.sh && git commit", ". ./s.sh; git commit", "c''d /o; git commit -m x",
                   "'cd' /o && git commit", "c\\d /o && git commit", "up && git commit",
-                  "git clone /src/repo.git commit-fix"):
+                  "git clone /src/repo.git commit-fix", "git submodule foreach ':; git commit -m x'",
+                  "git -C /o -c alias.ci='!:; git commit -m x' ci", "git tag -a -m 'x; git commit' v1",
+                  "git status -- commit\nc\\d /o && git commit -m x"):
         ck(f"commit_target: non-git prefix or prefixed git steps aside: {shape}", commit_target(shape, "/r"), None)
     ck("commit_target: earlier plain git segments keep the cwd target",
        commit_target("git -C /o status && git add -- f && git commit -m x", "/r"), "/r")

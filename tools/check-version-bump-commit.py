@@ -76,6 +76,13 @@ _SCISSORS = " ------------------------ >8 ------------------------"
 _AUTO_COMMENT_CHARS = "#;@!$%^&|:"   # git's candidates for core.commentChar=auto
 
 
+def read_message(path):
+    """Read the message file as git wrote it: bytes decoded with NO newline translation, since
+    read_text() turns a stray CR into a line break git never sees and can manufacture an opt-out
+    line (3b25 r6, codex)."""
+    return Path(path).read_bytes().decode("utf-8", errors="replace")
+
+
 def message_opts_out(text, guard, comment_char="#"):
     """PURE. Does the message carry the opt-out? Mirrors git's strip cleanup: text from the exact
     scissors line down is dropped (`git commit -v` appends the diff there; 3b25 r1), and lines that
@@ -161,7 +168,7 @@ def _commit_msg(msgfile):
         guard = load_guard(root)
         if guard is None:
             return 0
-        text = Path(msgfile).read_text(encoding="utf-8", errors="replace")
+        text = read_message(msgfile)
         sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard, _comment_char(root))
         bad = [] if (sequencer or opt_out) else staged_offenders(root, guard)
         ok = True
@@ -308,7 +315,13 @@ def _self_test():
     class _G:  # a stand-in guard exposing only OPT_OUT
         import re as _re
         OPT_OUT = _re.compile(r"VersionBump:\s*none\b", _re.I)
+    import os as _os, tempfile as _tf
+    _fd, _crp = _tf.mkstemp()
+    _os.write(_fd, b"subject\n# junk\rVersionBump: none x\n"); _os.close(_fd)
+    _cr_text = read_message(_crp); _os.unlink(_crp)
     cases = [
+        ("a stray CR in a comment line is not translated into an opt-out line",
+         message_opts_out(_cr_text, _G), False),
         ("override allows", decide(True, False, False, True, ["a.md"])[0], 0),
         ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
         ("opt-out allows", decide(False, False, True, True, ["a.md"])[0], 0),
