@@ -180,16 +180,18 @@ def _integration_self_test():
             cp = run(["git", "commit", "-q", "-m", "framework chained"])
             if cp.returncode == 0 or "REFUSING the commit" not in cp.stderr:
                 failures.append("the framework-chained guard did not refuse a commit on main")
+            # File contents cannot prove the chain, so a re-install never claims it: it refuses the
+            # pre-commit half (non-zero) and says the chain must be checked by behaviour.
             cp = run(["sh", "tools/install-git-hooks.sh"])
-            if "chained by the pre-commit framework" not in cp.stdout:
-                failures.append("the installer did not report the framework-chained hook")
+            if cp.returncode == 0 or "cannot be verified from file contents" not in cp.stderr:
+                failures.append("the installer claimed or ignored a framework chain it cannot verify")
             # A FOREIGN active hook beside a managed .legacy is not a chain: it must be refused.
             hooks = Path(run(["git", "rev-parse", "--git-path", "hooks"]).stdout.strip())
             hooks = hooks if hooks.is_absolute() else repo / hooks
             (hooks / "pre-commit").write_text("#!/bin/sh\nexit 0\n")
             cp = run(["sh", "tools/install-git-hooks.sh"])
-            if "chained by the pre-commit framework" in cp.stdout or cp.returncode == 0:
-                failures.append("a foreign active hook beside a managed .legacy was reported as chained")
+            if cp.returncode == 0 or "refusing to overwrite the existing hook" not in cp.stderr:
+                failures.append("a foreign active hook beside a managed .legacy was accepted")
     return failures
 
 
