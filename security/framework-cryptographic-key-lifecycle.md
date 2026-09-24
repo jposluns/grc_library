@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.15\
-**Date:** 2026-09-18\
+**Version:** 1.0.16\
+**Date:** 2026-09-24\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -122,7 +122,9 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography | Key management lifecycle governance |
-| NIST SP 800-57 Parts 1 to 3 | Key Management Guidelines | Key generation, rotation, and destruction |
+| NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management, Part 1: General | Key generation, rotation, and destruction |
+| NIST SP 800-57 Part 2 Rev. 1 | Recommendation for Key Management, Part 2: Best Practices for Key Management Organizations | Key management organization practices |
+| NIST SP 800-57 Part 3 Rev. 1 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | Application-specific key management |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes | Stateful hash-based signature key management (LMS, HSS, XMSS, XMSS^MT) |
 | NIST FIPS 203 / 204 | ML-KEM and ML-DSA Standards | PQC algorithm selection |
 | COBIT 2019 | DSS05: Managed Security Services | Security service controls |
