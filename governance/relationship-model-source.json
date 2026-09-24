@@ -1453,18 +1453,18 @@
         "id": "GRC-PROC-PATCH-MGMT",
         "class": "procedure"
       },
-      "verb": "references",
+      "verb": "implements",
       "destination": {
         "id": "GRC-PROC-VULN-MGMT",
         "class": "procedure"
       },
-      "relationship_class": "citation",
-      "layout_role": "associative",
+      "relationship_class": "implementation",
+      "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "viewpoint": "governance",
-      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "inverse": {
         "verb": null,
         "storage": "inferred"
@@ -1473,7 +1473,7 @@
         "from": null,
         "to": null
       },
-      "authority_level": "architectural recommendation",
+      "authority_level": "organizationally mandatory",
       "evidence_refs": [],
       "provenance": null,
       "scope": null,

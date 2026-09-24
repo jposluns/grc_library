@@ -1436,24 +1436,24 @@
       "viewpoint": "governance"
     },
     {
-      "authority_level": "architectural recommendation",
+      "authority_level": "organizationally mandatory",
       "destination": {
         "class": "procedure",
         "id": "GRC-PROC-VULN-MGMT"
       },
-      "direction_rule": "the citing instrument is placed beside the instrument it references (associative, no vertical precedence)",
+      "direction_rule": "interpreted sources place above the internal instruments that respond to them",
       "evidence_refs": [],
       "id": "rel-corpus-0053",
       "inverse": {
         "storage": "inferred",
-        "verb": "is referenced by"
+        "verb": "is implemented by"
       },
-      "layout_role": "associative",
+      "layout_role": "primary",
       "nature": [
         "structural"
       ],
       "provenance": null,
-      "relationship_class": "citation",
+      "relationship_class": "implementation",
       "scope": null,
       "source": {
         "class": "procedure",
@@ -1464,7 +1464,7 @@
         "from": null,
         "to": null
       },
-      "verb": "references",
+      "verb": "implements",
       "viewpoint": "governance"
     },
     {
@@ -2434,10 +2434,9 @@
     "node_count": 58,
     "record_count": 63,
     "records_by_relationship_class": {
-      "citation": 1,
       "commitment": 1,
       "correspondence": 35,
-      "implementation": 18,
+      "implementation": 19,
       "influence": 8
     }
   }
