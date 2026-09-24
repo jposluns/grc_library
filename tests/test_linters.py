@@ -11622,6 +11622,13 @@ class ExplicitRootGuardTests(LinterTestCase):
             (("tools/lint-document-date-staleness.py", "--root", str(empty)), "not inside a git work tree"),
             (("tools/lint-todo-index-reference-parity.py", "--private-root"), "needs a directory"),
             (("tools/lint-todo-index-reference-parity.py", "--private-root=/nonexistent-3b50b1"), "not a directory"),
+            # r2: an empty value would resolve to the current directory; the = form is honoured
+            (("tools/lint-todo-index-reference-parity.py", "--private-root="), "needs a directory"),
+            (("tools/lint-todo-index-reference-parity.py", "--root", ""), "needs a directory"),
+            (("tools/lint-document-date-staleness.py", "--root="), "needs a directory"),
+            (("tools/lint-skill-derives-from.py", "--root="), "needs a directory"),
+            (("tools/lint-narrative-boundary.py", "--root=/nonexistent-3b50b1"), "not a directory"),
+            (("tools/lint-narrative-boundary.py", "--root="), "needs a directory"),
         )
         for args, fragment in cases:
             result = run_linter(*args)

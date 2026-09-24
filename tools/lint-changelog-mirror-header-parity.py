@@ -290,7 +290,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,  # a str, so an empty --root= reaches require_dir as "" (Path("") is ".")
         default=None,
         help="repository root to scan (default: the audited repository, whose "
              "detailed mirror resolves via lint_common.resolve_working)",

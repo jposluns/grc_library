@@ -322,13 +322,19 @@ def main(argv: list[str]) -> int:
     if "--self-test" in argv[1:]:
         return _self_test()
     root = REPO_ROOT
-    if "--root" in argv[1:]:
-        # 3b50b1: a missing value or a non-directory used to scan nothing and exit 0.
-        k = argv.index("--root") + 1
-        if k >= len(argv) or argv[k].startswith("-"):
-            print("ERROR: --root needs a directory argument.", file=sys.stderr)
-            return 2
-        root = require_dir(argv[k], "--root")
+    for k, arg in enumerate(argv[1:], 1):
+        # 3b50b1: --root VALUE and --root=VALUE are both honoured; a missing, empty or
+        # non-directory value is refused (it used to scan nothing and exit 0, and the = form was
+        # silently ignored).
+        if arg == "--root":
+            if k + 1 >= len(argv) or argv[k + 1].startswith("-"):
+                print("ERROR: --root needs a directory argument.", file=sys.stderr)
+                return 2
+            root = require_dir(argv[k + 1], "--root")
+            break
+        if arg.startswith("--root="):
+            root = require_dir(arg.partition("=")[2], "--root")
+            break
     findings = run(root)
     if findings:
         for f in findings:

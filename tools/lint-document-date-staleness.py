@@ -200,7 +200,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "--root",
-        type=Path,
+        type=str,  # a str, so an empty --root= reaches require_dir as "" (Path("") is ".")
         default=None,
         help=(
             "Override the repository root used both for resolving "

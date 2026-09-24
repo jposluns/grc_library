@@ -152,8 +152,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--root",
-        type=Path,
-        default=REPO_ROOT,
+        type=str,  # a str, so an empty --root= reaches require_dir as "" (Path("") is ".")
+        default=str(REPO_ROOT),
         help=(
             "Override the repository root used to resolve SKILL.md locations "
             "and derives_from: target paths. Defaults to the repository root "
