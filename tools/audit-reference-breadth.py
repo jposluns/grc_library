@@ -4,7 +4,8 @@ directions, exhaustively.
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID feeding the
 /reference-audit skill (2.14 (closing PR #707)), not an audit gate. It exits 0 after
-printing its report (2 only on internal or usage error; a truncated-pipe consumer
+printing its report (2 only on internal or usage error, including a refused --docs argument:
+missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; a truncated-pipe consumer
 such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool);
 CI cannot host it because
 the ground truth lives in the sibling private reference repo. Its output is a
@@ -62,7 +63,7 @@ import signal
 import subprocess
 import sys
 
-from lint_common import REPO_ROOT, resolve_working, resolve_working_for_write_private, private_store_roots
+from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -356,6 +357,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--include-publications", action="store_true")
     ap.add_argument("--max-candidates-per-doc", type=int, default=10)
     args = ap.parse_args(argv)
+    if args.docs:
+        # 3b50b2b: normalize and validate the named documents first. An equivalent spelling
+        # (./x.md, tools/../x.md, an absolute path) used to miss the repo-relative comparison and
+        # select nothing; a missing, out-of-tree or empty path is refused (exit 2).
+        args.docs = guard_explicit_paths(args.docs)
+        # A named document outside the scanned corpus set is refused here, before the reference
+        # catalogue is parsed and before any state is touched (the full scan takes about a minute).
+        try:
+            corpus_set = set(tracked_corpus_md(REPO_ROOT))
+        except (OSError, subprocess.CalledProcessError) as exc:
+            print(f"ERROR: cannot list the corpus to validate --docs: {exc}", file=sys.stderr)
+            return 2
+        outside_early = [rel for rel in args.docs if rel not in corpus_set]
+        if outside_early:
+            for rel in outside_early:
+                print(f"ERROR: --docs {rel}: not in the scanned corpus set (domain dirs, docs/, and "
+                      f"the root citable documents only); nothing would be assessed.",
+                      file=sys.stderr)
+            return 2
 
     # Working-state (.working/) resolution (post-.working-move): reads resolve via the read
     # resolver (private sibling then in-repo, None when neither holds it -> empty history);
@@ -465,14 +485,19 @@ def main(argv: list[str] | None = None) -> int:
           "requires corroboration before anything normative.\n")
 
     if args.docs:
+        # 3b50b2b: a named document outside the scanned corpus set is refused (exit 2, before any
+        # state write). It used to print NOT FOUND and exit 0, so a per-touch audit could end on an
+        # empty candidate set that was really an unselected document.
+        outside = [rel for rel in args.docs if rel not in doc_text]
+        if outside:
+            for rel in outside:
+                print(f"ERROR: --docs {rel}: not in the scanned corpus set (domain dirs, docs/, and "
+                      f"the root citable documents only); nothing would be assessed.",
+                      file=sys.stderr)
+            return 2
         state = load_state(args.state)
         assessed: list[str] = []
         for rel in args.docs:
-            if rel not in doc_text:
-                print(f"## {rel}\n\nNOT FOUND in scanned corpus set (domain "
-                      f"dirs, docs/, and the root citable documents only); "
-                      f"check the path.\n")
-                continue
             assessed.append(rel)
             pool = items
             anchor = state.get(rel)

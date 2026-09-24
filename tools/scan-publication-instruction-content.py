@@ -2,8 +2,9 @@
 """Instruction-content scan over reference-base publication extracts.
 
 WHAT THIS IS (and is NOT). An advisory dev-AID feeding the /screen-publications
-skill (2.11 (closing PR #722)), not an audit gate. It always exits 0 after printing its report
-(2 only on internal or usage error). It performs the MECHANICAL half of the
+skill (2.11 (closing PR #722)), not an audit gate. It exits 0 after printing its report, and 2 on
+an internal or usage error or when any extract could not be read (an unreadable extract was not
+screened, so the run cannot report success; 3b50b2b). It performs the MECHANICAL half of the
 skill's instruction-content screen: a pattern scan over publication text extracts
 for the shapes prompt-injection and instruction-smuggling payloads take (OWASP
 LLM01:2026 prompt injection; LLM10:2026 improper output handling), plus encoding anomalies
@@ -89,7 +90,7 @@ def scan_text(text: str) -> list[tuple[str, int, str]]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ref-base", type=Path, default=DEFAULT_REF_BASE)
-    ap.add_argument("--files", nargs="+", type=Path, default=None,
+    ap.add_argument("--files", nargs="+", default=None,
                     help="Scan these files instead of the publications bucket.")
     ap.add_argument("--all-buckets", action="store_true",
                     help="Scan every --full-text.md in the reference base.")
@@ -105,9 +106,27 @@ def main(argv: list[str] | None = None) -> int:
               "(publication-scan is a maintainer-only advisory, nothing to report).")
         return 0
 
+    if args.files:
+        # 3b50b2b: every named extract must be a readable regular file, checked before scanning.
+        # A missing or empty value used to print UNREADABLE and exit 0 with zero findings, so a
+        # screen could finish without reading the extract it was asked to screen.
+        bad: list[tuple[str, str]] = []
+        for f in args.files:
+            if not f.strip():
+                bad.append((f, "an empty value"))
+                continue
+            try:
+                if not Path(f).is_file():
+                    bad.append((f, "not a regular file"))
+            except OSError as exc:  # an inaccessible parent directory raises on some Python versions
+                bad.append((f, f"cannot be checked ({exc})"))
+        if bad:
+            for f, why in bad:
+                print(f"ERROR: --files {f!r}: {why}; nothing would be screened.", file=sys.stderr)
+            return 2
     try:
         if args.files:
-            targets = list(args.files)
+            targets = [Path(f) for f in args.files]
         else:
             ref = args.ref_base.resolve()
             if not ref.is_dir():
@@ -123,12 +142,14 @@ def main(argv: list[str] | None = None) -> int:
 
     total = 0
     clean = 0
+    unreadable = 0
     print(f"# Instruction-content scan ({len(targets)} extract(s))\n")
     for path in targets:
         try:
             text = path.read_text(encoding="utf-8", errors="replace")
         except OSError as exc:
             print(f"- UNREADABLE {path}: {exc}")
+            unreadable += 1
             continue
         findings = scan_text(text)
         if not findings:
@@ -141,11 +162,17 @@ def main(argv: list[str] | None = None) -> int:
         if len(findings) > 20:
             print(f"- ... plus {len(findings) - 20} more (count is complete)")
         print()
-    flagged = len(targets) - clean
+    flagged = len(targets) - clean - unreadable
     print(f"Summary: {clean} clean extract(s), {total} candidate finding(s) "
           f"across {flagged} flagged extract(s). Candidates "
           f"are judge-reads, not verdicts: quoted attack examples in security "
           f"literature are expected hits.")
+    if unreadable:
+        # 3b50b2b: an extract that could not be read was not screened; the run must not report
+        # success (it used to exit 0 and count the unreadable extract as flagged).
+        print(f"ERROR: {unreadable} extract(s) could not be read and were not screened.",
+              file=sys.stderr)
+        return 2
     return 0
 
 

@@ -16,7 +16,7 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   `catalogue.yml`).
 - Mechanical scanner: `tools/scan-publication-instruction-content.py` in the parent
   library (advisory; `--files` for specific extracts, `--all-buckets` for a whole-base
-  paranoia pass; always exits 0).
+  paranoia pass; exits 0 whatever it finds (2 on a refused input, an unreadable extract, or an internal error)).
 - Enforcement: the reference base's validation gate (`python3 tools/validate.py` in the
   reference repository), which fails on a missing register row, an unknown status, or an
   orphan row.
@@ -45,7 +45,7 @@ authoring).
 mechanical half is the advisory scanner named in the project wiring (recall-oriented
 pattern classes:
 override-instruction, role-reassignment, imperative-to-assistant, exfiltration-hook,
-tool-invocation, hidden-text, encoded-blob; always exits 0; a hit is a judge-read, not
+tool-invocation, hidden-text, encoded-blob; exits 0 whatever it finds (2 on a refused input, an unreadable extract, or an internal error); a hit is a judge-read, not
 a verdict, because legitimate security literature quotes injection strings when
 describing attacks). The semantic half is the screening read this skill encodes:
 provenance and integrity, then corroboration of load-bearing claims against trusted
@@ -117,7 +117,7 @@ checks). Record anomalies rather than judging past them.
 ### 3. Run the mechanical instruction-content scan
 
 Run the mechanical scanner named in the project wiring over the in-scope extract
-paths (or bucket-wide). The scanner always exits 0; its findings are
+paths (or bucket-wide). The scanner exits 0 whatever it finds (2 on a refused input, an unreadable extract, or an internal error); its findings are
 judge-reads. For each hit, read it in context and classify: a QUOTED-EXAMPLE (security
 literature describing attacks; expected, cleared with a note), an EXTRACTION ARTEFACT
 (soft hyphens and zero-width characters from PDF conversion; cleared, optionally
@@ -221,8 +221,8 @@ The pass is complete on a given run when:
   audit for claims the corpus attributes to sources; a screened publication's claim
   entering the corpus hands off to its cadence like any other.
 - The advisory scanner named in the project wiring: the mechanical half
-  (recall-oriented pattern classes; per-file and whole-base modes; not a gate; always
-  exits 0).
+  (recall-oriented pattern classes; per-file and whole-base modes; not a gate; exits 0
+  whatever it finds, 2 on a refused input, an unreadable extract, or an internal error).
 - The reference base's own conventions: its publications-bucket README (bucket trust
   posture and the ingest steps), the screening register this protocol writes, and the
   reference-base validation gate (the enforcement half; never weaken it to pass, fix

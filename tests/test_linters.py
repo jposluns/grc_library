@@ -11678,6 +11678,110 @@ class StrictArgvLiveDefectTests(LinterTestCase):
             self.assertEqual(cm.exception.code, 2, bad)
 
 
+class DocsArgNormalizationTests(LinterTestCase):
+    """3b50b2b: the QA-feeding audits' --docs and the publication scanner's --files.
+
+    claim-precision, matrix-semantic-fit and reference-breadth compared --docs against
+    repo-relative strings without normalizing, so an equivalent spelling (./x.md, an absolute
+    path) selected nothing and exited 0; a missing path did the same; and the publication scanner
+    printed UNREADABLE for a missing extract yet exited 0 having screened nothing."""
+
+    DOC = "security/policy-information-security.md"
+
+    def _claim_rows(self, spelling: str) -> int:
+        import json
+        r = run_linter("tools/audit-claim-precision.py", "--docs", spelling, "--json")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return len(json.loads(r.stdout)["rows"])
+
+    def test_claim_precision_equivalent_spellings_select_the_same_rows(self) -> None:
+        base = self._claim_rows(self.DOC)
+        self.assertGreater(base, 0, "positive control: the document carries Tier-B claims")
+        for spelling in ("./" + self.DOC, "tools/../" + self.DOC, str(REPO_ROOT / self.DOC)):
+            self.assertEqual(self._claim_rows(spelling), base, spelling)
+
+    def test_missing_or_empty_docs_refused(self) -> None:
+        for script in ("tools/audit-claim-precision.py", "tools/audit-matrix-semantic-fit.py",
+                       "tools/audit-reference-breadth.py"):
+            for arg in ("no/such-3b50b2b.md", ""):
+                r = run_linter(script, "--docs", arg)
+                self.assertEqual(r.returncode, 2, (script, arg, r.stdout, r.stderr))
+                self.assertIn("ERROR:", r.stderr)
+
+    def test_out_of_scope_docs_refused_before_any_state_write(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="docs-scope-"))
+        self.addCleanup(shutil.rmtree, td)
+        r = run_linter("tools/audit-claim-precision.py", "--docs", "CHANGELOG.md")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("not in the corpus scan set", r.stderr)
+        state = td / "state.md"
+        # An empty --ref-base makes the check environment-independent: the early scope refusal
+        # returns before the reference base is read, while code that checked scope only after the
+        # catalogue scan would fail in parse_catalogue with a different message.
+        emptyref = td / "empty-ref"
+        emptyref.mkdir()
+        r = run_linter("tools/audit-reference-breadth.py", "--docs", self.DOC, "CHANGELOG.md",
+                       "--update-state", "--state", str(state), "--ref-base", str(emptyref))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("not in the scanned corpus set", r.stderr)
+        self.assertFalse(state.exists(), "a refused --docs must write no state")
+
+    def test_matrix_fit_spellings_and_non_document_refusal(self) -> None:
+        import json
+        def counts(spelling: str) -> tuple:
+            r = run_linter("tools/audit-matrix-semantic-fit.py", "--docs", spelling, "--json")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            d = json.loads(r.stdout)
+            return tuple(sorted((k, v.get("assessed")) for k, v in d.items()
+                                if isinstance(v, dict) and "assessed" in v))
+        base = counts(self.DOC)
+        self.assertTrue(base and any(v for _, v in base), f"positive control selects rows: {base}")
+        for spelling in ("./" + self.DOC, str(REPO_ROOT / self.DOC)):
+            self.assertEqual(counts(spelling), base, spelling)
+        for arg in ("security", "."):
+            r = run_linter("tools/audit-matrix-semantic-fit.py", "--docs", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout, r.stderr))
+
+    def test_self_test_with_docs_refused(self) -> None:
+        for script in ("tools/audit-claim-precision.py", "tools/audit-matrix-semantic-fit.py"):
+            r = run_linter(script, "--self-test", "--docs", "no/such-3b50b2b.md")
+            self.assertEqual(r.returncode, 2, (script, r.stdout[-200:], r.stderr))
+
+    def test_publication_scanner_refuses_an_uncheckable_path(self) -> None:
+        # On some Python versions Path.is_file() raises for an inaccessible parent; the pre-check
+        # must refuse (exit 2) rather than crash (exit 1). Fault-injected, since this Python
+        # swallows the permission error.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module("tools/scan-publication-instruction-content.py", "pubscan_oserr")
+        err = io.StringIO()
+        with mock.patch.object(Path, "is_file", side_effect=PermissionError(13, "Permission denied")), \
+                contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            rc = mod.main(["--files", "/dev/shm/locked-3b50b2b/x.md"])
+        self.assertEqual(rc, 2)
+        self.assertIn("cannot be checked", err.getvalue())
+
+    def test_publication_scanner_refuses_unscreenable_input(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="pubscan-"))
+        self.addCleanup(shutil.rmtree, td)
+        for arg in (str(td / "missing--full-text.md"), "", str(td)):
+            r = run_linter("tools/scan-publication-instruction-content.py", "--files", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout, r.stderr))
+        ok = td / "ok--full-text.md"
+        ok.write_text("Plain extract text.\n", encoding="utf-8")
+        r = run_linter("tools/scan-publication-instruction-content.py", "--files", str(ok))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        if os.geteuid() != 0:  # root reads a mode-000 file, so this case needs an ordinary user
+            locked = td / "locked--full-text.md"
+            locked.write_text("x\n", encoding="utf-8")
+            locked.chmod(0)
+            self.addCleanup(locked.chmod, 0o600)
+            r = run_linter("tools/scan-publication-instruction-content.py", "--files", str(locked))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("could not be read", r.stderr)
+            self.assertIn("across 0 flagged extract(s)", r.stdout)
+
+
 class ExplicitRootGuardTests(LinterTestCase):
     """Explicit --root / --private-root overrides and exempt-prefix paths refuse (3b50b1).
 
