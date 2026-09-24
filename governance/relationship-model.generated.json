@@ -3060,6 +3060,38 @@
       "viewpoint": "authority"
     },
     {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0102",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "policy",
+        "id": "GRC-POL-IAM"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
       "authority_level": "architectural recommendation",
       "destination": {
         "class": "standard",
@@ -3067,7 +3099,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0102",
+      "id": "rel-corpus-0103",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -3099,7 +3131,7 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0103",
+      "id": "rel-corpus-0104",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -3114,38 +3146,6 @@
       "source": {
         "class": "policy",
         "id": "GRC-POL-ACCEPTABLE-USE"
-      },
-      "status": "active",
-      "validity": {
-        "from": null,
-        "to": null
-      },
-      "verb": "maps to",
-      "viewpoint": "authority"
-    },
-    {
-      "authority_level": "architectural recommendation",
-      "destination": {
-        "class": "standard",
-        "id": "ISO-IEC-27001"
-      },
-      "direction_rule": "the entity that confers force places above the entity that receives it",
-      "evidence_refs": [],
-      "id": "rel-corpus-0104",
-      "inverse": {
-        "storage": "inferred",
-        "verb": "is mapped from"
-      },
-      "layout_role": "associative",
-      "nature": [
-        "structural"
-      ],
-      "provenance": null,
-      "relationship_class": "correspondence",
-      "scope": null,
-      "source": {
-        "class": "organizational standard",
-        "id": "GRC-STD-ENDPOINT-HARDENING"
       },
       "status": "active",
       "validity": {
@@ -3177,7 +3177,7 @@
       "scope": null,
       "source": {
         "class": "organizational standard",
-        "id": "GRC-STD-REMOTE-WORKING"
+        "id": "GRC-STD-ENDPOINT-HARDENING"
       },
       "status": "active",
       "validity": {
@@ -3209,7 +3209,7 @@
       "scope": null,
       "source": {
         "class": "organizational standard",
-        "id": "GRC-STD-NETWORK-SEGMENTATION"
+        "id": "GRC-STD-REMOTE-WORKING"
       },
       "status": "active",
       "validity": {
@@ -3220,10 +3220,10 @@
       "viewpoint": "authority"
     },
     {
-      "authority_level": "industry practice",
+      "authority_level": "architectural recommendation",
       "destination": {
         "class": "standard",
-        "id": "NIST-SP-800-53"
+        "id": "ISO-IEC-27002"
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
@@ -3241,7 +3241,7 @@
       "scope": null,
       "source": {
         "class": "organizational standard",
-        "id": "GRC-STD-NETWORK-SEGMENTATION"
+        "id": "GRC-STD-REMOTE-WORKING"
       },
       "status": "active",
       "validity": {
@@ -3273,7 +3273,7 @@
       "scope": null,
       "source": {
         "class": "organizational standard",
-        "id": "GRC-STD-PHYSICAL-SECURITY"
+        "id": "GRC-STD-NETWORK-SEGMENTATION"
       },
       "status": "active",
       "validity": {
@@ -3305,6 +3305,38 @@
       "scope": null,
       "source": {
         "class": "organizational standard",
+        "id": "GRC-STD-NETWORK-SEGMENTATION"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0110",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
         "id": "GRC-STD-PHYSICAL-SECURITY"
       },
       "status": "active",
@@ -3323,7 +3355,39 @@
       },
       "direction_rule": "the entity that confers force places above the entity that receives it",
       "evidence_refs": [],
-      "id": "rel-corpus-0110",
+      "id": "rel-corpus-0111",
+      "inverse": {
+        "storage": "inferred",
+        "verb": "is mapped from"
+      },
+      "layout_role": "associative",
+      "nature": [
+        "structural"
+      ],
+      "provenance": null,
+      "relationship_class": "correspondence",
+      "scope": null,
+      "source": {
+        "class": "organizational standard",
+        "id": "GRC-STD-CLOUD-CONFIG-BASELINE"
+      },
+      "status": "active",
+      "validity": {
+        "from": null,
+        "to": null
+      },
+      "verb": "maps to",
+      "viewpoint": "authority"
+    },
+    {
+      "authority_level": "industry practice",
+      "destination": {
+        "class": "standard",
+        "id": "NIST-SP-800-53"
+      },
+      "direction_rule": "the entity that confers force places above the entity that receives it",
+      "evidence_refs": [],
+      "id": "rel-corpus-0112",
       "inverse": {
         "storage": "inferred",
         "verb": "is mapped from"
@@ -3352,10 +3416,10 @@
   "source": "governance/relationship-model-source.json",
   "summary": {
     "node_count": 66,
-    "record_count": 90,
+    "record_count": 92,
     "records_by_relationship_class": {
       "commitment": 1,
-      "correspondence": 62,
+      "correspondence": 64,
       "implementation": 19,
       "influence": 8
     }
