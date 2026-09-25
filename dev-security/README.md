@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Domain README\
 **Document Type:** Register\
-**Version:** 1.4.12\
-**Date:** 2026-09-20\
+**Version:** 1.4.13\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -41,6 +41,7 @@ A second layer, the draggable operational pack, formerly shipped here; it now li
 | Standard | API Security Standard | [`dev-security/standard-api-security.md`](standard-api-security.md) |
 | Standard | Container and Image Security Standard | [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md) |
 | Standard | Mobile Application Security Standard | [`dev-security/standard-mobile-application-security.md`](standard-mobile-application-security.md) |
+| Standard | Jakarta EE Application Security Standard | [`dev-security/standard-jakarta-ee-application-security.md`](standard-jakarta-ee-application-security.md) |
 | Procedure | Secure Code Review Procedure | [`dev-security/procedure-secure-code-review.md`](procedure-secure-code-review.md) |
 | Standard | AWS Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-aws.md`](standard-cloud-hardening-baseline-aws.md) |
 | Standard | Azure Cloud Hardening Baseline Standard | [`dev-security/standard-cloud-hardening-baseline-azure.md`](standard-cloud-hardening-baseline-azure.md) |
@@ -110,12 +111,6 @@ This domain draws on and references the following external projects. These refer
 - NIST SP 800-53 Rev. 5: SA (System and Services Acquisition) and SI (System and Information Integrity) families
 - CSA CCM v4.1: Application and Interface Security (AIS) domain
 - SOC 2 CC6: Logical and physical access controls; CC8.1: Change management
-
----
-
-## Planned expansion
-
-- Java EE / Jakarta EE security standard
 
 ---
 
