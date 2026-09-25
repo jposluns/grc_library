@@ -2,8 +2,8 @@
 
 **Document Title:** Privileged Access Management Standard\
 **Document Type:** Standard\
-**Version:** 2.0.11\
-**Date:** 2026-09-24\
+**Version:** 2.0.12\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md)\
@@ -62,7 +62,7 @@ Third-party PAM solutions remain available for extended use cases including on-p
 | Time-Bound Activation | Role activations are time-limited. The default maximum duration of a single privileged-role activation is 1 hour (this Standard is the single authoritative source for this value); extended periods require justification and approval. |
 | Least Privilege | Privileged access is scoped to the minimum permissions required for the task. Broad administrative roles are not assigned where narrower roles are available. |
 | Separation of Duties | Accounts used for standard day-to-day work are separate from privileged administrative accounts. |
-| Service Account Controls | Service accounts must use managed identities or dedicated non-interactive accounts. Service account passwords must meet complexity requirements and be rotated at least annually or upon staff change. |
+| Service Account Controls | Service accounts must use managed identities or dedicated non-interactive accounts. Service account passwords must meet the requirements of the [Authentication and Password Management Standard](standard-authentication-and-password-management.md) and must be rotated at least annually, upon a change of any person who knows the password (staff, contractor, or supplier personnel), and immediately upon suspected compromise. |
 | Emergency / Break-Glass Accounts | Emergency access accounts must be documented, credentials securely stored, and usage subject to immediate notification and post-access review. |
 
 ---

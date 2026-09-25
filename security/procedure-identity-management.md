@@ -2,8 +2,8 @@
 
 **Document Title:** Identity Management Procedure\
 **Document Type:** Procedure\
-**Version:** 2.0.6\
-**Date:** 2026-09-24\
+**Version:** 2.0.7\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -76,7 +76,7 @@ Applies to all user identities, service accounts, and machine identities across 
 - Minimum 14 characters for standard accounts; 20 characters for privileged accounts, per [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md) (the authoritative password standard).
 - Complexity: characters from at least three of upper case, lower case, numbers, special characters, per Section 4 of the authoritative standard.
 - No reuse of the last 12 passwords.
-- No periodic forced rotation unless compromise is suspected.
+- No periodic forced rotation of human (interactive) passwords unless compromise is suspected; service account passwords must be rotated as Section 7 of the authoritative standard requires (at least annually, upon a change of any person who knows the password, and immediately upon suspected compromise).
 - Passwords must not appear in known breach databases (checked via enterprise password protection service).
 
 2.4 Passwordless authentication is preferred and actively implemented for new systems.
