@@ -575,6 +575,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Healthcare Sector GRC Requirements Annex](../compliance/healthcare/annex-healthcare-sector-requirements.md) (maturity: Mature)
 - [Illinois AI in Employment (HB 3773) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-illinois.md) (maturity: Draft)
 - [Logistics Sector GRC Requirements Annex](../compliance/logistics/annex-logistics-sector-requirements.md) (maturity: Baseline)
+- [Malaysia National Guidelines on AI Governance and Ethics (AIGE)](../ai/jurisdictions/annex-ai-malaysia.md) (maturity: Draft)
 - [MiCA Implementation Annex](../compliance/financial-services/annex-mica-implementation.md) (maturity: Draft)
 - [NIS 2 Implementation Annex](../compliance/annex-nis-2-implementation.md) (maturity: Mature)
 - [New York City Automated Employment Decision Tool Regulatory Requirements](../ai/jurisdictions/annex-ai-us-new-york-city.md) (maturity: Draft)

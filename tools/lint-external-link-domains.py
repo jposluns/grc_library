@@ -161,6 +161,7 @@ ALLOW_LIST = {
     "industry.gov.au",  # Australia Department of Industry, Science and Resources (National AI Plan, AI Ethics Principles, Voluntary AI Safety Standard)
     "ai.gov.au",  # Australia National AI Centre (Guidance for AI Adoption)
     "pdp.gov.my",  # Malaysia Personal Data Protection Department (PDPA)
+    "mosti.gov.my",  # Malaysia Ministry of Science, Technology and Innovation (AIGE)
     "linddun.org",  # LINDDUN privacy threat-modelling (KU Leuven imec-DistriNet)
     "ukgovernmentbeis.github.io",  # UK AISI inspect_evals catalogue (GitHub Pages)
     # Canonical-citations register Upstream check location URLs (register v1.5.17, 1.5 (closing PR #777) currency sweep)

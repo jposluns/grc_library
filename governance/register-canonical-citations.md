@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.89\
+**Version:** 1.5.92\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -183,6 +183,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Australia Voluntary AI Safety Standard | 10 guardrails (National AI Centre, August 2024) | 2024-08 | Voluntary AI safety guardrails across the AI supply chain | - | https://www.industry.gov.au/publications/voluntary-ai-safety-standard | verified 2026-07-11 |
 | Australia Guidance for AI Adoption | 6 essential practices (National AI Centre); published 21 October 2025; condenses the Voluntary AI Safety Standard's 10 guardrails and the AI Ethics Principles | 2025-10-21 | Voluntary AI adoption guidance | - | https://www.ai.gov.au/staying-safe-and-responsible/essential-ai-practices/guidance-ai-adoption-implementation-guidance | verified 2026-07-11 |
 | Singapore Model AI Governance Framework for Generative AI | 30 May 2024 edition (IMDA / AI Verify Foundation); nine dimensions | 2024-05-30 | Voluntary generative-AI governance framework | - | https://www.imda.gov.sg/ | verified 2026-07-24 |
+| Malaysia AIGE | 2024 | 2024-09 | National Guidelines on AI Governance and Ethics (MOSTI), launched 20 September 2024 (no edition number declared); the PDF served on 2026-09-24 is a revision whose file name and metadata are dated 18 November 2024: seven voluntary AI principles | - | https://www.mosti.gov.my/ | 2026-09-24 |
 | South Korea AI Basic Act | Framework Act on the Development of Artificial Intelligence and Establishment of Trust, Law No. 20676 (enacted 21 January 2025); in force 22 January 2026 (the digital-medical-devices slice of the high-impact definition from 24 January 2026) | 2025-01-21 | Comprehensive national AI statute (high-impact AI, transparency, safety, domestic representative); Ministry of Science and ICT enforcement | - | https://www.law.go.kr/ | verified 2026-09-05 |
 
 ## Other privacy regulations
