@@ -379,6 +379,23 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
+    def test_verbatim_ensure_quote_exempt_tbs_privacy_policy(self) -> None:
+        # The Treasury Board Policy on Privacy Protection clause 4.2.16, quoted
+        # verbatim, carries "ensure," (a comma, not "that"); the span is masked,
+        # while a bare "ensure" elsewhere still fails.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs.md",
+            VALID_METADATA + '\n\n"Taking steps to ensure, when personal information is involved, '
+            'that third parties provide appropriate privacy protections"\n',
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs-bare.md",
+            VALID_METADATA + "\n\nTeams ensure third parties provide appropriate privacy protections.\n",
+        )
+        self.assertLinterFails(run_linter("tools/lint-language.py", fixture), "ensure")
+
     def test_verbatim_ensure_title_does_not_shadow_bare_ensure(self) -> None:
         # A line carrying BOTH the masked verbatim title and a separate bare
         # "ensure" must still fail: the mask is span-scoped, not line-scoped.
