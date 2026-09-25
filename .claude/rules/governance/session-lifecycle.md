@@ -153,6 +153,7 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
   unattended, so §2's hard clause ("ending an unattended mode is never a no-answer default or a
   timeout effect") is fully preserved. Swap-BACK to attended remains an operator act per §2:
   maintainer return does not itself restore attended mode (the block-askuserquestion-unattended.py
-  message directs updating Operating-mode before re-issuing a prompt). Reversibility gate absolute:
+  message states that a lease more unattended than the fleet file ends only on an explicit
+  operator instruction; since 2026-09-25 the hook also reads the canonical fleet mode file). Reversibility gate absolute:
   authorial / irreversible / outward decisions still defer-and-skip, never auto-proceed. Overlay-only;
   pack §2 body unchanged.
