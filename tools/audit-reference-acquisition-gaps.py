@@ -252,16 +252,27 @@ def main(argv: list[str] | None = None) -> int:
         # refused instead (3b74): is_file() raised a traceback there on Python 3.11 and read it as
         # absent on 3.12+, reporting a clean no-op.
         try:
-            catalogue_kind = strict_kind(ref_base / "catalogue.yml")
+            # The sibling itself first: a dangling or looping link there makes its catalogue read
+            # as absent (ENOENT through the link), which would pass as a clean no-op.
+            sibling_kind = strict_kind(ref_base)
+            catalogue_kind = strict_kind(ref_base / "catalogue.yml") if sibling_kind == "dir" else None
         except OSError as exc:
             print(f"ERROR: the grc_library_ref sibling is present but cannot be examined ({exc}); "
                   f"refusing a report (an unreadable reference base is not an absent one).",
                   file=sys.stderr)
             return 2
-        if catalogue_kind is None:
+        if sibling_kind is None:
             print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
                   "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
             return 0
+        if sibling_kind != "dir":
+            print(f"ERROR: the grc_library_ref sibling is present but cannot be examined (not a "
+                  f"directory: {ref_base}); refusing a report.", file=sys.stderr)
+            return 2
+        if catalogue_kind != "file":
+            print(f"ERROR: the grc_library_ref sibling is present but has no readable catalogue.yml "
+                  f"({ref_base}); refusing a report.", file=sys.stderr)
+            return 2
     if not explicit_aliases:
         aliases = load_aliases(DEFAULT_ALIASES, explicit=False)
         if aliases is None:

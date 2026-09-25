@@ -10789,6 +10789,16 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         sib.write_text("not a checkout\n", encoding="utf-8")
         self._default_sibling_cases(td)
         sib.unlink()
+        # 3b74 QA: a dangling link where the sibling belongs (its catalogue reads as ENOENT through
+        # the link, which must not pass as an absent sibling).
+        sib.symlink_to(td / "missing-ref")
+        self._default_sibling_cases(td)
+        sib.unlink()
+        # A present sibling directory without a catalogue is refused, not a clean no-op.
+        sib.mkdir()
+        r = self._run_tool(td / "repo" / "tools" / "audit-reference-acquisition-gaps.py")
+        self._refused(r, "has no readable catalogue.yml", "sibling without catalogue")
+        sib.rmdir()
 
     def test_unreadable_default_ref_sibling_refused(self) -> None:
         if hasattr(os, "geteuid") and os.geteuid() == 0:
@@ -10804,6 +10814,18 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         # misattributed "--ref-root None" in ref-holds); 3.12+: read as absent (acquisition-gaps
         # reported a clean no-op).
         self._default_sibling_cases(td)
+
+    def test_dangling_index_link_refused(self) -> None:
+        # 3b74 QA: an explicit root whose INDEX.md is a dangling link must refuse (exit 2), not
+        # answer "not found" from no readable index; a readable catalogue beside it still refuses.
+        td = Path(tempfile.mkdtemp(prefix="aiddangle-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        (td / "INDEX.md").symlink_to(td / "nowhere")
+        script = REPO_ROOT / "tools" / "ref-holds.py"
+        self._refused(self._run_tool(script, "--ref-root", td, "27002"), "index unreadable", "dangling only")
+        (td / "catalogue.yml").write_text('  - title: "ISO/IEC 27002:2022"\n', encoding="utf-8")
+        self._refused(self._run_tool(script, "--ref-root", td, "27002"), "index unreadable",
+                      "dangling beside a readable catalogue")
 
     def test_unexaminable_working_store_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aidstore-"))
@@ -10824,6 +10846,11 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         # An absolute and a relative (resolved against --root) symlink-loop store; the relative one
         # raised RuntimeError from _store_root on Python 3.11, and both read as absent elsewhere.
         for store in (str(loop), "../storeloop"):
+            self._refused(audit(store), "working store is present but cannot be examined", store)
+        # 3b74 QA: a dangling relative store is probed as given, not after resolve() normalized it
+        # into a missing target read as absent; its absolute spelling was already refused.
+        (td / "storelink").symlink_to(td / "missing-store")
+        for store in (str(td / "storelink"), "../storelink"):
             self._refused(audit(store), "working store is present but cannot be examined", store)
         # A regular file named as the store.
         (td / "store-file").write_text("x\n", encoding="utf-8")

@@ -35,6 +35,7 @@ Stdlib-only Python 3.11.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -82,7 +83,11 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
         try:
             text = f.read_text(encoding="utf-8", errors="replace")
         except FileNotFoundError:
-            continue  # an absent index file (or a dangling link) is simply not consulted
+            if os.path.lexists(f):
+                # 3b74: a dangling link is a present index that cannot be read, not an absent one;
+                # skipping it let a verdict rest on fewer index files than exist.
+                raise IndexUnreadable(f"{name}: a dangling link") from None
+            continue  # an absent index file is simply not consulted
         except OSError as exc:
             # A present but unreadable index is not evidence of absence (3b50b2e1).
             raise IndexUnreadable(f"{name}: {exc.strerror}") from exc

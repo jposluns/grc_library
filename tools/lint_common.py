@@ -223,6 +223,8 @@ def strict_kind(path) -> "str | None":
         return None
     except OSError as exc:
         raise InaccessiblePath(exc.errno, exc.strerror, p) from exc
+    except ValueError as exc:  # an embedded NUL byte
+        raise InaccessiblePath(errno.EINVAL, str(exc), p) from exc
     try:
         st = os.stat(p)
     except OSError as exc:
@@ -357,7 +359,14 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     traceback, since ``_store_root`` ran outside the ``try``)."""
     try:
         store = _store_root(root)
-        present = _strict_is_dir(store) if strict else store.is_dir()
+        if strict:
+            # Probe the configured store AS GIVEN (a relative GRC_STORE joined to the root, not yet
+            # resolved), so a dangling link or a "file/../dir" path is not normalized away first.
+            env = os.environ.get("GRC_STORE")
+            given = (Path(env) if Path(env).is_absolute() else root / env) if env else store
+            present = _strict_is_dir(given)
+        else:
+            present = store.is_dir()
         if present and not store.resolve().is_relative_to(root.resolve()):
             return store
     except InaccessiblePath:
