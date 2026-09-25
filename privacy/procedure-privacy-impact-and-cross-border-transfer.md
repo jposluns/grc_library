@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Impact and Cross-Border Transfer Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.10\
+**Version:** 1.6.11\
 **Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ Identify and document:
 Evaluate risks to data subjects:
 
 - Unauthorized access, disclosure, modification, loss, or misuse.
-- Assess likelihood and impact using ISO 31000:2018 criteria.
+- Assess likelihood and impact using the organization's risk criteria, defined in line with ISO 31000:2018 clause 6.3.4.
 
 For AI systems, identify risks related to:
 
