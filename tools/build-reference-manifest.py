@@ -124,8 +124,9 @@ def _parse_catalogue(text: str) -> dict:
 
 
 def _cell(v: str) -> str:
-    """Escape a value for a markdown table cell (pipes; collapse newlines)."""
-    return str(v).replace("|", "\\|").replace("\n", " ").strip()
+    """Escape a value for a markdown table cell (pipes; collapse line breaks, including a bare
+    carriage return, which would otherwise split the row for any reader)."""
+    return str(v).replace("|", "\\|").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
 
 
 def _issuer(bucket: str, e: dict) -> str:

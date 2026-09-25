@@ -14860,6 +14860,14 @@ class AdoptBootstrapRefTests(unittest.TestCase):
         plan = mod.categorize(entries)
         self.assertEqual({k: len(v) for k, v in plan.items()},
                          {"auto_fetchable": 1, "free_manual": 0, "licensed_manual": 2})
+        # r1: a data row whose cells are all "-" is data, not the --- separator; and the
+        # generator collapses a bare carriage return so it cannot split a rendered row.
+        self.assertEqual(len(mod.parse_manifest("| - | - | - | - | - |\n")), 1)
+        import runpy
+        gen = runpy.run_path(str(REPO_ROOT / "tools/build-reference-manifest.py"))
+        self.assertNotIn("\r", gen["_cell"]("A\rB"))
+        rendered = gen["render"]({"standards": [{"title": "A\rB", "acquisition": "free"}]})
+        self.assertEqual([e["title"] for e in mod.parse_manifest(rendered)], ["A B"])
 
     def test_parse_and_categorize(self) -> None:
         mod = self._load("_adopt_parse")

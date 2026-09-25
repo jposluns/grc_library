@@ -11,7 +11,8 @@ CATEGORIZED ACQUISITION PLAN a fork adopter uses to build their OWN external
                           `/adopt`-running assistant can WebFetch it directly.
   - **free-manual**     : acquisition FREE but no upstream URL recorded yet, so the
                           adopter locates and downloads it manually.
-  - **licensed-manual** : acquisition LICENSED, so the adopter acquires it under the
+  - **licensed-manual** : any acquisition other than FREE (LICENSED, or a blank or other value,
+    which the generator also counts as licensed), so the adopter acquires it under the
                           issuer's licence (purchase / membership / paywall).
 
 WHY A PLANNER, NOT A FETCHER. This tool NEVER fetches, downloads, or writes anything:
@@ -51,8 +52,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = REPO_ROOT / "docs" / "reference-acquisition-manifest.md"
 BUCKET_HEADING = re.compile(r"^##\s+(Standards|Frameworks|Legislation|Programs)\b")
 # A manifest table row: | title | version | issuer | url | ACQUISITION |
-# The acquisition cell (FREE / LICENSED) anchors a genuine data row, so header and
-# separator rows (which have no such cell) are skipped without a position heuristic.
+# Any five-cell row is a candidate; _is_data_row then drops the generator's header and its
+# --- separator, so any acquisition value is kept (3b59).
 ROW = re.compile(
     # A cell may carry the generator's escaped pipe (\|), which is cell content, not a separator.
     # The generator escapes pipes but not backslashes, so "\|" is matched FIRST as one unit and any
@@ -93,14 +94,17 @@ def _is_data_row(m) -> bool:
     cells = [m.group(k).strip() for k in ("title", "version", "issuer", "url", "acq")]
     if cells == ["Title", "Version / edition", "Issuer", "Upstream URL", "Acquisition"]:
         return False
-    return not all(c and set(c) <= set("-: ") for c in cells)
+    return not all(re.fullmatch(r":?-{3,}:?", c) for c in cells)  # the --- separator only
 
 
 def parse_manifest(text: str) -> list[dict]:
     """Return [{bucket, title, version, issuer, url, acquisition}, ...] from the
     manifest's per-bucket tables. Every five-cell row except the table header and its separator
     is an entry, whatever its acquisition value: the generator upper-cases any catalogue value and
-    counts every non-free entry as licensed, so the planner does the same (3b59; a row with any
+    counts every non-free entry as licensed, so the planner does the same for the catalogue's
+    validated values (free, licensed); the generator matches `free` case-sensitively, so a
+    differently cased value (which grc_library_ref's catalogue does not use) could still be
+    counted differently (3b59; a row with any
     other value used to be dropped without warning). Lines are split on newlines only, so a
     Unicode line or paragraph separator (U+2028/U+2029) inside a generated cell stays in its cell
     (3b61; str.splitlines split such a row and lost it)."""
@@ -199,7 +203,7 @@ def main(argv: list[str] | None = None) -> int:
     if not entries and not _is_clean_empty_manifest(text):
         # 3b50b2e2: a file with no manifest entry used to yield an empty plan, exit 0. Only the
         # generator's exact empty render keeps the documented exit-0 empty plan.
-        print(f"adopt-bootstrap-ref: {path} holds no FREE or LICENSED manifest entry and is not "
+        print(f"adopt-bootstrap-ref: {path} holds no manifest entry and is not "
               f"the generator's empty-manifest render; nothing to plan.", file=sys.stderr)
         return 2
     plan = categorize(entries)

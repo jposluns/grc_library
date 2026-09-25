@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-09-05\
+**Date:** 2026-09-24\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -45,10 +45,11 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (266: 184 free, 82 licensed)
+## Standards (267: 185 free, 82 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
+| CA/Browser Forum Baseline Requirements for the Issuance and Management of Publicly-Trusted Code Signing Certificates, v3.11.0 | v3.11.0 | CA/Browser Forum |  | FREE |
 | CAN/DGSI 101:2025, Ethical Design and Use of Artificial Intelligence by Small and Medium Organizations (2nd edition) |  | CAN/DGSI |  | LICENSED |
 | ETSI EN 303 645 V3.1.3, Cyber Security for Consumer Internet of Things: Baseline Requirements |  | ETSI |  | FREE |
 | ETSI EN 304 223 V2.1.1, Baseline Cyber Security Requirements for AI Models and Systems |  | ETSI |  | FREE |
@@ -316,7 +317,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (261: 217 free, 44 licensed)
+## Frameworks (307: 263 free, 44 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -483,6 +484,7 @@ without the private reference sibling).
 | HITRUST CSF v11.8.0 Authoritative Sources Cross-Reference | v11.8.0 | HITRUST |  | LICENSED |
 | HITRUST CSF v11.8.0 Comparison (v11.7.1 to v11.8.0) | v11.8.0 | HITRUST |  | LICENSED |
 | HITRUST CSF v11.8.0 Summary of Changes | v11.8.0 | HITRUST |  | LICENSED |
+| ICAO Aviation Cybersecurity Strategy (October 2019) | October 2019 (approved by and published under the authority of the Secretary General; no Doc number) | ICAO |  | FREE |
 | Implementing the NIST Cybersecurity Framework Using COBIT 2019 |  | ISACA |  | LICENSED |
 | Internal Control Using COBIT 5 (white paper) |  | ISACA |  | LICENSED |
 | International AI Safety Report 2026 (2nd edition, February 2026) | 2nd edition, February 2026 (Bengio-chaired) | International AI Safety Report (UK AISI secretariat) |  | FREE |
@@ -490,7 +492,7 @@ without the private reference sibling).
 | Introduction to HITRUST CSF v11.8.0 | v11.8.0 | HITRUST |  | LICENSED |
 | Japan AI Safety Institute Guide to Red Teaming Methodology on AI Safety (Version 1.10, March 2025) | J-AISI Red Teaming Methodology v1.10 (March 2025) | Japan AISI |  | FREE |
 | Japan FSA Guidelines on Cybersecurity for the Financial Sector (English, effective 4 October 2024) |  | Japan FSA |  | FREE |
-| Malaysia National Guidelines on AI Governance and Ethics (AIGE) (MOSTI, September 2024) | AIGE, launched 20 September 2024 (7 principles) | Malaysia MOSTI |  | FREE |
+| Malaysia National Guidelines on AI Governance and Ethics (AIGE) (MOSTI, launched September 2024; revised PDF 18 November 2024) | AIGE, launched 20 September 2024 (7 principles); revised PDF of 18 November 2024 (138 pages) as served by mosti.gov.my | Malaysia MOSTI |  | FREE |
 | MITRE ATLAS v2026.07 (adversarial threat landscape for AI systems) |  | MITRE |  | FREE |
 | MITRE ATT&CK Enterprise v19.2 (distilled) |  | MITRE |  | FREE |
 | MITRE CAPEC v3.9 (Common Attack Pattern Enumeration and Classification, distilled) | CAPEC List Version 3.9 (confirmed current at capec.mitre.org/data 2026-07-07; latest diff report is 3.8 to 3.9). MITRE royalty-free licence with attribution (terms of use confirmed at capec.mitre.org 2026-07-07). | MITRE |  | FREE |
@@ -518,10 +520,17 @@ without the private reference sibling).
 | OWASP Software Assurance Maturity Model (SAMM) v2.2.0 | OWASP SAMM v2.2.0 (release published 6 July 2026; current, supersedes v2.1.0). Live core model repo owaspsamm/core, NOT the archived OWASP/samm (stuck at v2.0). CC BY-SA 4.0. | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Active Directory |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: AI |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Alert RCA and Architectural Change Governance Standard |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Application |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Attack Path Failure Mode Theory |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: AWS |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Behavioral Baseline and Path Discovery Standard |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: CI/CD pipeline |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Collective Path Reduction and Security Herd Immunity Standard |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Data center physical security |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Datastore |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Exception and Security Debt Management Standard |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Hierarchy of Efficacy and Assumption Burden Principle |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: HPC |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: IoT |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Linux |  | OWASP |  | FREE |
@@ -529,7 +538,13 @@ without the private reference sibling).
 | OWASP Subtractive Security Top 10: Microsoft 365 |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Network |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: project README |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Salesforce |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Security Control Validation Standard |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Third-Party Risk and Integration Governance Standard |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Threat Modeling Standard |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Universal laws |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Vendor Assessment Scorecard |  | OWASP |  | FREE |
+| OWASP Subtractive Security Top 10: Vulnerability and Path Erasure Management Standard |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Windows |  | OWASP |  | FREE |
 | OWASP Top 10 for Agentic Applications 2026 (Version 2026) | Version 2026 (December 2025), OWASP Gen AI Security Project, Agentic Security Initiative; ten risks ASI01-ASI10; CC BY-SA 4.0. | OWASP |  | FREE |
 | OWASP Top 10 for LLM Applications 2026 |  | OWASP |  | FREE |
@@ -555,10 +570,42 @@ without the private reference sibling).
 | Singapore IMDA Model AI Governance Framework for Agentic AI, Version 1.5 (2026) |  | Singapore IMDA |  | FREE |
 | Singapore MAS Technology Risk Management Guidelines (18 January 2021) |  | MAS |  | FREE |
 | Singapore Model AI Governance Framework for Generative AI (IMDA / AI Verify Foundation, 2024) | Model AI Governance Framework for Generative AI (30 May 2024) | Singapore IMDA |  | FREE |
+| SLSA v1.2: Assessing build platforms | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Assessing source control systems | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Attestation model | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Build provenance | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Build requirements for producing artifacts | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Build track basics | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Distributing provenance | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Provenance | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Source example controls | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Source requirements for producing source | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Specification | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Terminology | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Threats and mitigations | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Tracks | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Verification summary | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Verifying artifacts | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: Verifying source | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SLSA v1.2: What's new | SLSA v1.2 (Approved; released 2025-11-24; tag v1.2) | OpenSSF (SLSA project) |  | FREE |
+| SPDX v3.0.1: Conformance | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Copyright and licensing | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Introduction | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Model and serializations | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Package URL specification | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: References | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Scope | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: SPDX license expressions | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: SPDX License List matching guidelines and templates | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: SPDX Lite | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Specification | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Symbols | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
+| SPDX v3.0.1: Terms and definitions | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
 | Summary of Changes from PCI DSS Version 4.0 to 4.0.1 |  | PCI SSC |  | FREE |
 | The AI Adoption Maturity Model v1.0 (CMU SEI, with Accenture) | v1.0 | CMU SEI |  | FREE |
 | The Prioritized Approach to Pursue PCI DSS Compliance (v4.0.1) |  | PCI SSC |  | FREE |
 | UK AI Regulation White Paper: A pro-innovation approach to AI regulation (CP 815, March 2023) |  | UK Government |  | FREE |
+| UK AI Regulation: A pro-innovation approach to AI regulation, government response to consultation (CP 1019, February 2024) | CP 1019, February 2024 (amended web-ready version as published on gov.uk) | UK Government |  | FREE |
 | UK FCA Policy Statement PS21/3: Building operational resilience (March 2021) |  | UK FCA |  | FREE |
 | UK Government Cyber Security Strategy 2022 to 2030 |  | UK Government |  | FREE |
 | UK NCSC Cyber Assessment Framework (CAF) v4.0 |  | UK NCSC |  | FREE |
@@ -857,5 +904,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 792 sources (666 free, 126 licensed).**
+**Total: 839 sources (713 free, 126 licensed).**
 
