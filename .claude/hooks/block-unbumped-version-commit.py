@@ -111,6 +111,10 @@ DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 # both keys: a staged Version (or README Version) change whose staged ``**Date:**`` is not today UTC
 # is the UTC-rollover co-bump miss D4 otherwise catches only at the pre-push guard (2026-09-24, #2492).
 ANY_VERSION_LINE = re.compile(r"^\*\*(?:README )?Version:\*\*")
+# Both keys count as a file's own Version line (P-TODO 3b80): ANY_VERSION_LINE_M selects a versioned
+# file (README stays in scope without relying on the fenced **Version:** template in its body) and
+# classify_hunk counts a change to either as the Version change. **Library Version:** is neither.
+ANY_VERSION_LINE_M = re.compile(ANY_VERSION_LINE.pattern, re.M)
 HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
@@ -293,7 +297,7 @@ def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
         if not ln or ln[0] not in "+-":
             continue
         text = ln[1:]
-        if VERSION_LINE.match(text):
+        if ANY_VERSION_LINE.match(text):  # **Version:** or README.md's **README Version:** (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
             continue
@@ -435,7 +439,7 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and VERSION_LINE.search(f.read_text(errors="replace")):
+                if f.suffix == ".md" and ANY_VERSION_LINE_M.search(f.read_text(errors="replace")):
                     versioned.add(p)
             except OSError:
                 continue

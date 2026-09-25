@@ -139,7 +139,7 @@ def staged_offenders(root, guard):
                 or new in guard.GENERATED or new.startswith(".corpus-management/"):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
-        if not guard.VERSION_LINE.search(text):
+        if not guard.ANY_VERSION_LINE_M.search(text):  # README.md's own key too (3b80)
             continue
         paths = [old, new] if old else [new]
         diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",
@@ -301,6 +301,23 @@ def _integration_self_test():
         if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a renamed document with an unbumped body edit was allowed")
         must(["git", "reset", "-q", "--hard"])
+        # --- P-TODO 3b80: README.md's own key is **README Version:** (no fenced **Version:** template) ---
+        def readme(version, body):
+            (repo / "README.md").write_text(
+                f"**Date:** 2026-01-01\\\n**README Version:** {version}\\\n\n---\n\n{body}\n")
+        readme("1.0.0", "old body")
+        must(["git", "add", "README.md"])
+        must(["git", "commit", "-q", "-m", "add readme"])
+        readme("1.0.0", "new body")
+        must(["git", "add", "README.md"])
+        cp = run(["git", "commit", "-q", "-m", "readme body only"])
+        if cp.returncode == 0 or "README.md" not in cp.stderr or "without a Version change" not in cp.stderr:
+            failures.append("a README body change without a README Version bump was not refused")
+        readme("1.0.1", "new body")
+        must(["git", "add", "README.md"])
+        cp = run(["git", "commit", "-q", "-m", "readme bumped"])
+        if cp.returncode != 0:
+            failures.append(f"a README body change with its README Version bumped was refused: {cp.stderr.strip()}")
         # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg-local.
         (repo / "tools" / "git-hooks" / "commit-msg").rename(repo / "moved-commit-msg")
         (repo / "f.txt").write_text("x\n")
@@ -349,7 +366,7 @@ def _self_test():
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 14
+    total = len(cases) + 16
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

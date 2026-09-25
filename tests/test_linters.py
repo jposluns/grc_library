@@ -3918,6 +3918,24 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test OK", result.stdout)
 
 
+    def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
+        """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
+        bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b80", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        head = "diff --git a/README.md b/README.md\n"
+        body = "@@ -40,1 +40,1 @@\n-old body\n+new body\n"
+        bump = "@@ -9,1 +9,1 @@\n-**README Version:** 1.11.387 (x)\\\n+**README Version:** 1.11.388 (x)\\\n"
+        cal = "@@ -8,1 +8,1 @@\n-**Library Version:** 2026.09.1300 (x)\\\n+**Library Version:** 2026.09.1301 (x)\\\n"
+        self.assertEqual(guard.offenders(head + bump + body, {"README.md"}), [])
+        self.assertEqual(guard.offenders(head + body, {"README.md"}), ["README.md"])
+        self.assertEqual(guard.offenders(head + cal + body, {"README.md"}), ["README.md"])
+        self.assertTrue(guard.ANY_VERSION_LINE_M.search("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\\\n\nbody\n"))
+        self.assertIsNone(guard.ANY_VERSION_LINE_M.search("**Library Version:** 2026.09.1\\\n\nbody\n"))
+
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
 
