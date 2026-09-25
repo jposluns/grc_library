@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018) and further amended by the Data (Use and Access) Act 2025 (DUAA 2025), applicable in the United Kingdom following Brexit. Administered by the Information Commissioner's Office (ICO).
+- **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018) and further amended by the Data (Use and Access) Act 2025 (DUAA 2025), applicable in the United Kingdom following Brexit. Overseen by the Information Commissioner's Office (ICO), the supervisory authority (DPA 2018, section 115).
 - **UK Data Protection Act 2018 (DPA 2018)**: Supplements UK GDPR; includes provisions for law enforcement and intelligence services processing.
 - **Data (Use and Access) Act 2025 (DUAA 2025; c. 18)**: Royal assent 19 June 2025. The principal data-protection provisions (Part 5) commenced on 5 February 2026 under the Data (Use and Access) Act 2025 (Commencement No. 6 and Transitional and Saving Provisions) Regulations 2026. Remaining provisions commence on staged dates published by the Department for Science, Innovation and Technology. The DUAA amends UK GDPR, DPA 2018, and the Privacy and Electronic Communications Regulations (PECR).
 - **Regulatory authority:** Information Commissioner's Office (ICO). The ICO has order-making powers, enforcement authority, and fine-imposing powers.
@@ -69,7 +69,7 @@ Where the organization monitors the network and device activity of workers in th
 - **UK GDPR / DPA 2018: higher tier:** Up to £17.5 million or 4% of global annual turnover (whichever is higher).
 - **UK GDPR / DPA 2018: lower tier:** Up to £8.7 million or 2% of global annual turnover.
 - **PECR (post-DUAA 2025):** DUAA 2025 raises the maximum penalty under the Privacy and Electronic Communications Regulations from the pre-DUAA cap of £500,000 to the UK GDPR fining structure, with a maximum of £17.5 million or 4% of global annual turnover (whichever is higher). This change applies from the relevant DUAA commencement date for the PECR amendments.
-- Administered by the ICO.
+- Enforced by the ICO.
 - No dedicated AI fines framework as of 2026; existing sectoral regulators apply their existing powers.
 
 ---

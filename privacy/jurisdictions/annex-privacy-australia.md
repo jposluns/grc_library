@@ -2,8 +2,8 @@
 
 **Document Title:** Australia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-09-18\
+**Version:** 1.0.7\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Privacy Act 1988 (Cth)**: Administered by the Office of the Australian Information Commissioner (OAIC). Applies to Australian Government agencies and private-sector organizations with annual turnover exceeding AUD 3 million (and certain other categories). Structured around 13 Australian Privacy Principles (APPs).
+- **Privacy Act 1988 (Cth)**: Overseen by the Office of the Australian Information Commissioner (OAIC). Applies to Australian Government agencies and private-sector organizations with annual turnover exceeding AUD 3 million (and certain other categories). Structured around 13 Australian Privacy Principles (APPs).
 - **Privacy and Other Legislation Amendment Act 2024:** Introduced significant reforms including a statutory tort for serious invasions of privacy, new children's privacy protections, and enhanced enforcement powers.
 - **Regulatory authority:** Office of the Australian Information Commissioner (OAIC).
 
