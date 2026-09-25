@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.197\
+**Version:** 1.27.198\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -221,7 +221,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Guideline | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | AI Security Maintainer | 6 to 12 months | NIST AI 100-4, EU AI Act Article 50, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Guide | AI Adversarial Test Reference | [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md) | Chief Information Security Officer | 6 to 12 months | OWASP LLM Top 10, MITRE ATLAS, adversarial ML, red teaming | template |
 | AI | Guide | AI Security Technical Implementation Guide | [`ai/guide-ai-security-technical-implementation.md`](../ai/guide-ai-security-technical-implementation.md) | Chief Information Security Officer | 6 to 12 months | OWASP LLM Top 10, NIST AI RMF, ISO/IEC 42001, secure AI deployment | template |
-| AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | Chief Information Security Officer | 6 to 12 months | EU AI Act, AIDA (lapsed), ISO/IEC 42001, NIST AI RMF, UK AI Safety Institute | template |
+| AI | Policy | AI Compliance Policy | [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | Chief Information Security Officer | 6 to 12 months | EU AI Act, AIDA (lapsed), ISO/IEC 42001, NIST AI RMF, UK AI regulation white paper (CP 815) and government response (CP 1019) | template |
 | AI | Annex | European Union AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) | Chief Information Security Officer | Annual | EU AI Act Regulation (EU) 2024/1689, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) | Chief Information Security Officer | Annual | Colorado SB 24-205, Colorado SB 26-189, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md) | Chief Information Security Officer | Annual | Texas TRAIGA (HB 149), NIST AI RMF, ISO/IEC 42001 | template |
