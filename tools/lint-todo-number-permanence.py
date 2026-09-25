@@ -760,6 +760,13 @@ EXEMPT: dict[tuple[str, str], str] = {
         "slices (A37 restore, A1/A3 erosion backstops) remain live in P-TODO.md. Dated "
         "2026-09-18, after the 2026-07-15 rule."
     ),
+    ("P-1.63", "P-1.63(d) gate 96 checks OWASP ASVS"): (
+        "PARTIAL CLOSE against a still-open umbrella (DONE #2576, 2026-09-25). P-1.63 "
+        "(the SCAN-FIRST stranded/fabricated-code remediation program) stays live at "
+        "P-TODO.md: #2576 shipped only part (d), extending gate 96 to OWASP ASVS and "
+        "MITRE CWE; the umbrella's other parts and its routed follow-up (P-TODO 3b65) "
+        "remain open."
+    ),
     ("P-1.63", "matrix batch-5c"): (
         "PARTIAL CLOSE. PR #2375 removed 17 mis-fit control codes from the master matrix (adjacent-but-not-core, per the DIRECT source-verified-fit threshold): LOG-15/16 @153, DSP-03 @155/@279, DSP-21 @179/@280, GRC-13 @84/@279, DSP-20 @55, AIS-04/05/07/TVM-06 @352, AIS-04/05/09 @384, AIS-04 @400. "
         "14 unanimous tri-family + 3 source-verified splits (@384 self-declares non-policy + no table; "
