@@ -90,6 +90,10 @@ def _scalar(v: str):
     """Parse a catalogue scalar value: strip a matched surrounding quote pair
     (unescaping YAML escapes per quote style), map bare booleans, else return the
     raw string; a bare null/~ is None and a bare decimal integer an int, as yaml.safe_load gives.
+    That is the parity contract: the scalar shapes the catalogue uses (double- and single-quoted
+    strings, true/false, null/~, decimal integers) parse as yaml.safe_load parses them. Other YAML
+    1.1 forms (hex or octal integers, floats, yes/no/on/off, timestamps) stay literal strings, so
+    render() prints exactly what the catalogue author wrote.
     (The audit toolchain is stdlib-only, so this hand-parses the catalogue rather than importing
     PyYAML.)"""
     v = v.strip()
@@ -116,7 +120,7 @@ def _parse_catalogue(text: str) -> dict:
     The catalogue is machine-generated with a fixed, regular shape: top-level
     bucket keys at column 0 (`standards:`), list entries beneath them
     (`  - key: value`), and entry fields (`    key: value`). Values are quoted
-    strings, bare scalars, or booleans; the one list field (`topics`) is stored
+    strings, booleans, nulls (None), decimal integers, or other bare scalars kept as text; the one list field (`topics`) is stored
     verbatim and never read. Returns `{bucket: [entry_dict, ...]}`, matching the
     dict shape `render()`/`_max_date()` consume. This avoids a non-stdlib PyYAML
     dependency in the stdlib-only audit toolchain (no tool imports `yaml`)."""
@@ -149,10 +153,16 @@ def _parse_catalogue(text: str) -> dict:
     return catalogue
 
 
-def _cell(v: str) -> str:
+def _text(v) -> str:
+    """A parsed catalogue value as display text: None (a YAML null) is empty, anything else is
+    str(v), so an int 0 stays "0" rather than vanishing through an `or ""` (P-TODO 3b63)."""
+    return "" if v is None else str(v)
+
+
+def _cell(v) -> str:
     """Escape a value for a markdown table cell (pipes; collapse line breaks, including a bare
     carriage return, which would otherwise split the row for any reader)."""
-    return str(v).replace("|", "\\|").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
+    return _text(v).replace("|", "\\|").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
 
 
 def _issuer(bucket: str, e: dict) -> str:
@@ -171,7 +181,7 @@ def _max_date(catalogue: dict) -> str:
     for bucket in TRUSTED:
         for e in catalogue.get(bucket, []):
             for key in ("last_updated", "last_checked"):
-                v = str(e.get(key, "") or "")
+                v = _text(e.get(key))
                 if len(v) == 10 and v[4] == "-" and v[7] == "-":
                     dates.append(v)
     return max(dates) if dates else FALLBACK_DATE
@@ -242,7 +252,7 @@ def render(catalogue: dict) -> str:
     total = 0
     free_total = 0
     for bucket in TRUSTED:
-        entries = sorted(catalogue.get(bucket, []), key=lambda e: e["title"].lower())
+        entries = sorted(catalogue.get(bucket, []), key=lambda e: _text(e.get("title")).lower())
         if not entries:
             continue
         free = sum(1 for e in entries if e.get("acquisition") == "free")
@@ -253,10 +263,10 @@ def render(catalogue: dict) -> str:
             "| --- | --- | --- | --- | --- |",
         ]
         for e in entries:
-            title = _cell(e["title"])
-            version = _cell(e.get("checked_edition", "") or "")
+            title = _cell(e.get("title"))
+            version = _cell(e.get("checked_edition"))
             issuer = _issuer(bucket, e)
-            url = _cell(e.get("upstream_url", "") or "")
+            url = _cell(e.get("upstream_url"))
             acq = _cell(e.get("acquisition", "")).upper()
             lines.append(f"| {title} | {version} | {issuer} | {url} | {acq} |")
             total += 1

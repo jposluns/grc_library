@@ -4098,15 +4098,16 @@ class PrePushGuardTests(unittest.TestCase):
         # exit 1 means --check DRIFT only (Python's own uncaught-exception exit is also 1).
         import subprocess as sp
         import tempfile
+        # The crash is injected at resolve_sibling (called inside main), so the test does not
+        # depend on any catalogue shape the generator might learn to tolerate (3b63 made a
+        # titleless entry render cleanly, which this test used to rely on to raise).
         with tempfile.TemporaryDirectory() as td:
-            (Path(td) / "catalogue.yml").write_text(
-                'standards:\n  - path: "standards/x.md"\n    bucket: "standards"\n',
-                encoding="utf-8")
             code = (
                 "import sys; sys.path.insert(0, 'tools')\n"
-                "from pathlib import Path\n"
                 "import lint_common\n"
-                f"lint_common.resolve_sibling = lambda name: Path({td!r})\n"
+                "def _boom(name):\n"
+                "    raise RuntimeError('injected')\n"
+                "lint_common.resolve_sibling = _boom\n"
                 "import runpy\n"
                 "sys.argv = ['build-reference-manifest.py', '--check']\n"
                 "runpy.run_path('tools/build-reference-manifest.py', run_name='__main__')\n"
@@ -14910,6 +14911,23 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         out = mod.render(cat)
         self.assertNotIn("| null |", out)
         self.assertNotIn(" null ", out)
+        self.assertNotIn("None", out)
+
+    def test_render_tolerates_null_and_integer_fields(self) -> None:
+        # 3b63 r1: a null field renders as an empty cell (never "None"), an integer 0 edition
+        # renders as "0" (not dropped by an `or ""`), and an integer or null title does not crash
+        # the sort.
+        mod = self._load("_refman_render_types")
+        cat = {"standards": [
+            {"title": 2022, "checked_edition": 0, "upstream_url": None, "origin": None,
+             "acquisition": "free"},
+            {"title": None, "checked_edition": None, "upstream_url": "https://x", "origin": "O",
+             "acquisition": "licensed"},
+        ]}
+        out = mod.render(cat)
+        self.assertNotIn("None", out)
+        self.assertIn("| 2022 | 0 |", out)
+        self.assertIn("**Total: 2 sources (1 free, 1 licensed).**", out)
 
     def test_degrades_when_ref_absent(self) -> None:
         # Adopter portability: main() no-ops (exit 0) when grc_library_ref is absent.
