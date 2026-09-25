@@ -21539,7 +21539,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_asvs_v4_line_not_checked_against_v5(self) -> None:
-        r = self._run("asvs-v4.md", "Legacy mapping: ASVS 4.0.3 requirement V9.9.9.\n")
+        r = self._run("asvs-v4.md", "Legacy mapping: ASVS 3.0.1 requirement V9.9.9.\n")
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_fabricated_cwe_flagged_and_valid_passes(self) -> None:
@@ -21588,12 +21588,12 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_asvs4_prose_line_is_out_of_scope_and_column_attribution_holds(self) -> None:
         # A prose line naming a non-held edition is not checked at all (stated residue), so a
         # migration note mixing editions never yields a false positive.
-        for body in ("ASVS 4.0.3 V9.9.9 maps to ASVS 5.0.0 requirement V1.2.99.\n",
-                     "V1.2.4 in ASVS 5.0.0 (formerly V5.3.4 in ASVS 4.0.3).\n",
-                     "Formerly V5.3.4 in ASVS 4.0.3, now V1.2.4 in ASVS 5.0.0.\n"):
+        for body in ("ASVS 3.0.1 V9.9.9 maps to ASVS 5.0.0 requirement V1.2.99.\n",
+                     "V1.2.4 in ASVS 5.0.0 (formerly V5.3.4 in ASVS 3.0.1).\n",
+                     "Formerly V5.3.4 in ASVS 3.0.1, now V1.2.4 in ASVS 5.0.0.\n"):
             r = self._run("asvs-mixed.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
-        r = self._run("asvs-v4col.md", "| Control | OWASP ASVS 4.0.3 |\n| --- | --- |\n| X | V9.9.9 |\n")
+        r = self._run("asvs-v4col.md", "| Control | OWASP ASVS 3.0.1 |\n| --- | --- |\n| X | V9.9.9 |\n")
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_lowercase_cwe_is_checked(self) -> None:
@@ -21625,7 +21625,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_dotless_capital_v_after_the_name_is_a_chapter_not_an_edition(self) -> None:
         self.assertLinterFails(self._run("asvs-dotless.md", "ASVS V6 covers V6.2.99.\n"), "V6.2.99")
         self.assertLinterFails(self._run("asvs-idafter.md", "ASVS V1.2.99.\n"), "V1.2.99")
-        r = self._run("asvs-verword.md", "ASVS version V4.1.1 requirement V9.9.9.\n")
+        r = self._run("asvs-verword.md", "ASVS version V3.1.1 requirement V9.9.9.\n")
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_a_table_about_asvs_checks_every_body_column(self) -> None:
@@ -21633,12 +21633,12 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-area.md", body), "V6.2.99")
 
     def test_row_first_cell_edition_scopes_the_row_unless_the_column_names_the_held_edition(self) -> None:
-        body = "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS 4.0.3 | V9.9.9 |\n"
+        body = "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS 3.0.1 | V9.9.9 |\n"
         r = self._run("asvs-rowlegacy.md", body)
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_mixed_edition_header_scopes_by_column(self) -> None:
-        body = ("| ASVS 5.0.0 | ASVS 4.0.3 |\n| --- | --- |\n| V1.2.99 | V9.9.9 |\n")
+        body = ("| ASVS 5.0.0 | ASVS 3.0.1 |\n| --- | --- |\n| V1.2.99 | V9.9.9 |\n")
         r = self._run("asvs-mixhdr.md", body)
         self.assertLinterFails(r, "V1.2.99")
         self.assertNotIn("'V9.9.9'", r.stdout)
@@ -21656,6 +21656,32 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                      "ASVS with CIS Controls V9.9.9.\n", "ASVS and BSI V9.9.9.\n"):
             r = self._run("asvs-otherstd.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    # --- round-5: union of held editions (5.0.0 live, 4.0.3 retained) ---
+    def test_a_held_legacy_identifier_passes_anywhere(self) -> None:
+        for body in ("| Framework | Version | Reference |\n|---|---|---|\n| OWASP ASVS | 4.0.3 | V5.3.4 |\n",
+                     "Version 4.0.3 of the ASVS requires V5.3.4.\n",
+                     "## OWASP ASVS 4.0.3 mapping\n\n| ASVS requirement |\n| --- |\n| V5.3.4 |\n",
+                     "OWASP Application Security Verification Standard (ASVS) 4.0 V5.3.4\n"):
+            r = self._run("asvs-union.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_an_identifier_in_no_held_edition_is_flagged_even_when_attributed_to_4(self) -> None:
+        self.assertLinterFails(self._run("asvs-403fab.md", "ASVS 4.0.3 requirement V9.9.9.\n"), "V9.9.9")
+
+    def test_round5_table_and_exclusion_seams(self) -> None:
+        passing = ("| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | V2.14 |\n",
+                   "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n## SDK V9.9.9 | Release notes\n",
+                   "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n- SDK V9.9.9 | note\n",
+                   "ASVS 5.0.0 V1.2.4 maps to **MITRE CWE** V4.20.\n",
+                   "ASVS and NIST Special Publication 800-53 V9.9.\n", "ASVS and ISO/IEC 27001 (2022) V9.9.\n",
+                   "Mobile ASVS V9.9.9.\n", "ASVS maps CWE-4.14 terms.\n")
+        for body in passing:
+            r = self._run("asvs-r5.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertLinterFails(self._run("asvs-r5b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
+        self.assertLinterFails(self._run("asvs-r5c.md",
+                                         "| Requirement ID | OWASP ASVS |\n|---|---|\n| V1.2.99 | Implemented |\n"), "V1.2.99")
 
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
@@ -21681,8 +21707,8 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-year.md", body), "V99.9.9")
 
     def test_markdown_formatting_between_name_and_edition(self) -> None:
-        for body in ("| Control | **ASVS** (4.0.3) |\n| --- | --- |\n| Legacy | V5.3.4 |\n",
-                     "[ASVS](https://owasp.org/) 4.0.3 requirement V9.9.9.\n"):
+        for body in ("| Control | **ASVS** (3.0.1) |\n| --- | --- |\n| Legacy | V5.3.4 |\n",
+                     "[ASVS](https://owasp.org/) 3.0.1 requirement V9.9.9.\n"):
             r = self._run("asvs-bold.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
 
@@ -21700,14 +21726,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     def test_adjacent_legacy_cell_does_not_disable_a_current_column(self) -> None:
         r = self._run("asvs-adjacent.md",
-                      "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 4.0.3 V9.9.9 | V1.2.99 |\n")
+                      "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 3.0.1 V9.9.9 | V1.2.99 |\n")
         self.assertLinterFails(r, "V1.2.99")
         self.assertNotIn("'V9.9.9'", r.stdout)
 
     def test_edition_wording_and_placement_forms(self) -> None:
-        for body in ("ASVS version 4.0.3 requirement V9.9.9.\n", "ASVS v4 requirement V9.9.9.\n",
-                     "ASVS 4 requirement V9.9.9.\n", "Requirement V9.9.9 (ASVS 4.0.3).\n",
-                     "| Control | ASVS version 4.0.3 |\n| --- | --- |\n| X | V9.9.9 |\n"):
+        for body in ("ASVS version 3.0.1 requirement V9.9.9.\n", "ASVS v3 requirement V9.9.9.\n",
+                     "ASVS 3 requirement V9.9.9.\n", "Requirement V9.9.9 (ASVS 3.0.1).\n",
+                     "| Control | ASVS version 3.0.1 |\n| --- | --- |\n| X | V9.9.9 |\n"):
             r = self._run("asvs-edition-forms.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
 

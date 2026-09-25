@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.28\
+**Version:** 1.3.29\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -225,7 +225,7 @@ If your fork cites a control the relevant framework's registry does not carry (a
 2. Extract the identifiers deterministically from the edition you hold. Where a gate validates a code against the union of a framework's held editions, adding your edition's identifiers clears the finding without loosening the check for anything else.
 3. Re-run the gate that flagged the code to confirm it now accepts your citation, then record the addition and its provenance in your local change record. Keep the change in your fork; do not expect it upstream unless the corpus adopts that framework and edition.
 
-One registry is generated rather than hand-maintained: the OWASP ASVS and MITRE CWE identifiers behind the alignment-citation existence gate live in [`tools/alignment_citation_ids.json`](../tools/alignment_citation_ids.json), produced by [`tools/build-alignment-citation-registry.py`](../tools/build-alignment-citation-registry.py) from held source files, with the expected counts and digests pinned in [`tools/alignment_citation_reference.py`](../tools/alignment_citation_reference.py). Editing the JSON by hand fails that module's load by design. To carry a different edition, point the generator's source paths at the edition you hold, regenerate, and update the pins from the values the generator prints; the generator refuses a source that is truncated or breaks the edition's section structure.
+One registry is generated rather than hand-maintained: the OWASP ASVS and MITRE CWE identifiers behind the alignment-citation existence gate live in [`tools/alignment_citation_ids.json`](../tools/alignment_citation_ids.json), produced by [`tools/build-alignment-citation-registry.py`](../tools/build-alignment-citation-registry.py) from held source files, with the expected counts and digests pinned in [`tools/alignment_citation_reference.py`](../tools/alignment_citation_reference.py). Editing the JSON by hand fails that module's load by design. Each held ASVS edition is its own entry (the current 5.0.0 and the retained 4.0.3), and the gate validates ASVS citations against their union, so a legacy identifier of a held edition is not reported as fabricated. To carry a different edition, point the generator's source paths at the edition you hold, regenerate, and update the pins from the values the generator prints; the generator refuses a source that is truncated or breaks the edition's section structure.
 
 ## When to file an issue upstream
 

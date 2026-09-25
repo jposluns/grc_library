@@ -150,6 +150,10 @@ _PINS = {
              "source": "frameworks/OWASP/OWASP-ASVS-5.0.0-requirements.csv",
              "counts": {"requirements": 345, "sections": 80, "chapters": 17},
              "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"},
+    "asvs4": {"name": "OWASP ASVS", "edition": "4.0.3",
+              "source": ".superseded/frameworks/OWASP/OWASP-ASVS-4.0.3-requirements.csv",
+              "counts": {"requirements": 286, "sections": 69, "chapters": 14},
+              "sha256": "e71481aba54eed29d565a065ee4e39132bd71c08fcc3dbebe40070eb87383b32"},
     "cwe": {"name": "MITRE CWE", "edition": "4.20",
             "source": "frameworks/MITRE/CWE/CWE-4.20--weaknesses.csv",
             "counts": {"ids": 969},
@@ -159,7 +163,8 @@ _PINS = {
 
 def _load_ids() -> dict:
     data = _json.loads(_IDS_PATH.read_text(encoding="utf-8"))
-    for fam, lists in (("asvs", ("requirements", "sections", "chapters")), ("cwe", ("ids",))):
+    for fam, lists in (("asvs", ("requirements", "sections", "chapters")),
+                       ("asvs4", ("requirements", "sections", "chapters")), ("cwe", ("ids",))):
         entry, pin = data[fam], _PINS[fam]
         for key in ("name", "edition", "source"):
             if entry.get(key) != pin[key]:
@@ -174,7 +179,7 @@ def _load_ids() -> dict:
         ids = [i for lst in lists for i in entry[lst]]
         got = _hashlib.sha256("\n".join([pin["name"], pin["edition"], pin["source"]] + ids)
                               .encode("utf-8")).hexdigest()
-        if got != pin["sha256"]:
+        if got != pin["sha256"] or entry.get("sha256") != pin["sha256"]:
             raise SystemExit(f"alignment_citation_ids.json: {fam} digest mismatch against the pinned "
                              f"value; the file was edited by hand or truncated; regenerate with "
                              f"tools/build-alignment-citation-registry.py")
@@ -182,12 +187,16 @@ def _load_ids() -> dict:
 
 
 _IDS = _load_ids()
+# ASVS is validated against the UNION of the held editions (5.0.0 live, 4.0.3 retained), so a
+# legacy 4.0.3 identifier is not a fabrication; the stated residue is that a 4.0.3-only
+# identifier cited as 5.0.0 passes (the same union residue as the Privacy Framework).
+_ASVS_FAMS = (_IDS["asvs"], _IDS["asvs4"])
 ASVS = {
-    "name": f"{_IDS['asvs']['name']} {_IDS['asvs']['edition']}",
-    "edition": _IDS["asvs"]["edition"],
-    "provenance": "grc_library_ref/" + _IDS["asvs"]["source"],
-    "requirements": frozenset(_IDS["asvs"]["requirements"]),
-    "sections": frozenset(_IDS["asvs"]["sections"]),
+    "name": f"{_IDS['asvs']['name']} ({' and '.join(f['edition'] for f in _ASVS_FAMS)})",
+    "editions": tuple(f["edition"] for f in _ASVS_FAMS),
+    "provenance": ", ".join("grc_library_ref/" + f["source"] for f in _ASVS_FAMS),
+    "requirements": frozenset(i for f in _ASVS_FAMS for i in f["requirements"]),
+    "sections": frozenset(i for f in _ASVS_FAMS for i in f["sections"]),
 }
 CWE = {
     "name": f"{_IDS['cwe']['name']} {_IDS['cwe']['edition']}",

@@ -36,7 +36,7 @@ _PF_NAME = ""
 _ASVS_REQ = frozenset()
 _ASVS_SEC = frozenset()
 _ASVS_NAME = ""
-_ASVS_MAJOR = ""  # the held edition's major number (from asvs_edition); a token attributed to another is skipped
+_ASVS_MAJORS: frozenset = frozenset()  # the held editions' major numbers; a scope naming another is skipped
 _CWE_ALL = frozenset()
 _CWE_NAME = ""
 
@@ -44,15 +44,18 @@ _CWE_NAME = ""
 def configure(ref) -> None:
     """Populate the framework catalogues (valid-identifier sets + framework names) from the
     adopter's registry. pf_all and pf_name are required; asvs_req, asvs_sec, asvs_name,
-    asvs_edition (the held edition, e.g. "5.0.0"), cwe_all and cwe_name are optional (an absent family is not checked). _check_pf and
+    asvs_editions (the held editions, e.g. ("5.0.0", "4.0.3"); a single asvs_edition string is also
+    accepted), cwe_all and cwe_name are optional (an absent family is not checked). _check_pf and
     check_file resolve these as module globals; call once before check_file()."""
-    global _PF_ALL, _PF_NAME, _ASVS_REQ, _ASVS_SEC, _ASVS_NAME, _ASVS_MAJOR, _CWE_ALL, _CWE_NAME
+    global _PF_ALL, _PF_NAME, _ASVS_REQ, _ASVS_SEC, _ASVS_NAME, _ASVS_MAJORS, _CWE_ALL, _CWE_NAME
     _PF_ALL = ref.pf_all
     _PF_NAME = ref.pf_name
     _ASVS_REQ = frozenset(getattr(ref, "asvs_req", ()) or ())
     _ASVS_SEC = frozenset(getattr(ref, "asvs_sec", ()) or ())
     _ASVS_NAME = getattr(ref, "asvs_name", "") or ""
-    _ASVS_MAJOR = (getattr(ref, "asvs_edition", "") or "").split(".")[0]
+    editions = getattr(ref, "asvs_editions", None) or (
+        [ref.asvs_edition] if getattr(ref, "asvs_edition", "") else [])
+    _ASVS_MAJORS = frozenset(e.split(".")[0] for e in editions)
     _CWE_ALL = frozenset(getattr(ref, "cwe_all", ()) or ())
     _CWE_NAME = getattr(ref, "cwe_name", "") or ""
 
@@ -75,18 +78,20 @@ def _check_pf(code: str) -> bool:
 # --- OWASP ASVS: requirement (Vn.n.n) and section (Vn.n) identifiers, CONTEXT-GATED. ---
 # A bare V-token is ambiguous: most corpus V-triples are other publishers' document versions
 # (ETSI "EN 304 223 V2.1.1"), several of which coincide with real ASVS ids. A token is checked
-# only in ASVS context: on a line naming ASVS (the acronym as a word, so never MASVS, or the full
-# name, never the mobile standard's), in a table cell under an ASVS-labelled header, anywhere in
-# the body of a table whose FIRST header cell names ASVS (a table about ASVS), or on a row whose
-# first cell names ASVS. Bare chapters (Vn) are not checked.
+# only in ASVS context: on a line naming ASVS (the acronym as a word, never MASVS or "Mobile
+# ASVS", or the full name, never the mobile standard's), in a table cell under an ASVS-labelled
+# header, anywhere in the body of a table with any ASVS-labelled header cell (except a column whose
+# header signals a version, tool or other standard), or on a row whose first cell names ASVS.
+# Bare chapters (Vn) are not checked.
 # A token whose middle number is 0 (V5.0.0, V4.0.3, V2.0) is a version, never an identifier:
 # ASVS numbers its sections from 1, so no section or requirement has a zero middle component.
-# Editions are handled by SCOPE, not per token: a prose line that names a non-held ASVS edition,
-# or a table token whose row or column header does, is not checked (its numbering differs from
-# the held edition's). Stated residue: a fabricated held-edition id on such a line or row is
-# missed; that trade avoids blocking false positives on legitimate legacy citations.
+# Tokens are validated against the UNION of the held editions (a legacy identifier of a held edition
+# is not a fabrication). Editions that are NOT held are handled by SCOPE: a prose line naming one,
+# or a table token whose own cell, column header, or row first cell names one, is not checked.
+# Stated residues: an identifier valid only in another held edition passes, and a fabricated
+# identifier inside a non-held-edition scope is missed.
 _ASVS_WORD = re.compile(
-    r"\bASVS\b|(?<!Mobile )(?<!Mobile OWASP )Application Security Verification Standard",
+    r"(?<!Mobile )\bASVS\b|(?<!Mobile )(?<!Mobile OWASP )Application Security Verification Standard",
     re.IGNORECASE)
 # A non-held-edition mention: the name, then an optional version/edition/release word, then an
 # edition number. After such a word any form is an edition ("ASVS version V4.1.1"). Otherwise an
@@ -99,7 +104,7 @@ _ASVS_WORD = re.compile(
 # edition.
 _ASVS_AFTER = re.compile(
     r"(?:\]\([^)\s]*\)|[^\w\n]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
-    r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?!\s*(?:levels?|chapters?)\b)",
+    r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?![*_]*\s*(?:levels?|chapters?)\b)",
     re.IGNORECASE)
 _VERSION_HEADER = re.compile(
     r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|NIST|ISO|CIS"
@@ -111,12 +116,13 @@ _ASVS_NOT_ID_BEFORE = re.compile(
     r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
     r"|\b(?:EN|TR|TS|ES|EG|GR|GS)(?:\s+[A-Z]{2,5})?\s+\d{3}(?:\s+\d{3})?(?:-\d+)*\s*`?"
     r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST|PCI\s+DSS|CIS|BSI|CWE|CAPEC|ATLAS|ATT&CK|IEEE|ISO(?:/IEC)?)"
-    r"(?:\s+[A-Z][A-Za-z]{0,9})?(?:\s*[vV]?\d[\w.:-]*)?"
+    r"(?:\s+[A-Z][A-Za-z]{0,11}){0,3}(?:\s*[vV]?\d[\w.:/-]*)?(?:\s*\(\d{4}\))?"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
 # --- MITRE CWE: CWE-n anywhere, case-insensitive (the shape collides with nothing else). ---
-_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d)", re.IGNORECASE)
+_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d|\.\d)", re.IGNORECASE)
+_BLOCK_START = re.compile(r"\s{0,3}(?:#{1,6}(?:\s|$)|>|[-*+]\s|\d{1,9}[.)]\s)")
 _PIPE = re.compile(r"(?<!\\)\|")  # an unescaped table pipe
 
 
@@ -159,7 +165,7 @@ def _editions(text: str) -> set[str]:
 
 
 def _names_other_edition(text: str) -> bool:
-    return bool(_ASVS_MAJOR) and bool(_editions(text) - {_ASVS_MAJOR})
+    return bool(_ASVS_MAJORS) and bool(_editions(text) - _ASVS_MAJORS)
 
 
 def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
@@ -175,10 +181,10 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
     hdr = header or []
     row_ctx = bool(cells) and bool(_ASVS_WORD.search(cells[0]))
     row_other = bool(cells) and _names_other_edition(cells[0])
-    whole_table = bool(hdr) and bool(_ASVS_WORD.search(hdr[0])) and not _names_other_edition(hdr[0])
+    whole_table = any(_ASVS_WORD.search(h) and not _names_other_edition(h) for h in hdr)
     col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h)}
     col_other = {i for i, h in enumerate(hdr) if _names_other_edition(h)}
-    col_held = {i for i, h in enumerate(hdr) if _ASVS_MAJOR in _editions(h)}
+    col_held = {i for i, h in enumerate(hdr) if _editions(h) & _ASVS_MAJORS}
     # In a table about ASVS, a column whose header signals a version or another subject is not
     # checked unless its header names ASVS ("Tool version", "CycloneDX spec", "CWE").
     col_skip = {i for i, h in enumerate(hdr) if i not in col_ctx and _VERSION_HEADER.search(h)}
@@ -190,24 +196,24 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
                 continue  # its column header or its own cell names a non-held edition
             if row_other and col not in col_held:
                 continue  # its row is about a non-held edition, and its column does not override
-            if col in col_skip and not (line_ctx or row_ctx):
-                continue
+            if col in col_skip:
+                continue  # a version, tool or other-standard column is never an ASVS identifier column
             if not (line_ctx or row_ctx or col in col_ctx or whole_table):
                 continue
         elif not line_ctx:
             continue
         if m.group(2) == "0":  # a zero middle number is a version, never an ASVS identifier
             continue
-        if _ASVS_NOT_ID_BEFORE.search(raw[:m.start()]):
+        if _ASVS_NOT_ID_BEFORE.search(re.sub(r"[*_]", "", raw[:m.start()])):  # emphasis ignored
             continue
         tok = m.group(0)
         if m.group(3) is not None:
             if tok not in _ASVS_REQ:
                 findings.append(f"{rel}:{lineno}: '{tok}' is not a valid {_ASVS_NAME} requirement "
-                                f"identifier (no such requirement in the held edition)")
+                                f"identifier (no such requirement in any held edition)")
         elif tok not in _ASVS_SEC:
             findings.append(f"{rel}:{lineno}: '{tok}' is not a valid {_ASVS_NAME} section "
-                            f"identifier (no such section in the held edition)")
+                            f"identifier (no such section in any held edition)")
 
 
 def _check_cwe(raw: str, lineno: int, rel: str, findings: list[str]) -> None:
@@ -234,6 +240,8 @@ def check_file(path: Path, rel: str) -> list[str]:
     prev_lineno = 0
     for lineno, raw in iter_non_code_lines(text):
         cells = _cells(raw)
+        if cells is not None and _BLOCK_START.match(raw):
+            cells = None  # a heading, blockquote or list item starts a new block, even with pipes
         if cells is None or lineno != prev_lineno + 1:
             header = None  # a table ends at a line with no unescaped pipe or at a skipped fence
         elif header is None and prev_cells is not None and _is_separator(cells):

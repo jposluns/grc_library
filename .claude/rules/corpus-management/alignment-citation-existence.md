@@ -21,12 +21,13 @@ only in that framework's context, because the same shape is used for other publi
 document versions: on a line that names the framework by its acronym (a word match, so a
 differently named framework that contains the acronym does not count) or by its full name (not
 when it is part of the mobile standard's name), in a table cell under a header that names it,
-in the body of a table whose first header cell names it (except a column whose header signals a
+in the body of a table with a header cell that names it (except a column whose header signals a
 version, a tool or another standard), or on a row whose first cell names it. Table rows are
 split on unescaped pipes, leading and trailing pipes are optional, a separator cell is one or
 more hyphens with optional colons, a table's header is the row directly above its first
 separator row (a later separator-shaped row is an ordinary body row), and a table ends at the
-first line with no unescaped pipe or where a fenced block intervenes. Within that context, a token whose middle number is zero is a
+first line with no unescaped pipe, at a heading, blockquote or list item, or where a fenced block
+intervenes. Within that context, a token whose middle number is zero is a
 version, never an identifier, because the framework numbers its sections from one; and a token
 that directly follows the words version, edition, release or revision, a listed publisher's
 document number (the ETSI forms), or a listed framework or standard (CMMI, TOGAF, ITIL, COBIT,
@@ -39,10 +40,10 @@ followed by the words levels or chapters: after the words version, edition or re
 form, and otherwise
 written with no `V` or with a lowercase `v`, or as a capital-`V` token whose middle number is
 zero; a capital `V` with a dotless number or a non-zero middle number directly after the name
-is a chapter or an identifier, not an edition. A prose line that names an edition other than
-the held one is not checked. In a table, a token is not checked when its own cell or its
-column header names another edition, or when its row's first cell does and its column header
-does not name the held edition. The held edition is supplied by the adopter. Two-number tokens
+is a chapter or an identifier, not an edition. Identifiers are validated against the union of the held editions, which the adopter
+supplies. A prose line that names an edition that is not held is not checked. In a table, a token
+is not checked when its own cell or its column header names such an edition, or when its row's
+first cell does and its column header does not name a held edition. Two-number tokens
 are checked against the held sections and three-number tokens against the held requirements;
 bare chapter numbers are not checked. A weakness family (`CWE-` followed by a number, in any
 letter case, leading zeros ignored) is checked wherever it appears.
@@ -50,8 +51,9 @@ letter case, leading zeros ignored) is checked wherever it appears.
 The identifier families and their code shapes are fixed by the check. The valid-identifier
 catalogues and the framework names are supplied by the adopter (the reference registry)
 and are not part of this clause; a family whose catalogue the adopter does not supply is
-not checked. Recognition limits are part of the clause: a fabricated held-edition identifier on a prose
-line, cell or row scoped out by another edition is not checked; a requirement identifier written
+not checked. Recognition limits are part of the clause: an identifier valid only in another held edition
+passes; a fabricated identifier on a prose line, cell or row scoped out by an edition that is not
+held is not checked; a requirement identifier written
 without its `V` prefix is not recognized, a range is checked at its endpoints only, a table body
 row written without pipes or a header spread over several rows is not read as table structure,
 a version token in an ASVS-table column whose header does not signal a version, or after a
