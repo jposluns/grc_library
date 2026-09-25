@@ -13,9 +13,11 @@ scan_matrix) is the source of record in the pack engine
 takes the five framework-reference predicates via configure(ref). This wrapper imports
 the shared grc reference modules, configures the engine, and keeps the matrix scan
 scope (MATRIX_PATH), a module-global scan_matrix(path) shim, lint_target, main, and
-the exit codes: 0 clean (a readable file with no matrix table is clean, as the #1245
-positional-multifile contract requires), 1 on findings, 2 when a target is missing or cannot be
-read as UTF-8.
+the exit codes: 0 clean, 1 on findings, 2 when a target is missing, cannot be read as UTF-8, or
+holds no matrix table (a header row naming both the ISO/IEC 27001:2022 and NIST CSF 2.0 columns),
+since such a target selects nothing to check (P-TODO 3b57; no caller passes arbitrary filenames:
+pre-commit sets pass_filenames false, and quick-guard, run_all_audits.sh and CI run it with no
+arguments).
 """
 
 from __future__ import annotations
@@ -62,18 +64,35 @@ def scan_matrix(path: Path) -> list:
     return _engine().scan_matrix(path)
 
 
+def has_matrix_table(text: str) -> bool:
+    """True when `text` holds a table header row naming both the ISO and NIST columns, the row
+    the engine's scan keys on (same split_row and header constants)."""
+    eng = _engine()
+    for line in text.splitlines():
+        if line.lstrip().startswith("|"):
+            cells = eng.split_row(line)
+            if eng.ISO_HEADER in cells and eng.NIST_HEADER in cells:
+                return True
+    return False
+
+
 def lint_target(target: Path) -> int:
     if not target.is_file():
         print(f"ERROR: target not found: {target}", file=sys.stderr)
         return 2
-    # 3b50b2d2: an unreadable (or non-UTF-8) file used to print OK after checking nothing. A
-    # readable file with no matrix table stays a clean pass: NormalizedPositionalArgsTests (#1245)
-    # requires table-less .md input to exit 0. quick-guard itself runs this gate fixed-target, with
-    # no arguments, since #1246.
+    # 3b50b2d2: an unreadable (or non-UTF-8) file used to print OK after checking nothing.
+    # 3b57: so did a readable file with no matrix table; it is now refused too, because it
+    # selects nothing to check (quick-guard runs this gate fixed-target, with no arguments,
+    # since #1246, so it no longer needs the table-less-input pass NormalizedPositionalArgsTests
+    # required).
     try:
-        target.read_text(encoding="utf-8")
+        text = target.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read {target}: {exc}", file=sys.stderr)
+        return 2
+    if not has_matrix_table(text):
+        print(f"ERROR: {target} holds no matrix table (no header row naming both the "
+              f"ISO/IEC 27001:2022 and NIST CSF 2.0 columns); nothing to check", file=sys.stderr)
         return 2
     findings = scan_matrix(target)
     rel = target.relative_to(REPO_ROOT).as_posix() if target.is_relative_to(REPO_ROOT) else str(target)

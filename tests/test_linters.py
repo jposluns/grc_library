@@ -8776,6 +8776,14 @@ class MatrixControlCodeTests(LinterTestCase):
             + f"| Gov | Doc | path | {ccm} | {iso} | {nist} | N/A |\n"
         )
 
+    def test_explicit_file_without_matrix_table_refused(self) -> None:
+        # 3b57: a readable file with no matrix table used to pass after checking nothing.
+        fixture = self.make_fixture("no-matrix-table.md", "# X\n\n| A | B |\n| --- | --- |\n| 1 | 2 |\n")
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("holds no matrix table", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
     def test_runs_clean_on_matrix_at_head(self) -> None:
         # Smoke test: the live matrix's ISO and NIST framework columns are
         # all well-formed at HEAD.
@@ -18952,7 +18960,9 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         "tools/lint-filename-title-alignment.py",
         "tools/lint-metadata-line-breaks.py",
         "tools/lint-followup-ageing.py",
-        "tools/lint-matrix-control-codes.py",
+        # tools/lint-matrix-control-codes.py left this list in 3b57: no caller passes it
+        # arbitrary filenames (pre-commit pass_filenames false; quick-guard, run_all_audits.sh
+        # and CI run it with no arguments), and a table-less file is now refused (exit 2).
         "tools/lint-document-control-codes.py",
         "tools/lint-document-iso-annex-a.py",
         "tools/check-review-cadence.py",
