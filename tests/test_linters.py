@@ -11688,11 +11688,11 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
             self.assertNotIn("Traceback", r.stderr)
         # r4: a generated title carrying an escaped pipe is one cell, not two.
         mod = runpy.run_path(str(REPO_ROOT / "tools/adopt-bootstrap-ref.py"))
-        entries = mod["parse_manifest"]("| A \\| B | 1 | I | https://x | FREE |\n")
+        entries = mod["parse_manifest"]("## Standards (1)\n| A \\| B | 1 | I | https://x | FREE |\n")
         self.assertEqual([e["title"] for e in entries], ["A | B"])
         # r5: the generator escapes pipes but not backslashes, so "A\\|B" renders as "A\\\\|B".
         gen_cell = gen["_cell"]("A\\|B")
-        entries = mod["parse_manifest"](f"| {gen_cell} | 1 | I | https://x | FREE |\n")
+        entries = mod["parse_manifest"](f"## Standards (1)\n| {gen_cell} | 1 | I | https://x | FREE |\n")
         self.assertEqual([e["title"] for e in entries], ["A\\|B"])
         # r5: a generator that exits or returns a non-string refuses rather than permits.
         bad = td / "bad_generator.py"
@@ -14862,7 +14862,10 @@ class AdoptBootstrapRefTests(unittest.TestCase):
                          {"auto_fetchable": 1, "free_manual": 0, "licensed_manual": 2})
         # r1: a data row whose cells are all "-" is data, not the --- separator; and the
         # generator collapses a bare carriage return so it cannot split a rendered row.
-        self.assertEqual(len(mod.parse_manifest("| - | - | - | - | - |\n")), 1)
+        self.assertEqual(len(mod.parse_manifest("## Standards (1)\n| - | - | - | - | - |\n")), 1)
+        # r2: a five-column table outside a bucket section (an unrelated file) is not an entry.
+        self.assertEqual(mod.parse_manifest("# Notes\n| A | B | C | D | E |\n| 1 | 2 | 3 | 4 | 5 |\n"), [])
+        self.assertEqual(mod.parse_manifest("## Standards (1)\n## Other\n| A | B | C | D | FREE |\n"), [])
         import runpy
         gen = runpy.run_path(str(REPO_ROOT / "tools/build-reference-manifest.py"))
         self.assertNotIn("\r", gen["_cell"]("A\rB"))

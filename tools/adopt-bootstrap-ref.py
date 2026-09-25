@@ -115,10 +115,16 @@ def parse_manifest(text: str) -> list[dict]:
         if h:
             bucket = h.group(1)
             continue
+        if raw.startswith("#"):
+            bucket = None  # any other heading ends the bucket section
+            continue
         m = ROW.match(raw)
-        if m and _is_data_row(m):
+        # r2: a row counts only inside one of the generator's bucket sections, so an unrelated
+        # markdown file that merely has a five-column table is not planned from (the #2562
+        # refusal of non-manifest input depends on this).
+        if bucket is not None and m and _is_data_row(m):
             entries.append({
-                "bucket": bucket or "",
+                "bucket": bucket,
                 "title": _unescape(m.group("title")),
                 "version": _unescape(m.group("version")),
                 "issuer": _unescape(m.group("issuer")),
