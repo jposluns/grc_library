@@ -5,8 +5,11 @@ Detect a bare normative ``shall`` in authored prose: the house style harmonizes 
 requirement verbs on ``must``, so a free-standing ``shall`` is a regression of that convention.
 Three classes are deliberately preserved (NOT flagged): a hyphenated identifier embedding
 ``shall`` (the boundary requires non-word, non-hyphen edges); a backticked ``shall``
-word-reference (inline code spans are stripped before matching); and a verbatim quote carried as
-a Markdown blockquote (``>`` lines) or a fenced code block (skipped via ``iter_non_code_lines``).
+word-reference (inline code spans are stripped before matching); a verbatim quote carried as
+a Markdown blockquote (``>`` lines) or a fenced code block (skipped via ``iter_non_code_lines``);
+and a verbatim quote carried as a whole Markdown table cell, i.e. a cell whose entire trimmed
+content is one straight-double-quoted span (a quoted statute or policy provision). A cell that
+mixes unquoted text with a quote is still checked, as is every non-table line.
 
 Engine/wrapper split (compile PR-9): this engine carries the PURE check (``BARE_SHALL``,
 ``INLINE_CODE_SPAN``, ``check_file``) and a ``run`` that groups + reports; the project wrapper
@@ -40,6 +43,18 @@ BARE_SHALL = re.compile(r"(?<![A-Za-z0-9_-])shall(?![A-Za-z0-9_-])", re.IGNORECA
 # does not register.
 INLINE_CODE_SPAN = SIMPLE_CODE_SPAN_RE
 
+# Preserved class 4: a table cell that is wholly one double-quoted verbatim quotation.
+_UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
+_WHOLE_QUOTE_CELL = re.compile(r'^"[^"]*"$')
+
+
+def _mask_quoted_table_cells(line: str) -> str:
+    """Blank table cells that are wholly one double-quoted quotation; other text is unchanged."""
+    if not line.lstrip().startswith("|"):
+        return line
+    cells = _UNESCAPED_PIPE.split(line)
+    return "|".join("" if _WHOLE_QUOTE_CELL.match(c.strip()) else c for c in cells)
+
 
 def check_file(path: Path) -> list[tuple[int, str]]:
     """Return list of (lineno, line_snippet) findings. PURE (the wrapper filters exempt files)."""
@@ -52,7 +67,7 @@ def check_file(path: Path) -> list[tuple[int, str]]:
         if line.lstrip().startswith(">"):
             continue
         # Preserved class 2: strip inline backtick spans so a backticked word-reference does not register.
-        stripped = INLINE_CODE_SPAN.sub("", line)
+        stripped = INLINE_CODE_SPAN.sub("", _mask_quoted_table_cells(line))
         if BARE_SHALL.search(stripped):
             findings.append((lineno, line.strip()[:150]))
     return findings

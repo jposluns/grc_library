@@ -10650,6 +10650,25 @@ class BareNormativeShallTests(LinterTestCase):
             f"a bare 'shall' in a verbatim blockquote must not be flagged.\nstdout:\n{result.stdout}",
         )
 
+    def test_whole_cell_quoted_statute_shall_not_flagged(self) -> None:
+        # Preserved class 4: a table cell that is wholly one double-quoted verbatim quotation.
+        fixture = self.make_fixture(
+            "quoted-cell-shall.md",
+            '# Doc\n\n| Text (quoted) | Provision |\n| --- | --- |\n'
+            '| "A government institution shall take all reasonable steps." | Subsection 6(2) |\n',
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(result.returncode, 0, f"a wholly quoted table cell must not be flagged.\nstdout:\n{result.stdout}")
+
+    def test_partly_quoted_cell_and_table_prose_shall_still_flagged(self) -> None:
+        # A cell mixing unquoted text with a quote, and an unquoted cell, stay checked.
+        for body in ('| The head "shall notify" the office. | 4.1 |\n',
+                     '| "The head" shall notify the office. | 4.3 |\n',
+                     '| The supplier shall comply. | 4.2 |\n',
+                     'The supplier shall comply with "the standard".\n'):
+            fixture = self.make_fixture("mixed-cell-shall.md", "# Doc\n\n" + body)
+            self.assertLinterFails(run_linter("tools/lint-bare-normative-shall.py", fixture), "shall")
+
     def test_must_not_flagged(self) -> None:
         fixture = self.make_fixture(
             "must-only.md",

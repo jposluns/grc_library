@@ -9,5 +9,6 @@ opportunistically as documents are revised). Verb consistency within a document 
 cross-file uniformity: a document uses one requirement verb throughout its normative text, and
 additions follow the predominant one unless quoting a standard. A bare `shall` in authored prose
 is flagged, case-insensitively, excluding hyphenated identifiers, inline code spans, fenced code
-blocks, and blockquote lines; to keep a preserved case, backtick a word-reference or use a
-blockquote for a verbatim quotation.
+blocks, blockquote lines, and a table cell that is wholly one double-quoted verbatim quotation;
+to keep a preserved case, backtick a word-reference, or carry a verbatim quotation as a
+blockquote or as a whole quoted table cell.
