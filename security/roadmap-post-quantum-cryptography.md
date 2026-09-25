@@ -2,8 +2,8 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.7\
-**Date:** 2026-09-01\
+**Version:** 1.1.8\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -30,7 +30,7 @@ Current widely-deployed public-key algorithms, RSA, ECC (ECDSA, ECDH), and DSA, 
 2. **Long-lifecycle data:** Data with confidentiality requirements extending to 2030 and beyond must be protected against future quantum decryption.
 3. **Migration complexity:** Replacing cryptographic infrastructure requires significant time; migration must begin well before CRQCs are expected.
 
-Symmetric encryption (AES-256) and hash functions (SHA-256 with adequate output length, SHA-384, SHA-512) are considered quantum-resistant at current key sizes and do not require immediate migration.
+Symmetric encryption (AES-256) and hash functions (SHA-256, SHA-384, SHA-512) are considered quantum-resistant at current key sizes and do not require immediate migration.
 
 ---
 
