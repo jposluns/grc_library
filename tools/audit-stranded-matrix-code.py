@@ -197,6 +197,19 @@ def _self_test() -> int:
         ("GRC-06" not in cited, "range-covered GRC-06 not flagged"),
         ("GRC-02" in cited, "matrix-side range GRC-02 flagged"),
     ]
+    # 3.57: a header with the AICPA TSC 2017 column appended still parses, and TSC
+    # tokens are never read as CSA codes.
+    matrix_tsc = (
+        "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 | X | AICPA TSC 2017 |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+        "| Risk | A | `risk/a.md` | STA-02 | N/A | . | CC6.1, A1.2 |\n"
+        "| Risk | B | `risk/b.md` | STA-01 | N/A | . | N/A |\n"
+    )
+    tsc_findings = scan(matrix_tsc, doc_reader=docs.get)
+    checks += [
+        (any("'STA-02'" in f for f in tsc_findings), "TSC-column header parsed; STA-02 strand flagged"),
+        (not any("CC6.1" in f or "A1.2" in f for f in tsc_findings), "TSC tokens never read as CSA codes"),
+    ]
     ok = True
     for passed, label in checks:
         if not passed:

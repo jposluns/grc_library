@@ -9014,6 +9014,242 @@ class MatrixControlCodeTests(LinterTestCase):
         result = run_linter("tools/lint-matrix-control-codes.py", fixture)
         self.assertLinterFails(result, "aicm-unknown")
 
+    # --- 3.57: the optional AICPA TSC 2017 column ---
+    TSC_HEADER = (
+        "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 "
+        "| ISO/IEC 27001:2022 | NIST CSF 2.0 | CTPAT | AICPA TSC 2017 |\n"
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+    )
+
+    def _matrix_with_tsc(self, tsc: str, header: str | None = None) -> str:
+        return (
+            "# X\n\n## Section\n\n"
+            + (header or self.TSC_HEADER)
+            + f"| Gov | Doc | path | GRC-01 | N/A | A.5.1 | GV.OC | N/A | {tsc} |\n"
+        )
+
+    def test_tsc_valid_criteria_not_flagged(self) -> None:
+        # Both endpoints of every series in all five categories pass.
+        fixture = self.make_fixture("fake-matrix-tsc-valid.md", self._matrix_with_tsc(
+            "CC1.1, CC1.5, CC6.8, CC9.2, A1.1, A1.3, C1.1, C1.2, PI1.1, PI1.5, P1.1, P6.7, P8.1"))
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_tsc_na_not_flagged(self) -> None:
+        fixture = self.make_fixture("fake-matrix-tsc-na.md", self._matrix_with_tsc("N/A"))
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_tsc_unknown_criteria_flagged(self) -> None:
+        # Nonexistent series (CC10.1, P9.1) and out-of-series criteria (CC6.9, A1.4, PI1.6).
+        for i, tok in enumerate(("CC10.1", "P9.1", "CC6.9", "A1.4", "PI1.6")):
+            with self.subTest(tok=tok):
+                fixture = self.make_fixture(f"fake-matrix-tsc-unknown-{i}.md", self._matrix_with_tsc(tok))
+                self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py", fixture), "[tsc-unknown]")
+
+    def test_tsc_group_heading_flagged(self) -> None:
+        fixture = self.make_fixture("fake-matrix-tsc-heading.md", self._matrix_with_tsc("P1.0"))
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py", fixture), "[tsc-heading]")
+
+    def test_tsc_malformed_flagged(self) -> None:
+        for i, tok in enumerate(("Security", "CC6", "cc6.1", "CC6.1 to CC6.3")):
+            with self.subTest(tok=tok):
+                fixture = self.make_fixture(f"fake-matrix-tsc-malformed-{i}.md", self._matrix_with_tsc(tok))
+                self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py", fixture), "[tsc-malformed]")
+
+    def test_tsc_na_mixed_with_criteria_flagged(self) -> None:
+        fixture = self.make_fixture("fake-matrix-tsc-na-mixed.md", self._matrix_with_tsc("N/A, CC6.1"))
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py", fixture), "[tsc-na-mixed]")
+
+    def test_tsc_column_absent_still_passes_and_is_column_scoped(self) -> None:
+        # Optional column: a table without it passes, and a TSC-shaped bogus token in
+        # another column is not TSC-checked.
+        fixture = self.make_fixture("fake-matrix-tsc-absent.md", self._matrix("GRC-01", "A.5.1", "GV.OC"))
+        self.assertEqual(run_linter("tools/lint-matrix-control-codes.py", fixture).returncode, 0)
+        body = ("# X\n\n## Section\n\n" + self.HEADER
+                + "| Gov | Doc | path | GRC-01 | A.5.1 | GV.OC | CC10.1 |\n")
+        fixture2 = self.make_fixture("fake-matrix-tsc-scoped.md", body)
+        self.assertEqual(run_linter("tools/lint-matrix-control-codes.py", fixture2).returncode, 0)
+
+    def test_tsc_missing_and_empty_cells_flagged(self) -> None:
+        short = ("# X\n\n## Section\n\n" + self.TSC_HEADER
+                 + "| Gov | Doc | path | GRC-01 | N/A | A.5.1 | GV.OC | N/A |\n")
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py",
+                               self.make_fixture("fake-matrix-tsc-short.md", short)), "[tsc-cell-missing]")
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py",
+                               self.make_fixture("fake-matrix-tsc-empty.md", self._matrix_with_tsc(""))),
+                               "[tsc-cell-empty]")
+
+    def test_tsc_duplicate_header_flagged(self) -> None:
+        header = (
+            "| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 "
+            "| ISO/IEC 27001:2022 | NIST CSF 2.0 | AICPA TSC 2017 | AICPA TSC 2017 |\n"
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n"
+        )
+        fixture = self.make_fixture("fake-matrix-tsc-dup.md", self._matrix_with_tsc("CC6.1", header))
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py", fixture), "[tsc-header-duplicate]")
+
+    def test_tsc_column_unconfigured_fails_closed(self) -> None:
+        # An adopter configuring only the five required predicates must get a finding
+        # for a table carrying the TSC column, never a silently unchecked column.
+        import importlib.util
+        import types
+        spec = importlib.util.spec_from_file_location(
+            "matrix_control_codes_wrapper_tsc", REPO_ROOT / "tools" / "lint-matrix-control-codes.py")
+        wrapper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(wrapper)
+        eng = wrapper._engine()
+        saved = (eng.is_valid_tsc_criterion, eng.is_tsc_group_heading)
+        fixture = self.make_fixture("fake-matrix-tsc-unconfigured.md", self._matrix_with_tsc("CC6.1"))
+        try:
+            eng.configure(types.SimpleNamespace(
+                is_valid_category=eng.is_valid_category, relocation_note=eng.relocation_note,
+                is_ccm_v41=eng.is_ccm_v41, is_aicm_only=eng.is_aicm_only,
+                check_iso_token=eng.check_iso_token))
+            rules = [f.rule for f in eng.scan_matrix(Path(fixture))]
+        finally:
+            eng.is_valid_tsc_criterion, eng.is_tsc_group_heading = saved
+        self.assertIn("tsc-unconfigured", rules)
+
+    def test_tsc_reference_catalogue_shape(self) -> None:
+        # Mutation guard on the literal catalogue: 61 criteria, per-category counts, no headings.
+        tools = str(REPO_ROOT / "tools")
+        if tools not in sys.path:
+            sys.path.insert(0, tools)
+        from tsc_reference import TSC_CRITERIA, TSC_GROUP_HEADINGS
+        self.assertEqual(len(TSC_CRITERIA), 61)
+        counts = {p: sum(1 for c in TSC_CRITERIA if c.rstrip("0123456789.") == p)
+                  for p in ("CC", "A", "C", "PI", "P")}
+        self.assertEqual(counts, {"CC": 33, "A": 3, "C": 2, "PI": 5, "P": 18})
+        self.assertFalse(TSC_CRITERIA & TSC_GROUP_HEADINGS)
+        self.assertFalse(any(c.endswith(".0") for c in TSC_CRITERIA))
+
+    def test_escaped_pipe_shift_is_loud_not_silent(self) -> None:
+        # Every pipe delimits (as lint_common.split_row does); an escaped pipe in a cell
+        # therefore shifts the row, and the row-width check reports it rather than letting
+        # a shifted TSC cell be validated in the wrong column.
+        body = ("# X\n\n## Section\n\n" + self.TSC_HEADER
+                + "| Gov | Doc | path | GRC-01 | N/A | A.5.1 | GV.OC | Management commitment \\| N/A | CC10.1 |\n")
+        result = run_linter("tools/lint-matrix-control-codes.py", self.make_fixture("fake-matrix-escpipe.md", body))
+        self.assertLinterFails(result, "[row-width]")
+
+    def test_engine_split_matches_shared_split(self) -> None:
+        eng = self._wrapper()._engine()
+        tools = str(REPO_ROOT / "tools")
+        if tools not in sys.path:
+            sys.path.insert(0, tools)
+        import lint_common
+        for row in (r"| a \| b | c |", r"| a\\| b | c |", "| a | b |", "| a | b | trailing"):
+            with self.subTest(row=row):
+                self.assertEqual(eng.split_row(row), lint_common.split_row(row))
+    def test_surplus_cell_and_trailing_text_flagged_as_row_width(self) -> None:
+        for i, tail in enumerate(("| N/A | CC10.1 |", "| N/A | CC10.1")):
+            with self.subTest(tail=tail):
+                body = ("# X\n\n## Section\n\n" + self.TSC_HEADER
+                        + f"| Gov | Doc | path | GRC-01 | N/A | A.5.1 | GV.OC | N/A {tail}\n")
+                self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py",
+                                       self.make_fixture(f"fake-matrix-width-{i}.md", body)), "[row-width]")
+
+    def test_short_row_flagged_as_row_width_in_any_column(self) -> None:
+        # The width check covers every framework table, not only the TSC column.
+        body = ("# X\n\n## Section\n\n" + self.HEADER
+                + "| Gov | Doc | path | GRC-01 | A.5.1 | GV.OC |\n")
+        self.assertLinterFails(run_linter("tools/lint-matrix-control-codes.py",
+                               self.make_fixture("fake-matrix-width-short.md", body)), "[row-width]")
+
+    def test_aicpa_named_non_tsc_column_not_refused(self) -> None:
+        # Round-2 QA: publisher attribution alone does not name the TSC; a legitimate
+        # "AICPA audit notes" column beside the exact TSC header is not a header finding.
+        header = self.TSC_HEADER.replace("| CTPAT |", "| AICPA audit notes |")
+        fixture = self.make_fixture("fake-matrix-aicpa-notes.md", self._matrix_with_tsc("CC6.1", header))
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_tsc_hint_needs_a_whole_token(self) -> None:
+        # Round-3 QA: "TSCA compliance" is not a TSC label and is not refused.
+        header = self.TSC_HEADER.replace("| CTPAT |", "| TSCA compliance |")
+        fixture = self.make_fixture("fake-matrix-tsca.md", self._matrix_with_tsc("CC6.1", header))
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def _wrapper(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "matrix_control_codes_wrapper_struct", REPO_ROOT / "tools" / "lint-matrix-control-codes.py")
+        wrapper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(wrapper)
+        return wrapper
+
+    def test_canonical_matrix_structure_guard(self) -> None:
+        # The canonical matrix admits only its exact table model: any other pipe line is a
+        # finding, so no table, column or row can be skipped silently (round-2 QA bypasses).
+        wrapper = self._wrapper()
+        live = (REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md").read_text(encoding="utf-8")
+        self.assertEqual(wrapper.canonical_structure_findings(live), [])
+        lines = live.split("\n")
+        h = next(i for i, l in enumerate(lines) if l.startswith("| Domain | Document Title |"))
+        row = h + 2
+        k = next(i for i, l in enumerate(lines) if l.startswith("| AEO/AEO-S | UK HMRC"))
+        end = next(i for i in range(h, len(lines)) if not lines[i].startswith("|"))
+        mutations = {
+            "misspelt CCM label": lambda L: L.__setitem__(h, L[h].replace("CSA CCM v4.1", "CSA CCM v4.1.0")),
+            "misspelt NIST label": lambda L: L.__setitem__(h, L[h].replace("NIST CSF 2.0", "NIST CSF  2.0")),
+            "dropped TSC label": lambda L: L.__setitem__(h, L[h].replace(" AICPA TSC 2017 |", "")),
+            "blank line before a row": lambda L: L.insert(row, ""),
+            "blank line under the header": lambda L: L.insert(h + 1, ""),
+            "separator removed": lambda L: L.__delitem__(h + 1),
+            "row without leading pipe": lambda L: L.__setitem__(row, L[row][1:]),
+            "surplus cell": lambda L: L.__setitem__(row, L[row] + " CC6.1 |"),
+            "mapping row in the key table": lambda L: L.insert(k + 1, L[row]),
+            "escaped pipe splitting the header": lambda L: L.__setitem__(
+                h, L[h].replace("Domain | Document Title", "Domain \\| Document Title")),
+            "header-shaped body row": lambda L: L.__setitem__(
+                row, "|".join(c if i not in (8, 9) else (" ISO/IEC 27001:2022 " if i == 8 else " NIST CSF 2.0 ")
+                              for i, c in enumerate(L[row].split("|")))),
+            "backslash before a pipe": lambda L: L.__setitem__(row, L[row].replace(" |", " \\\\|", 1)),
+            # Width-preserving: two cells merged by an escaped pipe plus one surplus cell keep
+            # 13 cells, so only the backslash rule can catch the shifted columns.
+            "escaped pipe with a compensating cell": lambda L: L.__setitem__(
+                row, L[row].replace(" | ", " \\| ", 1) + " CC10.1 |"),
+            # The blank line above the header is replaced by an auxiliary table, so the mapping
+            # header renders as a row of that table.
+            "auxiliary table glued above the header": lambda L: L.__setitem__(
+                slice(h - 1, h), ["| Framework | Coverage emphasis |", "| --- | --- |"]),
+            "text line directly after a table": lambda L: L.insert(
+                next(i for i in range(h + 2, len(L)) if not L[i].startswith("|")), "Note: trailing text"),
+            "indented row": lambda L: L.__setitem__(row + 1, "    " + L[row + 1]),
+            "colon-only separator": lambda L: L.__setitem__(h + 1, "|" + ":|" * 13),
+            "empty-cell separator": lambda L: L.__setitem__(h + 1, "|" + "  |" * 13),
+            # Blank-line padded, so only the fence/HTML rule (not a boundary rule) can catch it.
+            "table inside a code fence": lambda L: (L.__setitem__(slice(end, end), ["", "```"]),
+                                                    L.__setitem__(slice(h - 1, h - 1), ["", "```"])),
+            "table inside an HTML comment": lambda L: (L.__setitem__(slice(end, end), ["", "-->"]),
+                                                       L.__setitem__(slice(h - 1, h - 1), ["", "<!--"])),
+            "Unicode line separator joining header and separator": lambda L: (
+                L.__setitem__(h, L[h] + "\u2028" + L[h + 1]), L.__delitem__(h + 1)),
+            "form feed joining two rows": lambda L: (
+                L.__setitem__(row, L[row] + "\x0c" + L[row + 1]), L.__delitem__(row + 1)),
+            "inline HTML in a cell": lambda L: L.__setitem__(
+                row, L[row].replace(" | ", " </td><td>EXTRA | ", 1)),
+            "non-breaking space in a delimiter cell": lambda L: L.__setitem__(
+                h + 1, L[h + 1].replace(" --- ", " \u00a0--- ", 1)),
+            "zero-width space in a row": lambda L: L.__setitem__(row, L[row].replace(" | ", " |\u200b ", 1)),
+            # Python's strip() treats U+2028 as blank, CommonMark does not: the "blank" line
+            # above the header is paragraph text there, so the table would not start.
+            "line separator as the blank line above a header": lambda L: L.__setitem__(h - 1, "\u2028"),
+            "non-breaking space as the blank line above a header": lambda L: L.__setitem__(h - 1, "\u00a0"),
+            "empty leading delimiter cell": lambda L: L.__setitem__(h + 1, "||" + " --- |" * 12),
+            "empty trailing delimiter cell": lambda L: L.__setitem__(h + 1, "|" + " --- |" * 12 + "|"),
+            "blockquoted HTML above a header": lambda L: L.__setitem__(slice(h - 1, h - 1), ["", "> <script>"]),
+            "inline unclosed HTML in prose above a header": lambda L: L.__setitem__(
+                slice(h - 1, h - 1), ["", "Intro <div hidden>"]),
+        }
+        for name, mutate in mutations.items():
+            with self.subTest(mutation=name):
+                L = list(lines)
+                mutate(L)
+                rules = [f.rule for f in wrapper.canonical_structure_findings("\n".join(L))]
+                self.assertIn("matrix-structure", rules)
 
 class CcmProviderMemberInRangeTests(LinterTestCase):
     """tools/lint-ccm-provider-member-in-range.py"""
@@ -20324,7 +20560,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.4.0", "compile PR-5 bumps the pack version to 0.4.0")
+        self.assertEqual(man["pack"]["version"], "0.5.0", "3.57 PR1 bumps the pack version to 0.5.0 (compile PR-5 set 0.4.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
