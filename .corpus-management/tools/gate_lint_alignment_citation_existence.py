@@ -73,55 +73,83 @@ def _check_pf(code: str) -> bool:
 # --- OWASP ASVS: requirement (Vn.n.n) and section (Vn.n) identifiers, CONTEXT-GATED. ---
 # A bare V-token is ambiguous: most corpus V-triples are other publishers' document versions
 # (ETSI "EN 304 223 V2.1.1"), several of which coincide with real ASVS ids. A token is checked
-# only when the line names ASVS, when it sits in a table cell under an ASVS-labelled header,
-# or when its row's first cell names ASVS; never MASVS (word boundary). Bare chapters (Vn)
-# are not checked. A line naming a non-held ASVS 4.x edition is not checked against 5.x ids,
-# whose numbering differs.
-_ASVS_WORD = re.compile(r"\bASVS\b", re.IGNORECASE)
-_ASVS_V4 = re.compile(r"\bASVS\b\W{0,3}v?4\.", re.IGNORECASE)
+# only in ASVS context: on a line naming ASVS (the acronym as a word, so never MASVS, or the
+# framework's full name), in a table cell under an ASVS-labelled header, or on a row whose first
+# cell names ASVS. Bare chapters (Vn) are not checked.
+# A token whose middle number is 0 (V5.0.0, V4.0.3, V2.0) is a version, never an identifier:
+# ASVS numbers its sections from 1, so no section or requirement has a zero middle component.
+# A token attributed to a non-held edition (the nearest preceding ASVS mention on the line, or
+# its column header, names ASVS 4.x) is not checked against the held numbering, which differs.
+_ASVS_WORD = re.compile(r"\bASVS\b|Application Security Verification Standard", re.IGNORECASE)
+_ASVS_MENTION = re.compile(
+    r"(?:\bASVS\b|Application Security Verification Standard)(?:\W{0,3}v?(\d+)\.)?", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
-# A token directly after these is an edition or another publisher's document number, not an
-# ASVS identifier: "ASVS V5.0.0", "version V2.0.0", "EN 304 223 V2.1.1", "CMMI V3.0".
+_HELD_ASVS_MAJOR = "5"
+# A token directly after these is a version of that word's subject or of another publisher's
+# document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
 _ASVS_NOT_ID_BEFORE = re.compile(
-    r"(?:\b(?:ASVS|version|edition|release)\s*[:(]?\s*"
-    r"|\b(?:EN|TR|TS|ES|EG|GR|GS)\s+\d{3}\s+\d{3}(?:-\d+)*\s*"
-    r"|\bCMMI\s*)$",
+    r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
+    r"|\b(?:EN|TR|TS|ES|EG|GR|GS)\s+\d{3}\s+\d{3}(?:-\d+)*\s*`?"
+    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|IEEE\s*\d+(?:\.\d+)*|ISO(?:/IEC)?\s*\d+(?:[-:]\d+)*)\s*`?)$",
     re.IGNORECASE,
 )
-# --- MITRE CWE: CWE-n anywhere (the shape collides with nothing else). ---
-_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d)")
+# --- MITRE CWE: CWE-n anywhere, case-insensitive (the shape collides with nothing else). ---
+_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d)", re.IGNORECASE)
+_PIPE = re.compile(r"(?<!\\)\|")  # an unescaped table pipe
 
 
 def _cells(line: str) -> list[str] | None:
-    """Split a markdown table row into cell texts, or None when the line is not a row."""
+    """Split a markdown table row on unescaped pipes into cell texts, or None when the line has
+    no unescaped pipe. A leading and a trailing pipe are optional, as in GFM."""
     s = line.strip()
-    if not s.startswith("|"):
+    if not _PIPE.search(s):
         return None
-    return [c.strip() for c in s.strip("|").split("|")]
+    parts = _PIPE.split(s)
+    if s.startswith("|"):
+        parts = parts[1:]
+    if s.endswith("|") and not s.endswith("\\|"):
+        parts = parts[:-1]
+    return [c.strip() for c in parts]
 
 
-def _is_separator(cells: list[str]) -> bool:
-    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells if c)
+def _is_separator(cells: list[str] | None) -> bool:
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
 
 
 def _cell_index(line: str, pos: int) -> int:
-    """0-based cell index of character `pos` in a table row (pipes before pos, minus the lead)."""
-    return line[:pos].count("|") - 1
+    """0-based cell index of character `pos` in a table row, counting unescaped pipes."""
+    before = len(_PIPE.findall(line[:pos]))
+    return before - 1 if line.lstrip().startswith("|") else before
+
+
+def _attributed_to_other_edition(prefix: str) -> bool:
+    """True when the nearest ASVS mention before the token names a non-held major edition."""
+    last = None
+    for m in _ASVS_MENTION.finditer(prefix):
+        last = m
+    return bool(last and last.group(1) and last.group(1) != _HELD_ASVS_MAJOR)
 
 
 def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
-                findings: list[str]) -> None:
-    if not (_ASVS_REQ or _ASVS_SEC) or _ASVS_V4.search(raw):
+                in_table: bool, findings: list[str]) -> None:
+    if not (_ASVS_REQ or _ASVS_SEC):
         return
     line_ctx = bool(_ASVS_WORD.search(raw))
-    cells = _cells(raw)
+    cells = _cells(raw) if in_table else None
     row_ctx = bool(cells) and bool(_ASVS_WORD.search(cells[0]))
     col_ctx = {i for i, h in enumerate(header or []) if _ASVS_WORD.search(h)}
+    col_other = {i for i in col_ctx if _attributed_to_other_edition(header[i] + " ")}
     for m in _ASVS_TOKEN.finditer(raw):
-        in_col = cells is not None and _cell_index(raw, m.start()) in col_ctx
+        col = _cell_index(raw, m.start()) if cells is not None else -1
+        in_col = col in col_ctx
         if not (line_ctx or row_ctx or in_col):
             continue
-        if _ASVS_NOT_ID_BEFORE.search(raw[:m.start()]):
+        if m.group(2) == "0":  # a zero middle number is a version, never an ASVS identifier
+            continue
+        prefix = raw[:m.start()]
+        if _ASVS_NOT_ID_BEFORE.search(prefix):
+            continue
+        if col in col_other or _attributed_to_other_edition(prefix):
             continue
         tok = m.group(0)
         if m.group(3) is not None:
@@ -137,7 +165,8 @@ def _check_cwe(raw: str, lineno: int, rel: str, findings: list[str]) -> None:
     if not _CWE_ALL:
         return
     for m in _CWE_TOKEN.finditer(raw):
-        if m.group(0) not in _CWE_ALL:
+        tok = "CWE-" + m.group(1)
+        if tok not in _CWE_ALL:
             findings.append(f"{rel}:{lineno}: '{m.group(0)}' is not a valid {_CWE_NAME} "
                             f"identifier (no such weakness in the held edition)")
 
@@ -147,16 +176,21 @@ def check_file(path: Path, rel: str) -> list[str]:
     if text is None:
         return []
     findings: list[str] = []
-    header: list[str] | None = None  # the current table's header cells (ASVS column context)
+    # Table tracking: a table's header is the row directly above its separator row, so a
+    # header without a leading pipe and back-to-back tables are both read correctly; the table
+    # ends at the first line with no unescaped pipe.
+    header: list[str] | None = None
+    prev_cells: list[str] | None = None
     for lineno, raw in iter_non_code_lines(text):
         cells = _cells(raw)
         if cells is None:
             header = None
-        elif header is None:
-            header = cells
-        _check_asvs(raw, lineno, rel, header if cells is not None and cells is not header else None,
-                    findings)
+        elif _is_separator(cells):
+            header = prev_cells
+        in_body = header is not None and cells is not None and not _is_separator(cells)
+        _check_asvs(raw, lineno, rel, header if in_body else None, in_body, findings)
         _check_cwe(raw, lineno, rel, findings)
+        prev_cells = cells
         # Ranges first (so their endpoints are not double-reported as singles).
         range_spans: list[tuple[int, int]] = []
         for m in _PF_RANGE.finditer(raw):

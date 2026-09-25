@@ -21547,6 +21547,69 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(r, "CWE-99999")
         self.assertNotIn("'CWE-79'", r.stdout)
 
+    # --- round-1 QA regressions (P-1.63 part d) ---
+    def test_direct_asvs_citation_is_checked(self) -> None:
+        # "ASVS V1.2.99" is a (fabricated) requirement, not an edition string.
+        self.assertLinterFails(self._run("asvs-direct.md", "Per OWASP ASVS V1.2.99, inputs are decoded once.\n"),
+                               "V1.2.99")
+
+    def test_versions_with_zero_middle_number_are_not_ids(self) -> None:
+        # ASVS numbers sections from 1: V5.0.0, V2.0 and V3.0 are versions wherever they appear.
+        r = self._run("asvs-editions.md",
+                      "OWASP ASVS `V5.0.0` maps to NIST CSF V2.0, OWASP SAMM V2.0 and CMMI `V3.0`.\n"
+                      "| Framework | Version |\n| --- | --- |\n| OWASP ASVS | V5.0.0 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_other_publisher_prefixes_are_not_ids(self) -> None:
+        r = self._run("asvs-publishers.md", "OWASP ASVS alongside TOGAF V9.9 and ISO 27001 V9.8.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_escaped_pipe_keeps_the_asvs_column(self) -> None:
+        r = self._run("asvs-escaped.md",
+                      "| Control | Other | ASVS |\n| --- | --- | --- |\n| a \\| b | TOGAF V9.9 | V99.1.1 |\n")
+        self.assertLinterFails(r, "V99.1.1")
+        self.assertNotIn("'V9.9'", r.stdout)
+
+    def test_header_without_leading_pipe(self) -> None:
+        r = self._run("asvs-nolead.md", "Control | ASVS\n--- | ---\nX | V1.2.99\n")
+        self.assertLinterFails(r, "V1.2.99")
+
+    def test_back_to_back_tables_do_not_leak_context(self) -> None:
+        r = self._run("asvs-b2b.md",
+                      "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n"
+                      "| Standard | Version |\n| --- | --- |\n| ETSI thing | V9.9.9 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_full_framework_name_is_context(self) -> None:
+        r = self._run("asvs-fullname.md",
+                      "| Control | OWASP Application Security Verification Standard |\n| --- | --- |\n| X | V1.2.99 |\n")
+        self.assertLinterFails(r, "V1.2.99")
+
+    def test_asvs4_attribution_is_per_token_and_per_column(self) -> None:
+        r = self._run("asvs-mixed.md", "ASVS 4.0.3 V9.9.9 maps to ASVS 5.0.0 requirement V1.2.99.\n")
+        self.assertLinterFails(r, "V1.2.99")
+        self.assertNotIn("'V9.9.9'", r.stdout)
+        r = self._run("asvs-v4col.md", "| Control | OWASP ASVS 4.0.3 |\n| --- | --- |\n| X | V9.9.9 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_lowercase_cwe_is_checked(self) -> None:
+        self.assertLinterFails(self._run("cwe-lower.md", "See cwe-99999.\n"), "cwe-99999")
+
+    def test_generator_refuses_a_truncated_source(self) -> None:
+        import importlib.util
+        import tempfile
+        spec = importlib.util.spec_from_file_location("_acr_gen", REPO_ROOT / "tools/build-alignment-citation-registry.py")
+        gen = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gen)
+        with tempfile.TemporaryDirectory() as td:
+            ref = Path(td)
+            (ref / gen.ASVS_SRC).parent.mkdir(parents=True)
+            (ref / gen.CWE_SRC).parent.mkdir(parents=True)
+            (ref / gen.ASVS_SRC).write_text("chapter_id,section_id,req_id\nV1,V1.1,V1.1.1\n", encoding="utf-8")
+            (ref / gen.CWE_SRC).write_text("cwe_id\nCWE-79\n", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                gen.build(ref)
+
     def test_registry_digest_guard_fails_loudly(self) -> None:
         # A hand edit that keeps the counts but changes an identifier must fail at load.
         import json
@@ -21558,7 +21621,12 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             shutil.copytree(REPO_ROOT / "tools", tools, ignore=shutil.ignore_patterns("__pycache__"))
             ids = tools / "alignment_citation_ids.json"
             data = json.loads(ids.read_text(encoding="utf-8"))
+            # Change an id AND recompute the digest stored in the JSON: the pin in code must still refuse it.
+            import hashlib
             data["cwe"]["ids"][0] = "CWE-99998"
+            data["cwe"]["sha256"] = hashlib.sha256("\n".join(
+                [data["cwe"]["name"], data["cwe"]["edition"], data["cwe"]["source"]] + data["cwe"]["ids"]
+            ).encode("utf-8")).hexdigest()
             ids.write_text(json.dumps(data), encoding="utf-8")
             r = sp.run([sys.executable, "-c", "import alignment_citation_reference"], cwd=str(tools),
                        capture_output=True, text=True)

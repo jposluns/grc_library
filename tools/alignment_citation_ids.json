@@ -457,7 +457,7 @@
    "sections": 80,
    "chapters": 17
   },
-  "sha256": "a408858a5c09dca327de5b6c156c5b114575448a9684a28e28368d4a5183b361"
+  "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"
  },
  "cwe": {
   "name": "MITRE CWE",
@@ -1438,6 +1438,6 @@
   "counts": {
    "ids": 969
   },
-  "sha256": "7630bcb407f4589a930e74e94c0ae36c4b0d3f69c71894ed505c82ee79dd1466"
+  "sha256": "221781303fd507813d9bea92e14233263134b5e2828598f71e0ca0bc669aee69"
  }
 }

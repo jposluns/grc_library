@@ -135,35 +135,49 @@ REGISTRY = {
 
 # --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 (P-1.63 part d) ---
 # Loaded from the GENERATED tools/alignment_citation_ids.json (tools/build-alignment-citation-registry.py
-# extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The load
-# re-verifies each family's counts and SHA-256 digest, so a hand edit or a truncated file fails loudly
-# here rather than silently weakening the gate.
+# extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The expected
+# metadata, counts and SHA-256 digests are PINNED here, in code, so a JSON-only edit (even one that also
+# recomputes the digest stored in the JSON) or a truncated file fails loudly at load instead of silently
+# weakening the gate. After regenerating for a new held edition, update these pins from the values the
+# generator prints.
 import hashlib as _hashlib
 import json as _json
 from pathlib import Path as _Path
 
 _IDS_PATH = _Path(__file__).resolve().parent / "alignment_citation_ids.json"
+_PINS = {
+    "asvs": {"name": "OWASP ASVS", "edition": "5.0.0",
+             "source": "frameworks/OWASP/OWASP-ASVS-5.0.0-requirements.csv",
+             "counts": {"requirements": 345, "sections": 80, "chapters": 17},
+             "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"},
+    "cwe": {"name": "MITRE CWE", "edition": "4.20",
+            "source": "frameworks/MITRE/CWE/CWE-4.20--weaknesses.csv",
+            "counts": {"ids": 969},
+            "sha256": "221781303fd507813d9bea92e14233263134b5e2828598f71e0ca0bc669aee69"},
+}
 
 
 def _load_ids() -> dict:
     data = _json.loads(_IDS_PATH.read_text(encoding="utf-8"))
-    a, c = data["asvs"], data["cwe"]
-    checks = (
-        ("ASVS requirements", len(a["requirements"]), a["counts"]["requirements"]),
-        ("ASVS sections", len(a["sections"]), a["counts"]["sections"]),
-        ("ASVS chapters", len(a["chapters"]), a["counts"]["chapters"]),
-        ("CWE ids", len(c["ids"]), c["counts"]["ids"]),
-    )
-    for label, got, want in checks:
-        if got != want:
-            raise SystemExit(f"alignment_citation_ids.json: {label} count {got} != recorded {want}; "
-                             f"regenerate with tools/build-alignment-citation-registry.py")
-    for label, ids, want in (("ASVS", a["requirements"] + a["sections"] + a["chapters"], a["sha256"]),
-                             ("CWE", c["ids"], c["sha256"])):
-        got = _hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()
-        if got != want:
-            raise SystemExit(f"alignment_citation_ids.json: {label} digest mismatch; the file was edited "
-                             f"by hand or truncated; regenerate with tools/build-alignment-citation-registry.py")
+    for fam, lists in (("asvs", ("requirements", "sections", "chapters")), ("cwe", ("ids",))):
+        entry, pin = data[fam], _PINS[fam]
+        for key in ("name", "edition", "source"):
+            if entry.get(key) != pin[key]:
+                raise SystemExit(f"alignment_citation_ids.json: {fam} {key} {entry.get(key)!r} != pinned "
+                                 f"{pin[key]!r}; regenerate with tools/build-alignment-citation-registry.py "
+                                 f"and update the pins in tools/alignment_citation_reference.py")
+        for lst in lists:
+            got = len(entry[lst])
+            if got != pin["counts"][lst] or got == 0:
+                raise SystemExit(f"alignment_citation_ids.json: {fam} {lst} count {got} != pinned "
+                                 f"{pin['counts'][lst]}; regenerate with tools/build-alignment-citation-registry.py")
+        ids = [i for lst in lists for i in entry[lst]]
+        got = _hashlib.sha256("\n".join([pin["name"], pin["edition"], pin["source"]] + ids)
+                              .encode("utf-8")).hexdigest()
+        if got != pin["sha256"]:
+            raise SystemExit(f"alignment_citation_ids.json: {fam} digest mismatch against the pinned "
+                             f"value; the file was edited by hand or truncated; regenerate with "
+                             f"tools/build-alignment-citation-registry.py")
     return data
 
 
