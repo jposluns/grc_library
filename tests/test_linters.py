@@ -332,12 +332,15 @@ def identifier_scope_probe_issues(cases):
 
 
 def _runs_scope_probes(func):
-    """True when ``func`` is undecorated and its body reaches a
+    """A static PRE-SCREEN (the authoritative guard is LinterTestCase.run, which fails a registered
+    test whose probes did not all run). True when ``func`` is undecorated and its body reaches a
     ``self.assertIdentifierScopeProbes(...)`` call statement, at the top level or inside
     ``with self.subTest(...)`` blocks, before any return, raise or try on the way (parsed, so a
     comment, a string, a call under a branch or a try, a call after a return, a call under any
     other context manager such as contextlib.suppress, or a skip decorator does not count).
-    Residue: a call routed through another helper is not recognized, so it must be made directly."""
+    Residue, caught at run time instead: an exit the scan cannot see (an immediately invoked
+    lambda, a skip inside the runner, a yield in a default expression). A call routed through
+    another helper is not recognized, so it must be made directly."""
     import ast
     import inspect
     import textwrap
@@ -459,6 +462,26 @@ class LinterTestCase(unittest.TestCase):
 
     IDENTIFIER_SCOPE_PROBES = {}
 
+    def run(self, result=None):
+        """Run the test; a test that declares scope probes but ends without every probe having
+        run is recorded as a FAILURE (3b64 round 8). This is the authoritative guard: whatever
+        stopped the probes (a skip before or inside the call, a generator method, an early
+        return), a registered probe that did not run is reported rather than read as a pass. The
+        static _runs_scope_probes scan is only a pre-screen."""
+        if result is None:
+            result = self.defaultTestResult()
+        self._scope_probes_completed = False
+        outcome = super().run(result)
+        name = self._testMethodName
+        if name in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}) and not self._scope_probes_completed:
+            try:
+                raise AssertionError(
+                    f"TEST-PROBE-NOT-RUN: {type(self).__name__}.{name} declares scope probes but "
+                    f"ended without running them all (skipped, a generator, or an early exit)")
+            except AssertionError:
+                result.addFailure(self, sys.exc_info())
+        return outcome
+
     def assertIdentifierScopeProbes(self, run) -> None:
         """Check absence before invoking a strict linter or asserting no finding."""
         name = self._testMethodName
@@ -466,12 +489,20 @@ class LinterTestCase(unittest.TestCase):
         issues = identifier_scope_probe_issues(cases)
         if issues:
             self.fail("\n".join(issues))
+        def call(text):
+            try:
+                return run(text)
+            except unittest.SkipTest as exc:
+                # 3b64 round 8 (claude): a skip inside the runner would be recorded as a skipped
+                # subtest and the probe would silently not run.
+                self.fail(f"TEST-PROBE-SKIPPED: the run callable skipped ({exc}); probes must run")
+
         for family, token, template, twin in cases[name]:
             with self.subTest(catalogue=family, token=token, template=template):
                 # Counterfactual twin (3b64 round 4): the same run callable must REPORT the token
                 # in the twin, so a zero exit below proves the template's difference suppresses it
                 # (not report mode, an exempt path, or a probe trivially out of context).
-                checked = run(twin.replace("{probe}", token))
+                checked = call(twin.replace("{probe}", token))
                 # The engine quotes the identifier it reports ('V9.9.9'); match that exactly, so a
                 # longer identifier sharing the prefix is not taken as the probe (round 6).
                 if checked.returncode == 0 or f"'{token}'" not in checked.stdout:
@@ -479,12 +510,13 @@ class LinterTestCase(unittest.TestCase):
                         f"TEST-PROBE-CONTROL: {family} {token!r}: the run callable did not report "
                         f"it in the twin (exit {checked.returncode})\n{checked.stdout}{checked.stderr}"
                     )
-                result = run(template.replace("{probe}", token))
+                result = call(template.replace("{probe}", token))
                 if result.returncode != 0:
                     self.fail(
                         f"TEST-PROBE-FINDING: {family} {token!r}: "
                         f"exit {result.returncode}\n{result.stdout}{result.stderr}"
                     )
+        self._scope_probes_completed = True
 
     fixture_paths: list[Path] = []
 
@@ -23264,6 +23296,53 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                     identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", template, twin)),
                     ["TEST-PROBE-DUPLICATE: runTest[0]: asvs 'V9.9.9' also appears outside the "
                      "placeholder in the template or twin"])
+
+    def test_a_registered_test_whose_probes_do_not_run_fails(self) -> None:
+        # 3b64 round 8 (claude, codex): the runtime guard catches every way the probes can fail
+        # to run, including shapes the static pre-screen cannot see.
+        import warnings
+        from unittest.mock import Mock
+        ok = Mock(side_effect=lambda body: subprocess.CompletedProcess(
+            [], 1 if "requirement" in body else 0, "x.md:1: 'V9.9.9' finding\n" if "requirement" in body else "OK\n", ""))
+        probe = (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),)
+
+        class _G(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {name: probe for name in (
+                "test_ok", "test_skip_first", "test_default_yield", "test_runner_skips", "test_iife")}
+
+            def test_ok(self) -> None:
+                self.assertIdentifierScopeProbes(ok)
+
+            def test_skip_first(self) -> None:
+                self.skipTest("x")
+                self.assertIdentifierScopeProbes(ok)
+
+            def test_default_yield(self) -> None:
+                def run(body, unused=(yield None)):
+                    return ok(body)
+                self.assertIdentifierScopeProbes(run)
+
+            def test_runner_skips(self) -> None:
+                def run(body):
+                    self.skipTest("reference not held")
+                self.assertIdentifierScopeProbes(run)
+
+            def test_iife(self) -> None:
+                (lambda: self.skipTest("x"))()
+                self.assertIdentifierScopeProbes(ok)
+
+        failed = {}
+        for name in _G.IDENTIFIER_SCOPE_PROBES:
+            result = unittest.TestResult()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                _G(name).run(result)
+            failed[name] = [str(err) for _test, err in result.failures]
+        self.assertEqual(failed["test_ok"], [])
+        for name in ("test_skip_first", "test_default_yield", "test_iife"):
+            self.assertTrue(any("TEST-PROBE-NOT-RUN" in f for f in failed[name]), (name, failed[name]))
+        self.assertTrue(any("TEST-PROBE-SKIPPED" in f for f in failed["test_runner_skips"]),
+                        failed["test_runner_skips"])
 
     def test_twin_must_report_the_declared_token_itself(self) -> None:
         # 3b64 round 6 (codex): a twin rendering 'V9.9.90' is refused statically, and a report
