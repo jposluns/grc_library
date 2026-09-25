@@ -131,3 +131,76 @@ REGISTRY = {
     "nist-privacy-framework-1.0": PF10,
     "nist-privacy-framework-1.1-ipd": PF11,
 }
+
+
+# --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 (P-1.63 part d) ---
+# Loaded from the GENERATED tools/alignment_citation_ids.json (tools/build-alignment-citation-registry.py
+# extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The expected
+# metadata, counts and SHA-256 digests are PINNED here, in code, so a JSON-only edit (even one that also
+# recomputes the digest stored in the JSON) or a truncated file fails loudly at load instead of silently
+# weakening the gate. After regenerating for a new held edition, update these pins from the values the
+# generator prints.
+import hashlib as _hashlib
+import json as _json
+from pathlib import Path as _Path
+
+_IDS_PATH = _Path(__file__).resolve().parent / "alignment_citation_ids.json"
+_PINS = {
+    "asvs": {"name": "OWASP ASVS", "edition": "5.0.0",
+             "source": "frameworks/OWASP/OWASP-ASVS-5.0.0-requirements.csv",
+             "counts": {"requirements": 345, "sections": 80, "chapters": 17},
+             "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"},
+    "asvs4": {"name": "OWASP ASVS", "edition": "4.0.3",
+              "source": ".superseded/frameworks/OWASP/OWASP-ASVS-4.0.3-requirements.csv",
+              "counts": {"requirements": 286, "sections": 69, "chapters": 14},
+              "sha256": "e71481aba54eed29d565a065ee4e39132bd71c08fcc3dbebe40070eb87383b32"},
+    "cwe": {"name": "MITRE CWE", "edition": "4.20",
+            "source": "frameworks/MITRE/CWE/CWE-4.20--weaknesses.csv",
+            "counts": {"ids": 969},
+            "sha256": "221781303fd507813d9bea92e14233263134b5e2828598f71e0ca0bc669aee69"},
+}
+
+
+def _load_ids() -> dict:
+    data = _json.loads(_IDS_PATH.read_text(encoding="utf-8"))
+    for fam, lists in (("asvs", ("requirements", "sections", "chapters")),
+                       ("asvs4", ("requirements", "sections", "chapters")), ("cwe", ("ids",))):
+        entry, pin = data[fam], _PINS[fam]
+        for key in ("name", "edition", "source"):
+            if entry.get(key) != pin[key]:
+                raise SystemExit(f"alignment_citation_ids.json: {fam} {key} {entry.get(key)!r} != pinned "
+                                 f"{pin[key]!r}; regenerate with tools/build-alignment-citation-registry.py "
+                                 f"and update the pins in tools/alignment_citation_reference.py")
+        for lst in lists:
+            got = len(entry[lst])
+            if got != pin["counts"][lst] or got == 0:
+                raise SystemExit(f"alignment_citation_ids.json: {fam} {lst} count {got} != pinned "
+                                 f"{pin['counts'][lst]}; regenerate with tools/build-alignment-citation-registry.py")
+        ids = [i for lst in lists for i in entry[lst]]
+        got = _hashlib.sha256("\n".join([pin["name"], pin["edition"], pin["source"]] + ids)
+                              .encode("utf-8")).hexdigest()
+        if got != pin["sha256"] or entry.get("sha256") != pin["sha256"]:
+            raise SystemExit(f"alignment_citation_ids.json: {fam} digest mismatch against the pinned "
+                             f"value; the file was edited by hand or truncated; regenerate with "
+                             f"tools/build-alignment-citation-registry.py")
+    return data
+
+
+_IDS = _load_ids()
+# ASVS is validated against the UNION of the held editions (5.0.0 live, 4.0.3 retained), so a
+# legacy 4.0.3 identifier is not a fabrication; the stated residue is that a 4.0.3-only
+# identifier cited as 5.0.0 passes (the same union residue as the Privacy Framework).
+_ASVS_FAMS = (_IDS["asvs"], _IDS["asvs4"])
+ASVS = {
+    "name": f"{_IDS['asvs']['name']} ({' and '.join(f['edition'] for f in _ASVS_FAMS)})",
+    "editions": tuple(f["edition"] for f in _ASVS_FAMS),
+    "provenance": ", ".join("grc_library_ref/" + f["source"] for f in _ASVS_FAMS),
+    "requirements": frozenset(i for f in _ASVS_FAMS for i in f["requirements"]),
+    "sections": frozenset(i for f in _ASVS_FAMS for i in f["sections"]),
+}
+CWE = {
+    "name": f"{_IDS['cwe']['name']} {_IDS['cwe']['edition']}",
+    "edition": _IDS["cwe"]["edition"],
+    "provenance": "grc_library_ref/" + _IDS["cwe"]["source"],
+    "all": frozenset(_IDS["cwe"]["ids"]),
+}

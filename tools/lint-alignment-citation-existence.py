@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Fabricated alignment-citation existence audit - grc wrapper over the pack engine.
 
-Flag a citation to a NIST Privacy Framework identifier that exists in no held edition
-of the framework's catalogue (a fabricated code). Report-only by default; --strict
+Flag a citation to a NIST Privacy Framework, OWASP ASVS or MITRE CWE identifier that exists
+in no held edition of its framework's catalogue (a fabricated code). ASVS requirement and
+section identifiers are checked only in ASVS context (see the engine); CWE identifiers
+everywhere. Report-only by default; --strict
 makes it a blocking gate.
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan (the PF
@@ -23,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))  # own dir on sys.path (programmatic-load safe)
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
 from lint_common import guard_explicit_paths_cwd, REPO_ROOT, iter_markdown_targets  # noqa: E402  # grc-config/store, stays local
-from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID  # noqa: E402  # grc factual registry
+from alignment_citation_reference import REGISTRY, PF_ALL_EDITIONS_VALID, ASVS, CWE  # noqa: E402  # grc factual registry
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -57,7 +59,12 @@ def _engine():
 # Configure the engine ONCE with the grc framework catalogue (validated vs the union
 # of every held Privacy Framework edition).
 import types  # noqa: E402
-_engine().configure(types.SimpleNamespace(pf_all=_PF_ALL, pf_name=_PF_NAME))
+_engine().configure(types.SimpleNamespace(
+    pf_all=_PF_ALL, pf_name=_PF_NAME,
+    asvs_req=ASVS["requirements"], asvs_sec=ASVS["sections"], asvs_name=ASVS["name"],
+    asvs_editions=ASVS["editions"],
+    cwe_all=CWE["all"], cwe_name=CWE["name"],
+))
 
 
 def check_file(path: Path, rel: str) -> list[str]:
@@ -90,7 +97,8 @@ def main(argv: list[str]) -> int:
               f"Correct to an existing identifier that fits the row.")
         return 1 if args.strict else 0
     print(f"OK: all alignment citations exist in a held edition of their framework "
-          f"(coverage: {_PF_NAME}, 1.0 core + 1.1 IPD, validated as a union).")
+          f"(coverage: {_PF_NAME}, 1.0 core + 1.1 IPD, validated as a union; {ASVS['name']} "
+          f"requirements and sections in ASVS context; {CWE['name']} weaknesses).")
     return 0
 
 
