@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.15\
+**Version:** 0.0.16\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -311,17 +311,17 @@ This is the principal review route, not the complete procedure: investigations (
 | Policy on Access to Information text (quoted) | Provision |
 | --- | --- |
 | "Determining, in a manner consistent with jurisprudence and considering any TBS guidance, whether records are under the control of the government institution." | Policy 4.3.1 |
-| "Deliberations and decisions concerning requests received under the Act are documented;" | Policy 4.3.9.3 |
-| "The principle of severability is applied;" | Policy 4.3.9.5 |
+| "Deliberations and decisions concerning requests received under the Act are documented;" | Policy 4.3.9, sub-item 3 |
+| "The principle of severability is applied;" | Policy 4.3.9, sub-item 5 |
 
 | Directive on Access to Information Requests text (quoted) | Provision |
 | --- | --- |
-| "Establishing and maintaining an internal management system to track: The processing of access requests; Consultation requests; Complaints; Reports, recommendations, and orders by the Information Commissioner; and Reviews by the courts." | Directive 4.1.18 and 4.1.18.1 to 4.1.18.5 |
+| "Establishing and maintaining an internal management system to track: The processing of access requests; Consultation requests; Complaints; Reports, recommendations, and orders by the Information Commissioner; and Reviews by the courts." | Directive 4.1.18 and its sub-items 1 to 5 |
 | "Documenting the processing of requests by placing on file all documents that support decisions under Part 1 of the Act, including communications where factors considered when exercising discretion are discussed, recommendations are given, rationales are provided and decisions are made." | Directive 4.1.19 |
 | "Ensuring that any extension taken is as short as possible and can be reasonably justified." | Directive 4.1.28 |
 | "Citing exemptions and exclusions invoked on records, provided under Part 1 of the Act, on each page, unless doing so would reveal the exempted information or cause the injury upon which the exemption is based to materialize." | Directive 4.1.34 |
 | "Establishing internal procedures to address alleged or suspected obstructions related to the right of access under Part 1 of the Act and the Information Commissioner’s duties and functions, which are outlined in sections 67 (1) and 67.1(1) of the Act. Procedures should outline measures for:" | Directive 4.1.45, opening requirement |
-| "Documenting and reporting any suspected falsification, concealment, mutilation or improper destruction of records as described in section 67.1(1) or any obstruction of the Information Commissioner’s duties and functions as defined in 67(1) immediately to the head of the government institution;" | Directive 4.1.45.1 |
+| "Documenting and reporting any suspected falsification, concealment, mutilation or improper destruction of records as described in section 67.1(1) or any obstruction of the Information Commissioner’s duties and functions as defined in 67(1) immediately to the head of the government institution;" | Directive 4.1.45, sub-item 1 |
 | "Publishing summaries of completed access to information requests to the Government of Canada Open Government portal within 30 calendar days after the end of each month, in accordance with Appendix D: Mandatory Procedures for Publishing Summaries of Completed Access to Information Requests." | Directive 4.1.46 |
 | "Ensuring searches for records are comprehensive and consider both the letter and the spirit of the request." | Directive 4.2.3 |
 | "Establishing measures to support the right of public access to information when entering into contracts, arrangements and agreements." | Directive 4.2.8 |
