@@ -23,10 +23,12 @@ are split on unescaped pipes, a leading pipe is optional, and a table's header i
 directly above its separator row. Within that context, a token whose middle number is zero is
 a version, never an identifier, because the framework numbers its sections from one; a token
 that directly follows the words version, edition, release or revision, another publisher's
-document number, or another named framework or standard is that subject's version; and a
-token attributed to an edition whose numbering differs from the held one (the nearest
-preceding mention of the framework on the line, or the token's column header, names that
-edition) is not checked against the held numbering. Two-number tokens are checked against the
+document number, or another named framework or standard is that subject's version; and a token attributed to an edition whose numbering differs from the held one is not
+checked against the held numbering. A token is attributed by the nearest mention of the
+framework that names an edition, preceding it or else following it, within the line (or,
+in a table, within the token's own cell), and otherwise by its column header; a capital-`V`
+identifier directly after the framework's name is an identifier, not an edition, and the
+held edition is supplied by the adopter. Two-number tokens are checked against the
 held sections and three-number tokens against the held requirements; bare chapter numbers are
 not checked. A weakness family (`CWE-` followed by a number, in any letter case) is checked
 wherever it appears.

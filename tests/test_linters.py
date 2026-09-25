@@ -21610,6 +21610,30 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             with self.assertRaises(ValueError):
                 gen.build(ref)
 
+    # --- round-2 QA regressions (P-1.63 part d) ---
+    def test_an_asvs_identifier_is_not_an_edition_for_later_tokens(self) -> None:
+        for body in ("ASVS V1.2.4 and V1.2.99\n", "ASVS V7.2-V7.99\n", "ASVS V7.2\u2013V7.99\n"):
+            r = self._run("asvs-idnotedition.md", body)
+            self.assertNotEqual(r.returncode, 0, body + r.stdout)
+            self.assertNotIn("'V1.2.4'", r.stdout)
+
+    def test_adjacent_legacy_cell_does_not_disable_a_current_column(self) -> None:
+        r = self._run("asvs-adjacent.md",
+                      "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 4.0.3 V9.9.9 | V1.2.99 |\n")
+        self.assertLinterFails(r, "V1.2.99")
+        self.assertNotIn("'V9.9.9'", r.stdout)
+
+    def test_edition_wording_and_placement_forms(self) -> None:
+        for body in ("ASVS version 4.0.3 requirement V9.9.9.\n", "ASVS v4 requirement V9.9.9.\n",
+                     "ASVS 4 requirement V9.9.9.\n", "Requirement V9.9.9 (ASVS 4.0.3).\n",
+                     "| Control | ASVS version 4.0.3 |\n| --- | --- |\n| X | V9.9.9 |\n"):
+            r = self._run("asvs-edition-forms.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_named_standard_prefix_tolerates_punctuation(self) -> None:
+        r = self._run("asvs-punct.md", "OWASP ASVS alongside ISO 27001: V9.8 and TOGAF, V9.9.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
     def test_registry_digest_guard_fails_loudly(self) -> None:
         # A hand edit that keeps the counts but changes an identifier must fail at load.
         import json

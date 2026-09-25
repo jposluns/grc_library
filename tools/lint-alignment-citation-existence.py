@@ -62,6 +62,7 @@ import types  # noqa: E402
 _engine().configure(types.SimpleNamespace(
     pf_all=_PF_ALL, pf_name=_PF_NAME,
     asvs_req=ASVS["requirements"], asvs_sec=ASVS["sections"], asvs_name=ASVS["name"],
+    asvs_edition=ASVS["edition"],
     cwe_all=CWE["all"], cwe_name=CWE["name"],
 ))
 
