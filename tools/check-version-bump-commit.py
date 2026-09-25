@@ -13,10 +13,11 @@ commit MESSAGE, which does not exist yet when pre-commit runs.
 
 What it checks (the same rule as the PreToolUse guard, from the same source: the guard's pure
 functions are LOADED from .claude/hooks/block-unbumped-version-commit.py, not copied). A staged
-Markdown file whose STAGED content carries a `**Version:**` line, outside the generated artefacts and
+Markdown file whose STAGED content carries its own Version key (`**Version:**`, or `**README Version:**`
+for the root README.md, per the guard's version_key), outside the generated artefacts and
 .corpus-management/, is versioned; an offender is a versioned file whose staged diff changes its body
 but not its Version line. This hook REFUSES and never auto-bumps: the PreToolUse guard auto-bumps
-same-checkout commits before git runs, and a git hook that rewrites the index mid-commit is riskier
+same-checkout commits before git runs (never the root README.md), and a git hook that rewrites the index mid-commit is riskier
 than a refusal naming the fix.
 
 Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff
@@ -54,7 +55,8 @@ def decide(allow, sequencer, opt_out, ok, bad):
                    f"it is unknown whether a Version bump is missing. Deliberate override: {_OVERRIDE}=1.")
     if bad:
         return 1, ("check-version-bump-commit: REFUSING the commit: these staged documents changed their body "
-                   f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (patch) and set "
+                   f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (README.md: **README "
+                   "Version:**) (patch) and set "
                    "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a commit that "
                    "genuinely needs no bump carries a `VersionBump: none <reason>` line in its message. "
                    f"Deliberate override: {_OVERRIDE}=1.")
@@ -139,12 +141,12 @@ def staged_offenders(root, guard):
                 or new in guard.GENERATED or new.startswith(".corpus-management/"):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
-        if not guard.VERSION_LINE.search(text):
+        if not guard.version_key(new).search(text):  # the path's own key (3b80)
             continue
         paths = [old, new] if old else [new]
         diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",
                      "--no-textconv", "--unified=0", "--", *paths)
-        body, version = guard.classify_hunk(guard._lf_lines(diff))
+        body, version = guard.classify_hunk(guard._lf_lines(diff), new)
         if body and not version:
             bad.append(new)
     return bad
@@ -301,6 +303,23 @@ def _integration_self_test():
         if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a renamed document with an unbumped body edit was allowed")
         must(["git", "reset", "-q", "--hard"])
+        # --- P-TODO 3b80: README.md's own key is **README Version:** (no fenced **Version:** template) ---
+        def readme(version, body):
+            (repo / "README.md").write_text(
+                f"**Date:** 2026-01-01\\\n**README Version:** {version}\\\n\n---\n\n{body}\n")
+        readme("1.0.0", "old body")
+        must(["git", "add", "README.md"])
+        must(["git", "commit", "-q", "-m", "add readme"])
+        readme("1.0.0", "new body")
+        must(["git", "add", "README.md"])
+        cp = run(["git", "commit", "-q", "-m", "readme body only"])
+        if cp.returncode == 0 or "README.md" not in cp.stderr or "without a Version change" not in cp.stderr:
+            failures.append("a README body change without a README Version bump was not refused")
+        readme("1.0.1", "new body")
+        must(["git", "add", "README.md"])
+        cp = run(["git", "commit", "-q", "-m", "readme bumped"])
+        if cp.returncode != 0:
+            failures.append(f"a README body change with its README Version bumped was refused: {cp.stderr.strip()}")
         # (e) a checkout OLDER than the tracked dispatcher still runs commit-msg-local.
         (repo / "tools" / "git-hooks" / "commit-msg").rename(repo / "moved-commit-msg")
         (repo / "f.txt").write_text("x\n")
@@ -349,7 +368,7 @@ def _self_test():
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 14
+    total = len(cases) + 16
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures

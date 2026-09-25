@@ -3917,6 +3917,104 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("self-test OK", result.stdout)
 
+    def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
+        """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
+        bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b80", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        head = "diff --git a/README.md b/README.md\n"
+        body = "@@ -40,1 +40,1 @@\n-old body\n+new body\n"
+        bump = "@@ -9,1 +9,1 @@\n-**README Version:** 1.11.387 (x)\\\n+**README Version:** 1.11.388 (x)\\\n"
+        cal = "@@ -8,1 +8,1 @@\n-**Library Version:** 2026.09.1300 (x)\\\n+**Library Version:** 2026.09.1301 (x)\\\n"
+        self.assertEqual(guard.offenders(head + bump + body, {"README.md"}), [])
+        self.assertEqual(guard.offenders(head + body, {"README.md"}), ["README.md"])
+        self.assertEqual(guard.offenders(head + cal + body, {"README.md"}), ["README.md"])
+        # Editing README's fenced **Version:** template is not the README's Version change.
+        tmpl = "@@ -279,1 +279,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n"
+        self.assertEqual(guard.offenders(head + tmpl + body, {"README.md"}), ["README.md"])
+        readme = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\\\n\nbody\n"
+        self.assertTrue(guard.version_key("README.md").search(readme))
+        self.assertIsNone(guard.version_key("README.md").search("**Library Version:** 2026.09.1\\\n\nbody\n"))
+        # QA (codex, gemini): the README key is path-specific. In another document it neither
+        # selects the file nor stands in for that document's own **Version:** bump.
+        self.assertIsNone(guard.version_key("governance/x.md").search(readme))
+        other = ("diff --git a/governance/x.md b/governance/x.md\n@@ -3,1 +3,1 @@\n"
+                 "-**README Version:** 1\n+**README Version:** 2\n" + body)
+        self.assertEqual(guard.offenders(other, {"governance/x.md"}), ["governance/x.md"])
+        # A nested README is an ordinary document: only **Version:** is its key.
+        self.assertIs(guard.version_key("governance/README.md"), guard.VERSION_LINE)
+        # QA round 2 (codex): the other helpers use the path's own key too.
+        self.assertTrue(guard.version_line_changed(["+**README Version:** 2"], "README.md"))
+        self.assertFalse(guard.version_line_changed(["+**README Version:** 2"], "governance/x.md"))
+        self.assertFalse(guard.version_line_changed(["+**Version:** 2"], "README.md"))
+        wrong = "diff --git a/g.md b/g.md\n@@ -2 +2 @@\n-**README Version:** 1\n+**README Version:** 2\n"
+        self.assertEqual(guard.stale_date_after_bump(
+            wrong, {"g.md": "**Date:** 2026-01-01\n**README Version:** 2\n"}, "2026-09-25"), [])
+        right = wrong.replace("g.md", "README.md")
+        self.assertEqual(guard.stale_date_after_bump(
+            right, {"README.md": "**Date:** 2026-01-01\n**README Version:** 2\n"}, "2026-09-25"),
+            ["README.md"])
+
+    def test_unbumped_version_guard_main_selects_readme_by_its_key(self) -> None:
+        """P-TODO 3b80 (QA): the hook's main() selects the root README by **README Version:**, so a
+        README body edit with no bump is blocked rather than skipped as unversioned."""
+        import json
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            def git(*a):
+                subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True, text=True)
+            # project_root() is derived from the hook's own location, so run a copy placed in the
+            # scratch repository's .claude/hooks/.
+            hooks = repo / ".claude" / "hooks"
+            hooks.mkdir(parents=True)
+            hook = hooks / "block-unbumped-version-commit.py"
+            shutil.copy(REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py", hook)
+            git("init", "-q")
+            git("config", "user.email", "t@example.invalid")
+            git("config", "user.name", "t")
+            (repo / "README.md").write_text("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n\nold body\n")
+            git("add", "README.md")
+            git("commit", "-q", "-m", "init")
+            (repo / "README.md").write_text("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n\nnew body\n")
+            git("add", "README.md")
+            payload = json.dumps({"tool_name": "Bash", "cwd": str(repo),
+                                  "tool_input": {"command": "git commit -m x"}})
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(repo))
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, env=env)
+            self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
+            self.assertIn("README.md", cp.stderr)
+            # QA round 2 (codex, gemini): a README that also carries a **Version:** line is not
+            # "repaired" by bumping that wrong key; the commit is refused and the file untouched.
+            dual = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n**Version:** 8.0.0\n\nnew body 2\n"
+            (repo / "README.md").write_text(dual)
+            git("add", "README.md")
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, env=env)
+            self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
+            self.assertEqual((repo / "README.md").read_text(), dual)
+
+    def test_unbumped_version_guard_declines_readme_before_any_git_call(self) -> None:
+        """3b80 round 3 (codex): a version-independent check that the README decline is the
+        first thing try_auto_bump does (on Python 3.11 the later read raises, which also returns
+        False, so an end-to-end refusal alone does not prove the decline)."""
+        import importlib.util
+        from unittest.mock import Mock
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b80r3", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        guard.git = Mock(return_value="")
+        self.assertFalse(guard.try_auto_bump(Path("/nonexistent"), "README.md", "2026-09-25"))
+        guard.git.assert_not_called()
+        guard.try_auto_bump(Path("/nonexistent"), "governance/README.md", "2026-09-25")
+        guard.git.assert_called()
+
 
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
@@ -24583,7 +24681,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         add = group("block-unbumped-version-commit", "bump",
                     ("main", "print('\\n'.join(lines),"))
-        for name, occurrence in (("unstaged", 0), ("nonnumeric", 1), ("read-error", 2)):
+        # Occurrence 0 is the README decline (3b80); the others follow it.
+        add("readme", "readme", evidence=("README.md",),
+            sites=(("try_auto_bump", "return False", 0),))
+        for name, occurrence in (("unstaged", 1), ("nonnumeric", 2), ("read-error", 3)):
             add(name, name, evidence=("doc.md",),
                 sites=(("try_auto_bump", "return False", occurrence),))
         add("mixed", "mixed", evidence=("bad.md",), absent=("  - good.md",),
@@ -24869,7 +24970,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     bash("git commit -m probe")
                     m(mod, "project_root", Path(self.P))
                     p(mod, "datetime", FrozenDateTime)
-                    paths = ["good.md", "bad.md"] if arg == "mixed" else ["doc.md"]
+                    paths = (["good.md", "bad.md"] if arg == "mixed"
+                             else ["README.md"] if arg == "readme" else ["doc.md"])
                     diff = "".join("diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
                                    "@@ -5 +5 @@\n-old body\n+new body\n" % ((name,) * 4)
                                    for name in paths)
@@ -24894,6 +24996,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         self.assertIn(path.name, paths)
                         if arg == "read-error" and not kw:
                             raise OSError("crafted read failure")
+                        if arg == "readme":
+                            return "**README Version:** 1.0.0\n**Version:** 8.0.0\nBody\n"
                         return "**Version:** " + ("<x.y.z>" if arg == "nonnumeric" else "1.0.0") + "\nBody\n"
 
                     p(Path, "read_text", read_text)
