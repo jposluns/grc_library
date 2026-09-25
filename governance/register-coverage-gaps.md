@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.45\
+**Version:** 1.1.46\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 
 ### 2.5 AI jurisdictions
 
-The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds fourteen dedicated annexes across thirteen jurisdictions: Australia, Canada, the European Union, Malaysia, Singapore (two annexes), South Korea, the United Kingdom, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda), US Illinois, US New York City, and US Texas. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the candidate list and its further-AI-jurisdiction-annexes item for the deferred set.
+The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds fourteen dedicated annexes across thirteen jurisdictions: Australia, Canada, the European Union, Malaysia, Singapore (two annexes), South Korea, the United Kingdom, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda), US Illinois, US New York City, and US Texas. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the remaining candidates.
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |

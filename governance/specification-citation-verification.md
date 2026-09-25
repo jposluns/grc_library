@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.26\
+**Version:** 1.2.27\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -670,7 +670,7 @@ A standard or regulation cited in the library that is not covered by an allow-li
 
 **2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
 
-**2026-09-25 (2.21, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
+**2026-09-25 (PR #2564, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
 
 **2026-09-24 (3b31b, parity gate):** gate 101 ([`tools/lint-allowlist-spec-parity.py`](../tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 27 entries carry a marker: 25 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers; promptfoo, which has a register entry, gained its own row instead (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
 
