@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.88\
+**Version:** 1.5.89\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -159,7 +159,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | US OMB M-25-21 | 2025-04 | 2025-04 | "Accelerating Federal Use of AI through Innovation, Governance, and Public Trust" (issued 3 April 2025): federal agency AI governance and high-impact AI minimum practices; binds covered agencies, creates no rights or obligations for the public; rescinds OMB M-24-10 | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
 | US OMB M-25-22 | 2025-04 | 2025-04 | "Driving Efficient Acquisition of Artificial Intelligence in Government" (issued 3 April 2025): federal AI acquisition contract terms (IP and government data, privacy, testing access, lock-in, M-25-21 high-impact compliance); applies from solicitations issued 180 days after issuance; rescinds OMB M-24-18 | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
 | US OMB M-26-04 | 2025-12 | 2025-12 | "Increasing Public Trust in Artificial Intelligence Through Unbiased AI Principles" (issued 11 December 2025): federal LLM procurement contract requirements and minimum vendor transparency, implementing Executive Order 14319; sunsets 11 December 2027 unless the OMB Director provides otherwise | - | https://www.whitehouse.gov/omb/information-resources/guidance/memoranda/ | 2026-09-24 |
-| US EO 14365 | 2025-12 | 2025-12 | Executive Order 14365, "Ensuring a National Policy Framework for Artificial Intelligence" (11 December 2025; 90 FR 58499): federal action on state AI laws (AI Litigation Task Force, evaluation of state laws, BEAD and discretionary-grant conditions, FCC and FTC proceedings, a preemptive legislative recommendation) | - | https://www.federalregister.gov/documents/2025/12/16/2025-23092/ensuring-a-national-policy-framework-for-artificial-intelligence | 2026-09-24 |
+| US EO 14365 | 2025-12 | 2025-12 | Executive Order 14365, "Ensuring a National Policy Framework for Artificial Intelligence" (11 December 2025; 90 FR 58499): federal action on state AI laws (AI Litigation Task Force, evaluation of state laws, BEAD and discretionary-grant conditions, an FCC proceeding and an FTC policy statement, a preemptive legislative recommendation) | - | https://www.federalregister.gov/documents/2025/12/16/2025-23092/ensuring-a-national-policy-framework-for-artificial-intelligence | 2026-09-24 |
 | US AI Action Plan | 2025-07 | 2025-07 | "America's AI Action Plan" (the White House): United States national AI strategy in three pillars; recommended policy actions, not binding | - | https://www.whitehouse.gov/wp-content/uploads/2025/07/Americas-AI-Action-Plan.pdf | 2026-09-24 |
 | NYC Local Law 144 (AEDT) | Local Law 144 of 2021, implemented by the DCWP final rule 6 RCNY 5-300 to 5-304; effective 1 January 2023 and enforced by the Department of Consumer and Worker Protection from 5 July 2023; in force in 2026 | 2021 (Local Law 144); 2023 (DCWP rule) | Automated employment decision tools: annual independent bias audit and candidate notice | - | https://www.nyc.gov/site/dca/about/automated-employment-decision-tools.page | 2026-07-11 |
 | US FedRAMP | Rev. 5 | 2023 | Federal Risk and Authorization Management Program (rev 5 alignment with NIST SP 800-53 Rev. 5) | Rev. 4 | https://www.fedramp.gov/ | 2026-06-30 |
