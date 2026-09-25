@@ -10852,6 +10852,13 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         (td / "storelink").symlink_to(td / "missing-store")
         for store in (str(td / "storelink"), "../storelink"):
             self._refused(audit(store), "working store is present but cannot be examined", store)
+        # 3b74 QA r2: relative and absolute spellings of the same path get the same verdict; a path
+        # through a missing component is absent to the kernel, so both fall through (exit 0) rather
+        # than the relative one raising from resolve() first (Python 3.11 RuntimeError on the loop).
+        for store in ("../missing/../storeloop", str(root) + "/../missing/../storeloop"):
+            r = audit(store)
+            self.assertEqual(r.returncode, 0, (store, r.stderr[-300:]))
+            self.assertNotIn("Traceback", r.stderr)
         # A regular file named as the store.
         (td / "store-file").write_text("x\n", encoding="utf-8")
         self._refused(audit(str(td / "store-file")), "working store is present but cannot be examined",

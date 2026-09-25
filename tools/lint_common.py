@@ -358,14 +358,19 @@ def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     Python 3.11's ``resolve()`` raises on a relative ``GRC_STORE`` symlink loop (it escaped as a
     traceback, since ``_store_root`` ran outside the ``try``)."""
     try:
-        store = _store_root(root)
         if strict:
             # Probe the configured store AS GIVEN (a relative GRC_STORE joined to the root, not yet
-            # resolved), so a dangling link or a "file/../dir" path is not normalized away first.
+            # resolved) BEFORE _store_root resolves it, so a relative and an absolute spelling of
+            # the same path get the same verdict and no "missing/.." or dangling link is normalized
+            # away first. Only a store that is a real directory is resolved.
             env = os.environ.get("GRC_STORE")
-            given = (Path(env) if Path(env).is_absolute() else root / env) if env else store
-            present = _strict_is_dir(given)
+            given = (Path(env) if Path(env).is_absolute() else root / env) if env else root.parent / "private"
+            if not _strict_is_dir(given):
+                return None
+            store = _store_root(root)
+            present = True
         else:
+            store = _store_root(root)
             present = store.is_dir()
         if present and not store.resolve().is_relative_to(root.resolve()):
             return store
