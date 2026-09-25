@@ -9,25 +9,29 @@ decision is recorded as pending and the run CONTINUES (no-idle-stop); a blocking
 idles the run until the maintainer returns. The recurrence that motivated it: an r4
 deep-assessment Phase-8 sign-off was posed as an ``AskUserQuestion`` during overnight
 mode and idled the run ~7 hours (with the work it was blocking already unblocked).
-Attended modes (``fully-attended`` / ``attended-autonomous``) allow the call.
+Attended modes (``attended``, ``fully-attended``, ``attended-autonomous``, and the fleet's
+``decisions`` mode) allow the call; only an exact unattended mode (``unattended``,
+``daytime-unattended``, ``overnight-unattended``) blocks.
 
 Mode source (fixed 2026-09-25, maintainer-caught). The AUTHORITY is the fleet's canonical,
-root-owned mode file ``/opt/orch-operator/operating-mode`` (JSON, its ``mode`` field), read
-FIRST, and the lease's ``Operating-mode`` field (``session-state.md``) is also read: an
-unattended reading from EITHER source blocks (stricter-is-safer; the lease can legitimately be
-more unattended than the fleet file through the CLAUDE.md #5(b) timeout swap), and otherwise the
-canonical mode decides, with the lease as the fallback when the canonical file is absent,
-unreadable, or unparseable. Before the fix the hook read only the
-lease, a hand-synced copy: the fleet went unattended at 2026-09-25T00:25:42Z while the lease
-still said ``attended-autonomous``, and an AskUserQuestion passed. The test hook for the path
-is ``GRC_OPERATOR_MODE_FILE`` (used by the self-test; not for normal operation).
+root-owned mode file ``/opt/orch-operator/operating-mode`` (JSON, its ``mode`` field). Before the
+fix the hook read only the lease's ``Operating-mode`` field (``session-state.md``), a hand-synced
+copy: the fleet went unattended at 2026-09-25T00:25:42Z while the lease still said
+``attended-autonomous``, and an AskUserQuestion passed. Now: an unattended reading from EITHER the
+fleet file or the lease blocks (stricter-is-safer; the lease can legitimately be more unattended
+through the CLAUDE.md #5(b) timeout swap); otherwise the fleet file decides; the lease decides
+only when NOTHING exists at the fleet path. A fleet file that exists but cannot yield a recognized
+mode (unreadable, malformed or duplicate-key JSON, a missing or non-string ``mode``, an
+unrecognized value, a directory or a dangling symlink) FAILS CLOSED to unattended. There is no
+environment override of the fleet path (the self-test passes a path as a parameter), so no
+configuration switches the fleet file off.
 
-Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and
-feeds stderr back to the model as the reason. Fail-OPEN on any parse/read failure or an
-absent ``Operating-mode`` field: this is a guardrail against one known mistake shape, not
-a security boundary, and a hook that blocked on a malformed payload would be worse than
-the mistake it prevents. Defence-in-depth with the no-blocking-questions-unattended
-discipline (CLAUDE.md / the assistant memory), not a substitute for it. NOTE: like the
+Exit protocol (Claude Code hooks): exit 0 allows the tool call; exit 2 blocks it and feeds
+stderr back to the model as the reason. The PAYLOAD fails open (an unparseable or non-object
+payload does not block by itself), because a hook that blocked on a malformed payload would be
+worse than the mistake it prevents; the MODE fails closed as described above. This is a
+guardrail against one known mistake shape, not a security boundary, and it is defence in depth
+with the no-blocking-questions-unattended discipline, not a substitute for it. NOTE: like the
 sibling pipe-guard, this hook does not fire in a child session whose
 ``CLAUDE_PROJECT_DIR`` is unset (documented harness limitation); the discipline is the
 primary control either way.
@@ -65,35 +69,51 @@ def _working_file(rel_below, root):
 
 
 CANONICAL_MODE_FILE = "/opt/orch-operator/operating-mode"
+UNATTENDED = frozenset({"unattended", "daytime-unattended", "overnight-unattended"})
+# Modes in which the operator is present (the fleet's `decisions` mode exists so the operator can
+# answer questions before going unattended).
+ATTENDED = frozenset({"attended", "attended-autonomous", "fully-attended", "decisions"})
 
 
-def read_canonical_mode(path: str | None = None) -> str | None:
-    """The fleet authority: the ``mode`` field of the root-owned JSON mode file, or None."""
-    path = path or os.environ.get("GRC_OPERATOR_MODE_FILE") or CANONICAL_MODE_FILE
+class _Unusable(Exception):
+    pass
+
+
+def _no_duplicate_keys(pairs):
+    keys = [k for k, _ in pairs]
+    if len(keys) != len(set(keys)):
+        raise _Unusable("duplicate key")
+    return dict(pairs)
+
+
+def read_canonical_mode(path: str = CANONICAL_MODE_FILE) -> tuple[str | None, str]:
+    """Return (mode, note) from the fleet's canonical mode file.
+
+    (None, "absent") only when nothing exists at the path; that is the ONE case that falls back
+    to the lease. A file that exists but cannot yield a recognized mode (unreadable, not JSON,
+    duplicate keys, no or non-string `mode`, an unrecognized value, a directory or a dangling
+    symlink) FAILS CLOSED to "unattended": ignorance never permits, because an unusable
+    authority is exactly when a stale lease would otherwise decide."""
+    if not os.path.lexists(path):
+        return None, "absent"
     try:
-        data = json.loads(Path(path).read_text(encoding="utf-8"))
-    except Exception:
-        return None
-    mode = data.get("mode") if isinstance(data, dict) else None
-    return mode.strip().lower() if isinstance(mode, str) and mode.strip() else None
-
-
-def read_mode(project_dir: str) -> str | None:
-    """Stricter-is-safer across both sources: an unattended reading from EITHER the canonical
-    fleet file or the lease wins (the lease can legitimately be MORE unattended, via the
-    CLAUDE.md #5(b) timeout swap). Otherwise the canonical mode, then the lease."""
-    canonical = read_canonical_mode()
-    lease = read_lease_mode(project_dir)
-    for mode in (canonical, lease):
-        if mode and "unattended" in mode:
-            return mode
-    return canonical if canonical is not None else lease
+        data = json.loads(Path(path).read_text(encoding="utf-8-sig"),
+                          object_pairs_hook=_no_duplicate_keys)
+        mode = data.get("mode") if isinstance(data, dict) else None
+        if not isinstance(mode, str):
+            raise _Unusable("no string mode")
+        mode = mode.strip().lower()
+    except Exception as exc:  # noqa: BLE001 (any unusable authority fails closed)
+        return "unattended", f"unusable fleet mode file ({type(exc).__name__})"
+    if mode in UNATTENDED or mode in ATTENDED:
+        return mode, "fleet mode file"
+    return "unattended", f"unrecognized fleet mode {mode!r}"
 
 
 def read_lease_mode(project_dir: str) -> str | None:
     ss = _working_file("session-state.md", Path(project_dir))
     if ss is None:
-        return None  # fail-open: no session-state -> no mode -> allow (documented)
+        return None  # no lease -> no lease mode
     try:
         text = ss.read_text(encoding="utf-8", errors="replace")
     except OSError:
@@ -102,20 +122,38 @@ def read_lease_mode(project_dir: str) -> str | None:
     return m.group(1).lower() if m else None
 
 
-def decide(mode: str | None) -> tuple[bool, str]:
-    """Return (block, reason). Block only when the mode is unattended."""
-    if mode and "unattended" in mode:
+def read_mode(project_dir: str, canonical_path: str = CANONICAL_MODE_FILE) -> tuple[str | None, str]:
+    """(mode, source). Stricter-is-safer: an unattended reading from EITHER source wins (the lease
+    can legitimately be MORE unattended than the fleet file, through the CLAUDE.md #5(b) timeout
+    swap). Otherwise the fleet file decides; the lease decides only when the fleet file is absent.
+    The canonical path is a parameter for the self-test only; there is deliberately no
+    environment override, so no configuration can switch the fleet file off."""
+    canonical, note = read_canonical_mode(canonical_path)
+    lease = read_lease_mode(project_dir)
+    if canonical in UNATTENDED:
+        return canonical, note
+    if lease in UNATTENDED:
+        return lease, "lease Operating-mode (more unattended than the fleet file)"
+    if canonical is not None:
+        return canonical, note
+    return lease, "lease Operating-mode (fleet mode file absent)"
+
+
+def decide(mode: str | None, source: str = "") -> tuple[bool, str]:
+    """Return (block, reason). Block only on an exact unattended mode."""
+    if mode in UNATTENDED:
         return True, (
-            f"BLOCKED (askuserquestion-unattended): an AskUserQuestion while Operating-mode is "
-            f"`{mode}` (unattended).\n"
+            f"BLOCKED (askuserquestion-unattended): an AskUserQuestion while the operating mode "
+            f"is `{mode}` (source: {source or 'unspecified'}).\n"
             f"WHY: a blocking prompt idles the run until the maintainer returns; unattended mode "
             f"records a maintainer decision as pending and CONTINUES (no-idle-stop).\n"
-            f"CONSIDER INSTEAD: record the decision (.working/pending-decisions.md or the relevant "
-            f"register) and proceed on the next authorized independent item via graceful "
-            f"degradation (stricter-safe on a reversible action, defer-and-skip on an authorial "
-            f"one). Only the operator ends unattended mode: the fleet mode file "
-            f"({CANONICAL_MODE_FILE}) is operator-set, and an assistant never edits it; when the "
-            f"operator has set an attended mode there, sync the lease Operating-mode field to it."
+            f"CONSIDER INSTEAD: record the decision (with options and a recommendation) in the "
+            f"pending-decisions register and proceed on the next authorized independent item via "
+            f"graceful degradation (stricter-safe on a reversible action, defer-and-skip on an "
+            f"authorial one). Only the operator ends unattended mode: the fleet mode file "
+            f"({CANONICAL_MODE_FILE}) is operator-set and an assistant never edits it, and a lease "
+            f"that is more unattended than the fleet file (a timeout swap) is ended only on an "
+            f"explicit operator instruction, never because the fleet file already reads attended."
         )
     return False, ""
 
@@ -126,8 +164,11 @@ def main(argv: list[str]) -> int:
     try:
         payload = json.load(sys.stdin)
     except Exception:
-        return 0  # fail-open
-    workspace = payload.get("workspace") or {}
+        return 0  # fail-open on an unparseable payload
+    if not isinstance(payload, dict):
+        payload = {}  # a non-object payload carries no project dir; resolve it below
+    workspace = payload.get("workspace")
+    workspace = workspace if isinstance(workspace, dict) else {}
     project_dir = (
         workspace.get("project_dir")
         or os.environ.get("CLAUDE_PROJECT_DIR")
@@ -136,7 +177,11 @@ def main(argv: list[str]) -> int:
         # correct across a repo move (for example an /old/root -> /new/root relocation).
         or str(Path(__file__).resolve().parents[2])
     )
-    block, reason = decide(read_mode(project_dir))
+    result = read_mode(str(project_dir))
+    # read_mode returns (mode, source); a bare mode string is accepted too (the message-contract
+    # test in tests/test_linters.py patches read_mode at that seam).
+    mode, source = result if isinstance(result, tuple) else (result, "")
+    block, reason = decide(mode, source)
     if block:
         print(reason, file=sys.stderr)
         return 2
@@ -144,62 +189,72 @@ def main(argv: list[str]) -> int:
 
 
 def _self_test() -> int:
+    import tempfile
     import unittest
 
+    def lease_root(d: str, mode: str | None) -> str:
+        root = Path(d) / "proj"
+        (root / ".working").mkdir(parents=True)
+        if mode is not None:
+            (root / ".working" / "session-state.md").write_text(
+                f"**Operating-mode:** {mode}\n", encoding="utf-8")
+        return str(root)
+
     class T(unittest.TestCase):
-        def test_overnight_blocks(self):
+        def test_exact_modes(self):
             self.assertTrue(decide("overnight-unattended")[0])
-
-        def test_daytime_unattended_blocks(self):
             self.assertTrue(decide("daytime-unattended")[0])
+            self.assertTrue(decide("unattended")[0])
+            for m in ("attended-autonomous", "fully-attended", "attended", "decisions", None,
+                      "attended-not-unattended"):
+                self.assertFalse(decide(m)[0], m)
 
-        def test_attended_allows(self):
-            self.assertFalse(decide("attended-autonomous")[0])
-            self.assertFalse(decide("fully-attended")[0])
-
-        def test_absent_allows(self):
-            self.assertFalse(decide(None)[0])
-
-        def test_canonical_file_wins_over_a_stale_lease(self):
-            # The 2026-09-25 shape: the fleet file says unattended, the lease still says
-            # attended-autonomous. The canonical file must decide.
-            import tempfile
+        def test_stale_lease_incident(self):
+            # 2026-09-25: fleet file unattended, lease still attended-autonomous -> block.
             with tempfile.TemporaryDirectory() as d:
-                root = Path(d)
-                (root / ".working").mkdir()
-                (root / ".working" / "session-state.md").write_text(
-                    "**Operating-mode:** attended-autonomous\n", encoding="utf-8")
-                fleet = root / "operating-mode"
+                fleet = Path(d) / "operating-mode"
                 fleet.write_text('{"mode":"unattended","set_by":"x"}', encoding="utf-8")
-                old = os.environ.get("GRC_OPERATOR_MODE_FILE")
-                os.environ["GRC_OPERATOR_MODE_FILE"] = str(fleet)
-                try:
-                    self.assertEqual(read_mode(str(root)), "unattended")
-                    self.assertTrue(decide(read_mode(str(root)))[0])
-                    fleet.write_text('{"mode":"attended"}', encoding="utf-8")
-                    (root / ".working" / "session-state.md").write_text(
-                        "**Operating-mode:** daytime-unattended\n", encoding="utf-8")
-                    self.assertTrue(decide(read_mode(str(root)))[0])  # #5(b) swap still blocks
-                    (root / ".working" / "session-state.md").write_text(
-                        "**Operating-mode:** attended-autonomous\n", encoding="utf-8")
-                    self.assertEqual(read_mode(str(root)), "attended")  # canonical decides
-                    fleet.write_text("not json", encoding="utf-8")  # unparseable -> lease
-                    self.assertEqual(read_mode(str(root)), "attended-autonomous")
-                    os.environ["GRC_OPERATOR_MODE_FILE"] = str(root / "missing")  # absent -> lease
-                    self.assertEqual(read_mode(str(root)), "attended-autonomous")
-                finally:
-                    if old is None:
-                        os.environ.pop("GRC_OPERATOR_MODE_FILE", None)
-                    else:
-                        os.environ["GRC_OPERATOR_MODE_FILE"] = old
+                root = lease_root(d, "attended-autonomous")
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
 
-        def test_canonical_attended_allows(self):
-            import tempfile
+        def test_unusable_fleet_file_fails_closed(self):
             with tempfile.TemporaryDirectory() as d:
-                f = Path(d) / "operating-mode"
-                f.write_text('{"mode":"attended"}', encoding="utf-8")
-                self.assertEqual(read_canonical_mode(str(f)), "attended")
-                self.assertFalse(decide("attended")[0])
+                root = lease_root(d, "attended-autonomous")
+                fleet = Path(d) / "operating-mode"
+                bodies = ['{"mode":"unattended"', '{"mode":"unattended","mode":"attended"}',
+                          '{"mode":["unattended"]}', '{"set_by":"x"}', '{"mode":"bananas"}', "", "[]"]
+                for body in bodies:
+                    fleet.write_text(body, encoding="utf-8")
+                    self.assertTrue(decide(*read_mode(root, str(fleet)))[0], body)
+                fleet.write_bytes(b"\xff\xfe{")
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
+                fleet.unlink()
+                fleet.mkdir()
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
+                fleet.rmdir()
+                os.symlink(str(Path(d) / "missing"), str(fleet))
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
+
+        def test_bom_and_case_are_read(self):
+            with tempfile.TemporaryDirectory() as d:
+                root = lease_root(d, "attended-autonomous")
+                fleet = Path(d) / "operating-mode"
+                fleet.write_text('\ufeff{"mode":" UNATTENDED "}', encoding="utf-8")
+                self.assertEqual(read_mode(root, str(fleet))[0], "unattended")
+                fleet.write_text('{"mode":"attended"}', encoding="utf-8")
+                self.assertFalse(decide(*read_mode(root, str(fleet)))[0])
+
+        def test_timeout_swap_and_absent_fallback(self):
+            with tempfile.TemporaryDirectory() as d:
+                fleet = Path(d) / "operating-mode"
+                fleet.write_text('{"mode":"attended"}', encoding="utf-8")
+                root = lease_root(d, "daytime-unattended")
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])  # #5(b) swap blocks
+                missing = str(Path(d) / "absent")
+                self.assertTrue(decide(*read_mode(root, missing))[0])  # absent -> lease decides
+            with tempfile.TemporaryDirectory() as d:
+                root = lease_root(d, None)
+                self.assertFalse(decide(*read_mode(root, str(Path(d) / "absent")))[0])
 
     result = unittest.TextTestRunner(verbosity=2).run(
         unittest.TestLoader().loadTestsFromTestCase(T)
