@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.7\
-**Date:** 2026-08-16\
+**Version:** 1.1.8\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -59,7 +59,7 @@ Each project block records:
   - **Source URL**: the canonical project URL the assessment captured (project repository for open-source projects, vendor product page for commercial vendors).
   - **Version at assessment**: the project release tag, version string, or "default branch HEAD" recorded at assessment time. Where the project does not publish stable versions, the marker indicates which branch state was assessed.
   - **Date assessed**: ISO 8601 date the Wave 1 or Wave 2 agent fetched the source.
-  - **Integrity anchor**: for GitHub-hosted projects, the commit SHA of the default branch at assessment time. For non-GitHub sources, the SHA-256 of the captured page content. **This field is filled by the human verifier** under the Citation Verification Specification methodology; the AI verifier records "pending human verification" at entry creation.
+  - **Integrity anchor**: for GitHub-hosted projects, the commit SHA of the default branch at assessment time. For non-GitHub sources, the SHA-512 of the captured page content. **This field is filled by the human verifier** under the Citation Verification Specification methodology; the AI verifier records "pending human verification" at entry creation.
   - **Wayback snapshot URL**: `web.archive.org` snapshot of the source URL on the assessment date. **This field is filled by the human verifier**; `web.archive.org` is blocked in the AI verifier's sandbox.
   - **Verification status**: one of "AI-captured-pending-human-verification" (Source URL and Date assessed are AI-captured; integrity anchors are pending), "human-verified" (a human verifier has populated all provenance fields and confirmed), or "re-verification-due" (the prior human-verified entry is past the 6-month re-verification cadence and needs refresh).
 
@@ -1079,7 +1079,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://www.lakera.ai/lakera-guard`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 
@@ -1094,7 +1094,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://www.promptarmor.com/`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 
@@ -1110,7 +1110,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://www.hiddenlayer.com/platform/ai-runtime-security`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 
@@ -1124,7 +1124,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://moderator.calypsoai.com/solutions`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 
@@ -1140,7 +1140,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://mindgard.ai/ai-security-platform`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 
@@ -1156,7 +1156,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Source URL: `https://splx.ai/`
   - Version at assessment: product page content at assessment
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
-  - Integrity anchor: pending human verification (SHA-256 of captured page content)
+  - Integrity anchor: pending human verification (SHA-512 of captured page content)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
   - Verification status: AI-captured-pending-human-verification
 

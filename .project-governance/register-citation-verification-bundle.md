@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.8\
-**Date:** 2026-09-06\
+**Version:** 1.0.9\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md), [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md)\
@@ -63,7 +63,7 @@ The order minimizes context-switching between publisher types and lets the human
 
 - **Publishers**: 49 GitHub repositories + 6 commercial vendor product pages.
 - **Common URL pattern**: `https://github.com/<owner>/<repo>` for OSS; vendor product page URLs as recorded in the Provenance blocks.
-- **Integrity anchor**: commit SHA of default branch (GitHub) or SHA-256 of captured page content (web).
+- **Integrity anchor**: commit SHA of default branch (GitHub) or SHA-512 of captured page content (web).
 - **Output**: 55 verifications register rows; Provenance block updates for each tooling-register entry (Integrity anchor and Wayback URL filled in; Verification status transitions to `human-verified`).
 
 ### 4.3 Q3.1 - New canonical citations (non-overlapping)
@@ -145,7 +145,7 @@ Recommended workflow for the human verifier:
 
 - **Wayback Machine submission**: `https://web.archive.org/save/<publisher-url>`. Wait for the snapshot to complete; record the resulting URL.
 - **GitHub commit SHA capture**: from the repo page, the latest commit on the default branch is shown at the top of the file listing. Copy the full 40-character SHA.
-- **Web page content hash**: for commercial vendor pages, save the page HTML and compute SHA-256 (e.g., `curl -L <url> | shasum -a 256`).
+- **Web page content hash**: for commercial vendor pages, save the page HTML and compute SHA-512 (e.g., `curl -L <url> | shasum -a 512`).
 - **Spot-check buddy**: at end of each batch, the human verifier (or a delegated reviewer) spot-checks 5+ rows from that batch by re-opening the URLs and confirming the captured text still matches the live page. This is the spot-check requirement defined in [`specification-citation-verification.md`](../governance/specification-citation-verification.md) §8.6.
 
 ---

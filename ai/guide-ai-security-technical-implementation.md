@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Technical Implementation Guide\
 **Document Type:** Guide\
-**Version:** 1.3.7\
-**Date:** 2026-09-23\
+**Version:** 1.3.8\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -563,8 +563,8 @@ element.textContent = llmResponse;
   "action": "invoke | retrieve | generate | approve | block",
   "model": "model identifier",
   "status": "success | failure | blocked",
-  "input_hash": "SHA-256 of input",
-  "output_hash": "SHA-256 of output",
+  "input_hash": "SHA-512 of input",
+  "output_hash": "SHA-512 of output",
   "token_count_input": 0,
   "token_count_output": 0,
   "latency_ms": 0,

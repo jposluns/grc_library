@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.21\
-**Date:** 2026-09-23\
+**Version:** 1.3.22\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -63,7 +63,7 @@ All log sources must synchronize to approved enterprise NTP servers. Clock drift
 
 ### 3.3 Integrity verification
 
-Logs from critical systems must be verified for integrity using SHA-256 cryptographic hashing at the point of collection. Hash values are stored separately from log content. Any mismatch between the stored hash and the received log content is treated as a potential tampering event and escalated immediately to the CISO and SOC lead.
+Logs from critical systems must be verified for integrity using SHA-512 or BLAKE2b cryptographic hashing (the Encryption and Key Management Policy) at the point of collection. Hash values are stored separately from log content. Any mismatch between the stored hash and the received log content is treated as a potential tampering event and escalated immediately to the CISO and SOC lead.
 
 ### 3.4 Log normalization
 

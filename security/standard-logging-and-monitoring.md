@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.24\
-**Date:** 2026-09-16\
+**Version:** 1.4.25\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -85,7 +85,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 4.3.1 All logs must be forwarded to the enterprise SIEM within 60 seconds of generation where technically feasible.
 4.3.2 Transmission must occur over encrypted channels (TLS 1.3 or better).
-4.3.3 Logs from critical systems must be collected in near-real-time and verified for integrity through cryptographic hashing (SHA-256 minimum).
+4.3.3 Logs from critical systems must be collected in near-real-time and verified for integrity through cryptographic hashing (SHA-512 or BLAKE2b, per the Encryption and Key Management Policy).
 
 ### 4.4 Retention and protection
 
