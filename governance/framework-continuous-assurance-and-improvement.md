@@ -2,7 +2,7 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -100,7 +100,7 @@ The organization must track and improve:
 - Security resilience and service availability.
 - Ethical accountability and stakeholder confidence.
 
-### 4.2 AI performance and maturity kpis (monitored under ISO/IEC 42001:2023 §9.1)
+### 4.2 AI performance and maturity KPIs (organization-defined; monitoring informed by ISO/IEC 42001:2023 §9.1)
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.

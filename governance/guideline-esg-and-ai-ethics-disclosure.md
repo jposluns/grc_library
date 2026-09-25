@@ -2,7 +2,7 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -81,7 +81,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | --- | --- | --- |
 | Organization-defined AI governance maturity level | ISO/IEC 42001:2023 §9.1 (informs the organization's metric and annual disclosure); COBIT 2019 | Annual |
 | Number of AI systems by risk tier | EU AI Act (tiering); NIST AI RMF (informs the organization's own risk-management approach, prescribes no tiers) | Annual |
-| Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9 (informs the organization's metric and annual disclosure) | Annual |
+| Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9.1 (informs the organization's metric and annual disclosure) | Annual |
 | Explainability compliance rate | EU AI Act Annex IV | Annual |
 | AI incidents reported and resolved | ISO/IEC 42001:2023 A.8.4 and §10.2 (inform the organization's metric and annual disclosure) | Annual |
 | High-risk AI systems with current AI Impact Assessment | EU AI Act | Annual |
