@@ -184,6 +184,53 @@ def _identifier_probe_catalogues():
     }
 
 
+_PROBE_ENGINE = []
+
+
+def _identifier_probe_engine():
+    """The configured alignment-citation engine (loaded once), for the flaggability checks."""
+    if not _PROBE_ENGINE:
+        mod = load_linter_module(
+            "tools/lint-alignment-citation-existence.py", "_identifier_probe_engine"
+        )
+        _PROBE_ENGINE.append(mod._engine())
+    return _PROBE_ENGINE[0]
+
+
+def identifier_probe_unflaggable(family, token, template):
+    """Why the linter could never report ``token`` as rendered in ``template``, or None.
+
+    Absence from the catalogue is not enough (3b64 QA): the rendered placeholder must be a WHOLE
+    token of its family's engine pattern at exactly the probe's position (so a glued prefix or a
+    trailing digit cannot change it, and a PF probe is not a range endpoint the engine
+    canonicalizes), and the engine must flag the token in a neutral line of its family (so a
+    zero-middle ASVS token, which the engine reads as a version, is refused).
+    """
+    eng = _identifier_probe_engine()
+    start = template.index("{probe}")
+    rendered = template.replace("{probe}", token)
+    line_start = rendered.rfind("\n", 0, start) + 1
+    line_end = rendered.find("\n", start)
+    line = rendered[line_start:] if line_end < 0 else rendered[line_start:line_end]
+    span = (start - line_start, start - line_start + len(token))
+    pattern = {"asvs": eng._ASVS_TOKEN, "cwe": eng._CWE_TOKEN, "pf": eng._PF_SINGLE}[family]
+    if not any(m.span() == span for m in pattern.finditer(line)):
+        return "is not a whole token at its placeholder once rendered"
+    if family == "pf" and any(m.start() < span[1] and span[0] < m.end()
+                              for m in eng._PF_RANGE.finditer(line)):
+        return "is a range endpoint, which the engine canonicalizes"
+    findings = []
+    if family == "asvs":
+        eng._check_asvs(f"ASVS requirement {token}.\n", 1, "probe.md", None, False, findings)
+    elif family == "cwe":
+        eng._check_cwe(f"See {token}.\n", 1, "probe.md", findings)
+    elif not eng._check_pf(token):
+        findings.append(token)
+    if not findings:
+        return "is not flagged by the engine even in a neutral context"
+    return None
+
+
 def identifier_scope_probe_issues(cases):
     """Check declared (catalogue, token, template) suppression probes."""
     catalogues = _identifier_probe_catalogues()
@@ -207,7 +254,8 @@ def identifier_scope_probe_issues(cases):
             canonical = (
                 f"CWE-{int(token.split('-')[1])}" if family == "cwe" else token
             )
-            if canonical in catalogues[family]:
+            valid_id = canonical in catalogues[family]
+            if valid_id:
                 issues.append(
                     f"TEST-PROBE-VALID-ID: {where}: {family} {token!r} "
                     f"exists in the held catalogue"
@@ -216,6 +264,33 @@ def identifier_scope_probe_issues(cases):
                 issues.append(
                     f"TEST-PROBE-TEMPLATE: {where}: expected one {{probe}} placeholder"
                 )
+                continue
+            if valid_id:
+                continue  # already refused; flaggability is moot for a real identifier
+            why = identifier_probe_unflaggable(family, token, template)
+            if why:
+                issues.append(f"TEST-PROBE-UNFLAGGABLE: {where}: {family} {token!r} {why}")
+    return issues
+
+
+def scope_probe_registry_issues(classes):
+    """Issues across every LinterTestCase subclass in ``classes`` that declares probes: stale
+    method keys, a test that declares probes but never calls the helper, and the per-probe checks."""
+    import inspect
+    issues = []
+    for name, cls in sorted(classes.items()):
+        if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
+            continue
+        cases = cls.__dict__.get("IDENTIFIER_SCOPE_PROBES", {})
+        if not cases:
+            continue
+        for method in cases:
+            func = getattr(cls, method, None)
+            if not method.startswith("test_") or not callable(func):
+                issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
+            elif "assertIdentifierScopeProbes" not in inspect.getsource(func):
+                issues.append(f"TEST-PROBE-UNUSED: {name}.{method} never runs its probes")
+        issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
     return issues
 
 
@@ -22917,17 +22992,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
 class IdentifierScopeProbeMetaTests(unittest.TestCase):
     def test_registered_scope_probes_use_absent_identifiers(self) -> None:
-        issues = []
-        for name, cls in sorted(list(globals().items())):
-            if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
-                continue
-            cases = cls.__dict__.get("IDENTIFIER_SCOPE_PROBES", {})
-            if not cases:
-                continue
-            for method in cases:
-                if not method.startswith("test_") or not callable(getattr(cls, method, None)):
-                    issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
-            issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
+        issues = scope_probe_registry_issues(dict(globals()))
         if issues:
             self.fail("\n".join(issues))
 
@@ -22959,6 +23024,31 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         )
         for family, token in (("pf", "CT.PO-P5"), ("cwe", "CWE-99999")):
             self.assertEqual(identifier_scope_probe_issues(self._cases(family, token)), [])
+
+    def test_probes_the_linter_could_never_flag_are_rejected(self) -> None:
+        # 3b64 QA (claude, codex): absent from the catalogue yet unflaggable, so a test built on
+        # them passes whatever the scope logic does.
+        for family, token, template, why in (
+            ("asvs", "V9.9.9", "ASVS requirement X{probe}.", "is not a whole token at its placeholder once rendered"),
+            ("asvs", "V5.0.1", "ASVS requirement {probe}.", "is not flagged by the engine even in a neutral context"),
+            ("cwe", "CWE-0", "{probe}79", "is not a whole token at its placeholder once rendered"),
+            ("pf", "CT.PO-P04", "{probe} to P4", "is a range endpoint, which the engine canonicalizes"),
+        ):
+            with self.subTest(token=token, template=template):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases(family, token, template)),
+                    [f"TEST-PROBE-UNFLAGGABLE: runTest[0]: {family} {token!r} {why}"],
+                )
+
+    def test_declared_probes_must_be_run(self) -> None:
+        class _Declares(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": (("asvs", "V9.9.9", "ASVS {probe}."),)}
+
+            def test_x(self) -> None:
+                self.assertTrue(True)
+
+        self.assertEqual(scope_probe_registry_issues({"_Declares": _Declares}),
+                         ["TEST-PROBE-UNUSED: _Declares.test_x never runs its probes"])
 
     def test_bad_declarations_fail_with_exact_rules(self) -> None:
         examples = (
@@ -23014,11 +23104,13 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
     def test_meta_test_detects_a_real_id_inserted_into_an_actual_probe(self) -> None:
         from unittest.mock import patch
         cls = AlignmentCitationExistenceTests
-        name = "test_version_columns_in_an_asvs_table_are_not_checked"
         cases = dict(cls.IDENTIFIER_SCOPE_PROBES)
+        name = next(n for n, p in sorted(cases.items())
+                    if any(f == "asvs" for f, _, _ in p))
         probes = list(cases[name])
-        family, _, template = probes[1]
-        probes[1] = (family, "V1.6", template)
+        index = next(i for i, (f, _, _) in enumerate(probes) if f == "asvs")
+        family, _, template = probes[index]
+        probes[index] = (family, "V1.6", template)
         cases[name] = tuple(probes)
         meta = IdentifierScopeProbeMetaTests(
             "test_registered_scope_probes_use_absent_identifiers"
@@ -23029,7 +23121,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(
             str(caught.exception),
             "AlignmentCitationExistenceTests: TEST-PROBE-VALID-ID: "
-            f"{name}[1]: asvs 'V1.6' exists in the held catalogue",
+            f"{name}[{index}]: asvs 'V1.6' exists in the held catalogue",
         )
 
     def test_each_migrated_token_is_reported_in_live_asvs_context(self) -> None:
@@ -23040,6 +23132,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             token
             for probes in AlignmentCitationExistenceTests.IDENTIFIER_SCOPE_PROBES.values()
             for family, token, template in probes
+            if family == "asvs"
         })
         for token in tokens:
             with self.subTest(token=token):
