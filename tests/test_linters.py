@@ -210,25 +210,9 @@ def identifier_probe_unflaggable(family, token, template):
     so no CWE or PF probe can currently pass; the families are supported for a future context rule.
     """
     eng = _identifier_probe_engine()
-    # Locate the placeholder with the ENGINE's line model (3b64 round 2): the file is read in
-    # universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced
-    # lines are dropped, so the probe must sit on a line the engine actually yields, at the same
-    # column. The position comes from the placeholder itself (round 3: a sentinel character could
-    # collide with the template), and the text checked is exactly the text the run writes.
-    rendered = template.replace("{probe}", token)
-    lineno, column = next((n, ln.index("{probe}")) for n, ln in
-                          enumerate(template.splitlines(), start=1) if "{probe}" in ln)
-    engine_lines = dict(eng.iter_non_code_lines(rendered))
-    if lineno not in engine_lines:
-        return "sits on a line the engine never reads (a fenced block)"
-    line = engine_lines[lineno]
-    span = (column, column + len(token))
-    pattern = {"asvs": eng._ASVS_TOKEN, "cwe": eng._CWE_TOKEN, "pf": eng._PF_SINGLE}[family]
-    if not any(m.span() == span for m in pattern.finditer(line)):
-        return "is not a whole token at its placeholder once rendered"
-    if family == "pf" and any(m.start() < span[1] and span[0] < m.end()
-                              for m in eng._PF_RANGE.finditer(line)):
-        return "is part of a PF range (not supported as a probe)"
+    whole = _probe_is_whole_token(family, token, template)
+    if whole is not True:
+        return whole
     findings = []
     if family == "asvs":
         eng._check_asvs(f"ASVS requirement {token}.\n", 1, "probe.md", None, False, findings)
@@ -243,7 +227,13 @@ def identifier_probe_unflaggable(family, token, template):
 
 def _probe_is_whole_token(family, token, template):
     """True when ``token`` renders at ``template``'s placeholder as a whole engine token on a line
-    the engine reads; a reason string otherwise (shared by the template and twin checks)."""
+    the engine reads, and (PF) is neither inside a range nor rebuilt as a range endpoint elsewhere;
+    a reason string otherwise. Shared by the template and twin checks.
+
+    The placeholder is located with the ENGINE's line model (3b64 round 2): the file is read in
+    universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced lines
+    are dropped. The position comes from the placeholder itself (round 3: a sentinel character
+    could collide with the template), and the text checked is exactly the text the run writes."""
     eng = _identifier_probe_engine()
     rendered = template.replace("{probe}", token)
     lineno, column = next((n, ln.index("{probe}")) for n, ln in
@@ -255,6 +245,17 @@ def _probe_is_whole_token(family, token, template):
     span = (column, column + len(token))
     if not any(m.span() == span for m in pattern.finditer(engine_lines[lineno])):
         return "is not a whole token at its placeholder once rendered"
+    if family == "pf":
+        if any(m.start() < span[1] and span[0] < m.end()
+               for m in eng._PF_RANGE.finditer(engine_lines[lineno])):
+            return "is part of a PF range (not supported as a probe)"
+        # 3b64 round 7 (claude): the engine rebuilds range endpoints ('CT.PO-P1 to P9' reports
+        # 'CT.PO-P9'), so an endpoint equal to the token elsewhere could be the one reported.
+        for _n, line in engine_lines.items():
+            for m in eng._PF_RANGE.finditer(line):
+                if token in (f"{m.group(1)}{int(m.group(2))}",
+                             f"{m.group(3) or m.group(1)}{int(m.group(4))}"):
+                    return "is also a PF range endpoint elsewhere, which the engine reports"
     return True
 
 
@@ -320,11 +321,13 @@ def identifier_scope_probe_issues(cases):
             why = identifier_probe_unflaggable(family, token, template)
             if why:
                 issues.append(f"TEST-PROBE-UNFLAGGABLE: {where}: {family} {token!r} {why}")
-            elif _probe_is_whole_token(family, token, twin) is not True:
+            else:
                 # 3b64 round 6 (codex): the twin's placeholder must render as the declared token
                 # itself, or the twin can be reported for a longer identifier ('V9.9.90').
-                issues.append(f"TEST-PROBE-TWIN: {where}: {family} {token!r} is not a whole token "
-                              f"at the twin's placeholder once rendered")
+                twin_ok = _probe_is_whole_token(family, token, twin)
+                if twin_ok is not True:
+                    issues.append(f"TEST-PROBE-TWIN: {where}: {family} {token!r} in the twin "
+                                  f"{twin_ok}")
     return issues
 
 
@@ -365,13 +368,35 @@ def _runs_scope_probes(func):
         while stack:
             cur = stack.pop()
             yield cur
-            stack.extend(child for child in ast.iter_child_nodes(cur)
-                         if not isinstance(child, scopes))
+            if cur is not node and isinstance(cur, scopes):
+                continue  # judged by its definition-time parts, not its deferred body
+            stack.extend(ast.iter_child_nodes(cur))
+
+    def definition_time(node):
+        """The parts of a def, lambda or class that RUN when it is reached (3b64 round 7):
+        decorators, argument defaults, a class's bases and keywords, and a class body."""
+        parts = list(getattr(node, "decorator_list", []))
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            parts += [d for d in [*node.args.defaults, *node.args.kw_defaults] if d is not None]
+        else:  # ClassDef
+            parts += [*node.bases, *(k.value for k in node.keywords), *node.body]
+        return parts
 
     def may_exit(node):
-        """A statement or expression that can leave the method: a return or raise in it, or a
-        skipTest, fail or exit call in it, in the same scope (3b64 rounds 5 and 6)."""
+        """A statement or expression that can leave the method when it runs: a return or raise in
+        it, or a skipTest, fail or exit call in it (3b64 rounds 5 to 7). A def, lambda or class is
+        judged by what runs when it is reached, never by its deferred body."""
+        if isinstance(node, scopes):
+            # A bare decorator (@self.skipTest) is CALLED when applied, without call syntax.
+            if any((getattr(d, "attr", None) or getattr(d, "id", None)) in exits
+                   for d in getattr(node, "decorator_list", [])):
+                return True
+            return any(may_exit(part) for part in definition_time(node))
         for sub in walk_same_scope(node):
+            if isinstance(sub, scopes):
+                if may_exit(sub):
+                    return True
+                continue
             if isinstance(sub, (ast.Return, ast.Raise)):
                 return True
             if isinstance(sub, ast.Call):
@@ -383,8 +408,6 @@ def _runs_scope_probes(func):
     def scan(stmts):
         """True: the call is reached; False: something that may exit comes first; None: neither."""
         for stmt in stmts:
-            if isinstance(stmt, scopes):
-                continue  # a nested def or class body does not run here
             if isinstance(stmt, (ast.Return, ast.Raise, ast.Try)):
                 return False
             if is_call(stmt):
@@ -23219,6 +23242,14 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS {probe}.", "ASVS {probe}.")),
             ["TEST-PROBE-TWIN: runTest[0]: the twin needs one {probe} and must differ from the template"])
 
+    def test_a_rebuilt_pf_range_endpoint_is_refused(self) -> None:
+        # 3b64 round 7 (claude): 'CT.PO-P1 to P9' makes the engine report 'CT.PO-P9'.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("pf", "CT.PO-P9", "{probe} x\n",
+                                                      "CT.PO-P1 to P9, {probe}\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: pf 'CT.PO-P9' in the twin is also a PF range endpoint "
+             "elsewhere, which the engine reports"])
+
     def test_twin_placeholder_count_and_duplicates_are_refused(self) -> None:
         # 3b64 round 5 (claude, codex).
         for twin in ("ASVS requirement.\n", "ASVS {probe} and {probe}.\n"):
@@ -23241,8 +23272,13 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(
             identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
                                                       "ASVS requirement {probe}0.\n")),
-            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' is not a whole token at the twin's "
-             "placeholder once rendered"])
+            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' in the twin is not a whole token at "
+             "its placeholder once rendered"])
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "```\nASVS {probe}\n```\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' in the twin sits on a line the engine "
+             "never reads (a fenced block)"])
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n")
         run = Mock(return_value=subprocess.CompletedProcess([], 1, "x.md:1: 'V9.9.90' is not valid\n", ""))
@@ -23391,6 +23427,29 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                     return None
                 self.assertIdentifierScopeProbes(run)
 
+            def test_lambda_runner(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: self.fail("x") if body is None else None)
+
+            def test_nested_lambda_runner(self) -> None:
+                # The lambda is only passed on, never called here, so its fail() is deferred.
+                self.assertIdentifierScopeProbes(dict(run=lambda body: self.fail("x"))["run"])
+
+            def test_class_body_exit(self) -> None:
+                class _S:
+                    raise unittest.SkipTest("x")
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_default_exit(self) -> None:
+                def run(body, skip=self.skipTest("x")):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
+            def test_decorator_exit(self) -> None:
+                @self.skipTest
+                def run(body):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
         _Mentions.IDENTIFIER_SCOPE_PROBES = {
             name: (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),)
             for name in ("test_comment", "test_branch", "test_after_return", "test_skipped",
@@ -23398,7 +23457,9 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                          "test_after_raise", "test_after_try", "test_after_if_return",
                          "test_after_loop_raise", "test_after_skip_call", "test_after_harmless_if",
                          "test_exit_in_argument", "test_exit_in_subtest_argument", "test_generator",
-                         "test_local_runner")
+                         "test_local_runner", "test_lambda_runner", "test_nested_lambda_runner",
+                         "test_class_body_exit",
+                         "test_default_exit", "test_decorator_exit")
         }
         self.assertEqual(scope_probe_registry_issues({"_Mentions": _Mentions}), [
             "TEST-PROBE-UNUSED: _Mentions.test_comment never runs its probes",
@@ -23416,6 +23477,9 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             "TEST-PROBE-UNUSED: _Mentions.test_exit_in_argument never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_exit_in_subtest_argument never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_generator never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_class_body_exit never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_default_exit never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_decorator_exit never runs its probes",
         ])
 
     def test_declared_probes_must_be_run(self) -> None:
