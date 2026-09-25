@@ -16,6 +16,9 @@
 #                                     the merge base.
 #   3. .web/build.py --check         - web-generator health (parse + render, no write).
 #
+# It then prints one ADVISORY that never blocks: build-reference-manifest.py --check
+# (reference-manifest drift against the grc_library_ref sibling; P-TODO 3b62).
+#
 # Together those two runners cover every gate the CI workflow runs, so a
 # green guard means the push will not flip CI red on a gate failure.
 #
@@ -165,6 +168,21 @@ if [ -f .web/build.py ]; then
 else
     echo ""
     echo "=== pre-push guard 3/3: .web/build.py --check SKIPPED (.web/build.py absent; not applicable here) ==="
+fi
+
+# Advisory, never blocking: reference-acquisition manifest drift (P-TODO 3b62). The manifest
+# lists every trusted-bucket entry in the grc_library_ref sibling, and its --check is not a CI
+# gate (CI has no grc_library_ref), so a reference ingest leaves it stale until someone
+# regenerates it. Failing here would force an unrelated PR to carry the regeneration, so the
+# drift is reported, not blocked. The check no-ops (exit 0) when the sibling is absent.
+echo ""
+echo "=== pre-push guard advisory: build-reference-manifest.py --check (reference manifest vs grc_library_ref; does not block) ==="
+python3 tools/build-reference-manifest.py --check
+rc=$?
+if [ "${rc}" -eq 1 ]; then
+    echo "pre-push guard ADVISORY: docs/reference-acquisition-manifest.md has drifted from grc_library_ref. Not blocking this push; regenerate it (python3 tools/build-reference-manifest.py) in its own PR next."
+elif [ "${rc}" -ne 0 ]; then
+    echo "pre-push guard ADVISORY: the reference-manifest check could not run (rc=${rc}; see its message above). Not blocking this push."
 fi
 
 echo ""

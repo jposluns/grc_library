@@ -3903,7 +3903,7 @@ class PrePushGuardTests(unittest.TestCase):
     tree beside stub runners.
     """
 
-    def _build_guard_dir(self, first_rc: int, second_rc: int, web_rc=None):
+    def _build_guard_dir(self, first_rc: int, second_rc: int, web_rc=None, manifest_rc=None):
         import shutil
         import stat
         import tempfile
@@ -3925,6 +3925,10 @@ class PrePushGuardTests(unittest.TestCase):
             web.mkdir()
             (web / "build.py").write_text(
                 f"import sys\nsys.exit({web_rc})\n", encoding="utf-8"
+            )
+        if manifest_rc is not None:
+            (tools / "build-reference-manifest.py").write_text(
+                f"import sys\nsys.exit({manifest_rc})\n", encoding="utf-8"
             )
         for name in ("pre-push-guard.sh", "run_all_audits.sh", "run-pr-time-checks.sh"):
             path = tools / name
@@ -4023,6 +4027,27 @@ class PrePushGuardTests(unittest.TestCase):
             result = self._run_guard(tmp)
             self.assertEqual(result.returncode, 0, result.stdout)
             self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_drift_is_advisory_only(self) -> None:
+        # P-TODO 3b62: reference-manifest drift is reported after the three checks, never
+        # blocking: the guard still exits 0 and says the push is safe.
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("ADVISORY: docs/reference-acquisition-manifest.md has drifted", result.stdout)
+            self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_in_sync_prints_no_advisory(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=0)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertNotIn("pre-push guard ADVISORY", result.stdout)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
