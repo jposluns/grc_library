@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.43\
+**Version:** 1.8.44\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -179,7 +179,7 @@ Absolute prohibitions. No exception without approval through the §4.2.2 risk-ti
 | P-05 | AI-generated code in auth, cryptography, or access control paths without security review | Hallucinated security controls |
 | P-06 | LLM conversation context persisted across user sessions without explicit consent | Context contamination, privacy breach |
 | P-07 | Unsigned or unverified model weights in any system | Supply chain compromise |
-| P-08 | MCP servers (organization-hosted, supplier-hosted or developer-workstation-hosted) used in production without registration in the MCP server register, a security review against its server-security baseline, and the approval their tier requires | Tool poisoning |
+| P-08 | MCP servers (organization-hosted, supplier-hosted or developer-workstation-hosted) used in production without registration in the MCP server register, a security review against the register's server-security baseline, and the approval their tier requires | Tool poisoning |
 | P-09 | Agent internet egress without explicit endpoint allow-list | Data exfiltration |
 | P-10 | AI-generated SQL queries without parameterization | SQL injection |
 | P-11 | Full prompt content including retrieved documents logged without PII masking | Sensitive data in logs |

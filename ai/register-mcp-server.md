@@ -2,7 +2,7 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-25\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,6 +76,8 @@ Each row is one MCP server. Mandatory fields:
 ---
 
 ## Approval categories
+
+Every tier's approval includes a security review against the server-security baseline below; the approval column names who signs off.
 
 | Category | Definition | Approval requirement |
 | --- | --- | --- |
