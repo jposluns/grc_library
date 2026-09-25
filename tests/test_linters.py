@@ -10491,7 +10491,14 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     def test_valid_section_not_refused(self) -> None:
         # A family the register holds passes the --section check (it may still stop later
         # for an absent reference base, as in CI, but never with the --section refusal).
-        r = run_linter("tools/audit-reference-acquisition-gaps.py", "--section", "NIST publications")
+        # A nonexistent --ref-base makes the run stop at the NEXT step deterministically (on
+        # every host), so reaching "catalogue not found" proves the section check passed.
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-valid-"))
+        self.addCleanup(shutil.rmtree, td)
+        r = run_linter("tools/audit-reference-acquisition-gaps.py", "--section", "NIST publications",
+                       "--ref-base", str(td / "no-ref-base"))
+        self.assertEqual(r.returncode, 2, r.stderr)
+        self.assertIn("catalogue not found", r.stderr)
         self.assertNotIn("--section", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
 
