@@ -52,18 +52,37 @@ BUCKET_LABEL = {
 }
 
 
-_DQ_ESCAPES = {'"': '"', "\\": "\\", "n": "\n", "t": "\t",
-               "r": "\r", "/": "/", "0": "\0"}
+# The YAML 1.1 double-quoted escape set (the one yaml.safe_load implements), plus the three
+# hex forms; \x, \u and \U carry 2, 4 and 8 hex digits (P-TODO 3b63).
+_DQ_ESCAPES = {"0": "\0", "a": "\a", "b": "\b", "t": "\t", "\t": "\t", "n": "\n",
+               "v": "\v", "f": "\f", "r": "\r", "e": "\x1b", " ": " ", '"': '"',
+               "/": "/", "\\": "\\", "N": "\x85", "_": "\xa0", "L": "\u2028",
+               "P": "\u2029"}
+_DQ_HEX = {"x": 2, "u": 4, "U": 8}
 
 
 def _unescape_double(s: str) -> str:
-    """Unescape the YAML double-quoted-scalar backslash escapes present in the
-    catalogue (chiefly `\\\"`), matching yaml.safe_load's result byte-for-byte."""
+    """Unescape a YAML double-quoted scalar's backslash escapes: the named escapes and the
+    \\x, \\u and \\U hex forms, matching yaml.safe_load for every escape YAML defines.
+    Malformed input never raises: an escape YAML does not define, a hex escape with too few or
+    non-hex digits or a code point beyond U+10FFFF, and a lone trailing backslash all keep their
+    characters literally (yaml.safe_load would raise instead). The catalogue is machine-generated
+    and carries none of these."""
     out = []
     i = 0
     while i < len(s):
         if s[i] == "\\" and i + 1 < len(s):
-            out.append(_DQ_ESCAPES.get(s[i + 1], s[i + 1]))
+            c = s[i + 1]
+            width = _DQ_HEX.get(c)
+            digits = s[i + 2:i + 2 + width] if width else ""
+            if width and len(digits) == width and all(ch in "0123456789abcdefABCDEF"
+                                                      for ch in digits):
+                code = int(digits, 16)
+                if code <= 0x10FFFF:  # beyond Unicode is malformed: fall through, keep the char
+                    out.append(chr(code))
+                    i += 2 + width
+                    continue
+            out.append(_DQ_ESCAPES.get(c, c))
             i += 2
         else:
             out.append(s[i])
@@ -74,8 +93,13 @@ def _unescape_double(s: str) -> str:
 def _scalar(v: str):
     """Parse a catalogue scalar value: strip a matched surrounding quote pair
     (unescaping YAML escapes per quote style), map bare booleans, else return the
-    raw string. (The audit toolchain is stdlib-only, so this hand-parses the
-    catalogue rather than importing PyYAML.)"""
+    raw string; a bare null/~ is None and a bare decimal integer an int, as yaml.safe_load gives.
+    That is the parity contract: the scalar shapes the catalogue uses (double- and single-quoted
+    strings, true/false, null/~, decimal integers) parse as yaml.safe_load parses them. Other YAML
+    1.1 forms (hex or octal integers, floats, yes/no/on/off, timestamps) stay literal strings, so
+    render() prints exactly what the catalogue author wrote.
+    (The audit toolchain is stdlib-only, so this hand-parses the catalogue rather than importing
+    PyYAML.)"""
     v = v.strip()
     if len(v) >= 2 and v[0] == v[-1] == '"':
         return _unescape_double(v[1:-1])
@@ -85,6 +109,12 @@ def _scalar(v: str):
         return True
     if v == "false":
         return False
+    # A bare null or ~ is YAML's null (yaml.safe_load gives None); a bare decimal integer is an
+    # int. Without this, an unquoted null reached render() as the literal text "null" (3b63).
+    if v in ("null", "~", "Null", "NULL", ""):
+        return None
+    if re.fullmatch(r"[-+]?(0|[1-9][0-9]*)", v):
+        return int(v)
     return v
 
 
@@ -94,14 +124,18 @@ def _parse_catalogue(text: str) -> dict:
     The catalogue is machine-generated with a fixed, regular shape: top-level
     bucket keys at column 0 (`standards:`), list entries beneath them
     (`  - key: value`), and entry fields (`    key: value`). Values are quoted
-    strings, bare scalars, or booleans; the one list field (`topics`) is stored
+    strings, booleans, nulls (None), decimal integers, or other bare scalars kept as text; the one list field (`topics`) is stored
     verbatim and never read. Returns `{bucket: [entry_dict, ...]}`, matching the
     dict shape `render()`/`_max_date()` consume. This avoids a non-stdlib PyYAML
     dependency in the stdlib-only audit toolchain (no tool imports `yaml`)."""
     catalogue: dict = {}
     bucket = None
     entry = None
-    for raw in text.splitlines():
+    # Split on the three ASCII line-break forms only. str.splitlines also splits on U+2028,
+    # U+2029, U+0085 and other separators, which would truncate a value that carries one
+    # (P-TODO 3b63). A raw one inside a quoted value is kept verbatim here, where
+    # yaml.safe_load would fold it into a space; the catalogue carries none.
+    for raw in re.split(r"\r\n|\r|\n", text):
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
         m = re.match(r"^([A-Za-z_][\w-]*):\s*$", raw)  # top-level bucket opener
@@ -123,10 +157,16 @@ def _parse_catalogue(text: str) -> dict:
     return catalogue
 
 
-def _cell(v: str) -> str:
+def _text(v) -> str:
+    """A parsed catalogue value as display text: None (a YAML null) is empty, anything else is
+    str(v), so an int 0 stays "0" rather than vanishing through an `or ""` (P-TODO 3b63)."""
+    return "" if v is None else str(v)
+
+
+def _cell(v) -> str:
     """Escape a value for a markdown table cell (pipes; collapse line breaks, including a bare
     carriage return, which would otherwise split the row for any reader)."""
-    return str(v).replace("|", "\\|").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
+    return _text(v).replace("|", "\\|").replace("\r\n", " ").replace("\r", " ").replace("\n", " ").strip()
 
 
 def _issuer(bucket: str, e: dict) -> str:
@@ -145,7 +185,7 @@ def _max_date(catalogue: dict) -> str:
     for bucket in TRUSTED:
         for e in catalogue.get(bucket, []):
             for key in ("last_updated", "last_checked"):
-                v = str(e.get(key, "") or "")
+                v = _text(e.get(key))
                 if len(v) == 10 and v[4] == "-" and v[7] == "-":
                     dates.append(v)
     return max(dates) if dates else FALLBACK_DATE
@@ -216,7 +256,7 @@ def render(catalogue: dict) -> str:
     total = 0
     free_total = 0
     for bucket in TRUSTED:
-        entries = sorted(catalogue.get(bucket, []), key=lambda e: e["title"].lower())
+        entries = sorted(catalogue.get(bucket, []), key=lambda e: _text(e.get("title")).lower())
         if not entries:
             continue
         free = sum(1 for e in entries if e.get("acquisition") == "free")
@@ -227,10 +267,10 @@ def render(catalogue: dict) -> str:
             "| --- | --- | --- | --- | --- |",
         ]
         for e in entries:
-            title = _cell(e["title"])
-            version = _cell(e.get("checked_edition", "") or "")
+            title = _cell(e.get("title"))
+            version = _cell(e.get("checked_edition"))
             issuer = _issuer(bucket, e)
-            url = _cell(e.get("upstream_url", "") or "")
+            url = _cell(e.get("upstream_url"))
             acq = _cell(e.get("acquisition", "")).upper()
             lines.append(f"| {title} | {version} | {issuer} | {url} | {acq} |")
             total += 1
