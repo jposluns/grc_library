@@ -17,7 +17,7 @@ Markdown file whose STAGED content carries its own Version key (`**Version:**`, 
 for the root README.md, per the guard's version_key), outside the generated artefacts and
 .corpus-management/, is versioned; an offender is a versioned file whose staged diff changes its body
 but not its Version line. This hook REFUSES and never auto-bumps: the PreToolUse guard auto-bumps
-same-checkout commits before git runs, and a git hook that rewrites the index mid-commit is riskier
+same-checkout commits before git runs (never the root README.md), and a git hook that rewrites the index mid-commit is riskier
 than a refusal naming the fix.
 
 Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff

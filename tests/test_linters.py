@@ -3999,6 +3999,22 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
             self.assertEqual((repo / "README.md").read_text(), dual)
 
+    def test_unbumped_version_guard_declines_readme_before_any_git_call(self) -> None:
+        """3b80 round 3 (codex): a version-independent check that the README decline is the
+        first thing try_auto_bump does (on Python 3.11 the later read raises, which also returns
+        False, so an end-to-end refusal alone does not prove the decline)."""
+        import importlib.util
+        from unittest.mock import Mock
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b80r3", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        guard.git = Mock(return_value="")
+        self.assertFalse(guard.try_auto_bump(Path("/nonexistent"), "README.md", "2026-09-25"))
+        guard.git.assert_not_called()
+        guard.try_auto_bump(Path("/nonexistent"), "governance/README.md", "2026-09-25")
+        guard.git.assert_called()
+
 
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.
@@ -24665,7 +24681,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
 
         add = group("block-unbumped-version-commit", "bump",
                     ("main", "print('\\n'.join(lines),"))
-        for name, occurrence in (("unstaged", 0), ("nonnumeric", 1), ("read-error", 2)):
+        # Occurrence 0 is the README decline (3b80); the others follow it.
+        add("readme", "readme", evidence=("README.md",),
+            sites=(("try_auto_bump", "return False", 0),))
+        for name, occurrence in (("unstaged", 1), ("nonnumeric", 2), ("read-error", 3)):
             add(name, name, evidence=("doc.md",),
                 sites=(("try_auto_bump", "return False", occurrence),))
         add("mixed", "mixed", evidence=("bad.md",), absent=("  - good.md",),
@@ -24951,7 +24970,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     bash("git commit -m probe")
                     m(mod, "project_root", Path(self.P))
                     p(mod, "datetime", FrozenDateTime)
-                    paths = ["good.md", "bad.md"] if arg == "mixed" else ["doc.md"]
+                    paths = (["good.md", "bad.md"] if arg == "mixed"
+                             else ["README.md"] if arg == "readme" else ["doc.md"])
                     diff = "".join("diff --git a/%s b/%s\n--- a/%s\n+++ b/%s\n"
                                    "@@ -5 +5 @@\n-old body\n+new body\n" % ((name,) * 4)
                                    for name in paths)
@@ -24976,6 +24996,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         self.assertIn(path.name, paths)
                         if arg == "read-error" and not kw:
                             raise OSError("crafted read failure")
+                        if arg == "readme":
+                            return "**README Version:** 1.0.0\n**Version:** 8.0.0\nBody\n"
                         return "**Version:** " + ("<x.y.z>" if arg == "nonnumeric" else "1.0.0") + "\nBody\n"
 
                     p(Path, "read_text", read_text)

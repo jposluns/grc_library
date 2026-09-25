@@ -41,8 +41,9 @@ WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
     updates the first matching `**Date:**` in the leading metadata region IF one is present (otherwise the
     Date is left unchanged), writes the file, then re-stages it. The write-then-stage is not transactional,
     so a later failure can leave the working file modified. It reports the file(s) it could NOT auto-bump
-    (other unstaged changes present, no `SEMVER_VERSION` match before the metadata-region end, or an
-    Exception during the attempt) and BLOCKS THE WHOLE tool call if any remain; auto-bumps done earlier in
+    (the root README.md, which is never auto-bumped because its `**README Version:**` moves once per PR
+    with the CalVer; other unstaged changes present; no `SEMVER_VERSION` match before the metadata-region
+    end; or an Exception during the attempt) and BLOCKS THE WHOLE tool call if any remain; auto-bumps done earlier in
     the same run are kept.
   - ALSO WARNS (never blocks), only when the offender list is empty, over the eligible
     working-tree-VERSIONED staged paths (not every staged `.md`), for those in a subdirectory outside
