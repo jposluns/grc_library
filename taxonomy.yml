@@ -11443,7 +11443,7 @@ documents:
   domain: "security"
   type: "Policy"
   title: "Encryption and Key Management Policy"
-  version: "1.3.32"
+  version: "1.3.33"
   date: "2026-09-25"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
