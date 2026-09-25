@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.19\
-**Date:** 2026-09-18\
+**Version:** 1.0.20\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -49,7 +49,7 @@ This annex applies where an organization:
 | **FCA Operational Resilience Policy Statement (PS21/3)** | Financial Conduct Authority | FCA-authorized firms; Important Business Services |
 | **PRA Supervisory Statement SS1/21** | Prudential Regulation Authority | PRA-regulated firms; operational resilience |
 | **FCA/PRA Cyber and Technology Resilience** | FCA / PRA | Firms' technology risk governance and outsourcing |
-| **UK GDPR** | ICO | All firms processing personal data in the UK |
+| **UK GDPR** | Information Commission (ICO until 30 September 2026) | All firms processing personal data in the UK |
 | **Money Laundering Regulations 2017 (as amended)** | HMRC; FCA | All regulated financial sector firms |
 | **Critical Third Parties (CTPs) regime** (FSMA 2023; PS24/16 joint BoE/PRA/FCA, November 2024) | Bank of England; FCA; PRA | Designated critical technology providers to UK financial sector |
 | **SYSC: Senior Management Arrangements** | FCA Handbook | Senior Manager functions; accountability |

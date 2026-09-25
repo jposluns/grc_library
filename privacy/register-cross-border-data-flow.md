@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Border Data Flow Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-08-16\
+**Version:** 1.0.11\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/README.md`](README.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md)\
@@ -97,7 +97,7 @@ Cross-border data transfer restrictions apply when personal data is transmitted,
 | Regime | Mechanism | Instrument |
 |---|---|---|
 | EU GDPR | SCCs | EU Commission Implementing Decision (EU) 2021/914: Module 2 (C→P) or Module 1 (C→C) |
-| EU GDPR | BCRs | ICO/DPA-approved BCR document |
+| EU GDPR | BCRs | BCR document approved by the competent supervisory authority (for UK BCRs, the Information Commission (the ICO until 30 September 2026)) |
 | EU GDPR | Adequacy | Current list of adequate countries: verify annually |
 | UK GDPR | IDTA | ICO-published International Data Transfer Agreement (version 1.0) |
 | UK GDPR | UK Addendum | Addendum to EU SCCs published by ICO (version B1.0) |

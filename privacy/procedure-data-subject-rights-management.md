@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.25\
-**Date:** 2026-09-22\
+**Version:** 1.6.27\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -274,7 +274,7 @@ When the joint controllers or processors operate across multiple regimes, the st
 1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
 3. The DPO signs off on the denial in writing before notification is sent to the data subject.
-4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (ICO, OPC, CAI, or other applicable authority).
+4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (the Information Commission (the ICO until 30 September 2026); OPC; CAI; or other applicable authority).
 5. The denial, its grounds, the Legal Counsel concurrence, and the DPO sign-off are recorded in the DSR register.
 
 All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the DPO before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.

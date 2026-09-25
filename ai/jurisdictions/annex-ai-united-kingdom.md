@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.5\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,7 +45,7 @@ Each principle below restates every clause of the white paper's "Definition and 
 
 ## Adopter-role framing
 
-An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the ICO, competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
+An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the Information Commission (the ICO until 30 September 2026), competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
 
 ## Relationship to corpus AI-governance content
 

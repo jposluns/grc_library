@@ -45,7 +45,7 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (267: 185 free, 82 licensed)
+## Standards (268: 186 free, 82 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -255,6 +255,7 @@ without the private reference sibling).
 | NIST SP 800-18 Rev. 2, Developing Security, Privacy, and Cybersecurity Supply Chain Risk Management Plans for Systems | SP 800-18 Revision 2 (final, June 2026); confirmed current final at csrc.nist.gov/pubs/sp/800/18/r2/final on 2026-07-07 (supersedes Rev. 1, 2006) | NIST |  | FREE |
 | NIST SP 800-181 Rev. 1, Workforce Framework for Cybersecurity (NICE Framework) |  | NIST |  | FREE |
 | NIST SP 800-184, Guide for Cybersecurity Event Recovery |  | NIST |  | FREE |
+| NIST SP 800-185, SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash | SP 800-185 (December 2016) | NIST |  | FREE |
 | NIST SP 800-188, De-Identifying Government Datasets: Techniques and Governance |  | NIST |  | FREE |
 | NIST SP 800-189, Resilient Interdomain Traffic Exchange: BGP Security and DDoS Mitigation | SP 800-189 (December 2019) | NIST |  | FREE |
 | NIST SP 800-190, Application Container Security Guide |  | NIST |  | FREE |
@@ -634,7 +635,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (226: 226 free, 0 licensed)
+## Legislation (229: 229 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -848,7 +849,10 @@ without the private reference sibling).
 | UAE DIFC Data Protection Law No. 5 of 2020 (consolidated March 2022) |  | UAE-DIFC |  | FREE |
 | UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data | Federal Decree-Law No. 45 of 2021 (Executive Regulations not yet issued as of 2026-08-14) | United Arab Emirates |  | FREE |
 | UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data (Arabic original) | Federal Decree-Law No. 45 of 2021 (Arabic original text) | United Arab Emirates |  | FREE |
+| United Kingdom Data (Use and Access) Act 2025 (c. 18) | As enacted (Royal Assent 19 June 2025) | UK |  | FREE |
+| United Kingdom Data (Use and Access) Act 2025 (Commencement No. 9 and Transitional and Saving Provisions) Regulations 2026 (S.I. 2026/1015) | Made 10 September 2026 | UK |  | FREE |
 | United Kingdom Data Protection Act 2018 (c. 12) |  | UK |  | FREE |
+| United Kingdom Privacy and Electronic Communications (EC Directive) Regulations 2003 (S.I. 2003/2426) | As made (2003) | UK |  | FREE |
 | United States Illinois HB 3773 (Public Act 103-0804), artificial intelligence in employment | PA 103-0804, effective 1 Jan 2026 | US |  | FREE |
 | United States National Artificial Intelligence Initiative Act of 2020 (codified at 15 U.S.C. Chapter 119) | 15 U.S.C. Chapter 119 (2023 codification) | US |  | FREE |
 | United States TAKE IT DOWN Act, Pub. L. 119-12 (2025) | Pub. L. 119-12, enacted 19 May 2025 | US |  | FREE |
@@ -912,5 +916,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 847 sources (721 free, 126 licensed).**
+**Total: 851 sources (725 free, 126 licensed).**
 

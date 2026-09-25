@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.44\
-**Date:** 2026-09-23\
+**Version:** 1.4.46\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/policy-byod.md`](../security/policy-byod.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -168,8 +168,8 @@ The notification assessment is documented in the breach record and approved by t
 
 | Jurisdiction | Governing Law | Regulatory Authority | Notification Trigger | Regulatory Deadline | Individual Notification |
 | --- | --- | --- | --- | --- | --- |
-| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); ICO for UK data subjects | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1); individuals notified where high risk, Art. 34) | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
-| **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commissioner's Office (ICO) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
+| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); where UK GDPR also applies, notify the UK regulator as well (see the United Kingdom row) | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1); individuals notified where high risk, Art. 34) | 72 hours from the point of becoming aware of the breach | Without undue delay where the breach is likely to result in a high risk to individuals |
+| **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commission (ICO until 30 September 2026) | Same threshold as EU GDPR | 72 hours from becoming aware | Without undue delay where high risk |
 | **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); successor Bill C-36 (PPCDA) proposed, not in force | Office of the Privacy Commissioner of Canada (OPC) | Real risk of significant harm to the individual | As soon as feasible (no fixed statutory deadline) | As soon as feasible after the determination that significant harm is likely |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | Promptly to the CAI (the Act sets no fixed hour-count); affected individuals must also be notified (the Act states the duty without a timeliness standard) | Promptly, as programme policy (the Act states no sequencing or timeliness standard) |
 | **China** | PIPL Art. 57 | Cyberspace Administration of China (CAC) / relevant PIPC authority | Actual or possible leakage, tampering, or loss of personal information (PIPL Art. 57) | Immediately / without delay upon discovery | Promptly to affected individuals; notification may be omitted only where measures have effectively prevented harm, subject to authority direction (the authority may still require it) |
