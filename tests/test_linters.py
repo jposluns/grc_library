@@ -11621,6 +11621,91 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
 
 
+class AdvisoryAidInputRefusalTests(LinterTestCase):
+    """3b50b2e2: the remaining advisory aids refuse an explicit input that selects nothing.
+
+    audit-claim-precision degraded an explicit --ref-base with no catalogue to held-state unknown;
+    audit-selftest-discriminability probed a missing tool path as nothing; an explicit missing
+    --todo/--ptodo/--private-root in audit-backlog-actionability became a no-op, a public-only run
+    or was ignored; adopt-bootstrap-ref planned from a file with no manifest entries; and
+    suggest-listing-surfaces treated a flag as a document (a proposed, not-yet-existing document
+    stays valid input there)."""
+
+    def test_explicit_inputs_that_select_nothing_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aidinputs-"))
+        self.addCleanup(shutil.rmtree, td)
+        plain = td / "plain.md"
+        plain.write_text("Nothing here.\n", encoding="utf-8")
+        cases = (
+            ("tools/audit-claim-precision.py", "--ref-base", str(td)),
+            ("tools/audit-selftest-discriminability.py", str(td / "missing.py")),
+            ("tools/audit-backlog-actionability.py", "--todo", str(td / "missing.md")),
+            ("tools/audit-backlog-actionability.py", "--ptodo", str(td / "missing.md")),
+            ("tools/audit-backlog-actionability.py", "--private-root", str(td / "missing")),
+            ("tools/adopt-bootstrap-ref.py", "--manifest", str(plain)),
+            ("tools/suggest-listing-surfaces.py", "--bogus"),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_adopt_bootstrap_ref_accepts_a_valid_empty_manifest(self) -> None:
+        # r1 (codex): the docstring promises exit 0 for a clean empty manifest; only a file that is
+        # not a manifest at all is refused.
+        import json
+        import runpy
+        td = Path(tempfile.mkdtemp(prefix="aidinputs-"))
+        self.addCleanup(shutil.rmtree, td)
+        gen = runpy.run_path(str(REPO_ROOT / "tools/build-reference-manifest.py"))
+        empty = td / "empty-manifest.md"
+        empty.write_text(gen["render"]({}), encoding="utf-8")
+        r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(empty), "--json")
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+        counts = json.loads(r.stdout)["counts"]
+        self.assertTrue(counts and all(v == 0 for v in counts.values()), counts)
+        # r2: only the COMPLETE empty render qualifies: a heading quoted in a fence, a bare
+        # heading, or a render truncated before its zero-total line is refused.
+        rendered = gen["render"]({})
+        cut = rendered[:rendered.index("**Total:")]
+        for name, body in (("fenced.md", "# README\n```markdown\n# Reference-acquisition manifest\n"
+                                         "**Total: 0 sources (0 free, 0 licensed).**\n```\n"),
+                           ("heading.md", "# Reference-acquisition manifest\n"),
+                           ("truncated.md", cut),
+                           ("nested_fence.md", "# x\n````\n```\n" + rendered + "```\n````\n"),
+                           ("comment.md", "<!--\n" + rendered + "-->\n"),
+                           ("indented.md", "".join("    " + ln for ln in rendered.splitlines(True)))):
+            f = td / name
+            f.write_text(body, encoding="utf-8")
+            r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
+            self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
+        for name, data in (("two_boms.md", ("\ufeff\ufeff" + rendered).encode("utf-8")),
+                           ("latin1.md", b"\xff\xfe not utf-8\n")):
+            f = td / name
+            f.write_bytes(data)
+            r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
+            self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+        # r4: a generated title carrying an escaped pipe is one cell, not two.
+        mod = runpy.run_path(str(REPO_ROOT / "tools/adopt-bootstrap-ref.py"))
+        entries = mod["parse_manifest"]("| A \\| B | 1 | I | https://x | FREE |\n")
+        self.assertEqual([e["title"] for e in entries], ["A | B"])
+        # r5: the generator escapes pipes but not backslashes, so "A\\|B" renders as "A\\\\|B".
+        gen_cell = gen["_cell"]("A\\|B")
+        entries = mod["parse_manifest"](f"| {gen_cell} | 1 | I | https://x | FREE |\n")
+        self.assertEqual([e["title"] for e in entries], ["A\\|B"])
+        # r5: a generator that exits or returns a non-string refuses rather than permits.
+        bad = td / "bad_generator.py"
+        for body in ("import sys\nsys.exit(0)\n", "def render(c):\n    return 5\n"):
+            bad.write_text(body, encoding="utf-8")
+            mod["_is_clean_empty_manifest"].__globals__["GENERATOR"] = bad
+            self.assertFalse(mod["_is_clean_empty_manifest"](rendered), body)
+        crlf = td / "crlf.md"
+        crlf.write_bytes(("\ufeff" + rendered).replace("\n", "\r\n").encode("utf-8"))
+        r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(crlf), "--json")
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+
+
 class StrictArgvLiveDefectTests(LinterTestCase):
     """3b50b2a: live defects where a bad argument ran the wrong branch or scanned nothing.
 

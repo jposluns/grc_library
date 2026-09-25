@@ -454,6 +454,13 @@ def main(argv=None) -> int:
 
     # Resolve to absolute so a relative argument still reports a repo-relative label.
     if a.tools:
+        # 3b50b2e2: an explicit tool path that is missing or empty used to be probed as nothing
+        # and reported VOID with exit 0.
+        bad = [t for t in a.tools if not t.strip() or not Path(t).is_file()]
+        if bad:
+            for t in bad:
+                print(f"ERROR: {t!r}: not a tool file; nothing would be probed.", file=sys.stderr)
+            return 2
         requested = [Path(t).resolve() for t in a.tools]
         targets = [t for t in requested if not is_self(t)]
         for t in requested:

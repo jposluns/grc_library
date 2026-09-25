@@ -940,6 +940,13 @@ def main(argv):
                 print(f"ERROR: --docs {d}: not in the corpus scan set (excluded tree, excluded file, "
                       f"or not a markdown document); nothing would be assessed.", file=sys.stderr)
             return 2
+    if args.ref_base is not None and not (Path(args.ref_base) / "catalogue.yml").is_file():
+        # 3b50b2e2: an explicit --ref-base with no catalogue used to degrade to held-state
+        # "unknown" with exit 0, so a typo silently produced a worse worklist. The GRC_REF_PATH
+        # environment fallback stays advisory.
+        print(f"ERROR: --ref-base {args.ref_base!r}: no catalogue.yml there; not a reference base.",
+              file=sys.stderr)
+        return 2
     run_report(args.tier, find_ref_base(args.ref_base), docs=args.docs,
                as_json=args.as_json)
     return 0
