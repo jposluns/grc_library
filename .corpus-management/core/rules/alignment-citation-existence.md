@@ -1,19 +1,37 @@
 # Fabricated alignment-citation existence
 
-A cited framework-control identifier of the checked family exists in a held edition of
+A cited framework-control identifier of a checked family exists in a held edition of
 that framework's catalogue. A citation can name an identifier that is well-formed (it
 fits the family's code shape) yet appears in no held edition of the framework; that is
 a fabricated code, which the citation gates that only check code shape cannot see. The
-check recognizes one identifier family by its code shape, reads each document's lines
-outside fenced code blocks, finds each identifier of that family and each range of them
-(validating both range endpoints against their own category prefixes, so a
-cross-category range validates its actual endpoint, not a reconstructed one), and flags
-any identifier absent from the union of every held edition of the framework, advising
-correction to an existing identifier that fits the row. Validation is against the union
-of held editions, so a legitimate later-edition identifier is not false-flagged; only a
-code absent from all held editions is fabricated. The identifier family and its code
-shape are fixed by the check; the valid-identifier catalogue and the framework name are
-supplied by the adopter (the reference registry) and are not part of this clause.
-Report-only by default, the check becomes a blocking gate in strict mode. A document
-whose identifiers of the checked family all exist in a held edition contributes no
-findings.
+check reads each document's lines outside fenced code blocks, finds each identifier of a
+checked family, and flags any identifier absent from the union of every held edition of
+its framework, advising correction to an existing identifier that fits the row.
+Validation is against the union of held editions, so a legitimate later-edition
+identifier is not false-flagged; only a code absent from all held editions is fabricated.
+
+Three families are recognized by code shape. A category-coded family (code shape
+`XX.YY-P` with an optional number) is checked wherever it appears, together with ranges of
+it, each range endpoint validated against its own category prefix, so a cross-category
+range validates its actual endpoint, not a reconstructed one. A requirement-and-section
+family whose identifiers are `V` followed by two or three dot-separated numbers is checked
+only in that framework's context, because the same shape is used for other publishers'
+document versions: on a line that names the framework, in a table cell under a header that
+names it, or on a row whose first cell names it (a word match, so a differently named
+framework that contains the name as a substring does not count). Within that context, a
+token that directly follows the framework's name or the words version, edition or release
+is an edition string, and one that directly follows another publisher's document number or
+a maturity-model name is that document's version; neither is checked. A line naming an
+edition whose numbering differs from the held one is not checked against the held
+numbering. Two-number tokens are checked against the held sections and three-number tokens
+against the held requirements; bare chapter numbers are not checked. A weakness family
+(`CWE-` followed by a number) is checked wherever it appears.
+
+The identifier families and their code shapes are fixed by the check. The valid-identifier
+catalogues and the framework names are supplied by the adopter (the reference registry)
+and are not part of this clause; a family whose catalogue the adopter does not supply is
+not checked. Recognition limits are part of the clause: a requirement identifier written
+without its `V` prefix is not recognized, and a weakness catalogue that holds only
+weaknesses flags a cited category or view identifier. Report-only by default, the check
+becomes a blocking gate in strict mode. A document whose identifiers of the checked
+families all exist in a held edition contributes no findings.

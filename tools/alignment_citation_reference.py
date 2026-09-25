@@ -131,3 +131,53 @@ REGISTRY = {
     "nist-privacy-framework-1.0": PF10,
     "nist-privacy-framework-1.1-ipd": PF11,
 }
+
+
+# --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 (P-1.63 part d) ---
+# Loaded from the GENERATED tools/alignment_citation_ids.json (tools/build-alignment-citation-registry.py
+# extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The load
+# re-verifies each family's counts and SHA-256 digest, so a hand edit or a truncated file fails loudly
+# here rather than silently weakening the gate.
+import hashlib as _hashlib
+import json as _json
+from pathlib import Path as _Path
+
+_IDS_PATH = _Path(__file__).resolve().parent / "alignment_citation_ids.json"
+
+
+def _load_ids() -> dict:
+    data = _json.loads(_IDS_PATH.read_text(encoding="utf-8"))
+    a, c = data["asvs"], data["cwe"]
+    checks = (
+        ("ASVS requirements", len(a["requirements"]), a["counts"]["requirements"]),
+        ("ASVS sections", len(a["sections"]), a["counts"]["sections"]),
+        ("ASVS chapters", len(a["chapters"]), a["counts"]["chapters"]),
+        ("CWE ids", len(c["ids"]), c["counts"]["ids"]),
+    )
+    for label, got, want in checks:
+        if got != want:
+            raise SystemExit(f"alignment_citation_ids.json: {label} count {got} != recorded {want}; "
+                             f"regenerate with tools/build-alignment-citation-registry.py")
+    for label, ids, want in (("ASVS", a["requirements"] + a["sections"] + a["chapters"], a["sha256"]),
+                             ("CWE", c["ids"], c["sha256"])):
+        got = _hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()
+        if got != want:
+            raise SystemExit(f"alignment_citation_ids.json: {label} digest mismatch; the file was edited "
+                             f"by hand or truncated; regenerate with tools/build-alignment-citation-registry.py")
+    return data
+
+
+_IDS = _load_ids()
+ASVS = {
+    "name": f"{_IDS['asvs']['name']} {_IDS['asvs']['edition']}",
+    "edition": _IDS["asvs"]["edition"],
+    "provenance": "grc_library_ref/" + _IDS["asvs"]["source"],
+    "requirements": frozenset(_IDS["asvs"]["requirements"]),
+    "sections": frozenset(_IDS["asvs"]["sections"]),
+}
+CWE = {
+    "name": f"{_IDS['cwe']['name']} {_IDS['cwe']['edition']}",
+    "edition": _IDS["cwe"]["edition"],
+    "provenance": "grc_library_ref/" + _IDS["cwe"]["source"],
+    "all": frozenset(_IDS["cwe"]["ids"]),
+}

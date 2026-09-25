@@ -21500,6 +21500,71 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(result.returncode, 0,
                          f"valid range should pass; stdout:\n{result.stdout}")
 
+    # --- OWASP ASVS and MITRE CWE (P-1.63 part d) ---
+    def _run(self, name: str, body: str):
+        return run_linter(self.SCRIPT, "--strict", self.make_fixture(name, body))
+
+    def test_fabricated_asvs_requirement_flagged_in_asvs_column(self) -> None:
+        r = self._run("asvs-col.md", "| Control | OWASP ASVS 5.0.0 |\n| --- | --- |\n| X | V1.2.99 |\n")
+        self.assertLinterFails(r, "V1.2.99")
+
+    def test_fabricated_asvs_requirement_flagged_on_asvs_line(self) -> None:
+        r = self._run("asvs-line.md", "Aligned to OWASP ASVS requirement V6.2.99 and V6.2.7.\n")
+        self.assertLinterFails(r, "V6.2.99")
+        self.assertNotIn("'V6.2.7'", r.stdout)
+
+    def test_fabricated_asvs_section_flagged_on_asvs_row(self) -> None:
+        r = self._run("asvs-row.md", "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS | V15.9 |\n")
+        self.assertLinterFails(r, "V15.9")
+
+    def test_valid_asvs_ids_and_range_pass(self) -> None:
+        r = self._run("asvs-valid.md",
+                      "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4, V7.2 to V7.4, V16.3.1 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_other_publisher_versions_are_not_asvs_ids(self) -> None:
+        # ETSI document versions and CMMI versions are V-shaped but are not ASVS identifiers,
+        # even on a line that names ASVS; nor is an ASVS edition string.
+        r = self._run("asvs-versions.md",
+                      "ETSI EN 304 223 V9.9.9 and CMMI V9.9 sit beside OWASP ASVS V5.0.0 in this table.\n"
+                      "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V9.9.9 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_v_token_outside_asvs_context_ignored(self) -> None:
+        r = self._run("asvs-nocontext.md", "The tool moved from V9.9.9 to V9.9.8 last year.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_masvs_is_not_asvs_context(self) -> None:
+        r = self._run("masvs.md", "OWASP MASVS V9.9.9 is a mobile standard.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_asvs_v4_line_not_checked_against_v5(self) -> None:
+        r = self._run("asvs-v4.md", "Legacy mapping: ASVS 4.0.3 requirement V9.9.9.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
+
+    def test_fabricated_cwe_flagged_and_valid_passes(self) -> None:
+        r = self._run("cwe.md", "Weaknesses: CWE-79, CWE-89 and CWE-99999.\n")
+        self.assertLinterFails(r, "CWE-99999")
+        self.assertNotIn("'CWE-79'", r.stdout)
+
+    def test_registry_digest_guard_fails_loudly(self) -> None:
+        # A hand edit that keeps the counts but changes an identifier must fail at load.
+        import json
+        import shutil
+        import subprocess as sp
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            tools = Path(td) / "tools"
+            shutil.copytree(REPO_ROOT / "tools", tools, ignore=shutil.ignore_patterns("__pycache__"))
+            ids = tools / "alignment_citation_ids.json"
+            data = json.loads(ids.read_text(encoding="utf-8"))
+            data["cwe"]["ids"][0] = "CWE-99998"
+            ids.write_text(json.dumps(data), encoding="utf-8")
+            r = sp.run([sys.executable, "-c", "import alignment_citation_reference"], cwd=str(tools),
+                       capture_output=True, text=True)
+        self.assertNotEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("digest mismatch", r.stdout + r.stderr)
+
     def test_pf11_only_code_passes(self) -> None:
         # A NIST Privacy Framework 1.1 IPD code (GV.RR-P1, absent from 1.0) must NOT be flagged:
         # the gate validates against the UNION of held editions, so only a code absent from ALL is fabricated.

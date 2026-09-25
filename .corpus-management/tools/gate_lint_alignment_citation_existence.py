@@ -3,7 +3,10 @@
 
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
 (the PF identifier/range regexes, _check_pf, check_file) is the source of record
-here in the pack, moved verbatim from the grc gate. The framework catalogue (the
+here in the pack, moved verbatim from the grc gate. P-1.63 part d added two optional
+families: OWASP ASVS requirement/section identifiers (context-gated, see _check_asvs)
+and MITRE CWE identifiers (_check_cwe); an adopter that supplies no catalogue for a
+family leaves it unchecked. The framework catalogue (the
 valid-identifier set and the framework name) is supplied by the adopter via
 configure(ref), so the engine carries no project catalogue; the grc wrapper
 (tools/lint-alignment-citation-existence.py) imports the alignment_citation_reference
@@ -28,15 +31,28 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 # Placeholders until an adopter calls configure(); the grc wrapper does so at import.
 _PF_ALL = frozenset()
 _PF_NAME = ""
+# Optional families (P-1.63 part d): an adopter that supplies no catalogue for a family
+# leaves it unchecked, so a Privacy-Framework-only configuration behaves exactly as before.
+_ASVS_REQ = frozenset()
+_ASVS_SEC = frozenset()
+_ASVS_NAME = ""
+_CWE_ALL = frozenset()
+_CWE_NAME = ""
 
 
 def configure(ref) -> None:
-    """Populate the framework catalogue (the valid-identifier set + the framework name)
-    from the adopter's registry. _check_pf and check_file resolve these as module
-    globals; call once before check_file()."""
-    global _PF_ALL, _PF_NAME
+    """Populate the framework catalogues (valid-identifier sets + framework names) from the
+    adopter's registry. pf_all and pf_name are required; asvs_req, asvs_sec, asvs_name,
+    cwe_all and cwe_name are optional (an absent family is not checked). _check_pf and
+    check_file resolve these as module globals; call once before check_file()."""
+    global _PF_ALL, _PF_NAME, _ASVS_REQ, _ASVS_SEC, _ASVS_NAME, _CWE_ALL, _CWE_NAME
     _PF_ALL = ref.pf_all
     _PF_NAME = ref.pf_name
+    _ASVS_REQ = frozenset(getattr(ref, "asvs_req", ()) or ())
+    _ASVS_SEC = frozenset(getattr(ref, "asvs_sec", ()) or ())
+    _ASVS_NAME = getattr(ref, "asvs_name", "") or ""
+    _CWE_ALL = frozenset(getattr(ref, "cwe_all", ()) or ())
+    _CWE_NAME = getattr(ref, "cwe_name", "") or ""
 
 
 # A single PF identifier: XX.YY-P optionally with a subcategory number.
@@ -54,12 +70,93 @@ def _check_pf(code: str) -> bool:
     return code in _PF_ALL
 
 
+# --- OWASP ASVS: requirement (Vn.n.n) and section (Vn.n) identifiers, CONTEXT-GATED. ---
+# A bare V-token is ambiguous: most corpus V-triples are other publishers' document versions
+# (ETSI "EN 304 223 V2.1.1"), several of which coincide with real ASVS ids. A token is checked
+# only when the line names ASVS, when it sits in a table cell under an ASVS-labelled header,
+# or when its row's first cell names ASVS; never MASVS (word boundary). Bare chapters (Vn)
+# are not checked. A line naming a non-held ASVS 4.x edition is not checked against 5.x ids,
+# whose numbering differs.
+_ASVS_WORD = re.compile(r"\bASVS\b", re.IGNORECASE)
+_ASVS_V4 = re.compile(r"\bASVS\b\W{0,3}v?4\.", re.IGNORECASE)
+_ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
+# A token directly after these is an edition or another publisher's document number, not an
+# ASVS identifier: "ASVS V5.0.0", "version V2.0.0", "EN 304 223 V2.1.1", "CMMI V3.0".
+_ASVS_NOT_ID_BEFORE = re.compile(
+    r"(?:\b(?:ASVS|version|edition|release)\s*[:(]?\s*"
+    r"|\b(?:EN|TR|TS|ES|EG|GR|GS)\s+\d{3}\s+\d{3}(?:-\d+)*\s*"
+    r"|\bCMMI\s*)$",
+    re.IGNORECASE,
+)
+# --- MITRE CWE: CWE-n anywhere (the shape collides with nothing else). ---
+_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d)")
+
+
+def _cells(line: str) -> list[str] | None:
+    """Split a markdown table row into cell texts, or None when the line is not a row."""
+    s = line.strip()
+    if not s.startswith("|"):
+        return None
+    return [c.strip() for c in s.strip("|").split("|")]
+
+
+def _is_separator(cells: list[str]) -> bool:
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells if c)
+
+
+def _cell_index(line: str, pos: int) -> int:
+    """0-based cell index of character `pos` in a table row (pipes before pos, minus the lead)."""
+    return line[:pos].count("|") - 1
+
+
+def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
+                findings: list[str]) -> None:
+    if not (_ASVS_REQ or _ASVS_SEC) or _ASVS_V4.search(raw):
+        return
+    line_ctx = bool(_ASVS_WORD.search(raw))
+    cells = _cells(raw)
+    row_ctx = bool(cells) and bool(_ASVS_WORD.search(cells[0]))
+    col_ctx = {i for i, h in enumerate(header or []) if _ASVS_WORD.search(h)}
+    for m in _ASVS_TOKEN.finditer(raw):
+        in_col = cells is not None and _cell_index(raw, m.start()) in col_ctx
+        if not (line_ctx or row_ctx or in_col):
+            continue
+        if _ASVS_NOT_ID_BEFORE.search(raw[:m.start()]):
+            continue
+        tok = m.group(0)
+        if m.group(3) is not None:
+            if tok not in _ASVS_REQ:
+                findings.append(f"{rel}:{lineno}: '{tok}' is not a valid {_ASVS_NAME} requirement "
+                                f"identifier (no such requirement in the held edition)")
+        elif tok not in _ASVS_SEC:
+            findings.append(f"{rel}:{lineno}: '{tok}' is not a valid {_ASVS_NAME} section "
+                            f"identifier (no such section in the held edition)")
+
+
+def _check_cwe(raw: str, lineno: int, rel: str, findings: list[str]) -> None:
+    if not _CWE_ALL:
+        return
+    for m in _CWE_TOKEN.finditer(raw):
+        if m.group(0) not in _CWE_ALL:
+            findings.append(f"{rel}:{lineno}: '{m.group(0)}' is not a valid {_CWE_NAME} "
+                            f"identifier (no such weakness in the held edition)")
+
+
 def check_file(path: Path, rel: str) -> list[str]:
     text = read_text_safe(path)
     if text is None:
         return []
     findings: list[str] = []
+    header: list[str] | None = None  # the current table's header cells (ASVS column context)
     for lineno, raw in iter_non_code_lines(text):
+        cells = _cells(raw)
+        if cells is None:
+            header = None
+        elif header is None:
+            header = cells
+        _check_asvs(raw, lineno, rel, header if cells is not None and cells is not header else None,
+                    findings)
+        _check_cwe(raw, lineno, rel, findings)
         # Ranges first (so their endpoints are not double-reported as singles).
         range_spans: list[tuple[int, int]] = []
         for m in _PF_RANGE.finditer(raw):

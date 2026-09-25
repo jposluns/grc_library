@@ -181,7 +181,9 @@ The SLSA cells name the SLSA v1.2 Source-track requirement each control helps me
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- Generated artefacts here: `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
+- Generated artefacts here: `tools/alignment_citation_ids.json` (regenerate via
+  `tools/build-alignment-citation-registry.py`; its `--check` needs `grc_library_ref`, and gate 96
+  re-verifies the committed counts and digests at load), `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
   `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`,
   the `## Number allocation` block in `TODO.md`, the section 7.1 publisher table in
   `governance/specification-citation-verification.md` (generated from its `json citation-publishers`
