@@ -21745,13 +21745,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                           ("See \u00a73.0 ASVS mapping: V1.2.99.\n", "V1.2.99"),
                           ("| Control | \u00a73.0 ASVS mapping |\n|---|---|\n|X|V1.2.99|\n", "V1.2.99"),
                           ("CWE-79--CWE-99999\n", "CWE-99999"),
-                          ("| X | OWASP ASVS standard |\n|---|---|\n| a | V1.2.99 |\n", "V1.2.99")):
+                          ("| X | OWASP ASVS standard |\n|---|---|\n| a | V1.2.99 |\n", "V1.2.99"),
+                          ("| Framework | Framework Reference |\n| --- | --- |\n| OWASP ASVS 5.0 | V1.2.99 |\n", "V1.2.99"),
+                          ("| ASVS ID | Guidance |\n| --- | --- |\n| V1.2.4 | also see V1.2.99 |\n", "V1.2.99")):
             self.assertLinterFails(self._run("asvs-r9fn.md", body), tok)
 
     def test_round9_long_standard_names_and_generic_columns_are_excluded(self) -> None:
         for body in ("ASVS maps to NIST Cybersecurity Framework V8.9.9.\n",
-                     "ASVS maps to ISO International Standard 27001 V8.9.9.\n",
-                     "| ASVS | Target Standard |\n|---|---|\n| V1.1.1 | V8.9.9 |\n"):
+                     "ASVS maps to ISO International Standard 27001 V8.9.9.\n"):
             r = self._run("asvs-r9fp.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
 

@@ -111,10 +111,6 @@ _VERSION_HEADER = re.compile(
     r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|ATT&CK|NIST|ISO"
     r"|CIS|PCI|IEEE|ETSI|CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|BSI|MASVS|tools?|products?|packages?"
     r"|components?)\b", re.IGNORECASE)
-# A header naming a generic other subject ("Target Standard", "Framework") marks a skipped column;
-# a header that names ASVS is context first, so "ASVS standard" stays an ASVS column.
-_OTHER_SUBJECT = re.compile(
-    r"\b(?:standards?|frameworks?|models?|profiles?|guides?|guidance|benchmarks?)\b", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
 # A token directly after these is a version of that word's subject or of another publisher's
 # document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
@@ -217,8 +213,7 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
     col_held = {i for i, h in enumerate(hdr) if _editions(h) & _ASVS_MAJORS}
     # A column whose header signals a version or another subject ("Tool version", "CycloneDX spec",
     # "CWE", "ASVS version") is not checked unless the token's own cell names ASVS.
-    col_skip = {i for i, h in enumerate(hdr) if i not in col_ctx and (
-        _VERSION_HEADER.search(h) or _OTHER_SUBJECT.search(h))}
+    col_skip = {i for i, h in enumerate(hdr) if i not in col_ctx and _VERSION_HEADER.search(h)}
     for m in _ASVS_TOKEN.finditer(raw):
         if cells is not None:
             col = _cell_index(raw, m.start()) if len(cells) > 1 else 0

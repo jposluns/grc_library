@@ -23,7 +23,7 @@ differently named framework that contains the acronym does not count) or by its 
 when it is part of the mobile standard's name), in a table cell under a header that names it (a header that also signals a version, a tool
 or another standard marks such a column instead),
 in the body of a table with a header cell that names it (except a column whose header signals a
-version, a tool, another standard or a generic subject such as a standard or framework, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
+version, a tool or another standard, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
 framework and does not signal a version, a tool or another standard. Table rows are
 split on unescaped pipes, leading and trailing pipes are optional, a separator cell is one or
 more hyphens with optional colons, a table's header is the row directly above its first
