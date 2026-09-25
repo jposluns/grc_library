@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.16\
+**Version:** 1.5.17\
 **Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -153,7 +153,7 @@ The DPO documents the Article 27(2) exemption analysis in the organization's Art
 
 | Regime | Equivalent | Notable variations |
 |---|---|---|
-| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; The Information Commission (the Information Commissioner's Office, ICO, until 30 September 2026) is the supervisory authority |
+| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; the Information Commission (the Information Commissioner's Office, ICO, until 30 September 2026) is the supervisory authority |
 | **LGPD** (Brazil) | Encarregado / data protection officer (Article 5(VIII)); no dedicated foreign-representative mandate | LGPD requires the controller to appoint an encarregado as the communication channel among the controller, data subjects, and the ANPD; the 2018 statute imposes no GDPR-Article-27-style local-representative obligation on non-Brazilian controllers; ANPD is the supervisory authority |
 | **PIPL** (China, Article 53) | Designated organization or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
 | **India DPDP Act 2023** | India-based Data Protection Officer for Significant Data Fiduciaries (no general local-representative requirement) | A Significant Data Fiduciary must appoint a DPO based in India (s. 10(2)(a)); the DPDPA imposes no general local-representative obligation; the Data Protection Board of India is the supervisory authority |

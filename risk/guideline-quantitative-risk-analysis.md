@@ -2,7 +2,7 @@
 
 **Document Title:** Quantitative Risk Analysis Guideline\
 **Document Type:** Guideline\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,7 +76,7 @@ FAIR defines six forms of loss. A form is *primary* when it arises directly from
 | **Response** | Incident response, forensics, containment, remediation, notification | Usually primary |
 | **Replacement** | Repairing or replacing damaged assets, data, or systems | Usually primary |
 | **Competitive advantage** | Loss of intellectual property, trade secrets, or market position | Usually secondary |
-| **Fines and judgements** | Regulatory fines (e.g., the UK Information Commission, formerly the ICO; CNIL), legal settlements, judgements, contractual penalties | Usually secondary |
+| **Fines and judgements** | Regulatory fines (e.g., the Information Commission (the ICO until 30 September 2026); CNIL), legal settlements, judgements, contractual penalties | Usually secondary |
 | **Reputation** | Customer attrition, reduced market share, lost future revenue from stakeholder reaction | Usually secondary |
 
 ---
@@ -151,7 +151,7 @@ Estimate the forms of loss that occur directly in this scenario (here: productiv
 | 4c | Apply secondary loss probability to magnitude for expected secondary loss |
 
 **Example: Ransomware secondary loss:**
-- Regulatory fines: If personal data affected: GDPR up to 4% global turnover; UK Information Commission (formerly the ICO) discretionary fine
+- Regulatory fines: If personal data affected: GDPR up to 4% global turnover; UK Information Commission (the ICO until 30 September 2026) discretionary fine
 - Litigation: Class action probability × settlement estimate
 - Reputation: Customer attrition rate × customer lifetime value
 

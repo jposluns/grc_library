@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,10 +24,10 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018) and further amended by the Data (Use and Access) Act 2025 (DUAA 2025), applicable in the United Kingdom following Brexit. Overseen by the supervisory authority under DPA 2018 section 115: the Information Commissioner's Office (ICO) until 30 September 2026, and from that date the Information Commission (see the regulatory authority entry).
+- **UK GDPR**: The retained EU GDPR as amended by the Data Protection Act 2018 (DPA 2018) and further amended by the Data (Use and Access) Act 2025 (DUAA 2025), applicable in the United Kingdom following Brexit. Overseen by the UK supervisory authority: the Information Commissioner, whose office is the Information Commissioner's Office (ICO), until 30 September 2026, and from that date the Information Commission (see the regulatory authority entry).
 - **UK Data Protection Act 2018 (DPA 2018)**: Supplements UK GDPR; includes provisions for law enforcement and intelligence services processing.
-- **Data (Use and Access) Act 2025 (DUAA 2025; c. 18)**: Royal assent 19 June 2025. The principal data-protection provisions (Part 5) commenced on 5 February 2026 under the Data (Use and Access) Act 2025 (Commencement No. 6 and Transitional and Saving Provisions) Regulations 2026. Remaining provisions commence on staged dates published by the Department for Science, Innovation and Technology. The DUAA amends UK GDPR, DPA 2018, and the Privacy and Electronic Communications Regulations (PECR).
-- **Regulatory authority:** the Information Commission, which takes over the functions of the Information Commissioner's Office (ICO) on 30 September 2026. The Data (Use and Access) Act 2025 establishes the Commission (section 117, in force 20 August 2025), abolishes the office of Information Commissioner (section 118) and transfers its functions to the Commission (section 119); S.I. 2026/1015 brings sections 118 and 119 into force on 30 September 2026, with general continuity for things done by or in relation to the Commissioner (regulation 3). Until that date the ICO remains the regulator. The regulator has order-making powers, enforcement authority, and fine-imposing powers.
+- **Data (Use and Access) Act 2025 (DUAA 2025; c. 18)**: Royal assent 19 June 2025. The principal data-protection provisions (Part 5) commenced on 5 February 2026 under the Data (Use and Access) Act 2025 (Commencement No. 6 and Transitional and Saving Provisions) Regulations 2026. Remaining provisions commence on staged dates set by commencement regulations, for example S.I. 2026/1015 (Commencement No. 9), which brings the transfer to the Information Commission into force on 30 September 2026. The DUAA amends UK GDPR, DPA 2018, and the Privacy and Electronic Communications Regulations (PECR).
+- **Regulatory authority:** the Information Commission, which takes over the functions of the Information Commissioner (whose office is the Information Commissioner's Office, ICO) on 30 September 2026. The Data (Use and Access) Act 2025 establishes the Commission (section 117, in force from 20 August 2025 under S.I. 2025/904 except section 117(4)(a)), abolishes the office of Information Commissioner (section 118) and transfers the Commissioner's functions to the Commission (section 119); S.I. 2026/1015 brings sections 117(4)(a), 118 and 119 into force on 30 September 2026, with general continuity for things done by or in relation to the Commissioner (regulation 3). Until that date the ICO remains the regulator. The regulator has order-making powers, enforcement authority, and fine-imposing powers.
 
 ---
 

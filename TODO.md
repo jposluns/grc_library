@@ -123,7 +123,7 @@ Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated:
 
 | ID | Item | Tags |
 | --- | --- | --- |
-| TF-4 | **Not-before 2026-09-30.** UK regulator change: once the Data (Use and Access) Act 2025 sections 118 and 119 are in force (S.I. 2026/1015), confirm the commencement on legislation.gov.uk, then replace the transition wording "(the ICO until 30 September 2026)" across the corpus with "the Information Commission" (keeping ICO as the publisher of guidance it issued). Origin: the UK Information Commission PR (2026-09-25). | `[content]` `[public]` |
+| TF-4 | **Not-before 2026-09-30 (UTC).** UK regulator change. Evaluate: confirm on legislation.gov.uk that the Data (Use and Access) Act 2025 sections 117(4)(a), 118 and 119 commenced on 30 September 2026 as S.I. 2026/1015 provides; then grep the corpus for `until 30 September 2026` and `on 30 September 2026` and rewrite every UK regulator reference to name the Information Commission alone (removing the dated parenthetical, not appending a second name), rewrite the UK privacy annex's supervisory-authority and regulatory-authority entries in the past tense, and keep ICO where it names the publisher of guidance, codes or the IDTA or a historical actor. Originating PR: #2586 (2026-09-25). | `[content]` `[public]` |
 
 ---
 
