@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.24\
-**Date:** 2026-09-24\
+**Version:** 1.2.25\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/template-citation-verification-worklist.md`](template-citation-verification-worklist.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py), [`specification-ingestion.md`](../specification-ingestion.md)\
@@ -210,7 +210,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | China | `npc.gov.cn`, `cac.gov.cn` | Chinese regulation (PIPL; CAC cross-border data provisions). |
 | Saudi Arabia | `sdaia.gov.sa` | Saudi PDPL. |
 | US States and localities | `ilga.gov`, `leg.colorado.gov`, `nyc.gov`, `oag.ca.gov`, `cppa.ca.gov`, `capitol.texas.gov` | US state and municipal legislation (Illinois BIPA via the Illinois General Assembly; Colorado AI Act / SB 24-205 / SB 26-189 via the Colorado General Assembly; New York City Local Law 144 / DCWP Automated Employment Decision Tools via nyc.gov; the California CCPA statute via the Attorney General (oag.ca.gov) and the CCPA Regulations via the California Privacy Protection Agency (cppa.ca.gov); Texas TRAIGA / HB 149 via the Texas Legislature (capitol.texas.gov)). |
-| Malaysia | `pdp.gov.my` | Malaysia PDPA (Personal Data Protection Department). |
+| Malaysia | `pdp.gov.my`, `mosti.gov.my` | Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation). |
 | OWASP | `owasp.org`, `genai.owasp.org`, `owaspsamm.org`, `cyclonedx.org` | OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424). |
 | LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
 | UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
@@ -513,9 +513,10 @@ The allow-list itself is subject to the same verification discipline as register
   {
     "publisher": "Malaysia",
     "domains": [
-      "pdp.gov.my"
+      "pdp.gov.my",
+      "mosti.gov.my"
     ],
-    "covers": "Malaysia PDPA (Personal Data Protection Department)."
+    "covers": "Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation)."
   },
   {
     "publisher": "OWASP",
@@ -668,6 +669,8 @@ A standard or regulation cited in the library that is not covered by an allow-li
 **2026-07-11 (register v1.5.21, AI-workstream canonical-register enrollment for the AI jurisdiction annexes):** added `osfi-bsif.gc.ca`, `ola.org`, and `dgc-cgn.org` to the Canada entry (OSFI Guideline E-23; Ontario Bill 194 / Enhancing Digital Security and Trust Act; CAN/DGSI 101:2025) and noted `tbs-sct.canada.ca` (TBS Directive on Automated Decision-Making, already suffix-covered by `canada.ca`); and added `industry.gov.au` and `ai.gov.au` to the Australia entry (the DISR National AI Plan, AI Ethics Principles, and Voluntary AI Safety Standard; the National AI Centre Guidance for AI Adoption).
 
 **2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
+
+**2026-09-25 (2.21, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
 
 **2026-09-24 (3b31b, parity gate):** gate 101 ([`tools/lint-allowlist-spec-parity.py`](../tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 27 entries carry a marker: 25 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers; promptfoo, which has a register entry, gained its own row instead (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.43\
+**Version:** 1.1.44\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,13 +139,14 @@ The library currently covers 4 of approximately 94 trusted-trader programmes glo
 
 ### 2.5 AI jurisdictions
 
-The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds twelve dedicated annexes across eleven jurisdictions: Australia, Canada, the European Union, Singapore (two annexes), South Korea, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda), US Illinois, US New York City, and US Texas. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the candidate list and its further-AI-jurisdiction-annexes item for the deferred set.
+The `ai/jurisdictions/` structure (parallel to `privacy/jurisdictions/`) was founded by the EU AI Act annex and now holds thirteen dedicated annexes across twelve jurisdictions: Australia, Canada, the European Union, Malaysia, Singapore (two annexes), South Korea, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda), US Illinois, US New York City, and US Texas. The remaining candidates below are source-gated or awaiting an annex; see the TODO backlog's AI-jurisdiction-overlays item for the candidate list and its further-AI-jurisdiction-annexes item for the deferred set.
 
 | Jurisdiction | Coverage | Status | Planned target | Notes |
 | --- | --- | --- | --- | --- |
 | EU (AI Act 2024/1689) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-european-union.md`](../ai/jurisdictions/annex-ai-european-union.md) (per-regime consolidated view: operator roles, risk tiers, obligation chains, timeline, penalties), founding the `ai/jurisdictions/` structure |
 | Australia | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md) (Privacy Act automated-decision transparency amendments commencing 2026, plus the Voluntary AI Safety Standard) |
 | Canada | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md) (Treasury Board Directive on Automated Decision-Making, plus provincial and sectoral instruments). AIDA is treated as LAPSED, re-confirmed dead upstream 2026-07-24, so it is a struck candidate rather than an open gap (a struck candidate in the TODO backlog's AI-jurisdiction-overlays item) |
+| Malaysia | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-malaysia.md`](../ai/jurisdictions/annex-ai-malaysia.md) (National Guidelines on AI Governance and Ethics, MOSTI, 2024, revised November 2024: seven voluntary principles, guidance by stakeholder group; no legal duty) |
 | Singapore | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-singapore.md`](../ai/jurisdictions/annex-ai-singapore.md) (Model AI Governance Framework for Generative AI, advisory rather than legislation) |
 | US California (CCPA ADMT) | Substantive | In library | n/a | Dedicated jurisdiction annex [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) (11 CCR Article 11 sections 7200 to 7222: pre-use notice, opt-out, access, human-appeal alternative), the canonical home for the CCPA ADMT limb; the US privacy annex keeps the risk-assessment and cybersecurity-audit slices |
 | US Colorado | Substantive | In library | n/a | Dedicated two-regime jurisdiction annex [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md) (SB 24-205 re-enacted by SB 26-189: developer and deployer duties, consumer rights, meaningful human review, AG-exclusive enforcement, transition timeline) |

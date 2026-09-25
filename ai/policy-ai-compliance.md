@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.32\
+**Version:** 1.0.33\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -233,6 +233,10 @@ Where the organization deploys AI in hiring, lending, housing, insurance, or oth
 
 South Korea's Framework Act on the Development of Artificial Intelligence and Establishment of Trust (the "AI Basic Act", Law No. 20676), in force since 22 January 2026, is a comprehensive national AI statute that applies extraterritorially to acts abroad affecting the Korean market or users. It classifies "high-impact AI" across critical sectors (including employment and lending assessments) and imposes transparency duties (advance notice of AI use and of generative-AI use, and synthetic-content labelling), compute-threshold safety measures with results reported to the Ministry of Science and ICT, advance high-impact review, and high-impact operator measures including human oversight; a foreign operator above decree-set user and revenue thresholds must appoint a domestic representative. Where the organization develops or deploys AI reaching Korean users, it assesses high-impact classification and applies the classification and oversight controls in Sections 4 and 5. See [`ai/jurisdictions/annex-ai-south-korea.md`](jurisdictions/annex-ai-south-korea.md) for the per-regime detail.
 
+### 7.7 Malaysia: National Guidelines on AI Governance and Ethics
+
+Malaysia's National Guidelines on AI Governance and Ethics (AIGE), issued by the Ministry of Science, Technology and Innovation, are voluntary: they set seven AI principles (fairness; reliability, safety and control; privacy and security; inclusiveness; transparency; accountability; and the pursuit of human benefit and happiness) for adoption by developers and deployers of AI alongside existing law, with guidance for end users, policy makers, and developers and suppliers. They create no legal duty; the organization's binding Malaysian obligations for personal data remain those of the Personal Data Protection Act. The Guidelines call themselves a living document and the published edition has been revised since launch, so the edition is version-sensitive. See [`ai/jurisdictions/annex-ai-malaysia.md`](jurisdictions/annex-ai-malaysia.md) for the per-framework detail.
+
 ---
 
 ## 8. AI compliance audit and review
@@ -361,6 +365,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | Illinois HB 3773 (PA 103-0804) | AI in employment; civil-rights violation for discriminatory AI use and failure to notify | 7.5 |
 | US OMB M-25-21, M-25-22, M-26-04 | Federal agency AI governance and high-impact minimum practices; AI acquisition contract terms; Unbiased AI Principles in LLM contracts | 7.5 |
 | South Korea AI Basic Act (Law No. 20676, 2025) | Comprehensive national AI statute; high-impact AI duties, transparency and labelling, compute-threshold safety measures, domestic representative | 7.6 |
+| Malaysia AIGE (MOSTI, 2024; revised November 2024) | Voluntary national AI governance and ethics guidelines; seven principles | 7.7 |
 | GDPR (UK and EU) | Personal data processing; automated decision-making; breach reporting | 5.2, 9.3, 10.4 |
 
 ### Related GRC library documents
