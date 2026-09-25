@@ -110,7 +110,7 @@ _117 documents._
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
 | [privacy/jurisdictions/annex-privacy-japan.md](../privacy/jurisdictions/annex-privacy-japan.md) | Japan Privacy Regulatory Requirements | Annex | 1.1.2 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-kenya.md](../privacy/jurisdictions/annex-privacy-kenya.md) | Kenya Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-24 |
-| [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.2.3 | 2026-09-15 |
+| [privacy/jurisdictions/annex-privacy-malaysia.md](../privacy/jurisdictions/annex-privacy-malaysia.md) | Malaysia Privacy Regulatory Requirements | Annex | 1.2.4 | 2026-09-25 |
 | [privacy/jurisdictions/annex-privacy-new-zealand.md](../privacy/jurisdictions/annex-privacy-new-zealand.md) | New Zealand Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-16 |
 | [privacy/jurisdictions/annex-privacy-singapore.md](../privacy/jurisdictions/annex-privacy-singapore.md) | Singapore Privacy Regulatory Requirements | Annex | 1.1.4 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
@@ -351,7 +351,7 @@ _74 documents._
 | [ai/guideline-ai-synthetic-content-provenance.md](../ai/guideline-ai-synthetic-content-provenance.md) | AI Synthetic-Content Provenance Guideline | Guideline | 0.0.4 | 2026-08-04 |
 | [ai/jurisdictions/annex-ai-australia.md](../ai/jurisdictions/annex-ai-australia.md) | Australia AI Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-european-union.md](../ai/jurisdictions/annex-ai-european-union.md) | European Union AI Regulatory Requirements | Annex | 0.0.14 | 2026-08-30 |
-| [ai/jurisdictions/annex-ai-malaysia.md](../ai/jurisdictions/annex-ai-malaysia.md) | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | Annex | 0.0.3 | 2026-09-25 |
+| [ai/jurisdictions/annex-ai-malaysia.md](../ai/jurisdictions/annex-ai-malaysia.md) | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | Annex | 0.0.4 | 2026-09-25 |
 | [ai/jurisdictions/annex-ai-singapore-agentic-ai.md](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Singapore IMDA Model AI Governance Framework for Agentic AI | Annex | 0.0.1 | 2026-09-21 |
 | [ai/jurisdictions/annex-ai-singapore.md](../ai/jurisdictions/annex-ai-singapore.md) | Singapore Model AI Governance Framework for Generative AI | Annex | 0.0.1 | 2026-07-24 |
 | [ai/jurisdictions/annex-ai-south-korea.md](../ai/jurisdictions/annex-ai-south-korea.md) | South Korea AI Regulatory Requirements | Annex | 0.0.1 | 2026-09-05 |

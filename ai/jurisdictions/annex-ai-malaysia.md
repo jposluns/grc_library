@@ -2,7 +2,7 @@
 
 **Document Title:** Malaysia National Guidelines on AI Governance and Ethics (AIGE)\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -28,15 +28,15 @@ The Guidelines are voluntary: they state that they "are on a voluntary for the s
 
 ## The seven AI principles
 
-The Guidelines adopt seven principles, stated to be in alignment with principles established by UNESCO, the OECD, and the European Commission, among others. Each summary below paraphrases the held text.
+The Guidelines adopt seven principles, stated to be in alignment with principles established by UNESCO, the OECD, and the European Commission, among others. They describe the principles in several places (for example, a cascade explained for end users in Part A); the summaries below follow the section that sets out the principles for AI development (Section 2.7.3, "Seven (7) AI Principles"), which itself notes that the descriptions vary between sections and proposes a single consolidated description in a future revision. The Guidelines word several of these points as "must" or "should"; within a voluntary framework they are the Guidelines' recommended practices, not legal duties.
 
-1. **Fairness.** AI systems prevent discrimination and provide equal treatment: they do not discriminate on grounds such as race, gender, or religion, developers guard against unintentional bias in data, and the benefits of AI are distributed equitably so that groups are not left without access to them.
-2. **Reliability, Safety and Control.** AI systems are reliable and safe, with particular weight in areas such as autonomous vehicles, healthcare, and financial services, and measures are taken to prevent intentional misuse and to keep control over AI systems.
-3. **Privacy and Security.** Personal data such as financial and health information is handled through proper procedures, informed consent, and secure storage, in compliance with data-protection law, and security measures protect against hacking and other malicious attacks.
-4. **Inclusiveness.** No group is unfairly excluded from AI or its benefits; diverse stakeholders are considered.
-5. **Transparency.** An individual can understand what an organization does with personal data in its AI and has a right to access the relevant information they are entitled to know; the organization shows how it operates, especially regarding personal data.
-6. **Accountability.** Responsibility for the actions and outcomes of AI is identified and assigned during design and deployment, because after a failure it can be hard to attribute to a single person or entity.
-7. **Pursuit of Human Benefit and Happiness.** Given prominence as a central principle to which the others connect: AI serves human well-being, a moral responsibility of organizations beyond shareholder return.
+1. **Fairness.** AI is designed to avoid bias or discrimination against its target users; systems avoid one-size-fits-all approaches and address the widest possible range of factors (such as age, gender, religion, and ethnicity), enabling equitable access and participation.
+2. **Privacy and Security.** AI systems are safe and secure, perform as intended, and resist compromise by unauthorized parties. Developers obtain consent, where necessary, before using or disclosing personal data for AI development and deployment; systems protect privacy and data throughout the AI life cycle; data collected from users is not used unlawfully or in a discriminatory way; and developers apply security-by-design and privacy-by-design, referring to international information-security and privacy standards.
+3. **Reliability, Safety and Control.** AI systems are robustly tested to be reliable, safe, and fail-safe by default, and work reliably under normal and unexpected conditions; developers and end users are encouraged to carry out testing, certification, and risk and impact assessments; and autonomous systems have safeguards that keep ultimate control with humans, particularly in high-risk uses such as autonomous vehicles, military applications, and where human life is at stake.
+4. **Inclusiveness.** AI is inclusive of all stakeholders, benefiting everyone and addressing national needs inclusively in line with the Federal Constitution and the National Principles, through inclusive development techniques, tools sensitive to the needs of vulnerable groups, and diversity among AI developers and decision-makers.
+5. **Transparency.** AI capabilities are explainable, covering both the technical processes and the related human decisions, mainly where AI is used in decision-making. The Guidelines name five elements: disclosure that an AI system is being used in a decision; the system's intended purpose; the training data (including known historical and social biases and the data-quality procedures used); maintenance and assessment of the system; and the ability to challenge the system's decisions.
+6. **Accountability.** Developers, owners of AI models, and other AI actors are accountable for the success or failure of AI solutions and for their proper functioning in compliance with applicable law, governance, and ethical principles, considering system purpose, technology capability, quality and reliability, and sensitive users when designing systems.
+7. **Pursuit of Human Benefit and Happiness.** AI systems respect human-centred values and pursue human benefit and quality of life, and are not used for malicious purposes; human oversight preserves human autonomy through human-in-the-loop (intervention in every decision cycle), human-on-the-loop (intervention in design and monitoring of operation), and human-in-command (oversight of the overall activity and of when and how the system is used) mechanisms.
 
 ## Structure by stakeholder
 
