@@ -2,7 +2,7 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.10\
+**Version:** 1.1.11\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -73,7 +73,7 @@ Parameter-set names and category assignments are drawn from FIPS 203, FIPS 204, 
 | Document and data signing | RSA-4096 | ML-DSA | Medium |
 | Encrypted backup keys | RSA-4096 | ML-KEM | High |
 | BASC/customs encrypted communications | AES-256 + RSA | AES-256 + ML-KEM hybrid | High |
-| API tokens (long-lived) | HMAC-SHA-256 | HMAC-SHA-512 or HMAC-SHA-384 at the next key rotation, per the Encryption and Key Management Policy (an organizational baseline; HMAC with a 256-bit key is not quantum-vulnerable) | Low |
+| API tokens (long-lived) | HMAC-SHA-256 | HMAC-SHA-512, HMAC-SHA-384 or KMAC256 at the next key rotation, per the Encryption and Key Management Policy (an organizational baseline, not a quantum-driven migration) | Low |
 
 ---
 

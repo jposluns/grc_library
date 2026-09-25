@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.95\
+**Version:** 1.5.96\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -110,6 +110,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 800-218 | 1.1 | 2022-02 | Secure Software Development Framework (SSDF) | 1.0 | https://csrc.nist.gov/pubs/sp/800/218/final | 2026-06-30 |
 | NIST SP 800-161 | Rev. 1 | 2022-05 (with 2024-11 update) | Cybersecurity Supply Chain Risk Management | Rev. 0 | https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final | 2026-06-30 |
 | NIST SP 800-82 | Rev. 3 | 2023-09 | Guide to Operational Technology (OT) Security (formerly Guide to Industrial Control Systems Security) | Rev. 2, Rev. 1 | https://csrc.nist.gov/pubs/sp/800/82/r3/final | 2026-06-30 |
+| NIST FIPS 198-1 | 198-1 | 2008-07 | The Keyed-Hash Message Authentication Code (HMAC) (NIST has proposed withdrawing it in favour of SP 800-224, which is an initial public draft; FIPS 198-1 remains the approved standard) | FIPS 198 | https://csrc.nist.gov/pubs/fips/198-1/final | 2026-09-25 |
+| NIST SP 800-185 | (1.0) | 2016-12 | SHA-3 Derived Functions: cSHAKE, KMAC, TupleHash and ParallelHash (NIST announced a revision in 2025; the 2016 final remains current) | - | https://csrc.nist.gov/pubs/sp/800/185/final | 2026-09-25 |
 
 ## IEEE standards
 
