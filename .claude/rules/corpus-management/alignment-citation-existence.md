@@ -21,17 +21,22 @@ only in that framework's context, because the same shape is used for other publi
 document versions: on a line that names the framework by its acronym (a word match, so a
 differently named framework that contains the acronym does not count) or by its full name (not
 when it is part of the mobile standard's name), in a table cell under a header that names it,
-anywhere in the body of a table whose first header cell names it, or on a row whose first cell
-names it. Table rows are split on unescaped pipes, leading and trailing pipes are optional, a
-body row may omit its pipes, a separator cell is one or more hyphens with optional colons, a
-table's header is the row directly above its separator row, and a table ends at a blank line,
-a heading or a blockquote. Within that context, a token whose middle number is zero is a
+in the body of a table whose first header cell names it (except a column whose header signals a
+version, a tool or another standard), or on a row whose first cell names it. Table rows are
+split on unescaped pipes, leading and trailing pipes are optional, a separator cell is one or
+more hyphens with optional colons, a table's header is the row directly above its first
+separator row (a later separator-shaped row is an ordinary body row), and a table ends at the
+first line with no unescaped pipe or where a fenced block intervenes. Within that context, a token whose middle number is zero is a
 version, never an identifier, because the framework numbers its sections from one; and a token
-that directly follows the words version, edition, release or revision, another publisher's
-document number, or another named framework or standard is that subject's version.
+that directly follows the words version, edition, release or revision, a listed publisher's
+document number (the ETSI forms), or a listed framework or standard (CMMI, TOGAF, ITIL, COBIT,
+SAMM, CSF, NIST, PCI DSS, CIS, BSI, CWE, CAPEC, ATLAS, ATT&CK, IEEE, ISO), optionally with its
+own short name and document number, is that subject's version.
 
 Editions are handled by scope. A mention of the framework names an edition when an edition
-number follows it: after the words version, edition or release in any form, and otherwise
+number from 1 to 9 follows it, with any markdown emphasis or link target in between and not
+followed by the words levels or chapters: after the words version, edition or release in any
+form, and otherwise
 written with no `V` or with a lowercase `v`, or as a capital-`V` token whose middle number is
 zero; a capital `V` with a dotless number or a non-zero middle number directly after the name
 is a chapter or an identifier, not an edition. A prose line that names an edition other than
@@ -40,14 +45,17 @@ column header names another edition, or when its row's first cell does and its c
 does not name the held edition. The held edition is supplied by the adopter. Two-number tokens
 are checked against the held sections and three-number tokens against the held requirements;
 bare chapter numbers are not checked. A weakness family (`CWE-` followed by a number, in any
-letter case) is checked wherever it appears.
+letter case, leading zeros ignored) is checked wherever it appears.
 
 The identifier families and their code shapes are fixed by the check. The valid-identifier
 catalogues and the framework names are supplied by the adopter (the reference registry)
 and are not part of this clause; a family whose catalogue the adopter does not supply is
 not checked. Recognition limits are part of the clause: a fabricated held-edition identifier on a prose
 line, cell or row scoped out by another edition is not checked; a requirement identifier written
-without its `V` prefix is not recognized, a version string on a line that names the framework
+without its `V` prefix is not recognized, a range is checked at its endpoints only, a table body
+row written without pipes or a header spread over several rows is not read as table structure,
+a version token in an ASVS-table column whose header does not signal a version, or after a
+standard that is not listed, can be read as an identifier, a version string on a line that names the framework
 whose prefix is not one of the recognized document numbers, standards or frameworks can be
 read as an identifier, and a weakness catalogue that holds only
 weaknesses flags a cited category or view identifier. Report-only by default, the check

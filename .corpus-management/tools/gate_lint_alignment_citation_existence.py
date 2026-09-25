@@ -86,22 +86,32 @@ def _check_pf(code: str) -> bool:
 # the held edition's). Stated residue: a fabricated held-edition id on such a line or row is
 # missed; that trade avoids blocking false positives on legitimate legacy citations.
 _ASVS_WORD = re.compile(
-    r"\bASVS\b|(?<!Mobile )Application Security Verification Standard", re.IGNORECASE)
+    r"\bASVS\b|(?<!Mobile )(?<!Mobile OWASP )Application Security Verification Standard",
+    re.IGNORECASE)
 # A non-held-edition mention: the name, then an optional version/edition/release word, then an
 # edition number. After such a word any form is an edition ("ASVS version V4.1.1"). Otherwise an
 # edition is written with no V or a lowercase v ("ASVS 4.0.3", "ASVS v4"), or as a capital-V token
 # with a zero middle number ("ASVS V4.0.3"); a capital V with a dotless number ("ASVS V6") or a
 # non-zero middle number ("ASVS V1.2.4") is a chapter or an identifier, never an edition.
+# Markdown emphasis and a link target may sit between the name and its edition ("**ASVS** (4.0.3)",
+# "[ASVS](url) 4.0.3"). Only a plausible edition major (1 to 9) counts, and never a number followed
+# by levels or chapters ("ASVS: 3 levels"), so a year or a count is not an
+# edition.
 _ASVS_AFTER = re.compile(
-    r"\W{0,3}((?:version|edition|release)\W{0,3})?(V|v)?(\d+)((?:\.\d+){0,2})\b", re.IGNORECASE)
+    r"(?:\]\([^)\s]*\)|[^\w\n]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
+    r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?!\s*(?:levels?|chapters?)\b)",
+    re.IGNORECASE)
+_VERSION_HEADER = re.compile(
+    r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|NIST|ISO|CIS"
+    r"|PCI|IEEE|ETSI|tool|product|library|package|component)\b", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
 # A token directly after these is a version of that word's subject or of another publisher's
 # document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
 _ASVS_NOT_ID_BEFORE = re.compile(
     r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
-    r"|\b(?:EN|TR|TS|ES|EG|GR|GS)\s+\d{3}\s+\d{3}(?:-\d+)*\s*`?"
-    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST(?:\s+[A-Z]+)?|PCI\s+DSS|CIS(?:\s+Controls)?|BSI"
-    r"|IEEE\s*\d+(?:\.\d+)*|ISO(?:/IEC)?\s*\d+(?:[-:]\d+)*)"
+    r"|\b(?:EN|TR|TS|ES|EG|GR|GS)(?:\s+[A-Z]{2,5})?\s+\d{3}(?:\s+\d{3})?(?:-\d+)*\s*`?"
+    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST|PCI\s+DSS|CIS|BSI|CWE|CAPEC|ATLAS|ATT&CK|IEEE|ISO(?:/IEC)?)"
+    r"(?:\s+[A-Z][A-Za-z]{0,9})?(?:\s*[vV]?\d[\w.:-]*)?"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
@@ -169,6 +179,9 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
     col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h)}
     col_other = {i for i, h in enumerate(hdr) if _names_other_edition(h)}
     col_held = {i for i, h in enumerate(hdr) if _ASVS_MAJOR in _editions(h)}
+    # In a table about ASVS, a column whose header signals a version or another subject is not
+    # checked unless its header names ASVS ("Tool version", "CycloneDX spec", "CWE").
+    col_skip = {i for i, h in enumerate(hdr) if i not in col_ctx and _VERSION_HEADER.search(h)}
     for m in _ASVS_TOKEN.finditer(raw):
         if cells is not None:
             col = _cell_index(raw, m.start()) if len(cells) > 1 else 0
@@ -177,6 +190,8 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
                 continue  # its column header or its own cell names a non-held edition
             if row_other and col not in col_held:
                 continue  # its row is about a non-held edition, and its column does not override
+            if col in col_skip and not (line_ctx or row_ctx):
+                continue
             if not (line_ctx or row_ctx or col in col_ctx or whole_table):
                 continue
         elif not line_ctx:
@@ -199,7 +214,7 @@ def _check_cwe(raw: str, lineno: int, rel: str, findings: list[str]) -> None:
     if not _CWE_ALL:
         return
     for m in _CWE_TOKEN.finditer(raw):
-        tok = "CWE-" + m.group(1)
+        tok = "CWE-" + str(int(m.group(1)))  # CWE-079 is CWE-79
         if tok not in _CWE_ALL:
             findings.append(f"{rel}:{lineno}: '{m.group(0)}' is not a valid {_CWE_NAME} "
                             f"identifier (no such weakness in the held edition)")
@@ -211,18 +226,19 @@ def check_file(path: Path, rel: str) -> list[str]:
         return []
     findings: list[str] = []
     # Table tracking: a table's header is the row directly above its separator row, so a
-    # header without a leading pipe and back-to-back tables are both read correctly; the table
-    # ends at the first line with no unescaped pipe.
+    # header without a leading pipe is read correctly; the table ends at the first line with no
+    # unescaped pipe (so a pipeless GFM body row is not read as a table row: stated residue) or
+    # where a fenced block was skipped.
     header: list[str] | None = None
     prev_cells: list[str] | None = None
+    prev_lineno = 0
     for lineno, raw in iter_non_code_lines(text):
         cells = _cells(raw)
-        if not raw.strip() or re.match(r"\s*(?:#|>)", raw):
-            header = None  # a table ends at a blank line or another block (GFM)
-        elif _is_separator(cells):
-            header = prev_cells
-        if header is not None and cells is None and raw.strip():
-            cells = [raw.strip()]  # a GFM body row may omit its pipes (a single cell)
+        if cells is None or lineno != prev_lineno + 1:
+            header = None  # a table ends at a line with no unescaped pipe or at a skipped fence
+        elif header is None and prev_cells is not None and _is_separator(cells):
+            header = prev_cells  # a separator-shaped row inside a table body is just a row
+        prev_lineno = lineno
         in_body = header is not None and cells is not None and not _is_separator(cells)
         _check_asvs(raw, lineno, rel, header if in_body else None, in_body, findings)
         _check_cwe(raw, lineno, rel, findings)

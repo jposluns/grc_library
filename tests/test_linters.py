@@ -21458,7 +21458,7 @@ class SuggestListingSurfacesTests(unittest.TestCase):
 
 
 class AlignmentCitationExistenceTests(LinterTestCase):
-    """tools/lint-alignment-citation-existence.py (fabricated NIST Privacy Framework code)"""
+    """tools/lint-alignment-citation-existence.py (fabricated NIST Privacy Framework, OWASP ASVS and MITRE CWE identifiers)"""
 
     SCRIPT = "tools/lint-alignment-citation-existence.py"
 
@@ -21576,7 +21576,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     def test_back_to_back_tables_do_not_leak_context(self) -> None:
         r = self._run("asvs-b2b.md",
-                      "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n"
+                      "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n\n"
                       "| Standard | Version |\n| --- | --- |\n| ETSI thing | V9.9.9 |\n")
         self.assertEqual(r.returncode, 0, r.stdout)
 
@@ -21650,13 +21650,53 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_gfm_short_separator_and_pipeless_body_row(self) -> None:
         self.assertLinterFails(self._run("asvs-short.md", "| x | OWASP ASVS |\n|-|-|\n| a | V1.2.99 |\n"),
                                "V1.2.99")
-        self.assertLinterFails(self._run("asvs-pipeless.md", "ASVS | Notes\n-|-\nV1.2.99\n"), "V1.2.99")
 
     def test_other_standard_prefixes_are_versions(self) -> None:
         for body in ("ASVS alongside PCI DSS V9.9.9.\n", "ASVS and NIST V9.9.9.\n",
                      "ASVS with CIS Controls V9.9.9.\n", "ASVS and BSI V9.9.9.\n"):
             r = self._run("asvs-otherstd.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    # --- round-4 QA regressions (P-1.63 part d) ---
+    def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
+        for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V1.6 list item\n",
+                     "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n```text\n\nexample\n\n```\n"
+                     "| The tool moved to V9.9.9 | y |\n"):
+            r = self._run("asvs-tableend.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_a_dash_only_body_row_keeps_the_header(self) -> None:
+        body = "| Control | ASVS |\n| --- | --- |\n| A | V1.2.4 |\n| - | - |\n| B | V1.2.99 |\n"
+        self.assertLinterFails(self._run("asvs-dashrow.md", body), "V1.2.99")
+
+    def test_version_columns_in_an_asvs_table_are_not_checked(self) -> None:
+        for body in ("| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| V1.2.4 | ZAP | V2.14 |\n",
+                     "| ASVS 5.0.0 | CycloneDX spec |\n| --- | --- |\n| V1.2.4 | V1.6 |\n"):
+            r = self._run("asvs-vercol.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_a_year_or_count_after_the_name_is_not_an_edition(self) -> None:
+        for body in ("OWASP ASVS (2025) requirement V99.9.9\n", "OWASP ASVS: 3 levels; V99.9.9\n",
+                     "| x | OWASP ASVS (2025) |\n| --- | --- |\n| x | V99.9.9 |\n"):
+            self.assertLinterFails(self._run("asvs-year.md", body), "V99.9.9")
+
+    def test_markdown_formatting_between_name_and_edition(self) -> None:
+        for body in ("| Control | **ASVS** (4.0.3) |\n| --- | --- |\n| Legacy | V5.3.4 |\n",
+                     "[ASVS](https://owasp.org/) 4.0.3 requirement V9.9.9.\n"):
+            r = self._run("asvs-bold.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_more_other_standard_versions_are_excluded(self) -> None:
+        for body in ("OWASP ASVS 5.0.0 V1.2.4 maps to MITRE CWE V4.20.\n", "ASVS and CAPEC V3.9.\n",
+                     "ASVS and MITRE ATLAS V4.9.\n", "ASVS and ETSI GR SAI 002 V1.9.1.\n",
+                     "ASVS and NIST SP 800-218 V1.9.\n", "ASVS and CIS Controls v8 V1.2.4\n",
+                     "Mobile OWASP Application Security Verification Standard V9.9.9.\n"):
+            r = self._run("asvs-otherstd2.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_cwe_leading_zero_is_normalized(self) -> None:
+        r = self._run("cwe-zero.md", "See CWE-079.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_adjacent_legacy_cell_does_not_disable_a_current_column(self) -> None:
         r = self._run("asvs-adjacent.md",
