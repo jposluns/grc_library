@@ -2,7 +2,7 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.33\
+**Version:** 1.0.34\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,7 +22,7 @@
 
 This policy establishes the organization's obligations and commitments for AI regulatory compliance. It defines the classification of AI systems, the governance structures accountable for compliance, the obligations that apply to the organization as an AI deployer and, where relevant, as a provider, and the obligations that arise under applicable national and international AI governance frameworks.
 
-The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and UK AI Safety Institute guidance. Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and, per the responsible Minister's June 2025 statement, will not return in its original form, so adopting entities treat it as a lapsed planning indicator rather than a binding instrument, monitor for any successor AI-governance instrument, and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
+The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and the UK's principles-based AI regulation framework (the CP 815 white paper and the CP 1019 government response). Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and, per the responsible Minister's June 2025 statement, will not return in its original form, so adopting entities treat it as a lapsed planning indicator rather than a binding instrument, monitor for any successor AI-governance instrument, and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
 
 ### 1.2 Scope
 
@@ -193,13 +193,15 @@ Canada has no in-force federal AI statute. The Artificial Intelligence and Data 
 
 The AIGC is responsible for monitoring AIDA-successor legislation and updating this policy and associated procedures when a binding federal AI statute is enacted.
 
-### 7.3 UK AI safety priorities
+### 7.3 United Kingdom: principles-based AI regulation
 
-The UK does not currently have a single AI Act equivalent. The organization follows the UK AI Safety Institute's guidance on frontier AI safety and the Information Commissioner's Office guidance on AI and data protection. Specific commitments:
+The UK has no single AI statute. Its framework, set out in the government's AI regulation white paper (CP 815, March 2023) and confirmed in the government's response to the consultation on it (CP 1019, February 2024), is five non-statutory cross-sectoral principles (safety, security and robustness; appropriate transparency and explainability; fairness; accountability and governance; and contestability and redress) that existing sector regulators interpret and apply within their remits. The principles create no legal duty for the organization directly; its binding UK obligations remain those of existing law and of each sector regulator. Specific commitments:
 
-- AI systems that process personal data comply with the UK GDPR and Data Protection Act 2018.
-- The organization monitors UK AI regulatory developments and participates in relevant consultation processes where material to operations.
-- High-risk AI systems that may affect UK individuals are assessed against the AI Safety Institute's evaluation criteria for frontier models.
+- AI systems that process personal data comply with the UK GDPR and Data Protection Act 2018, and the organization considers the Information Commissioner's Office guidance on AI and data protection.
+- The organization maps the five principles to its AI-governance controls and applies the AI guidance its sector regulators issue under the framework.
+- The organization monitors UK AI regulatory developments, including any statutory duty on regulators and any targeted binding requirements for developers of highly capable general-purpose AI, and participates in relevant consultation processes where material to operations.
+
+The framework is policy that the government has said it will revisit, so it is version-sensitive. The AI Safety Institute that the government response records was renamed the AI Security Institute on 14 February 2025. See [`ai/jurisdictions/annex-ai-united-kingdom.md`](jurisdictions/annex-ai-united-kingdom.md).
 
 ### 7.4 ISO/IEC 42001:2023 certification roadmap
 
@@ -356,7 +358,7 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 | NIST AI RMF 1.0: Govern function | AI governance structure; accountability; policy | 3 |
 | NIST AI RMF 1.0: Map/Measure/Manage | AI risk classification; control effectiveness; incident response | 4, 5, 10 |
 | OECD AI Principles (2019 Recommendation as updated 2024) | Responsible AI development; human oversight; transparency; accountability | 2, 5.3, 9 |
-| UK AI Safety Institute guidance 2024 | Frontier model safety; evaluation criteria | 7.3 |
+| UK AI regulation white paper (CP 815, 2023) and government response (CP 1019, 2024) | Principles-based, regulator-led AI regulation; five non-statutory cross-sectoral principles | 7.3 |
 | Canada: TBS Directive on Automated Decision-Making; ISED Voluntary Code (2023) | Federal automated-decision governance; algorithmic impact assessment; voluntary generative-AI commitments | 7.2 |
 | Colorado AI Act (SB24-205, re-enacted SB26-189) | High-risk AI developer and deployer duties; algorithmic-discrimination protection in consequential decisions | 7.5 |
 | NYC Local Law 144 (2021) | Automated employment decision tools; bias audit; candidate notice | 7.5 |

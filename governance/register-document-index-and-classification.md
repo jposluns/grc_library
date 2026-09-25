@@ -2,7 +2,7 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.196\
+**Version:** 1.27.197\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -234,6 +234,7 @@ Documents are classified by their **primary** disposition. The small number that
 | AI | Annex | Singapore IMDA Model AI Governance Framework for Agentic AI | [`ai/jurisdictions/annex-ai-singapore-agentic-ai.md`](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md) | Chief Information Security Officer | Annual | Singapore IMDA Model AI Governance Framework for Agentic AI, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | [`ai/jurisdictions/annex-ai-malaysia.md`](../ai/jurisdictions/annex-ai-malaysia.md) | Chief Information Security Officer | Annual | Malaysia AIGE, NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | South Korea AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-south-korea.md`](../ai/jurisdictions/annex-ai-south-korea.md) | Chief Information Security Officer | Annual | South Korea AI Basic Act (Framework Act on AI, Law No. 20676, 2025), NIST AI RMF, ISO/IEC 42001 | template |
+| AI | Annex | United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019) | [`ai/jurisdictions/annex-ai-united-kingdom.md`](../ai/jurisdictions/annex-ai-united-kingdom.md) | Chief Information Security Officer | Annual | UK AI regulation white paper (CP 815) and government response (CP 1019), NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md) | Chief Information Security Officer | Annual | CCPA/CPRA (Cal. Civ. Code 1798.100 et seq.), CPPA CCPA Regulations 11 CCR Div 6 Ch 1 Art 11 (ADMT), NIST AI RMF, ISO/IEC 42001 | template |
 | AI | Framework | AI System Audit and Certification Framework | [`ai/framework-ai-system-audit-certification.md`](../ai/framework-ai-system-audit-certification.md) | Chief Information Security Officer | 6 to 12 months | ISO/IEC 42001, EU AI Act Chapter IX, NIST AI RMF, ISO/IEC 42006:2025, CSA AICM | template |
 | AI | Framework | AI Assurance Evidence and Attestation Framework | [`ai/framework-ai-assurance-evidence.md`](../ai/framework-ai-assurance-evidence.md) | Chief Information Security Officer | 6 to 12 months | NIST AI RMF, ETSI EN 304 223, ISO/IEC 42001 | template |

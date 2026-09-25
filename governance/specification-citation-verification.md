@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.25\
+**Version:** 1.2.26\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -213,7 +213,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | Malaysia | `pdp.gov.my`, `mosti.gov.my` | Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation). |
 | OWASP | `owasp.org`, `genai.owasp.org`, `owaspsamm.org`, `cyclonedx.org` | OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424). |
 | LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
-| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
+| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
 | IEEE | `ieee.org`, `standards.ieee.org` | IEEE standards (for example IEEE 2883-2022 Sanitizing Storage). |
 | ETSI | `etsi.org`, `www.etsi.org` | ETSI standards, including the Securing AI series (EN 304 223, TR 104 128). |
 | PCI SSC | `pcisecuritystandards.org` | PCI DSS. |
@@ -541,7 +541,7 @@ The allow-list itself is subject to the same verification discipline as register
       "ukgovernmentbeis.github.io",
       "aisi.org.uk"
     ],
-    "covers": "UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
+    "covers": "UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
   },
   {
     "publisher": "IEEE",
