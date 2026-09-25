@@ -45,7 +45,7 @@
 # because stdout is piped (the RM-10 self-defence below, before any runner
 # starts); 4 if grc_library_private is required but absent (the _private check
 # below); 5 if the tracked working tree is dirty or its state cannot be read
-# (the attestation-soundness check below); otherwise the first failing check's
+# (the attestation-soundness check below); otherwise the first failing blocking check's
 # non-zero rc (that check's own diagnostics are printed above).
 
 set -u
