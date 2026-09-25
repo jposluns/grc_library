@@ -2,7 +2,7 @@
 
 **Document Title:** Enterprise Governance and Risk Management Policy\
 **Document Type:** Policy\
-**Version:** 1.4.19\
+**Version:** 1.4.20\
 **Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,7 +37,7 @@ This policy establishes the enterprise governance and risk management framework,
 |---|---|
 | Board Risk Committee | Approves risk appetite statements; receives enterprise risk reporting. |
 | Enterprise Risk Committee (ERC) | Meets quarterly to oversee risk posture, treatment progress, and escalated items. |
-| AI Governance Council (AIGC) | Approves AI risk appetite statements and co-approves AI-related exceptions (in addition to the risk-tier approver in the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), §4.2.2) per ISO/IEC 23894:2023 and NIST AI RMF Govern function; meets monthly. |
+| AI Governance Council (AIGC) | Approves AI risk appetite statements and co-approves AI-related exceptions (in addition to the risk-tier approver in the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md), §4.2.2), under arrangements informed by ISO/IEC 23894:2023 and the NIST AI RMF Govern function; meets monthly (an organization-defined cadence). |
 | Chief Risk Officer | Accountable for the enterprise risk management framework and its alignment with strategic objectives; owns risk strategy, risk-appetite stewardship, and ERM-programme outcomes; reports to the Board Risk Committee. |
 | Chief Information Officer | Provides executive support to the ERM programme on technology-risk integration; ensures that IT-strategy risk is reflected in the enterprise risk register. |
 | Chief Information Security Officer | Responsible for information security, privacy, and AI risk integration. |
@@ -62,7 +62,7 @@ The organization must maintain a standard risk management framework aligned to I
 
 ### 4.2 Risk identification
 
-Risk identification must cover strategic, financial, operational, compliance, information security, privacy, third-party, business continuity, and AI-specific risks as defined in ISO/IEC 23894:2023. Identification activities must be conducted at programme inception, upon material change, and at each scheduled review cycle.
+Risk identification must cover strategic, financial, operational, compliance, information security, privacy, third-party, business continuity, and AI-specific risks (the organization's categories, informed by the risk sources in ISO/IEC 23894:2023 Annex B). Identification activities must be conducted at programme inception, upon material change, and at each scheduled review cycle.
 
 ### 4.3 Risk analysis
 
