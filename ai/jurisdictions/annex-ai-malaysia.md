@@ -2,7 +2,7 @@
 
 **Document Title:** Malaysia National Guidelines on AI Governance and Ethics (AIGE)\
 **Document Type:** Annex\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,9 +34,9 @@ The Guidelines adopt seven principles, stated to be in alignment with principles
 2. **Reliability, Safety and Control.** AI systems are reliable and safe, with particular weight in areas such as autonomous vehicles, healthcare, and financial services, and measures are taken to prevent intentional misuse and to keep control over AI systems.
 3. **Privacy and Security.** Personal data such as financial and health information is handled through proper procedures, informed consent, and secure storage, in compliance with data-protection law, and security measures protect against hacking and other malicious attacks.
 4. **Inclusiveness.** No group is unfairly excluded from AI or its benefits; diverse stakeholders are considered.
-5. **Transparency.** An individual can understand what an organization does with personal data in its AI and can access the relevant information; the organization shows how it operates, especially regarding personal data.
+5. **Transparency.** An individual can understand what an organization does with personal data in its AI and has a right to access the relevant information they are entitled to know; the organization shows how it operates, especially regarding personal data.
 6. **Accountability.** Responsibility for the actions and outcomes of AI is identified and assigned during design and deployment, because after a failure it can be hard to attribute to a single person or entity.
-7. **Pursuit of Human Benefit and Happiness.** Given prominence as the central principle to which the others connect: AI serves human well-being, a moral responsibility of organizations beyond shareholder return.
+7. **Pursuit of Human Benefit and Happiness.** Given prominence as a central principle to which the others connect: AI serves human well-being, a moral responsibility of organizations beyond shareholder return.
 
 ## Structure by stakeholder
 
