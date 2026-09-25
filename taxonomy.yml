@@ -2903,7 +2903,7 @@ documents:
   domain: "compliance"
   type: "Policy"
   title: "Legal and Regulatory Compliance Policy"
-  version: "1.0.24"
+  version: "1.0.25"
   date: "2026-09-25"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"

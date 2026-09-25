@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.24\
+**Version:** 1.0.25\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 6. Risk assessment and treatment
 
-6.1 Compliance risks must be assessed per ISO 31000:2018 and COBIT APO12, integrating legal, operational, and trade risks.
+6.1 Compliance risks must be assessed in line with ISO 31000:2018 and COBIT APO12, integrating legal, operational, and trade risks.
 
 6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
