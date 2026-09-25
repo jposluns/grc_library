@@ -3,7 +3,7 @@
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
 **Version:** 1.0.4\
-**Date:** 2026-08-08\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-executive-narrative.md`](../specification-executive-narrative.md)\

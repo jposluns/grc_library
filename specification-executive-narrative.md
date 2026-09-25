@@ -3,7 +3,7 @@
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
 **Version:** 0.0.17\
-**Date:** 2026-08-28\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
