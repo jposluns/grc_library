@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.2\
+**Version:** 0.0.3\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This annex is the Canada-specific public-sector carrier for the GRC library. It supplements the jurisdiction-neutral [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md) by organizing Canadian federal, provincial, territorial, municipal or local, contractor, health-information, financial-sector, and private-sector applicability boundaries.
 
-The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. As a foundation it does not yet carry clause-level content, and a jurisdiction whose official sources are not yet registered in the companion coverage register remains a recorded gap rather than covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
+The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. As a foundation it does not yet carry clause-level content, and until the forthcoming Canadian authority coverage register exists, no jurisdiction is recorded as covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
 
 This foundation establishes the applicability model and durable section structure. Source-specific duties, dates, thresholds, control mappings, and jurisdictional conclusions are added only from current, held, publisher-canonical sources recorded in the forthcoming Canadian authority coverage register (the companion evidence register to this annex, established in the follow-on PR).
 
@@ -136,7 +136,7 @@ This section carries federal public-sector security and digital-service sources 
 | IT security risk management | Limit ITSG-33 claims to the held annexes |
 | Network security zones | Use the exact CCCS identifier and current edition |
 | Cloud security | Use the current cloud categorization guidance and current control profile |
-| Historical cloud controls | Treat the legacy GC cloud profile's Appendix A control list as replaced by the CCCS Medium Cloud Control Profile (ITSP.50.103 Annex B), and cite the legacy profile only as historical context |
+| Historical cloud controls | Treat the legacy GC cloud profile's Appendix A control list as replaced by the CCCS Medium Cloud Control Profile (ITSP.50.103 Annex B); a cloud service provider holding an authorization under Appendix A (version 1.1, 28 March 2018) contacts CCCS for its compliance transition requirements |
 | Identity management | Distinguish binding direction from draft or voluntary trust frameworks |
 | Incident and event management | Separate enterprise plans from advisory incident-response guidance |
 | Records, open government, and digital service | Attribute obligations and recommendations to their exact federal sources |

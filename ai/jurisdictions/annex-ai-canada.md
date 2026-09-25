@@ -2,7 +2,7 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -70,7 +70,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 
 - A **federal government institution subject to the Policy on Service and Digital** that uses an automated decision system for administrative decisions or related assessments is bound by the Treasury Board Directive and completes the AIA (others are encouraged to meet it as good practice).
 - An organization **developing or managing advanced generative AI** may commit to the ISED Voluntary Code (voluntary).
-- A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter). The Government of Canada AI Register records AI systems that are or have been in use in federal institutions, but in its current minimum-viable-product form it is assembled from existing sources and not all entries are complete, so an entry, or its absence, is not a compliance record.
+- A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter). The Government of Canada AI Register records AI systems that are or have been in use in federal institutions, but in its current minimum-viable-product form it is assembled from existing sources and not all entries are complete, so the register is not a complete inventory of an institution's AI systems.
 - A **federally regulated financial institution** prepares for OSFI Guideline E-23 (effective 1 May 2027).
 - An **Ontario public-sector entity** monitors the EDSTA AI provisions (in force since 29 January 2025; their AI duties apply and operate as the regulations prescribe).
 - Any organization may adopt **CAN/DGSI 101:2025** for conformity assessment (voluntary).
