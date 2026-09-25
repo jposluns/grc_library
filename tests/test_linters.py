@@ -10351,7 +10351,8 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     audit-cross-repo-references reported clean for a missing root; audit-gate-blindspots and
     ref-holds read an empty value as the current directory or the default sibling;
     audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
-    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases. Each
+    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases and
+    reported clean for an empty or unknown --section (3b71). Each
     now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
 
     def test_bad_explicit_arguments_refused(self) -> None:
@@ -10374,6 +10375,9 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             ("not a regular file", "tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
             ("not a regular file", "tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
             ("an empty value is refused", "tools/audit-reference-acquisition-gaps.py", "--ref-base="),
+            ("--section is empty", "tools/audit-reference-acquisition-gaps.py", "--section="),
+            ("names no parsed register family", "tools/audit-reference-acquisition-gaps.py",
+             "--section", "No Such Family 3b71"),
             ("unresolvable", "tools/ref-holds.py", "--ref-root", "~grc_no_such_user_3b50b2e1", "27002"),
             (("unresolvable", "not a directory"), "tools/audit-cross-repo-references.py", "--root", str(loop)),
             (("unresolvable", "could not locate"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),
@@ -10460,6 +10464,43 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             self.assertIn("unreadable", r.stderr, (script, args))
             self.assertNotIn("Traceback", r.stderr)
 
+
+    def test_section_check_register_errors_exit_2_without_traceback(self) -> None:
+        # 3b71 QA: the early --section check parses the register itself; a missing register
+        # or one with zero parsed rows must exit 2 cleanly, never raise a traceback.
+        import contextlib
+        import importlib.util
+        import io
+        spec = importlib.util.spec_from_file_location(
+            "acq_gaps_3b71", REPO_ROOT / "tools" / "audit-reference-acquisition-gaps.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-"))
+        self.addCleanup(shutil.rmtree, td)
+        empty = td / "empty.md"
+        empty.write_text("# nothing\n", encoding="utf-8")
+        for reg in (td / "missing.md", td, empty):
+            with self.subTest(register=str(reg)):
+                mod.CANONICAL_REGISTER = reg
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    rc = mod.main(["--section", "NIST publications"])
+                self.assertEqual(rc, 2, err.getvalue())
+                self.assertIn("ERROR:", err.getvalue())
+
+    def test_valid_section_not_refused(self) -> None:
+        # A family the register holds passes the --section check (it may still stop later
+        # for an absent reference base, as in CI, but never with the --section refusal).
+        # A nonexistent --ref-base makes the run stop at the NEXT step deterministically (on
+        # every host), so reaching "catalogue not found" proves the section check passed.
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-valid-"))
+        self.addCleanup(shutil.rmtree, td)
+        r = run_linter("tools/audit-reference-acquisition-gaps.py", "--section", "NIST publications",
+                       "--ref-base", str(td / "no-ref-base"))
+        self.assertEqual(r.returncode, 2, r.stderr)
+        self.assertIn("catalogue not found", r.stderr)
+        self.assertNotIn("--section", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
 
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
