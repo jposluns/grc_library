@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
-**Date:** 2026-09-05\
+**Version:** 1.0.8\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -44,7 +44,7 @@ The **TBS Guide on the Use of Generative AI** provides advisory guidance for fed
 
 ## Federal public-service AI adoption: the AI Strategy for the Federal Public Service 2025-2027
 
-The **AI Strategy for the Federal Public Service 2025-2027**, published by the Treasury Board of Canada Secretariat (Office of the Chief Information Officer and Chief Data Officer) on 4 March 2025, is the Government of Canada's first strategy for the responsible, secure adoption of artificial intelligence across the federal public service. It is built on four principles (human-centred, collaborative, ready, and responsible) and sets the government's internal direction for how federal institutions adopt and use AI. It is a strategy and policy direction, not a binding obligation on an external adopter; it applies to organizations subject to the Policy on Service and Digital, with exempt bodies encouraged to comply as good practice. One of its transparency deliverables is the **Government of Canada AI Register**, published as a minimum viable product by the Treasury Board of Canada Secretariat on 28 November 2025, a public inventory of the artificial-intelligence systems in use across federal institutions.
+The **AI Strategy for the Federal Public Service 2025-2027**, published by the Treasury Board of Canada Secretariat (Office of the Chief Information Officer and Chief Data Officer) on 4 March 2025, is the Government of Canada's first strategy for the responsible, secure adoption of artificial intelligence across the federal public service. It is built on four principles (human-centred, collaborative, ready, and responsible) and sets the government's internal direction for how federal institutions adopt and use AI. It is a strategy and policy direction, not a binding obligation on an external adopter; it applies to organizations subject to the Policy on Service and Digital, with exempt bodies encouraged to comply as good practice. One of its transparency deliverables is the **Government of Canada AI Register**, published as a minimum viable product by the Treasury Board of Canada Secretariat on 28 November 2025, a public inventory that collects information about artificial-intelligence systems that are or have been in use within the Government of Canada (as a minimum viable product assembled from existing sources, not all of its entries are complete).
 
 ## Federal soft-law for industry: the ISED Voluntary Code
 
@@ -70,7 +70,7 @@ The **Office of the Superintendent of Financial Institutions (OSFI) Guideline E-
 
 - A **federal government institution subject to the Policy on Service and Digital** that uses an automated decision system for administrative decisions or related assessments is bound by the Treasury Board Directive and completes the AIA (others are encouraged to meet it as good practice).
 - An organization **developing or managing advanced generative AI** may commit to the ISED Voluntary Code (voluntary).
-- A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter); its AI systems appear in the Government of Canada AI Register.
+- A **federal government institution** adopting AI for its own operations follows the AI Strategy for the Federal Public Service 2025-2027 (a strategy and policy direction, not an obligation on an external adopter). The Government of Canada AI Register records AI systems that are or have been in use in federal institutions, but in its current minimum-viable-product form it is assembled from existing sources and not all entries are complete, so the register is not a complete inventory of an institution's AI systems.
 - A **federally regulated financial institution** prepares for OSFI Guideline E-23 (effective 1 May 2027).
 - An **Ontario public-sector entity** monitors the EDSTA AI provisions (in force since 29 January 2025; their AI duties apply and operate as the regulations prescribe).
 - Any organization may adopt **CAN/DGSI 101:2025** for conformity assessment (voluntary).
@@ -85,7 +85,7 @@ Canadian AI governance intersects with federal and provincial privacy law (the P
 - This annex is a consolidating per-regime view, not a substitute for the instruments themselves or for legal advice; the controlling texts are the Treasury Board Directive, the OSFI Guideline, the Ontario statute, and the standards and guidance cited.
 - **Status to confirm upstream:** the **Artificial Intelligence and Data Act (AIDA)** lapsed and is not law; the **Ontario EDSTA AI provisions** are in force (proclaimed 29 January 2025 by Ontario OIC 361/2025), with AI duties that apply and operate as the prescribing regulations provide. **OSFI Guideline E-23** is published but not effective until 1 May 2027. These statuses are current-events facts; the adopter confirms them upstream before committing to a compliance milestone.
 - The Treasury Board Directive dates are the Directive's own: effective 2019, compliance 2020, and a 24 June 2025 to 24 June 2026 compliance transition for the updated requirements. 24 June 2025 is not the Directive's in-force date.
-- Detail that the Directive and the EDSTA delegate to guidance or regulations (the scope elements and the EDSTA prescribed requirements) is not fixed in the primary text; the adopter confirms the current position against the guidance and regulations as issued. (The impact-level requirement scaling itself is fixed in the Directive's Appendix C.)
+- The Directive fixes its own scope in the primary text: it applies to institutions subject to the Policy on Service and Digital (section 8.1) and to automated decision systems in production used to make an administrative decision or a related assessment about a client (section 5.1), and it excludes systems used solely for research and experimentation or operating in test environments (section 5.2). Interpretive guidance on applying that scope sits in Treasury Board guidance, and the EDSTA prescribed requirements sit in regulations; the adopter confirms the current position against the guidance and regulations as issued. (The impact-level requirement scaling itself is fixed in the Directive's Appendix C.)
 - The corpus operational substance this annex references (the AI classification, impact-assessment, and model-risk workflow) is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the AI procedures and model-risk documents; on any divergence, those documents govern the operational procedure and this annex governs the per-regime framing.
 
 ## Framework alignment
