@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)\
 **Document Type:** Worklist\
-**Version:** 1.0.1\
-**Date:** 2026-06-25\
+**Version:** 1.0.2\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md)\
@@ -36,7 +36,7 @@ For each row in §4:
 
 1. Open the **Source URL** in a browser. Confirm it resolves and serves the expected project content.
 2. For GitHub-hosted entries: capture the commit SHA of the default branch (or the assessed branch where specified) at the time of verification. The SHA is the **Integrity anchor**.
-3. For non-GitHub web sources (commercial vendor pages): capture the SHA-256 of the page content. The SHA-256 is the **Integrity anchor**.
+3. For non-GitHub web sources (commercial vendor pages): capture the SHA-512 of the page content. The SHA-512 is the **Integrity anchor**.
 4. Submit the Source URL to `https://web.archive.org/save/` and record the resulting snapshot URL. Where a snapshot already exists for the verification date, the existing snapshot URL is acceptable.
 5. Confirm the entry's recorded capabilities still match the current project documentation. Note any divergence in the **Divergence detail** column.
 6. Assign the **Verification status** (`human-verified` if everything matches; `re-verification-due` if material divergence; `pending-resolution` if the project no longer exists or has been renamed).
@@ -66,7 +66,7 @@ Most entries are GitHub-hosted. For each:
 For entries in §5.8 of the tooling register:
 
 - **Source URL**: the vendor product page captured at assessment time.
-- **Integrity anchor (SHA-256)**: download the page HTML and compute SHA-256 of the file. The hash captures the page state at verification time.
+- **Integrity anchor (SHA-512)**: download the page HTML and compute SHA-512 of the file. The hash captures the page state at verification time.
 - **Wayback submission**: same pattern as GitHub. Vendor pages change frequently; the Wayback snapshot is critical evidence.
 
 ### 3.3 Archived or unmaintained projects
@@ -83,7 +83,7 @@ For entries explicitly marked archived (rebuff, CodeGate, Vigil-LLM) or unmainta
 
 Pre-filled by the AI verifier from the AI Security Tooling Landscape Register's Provenance blocks. Captured columns are filled by the human verifier during the batch.
 
-| Section ID | Project | Source URL | Hosting kind | Expected default branch | Captured commit SHA / page SHA-256 | Wayback snapshot URL | Capabilities still match? | Divergence detail | Captured by | Verification status | Date checked |
+| Section ID | Project | Source URL | Hosting kind | Expected default branch | Captured commit SHA / page SHA-512 | Wayback snapshot URL | Capabilities still match? | Divergence detail | Captured by | Verification status | Date checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 5.1.1 | PROMPTPurify | https://github.com/securelayer7/PROMPTPurify | github | main |  |  |  |  |  |  |  |
 | 5.1.2 | Protect AI llm-guard | https://github.com/protectai/llm-guard | github | main |  |  |  |  |  |  |  |

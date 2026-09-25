@@ -2,8 +2,8 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.40\
-**Date:** 2026-09-24\
+**Version:** 1.8.41\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/guide-ai-security-technical-implementation.md`](guide-ai-security-technical-implementation.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-system-card.md`](template-system-card.md), [`dev-security/standard-developer-security-requirements.md`](../dev-security/standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](../dev-security/standard-devops-security-requirements.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -305,7 +305,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **RAG-SEC-02:** Documents must be scanned at ingestion for injection patterns and PII. Documents containing detected injection patterns must be quarantined.
 
-**RAG-SEC-03:** A SHA-256 hash of each ingested document must be stored alongside the vector embeddings to support tampering detection.
+**RAG-SEC-03:** A SHA-512 hash of each ingested document must be stored alongside the vector embeddings to support tampering detection.
 
 **RAG-SEC-04:** Vector store namespaces must be isolated by data classification. Confidential content must not be retrievable in contexts authorized only for Internal.
 

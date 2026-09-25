@@ -2,8 +2,8 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.33\
-**Date:** 2026-09-24\
+**Version:** 1.1.35\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -148,7 +148,7 @@ Secret rotation must work without a code deployment. Hard-coded secrets that req
 | Symmetric encryption | AES-256-GCM | DES, 3DES, RC4, Blowfish |
 | Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA, DH < 2048 |
-| Hashing (integrity) | SHA-256, SHA-384, SHA-512 | MD5, SHA-1 |
+| Hashing (integrity) | SHA-512, BLAKE2b-512 (an externally mandated digest format keeps its own algorithm for interoperability only, per the Encryption and Key Management Policy) | MD5, SHA-1 |
 | Password hashing | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | MD5, SHA-256 (unsalted), plain text |
 | TLS | TLS 1.3 (or stronger), aligned to [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md) §4 (Encryption standards) canonical mandate | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
 | Certificate signing | SHA-256 RSA or ECDSA | SHA-1 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.16\
-**Date:** 2026-09-24\
+**Version:** 1.0.17\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
@@ -48,7 +48,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 - Symmetric: AES-256 and ChaCha20-Poly1305
 - Asymmetric: RSA-4096, ECC P-384, ML-KEM/ML-DSA hybrids (PQC), and SLH-DSA (FIPS 205) where a conservative hash-only signature assumption is required
-- Hashing: SHA-512 or BLAKE2b
+- Hashing: SHA-512 or BLAKE2b-512
 
 **Control requirements:**
 
