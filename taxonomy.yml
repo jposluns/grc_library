@@ -2181,7 +2181,7 @@ documents:
   domain: "ai"
   type: "Annex"
   title: "Malaysia National Guidelines on AI Governance and Ethics (AIGE)"
-  version: "0.0.5"
+  version: "0.0.6"
   date: "2026-09-25"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
