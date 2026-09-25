@@ -10357,6 +10357,10 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     def test_bad_explicit_arguments_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aidargs-"))
         self.addCleanup(shutil.rmtree, td)
+        # A self-referencing symlink: Python 3.11's resolve() raises RuntimeError on it, and newer
+        # versions leave it unresolved; either way the explicit root is refused.
+        loop = td / "loop"
+        loop.symlink_to(loop)
         # Each case names the refusal text only the fixed tool prints, so a case still
         # discriminates where the base tool also exits 2 for another reason (e.g. CI has
         # no grc_library_ref sibling, so base ref-holds exits 2 with "could not locate").
@@ -10370,11 +10374,17 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             ("not a regular file", "tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
             ("not a regular file", "tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
             ("an empty value is refused", "tools/audit-reference-acquisition-gaps.py", "--ref-base="),
+            ("unresolvable", "tools/ref-holds.py", "--ref-root", "~grc_no_such_user_3b50b2e1", "27002"),
+            (("unresolvable", "not a directory"), "tools/audit-cross-repo-references.py", "--root", str(loop)),
+            (("unresolvable", "could not locate"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),
         )
         for expect, script, *args in cases:
             r = run_linter(script, *args)
             self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
-            self.assertIn(expect, r.stderr, (script, args))
+            # A symlink-loop root is refused on every Python, by a different path per version
+            # (3.11's resolve() raises; newer versions report it as not a directory).
+            expects = expect if isinstance(expect, tuple) else (expect,)
+            self.assertTrue(any(e in r.stderr for e in expects), (script, args, r.stderr[-200:]))
             self.assertNotIn("Traceback", r.stderr)
 
     def test_unreadable_explicit_inputs_refused(self) -> None:

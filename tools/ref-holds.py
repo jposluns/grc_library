@@ -222,7 +222,13 @@ def main(argv: list[str]) -> int:
         print("ERROR: provide a query (or --self-test). Example: ref-holds.py \"27002\"", file=sys.stderr)
         return 2
 
-    ref_root = find_ref_root(a.ref_root)
+    try:
+        ref_root = find_ref_root(a.ref_root)
+    except (OSError, RuntimeError) as exc:
+        # expanduser() raises RuntimeError for an unknown user, and Python 3.11's resolve() raises
+        # it on a symlink loop; an explicit root that cannot be resolved is refused (3b50b2e1 r5).
+        print(f"ERROR: --ref-root {a.ref_root}: unresolvable ({exc}).", file=sys.stderr)
+        return 2
     if ref_root is None:
         # A GENUINELY ABSENT default sibling on an ADOPTER clone degrades to an
         # advisory no-op (exit 0), per 1.19.2 (closing PR #996): ref-holds is a

@@ -887,9 +887,10 @@ def require_dir(path, flag: str) -> Path:
     try:
         p = Path(path).resolve()
         is_dir = p.is_dir()
-    except OSError as exc:
-        # Python 3.11's is_dir() raises on EACCES where newer versions return False.
-        print(f"ERROR: {flag} {path}: unreadable ({exc.strerror}); nothing would be checked.",
+    except (OSError, RuntimeError) as exc:
+        # Python 3.11's is_dir() raises on EACCES where newer versions return False, and its
+        # resolve() raises RuntimeError on a symlink loop.
+        print(f"ERROR: {flag} {path}: unreadable or unresolvable ({exc}); nothing would be checked.",
               file=sys.stderr)
         raise SystemExit(2)
     if not is_dir:
