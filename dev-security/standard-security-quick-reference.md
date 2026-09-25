@@ -2,7 +2,7 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.25\
+**Version:** 1.1.26\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -37,7 +37,7 @@ Prohibited by default. Most carry no exception path at all; where a row is excep
 | 5 | Make a manual production change outside a declared incident | All production changes require a documented change request, CAB review where applicable, and pipeline execution. Manual changes leave no audit trail and introduce untracked drift. |
 | 6 | Give a service account Domain Admin or equivalent permanent elevated membership | Minimum required permissions only. |
 | 7 | Use SAMAccountName-only authentication in new code | LDAPS and UPN/SSO are the required patterns. |
-| 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1/1.2 | All deprecated. AES-256, SHA-512 or BLAKE2b for integrity hashing, TLS 1.3 only. |
+| 8 | Use MD5, SHA-1, RC4, 3DES, SSL, or TLS 1.0/1.1/1.2 | All deprecated. AES-256, SHA-512 or BLAKE2b-512 for integrity hashing, TLS 1.3 only. |
 | 9 | Send personal or Confidential data to an external AI service without a data processing agreement and CIO approval | Violates privacy law and organizational policy. |
 | 10 | Bypass a pipeline security gate | Gates exist for a reason. Disable nothing without approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 pathway (CISO co-approval). |
 | 11 | Reimage or modify a system you suspect is compromised | Preserve evidence. Alert the security team first. |
@@ -177,7 +177,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 | --- | --- | --- |
 | Encrypting data at rest | AES-256-GCM | DES, 3DES, RC4 |
 | TLS for transit | TLS 1.3 (or stronger) | TLS 1.2, TLS 1.1, TLS 1.0, SSL anything |
-| Hashing for integrity | SHA-512, BLAKE2b (an externally mandated digest format keeps its own algorithm, per the Encryption and Key Management Policy) | MD5, SHA-1 |
+| Hashing for integrity | SHA-512, BLAKE2b-512 (an externally mandated digest format keeps its own algorithm for interoperability only, per the Encryption and Key Management Policy) | MD5, SHA-1 |
 | Hashing passwords | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | SHA-256 (for passwords), MD5, plain storage |
 | Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
 | Key exchange | ECDHE, DHE | Static RSA key exchange |

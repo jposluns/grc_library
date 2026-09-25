@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Technical Implementation Guide\
 **Document Type:** Guide\
-**Version:** 1.3.8\
+**Version:** 1.3.9\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -558,7 +558,7 @@ element.textContent = llmResponse;
 {
   "timestamp": "ISO 8601",
   "trace_id": "uuid",
-  "session_id": "sha256-anonymized-hash",
+  "session_id": "HMAC-SHA-512 keyed pseudonym",
   "component": "agent | rag | inference | tool",
   "action": "invoke | retrieve | generate | approve | block",
   "model": "model identifier",

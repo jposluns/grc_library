@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.27\
+**Version:** 1.3.28\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -88,7 +88,7 @@ Retired or expired keys destroyed by zeroization (the recommended key sanitizati
 |---|---|
 | Symmetric encryption | AES-256, ChaCha20-Poly1305 |
 | Asymmetric encryption | RSA-4096, ECC P-384 or stronger |
-| Hashing | SHA-512, BLAKE2b, for integrity hashing where the organization selects the algorithm (for example log, document, evidence and data integrity). Where an external specification or ecosystem interface mandates a digest algorithm or format (for example OCI image digests, SLSA and in-toto provenance, Sigstore signatures, SBOM component hashes, or git object identifiers), that algorithm is used only for interoperability within that interface, and the governing specification is documented. Password-based encryption, key derivation, message authentication and signature or TLS suites follow their own rows, and historical evidence keeps the algorithm it was recorded with. |
+| Hashing | SHA-512, BLAKE2b-512, for integrity hashing where the organization selects the algorithm (for example log, document, evidence and data integrity). Where an external specification or ecosystem interface mandates a digest algorithm or format (for example OCI image digests, SLSA and in-toto provenance, Sigstore signatures, SBOM component hashes, or git object identifiers), that algorithm is used only for interoperability within that interface, and the governing specification is documented. Password-based encryption (its own row in this table), key derivation and TLS (section 4), and message-authentication and signature algorithms are governed separately and are not integrity hashing. Integrity values already recorded keep the algorithm they were recorded with; new values use SHA-512 or BLAKE2b-512. |
 | Password-based encryption | Argon2id (preferred) at minimum m=19456 (19 MiB), t=2, p=1; or PBKDF2-HMAC-SHA256 at minimum 600,000 iterations (PBKDF2-HMAC-SHA512 at minimum 220,000), per the OWASP Password Storage Cheat Sheet |
 | Post-quantum cryptography | ML-KEM (formerly CRYSTALS-Kyber; NIST FIPS 203, August 2024) for key encapsulation and ML-DSA (formerly CRYSTALS-Dilithium; NIST FIPS 204, August 2024) for digital signatures, at NIST security category 3 as the baseline (ML-KEM-768, ML-DSA-65) and category 5 (ML-KEM-1024, ML-DSA-87) for long-lived or high-assurance data; SLH-DSA (NIST FIPS 205, August 2024) where a conservative hash-only signature assumption is required; hybrid key exchange (ECC + PQC) during migration. See the [Post-Quantum Cryptography Readiness Roadmap](roadmap-post-quantum-cryptography.md) for parameter-set selection and crypto-agility |
 
