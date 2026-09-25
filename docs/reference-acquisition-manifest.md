@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-09-24\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -317,7 +317,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (307: 263 free, 44 licensed)
+## Frameworks (312: 268 free, 44 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -490,6 +490,11 @@ without the private reference sibling).
 | International AI Safety Report 2026 (2nd edition, February 2026) | 2nd edition, February 2026 (Bengio-chaired) | International AI Safety Report (UK AISI secretariat) |  | FREE |
 | Introducing OCTAVE Allegro: Improving the Information Security Risk Assessment Process (CMU/SEI-2007-TR-012) | OCTAVE Allegro as introduced in CMU/SEI-2007-TR-012 (May 2007); confirmed 2026-07-07 as the current Allegro specification (no later Allegro edition). Copyright 2007 Carnegie Mellon University; SEI internal-use reproduction grant, external/commercial use via the SEI Licensing Agent. | CMU SEI |  | FREE |
 | Introduction to HITRUST CSF v11.8.0 | v11.8.0 | HITRUST |  | LICENSED |
+| Jakarta Authentication 3.1 | 3.1, June 04, 2024: Final | Eclipse Foundation (Jakarta EE) |  | FREE |
+| Jakarta Authorization 3.0 | 3.0, April 07, 2024: Final | Eclipse Foundation (Jakarta EE) |  | FREE |
+| Jakarta EE Platform 11 | 11.0, March 10, 2025 (final release; ballot concluded 2025-06-17) | Eclipse Foundation (Jakarta EE) |  | FREE |
+| Jakarta Security 4.0 | 4.0, May 09, 2024: Final | Eclipse Foundation (Jakarta EE) |  | FREE |
+| Jakarta Servlet 6.1 | 6.1, March 28, 2024 (final release; ballot concluded 2024-06-04) | Eclipse Foundation (Jakarta EE) |  | FREE |
 | Japan AI Safety Institute Guide to Red Teaming Methodology on AI Safety (Version 1.10, March 2025) | J-AISI Red Teaming Methodology v1.10 (March 2025) | Japan AISI |  | FREE |
 | Japan FSA Guidelines on Cybersecurity for the Financial Sector (English, effective 4 October 2024) |  | Japan FSA |  | FREE |
 | Malaysia National Guidelines on AI Governance and Ethics (AIGE) (MOSTI, launched September 2024; revised PDF 18 November 2024) | AIGE, launched 20 September 2024 (7 principles); revised PDF of 18 November 2024 (138 pages) as served by mosti.gov.my | Malaysia MOSTI |  | FREE |
@@ -904,5 +909,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 839 sources (713 free, 126 licensed).**
+**Total: 844 sources (718 free, 126 licensed).**
 
