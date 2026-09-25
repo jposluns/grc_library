@@ -7192,6 +7192,17 @@ class OrphanDocumentsTests(LinterTestCase):
         result = run_linter("tools/lint-orphan-documents.py")
         self.assertLinterFails(result, "standard-unreferenced-orphan.md")
 
+    def test_self_link_is_not_an_inbound_reference(self) -> None:
+        # P-1.89(a): the rule needs a link from ANOTHER document, so an artefact whose only
+        # inbound link is its own (here an in-page self-link) is still an orphan.
+        body = VALID_METADATA.replace(
+            "tests/tmp/standard-test.md",
+            "tests/tmp/standard-selflink-orphan.md",
+        ) + "\nSee [this document](standard-selflink-orphan.md).\n"
+        self.make_fixture("standard-selflink-orphan.md", body)
+        result = run_linter("tools/lint-orphan-documents.py")
+        self.assertLinterFails(result, "standard-selflink-orphan.md")
+
 
 class SkillDerivesFromTests(LinterTestCase):
     """tools/lint-skill-derives-from.py
