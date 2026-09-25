@@ -70,10 +70,10 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
     hits: list[tuple[str, int, str]] = []
     for name in INDEX_FILES:
         f = ref_root / name
-        if not f.exists():
-            continue
         try:
             text = f.read_text(encoding="utf-8", errors="replace")
+        except FileNotFoundError:
+            continue  # an absent index file (or a dangling link) is simply not consulted
         except OSError as exc:
             # A present but unreadable index is not evidence of absence (3b50b2e1).
             raise IndexUnreadable(f"{name}: {exc.strerror}") from exc
@@ -87,7 +87,7 @@ def run(ref_root: Path, query: str, stream=sys.stdout) -> int:
     try:
         hits = search_index(ref_root, query)
     except IndexUnreadable as exc:
-        print(f"ERROR: grc_library_ref index unreadable ({exc}); refusing a not-found verdict.",
+        print(f"ERROR: grc_library_ref index unreadable ({exc}); refusing a verdict.",
               file=sys.stderr)
         return 2
     if not hits:
@@ -243,9 +243,10 @@ def main(argv: list[str]) -> int:
                 "ref-holds is a maintainer-only advisory, nothing to report."
             )
             return 0
+        looked = a.ref_root if a.ref_root is not None else DEFAULT_REF_ROOT
         print(
-            "ERROR: could not locate the grc_library_ref index. Pass --ref-root /path/to/grc_library_ref "
-            f"(looked for {DEFAULT_REF_ROOT}).",
+            "ERROR: could not locate a readable grc_library_ref index (INDEX.md or catalogue.yml). "
+            f"Pass --ref-root /path/to/grc_library_ref (looked in {looked}).",
             file=sys.stderr,
         )
         return 2

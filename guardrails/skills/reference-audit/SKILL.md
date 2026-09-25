@@ -19,7 +19,8 @@ Portable procedure, concrete names. In the parent GRC library this skill runs wi
   `tools/reference-breadth-aliases.json`.
 - Complementary acquisition-gap tool (the cited-but-not-held direction):
   `tools/audit-reference-acquisition-gaps.py` (also advisory, never a gate; exits 0
-  whatever it finds, 2 only on an internal or usage error such as a missing --aliases file).
+  whatever it finds, 2 only on an internal or usage error such as a missing or unreadable --aliases file or an
+  empty or unusable --ref-base).
 - Per-document state file (the per-touch delta anchor): the per-document reference-audit state file in the consuming project's working state.
 - Run-record directory: the reference-audit run-record directory in the consuming project's working state (dated per-run detail files plus the
   non-dated `history.md`; completed records are retained in the operational store, whose version history is their

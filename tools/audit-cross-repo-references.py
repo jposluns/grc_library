@@ -30,7 +30,8 @@ into one of four buckets:
 
 This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees and exits 0 on
 every reporting path (a findings count is informational, never a build failure; 2 only on a
-usage error: an empty, missing or non-directory --root), and is intended to be
+usage or read error: an empty, missing or non-directory --root, or unreadable content under
+--root or the working store), and is intended to be
 worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR lint
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
@@ -111,13 +112,22 @@ def iter_text_files(root: Path) -> list[Path]:
     the candidate path list in sorted order for deterministic output.
     """
     out: list[Path] = []
-    for f in sorted(root.rglob("*")):
-        if not f.is_file():
-            continue
-        if any(part in SCAN_EXEMPT_DIRS for part in f.relative_to(root).parts):
-            continue
-        out.append(f)
-    return out
+
+    def _raise(err: OSError) -> None:
+        # rglob skipped an unreadable subdirectory silently, so its links were never audited
+        # and the run still reported clean (3b50b2e1 r2); surface it instead.
+        raise err
+
+    for dirpath, dirnames, filenames in os.walk(root, onerror=_raise):
+        dirnames[:] = [d for d in dirnames if d not in SCAN_EXEMPT_DIRS]
+        for name in filenames:
+            f = Path(dirpath, name)
+            if not f.is_file():
+                continue
+            if any(part in SCAN_EXEMPT_DIRS for part in f.relative_to(root).parts):
+                continue
+            out.append(f)
+    return sorted(out)
 
 
 def classify_link(
@@ -466,12 +476,12 @@ def main(argv: list[str]) -> int:
     # 3b50b2e1: a missing, empty, non-directory or unreadable --root used to audit nothing and report clean.
     root = require_dir(args.root, "--root")
     try:
-        os.listdir(root)
         findings, counts = audit_tree(root)
     except OSError as exc:
-        # An unreadable root used to report clean (nothing walked); unreadable content crashed.
-        print(f"ERROR: --root {args.root}: unreadable ({exc}); nothing would be audited reliably.",
-              file=sys.stderr)
+        # An unreadable root or subdirectory used to report clean (nothing walked there), and an
+        # unreadable file crashed; either way the audit would be incomplete.
+        print(f"ERROR: unreadable content under --root {args.root} ({exc}); "
+              f"the audit would be incomplete.", file=sys.stderr)
         return 2
     # Post-migration the `.working/` tree lives in the private sibling (outside
     # this root); audit it too so the `.working/` coverage this tool exists to
@@ -482,7 +492,12 @@ def main(argv: list[str]) -> int:
         try:
             wd.relative_to(root)
         except ValueError:
-            wfind, wcounts = audit_tree(wd, link_root=root, logical_prefix=".working")
+            try:
+                wfind, wcounts = audit_tree(wd, link_root=root, logical_prefix=".working")
+            except OSError as exc:
+                print(f"ERROR: unreadable content under the working store {wd} ({exc}); "
+                      f"the audit would be incomplete.", file=sys.stderr)
+                return 2
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)

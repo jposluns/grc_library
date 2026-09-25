@@ -179,7 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         except OSError as exc:
             print(f"ERROR: --aliases {args.aliases}: unreadable ({exc.strerror}).", file=sys.stderr)
             return 2
-    if args.ref_base is None:
+    explicit_ref_base = args.ref_base is not None
+    if not explicit_ref_base:
         args.ref_base = DEFAULT_REF_BASE
     elif not args.ref_base.strip():
         # 3b50b2e1: --ref-base= used to resolve to the current directory.
@@ -193,7 +194,7 @@ def main(argv: list[str] | None = None) -> int:
     # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter
     # clone runs this maintainer-only advisory green rather than crashing. An explicit
     # --ref-base that is bad still errors below (typo guard).
-    if args.ref_base == DEFAULT_REF_BASE and not (args.ref_base / "catalogue.yml").is_file():
+    if not explicit_ref_base and not (args.ref_base / "catalogue.yml").is_file():
         print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
               "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
         return 0

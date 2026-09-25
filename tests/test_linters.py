@@ -10388,14 +10388,35 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         ref = td / "ref"
         ref.mkdir()
         (ref / "INDEX.md").write_text("27002\n", encoding="utf-8")
-        for f in (locked, ref / "INDEX.md"):
+        # A readable root whose content is not: a locked file, and a locked subdirectory that a
+        # silent rglob used to skip (the audit then reported clean).
+        root_file = td / "root_file"
+        (root_file).mkdir()
+        (root_file / "a.md").write_text("[x](missing.md)\n", encoding="utf-8")
+        (root_file / "locked.md").write_text("[y](nothere.md)\n", encoding="utf-8")
+        root_sub = td / "root_sub"
+        (root_sub / "lock").mkdir(parents=True)
+        (root_sub / "a.md").write_text("[x](missing.md)\n", encoding="utf-8")
+        (root_sub / "lock" / "c.md").write_text("[y](nothere.md)\n", encoding="utf-8")
+        # A ref root whose INDEX.md links into a locked directory: exists() is False there, so the
+        # index used to be skipped silently and a false NOT-FOUND reported.
+        ref_link = td / "ref_link"
+        (ref_link / "vault").mkdir(parents=True)
+        (ref_link / "vault" / "INDEX.md").write_text("27002\n", encoding="utf-8")
+        (ref_link / "catalogue.yml").write_text("items: []\n", encoding="utf-8")
+        (ref_link / "INDEX.md").symlink_to(ref_link / "vault" / "INDEX.md")
+        files = (locked, ref / "INDEX.md", root_file / "locked.md")
+        dirs = (locked_dir, root_sub / "lock", ref_link / "vault")
+        for f in files:
             f.chmod(0)
-        locked_dir.chmod(0)
+        for d in dirs:
+            d.chmod(0)
 
         def _cleanup() -> None:
-            for f in (locked, ref / "INDEX.md"):
+            for f in files:
                 f.chmod(0o600)
-            locked_dir.chmod(0o700)
+            for d in dirs:
+                d.chmod(0o700)
             shutil.rmtree(td)
         self.addCleanup(_cleanup)
         cases = (
@@ -10405,6 +10426,9 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             ("tools/audit-reference-acquisition-gaps.py", "--aliases", str(locked)),
             ("tools/audit-cross-repo-references.py", "--root", str(locked_dir)),
             ("tools/ref-holds.py", "--ref-root", str(ref), "27002"),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_file)),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_sub)),
+            ("tools/ref-holds.py", "--ref-root", str(ref_link), "27002"),
         )
         for script, *args in cases:
             r = run_linter(script, *args)
