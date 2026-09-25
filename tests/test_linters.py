@@ -18991,6 +18991,19 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         # they scan EVERY positional file by putting a bad fixture SECOND and
         # asserting it is caught (a regression to argv[1]-only would miss it).
         clean = self.make_fixture("qg_scan_clean.md", "# Clean\n\nBody.\n")
+        # 3b57: the matrix linter refuses (exit 2) a file with no matrix table, so its clean
+        # first file must be a valid matrix; each case asserts exit 1 AND the second file's own
+        # diagnostic, since any non-zero exit alone would not prove the second file was scanned.
+        clean_matrix = self.make_fixture(
+            "qg_scan_clean_matrix.md",
+            "| Control | ISO/IEC 27001:2022 | NIST CSF 2.0 |\n"
+            "| --- | --- | --- |\n| Sample | A.5.1 | GV.OC |\n",
+        )
+        expect = {
+            "tools/lint-document-iso-annex-a.py": "A.8.99",
+            "tools/lint-document-control-codes.py": "GV.ZZ",
+            "tools/lint-matrix-control-codes.py": "GV.ZZ",
+        }
         cases = {
             "tools/lint-document-iso-annex-a.py": (
                 "qg_bad_iso.md",
@@ -19010,10 +19023,12 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         }
         for script, (name, content) in cases.items():
             bad = self.make_fixture(name, content)
-            result = run_linter(script, clean, bad)
-            self.assertLinterFails(
-                result,
-            )  # bad SECOND file must be caught => every positional file scanned
+            first = clean_matrix if script == "tools/lint-matrix-control-codes.py" else clean
+            result = run_linter(script, first, bad)
+            combined = result.stdout + "\n" + result.stderr
+            self.assertEqual(result.returncode, 1, f"{script}: {combined[-400:]}")
+            # bad SECOND file must be caught => every positional file scanned
+            self.assertIn(expect[script], combined, script)
 
     def test_legacy_paths_flag_still_accepted(self):
         f1 = self.make_fixture("qg_leg_a.md", "# A\n\nBody.\n")
