@@ -2,8 +2,8 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.7\
-**Date:** 2026-09-19\
+**Version:** 1.0.8\
+**Date:** 2026-09-25\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`guardrails/ai/mcp-security.md`](../guardrails/ai/mcp-security.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md)\
@@ -82,7 +82,7 @@ Each row is one MCP server. Mandatory fields:
 | Tier 1 Critical | Servers exposing production data, customer data, or destructive capabilities | AI Security Maintainer plus CISO; impact assessment; supplier review where applicable |
 | Tier 2 High | Servers exposing internal-sensitive data or write actions within a single system | AI Security Maintainer plus service-owner |
 | Tier 3 Moderate | Read-only servers on Confidential data | AI Security Maintainer or delegated reviewer |
-| Tier 4 Low | Read-only servers on Public data; developer-environment local servers | Service-owner approval; recorded in the register |
+| Tier 4 Low | Read-only servers on Public data; developer-environment local servers | AI Security Maintainer or delegated reviewer confirms the server-security baseline; service-owner approval; recorded in the register |
 
 ---
 
