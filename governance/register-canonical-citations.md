@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.101\
+**Version:** 1.5.102\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,8 +74,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO/IEC 27036-3 | 2023 | 2023-06 | Cybersecurity - Supplier relationships - Part 3: Guidelines for hardware, software, and services supply chain security | 2013 | https://www.iso.org/standard/82890.html | verified 2026-07-09 |
 | ISO/IEC 27036-4 | 2016 | 2016-10 | Information security for supplier relationships - Part 4: Guidelines for security of cloud services | - | https://www.iso.org/standard/59689.html | verified 2026-07-09 |
 | ISO/IEC 27701 | 2025 | 2025-10 | Privacy information management system (PIMS); standalone standard since the 2025 revision (previously an extension to ISO/IEC 27001 in the 2019 edition; transition deadline October 2028) | 2019 | https://www.iso.org/standard/27701 | verified 2026-07-09 |
-| ISO 22301 | 2019 | 2019-10 | Business continuity management systems (Amd 1:2024, climate action changes) | - | https://www.iso.org/standard/75106.html | verified 2026-09-25 |
-| ISO 31000 | 2018 | 2018-02 | Risk management: Guidelines | - | https://www.iso.org/standard/65694.html | verified 2026-09-25 |
+| ISO 22301 | 2019 | 2019-10 | Business continuity management systems (Amd 1:2024, climate action changes) | 2012 | https://www.iso.org/standard/75106.html | verified 2026-09-25 |
+| ISO 31000 | 2018 | 2018-02 | Risk management: Guidelines | 2009 | https://www.iso.org/standard/65694.html | verified 2026-09-25 |
 | ISO/IEC 38500 | 2024 | 2024 | Governance of IT for the organization | 2015 | https://www.iso.org/standard/81684.html | verified 2026-07-09 |
 | ISO/IEC 23894 | 2023 | 2023-02 | AI risk management guidance | - | https://www.iso.org/standard/77304.html | verified 2026-09-25 |
 | ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | https://www.iso.org/standard/42001 | verified 2026-09-25 |
