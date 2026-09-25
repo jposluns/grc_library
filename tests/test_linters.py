@@ -21882,7 +21882,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             # Change an id AND recompute the digest stored in the JSON: the pin in code must still refuse it.
             import hashlib
             data["cwe"]["ids"][0] = "CWE-99998"
-            data["cwe"]["sha256"] = hashlib.sha256("\n".join(
+            data["cwe"]["sha512"] = hashlib.sha512("\n".join(
                 [data["cwe"]["name"], data["cwe"]["edition"], data["cwe"]["source"]] + data["cwe"]["ids"]
             ).encode("utf-8")).hexdigest()
             ids.write_text(json.dumps(data), encoding="utf-8")

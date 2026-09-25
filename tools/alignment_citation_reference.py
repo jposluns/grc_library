@@ -136,7 +136,7 @@ REGISTRY = {
 # --- OWASP ASVS 5.0.0 and MITRE CWE 4.20 (P-1.63 part d) ---
 # Loaded from the GENERATED tools/alignment_citation_ids.json (tools/build-alignment-citation-registry.py
 # extracts it from the held grc_library_ref CSVs; its --check is the maintainer parity aid). The expected
-# metadata, counts and SHA-256 digests are PINNED here, in code, so a JSON-only edit (even one that also
+# metadata, counts and SHA-512 digests are PINNED here, in code, so a JSON-only edit (even one that also
 # recomputes the digest stored in the JSON) or a truncated file fails loudly at load instead of silently
 # weakening the gate. After regenerating for a new held edition, update these pins from the values the
 # generator prints.
@@ -149,15 +149,15 @@ _PINS = {
     "asvs": {"name": "OWASP ASVS", "edition": "5.0.0",
              "source": "frameworks/OWASP/OWASP-ASVS-5.0.0-requirements.csv",
              "counts": {"requirements": 345, "sections": 80, "chapters": 17},
-             "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"},
+             "sha512": "433709828301fe46e14b894d9b069166ca76eab1eec81e959d004780547da2fb0c8f6993656b7bf147f0b8f19167c1fed7f8516b1f43d62f6693fdf1f8f5acf8"},
     "asvs4": {"name": "OWASP ASVS", "edition": "4.0.3",
               "source": ".superseded/frameworks/OWASP/OWASP-ASVS-4.0.3-requirements.csv",
               "counts": {"requirements": 286, "sections": 69, "chapters": 14},
-              "sha256": "e71481aba54eed29d565a065ee4e39132bd71c08fcc3dbebe40070eb87383b32"},
+              "sha512": "6ffa3db7b571a4732cb62d2eebda81a88ad56ed57ca9c5d094fc7dc2e311370cb3ab50fe56f23719359051c38f5624ee661b4e9f2d479726105b231966c8d531"},
     "cwe": {"name": "MITRE CWE", "edition": "4.20",
             "source": "frameworks/MITRE/CWE/CWE-4.20--weaknesses.csv",
             "counts": {"ids": 969},
-            "sha256": "221781303fd507813d9bea92e14233263134b5e2828598f71e0ca0bc669aee69"},
+            "sha512": "af66e9d00d9cc7e388c60154520bd48c3ed5319bea6021128e9aebeb1a2a2a2e5e9ded04459f432417080208d00bdacbe5b4e659266499c0aeeef0b32f87b041"},
 }
 
 
@@ -177,9 +177,9 @@ def _load_ids() -> dict:
                 raise SystemExit(f"alignment_citation_ids.json: {fam} {lst} count {got} != pinned "
                                  f"{pin['counts'][lst]}; regenerate with tools/build-alignment-citation-registry.py")
         ids = [i for lst in lists for i in entry[lst]]
-        got = _hashlib.sha256("\n".join([pin["name"], pin["edition"], pin["source"]] + ids)
+        got = _hashlib.sha512("\n".join([pin["name"], pin["edition"], pin["source"]] + ids)
                               .encode("utf-8")).hexdigest()
-        if got != pin["sha256"] or entry.get("sha256") != pin["sha256"]:
+        if got != pin["sha512"] or entry.get("sha512") != pin["sha512"]:
             raise SystemExit(f"alignment_citation_ids.json: {fam} digest mismatch against the pinned "
                              f"value; the file was edited by hand or truncated; regenerate with "
                              f"tools/build-alignment-citation-registry.py")
