@@ -241,6 +241,23 @@ def identifier_probe_unflaggable(family, token, template):
     return None
 
 
+def _probe_is_whole_token(family, token, template):
+    """True when ``token`` renders at ``template``'s placeholder as a whole engine token on a line
+    the engine reads; a reason string otherwise (shared by the template and twin checks)."""
+    eng = _identifier_probe_engine()
+    rendered = template.replace("{probe}", token)
+    lineno, column = next((n, ln.index("{probe}")) for n, ln in
+                          enumerate(template.splitlines(), start=1) if "{probe}" in ln)
+    engine_lines = dict(eng.iter_non_code_lines(rendered))
+    if lineno not in engine_lines:
+        return "sits on a line the engine never reads (a fenced block)"
+    pattern = {"asvs": eng._ASVS_TOKEN, "cwe": eng._CWE_TOKEN, "pf": eng._PF_SINGLE}[family]
+    span = (column, column + len(token))
+    if not any(m.span() == span for m in pattern.finditer(engine_lines[lineno])):
+        return "is not a whole token at its placeholder once rendered"
+    return True
+
+
 def identifier_scope_probe_issues(cases):
     """Check declared (catalogue, token, template, twin) suppression probes. The twin is a
     minimally different template in which the linter must REPORT the token; running it proves the
@@ -303,6 +320,11 @@ def identifier_scope_probe_issues(cases):
             why = identifier_probe_unflaggable(family, token, template)
             if why:
                 issues.append(f"TEST-PROBE-UNFLAGGABLE: {where}: {family} {token!r} {why}")
+            elif _probe_is_whole_token(family, token, twin) is not True:
+                # 3b64 round 6 (codex): the twin's placeholder must render as the declared token
+                # itself, or the twin can be reported for a longer identifier ('V9.9.90').
+                issues.append(f"TEST-PROBE-TWIN: {where}: {family} {token!r} is not a whole token "
+                              f"at the twin's placeholder once rendered")
     return issues
 
 
@@ -335,14 +357,25 @@ def _runs_scope_probes(func):
 
     exits = {"skipTest", "fail", "exit", "_exit"}
 
-    def may_exit(stmt):
-        """A statement that can leave the method: any return or raise inside it, or a call to
-        skipTest, fail or exit anywhere in it (3b64 round 5: an early exit under if/for/while)."""
-        for node in ast.walk(stmt):
-            if isinstance(node, (ast.Return, ast.Raise)):
+    scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)
+
+    def walk_same_scope(node):
+        """ast.walk, but not into a nested def, lambda or class (its body does not run here)."""
+        stack = [node]
+        while stack:
+            cur = stack.pop()
+            yield cur
+            stack.extend(child for child in ast.iter_child_nodes(cur)
+                         if not isinstance(child, scopes))
+
+    def may_exit(node):
+        """A statement or expression that can leave the method: a return or raise in it, or a
+        skipTest, fail or exit call in it, in the same scope (3b64 rounds 5 and 6)."""
+        for sub in walk_same_scope(node):
+            if isinstance(sub, (ast.Return, ast.Raise)):
                 return True
-            if isinstance(node, ast.Call):
-                name = getattr(node.func, "attr", None) or getattr(node.func, "id", None)
+            if isinstance(sub, ast.Call):
+                name = getattr(sub.func, "attr", None) or getattr(sub.func, "id", None)
                 if name in exits:
                     return True
         return False
@@ -350,12 +383,18 @@ def _runs_scope_probes(func):
     def scan(stmts):
         """True: the call is reached; False: something that may exit comes first; None: neither."""
         for stmt in stmts:
+            if isinstance(stmt, scopes):
+                continue  # a nested def or class body does not run here
             if isinstance(stmt, (ast.Return, ast.Raise, ast.Try)):
                 return False
             if is_call(stmt):
-                return True
+                call = stmt.value
+                return not any(may_exit(arg) for arg in [*call.args, *(k.value for k in call.keywords)])
             if isinstance(stmt, ast.With):
                 if not all(is_subtest(item) for item in stmt.items):
+                    return False
+                if any(may_exit(arg) for item in stmt.items
+                       for arg in [*item.context_expr.args, *(k.value for k in item.context_expr.keywords)]):
                     return False
                 found = scan(stmt.body)
                 if found is not None:
@@ -365,6 +404,9 @@ def _runs_scope_probes(func):
                 return False
         return None
 
+    if any(isinstance(node, (ast.Yield, ast.YieldFrom)) for node in walk_same_scope(tree.body[0])
+           if node is not tree.body[0]):
+        return False  # a generator test method never runs its body under unittest
     return scan(tree.body[0].body) is True
 
 
@@ -407,7 +449,9 @@ class LinterTestCase(unittest.TestCase):
                 # in the twin, so a zero exit below proves the template's difference suppresses it
                 # (not report mode, an exempt path, or a probe trivially out of context).
                 checked = run(twin.replace("{probe}", token))
-                if checked.returncode == 0 or token not in checked.stdout:
+                # The engine quotes the identifier it reports ('V9.9.9'); match that exactly, so a
+                # longer identifier sharing the prefix is not taken as the probe (round 6).
+                if checked.returncode == 0 or f"'{token}'" not in checked.stdout:
                     self.fail(
                         f"TEST-PROBE-CONTROL: {family} {token!r}: the run callable did not report "
                         f"it in the twin (exit {checked.returncode})\n{checked.stdout}{checked.stderr}"
@@ -22677,7 +22721,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         "test_table_context_ends_at_a_pipeless_line_or_a_fence": (
             ("asvs", "V8.9",
              "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
-             "- CycloneDX list item\n"
+             "CycloneDX note\n"
              "| CycloneDX {probe} | y |\n",
              "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
              "| CycloneDX {probe} | y |\n"),
@@ -22690,7 +22734,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         ),
         "test_version_columns_in_an_asvs_table_are_not_checked": (
             ("asvs", "V2.14",
-             "| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n"
+             "| ASVS requirement | Tool | Version |\n| --- | --- | --- |\n"
              "| V1.2.4 | ZAP | {probe} |\n",
              "| ASVS requirement | Tool | Notes |\n| --- | --- | --- |\n"
              "| V1.2.4 | ZAP | {probe} |\n"),
@@ -23190,6 +23234,22 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                     ["TEST-PROBE-DUPLICATE: runTest[0]: asvs 'V9.9.9' also appears outside the "
                      "placeholder in the template or twin"])
 
+    def test_twin_must_report_the_declared_token_itself(self) -> None:
+        # 3b64 round 6 (codex): a twin rendering 'V9.9.90' is refused statically, and a report
+        # naming only a longer identifier does not satisfy the helper.
+        from unittest.mock import Mock
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "ASVS requirement {probe}0.\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' is not a whole token at the twin's "
+             "placeholder once rendered"])
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "x.md:1: 'V9.9.90' is not valid\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+
     def test_helper_refuses_a_twin_the_run_does_not_report(self) -> None:
         # 3b64 round 4 (claude, codex): the helper refuses when the twin is not reported (here
         # the run callable exits 0), before running the template.
@@ -23315,12 +23375,30 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                     value = 1
                 self.assertIdentifierScopeProbes(lambda body: value)
 
+            def test_exit_in_argument(self) -> None:
+                self.assertIdentifierScopeProbes(self.skipTest("x"))
+
+            def test_exit_in_subtest_argument(self) -> None:
+                with self.subTest(label=self.skipTest("x")):
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_generator(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+                yield None
+
+            def test_local_runner(self) -> None:
+                def run(body):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
         _Mentions.IDENTIFIER_SCOPE_PROBES = {
             name: (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),)
             for name in ("test_comment", "test_branch", "test_after_return", "test_skipped",
                          "test_swallowed", "test_with", "test_with_unreached", "test_suppressed",
                          "test_after_raise", "test_after_try", "test_after_if_return",
-                         "test_after_loop_raise", "test_after_skip_call", "test_after_harmless_if")
+                         "test_after_loop_raise", "test_after_skip_call", "test_after_harmless_if",
+                         "test_exit_in_argument", "test_exit_in_subtest_argument", "test_generator",
+                         "test_local_runner")
         }
         self.assertEqual(scope_probe_registry_issues({"_Mentions": _Mentions}), [
             "TEST-PROBE-UNUSED: _Mentions.test_comment never runs its probes",
@@ -23335,6 +23413,9 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             "TEST-PROBE-UNUSED: _Mentions.test_after_if_return never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_after_loop_raise never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_after_skip_call never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_exit_in_argument never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_exit_in_subtest_argument never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_generator never runs its probes",
         ])
 
     def test_declared_probes_must_be_run(self) -> None:
@@ -23394,7 +23475,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         from unittest.mock import Mock
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
-        run = Mock(return_value=subprocess.CompletedProcess([], 0, "V9.9.9 finding\n", ""))
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "'V9.9.9' finding\n", ""))
         with self.assertRaises(AssertionError) as caught:
             case.assertIdentifierScopeProbes(run)
         self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
@@ -23404,12 +23485,12 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         from unittest.mock import Mock
         case = LinterTestCase()
         case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
-        run = Mock(return_value=subprocess.CompletedProcess([], 1, "V9.9.9 finding\n", ""))
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "'V9.9.9' finding\n", ""))
         with self.assertRaises(AssertionError) as caught:
             case.assertIdentifierScopeProbes(run)
         self.assertEqual(
             str(caught.exception),
-            "TEST-PROBE-FINDING: asvs 'V9.9.9': exit 1\nV9.9.9 finding\n",
+            "TEST-PROBE-FINDING: asvs 'V9.9.9': exit 1\n'V9.9.9' finding\n",
         )
 
     def test_meta_test_detects_a_real_id_inserted_into_an_actual_probe(self) -> None:
