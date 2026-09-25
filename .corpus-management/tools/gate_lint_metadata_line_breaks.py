@@ -35,7 +35,10 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
         f"(aiqt_corpus); the pack tools/ dir must be on sys.path. Underlying error: {exc}"
     )
 
-META_LINE = re.compile(r"^\*\*[A-Za-z][A-Za-z0-9 ]*:\*\*")
+# A field name starts with a letter and runs, without an asterisk, to the closing colon, so a
+# hyphen, slash, parenthesis or underscore in it (an SPDX-License-Identifier-style key, an
+# "Owner/Approver" key) cannot split a run and hide a missing hard break before it (P-1.89(b)).
+META_LINE = re.compile(r"^\*\*[A-Za-z][^*]*?:\*\*")
 
 
 def has_hard_break(line: str) -> bool:
@@ -64,7 +67,14 @@ def scan_file(path: Path) -> list[tuple[int, int]]:
                 findings.append((block[0][0], missing))
         block = []
 
+    prev = 0
     for lineno, line in iter_non_code_lines(text):
+        # The fence-aware scan omits fenced lines, so a gap in line numbers is a fenced block.
+        # A fence between metadata lines ends the run: the lines either side are not one
+        # paragraph, so the one before the fence needs no hard break (P-1.89(c)).
+        if lineno != prev + 1:
+            flush()
+        prev = lineno
         if META_LINE.match(line):
             block.append((lineno, line))
         else:

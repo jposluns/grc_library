@@ -61,16 +61,21 @@ def normalise_link(referrer: Path, target_text: str, repo_root: Path) -> Path | 
 
 
 def build_reverse_graph(all_md: list[Path], repo_root: Path) -> dict[Path, set[Path]]:
-    """Return {referenced_path -> {set of referrers}} over ``all_md`` (paths under ``repo_root``)."""
+    """Return {referenced_path -> {set of referrers}} over ``all_md`` (paths under ``repo_root``).
+
+    A document's link to ITSELF (a self-link, such as a Repository Path field or an in-page
+    reference) is not an inbound reference: the rule requires a link from another document, so a
+    self-link-only artefact is still an orphan (P-1.89(a))."""
     rev: dict[Path, set[Path]] = defaultdict(set)
     for f in all_md:
         text = read_text_safe(f)
         if text is None:
             continue
+        self_path = f.resolve()
         for _lineno, line in iter_non_code_lines(text):
             for m in LINK_RE.finditer(line):
                 target = normalise_link(f, m.group(1), repo_root)
-                if target is None:
+                if target is None or target.resolve() == self_path:
                     continue
                 rev[target].add(f)
     return rev
