@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.9\
-**Date:** 2026-09-03\
+**Version:** 1.0.10\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -159,7 +159,7 @@ Joint controllership exists under several regimes with substantively similar req
 
 | Regime | Equivalent concept | Notable variations |
 |---|---|---|
-| **UK GDPR** (UK) | Joint controllers (same as EU GDPR) | Information Commissioner's Office (ICO) is the lead supervisory authority |
+| **UK GDPR** (UK) | Joint controllers (same as EU GDPR) | The Information Commission (ICO until 30 September 2026) is the lead supervisory authority |
 | **LGPD** (Brazil) | No statutory co-controller category; Article 5(VI) defines the controller. Article 42 s.1(II) makes controllers jointly and severally liable when directly involved in the processing from which the damage resulted, subject to Article 43 exclusions | ANPD is the supervisory authority; no statutory written co-controller arrangement duty |
 | **PIPL** (China) | Joint personal information handlers (Article 20): handlers jointly deciding the purpose and method must agree each party's rights and obligations, and bear joint liability for resulting harm | CAC is the supervisory authority; PIPL imposes no public-notice-of-arrangement duty |
 | **India DPDP Act 2023** | No statutory joint-controller category; Data Fiduciaries may determine purposes and means in conjunction with others (section 2(i)) | Data Protection Board of India is the supervisory authority |

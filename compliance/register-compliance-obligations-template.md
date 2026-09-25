@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Obligations Register Template\
 **Document Type:** Register\
-**Version:** 1.0.16\
-**Date:** 2026-08-31\
+**Version:** 1.0.17\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -99,7 +99,7 @@ Drift in source versions is itself an obligation-management event: when the unde
 
 | Field | Description | Example |
 |---|---|---|
-| **Regulatory Body** | Authority responsible for enforcement | Information Commissioner's Office (ICO); CNIL |
+| **Regulatory Body** | Authority responsible for enforcement | Information Commission (ICO until 30 September 2026); CNIL |
 | **Reporting Obligation** | Whether breach or non-compliance must be reported to regulator | Yes: within 72 hours of awareness of breach |
 | **Notification Threshold** | Conditions triggering mandatory notification | High risk to individuals; systemic breach |
 | **Self-Assessment Due Date** | Date of next regulatory self-assessment or return | Annual; Q1 each calendar year |

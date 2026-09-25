@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.15\
-**Date:** 2026-09-22\
+**Version:** 1.5.16\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -153,7 +153,7 @@ The DPO documents the Article 27(2) exemption analysis in the organization's Art
 
 | Regime | Equivalent | Notable variations |
 |---|---|---|
-| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; ICO is the supervisory authority |
+| **UK GDPR** (UK) | UK representative (UK GDPR Article 27) | Required where the controller / processor is outside the UK but subject to UK GDPR; The Information Commission (the Information Commissioner's Office, ICO, until 30 September 2026) is the supervisory authority |
 | **LGPD** (Brazil) | Encarregado / data protection officer (Article 5(VIII)); no dedicated foreign-representative mandate | LGPD requires the controller to appoint an encarregado as the communication channel among the controller, data subjects, and the ANPD; the 2018 statute imposes no GDPR-Article-27-style local-representative obligation on non-Brazilian controllers; ANPD is the supervisory authority |
 | **PIPL** (China, Article 53) | Designated organization or appointed agent in China | Required for non-Chinese personal-information handlers; must be filed with the Cyberspace Administration of China (CAC) |
 | **India DPDP Act 2023** | India-based Data Protection Officer for Significant Data Fiduciaries (no general local-representative requirement) | A Significant Data Fiduciary must appoint a DPO based in India (s. 10(2)(a)); the DPDPA imposes no general local-representative obligation; the Data Protection Board of India is the supervisory authority |
@@ -183,7 +183,7 @@ Privacy considerations must be incorporated into any new system, process, or dat
 | **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, breach notification (real risk of significant harm), accountability. |
 | **Quebec (Provincial)** | Law 25 (S.Q. 2021, c. 25), amending the Act respecting the protection of personal information in the private sector (CQLR c. P-39.1) | Person in charge of the protection of personal information mandatory (s. 3.1); privacy impact assessments; prompt breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
 | **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Applicability Register for current state-level obligations. |
-| **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; 72-hour breach notification to the ICO; international transfer mechanisms. |
+| **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; 72-hour breach notification to the Information Commission (the ICO until 30 September 2026); international transfer mechanisms. |
 | **Latin America** | National privacy laws by jurisdiction (including Brazil LGPD and others) | Jurisdiction-specific requirements apply. Refer to the Global Regulatory Applicability Register and Regional Annexes. |
 
 ---

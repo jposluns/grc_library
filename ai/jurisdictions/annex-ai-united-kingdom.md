@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,13 +39,13 @@ Each principle below restates every clause of the white paper's "Definition and 
 ## Current position (the government response, CP 1019)
 
 - **The principles-based, regulator-led approach is confirmed.** A number of regulators were asked to publish an update setting out their strategic approach to AI by 30 April 2024; the response cites existing regulator action, including the Competition and Markets Authority's review of foundation models and the Information Commissioner's Office's updated guidance on data protection and AI.
-- **A central function** supports cross-sector risk assessment and monitoring, regulator coordination, and knowledge exchange, and the response publishes guidance to help regulators implement the principles. With the Digital Regulation Cooperation Forum (DRCF), the government launched the AI and Digital Hub, a pilot advisory service run by regulators including Ofcom, the CMA, the Financial Conduct Authority, and the ICO.
+- **A central function** supports cross-sector risk assessment and monitoring, regulator coordination, and knowledge exchange, and the response publishes guidance to help regulators implement the principles. With the Digital Regulation Cooperation Forum (DRCF), the government launched the AI and Digital Hub, a pilot advisory service run by regulators including Ofcom, the CMA, the Financial Conduct Authority, and the Information Commission (the Information Commissioner's Office, ICO, until 30 September 2026).
 - **Highly capable general-purpose AI.** The response sets out the case for future targeted binding requirements on the small number of organizations developing highly capable general-purpose AI systems, while regulators continue to set rules for the use of AI within their remits. This is a stated direction, not an enacted requirement.
 - **AI safety evaluation.** The response records the creation of the AI Safety Institute to lead evaluations and safety research; the government renamed it the AI Security Institute on 14 February 2025 (GOV.UK announcement, checked 2026-09-25).
 
 ## Adopter-role framing
 
-An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the ICO, competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
+An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the Information Commission (the ICO until 30 September 2026), competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
 
 ## Relationship to corpus AI-governance content
 

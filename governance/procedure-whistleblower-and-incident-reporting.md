@@ -2,8 +2,8 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-08-21\
+**Version:** 1.0.10\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`security/procedure-security-disciplinary-process.md`](../security/procedure-security-disciplinary-process.md)\
@@ -119,7 +119,7 @@ Where an investigation identifies, or the organization otherwise becomes aware o
 | --- | --- |
 | GDPR | Notify the supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (GDPR Art. 33(1)) |
 | PIPEDA / Quebec Law 25 | Notify the OPC and affected individuals where a breach creates a real risk of significant harm (PIPEDA); notify the CAI and affected individuals where the incident presents a risk of serious injury (Quebec Law 25) |
-| UK GDPR | Notify the ICO without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (UK GDPR Art. 33(1)) |
+| UK GDPR | Notify the Information Commission (the ICO until 30 September 2026) without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (UK GDPR Art. 33(1)) |
 | LGPD | Notify ANPD within a reasonable timeframe |
 | EU AI Act | Notify competent authority for serious incidents involving High-risk AI systems |
 | NIS 2 Directive | Report significant incidents to the CSIRT or competent authority in stages (Article 23(4)), timed from becoming aware: early warning within 24 hours, incident notification with an initial assessment within 72 hours, an intermediate report on request, final report within one month of that notification; where the incident is still ongoing at that point, a progress report then and the final report within one month of handling the incident (Article 23(4)(e)) |

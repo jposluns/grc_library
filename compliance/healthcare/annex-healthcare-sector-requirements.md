@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.15\
-**Date:** 2026-09-20\
+**Version:** 1.1.16\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -60,7 +60,7 @@ This annex applies where an organization:
 
 | Regulation / Standard | Authority | Scope |
 |---|---|---|
-| **UK GDPR + Data Protection Act 2018** | ICO | All health data processing |
+| **UK GDPR + Data Protection Act 2018** | Information Commission (ICO until 30 September 2026) | All health data processing |
 | **NHS Data Security and Protection Toolkit (DSPT)** | NHS England | NHS organizations and their suppliers |
 | **CQC Data Security Standards** | Care Quality Commission | Regulated health and social care providers |
 | **Caldicott Principles** | National Data Guardian (NDG) | NHS and social care organizations |
