@@ -6544,7 +6544,7 @@ documents:
   domain: "governance"
   type: "Register"
   title: "Coverage Gap Analysis Register"
-  version: "1.1.46"
+  version: "1.1.47"
   date: "2026-09-25"
   owner: "Governance Library Maintainer"
   approving_authority: "Governance Library Maintainer"

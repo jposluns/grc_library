@@ -2,7 +2,7 @@
 
 **Document Title:** Coverage Gap Analysis Register\
 **Document Type:** Register\
-**Version:** 1.1.46\
+**Version:** 1.1.47\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -227,7 +227,8 @@ The library is cloud-provider-agnostic. Provider-specific guidance is recorded a
 | MCP server security | Substantive | In library | n/a | Throughout AI domain; MCP-SEC-01 to 10 in agentic standard; [`register-mcp-server.md`](../ai/register-mcp-server.md); Lasso MCP Gateway pattern referenced |
 | Generative AI specifically | Substantive | In library | n/a | Heavy coverage in AI domain |
 | Synthetic data governance | Referenced | Deferred | n/a | Touched in AI data governance; could be dedicated |
-| Data mesh / data product governance | None | Deferred | n/a | Architecture domain candidate |
+| Data mesh / data product governance | Partial | Deferred | Backlog candidate: data mesh governance guide (not currently scheduled in TODO) | Re-graded None to Partial 2026-09-25: [`architecture/standard-data-architecture.md`](../architecture/standard-data-architecture.md) sets data-product owners, contract-based internal sharing and per-product quality SLOs; a federated data-mesh governance model is not covered |
+| Semantic layer and business-definition governance | None | Planned | TODO backlog: semantic layer and business-definition governance standard | Row added 2026-09-25 (external review): the business definitions, glossary, ontology and metric definitions that centralized context and semantic layers (including AI retrieval context) depend on, with their ownership, change control and versioning; no corpus document governs them yet |
 | Privacy engineering patterns | Partial | In library | n/a | Privacy domain has principles and standards; pattern catalogue absent |
 | Threat modelling methodologies | Referenced | Deferred | n/a | STRIDE, PASTA, ATT&CK-aligned; could be dedicated guide |
 | Security chaos engineering | None | Out of scope | n/a | Emerging discipline; outside current scope |

@@ -26,7 +26,7 @@ Item numbers are permanent identity, never recycled, and decoupled from the P1-P
 
 <!-- BEGIN-GENERATED number-allocation -->
 - **Next item number: 1.32.** (P1 / fix series)
-- **Next item number: 2.36.** (P2 / content series)
+- **Next item number: 2.37.** (P2 / content series)
 - **Next item number: 3.250.** (P3 / tooling series)
 - **Next item number: 4.32.** (P4 / adopter series)
 - **Next item number: 5.10.** (frozen; series 5 takes no new items)
@@ -70,6 +70,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.25.3 | Canadian public-sector authority coverage (CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |
 | 2.35 | Populate the governance relationship-model source with real corpus relationships (M, M) | `[content]` `[public]` |
+| 2.36 | Semantic layer and business-definition governance standard (M, L) | `[content]` `[public]` |
 | 2.26.1 | OSCAL adoption decision and model-scope lock (H, S) | `[machinery]` `[public]` |
 | 2.26.2 | OSCAL stable-identifier layer (S, M) | `[machinery]` `[public]` |
 | 2.26.3 | OSCAL metadata-field alignment (S, M) | `[machinery]` `[public]` |
