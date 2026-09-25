@@ -31,13 +31,17 @@ repositories and runs green on a bare adopter clone (the sibling-independence in
 It is NOT an audit gate and is NOT wired into run_all_audits; it is an on-demand planner
 the `/adopt` skill invokes.
 
-Exit codes: 0 = plan emitted (or a clean empty manifest: the generator's complete render of an
-empty catalogue, heading and zero-total line outside code fences); 2 = the manifest is missing,
-unparseable, or not a complete manifest (a broken clone, a truncated render, an unrelated file).
+Exit codes: 0 = plan emitted (or a clean empty manifest: a file equal to the generator's own
+render of an empty catalogue, line endings and a leading BOM aside); 2 = the manifest is
+missing or unreadable, or holds no entry and is not that exact empty render (a broken clone, an
+unrelated file, a render truncated before its first entry). Residue: entries are parsed by line
+shape, not by Markdown structure, so a manifest truncated AFTER its first entry yields a partial
+plan, and a row quoted inside a code block counts as an entry.
 """
 import argparse
 import json
 import re
+import runpy
 import sys
 from pathlib import Path
 
@@ -55,25 +59,23 @@ ROW = re.compile(
 
 # The top-level heading tools/build-reference-manifest.py renders: it separates a valid empty
 # manifest from an unrelated file.
-MANIFEST_HEADING = "# Reference-acquisition manifest"
-_EMPTY_TOTAL = "**Total: 0 sources (0 free, 0 licensed).**"
+GENERATOR = Path(__file__).resolve().parent / "build-reference-manifest.py"
+
+
+def _normalize(text: str) -> str:
+    return text.lstrip("\ufeff").replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _is_clean_empty_manifest(text: str) -> bool:
-    """True only for the generator's complete render of an empty catalogue: its heading AND its
-    zero-total line, both outside fenced code blocks (a heading quoted in a fence, a bare heading,
-    or a render truncated before its total line is not a manifest)."""
-    heading = total = False
-    in_fence = False
-    for line in text.splitlines():
-        if line.lstrip().startswith(("```", "~~~")):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-        heading = heading or line == MANIFEST_HEADING
-        total = total or line.strip() == _EMPTY_TOTAL
-    return heading and total
+    """True only for the generator's exact render of an empty catalogue (line endings and a
+    leading BOM aside). Exact equality, not a heading or fence heuristic: a heading quoted in a
+    code block, an HTML comment, or a truncated render is not the render. A generator that cannot
+    be loaded refuses (ignorance never permits)."""
+    try:
+        empty = runpy.run_path(str(GENERATOR))["render"]({})
+    except Exception:  # noqa: BLE001 (any load failure refuses rather than permits)
+        return False
+    return _normalize(text) == _normalize(empty)
 
 
 def parse_manifest(text: str) -> list[dict]:
@@ -164,11 +166,10 @@ def main(argv: list[str] | None = None) -> int:
     text = path.read_text(encoding="utf-8")
     entries = parse_manifest(text)
     if not entries and not _is_clean_empty_manifest(text):
-        # 3b50b2e2: a file that is not a manifest at all (no generator heading, no entry) used to
-        # yield an empty plan, exit 0. A structurally valid EMPTY manifest (the heading, zero rows)
-        # keeps its documented exit-0 empty plan.
-        print(f"adopt-bootstrap-ref: {path} is not a reference-acquisition manifest (no "
-              f"'{MANIFEST_HEADING}' heading and no entries); nothing to plan.", file=sys.stderr)
+        # 3b50b2e2: a file with no manifest entry used to yield an empty plan, exit 0. Only the
+        # generator's exact empty render keeps the documented exit-0 empty plan.
+        print(f"adopt-bootstrap-ref: {path} holds no manifest entry and is not the generator's "
+              f"empty-manifest render; nothing to plan.", file=sys.stderr)
         return 2
     plan = categorize(entries)
     if args.json:

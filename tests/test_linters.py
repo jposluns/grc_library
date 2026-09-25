@@ -11671,11 +11671,18 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
         for name, body in (("fenced.md", "# README\n```markdown\n# Reference-acquisition manifest\n"
                                          "**Total: 0 sources (0 free, 0 licensed).**\n```\n"),
                            ("heading.md", "# Reference-acquisition manifest\n"),
-                           ("truncated.md", cut)):
+                           ("truncated.md", cut),
+                           ("nested_fence.md", "# x\n````\n```\n" + rendered + "```\n````\n"),
+                           ("comment.md", "<!--\n" + rendered + "-->\n"),
+                           ("indented.md", "".join("    " + ln for ln in rendered.splitlines(True)))):
             f = td / name
             f.write_text(body, encoding="utf-8")
             r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
             self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
+        crlf = td / "crlf.md"
+        crlf.write_bytes(("\ufeff" + rendered).replace("\n", "\r\n").encode("utf-8"))
+        r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(crlf), "--json")
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
 
 
 class StrictArgvLiveDefectTests(LinterTestCase):
