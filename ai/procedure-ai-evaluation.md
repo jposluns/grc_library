@@ -2,7 +2,7 @@
 
 **Document Title:** AI Evaluation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -81,7 +81,7 @@ An AI evaluation is required when:
 - Validate that explanations are generated for a representative sample of outputs.
 - Assess explanation quality: are explanations meaningful to the intended audience (NIST IR 8312 §2.2)?
 - Assess explanation accuracy (the explanation reflects the actual reason for the output, distinct from decision accuracy) and declare the model's knowledge limits (its operating conditions and the confidence threshold below which it should abstain or defer), per NIST IR 8312 §2.3 and §2.4.
-- For High-risk systems: confirm explanation methodology meets ISO/IEC 42001:2023 and EU AI Act requirements.
+- For High-risk systems: confirm explanation methodology meets applicable EU AI Act requirements and the organization's documented explainability criteria supporting ISO/IEC 42001:2023.
 
 ### 2.4 Security
 

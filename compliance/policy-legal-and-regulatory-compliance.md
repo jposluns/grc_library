@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.22\
+**Version:** 1.0.23\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 7.3 Sector-programme controls (for example, BASC trade and customs controls including encryption validation, cargo integrity verification, personnel screening records, and customs data exchange logs) apply where the organization participates in a covered programme per the relevant sector annex; see [`compliance/`](./).
 
-7.4 AI governance controls must include documentation for transparency, robustness, and conformity per ISO/IEC 42001:2023 and NIST AI RMF.
+7.4 AI governance controls must include organization-defined documentation for transparency, robustness, and conformity, informed by ISO/IEC 42001:2023 (clause 7.5 and Annex A.6.2.7) and NIST AI RMF.
 
 ---
 

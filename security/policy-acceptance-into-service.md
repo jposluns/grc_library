@@ -2,7 +2,7 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.15\
+**Version:** 1.0.17\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -87,7 +87,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
 
-4.3.3 AI solutions must demonstrate conformance to ISO/IEC 42001:2023 §8 and the AI Security and Risk Standard.
+4.3.3 AI solutions must demonstrate compliance with the organization's operational controls implemented under ISO/IEC 42001:2023 §8.1 (determined per 6.1.3) and the AI Security and Risk Standard.
 
 ### 4.4 AI risk classification and impact validation
 

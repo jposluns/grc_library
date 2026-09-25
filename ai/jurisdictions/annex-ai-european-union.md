@@ -2,7 +2,7 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.15\
+**Version:** 0.0.16\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -122,6 +122,6 @@ An adopter maps its AI estate to these roles as the first step; the AI System Im
 | --- | --- | --- | --- |
 | Risk-based classification before deployment | Article 6, Annex III | Map | Clause 6.1 |
 | Provider conformity and documentation | Article 16, Article 49 | Govern, Measure | Clause 8 |
-| Deployer oversight and impact assessment | Article 26, Article 27 | Manage | Clause 8.3 |
+| Deployer oversight and impact assessment | Article 26, Article 27 | Manage | Clause 8.4 (with 6.1.4); Annex A.5, A.9 |
 | General-purpose model transparency | Article 53, Article 55 | Measure | Clause 8 |
 | Transparency to affected persons | Article 50 | Govern | Annex A.8 |
