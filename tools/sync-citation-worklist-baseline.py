@@ -355,9 +355,27 @@ def _load(path):
     return Path(path).read_text(encoding="utf-8")
 
 
+def _load_or_refuse(path, flag):
+    """The file's text, or None after printing a refusal (3b74: the open() probe in main() never
+    read the file, so undecodable content or a read failing after the open raised a traceback)."""
+    try:
+        return _load(path)
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: {flag} {path!r}: not valid UTF-8 ({exc.reason} at byte {exc.start}); "
+              f"nothing would be synced.", file=sys.stderr)
+    except OSError as exc:
+        print(f"ERROR: {flag} {path!r}: unreadable ({exc.strerror or exc}); nothing would be synced.",
+              file=sys.stderr)
+    return None
+
+
 def run(worklist_path, register_path, mode):
-    register = parse_register(_load(register_path))
-    text = _load(worklist_path)
+    # Both inputs are read before anything is written, so a refusal leaves the worklist untouched.
+    register_text = _load_or_refuse(register_path, "--register")
+    text = _load_or_refuse(worklist_path, "--worklist") if register_text is not None else None
+    if text is None:
+        return 2
+    register = parse_register(register_text)
     new_text, results = process(text, register)
     would_sync = [r for r in results if r[1] == "SYNC"]
     needs_human = [r for r in results if r[1] in

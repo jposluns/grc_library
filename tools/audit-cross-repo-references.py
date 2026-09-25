@@ -496,10 +496,13 @@ def main(argv: list[str]) -> int:
     # provide survives the move. While `.working/` is still in-repo it is already
     # covered by the root walk, so this branch does nothing.
     try:
-        wd = resolve_working_dir(repo_root=root)
+        # strict (3b74): an ABSENT store still falls through to the sibling and in-repo trees, but
+        # one that cannot be examined (an unsearchable parent, a symlink loop) raises instead of
+        # being read as absent, which reported clean without auditing the store.
+        wd = resolve_working_dir(repo_root=root, strict=True)
     except OSError as exc:
-        print(f"ERROR: the working store could not be located ({exc}); the audit would be incomplete.",
-              file=sys.stderr)
+        print(f"ERROR: the working store is present but cannot be examined ({exc}); "
+              f"the audit would be incomplete.", file=sys.stderr)
         return 2
     if wd is not None:
         try:

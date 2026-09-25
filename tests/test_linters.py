@@ -10616,7 +10616,9 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
              "--section", "No Such Family 3b71"),
             ("unresolvable", "tools/ref-holds.py", "--ref-root", "~grc_no_such_user_3b50b2e1", "27002"),
             (("unresolvable", "not a directory"), "tools/audit-cross-repo-references.py", "--root", str(loop)),
-            (("unresolvable", "could not locate"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),
+            # 3b74: ref-holds now routes an explicit root through require_dir, so a loop is refused
+            # as unresolvable (3.11) or as not a directory as given (3.12+).
+            (("unresolvable", "not a directory"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),
         )
         for expect, script, *args in cases:
             r = run_linter(script, *args)
@@ -10728,15 +10730,178 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         # A family the register holds passes the --section check (it may still stop later
         # for an absent reference base, as in CI, but never with the --section refusal).
         # A nonexistent --ref-base makes the run stop at the NEXT step deterministically (on
-        # every host), so reaching "catalogue not found" proves the section check passed.
+        # every host), so reaching the --ref-base refusal proves the section check passed.
         td = Path(tempfile.mkdtemp(prefix="acqgaps-valid-"))
         self.addCleanup(shutil.rmtree, td)
         r = run_linter("tools/audit-reference-acquisition-gaps.py", "--section", "NIST publications",
                        "--ref-base", str(td / "no-ref-base"))
         self.assertEqual(r.returncode, 2, r.stderr)
-        self.assertIn("catalogue not found", r.stderr)
+        self.assertIn("--ref-base", r.stderr)
+        self.assertIn("not a directory as given", r.stderr)
         self.assertNotIn("--section", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
+
+    # 3b74: strict lookups. An unreadable or looping default sibling or store is refused rather than
+    # read as absent (a clean no-op on 3.12+) or raised as a traceback (3.11); explicit paths are
+    # checked as given before '..' is normalized; undecodable inputs are refused after a clean open.
+    # Every case is deterministic without grc_library_ref: the default-sibling cases run a copy of
+    # tools/ whose parent directory is a temporary one the test controls.
+
+    def _refused(self, r, expect, ctx) -> None:
+        self.assertEqual(r.returncode, 2, (ctx, r.stdout[-300:], r.stderr[-300:]))
+        self.assertIn(expect, r.stderr, (ctx, r.stderr[-300:]))
+        self.assertNotIn("Traceback", r.stderr, ctx)
+
+    @staticmethod
+    def _run_tool(script: Path, *args, env=None) -> subprocess.CompletedProcess:
+        return subprocess.run([sys.executable, str(script), *map(str, args)], capture_output=True,
+                              text=True, cwd=str(REPO_ROOT), env=env)
+
+    def _tools_copy(self) -> Path:
+        td = Path(tempfile.mkdtemp(prefix="aidstrict-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        shutil.copytree(REPO_ROOT / "tools", td / "repo" / "tools",
+                        ignore=shutil.ignore_patterns("__pycache__"))
+        return td
+
+    def _default_sibling_cases(self, td: Path) -> None:
+        tools = td / "repo" / "tools"
+        gaps = self._run_tool(tools / "audit-reference-acquisition-gaps.py")
+        self._refused(gaps, "present but cannot be examined", "acquisition-gaps default sibling")
+        holds = self._run_tool(tools / "ref-holds.py", "27002")
+        self._refused(holds, "present but cannot be examined", "ref-holds default sibling")
+
+    def test_unexaminable_default_ref_sibling_refused(self) -> None:
+        td = self._tools_copy()
+        sib = td / "grc_library_ref"
+        # An ABSENT sibling keeps the adopter no-op (the absence fallback is preserved).
+        r = self._run_tool(td / "repo" / "tools" / "audit-reference-acquisition-gaps.py")
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+        self.assertIn("grc_library_ref not present; no-op", r.stdout)
+        r = self._run_tool(td / "repo" / "tools" / "ref-holds.py", "27002")
+        self.assertNotIn("present but cannot be examined", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        # A self-referencing symlink: is_file()/is_dir() read ELOOP as absent on every Python.
+        sib.symlink_to(sib)
+        self._default_sibling_cases(td)
+        sib.unlink()
+        # A regular file where the sibling directory belongs (ENOTDIR on its children).
+        sib.write_text("not a checkout\n", encoding="utf-8")
+        self._default_sibling_cases(td)
+        sib.unlink()
+
+    def test_unreadable_default_ref_sibling_refused(self) -> None:
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root reads mode-000 directories; an unreadable sibling cannot be simulated")
+        td = self._tools_copy()
+        sib = td / "grc_library_ref"
+        sib.mkdir()
+        (sib / "INDEX.md").write_text("27002\n", encoding="utf-8")
+        (sib / "catalogue.yml").write_text('  - title: "ISO/IEC 27002:2022"\n', encoding="utf-8")
+        sib.chmod(0)
+        self.addCleanup(sib.chmod, 0o700)
+        # Python 3.11: is_file() raised PermissionError (a traceback in acquisition-gaps, a
+        # misattributed "--ref-root None" in ref-holds); 3.12+: read as absent (acquisition-gaps
+        # reported a clean no-op).
+        self._default_sibling_cases(td)
+
+    def test_unexaminable_working_store_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aidstore-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        root = td / "root"
+        root.mkdir()
+        (root / "a.md").write_text("plain\n", encoding="utf-8")
+        loop = td / "storeloop"
+        loop.symlink_to(loop)
+        script = REPO_ROOT / "tools" / "audit-cross-repo-references.py"
+
+        def audit(store: str) -> subprocess.CompletedProcess:
+            return self._run_tool(script, "--root", root, env=dict(os.environ, GRC_STORE=store))
+        # An ABSENT store still falls through (root.parent has no private sibling): clean, exit 0.
+        r = audit(str(td / "no-store"))
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+        self.assertNotIn("Traceback", r.stderr)
+        # An absolute and a relative (resolved against --root) symlink-loop store; the relative one
+        # raised RuntimeError from _store_root on Python 3.11, and both read as absent elsewhere.
+        for store in (str(loop), "../storeloop"):
+            self._refused(audit(store), "working store is present but cannot be examined", store)
+        # A regular file named as the store.
+        (td / "store-file").write_text("x\n", encoding="utf-8")
+        self._refused(audit(str(td / "store-file")), "working store is present but cannot be examined",
+                      "store-file")
+        if not (hasattr(os, "geteuid") and os.geteuid() == 0):
+            locked = td / "locked"
+            (locked / "store").mkdir(parents=True)
+            locked.chmod(0)
+            self.addCleanup(locked.chmod, 0o700)
+            self._refused(audit(str(locked / "store")),
+                          "working store is present but cannot be examined", "locked parent")
+
+    def test_dotdot_explicit_paths_checked_as_given(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aiddotdot-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        root = td / "root"
+        root.mkdir()
+        (root / "a.md").write_text("plain\n", encoding="utf-8")
+        ref = td / "ref"
+        ref.mkdir()
+        (ref / "INDEX.md").write_text("ISO/IEC 27002:2022\n", encoding="utf-8")
+        (ref / "catalogue.yml").write_text('  - title: "ISO/IEC 27002:2022"\n', encoding="utf-8")
+        env = dict(os.environ, GRC_STORE=str(td / "no-store"))
+        missing_hop = f"{td}/missing/.."
+        file_hop = f"{root}/a.md/.."
+        cases = (
+            ("tools/audit-cross-repo-references.py", "--root", f"{missing_hop}/root"),
+            ("tools/audit-cross-repo-references.py", "--root", f"{file_hop}/../root"),
+            ("tools/audit-reference-acquisition-gaps.py", "--ref-base", f"{missing_hop}/ref"),
+            ("tools/ref-holds.py", "--ref-root", f"{missing_hop}/ref", "27002"),
+        )
+        for script, *args in cases:
+            r = self._run_tool(REPO_ROOT / script, *args, env=env)
+            self._refused(r, "not a directory as given", (script, args))
+        # A '..' the kernel can walk is still accepted (the check is not a blanket '..' ban).
+        r = self._run_tool(REPO_ROOT / "tools/ref-holds.py", "--ref-root", f"{root}/../ref", "27002",
+                           env=env)
+        self.assertEqual(r.returncode, 0, r.stderr[-300:])
+        self.assertIn("HELD", r.stdout)
+
+    def test_undecodable_inputs_refused_after_open(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aiddecode-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        bad_json = td / "bad.json"
+        bad_json.write_bytes(b"\xff\xfe{}\n")
+        list_json = td / "list.json"
+        list_json.write_text("[1, 2]\n", encoding="utf-8")
+        bad_md = td / "bad.md"
+        bad_md.write_bytes(b"| a |\xff\n")
+        good_md = td / "good.md"
+        good_md.write_text("no rows\n", encoding="utf-8")
+        ref = td / "ref"
+        ref.mkdir()
+        (ref / "catalogue.yml").write_text('  - title: "ISO/IEC 27002:2022"\n', encoding="utf-8")
+        cases = (
+            # No --ref-base: CI has no sibling, so the base tool took the no-op before reading.
+            ("not valid UTF-8", "tools/audit-reference-acquisition-gaps.py", "--aliases", bad_json),
+            ("not valid UTF-8", "tools/audit-reference-acquisition-gaps.py", "--aliases", bad_json,
+             "--ref-base", ref),
+            ("not a JSON object", "tools/audit-reference-acquisition-gaps.py", "--aliases", list_json),
+            ("not valid UTF-8", "tools/audit-worklist-register-drift.py", "--register", bad_md),
+            ("not valid UTF-8", "tools/audit-worklist-register-drift.py", "--worklist", bad_md),
+            ("not valid UTF-8", "tools/sync-citation-worklist-baseline.py", "--worklist", bad_md,
+             "--check"),
+            ("not valid UTF-8", "tools/sync-citation-worklist-baseline.py", "--worklist", good_md,
+             "--register", bad_md, "--check"),
+        )
+        for expect, script, *args in cases:
+            self._refused(self._run_tool(REPO_ROOT / script, *args), expect, (script, args))
+        # A read that fails AFTER a successful open (Linux: /proc/self/mem opens, then EIO at 0).
+        mem = Path("/proc/self/mem")
+        if sys.platform.startswith("linux") and mem.exists():
+            for script, flag in (("tools/audit-worklist-register-drift.py", "--register"),
+                                 ("tools/sync-citation-worklist-baseline.py", "--register")):
+                extra = ("--worklist", good_md, "--check") if "sync" in script else ()
+                r = self._run_tool(REPO_ROOT / script, flag, mem, *extra)
+                self._refused(r, "unreadable (Input/output error)", (script, "mem"))
 
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
