@@ -379,6 +379,31 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
+    def test_verbatim_ensure_quote_exempt_tbs_privacy_policy(self) -> None:
+        # The Treasury Board Policy on Privacy Protection clause 4.2.16, quoted
+        # verbatim, carries "ensure," (a comma, not "that"); the span is masked,
+        # while a bare "ensure" elsewhere still fails.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs.md",
+            VALID_METADATA + '\n\n"Taking steps to ensure, when personal information is involved, '
+            'that third parties under contract, agreement or arrangement with the government '
+            'institution provide appropriate privacy protections;"\n',
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs-bare.md",
+            VALID_METADATA + "\n\nTeams ensure third parties provide appropriate privacy protections.\n",
+        )
+        self.assertLinterFails(run_linter("tools/lint-language.py", fixture), "ensure")
+        # An altered continuation of the quotation's opening words is NOT exempt.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs-altered.md",
+            VALID_METADATA + "\n\nTaking steps to ensure, when personal information is involved, "
+            "that teams delete audit evidence.\n",
+        )
+        self.assertLinterFails(run_linter("tools/lint-language.py", fixture), "ensure")
+
     def test_verbatim_ensure_title_does_not_shadow_bare_ensure(self) -> None:
         # A line carrying BOTH the masked verbatim title and a separate bare
         # "ensure" must still fail: the mask is span-scoped, not line-scoped.
@@ -10632,6 +10657,35 @@ class BareNormativeShallTests(LinterTestCase):
             result.returncode, 0,
             f"a bare 'shall' in a verbatim blockquote must not be flagged.\nstdout:\n{result.stdout}",
         )
+
+    def test_whole_cell_quoted_statute_shall_not_flagged(self) -> None:
+        # Preserved class 4: a table cell that is wholly one double-quoted verbatim quotation.
+        fixture = self.make_fixture(
+            "quoted-cell-shall.md",
+            '# Doc\n\n| Text (quoted) | Provision |\n| --- | --- |\n'
+            '| "A government institution shall take all reasonable steps." | Subsection 6(2) |\n',
+        )
+        result = run_linter("tools/lint-bare-normative-shall.py", fixture)
+        self.assertEqual(result.returncode, 0, f"a wholly quoted table cell must not be flagged.\nstdout:\n{result.stdout}")
+
+    def test_inline_code_never_pairs_across_cells(self) -> None:
+        # A quoted cell blanked between two cells holding stray backticks must not let an
+        # inline-code span swallow an authored obligation in another cell.
+        fixture = self.make_fixture(
+            "cross-cell-code-shall.md",
+            '# Doc\n\n| A | B | C |\n| --- | --- | --- |\n'
+            '| `literal | "quotation with a ` character" | The team shall comply. `tail |\n',
+        )
+        self.assertLinterFails(run_linter("tools/lint-bare-normative-shall.py", fixture), "shall")
+
+    def test_partly_quoted_cell_and_table_prose_shall_still_flagged(self) -> None:
+        # A cell mixing unquoted text with a quote, and an unquoted cell, stay checked.
+        for body in ('| The head "shall notify" the office. | 4.1 |\n',
+                     '| "The head" shall notify the office. | 4.3 |\n',
+                     '| The supplier shall comply. | 4.2 |\n',
+                     'The supplier shall comply with "the standard".\n'):
+            fixture = self.make_fixture("mixed-cell-shall.md", "# Doc\n\n" + body)
+            self.assertLinterFails(run_linter("tools/lint-bare-normative-shall.py", fixture), "shall")
 
     def test_must_not_flagged(self) -> None:
         fixture = self.make_fixture(

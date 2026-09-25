@@ -95,6 +95,7 @@ allowed_commonwealth_spans = [
 ]
 verbatim_ensure_titles = [
     "Ensure the implementation of corrective actions",
+    "Taking steps to ensure, when personal information is involved, that third parties under contract, agreement or arrangement with the government institution provide appropriate privacy protections",
 ]
 lowercase_project_names = [
     "garak",
