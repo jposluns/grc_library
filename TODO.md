@@ -113,7 +113,6 @@ Adopter experience and future work: capability and guidance for organizations ad
 | 6.3 | Cross-framework matrix expansion (L) | `[public]` |
 | 6.4 | CMMI capability levels alongside maturity levels (L) | `[public]` |
 | 6.5 | Multi-cloud governance overlay (XL) | `[public]` |
-| 6.6 | Java EE / Jakarta EE security standard (L) | `[public]` |
 
 ---
 
