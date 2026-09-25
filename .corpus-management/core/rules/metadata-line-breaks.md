@@ -10,7 +10,10 @@ last line of a run is exempt, because the following blank line or `---`
 separator already ends the paragraph. Metadata lines inside a fenced
 code block are documentation of the metadata-block format, not a file's
 own metadata, so the shared fence-aware scan skips them: a metadata
-example inside a fence is not a finding. A run whose non-last lines all
+example inside a fence is not a finding, and a fenced block between
+metadata lines ends the run (the lines either side of it are not one
+paragraph). A field name may contain letters, digits, spaces and
+hyphens. A run whose non-last lines all
 carry a marker, and a single isolated metadata line, are not flagged.
 The scanned file set is project configuration and is not part of this
 clause.

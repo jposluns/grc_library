@@ -7086,6 +7086,27 @@ class MetadataLineBreaksTests(LinterTestCase):
         result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
         self.assertLinterFails(result, "missing-hard-break")
 
+    def test_hyphenated_field_does_not_split_the_run(self) -> None:
+        # P-1.89(b): a hyphenated field name is a metadata line, so the missing break on the
+        # line before it is still found.
+        fixture = self.make_fixture(
+            "fake-hyphen-field.md",
+            "# Fake Document\n\n**Document Title:** Test\n**SPDX-License-Identifier:** CC-BY-SA-4.0\\\n"
+            "**Version:** 1.0.0\n\nBody.\n",
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertLinterFails(result, "missing-hard-break")
+
+    def test_fence_between_metadata_lines_ends_the_run(self) -> None:
+        # P-1.89(c): a metadata line, a fenced block, then a metadata line are two runs of one
+        # line each, not one run with a missing break.
+        fixture = self.make_fixture(
+            "fake-fence-split.md",
+            "# Fake Document\n\n**Document Title:** Test\n```\ncode\n```\n**Version:** 1.0.0\n\nBody.\n",
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_code_fence_metadata_not_flagged(self) -> None:
         # Same metadata block, but inside a fenced code region: must NOT
         # be flagged (templates demonstrating proper format do not need
