@@ -37,7 +37,7 @@ The metadata block above carries a generator schema constant for `Version` and t
 
 ---
 
-_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 75, Unknown: 0._
+_Summary as of last regeneration: Mature: 117, Baseline: 163, Draft: 76, Unknown: 0._
 
 ## Mature
 
@@ -83,7 +83,7 @@ _117 documents._
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.93 | 2026-09-25 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.46 | 2026-09-25 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.198 | 2026-09-25 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.199 | 2026-09-25 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.18 | 2026-08-24 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.1.6 | 2026-08-31 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.5.11 | 2026-09-05 |
@@ -339,7 +339,7 @@ _163 documents._
 
 ## Draft
 
-_75 documents._
+_76 documents._
 
 | Path | Title | Type | Version | Date |
 | --- | --- | --- | --- | --- |
@@ -399,6 +399,7 @@ _75 documents._
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.10 | 2026-09-24 |
 | [dev-security/standard-cloud-hardening-baseline-azure.md](../dev-security/standard-cloud-hardening-baseline-azure.md) | Azure Cloud Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
 | [dev-security/standard-cloud-hardening-baseline-gcp.md](../dev-security/standard-cloud-hardening-baseline-gcp.md) | Google Cloud Platform Hardening Baseline Standard | Standard | 0.0.9 | 2026-07-06 |
+| [dev-security/standard-jakarta-ee-application-security.md](../dev-security/standard-jakarta-ee-application-security.md) | Jakarta EE Application Security Standard | Standard | 0.0.4 | 2026-09-25 |
 | [governance/principle-capability-is-not-authority.md](../governance/principle-capability-is-not-authority.md) | Capability Is Not Authority Principle | Principle | 0.0.3 | 2026-08-30 |
 | [governance/principle-fail-closed-automation.md](../governance/principle-fail-closed-automation.md) | Fail-Closed Automation Principle | Principle | 0.0.3 | 2026-09-24 |
 | [governance/principle-integrity-and-trustworthiness.md](../governance/principle-integrity-and-trustworthiness.md) | Integrity and Trustworthiness Principle | Principle | 0.0.10 | 2026-09-23 |
