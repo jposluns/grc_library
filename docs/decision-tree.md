@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.34\
+**Version:** 1.0.35\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -271,6 +271,43 @@ If you are a US federal agency, or you sell AI systems or services (including la
 If you develop, deploy, or use AI in the United Kingdom:
 
 14. [`ai/jurisdictions/annex-ai-united-kingdom.md`](../ai/jurisdictions/annex-ai-united-kingdom.md): UK pro-innovation AI regulation framework (CP 815 white paper and CP 1019 government response): five non-statutory cross-sectoral principles that existing sector regulators apply within their remits.
+
+If you develop or deploy an AI system in Texas, or offer a product or service used by Texas residents:
+
+15. [`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md): Texas Responsible Artificial Intelligence Governance Act (TRAIGA, HB 149, effective 1 January 2026), Texas's comprehensive state AI statute.
+
+If you use AI in employment decisions about employees or candidates in Illinois:
+
+16. [`ai/jurisdictions/annex-ai-us-illinois.md`](../ai/jurisdictions/annex-ai-us-illinois.md): Illinois HB 3773 (Public Act 103-0804, effective 1 January 2026), which amends the Illinois Human Rights Act to make discriminatory employer use of AI a civil-rights violation.
+
+If you use an automated employment decision tool to screen candidates or employees in New York City:
+
+17. [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md): New York City Local Law 144 of 2021 on automated employment decision tools (bias audit, published audit summary, candidate notice).
+
+If your business uses automated decisionmaking technology to make significant decisions about California consumers:
+
+18. [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md): California CCPA Automated Decisionmaking Technology (ADMT) regulations.
+
+If your AI system or service reaches the Korean market or Korean users:
+
+19. [`ai/jurisdictions/annex-ai-south-korea.md`](../ai/jurisdictions/annex-ai-south-korea.md): South Korea's AI Basic Act (Law No. 20676, in force since 22 January 2026), a comprehensive national AI statute.
+
+If you develop or deploy AI in Canada:
+
+20. [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md): Canada's AI governance patchwork (no in-force comprehensive AI statute; the proposed Artificial Intelligence and Data Act lapsed).
+
+If you develop or deploy AI in Australia:
+
+21. [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md): Australia's voluntary and principles-based approach built on existing law (no comprehensive AI statute).
+
+If you adopt generative or agentic AI and want Singapore's voluntary governance frameworks (in Singapore or as a benchmark elsewhere):
+
+22. [`ai/jurisdictions/annex-ai-singapore.md`](../ai/jurisdictions/annex-ai-singapore.md): Singapore Model AI Governance Framework for Generative AI (voluntary).
+23. [`ai/jurisdictions/annex-ai-singapore-agentic-ai.md`](../ai/jurisdictions/annex-ai-singapore-agentic-ai.md): Singapore IMDA Model AI Governance Framework for Agentic AI (voluntary).
+
+If you develop, deploy, or use AI in Malaysia:
+
+24. [`ai/jurisdictions/annex-ai-malaysia.md`](../ai/jurisdictions/annex-ai-malaysia.md): Malaysia National Guidelines on AI Governance and Ethics (MOSTI, 2024), a voluntary framework of seven AI principles.
 
 ### 5.2 If you operate cloud workloads
 
