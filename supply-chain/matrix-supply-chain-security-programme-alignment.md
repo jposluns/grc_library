@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Security Programme Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.9\
-**Date:** 2026-09-20\
+**Version:** 1.0.10\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](../compliance/logistics/register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](../compliance/logistics/register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](../compliance/logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](../compliance/logistics/template-trade-compliance-gap-assessment.md)\
@@ -34,8 +34,8 @@ This matrix provides a consolidated cross-reference of the internationally recog
 | **NEEC**: New Scheme of Certified Companies | Servicio de Administración Tributaria (SAT) | Mexico | Voluntary trusted-trader | Expedited customs processing in Mexico; facilitation benefits | CTPAT (US); alignment with WCO SAFE |
 | **OEA**: Operador Econômico Autorizado | Receita Federal do Brasil (RFB) | Brazil | Voluntary trusted-trader | Expedited processing at Brazilian customs; reduced examinations | AEO (EU); AEO-S (UK); CTPAT (US) |
 | **WCO SAFE Framework** | World Customs Organization (WCO) | Global | Standards framework | Underpins all major trusted-trader programmes | All national AEO/trusted-trader programmes derived from WCO SAFE |
-| **ISO 28000** | International Organization for Standardization | Global | Management system standard | Certification demonstrates supply chain security management system | Compatible with all AEO-type programmes |
-| **ISO 28001** | International Organization for Standardization | Global | Implementation standard | Customs clearance verification; supply chain continuity | Supports WCO SAFE and ISO 28000 |
+| **ISO 28000:2022** | International Organization for Standardization | Global | Management system standard | Certification demonstrates supply chain security management system | Compatible with all AEO-type programmes |
+| **ISO 28001** | International Organization for Standardization | Global | Implementation standard | Customs clearance verification; supply chain continuity | Supports WCO SAFE and ISO 28000:2022 |
 
 ---
 
@@ -43,7 +43,7 @@ This matrix provides a consolidated cross-reference of the internationally recog
 
 The following matrix maps the common supply chain security domains against each programme's requirements. ✓ = required by this programme; ~ = partially or conditionally required; N/A = not addressed by this programme's published criteria.
 
-| Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC | NEEC | OEA | ISO 28000 | WCO SAFE |
+| Security Domain | CTPAT | AEO-S (UK) | AEO (EU) | PIP | BASC | NEEC | OEA | ISO 28000:2022 | WCO SAFE |
 |---|---|---|---|---|---|---|---|---|---|
 | **Security Policy and Governance** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **Physical Security: Perimeter** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
@@ -117,7 +117,7 @@ The following evidence types can be collected once and reused across multiple pr
 
 | Evidence Type | Programmes Where Applicable |
 |---|---|
-| Documented security policy | CTPAT, AEO-S, AEO, PIP, BASC, NEEC, OEA, ISO 28000 |
+| Documented security policy | CTPAT, AEO-S, AEO, PIP, BASC, NEEC, OEA, ISO 28000:2022 |
 | Background screening procedure | CTPAT, AEO-S, AEO, PIP, BASC, NEEC |
 | Security awareness training records | CTPAT, AEO-S, AEO, PIP, BASC, NEEC, OEA |
 | Cargo inspection and seal management procedure | CTPAT, AEO-S, AEO, PIP, BASC, NEEC, OEA |
@@ -126,7 +126,7 @@ The following evidence types can be collected once and reused across multiple pr
 | IT access control evidence | CTPAT, AEO-S, AEO, PIP, BASC |
 | MFA configuration records | CTPAT, AEO-S, AEO |
 | Penetration test attestation | CTPAT, AEO-S (supports), AEO (supports) |
-| ISO 28000 certification | Supports CTPAT, AEO-S, AEO, PIP as evidence of systematic approach |
+| ISO 28000:2022 certification | Supports CTPAT, AEO-S, AEO, PIP as evidence of systematic approach |
 
 ---
 
@@ -138,10 +138,10 @@ The following evidence types can be collected once and reused across multiple pr
 | 2 | AEO-S (UK) | UK market access; uses the CTPAT evidence set; HMRC supplements required |
 | 3 | AEO (EU) | EU market access; parallel to AEO-S; uses the same evidence set |
 | 4 | PIP (Canada) | Canadian market access; CTPAT mutual recognition supports application |
-| 5 | BASC | Latin American market access; builds on CTPAT controls and ISO 28000 management-system requirements |
+| 5 | BASC | Latin American market access; builds on CTPAT controls and ISO 28000:2022 management-system requirements |
 | 6 | NEEC | Mexican market access; CTPAT mutual recognition provides foundation |
 | 7 | OEA | Brazilian market access; AEO/AEO-S mutual recognition provides foundation |
-| 8 | ISO 28000 | System-level certification; strengthens all programme applications |
+| 8 | ISO 28000:2022 | System-level certification; strengthens all programme applications |
 
 ---
 

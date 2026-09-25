@@ -2,7 +2,7 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.12\
+**Version:** 1.1.13\
 **Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -227,7 +227,7 @@ The full offboarding workflow is described in [`supply-chain/procedure-supplier-
 |---|---|
 | ISO/IEC 27001:2022 | A.5.19 to A.5.22 Information security in supplier relationships |
 | ISO/IEC 27036-3:2023 | §6.1.1 (acquisition process), §6.3.4 (supply-chain risk management process) |
-| ISO 28000 | Supply chain security management; risk and threat assessment |
+| ISO 28000:2022 | Supply chain security management; risk and threat assessment |
 | NIST SP 800-53 Rev. 5 | SA-9; SR-2, SR-3, SR-5, SR-6, SR-8 |
 | NIST SP 800-161 Rev. 1 | SR-3(1) (diverse supply base), SR-3(3) (sub-tier flow down), SR-6 (supplier assessments and reviews) |
 | NIST CSF 2.0 | GV.SC-01, GV.SC-03, GV.SC-04, GV.SC-05, GV.SC-06, GV.SC-07, GV.SC-08, GV.SC-10 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Master Project Specification\
 **Document Type:** Specification\
-**Version:** 1.6.24\
-**Date:** 2026-09-06\
+**Version:** 1.6.25\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`specification-ingestion.md`](specification-ingestion.md), [`instruction-ai-document-ingestion.md`](instruction-ai-document-ingestion.md), [`README.md`](README.md), [`NOTICE.md`](NOTICE.md), [`governance/charter-governance-library.md`](governance/charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](governance/framework-document-architecture-and-interrelationship.md)\
@@ -366,7 +366,7 @@ When referencing standards and frameworks, the AI must only reference publicly r
 - NEEC: Nuevo Esquema de Empresas Certificadas (Mexico)
 - OEA: Operador Económico Autorizado (Brazil)
 - WCO SAFE Framework of Standards
-- ISO 28000: Supply chain security management systems
+- ISO 28000:2022: Supply chain security management systems
 
 ### Resilience and operational technology
 

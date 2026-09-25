@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.4.19\
+**Version:** 1.4.20\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -91,7 +91,7 @@ Sector-conditional roles (for example, a sector-conditional compliance role that
 7.3 AI model weights, training scripts, and inference APIs classified as Restricted must reside in secure, access-controlled repositories.
 7.4 Model outputs with potential regulatory or ethical implications (e.g., automated decision logs) must be preserved per the Records Retention Standard.
 7.5 For AI systems supporting BASC or customs automation:
-- Training and operational data must comply with BASC confidentiality controls and the organization's trade-data protection requirements, consistent with its ISO 28000 supply-chain security management system.
+- Training and operational data must comply with BASC confidentiality controls and the organization's trade-data protection requirements, consistent with its ISO 28000:2022 supply-chain security management system.
 - AI model audit logs must be tamper-proof and available for customs review.
 
 ---
@@ -144,7 +144,7 @@ Where the organization participates in a sector programme that imposes additiona
 | Encryption | §8.24 | DSS05.02, DSS05.03 | CEK-03, CEK-04, CEK-12 | N/A |
 | Retention and disposal | §8.10 | APO14.09 | DSP-02, DSP-16 | ISO/IEC 27701:2025 Annex A.1.4.8 to A.1.4.9, A.2.4.3 |
 | AI data handling | 5.34 (privacy and protection of PII); 8.11 (data masking) | APO14.08 | DSP-04, DSP-16, DSP-17, LOG-10 | AIDA (lapsed), PIPEDA |
-| Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000 |
+| Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000:2022 |
 
 This standard also aligns with ISO/IEC 27040:2024 (Storage security) for the secure storage, retention, and sanitization of classified data at rest.
 

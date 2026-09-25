@@ -2,8 +2,8 @@
 
 **Document Title:** Human Capital and Ethical Conduct Framework\
 **Document Type:** Framework\
-**Version:** 1.0.12\
-**Date:** 2026-09-18\
+**Version:** 1.0.13\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/standard-personnel-security-screening.md`](../security/standard-personnel-security-screening.md), [`security/procedure-onboarding-and-offboarding.md`](../security/procedure-onboarding-and-offboarding.md), [`governance/procedure-whistleblower-and-incident-reporting.md`](procedure-whistleblower-and-incident-reporting.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`ai/standard-ai-human-oversight.md`](../ai/standard-ai-human-oversight.md)\
@@ -20,7 +20,7 @@
 
 This framework defines the organization's approach to ethical conduct, workforce integrity, and responsible innovation. It integrates human resource governance, ethical behaviour standards, and professional conduct expectations for all employees and affiliates.
 
-It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001:2025, ISO 37301, OECD AI Principles, CAN/DGSI 101, and CSA CCM v4.1 HRS-09, HRS-11, and HRS-13.
+It consolidates the HR Security Policy, Security Awareness and Training Policy, Corporate Culture Framework, Whistleblower Procedure, and Anti-Bribery and Corruption Policy into a unified governance model. Aligned with ISO 37001:2025, ISO 37301:2021, OECD AI Principles, CAN/DGSI 101, and CSA CCM v4.1 HRS-09, HRS-11, and HRS-13.
 
 ---
 

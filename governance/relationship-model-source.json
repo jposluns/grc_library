@@ -96,14 +96,14 @@
     },
     {
       "id": "ISO-31000",
-      "display_name": "ISO 31000 Risk management guidelines",
+      "display_name": "ISO 31000:2018 Risk management guidelines",
       "class": "standard",
       "source_identifier": "ISO 31000:2018",
       "corpus_path": null
     },
     {
       "id": "ISO-22301",
-      "display_name": "ISO 22301 Business continuity management systems",
+      "display_name": "ISO 22301:2019 Business continuity management systems",
       "class": "standard",
       "source_identifier": "ISO 22301:2019",
       "corpus_path": null

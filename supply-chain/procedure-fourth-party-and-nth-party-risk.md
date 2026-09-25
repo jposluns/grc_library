@@ -2,8 +2,8 @@
 
 **Document Title:** Fourth-Party and Nth-Party Risk Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.8\
-**Date:** 2026-09-20\
+**Version:** 1.0.9\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`supply-chain/register-subprocessor-template.md`](register-subprocessor-template.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -170,7 +170,7 @@ Sub-tier risk findings are reported to the Supplier Risk Maintainer at minimum q
 | NIS 2 | Article 21(2)(d) (supply chain security) | EU essential entities |
 | NIST CSF 2.0 | GV.SC subcategories | Supply chain risk management |
 | NIST SP 800-161 Rev. 1 | SR-3(3) (sub-tier flow down), SR-6 (supplier assessments and reviews) | US baseline |
-| ISO 28000 | Security management for supply chains | International |
+| ISO 28000:2022 | Security management for supply chains | International |
 | ISO/IEC 27036-3:2023 | Clause 5.8(p) (recursive supplier requirements), Clause 6.1.1 (acquisition-process supplier requirements, including flow-down to sub-tier suppliers) | ICT supply chain |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | Financial Stability Board | International financial-sector practice |
 
