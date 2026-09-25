@@ -10465,6 +10465,36 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             self.assertNotIn("Traceback", r.stderr)
 
 
+    def test_section_check_register_errors_exit_2_without_traceback(self) -> None:
+        # 3b71 QA: the early --section check parses the register itself; a missing register
+        # or one with zero parsed rows must exit 2 cleanly, never raise a traceback.
+        import contextlib
+        import importlib.util
+        import io
+        spec = importlib.util.spec_from_file_location(
+            "acq_gaps_3b71", REPO_ROOT / "tools" / "audit-reference-acquisition-gaps.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-"))
+        self.addCleanup(shutil.rmtree, td)
+        empty = td / "empty.md"
+        empty.write_text("# nothing\n", encoding="utf-8")
+        for reg in (td / "missing.md", td, empty):
+            with self.subTest(register=str(reg)):
+                mod.CANONICAL_REGISTER = reg
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    rc = mod.main(["--section", "NIST publications"])
+                self.assertEqual(rc, 2, err.getvalue())
+                self.assertIn("ERROR:", err.getvalue())
+
+    def test_valid_section_not_refused(self) -> None:
+        # A family the register holds passes the --section check (it may still stop later
+        # for an absent reference base, as in CI, but never with the --section refusal).
+        r = run_linter("tools/audit-reference-acquisition-gaps.py", "--section", "NIST publications")
+        self.assertNotIn("--section", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
 

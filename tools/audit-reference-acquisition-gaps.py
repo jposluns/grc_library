@@ -178,8 +178,9 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         try:
             known = sorted({r[0] for r in parse_register(CANONICAL_REGISTER, args.include_tooling)})
-        except (OSError, UnicodeDecodeError) as exc:
-            print(f"ERROR: cannot read {CANONICAL_REGISTER}: {exc}", file=sys.stderr)
+        except (RuntimeError, OSError, UnicodeDecodeError) as exc:
+            # parse_register raises RuntimeError for a missing register or zero parsed rows.
+            print(f"ERROR: {exc}", file=sys.stderr)
             return 2
         if args.section not in known:
             hint = "" if args.include_tooling else " (tooling families need --include-tooling)"
