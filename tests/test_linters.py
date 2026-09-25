@@ -172,8 +172,73 @@ def load_linter_module(script: str, unique: str):
     return mod
 
 
+def _identifier_probe_catalogues():
+    """Use committed references, including the digest-checked ASVS edition union."""
+    ref = load_linter_module(
+        "tools/alignment_citation_reference.py", "_identifier_probe_reference"
+    )
+    return {
+        "asvs": ref.ASVS["requirements"] | ref.ASVS["sections"],
+        "pf": frozenset(ref.PF_ALL_EDITIONS_VALID),
+        "cwe": ref.CWE["all"],
+    }
+
+
+def identifier_scope_probe_issues(cases):
+    """Check declared (catalogue, token, template) suppression probes."""
+    catalogues = _identifier_probe_catalogues()
+    patterns = {
+        "asvs": r"V[0-9]+\.[0-9]+(?:\.[0-9]+)?",
+        "pf": r"[A-Z]{2}\.[A-Z]{2}-P[0-9]*",
+        "cwe": r"(?i:CWE)-[0-9]+",
+    }
+    issues = []
+    for name, probes in sorted(cases.items()):
+        if not probes:
+            issues.append(f"TEST-PROBE-EMPTY: {name}")
+        for index, (family, token, template) in enumerate(probes):
+            where = f"{name}[{index}]"
+            if family not in catalogues:
+                issues.append(f"TEST-PROBE-CATALOGUE: {where}: unknown {family!r}")
+                continue
+            if not re.fullmatch(patterns[family], token):
+                issues.append(f"TEST-PROBE-TOKEN: {where}: malformed {family} {token!r}")
+                continue
+            canonical = (
+                f"CWE-{int(token.split('-')[1])}" if family == "cwe" else token
+            )
+            if canonical in catalogues[family]:
+                issues.append(
+                    f"TEST-PROBE-VALID-ID: {where}: {family} {token!r} "
+                    f"exists in the held catalogue"
+                )
+            if template.count("{probe}") != 1:
+                issues.append(
+                    f"TEST-PROBE-TEMPLATE: {where}: expected one {{probe}} placeholder"
+                )
+    return issues
+
+
 class LinterTestCase(unittest.TestCase):
     """Base class providing fixture-file helpers."""
+
+    IDENTIFIER_SCOPE_PROBES = {}
+
+    def assertIdentifierScopeProbes(self, run) -> None:
+        """Check absence before invoking a strict linter or asserting no finding."""
+        name = self._testMethodName
+        cases = {name: self.IDENTIFIER_SCOPE_PROBES[name]}
+        issues = identifier_scope_probe_issues(cases)
+        if issues:
+            self.fail("\n".join(issues))
+        for family, token, template in cases[name]:
+            with self.subTest(catalogue=family, token=token, template=template):
+                result = run(template.replace("{probe}", token))
+                if result.returncode != 0:
+                    self.fail(
+                        f"TEST-PROBE-FINDING: {family} {token!r}: "
+                        f"exit {result.returncode}\n{result.stdout}{result.stderr}"
+                    )
 
     fixture_paths: list[Path] = []
 
@@ -22429,6 +22494,44 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     SCRIPT = "tools/lint-alignment-citation-existence.py"
 
+    IDENTIFIER_SCOPE_PROBES = {
+        "test_table_context_ends_at_a_pipeless_line_or_a_fence": (
+            ("asvs", "V8.9",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "- CycloneDX {probe} list item\n"),
+            ("asvs", "V9.9.9",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "```text\n\nexample\n\n```\n"
+             "| The tool moved to {probe} | y |\n"),
+        ),
+        "test_version_columns_in_an_asvs_table_are_not_checked": (
+            ("asvs", "V2.14",
+             "| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n"
+             "| V1.2.4 | ZAP | {probe} |\n"),
+            ("asvs", "V8.9",
+             "| ASVS 5.0.0 | CycloneDX spec |\n| --- | --- |\n"
+             "| V1.2.4 | {probe} |\n"),
+        ),
+        "test_markdown_formatting_between_name_and_edition": (
+            ("asvs", "V9.9.9",
+             "| Control | **ASVS** (3.0.1) |\n| --- | --- |\n"
+             "| Legacy | {probe} |\n"),
+            ("asvs", "V9.9.9",
+             "[ASVS](https://owasp.org/) 3.0.1 requirement {probe}.\n"),
+        ),
+        "test_more_other_standard_versions_are_excluded": (
+            ("asvs", "V4.20",
+             "OWASP ASVS 5.0.0 V1.2.4 maps to MITRE CWE {probe}.\n"),
+            ("asvs", "V3.9", "ASVS and CAPEC {probe}.\n"),
+            ("asvs", "V4.9", "ASVS and MITRE ATLAS {probe}.\n"),
+            ("asvs", "V8.9.9", "ASVS and ETSI GR SAI 002 {probe}.\n"),
+            ("asvs", "V8.9", "ASVS and NIST SP 800-218 {probe}.\n"),
+            ("asvs", "V8.9.9", "ASVS and CIS Controls v8 {probe}\n"),
+            ("asvs", "V9.9.9",
+             "Mobile OWASP Application Security Verification Standard {probe}.\n"),
+        ),
+    }
+
     def test_fabricated_pf_subcategory_flagged(self) -> None:
         fixture = self.make_fixture(
             "align-cite-fabricated.md",
@@ -22725,21 +22828,18 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
-        for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V8.9 list item\n",
-                     "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n```text\n\nexample\n\n```\n"
-                     "| The tool moved to V9.9.9 | y |\n"):
-            r = self._run("asvs-tableend.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-tableend.md", body)
+        )
 
     def test_a_dash_only_body_row_keeps_the_header(self) -> None:
         body = "| Control | ASVS |\n| --- | --- |\n| A | V1.2.4 |\n| - | - |\n| B | V1.2.99 |\n"
         self.assertLinterFails(self._run("asvs-dashrow.md", body), "V1.2.99")
 
     def test_version_columns_in_an_asvs_table_are_not_checked(self) -> None:
-        for body in ("| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| V1.2.4 | ZAP | V2.14 |\n",
-                     "| ASVS 5.0.0 | CycloneDX spec |\n| --- | --- |\n| V1.2.4 | V8.9 |\n"):
-            r = self._run("asvs-vercol.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-vercol.md", body)
+        )
 
     def test_a_year_or_count_after_the_name_is_not_an_edition(self) -> None:
         for body in ("OWASP ASVS (2025) requirement V99.9.9\n", "OWASP ASVS: 3 levels; V99.9.9\n",
@@ -22747,18 +22847,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-year.md", body), "V99.9.9")
 
     def test_markdown_formatting_between_name_and_edition(self) -> None:
-        for body in ("| Control | **ASVS** (3.0.1) |\n| --- | --- |\n| Legacy | V9.9.9 |\n",
-                     "[ASVS](https://owasp.org/) 3.0.1 requirement V9.9.9.\n"):
-            r = self._run("asvs-bold.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-bold.md", body)
+        )
 
     def test_more_other_standard_versions_are_excluded(self) -> None:
-        for body in ("OWASP ASVS 5.0.0 V1.2.4 maps to MITRE CWE V4.20.\n", "ASVS and CAPEC V3.9.\n",
-                     "ASVS and MITRE ATLAS V4.9.\n", "ASVS and ETSI GR SAI 002 V8.9.9.\n",
-                     "ASVS and NIST SP 800-218 V8.9.\n", "ASVS and CIS Controls v8 V8.9.9\n",
-                     "Mobile OWASP Application Security Verification Standard V9.9.9.\n"):
-            r = self._run("asvs-otherstd2.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-otherstd2.md", body)
+        )
 
     def test_cwe_leading_zero_is_normalized(self) -> None:
         r = self._run("cwe-zero.md", "See CWE-079.\n")
@@ -22817,6 +22913,145 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                          f"PF 1.1 code should pass via the edition union; stdout:\n{result.stdout}")
 
 
+
+
+class IdentifierScopeProbeMetaTests(unittest.TestCase):
+    def test_registered_scope_probes_use_absent_identifiers(self) -> None:
+        issues = []
+        for name, cls in sorted(list(globals().items())):
+            if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
+                continue
+            cases = cls.__dict__.get("IDENTIFIER_SCOPE_PROBES", {})
+            if not cases:
+                continue
+            for method in cases:
+                if not method.startswith("test_") or not callable(getattr(cls, method, None)):
+                    issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
+            issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
+        if issues:
+            self.fail("\n".join(issues))
+
+
+class IdentifierScopeProbeGuardTests(unittest.TestCase):
+    @staticmethod
+    def _cases(family, token, template="{probe}"):
+        return {"runTest": ((family, token, template),)}
+
+    def test_real_identifiers_in_either_held_edition_are_rejected(self) -> None:
+        for family, token in (
+            ("asvs", "V1.6"), ("asvs", "V5.3.4"), ("asvs", "V16.3.1"),
+            ("pf", "CT.PO-P4"), ("pf", "GV.RR-P1"), ("cwe", "CWE-79"),
+            ("cwe", "cwe-079"),
+        ):
+            with self.subTest(family=family, token=token):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases(family, token)),
+                    [f"TEST-PROBE-VALID-ID: runTest[0]: {family} {token!r} "
+                     "exists in the held catalogue"],
+                )
+
+    def test_absent_probe_with_valid_companion_is_allowed(self) -> None:
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases(
+                "asvs", "V9.9.9", "ASVS V1.2.4; other version {probe}"
+            )),
+            [],
+        )
+        for family, token in (("pf", "CT.PO-P5"), ("cwe", "CWE-99999")):
+            self.assertEqual(identifier_scope_probe_issues(self._cases(family, token)), [])
+
+    def test_bad_declarations_fail_with_exact_rules(self) -> None:
+        examples = (
+            ({"runTest": ()}, ["TEST-PROBE-EMPTY: runTest"]),
+            (self._cases("typo", "V9.9.9"),
+             ["TEST-PROBE-CATALOGUE: runTest[0]: unknown 'typo'"]),
+            (self._cases("asvs", "garbage"),
+             ["TEST-PROBE-TOKEN: runTest[0]: malformed asvs 'garbage'"]),
+            (self._cases("asvs", "V9.9.9", "no placeholder"),
+             ["TEST-PROBE-TEMPLATE: runTest[0]: expected one {probe} placeholder"]),
+            (self._cases("asvs", "V9.9.9", "{probe} and {probe}"),
+             ["TEST-PROBE-TEMPLATE: runTest[0]: expected one {probe} placeholder"]),
+        )
+        for cases, expected in examples:
+            with self.subTest(cases=cases):
+                self.assertEqual(identifier_scope_probe_issues(cases), expected)
+
+    def test_helper_rejects_real_id_before_running_linter(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V1.6")
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "OK\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertEqual(
+            str(caught.exception),
+            "TEST-PROBE-VALID-ID: runTest[0]: asvs 'V1.6' exists in the held catalogue",
+        )
+        run.assert_not_called()
+
+    def test_helper_renders_the_guarded_token(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases(
+            "asvs", "V9.9.9", "ASVS V1.2.4; other version {probe}\n"
+        )
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "OK\n", ""))
+        case.assertIdentifierScopeProbes(run)
+        run.assert_called_once_with("ASVS V1.2.4; other version V9.9.9\n")
+
+    def test_helper_still_rejects_a_linter_finding(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "finding\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertEqual(
+            str(caught.exception),
+            "TEST-PROBE-FINDING: asvs 'V9.9.9': exit 1\nfinding\n",
+        )
+
+    def test_meta_test_detects_a_real_id_inserted_into_an_actual_probe(self) -> None:
+        from unittest.mock import patch
+        cls = AlignmentCitationExistenceTests
+        name = "test_version_columns_in_an_asvs_table_are_not_checked"
+        cases = dict(cls.IDENTIFIER_SCOPE_PROBES)
+        probes = list(cases[name])
+        family, _, template = probes[1]
+        probes[1] = (family, "V1.6", template)
+        cases[name] = tuple(probes)
+        meta = IdentifierScopeProbeMetaTests(
+            "test_registered_scope_probes_use_absent_identifiers"
+        )
+        with patch.object(cls, "IDENTIFIER_SCOPE_PROBES", cases):
+            with self.assertRaises(AssertionError) as caught:
+                meta.test_registered_scope_probes_use_absent_identifiers()
+        self.assertEqual(
+            str(caught.exception),
+            "AlignmentCitationExistenceTests: TEST-PROBE-VALID-ID: "
+            f"{name}[1]: asvs 'V1.6' exists in the held catalogue",
+        )
+
+    def test_each_migrated_token_is_reported_in_live_asvs_context(self) -> None:
+        mod = load_linter_module(
+            "tools/lint-alignment-citation-existence.py", "_scope_probe_live_control"
+        )
+        tokens = sorted({
+            token
+            for probes in AlignmentCitationExistenceTests.IDENTIFIER_SCOPE_PROBES.values()
+            for family, token, template in probes
+        })
+        for token in tokens:
+            with self.subTest(token=token):
+                findings = []
+                mod._engine()._check_asvs(
+                    f"ASVS requirement {token}.\n", 1, "probe.md", None, False, findings
+                )
+                kind = "requirement" if token.count(".") == 2 else "section"
+                self.assertEqual(findings, [
+                    f"probe.md:1: '{token}' is not a valid OWASP ASVS (5.0.0 and 4.0.3) "
+                    f"{kind} identifier (no such {kind} in any held edition)"
+                ])
 
 
 class AIQTVendorDigestTests(LinterTestCase):
