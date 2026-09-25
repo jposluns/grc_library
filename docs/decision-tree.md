@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.35\
+**Version:** 1.0.36\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -272,21 +272,21 @@ If you develop, deploy, or use AI in the United Kingdom:
 
 14. [`ai/jurisdictions/annex-ai-united-kingdom.md`](../ai/jurisdictions/annex-ai-united-kingdom.md): UK pro-innovation AI regulation framework (CP 815 white paper and CP 1019 government response): five non-statutory cross-sectoral principles that existing sector regulators apply within their remits.
 
-If you develop or deploy an AI system in Texas, or offer a product or service used by Texas residents:
+If you promote, advertise, or conduct business in Texas, produce a product or service used by Texas residents, or develop or deploy an AI system in Texas:
 
 15. [`ai/jurisdictions/annex-ai-us-texas.md`](../ai/jurisdictions/annex-ai-us-texas.md): Texas Responsible Artificial Intelligence Governance Act (TRAIGA, HB 149, effective 1 January 2026), Texas's comprehensive state AI statute.
 
-If you use AI in employment decisions about employees or candidates in Illinois:
+If you use AI in employment decisions about employees in Illinois (such as recruitment, hiring, promotion, discharge, or discipline); whether job applicants are covered is unresolved (see the annex):
 
 16. [`ai/jurisdictions/annex-ai-us-illinois.md`](../ai/jurisdictions/annex-ai-us-illinois.md): Illinois HB 3773 (Public Act 103-0804, effective 1 January 2026), which amends the Illinois Human Rights Act to make discriminatory employer use of AI a civil-rights violation.
 
-If you use an automated employment decision tool to screen candidates or employees in New York City:
+If you are an employer or employment agency using an automated employment decision tool to screen candidates or employees for hiring or promotion to a position in New York City:
 
 17. [`ai/jurisdictions/annex-ai-us-new-york-city.md`](../ai/jurisdictions/annex-ai-us-new-york-city.md): New York City Local Law 144 of 2021 on automated employment decision tools (bias audit, published audit summary, candidate notice).
 
 If your business uses automated decisionmaking technology to make significant decisions about California consumers:
 
-18. [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md): California CCPA Automated Decisionmaking Technology (ADMT) regulations.
+18. [`ai/jurisdictions/annex-ai-us-california.md`](../ai/jurisdictions/annex-ai-us-california.md): California CCPA Automated Decisionmaking Technology (ADMT) regulations: binding regulations effective 1 January 2026, with ADMT compliance required no later than 1 January 2027.
 
 If your AI system or service reaches the Korean market or Korean users:
 
@@ -298,7 +298,7 @@ If you develop or deploy AI in Canada:
 
 If you develop or deploy AI in Australia:
 
-21. [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md): Australia's voluntary and principles-based approach built on existing law (no comprehensive AI statute).
+21. [`ai/jurisdictions/annex-ai-australia.md`](../ai/jurisdictions/annex-ai-australia.md): Australia's voluntary and principles-based approach built on existing law (no comprehensive AI statute), plus one binding Privacy Act automated-decision transparency obligation that commences on 10 December 2026.
 
 If you adopt generative or agentic AI and want Singapore's voluntary governance frameworks (in Singapore or as a benchmark elsewhere):
 
