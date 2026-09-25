@@ -3686,7 +3686,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "Canada Public Sector GRC Requirements Annex"
-  version: "0.0.11"
+  version: "0.0.12"
   date: "2026-09-25"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
