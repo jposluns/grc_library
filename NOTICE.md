@@ -2,8 +2,8 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.6\
-**Date:** 2026-08-03\
+**Version:** 1.4.7\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
@@ -31,7 +31,7 @@ The library is built on a clear principle: **we do not copy external third-party
 External materials are used for:
 
 - Non-verbatim analysis and original synthesis.
-- High-level alignment ("this document aligns to ISO 27001 Annex A.5").
+- High-level alignment ("this document aligns to ISO/IEC 27001:2022 Annex A.5").
 - Framework name and identifier reference.
 - Control family or domain-level mapping.
 - Applicability assessment structure.
@@ -57,7 +57,7 @@ These prohibitions apply regardless of any external material's licence terms. Th
 
 | Pattern | Example |
 | --- | --- |
-| Framework identifier | Map a document to CSA CCM, ISO 27001, NIST CSF, or NIST AI RMF at a domain level. |
+| Framework identifier | Map a document to CSA CCM, ISO/IEC 27001:2022, NIST CSF, or NIST AI RMF at a domain level. |
 | Control family | Reference identity, logging, data security, supplier governance, incident management, or resilience as control families. |
 | Original requirement | Write a new control requirement using original wording and role-neutral language. |
 | Applicability note | State that a document may be relevant where cloud services, AI systems, personal data, regulated operations, or critical services exist. |

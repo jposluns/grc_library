@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.2\
-**Date:** 2026-09-24\
+**Version:** 1.1.3\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -30,7 +30,7 @@ The intent is to reduce the burden of audit preparation. A well-packaged evidenc
 
 This template applies to:
 
-- An external financial-audit, SOC 2 Type II, ISO/IEC 27001, PCI DSS, or framework-specific audit.
+- An external financial-audit, SOC 2 Type II, ISO/IEC 27001:2022, PCI DSS, or framework-specific audit.
 - A regulator examination requiring evidence of control implementation (see also [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md) for the regulator-interaction shape).
 - An internal audit, where the package becomes the auditor's working artefact.
 - A customer due-diligence inquiry that requires evidence at the control level.

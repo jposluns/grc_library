@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.5\
-**Date:** 2026-09-03\
+**Version:** 1.0.6\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -127,7 +127,7 @@ Signed: <named senior officer per the framework's signatory requirements; e.g. D
 
 ### When to use
 
-When the framework requires the organization to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO/IEC 27001 statement-of-applicability submission, DORA control attestation).
+When the framework requires the organization to attest to its compliance or its control posture (e.g., SOX Section 302/404 management attestations, PCI DSS Attestation of Compliance, FedRAMP annual attestation, ISO/IEC 27001:2022 statement-of-applicability submission, DORA control attestation).
 
 ### Timing
 

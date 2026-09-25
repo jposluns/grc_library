@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.20\
-**Date:** 2026-09-14\
+**Version:** 1.0.21\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -105,7 +105,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 9. Supplier and trade compliance
 
-9.1 Suppliers must maintain certifications including ISO/IEC 27001, ISO/IEC 27018, SOC 2, and BASC (for trade and logistics partners).
+9.1 Suppliers must maintain certifications including ISO/IEC 27001:2022, ISO/IEC 27018, SOC 2, and BASC (for trade and logistics partners).
 
 9.2 Trade suppliers must meet WCO SAFE Authorized Economic Operator (AEO) requirements and undergo annual audits.
 

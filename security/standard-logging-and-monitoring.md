@@ -2,7 +2,7 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.26\
+**Version:** 1.4.27\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -134,7 +134,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 
 ## 5. Framework alignment
 
-| Control Area | ISO/IEC 27002 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
+| Control Area | ISO/IEC 27002:2022 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |
 | Log management | §8.15 | SP 800-92 | DSS01.03 | LOG-01 | GDPR Art. 32, PIPEDA |
 | Time synchronization | §8.17 | SP 800-92 | DSS01.03 | LOG-06 | SOX |

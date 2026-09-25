@@ -2,7 +2,7 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.23\
+**Version:** 1.3.24\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This procedure defines the operational processes for ingesting logs, triaging SI
 
 To ensure that security events from all production systems and environments are collected, normalized, correlated, and acted upon in a timely and consistent manner. This procedure operationalizes the control requirements established in the Logging and Monitoring Standard, providing the Security Operations Centre (SOC) with a clear and repeatable workflow from log ingestion through alert closure or escalation to the Incident Response Procedure.
 
-Effective security monitoring reduces mean time to detect (MTTD) threats, ensures that required alert categories are always active, and provides auditable evidence of continuous monitoring for compliance with ISO/IEC 27002, NIST CSF Detect, and CSA CCM LOG/SEF domains.
+Effective security monitoring reduces mean time to detect (MTTD) threats, ensures that required alert categories are always active, and provides auditable evidence of continuous monitoring for compliance with ISO/IEC 27002:2022, NIST CSF Detect, and CSA CCM LOG/SEF domains.
 
 ### 1.2 Scope
 

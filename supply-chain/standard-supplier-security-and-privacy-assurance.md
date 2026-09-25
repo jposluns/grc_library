@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security and Privacy Assurance Standard\
 **Document Type:** Standard\
-**Version:** 1.1.13\
-**Date:** 2026-09-01\
+**Version:** 1.1.14\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/template-supplier-security-questionnaire.md`](template-supplier-security-questionnaire.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -40,7 +40,7 @@ The tier classification in [`risk/standard-third-party-and-supply-chain-risk.md`
 
 | Requirement | Standard | Evidence Required |
 |---|---|---|
-| Information security management system (ISMS) | ISO/IEC 27001:2022 or equivalent: certification or documented equivalent | Current ISO/IEC 27001 certificate; or detailed control inventory with independent attestation |
+| Information security management system (ISMS) | ISO/IEC 27001:2022 or equivalent: certification or documented equivalent | Current ISO/IEC 27001:2022 certificate; or detailed control inventory with independent attestation |
 | Access control: least privilege, MFA for remote access | Documented access control policy and procedures | Policy documentation; MFA configuration attestation |
 | Vulnerability management: critical patches within 7 days, high within 90 days | Documented patch management procedure | Patch management records; vulnerability scan summary |
 | Incident response capability: 24-hour detection target; documented escalation | Documented IRP with notification timelines | IRP document; evidence of testing |
@@ -110,7 +110,7 @@ The organization accepts supplier security assurance in the following priority o
 
 | Tier | Evidence Type | Applicability |
 |---|---|---|
-| 1 | Independent certification (ISO/IEC 27001; SOC 2 Type II; CSA STAR Level 2) | Highest confidence; accepted for Tier 1 without supplemental review |
+| 1 | Independent certification (ISO/IEC 27001:2022; SOC 2 Type II; CSA STAR Level 2) | Highest confidence; accepted for Tier 1 without supplemental review |
 | 2 | Third-party audit report (ISAE 3000; SOC 2 Type I; penetration test by named CREST/CHECK provider) | Accepted for Tier 1 and Tier 2; review findings for exceptions |
 | 3 | Regulatory approval or certification (PCI DSS; FedRAMP; NHS DSPT) | Accepted within scope of certification |
 | 4 | Completed security questionnaire with supporting evidence | Accepted for Tier 2 and Tier 3; Tier 1 requires supplemental evidence |
@@ -169,7 +169,7 @@ The following metrics must be tracked and reported to the CISO at least quarterl
 | Metric | Target |
 | --- | --- |
 | Tier 1 suppliers with current security and privacy questionnaire on file | 100% |
-| Tier 1 suppliers with valid independent certification (ISO/IEC 27001, SOC 2 Type II, or equivalent) | At least 90% |
+| Tier 1 suppliers with valid independent certification (ISO/IEC 27001:2022, SOC 2 Type II, or equivalent) | At least 90% |
 | Supplier breach notifications received within the contractual notification window | 100% |
 | Supplier offboarding completed with a destruction or return certificate | 100% |
 | Critical-tier supplier risk exceptions open longer than 90 days | Zero |

@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.31\
-**Date:** 2026-09-13\
+**Version:** 1.3.32\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -29,7 +29,7 @@ To ensure that information security is systematically managed, risks are mitigat
 1. Applies to all business units, employees, contractors, and third parties who access, process, or store organizational data.
 2. Covers all information assets including data, systems, networks, hardware, software, cloud environments, AI models, and mobile devices.
 3. Applies to all methods of access whether on-premises, remote, or hybrid, including cross-border data exchange.
-4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001 Annex A and related frameworks.
+4. Includes all security controls necessary to maintain compliance with ISO/IEC 27001:2022 Annex A and related frameworks.
 
 Sector-specific overlays (for example, BASC-certified trade and logistics operations) apply where the organization participates in a programme covered by a sector annex; see [`compliance/`](../compliance/).
 
@@ -44,7 +44,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 
 **Information Security Management System (ISMS)**
 - The ISMS must operate in accordance with ISO/IEC 27001:2022 Clauses 4 to 10 and Annex A.
-- Control ownership must be assigned for each ISO/IEC 27002 control family and CSA CCM domain.
+- Control ownership must be assigned for each ISO/IEC 27002:2022 control family and CSA CCM domain.
 
 **Roles and Responsibilities**
 
@@ -56,7 +56,7 @@ Sector-specific overlays (for example, BASC-certified trade and logistics operat
 | System and Application Owners | Maintain asset inventories, apply security baselines, and validate access rights. |
 | Network and Cloud Engineers | Configure, monitor, and protect network and cloud infrastructure per NIST CSF 2.0 Protect and Detect functions. |
 | Employees and Contractors | Adhere to acceptable use and data protection requirements; promptly report incidents or policy violations. |
-| Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001. |
+| Internal Audit | Evaluates ISMS effectiveness and verifies compliance with ISO/IEC 27001:2022. |
 
 Where the organization participates in a sector-specific security programme (for example, BASC for trade and logistics operations), the corresponding sector annex defines additional oversight roles and reporting cadences. See [`compliance/`](../compliance/).
 
@@ -124,7 +124,7 @@ Where the organization participates in a sector-specific security programme (for
 ### 4.10 Monitoring and continuous improvement
 
 4.10.1 The ISMS must be continuously monitored through defined metrics (mean time to detect, vulnerability closure rate, compliance posture).
-4.10.2 The ISMS must be audited annually for ISO/IEC 27001 compliance.
+4.10.2 The ISMS must be audited annually for ISO/IEC 27001:2022 compliance.
 4.10.3 Corrective actions must be documented, tracked, and verified by Internal Audit.
 
 ---

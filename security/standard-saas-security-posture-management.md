@@ -2,8 +2,8 @@
 
 **Document Title:** SaaS Security Posture Management Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-09-23\
+**Version:** 1.0.9\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](../supply-chain/procedure-supplier-ongoing-monitoring.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -193,7 +193,7 @@ Where employees, contractors, or partners use third-party applications to access
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO/IEC 27001:2022 | A.5.19 to A.5.22 (supplier relationships), A.5.23 (cloud services) | Supplier and cloud security |
-| ISO/IEC 27017:2026 | Information security controls for cloud services (extends ISO/IEC 27002) | Cloud-service control baseline |
+| ISO/IEC 27017:2026 | Information security controls for cloud services (extends ISO/IEC 27002:2022) | Cloud-service control baseline |
 | CSA Cloud Controls Matrix v4.1 | Multiple domains | Cloud control baseline |
 | CSA Security Trust Assurance and Risk (STAR) | CSA | SaaS provider assurance |
 | NIST CSF 2.0 | PR.PS-01, DE.CM-06 | Posture and monitoring |
