@@ -10357,20 +10357,61 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     def test_bad_explicit_arguments_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aidargs-"))
         self.addCleanup(shutil.rmtree, td)
+        # Each case names the refusal text only the fixed tool prints, so a case still
+        # discriminates where the base tool also exits 2 for another reason (e.g. CI has
+        # no grc_library_ref sibling, so base ref-holds exits 2 with "could not locate").
         cases = (
-            ("tools/audit-cross-repo-references.py", "--root="),
-            ("tools/audit-cross-repo-references.py", "--root", str(td / "missing")),
-            ("tools/audit-gate-blindspots.py", "--root="),
-            ("tools/ref-holds.py", "--ref-root=", "27002"),
-            ("tools/audit-worklist-register-drift.py", "--register", str(td / "missing.md")),
-            ("tools/audit-worklist-register-drift.py", "--worklist", str(td)),
-            ("tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
-            ("tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
+            ("an empty value is refused", "tools/audit-cross-repo-references.py", "--root="),
+            ("not a directory", "tools/audit-cross-repo-references.py", "--root", str(td / "missing")),
+            ("not a directory", "tools/audit-gate-blindspots.py", "--root="),
+            ("an empty value is refused", "tools/ref-holds.py", "--ref-root=", "27002"),
+            ("not a regular file", "tools/audit-worklist-register-drift.py", "--register", str(td / "missing.md")),
+            ("not a regular file", "tools/audit-worklist-register-drift.py", "--worklist", str(td)),
+            ("not a regular file", "tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
+            ("not a regular file", "tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
+            ("an empty value is refused", "tools/audit-reference-acquisition-gaps.py", "--ref-base="),
+        )
+        for expect, script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertIn(expect, r.stderr, (script, args))
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_unreadable_explicit_inputs_refused(self) -> None:
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root reads mode-000 files; unreadable inputs cannot be simulated")
+        td = Path(tempfile.mkdtemp(prefix="aidunread-"))
+        locked = td / "locked.md"
+        locked.write_text("x\n", encoding="utf-8")
+        locked_dir = td / "lockeddir"
+        locked_dir.mkdir()
+        ref = td / "ref"
+        ref.mkdir()
+        (ref / "INDEX.md").write_text("27002\n", encoding="utf-8")
+        for f in (locked, ref / "INDEX.md"):
+            f.chmod(0)
+        locked_dir.chmod(0)
+
+        def _cleanup() -> None:
+            for f in (locked, ref / "INDEX.md"):
+                f.chmod(0o600)
+            locked_dir.chmod(0o700)
+            shutil.rmtree(td)
+        self.addCleanup(_cleanup)
+        cases = (
+            ("tools/audit-worklist-register-drift.py", "--register", str(locked)),
+            ("tools/audit-worklist-register-drift.py", "--worklist", str(locked)),
+            ("tools/sync-citation-worklist-baseline.py", "--worklist", str(locked)),
+            ("tools/audit-reference-acquisition-gaps.py", "--aliases", str(locked)),
+            ("tools/audit-cross-repo-references.py", "--root", str(locked_dir)),
+            ("tools/ref-holds.py", "--ref-root", str(ref), "27002"),
         )
         for script, *args in cases:
             r = run_linter(script, *args)
             self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertIn("unreadable", r.stderr, (script, args))
             self.assertNotIn("Traceback", r.stderr)
+
 
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)

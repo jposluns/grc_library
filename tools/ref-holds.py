@@ -60,6 +60,10 @@ def find_ref_root(explicit: str | None) -> Path | None:
     return None
 
 
+class IndexUnreadable(RuntimeError):
+    """A grc_library_ref index file exists but cannot be read."""
+
+
 def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
     """Return (index_file, line_no, line) for every line matching the query (case-insensitive)."""
     q = query.lower()
@@ -70,8 +74,9 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
             continue
         try:
             text = f.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
+        except OSError as exc:
+            # A present but unreadable index is not evidence of absence (3b50b2e1).
+            raise IndexUnreadable(f"{name}: {exc.strerror}") from exc
         for i, line in enumerate(text.splitlines(), 1):
             if q in line.lower():
                 hits.append((name, i, line.strip()))
@@ -79,7 +84,12 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
 
 
 def run(ref_root: Path, query: str, stream=sys.stdout) -> int:
-    hits = search_index(ref_root, query)
+    try:
+        hits = search_index(ref_root, query)
+    except IndexUnreadable as exc:
+        print(f"ERROR: grc_library_ref index unreadable ({exc}); refusing a not-found verdict.",
+              file=sys.stderr)
+        return 2
     if not hits:
         print(
             f"NOT-FOUND-IN-INDEX: no entry matching {query!r} in the grc_library_ref index "

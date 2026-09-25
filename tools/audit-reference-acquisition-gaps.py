@@ -160,7 +160,7 @@ def parse_catalogue_titles(ref_base: Path) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--ref-base", type=Path, default=DEFAULT_REF_BASE)
+    ap.add_argument("--ref-base", default=None)
     ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
     ap.add_argument("--section", default=None,
                     help="Restrict to one register family (## header text).")
@@ -172,6 +172,22 @@ def main(argv: list[str] | None = None) -> int:
         # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
         print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
         return 2
+    if args.aliases != DEFAULT_ALIASES:
+        try:
+            with open(args.aliases, "rb"):
+                pass
+        except OSError as exc:
+            print(f"ERROR: --aliases {args.aliases}: unreadable ({exc.strerror}).", file=sys.stderr)
+            return 2
+    if args.ref_base is None:
+        args.ref_base = DEFAULT_REF_BASE
+    elif not args.ref_base.strip():
+        # 3b50b2e1: --ref-base= used to resolve to the current directory.
+        print("ERROR: --ref-base needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
+    else:
+        args.ref_base = Path(args.ref_base)
 
     # Adopter graceful-degradation (3.91 (closing PR #1011)): default ref-base (no --ref-base
     # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter

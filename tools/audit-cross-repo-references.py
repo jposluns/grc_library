@@ -58,6 +58,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sys
 from collections import Counter
@@ -462,9 +463,16 @@ def main(argv: list[str]) -> int:
     if args.self_test:
         return self_test()
 
-    # 3b50b2e1: a missing, empty or non-directory --root used to audit nothing and report clean.
+    # 3b50b2e1: a missing, empty, non-directory or unreadable --root used to audit nothing and report clean.
     root = require_dir(args.root, "--root")
-    findings, counts = audit_tree(root)
+    try:
+        os.listdir(root)
+        findings, counts = audit_tree(root)
+    except OSError as exc:
+        # An unreadable root used to report clean (nothing walked); unreadable content crashed.
+        print(f"ERROR: --root {args.root}: unreadable ({exc}); nothing would be audited reliably.",
+              file=sys.stderr)
+        return 2
     # Post-migration the `.working/` tree lives in the private sibling (outside
     # this root); audit it too so the `.working/` coverage this tool exists to
     # provide survives the move. While `.working/` is still in-repo it is already
