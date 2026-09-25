@@ -102,7 +102,7 @@ _ASVS_WORD = re.compile(
 # dotless or non-zero-middle number is a chapter or an identifier, and a number followed by levels
 # or chapters is a count. Only a major from 1 to 9 is read, so a year never is.
 _ASVS_AFTER = re.compile(
-    r"(?:\]\([^)\s]*\)|[^\w\n]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
+    r"(?:\]\([^)\s]*\)|[^\w\n\u00a7]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
     r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?![*_\s]*(?:levels?|chapters?)\b)",
     re.IGNORECASE)
 _ASVS_BEFORE = re.compile(
@@ -122,14 +122,14 @@ _ASVS_NOT_ID_BEFORE = re.compile(
     # an optional short name (capitalized words, never ASVS itself, case-sensitive), a document
     # number joined by spaces or a hyphen, an amendment or corrigendum, a bracketed year, and a
     # closing parenthesis ("NIST Special Publication 800-53", "ISO-27001", "(ISO 27001)").
-    r"(?-i:(?:\s+(?!ASVS\b)[A-Z][A-Za-z]{0,11}){0,3})"
+    r"(?-i:(?:\s+(?:(?:for|of|and|the|on|in)\s+)?(?!ASVS\b)[A-Z][A-Za-z]{0,11}){0,4})"
     r"(?:\s+(?:standard|framework|model|profile|guide|guidance|specification|benchmark)s?)?"
     r"(?:[\s-]*[vV]?\d[\w.:/-]*)?(?:\s*(?:Cor|Amd)\s*\d[\w.:/-]*)*(?:\s*\(?\d{4}\)?)?\)?"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
 # --- MITRE CWE: CWE-n anywhere, case-insensitive (the shape collides with nothing else). ---
-_CWE_TOKEN = re.compile(r"(?<![\w-])CWE-(\d+)(?![\w]|-\d|\.\d)", re.IGNORECASE)
+_CWE_TOKEN = re.compile(r"(?:(?<![\w-])|(?<=\d-))CWE-(\d+)(?![\w]|-\d|\.\d)", re.IGNORECASE)
 _BLOCK_START = re.compile(r"\s{0,3}(?:#{1,6}(?:\s|$)|>|[-*+]\s|\d{1,9}[.)]\s)")
 _PIPE = re.compile(r"(?<!\\)\|")  # an unescaped table pipe
 
@@ -189,7 +189,7 @@ def _names_other_edition(text: str) -> bool:
 def _plain(text: str) -> str:
     """`text` with markdown link syntax reduced to its label and emphasis/code marks removed, so a
     listed standard written as a link, in code or with emphasis still reads as that standard."""
-    text = re.sub(r"\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])", r"\1", text)
+    text = re.sub(r"\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])?", r"\1", text)
     return re.sub(r"[*_`]", "", text)
 
 
@@ -224,7 +224,7 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
                 continue  # its row is about a non-held edition, and its column does not override
             if col in col_skip and not _ASVS_WORD.search(cell):
                 continue  # a version, tool or other-standard column, unless the cell itself names ASVS
-            if header_row and not _ASVS_WORD.search(cell):
+            if header_row and (not _ASVS_WORD.search(cell) or _VERSION_HEADER.search(cell)):
                 continue  # a header cell is context only when it names ASVS itself
             if not (line_ctx or row_ctx or col in col_ctx or whole_table):
                 continue

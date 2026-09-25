@@ -21727,6 +21727,18 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             r = self._run("asvs-r7fp.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
 
+    # --- round-8 QA regressions (P-1.63 part d) ---
+    def test_round8_section_sign_and_hyphen_range_are_checked(self) -> None:
+        self.assertLinterFails(self._run("asvs-r8sec.md", "ASVS 5.0.0: see ASVS \u00a73.2 requirement V3.2.99.\n"), "V3.2.99")
+        self.assertLinterFails(self._run("cwe-r8range.md", "Weakness range: CWE-79-CWE-99999.\n"), "CWE-99999")
+
+    def test_round8_shortcut_links_tool_headers_and_titles_are_excluded(self) -> None:
+        for body in ("ASVS mappings use [CWE] V8.9.\n\n[CWE]: https://cwe.mitre.org/\n",
+                     "| ASVS tools (ZAP V8.9) | Result |\n| --- | --- |\n| Enabled | Pass |\n",
+                     "| ASVS |\n| --- |\n| IEEE Standard for Information Technology V8.9.9 |\n"):
+            r = self._run("asvs-r8fp.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
         for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V8.9 list item\n",
