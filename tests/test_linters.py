@@ -7096,6 +7096,16 @@ class MetadataLineBreaksTests(LinterTestCase):
         )
         result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
         self.assertLinterFails(result, "missing-hard-break")
+        # QA round 1 (claude): a slash, parenthesis or underscore is part of the name too.
+        for key in ("Owner/Approver", "Approver (delegate)", "Doc_ID"):
+            with self.subTest(key=key):
+                fixture = self.make_fixture(
+                    "fake-punct-field.md",
+                    "# Fake Document\n\n**Document Title:** Test\n**%s:** x\\\n"
+                    "**Version:** 1.0.0\n\nBody.\n" % key,
+                )
+                result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+                self.assertLinterFails(result, "missing-hard-break")
 
     def test_fence_between_metadata_lines_ends_the_run(self) -> None:
         # P-1.89(c): a metadata line, a fenced block, then a metadata line are two runs of one
@@ -20889,7 +20899,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.5.0", "3.57 PR1 bumps the pack version to 0.5.0 (compile PR-5 set 0.4.0)")
+        self.assertEqual(man["pack"]["version"], "0.5.1", "P-1.89 bumps the pack version to 0.5.1 (3.57 PR1 set 0.5.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

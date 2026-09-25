@@ -35,9 +35,10 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
         f"(aiqt_corpus); the pack tools/ dir must be on sys.path. Underlying error: {exc}"
     )
 
-# A field name may carry hyphens (an SPDX-License-Identifier-style key); excluding them split a
-# run at such a line and hid a missing hard break before it (P-1.89(b)).
-META_LINE = re.compile(r"^\*\*[A-Za-z][A-Za-z0-9 -]*:\*\*")
+# A field name starts with a letter and runs, without an asterisk, to the closing colon, so a
+# hyphen, slash, parenthesis or underscore in it (an SPDX-License-Identifier-style key, an
+# "Owner/Approver" key) cannot split a run and hide a missing hard break before it (P-1.89(b)).
+META_LINE = re.compile(r"^\*\*[A-Za-z][^*]*?:\*\*")
 
 
 def has_hard_break(line: str) -> bool:

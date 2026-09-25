@@ -71,10 +71,11 @@ def build_reverse_graph(all_md: list[Path], repo_root: Path) -> dict[Path, set[P
         text = read_text_safe(f)
         if text is None:
             continue
+        self_path = f.resolve()
         for _lineno, line in iter_non_code_lines(text):
             for m in LINK_RE.finditer(line):
                 target = normalise_link(f, m.group(1), repo_root)
-                if target is None or target.resolve() == f.resolve():
+                if target is None or target.resolve() == self_path:
                     continue
                 rev[target].add(f)
     return rev
