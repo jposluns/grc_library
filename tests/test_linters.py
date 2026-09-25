@@ -198,23 +198,28 @@ def _identifier_probe_engine():
 
 
 def identifier_probe_unflaggable(family, token, template):
-    """Why the linter could never report ``token`` as rendered in ``template``, or None.
+    """Why a declared probe cannot witness a scope rule, or None.
 
-    Absence from the catalogue is not enough (3b64 QA): the rendered placeholder must be a WHOLE
-    token of its family's engine pattern at exactly the probe's position (so a glued prefix or a
-    trailing digit cannot change it, and a PF probe is not a range endpoint the engine
-    canonicalizes), and the engine must flag the token in a neutral line of its family (so a
-    zero-middle ASVS token, which the engine reads as a version, is refused).
+    Absence from the catalogue is not enough (3b64 QA). None means three things, and no more:
+    the placeholder sits on a line the engine reads and renders as a WHOLE token of the family's
+    engine pattern at exactly that position (a glued prefix or trailing digit cannot change it,
+    and it is not part of a PF range); the engine flags the token on a neutral line of its family
+    (a zero-middle ASVS token, which the engine reads as a version, is refused); and an ASVS
+    template mentions the standard's name in some form, so a scope rule acting on that mention is
+    what the probe exercises, rather than the probe being trivially out of context. It does NOT prove that the template's scope rule is what suppresses the finding; the
+    run-time positive control in LinterTestCase.assertIdentifierScopeProbes proves the run path
+    reports the token. CWE and PF have no context gate in this engine, so their probes are only
+    useful where the template suppresses the token by a rule the guard accepts.
     """
     eng = _identifier_probe_engine()
     # Locate the placeholder with the ENGINE's line model (3b64 round 2): the file is read in
-    # universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced lines are dropped, so the probe
-    # must sit on a line the engine actually yields, at the same column.
-    marker = "\x00"
-    marked = template.replace("{probe}", marker)
-    rendered = marked.replace(marker, token)
-    lineno, column = next((n, ln.index(marker)) for n, ln in
-                          enumerate(marked.splitlines(), start=1) if marker in ln)
+    # universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced
+    # lines are dropped, so the probe must sit on a line the engine actually yields, at the same
+    # column. The position comes from the placeholder itself (round 3: a sentinel character could
+    # collide with the template), and the text checked is exactly the text the run writes.
+    rendered = template.replace("{probe}", token)
+    lineno, column = next((n, ln.index("{probe}")) for n, ln in
+                          enumerate(template.splitlines(), start=1) if "{probe}" in ln)
     engine_lines = dict(eng.iter_non_code_lines(rendered))
     if lineno not in engine_lines:
         return "sits on a line the engine never reads (a fenced block)"
@@ -235,6 +240,11 @@ def identifier_probe_unflaggable(family, token, template):
         findings.append(token)
     if not findings:
         return "is not flagged by the engine even in a neutral context"
+    # The standard's name in ANY form (a Mobile-prefixed name included: excluding that name is
+    # itself a scope rule), since every ASVS scope rule acts on a mention of the name.
+    if family == "asvs" and not re.search(
+            r"\bASVS\b|Application Security Verification Standard", rendered, re.IGNORECASE):
+        return "is in a template that never names ASVS, so no scope rule is exercised"
     return None
 
 
@@ -281,21 +291,31 @@ def identifier_scope_probe_issues(cases):
 
 
 def _runs_scope_probes(func):
-    """True when ``func``'s body has a top-level ``self.assertIdentifierScopeProbes(...)`` call
-    statement (parsed, so a comment, a string, or a call under a branch does not count). Residue:
-    a call routed through another helper is not recognized, so it must be made directly."""
+    """True when ``func`` is undecorated and its body reaches a top-level
+    ``self.assertIdentifierScopeProbes(...)`` call statement, directly or directly inside a
+    ``with`` block, before any top-level return, raise or try (parsed, so a comment, a string, a
+    call under a branch, a call after a return, or a skip decorator does not count). Residue: a
+    call routed through another helper is not recognized, so it must be made directly."""
     import ast
     import inspect
     import textwrap
     tree = ast.parse(textwrap.dedent(inspect.getsource(func)))
-    body = tree.body[0].body if tree.body and isinstance(tree.body[0], ast.FunctionDef) else []
-    return any(
-        isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
-        and isinstance(stmt.value.func, ast.Attribute)
-        and stmt.value.func.attr == "assertIdentifierScopeProbes"
-        and isinstance(stmt.value.func.value, ast.Name) and stmt.value.func.value.id == "self"
-        for stmt in body
-    )
+    if not tree.body or not isinstance(tree.body[0], ast.FunctionDef) or tree.body[0].decorator_list:
+        return False
+
+    def is_call(stmt):
+        return (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+                and isinstance(stmt.value.func, ast.Attribute)
+                and stmt.value.func.attr == "assertIdentifierScopeProbes"
+                and isinstance(stmt.value.func.value, ast.Name)
+                and stmt.value.func.value.id == "self")
+
+    for stmt in tree.body[0].body:
+        if isinstance(stmt, (ast.Return, ast.Raise, ast.Try)):
+            return False
+        if is_call(stmt) or (isinstance(stmt, ast.With) and any(is_call(s) for s in stmt.body)):
+            return True
+    return False
 
 
 def scope_probe_registry_issues(classes):
@@ -23074,6 +23094,34 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                     [f"TEST-PROBE-UNFLAGGABLE: runTest[0]: {family} {token!r} {why}"],
                 )
 
+    def test_a_nul_in_the_template_does_not_move_the_probe(self) -> None:
+        # 3b64 round 3 (claude, codex): the text checked is the text the run writes.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "\x00\n```\nASVS {probe}\n```\n")),
+            ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' sits on a line the engine "
+             "never reads (a fenced block)"],
+        )
+
+    def test_an_asvs_probe_needs_asvs_context(self) -> None:
+        # 3b64 round 3 (claude, gemini): a template that never names ASVS passes whatever the
+        # scope rule does, so it witnesses nothing.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "Nothing names the standard {probe}.\n")),
+            ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' is in a template that never "
+             "names ASVS, so no scope rule is exercised"],
+        )
+
+    def test_helper_refuses_a_control_that_does_not_name_the_token(self) -> None:
+        # 3b64 round 3 (codex): a non-zero exit about something else is not a report of the token.
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "other finding\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+        run.assert_called_once_with("ASVS requirement V9.9.9.\n")
+
     def test_probe_location_follows_the_engine_line_model(self) -> None:
         # 3b64 round 2 (claude, codex): a fenced probe is never read; a bare CR is a line break.
         self.assertEqual(
@@ -23117,9 +23165,35 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
                 if False:
                     self.assertIdentifierScopeProbes(lambda body: None)
 
+            def test_after_return(self) -> None:
+                return
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            @unittest.skip("x")
+            def test_skipped(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_swallowed(self) -> None:
+                try:
+                    self.assertIdentifierScopeProbes(lambda body: None)
+                except AssertionError:
+                    pass
+
+            def test_with(self) -> None:
+                with self.subTest("wrapped"):
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+        _Mentions.IDENTIFIER_SCOPE_PROBES = {
+            name: (("asvs", "V9.9.9", "ASVS {probe}."),)
+            for name in ("test_comment", "test_branch", "test_after_return", "test_skipped",
+                         "test_swallowed", "test_with")
+        }
         self.assertEqual(scope_probe_registry_issues({"_Mentions": _Mentions}), [
             "TEST-PROBE-UNUSED: _Mentions.test_comment never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_branch never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_return never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_skipped never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_swallowed never runs its probes",
         ])
 
     def test_declared_probes_must_be_run(self) -> None:
@@ -23188,7 +23262,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
     def test_helper_still_rejects_a_linter_finding(self) -> None:
         from unittest.mock import Mock
         case = LinterTestCase()
-        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9")
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
         run = Mock(return_value=subprocess.CompletedProcess([], 1, "V9.9.9 finding\n", ""))
         with self.assertRaises(AssertionError) as caught:
             case.assertIdentifierScopeProbes(run)
