@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.36\
+**Version:** 1.0.37\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -294,7 +294,7 @@ If your AI system or service reaches the Korean market or Korean users:
 
 If you develop or deploy AI in Canada:
 
-20. [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md): Canada's AI governance patchwork (no in-force comprehensive AI statute; the proposed Artificial Intelligence and Data Act lapsed).
+20. [`ai/jurisdictions/annex-ai-canada.md`](../ai/jurisdictions/annex-ai-canada.md): Canada's AI governance patchwork: no in-force comprehensive AI statute (the proposed Artificial Intelligence and Data Act lapsed), but the Treasury Board Directive on Automated Decision-Making binds federal institutions, Ontario's EDSTA AI provisions apply to the Ontario public sector (in force since 29 January 2025), and OSFI Guideline E-23 applies to federally regulated financial institutions (effective 1 May 2027).
 
 If you develop or deploy AI in Australia:
 
