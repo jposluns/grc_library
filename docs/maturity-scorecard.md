@@ -179,7 +179,7 @@ _163 documents._
 | [ai/framework-ai-system-audit-certification.md](../ai/framework-ai-system-audit-certification.md) | AI System Audit and Certification Framework | Framework | 1.0.16 | 2026-09-22 |
 | [ai/guideline-adversarial-evaluation-suite-development.md](../ai/guideline-adversarial-evaluation-suite-development.md) | Adversarial Evaluation Suite Development Guideline | Guideline | 1.0.4 | 2026-09-23 |
 | [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.6 | 2026-08-31 |
-| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.6 | 2026-09-05 |
+| [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.7 | 2026-09-25 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.3 | 2026-08-31 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.12 | 2026-09-13 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.34 | 2026-09-25 |
@@ -381,7 +381,7 @@ _76 documents._
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.1 | 2026-07-09 |
 | [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.3 | 2026-08-28 |
-| [compliance/public-sector/annex-canada-public-sector-requirements.md](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Canada Public Sector GRC Requirements Annex | Annex | 0.0.1 | 2026-08-23 |
+| [compliance/public-sector/annex-canada-public-sector-requirements.md](../compliance/public-sector/annex-canada-public-sector-requirements.md) | Canada Public Sector GRC Requirements Annex | Annex | 0.0.2 | 2026-09-25 |
 | [compliance/public-sector/annex-eidas-requirements.md](../compliance/public-sector/annex-eidas-requirements.md) | eIDAS Sector Requirements Annex | Annex | 0.0.3 | 2026-09-24 |
 | [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.17 | 2026-09-24 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
