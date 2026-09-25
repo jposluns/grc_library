@@ -2,7 +2,7 @@
 
 **Document Title:** Authentication and Password Management Standard\
 **Document Type:** Standard\
-**Version:** 1.1.19\
+**Version:** 1.1.20\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -82,7 +82,7 @@ Cloud and productivity sessions must be governed by Conditional Access sign-in-f
 
 Service accounts must use managed identities, workload identities, or certificate-based authentication wherever technically feasible.
 
-Password-based service account authentication is only permitted where no alternative exists, and must be documented as an exception with a compensating control and a remediation target date. Service account passwords must meet privileged account length requirements and be stored in the secrets management service. Because a service account password is a long-lived shared secret rather than a human memorized secret, it is rotated at least annually and upon a change of any person who knows it, and immediately upon suspected compromise, consistent with the Service Account Controls in the [Privileged Access Management Standard](standard-privileged-access-management.md).
+Password-based service account authentication is only permitted where no alternative exists, and must be documented as an exception with a compensating control and a remediation target date. Service account passwords must meet privileged account length requirements and be stored in the secrets management service. Because a service account password is a long-lived shared secret rather than a human memorized secret, it must be rotated at least annually, upon a change of any person who knows it (staff, contractor, or supplier personnel), and immediately upon suspected compromise, consistent with the Service Account Controls in the [Privileged Access Management Standard](standard-privileged-access-management.md).
 
 ---
 
