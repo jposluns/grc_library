@@ -457,7 +457,7 @@
    "sections": 80,
    "chapters": 17
   },
-  "sha256": "b7883a291670da9fd71d471bcb71237d6d715b4582624c800a601ad7363c788d"
+  "sha512": "433709828301fe46e14b894d9b069166ca76eab1eec81e959d004780547da2fb0c8f6993656b7bf147f0b8f19167c1fed7f8516b1f43d62f6693fdf1f8f5acf8"
  },
  "asvs4": {
   "name": "OWASP ASVS",
@@ -843,7 +843,7 @@
    "sections": 69,
    "chapters": 14
   },
-  "sha256": "e71481aba54eed29d565a065ee4e39132bd71c08fcc3dbebe40070eb87383b32"
+  "sha512": "6ffa3db7b571a4732cb62d2eebda81a88ad56ed57ca9c5d094fc7dc2e311370cb3ab50fe56f23719359051c38f5624ee661b4e9f2d479726105b231966c8d531"
  },
  "cwe": {
   "name": "MITRE CWE",
@@ -1824,6 +1824,6 @@
   "counts": {
    "ids": 969
   },
-  "sha256": "221781303fd507813d9bea92e14233263134b5e2828598f71e0ca0bc669aee69"
+  "sha512": "af66e9d00d9cc7e388c60154520bd48c3ed5319bea6021128e9aebeb1a2a2a2e5e9ded04459f432417080208d00bdacbe5b4e659266499c0aeeef0b32f87b041"
  }
 }

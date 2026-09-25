@@ -10,7 +10,7 @@ The catalogue is extracted from the held sources in the grc_library_ref sibling:
   editions (a legacy 4.0.3 identifier is not a fabrication);
 - MITRE CWE 4.20 weaknesses CSV (column cwe_id; every status kept, deprecated included).
 CI has no grc_library_ref, so the gate reads only this committed JSON. The JSON carries each
-family's identifier counts and a SHA-256 digest over its metadata (name, edition, source) and
+family's identifier counts and a SHA-512 digest over its metadata (name, edition, source) and
 sorted identifiers; tools/alignment_citation_reference.py PINS the expected counts and digests
 in code and refuses a JSON that differs, so a JSON-only edit (even one that recomputes the
 stored digest) fails at load. After a deliberate regeneration for a new held edition, update
@@ -53,9 +53,9 @@ def _vkey(v: str) -> tuple[int, ...]:
 
 
 def digest(meta: list[str], ids: list[str]) -> str:
-    """SHA-256 over the family's metadata (name, edition, source) and its identifiers, each on
+    """SHA-512 over the family's metadata (name, edition, source) and its identifiers, each on
     its own line, in the committed (sorted) order."""
-    return hashlib.sha256("\n".join(meta + ids).encode("utf-8")).hexdigest()
+    return hashlib.sha512("\n".join(meta + ids).encode("utf-8")).hexdigest()
 
 
 # Structural minimums: a truncated or header-only source must never yield an empty (and so
@@ -115,7 +115,7 @@ def _asvs_family(edition: str, src: str, lists: tuple[list, list, list]) -> dict
         "sections": sections,
         "chapters": chapters,
         "counts": {"requirements": len(reqs), "sections": len(sections), "chapters": len(chapters)},
-        "sha256": digest(["OWASP ASVS", edition, src], reqs + sections + chapters),
+        "sha512": digest(["OWASP ASVS", edition, src], reqs + sections + chapters),
     }
 
 
@@ -140,7 +140,7 @@ def build(ref: Path) -> dict:
             "scope": "weaknesses (every status, deprecated included); categories and views are not held",
             "ids": cwes,
             "counts": {"ids": len(cwes)},
-            "sha256": digest(["MITRE CWE", "4.20", CWE_SRC], cwes),
+            "sha512": digest(["MITRE CWE", "4.20", CWE_SRC], cwes),
         },
     }
 
@@ -174,7 +174,7 @@ def main(argv: list[str]) -> int:
     data = json.loads(rendered)
     print(f"build-alignment-citation-registry: wrote {OUT.name}. Pins for "
           f"tools/alignment_citation_reference.py: ASVS {data['asvs']['counts']} "
-          f"{data['asvs']['sha256']}; ASVS 4.0.3 {data['asvs4']['counts']} {data['asvs4']['sha256']}; CWE {data['cwe']['counts']} {data['cwe']['sha256']}.")
+          f"{data['asvs']['sha512']}; ASVS 4.0.3 {data['asvs4']['counts']} {data['asvs4']['sha512']}; CWE {data['cwe']['counts']} {data['cwe']['sha512']}.")
     return 0
 
 
