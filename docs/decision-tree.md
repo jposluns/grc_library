@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.33\
+**Version:** 1.0.34\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -267,6 +267,10 @@ If you develop or deploy AI that makes consequential decisions affecting Colorad
 If you are a US federal agency, or you sell AI systems or services (including large language models) to one:
 
 13. [`ai/jurisdictions/annex-ai-us-federal.md`](../ai/jurisdictions/annex-ai-us-federal.md): US federal executive-branch AI policy (OMB M-25-21 agency use of AI, M-25-22 acquisition contract terms, M-26-04 Unbiased AI Principles for procured LLMs) and Executive Order 14365 on state AI laws.
+
+If you develop, deploy, or use AI in the United Kingdom:
+
+14. [`ai/jurisdictions/annex-ai-united-kingdom.md`](../ai/jurisdictions/annex-ai-united-kingdom.md): UK pro-innovation AI regulation framework (CP 815 white paper and CP 1019 government response): five non-statutory cross-sectoral principles that existing sector regulators apply within their remits.
 
 ### 5.2 If you operate cloud workloads
 
