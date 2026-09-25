@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.13\
+**Version:** 0.0.14\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,7 +20,7 @@
 
 This annex is the Canada-specific public-sector carrier for the GRC library. It supplements the jurisdiction-neutral [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md) by organizing Canadian federal, provincial, territorial, municipal or local, contractor, health-information, financial-sector, and private-sector applicability boundaries.
 
-The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. Clause-level content is added cluster by cluster: the federal public-sector privacy baseline in domain cluster 4 is the first to carry quoted clause text; the other clusters remain largely foundations, and until the forthcoming Canadian authority coverage register exists, no jurisdiction is recorded as covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
+The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. Clause-level content is added cluster by cluster: the federal public-sector privacy and access-to-information baselines in domain cluster 4 carry quoted clause text; the other clusters remain largely foundations, and until the forthcoming Canadian authority coverage register exists, no jurisdiction is recorded as covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
 
 This foundation establishes the applicability model and durable section structure. Source-specific duties, dates, thresholds, control mappings, and jurisdictional conclusions are added only from current, held, publisher-canonical sources. Until the forthcoming Canadian authority coverage register (the companion evidence register to this annex) exists, each such source is recorded in the Canonical Citations Register, as the federal privacy baseline's sources are.
 
@@ -205,7 +205,127 @@ Policy Appendix A defines a *material privacy breach* (the threshold for the Pol
 
 > A privacy breach that could reasonably be expected to create a real risk of significant harm to an individual. Significant harm includes bodily harm, humiliation, damage to reputation or relationships, loss of employment, business or professional opportunities, financial loss, identity theft, negative effects on the credit record and damage to or loss of property.
 
-The federal *Access to Information Act* request workflow (clocks, extensions, exemptions and review routes) is not yet carried here; it remains a library gap below.
+### Federal access-to-information baseline
+
+This baseline quotes the current official English texts of the **Access to Information Act** (R.S.C. 1985, c. A-1) and the **Access to Information Regulations** (SOR/83-507), both legislation, and two Treasury Board instruments issued under paragraph 70(1)(c) of the Act, which are not themselves legislation: the **Policy on Access to Information** (in effect since 28 June 2023) and the **Directive on Access to Information Requests** (in effect since 13 July 2022). The quotation convention is the one used in the privacy baseline above: each requirement is quoted verbatim and its provision number is given in the Provision column, and the adopter reads each provision in its full context before relying on it. Where a quotation is only the opening words or an extract of a longer provision, the Provision column says so. This is a baseline of the request workflow and the institution's duties, not a complete transcription of the Act.
+
+**Purpose, scope and right of access.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "The purpose of this Act is to enhance the accountability and transparency of federal institutions in order to promote an open and democratic society and to enable public debate on the conduct of those institutions." | Subsection 2(1) |
+| "government institution means (a) any department or ministry of state of the Government of Canada, or any body or office, listed in Schedule I, and (b) any parent Crown corporation, and any wholly-owned subsidiary of such a corporation, within the meaning of section 83 of the Financial Administration Act; (institution fédérale)" | Section 3, definition of *government institution* |
+| "Subject to this Part, but notwithstanding any other Act of Parliament, every person who is (a) a Canadian citizen, or (b) a permanent resident within the meaning of subsection 2(1) of the Immigration and Refugee Protection Act, has a right to and shall, on request, be given access to any record under the control of a government institution." | Subsection 4(1) |
+| "The Governor in Council may, by order, extend the right to be given access to records under subsection (1) to include persons not referred to in that subsection and may set such conditions as the Governor in Council deems appropriate." | Subsection 4(2) |
+| "The head of a government institution shall, without regard to the identity of a person making a request for access to a record under the control of the institution, make every reasonable effort to assist the person in connection with the request, respond to the request accurately and completely and, subject to the regulations, provide timely access to the record in the format requested." | Subsection 4(2.1) |
+
+| Policy on Access to Information text (quoted) | Provision |
+| --- | --- |
+| "This policy and its supporting instruments apply to government institutions as defined in section 3 of the Access to Information Act, including departments, ministries of state, any parent Crown corporations and any wholly owned subsidiary of these corporations." | Policy 6.1 |
+| "This policy does not apply to the Bank of Canada." | Policy 6.2 |
+
+The order made under subsection 4(2) that extends the right of access to further persons is not carried here; an adopter that needs the full eligibility rule reads that order alongside subsection 4(1).
+
+**Requests, fees, response periods and transfers.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "A request for access to a record under this Part shall be made in writing to the government institution that has control of the record and shall provide sufficient detail to enable an experienced employee of the institution to identify the record with a reasonable effort." | Section 6 |
+| "Subject to this section, a person who makes a request for access to a record under this Part shall pay, at the time the request is made, any application fee of not more than $25, that may be prescribed by regulation." | Subsection 11(1) |
+| "Where access to a record is requested under this Part, the head of the government institution to which the request is made shall, subject to sections 8 and 9, within 30 days after the request is received, (a) give written notice to the person who made the request as to whether or not access to the record or a part thereof will be given; and (b) if access is to be given, give the person who made the request access to the record or part thereof." | Section 7 |
+| "Where a government institution receives a request for access to a record under this Part and the head of the institution considers that another government institution has a greater interest in the record, the head of the institution may, subject to such conditions as may be prescribed by regulation, within fifteen days after the request is received, transfer the request and, if necessary, the record to the other government institution, in which case the head of the institution transferring the request shall give written notice of the transfer to the person who made the request." | Subsection 8(1) |
+| "The head of a government institution may extend the time limit set out in section 7 or subsection 8(1) in respect of a request under this Part for a reasonable period of time, having regard to the circumstances, if (a) the request is for a large number of records or necessitates a search through a large number of records and meeting the original time limit would unreasonably interfere with the operations of the government institution, (b) consultations are necessary to comply with the request that cannot reasonably be completed within the original time limit, or (c) notice of the request is given pursuant to subsection 27(1) by giving notice of the extension and, in the circumstances set out in paragraph (a) or (b), the length of the extension, to the person who made the request within thirty days after the request is received, which notice shall contain a statement that the person has a right to make a complaint to the Information Commissioner about the extension." | Subsection 9(1), complete |
+| "Where the head of a government institution extends a time limit under subsection (1) for more than thirty days, the head of the institution shall give notice of the extension to the Information Commissioner at the same time as notice is given under subsection (1)." | Subsection 9(2) |
+| "Where the head of a government institution refuses to give access to a record requested under this Part or a part thereof, the head of the institution shall state in the notice given under paragraph 7(a) (a) that the record does not exist, or (b) the specific provision of this Part on which the refusal was based or, where the head of the institution does not indicate whether a record exists, the provision on which a refusal could reasonably be expected to be based if the record existed, and shall state in the notice that the person who made the request has a right to make a complaint to the Information Commissioner about the refusal." | Subsection 10(1) |
+| "Where the head of a government institution fails to give access to a record requested under this Part or a part thereof within the time limits set out in this Part, the head of the institution shall, for the purposes of this Part, be deemed to have refused to give access." | Subsection 10(3) |
+
+| Access to Information Regulations text (quoted) | Provision |
+| --- | --- |
+| "A request for access to a record under Part 1 of the Act must be made by forwarding to the appropriate officer of the government institution that has control of the record, together with the required application fee, (a) a completed Access to Information Request Form; or (b) a written request that provides sufficient detail to enable the officer to identify the record." | Subsection 4(1) |
+| "A person who makes a request for access to a record under Part 1 of the Act must pay an application fee of $5 at the time the request is made." | Section 7 |
+
+**Declining to act on a request.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "With the Information Commissioner’s written approval, the head of a government institution may, before giving a person access to a record or refusing to do so, decline to act on the person’s request if, in the opinion of the head of the institution, the request is vexatious, is made in bad faith or is otherwise an abuse of the right to make a request for access to records." | Subsection 6.1(1) |
+| "The head of the institution shall give written notice to the person who made the request for access to a record under this Part of the suspension of the period, and of the reasons for the suspension, at the same time as they communicate with the Information Commissioner to obtain his or her approval to decline to act." | Subsection 6.1(1.3) |
+| "If the head of a government institution declines to act on the person’s request, they shall give the person written notice of their decision to decline to act on the request and their reasons for doing so." | Subsection 6.1(2) |
+
+**Exemptions.** The following navigation descriptions are editorial summaries of the exemption provisions. They identify subject matter only and are not grounds for withholding; the provision's full conditions, exceptions and discretion govern.
+
+| Exemption subject matter (editorial summary) | Provision |
+| --- | --- |
+| Information obtained in confidence from specified governments and organizations; federal-provincial affairs; international affairs and defence; law enforcement, investigations and security | Sections 13 to 16 |
+| Specified investigation, examination and audit records; lobbying and elections investigations; public-sector integrity and disclosure-protection records; the Secretariat of the National Security and Intelligence Committee of Parliamentarians | Sections 16.1 to 16.6 |
+| Safety of individuals; Canadian economic interests and economic interests of specified institutions | Sections 17 to 18.1 |
+| Personal information; third-party information; specified confidential investment information and National Arts Centre information | Sections 19 to 20.4 |
+| Government advice, deliberations and plans; testing and auditing; internal audits; legal and patent/trademark privileges | Sections 21 to 23.1 |
+| Schedule II disclosure prohibitions; severability; material intended for publication | Sections 24 to 26 |
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "Subject to subsection (2), the head of a government institution shall refuse to disclose any record requested under this Part that contains information that was obtained in confidence from (a) the government of a foreign state or an institution thereof; (b) an international organization of states or an institution thereof; (c) the government of a province or an institution thereof; (d) a municipal or regional government established by or pursuant to an Act of the legislature of a province or an institution of such a government; or (e) an aboriginal government." | Subsection 13(1) |
+| "Subject to subsection (2), the head of a government institution shall refuse to disclose any record requested under this Part that contains personal information." | Subsection 19(1) |
+| "The head of a government institution shall refuse to disclose any record requested under this Part that contains information the disclosure of which is restricted by or pursuant to any provision set out in Schedule II." | Subsection 24(1) |
+| "Notwithstanding any other provision of this Part, where a request is made to a government institution for access to a record that the head of the institution is authorized to refuse to disclose under this Part by reason of information or other material contained in the record, the head of the institution shall disclose any part of the record that does not contain, and can reasonably be severed from any part that contains, any such information or material." | Section 25 |
+
+**Exclusions from Part 1.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "This Part does not apply to (a) published material, other than material published under Part 2, or material available for purchase by the public; (b) library or museum material preserved solely for public reference or exhibition purposes; or (c) material placed in the Library and Archives of Canada, the National Gallery of Canada, the Canadian Museum of History, the Canadian Museum of Nature, the National Museum of Science and Technology, the Canadian Museum for Human Rights or the Canadian Museum of Immigration at Pier 21 by or on behalf of persons or organizations other than government institutions." | Section 68 |
+| "This Part does not apply to confidences of the Queen’s Privy Council for Canada, including, without restricting the generality of the foregoing," | Subsection 69(1), opening words only |
+| "If a certificate under section 38.13 or 38.41 of the Canada Evidence Act prohibiting the disclosure of information contained in a record is issued before a complaint is filed under this Part in respect of a request for access to that information, this Part does not apply to that information." | Subsection 69.1(1) |
+
+**Complaints, orders and Federal Court review.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "Subject to this Part, the Information Commissioner shall receive and investigate complaints (a) from persons who have been refused access to a record requested under this Part or a part thereof; (b) from persons who have been required to pay an amount under section 11 that they consider unreasonable; (c) from persons who have requested access to records in respect of which time limits have been extended pursuant to section 9 where they consider the extension unreasonable; (d) from persons who have not been given access to a record or a part thereof in the official language requested by the person under subsection 12(2), or have not been given access in that language within a period of time that they consider appropriate; (d.1) from persons who have not been given access to a record or a part thereof in an alternative format pursuant to a request made under subsection 12(3), or have not been given such access within a period of time that they consider appropriate; (e) in respect of any publication or bulletin referred to in section 5; or (f) in respect of any other matter relating to requesting or obtaining access to records under this Part." | Subsection 30(1) |
+| "A complaint under this Part shall be made to the Information Commissioner in writing unless the Commissioner authorizes otherwise. If the complaint relates to a request by a person for access to a record, it shall be made within sixty days after the day on which the person receives a notice of a refusal under section 7, is given access to all or part of the record or, in any other case, becomes aware that grounds for the complaint exist." | Section 31 |
+| "If, after investigating a complaint described in any of paragraphs 30(1)(a) to (e), the Commissioner finds that the complaint is well-founded, he or she may make any order in respect of a record to which this Part applies that he or she considers appropriate, including requiring the head of the government institution that has control of the record in respect of which the complaint is made (a) to disclose the record or a part of the record; and (b) to reconsider their decision to refuse access to the record or a part of the record." | Subsection 36.1(1) |
+| "The Information Commissioner shall, after investigating a complaint under this Part, provide a report that sets out the results of the investigation and any order or recommendations that he or she makes to (a) the complainant; (b) the head of the government institution; (c) any third party that was entitled under paragraph 35(2)(c) to make and that made representations to the Commissioner in respect of the complaint; and (d) the Privacy Commissioner, if he or she was entitled under paragraph 35(2)(d) to make representations and he or she made representations to the Commissioner in respect of the complaint. However, no report is to be made under this subsection and no order is to be made until the expiry of the time within which the notice referred to in paragraph (1)(c) is to be given to the Information Commissioner." | Subsection 37(2) |
+| "A person who makes a complaint described in any of paragraphs 30(1)(a) to (e) and who receives a report under subsection 37(2) in respect of the complaint may, within 30 business days after the day on which the head of the government institution receives the report, apply to the Court for a review of the matter that is the subject of the complaint." | Subsection 41(1) |
+| "The head of a government institution who receives a report under subsection 37(2) may, within 30 business days after the day on which they receive it, apply to the Court for a review of any matter that is the subject of an order set out in the report." | Subsection 41(2) |
+
+This is the principal review route, not the complete procedure: investigations (sections 32 to 36), when an order takes effect (subsections 36.1(4) and (5)), third-party and Privacy Commissioner review (subsections 41(3) and (4)) and stays (section 41.1) are further provisions an adopter reads before relying on this summary.
+
+**Proactive publication under Part 2.** Part 2 has separate branches for parliamentary entities (sections 71.01 to 71.14), ministers (sections 72 to 80), government institutions (sections 81 to 90) and the named judicial administration offices (sections 90.01 to 90.24). This baseline carries only the government-institution branch's publication list and its limits; the other branches, and the per-item clocks in sections 82 to 87, are read in the Act.
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "The head of a government entity shall cause to be published in electronic form (a) within 120 days after the appointment of a deputy head or a person to a position of an equivalent rank, the package of briefing materials that is prepared for the deputy head or the person for the purpose of enabling him or her to assume the powers, duties and functions of his or her office; (b) within 30 days after the end of the month in which any memorandum prepared for the deputy head or the person is received by his or her office, the title and reference number of each memorandum that is received; and (c) within 120 days after an appearance before a committee of Parliament, the package of briefing materials that is prepared for the deputy head or the person for the purpose of that appearance." | Section 88 |
+| "A head of a government institution is not required to cause to be published any of the information, any part of the information, any of the materials or any part of the materials referred to in any of sections 82 to 88 if that information, that part of the information, those materials or that part of those materials were set out in a record and, in dealing with a request for access to that record, he or she could under Part 1 refuse to disclose that record, in whole or in part, for a reason that is set out in that Part." | Subsection 90(1) |
+| "A head of a government institution shall not cause to be published any of the information, any part of the information, any of the materials or any part of the materials referred to in any of sections 82 to 88 if that information, that part of the information, those materials or that part of those materials were set out in a record and, in dealing with a request for access to that record, he or she would be required under Part 1 to refuse to disclose that record, in whole or in part, for a reason that is set out in that Part or because that Part does not apply to the information or materials in question." | Subsection 90(2) |
+
+**Institutional accountability, records and reporting.**
+
+| Access to Information Act text (quoted) | Provision |
+| --- | --- |
+| "No person shall, with intent to deny a right of access under this Part, (a) destroy, mutilate or alter a record; (b) falsify a record or make a false record; (c) conceal a record; or (d) direct, propose, counsel or cause any person in any manner to do anything mentioned in any of paragraphs (a) to (c)." | Subsection 67.1(1) |
+| "Every year the head of every government institution shall prepare a report on the administration of this Act within the institution during the period beginning on April 1 of the preceding year and ending on March 31 of the current year." | Subsection 94(1) |
+| "The head of a government institution may, by order, delegate any of their powers, duties or functions under this Act to one or more officers or employees of that institution." | Subsection 95(1) |
+
+| Policy on Access to Information text (quoted) | Provision |
+| --- | --- |
+| "Determining, in a manner consistent with jurisprudence and considering any TBS guidance, whether records are under the control of the government institution." | Policy 4.3.1 |
+| "Deliberations and decisions concerning requests received under the Act are documented;" | Policy 4.3.9.3 |
+| "The principle of severability is applied;" | Policy 4.3.9.5 |
+
+| Directive on Access to Information Requests text (quoted) | Provision |
+| --- | --- |
+| "Establishing and maintaining an internal management system to track: The processing of access requests; Consultation requests; Complaints; Reports, recommendations, and orders by the Information Commissioner; and Reviews by the courts." | Directive 4.1.18 and 4.1.18.1 to 4.1.18.5 |
+| "Documenting the processing of requests by placing on file all documents that support decisions under Part 1 of the Act, including communications where factors considered when exercising discretion are discussed, recommendations are given, rationales are provided and decisions are made." | Directive 4.1.19 |
+| "Ensuring that any extension taken is as short as possible and can be reasonably justified." | Directive 4.1.28 |
+| "Citing exemptions and exclusions invoked on records, provided under Part 1 of the Act, on each page, unless doing so would reveal the exempted information or cause the injury upon which the exemption is based to materialize." | Directive 4.1.34 |
+| "Establishing internal procedures to address alleged or suspected obstructions related to the right of access under Part 1 of the Act and the Information Commissioner’s duties and functions, which are outlined in sections 67 (1) and 67.1(1) of the Act. Procedures should outline measures for:" | Directive 4.1.45, opening requirement |
+| "Documenting and reporting any suspected falsification, concealment, mutilation or improper destruction of records as described in section 67.1(1) or any obstruction of the Information Commissioner’s duties and functions as defined in 67(1) immediately to the head of the government institution;" | Directive 4.1.45.1 |
+| "Publishing summaries of completed access to information requests to the Government of Canada Open Government portal within 30 calendar days after the end of each month, in accordance with Appendix D: Mandatory Procedures for Publishing Summaries of Completed Access to Information Requests." | Directive 4.1.46 |
+| "Ensuring searches for records are comprehensive and consider both the letter and the spirit of the request." | Directive 4.2.3 |
+| "Establishing measures to support the right of public access to information when entering into contracts, arrangements and agreements." | Directive 4.2.8 |
+
+Third-party notification (sections 27 to 29), the Appendix D fields for published request summaries, and records retention and disposal are not carried in this baseline.
 
 ---
 
@@ -252,7 +372,7 @@ Health-information rows remain source-gated until the exact official title, iden
 
 ## Library gaps requiring additional documentation
 
-1. **Canadian public-records request workflow** with jurisdiction-specific clocks, extensions, exemptions, review routes, and disclosure logs.
+1. **Provincial, territorial and municipal public-records request workflows** with jurisdiction-specific clocks, extensions, exemptions, review routes, and disclosure logs (the federal access-to-information baseline is carried in domain cluster 4).
 2. **Complete municipal and local-authority source inventory** for jurisdictions whose local bodies are governed separately.
 3. **National health-information privacy inventory** with an explicit carrier for every province and territory.
 4. **Public-sector contractor clause set** covering government records, privacy, security, access support, retention, return, and destruction.
