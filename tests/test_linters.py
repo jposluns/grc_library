@@ -11690,6 +11690,16 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
         mod = runpy.run_path(str(REPO_ROOT / "tools/adopt-bootstrap-ref.py"))
         entries = mod["parse_manifest"]("| A \\| B | 1 | I | https://x | FREE |\n")
         self.assertEqual([e["title"] for e in entries], ["A | B"])
+        # r5: the generator escapes pipes but not backslashes, so "A\\|B" renders as "A\\\\|B".
+        gen_cell = gen["_cell"]("A\\|B")
+        entries = mod["parse_manifest"](f"| {gen_cell} | 1 | I | https://x | FREE |\n")
+        self.assertEqual([e["title"] for e in entries], ["A\\|B"])
+        # r5: a generator that exits or returns a non-string refuses rather than permits.
+        bad = td / "bad_generator.py"
+        for body in ("import sys\nsys.exit(0)\n", "def render(c):\n    return 5\n"):
+            bad.write_text(body, encoding="utf-8")
+            mod["_is_clean_empty_manifest"].__globals__["GENERATOR"] = bad
+            self.assertFalse(mod["_is_clean_empty_manifest"](rendered), body)
         crlf = td / "crlf.md"
         crlf.write_bytes(("\ufeff" + rendered).replace("\n", "\r\n").encode("utf-8"))
         r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(crlf), "--json")

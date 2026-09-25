@@ -55,8 +55,10 @@ BUCKET_HEADING = re.compile(r"^##\s+(Standards|Frameworks|Legislation|Programs)\
 # separator rows (which have no such cell) are skipped without a position heuristic.
 ROW = re.compile(
     # A cell may carry the generator's escaped pipe (\|), which is cell content, not a separator.
-    r"^\|(?P<title>(?:[^|\\]|\\.)*)\|(?P<version>(?:[^|\\]|\\.)*)\|"
-    r"(?P<issuer>(?:[^|\\]|\\.)*)\|(?P<url>(?:[^|\\]|\\.)*)\|"
+    # The generator escapes pipes but not backslashes, so "\|" is matched FIRST as one unit and any
+    # other backslash is ordinary content (r5: "A\\|B" is the title "A\|B", not a split).
+    r"^\|(?P<title>(?:\\\||[^|])*)\|(?P<version>(?:\\\||[^|])*)\|"
+    r"(?P<issuer>(?:\\\||[^|])*)\|(?P<url>(?:\\\||[^|])*)\|"
     r"\s*(?P<acq>FREE|LICENSED)\s*\|\s*$"
 )
 
@@ -76,10 +78,10 @@ def _is_clean_empty_manifest(text: str) -> bool:
     code block, an HTML comment, or a truncated render is not the render. A generator that cannot
     be loaded refuses (ignorance never permits)."""
     try:
-        empty = runpy.run_path(str(GENERATOR))["render"]({})
-    except (Exception, SystemExit):  # noqa: BLE001 (any load failure, SystemExit included, refuses)
+        empty = _normalize(runpy.run_path(str(GENERATOR))["render"]({}))
+    except (Exception, SystemExit):  # noqa: BLE001 (any load or render failure, SystemExit included, refuses)
         return False
-    return _normalize(text) == _normalize(empty)
+    return _normalize(text) == empty
 
 
 def _unescape(cell: str) -> str:
@@ -167,7 +169,11 @@ def main(argv: list[str] | None = None) -> int:
     args = ap.parse_args(argv)
 
     path = Path(args.manifest)
-    if not path.is_file():
+    try:
+        is_file = path.is_file()
+    except OSError:  # r5: Python 3.11 raises on an inaccessible parent directory
+        is_file = False
+    if not is_file:
         print(f"adopt-bootstrap-ref: manifest not found at {path} (broken clone?).",
               file=sys.stderr)
         return 2
