@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.37\
+**Version:** 1.0.38\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,7 +89,7 @@ These bands select reading paths in this document. They are a different axis fro
 - Designated essential or important entity in EU (NIS 2 in scope)
 - Rely on the EU Digital Identity Wallet or provide trust services in the EU (eIDAS in scope)
 - Participate in a trusted-trader programme (BASC, CTPAT, AEO, PIP)
-- Develop, deploy, or procure AI systems (EU AI Act, ISO/IEC 42001 in scope)
+- Develop, deploy, or procure AI systems (EU AI Act, ISO/IEC 42001:2023 in scope)
 - Hold, use, issue, or service crypto-assets, or operate blockchain platforms (EU MiCA in scope; crypto-asset governance)
 
 ### 1.5 Technology footprint
