@@ -14888,6 +14888,29 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         self.assertNotIn("schema_version", cat)  # top-level scalar not a bucket
         self.assertEqual(len(cat["standards"]), 2)
 
+    def test_parse_catalogue_line_breaks_escapes_null_int(self) -> None:
+        # P-TODO 3b63: only \n, \r\n and \r split lines (a U+2028 inside a value no longer
+        # truncates it); YAML hex and named double-quote escapes resolve as yaml.safe_load does;
+        # a bare null is None (so render() shows a blank cell, not the text "null"); a bare
+        # decimal integer is an int.
+        mod = self._load("_refman_parse_3b63")
+        cat = mod._parse_catalogue(
+            "standards:\r\n"
+            '  - title: "Line\u2028Sep kept"\r\n'
+            '    origin: "A\\x41\\u00e9\\U0001F600\\tB\\L"\r'
+            "    checked_edition: null\n"
+            "    pages: 42\n"
+            "    acquisition: \"free\"\n"
+        )
+        e = cat["standards"][0]
+        self.assertEqual(e["title"], "Line\u2028Sep kept")
+        self.assertEqual(e["origin"], "AA\u00e9\U0001F600\tB\u2028")
+        self.assertIsNone(e["checked_edition"])
+        self.assertEqual(e["pages"], 42)
+        out = mod.render(cat)
+        self.assertNotIn("| null |", out)
+        self.assertNotIn(" null ", out)
+
     def test_degrades_when_ref_absent(self) -> None:
         # Adopter portability: main() no-ops (exit 0) when grc_library_ref is absent.
         mod = self._load("_refman_degrade")

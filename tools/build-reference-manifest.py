@@ -52,18 +52,33 @@ BUCKET_LABEL = {
 }
 
 
-_DQ_ESCAPES = {'"': '"', "\\": "\\", "n": "\n", "t": "\t",
-               "r": "\r", "/": "/", "0": "\0"}
+# The YAML 1.1 double-quoted escape set (the one yaml.safe_load implements), plus the three
+# hex forms; \x, \u and \U carry 2, 4 and 8 hex digits (P-TODO 3b63).
+_DQ_ESCAPES = {"0": "\0", "a": "\a", "b": "\b", "t": "\t", "\t": "\t", "n": "\n",
+               "v": "\v", "f": "\f", "r": "\r", "e": "\x1b", " ": " ", '"': '"',
+               "/": "/", "\\": "\\", "N": "\x85", "_": "\xa0", "L": "\u2028",
+               "P": "\u2029"}
+_DQ_HEX = {"x": 2, "u": 4, "U": 8}
 
 
 def _unescape_double(s: str) -> str:
-    """Unescape the YAML double-quoted-scalar backslash escapes present in the
-    catalogue (chiefly `\\\"`), matching yaml.safe_load's result byte-for-byte."""
+    """Unescape a YAML double-quoted scalar's backslash escapes: the named escapes and the
+    \\x, \\u and \\U hex forms, matching yaml.safe_load for every escape YAML defines.
+    An escape YAML does not define keeps its character (yaml.safe_load would raise instead);
+    the catalogue is machine-generated and carries none."""
     out = []
     i = 0
     while i < len(s):
         if s[i] == "\\" and i + 1 < len(s):
-            out.append(_DQ_ESCAPES.get(s[i + 1], s[i + 1]))
+            c = s[i + 1]
+            width = _DQ_HEX.get(c)
+            digits = s[i + 2:i + 2 + width] if width else ""
+            if width and len(digits) == width and all(ch in "0123456789abcdefABCDEF"
+                                                      for ch in digits):
+                out.append(chr(int(digits, 16)))
+                i += 2 + width
+                continue
+            out.append(_DQ_ESCAPES.get(c, c))
             i += 2
         else:
             out.append(s[i])
@@ -74,8 +89,9 @@ def _unescape_double(s: str) -> str:
 def _scalar(v: str):
     """Parse a catalogue scalar value: strip a matched surrounding quote pair
     (unescaping YAML escapes per quote style), map bare booleans, else return the
-    raw string. (The audit toolchain is stdlib-only, so this hand-parses the
-    catalogue rather than importing PyYAML.)"""
+    raw string; a bare null/~ is None and a bare decimal integer an int, as yaml.safe_load gives.
+    (The audit toolchain is stdlib-only, so this hand-parses the catalogue rather than importing
+    PyYAML.)"""
     v = v.strip()
     if len(v) >= 2 and v[0] == v[-1] == '"':
         return _unescape_double(v[1:-1])
@@ -85,6 +101,12 @@ def _scalar(v: str):
         return True
     if v == "false":
         return False
+    # A bare null or ~ is YAML's null (yaml.safe_load gives None); a bare decimal integer is an
+    # int. Without this, an unquoted null reached render() as the literal text "null" (3b63).
+    if v in ("null", "~", "Null", "NULL", ""):
+        return None
+    if re.fullmatch(r"[-+]?(0|[1-9][0-9]*)", v):
+        return int(v)
     return v
 
 
@@ -101,7 +123,11 @@ def _parse_catalogue(text: str) -> dict:
     catalogue: dict = {}
     bucket = None
     entry = None
-    for raw in text.splitlines():
+    # Split on the three ASCII line-break forms only. str.splitlines also splits on U+2028,
+    # U+2029, U+0085 and other separators, which would truncate a value that carries one
+    # (P-TODO 3b63). A raw one inside a quoted value is kept verbatim here, where
+    # yaml.safe_load would fold it into a space; the catalogue carries none.
+    for raw in re.split(r"\r\n|\r|\n", text):
         if not raw.strip() or raw.lstrip().startswith("#"):
             continue
         m = re.match(r"^([A-Za-z_][\w-]*):\s*$", raw)  # top-level bucket opener
