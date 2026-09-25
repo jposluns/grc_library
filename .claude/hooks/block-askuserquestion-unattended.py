@@ -80,6 +80,24 @@ class _Unusable(Exception):
     pass
 
 
+_MAX_BYTES = 65536
+
+
+def _read_regular(path) -> bytes:
+    """Read a REGULAR file without blocking (a FIFO or device raises), bounded: an oversized file
+    raises, so a prefix is never mistaken for the whole file."""
+    fd = os.open(str(path), os.O_RDONLY | os.O_NONBLOCK)
+    try:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise _Unusable("not a regular file")
+        raw = os.read(fd, _MAX_BYTES + 1)
+    finally:
+        os.close(fd)
+    if len(raw) > _MAX_BYTES:
+        raise _Unusable("oversized")
+    return raw
+
+
 def _no_duplicate_keys(pairs):
     keys = [k for k, _ in pairs]
     if len(keys) != len(set(keys)):
@@ -90,7 +108,8 @@ def _no_duplicate_keys(pairs):
 def read_canonical_mode(path: str = CANONICAL_MODE_FILE) -> tuple[str | None, str]:
     """Return (mode, note) from the fleet's canonical mode file.
 
-    (None, "absent") only when the path genuinely does not exist (lstat reports not-found); that
+    (None, "absent") only when the path genuinely does not exist (lstat raises ENOENT, or ENOTDIR
+    because a path component is not a directory); that
     is the ONE case that falls back to the lease. Anything else that cannot yield a recognized
     mode FAILS CLOSED to "unattended": an inaccessible parent directory, a dangling symlink, a
     non-regular file (a directory, FIFO or device, rejected before any read so nothing can
@@ -108,9 +127,11 @@ def read_canonical_mode(path: str = CANONICAL_MODE_FILE) -> tuple[str | None, st
         try:
             if not stat.S_ISREG(os.fstat(fd).st_mode):
                 raise _Unusable("not a regular file")
-            raw = os.read(fd, 65536)
+            raw = os.read(fd, _MAX_BYTES + 1)
         finally:
             os.close(fd)
+        if len(raw) > _MAX_BYTES:
+            raise _Unusable("oversized")  # a prefix is not the file; an oversized file fails closed
         data = json.loads(raw.decode("utf-8-sig"), object_pairs_hook=_no_duplicate_keys)
         mode = data.get("mode") if isinstance(data, dict) else None
         if not isinstance(mode, str):
@@ -128,7 +149,7 @@ def read_lease_mode(project_dir: str) -> str | None:
         ss = _working_file("session-state.md", Path(project_dir))
         if ss is None:
             return None  # no lease -> no lease mode
-        text = ss.read_text(encoding="utf-8", errors="replace")
+        text = _read_regular(ss).decode("utf-8", errors="replace")
     except Exception:  # noqa: BLE001 (a bad project dir or unreadable lease is "no lease mode")
         return None
     m = MODE_RE.search(text)
@@ -145,10 +166,15 @@ def read_mode(project_dir: str, canonical_path: str = CANONICAL_MODE_FILE) -> tu
     if canonical in UNATTENDED:
         return canonical, note  # decided before the lease is touched, so no lease error can undo it
     lease = read_lease_mode(project_dir)
+    # The lease can only ADD a block (a timeout swap), never remove one, so any lease value that
+    # mentions "unattended", however malformed, counts as unattended (stricter-is-safer).
+    lease_unattended = bool(lease) and "unattended" in lease
     if canonical is None:
+        if lease_unattended:
+            return "unattended", f"lease Operating-mode {lease!r} (fleet mode file absent)"
         return lease, "lease Operating-mode (fleet mode file absent)"
-    if lease in UNATTENDED:
-        return lease, "lease Operating-mode (more unattended than the fleet file)"
+    if lease_unattended:
+        return "unattended", f"lease Operating-mode {lease!r} (more unattended than the fleet file)"
     return canonical, note
 
 
@@ -177,20 +203,25 @@ def main(argv: list[str]) -> int:
     try:
         payload = json.load(sys.stdin)
     except Exception:
-        return 0  # fail-open on an unparseable payload
-    if not isinstance(payload, dict):
-        payload = {}  # a non-object payload carries no project dir; resolve it below
-    workspace = payload.get("workspace")
-    workspace = workspace if isinstance(workspace, dict) else {}
-    project_dir = (
-        workspace.get("project_dir")
-        or os.environ.get("CLAUDE_PROJECT_DIR")
-        # Last-resort fallback: resolve the project root from this hook's own location
-        # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
-        # correct across a repo move (for example an /old/root -> /new/root relocation).
-        or str(Path(__file__).resolve().parents[2])
-    )
-    result = read_mode(str(project_dir))
+        # The fleet decision needs no payload: an unparseable payload still blocks when the fleet
+        # file reads unattended (or is unusable), and otherwise fails open.
+        payload = None
+    if payload is None:
+        result = read_canonical_mode()  # the fleet decision alone; allows unless it blocks
+    else:
+        if not isinstance(payload, dict):
+            payload = {}  # a non-object payload carries no project dir; resolve it below
+        workspace = payload.get("workspace")
+        workspace = workspace if isinstance(workspace, dict) else {}
+        project_dir = (
+            workspace.get("project_dir")
+            or os.environ.get("CLAUDE_PROJECT_DIR")
+            # Last-resort fallback: resolve the project root from this hook's own location
+            # (<project>/.claude/hooks/this.py -> parents[2]). No hardcoded path, so it stays
+            # correct across a repo move (for example an /old/root -> /new/root relocation).
+            or str(Path(__file__).resolve().parents[2])
+        )
+        result = read_mode(str(project_dir))
     # read_mode returns (mode, source); a bare mode string is accepted too (the message-contract
     # test in tests/test_linters.py patches read_mode at that seam).
     mode, source = result if isinstance(result, tuple) else (result, "")
@@ -204,6 +235,8 @@ def main(argv: list[str]) -> int:
 def _self_test() -> int:
     import tempfile
     import unittest
+
+    os.environ.pop("GRC_STORE", None)  # the lease fixtures must not resolve to a real store
 
     def lease_root(d: str, mode: str | None) -> str:
         root = Path(d) / "proj"
@@ -272,6 +305,24 @@ def _self_test() -> int:
                 self.assertEqual(read_mode(root, str(fleet))[0], "unattended")
                 fleet.write_text('{"mode":"attended"}', encoding="utf-8")
                 self.assertFalse(decide(*read_mode(root, str(fleet)))[0])
+
+        def test_malformed_lease_and_oversized_fleet(self):
+            with tempfile.TemporaryDirectory() as d:
+                fleet = Path(d) / "operating-mode"
+                fleet.write_text('{"mode":"attended"}', encoding="utf-8")
+                with tempfile.TemporaryDirectory() as e:
+                    for n, bad in enumerate(("daytime-unattended.", "unattended-overnight",
+                                             "overnight_unattended")):
+                        root = lease_root(os.path.join(e, str(n)), bad)
+                        self.assertTrue(decide(*read_mode(root, str(fleet)))[0], bad)
+                big = Path(d) / "big"
+                big.write_bytes(b'{"mode":"attended"}'.ljust(_MAX_BYTES, b" ") + b"X")
+                root = lease_root(os.path.join(d, "x"), "attended-autonomous")
+                self.assertTrue(decide(*read_mode(root, str(big)))[0])  # oversized fails closed
+                fifo_root = Path(d) / "fifo" / "proj"
+                (fifo_root / ".working").mkdir(parents=True)
+                os.mkfifo(str(fifo_root / ".working" / "session-state.md"))
+                self.assertFalse(decide(*read_mode(str(fifo_root), str(fleet)))[0])  # no hang
 
         def test_timeout_swap_and_absent_fallback(self):
             with tempfile.TemporaryDirectory() as d:
