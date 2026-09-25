@@ -10405,18 +10405,30 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
         (ref_link / "vault" / "INDEX.md").write_text("27002\n", encoding="utf-8")
         (ref_link / "catalogue.yml").write_text("items: []\n", encoding="utf-8")
         (ref_link / "INDEX.md").symlink_to(ref_link / "vault" / "INDEX.md")
+        # A listable but not searchable subdirectory (mode 0444: os.walk lists it, stat fails) and a
+        # file symlink into a locked directory: is_file() swallowed both and the run reported clean.
+        root_noexec = td / "root_noexec"
+        (root_noexec / "ro").mkdir(parents=True)
+        (root_noexec / "ro" / "c.md").write_text("[y](dangling.md)\n", encoding="utf-8")
+        root_link = td / "root_link"
+        (root_link / "vault").mkdir(parents=True)
+        (root_link / "vault" / "t.md").write_text("[y](gone.md)\n", encoding="utf-8")
+        (root_link / "docs").mkdir()
+        (root_link / "docs" / "link.md").symlink_to(root_link / "vault" / "t.md")
         files = (locked, ref / "INDEX.md", root_file / "locked.md")
-        dirs = (locked_dir, root_sub / "lock", ref_link / "vault")
+        dirs = (locked_dir, root_sub / "lock", ref_link / "vault", root_link / "vault")
         for f in files:
             f.chmod(0)
         for d in dirs:
             d.chmod(0)
+        (root_noexec / "ro").chmod(0o444)
 
         def _cleanup() -> None:
             for f in files:
                 f.chmod(0o600)
             for d in dirs:
                 d.chmod(0o700)
+            (root_noexec / "ro").chmod(0o700)
             shutil.rmtree(td)
         self.addCleanup(_cleanup)
         cases = (
@@ -10429,6 +10441,8 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             ("tools/audit-cross-repo-references.py", "--root", str(root_file)),
             ("tools/audit-cross-repo-references.py", "--root", str(root_sub)),
             ("tools/ref-holds.py", "--ref-root", str(ref_link), "27002"),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_noexec)),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_link)),
         )
         for script, *args in cases:
             r = run_linter(script, *args)

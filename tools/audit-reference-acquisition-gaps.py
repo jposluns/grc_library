@@ -161,18 +161,22 @@ def parse_catalogue_titles(ref_base: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--ref-base", default=None)
-    ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
+    ap.add_argument("--aliases", default=None)
     ap.add_argument("--section", default=None,
                     help="Restrict to one register family (## header text).")
     ap.add_argument("--include-tooling", action="store_true",
                     help="Include the software-tool / programme families (excluded by default).")
     args = ap.parse_args(argv)
-    if args.aliases != DEFAULT_ALIASES and (str(args.aliases) in ("", ".")
-                                            or not args.aliases.is_file()):
+    # Track whether --aliases was supplied rather than comparing it with the default path: an
+    # explicit value that happens to equal the default is validated like any other (3b50b2e1 r3).
+    explicit_aliases = args.aliases is not None
+    args.aliases = Path(args.aliases) if explicit_aliases else DEFAULT_ALIASES
+    if explicit_aliases and (not str(args.aliases).strip() or str(args.aliases) in ("", ".")
+                             or not args.aliases.is_file()):
         # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
         print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
         return 2
-    if args.aliases != DEFAULT_ALIASES:
+    if explicit_aliases:
         try:
             with open(args.aliases, "rb"):
                 pass

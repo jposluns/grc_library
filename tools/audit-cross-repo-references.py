@@ -61,6 +61,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import stat
 import sys
 from collections import Counter
 from pathlib import Path
@@ -122,7 +123,14 @@ def iter_text_files(root: Path) -> list[Path]:
         dirnames[:] = [d for d in dirnames if d not in SCAN_EXEMPT_DIRS]
         for name in filenames:
             f = Path(dirpath, name)
-            if not f.is_file():
+            try:
+                st = f.stat()
+            except FileNotFoundError:
+                continue  # a dangling symlink: nothing to audit
+            # Any other stat failure (a directory without search permission, a link into a locked
+            # directory, a symlink loop) propagates: is_file() swallowed it and the file was
+            # dropped from a run that still reported clean (3b50b2e1 r3).
+            if not stat.S_ISREG(st.st_mode):
                 continue
             if any(part in SCAN_EXEMPT_DIRS for part in f.relative_to(root).parts):
                 continue
@@ -501,8 +509,9 @@ def main(argv: list[str]) -> int:
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)
-    # Advisory: always exit 0. The counts are informational; this tool never
-    # fails a build (it spans gate-exempt trees and is not a CI gate).
+    # Advisory: exit 0 on every reporting path. The counts are informational; this tool
+    # never fails a build (it spans gate-exempt trees and is not a CI gate); 2 is reserved
+    # for the usage and read errors refused above.
     return 0
 
 

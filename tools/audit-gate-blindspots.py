@@ -98,9 +98,11 @@ def derive_scope(root: Path, name: str, script: str) -> GateScope:
     path = root / script
     try:
         source = path.read_text(encoding="utf-8", errors="replace")
-    except OSError as exc:
+    except FileNotFoundError as exc:
         gate.note = f"unreadable: {exc}"
         return gate
+    # Any other read error (a locked script, a link into a locked directory) propagates to main()'s
+    # refusal: classifying it not-derivable let the run succeed on evidence it never read (3b50b2e1 r3).
 
     uses_common = any(tok in source for tok in COMMON_DISCOVERY_TOKENS)
     walk_based = 'rglob("*.md")' in source or "rglob('*.md')" in source
