@@ -49,7 +49,13 @@ INDEX_FILES = ("INDEX.md", "catalogue.yml", "SECTION-INDEX.md", "COVERAGE-MAP.md
 def find_ref_root(explicit: str | None) -> Path | None:
     if explicit:
         p = Path(explicit).expanduser().resolve()
-        return p if (p / "INDEX.md").exists() or (p / "catalogue.yml").exists() else None
+        try:
+            present = (p / "INDEX.md").exists() or (p / "catalogue.yml").exists()
+        except OSError:
+            # Python 3.11's exists() raises on EACCES (newer versions return False): an index that
+            # cannot even be stat'ed is present-but-unreadable, so let the read refuse it.
+            return p
+        return p if present else None
     # Default: the real grc_library_ref sibling, located via the shared resolver
     # (1.19.2 (closing PR #996)). None on a portable clone that has no sibling.
     sibling = resolve_sibling("ref")

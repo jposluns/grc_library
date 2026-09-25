@@ -731,7 +731,11 @@ def main(argv=None):
 
     # 3b50b2e1: a missing, empty, directory or unreadable --register / --worklist raised a traceback.
     for flag, path in [("--register", a.register), *(("--worklist", w) for w in (a.worklists or []))]:
-        if str(path) in ("", ".") or not path.is_file():
+        try:
+            is_file = path.is_file()
+        except OSError:
+            is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
+        if str(path) in ("", ".") or not is_file:
             print(f"ERROR: {flag} {path}: not a regular file; nothing would be checked.",
                   file=sys.stderr)
             return 2

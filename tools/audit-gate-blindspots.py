@@ -225,7 +225,14 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     # 3b50b2e1: an empty --root used to become '.', so the current directory was audited. Checked
     # inline: this tool is standalone (it does not import lint_common).
-    if not str(args.root).strip() or not Path(args.root).is_dir():
+    try:
+        root_is_dir = bool(str(args.root).strip()) and Path(args.root).is_dir()
+    except OSError as exc:
+        # Python 3.11's is_dir() raises on EACCES where newer versions return False.
+        print(f"ERROR: --root {args.root!r}: unreadable ({exc.strerror}); nothing would be audited.",
+              file=sys.stderr)
+        return 2
+    if not root_is_dir:
         print(f"ERROR: --root {args.root!r}: not a directory; nothing would be audited.",
               file=sys.stderr)
         return 2

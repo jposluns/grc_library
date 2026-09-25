@@ -884,8 +884,15 @@ def require_dir(path, flag: str) -> Path:
         # An empty value (--flag= or --flag "") would resolve to the current directory and pass.
         print(f"ERROR: {flag} needs a directory argument (an empty value is refused).", file=sys.stderr)
         raise SystemExit(2)
-    p = Path(path).resolve()
-    if not p.is_dir():
+    try:
+        p = Path(path).resolve()
+        is_dir = p.is_dir()
+    except OSError as exc:
+        # Python 3.11's is_dir() raises on EACCES where newer versions return False.
+        print(f"ERROR: {flag} {path}: unreadable ({exc.strerror}); nothing would be checked.",
+              file=sys.stderr)
+        raise SystemExit(2)
+    if not is_dir:
         print(f"ERROR: {flag} {path}: not a directory; nothing would be checked.", file=sys.stderr)
         raise SystemExit(2)
     return p

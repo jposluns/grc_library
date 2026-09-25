@@ -495,7 +495,12 @@ def main(argv: list[str]) -> int:
     # this root); audit it too so the `.working/` coverage this tool exists to
     # provide survives the move. While `.working/` is still in-repo it is already
     # covered by the root walk, so this branch does nothing.
-    wd = resolve_working_dir(repo_root=root)
+    try:
+        wd = resolve_working_dir(repo_root=root)
+    except OSError as exc:
+        print(f"ERROR: the working store could not be located ({exc}); the audit would be incomplete.",
+              file=sys.stderr)
+        return 2
     if wd is not None:
         try:
             wd.relative_to(root)

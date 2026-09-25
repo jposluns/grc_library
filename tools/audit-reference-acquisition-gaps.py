@@ -171,8 +171,12 @@ def main(argv: list[str] | None = None) -> int:
     # explicit value that happens to equal the default is validated like any other (3b50b2e1 r3).
     explicit_aliases = args.aliases is not None
     args.aliases = Path(args.aliases) if explicit_aliases else DEFAULT_ALIASES
+    try:
+        aliases_is_file = args.aliases.is_file()
+    except OSError:
+        aliases_is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
     if explicit_aliases and (not str(args.aliases).strip() or str(args.aliases) in ("", ".")
-                             or not args.aliases.is_file()):
+                             or not aliases_is_file):
         # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
         print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
         return 2
