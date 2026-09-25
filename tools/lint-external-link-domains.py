@@ -73,6 +73,7 @@ ALLOW_LIST = {
     "legislation.gov.uk", "ico.org.uk", "ncsc.gov.uk", "gov.uk",
     "laws-lois.justice.gc.ca", "gazette.gc.ca", "priv.gc.ca", "cyber.gc.ca", "canada.ca",
     "legisquebec.gouv.qc.ca",
+    "bclaws.gov.bc.ca",  # BC Laws: British Columbia statute consolidations (FOIPPA, 2.25.3)
     "wcoomd.org", "icao.int", "imo.org", "bis.org", "nerc.com",
     "aicpa.org", "aicpa-cima.com",
     "gov.br", "planalto.gov.br", "pdpc.gov.sg", "imda.gov.sg", "aiverifyfoundation.sg", "oaic.gov.au",
