@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.30\
+**Version:** 1.0.31\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -263,6 +263,10 @@ If you place AI systems on the EU market, put them into service in the EU, or yo
 If you develop or deploy AI that makes consequential decisions affecting Colorado residents:
 
 12. [`ai/jurisdictions/annex-ai-us-colorado.md`](../ai/jurisdictions/annex-ai-us-colorado.md): Colorado AI statute (SB 24-205, re-enacted by SB 26-189) two-regime per-regime view (developer and deployer duties, consumer rights, meaningful human review, enforcement, transition timeline).
+
+If you are a US federal agency, or you sell AI systems or services (including large language models) to one:
+
+13. [`ai/jurisdictions/annex-ai-us-federal.md`](../ai/jurisdictions/annex-ai-us-federal.md): US federal executive-branch AI policy (OMB M-25-21 agency use of AI, M-25-22 acquisition contract terms, M-26-04 Unbiased AI Principles for procured LLMs) and Executive Order 14365 on state AI laws.
 
 ### 5.2 If you operate cloud workloads
 

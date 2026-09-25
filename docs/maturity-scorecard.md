@@ -80,7 +80,7 @@ _117 documents._
 | [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.19 | 2026-09-24 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.6 | 2026-09-16 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.7 | 2026-08-16 |
-| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.87 | 2026-09-25 |
+| [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.88 | 2026-09-25 |
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.43 | 2026-09-25 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.195 | 2026-09-24 |
@@ -182,7 +182,7 @@ _163 documents._
 | [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.6 | 2026-09-05 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.3 | 2026-08-31 |
 | [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.12 | 2026-09-13 |
-| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.31 | 2026-09-25 |
+| [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.32 | 2026-09-25 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.10 | 2026-08-16 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.9 | 2026-09-01 |
 | [ai/procedure-ai-model-risk-assessment.md](../ai/procedure-ai-model-risk-assessment.md) | AI Model Risk Assessment Procedure | Procedure | 1.0.5 | 2026-07-11 |
@@ -356,7 +356,7 @@ _73 documents._
 | [ai/jurisdictions/annex-ai-south-korea.md](../ai/jurisdictions/annex-ai-south-korea.md) | South Korea AI Regulatory Requirements | Annex | 0.0.1 | 2026-09-05 |
 | [ai/jurisdictions/annex-ai-us-california.md](../ai/jurisdictions/annex-ai-us-california.md) | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | Annex | 0.0.4 | 2026-09-03 |
 | [ai/jurisdictions/annex-ai-us-colorado.md](../ai/jurisdictions/annex-ai-us-colorado.md) | Colorado AI and Automated Decision-Making Technology Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
-| [ai/jurisdictions/annex-ai-us-federal.md](../ai/jurisdictions/annex-ai-us-federal.md) | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | Annex | 0.0.2 | 2026-09-25 |
+| [ai/jurisdictions/annex-ai-us-federal.md](../ai/jurisdictions/annex-ai-us-federal.md) | United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements | Annex | 0.0.3 | 2026-09-25 |
 | [ai/jurisdictions/annex-ai-us-illinois.md](../ai/jurisdictions/annex-ai-us-illinois.md) | Illinois AI in Employment (HB 3773) Regulatory Requirements | Annex | 0.0.1 | 2026-09-05 |
 | [ai/jurisdictions/annex-ai-us-new-york-city.md](../ai/jurisdictions/annex-ai-us-new-york-city.md) | New York City Automated Employment Decision Tool Regulatory Requirements | Annex | 0.0.2 | 2026-07-12 |
 | [ai/jurisdictions/annex-ai-us-texas.md](../ai/jurisdictions/annex-ai-us-texas.md) | Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements | Annex | 0.0.3 | 2026-09-05 |
