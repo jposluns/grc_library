@@ -8776,6 +8776,14 @@ class MatrixControlCodeTests(LinterTestCase):
             + f"| Gov | Doc | path | {ccm} | {iso} | {nist} | N/A |\n"
         )
 
+    def test_explicit_file_without_matrix_table_refused(self) -> None:
+        # 3b57: a readable file with no matrix table used to pass after checking nothing.
+        fixture = self.make_fixture("no-matrix-table.md", "# X\n\n| A | B |\n| --- | --- |\n| 1 | 2 |\n")
+        result = run_linter("tools/lint-matrix-control-codes.py", fixture)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("holds no matrix table", result.stderr)
+        self.assertNotIn("OK:", result.stdout)
+
     def test_runs_clean_on_matrix_at_head(self) -> None:
         # Smoke test: the live matrix's ISO and NIST framework columns are
         # all well-formed at HEAD.
@@ -18952,7 +18960,9 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         "tools/lint-filename-title-alignment.py",
         "tools/lint-metadata-line-breaks.py",
         "tools/lint-followup-ageing.py",
-        "tools/lint-matrix-control-codes.py",
+        # tools/lint-matrix-control-codes.py left this list in 3b57: no caller passes it
+        # arbitrary filenames (pre-commit pass_filenames false; quick-guard, run_all_audits.sh
+        # and CI run it with no arguments), and a table-less file is now refused (exit 2).
         "tools/lint-document-control-codes.py",
         "tools/lint-document-iso-annex-a.py",
         "tools/check-review-cadence.py",
@@ -18981,6 +18991,19 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         # they scan EVERY positional file by putting a bad fixture SECOND and
         # asserting it is caught (a regression to argv[1]-only would miss it).
         clean = self.make_fixture("qg_scan_clean.md", "# Clean\n\nBody.\n")
+        # 3b57: the matrix linter refuses (exit 2) a file with no matrix table, so its clean
+        # first file must be a valid matrix; each case asserts exit 1 AND the second file's own
+        # diagnostic, since any non-zero exit alone would not prove the second file was scanned.
+        clean_matrix = self.make_fixture(
+            "qg_scan_clean_matrix.md",
+            "| Control | ISO/IEC 27001:2022 | NIST CSF 2.0 |\n"
+            "| --- | --- | --- |\n| Sample | A.5.1 | GV.OC |\n",
+        )
+        expect = {
+            "tools/lint-document-iso-annex-a.py": "A.8.99",
+            "tools/lint-document-control-codes.py": "GV.ZZ",
+            "tools/lint-matrix-control-codes.py": "GV.ZZ",
+        }
         cases = {
             "tools/lint-document-iso-annex-a.py": (
                 "qg_bad_iso.md",
@@ -19000,10 +19023,12 @@ class NormalizedPositionalArgsTests(LinterTestCase):
         }
         for script, (name, content) in cases.items():
             bad = self.make_fixture(name, content)
-            result = run_linter(script, clean, bad)
-            self.assertLinterFails(
-                result,
-            )  # bad SECOND file must be caught => every positional file scanned
+            first = clean_matrix if script == "tools/lint-matrix-control-codes.py" else clean
+            result = run_linter(script, first, bad)
+            combined = result.stdout + "\n" + result.stderr
+            self.assertEqual(result.returncode, 1, f"{script}: {combined[-400:]}")
+            # bad SECOND file must be caught => every positional file scanned
+            self.assertIn(expect[script], combined, script)
 
     def test_legacy_paths_flag_still_accepted(self):
         f1 = self.make_fixture("qg_leg_a.md", "# A\n\nBody.\n")
