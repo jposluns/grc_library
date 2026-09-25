@@ -3917,7 +3917,6 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("self-test OK", result.stdout)
 
-
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
         bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""
@@ -3933,8 +3932,51 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(guard.offenders(head + bump + body, {"README.md"}), [])
         self.assertEqual(guard.offenders(head + body, {"README.md"}), ["README.md"])
         self.assertEqual(guard.offenders(head + cal + body, {"README.md"}), ["README.md"])
-        self.assertTrue(guard.ANY_VERSION_LINE_M.search("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\\\n\nbody\n"))
-        self.assertIsNone(guard.ANY_VERSION_LINE_M.search("**Library Version:** 2026.09.1\\\n\nbody\n"))
+        # Editing README's fenced **Version:** template is not the README's Version change.
+        tmpl = "@@ -279,1 +279,1 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n"
+        self.assertEqual(guard.offenders(head + tmpl + body, {"README.md"}), ["README.md"])
+        readme = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\\\n\nbody\n"
+        self.assertTrue(guard.version_key("README.md").search(readme))
+        self.assertIsNone(guard.version_key("README.md").search("**Library Version:** 2026.09.1\\\n\nbody\n"))
+        # QA (codex, gemini): the README key is path-specific. In another document it neither
+        # selects the file nor stands in for that document's own **Version:** bump.
+        self.assertIsNone(guard.version_key("governance/x.md").search(readme))
+        other = ("diff --git a/governance/x.md b/governance/x.md\n@@ -3,1 +3,1 @@\n"
+                 "-**README Version:** 1\n+**README Version:** 2\n" + body)
+        self.assertEqual(guard.offenders(other, {"governance/x.md"}), ["governance/x.md"])
+
+    def test_unbumped_version_guard_main_selects_readme_by_its_key(self) -> None:
+        """P-TODO 3b80 (QA): the hook's main() selects the root README by **README Version:**, so a
+        README body edit with no bump is blocked rather than skipped as unversioned."""
+        import json
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            def git(*a):
+                subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True, text=True)
+            # project_root() is derived from the hook's own location, so run a copy placed in the
+            # scratch repository's .claude/hooks/.
+            hooks = repo / ".claude" / "hooks"
+            hooks.mkdir(parents=True)
+            hook = hooks / "block-unbumped-version-commit.py"
+            shutil.copy(REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py", hook)
+            git("init", "-q")
+            git("config", "user.email", "t@example.invalid")
+            git("config", "user.name", "t")
+            (repo / "README.md").write_text("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n\nold body\n")
+            git("add", "README.md")
+            git("commit", "-q", "-m", "init")
+            (repo / "README.md").write_text("**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n\nnew body\n")
+            git("add", "README.md")
+            payload = json.dumps({"tool_name": "Bash", "cwd": str(repo),
+                                  "tool_input": {"command": "git commit -m x"}})
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(repo))
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, env=env)
+            self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
+            self.assertIn("README.md", cp.stderr)
+
 
 class PrePushGuardTests(unittest.TestCase):
     """tools/pre-push-guard.sh exit-code chain.

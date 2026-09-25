@@ -21,8 +21,8 @@ pointing at a scratch repository can redirect Git despite `-C`; working-file rea
 `project_root()`. It does not
 simulate preceding commands, a `commit -a`, or a path-selected commit, so any of those can make the
 inspected index differ from what the eventual commit contains. Eligibility comes from WORKING-TREE
-contents: a staged `.md` file outside `.corpus-management/` whose working file carries any column-zero
-`**Version:**` line. For each, it asks whether a changed line is non-metadata (a column-zero `**Key:** value`
+contents: a staged `.md` file outside `.corpus-management/` whose working file carries its own column-zero
+Version key (`**Version:**`, or `**README Version:**` for the root README.md; see version_key). For each, it asks whether a changed line is non-metadata (a column-zero `**Key:** value`
 line, matched anywhere, is treated as metadata; a blank changed line is ignored) while no changed line is a
 `**Version:**` line. This is a lighter, commit-time cousin of gate 40's committed-history check (gate 40
 remains the authority and compares differently); it checks only that a `**Version:**` line was added or
@@ -54,7 +54,7 @@ WHAT IT DOES, AND WHAT IT DELIBERATELY DOES NOT.
   - DOES NOT block a `Version` bump whose `Date` is stale: delta gate D4 owns that comparison, it
     needs the commit's own date which does not exist yet at PreToolUse time, and duplicating it here
     from a guessed date would be a check whose input cannot answer it.
-  - DOES NOT touch files with no `**Version:**` line at all.
+  - DOES NOT touch files with no own Version key (`**Version:**`; README.md: `**README Version:**`).
   - DOES NOT act on a `git commit --amend`: an amend reuses an existing commit and its diff is not
     the staged set alone, so the hook leaves it (the refuse-what-you-cannot-answer discipline); a
     staged body change amended in is NOT version-checked here (gate 40 / D2 remain the authority).
@@ -106,15 +106,22 @@ GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
 # match can still block if the file has other unstaged changes or the auto-bump raises.
 SEMVER_VERSION = re.compile(r"^(\*\*Version:\*\*[ \t]*)(\d+)\.(\d+)\.(\d+)(.*)$", re.M)
 DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
-# README carries its version under a DIFFERENT key (``**README Version:**``), which VERSION_LINE does
-# not match, so README is outside the body-without-bump check above. The date-lag NOTE below covers
-# both keys: a staged Version (or README Version) change whose staged ``**Date:**`` is not today UTC
-# is the UTC-rollover co-bump miss D4 otherwise catches only at the pre-push guard (2026-09-24, #2492).
-ANY_VERSION_LINE = re.compile(r"^\*\*(?:README )?Version:\*\*")
-# Both keys count as a file's own Version line (P-TODO 3b80): ANY_VERSION_LINE_M selects a versioned
-# file (README stays in scope without relying on the fenced **Version:** template in its body) and
-# classify_hunk counts a change to either as the Version change. **Library Version:** is neither.
-ANY_VERSION_LINE_M = re.compile(ANY_VERSION_LINE.pattern, re.M)
+# The root README.md carries its per-document version under a DIFFERENT key (``**README Version:**``);
+# its only ``**Version:**`` line is a fenced metadata TEMPLATE in its body. The key is therefore
+# PATH-SPECIFIC (P-TODO 3b80): for README_PATH only ``**README Version:**`` selects the file and counts as
+# its Version change (so editing the template cannot stand in for the bump), and for every other file
+# only ``**Version:**`` does (so an illustrative ``**README Version:**`` line elsewhere is neither).
+# ``**Library Version:**`` is neither key. The date-lag NOTE below uses the same per-path key: a staged
+# Version change whose staged ``**Date:**`` is not today UTC is the UTC-rollover co-bump miss D4
+# otherwise catches only at the pre-push guard (2026-09-24, #2492).
+README_PATH = "README.md"
+README_VERSION_LINE = re.compile(r"^\*\*README Version:\*\*", re.M)
+
+
+def version_key(path: "str | None") -> "re.Pattern[str]":
+    """PURE. The multiline Version-key pattern for a repo-relative ``path`` (3b80): README.md's own
+    ``**README Version:**`` for the root README, ``**Version:**`` for any other path or ``None``."""
+    return README_VERSION_LINE if path == README_PATH else VERSION_LINE
 HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
@@ -131,12 +138,14 @@ def _lf_lines(s: str, keepends: bool = False) -> list[str]:
     return parts[:-1] if parts and parts[-1] == "" else parts
 
 
-def version_line_changed(lines: list[str]) -> bool:
-    """PURE. True when a +/- changed line (not a diff header) is a Version or README Version line."""
+def version_line_changed(lines: list[str], path: "str | None" = None) -> bool:
+    """PURE. True when a +/- changed line (not a diff header) is ``path``'s own Version line
+    (see :func:`version_key`)."""
+    key = version_key(path)
     for ln in lines:
         if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
-        if ln and ln[0] in "+-" and ANY_VERSION_LINE.match(ln[1:]):
+        if ln and ln[0] in "+-" and key.match(ln[1:]):
             return True
     return False
 
@@ -168,7 +177,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
             elif not in_hunk:
                 continue
             elif ln.startswith("+"):
-                if ANY_VERSION_LINE.match(ln[1:]) and 1 <= n <= header_lines:
+                if version_key(cur).match(ln[1:]) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
             elif ln.startswith(" "):
@@ -278,8 +287,10 @@ def commit_target(cmd: str, cwd: str):
     return cwd
 
 
-def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
-    """PURE. (body_changed, version_changed) for one file's unified-diff lines.
+def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bool]:
+    """PURE. (body_changed, version_changed) for one file's unified-diff lines. The Version key is
+    ``path``'s own (:func:`version_key`): ``**README Version:**`` for README.md, else ``**Version:**``;
+    the other key's line is treated like any other metadata line.
 
     A changed line counts as BODY unless it is blank/whitespace-only or a column-zero `**Key:**
     value` metadata line (matched by position anywhere, not only in a leading block). Header lines
@@ -291,13 +302,14 @@ def classify_hunk(lines: list[str]) -> tuple[bool, bool]:
     body-without-version, and collapsing them early would hide it.
     """
     body = version = False
+    key = version_key(path)
     for ln in lines:
         if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
         if not ln or ln[0] not in "+-":
             continue
         text = ln[1:]
-        if ANY_VERSION_LINE.match(text):  # **Version:** or README.md's **README Version:** (3b80)
+        if key.match(text):  # the path's own key (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
             continue
@@ -314,7 +326,7 @@ def offenders(diff: str, versioned: set[str]) -> list[str]:
 
     def flush():
         if cur in versioned:
-            body, ver = classify_hunk(buf)
+            body, ver = classify_hunk(buf, cur)
             if body and not ver:
                 out.append(cur)
 
@@ -439,7 +451,7 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and ANY_VERSION_LINE_M.search(f.read_text(errors="replace")):
+                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace")):
                     versioned.add(p)
             except OSError:
                 continue
@@ -512,7 +524,8 @@ def main() -> int:
         "commit is itself a body change post-dating the bump); this fires at commit time rather than "
         "at the pre-push guard six minutes later.",
         "",
-        "CONSIDER INSTEAD: bump `**Version:**` AND `**Date:**` in the SAME edit, then re-stage. If "
+        "CONSIDER INSTEAD: bump `**Version:**` (README.md: `**README Version:**`) AND `**Date:**` in the "
+        "SAME edit, then re-stage. If "
         "this body edit genuinely does not warrant a bump, include `VersionBump: none <reason>` in the "
         "commit COMMAND text (e.g. an inline `-m` message; a `-F` message file is not inspected) and it "
         "will proceed.",

@@ -13,7 +13,8 @@ commit MESSAGE, which does not exist yet when pre-commit runs.
 
 What it checks (the same rule as the PreToolUse guard, from the same source: the guard's pure
 functions are LOADED from .claude/hooks/block-unbumped-version-commit.py, not copied). A staged
-Markdown file whose STAGED content carries a `**Version:**` line, outside the generated artefacts and
+Markdown file whose STAGED content carries its own Version key (`**Version:**`, or `**README Version:**`
+for the root README.md, per the guard's version_key), outside the generated artefacts and
 .corpus-management/, is versioned; an offender is a versioned file whose staged diff changes its body
 but not its Version line. This hook REFUSES and never auto-bumps: the PreToolUse guard auto-bumps
 same-checkout commits before git runs, and a git hook that rewrites the index mid-commit is riskier
@@ -54,7 +55,8 @@ def decide(allow, sequencer, opt_out, ok, bad):
                    f"it is unknown whether a Version bump is missing. Deliberate override: {_OVERRIDE}=1.")
     if bad:
         return 1, ("check-version-bump-commit: REFUSING the commit: these staged documents changed their body "
-                   f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (patch) and set "
+                   f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (README.md: **README "
+                   "Version:**) (patch) and set "
                    "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a commit that "
                    "genuinely needs no bump carries a `VersionBump: none <reason>` line in its message. "
                    f"Deliberate override: {_OVERRIDE}=1.")
@@ -139,12 +141,12 @@ def staged_offenders(root, guard):
                 or new in guard.GENERATED or new.startswith(".corpus-management/"):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
-        if not guard.ANY_VERSION_LINE_M.search(text):  # README.md's own key too (3b80)
+        if not guard.version_key(new).search(text):  # the path's own key (3b80)
             continue
         paths = [old, new] if old else [new]
         diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",
                      "--no-textconv", "--unified=0", "--", *paths)
-        body, version = guard.classify_hunk(guard._lf_lines(diff))
+        body, version = guard.classify_hunk(guard._lf_lines(diff), new)
         if body and not version:
             bad.append(new)
     return bad
