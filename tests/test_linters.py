@@ -3944,6 +3944,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         other = ("diff --git a/governance/x.md b/governance/x.md\n@@ -3,1 +3,1 @@\n"
                  "-**README Version:** 1\n+**README Version:** 2\n" + body)
         self.assertEqual(guard.offenders(other, {"governance/x.md"}), ["governance/x.md"])
+        # A nested README is an ordinary document: only **Version:** is its key.
+        self.assertIs(guard.version_key("governance/README.md"), guard.VERSION_LINE)
+        # QA round 2 (codex): the other helpers use the path's own key too.
+        self.assertTrue(guard.version_line_changed(["+**README Version:** 2"], "README.md"))
+        self.assertFalse(guard.version_line_changed(["+**README Version:** 2"], "governance/x.md"))
+        self.assertFalse(guard.version_line_changed(["+**Version:** 2"], "README.md"))
+        wrong = "diff --git a/g.md b/g.md\n@@ -2 +2 @@\n-**README Version:** 1\n+**README Version:** 2\n"
+        self.assertEqual(guard.stale_date_after_bump(
+            wrong, {"g.md": "**Date:** 2026-01-01\n**README Version:** 2\n"}, "2026-09-25"), [])
+        right = wrong.replace("g.md", "README.md")
+        self.assertEqual(guard.stale_date_after_bump(
+            right, {"README.md": "**Date:** 2026-01-01\n**README Version:** 2\n"}, "2026-09-25"),
+            ["README.md"])
 
     def test_unbumped_version_guard_main_selects_readme_by_its_key(self) -> None:
         """P-TODO 3b80 (QA): the hook's main() selects the root README by **README Version:**, so a
@@ -3976,6 +3989,15 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                                 text=True, env=env)
             self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
             self.assertIn("README.md", cp.stderr)
+            # QA round 2 (codex, gemini): a README that also carries a **Version:** line is not
+            # "repaired" by bumping that wrong key; the commit is refused and the file untouched.
+            dual = "**Date:** 2026-09-25\\\n**README Version:** 1.0.0\n**Version:** 8.0.0\n\nnew body 2\n"
+            (repo / "README.md").write_text(dual)
+            git("add", "README.md")
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, env=env)
+            self.assertEqual(cp.returncode, 2, cp.stdout + cp.stderr)
+            self.assertEqual((repo / "README.md").read_text(), dual)
 
 
 class PrePushGuardTests(unittest.TestCase):

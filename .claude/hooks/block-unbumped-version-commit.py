@@ -23,11 +23,11 @@ simulate preceding commands, a `commit -a`, or a path-selected commit, so any of
 inspected index differ from what the eventual commit contains. Eligibility comes from WORKING-TREE
 contents: a staged `.md` file outside `.corpus-management/` whose working file carries its own column-zero
 Version key (`**Version:**`, or `**README Version:**` for the root README.md; see version_key). For each, it asks whether a changed line is non-metadata (a column-zero `**Key:** value`
-line, matched anywhere, is treated as metadata; a blank changed line is ignored) while no changed line is a
-`**Version:**` line. This is a lighter, commit-time cousin of gate 40's committed-history check (gate 40
-remains the authority and compares differently); it checks only that a `**Version:**` line was added or
-removed, not that the value increments. Eligible paths come from `git diff --cached --name-only` filtered to
-staged `.md` files (outside `.corpus-management/`) whose working file carries a `**Version:**` line (a
+line, matched anywhere, is treated as metadata; a blank changed line is ignored) while no changed line is
+the path's own Version key. This is a lighter, commit-time cousin of gate 40's committed-history check (gate
+40 remains the authority and compares differently); it checks only that the path's own Version line was
+added or removed, not that the value increments. Eligible paths come from `git diff --cached --name-only`
+filtered to staged `.md` files (outside `.corpus-management/`) whose working file carries that key (a
 per-file read error skips only that file). Git-quoted (including octal-escaped) `--name-only` paths are
 not decoded before suffix checks and working-file reads, so a file can fail eligibility and never enter
 `versioned`. The diff-header parser associates hunks by splitting each header at its first ` b/` and
@@ -393,7 +393,13 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
     success, False (caller blocks) when the file has OTHER unstaged changes (auto-staging would grab
     them), cannot be read, has no `SEMVER_VERSION` match before the metadata-region end, or any
     Exception occurs during the attempt. The write-then-stage is not transactional, so a failure after
-    the write can leave the working file modified."""
+    the write can leave the working file modified.
+
+    The root README.md is never auto-bumped (3b80 round 2): its own key, ``**README Version:**``, is
+    bumped once per PR with the library CalVer, and ``bump_semver`` would otherwise repair a
+    ``**Version:**`` line in it (the wrong key) and report success with the README's key unchanged."""
+    if path == README_PATH:
+        return False
     try:
         if git(root, "diff", "--name-only", "--", path).strip():
             return False
@@ -512,7 +518,8 @@ def main() -> int:
 
     lines = [
         "BLOCKED (unbumped-version-commit): a commit containing staged file(s) with a changed BODY, no "
-        "staged `**Version:**` line addition/removal, and an unsuccessful auto-bump (other unstaged changes "
+        "staged change to its own Version line (`**Version:**`; README.md: `**README Version:**`), and an "
+        "unsuccessful auto-bump (README.md is never auto-bumped; otherwise other unstaged changes "
         "present, no numeric Version match before the metadata-region end such as a bracketed template, or an exception during the attempt):",
         "",
     ]
