@@ -2,8 +2,8 @@
 
 **Document Title:** Continuous Assurance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.1.7\
-**Date:** 2026-09-22\
+**Version:** 1.1.8\
+**Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](../compliance/procedure-audit-planning.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -28,7 +28,7 @@ It ensures that ongoing monitoring, evaluation, and improvement activities are c
 
 1. Applies to all enterprise governance domains, including information security, privacy, AI ethics, sustainability, ESG, and BASC trade compliance.
 2. Covers assurance mechanisms for control effectiveness, process maturity, and regulatory compliance.
-3. Includes AI governance maturity monitoring under ISO/IEC 42001 §9.1 and organization-defined digital-trust indicators (informed by ISACA's Digital Trust Ecosystem Framework, 2024).
+3. Includes AI governance maturity monitoring under ISO/IEC 42001:2023 §9.1 and organization-defined digital-trust indicators (informed by ISACA's Digital Trust Ecosystem Framework, 2024).
 4. Encompasses global operations, including BASC-certified trade and logistics activities.
 
 ---
@@ -100,7 +100,7 @@ The organization must track and improve:
 - Security resilience and service availability.
 - Ethical accountability and stakeholder confidence.
 
-### 4.2 AI performance and maturity kpis (monitored under ISO/IEC 42001 §9.1)
+### 4.2 AI performance and maturity kpis (monitored under ISO/IEC 42001:2023 §9.1)
 
 - Percentage of AI models passing fairness and robustness thresholds.
 - Explainability compliance rate for deployed AI systems.
@@ -155,7 +155,7 @@ Performance data from all assurance activities feed into the Governance Performa
 - Automated tracking of improvement actions from the CAPA system.
 - Predictive analytics to detect emerging control weaknesses.
 
-7.2 The AI governance workspace consolidates AI maturity data for management review and ISO/IEC 42001 certification support.
+7.2 The AI governance workspace consolidates AI maturity data for management review and ISO/IEC 42001:2023 certification support.
 
 7.3 All assurance and improvement data are securely stored in the GRC platform with full audit traceability.
 

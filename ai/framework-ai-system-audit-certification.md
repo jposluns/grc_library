@@ -2,8 +2,8 @@
 
 **Document Title:** AI System Audit and Certification Framework\
 **Document Type:** Framework\
-**Version:** 1.0.16\
-**Date:** 2026-09-22\
+**Version:** 1.0.17\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -170,7 +170,7 @@ Stages 3 to 7 are performed by an external certification body, whose competence 
 - **Audit time (Annex A, normative).** The body sets audit duration per the Annex A calculation (scaled by the number of persons in the AI life cycle and the AIMS role, and adjusted for regulatory frameworks, the number and risk of the AI systems, third-party agreements, and the Statement of Applicability control count); the total audit time cannot be reduced by reallocating it within the audit team. Surveillance is approximately one third, and recertification at least two thirds, of the initial audit time.
 - **Two-stage initial audit (§9.3.2).** Stage 3 (documentation review) and Stage 4 (implementation audit) above correspond to the standard's stage 1 and stage 2; the body reviews the stage 1 report before proceeding to stage 2, and stage 2 confirms that the AIMS is effectively implemented and that the organization adheres to its own policies, objectives, and procedures.
 
-An ISO/IEC 42001 AIMS certificate issued under ISO/IEC 42006 is a management-system certification. It is distinct from, and does not substitute for, the EU AI Act per-system conformity assessment in Section 7, and the AIMS certificate does not authorize product, process, or service conformity labelling.
+An ISO/IEC 42001:2023 AIMS certificate issued under ISO/IEC 42006 is a management-system certification. It is distinct from, and does not substitute for, the EU AI Act per-system conformity assessment in Section 7, and the AIMS certificate does not authorize product, process, or service conformity labelling.
 
 ---
 

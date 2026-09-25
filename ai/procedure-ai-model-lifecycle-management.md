@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Lifecycle Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.9\
-**Date:** 2026-09-01\
+**Version:** 1.0.10\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`security/policy-acceptance-into-service.md`](../security/policy-acceptance-into-service.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/standard-ai-model-succession-and-identity.md`](standard-ai-model-succession-and-identity.md), [`governance/standard-semantic-continuity-in-migration-and-retirement.md`](../governance/standard-semantic-continuity-in-migration-and-retirement.md)\
@@ -91,7 +91,7 @@ Applies to all AI models and machine learning systems developed internally, proc
 
 4.4 Material monitoring findings are reported to the AIGC at the next quarterly meeting.
 
-4.5 The performance thresholds referenced in 4.3 (and the retraining threshold in 5.1) are defined per model, the metric, the floor value, and the accountable owner, and are recorded in the model's entry in the AI System Inventory at deployment; a model with no recorded threshold does not enter production. This turns "defined thresholds" from an assumption into a deployment obligation, aligned with ISO/IEC 42001 Section 9 (performance evaluation).
+4.5 The performance thresholds referenced in 4.3 (and the retraining threshold in 5.1) are defined per model, the metric, the floor value, and the accountable owner, and are recorded in the model's entry in the AI System Inventory at deployment; a model with no recorded threshold does not enter production. This turns "defined thresholds" from an assumption into a deployment obligation, aligned with ISO/IEC 42001:2023 Section 9 (performance evaluation).
 
 4.6 For deployments that apply automated continuous learning without human interaction, an automated rollback process is enabled at defined performance thresholds, defaulting to a safe alternative model on a threshold breach (ISO/IEC 5338:2023 Section 6.4.14, continuous validation).
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Colorado AI and Automated Decision-Making Technology Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-07-12\
+**Version:** 0.0.3\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -76,7 +76,7 @@ Colorado's automated-decision-making obligations intersect with the profiling an
 
 ## Framework alignment
 
-| Requirement | Colorado AI statute | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | Colorado AI statute | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Developer documentation and disclosure to deployers | SB24-205 6-1-1702; SB26-189 6-1-1702 | Govern, Map | Clause 8 |
 | Deployer risk management and record-keeping | SB24-205 6-1-1703; SB26-189 6-1-1703 | Manage | Clause 8.3 |

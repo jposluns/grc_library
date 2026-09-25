@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.13\
+**Version:** 1.1.14\
 **Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -89,7 +89,7 @@ Assessments must be conducted across all applicable domains. Suppliers scoring b
 | Security Controls | Encryption, access control, incident response, vulnerability management. | ISO/IEC 27001:2022, SOC 2. |
 | Privacy Compliance | Data protection obligations, consent management, cross-border transfer controls. | GDPR, PIPEDA, LGPD, PIPL. |
 | Business Continuity | Recovery capabilities, resilience planning, dependency management. | ISO 22301, COBIT DSS04. |
-| AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001, CSA AICM. |
+| AI Governance | Model transparency, bias controls, fairness, auditability. | ISO/IEC 42001:2023, CSA AICM. |
 | Trade Security | Supply chain security programme compliance (where the supplier is in scope). | WCO SAFE Framework 2025 edition, ISO 28000:2022; plus sector-specific overlays per [`compliance/`](../compliance/). |
 | Sustainability | Energy management and environmental responsibility. | ISO 50001. |
 

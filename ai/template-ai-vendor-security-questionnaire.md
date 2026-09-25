@@ -2,8 +2,8 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-09-13\
+**Version:** 1.0.7\
+**Date:** 2026-09-25\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/template-supplier-security-questionnaire.md`](../supply-chain/template-supplier-security-questionnaire.md), [`supply-chain/procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/register-model-registry.md`](register-model-registry.md)\
@@ -47,8 +47,8 @@ It is not a substitute for the general supplier security questionnaire. Submit b
 | What modalities are supported | Text, image, audio, video, multimodal, embeddings |
 | What is the deployment model | Public cloud (multi-tenant), public cloud (single-tenant), customer cloud (vendor-managed), on-premises, edge |
 | What is the geographical footprint of training, serving, and support | Country list with operational role |
-| Is the offering ISO/IEC 42001 certified or under audit | State and timeline |
-| If ISO/IEC 42001 certified, was the certificate issued by a body accredited under ISO/IEC 42006 (an accredited third-party assessment, not a self-declaration) | Certification body and accreditation status |
+| Is the offering ISO/IEC 42001:2023 certified or under audit | State and timeline |
+| If ISO/IEC 42001:2023 certified, was the certificate issued by a body accredited under ISO/IEC 42006 (an accredited third-party assessment, not a self-declaration) | Certification body and accreditation status |
 | Does the offering hold sector-specific accreditations relevant to AI (e.g. healthcare AI, financial-services AI) | List |
 | What is the provider's published responsible-AI policy or framework | URL or document reference |
 

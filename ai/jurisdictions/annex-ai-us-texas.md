@@ -2,8 +2,8 @@
 
 **Document Title:** Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.3\
-**Date:** 2026-09-05\
+**Version:** 0.0.4\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-california.md`](annex-ai-us-california.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -96,7 +96,7 @@ The broader US privacy posture and these statutes' privacy mechanics are maintai
 
 ## Framework alignment
 
-| Requirement | Texas TRAIGA | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | Texas TRAIGA | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Consumer disclosure of AI interaction (government; health care) | Sec. 552.051 | Govern | Annex A.8 |
 | Prohibited manipulation, constitutional-infringement, intent-based discrimination, and unlawful sexual-content uses | Secs. 552.052, 552.055, 552.056, 552.057 | Govern, Manage | Annex A.5 |

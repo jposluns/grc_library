@@ -2,7 +2,7 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -79,11 +79,11 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 | Disclosure Item | Standard | Frequency |
 | --- | --- | --- |
-| AI governance maturity level | ISO/IEC 42001; COBIT 2019 | Annual |
+| AI governance maturity level | ISO/IEC 42001:2023; COBIT 2019 | Annual |
 | Number of AI systems by risk tier | EU AI Act (tiering); NIST AI RMF (informs the organization's own risk-management approach, prescribes no tiers) | Annual |
-| Bias audit completion rate for production AI | ISO/IEC 42001 §9 | Annual |
+| Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9 | Annual |
 | Explainability compliance rate | EU AI Act Annex IV | Annual |
-| AI incidents reported and resolved | ISO/IEC 42001 §10 | Annual |
+| AI incidents reported and resolved | ISO/IEC 42001:2023 §10 | Annual |
 | High-risk AI systems with current AI Impact Assessment | EU AI Act | Annual |
 
 ---
@@ -93,7 +93,7 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 | Disclosure Item | Framework | Frequency |
 | --- | --- | --- |
 | Governance maturity assessment results | COBIT 2019 | Annual |
-| Board and ERC oversight of AI and ESG | GRI 2 (governance disclosures 2-9 to 2-21); ISO/IEC 42001 §5 | Annual |
+| Board and ERC oversight of AI and ESG | GRI 2 (governance disclosures 2-9 to 2-21); ISO/IEC 42001:2023 §5 | Annual |
 | Anti-bribery commitment and compliance | ISO 37001:2025; GRI 205 | Annual |
 | Data protection compliance summary | GDPR; PIPEDA | Annual |
 
@@ -111,7 +111,7 @@ The organization aligns its ESG and AI ethics disclosures with the following sta
 | OECD AI Principles | AI ethics commitments and transparency |
 | EU AI Act | High-risk AI system disclosures to competent authorities |
 | GPAI Model Governance Playbook | AI model governance disclosures |
-| ISO/IEC 42001 | AI management system disclosures |
+| ISO/IEC 42001:2023 | AI management system disclosures |
 
 ---
 

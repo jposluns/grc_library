@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.5\
+**Version:** 0.0.6\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -61,7 +61,7 @@ This annex is the per-regime view; it cross-references the operational substance
 
 The UK-principle column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the non-statutory principles and those standards impose the same obligations.
 
-| UK principle | Corpus AI-governance touchpoint | NIST AI RMF | ISO/IEC 42001 |
+| UK principle | Corpus AI-governance touchpoint | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Safety, security and robustness | AI security, testing, and monitoring | Measure, Manage | Annex A.6 |
 | Appropriate transparency and explainability | AI model documentation and transparency | Govern, Map | Annex A.8 |

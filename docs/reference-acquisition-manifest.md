@@ -318,7 +318,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (312: 268 free, 44 licensed)
+## Frameworks (313: 269 free, 44 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -372,6 +372,7 @@ without the private reference sibling).
 | Canada TBS Algorithmic Impact Assessment questionnaire (survey definition, aia-eia-js) |  | TBS |  | FREE |
 | Canada TBS Departmental Adoption of GCtranslate Policy Implementation Notice | PIN, effective 2026-04-29 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Direction on the Secure Use of Commercial Cloud Services (SPIN) | Security Policy Implementation Notice (SPIN) 2017-01 | Treasury Board of Canada Secretariat |  | FREE |
+| Canada TBS Directive on Access to Information Requests | Effective 2022-07-13 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Directive on Digital Talent | 2023 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Directive on Identity Management | 2019 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Directive on Open Government | in force 2014-10-09 (confirmed current upstream 2026-07-15) | Treasury Board of Canada Secretariat |  | FREE |
@@ -635,11 +636,12 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (229: 229 free, 0 licensed)
+## Legislation (230: 230 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
 | Access to Information Act (RSC 1985, c. A-1) | RSC 1985 c. A-1, consolidated: current to 2026-09-03, last amended on 2026-06-14 (Justice Laws PDF) | Canada (Federal) |  | FREE |
+| Access to Information Regulations (SOR/83-507) | Justice Laws consolidation, current to 2026-09-03, last amended 2023-06-23 | Canada (Federal) |  | FREE |
 | ADGM Data Protection Regulations 2021 (Feb-2024 consolidation; SUPERSEDED by Amendment No.1 2025) | ADGM Data Protection Regulations 2021, Feb-2024 consolidation - SUPERSEDED by Amendment No.1 2025 (in force 9 Sep 2025) | United Arab Emirates (ADGM) |  | FREE |
 | Alberta Access to Information Act (SA 2024, c. A-1.4; in force 2025-06-11) | SA 2024 c. A-1.4, in force 2025-06-11 | Canada (Alberta) |  | FREE |
 | Alberta Protection of Privacy Act (SA 2024, c. P-28.5; in force 2025-06-11) | SA 2024 c. P-28.5, in force 2025-06-11 | Canada (Alberta) |  | FREE |
@@ -916,5 +918,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 851 sources (725 free, 126 licensed).**
+**Total: 853 sources (727 free, 126 licensed).**
 

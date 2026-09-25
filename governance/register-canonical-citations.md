@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.97\
+**Version:** 1.5.98\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | ISO 31000 | 2018 | 2018-02 | Risk management: Guidelines | - | https://www.iso.org/standard/65694.html | verified 2026-07-09 |
 | ISO/IEC 38500 | 2024 | 2024 | Governance of IT for the organization | 2015 | https://www.iso.org/standard/81684.html | verified 2026-07-09 |
 | ISO/IEC 23894 | 2023 | 2023-02 | AI risk management guidance | - | https://www.iso.org/standard/77304.html | verified 2026-07-09 |
-| ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | https://www.iso.org/standard/42001 | verified 2026-07-09 |
+| ISO/IEC 42001 | 2023 | 2023-12 | AI management systems: requirements | - | https://www.iso.org/standard/42001 | verified 2026-09-25 |
 | ISO/IEC 42005 | 2025 | 2025-05 | AI system impact assessment | - | https://www.iso.org/standard/42005 | verified 2026-07-09 |
 | ISO/IEC 42006 | 2025 | 2025 | Requirements for bodies providing audit and certification of AI management systems | draft 2024, 2024 draft | https://www.iso.org/standard/42006 | verified 2026-07-09 |
 | ISO 28000 | 2022 | 2022-03 | Security management systems for the supply chain | 2007 | https://www.iso.org/standard/79612.html | verified 2026-07-09 |

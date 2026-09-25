@@ -2,7 +2,7 @@
 
 **Document Title:** United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -118,7 +118,7 @@ The Texas annex records that TRAIGA's internal-review no-liability route is cond
 
 The federal-instrument column is the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 clause and Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, partial for bundled rows, not an assertion that the memoranda and those standards impose the same obligations.
 
-| Requirement | US federal instrument | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | US federal instrument | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Chief AI Officer, governance board, strategy, and compliance plans | M-25-21 | Govern | Clause 5 |
 | High-impact determination and AI impact assessment with independent review | M-25-21 | Map, Measure | Annex A.5 |

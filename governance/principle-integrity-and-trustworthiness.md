@@ -2,7 +2,7 @@
 
 **Document Title:** Integrity and Trustworthiness Principle\
 **Document Type:** Principle\
-**Version:** 0.0.11\
+**Version:** 0.0.12\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,7 +75,7 @@ The four facets align, at the concept level, with the trustworthiness vocabulari
 **Alignment caveats (deliberate, source-verified):**
 - **Accuracy** aligns with the NIST *Valid and Reliable* characteristic only at the concept level: the RMF's "accuracy" measures an AI system's output closeness to true values (a model-performance property), whereas the AIQT Accuracy facet is claim-to-source fidelity in produced work. The shared idea is "correctness confirmed through objective evidence". ISO/IEC TR 24028 §5.3 (which lists accuracy and consistency among the attributes of integrity) is the stronger held-text anchor.
 - **Integrity** has **no direct NIST AI RMF characteristic**: the RMF has no work-product-honesty property. The nearest is *Accountable and Transparent* (via disclosure and non-concealment), an analogy, not a match. The precise held-text anchor is ISO/IEC TR 24028 **§5.3** ("respect of sound moral and ethical principles"), NOT the standard's clause-3.21 "integrity" (which is the confidentiality-integrity-availability sense, a false friend for this facet).
-- **Quality** is native to ISO/IEC 42001 (a management-system standard: requirements, design documentation, data quality) but only *listed*, not defined, in ISO/IEC TR 24028; treat 42001 as the primary anchor and TR 24028 as corroborating.
+- **Quality** is native to ISO/IEC 42001:2023 (a management-system standard: requirements, design documentation, data quality) but only *listed*, not defined, in ISO/IEC TR 24028; treat 42001 as the primary anchor and TR 24028 as corroborating.
 - The NIST AI RMF characteristics not mapped (Safe; Secure and Resilient; Explainable and Interpretable; Privacy-Enhanced; Fair with Harmful Bias Managed) address AI-system output risk, outside the AIQT facets' scope (the integrity of the work product and its production), and are deliberately not force-fit.
 - **Progress and Speed are not mapped here.** They are the throughput tier below the four AIQT facets (how work is paced), not trustworthiness characteristics of a work product, so they are deliberately excluded from the alignment above, for the same reason the AI-system-output characteristics are (see section 1).
 
