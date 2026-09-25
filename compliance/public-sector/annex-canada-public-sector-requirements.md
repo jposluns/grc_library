@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.14\
+**Version:** 0.0.15\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -249,6 +249,7 @@ The order made under subsection 4(2) that extends the right of access to further
 | Access to Information Act text (quoted) | Provision |
 | --- | --- |
 | "With the Information Commissioner’s written approval, the head of a government institution may, before giving a person access to a record or refusing to do so, decline to act on the person’s request if, in the opinion of the head of the institution, the request is vexatious, is made in bad faith or is otherwise an abuse of the right to make a request for access to records." | Subsection 6.1(1) |
+| "The head of a government institution is not authorized under subsection (1) to decline to act on a person’s request for a record for the sole reason that the information contained in it has been published under Part 2." | Subsection 6.1(1.1) |
 | "The head of the institution shall give written notice to the person who made the request for access to a record under this Part of the suspension of the period, and of the reasons for the suspension, at the same time as they communicate with the Information Commissioner to obtain his or her approval to decline to act." | Subsection 6.1(1.3) |
 | "If the head of a government institution declines to act on the person’s request, they shall give the person written notice of their decision to decline to act on the request and their reasons for doing so." | Subsection 6.1(2) |
 
@@ -291,7 +292,7 @@ The order made under subsection 4(2) that extends the right of access to further
 
 This is the principal review route, not the complete procedure: investigations (sections 32 to 36), when an order takes effect (subsections 36.1(4) and (5)), third-party and Privacy Commissioner review (subsections 41(3) and (4)) and stays (section 41.1) are further provisions an adopter reads before relying on this summary.
 
-**Proactive publication under Part 2.** Part 2 has separate branches for parliamentary entities (sections 71.01 to 71.14), ministers (sections 72 to 80), government institutions (sections 81 to 90) and the named judicial administration offices (sections 90.01 to 90.24). This baseline carries only the government-institution branch's publication list and its limits; the other branches, and the per-item clocks in sections 82 to 87, are read in the Act.
+**Proactive publication under Part 2.** Part 2 has separate branches for parliamentary entities (sections 71.01 to 71.14), ministers (sections 72 to 80), government institutions (sections 81 to 90) and the named judicial administration offices (sections 90.01 to 90.24). This baseline quotes only section 88 (briefing materials, which applies to a government entity as defined in section 81, a narrower group than all government institutions) and the publication limits in section 90. The other publication duties in sections 82 to 87 (travel and hospitality expenses, tabled reports, position reclassifications, contracts, and grants and contributions), with their clocks, and the other branches are read in the Act.
 
 | Access to Information Act text (quoted) | Provision |
 | --- | --- |
@@ -325,7 +326,7 @@ This is the principal review route, not the complete procedure: investigations (
 | "Ensuring searches for records are comprehensive and consider both the letter and the spirit of the request." | Directive 4.2.3 |
 | "Establishing measures to support the right of public access to information when entering into contracts, arrangements and agreements." | Directive 4.2.8 |
 
-Third-party notification (sections 27 to 29), the Appendix D fields for published request summaries, and records retention and disposal are not carried in this baseline.
+The suspension of the response period while the head of the institution seeks the Information Commissioner's approval to decline (subsection 6.1(1.2)), third-party notification (sections 27 and 28), the Appendix D fields for published request summaries, and records retention and disposal are not carried in this baseline.
 
 ---
 
