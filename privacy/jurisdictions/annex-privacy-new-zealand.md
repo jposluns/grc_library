@@ -2,8 +2,8 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-09-16\
+**Version:** 1.1.4\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Privacy Act 2020**: In force 2020-12-01, replacing the Privacy Act 1993. Administered by the Office of the Privacy Commissioner (OPC).
+- **Privacy Act 2020**: In force 2020-12-01, replacing the Privacy Act 1993. Overseen by the Office of the Privacy Commissioner (OPC).
 - 13 Information Privacy Principles (IPPs), plus IPP 3A (indirect-collection notice, effective 1 May 2026 under the 2025 Amendment Act), govern collection, use, disclosure, storage, and security of personal information.
 - **Mandatory breach notification:** Agencies must notify the OPC and affected individuals of privacy breaches likely to cause serious harm as soon as practicable after becoming aware.
 - **Extraterritorial reach:** Applies to any agency carrying on business in New Zealand, regardless of where they are based.
