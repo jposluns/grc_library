@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.29\
+**Version:** 1.2.30\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -196,6 +196,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | UK | `legislation.gov.uk`, `ico.org.uk`, `ncsc.gov.uk`, `gov.uk` | UK regulation and ICO/NCSC; gov.uk is the UK government parent domain. |
 | Canada | `laws-lois.justice.gc.ca`, `gazette.gc.ca`, `priv.gc.ca`, `cyber.gc.ca`, `tbs-sct.canada.ca`, `osfi-bsif.gc.ca`, `ola.org`, `dgc-cgn.org`, `canada.ca`, `parl.ca` | Canadian federal regulation and OPC; Treasury Board (TBS Directive on Automated Decision-Making); OSFI (Guideline E-23); Legislative Assembly of Ontario (Bill 194 / Enhancing Digital Security and Trust Act); Digital Governance Council / DGSI (CAN/DGSI 101:2025); Government of Canada parent domain (canada.ca); Parliament of Canada (parl.ca). |
 | Quebec | `legisquebec.gouv.qc.ca` | Quebec provincial regulation (Law 25). |
+| British Columbia | `bclaws.gov.bc.ca` | British Columbia statute consolidations published by the King's Printer on BC Laws (Freedom of Information and Protection of Privacy Act). |
 | WCO | `wcoomd.org` | WCO SAFE Framework, AEO, customs. |
 | ICAO | `icao.int` | International civil aviation. |
 | IMO | `imo.org` | International maritime. |
@@ -397,6 +398,13 @@ The allow-list itself is subject to the same verification discipline as register
       "legisquebec.gouv.qc.ca"
     ],
     "covers": "Quebec provincial regulation (Law 25)."
+  },
+  {
+    "publisher": "British Columbia",
+    "domains": [
+      "bclaws.gov.bc.ca"
+    ],
+    "covers": "British Columbia statute consolidations published by the King's Printer on BC Laws (Freedom of Information and Protection of Privacy Act)."
   },
   {
     "publisher": "WCO",
