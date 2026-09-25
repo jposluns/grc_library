@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.17\
+**Version:** 0.0.18\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -419,7 +419,7 @@ As an editorial reading of the verbs: subsection 12(1) and sections 18.1, 21, 22
 
 | Freedom of Information and Protection of Privacy Act text (quoted) | Provision |
 | --- | --- |
-| "Whether or not a request for access is made, the head of a public body must, without delay, disclose to the public, to an affected group of people or to an applicant, information (a) about a risk of significant harm to the environment or to the health or safety of the public or a group of people, or (b) the disclosure of which is, for any other reason, clearly in the public interest." | Subsection 25(1) |
+| "Whether or not a request for access is made, the head of a public body must, without delay, disclose to the public, to an affected group of people or to an applicant, information (a) about a risk of significant harm to the environment or to the health or safety of the public or a group of people, or (b) the disclosure of which is, for any other reason, clearly in the public interest." | Subsection 25(1) (before disclosing, notice to third parties and the commissioner under subsections 25(3) and (4)) |
 | "Subsection (1) applies despite any other provision of this Act." | Subsection 25(2) |
 
 **Protection of privacy: collection, accuracy, correction, protection, retention, use and disclosure.**
@@ -497,7 +497,7 @@ This is the principal review route, not the complete procedure. Mediation (secti
 | "A person who commits an offence under section 65.3 or 65.4 is liable on conviction, (a) in the case of an individual, other than an individual who is a service provider, to a fine of up to $50 000, (b) subject to paragraph (c), in the case of a service provider, including a partnership that or an individual who is a service provider, to a fine of up to $50 000, and (c) in the case of a corporation, to a fine of up to $500 000." | Subsection 65.6(2) |
 | "The time limit for laying an information to commence a prosecution for an offence under sections 65.3 and 65.4 is (a) one year after the date on which the act or omission that is alleged to constitute the offence occurred, or (b) if the minister responsible for this Act issues a certificate described in subsection (2), one year after the date on which the minister learned of the act or omission referred to in paragraph (a) of this subsection." | Subsection 65.7(1) |
 
-The following are not carried in this baseline:
+Provisions not carried in this baseline include:
 - the suspensions of the response period for commissioner applications, fees and reviews (subsections 7(3) to (7));
 - how access is given (section 9) and the refusal to confirm or deny the existence of a record (subsection 8(2));
 - the third-party notice procedure and its clocks (sections 23 and 24);
