@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.7\
-**Date:** 2026-09-14\
+**Version:** 1.1.8\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -24,7 +24,7 @@ This procedure defines the process for planning, executing, reporting, and follo
 
 ## Scope
 
-Applies to all AI systems in the AI System Inventory, including production AI models, automated decision-making systems, and generative AI tools. AI audits may be conducted internally by Internal Audit or the AIGC, or externally by approved third-party auditors. Where an external audit takes the form of a third-party ISO/IEC 42001 AIMS certification, the external certification body operates under ISO/IEC 42006:2025 (impartiality and no consulting, auditor competence and qualification, audit time, and the two-stage certification audit); those requirements bind the certification body, not the organization's internal auditors.
+Applies to all AI systems in the AI System Inventory, including production AI models, automated decision-making systems, and generative AI tools. AI audits may be conducted internally by Internal Audit or the AIGC, or externally by approved third-party auditors. Where an external audit takes the form of a third-party ISO/IEC 42001:2023 AIMS certification, the external certification body operates under ISO/IEC 42006:2025 (impartiality and no consulting, auditor competence and qualification, audit time, and the two-stage certification audit); those requirements bind the certification body, not the organization's internal auditors.
 
 ---
 
@@ -59,7 +59,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 2.1 For each AI audit, the scope defines:
 - AI system(s) under review.
 - Audit objectives (ethics, accuracy, security, compliance, or full-scope).
-- Audit criteria: ISO/IEC 42001, EU AI Act, NIST AI RMF, OWASP LLM Top 10, and/or internal standards.
+- Audit criteria: ISO/IEC 42001:2023, EU AI Act, NIST AI RMF, OWASP LLM Top 10, and/or internal standards.
 - Evidence required.
 - Audit timeline.
 

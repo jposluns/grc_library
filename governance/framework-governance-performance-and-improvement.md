@@ -2,7 +2,7 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -46,7 +46,7 @@ Annual maturity assessments are conducted across all governance domains using a 
 | 4: Quantitatively Managed | Processes measured with quantitative objectives; statistical controls applied. |
 | 5: Optimized | Continuous process improvement through incremental and innovative change. |
 
-Organization-defined AI governance maturity indicators covering explainability, fairness, and accountability, selected to support the monitoring, measurement, analysis, and evaluation required by ISO/IEC 42001 Clause 9.1, are tracked in the maturity assessment.
+Organization-defined AI governance maturity indicators covering explainability, fairness, and accountability, selected to support the monitoring, measurement, analysis, and evaluation required by ISO/IEC 42001:2023 Clause 9.1, are tracked in the maturity assessment.
 
 The methodology behind this ladder, the median-of-medians aggregation, its outlier-masking limitation, and the compensating floor-check the assessor applies, is documented in [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md).
 
@@ -60,7 +60,7 @@ Follows the Plan-Do-Check-Act (PDCA) model. All improvement initiatives are logg
 
 ### 5. AI governance maturity and digital trust metrics
 
-Organization-defined AI governance KPIs, selected to support the monitoring, measurement, analysis, and evaluation required by ISO/IEC 42001 Clause 9.1 (Monitoring, measurement, analysis and evaluation), include:
+Organization-defined AI governance KPIs, selected to support the monitoring, measurement, analysis, and evaluation required by ISO/IEC 42001:2023 Clause 9.1 (Monitoring, measurement, analysis and evaluation), include:
 - Model auditability and documentation completeness.
 - Explainability and user transparency.
 - Bias mitigation and fairness testing frequency.

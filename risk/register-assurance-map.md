@@ -2,7 +2,7 @@
 
 **Document Title:** Assurance Map Register\
 **Document Type:** Register\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -113,7 +113,7 @@ To support consistency, the activities captured in each entry use the following 
 | Second-line testing | Second-line tests control effectiveness |
 | Independent assurance | Third-line independent testing |
 | External audit | External auditor opinion |
-| Certification | Independent certification (e.g. ISO/IEC 27001:2022, ISO/IEC 42001, SOC 2 Type II) |
+| Certification | Independent certification (e.g. ISO/IEC 27001:2022, ISO/IEC 42001:2023, SOC 2 Type II) |
 | Regulator examination | Regulator-led examination |
 | Customer audit | Customer-led audit of the organization |
 | Supplier attestation | Supplier-provided attestation of their controls |

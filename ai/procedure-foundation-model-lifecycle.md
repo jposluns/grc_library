@@ -2,7 +2,7 @@
 
 **Document Title:** Foundation Model Lifecycle Procedure\
 **Document Type:** Procedure\
-**Version:** 0.0.13\
+**Version:** 0.0.14\
 **Date:** 2026-09-25\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -82,7 +82,7 @@ For proprietary cloud-hosted providers, the contract includes the following beyo
 | Cross-border transfer | Mechanism per Chapter V GDPR; data residency commitments |
 | Indemnity for IP claims | Coverage for copyright claims arising from model outputs where the contract allows |
 | Indemnity for personal data claims | Coverage where personal data is involved in training-data disputes |
-| Audit and assurance | SOC 2 Type II, ISO/IEC 27001:2022, ISO/IEC 42001 (when available) evidence cadence; right to audit or right to an independent attestation |
+| Audit and assurance | SOC 2 Type II, ISO/IEC 27001:2022, ISO/IEC 42001:2023 (when available) evidence cadence; right to audit or right to an independent attestation |
 | Incident notification | Provider-to-organization notification within 24 hours of discovery, uniform across AI suppliers per [`procedure-third-party-ai-due-diligence.md`](../supply-chain/procedure-third-party-ai-due-diligence.md) Section 6.3; this supplier notification clock is distinct from, and does not substitute for, the organization's own regulatory reporting obligations |
 | Right to exit | Documented exit assistance; data return and destruction obligations |
 | Co-operation on regulatory enquiries | Provider's commitments where the organization faces a regulator under EU AI Act, NIS 2, sector regulator |

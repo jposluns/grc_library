@@ -2,8 +2,8 @@
 
 **Document Title:** South Korea AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-09-05\
+**Version:** 0.0.2\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`ai/jurisdictions/annex-ai-singapore.md`](annex-ai-singapore.md), [`privacy/jurisdictions/annex-privacy-south-korea.md`](../../privacy/jurisdictions/annex-privacy-south-korea.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -106,7 +106,7 @@ The enforcement chain is asymmetric, and stating the asymmetry precisely is this
 
 The table is a mapping aid, not an assertion that the regimes impose the same obligations; every cell, including the statute anchors (which are translation-derived), is a mapping judgement.
 
-| Requirement | South Korea AI Basic Act | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | South Korea AI Basic Act | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Advance notice that a product or service is AI-based (high-impact or generative AI) | Article 31(1) | Govern | Annex A.8 |
 | Generative-output notice and synthetic-content labelling | Article 31(2), 31(3) | Govern, Map | Annex A.8 |

@@ -2,8 +2,8 @@
 
 **Document Title:** California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.4\
-**Date:** 2026-09-03\
+**Version:** 0.0.5\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This annex documents California's AI-specific regulatory limb for the AI-domain reader: the California Privacy Protection Agency's CCPA regulations on Automated Decisionmaking Technology (ADMT), which bind a business that uses ADMT to make a significant decision concerning a consumer. It is the `ai/jurisdictions/` view of that limb, parallel to the Colorado and New York City AI annexes, and it adds the framework-alignment crosswalk (NIST AI RMF, ISO/IEC 42001) for AI-governance adopters. This annex is the single canonical home for the CCPA ADMT limb: [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) touches ADMT only in a brief privacy-context summary that points here, and it retains the CCPA risk-assessment and cybersecurity-audit slices as its own privacy-domain obligations; on the shared ADMT obligation detail the enacted regulation governs.
+This annex documents California's AI-specific regulatory limb for the AI-domain reader: the California Privacy Protection Agency's CCPA regulations on Automated Decisionmaking Technology (ADMT), which bind a business that uses ADMT to make a significant decision concerning a consumer. It is the `ai/jurisdictions/` view of that limb, parallel to the Colorado and New York City AI annexes, and it adds the framework-alignment crosswalk (NIST AI RMF, ISO/IEC 42001:2023) for AI-governance adopters. This annex is the single canonical home for the CCPA ADMT limb: [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) touches ADMT only in a brief privacy-context summary that points here, and it retains the CCPA risk-assessment and cybersecurity-audit slices as its own privacy-domain obligations; on the shared ADMT obligation detail the enacted regulation governs.
 
 ## Applicable law and regulatory authority
 
@@ -60,7 +60,7 @@ These are binding regulations, not legal advice; the controlling text is the CPP
 
 The requirement column and its section cites are the load-bearing, held-source-grounded content. The NIST AI RMF function tags and the ISO/IEC 42001:2023 Annex A anchors are a crosswalk to help an adopter reuse its existing management-system controls; they are a mapping aid, not an assertion that the binding regulations and those frameworks impose the same obligations.
 
-| Requirement | California CCPA ADMT regulations | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | California CCPA ADMT regulations | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Notice before automated decisioning | section 7220 (pre-use notice) | Govern, Map | Annex A.8 |
 | Consumer opt-out of ADMT for significant decisions | section 7221 | Manage, Govern | Annex A.9 |

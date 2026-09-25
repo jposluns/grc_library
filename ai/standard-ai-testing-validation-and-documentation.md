@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.9\
-**Date:** 2026-09-20\
+**Version:** 1.0.10\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)\
@@ -20,7 +20,7 @@
 
 This standard defines the mandatory requirements for testing, validating, and documenting artificial intelligence systems throughout their lifecycle. It ensures that AI models deployed by the organization are technically sound, ethically validated, explainable, and compliant with applicable standards and regulations before and after deployment.
 
-The standard aligns with ISO/IEC 42001 §8, ISO/IEC 42005:2025 (AI system impact assessment), ISO/IEC TS 25058:2024 and ISO/IEC 25059:2023 (AI quality evaluation and the Systems and software Quality Requirements and Evaluation (SQuaRE) AI quality model), NIST AI RMF, NIST IR 8312 (explainability principles), ISO/IEC TR 24027:2021 (bias in AI systems), EU AI Act Annex IV, OWASP LLM Top 10, and the NIST AI 100-2e2025 adversarial machine-learning taxonomy.
+The standard aligns with ISO/IEC 42001:2023 §8, ISO/IEC 42005:2025 (AI system impact assessment), ISO/IEC TS 25058:2024 and ISO/IEC 25059:2023 (AI quality evaluation and the Systems and software Quality Requirements and Evaluation (SQuaRE) AI quality model), NIST AI RMF, NIST IR 8312 (explainability principles), ISO/IEC TR 24027:2021 (bias in AI systems), EU AI Act Annex IV, OWASP LLM Top 10, and the NIST AI 100-2e2025 adversarial machine-learning taxonomy.
 
 ---
 

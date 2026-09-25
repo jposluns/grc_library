@@ -2,7 +2,7 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.20\
+**Version:** 1.1.21\
 **Date:** 2026-09-25\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -45,7 +45,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Compliance | Compliance and Audit Management Policy | ISO 37301 compliance management, ISO 19011 auditing, COBIT MEA01, NIST SP 800-53 Rev. 5 CA family | Industry practice or regulatory interpretation | Organization operates under regulatory, contractual, or certification obligations. | Obligations register, audit plan, CAPA record, compliance evidence. |
 | AI | AI Governance and Risk Framework | ISO/IEC 23894 AI risk, NIST AI RMF, OECD AI Principles, EU AI Act, AI management families | Industry practice | AI systems materially affect business, security, legal, operational, or human outcomes. | AI system inventory, risk tiering, lifecycle evidence, model documentation. |
 | AI | AI Security and Risk Standard | OWASP LLM Top 10, MITRE ATLAS, AI control, cloud control, secure engineering, and adversarial AI references | Architectural recommendation | AI systems process sensitive data, invoke tools, use retrieval, or expose inference interfaces. | Threat model, data flow, prompt injection test, access review, monitoring record. |
-| AI | AI and Agentic Development Security Standard | OWASP LLM Top 10 (excessive agency), MITRE ATLAS, CSA AICM (agentic and autonomy domains), NIST AI RMF, ISO/IEC 42001 operational families | Architectural recommendation | AI systems use agentic tools, autonomous or semi-autonomous actions, MCP servers, code execution, or production action capability. | Agent threat model, tool allow-list, reversibility classification, recovery-test result, production-authority evidence record, immutable audit trail. |
+| AI | AI and Agentic Development Security Standard | OWASP LLM Top 10 (excessive agency), MITRE ATLAS, CSA AICM (agentic and autonomy domains), NIST AI RMF, ISO/IEC 42001:2023 operational families | Architectural recommendation | AI systems use agentic tools, autonomous or semi-autonomous actions, MCP servers, code execution, or production action capability. | Agent threat model, tool allow-list, reversibility classification, recovery-test result, production-authority evidence record, immutable audit trail. |
 | AI | AI System Impact Assessment Procedure | Privacy, security, human oversight, AI governance, and supplier risk families | Evidence category | AI system is proposed, changed, retired, or materially repurposed. | Impact assessment, risk decision, mitigation plan, approval record. |
 | Privacy | Privacy and Data Governance Policy | GDPR, PIPEDA, Quebec Law 25, PIPL, LGPD, privacy management and data protection families | Legal obligation or regulatory interpretation | Personal data or regulated data is processed. | Data inventory, impact assessment, transfer assessment, retention schedule. |
 | Supply Chain | Supplier and Cloud Governance Framework | Supplier risk, cloud assurance, NIST SP 800-161 SCRM, security, privacy, and resilience families | Industry practice or contractual requirement | External providers process data, host workloads, operate critical services, or provide AI capabilities. | Due diligence record, contractual control schedule, supplier risk register, exit plan. |

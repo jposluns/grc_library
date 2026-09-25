@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptance Into Service Policy\
 **Document Type:** Policy\
-**Version:** 1.0.14\
-**Date:** 2026-09-23\
+**Version:** 1.0.15\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-document-architecture-and-interrelationship.md`](../governance/framework-document-architecture-and-interrelationship.md), [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md)\
@@ -22,7 +22,7 @@ This policy establishes a standardized framework for evaluating, approving, and 
 
 The policy replaces the AIS Lifecycle Process, Readiness Review Procedure, and Post-Implementation Review Procedure, providing a unified acceptance model for IT, cloud, and AI-enabled services.
 
-It aligns with ISO/IEC 42001 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Authorize step, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-04 (change acceptance and transitioning).
+It aligns with ISO/IEC 42001:2023 §8 Operation, NIST SP 800-37 Risk Management Framework (RMF) Authorize step, COBIT 2019 BAI07 Managed IT Change Acceptance and Transitioning, and CSA CCM v4.1 CCC-01, CCC-02, and CCC-04 (change acceptance and transitioning).
 
 Mandatory AI risk classification and impact validation are required as a prerequisite for production deployment.
 
@@ -54,7 +54,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 | **CIO** | Authorizes final AIS approval based on security, compliance, and risk validation. |
 | **CISO** | Confirms all applicable controls from the ISMS, Privacy, and AI Risk Standards are satisfied. |
 | **IT Service Owner** | Validates operational support model, monitoring, and service-level readiness. |
-| **AI Governance Council (AIGC)** | Reviews AI systems for ISO/IEC 42001 alignment, risk classification, and compliance readiness. |
+| **AI Governance Council (AIGC)** | Reviews AI systems for ISO/IEC 42001:2023 alignment, risk classification, and compliance readiness. |
 | **Change Advisory Board (CAB)** | Reviews change records, rollback plans, and post-implementation validation evidence. |
 | **Internal Audit** | Periodically reviews AIS outcomes and verifies adherence to COBIT BAI07 and CSA CCM CCC-01, CCC-02, and CCC-04 controls. |
 
@@ -87,7 +87,7 @@ Mandatory AI risk classification and impact validation are required as a prerequ
 
 4.3.2 Security and privacy validation must include evidence from penetration testing, code reviews, and compliance checks.
 
-4.3.3 AI solutions must demonstrate conformance to ISO/IEC 42001 §8 and the AI Security and Risk Standard.
+4.3.3 AI solutions must demonstrate conformance to ISO/IEC 42001:2023 §8 and the AI Security and Risk Standard.
 
 ### 4.4 AI risk classification and impact validation
 

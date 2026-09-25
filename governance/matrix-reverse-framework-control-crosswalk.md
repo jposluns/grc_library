@@ -2,8 +2,8 @@
 
 **Document Title:** Reverse Framework Control Crosswalk Matrix\
 **Document Type:** Matrix\
-**Version:** 1.0.14\
-**Date:** 2026-09-11\
+**Version:** 1.0.15\
+**Date:** 2026-09-25\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/matrix-cross-framework-alignment.md`](matrix-cross-framework-alignment.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`NOTICE.md`](../NOTICE.md)\
@@ -67,7 +67,7 @@ This matrix does not reproduce restricted third-party framework text, does not e
 
 ## ISO/IEC 42001:2023 (AI management systems)
 
-| ISO/IEC 42001 clause area | Library documents | Alignment type |
+| ISO/IEC 42001:2023 clause area | Library documents | Alignment type |
 | --- | --- | --- |
 | Clause 5 Leadership and AI governance | [`ai/charter-ai-governance-council.md`](../ai/charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/policy-ai-compliance.md`](../ai/policy-ai-compliance.md) | Architectural recommendation |
 | Clause 6 Planning, AI risk and impact | [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-model-risk-assessment.md`](../ai/procedure-ai-model-risk-assessment.md), [`ai/register-ai-risk.md`](../ai/register-ai-risk.md), [`risk/annex-ai-risk-methodology.md`](../risk/annex-ai-risk-methodology.md) | Architectural recommendation |

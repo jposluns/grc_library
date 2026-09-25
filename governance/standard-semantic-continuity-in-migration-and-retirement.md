@@ -2,8 +2,8 @@
 
 **Document Title:** Semantic Continuity in Migration and Retirement Standard\
 **Document Type:** Standard\
-**Version:** 0.0.5\
-**Date:** 2026-09-24\
+**Version:** 0.0.6\
+**Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/standard-ai-model-succession-and-identity.md`](../ai/standard-ai-model-succession-and-identity.md), [`ai/procedure-foundation-model-lifecycle.md`](../ai/procedure-foundation-model-lifecycle.md), [`ai/procedure-ai-model-lifecycle-management.md`](../ai/procedure-ai-model-lifecycle-management.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](../supply-chain/standard-cloud-exit-and-data-portability.md), [`supply-chain/procedure-supplier-exit-and-data-return.md`](../supply-chain/procedure-supplier-exit-and-data-return.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md), [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md)\
@@ -67,7 +67,7 @@ This standard is additive and composes with, rather than duplicates, the existin
 | Impact analysis before the change is implemented | n/a | n/a | 8.5.2 | CM-4 | CCC-03 | A.8.32 |
 | Retention of comparison evidence | n/a | n/a | n/a | n/a | DSP-16 | 7.5.3 |
 
-Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow, and the standard's core requirement, successor outcome-consistency, has no framework mapping at all, which reinforces its novelty. The mapped sources govern the surrounding activities: decommissioning as a lifecycle stage (ISO/IEC 42001 A.6.2 on the AI system life cycle; NIST AI RMF MANAGE 4.1, which names decommissioning within post-deployment monitoring; NIST SP 800-53 Rev. 5 SR-12 on component disposal), service removal (ISO/IEC 20000-1 8.5.2), pre-change impact analysis (NIST SP 800-53 Rev. 5 CM-4), and evidence retention (ISO/IEC 27001:2022 7.5.3 (Control of documented information), which covers the retention and disposition of documented information). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
+Control identifiers are cited at the objective level; the paired documents in Related Documents carry the operational detail. The alignment is deliberately narrow, and the standard's core requirement, successor outcome-consistency, has no framework mapping at all, which reinforces its novelty. The mapped sources govern the surrounding activities: decommissioning as a lifecycle stage (ISO/IEC 42001:2023 A.6.2 on the AI system life cycle; NIST AI RMF MANAGE 4.1, which names decommissioning within post-deployment monitoring; NIST SP 800-53 Rev. 5 SR-12 on component disposal), service removal (ISO/IEC 20000-1 8.5.2), pre-change impact analysis (NIST SP 800-53 Rev. 5 CM-4), and evidence retention (ISO/IEC 27001:2022 7.5.3 (Control of documented information), which covers the retention and disposition of documented information). None prescribes a meaning-preserving comparison as a retirement precondition; see Limitations.
 
 ## 10. Limitations
 

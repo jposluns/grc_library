@@ -2,8 +2,8 @@
 
 **Document Title:** Illinois AI in Employment (HB 3773) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-09-05\
+**Version:** 0.0.2\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md), [`ai/jurisdictions/annex-ai-us-california.md`](annex-ai-us-california.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -74,7 +74,7 @@ The amendment adds one new subdivision to the IHRA employment civil-rights-viola
 
 ## Framework alignment
 
-| Requirement | Illinois HB 3773 | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | Illinois HB 3773 | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Discriminatory-effect prohibition on AI use in employment decisions | 775 ILCS 5/2-102(L)(1) | Measure, Manage | Clause 8.3 |
 | Zip-code-as-proxy prohibition | 775 ILCS 5/2-102(L)(1) | Map, Measure | Clause 8.3 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Australia AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-07-12\
+**Version:** 0.0.3\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-canada.md`](annex-ai-canada.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-australia.md`](../../privacy/jurisdictions/annex-privacy-australia.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -70,7 +70,7 @@ Australia's broader Privacy Act reform (the statutory tort for serious invasions
 
 ## Framework alignment
 
-| Requirement | Australia instrument | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | Australia instrument | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | National AI strategy and safety institution | National AI Plan 2025 | Govern | Clause 4 |
 | Voluntary ethical principles | AI Ethics Principles (8, voluntary) | Govern, Map | Clause 5 |

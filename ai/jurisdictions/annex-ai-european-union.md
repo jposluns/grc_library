@@ -2,8 +2,8 @@
 
 **Document Title:** European Union AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.14\
-**Date:** 2026-08-30\
+**Version:** 0.0.15\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](../procedure-ai-system-impact-assessment.md), [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../procedure-integrated-ai-and-privacy-assessment.md), [`privacy/jurisdictions/annex-privacy-european-union.md`](../../privacy/jurisdictions/annex-privacy-european-union.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -118,7 +118,7 @@ An adopter maps its AI estate to these roles as the first step; the AI System Im
 
 ## Framework alignment
 
-| Requirement | EU AI Act | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | EU AI Act | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Risk-based classification before deployment | Article 6, Annex III | Map | Clause 6.1 |
 | Provider conformity and documentation | Article 16, Article 49 | Govern, Measure | Clause 8 |

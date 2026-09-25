@@ -2,8 +2,8 @@
 
 **Document Title:** Third-Party AI Due Diligence Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
-**Date:** 2026-09-21\
+**Version:** 1.0.17\
+**Date:** 2026-09-25\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/procedure-supplier-audit.md`](procedure-supplier-audit.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../privacy/procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -22,7 +22,7 @@ This procedure defines the AI-specific due diligence steps required before engag
 
 It complements the Supplier Due Diligence Procedure with controls that address the distinct risks presented by AI systems, including opacity in model behaviour, training data provenance, bias and fairness concerns, adversarial vulnerabilities, and the regulatory obligations imposed on deployers and importers of AI systems.
 
-This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 9, 13, 26, and 23, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
+This procedure is synthesized from NIST AI RMF (Govern 1.1 to 1.7, Map 5.1 to 5.2), ISO/IEC 42001:2023 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers), EU AI Act Articles 9, 13, 26, and 23, OWASP LLM Top 10, and CSA AI Controls Matrix (AICM) v1.1.
 
 ---
 
@@ -95,7 +95,7 @@ All required checklist items must be assessed before any AI supplier contract is
 | 10 | **Incident Notification Capability** | Confirmation of the supplier's ability and commitment to notify within 24 hours of a security or AI system incident. The 24-hour clock is uniform and governs regardless of supplier criticality tier (see Section 6.3). | All tiers. |
 | 11 | **Data Return and Deletion on Contract Termination** | Written commitment to the data-return, export-verification, deletion, and certification requirements in Section 6.4, including preservation of the applicable cloud export window and identification of any records subject to mandatory retention. | All tiers. |
 | 12 | **Subprocessor and Supply Chain Transparency** | Disclosure of subprocessors, data sub-labellers, infrastructure providers, and upstream model dependencies. | High-Risk and GPAI. |
-| 13 | **ISO/IEC 42001 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers). | High-Risk and GPAI. |
+| 13 | **ISO/IEC 42001:2023 Alignment** | Evidence of AI management system practices aligned to ISO/IEC 42001:2023 Annex A.10 and B.10.3 (Third-party and customer relationships, Suppliers). | High-Risk and GPAI. |
 | 14 | **CSA AICM Alignment** | Self-assessment or independent attestation against applicable CSA AI Controls Matrix v1.1 control families. | High-Risk and GPAI. |
 
 Suppliers that fail to provide satisfactory evidence for items applicable to their classification must submit a documented remediation plan before engagement proceeds. High-Risk AI systems where critical checklist items cannot be satisfied must be escalated to the AI Governance Council for an engagement approval decision.
@@ -132,7 +132,7 @@ All contracts with AI suppliers must include the following provisions in additio
 ### 6.5 Right to audit AI system logs
 
 - The organization retains the right to audit AI system logs, decision records, and model behaviour reports.
-- Supplier must retain AI system audit logs for a minimum of 7 years, the organization's canonical AI-audit-log retention floor (ISO/IEC 42001 requires event-log record keeping and retention control without prescribing a period, and the EU AI Act's own log-keeping minimum is shorter; the 7-year figure is the organization's contractual requirement).
+- Supplier must retain AI system audit logs for a minimum of 7 years, the organization's canonical AI-audit-log retention floor (ISO/IEC 42001:2023 requires event-log record keeping and retention control without prescribing a period, and the EU AI Act's own log-keeping minimum is shorter; the 7-year figure is the organization's contractual requirement).
 
 ### 6.6 Model version change notification
 
@@ -192,7 +192,7 @@ Upon contract termination, the AI supplier must follow the coordinated data-retu
 
 1. Preserve the applicable export window and access, support required data return and organizational verification, and then permanently delete all organizational data, training fine-tuning artefacts, embeddings, and retrieval stores, including copies and backups, within the applicable Section 6.4 deadline and subject only to its mandatory-records-retention qualification.
 2. Provide written certified deletion confirmation within 5 business days of completion, identifying any records retained under Section 6.4 and their retention basis and period.
-3. Retain deletion records for 7 years per the organization's canonical AI-records retention floor (ISO/IEC 42001 requires records retention without prescribing the period; the figure is the organization's contractual requirement).
+3. Retain deletion records for 7 years per the organization's canonical AI-records retention floor (ISO/IEC 42001:2023 requires records retention without prescribing the period; the figure is the organization's contractual requirement).
 
 ### 8.3 Documentation retention
 

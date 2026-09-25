@@ -2,8 +2,8 @@
 
 **Document Title:** AI Ethics Review Panel Charter\
 **Document Type:** Charter\
-**Version:** 1.0.4\
-**Date:** 2026-09-01\
+**Version:** 1.0.5\
+**Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Chief Risk Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`governance/register-role-authority.md`](../governance/register-role-authority.md), [`ai/charter-ai-actor-role-and-forum-standing.md`](charter-ai-actor-role-and-forum-standing.md)\
@@ -34,11 +34,11 @@ The Panel's independence is structural: it reports outside the AIGC's reporting 
 
 The AI Ethics Review Panel is mandated to:
 
-1. Provide independent ethical review of AI systems, assessing them against the organization's ethical principles as set out in the [Ethical AI Use Guideline](guideline-ethical-ai-use.md) and applicable law and standards (including ISO/IEC 42001, the EU AI Act, the NIST AI RMF, and the OECD AI Principles).
+1. Provide independent ethical review of AI systems, assessing them against the organization's ethical principles as set out in the [Ethical AI Use Guideline](guideline-ethical-ai-use.md) and applicable law and standards (including ISO/IEC 42001:2023, the EU AI Act, the NIST AI RMF, and the OECD AI Principles).
 2. Review the ethics dimension of AI Impact Assessments for high-risk and contested AI systems, complementing the AIGC's risk and compliance review.
 3. Raise, and where unresolved escalate, ethical objections to AI system deployments, significant lifecycle changes, and AI uses that the Panel judges to conflict with the organization's ethical principles, through the independent challenge mechanism.
 4. Advise the AIGC, the Chief Risk Officer, and executive leadership on AI ethics matters, including fairness, bias, transparency, explainability, human oversight, and the rights and interests of affected individuals and groups.
-5. Maintain the organization's ethical-review practice in alignment with ISO/IEC 42001, the EU AI Act, the NIST AI RMF, and the OECD AI Principles.
+5. Maintain the organization's ethical-review practice in alignment with ISO/IEC 42001:2023, the EU AI Act, the NIST AI RMF, and the OECD AI Principles.
 
 The Panel's mandate is ethical review and challenge. It does not approve deployments (that authority remains with the AIGC), and it does not perform the AIGC's risk-taxonomy classification or compliance assurance.
 

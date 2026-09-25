@@ -2,8 +2,8 @@
 
 **Document Title:** New York City Automated Employment Decision Tool Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-07-12\
+**Version:** 0.0.3\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -61,7 +61,7 @@ The DCWP enforces Local Law 144. A violation of the bias-audit, published-result
 
 ## Framework alignment
 
-| Requirement | NYC Local Law 144 / DCWP rule | NIST AI RMF | ISO/IEC 42001 |
+| Requirement | NYC Local Law 144 / DCWP rule | NIST AI RMF | ISO/IEC 42001:2023 |
 | --- | --- | --- | --- |
 | Independent bias audit within one year | 6 RCNY 5-301 | Measure, Manage | Clause 8.3 |
 | Bias-audit data requirements | 6 RCNY 5-302 | Measure | Clause 8.3 |
