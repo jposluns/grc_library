@@ -50,7 +50,7 @@ without the private reference sibling).
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
 | CA/Browser Forum Baseline Requirements for the Issuance and Management of Publicly-Trusted Code Signing Certificates, v3.11.0 | v3.11.0 | CA/Browser Forum |  | FREE |
-| CAN/DGSI 101:2025, Ethical Design and Use of Artificial Intelligence by Small and Medium Organizations (2nd edition) |  | CAN/DGSI |  | LICENSED |
+| CAN/DGSI 101:2025, Ethical Design and Use of Artificial Intelligence by Small and Medium Organizations (2nd edition) | Edition 2, 2025 (DGSI catalogue: Second edition, published 2025) | CAN/DGSI |  | LICENSED |
 | ETSI EN 303 645 V3.1.3, Cyber Security for Consumer Internet of Things: Baseline Requirements |  | ETSI |  | FREE |
 | ETSI EN 304 223 V2.1.1, Baseline Cyber Security Requirements for AI Models and Systems |  | ETSI |  | FREE |
 | ETSI EN 319 401 V3.1.1, General Policy Requirements for Trust Service Providers |  | ETSI |  | FREE |
@@ -364,7 +364,7 @@ without the private reference sibling).
 | Canada OPC PIPEDA Fair Information Principle 9: Individual Access | page modified 2020-08-13 | Office of the Privacy Commissioner of Canada |  | FREE |
 | Canada OPC PIPEDA Fair Information Principles | 2025-05-29 | Office of the Privacy Commissioner of Canada |  | FREE |
 | Canada OSFI Guideline B-13: Technology and Cyber Risk Management (2022, effective 1 January 2024) |  | OSFI |  | FREE |
-| Canada OSFI Guideline E-23: Model Risk Management (2025, effective 1 May 2027; covers AI and ML models) |  | OSFI |  | FREE |
+| Canada OSFI Guideline E-23: Model Risk Management (2025, effective 1 May 2027; covers AI and ML models) | September 11, 2025; effective May 1, 2027 | OSFI |  | FREE |
 | Canada Pan-Canadian Trust Framework (PCTF) | v1.5 consultation draft | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Address Security and Privacy Risks (Digital Standards Playbook) | modified 2026-05-25 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada TBS Algorithmic Impact Assessment (AIA) tool, overview page |  | TBS |  | FREE |
@@ -870,7 +870,7 @@ without the private reference sibling).
 | Australian Trusted Trader Benefits Booklet |  | Australian Border Force |  | FREE |
 | Brazil OEA Programme Implementation Guide (Novo Guia OEA de Implementacao dos Requisitos, v3, April 2026) |  | Receita Federal do Brasil |  | FREE |
 | Canada 2024 Application Hosting Strategy | modified 2024-07-04 | Treasury Board of Canada Secretariat |  | FREE |
-| Canada AI for All: National Artificial Intelligence Strategy (ISED, launched 2026-06-04) |  | Innovation, Science and Economic Development Canada |  | FREE |
+| Canada AI for All: National Artificial Intelligence Strategy (ISED, launched 2026-06-04) | ISED strategy page, date modified 2026-06-08 | Innovation, Science and Economic Development Canada |  | FREE |
 | Canada AI Sovereign Compute Infrastructure Program | modified 2026-06-01 (program closed) | Innovation, Science and Economic Development Canada |  | FREE |
 | Canada AI Strategy for the Federal Public Service 2025-2027 | 2025-2027; published 2025-03-04; ISBN 978-0-660-76811-3 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada AI Strategy for the Federal Public Service 2025-2027: Consultations What We Heard | 2025-01-30 | Treasury Board of Canada Secretariat |  | FREE |
@@ -881,7 +881,7 @@ without the private reference sibling).
 | Canada List of Interested Artificial Intelligence (AI) Suppliers | modified 2026-06-18 | Public Services and Procurement Canada |  | FREE |
 | Canada Progress on AI in Government | modified 2025-11-28 | Treasury Board of Canada Secretariat |  | FREE |
 | Canada Roadmap to Scale AI Projects in the Public Sector | modified 2026-04-10 | Treasury Board of Canada Secretariat |  | FREE |
-| Canada Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (ISED, 2023) |  | Innovation, Science and Economic Development Canada |  | FREE |
+| Canada Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (ISED, 2023) | September 2023 (ISED page, date modified 2026-06-04) | Innovation, Science and Economic Development Canada |  | FREE |
 | Canada's National Cyber Security Strategy: Securing Canada's Digital Future (2025) | Public Safety Canada, 2025 (Cat. PS4-239/2025E-PDF, ISBN 978-0-660-72268-9) | Public Safety Canada |  | FREE |
 | Canadian Sovereign AI Compute Strategy | modified 2026-06-04 | Innovation, Science and Economic Development Canada |  | FREE |
 | CTPAT Cybersecurity Checklist Sample (CTPAT Job Aid) |  | US Customs and Border Protection |  | FREE |
