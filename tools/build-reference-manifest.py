@@ -278,4 +278,17 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    # Exit codes: 0 in sync, written, or no sibling; 1 --check DRIFT only; 2 catalogue missing or a
+    # bad flag; 3 an unexpected internal error. Python's own uncaught-exception exit is 1, the same
+    # as DRIFT, so an unexpected error is mapped to 3 to keep 1 meaning drift (P-TODO 3b62: the
+    # pre-push guard reports drift from this code and must not misreport a crash as drift).
+    try:
+        sys.exit(main())
+    except SystemExit:
+        raise
+    except Exception as exc:  # noqa: BLE001 (deliberate: any unexpected failure becomes exit 3)
+        import traceback
+        traceback.print_exc()
+        print(f"build-reference-manifest: internal error ({type(exc).__name__}); exit 3",
+              file=sys.stderr)
+        sys.exit(3)

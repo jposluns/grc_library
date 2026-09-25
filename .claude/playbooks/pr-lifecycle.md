@@ -22,7 +22,7 @@ drive end-to-end on the maintainer's behalf:
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
    D-numbered delta gates (D6 retired) plus the history-aware trio 45/40/31 against the merge base), then `.web/build.py --check` (web-generator health),
    stopping non-zero on the first failure, so a gate defect blocks the push instead of
-   flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs.
+   flipping CI red after the fact. The two runners plus the web-generator check together cover every gate CI runs. After them the guard prints one advisory that never blocks: `build-reference-manifest.py --check`, which reports reference-manifest drift against the reference sibling (P-TODO 3b62).
    Git hooks do not fire in this environment, so the `&&`-chained guard is what actually
    enforces the pre-push runner (the same pattern as `preflight-changelog.py && git
    commit`).

@@ -177,9 +177,12 @@ fi
 # drift is reported, not blocked. The check no-ops (exit 0) when the sibling is absent.
 echo ""
 echo "=== pre-push guard advisory: build-reference-manifest.py --check (reference manifest vs grc_library_ref; does not block) ==="
-python3 tools/build-reference-manifest.py --check
-rc=$?
-if [ "${rc}" -eq 1 ]; then
+# The status is captured inside an `if`, so an inherited errexit (SHELLOPTS) cannot end the guard
+# here; drift is reported only for exit 1 together with the generator's DRIFT line (exit 1 alone
+# could also be an interpreter-level failure).
+if manifest_out=$(python3 tools/build-reference-manifest.py --check 2>&1); then rc=0; else rc=$?; fi
+printf '%s\n' "${manifest_out}"
+if [ "${rc}" -eq 1 ] && [[ "${manifest_out}" == *"--check: DRIFT"* ]]; then
     echo "pre-push guard ADVISORY: docs/reference-acquisition-manifest.md has drifted from grc_library_ref. Not blocking this push; regenerate it (python3 tools/build-reference-manifest.py) in its own PR next."
 elif [ "${rc}" -ne 0 ]; then
     echo "pre-push guard ADVISORY: the reference-manifest check could not run (rc=${rc}; see its message above). Not blocking this push."

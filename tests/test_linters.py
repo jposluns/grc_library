@@ -3903,7 +3903,8 @@ class PrePushGuardTests(unittest.TestCase):
     tree beside stub runners.
     """
 
-    def _build_guard_dir(self, first_rc: int, second_rc: int, web_rc=None, manifest_rc=None):
+    def _build_guard_dir(self, first_rc: int, second_rc: int, web_rc=None, manifest_rc=None,
+                         manifest_drift_line: bool = False):
         import shutil
         import stat
         import tempfile
@@ -3927,15 +3928,18 @@ class PrePushGuardTests(unittest.TestCase):
                 f"import sys\nsys.exit({web_rc})\n", encoding="utf-8"
             )
         if manifest_rc is not None:
+            drift = ("print('build-reference-manifest --check: DRIFT, stub', file=sys.stderr)\n"
+                     if manifest_drift_line else "")
             (tools / "build-reference-manifest.py").write_text(
-                f"import sys\nsys.exit({manifest_rc})\n", encoding="utf-8"
+                f"import sys\n{drift}sys.exit({manifest_rc})\n", encoding="utf-8"
             )
         for name in ("pre-push-guard.sh", "run_all_audits.sh", "run-pr-time-checks.sh"):
             path = tools / name
             path.chmod(path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         return tmp, shutil
 
-    def _run_guard(self, tmp: Path, allow_pipe: bool = True, allow_dirty: bool = True):
+    def _run_guard(self, tmp: Path, allow_pipe: bool = True, allow_dirty: bool = True,
+                   extra_env=None):
         import os
         import subprocess as sp
 
@@ -3957,6 +3961,8 @@ class PrePushGuardTests(unittest.TestCase):
             env["PRE_PUSH_GUARD_ALLOW_DIRTY"] = "1"
         else:
             env.pop("PRE_PUSH_GUARD_ALLOW_DIRTY", None)
+        if extra_env:
+            env.update(extra_env)
         return sp.run(
             ["bash", str(tmp / "tools" / "pre-push-guard.sh")],
             capture_output=True, text=True, cwd=str(tmp), env=env,
@@ -4033,11 +4039,47 @@ class PrePushGuardTests(unittest.TestCase):
     def test_manifest_drift_is_advisory_only(self) -> None:
         # P-TODO 3b62: reference-manifest drift is reported after the three checks, never
         # blocking: the guard still exits 0 and says the push is safe.
-        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1)
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1,
+                                            manifest_drift_line=True)
         try:
             result = self._run_guard(tmp)
             self.assertEqual(result.returncode, 0, result.stdout)
             self.assertIn("ADVISORY: docs/reference-acquisition-manifest.md has drifted", result.stdout)
+            self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_exit_1_without_drift_line_is_not_drift(self) -> None:
+        # An interpreter-level failure also exits 1; without the generator's DRIFT line it is
+        # reported as "could not run", never as drift with a regeneration instruction.
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertNotIn("has drifted", result.stdout)
+            self.assertIn("reference-manifest check could not run (rc=1", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_builder_missing_is_reported_not_blocking(self) -> None:
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0)
+        try:
+            result = self._run_guard(tmp)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertIn("reference-manifest check could not run (rc=2", result.stdout)
+            self.assertIn("Safe to push", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_advisory_survives_inherited_errexit(self) -> None:
+        # With errexit inherited through SHELLOPTS, the advisory's non-zero status must not end
+        # the guard before its PASS line.
+        tmp, shutil = self._build_guard_dir(first_rc=0, second_rc=0, manifest_rc=1,
+                                            manifest_drift_line=True)
+        try:
+            result = self._run_guard(tmp, extra_env={"SHELLOPTS": "errexit"})
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("has drifted", result.stdout)
             self.assertIn("Safe to push", result.stdout)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
@@ -4050,6 +4092,30 @@ class PrePushGuardTests(unittest.TestCase):
             self.assertNotIn("pre-push guard ADVISORY", result.stdout)
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_manifest_builder_internal_error_exits_3(self) -> None:
+        # P-TODO 3b62: build-reference-manifest.py maps an unexpected exception to exit 3, so its
+        # exit 1 means --check DRIFT only (Python's own uncaught-exception exit is also 1).
+        import subprocess as sp
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "catalogue.yml").write_text(
+                'standards:\n  - path: "standards/x.md"\n    bucket: "standards"\n',
+                encoding="utf-8")
+            code = (
+                "import sys; sys.path.insert(0, 'tools')\n"
+                "from pathlib import Path\n"
+                "import lint_common\n"
+                f"lint_common.resolve_sibling = lambda name: Path({td!r})\n"
+                "import runpy\n"
+                "sys.argv = ['build-reference-manifest.py', '--check']\n"
+                "runpy.run_path('tools/build-reference-manifest.py', run_name='__main__')\n"
+            )
+            r = sp.run([sys.executable, "-c", code], cwd=str(REPO_ROOT),
+                       capture_output=True, text=True)
+        self.assertEqual(r.returncode, 3, r.stdout + r.stderr)
+        self.assertIn("internal error", r.stderr)
+        self.assertNotIn("DRIFT", r.stderr)
 
     def test_piped_stdout_refused(self) -> None:
         """RM-10 self-defence (PR #620): piped stdout without the
