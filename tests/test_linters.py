@@ -10351,7 +10351,8 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     audit-cross-repo-references reported clean for a missing root; audit-gate-blindspots and
     ref-holds read an empty value as the current directory or the default sibling;
     audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
-    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases. Each
+    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases and
+    reported clean for an empty or unknown --section (3b71). Each
     now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
 
     def test_bad_explicit_arguments_refused(self) -> None:
@@ -10374,6 +10375,9 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
             ("not a regular file", "tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
             ("not a regular file", "tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
             ("an empty value is refused", "tools/audit-reference-acquisition-gaps.py", "--ref-base="),
+            ("--section is empty", "tools/audit-reference-acquisition-gaps.py", "--section="),
+            ("names no parsed register family", "tools/audit-reference-acquisition-gaps.py",
+             "--section", "No Such Family 3b71"),
             ("unresolvable", "tools/ref-holds.py", "--ref-root", "~grc_no_such_user_3b50b2e1", "27002"),
             (("unresolvable", "not a directory"), "tools/audit-cross-repo-references.py", "--root", str(loop)),
             (("unresolvable", "could not locate"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),

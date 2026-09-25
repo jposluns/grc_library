@@ -167,6 +167,25 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--include-tooling", action="store_true",
                     help="Include the software-tool / programme families (excluded by default).")
     args = ap.parse_args(argv)
+    # 3b71: an empty --section, or one naming no parsed register family, used to select
+    # nothing and report clean; refuse it (rc 2), since it selects nothing to check. Checked
+    # first, against the in-repo register alone, so the refusal does not depend on the
+    # reference base being present.
+    if args.section is not None:
+        if not args.section.strip():
+            print("ERROR: --section is empty; name a register family (## header text).",
+                  file=sys.stderr)
+            return 2
+        try:
+            known = sorted({r[0] for r in parse_register(CANONICAL_REGISTER, args.include_tooling)})
+        except (OSError, UnicodeDecodeError) as exc:
+            print(f"ERROR: cannot read {CANONICAL_REGISTER}: {exc}", file=sys.stderr)
+            return 2
+        if args.section not in known:
+            hint = "" if args.include_tooling else " (tooling families need --include-tooling)"
+            print(f"ERROR: --section {args.section!r} names no parsed register family{hint}; "
+                  f"known: {', '.join(known)}", file=sys.stderr)
+            return 2
     # Track whether --aliases was supplied rather than comparing it with the default path: an
     # explicit value that happens to equal the default is validated like any other (3b50b2e1 r3).
     explicit_aliases = args.aliases is not None
