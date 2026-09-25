@@ -10344,6 +10344,34 @@ class WorkingProseHygieneTests(LinterTestCase):
         self.assertLinterFails(result, "prose-dash")
 
 
+
+class AdvisoryAidArgRefusalTests(LinterTestCase):
+    """3b50b2e1: advisory aids whose explicit root or file argument passed vacuously or crashed.
+
+    audit-cross-repo-references reported clean for a missing root; audit-gate-blindspots and
+    ref-holds read an empty value as the current directory or the default sibling;
+    audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
+    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases. Each
+    now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
+
+    def test_bad_explicit_arguments_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aidargs-"))
+        self.addCleanup(shutil.rmtree, td)
+        cases = (
+            ("tools/audit-cross-repo-references.py", "--root="),
+            ("tools/audit-cross-repo-references.py", "--root", str(td / "missing")),
+            ("tools/audit-gate-blindspots.py", "--root="),
+            ("tools/ref-holds.py", "--ref-root=", "27002"),
+            ("tools/audit-worklist-register-drift.py", "--register", str(td / "missing.md")),
+            ("tools/audit-worklist-register-drift.py", "--worklist", str(td)),
+            ("tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
+            ("tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
 

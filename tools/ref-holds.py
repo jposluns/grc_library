@@ -197,6 +197,11 @@ def main(argv: list[str]) -> int:
 
     if a.self_test:
         return _self_test()
+    if a.ref_root is not None and not a.ref_root.strip():
+        # 3b50b2e1: an empty --ref-root silently fell back to the default sibling.
+        print("ERROR: --ref-root needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
     if not a.query:
         print("ERROR: provide a query (or --self-test). Example: ref-holds.py \"27002\"", file=sys.stderr)
         return 2

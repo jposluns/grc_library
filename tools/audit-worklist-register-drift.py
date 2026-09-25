@@ -729,6 +729,12 @@ def main(argv=None):
     if a.self_test:
         return _self_test()
 
+    # 3b50b2e1: a missing, empty or directory --register / --worklist raised a traceback.
+    for flag, path in [("--register", a.register), *(("--worklist", w) for w in (a.worklists or []))]:
+        if str(path) in ("", ".") or not path.is_file():
+            print(f"ERROR: {flag} {path}: not a regular file; nothing would be checked.",
+                  file=sys.stderr)
+            return 2
     aliases, ambiguous = load_alias_config()
     reg = parse_register(a.register)
     worklists = a.worklists if a.worklists else default_worklists()

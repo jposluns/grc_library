@@ -167,6 +167,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--include-tooling", action="store_true",
                     help="Include the software-tool / programme families (excluded by default).")
     args = ap.parse_args(argv)
+    if args.aliases != DEFAULT_ALIASES and (str(args.aliases) in ("", ".")
+                                            or not args.aliases.is_file()):
+        # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
+        print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
+        return 2
 
     # Adopter graceful-degradation (3.91 (closing PR #1011)): default ref-base (no --ref-base
     # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter

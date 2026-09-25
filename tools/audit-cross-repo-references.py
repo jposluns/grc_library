@@ -28,8 +28,9 @@ into one of four buckets:
                           or otherwise unresolvable path-string), surfaced for a
                           human to adjudicate.
 
-This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees, always exits 0
-(a findings count is informational, never a build failure), and is intended to be
+This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees and exits 0 on
+every reporting path (a findings count is informational, never a build failure; 2 only on a
+usage error: an empty, missing or non-directory --root), and is intended to be
 worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR lint
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
@@ -64,7 +65,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import is_fence_line, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_sibling as _default_resolve_sibling, resolve_working_dir, sibling_placeholder_present  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, resolve_sibling as _default_resolve_sibling, resolve_working_dir, sibling_placeholder_present, require_dir  # noqa: E402  # grc-config/store, stays local
 
 
 # Directories skipped even by this advisory (noise / non-text / stubs). NOTE this
@@ -461,7 +462,8 @@ def main(argv: list[str]) -> int:
     if args.self_test:
         return self_test()
 
-    root = Path(args.root).resolve()
+    # 3b50b2e1: a missing, empty or non-directory --root used to audit nothing and report clean.
+    root = require_dir(args.root, "--root")
     findings, counts = audit_tree(root)
     # Post-migration the `.working/` tree lives in the private sibling (outside
     # this root); audit it too so the `.working/` coverage this tool exists to

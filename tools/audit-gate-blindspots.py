@@ -4,7 +4,7 @@ markdown surfaces does NO gate scan.
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID for the deep-assessment
 skill's audit-programme phase, not an audit gate. It always exits 0 after printing
-its report (2 only on internal error); its output is a coverage report, not a
+its report (2 only on an internal or usage error, such as an empty or missing --root); its output is a coverage report, not a
 defect list. It derives, per gate wired into ``tools/run_all_audits.sh``, the
 gate's effective scan scope by static inspection of the gate's module source, then
 inverts the union: the markdown files no scope-derivable gate scans at all. Every
@@ -213,7 +213,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Report per-gate scan scope and the markdown surfaces no gate scans."
     )
-    parser.add_argument("--root", type=Path, default=TOOL_ROOT)
+    parser.add_argument("--root", type=str, default=str(TOOL_ROOT))
     parser.add_argument("--format", choices=("md", "tsv"), default="md")
     parser.add_argument(
         "--unscanned-only",
@@ -221,7 +221,13 @@ def main(argv: list[str] | None = None) -> int:
         help="Print only the unscanned-surface list.",
     )
     args = parser.parse_args(argv)
-    root = args.root.resolve()
+    # 3b50b2e1: an empty --root used to become '.', so the current directory was audited. Checked
+    # inline: this tool is standalone (it does not import lint_common).
+    if not str(args.root).strip() or not Path(args.root).is_dir():
+        print(f"ERROR: --root {args.root!r}: not a directory; nothing would be audited.",
+              file=sys.stderr)
+        return 2
+    root = Path(args.root).resolve()
 
     try:
         gates = load_gates(root)
