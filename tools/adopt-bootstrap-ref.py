@@ -59,7 +59,7 @@ ROW = re.compile(
     # other backslash is ordinary content (r5: "A\\|B" is the title "A\|B", not a split).
     r"^\|(?P<title>(?:\\\||[^|])*)\|(?P<version>(?:\\\||[^|])*)\|"
     r"(?P<issuer>(?:\\\||[^|])*)\|(?P<url>(?:\\\||[^|])*)\|"
-    r"\s*(?P<acq>FREE|LICENSED)\s*\|\s*$"
+    r"(?P<acq>(?:\\\||[^|])*)\|\s*$"
 )
 
 
@@ -88,26 +88,38 @@ def _unescape(cell: str) -> str:
     return cell.replace("\\|", "|").strip()
 
 
+def _is_data_row(m) -> bool:
+    """False for the generator's table header row and its separator row."""
+    cells = [m.group(k).strip() for k in ("title", "version", "issuer", "url", "acq")]
+    if cells == ["Title", "Version / edition", "Issuer", "Upstream URL", "Acquisition"]:
+        return False
+    return not all(c and set(c) <= set("-: ") for c in cells)
+
+
 def parse_manifest(text: str) -> list[dict]:
     """Return [{bucket, title, version, issuer, url, acquisition}, ...] from the
-    manifest's per-bucket tables. Keyed on the FREE/LICENSED acquisition cell, so
-    only genuine data rows are captured (header/separator rows carry no such cell)."""
+    manifest's per-bucket tables. Every five-cell row except the table header and its separator
+    is an entry, whatever its acquisition value: the generator upper-cases any catalogue value and
+    counts every non-free entry as licensed, so the planner does the same (3b59; a row with any
+    other value used to be dropped without warning). Lines are split on newlines only, so a
+    Unicode line or paragraph separator (U+2028/U+2029) inside a generated cell stays in its cell
+    (3b61; str.splitlines split such a row and lost it)."""
     entries: list[dict] = []
     bucket = None
-    for raw in text.splitlines():
+    for raw in text.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
         h = BUCKET_HEADING.match(raw)
         if h:
             bucket = h.group(1)
             continue
         m = ROW.match(raw)
-        if m:
+        if m and _is_data_row(m):
             entries.append({
                 "bucket": bucket or "",
                 "title": _unescape(m.group("title")),
                 "version": _unescape(m.group("version")),
                 "issuer": _unescape(m.group("issuer")),
                 "url": _unescape(m.group("url")),
-                "acquisition": m.group("acq").strip().lower(),
+                "acquisition": _unescape(m.group("acq")).lower(),
             })
     return entries
 
@@ -174,7 +186,8 @@ def main(argv: list[str] | None = None) -> int:
     except OSError:  # r5: Python 3.11 raises on an inaccessible parent directory
         is_file = False
     if not is_file:
-        print(f"adopt-bootstrap-ref: manifest not found at {path} (broken clone?).",
+        print(f"adopt-bootstrap-ref: manifest not found, or not accessible, at {path} "
+              f"(broken clone or permissions?).",
               file=sys.stderr)
         return 2
     try:

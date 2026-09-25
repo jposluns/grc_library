@@ -14844,6 +14844,23 @@ class AdoptBootstrapRefTests(unittest.TestCase):
         "| A Statute |  | Canada | https://laws.example.ca/s | FREE |\n"
     )
 
+    def test_any_acquisition_value_and_unicode_line_separator(self) -> None:
+        # 3b59: the generator upper-cases any acquisition value and counts non-free as licensed;
+        # such rows used to be dropped. 3b61: a U+2028 inside a generated cell used to split the
+        # row via str.splitlines and lose it.
+        mod = self._load("_adopt_residue")
+        text = ("## Standards (3: 1 free, 2 licensed)\n"
+                "| Title | Version / edition | Issuer | Upstream URL | Acquisition |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "| A\u2028B | 1 | ISO | https://example.org/a | FREE |\n"
+                "| Member Only | 2 | IEEE |  | MEMBERSHIP |\n"
+                "| Unclassified | 3 | NIST |  |  |\n")
+        entries = mod.parse_manifest(text)
+        self.assertEqual([e["title"] for e in entries], ["A\u2028B", "Member Only", "Unclassified"])
+        plan = mod.categorize(entries)
+        self.assertEqual({k: len(v) for k, v in plan.items()},
+                         {"auto_fetchable": 1, "free_manual": 0, "licensed_manual": 2})
+
     def test_parse_and_categorize(self) -> None:
         mod = self._load("_adopt_parse")
         entries = mod.parse_manifest(self._FAKE)
