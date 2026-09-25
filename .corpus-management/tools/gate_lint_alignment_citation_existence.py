@@ -94,36 +94,37 @@ def _check_pf(code: str) -> bool:
 _ASVS_WORD = re.compile(
     r"(?<!Mobile )\bASVS\b|(?<!Mobile )(?<!Mobile OWASP )Application Security Verification Standard",
     re.IGNORECASE)
-# A non-held-edition mention: the name, then an optional version/edition/release word, then an
-# edition number. After such a word any form is an edition ("ASVS version V4.1.1"). Otherwise an
-# edition is written with no V or a lowercase v ("ASVS 4.0.3", "ASVS v4"), or as a capital-V token
-# with a zero middle number ("ASVS V4.0.3"); a capital V with a dotless number ("ASVS V6") or a
-# non-zero middle number ("ASVS V1.2.4") is a chapter or an identifier, never an edition.
-# Markdown emphasis and a link target may sit between the name and its edition ("**ASVS** (4.0.3)",
-# "[ASVS](url) 4.0.3"). Only a plausible edition major (1 to 9) counts, and never a number followed
-# by levels or chapters ("ASVS: 3 levels"), so a year or a count is not an
-# edition.
+# An edition mention: the name, then an optional version/edition/release word, then an edition
+# number (markdown emphasis or a link target may sit in between). After such a word any form is an
+# edition ("ASVS version V4.1.1"). Otherwise the edition must be dotted or lowercase-v-prefixed
+# ("ASVS 4.0.3", "ASVS v4"), or a capital-V token with a zero middle number ("ASVS V4.0.3"): a bare
+# integer (a count, a footnote marker, a section sign) is never an edition, a capital V with a
+# dotless or non-zero-middle number is a chapter or an identifier, and a number followed by levels
+# or chapters is a count. Only a major from 1 to 9 is read, so a year never is.
 _ASVS_AFTER = re.compile(
     r"(?:\]\([^)\s]*\)|[^\w\n]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
     r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?![*_\s]*(?:levels?|chapters?)\b)",
     re.IGNORECASE)
+_ASVS_BEFORE = re.compile(
+    r"(?<![\w.])[vV]?([1-9])\.0(?:\.\d+)?[\s*_]+(?:of\s+(?:the\s+)?)?(?:OWASP\s+)?$", re.IGNORECASE)
 _VERSION_HEADER = re.compile(
     r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|ATT&CK|NIST|ISO"
     r"|CIS|PCI|IEEE|ETSI|CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|BSI|MASVS|tools?|products?|packages?"
     r"|components?)\b", re.IGNORECASE)
-_VERSION_WORD = re.compile(r"\b(?:versions?|releases?|editions?|revisions?)\b", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
 # A token directly after these is a version of that word's subject or of another publisher's
 # document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
 _ASVS_NOT_ID_BEFORE = re.compile(
     r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
     r"|\b(?:EN|TR|TS|ES|EG|GR|GS)(?:\s+[A-Z]{2,5})?\s+\d{3}(?:\s+\d{3})?(?:-\d+)*\s*`?"
-    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST|PCI\s+DSS|CIS|BSI|CWE|CAPEC|ATLAS|ATT&CK|IEEE|ISO(?:/IEC)?)"
+    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST|PCI\s+DSS|CIS|BSI|CWE|CAPEC|ATLAS|ATT&CK|MASVS|IEEE"
+    r"|ISO(?:/IEC)?)"
     # an optional short name (capitalized words, never ASVS itself, case-sensitive), a document
     # number joined by spaces or a hyphen, an amendment or corrigendum, a bracketed year, and a
     # closing parenthesis ("NIST Special Publication 800-53", "ISO-27001", "(ISO 27001)").
-    r"(?-i:(?:\s+(?!ASVS\b)[A-Z][A-Za-z]{0,11}){0,3})(?:[\s-]*[vV]?\d[\w.:/-]*)?"
-    r"(?:\s*(?:Cor|Amd)\s*\d[\w.:/-]*)*(?:\s*\(\d{4}\))?\)?"
+    r"(?-i:(?:\s+(?!ASVS\b)[A-Z][A-Za-z]{0,11}){0,3})"
+    r"(?:\s+(?:standard|framework|model|profile|guide|guidance|specification|benchmark)s?)?"
+    r"(?:[\s-]*[vV]?\d[\w.:/-]*)?(?:\s*(?:Cor|Amd)\s*\d[\w.:/-]*)*(?:\s*\(?\d{4}\)?)?\)?"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
@@ -165,14 +166,31 @@ def _editions(text: str) -> set[str]:
         if not m:
             continue
         word, vee, major, rest = m.groups()
-        if not word and vee and text[m.start(2)] == "V" and not rest.startswith(".0"):
-            continue  # a chapter or an identifier, not an edition
+        vee = text[m.start(2)] if vee else ""
+        if not word:
+            if vee == "V" and not rest.startswith(".0"):
+                continue  # a chapter or an identifier, not an edition
+            if not vee and not rest:
+                continue  # a bare integer (a count, a footnote, a section sign) is not an edition
         out.add(major)
+    # An edition written before the name ("3.0.1 ASVS", "version 3.0 of the ASVS"): every ASVS
+    # edition has a zero middle number, so only that shape counts.
+    for name in _ASVS_WORD.finditer(text):
+        b = _ASVS_BEFORE.search(text, 0, name.start())
+        if b:
+            out.add(b.group(1))
     return out
 
 
 def _names_other_edition(text: str) -> bool:
     return bool(_ASVS_MAJORS) and bool(_editions(text) - _ASVS_MAJORS)
+
+
+def _plain(text: str) -> str:
+    """`text` with markdown link syntax reduced to its label and emphasis/code marks removed, so a
+    listed standard written as a link, in code or with emphasis still reads as that standard."""
+    text = re.sub(r"\[([^\]]*)\](?:\([^)]*\)|\[[^\]]*\])", r"\1", text)
+    return re.sub(r"[*_`]", "", text)
 
 
 def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
@@ -190,7 +208,7 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
     row_other = bool(cells) and _names_other_edition(cells[0])
     whole_table = any(_ASVS_WORD.search(h) and not _names_other_edition(h) for h in hdr)
     # A header naming ASVS with a version word ("ASVS version") is a version column, not context.
-    col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h) and not _VERSION_WORD.search(h)}
+    col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h) and not _VERSION_HEADER.search(h)}
     col_other = {i for i, h in enumerate(hdr) if _names_other_edition(h)}
     col_held = {i for i, h in enumerate(hdr) if _editions(h) & _ASVS_MAJORS}
     # A column whose header signals a version or another subject ("Tool version", "CycloneDX spec",
@@ -214,7 +232,7 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
             continue
         if m.group(2) == "0":  # a zero middle number is a version, never an ASVS identifier
             continue
-        if _ASVS_NOT_ID_BEFORE.search(re.sub(r"[*_]", "", raw[:m.start()])):  # emphasis ignored
+        if _ASVS_NOT_ID_BEFORE.search(_plain(raw[:m.start()])):
             continue
         tok = m.group(0)
         if m.group(3) is not None:

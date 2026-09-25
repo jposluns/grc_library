@@ -21705,6 +21705,28 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-hdrcell.md",
                                          "| Control | ASVS V1.2.99 mapping |\n| --- | --- |\n| X | y |\n"), "V1.2.99")
 
+    # --- round-7 QA regressions (P-1.63 part d) ---
+    def test_round7_a_bare_integer_is_never_an_edition(self) -> None:
+        for body in ("OWASP ASVS: 3 requirements apply here (V1.2.99).\n", "OWASP ASVS 1-3 levels: V1.2.99 applies.\n",
+                     "ASVS \u00a73 maps to V1.2.99.\n", "ASVS[^1] requires V1.2.99.\n\n[^1]: note.\n",
+                     "ASVS 3 requirement V1.2.99.\n",
+                     "| Control | ASVS (6 controls) |\n| --- | --- |\n| X | V1.2.99 |\n"):
+            self.assertLinterFails(self._run("asvs-r7int.md", body), "V1.2.99")
+
+    def test_round7_an_edition_before_the_name_scopes_the_line(self) -> None:
+        for body in ("3.0.1 ASVS requirement V9.9.9.\n", "Version 3.0 of the ASVS requires V9.9.9.\n"):
+            r = self._run("asvs-r7before.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
+    def test_round7_markdown_and_more_standard_forms_are_excluded(self) -> None:
+        for body in ("Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP MASVS V8.9.9.\n",
+                     "ASVS maps to `CWE` V8.9.\n", "ASVS maps to [CWE](https://cwe.mitre.org/) V8.9.\n",
+                     "| Control | ASVS tools |\n|---|---|\n| Scanner | ZAP V8.9 |\n",
+                     "ASVS and ISO 27001 2022 V8.9.9.\n", "ASVS and ISO/IEC/IEEE 29119 V8.9.9.\n",
+                     "ASVS and the CMMI standard V8.9.9.\n"):
+            r = self._run("asvs-r7fp.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
         for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V8.9 list item\n",
@@ -21754,7 +21776,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     def test_edition_wording_and_placement_forms(self) -> None:
         for body in ("ASVS version 3.0.1 requirement V9.9.9.\n", "ASVS v3 requirement V9.9.9.\n",
-                     "ASVS 3 requirement V9.9.9.\n", "Requirement V9.9.9 (ASVS 3.0.1).\n",
+"Requirement V9.9.9 (ASVS 3.0.1).\n",
                      "| Control | ASVS version 3.0.1 |\n| --- | --- |\n| X | V9.9.9 |\n"):
             r = self._run("asvs-edition-forms.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)

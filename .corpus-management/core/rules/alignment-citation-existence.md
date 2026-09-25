@@ -18,8 +18,8 @@ family whose identifiers are `V` followed by two or three dot-separated numbers 
 only in that framework's context, because the same shape is used for other publishers'
 document versions: on a line that names the framework by its acronym (a word match, so a
 differently named framework that contains the acronym does not count) or by its full name (not
-when it is part of the mobile standard's name), in a table cell under a header that names it (a header that also carries a version word marks a
-version column instead),
+when it is part of the mobile standard's name), in a table cell under a header that names it (a header that also signals a version, a tool
+or another standard marks such a column instead),
 in the body of a table with a header cell that names it (except a column whose header signals a
 version, a tool or another standard, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
 framework. Table rows are
@@ -31,17 +31,21 @@ intervenes. Within that context, a token whose middle number is zero is a
 version, never an identifier, because the framework numbers its sections from one; and a token
 that directly follows the words version, edition, release or revision, a listed publisher's
 document number (the ETSI forms), or a listed framework or standard (CMMI, TOGAF, ITIL, COBIT,
-SAMM, CSF, NIST, PCI DSS, CIS, BSI, CWE, CAPEC, ATLAS, ATT&CK, IEEE, ISO), optionally with its
-own capitalized short name, a document number joined by a space or hyphen, an amendment or
-corrigendum, a bracketed year and a closing parenthesis, is that subject's version.
+SAMM, CSF, NIST, PCI DSS, CIS, BSI, CWE, CAPEC, ATLAS, ATT&CK, MASVS, IEEE, ISO, read with
+markdown links, code and emphasis removed), optionally with its
+own capitalized short name, a generic word such as standard or framework, a document number joined
+by a space or hyphen, an amendment or
+corrigendum, a year (bracketed or not) and a closing parenthesis, is that subject's version.
 
 Editions are handled by scope. A mention of the framework names an edition when an edition
 number from 1 to 9 follows it, with any markdown emphasis or link target in between and not
 followed by the words levels or chapters: after the words version, edition or release in any
 form, and otherwise
-written with no `V` or with a lowercase `v`, or as a capital-`V` token whose middle number is
-zero; a capital `V` with a dotless number or a non-zero middle number directly after the name
-is a chapter or an identifier, not an edition. Identifiers are validated against the union of the held editions, which the adopter
+written dotted or with a lowercase `v`, or as a capital-`V` token whose middle number is zero; a
+bare integer (a count, a footnote marker, a section sign) is never an edition, and a capital `V`
+with a dotless number or a non-zero middle number directly after the name is a chapter or an
+identifier. An edition with a zero middle number written directly before the name ("3.0.1 ASVS",
+"version 3.0 of the ASVS") also names it. Identifiers are validated against the union of the held editions, which the adopter
 supplies. A prose line that names an edition that is not held is not checked. In a table, a token
 is not checked when its own cell or its column header names such an edition, or when its row's
 first cell does and its column header does not name a held edition. Two-number tokens
