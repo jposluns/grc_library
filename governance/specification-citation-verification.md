@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Specification\
 **Document Type:** Specification\
-**Version:** 1.2.25\
+**Version:** 1.2.27\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -213,7 +213,7 @@ The fenced `json citation-publishers` block at the end of this section is the so
 | Malaysia | `pdp.gov.my`, `mosti.gov.my` | Malaysia PDPA (Personal Data Protection Department); National Guidelines on AI Governance and Ethics (Ministry of Science, Technology and Innovation). |
 | OWASP | `owasp.org`, `genai.owasp.org`, `owaspsamm.org`, `cyclonedx.org` | OWASP Top 10, ASVS, SAMM, the GenAI Security Project (LLM Top 10), and the CycloneDX Bill of Materials specification (ECMA-424). |
 | LINDDUN | `linddun.org` | LINDDUN privacy threat taxonomy (KU Leuven imec-DistriNet). |
-| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
+| UK AISI | `ukgovernmentbeis.github.io`, `aisi.org.uk` | UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness). |
 | IEEE | `ieee.org`, `standards.ieee.org` | IEEE standards (for example IEEE 2883-2022 Sanitizing Storage). |
 | ETSI | `etsi.org`, `www.etsi.org` | ETSI standards, including the Securing AI series (EN 304 223, TR 104 128). |
 | PCI SSC | `pcisecuritystandards.org` | PCI DSS. |
@@ -541,7 +541,7 @@ The allow-list itself is subject to the same verification discipline as register
       "ukgovernmentbeis.github.io",
       "aisi.org.uk"
     ],
-    "covers": "UK AI Safety Institute inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
+    "covers": "UK AI Security Institute (the AI Safety Institute until 14 February 2025) inspect_evals evaluation catalogue (GitHub Pages); aisi.org.uk is the Institute's own domain (the Inspect AI harness)."
   },
   {
     "publisher": "IEEE",
@@ -670,7 +670,7 @@ A standard or regulation cited in the library that is not covered by an allow-li
 
 **2026-09-24 (register v1.5.77, 3b27(c) CycloneDX register row):** added `cyclonedx.org` (the OWASP CycloneDX project's canonical specification site, which states the current specification version) as the OWASP CycloneDX entry, for the CycloneDX canonical-citations row.
 
-**2026-09-25 (2.21, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
+**2026-09-25 (PR #2564, Malaysia AI annex):** added `mosti.gov.my` (Malaysia Ministry of Science, Technology and Innovation, publisher of the National Guidelines on AI Governance and Ethics) to the existing Malaysia row, with the matching external-link allow-list entry.
 
 **2026-09-24 (3b31b, parity gate):** gate 101 ([`tools/lint-allowlist-spec-parity.py`](../tools/lint-allowlist-spec-parity.py)) now keeps this section and the external-link gate's allow-list in parity. Every allow-list domain must be covered by a section 7.1 domain (the entry or a parent of it), or carry a same-line `non-publisher:` or `pending-publisher:` marker with a reason; every section 7.1 domain must be admitted by the allow-list. At adoption 27 entries carry a marker: 25 non-publishers (code and package hosting, identifiers, format conventions, the licence, the project's own sites, tool vendors) and 2 pending publishers; promptfoo, which has a register entry, gained its own row instead (`cisecurity.org` and `cncf.io`, whose sources await Canonical Citations Register entries).
 

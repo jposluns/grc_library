@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Decision Tree\
 **Document Type:** Guide\
-**Version:** 1.0.32\
+**Version:** 1.0.34\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -268,6 +268,10 @@ If you are a US federal agency, or you sell AI systems or services (including la
 
 13. [`ai/jurisdictions/annex-ai-us-federal.md`](../ai/jurisdictions/annex-ai-us-federal.md): US federal executive-branch AI policy (OMB M-25-21 agency use of AI, M-25-22 acquisition contract terms, M-26-04 Unbiased AI Principles for procured LLMs) and Executive Order 14365 on state AI laws.
 
+If you develop, deploy, or use AI in the United Kingdom:
+
+14. [`ai/jurisdictions/annex-ai-united-kingdom.md`](../ai/jurisdictions/annex-ai-united-kingdom.md): UK pro-innovation AI regulation framework (CP 815 white paper and CP 1019 government response): five non-statutory cross-sectoral principles that existing sector regulators apply within their remits.
+
 ### 5.2 If you operate cloud workloads
 
 1. [`operations/standard-cloud-security-configuration-baseline.md`](../operations/standard-cloud-security-configuration-baseline.md): cloud baseline.
@@ -356,7 +360,7 @@ Universal baseline (Section 2). Then `compliance/healthcare/` (3.3). Then privac
 
 **"I'm building AI products. Where do I start?"**
 
-Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. Twelve jurisdictions have a dedicated annex in `ai/jurisdictions/` (see 5.1): Australia, Canada, the European Union, Malaysia, Singapore, South Korea, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda, for federal agencies and their AI vendors), US Illinois, US New York City, and US Texas.
+Universal baseline (Section 2), then capability-conditional AI section (5.1). Sector and jurisdiction overlays as applicable. Thirteen jurisdictions have a dedicated annex in `ai/jurisdictions/` (see 5.1): Australia, Canada, the European Union, Malaysia, Singapore, South Korea, the United Kingdom, US California (CCPA ADMT), US Colorado, US federal (OMB memoranda, for federal agencies and their AI vendors), US Illinois, US New York City, and US Texas.
 
 ---
 

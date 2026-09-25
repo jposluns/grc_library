@@ -2,7 +2,7 @@
 
 **Document Title:** AI Governance Domain README\
 **Document Type:** Register\
-**Version:** 1.1.28\
+**Version:** 1.1.29\
 **Date:** 2026-09-25\
 **Owner:** AI Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,6 +71,7 @@ AI documents in this repository treat data as the primary risk surface. They add
 | Annex | Singapore Model AI Governance Framework for Generative AI | [`ai/jurisdictions/annex-ai-singapore.md`](jurisdictions/annex-ai-singapore.md) |
 | Annex | Singapore IMDA Model AI Governance Framework for Agentic AI | [`ai/jurisdictions/annex-ai-singapore-agentic-ai.md`](jurisdictions/annex-ai-singapore-agentic-ai.md) |
 | Annex | Malaysia National Guidelines on AI Governance and Ethics (AIGE) | [`ai/jurisdictions/annex-ai-malaysia.md`](jurisdictions/annex-ai-malaysia.md) |
+| Annex | United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019) | [`ai/jurisdictions/annex-ai-united-kingdom.md`](jurisdictions/annex-ai-united-kingdom.md) |
 | Annex | South Korea AI Regulatory Requirements | [`ai/jurisdictions/annex-ai-south-korea.md`](jurisdictions/annex-ai-south-korea.md) |
 | Annex | California CCPA Automated Decision-Making Technology (ADMT) Regulatory Requirements | [`ai/jurisdictions/annex-ai-us-california.md`](jurisdictions/annex-ai-us-california.md) |
 | Procedure | AI Audit Procedure | [`ai/procedure-ai-audit.md`](procedure-ai-audit.md) |

@@ -66,7 +66,6 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.1 | Privacy jurisdiction annex operational deepening (H, L) | `[public]` `[BLOCKED:source-acquisition (awaiting maintainer source drop)]` |
 | 2.3 | Crypto-asset / blockchain governance domain (H[critical], XL) | `[public]` |
 | 2.15 | Landing-page standards list: link each item to its authoritative source, MOVED to 2.25.2 (M, S-M) | `[public]` |
-| 2.21 | Further AI-jurisdiction annexes (M, L; partly source-gated) | `[public]` |
 | 2.25 | Governance traceability and coverage expansion (umbrella; H, XL) | `[content+machinery]` `[public]` |
 | 2.25.3 | Canadian public-sector authority coverage (CANADA-PRIORITY, H, L) | `[content]` `[public]` |
 | 2.25.4 | AI assurance and evaluation content (H, L) | `[content]` `[public]` |

@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.92\
+**Version:** 1.5.93\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -184,6 +184,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | Australia Guidance for AI Adoption | 6 essential practices (National AI Centre); published 21 October 2025; condenses the Voluntary AI Safety Standard's 10 guardrails and the AI Ethics Principles | 2025-10-21 | Voluntary AI adoption guidance | - | https://www.ai.gov.au/staying-safe-and-responsible/essential-ai-practices/guidance-ai-adoption-implementation-guidance | verified 2026-07-11 |
 | Singapore Model AI Governance Framework for Generative AI | 30 May 2024 edition (IMDA / AI Verify Foundation); nine dimensions | 2024-05-30 | Voluntary generative-AI governance framework | - | https://www.imda.gov.sg/ | verified 2026-07-24 |
 | Malaysia AIGE | 2024 | 2024-09 | National Guidelines on AI Governance and Ethics (MOSTI), launched 20 September 2024 (no edition number declared); the PDF served on 2026-09-24 is a revision whose file name and metadata are dated 18 November 2024: seven voluntary AI principles | - | https://www.mosti.gov.my/ | 2026-09-24 |
+| UK AI regulation white paper | CP 815 | 2023-03 | A pro-innovation approach to AI regulation (Department for Science, Innovation and Technology; published 29 March 2023): the non-statutory, regulator-led framework and its five cross-sectoral principles | - | https://www.gov.uk/government/publications/ai-regulation-a-pro-innovation-approach | 2026-09-25 |
+| UK AI regulation government response | CP 1019 | 2024-02 | A pro-innovation approach to AI regulation: government response to consultation (Department for Science, Innovation and Technology; published 6 February 2024): confirms the principles-based approach and records the current position | - | https://www.gov.uk/government/consultations/ai-regulation-a-pro-innovation-approach-policy-proposals/outcome/a-pro-innovation-approach-to-ai-regulation-government-response | 2026-09-25 |
 | South Korea AI Basic Act | Framework Act on the Development of Artificial Intelligence and Establishment of Trust, Law No. 20676 (enacted 21 January 2025); in force 22 January 2026 (the digital-medical-devices slice of the high-impact definition from 24 January 2026) | 2025-01-21 | Comprehensive national AI statute (high-impact AI, transparency, safety, domestic representative); Ministry of Science and ICT enforcement | - | https://www.law.go.kr/ | verified 2026-09-05 |
 
 ## Other privacy regulations
@@ -324,7 +326,7 @@ This section records international treaties and conventions, binding at the inte
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| UK AISI inspect_evals | continuous | 2024 | UK AI Safety Institute community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-06-30 |
+| UK AISI inspect_evals | continuous | 2024 | UK AI Security Institute (the AI Safety Institute until 14 February 2025) community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-06-30 |
 | Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 | https://github.com/meta-llama/PurpleLlama/tree/main/CybersecurityBenchmarks | 2026-06-30 |
 | NIST SP 800-218A | Final | 2024 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-06-30 |
 

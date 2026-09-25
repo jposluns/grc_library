@@ -587,6 +587,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-texas.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
+- [United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)](../ai/jurisdictions/annex-ai-united-kingdom.md) (maturity: Draft)
 - [United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-federal.md) (maturity: Draft)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
 - [eIDAS Sector Requirements Annex](../compliance/public-sector/annex-eidas-requirements.md) (maturity: Draft)
