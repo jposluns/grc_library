@@ -42,6 +42,7 @@ Self-test: ``python3 .claude/hooks/block-askuserquestion-unattended.py --self-te
 import json
 import os
 import re
+import stat
 import sys
 from pathlib import Path
 
@@ -89,16 +90,28 @@ def _no_duplicate_keys(pairs):
 def read_canonical_mode(path: str = CANONICAL_MODE_FILE) -> tuple[str | None, str]:
     """Return (mode, note) from the fleet's canonical mode file.
 
-    (None, "absent") only when nothing exists at the path; that is the ONE case that falls back
-    to the lease. A file that exists but cannot yield a recognized mode (unreadable, not JSON,
-    duplicate keys, no or non-string `mode`, an unrecognized value, a directory or a dangling
-    symlink) FAILS CLOSED to "unattended": ignorance never permits, because an unusable
-    authority is exactly when a stale lease would otherwise decide."""
-    if not os.path.lexists(path):
-        return None, "absent"
+    (None, "absent") only when the path genuinely does not exist (lstat reports not-found); that
+    is the ONE case that falls back to the lease. Anything else that cannot yield a recognized
+    mode FAILS CLOSED to "unattended": an inaccessible parent directory, a dangling symlink, a
+    non-regular file (a directory, FIFO or device, rejected before any read so nothing can
+    block), an unreadable file, malformed or duplicate-key JSON, a missing or non-string `mode`,
+    or an unrecognized value. Ignorance never permits: an unusable authority is exactly when a
+    stale lease would otherwise decide."""
     try:
-        data = json.loads(Path(path).read_text(encoding="utf-8-sig"),
-                          object_pairs_hook=_no_duplicate_keys)
+        os.lstat(path)
+    except (FileNotFoundError, NotADirectoryError):
+        return None, "absent"
+    except Exception as exc:  # noqa: BLE001 (e.g. PermissionError on a parent directory)
+        return "unattended", f"unusable fleet mode file ({type(exc).__name__})"
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+        try:
+            if not stat.S_ISREG(os.fstat(fd).st_mode):
+                raise _Unusable("not a regular file")
+            raw = os.read(fd, 65536)
+        finally:
+            os.close(fd)
+        data = json.loads(raw.decode("utf-8-sig"), object_pairs_hook=_no_duplicate_keys)
         mode = data.get("mode") if isinstance(data, dict) else None
         if not isinstance(mode, str):
             raise _Unusable("no string mode")
@@ -111,12 +124,12 @@ def read_canonical_mode(path: str = CANONICAL_MODE_FILE) -> tuple[str | None, st
 
 
 def read_lease_mode(project_dir: str) -> str | None:
-    ss = _working_file("session-state.md", Path(project_dir))
-    if ss is None:
-        return None  # no lease -> no lease mode
     try:
+        ss = _working_file("session-state.md", Path(project_dir))
+        if ss is None:
+            return None  # no lease -> no lease mode
         text = ss.read_text(encoding="utf-8", errors="replace")
-    except OSError:
+    except Exception:  # noqa: BLE001 (a bad project dir or unreadable lease is "no lease mode")
         return None
     m = MODE_RE.search(text)
     return m.group(1).lower() if m else None
@@ -129,14 +142,14 @@ def read_mode(project_dir: str, canonical_path: str = CANONICAL_MODE_FILE) -> tu
     The canonical path is a parameter for the self-test only; there is deliberately no
     environment override, so no configuration can switch the fleet file off."""
     canonical, note = read_canonical_mode(canonical_path)
-    lease = read_lease_mode(project_dir)
     if canonical in UNATTENDED:
-        return canonical, note
+        return canonical, note  # decided before the lease is touched, so no lease error can undo it
+    lease = read_lease_mode(project_dir)
+    if canonical is None:
+        return lease, "lease Operating-mode (fleet mode file absent)"
     if lease in UNATTENDED:
         return lease, "lease Operating-mode (more unattended than the fleet file)"
-    if canonical is not None:
-        return canonical, note
-    return lease, "lease Operating-mode (fleet mode file absent)"
+    return canonical, note
 
 
 def decide(mode: str | None, source: str = "") -> tuple[bool, str]:
@@ -232,8 +245,24 @@ def _self_test() -> int:
                 fleet.mkdir()
                 self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
                 fleet.rmdir()
+                os.mkfifo(str(fleet))  # a FIFO must fail closed without blocking
+                self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
+                fleet.unlink()
                 os.symlink(str(Path(d) / "missing"), str(fleet))
                 self.assertTrue(decide(*read_mode(root, str(fleet)))[0])
+                if os.geteuid() != 0:  # an inaccessible parent directory fails closed
+                    locked = Path(d) / "locked"
+                    locked.mkdir()
+                    (locked / "operating-mode").write_text('{"mode":"attended"}', encoding="utf-8")
+                    locked.chmod(0)
+                    try:
+                        self.assertTrue(decide(*read_mode(root, str(locked / "operating-mode")))[0])
+                    finally:
+                        locked.chmod(0o700)
+                # a bad project dir cannot undo a fleet-unattended block
+                fleet.unlink()
+                fleet.write_text('{"mode":"unattended"}', encoding="utf-8")
+                self.assertTrue(decide(*read_mode("a\x00b", str(fleet)))[0])
 
         def test_bom_and_case_are_read(self):
             with tempfile.TemporaryDirectory() as d:
