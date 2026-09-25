@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Planning Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.13\
-**Date:** 2026-09-14\
+**Version:** 1.0.14\
+**Date:** 2026-09-25\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md)\
@@ -108,13 +108,13 @@ e. **Time since last audit:** No domain may remain unaudited for more than three
 
 ### 3.2 Regulatory and external-assurance triggers
 
-The following external-assurance and regulatory requirements drive the minimum audit frequencies reflected in the Annual Audit Plan, applied regardless of risk-based prioritization (each frequency is the certification scheme's own surveillance cycle, or, where the standard sets no fixed cadence such as ISO/IEC 27001 Clause 9.2's organization-defined planned intervals, the annual cadence the organization adopts to maintain certification):
+The following external-assurance and regulatory requirements drive the minimum audit frequencies reflected in the Annual Audit Plan, applied regardless of risk-based prioritization (each frequency is the certification scheme's own surveillance cycle, or, where the standard sets no fixed cadence such as ISO/IEC 27001:2022 Clause 9.2's organization-defined planned intervals, the annual cadence the organization adopts to maintain certification):
 
 | Assurance scope / Requirement | Minimum Internal Audit Frequency | Domains / Scope Items |
 |-----------------------------|-----------------------------------|-----------------------|
 | BASC Certification | Annual | BASC programme scope |
 | AEO-S (Authorized Economic Operator to Security) | Annual | AEO-S IT control scope |
-| ISO/IEC 27001 ISMS | Annual | ISMS scope |
+| ISO/IEC 27001:2022 ISMS | Annual | ISMS scope |
 | SOC 2 Type II | Organization-set (commonly annual) | SOC 2 Trust Services Criteria scope |
 | CCPA cybersecurity audit (US California; 11 CCR ss. 7120 to 7124) | Annual | Businesses whose processing presents significant risk to consumers' security (s. 7120(b)) |
 
@@ -182,7 +182,7 @@ The lead auditor compiles a comprehensive list of audit criteria applicable to t
 
 - Internal policies, standards, and procedures relevant to the domain;
 - Applicable legislation and regulation (identified via the Regulatory Applicability Register);
-- External-assurance requirements (e.g., BASC standard clauses, ISO/IEC 27001 controls, SOC 2 criteria);
+- External-assurance requirements (e.g., BASC standard clauses, ISO/IEC 27001:2022 controls, SOC 2 criteria);
 - Contractual obligations with customers or suppliers, where the audit scope includes supplier management or customer commitment verification;
 - Prior audit findings and accepted management responses, to verify that agreed actions have been implemented.
 

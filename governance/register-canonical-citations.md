@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.96\
+**Version:** 1.5.97\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,8 +60,8 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements | 2013 | https://www.iso.org/standard/27001 | verified 2026-07-09 |
-| ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | https://www.iso.org/standard/75652.html | verified 2026-07-09 |
+| ISO/IEC 27001 | 2022 | 2022-10 | Information security management systems: requirements; ISO/IEC 27001:2022/Amd 1:2024 (Climate action changes), published 2024-02-23 | 2013 | https://www.iso.org/standard/27001 | verified 2026-09-25 |
+| ISO/IEC 27002 | 2022 | 2022-02 | Information security controls | 2013 | https://www.iso.org/standard/75652.html | verified 2026-09-25 |
 | ISO/IEC 27004 | 2016 | 2016-12 | Information security management: Monitoring, measurement, analysis and evaluation | 2009 | https://www.iso.org/standard/64120.html | verified 2026-08-26 |
 | ISO/IEC 27005 | 2022 | 2022-10 | Information security risk management | 2018 | https://www.iso.org/standard/80585.html | verified 2026-07-09 |
 | ISO/IEC 27017 | 2026 | 2026-07 | Cloud-service information security controls based on ISO/IEC 27002 | 2015 | https://www.iso.org/standard/27017 | verified 2026-07-28 |

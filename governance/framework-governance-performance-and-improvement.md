@@ -2,8 +2,8 @@
 
 **Document Title:** Governance Performance and Improvement Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-09-22\
+**Version:** 1.0.15\
+**Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/standard-maturity-assessment-methodology.md`](standard-maturity-assessment-methodology.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -52,7 +52,7 @@ The methodology behind this ladder, the median-of-medians aggregation, its outli
 
 ### 3. Management review
 
-Executive governance review is conducted at planned intervals (the organization sets at least annually) per ISO/IEC 27001 §9.3 (and ISO 9001 §9.3 for the quality-management-system review). The review assesses adequacy, effectiveness, and alignment of the governance framework with strategic objectives.
+Executive governance review is conducted at planned intervals (the organization sets at least annually) per ISO/IEC 27001:2022 §9.3 (and ISO 9001 §9.3 for the quality-management-system review). The review assesses adequacy, effectiveness, and alignment of the governance framework with strategic objectives.
 
 ### 4. Continual improvement cycle
 

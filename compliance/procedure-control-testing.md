@@ -2,8 +2,8 @@
 
 **Document Title:** Control Testing Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.8\
-**Date:** 2026-09-24\
+**Version:** 1.1.9\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](../governance/framework-governance-performance-and-improvement.md)\
@@ -24,7 +24,7 @@ This procedure defines the processes for testing the design and operating effect
 
 ## Scope
 
-Applies to all controls defined in the organization's control frameworks including ISO/IEC 27001 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
+Applies to all controls defined in the organization's control frameworks including ISO/IEC 27001:2022 Annex A, COBIT 2019, CSA CCM v4.1, NIST SP 800-53, and any applicable regulatory control requirements. Encompasses preventive, detective, and corrective controls across all domains.
 
 ---
 
@@ -49,7 +49,7 @@ The tester of a control is never the owner or operator of that control: control 
 
 1.2 Controls are prioritized for testing based on:
 - Risk rating (the current residual risk score of the risk the control mitigates, not the inherent risk).
-- External assurance scope (ISO/IEC 27001 or BASC certification, SOC 2 examination, etc.).
+- External assurance scope (ISO/IEC 27001:2022 or BASC certification, SOC 2 examination, etc.).
 - Prior year findings and remediation outcomes (a control with a prior deficiency is re-tested in the next cycle regardless of its risk rating).
 - Material changes to the control environment (a new, modified, or migrated control is tested in the cycle following the change).
 
@@ -61,7 +61,7 @@ The tester of a control is never the owner or operator of that control: control 
 | **Medium** | At least once every two years |
 | **Low** | At least once every three years |
 
-No control within an external assurance scope is tested less often than that scope's own cycle requires (a certification's surveillance cycle, or an examination's management-determined reporting period) (for example, in-scope SOC 2 controls are tested across each management-determined Type II examination period (SOC 2 is an examination that fixes no per-control cadence, so the covered period is set by management), and the organization schedules its ISO/IEC 27001 internal-audit programme so that in-scope controls are covered at least annually; ISO/IEC 27001 Clause 9.2 itself requires internal audits at organization-defined planned intervals rather than a fixed annual per-control cadence), and no in-scope control remains untested for more than three consecutive years.
+No control within an external assurance scope is tested less often than that scope's own cycle requires (a certification's surveillance cycle, or an examination's management-determined reporting period) (for example, in-scope SOC 2 controls are tested across each management-determined Type II examination period (SOC 2 is an examination that fixes no per-control cadence, so the covered period is set by management), and the organization schedules its ISO/IEC 27001:2022 internal-audit programme so that in-scope controls are covered at least annually; ISO/IEC 27001:2022 Clause 9.2 itself requires internal audits at organization-defined planned intervals rather than a fixed annual per-control cadence), and no in-scope control remains untested for more than three consecutive years.
 
 1.4 The Control Testing Calendar records, per planned test: the control identifier and framework reference, the control owner, the test type (design or operating effectiveness), the planned test period, the assigned tester, the residual-risk rating driving the frequency, and the external assurance scopes the control supports.
 

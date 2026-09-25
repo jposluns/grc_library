@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.19\
-**Date:** 2026-09-11\
+**Version:** 1.0.20\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -84,7 +84,7 @@ Suppliers must be formally notified of an upcoming audit at least 30 calendar da
 Prior to conducting the audit, the audit team must:
 
 1. Review the supplier's current contracts, Data Processing Agreements (DPAs), and prior audit reports.
-2. Confirm currency of applicable certificates (ISO/IEC 27001, SOC 2, BASC, AI certification where applicable).
+2. Confirm currency of applicable certificates (ISO/IEC 27001:2022, SOC 2, BASC, AI certification where applicable).
 3. Prepare an audit checklist aligned to the applicable frameworks and control families, including:
  - ISO/IEC 27036-4 cloud-services supplier security guidance (clause 6; Annex A is an informative cross-reference to other standards, not a control set).
  - COBIT 2019 APO10.05 management practices.

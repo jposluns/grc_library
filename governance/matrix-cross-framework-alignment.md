@@ -2,8 +2,8 @@
 
 **Document Title:** Cross-Framework Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.1.19\
-**Date:** 2026-09-24\
+**Version:** 1.1.20\
+**Date:** 2026-09-25\
 **Owner:** Control Framework Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/matrix-reverse-framework-control-crosswalk.md`](matrix-reverse-framework-control-crosswalk.md), [`NOTICE.md`](../NOTICE.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md), [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`governance/guideline-esg-and-ai-ethics-disclosure.md`](guideline-esg-and-ai-ethics-disclosure.md), [`risk/guideline-quantitative-risk-analysis.md`](../risk/guideline-quantitative-risk-analysis.md)\
@@ -51,7 +51,7 @@ This matrix provides an original, non-verbatim alignment structure for mapping r
 | Supply Chain | Supplier and Cloud Governance Framework | Supplier risk, cloud assurance, NIST SP 800-161 SCRM, security, privacy, and resilience families | Industry practice or contractual requirement | External providers process data, host workloads, operate critical services, or provide AI capabilities. | Due diligence record, contractual control schedule, supplier risk register, exit plan. |
 | Supply Chain | Trade and Supply-Chain Continuity Controls Annex | WCO SAFE, ISO 28000, CTPAT, BASC, PIP, AEO, AEO-S, NEEC, OEA | Regulatory interpretation or contractual requirement | Organization participates in customs, logistics, or trade-security programmes. | Programme audit record, gap assessment, corrective action evidence. |
 | Resilience | Business Continuity and Resilience Framework | ISO 22301 continuity, NIST SP 800-34 continuity planning, COBIT DSS04, operational resilience families | Industry practice or regulatory interpretation | Services have recovery, availability, regulatory, or customer-impact obligations. | BIA, RTO/RPO register, test report, recovery plan, corrective action log. |
-| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 Rev. 5 SA/SI families, ISO/IEC 27001 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
+| Dev Security | Developer Security Requirements Standard | OWASP Top 10, OWASP ASVS, OWASP LLM Top 10, NIST SSDF (SP 800-218), NIST SP 800-53 Rev. 5 SA/SI families, ISO/IEC 27001:2022 Annex A.8.25 to A.8.34, SLSA | Architectural recommendation | Organization develops or maintains software, AI systems, or automated pipelines. | Secure code review, SAST/DAST results, dependency scan, pipeline gate evidence. |
 
 ---
 
@@ -64,7 +64,7 @@ The following table maps the enterprise risk management control areas to externa
 | Risk framework and governance | Clause 5 Framework | Clause 5 Framework | Organization-wide RMF | Govern | EDM03 Ensured Risk Optimization | GRC domain | Corporate governance charters | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO, AEO-S |
 | Risk identification and analysis | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis (ISO 31000:2018) | Clause 6.4.2 Risk identification; Clause 6.4.3 Risk analysis | Tasks 1 and 2 | Map; Measure | APO12.02 Analyze risk | GRC domain | GDPR Article 25; PIPEDA accountability | WCO SAFE equivalence |
 | Risk appetite and tolerance | Clause 6.3.4 Defining risk criteria (ISO 31000:2018) | Clause 6.3.4 Defining risk criteria (including risk appetite) | Organizational risk strategy | Govern | EDM03.01 Evaluate risk management | GRC domain | Board-approved appetite statements | WCO SAFE equivalence |
-| Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.5 Risk treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO/IEC 27001 Annex A controls | WCO SAFE equivalence |
+| Treatment and control selection | Clause 6.5 Risk treatment (ISO 31000:2018) | Clause 6.5 Risk treatment | Task 3 Respond | Manage | APO12.06 Respond to risk | GRC domain | ISO/IEC 27001:2022 Annex A controls | WCO SAFE equivalence |
 | Monitoring and review | Clause 6.6 Monitoring and review (ISO 31000:2018) | Clause 6.6 Monitoring and review | Task 4 Monitor | Manage | MEA01; MEA02 | GRC domain | Regulatory reporting duties | WCO SAFE equivalence |
 | AI model governance | Clause 6 Process applied iteratively across the AI lifecycle (ISO 31000:2018) | Clauses 5 and 6 lifecycle | Organizational context | Govern; Manage | APO12; BAI03; DSS06 | AICM GRC and MDS domains | EU AI Act; Treasury Board Directive on Automated Decision-Making (Canada; AIDA lapsed) | Not applicable |
 | Third-party and supply-chain risk | Clause 6.3 Scope, context, criteria (third-party scope inclusion) and Clause 5.3 Integration (ISO 31000:2018) | Clause 6.3 Scope, context and criteria (third-party data) | Organizational context | Govern | APO10 Managed Vendors | STA domain | Contractual clauses; data processing agreements; transfer impact assessments | WCO SAFE equivalence |

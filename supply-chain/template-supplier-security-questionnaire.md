@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Security Questionnaire\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-08-31\
+**Version:** 1.0.8\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/README.md`](README.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-onboarding-security-review.md`](procedure-supplier-onboarding-security-review.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](../compliance/logistics/register-ctpat-united-states-it-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md)\
@@ -183,7 +183,7 @@ Please attach the following documents where applicable:
 
 | Document | Attached | Not Applicable | Will Provide On Request |
 |---|---|---|---|
-| ISO/IEC 27001 certificate (current) | | | |
+| ISO/IEC 27001:2022 certificate (current) | | | |
 | SOC 2 Type II report (current: within 12 months) | | | |
 | Penetration test attestation letter (within 12 months) | | | |
 | ISO/IEC 27701 or privacy certification | | | |

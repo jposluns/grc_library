@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.30\
-**Date:** 2026-09-23\
+**Version:** 1.1.31\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -219,7 +219,7 @@ A runtime EOL tracking register is maintained by the DevOps lead and reviewed qu
 
 ## 12. Framework alignment
 
-| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 | NIST SP 800-218 | OWASP ASVS | Regulatory |
+| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 | NIST SP 800-218 | OWASP ASVS | Regulatory |
 | --- | --- | --- | --- | --- | --- |
 | Security governance and principles | A.5 | GRC-01 to 06 | PO.1.1, PO.1.2 | N/A | ISO 37301, COBIT |
 | Data classification | A.5.10 to 5.13 | DSP-01 to 07 | N/A | V14 | PIPEDA, Law 25, GDPR |

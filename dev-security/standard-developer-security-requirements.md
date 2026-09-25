@@ -2,7 +2,7 @@
 
 **Document Title:** Developer Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.1.35\
+**Version:** 1.1.36\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -343,7 +343,7 @@ All of the following must be validated before any application onboards to a prod
 
 ## 19. Framework alignment
 
-| Control Area | ISO/IEC 27001/27002 | CSA CCM v4.1 / AICM v1.1 | NIST SSDF | OWASP ASVS | OWASP Top 10:2025 |
+| Control Area | ISO/IEC 27001:2022 / ISO/IEC 27002:2022 | CSA CCM v4.1 / AICM v1.1 | NIST SSDF | OWASP ASVS | OWASP Top 10:2025 |
 | --- | --- | --- | --- | --- | --- |
 | Secure SDLC | A.8.25 to 8.26 | AIS-01 to 06 | PW.1.1, PW.1.2, PW.2, PW.4.4, RV.1.1, RV.2.2 | V15 | N/A |
 | Authentication | A.5.15 to 5.18 | IAM-13 to 15 | N/A | V6 | A01, A07 |
