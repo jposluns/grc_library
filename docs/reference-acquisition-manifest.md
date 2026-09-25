@@ -634,7 +634,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (223: 223 free, 0 licensed)
+## Legislation (226: 226 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -782,6 +782,7 @@ without the private reference sibling).
 | India Digital Personal Data Protection Act, 2023 (Act 22 of 2023) |  | India |  | FREE |
 | India Digital Personal Data Protection Rules, 2025 (G.S.R. 846(E)) |  | India |  | FREE |
 | India RBI Master Direction on IT Governance, Risk, Controls and Assurance Practices, 2023 |  | India |  | FREE |
+| Indonesia Law No. 27 of 2022 on Personal Data Protection (UU PDP), Indonesian original | Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, enacted 2022-10-17; official BPK JDIH text (peraturan.bpk.go.id); Indonesian original | Indonesia |  | FREE |
 | Israel Privacy Protection Law 5741-1981 (as amended by Amendment 13) | Privacy Protection Law 5741-1981 as amended by Amendment 13 (in force 14 Aug 2025) | Israel |  | FREE |
 | Israel Privacy Protection Law Amendment No. 13 (Hebrew official gazette) | Amendment No. 13 (5784-2024), official gazette (Hebrew) | Israel |  | FREE |
 | Israel Protection of Privacy Law 5741-1981, English translation (UNOFFICIAL, base pre-Amendment 13) |  | Israel |  | FREE |
@@ -820,6 +821,7 @@ without the private reference sibling).
 | Personal Information Protection and Electronic Documents Act (PIPEDA), S.C. 2000, c. 5 |  | Canada |  | FREE |
 | Peru Decreto Supremo 016-2024-JUS, Reglamento de la Ley 29733 (2024) |  | Peru |  | FREE |
 | Peru Ley 29733 de Proteccion de Datos Personales + Reglamento (updated bundle, 30/11/2024) |  | Peru |  | FREE |
+| Philippines Data Privacy Act of 2012 (Republic Act No. 10173) | Republic Act No. 10173, approved 2012-08-15 (finally passed 2012-06-06); official National Privacy Commission text (privacy.gov.ph), public domain | Philippines |  | FREE |
 | Prince Edward Island Freedom of Information and Protection of Privacy Act (RSPEI 1988, c. F-15.01) | RSPEI 1988 c. F-15.01, consolidated | Canada (Prince Edward Island) |  | FREE |
 | Prince Edward Island Health Information Act (RSPEI 1988, c. H-1.41) | RSPEI 1988 c. H-1.41, consolidated | Canada (Prince Edward Island) |  | FREE |
 | Privacy Act, R.S.C. 1985, c. P-21 (Canada, federal public-sector privacy) |  | Canada |  | FREE |
@@ -842,6 +844,7 @@ without the private reference sibling).
 | Switzerland FINMA Circular 2023/1, Operational risks and resilience, banks |  | Switzerland |  | FREE |
 | Thailand Personal Data Protection Act B.E. 2562 (2019), English translation (UNOFFICIAL) |  | Thailand |  | FREE |
 | Tunisia Loi organique 2004-63 relative a la protection des donnees a caractere personnel (FR) |  | Tunisia |  | FREE |
+| Turkey Law No. 6698 on the Protection of Personal Data (KVKK), consolidated, Turkish original | Kanun No. 6698, adopted 2016-03-24, Official Gazette 2016-04-07 No. 29677; consolidated text including the Law No. 7499 (2024) amendments, per the official mevzuat.gov.tr text; Turkish original | Turkey |  | FREE |
 | UAE DIFC Data Protection Law No. 5 of 2020 (consolidated March 2022) |  | UAE-DIFC |  | FREE |
 | UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data | Federal Decree-Law No. 45 of 2021 (Executive Regulations not yet issued as of 2026-08-14) | United Arab Emirates |  | FREE |
 | UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data (Arabic original) | Federal Decree-Law No. 45 of 2021 (Arabic original text) | United Arab Emirates |  | FREE |
@@ -909,5 +912,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 844 sources (718 free, 126 licensed).**
+**Total: 847 sources (721 free, 126 licensed).**
 
