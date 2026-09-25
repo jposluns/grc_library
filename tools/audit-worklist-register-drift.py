@@ -729,6 +729,23 @@ def main(argv=None):
     if a.self_test:
         return _self_test()
 
+    # 3b50b2e1: a missing, empty, directory or unreadable --register / --worklist raised a traceback.
+    for flag, path in [("--register", a.register), *(("--worklist", w) for w in (a.worklists or []))]:
+        try:
+            is_file = path.is_file()
+        except OSError:
+            is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
+        if str(path) in ("", ".") or not is_file:
+            print(f"ERROR: {flag} {path}: not a regular file; nothing would be checked.",
+                  file=sys.stderr)
+            return 2
+        try:
+            with open(path, "rb"):
+                pass
+        except OSError as exc:
+            print(f"ERROR: {flag} {path}: unreadable ({exc.strerror}); nothing would be checked.",
+                  file=sys.stderr)
+            return 2
     aliases, ambiguous = load_alias_config()
     reg = parse_register(a.register)
     worklists = a.worklists if a.worklists else default_worklists()

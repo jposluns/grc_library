@@ -462,6 +462,23 @@ def main():
         return self_test()
     if not args.worklist:
         ap.error("--worklist is required (unless --self-test)")
+    # 3b50b2e1: a missing, empty, directory or unreadable --worklist / --register raised a traceback.
+    for flag, path in (("--worklist", args.worklist), ("--register", args.register)):
+        try:
+            is_file = Path(path).is_file()
+        except OSError:
+            is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
+        if not path.strip() or not is_file:
+            print(f"ERROR: {flag} {path!r}: not a regular file; nothing would be synced.",
+                  file=sys.stderr)
+            return 2
+        try:
+            with open(path, "rb"):
+                pass
+        except OSError as exc:
+            print(f"ERROR: {flag} {path!r}: unreadable ({exc.strerror}); nothing would be synced.",
+                  file=sys.stderr)
+            return 2
     mode = "check" if args.check else "report" if args.report else "apply"
     return run(args.worklist, args.register, mode)
 

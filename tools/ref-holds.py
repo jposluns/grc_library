@@ -49,7 +49,13 @@ INDEX_FILES = ("INDEX.md", "catalogue.yml", "SECTION-INDEX.md", "COVERAGE-MAP.md
 def find_ref_root(explicit: str | None) -> Path | None:
     if explicit:
         p = Path(explicit).expanduser().resolve()
-        return p if (p / "INDEX.md").exists() or (p / "catalogue.yml").exists() else None
+        try:
+            present = (p / "INDEX.md").exists() or (p / "catalogue.yml").exists()
+        except OSError:
+            # Python 3.11's exists() raises on EACCES (newer versions return False): an index that
+            # cannot even be stat'ed is present-but-unreadable, so let the read refuse it.
+            return p
+        return p if present else None
     # Default: the real grc_library_ref sibling, located via the shared resolver
     # (1.19.2 (closing PR #996)). None on a portable clone that has no sibling.
     sibling = resolve_sibling("ref")
@@ -60,18 +66,23 @@ def find_ref_root(explicit: str | None) -> Path | None:
     return None
 
 
+class IndexUnreadable(RuntimeError):
+    """A grc_library_ref index file exists but cannot be read."""
+
+
 def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
     """Return (index_file, line_no, line) for every line matching the query (case-insensitive)."""
     q = query.lower()
     hits: list[tuple[str, int, str]] = []
     for name in INDEX_FILES:
         f = ref_root / name
-        if not f.exists():
-            continue
         try:
             text = f.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
+        except FileNotFoundError:
+            continue  # an absent index file (or a dangling link) is simply not consulted
+        except OSError as exc:
+            # A present but unreadable index is not evidence of absence (3b50b2e1).
+            raise IndexUnreadable(f"{name}: {exc.strerror}") from exc
         for i, line in enumerate(text.splitlines(), 1):
             if q in line.lower():
                 hits.append((name, i, line.strip()))
@@ -79,7 +90,12 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
 
 
 def run(ref_root: Path, query: str, stream=sys.stdout) -> int:
-    hits = search_index(ref_root, query)
+    try:
+        hits = search_index(ref_root, query)
+    except IndexUnreadable as exc:
+        print(f"ERROR: grc_library_ref index unreadable ({exc}); refusing a verdict.",
+              file=sys.stderr)
+        return 2
     if not hits:
         print(
             f"NOT-FOUND-IN-INDEX: no entry matching {query!r} in the grc_library_ref index "
@@ -197,11 +213,22 @@ def main(argv: list[str]) -> int:
 
     if a.self_test:
         return _self_test()
+    if a.ref_root is not None and not a.ref_root.strip():
+        # 3b50b2e1: an empty --ref-root silently fell back to the default sibling.
+        print("ERROR: --ref-root needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
     if not a.query:
         print("ERROR: provide a query (or --self-test). Example: ref-holds.py \"27002\"", file=sys.stderr)
         return 2
 
-    ref_root = find_ref_root(a.ref_root)
+    try:
+        ref_root = find_ref_root(a.ref_root)
+    except (OSError, RuntimeError) as exc:
+        # expanduser() raises RuntimeError for an unknown user, and Python 3.11's resolve() raises
+        # it on a symlink loop; an explicit root that cannot be resolved is refused (3b50b2e1 r5).
+        print(f"ERROR: --ref-root {a.ref_root}: unresolvable ({exc}).", file=sys.stderr)
+        return 2
     if ref_root is None:
         # A GENUINELY ABSENT default sibling on an ADOPTER clone degrades to an
         # advisory no-op (exit 0), per 1.19.2 (closing PR #996): ref-holds is a
@@ -228,9 +255,10 @@ def main(argv: list[str]) -> int:
                 "ref-holds is a maintainer-only advisory, nothing to report."
             )
             return 0
+        looked = a.ref_root if a.ref_root is not None else DEFAULT_REF_ROOT
         print(
-            "ERROR: could not locate the grc_library_ref index. Pass --ref-root /path/to/grc_library_ref "
-            f"(looked for {DEFAULT_REF_ROOT}).",
+            "ERROR: could not locate a readable grc_library_ref index (INDEX.md or catalogue.yml). "
+            f"Pass --ref-root /path/to/grc_library_ref (looked in {looked}).",
             file=sys.stderr,
         )
         return 2

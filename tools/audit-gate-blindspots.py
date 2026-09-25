@@ -4,7 +4,7 @@ markdown surfaces does NO gate scan.
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID for the deep-assessment
 skill's audit-programme phase, not an audit gate. It always exits 0 after printing
-its report (2 only on internal error); its output is a coverage report, not a
+its report (2 only on an internal or usage error, such as an empty or missing --root); its output is a coverage report, not a
 defect list. It derives, per gate wired into ``tools/run_all_audits.sh``, the
 gate's effective scan scope by static inspection of the gate's module source, then
 inverts the union: the markdown files no scope-derivable gate scans at all. Every
@@ -98,9 +98,11 @@ def derive_scope(root: Path, name: str, script: str) -> GateScope:
     path = root / script
     try:
         source = path.read_text(encoding="utf-8", errors="replace")
-    except OSError as exc:
+    except FileNotFoundError as exc:
         gate.note = f"unreadable: {exc}"
         return gate
+    # Any other read error (a locked script, a link into a locked directory) propagates to main()'s
+    # refusal: classifying it not-derivable let the run succeed on evidence it never read (3b50b2e1 r3).
 
     uses_common = any(tok in source for tok in COMMON_DISCOVERY_TOKENS)
     walk_based = 'rglob("*.md")' in source or "rglob('*.md')" in source
@@ -213,7 +215,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Report per-gate scan scope and the markdown surfaces no gate scans."
     )
-    parser.add_argument("--root", type=Path, default=TOOL_ROOT)
+    parser.add_argument("--root", type=str, default=str(TOOL_ROOT))
     parser.add_argument("--format", choices=("md", "tsv"), default="md")
     parser.add_argument(
         "--unscanned-only",
@@ -221,7 +223,20 @@ def main(argv: list[str] | None = None) -> int:
         help="Print only the unscanned-surface list.",
     )
     args = parser.parse_args(argv)
-    root = args.root.resolve()
+    # 3b50b2e1: an empty --root used to become '.', so the current directory was audited. Checked
+    # inline: this tool is standalone (it does not import lint_common).
+    try:
+        root_is_dir = bool(str(args.root).strip()) and Path(args.root).is_dir()
+    except OSError as exc:
+        # Python 3.11's is_dir() raises on EACCES where newer versions return False.
+        print(f"ERROR: --root {args.root!r}: unreadable ({exc.strerror}); nothing would be audited.",
+              file=sys.stderr)
+        return 2
+    if not root_is_dir:
+        print(f"ERROR: --root {args.root!r}: not a directory; nothing would be audited.",
+              file=sys.stderr)
+        return 2
+    root = Path(args.root).resolve()
 
     try:
         gates = load_gates(root)

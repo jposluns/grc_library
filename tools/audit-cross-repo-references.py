@@ -28,8 +28,10 @@ into one of four buckets:
                           or otherwise unresolvable path-string), surfaced for a
                           human to adjudicate.
 
-This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees, always exits 0
-(a findings count is informational, never a build failure), and is intended to be
+This tool is ADVISORY, NOT a CI gate. It spans gate-exempt trees and exits 0 on
+every reporting path (a findings count is informational, never a build failure; 2 only on a
+usage or read error: an empty, missing or non-directory --root, or unreadable content under
+--root or the working store), and is intended to be
 worker-run or run on demand, like ``/validate-pr``, not wired into the per-PR lint
 CI. It reuses the existing machinery rather than reinventing it: the gate-3
 link-extraction and path-resolution shapes from ``lint-links.py``, and
@@ -57,14 +59,16 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import re
+import stat
 import sys
 from collections import Counter
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import is_fence_line, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, resolve_sibling as _default_resolve_sibling, resolve_working_dir, sibling_placeholder_present  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, resolve_sibling as _default_resolve_sibling, resolve_working_dir, sibling_placeholder_present, require_dir  # noqa: E402  # grc-config/store, stays local
 
 
 # Directories skipped even by this advisory (noise / non-text / stubs). NOTE this
@@ -109,13 +113,29 @@ def iter_text_files(root: Path) -> list[Path]:
     the candidate path list in sorted order for deterministic output.
     """
     out: list[Path] = []
-    for f in sorted(root.rglob("*")):
-        if not f.is_file():
-            continue
-        if any(part in SCAN_EXEMPT_DIRS for part in f.relative_to(root).parts):
-            continue
-        out.append(f)
-    return out
+
+    def _raise(err: OSError) -> None:
+        # rglob skipped an unreadable subdirectory silently, so its links were never audited
+        # and the run still reported clean (3b50b2e1 r2); surface it instead.
+        raise err
+
+    for dirpath, dirnames, filenames in os.walk(root, onerror=_raise):
+        dirnames[:] = [d for d in dirnames if d not in SCAN_EXEMPT_DIRS]
+        for name in filenames:
+            f = Path(dirpath, name)
+            try:
+                st = f.stat()
+            except FileNotFoundError:
+                continue  # a dangling symlink: nothing to audit
+            # Any other stat failure (a directory without search permission, a link into a locked
+            # directory, a symlink loop) propagates: is_file() swallowed it and the file was
+            # dropped from a run that still reported clean (3b50b2e1 r3).
+            if not stat.S_ISREG(st.st_mode):
+                continue
+            if any(part in SCAN_EXEMPT_DIRS for part in f.relative_to(root).parts):
+                continue
+            out.append(f)
+    return sorted(out)
 
 
 def classify_link(
@@ -461,23 +481,42 @@ def main(argv: list[str]) -> int:
     if args.self_test:
         return self_test()
 
-    root = Path(args.root).resolve()
-    findings, counts = audit_tree(root)
+    # 3b50b2e1: a missing, empty, non-directory or unreadable --root used to audit nothing and report clean.
+    root = require_dir(args.root, "--root")
+    try:
+        findings, counts = audit_tree(root)
+    except OSError as exc:
+        # An unreadable root or subdirectory used to report clean (nothing walked there), and an
+        # unreadable file crashed; either way the audit would be incomplete.
+        print(f"ERROR: unreadable content under --root {args.root} ({exc}); "
+              f"the audit would be incomplete.", file=sys.stderr)
+        return 2
     # Post-migration the `.working/` tree lives in the private sibling (outside
     # this root); audit it too so the `.working/` coverage this tool exists to
     # provide survives the move. While `.working/` is still in-repo it is already
     # covered by the root walk, so this branch does nothing.
-    wd = resolve_working_dir(repo_root=root)
+    try:
+        wd = resolve_working_dir(repo_root=root)
+    except OSError as exc:
+        print(f"ERROR: the working store could not be located ({exc}); the audit would be incomplete.",
+              file=sys.stderr)
+        return 2
     if wd is not None:
         try:
             wd.relative_to(root)
         except ValueError:
-            wfind, wcounts = audit_tree(wd, link_root=root, logical_prefix=".working")
+            try:
+                wfind, wcounts = audit_tree(wd, link_root=root, logical_prefix=".working")
+            except OSError as exc:
+                print(f"ERROR: unreadable content under the working store {wd} ({exc}); "
+                      f"the audit would be incomplete.", file=sys.stderr)
+                return 2
             findings.extend(wfind)
             counts.update(wcounts)
     _print_report(findings, counts, root)
-    # Advisory: always exit 0. The counts are informational; this tool never
-    # fails a build (it spans gate-exempt trees and is not a CI gate).
+    # Advisory: exit 0 on every reporting path. The counts are informational; this tool
+    # never fails a build (it spans gate-exempt trees and is not a CI gate); 2 is reserved
+    # for the usage and read errors refused above.
     return 0
 
 

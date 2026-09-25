@@ -10344,6 +10344,123 @@ class WorkingProseHygieneTests(LinterTestCase):
         self.assertLinterFails(result, "prose-dash")
 
 
+
+class AdvisoryAidArgRefusalTests(LinterTestCase):
+    """3b50b2e1: advisory aids whose explicit root or file argument passed vacuously or crashed.
+
+    audit-cross-repo-references reported clean for a missing root; audit-gate-blindspots and
+    ref-holds read an empty value as the current directory or the default sibling;
+    audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
+    directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases. Each
+    now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
+
+    def test_bad_explicit_arguments_refused(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="aidargs-"))
+        self.addCleanup(shutil.rmtree, td)
+        # A self-referencing symlink: Python 3.11's resolve() raises RuntimeError on it, and newer
+        # versions leave it unresolved; either way the explicit root is refused.
+        loop = td / "loop"
+        loop.symlink_to(loop)
+        # Each case names the refusal text only the fixed tool prints, so a case still
+        # discriminates where the base tool also exits 2 for another reason (e.g. CI has
+        # no grc_library_ref sibling, so base ref-holds exits 2 with "could not locate").
+        cases = (
+            ("an empty value is refused", "tools/audit-cross-repo-references.py", "--root="),
+            ("not a directory", "tools/audit-cross-repo-references.py", "--root", str(td / "missing")),
+            ("not a directory", "tools/audit-gate-blindspots.py", "--root="),
+            ("an empty value is refused", "tools/ref-holds.py", "--ref-root=", "27002"),
+            ("not a regular file", "tools/audit-worklist-register-drift.py", "--register", str(td / "missing.md")),
+            ("not a regular file", "tools/audit-worklist-register-drift.py", "--worklist", str(td)),
+            ("not a regular file", "tools/sync-citation-worklist-baseline.py", "--worklist", str(td)),
+            ("not a regular file", "tools/audit-reference-acquisition-gaps.py", "--aliases", str(td / "missing.json")),
+            ("an empty value is refused", "tools/audit-reference-acquisition-gaps.py", "--ref-base="),
+            ("unresolvable", "tools/ref-holds.py", "--ref-root", "~grc_no_such_user_3b50b2e1", "27002"),
+            (("unresolvable", "not a directory"), "tools/audit-cross-repo-references.py", "--root", str(loop)),
+            (("unresolvable", "could not locate"), "tools/ref-holds.py", "--ref-root", str(loop), "27002"),
+        )
+        for expect, script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            # A symlink-loop root is refused on every Python, by a different path per version
+            # (3.11's resolve() raises; newer versions report it as not a directory).
+            expects = expect if isinstance(expect, tuple) else (expect,)
+            self.assertTrue(any(e in r.stderr for e in expects), (script, args, r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+
+    def test_unreadable_explicit_inputs_refused(self) -> None:
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root reads mode-000 files; unreadable inputs cannot be simulated")
+        td = Path(tempfile.mkdtemp(prefix="aidunread-"))
+        locked = td / "locked.md"
+        locked.write_text("x\n", encoding="utf-8")
+        locked_dir = td / "lockeddir"
+        locked_dir.mkdir()
+        ref = td / "ref"
+        ref.mkdir()
+        (ref / "INDEX.md").write_text("27002\n", encoding="utf-8")
+        # A readable root whose content is not: a locked file, and a locked subdirectory that a
+        # silent rglob used to skip (the audit then reported clean).
+        root_file = td / "root_file"
+        (root_file).mkdir()
+        (root_file / "a.md").write_text("[x](missing.md)\n", encoding="utf-8")
+        (root_file / "locked.md").write_text("[y](nothere.md)\n", encoding="utf-8")
+        root_sub = td / "root_sub"
+        (root_sub / "lock").mkdir(parents=True)
+        (root_sub / "a.md").write_text("[x](missing.md)\n", encoding="utf-8")
+        (root_sub / "lock" / "c.md").write_text("[y](nothere.md)\n", encoding="utf-8")
+        # A ref root whose INDEX.md links into a locked directory: exists() is False there, so the
+        # index used to be skipped silently and a false NOT-FOUND reported.
+        ref_link = td / "ref_link"
+        (ref_link / "vault").mkdir(parents=True)
+        (ref_link / "vault" / "INDEX.md").write_text("27002\n", encoding="utf-8")
+        (ref_link / "catalogue.yml").write_text("items: []\n", encoding="utf-8")
+        (ref_link / "INDEX.md").symlink_to(ref_link / "vault" / "INDEX.md")
+        # A listable but not searchable subdirectory (mode 0444: os.walk lists it, stat fails) and a
+        # file symlink into a locked directory: is_file() swallowed both and the run reported clean.
+        root_noexec = td / "root_noexec"
+        (root_noexec / "ro").mkdir(parents=True)
+        (root_noexec / "ro" / "c.md").write_text("[y](dangling.md)\n", encoding="utf-8")
+        root_link = td / "root_link"
+        (root_link / "vault").mkdir(parents=True)
+        (root_link / "vault" / "t.md").write_text("[y](gone.md)\n", encoding="utf-8")
+        (root_link / "docs").mkdir()
+        (root_link / "docs" / "link.md").symlink_to(root_link / "vault" / "t.md")
+        files = (locked, ref / "INDEX.md", root_file / "locked.md")
+        dirs = (locked_dir, root_sub / "lock", ref_link / "vault", root_link / "vault")
+        for f in files:
+            f.chmod(0)
+        for d in dirs:
+            d.chmod(0)
+        (root_noexec / "ro").chmod(0o444)
+
+        def _cleanup() -> None:
+            for f in files:
+                f.chmod(0o600)
+            for d in dirs:
+                d.chmod(0o700)
+            (root_noexec / "ro").chmod(0o700)
+            shutil.rmtree(td)
+        self.addCleanup(_cleanup)
+        cases = (
+            ("tools/audit-worklist-register-drift.py", "--register", str(locked)),
+            ("tools/audit-worklist-register-drift.py", "--worklist", str(locked)),
+            ("tools/sync-citation-worklist-baseline.py", "--worklist", str(locked)),
+            ("tools/audit-reference-acquisition-gaps.py", "--aliases", str(locked)),
+            ("tools/audit-cross-repo-references.py", "--root", str(locked_dir)),
+            ("tools/ref-holds.py", "--ref-root", str(ref), "27002"),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_file)),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_sub)),
+            ("tools/ref-holds.py", "--ref-root", str(ref_link), "27002"),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_noexec)),
+            ("tools/audit-cross-repo-references.py", "--root", str(root_link)),
+        )
+        for script, *args in cases:
+            r = run_linter(script, *args)
+            self.assertEqual(r.returncode, 2, (script, args, r.stdout[-200:], r.stderr[-200:]))
+            self.assertIn("unreadable", r.stderr, (script, args))
+            self.assertNotIn("Traceback", r.stderr)
+
+
 class ScanScopeParityTests(LinterTestCase):
     """tools/lint-scan-scope-parity.py (gate 52)
 

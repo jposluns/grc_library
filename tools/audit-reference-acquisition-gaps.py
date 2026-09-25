@@ -160,19 +160,49 @@ def parse_catalogue_titles(ref_base: Path) -> list[str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("--ref-base", type=Path, default=DEFAULT_REF_BASE)
-    ap.add_argument("--aliases", type=Path, default=DEFAULT_ALIASES)
+    ap.add_argument("--ref-base", default=None)
+    ap.add_argument("--aliases", default=None)
     ap.add_argument("--section", default=None,
                     help="Restrict to one register family (## header text).")
     ap.add_argument("--include-tooling", action="store_true",
                     help="Include the software-tool / programme families (excluded by default).")
     args = ap.parse_args(argv)
+    # Track whether --aliases was supplied rather than comparing it with the default path: an
+    # explicit value that happens to equal the default is validated like any other (3b50b2e1 r3).
+    explicit_aliases = args.aliases is not None
+    args.aliases = Path(args.aliases) if explicit_aliases else DEFAULT_ALIASES
+    try:
+        aliases_is_file = args.aliases.is_file()
+    except OSError:
+        aliases_is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
+    if explicit_aliases and (not str(args.aliases).strip() or str(args.aliases) in ("", ".")
+                             or not aliases_is_file):
+        # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
+        print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
+        return 2
+    if explicit_aliases:
+        try:
+            with open(args.aliases, "rb"):
+                pass
+        except OSError as exc:
+            print(f"ERROR: --aliases {args.aliases}: unreadable ({exc.strerror}).", file=sys.stderr)
+            return 2
+    explicit_ref_base = args.ref_base is not None
+    if not explicit_ref_base:
+        args.ref_base = DEFAULT_REF_BASE
+    elif not args.ref_base.strip():
+        # 3b50b2e1: --ref-base= used to resolve to the current directory.
+        print("ERROR: --ref-base needs a directory argument (an empty value is refused).",
+              file=sys.stderr)
+        return 2
+    else:
+        args.ref_base = Path(args.ref_base)
 
     # Adopter graceful-degradation (3.91 (closing PR #1011)): default ref-base (no --ref-base
     # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter
     # clone runs this maintainer-only advisory green rather than crashing. An explicit
     # --ref-base that is bad still errors below (typo guard).
-    if args.ref_base == DEFAULT_REF_BASE and not (args.ref_base / "catalogue.yml").is_file():
+    if not explicit_ref_base and not (args.ref_base / "catalogue.yml").is_file():
         print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
               "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
         return 0
