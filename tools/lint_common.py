@@ -43,9 +43,11 @@ Scope notes:
 from __future__ import annotations
 
 import datetime
+import errno
 import json
 import os
 import re
+import stat as _stat
 import subprocess
 import sys
 from collections.abc import Iterable, Iterator
@@ -198,6 +200,51 @@ _SIBLING_REPO_DIRS: dict[str, str] = {
 }
 
 
+class InaccessiblePath(OSError):
+    """A path that is, or may be, present but cannot be examined: a parent without search
+    permission (EACCES), a symlink loop (ELOOP), a non-directory parent (ENOTDIR), an entry that
+    cannot be followed (a dangling link, a link into a locked directory), or an entry of the wrong
+    kind. The strict lookups raise it rather than read such a path as absent (3b74)."""
+
+
+def strict_kind(path) -> "str | None":
+    """``"dir"``, ``"file"`` or ``"other"`` for ``path``; ``None`` only when it is genuinely ABSENT.
+
+    ABSENT means ``lstat`` reports ENOENT (no entry for the path or for a parent). Any other failure
+    raises :class:`InaccessiblePath`. The probe calls ``os.lstat``/``os.stat`` directly, so the
+    verdict is the same on Python 3.11, whose pathlib ``exists()``/``is_file()``/``is_dir()`` raise
+    PermissionError on EACCES, and on 3.12+, whose versions return False and so read an unreadable
+    path as absent. It does not test read permission on a directory's contents.
+    """
+    p = os.fspath(path)
+    try:
+        os.lstat(p)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise InaccessiblePath(exc.errno, exc.strerror, p) from exc
+    except ValueError as exc:  # an embedded NUL byte
+        raise InaccessiblePath(errno.EINVAL, str(exc), p) from exc
+    try:
+        st = os.stat(p)
+    except OSError as exc:
+        # lstat found an entry that stat cannot follow: present but unusable, never absent.
+        raise InaccessiblePath(exc.errno, exc.strerror, p) from exc
+    if _stat.S_ISDIR(st.st_mode):
+        return "dir"
+    return "file" if _stat.S_ISREG(st.st_mode) else "other"
+
+
+def _strict_is_dir(path) -> bool:
+    """True for a directory, False when ABSENT; :class:`InaccessiblePath` for anything else."""
+    kind = strict_kind(path)
+    if kind is None:
+        return False
+    if kind != "dir":
+        raise InaccessiblePath(errno.ENOTDIR, "present but not a directory", os.fspath(path))
+    return True
+
+
 def sibling_placeholder_present(name: str) -> bool:
     """Return True if an in-repo ``.<name>`` placeholder directory is present.
 
@@ -217,7 +264,7 @@ def sibling_placeholder_present(name: str) -> bool:
     return (REPO_ROOT / f".{name}").is_dir()
 
 
-def resolve_sibling(name: str) -> Path | None:
+def resolve_sibling(name: str, *, strict: bool = False) -> Path | None:
     """Locate a real sibling repository by short name, or return ``None``.
 
     ``name`` is ``ref`` / ``scratch`` / ``private``. Returns the REAL sibling
@@ -232,6 +279,11 @@ def resolve_sibling(name: str) -> Path | None:
     environment variable) stays the caller's own concern, since an explicit
     wrong path is surfaced rather than papered over. Raises ``ValueError`` on
     an unknown name.
+
+    ``strict=True`` (3b74) separates ABSENT from INACCESSIBLE: ``None`` only when no entry exists
+    at the sibling path; an entry that cannot be examined, or is not a directory (a file, a dangling
+    or looping symlink), raises :class:`InaccessiblePath` so the caller refuses (exit 2) instead of
+    taking the absent-sibling no-op. The default is unchanged.
     """
     if name not in _SIBLING_REPO_DIRS:
         raise ValueError(
@@ -239,6 +291,8 @@ def resolve_sibling(name: str) -> Path | None:
             f"{sorted(_SIBLING_REPO_DIRS)}"
         )
     candidate = REPO_ROOT.parent / _SIBLING_REPO_DIRS[name]
+    if strict:
+        return candidate if _strict_is_dir(candidate) else None
     return candidate if candidate.is_dir() else None
 
 
@@ -290,23 +344,48 @@ def private_store_roots(root: "Path | None" = None) -> "list[Path]":
     return roots
 
 
-def _store_dir(root: "Path") -> "Path | None":
+def _store_dir(root: "Path", *, strict: bool = False) -> "Path | None":
     """The USABLE operational store for ``root``: :func:`_store_root` when it exists AND
     resolves OUTSIDE the public repo. A store that resolves INSIDE the repo (e.g. a relative
     ``GRC_STORE=private`` -> ``<repo>/private``) is REJECTED (returns None), preserving the
     invariant the old hardcoded ``grc_library_private`` guard held: private maintainer content
     is never written into the public checkout. Callers then fall back to the private sibling /
-    in-repo ``.working/`` (reads) or refuse (private writes)."""
-    store = _store_root(root)
+    in-repo ``.working/`` (reads) or refuse (private writes).
+
+    ``strict=True`` (3b74) keeps both fallbacks (an ABSENT store and an in-repo store return None)
+    but raises :class:`InaccessiblePath` for a store path that cannot be examined or is not a
+    directory, which the default reads as absent. Both modes also catch the RuntimeError that
+    Python 3.11's ``resolve()`` raises on a relative ``GRC_STORE`` symlink loop (it escaped as a
+    traceback, since ``_store_root`` ran outside the ``try``)."""
     try:
-        if store.is_dir() and not store.resolve().is_relative_to(root.resolve()):
+        if strict:
+            # Probe the configured store AS GIVEN (a relative GRC_STORE joined to the root, not yet
+            # resolved) BEFORE _store_root resolves it, so a relative and an absolute spelling of
+            # the same path get the same verdict and no "missing/.." or dangling link is normalized
+            # away first. Only a store that is a real directory is resolved.
+            env = os.environ.get("GRC_STORE")
+            given = (Path(env) if Path(env).is_absolute() else root / env) if env else root.parent / "private"
+            if not _strict_is_dir(given):
+                return None
+            store = _store_root(root)
+            present = True
+        else:
+            store = _store_root(root)
+            present = store.is_dir()
+        if present and not store.resolve().is_relative_to(root.resolve()):
             return store
-    except OSError:
+    except InaccessiblePath:
+        raise
+    except (OSError, RuntimeError) as exc:
+        if strict:
+            raise InaccessiblePath(getattr(exc, "errno", None) or errno.ELOOP,
+                                   getattr(exc, "strerror", None) or str(exc),
+                                   os.environ.get("GRC_STORE") or str(root.parent / "private")) from exc
         return None
     return None
 
 
-def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | None:
+def resolve_working(relpath: str, *, repo_root: Path | None = None, strict: bool = False) -> Path | None:
     """Locate a `.working/`-tree file, preferring the operational store (`$GRC_STORE` or `<repo-parent>/private`); the private sibling `grc_library_private/.working/` is a transitional fallback.
 
     `relpath` is POSIX-relative to the `.working/` root (e.g.
@@ -328,33 +407,49 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None) -> Path | No
 
     An EXPLICIT path passed to a tool (a ``--flag``) stays the caller's concern, as with
     :func:`resolve_sibling`; this helper governs only the DEFAULT `.working/` lookup.
+
+    ``strict=True`` (3b74) raises :class:`InaccessiblePath` where the default falls through: a
+    location that cannot be examined (an unsearchable parent, a symlink loop, a non-directory where
+    a directory belongs). An ABSENT location still falls through, so a public or adopter clone still
+    gets None. The default is unchanged.
     """
     root = (repo_root or REPO_ROOT).resolve()
-    store = _store_dir(root)
+    if strict:
+        def present(p: Path) -> bool:
+            return strict_kind(p) is not None
+        is_dir = _strict_is_dir
+    else:
+        def present(p: Path) -> bool:
+            return p.exists()
+
+        def is_dir(p: Path) -> bool:
+            return p.is_dir()
+    store = _store_dir(root, strict=strict)
     if store is not None:
         cand = store / relpath
-        if cand.exists():
+        if present(cand):
             return cand
     private = root.parent / _SIBLING_REPO_DIRS["private"]
-    if private.is_dir():
+    if is_dir(private):
         cand = private / WORKING_SUBDIR / relpath
-        if cand.exists():
+        if present(cand):
             return cand
     local = root / WORKING_SUBDIR / relpath
-    if local.exists():
+    if present(local):
         return local
     return None
 
 
-def resolve_working_dir(*, repo_root: Path | None = None) -> Path | None:
+def resolve_working_dir(*, repo_root: Path | None = None, strict: bool = False) -> Path | None:
     """The `.working/` DIRECTORY (store preferred, then private sibling, then in-repo), or None.
 
     The directory analogue of :func:`resolve_working` for consumers that WALK the
     `.working/` tree (the residual scan, the cross-repo-reference audit) rather than
     open one named file. ``"."`` denotes the `.working/` root itself: pathlib drops a
     trailing ``.``, so the candidate is the directory and ``Path.exists()`` is true for it.
+    ``strict`` is passed through to :func:`resolve_working`.
     """
-    return resolve_working(".", repo_root=repo_root)
+    return resolve_working(".", repo_root=repo_root, strict=strict)
 
 
 def resolve_working_for_write(relpath: str, *, repo_root: Path | None = None) -> Path:
@@ -879,22 +974,29 @@ def self_test_requested(argv: Iterable[str], paths: Iterable[str]) -> bool:
 
 def require_dir(path, flag: str) -> Path:
     """An explicit directory argument, resolved, or a refusal (stderr, SystemExit(2)) when it is not
-    an existing directory (3b50b1: several --root overrides scanned nothing and exited 0)."""
+    an existing directory (3b50b1: several --root overrides scanned nothing and exited 0).
+
+    The path is checked AS GIVEN before it is resolved (3b74): the kernel follows each component in
+    turn, so ``missing/../real`` and ``file/../real`` do not exist, but ``resolve()`` normalizes
+    them lexically into ``real`` and a root nobody named would be scanned."""
     if not str(path).strip():
         # An empty value (--flag= or --flag "") would resolve to the current directory and pass.
         print(f"ERROR: {flag} needs a directory argument (an empty value is refused).", file=sys.stderr)
         raise SystemExit(2)
     try:
-        p = Path(path).resolve()
-        is_dir = p.is_dir()
-    except (OSError, RuntimeError) as exc:
+        given = Path(path)
+        # Probe the path AS GIVEN (the kernel walks it component by component), then resolve.
+        is_dir = given.is_dir()
+        p = given.resolve()
+    except (OSError, RuntimeError, ValueError) as exc:
         # Python 3.11's is_dir() raises on EACCES where newer versions return False, and its
-        # resolve() raises RuntimeError on a symlink loop.
+        # resolve() raises RuntimeError on a symlink loop; ValueError is an embedded NUL byte.
         print(f"ERROR: {flag} {path}: unreadable or unresolvable ({exc}); nothing would be checked.",
               file=sys.stderr)
         raise SystemExit(2)
     if not is_dir:
-        print(f"ERROR: {flag} {path}: not a directory; nothing would be checked.", file=sys.stderr)
+        print(f"ERROR: {flag} {path}: not a directory as given (checked before any '..' is "
+              f"normalized); nothing would be checked.", file=sys.stderr)
         raise SystemExit(2)
     return p
 

@@ -35,10 +35,11 @@ Stdlib-only Python 3.11.
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
-from lint_common import REPO_ROOT, resolve_sibling
+from lint_common import REPO_ROOT, InaccessiblePath, require_dir, resolve_sibling, strict_kind
 
 # Default: grc_library_ref is a sibling of the repo containing this tool.
 DEFAULT_REF_ROOT = REPO_ROOT.parent / "grc_library_ref"
@@ -48,20 +49,23 @@ INDEX_FILES = ("INDEX.md", "catalogue.yml", "SECTION-INDEX.md", "COVERAGE-MAP.md
 
 def find_ref_root(explicit: str | None) -> Path | None:
     if explicit:
-        p = Path(explicit).expanduser().resolve()
+        # require_dir checks the path as given before resolving it (3b74: "missing/../ref" used to
+        # normalize into a real root) and refuses, exit 2, a missing, non-directory or unresolvable one.
+        p = require_dir(Path(explicit).expanduser(), "--ref-root")
         try:
-            present = (p / "INDEX.md").exists() or (p / "catalogue.yml").exists()
+            present = any(strict_kind(p / n) is not None for n in ("INDEX.md", "catalogue.yml"))
         except OSError:
-            # Python 3.11's exists() raises on EACCES (newer versions return False): an index that
-            # cannot even be stat'ed is present-but-unreadable, so let the read refuse it.
+            # An index that cannot even be examined is present-but-unreadable: let the read refuse it.
             return p
         return p if present else None
     # Default: the real grc_library_ref sibling, located via the shared resolver
-    # (1.19.2 (closing PR #996)). None on a portable clone that has no sibling.
-    sibling = resolve_sibling("ref")
-    if sibling is not None and (
-        (sibling / "INDEX.md").exists() or (sibling / "catalogue.yml").exists()
-    ):
+    # (1.19.2 (closing PR #996)). None on a portable clone that has no sibling. The lookup is strict
+    # (3b74): an ABSENT sibling or index still gives None, but one that cannot be examined raises
+    # InaccessiblePath for main() to refuse, where pathlib raised on Python 3.11 and read it as
+    # absent on 3.12+.
+    sibling = resolve_sibling("ref", strict=True)
+    if sibling is not None and any(strict_kind(sibling / n) is not None
+                                   for n in ("INDEX.md", "catalogue.yml")):
         return sibling
     return None
 
@@ -79,7 +83,11 @@ def search_index(ref_root: Path, query: str) -> list[tuple[str, int, str]]:
         try:
             text = f.read_text(encoding="utf-8", errors="replace")
         except FileNotFoundError:
-            continue  # an absent index file (or a dangling link) is simply not consulted
+            if os.path.lexists(f):
+                # 3b74: a dangling link is a present index that cannot be read, not an absent one;
+                # skipping it let a verdict rest on fewer index files than exist.
+                raise IndexUnreadable(f"{name}: a dangling link") from None
+            continue  # an absent index file is simply not consulted
         except OSError as exc:
             # A present but unreadable index is not evidence of absence (3b50b2e1).
             raise IndexUnreadable(f"{name}: {exc.strerror}") from exc
@@ -224,6 +232,12 @@ def main(argv: list[str]) -> int:
 
     try:
         ref_root = find_ref_root(a.ref_root)
+    except InaccessiblePath as exc:
+        # Only the default lookup raises this; an explicit root's index errors reach search_index.
+        print(f"ERROR: the grc_library_ref sibling is present but cannot be examined ({exc}); "
+              f"refusing a verdict (an unreadable reference base is not an absent one).",
+              file=sys.stderr)
+        return 2
     except (OSError, RuntimeError) as exc:
         # expanduser() raises RuntimeError for an unknown user, and Python 3.11's resolve() raises
         # it on a symlink loop; an explicit root that cannot be resolved is refused (3b50b2e1 r5).

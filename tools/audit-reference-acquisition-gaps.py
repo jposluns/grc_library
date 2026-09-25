@@ -53,6 +53,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from lint_common import require_dir, strict_kind
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_REF_BASE = REPO_ROOT.parent / "grc_library_ref"
 DEFAULT_ALIASES = Path(__file__).resolve().parent / "reference-breadth-aliases.json"
@@ -149,7 +151,7 @@ def parse_register(path: Path, include_tooling: bool) -> list[tuple[str, str, st
 
 def parse_catalogue_titles(ref_base: Path) -> list[str]:
     cat = ref_base / "catalogue.yml"
-    if not cat.is_file():
+    if strict_kind(cat) != "file":  # an unexaminable path raises InaccessiblePath (an OSError)
         raise RuntimeError(f"catalogue not found: {cat}")
     titles = re.findall(r'^  - title:\s*"(.*)"\s*$',
                         cat.read_text(encoding="utf-8", errors="replace"), re.M)
@@ -157,6 +159,46 @@ def parse_catalogue_titles(ref_base: Path) -> list[str]:
         raise RuntimeError("catalogue format drift: zero titles parsed")
     return titles
 
+
+
+def load_aliases(path: Path, *, explicit: bool) -> dict | None:
+    """The aliases map, or None after printing a refusal; ``{}`` when the DEFAULT file is absent.
+
+    The file is read and decoded here, in full (3b74): an open() probe alone passed a file that is
+    not valid UTF-8 JSON, which then raised a traceback from the later read, or was never read at
+    all when the absent-sibling no-op returned first."""
+    label = "--aliases" if explicit else "default aliases"
+    try:
+        kind = strict_kind(path)
+    except OSError as exc:
+        print(f"ERROR: {label} {path}: unreadable ({exc.strerror}).", file=sys.stderr)
+        return None
+    if kind != "file":
+        if explicit or kind is not None:
+            # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
+            print(f"ERROR: {label} {path}: not a regular file.", file=sys.stderr)
+            return None
+        return {}
+    try:
+        data = json.loads(path.read_bytes().decode("utf-8"))
+    except OSError as exc:
+        print(f"ERROR: {label} {path}: unreadable ({exc.strerror}).", file=sys.stderr)
+        return None
+    except UnicodeDecodeError as exc:
+        print(f"ERROR: {label} {path}: not valid UTF-8 ({exc.reason} at byte {exc.start}).",
+              file=sys.stderr)
+        return None
+    except json.JSONDecodeError as exc:
+        print(f"ERROR: {label} {path}: not valid JSON ({exc.msg} at line {exc.lineno}).",
+              file=sys.stderr)
+        return None
+    if not isinstance(data, dict) or not all(
+            isinstance(v, str) or (isinstance(v, list) and all(isinstance(x, str) for x in v))
+            for v in data.values()):
+        print(f"ERROR: {label} {path}: not a JSON object mapping names to name lists.",
+              file=sys.stderr)
+        return None
+    return data
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
@@ -189,52 +231,59 @@ def main(argv: list[str] | None = None) -> int:
             return 2
     # Track whether --aliases was supplied rather than comparing it with the default path: an
     # explicit value that happens to equal the default is validated like any other (3b50b2e1 r3).
+    # An explicit file is read and decoded BEFORE the absent-sibling no-op (3b74), so a bad one is
+    # refused the same way with or without grc_library_ref.
     explicit_aliases = args.aliases is not None
-    args.aliases = Path(args.aliases) if explicit_aliases else DEFAULT_ALIASES
-    try:
-        aliases_is_file = args.aliases.is_file()
-    except OSError:
-        aliases_is_file = True  # stat-unreadable (Python 3.11 raises here): the open() probe below refuses it
-    if explicit_aliases and (not str(args.aliases).strip() or str(args.aliases) in ("", ".")
-                             or not aliases_is_file):
-        # 3b50b2e1: an explicit --aliases that is missing used to be ignored silently.
-        print(f"ERROR: --aliases {args.aliases}: not a regular file.", file=sys.stderr)
-        return 2
     if explicit_aliases:
-        try:
-            with open(args.aliases, "rb"):
-                pass
-        except OSError as exc:
-            print(f"ERROR: --aliases {args.aliases}: unreadable ({exc.strerror}).", file=sys.stderr)
+        aliases = load_aliases(Path(args.aliases), explicit=True)
+        if aliases is None:
             return 2
     explicit_ref_base = args.ref_base is not None
-    if not explicit_ref_base:
-        args.ref_base = DEFAULT_REF_BASE
-    elif not args.ref_base.strip():
-        # 3b50b2e1: --ref-base= used to resolve to the current directory.
-        print("ERROR: --ref-base needs a directory argument (an empty value is refused).",
-              file=sys.stderr)
-        return 2
+    if explicit_ref_base:
+        # require_dir refuses an empty, missing, non-directory or unresolvable --ref-base and checks
+        # it as given before resolving, so "missing/../ref" no longer normalizes into a real root (3b74).
+        ref_base = require_dir(args.ref_base, "--ref-base")
     else:
-        args.ref_base = Path(args.ref_base)
-
-    # Adopter graceful-degradation (3.91 (closing PR #1011)): default ref-base (no --ref-base
-    # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter
-    # clone runs this maintainer-only advisory green rather than crashing. An explicit
-    # --ref-base that is bad still errors below (typo guard).
-    if not explicit_ref_base and not (args.ref_base / "catalogue.yml").is_file():
-        print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
-              "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
-        return 0
+        ref_base = DEFAULT_REF_BASE
+        # Adopter graceful-degradation (3.91 (closing PR #1011)): default ref-base (no --ref-base
+        # override) with no grc_library_ref catalogue -> no-op exit 0, so a bare adopter
+        # clone runs this maintainer-only advisory green rather than crashing. A sibling that is
+        # present but cannot be examined (a locked directory, a symlink loop, a non-directory) is
+        # refused instead (3b74): is_file() raised a traceback there on Python 3.11 and read it as
+        # absent on 3.12+, reporting a clean no-op.
+        try:
+            # The sibling itself first: a dangling or looping link there makes its catalogue read
+            # as absent (ENOENT through the link), which would pass as a clean no-op.
+            sibling_kind = strict_kind(ref_base)
+            catalogue_kind = strict_kind(ref_base / "catalogue.yml") if sibling_kind == "dir" else None
+        except OSError as exc:
+            print(f"ERROR: the grc_library_ref sibling is present but cannot be examined ({exc}); "
+                  f"refusing a report (an unreadable reference base is not an absent one).",
+                  file=sys.stderr)
+            return 2
+        if sibling_kind is None:
+            print("audit-reference-acquisition-gaps: grc_library_ref not present; no-op "
+                  "(reference-acquisition-gap is a maintainer-only advisory, nothing to report).")
+            return 0
+        if sibling_kind != "dir":
+            print(f"ERROR: the grc_library_ref sibling is present but cannot be examined (not a "
+                  f"directory: {ref_base}); refusing a report.", file=sys.stderr)
+            return 2
+        if catalogue_kind != "file":
+            print(f"ERROR: the grc_library_ref sibling is present but has no readable catalogue.yml "
+                  f"({ref_base}); refusing a report.", file=sys.stderr)
+            return 2
+    if not explicit_aliases:
+        aliases = load_aliases(DEFAULT_ALIASES, explicit=False)
+        if aliases is None:
+            return 2
 
     try:
         rows = parse_register(CANONICAL_REGISTER, args.include_tooling)
-        titles = parse_catalogue_titles(args.ref_base.resolve())
-        aliases = (json.loads(args.aliases.read_text(encoding="utf-8"))
-                   if args.aliases.is_file() else {})
+        titles = parse_catalogue_titles(ref_base)
         today = subprocess.run(["date", "-u", "+%Y-%m-%d"], capture_output=True,
                                text=True).stdout.strip()
-    except (RuntimeError, OSError, json.JSONDecodeError) as exc:
+    except (RuntimeError, OSError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
@@ -292,7 +341,7 @@ def main(argv: list[str] | None = None) -> int:
             gaps.setdefault(section, []).append((sid, topic))
 
     print(f"# Reference-acquisition gap worklist (corpus register vs "
-          f"{args.ref_base.name}, {today})\n")
+          f"{ref_base.name}, {today})\n")
     print(f"Register entries examined: {total}; matched to a held reference item: "
           f"{held}; NOT held (acquisition candidates): {total - held}.\n")
     print("Recall-oriented worklist, NOT a defect list. A not-held row is a prompt "

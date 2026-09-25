@@ -746,13 +746,38 @@ def main(argv=None):
             print(f"ERROR: {flag} {path}: unreadable ({exc.strerror}); nothing would be checked.",
                   file=sys.stderr)
             return 2
-    aliases, ambiguous = load_alias_config()
-    reg = parse_register(a.register)
+    # 3b74: the probe above opens each input but never reads it, so a file that is not valid UTF-8
+    # (or a read that fails after the open) raised a traceback from the real reads below. Read and
+    # decode every input, the defaults included, before anything is checked or rewritten.
     worklists = a.worklists if a.worklists else default_worklists()
-
-    if a.write:
-        return write_worklists(reg, worklists, aliases, ambiguous, normalize=a.normalize)
-    return check_paths(reg, worklists, aliases, ambiguous, strict=a.strict)
+    for path in (a.register, *worklists):
+        try:
+            _read_lines(path)
+        except UnicodeDecodeError as exc:
+            print(f"ERROR: {path}: not valid UTF-8 ({exc.reason} at byte {exc.start}); "
+                  f"nothing was checked.", file=sys.stderr)
+            return 2
+        except OSError as exc:
+            print(f"ERROR: {path}: unreadable ({exc.strerror or exc}); nothing was checked.",
+                  file=sys.stderr)
+            return 2
+    try:
+        aliases, ambiguous = load_alias_config()
+    except (OSError, ValueError) as exc:  # ValueError covers UnicodeDecodeError and JSONDecodeError
+        print(f"ERROR: {ALIASES_PATH}: unreadable or malformed ({exc}); nothing was checked.",
+              file=sys.stderr)
+        return 2
+    reg = parse_register(a.register)
+    try:
+        if a.write:
+            return write_worklists(reg, worklists, aliases, ambiguous, normalize=a.normalize)
+        return check_paths(reg, worklists, aliases, ambiguous, strict=a.strict)
+    except (OSError, UnicodeError) as exc:
+        # An input changed or failed between the read above and the run (a race); any rewrite
+        # already printed above was applied.
+        print(f"ERROR: a read or write failed mid-run ({exc}); the run is incomplete.",
+              file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":
