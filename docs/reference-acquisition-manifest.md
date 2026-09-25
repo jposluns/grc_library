@@ -638,7 +638,7 @@ without the private reference sibling).
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
-| Access to Information Act (RSC 1985, c. A-1) | RSC 1985 c. A-1, consolidated | Canada (Federal) |  | FREE |
+| Access to Information Act (RSC 1985, c. A-1) | RSC 1985 c. A-1, consolidated: current to 2026-09-03, last amended on 2026-06-14 (Justice Laws PDF) | Canada (Federal) |  | FREE |
 | ADGM Data Protection Regulations 2021 (Feb-2024 consolidation; SUPERSEDED by Amendment No.1 2025) | ADGM Data Protection Regulations 2021, Feb-2024 consolidation - SUPERSEDED by Amendment No.1 2025 (in force 9 Sep 2025) | United Arab Emirates (ADGM) |  | FREE |
 | Alberta Access to Information Act (SA 2024, c. A-1.4; in force 2025-06-11) | SA 2024 c. A-1.4, in force 2025-06-11 | Canada (Alberta) |  | FREE |
 | Alberta Protection of Privacy Act (SA 2024, c. P-28.5; in force 2025-06-11) | SA 2024 c. P-28.5, in force 2025-06-11 | Canada (Alberta) |  | FREE |
@@ -658,7 +658,7 @@ without the private reference sibling).
 | Brazil ANPD Resolução CD/ANPD nº 4, de 24 de fevereiro de 2023 (Regulamento de Dosimetria e Aplicação de Sanções Administrativas / administrative sanctions dosimetry) | Resolução CD/ANPD nº 4/2023, published DOU 27/02/2023 (Edição 39, Seção 1, p. 59); in force since publication; current | Brazil |  | FREE |
 | Brazil Lei Geral de Proteção de Dados Pessoais (LGPD), Lei nº 13.709/2018 | Lei 13.709/2018, in force since 2020-09-18; law text unchanged, current | Brazil | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | FREE |
 | British Columbia E-Health (Personal Health Information Access and Protection of Privacy) Act (SBC 2008, c. 38) | SBC 2008 c. 38, consolidated | Canada (British Columbia) |  | FREE |
-| British Columbia Freedom of Information and Protection of Privacy Act (RSBC 1996, c. 165) | RSBC 1996 c. 165, consolidated | Canada (British Columbia) |  | FREE |
+| British Columbia Freedom of Information and Protection of Privacy Act (RSBC 1996, c. 165) | RSBC 1996 c. 165, consolidated: current to 2026-09-15 (BC Laws) | Canada (British Columbia) |  | FREE |
 | British Columbia Personal Information Protection Act (PIPA), S.B.C. 2003, c. 63 |  | Canada |  | FREE |
 | California Consumer Privacy Act / CPRA, Cal. Civ. Code § 1798.100 et seq. | CCPA/CPRA, Cal. Civ. Code Title 1.81.5, current consolidated text; 2025 CCPA amendments per held statute: AB 137 (eff. 2025-06-30), AB 1170 (ss1798.130/140/185, eff. 2026-01-01), AB 566 (Opt Me Out Act, eff. 2026-01-01, operative 2027-01-01) | US | https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=3.&title=1.81.5.&part=4.&chapter=&article= | FREE |
 | California Consumer Privacy Act Regulations (CCPA updates, cybersecurity audits, risk assessments, ADMT, and insurance), 11 CCR Division 6 Chapter 1 (CPPA, final text effective January 1, 2026) | CPPA CCPA Regulations, final consolidated text effective January 1, 2026 (Title 11, Division 6, Chapter 1, sections 7000 to 7304; approved by the Office of Administrative Law 2025-09-22); 103 pages | US | https://cppa.ca.gov/regulations/pdf/ccpa_statute_eff_20260101.pdf | FREE |
@@ -824,7 +824,7 @@ without the private reference sibling).
 | Philippines Data Privacy Act of 2012 (Republic Act No. 10173) | Republic Act No. 10173, approved 2012-08-15 (finally passed 2012-06-06); official National Privacy Commission text (privacy.gov.ph), public domain | Philippines |  | FREE |
 | Prince Edward Island Freedom of Information and Protection of Privacy Act (RSPEI 1988, c. F-15.01) | RSPEI 1988 c. F-15.01, consolidated | Canada (Prince Edward Island) |  | FREE |
 | Prince Edward Island Health Information Act (RSPEI 1988, c. H-1.41) | RSPEI 1988 c. H-1.41, consolidated | Canada (Prince Edward Island) |  | FREE |
-| Privacy Act, R.S.C. 1985, c. P-21 (Canada, federal public-sector privacy) |  | Canada |  | FREE |
+| Privacy Act, R.S.C. 1985, c. P-21 (Canada, federal public-sector privacy) | Held consolidation current to 2026-05-26, last amended on 2025-06-02; the official consolidation checked 2026-09-25 is current to 2026-09-03 with the same last-amended date, so the held text is unchanged | Canada |  | FREE |
 | Privacy and Other Legislation Amendment Act 2024 (Cth), No. 128, 2024 (as made, Authorised Version C2024A00128) | as made, C2024A00128 (No. 128, 2024) | Australia |  | FREE |
 | Proceeds of Crime (Money Laundering) and Terrorist Financing Act (PCMLTFA), S.C. 2000, c. 17 (Parts 1-2 extract) | S.C. 2000, c. 17 (consolidated, current to 2026-06-17, last amended 2026-03-26; Parts 1-2 extract) | Canada |  | FREE |
 | Quebec Act respecting access to documents held by public bodies and the protection of personal information (CQLR c. A-2.1) | CQLR c. A-2.1, consolidated | Canada (Quebec) |  | FREE |
