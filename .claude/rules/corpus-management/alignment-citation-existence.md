@@ -20,9 +20,11 @@ family whose identifiers are `V` followed by two or three dot-separated numbers 
 only in that framework's context, because the same shape is used for other publishers'
 document versions: on a line that names the framework by its acronym (a word match, so a
 differently named framework that contains the acronym does not count) or by its full name (not
-when it is part of the mobile standard's name), in a table cell under a header that names it,
+when it is part of the mobile standard's name), in a table cell under a header that names it (a header that also carries a version word marks a
+version column instead),
 in the body of a table with a header cell that names it (except a column whose header signals a
-version, a tool or another standard), or on a row whose first cell names it. Table rows are
+version, a tool or another standard, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
+framework. Table rows are
 split on unescaped pipes, leading and trailing pipes are optional, a separator cell is one or
 more hyphens with optional colons, a table's header is the row directly above its first
 separator row (a later separator-shaped row is an ordinary body row), and a table ends at the
@@ -32,7 +34,8 @@ version, never an identifier, because the framework numbers its sections from on
 that directly follows the words version, edition, release or revision, a listed publisher's
 document number (the ETSI forms), or a listed framework or standard (CMMI, TOGAF, ITIL, COBIT,
 SAMM, CSF, NIST, PCI DSS, CIS, BSI, CWE, CAPEC, ATLAS, ATT&CK, IEEE, ISO), optionally with its
-own short name and document number, is that subject's version.
+own capitalized short name, a document number joined by a space or hyphen, an amendment or
+corrigendum, a bracketed year and a closing parenthesis, is that subject's version.
 
 Editions are handled by scope. A mention of the framework names an edition when an edition
 number from 1 to 9 follows it, with any markdown emphasis or link target in between and not
@@ -54,7 +57,9 @@ and are not part of this clause; a family whose catalogue the adopter does not s
 not checked. Recognition limits are part of the clause: an identifier valid only in another held edition
 passes; a fabricated identifier on a prose line, cell or row scoped out by an edition that is not
 held is not checked; a requirement identifier written
-without its `V` prefix is not recognized, a range is checked at its endpoints only, a table body
+without its `V` prefix is not recognized, a range is checked at its endpoints only, a token with a letter suffix (`V1.2.3a`, `CWE-79a`) or a
+bare weakness number is not recognized, a token after a comma that follows a listed standard is
+read as that standard's, a table body
 row written without pipes or a header spread over several rows is not read as table structure,
 a version token in an ASVS-table column whose header does not signal a version, or after a
 standard that is not listed, can be read as an identifier, a version string on a line that names the framework

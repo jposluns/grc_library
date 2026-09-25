@@ -80,8 +80,9 @@ def _check_pf(code: str) -> bool:
 # (ETSI "EN 304 223 V2.1.1"), several of which coincide with real ASVS ids. A token is checked
 # only in ASVS context: on a line naming ASVS (the acronym as a word, never MASVS or "Mobile
 # ASVS", or the full name, never the mobile standard's), in a table cell under an ASVS-labelled
-# header, anywhere in the body of a table with any ASVS-labelled header cell (except a column whose
-# header signals a version, tool or other standard), or on a row whose first cell names ASVS.
+# header, anywhere in the body of a table with any ASVS-labelled header cell (except, unless the
+# token's own cell names ASVS, a column whose header signals a version, tool or other standard), in a
+# header-row cell that names ASVS, or on a row whose first cell names ASVS.
 # Bare chapters (Vn) are not checked.
 # A token whose middle number is 0 (V5.0.0, V4.0.3, V2.0) is a version, never an identifier:
 # ASVS numbers its sections from 1, so no section or requirement has a zero middle component.
@@ -104,11 +105,13 @@ _ASVS_WORD = re.compile(
 # edition.
 _ASVS_AFTER = re.compile(
     r"(?:\]\([^)\s]*\)|[^\w\n]|_){0,8}((?:version|edition|release)(?:[^\w\n]|_){0,4})?"
-    r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?![*_]*\s*(?:levels?|chapters?)\b)",
+    r"(V|v)?([1-9])((?:\.\d+){0,2})\b(?![*_\s]*(?:levels?|chapters?)\b)",
     re.IGNORECASE)
 _VERSION_HEADER = re.compile(
-    r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|NIST|ISO|CIS"
-    r"|PCI|IEEE|ETSI|tool|product|library|package|component)\b", re.IGNORECASE)
+    r"\b(?:versions?|releases?|editions?|revisions?|spec(?:ification)?s?|CWE|CAPEC|ATLAS|ATT&CK|NIST|ISO"
+    r"|CIS|PCI|IEEE|ETSI|CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|BSI|MASVS|tools?|products?|packages?"
+    r"|components?)\b", re.IGNORECASE)
+_VERSION_WORD = re.compile(r"\b(?:versions?|releases?|editions?|revisions?)\b", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
 # A token directly after these is a version of that word's subject or of another publisher's
 # document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
@@ -116,7 +119,11 @@ _ASVS_NOT_ID_BEFORE = re.compile(
     r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
     r"|\b(?:EN|TR|TS|ES|EG|GR|GS)(?:\s+[A-Z]{2,5})?\s+\d{3}(?:\s+\d{3})?(?:-\d+)*\s*`?"
     r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST|PCI\s+DSS|CIS|BSI|CWE|CAPEC|ATLAS|ATT&CK|IEEE|ISO(?:/IEC)?)"
-    r"(?:\s+[A-Z][A-Za-z]{0,11}){0,3}(?:\s*[vV]?\d[\w.:/-]*)?(?:\s*\(\d{4}\))?"
+    # an optional short name (capitalized words, never ASVS itself, case-sensitive), a document
+    # number joined by spaces or a hyphen, an amendment or corrigendum, a bracketed year, and a
+    # closing parenthesis ("NIST Special Publication 800-53", "ISO-27001", "(ISO 27001)").
+    r"(?-i:(?:\s+(?!ASVS\b)[A-Z][A-Za-z]{0,11}){0,3})(?:[\s-]*[vV]?\d[\w.:/-]*)?"
+    r"(?:\s*(?:Cor|Amd)\s*\d[\w.:/-]*)*(?:\s*\(\d{4}\))?\)?"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
@@ -169,10 +176,10 @@ def _names_other_edition(text: str) -> bool:
 
 
 def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
-                in_table: bool, findings: list[str]) -> None:
+                in_table: bool, findings: list[str], header_row: bool = False) -> None:
     if not (_ASVS_REQ or _ASVS_SEC):
         return
-    cells = _cells(raw) if in_table else None
+    cells = _cells(raw) if (in_table or header_row) else None
     if in_table and cells is None:
         cells = [raw.strip()]
     if cells is None and _names_other_edition(raw):
@@ -182,11 +189,12 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
     row_ctx = bool(cells) and bool(_ASVS_WORD.search(cells[0]))
     row_other = bool(cells) and _names_other_edition(cells[0])
     whole_table = any(_ASVS_WORD.search(h) and not _names_other_edition(h) for h in hdr)
-    col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h)}
+    # A header naming ASVS with a version word ("ASVS version") is a version column, not context.
+    col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h) and not _VERSION_WORD.search(h)}
     col_other = {i for i, h in enumerate(hdr) if _names_other_edition(h)}
     col_held = {i for i, h in enumerate(hdr) if _editions(h) & _ASVS_MAJORS}
-    # In a table about ASVS, a column whose header signals a version or another subject is not
-    # checked unless its header names ASVS ("Tool version", "CycloneDX spec", "CWE").
+    # A column whose header signals a version or another subject ("Tool version", "CycloneDX spec",
+    # "CWE", "ASVS version") is not checked unless the token's own cell names ASVS.
     col_skip = {i for i, h in enumerate(hdr) if i not in col_ctx and _VERSION_HEADER.search(h)}
     for m in _ASVS_TOKEN.finditer(raw):
         if cells is not None:
@@ -196,8 +204,10 @@ def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
                 continue  # its column header or its own cell names a non-held edition
             if row_other and col not in col_held:
                 continue  # its row is about a non-held edition, and its column does not override
-            if col in col_skip:
-                continue  # a version, tool or other-standard column is never an ASVS identifier column
+            if col in col_skip and not _ASVS_WORD.search(cell):
+                continue  # a version, tool or other-standard column, unless the cell itself names ASVS
+            if header_row and not _ASVS_WORD.search(cell):
+                continue  # a header cell is context only when it names ASVS itself
             if not (line_ctx or row_ctx or col in col_ctx or whole_table):
                 continue
         elif not line_ctx:
@@ -238,7 +248,14 @@ def check_file(path: Path, rel: str) -> list[str]:
     header: list[str] | None = None
     prev_cells: list[str] | None = None
     prev_lineno = 0
-    for lineno, raw in iter_non_code_lines(text):
+    lines = list(iter_non_code_lines(text))
+    # A header row is the row directly above a separator; it is known only by looking ahead.
+    header_rows = {
+        ln for (ln, r), (ln2, r2) in zip(lines, lines[1:])
+        if ln2 == ln + 1 and _cells(r) is not None and not _BLOCK_START.match(r)
+        and not _is_separator(_cells(r)) and _is_separator(_cells(r2))
+    }
+    for lineno, raw in lines:
         cells = _cells(raw)
         if cells is not None and _BLOCK_START.match(raw):
             cells = None  # a heading, blockquote or list item starts a new block, even with pipes
@@ -248,7 +265,8 @@ def check_file(path: Path, rel: str) -> list[str]:
             header = prev_cells  # a separator-shaped row inside a table body is just a row
         prev_lineno = lineno
         in_body = header is not None and cells is not None and not _is_separator(cells)
-        _check_asvs(raw, lineno, rel, header if in_body else None, in_body, findings)
+        _check_asvs(raw, lineno, rel, header if in_body else None, in_body, findings,
+                    header_row=lineno in header_rows and not in_body)
         _check_cwe(raw, lineno, rel, findings)
         prev_cells = cells
         # Ranges first (so their endpoints are not double-reported as singles).
