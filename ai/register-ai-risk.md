@@ -2,8 +2,8 @@
 
 **Document Title:** AI Risk Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-09-03\
+**Version:** 1.0.11\
+**Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -57,11 +57,11 @@ Each AI risk entry must contain the following fields:
 | **Explainability** | AI decision-making cannot be sufficiently explained to affected individuals or regulators |
 | **Security** | AI system is vulnerable to adversarial attacks, model extraction, prompt injection, or data poisoning |
 | **Privacy** | AI system processes or exposes personal data beyond declared purpose or in violation of privacy laws |
-| **Safety** | AI system behaviour, especially an action-capable or autonomous system, endangers human life, health, physical safety, property, or the environment (ISO/IEC 23894 A.10; NIST AI RMF Safe characteristic) |
+| **Safety** | AI system behaviour, especially an action-capable or autonomous system, endangers human life, health, physical safety, property, or the environment (ISO/IEC 23894:2023 A.10; NIST AI RMF Safe characteristic) |
 | **Performance** | AI model accuracy degrades to the point of causing operational or compliance failures |
 | **Compliance** | AI system fails to meet applicable regulatory requirements (EU AI Act, GDPR, the Treasury Board Directive on Automated Decision-Making, etc.) |
 | **Governance** | AI system lacks adequate documentation, oversight, or lifecycle controls |
-| **Environmental and Sustainability** | The energy, carbon, and water footprint of training or operating the AI system imposes a material environmental cost that is not measured or weighed (ISO/IEC 23894 A.5) |
+| **Environmental and Sustainability** | The energy, carbon, and water footprint of training or operating the AI system imposes a material environmental cost that is not measured or weighed (ISO/IEC 23894:2023 A.5) |
 
 ---
 

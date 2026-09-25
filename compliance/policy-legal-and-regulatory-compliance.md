@@ -2,7 +2,7 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.23\
+**Version:** 1.0.24\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -27,7 +27,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 ## 2. Scope
 
 1. **Jurisdictional Coverage**: Applies globally to all organizational entities, subsidiaries, and business operations, including BASC-certified logistics and customs operations.
-2. **Domains of Compliance**: Data protection and privacy; information security, cybersecurity, and business resilience; artificial intelligence, automation, and algorithmic transparency; trade, customs, and supply-chain security (BASC and ISO 28000); sector-specific and contractual compliance.
+2. **Domains of Compliance**: Data protection and privacy; information security, cybersecurity, and business resilience; artificial intelligence, automation, and algorithmic transparency; trade, customs, and supply-chain security (BASC and ISO 28000:2022); sector-specific and contractual compliance.
 3. **Applicability**: Applies to all employees, contractors, suppliers, and third parties handling organizational or trade data, including AI systems, logistics networks, customs systems, and cloud services supporting regulated processes.
 
 ---
@@ -39,7 +39,7 @@ It ensures that legal, regulatory, and contractual requirements, including those
 | **Chief Information Officer (CIO)** | Oversees regulatory governance integration with enterprise IT and provides executive support to the compliance management system. |
 | **Chief Information Security Officer (CISO)** | Ensures that security, privacy, and trade-compliance obligations are enforced and evidenced across all systems. |
 | **Legal Counsel** | Interprets laws, validates control coverage, and approves external submissions. |
-| **Chief Compliance Officer (CCO)** | Accountable for the global compliance management system; manages enterprise compliance programmes aligned to ISO 37301. |
+| **Chief Compliance Officer (CCO)** | Accountable for the global compliance management system; manages enterprise compliance programmes aligned to ISO 37301:2021. |
 | **AI Governance Council (AIGC)** | Oversees AI regulatory monitoring and EU AI Act readiness. |
 | **Internal Audit** | Validates compliance processes and verifies evidence linkage for all regulatory domains. |
 
@@ -49,7 +49,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 4. Compliance management system
 
-4.1 The organization must operate a Compliance Management System (CMS) aligned to ISO 37301 Clauses 4 to 10.
+4.1 The organization must operate a Compliance Management System (CMS) aligned to ISO 37301:2021 Clauses 4 to 10.
 
 4.2 The CMS must maintain a centralized Regulatory Obligations Register (ROR) that catalogues all laws, regulations, standards, and contract clauses relevant to each entity or process.
 
@@ -71,7 +71,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 ## 6. Risk assessment and treatment
 
-6.1 Compliance risks must be assessed per ISO 31000 and COBIT APO12, integrating legal, operational, and trade risks.
+6.1 Compliance risks must be assessed per ISO 31000:2018 and COBIT APO12, integrating legal, operational, and trade risks.
 
 6.2 High-risk obligations (such as customs reporting, data export, and AI bias mitigation) must have defined mitigation controls and response plans.
 
@@ -129,7 +129,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 
 11.2 Corrective actions (CAPAs) must include root cause, remediation, and verification evidence.
 
-11.3 Annual management review must evaluate compliance with ISO 37301, BASC, and AI regulatory frameworks.
+11.3 Annual management review must evaluate compliance with ISO 37301:2021, BASC, and AI regulatory frameworks.
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Subtype Templates\
 **Document Type:** Template\
-**Version:** 1.0.3\
-**Date:** 2026-08-08\
+**Version:** 1.0.5\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-executive-narrative.md`](../specification-executive-narrative.md)\
@@ -166,7 +166,7 @@ State the illustrative and composite nature: fictional, no likelihood or frequen
 **Narrative Status:** Advisory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md)\
-**External Sources:** ISO 31000\
+**External Sources:** ISO 31000:2018\
 **Claim Classes Present:** citation, sourced, composite\
 **Review Record:** NR-2026-001\
 **Last Reviewed:** 2026-08-06

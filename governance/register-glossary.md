@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.18\
-**Date:** 2026-08-24\
+**Version:** 1.4.19\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -97,7 +97,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CIP** | Critical Infrastructure Protection. NERC CIP is the canonical reference for North American electricity reliability. |
 | **CISO** | Chief Information Security Officer. |
 | **CM** | Crisis Management (in the BC/CM business-continuity-and-crisis-management pairing). |
-| **CMS** | Compliance Management System (ISO 37301-aligned). |
+| **CMS** | Compliance Management System (ISO 37301:2021-aligned). |
 | **COBIT** | Control Objectives for Information and Related Technologies. ISACA framework. |
 | **CPPA** | Consumer Privacy Protection Act (Canada); proposed in Bill C-27, which lapsed in 2025 (not in force). Distinct from CCPA and from the California Privacy Protection Agency. |
 | **CPRA** | California Privacy Rights Act. Amends and expands the CCPA; operative since 2023. |

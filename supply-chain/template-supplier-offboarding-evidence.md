@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Offboarding Evidence Template\
 **Document Type:** Template\
-**Version:** 1.0.12\
-**Date:** 2026-09-18\
+**Version:** 1.0.13\
+**Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/procedure-supplier-exit-and-data-return.md`](procedure-supplier-exit-and-data-return.md), [`supply-chain/standard-cloud-exit-and-data-portability.md`](standard-cloud-exit-and-data-portability.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/register-supplier-risk-template.md`](register-supplier-risk-template.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`security/procedure-access-control.md`](../security/procedure-access-control.md)\
@@ -178,7 +178,7 @@ The approval set confirms that the offboarding evidence record is complete, veri
 | DORA | Article 28 (exit strategies) | Mandatory exit strategy and termination procedure |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 | Exit strategy detail |
 | ISO/IEC 27036 | Information security for supplier relationships | Termination |
-| ISO 28000 | Security management for supply chains | Termination |
+| ISO 28000:2022 | Security management for supply chains | Termination |
 | NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization | Destruction method (programme framing) |
 | IEEE 2883 | IEEE Standard for Sanitizing Storage | Destruction method (Clear / Purge / Destruct techniques) |
 | CSA CCM v4.1 | IPY-04 (data portability contractual obligations) | Exit assistance |

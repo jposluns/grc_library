@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.34\
+**Version:** 1.3.35\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -121,7 +121,7 @@ DLP enforcement must block or encrypt Restricted and Confidential data shared ex
 
 All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
 
-- Be encrypted at rest and in transit under the organization's trade-data protection controls, consistent with its ISO 28000 supply-chain security management system.
+- Be encrypted at rest and in transit under the organization's trade-data protection controls, consistent with its ISO 28000:2022 supply-chain security management system.
 - Utilize PKI authentication for customs and government system integration.
 - Maintain tamper-proof audit logs of encryption and decryption events.
 

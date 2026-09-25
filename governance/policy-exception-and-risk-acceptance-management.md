@@ -2,8 +2,8 @@
 
 **Document Title:** Exception and Risk Acceptance Management Policy\
 **Document Type:** Policy\
-**Version:** 1.5.6\
-**Date:** 2026-09-16\
+**Version:** 1.5.7\
+**Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`risk/procedure-risk-acceptance.md`](../risk/procedure-risk-acceptance.md)\
@@ -27,7 +27,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 - Applies to all employees, contractors, suppliers, and partners operating or supporting organizational systems across on-premise, cloud, multi-cloud, edge, and AI environments. 
 - Covers exceptions to policies, standards, procedures, control requirements, and regulatory or contractual obligations. 
 - Includes control configuration baselines, temporary use of unapproved technology, or processes that could affect data integrity or regulated operations. 
-- Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
+- Encompasses trade-security programs under a unified reference model. **Trade and Supply Chain Programs** include WCO SAFE, ISO 28000:2022, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalent frameworks.
 
 
 
@@ -47,11 +47,11 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 | **Control Owner** | Confirms impacted control applicability, remediation feasibility, and adequacy of compensating measures. |
 | **Chief Information Officer (CIO)** | Approves medium-risk exceptions (or delegate, per §4.2) and ensures that exceptions are tracked, reviewed, and reported to executive leadership. High- and critical-risk exceptions are approved by the Executive Committee or Board Risk Committee (§4.2). |
 | **Chief Information Security Officer (CISO)** | Co-approves security-related exceptions (§4.2), validates risk classification, ensures that technical compensating controls are implemented, and oversees remediation closure. |
-| **Chief Compliance Officer (CCO)** | Reviews exceptions impacting regulatory compliance or governance policies, ensuring alignment with ISO 37301 and applicable legal requirements. |
+| **Chief Compliance Officer (CCO)** | Reviews exceptions impacting regulatory compliance or governance policies, ensuring alignment with ISO 37301:2021 and applicable legal requirements. |
 | **Chief Legal Officer / General Counsel (CLO/GC)** | Validates exceptions that could result in regulatory or contractual exposure; provides legal guidance on acceptance documentation. |
 | **Enterprise Risk Committee (ERC)** | Reviews aggregated exception metrics, expiry compliance, and exceptions exceeding defined risk appetite. Provides escalation guidance and oversight. |
 | **Internal Audit** | Reviews open exceptions, closure evidence, and process adherence. Reports systemic deficiencies and recurring patterns to the Audit Committee. |
-| **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure that alignment with ISO/IEC 23894 and NIST AI RMF is maintained. Escalates high-risk AI exceptions to the Board Risk Committee. |
+| **AI Governance Council** | Reviews exceptions involving AI systems, datasets, or model governance to ensure that alignment with ISO/IEC 23894:2023 and NIST AI RMF is maintained. Escalates high-risk AI exceptions to the Board Risk Committee. |
 
 
 
@@ -63,7 +63,7 @@ Its purpose is to ensure that all deviations from policy, control, or standard r
 4.1.3 Requests must use the approved template and be submitted via the governance portal or automated workflow.
 
 ### 4.2 Risk assessment and approval
-4.2.1 Exceptions must undergo risk assessment consistent with ISO 31000 Clause 6.4 and COBIT APO12.02. 
+4.2.1 Exceptions must undergo risk assessment consistent with ISO 31000:2018 Clause 6.4 and COBIT APO12.02. 
 4.2.2 Approval levels: 
 - **Low risk:** Department Head or equivalent. 
 - **Medium risk:** CIO or delegate. 
@@ -133,7 +133,7 @@ The renewal number and each reviewing or approving authority must be recorded on
 - **NIST SP 800-37 Rev. 2** RMF Authorize step; **NIST SP 800-53 Rev. 5** CA-6 Authorization
 - **NIST AI RMF 1.0** GOVERN 1.3, GOVERN 2.3, and MANAGE 1.3 (risk response options including acceptance; with the AI 600-1 Generative AI Profile)
 - **OECD AI Principles** Accountability and Transparency 
-- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000:2022, BASC, PIP (Canada), CTPAT (United States), AEO (European Union), and equivalents
 
 
 
@@ -142,7 +142,7 @@ The renewal number and each reviewing or approving authority must be recorded on
 | Control Area | ISO/IEC 27001:2022 | COBIT 2019 | CSA | NIST | Legal and Regulatory | Trade and Supply Chain Programs |
 |---------------|----------------|-------------|-----|------|----------------------|---------------------------------|
 | Governance and oversight | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | SOX, GDPR Articles 5(2), 24 (accountability) | WCO SAFE equivalence |
-| Risk assessment and approval | Clause 6 and ISO 31000 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
+| Risk assessment and approval | Clause 6 and ISO 31000:2018 Clauses 6.4 and 6.5 | APO12.02 | CCM GRC-02 | SP 800-30, SP 800-37 Assess and Authorize steps | PIPEDA, AIDA (lapsed) | WCO SAFE equivalence |
 | Time-bound authorization | Annex A.5.36 | APO12.06 | CCM GRC-04 | SP 800-37 Authorize step | Contractual risk governance | WCO SAFE equivalence |
 | Exception tracking and reporting | Annex A.5.36 | MEA01 | CCM GRC-04 | SP 800-53 RA-7 | Audit transparency | WCO SAFE equivalence |
 | Closure and validation | Annex A.5.36 | MEA02 | CCM GRC-04 | SP 800-37 Assess step | Regulatory evidence requirements | WCO SAFE equivalence |

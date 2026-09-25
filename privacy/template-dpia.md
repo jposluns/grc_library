@@ -2,8 +2,8 @@
 
 **Document Title:** DPIA (Data Protection Impact Assessment) Template\
 **Document Type:** Template\
-**Version:** 1.0.12\
-**Date:** 2026-09-03\
+**Version:** 1.0.13\
+**Date:** 2026-09-25\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/register-automated-decision-making.md`](register-automated-decision-making.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`ai/procedure-ai-system-impact-assessment.md`](../ai/procedure-ai-system-impact-assessment.md)\
@@ -144,7 +144,7 @@ For each identified risk:
 | Sources of risk | The threats and vulnerabilities giving rise to the risk |
 | Affected rights and freedoms | The Charter of Fundamental Rights articles and the GDPR rights potentially affected (e.g., Article 8 of the Charter, GDPR Article 17 right to erasure) |
 | Affected data subjects | The categories and approximate numbers of data subjects who could be affected; identify vulnerable data subjects separately |
-| Likelihood | Assessed likelihood (low / medium / high), with rationale; assessed on the ISO 31000 likelihood scale or equivalent |
+| Likelihood | Assessed likelihood (low / medium / high), with rationale; assessed on the ISO 31000:2018 likelihood scale or equivalent |
 | Severity | Assessed severity (low / medium / high), with rationale; the severity reflects the impact on the data subject, not on the controller |
 | Inherent risk level | Combined likelihood and severity, before mitigation |
 

@@ -2,8 +2,8 @@
 
 **Document Title:** US CTPAT IT and Cybersecurity Compliance Controls Register\
 **Document Type:** Register\
-**Version:** 1.0.5\
-**Date:** 2026-07-02\
+**Version:** 1.0.6\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md)\
@@ -92,7 +92,7 @@ BASC (Business Alliance for Secure Commerce) requires comparable IT security con
 
 ## Programme-wide alignment
 
-For a consolidated view of how CTPAT IT controls map to other applicable trade programmes (BASC, PIP, AEO, AEO-S, NEEC, OEA) and to ISO 28000, see [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md).
+For a consolidated view of how CTPAT IT controls map to other applicable trade programmes (BASC, PIP, AEO, AEO-S, NEEC, OEA) and to ISO 28000:2022, see [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md).
 
 ---
 

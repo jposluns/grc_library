@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance, Audit, and CAPA Management Policy\
 **Document Type:** Policy\
-**Version:** 1.0.27\
-**Date:** 2026-09-24\
+**Version:** 1.0.28\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-capa.md`](procedure-capa.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md)\
@@ -41,7 +41,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 3.1.2 The CEO ensures that resourcing and independence of audit functions are maintained.
 
 ### 3.2 Compliance function
-3.2.1 The Chief Compliance Officer (CCO) maintains the compliance management system (CMS) aligned with ISO 37301 Clauses 5 to 10.
+3.2.1 The Chief Compliance Officer (CCO) maintains the compliance management system (CMS) aligned with ISO 37301:2021 Clauses 5 to 10.
 3.2.2 The CCO reports quarterly on compliance risk, breaches, and mitigation measures to the Executive Committee.
 
 ### 3.3 Internal audit function
@@ -56,7 +56,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ### 3.5 AI and trade compliance oversight
 3.5.1 The AI Governance Council oversees compliance with AI-related laws, standards, and ethical principles.
 3.5.2 Documentation and audit trails must demonstrate conformity to frameworks such as the EU AI Act and the OECD AI Principles, and, for Canadian operations, the current Canadian AI instruments (the Treasury Board Directive on Automated Decision-Making, binding on Government of Canada institutions subject to the Policy on Service and Digital (Directive section 8.1), and the voluntary federal Code of Conduct on Generative AI; AIDA lapsed and is not in force).\
-3.5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks, is maintained.
+3.5.3 Regional trade compliance officers coordinate with the CCO and Internal Audit to ensure that adherence to recognized global supply-chain programs, including **WCO SAFE**, **ISO 28000:2022**, **BASC**, **PIP (Canada)**, **CTPAT (United States)**, **AEO (European Union)**, and equivalent frameworks, is maintained.
 3.5.4 Audit scope for trade compliance includes verification of cargo integrity, personnel screening, and customs documentation accuracy.
 3.5.5 Findings related to trade compliance are reported quarterly to the **Enterprise Risk Committee** and **Board Audit and Risk Committee**.
 
@@ -65,7 +65,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 ## 4. Policy and control statements
 
 ### 4.1 Compliance management framework
-4.1.1 The organization must operate an ISO 37301-compliant CMS integrating policies, procedures, registers, and monitoring plans.
+4.1.1 The organization must operate an ISO 37301:2021-compliant CMS integrating policies, procedures, registers, and monitoring plans.
 4.1.2 Compliance obligations must be maintained in a central repository with mapped laws, standards, and contract clauses.
 4.1.3 Compliance performance indicators must be reviewed quarterly and escalated where thresholds are breached.
 
@@ -87,7 +87,7 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 
 ### 4.5 Algorithmic and AI compliance auditing
 4.5.1 AI systems must undergo algorithmic audits for transparency, bias, robustness, and ethical compliance.
-4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification per ISO/IEC 23894 and NIST AI RMF.
+4.5.2 AI audit trails must include datasets, models, parameters, evaluation metrics, and risk classification per ISO/IEC 23894:2023 and NIST AI RMF.
 4.5.3 Where the cost-benefit profile justifies, automated monitoring may use algorithmic compliance checks and validation scripts integrated with audit workflows; automation is optional, not mandatory.
 
 ### 4.6 Reporting and escalation
@@ -117,15 +117,15 @@ The policy aligns with **ISO 37301:2021** (Compliance Management Systems), **ISO
 - **EU AI Act** Articles 9, 17, and 72 (Risk management, Quality management, and Post-market monitoring)
 - **Canada AI governance:** the Treasury Board Directive on Automated Decision-Making and the federal Voluntary Code of Conduct on Generative AI (AIDA lapsed at the 2025-01-06 prorogation; not in force)
 - **U.S. AI executive action:** Executive Order 14110 (Safe, Secure, and Trustworthy AI) was rescinded on 20 January 2025 and superseded by "Removing Barriers to American Leadership in Artificial Intelligence"; retained as historical context, not a current alignment target
-- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
+- **Trade and Supply Chain Programs:** WCO SAFE, ISO 28000:2022, BASC, PIP (Canada), CTPAT (U.S.), AEO (EU), and equivalents
 
 
 
 ## 6. Compliance mapping table
 
-| Control Area | ISO 37301 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
+| Control Area | ISO 37301:2021 | ISO 19011 | COBIT 2019 | CSA | NIST | Legal / Regulatory | Trade and Supply Chain Programs |
 |---------------|------------|------------|-------------|------|-------|--------------------|--------------------------------|
-| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000, BASC, PIP, CTPAT, AEO |
+| Compliance governance | Clauses 5 to 6 Leadership | Clause 5 Managing an audit programme | EDM01 Ensured Governance Framework Setting and Maintenance | GRC 01 to 03 | NIST CSF Govern | GDPR, PIPEDA | WCO SAFE, ISO 28000:2022, BASC, PIP, CTPAT, AEO |
 | Compliance risk and obligations register | Clauses 6 to 7 Planning | N/A | APO12 linkage | GRC 07 | NIST RMF Prepare | Multi-jurisdiction | WCO SAFE equivalence |
 | Audit planning and execution | Clauses 8 to 9 Operation | Clauses 5 to 6 (audit programme; conducting an audit) | MEA04 Managed Assurance | A&A 01 to 04 | NIST SP 800-53 Rev. 5 CA-2 | AI Act, sectoral laws | WCO SAFE equivalence |
 | Findings and CAPA | Clause 10 Improvement | §6.4 audit findings; §6.7 audit follow-up | MEA01.05 Ensure the implementation of corrective actions | A&A 05, A&A 06 | NIST SP 800-53 Rev. 5 CA-5, CA-7 | CAPA regulations | WCO SAFE equivalence |

@@ -2,8 +2,8 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.4\
-**Date:** 2026-08-14\
+**Version:** 1.0.5\
+**Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-logistics-sector-requirements.md`](annex-logistics-sector-requirements.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`compliance/procedure-capa.md`](../procedure-capa.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md)\
@@ -43,7 +43,7 @@ Complete the following fields for each gap assessment.
 | | ☐ BASC (Latin America) |
 | | ☐ NEEC (Mexico to SAT) |
 | | ☐ OEA (Brazil to RFB) |
-| | ☐ ISO 28000 Supply Chain Security Management |
+| | ☐ ISO 28000:2022 Supply Chain Security Management |
 | **Assessment Scope** | *(describe the supply chain segments, facilities, and operations included)* |
 | **Assessor(s)** | *(role titles)* |
 | **Review Date** | |
@@ -59,7 +59,7 @@ Complete the following fields for each gap assessment.
 | Designated security management responsibility | CTPAT; PIP; AEO-S | Role defined in security policy | | | | | |
 | Internal security audit or self-assessment | AEO-S; CTPAT | [`compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md`](procedure-aeo-united-kingdom-self-assessment.md) | | | | | |
 | Security governance committee or forum | AEO-S; BASC | | | | | | |
-| Annual management review of security programme | ISO 28000; AEO-S | | | | | | |
+| Annual management review of security programme | ISO 28000:2022; AEO-S | | | | | | |
 
 ---
 
@@ -95,7 +95,7 @@ Complete the following fields for each gap assessment.
 | Cargo receiving and verification procedures | CTPAT; PIP; AEO-S; BASC | | | | | | |
 | Documentation accuracy: manifests, declarations, bills of lading | CTPAT; PIP; AEO-S; NEEC | | | | | | |
 | Outbound cargo inspection before loading | CTPAT; PIP; AEO-S | | | | | | |
-| Chain of custody documentation across handoffs | CTPAT; AEO-S; ISO 28000 | | | | | | |
+| Chain of custody documentation across handoffs | CTPAT; AEO-S; ISO 28000:2022 | | | | | | |
 | Procedures for detecting and reporting anomalies | CTPAT; PIP; BASC | | | | | | |
 
 ---

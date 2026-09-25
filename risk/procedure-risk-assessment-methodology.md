@@ -2,7 +2,7 @@
 
 **Document Title:** Risk Assessment Methodology Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.12\
+**Version:** 1.2.13\
 **Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Chief Information Officer\
@@ -42,7 +42,7 @@ Applies to all risk assessments conducted within the organization including: ann
 
 ## 1. Risk assessment process overview
 
-The risk assessment process follows the ISO 31000 framework:
+The risk assessment process follows the ISO 31000:2018 framework:
 
 ```
 Establish Context → Identify Risks → Analyze Risks → Evaluate Risks → Treat Risks → Monitor and Review

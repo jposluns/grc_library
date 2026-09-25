@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -901,7 +901,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - 16 backend: autogen, bentoml, crewai, django, express, fastapi, flask, langchain, mlflow, modal, nestjs, ray-serve, torchserve, transformers, triton, vllm.
   - 30+ RAG files (document processing, embeddings, graph stores, observability, orchestration, search/rerank, vector stores managed and self-hosted).
   - CI/CD, containers, IaC.
-  - Framework alignment: OWASP (LLM, MCP, ASVS, SAMM, API, Top 10), NIST (AI RMF, SSDF), MITRE ATLAS, Google SAIF, ISO/IEC 23894, CWE Top 25.
+  - Framework alignment: OWASP (LLM, MCP, ASVS, SAMM, API, Top 10), NIST (AI RMF, SSDF), MITRE ATLAS, Google SAIF, ISO/IEC 23894:2023, CWE Top 25.
 - **GRC concern surfaced**: Already deeply integrated; the most comprehensive coding-assistant rule set in the survey.
 - **Status notes**: Active.
 - **Provenance**:

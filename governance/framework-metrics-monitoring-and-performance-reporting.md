@@ -2,7 +2,7 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-09-25\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,13 +26,13 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 
 | Domain | Primary Indicators | Framework Alignment |
 | --- | --- | --- |
-| **Governance and Risk** | Policy review completion rate, risk register updates, residual-risk reduction trend | ISO 31000, COBIT APO12 |
-| **Compliance and Audit** | Percentage of CAPAs closed within SLA, audit finding recurrence rate, per-control effectiveness band (consumed under the three lines of defence) | ISO 37301, COBIT MEA01 |
+| **Governance and Risk** | Policy review completion rate, risk register updates, residual-risk reduction trend | ISO 31000:2018, COBIT APO12 |
+| **Compliance and Audit** | Percentage of CAPAs closed within SLA, audit finding recurrence rate, per-control effectiveness band (consumed under the three lines of defence) | ISO 37301:2021, COBIT MEA01 |
 | **Information Security** | Vulnerability closure rate, MTTR, MTTD, patch-compliance percentage, incident false-positive ratio | ISO/IEC 27004, NIST CSF |
-| **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301, COBIT DSS04 |
+| **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301:2019, COBIT DSS04 |
 | **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, organization-defined AI governance maturity score | ISO/IEC 42001:2023 §9.1 (monitoring basis), NIST AI RMF |
 | **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | ISACA DTEF (2024); organization-defined |
-| **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000 |
+| **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000:2022 |
 
 ---
 

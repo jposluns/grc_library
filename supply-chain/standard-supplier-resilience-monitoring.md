@@ -2,7 +2,7 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-25\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -139,7 +139,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | DORA | Articles 28, 30, 33 to 34 (monitoring, contractual provisions, risk assessments) | EU financial services |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §82 to 95 | Banking monitoring |
 | NIST SP 800-161 Rev. 1 | SR-6 (supplier assessments and reviews) | US baseline |
-| ISO 28000 | Security management for supply chains | International |
+| ISO 28000:2022 | Security management for supply chains | International |
 | ISO/IEC 27036-2:2022 | Clause 7.4 (supplier relationship management process) | Supplier monitoring |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | FSB | Financial-sector practice |
 | NIST CSF 2.0 | GV.SC | Cross-walk |

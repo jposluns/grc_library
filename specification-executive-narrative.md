@@ -2,8 +2,8 @@
 
 **Document Title:** Executive Narrative Authoring Specification\
 **Document Type:** Specification\
-**Version:** 0.0.16\
-**Date:** 2026-08-28\
+**Version:** 0.0.18\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`specification-master-project.md`](specification-master-project.md), [`specification-ingestion.md`](specification-ingestion.md), [`README.md`](README.md), [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md)\
@@ -104,7 +104,7 @@ Every narrative page begins with the corpus's 13 canonical metadata fields, in c
 **Narrative Status:** Advisory\
 **Audience:** Governing body and accountable executive leadership (board, ELT, or senior management, as applicable)\
 **Corpus Sources:** [`risk/annex-ai-risk-methodology.md`](../../risk/annex-ai-risk-methodology.md), [`supply-chain/register-concentration-risk.md`](../../supply-chain/register-concentration-risk.md)\
-**External Sources:** ISO 31000, NIST CSF (or: None)\
+**External Sources:** ISO 31000:2018, NIST CSF (or: None)\
 **Claim Classes Present:** citation, sourced, composite\
 **Review Record:** NR-YYYY-NNN\
 **Last Reviewed:** YYYY-MM-DD
