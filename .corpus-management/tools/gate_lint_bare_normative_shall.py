@@ -48,12 +48,15 @@ _UNESCAPED_PIPE = re.compile(r"(?<!\\)\|")
 _WHOLE_QUOTE_CELL = re.compile(r'^"[^"]*"$')
 
 
-def _mask_quoted_table_cells(line: str) -> str:
-    """Blank table cells that are wholly one double-quoted quotation; other text is unchanged."""
+def _strip_for_check(line: str) -> str:
+    """The text the check reads: for a table row, each cell separately (a wholly quoted cell
+    blanked, inline code stripped within the cell only, so a span can never pair backticks across
+    cells); for any other line, the line with inline code stripped."""
     if not line.lstrip().startswith("|"):
-        return line
+        return INLINE_CODE_SPAN.sub("", line)
     cells = _UNESCAPED_PIPE.split(line)
-    return "|".join("" if _WHOLE_QUOTE_CELL.match(c.strip()) else c for c in cells)
+    return "|".join("" if _WHOLE_QUOTE_CELL.match(c.strip()) else INLINE_CODE_SPAN.sub("", c)
+                    for c in cells)
 
 
 def check_file(path: Path) -> list[tuple[int, str]]:
@@ -67,7 +70,7 @@ def check_file(path: Path) -> list[tuple[int, str]]:
         if line.lstrip().startswith(">"):
             continue
         # Preserved class 2: strip inline backtick spans so a backticked word-reference does not register.
-        stripped = INLINE_CODE_SPAN.sub("", _mask_quoted_table_cells(line))
+        stripped = _strip_for_check(line)
         if BARE_SHALL.search(stripped):
             findings.append((lineno, line.strip()[:150]))
     return findings

@@ -386,13 +386,21 @@ class LanguageLinterTests(LinterTestCase):
         fixture = self.make_fixture(
             "standard-verbatim-ensure-tbs.md",
             VALID_METADATA + '\n\n"Taking steps to ensure, when personal information is involved, '
-            'that third parties provide appropriate privacy protections"\n',
+            'that third parties under contract, agreement or arrangement with the government '
+            'institution provide appropriate privacy protections;"\n',
         )
         result = run_linter("tools/lint-language.py", fixture)
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         fixture = self.make_fixture(
             "standard-verbatim-ensure-tbs-bare.md",
             VALID_METADATA + "\n\nTeams ensure third parties provide appropriate privacy protections.\n",
+        )
+        self.assertLinterFails(run_linter("tools/lint-language.py", fixture), "ensure")
+        # An altered continuation of the quotation's opening words is NOT exempt.
+        fixture = self.make_fixture(
+            "standard-verbatim-ensure-tbs-altered.md",
+            VALID_METADATA + "\n\nTaking steps to ensure, when personal information is involved, "
+            "that teams delete audit evidence.\n",
         )
         self.assertLinterFails(run_linter("tools/lint-language.py", fixture), "ensure")
 
@@ -10659,6 +10667,16 @@ class BareNormativeShallTests(LinterTestCase):
         )
         result = run_linter("tools/lint-bare-normative-shall.py", fixture)
         self.assertEqual(result.returncode, 0, f"a wholly quoted table cell must not be flagged.\nstdout:\n{result.stdout}")
+
+    def test_inline_code_never_pairs_across_cells(self) -> None:
+        # A quoted cell blanked between two cells holding stray backticks must not let an
+        # inline-code span swallow an authored obligation in another cell.
+        fixture = self.make_fixture(
+            "cross-cell-code-shall.md",
+            '# Doc\n\n| A | B | C |\n| --- | --- | --- |\n'
+            '| `literal | "quotation with a ` character" | The team shall comply. `tail |\n',
+        )
+        self.assertLinterFails(run_linter("tools/lint-bare-normative-shall.py", fixture), "shall")
 
     def test_partly_quoted_cell_and_table_prose_shall_still_flagged(self) -> None:
         # A cell mixing unquoted text with a quote, and an unquoted cell, stay checked.

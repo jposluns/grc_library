@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.8\
+**Version:** 0.0.9\
 **Date:** 2026-09-25\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -20,9 +20,9 @@
 
 This annex is the Canada-specific public-sector carrier for the GRC library. It supplements the jurisdiction-neutral [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md) by organizing Canadian federal, provincial, territorial, municipal or local, contractor, health-information, financial-sector, and private-sector applicability boundaries.
 
-The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. As a foundation it does not yet carry clause-level content, and until the forthcoming Canadian authority coverage register exists, no jurisdiction is recorded as covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
+The annex is scoped to the federal public-sector authority layer and the public-sector access, privacy, and health-information layers of all ten provinces and all three territories. Clause-level content is added cluster by cluster: the federal public-sector privacy baseline in domain cluster 4 is the first; the other clusters remain foundations, and until the forthcoming Canadian authority coverage register exists, no jurisdiction is recorded as covered. It distinguishes laws from binding policies and directives, regulatory guidance, strategies, voluntary frameworks, consultation drafts, and historical or superseded sources.
 
-This foundation establishes the applicability model and durable section structure. Source-specific duties, dates, thresholds, control mappings, and jurisdictional conclusions are added only from current, held, publisher-canonical sources recorded in the forthcoming Canadian authority coverage register (the companion evidence register to this annex, established in the follow-on PR).
+This foundation establishes the applicability model and durable section structure. Source-specific duties, dates, thresholds, control mappings, and jurisdictional conclusions are added only from current, held, publisher-canonical sources. Until the forthcoming Canadian authority coverage register (the companion evidence register to this annex) exists, each such source is recorded in the Canonical Citations Register, as the federal privacy baseline's sources are.
 
 ---
 
@@ -162,9 +162,9 @@ The complete private-sector and provincial-private-sector treatment remains in [
 
 ### Federal public-sector privacy baseline
 
-This baseline quotes the current official English texts of the **Privacy Act** (R.S.C. 1985, c. P-21), a statute, and the **Treasury Board Policy on Privacy Protection** (in effect since 9 October 2024), a Treasury Board policy issued under paragraph 71(1)(d) of the Act (Policy section 2.1), which is not itself legislation. Each requirement is quoted verbatim with its controlling provision, so that no condition, exception or qualifier is lost in paraphrase; the adopter reads each provision in its full context before relying on it.
+This baseline quotes the current official English texts of the **Privacy Act** (R.S.C. 1985, c. P-21), a statute, and the **Treasury Board Policy on Privacy Protection** (in effect since 9 October 2024), a Treasury Board policy issued under paragraph 71(1)(d) of the Act (Policy section 2.1), which is not itself legislation. Each requirement is quoted verbatim, with its punctuation, and its provision number is given in the Provision column rather than inside the quotation, so that no condition, exception or qualifier is lost in paraphrase; the adopter reads each provision in its full context before relying on it.
 
-**Applicability.** The Act's duties rest on a *government institution*, which section 3 of the Act defines as "(a) any department or ministry of state of the Government of Canada, or any body or office, listed in the schedule, and (b) any parent Crown corporation, and any wholly-owned subsidiary of such a corporation, within the meaning of section 83 of the Financial Administration Act". The Policy "and its supporting instruments apply to government institutions as defined in section 3 of the Act" (Policy section 6.1), and "does not apply to the Bank of Canada" (Policy section 6.2). The Act's duties for personal information under an institution's control remain the institution's. An organization serving an institution under contract, agreement or arrangement is bound for that information by the terms the institution puts in place (Policy 4.2.16), and other law may also apply to it; its own handling of personal information in commercial activity falls under PIPEDA or substantially similar provincial private-sector law, treated in the Canadian privacy annex.
+**Applicability.** The Act's duties rest on a *government institution*, which section 3 of the Act defines as "(a) any department or ministry of state of the Government of Canada, or any body or office, listed in the schedule, and (b) any parent Crown corporation, and any wholly-owned subsidiary of such a corporation, within the meaning of section 83 of the Financial Administration Act". The Policy "and its supporting instruments apply to government institutions as defined in section 3 of the Act" (Policy section 6.1), and "does not apply to the Bank of Canada" (Policy section 6.2). The Act's duties for personal information under an institution's control remain the institution's. Policy 4.2.16 requires the institution to take steps to ensure that an organization serving it under contract, agreement or arrangement provides appropriate privacy protections; that organization's obligations for the information then arise from the instruments the institution uses (for example, contract terms) and from other applicable law; its own handling of personal information in commercial activity falls under PIPEDA or substantially similar provincial private-sector law, treated in the Canadian privacy annex.
 
 | Privacy Act text (quoted) | Provision |
 | --- | --- |
@@ -187,15 +187,16 @@ This baseline quotes the current official English texts of the **Privacy Act** (
 
 | Policy on Privacy Protection text (quoted; responsibilities of heads of government institutions or their delegates, Policy 4.2) | Provision |
 | --- | --- |
-| "Ensuring that employees of the government institution are aware of policies, procedures and legal responsibilities under the Act" | Policy 4.2.1 |
-| "Notifying the Treasury Board of Canada Secretariat (TBS) and the Office of the Privacy Commissioner of Canada (OPC) of any planned initiatives (legislation, regulations, policies or programs) that could relate to the Act or to any of its provisions, or that may have an impact on the privacy of individuals. This notification is to take place at a sufficiently early stage to permit TBS and the OPC to review and discuss the issues involved while respecting Cabinet confidences" | Policy 4.2.2 |
-| "Ensuring that personal information banks (PIBs) are prepared and updated, as required by section 10 of the Act" | Policy 4.2.4 |
-| "Obtaining the approval of the President of the Treasury Board to establish, modify or terminate a PIB, unless otherwise specified in the terms and conditions of a delegation under subsection 71(6) of the Act" | Policy 4.2.5 |
-| "Ensuring that, when applicable, privacy impact assessments and multi-institutional privacy impact assessments are developed, maintained and summaries published" | Policy 4.2.8 |
-| "Establishing plans to address privacy breaches that affect personal information under the control of the institution, including those that occur within third-party entities under contract, agreement or arrangement with the institution" | Policy 4.2.10 |
-| "Conducting periodic reviews of established plans that address privacy breaches to ensure that they reflect best practices and guidance" | Policy 4.2.11 |
-| "Reporting material privacy breaches to TBS and the OPC after making efforts to contain, assess and mitigate the breach and no later than seven days after the institution determines that the breach is material"; a material privacy breach is "A privacy breach that could reasonably be expected to create a real risk of significant harm to an individual" | Policy 4.2.12; Policy Appendix A |
-| "Taking steps to ensure, when personal information is involved, that third parties under contract, agreement or arrangement with the government institution provide appropriate privacy protections" | Policy 4.2.16 |
+| "Ensuring that employees of the government institution are aware of policies, procedures and legal responsibilities under the Act;" | Policy 4.2.1 |
+| "Notifying the Treasury Board of Canada Secretariat (TBS) and the Office of the Privacy Commissioner of Canada (OPC) of any planned initiatives (legislation, regulations, policies or programs) that could relate to the Act or to any of its provisions, or that may have an impact on the privacy of individuals. This notification is to take place at a sufficiently early stage to permit TBS and the OPC to review and discuss the issues involved while respecting Cabinet confidences;" | Policy 4.2.2 |
+| "Ensuring that personal information banks (PIBs) are prepared and updated, as required by section 10 of the Act;" | Policy 4.2.4 |
+| "Obtaining the approval of the President of the Treasury Board to establish, modify or terminate a PIB, unless otherwise specified in the terms and conditions of a delegation under subsection 71(6) of the Act;" | Policy 4.2.5 |
+| "Ensuring that, when applicable, privacy impact assessments and multi-institutional privacy impact assessments are developed, maintained and summaries published;" | Policy 4.2.8 |
+| "Establishing plans to address privacy breaches that affect personal information under the control of the institution, including those that occur within third-party entities under contract, agreement or arrangement with the institution;" | Policy 4.2.10 |
+| "Conducting periodic reviews of established plans that address privacy breaches to ensure that they reflect best practices and guidance;" | Policy 4.2.11 |
+| "Reporting material privacy breaches to TBS and the OPC after making efforts to contain, assess and mitigate the breach and no later than seven days after the institution determines that the breach is material;" | Policy 4.2.12 |
+| "A privacy breach that could reasonably be expected to create a real risk of significant harm to an individual." | Policy Appendix A, definition of "material privacy breach" |
+| "Taking steps to ensure, when personal information is involved, that third parties under contract, agreement or arrangement with the government institution provide appropriate privacy protections;" | Policy 4.2.16 |
 
 The federal *Access to Information Act* request workflow (clocks, extensions, exemptions and review routes) is not yet carried here; it remains a library gap below.
 
