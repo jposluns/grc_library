@@ -2,7 +2,7 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -79,11 +79,11 @@ Disclosures use standardized frameworks (GRI, TCFD, SASB) to enable stakeholder 
 
 | Disclosure Item | Standard | Frequency |
 | --- | --- | --- |
-| AI governance maturity level | ISO/IEC 42001:2023; COBIT 2019 | Annual |
+| Organization-defined AI governance maturity level | ISO/IEC 42001:2023 §9.1 (informs the organization's metric and annual disclosure); COBIT 2019 | Annual |
 | Number of AI systems by risk tier | EU AI Act (tiering); NIST AI RMF (informs the organization's own risk-management approach, prescribes no tiers) | Annual |
-| Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9 | Annual |
+| Bias audit completion rate for production AI | ISO/IEC 42001:2023 §9 (informs the organization's metric and annual disclosure) | Annual |
 | Explainability compliance rate | EU AI Act Annex IV | Annual |
-| AI incidents reported and resolved | ISO/IEC 42001:2023 §10 | Annual |
+| AI incidents reported and resolved | ISO/IEC 42001:2023 A.8.4 and §10.2 (inform the organization's metric and annual disclosure) | Annual |
 | High-risk AI systems with current AI Impact Assessment | EU AI Act | Annual |
 
 ---
@@ -111,7 +111,7 @@ The organization aligns its ESG and AI ethics disclosures with the following sta
 | OECD AI Principles | AI ethics commitments and transparency |
 | EU AI Act | High-risk AI system disclosures to competent authorities |
 | GPAI Model Governance Playbook | AI model governance disclosures |
-| ISO/IEC 42001:2023 | AI management system disclosures |
+| ISO/IEC 42001:2023 | Organization-defined AI management system disclosures informed by §7.4 and A.8 |
 
 ---
 

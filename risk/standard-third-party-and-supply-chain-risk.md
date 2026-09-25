@@ -2,7 +2,7 @@
 
 **Document Title:** Third-Party and Supply Chain Risk Standard\
 **Document Type:** Standard\
-**Version:** 1.1.11\
+**Version:** 1.1.12\
 **Date:** 2026-09-25\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -111,7 +111,7 @@ All contracts with third parties must include risk-aligned provisions. Minimum c
 For third parties providing AI models, inference services, training data, or other AI capabilities, contracts must additionally require:
 
 - Dataset lineage documentation demonstrating data provenance.
-- Model validation and explainability evidence per ISO/IEC 42001:2023 Annex A.10.3 (Suppliers; B.10.3 guidance).
+- Organization-defined model validation and explainability evidence supporting ISO/IEC 42001:2023 Annex A.10.3 (Suppliers; B.10.3 guidance).
 - Assurance of ethical data sourcing and absence of prohibited training data.
 - No-training-on-customer-data commitment unless explicit opt-in is documented, per the AI vendor security questionnaire.
 - Notice period for material model behaviour changes; the provider's deprecation policy.

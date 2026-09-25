@@ -2,7 +2,7 @@
 
 **Document Title:** Sustainability and Responsible Technology Framework\
 **Document Type:** Framework\
-**Version:** 1.2.5\
+**Version:** 1.2.6\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -47,7 +47,7 @@ All data centres, cloud environments, and AI workloads are measured for energy c
 
 ### 3. Responsible technology and AI
 
-All AI systems comply with GPAI Model Governance Playbook recommendations and ISO/IEC 42001:2023. Model development must include sustainability and ethical risk considerations. AI lifecycle documentation includes energy usage metrics, bias testing, and explainability results.
+All AI systems comply with GPAI Model Governance Playbook recommendations and operate within an AI management system conforming to ISO/IEC 42001:2023. Model development must include sustainability and ethical risk considerations. AI lifecycle documentation includes energy usage metrics, bias testing, and explainability results.
 
 ### 4. Digital security and resilience
 

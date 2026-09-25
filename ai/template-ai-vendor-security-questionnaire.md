@@ -2,7 +2,7 @@
 
 **Document Title:** AI Vendor Security Questionnaire Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-25\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -47,8 +47,8 @@ It is not a substitute for the general supplier security questionnaire. Submit b
 | What modalities are supported | Text, image, audio, video, multimodal, embeddings |
 | What is the deployment model | Public cloud (multi-tenant), public cloud (single-tenant), customer cloud (vendor-managed), on-premises, edge |
 | What is the geographical footprint of training, serving, and support | Country list with operational role |
-| Is the offering ISO/IEC 42001:2023 certified or under audit | State and timeline |
-| If ISO/IEC 42001:2023 certified, was the certificate issued by a body accredited under ISO/IEC 42006 (an accredited third-party assessment, not a self-declaration) | Certification body and accreditation status |
+| Is the provider's AI management system certified to ISO/IEC 42001:2023 or under audit, with this offering within its scope | State and timeline |
+| If the provider's AI management system is certified to ISO/IEC 42001:2023, was the certificate issued by a body accredited under ISO/IEC 42006 (an accredited third-party assessment, not a self-declaration) | Certification body and accreditation status |
 | Does the offering hold sector-specific accreditations relevant to AI (e.g. healthcare AI, financial-services AI) | List |
 | What is the provider's published responsible-AI policy or framework | URL or document reference |
 
