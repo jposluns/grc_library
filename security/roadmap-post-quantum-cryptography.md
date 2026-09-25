@@ -2,11 +2,11 @@
 
 **Document Title:** Post-Quantum Cryptography Readiness Roadmap\
 **Document Type:** Roadmap\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon significant NIST, ETSI, or national standards developments\
@@ -30,7 +30,7 @@ Current widely-deployed public-key algorithms, RSA, ECC (ECDSA, ECDH), and DSA, 
 2. **Long-lifecycle data:** Data with confidentiality requirements extending to 2030 and beyond must be protected against future quantum decryption.
 3. **Migration complexity:** Replacing cryptographic infrastructure requires significant time; migration must begin well before CRQCs are expected.
 
-Symmetric encryption (AES-256) and hash functions (SHA-256, SHA-384, SHA-512) are considered quantum-resistant at current key sizes and do not require immediate migration.
+Symmetric encryption (AES-256, at its current key size) and hash functions (SHA-256, SHA-384, SHA-512) are considered quantum-resistant and do not require immediate migration; new integrity hashing that the organization selects uses SHA-512 or BLAKE2b-512, per the [Encryption and Key Management Policy](policy-encryption-and-key-management.md) section 6.
 
 ---
 
