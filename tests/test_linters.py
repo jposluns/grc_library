@@ -21739,6 +21739,22 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             r = self._run("asvs-r8fp.md", body)
             self.assertEqual(r.returncode, 0, body + r.stdout)
 
+    # --- round-9 QA regressions (P-1.63 part d) ---
+    def test_round9_misses_are_checked(self) -> None:
+        for body, tok in (("Mapped to NIST and OWASP Application Security Verification Standard V1.2.99.\n", "V1.2.99"),
+                          ("See \u00a73.0 ASVS mapping: V1.2.99.\n", "V1.2.99"),
+                          ("| Control | \u00a73.0 ASVS mapping |\n|---|---|\n|X|V1.2.99|\n", "V1.2.99"),
+                          ("CWE-79--CWE-99999\n", "CWE-99999"),
+                          ("| X | OWASP ASVS standard |\n|---|---|\n| a | V1.2.99 |\n", "V1.2.99")):
+            self.assertLinterFails(self._run("asvs-r9fn.md", body), tok)
+
+    def test_round9_long_standard_names_and_generic_columns_are_excluded(self) -> None:
+        for body in ("ASVS maps to NIST Cybersecurity Framework V8.9.9.\n",
+                     "ASVS maps to ISO International Standard 27001 V8.9.9.\n",
+                     "| ASVS | Target Standard |\n|---|---|\n| V1.1.1 | V8.9.9 |\n"):
+            r = self._run("asvs-r9fp.md", body)
+            self.assertEqual(r.returncode, 0, body + r.stdout)
+
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
         for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V8.9 list item\n",

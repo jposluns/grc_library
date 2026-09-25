@@ -21,7 +21,7 @@ differently named framework that contains the acronym does not count) or by its 
 when it is part of the mobile standard's name), in a table cell under a header that names it (a header that also signals a version, a tool
 or another standard marks such a column instead),
 in the body of a table with a header cell that names it (except a column whose header signals a
-version, a tool or another standard, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
+version, a tool, another standard or a generic subject such as a standard or framework, unless the token's own cell names the framework), or on a row whose first cell names it. A header row's own tokens are checked only in a cell that names the
 framework and does not signal a version, a tool or another standard. Table rows are
 split on unescaped pipes, leading and trailing pipes are optional, a separator cell is one or
 more hyphens with optional colons, a table's header is the row directly above its first
@@ -33,7 +33,8 @@ that directly follows the words version, edition, release or revision, a listed 
 document number (the ETSI forms), or a listed framework or standard (CMMI, TOGAF, ITIL, COBIT,
 SAMM, CSF, NIST, PCI DSS, CIS, BSI, CWE, CAPEC, ATLAS, ATT&CK, MASVS, IEEE, ISO, read with
 markdown links (inline, reference and shortcut), code and emphasis removed), optionally with its
-own short name of capitalized words (joined by for, of, and, the, on or in), a generic word such as standard or framework, a document number joined
+own short name of capitalized words (joined by for, of, and, the, on or in; never spanning the
+framework's own name), a generic word such as standard or framework, a document number joined
 by a space or hyphen, an amendment or
 corrigendum, a year (bracketed or not) and a closing parenthesis, is that subject's version.
 
@@ -44,14 +45,15 @@ form, and otherwise
 written dotted or with a lowercase `v`, or as a capital-`V` token whose middle number is zero; a
 bare integer (a count, a footnote marker) or a number after a section sign is never an edition, and a capital `V`
 with a dotless number or a non-zero middle number directly after the name is a chapter or an
-identifier. An edition with a zero middle number written directly before the name ("3.0.1 ASVS",
+identifier. An edition with a zero middle number written directly before the name (and not after a section
+sign) ("3.0.1 ASVS",
 "version 3.0 of the ASVS") also names it. Identifiers are validated against the union of the held editions, which the adopter
 supplies. A prose line that names an edition that is not held is not checked. In a table, a token
 is not checked when its own cell or its column header names such an edition, or when its row's
 first cell does and its column header does not name a held edition. Two-number tokens
 are checked against the held sections and three-number tokens against the held requirements;
 bare chapter numbers are not checked. A weakness family (`CWE-` followed by a number, in any
-letter case, leading zeros ignored, both endpoints of a hyphenated range) is checked wherever it
+letter case, leading zeros ignored, both endpoints of a range joined by one or two hyphens) is checked wherever it
 appears.
 
 The identifier families and their code shapes are fixed by the check. The valid-identifier
