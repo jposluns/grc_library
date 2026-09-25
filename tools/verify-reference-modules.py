@@ -3,7 +3,8 @@
 
 A maintainer dev-aid that confirms the in-repo control-reference modules
 ([`tools/ccm_aicm_reference.py`], [`tools/nist_csf_reference.py`], and
-[`tools/cobit_iso31000_reference.py`], and [`tools/iso27001_reference.py`])
+[`tools/cobit_iso31000_reference.py`], [`tools/iso27001_reference.py`], and
+[`tools/tsc_reference.py`])
 still match the authoritative source
 extracts in the ``grc_library_ref`` reference repo (buckets at its root): the
 CSA CCM v4.1.0 / AICM v1.1.0 catalogue CSVs under ``frameworks/CSA/``, the
@@ -104,6 +105,7 @@ from cobit_iso31000_reference import (
 )
 from nist_csf_reference import CSF_CATEGORIES
 from iso27001_reference import ISO27001_2022_ANNEX_A
+from tsc_reference import TSC_CRITERIA, TSC_GROUP_HEADINGS
 
 # Source-extract paths, relative to the grc_library_ref root.
 CCM_CSV = "frameworks/CSA/CCM/CSA-CCM-v4.1.0-catalogue__CCM.csv"
@@ -115,6 +117,9 @@ COBIT_MD = (
 )
 ISO31000_MD = "standards/ISO/ISO-31000-2018--Risk-management-guidelines--full-text.md"
 ISO27001_MD = "standards/ISO/ISO-IEC-27001-2022--ISMS-requirements--full-text.md"
+TSC_MD = ("frameworks/AICPA/"
+          "AICPA-TSP-100-2017-Trust-Services-Criteria-revised-POF-2022-clean--full-text.md")
+TSC_LINE_RE = re.compile(r"(?m)^[ \t]*((?:CC|PI|A|C|P)[1-9]\.[0-9])\b")
 
 CONTROL_ID_RE = re.compile(r"^[A-Z&]{2,4}-[0-9]{2}$")
 CSF_CATEGORY_RE = re.compile(r"\b(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}\b")
@@ -258,6 +263,22 @@ def iso31000_drift(path: Path) -> list[str]:
     ]
 
 
+def tsc_drift(path: Path) -> list[str]:
+    """Both directions: the module's criterion and group-heading sets against the
+    identifiers that begin a line in the held AICPA TSC extract.
+
+    RESIDUE (stated at the point of use): the binding is line-START, not standalone-line,
+    because four criteria (CC6.3, CC6.7, CC6.8, CC7.5) begin a line with their text
+    appended; so a line-initial prose mention (the extract has one, "CC6.4 usually would
+    be interpreted") also counts. A fabricated module ID that appears only line-initially
+    in prose would pass; the literal module list's per-line provenance comments are the
+    control for that residue."""
+    found = set(TSC_LINE_RE.findall(path.read_text(encoding="utf-8")))
+    crit = {t for t in found if not t.endswith(".0")}
+    return (compare("AICPA TSC 2017 criteria", set(TSC_CRITERIA), crit)
+            + compare("AICPA TSC 2017 privacy group headings", set(TSC_GROUP_HEADINGS), found - crit))
+
+
 def iso27001_drift(path: Path) -> list[str]:
     """Module-to-source, CODE EXISTENCE within the Annex A table.
 
@@ -374,6 +395,14 @@ def main(argv: list[str]) -> int:
                 f"verified, see docstring)."
             ),
         ),
+        (
+            TSC_MD,
+            tsc_drift,
+            (
+                f"OK: AICPA TSC 2017 module ({len(TSC_CRITERIA)} criteria, "
+                f"{len(TSC_GROUP_HEADINGS)} group headings) matches the source extract."
+            ),
+        ),
     ]:
         path = source / filename
         if not path.is_file():
@@ -405,7 +434,7 @@ def main(argv: list[str]) -> int:
     print(
         f"\nOK: all reference modules match the grc_library_ref source "
         f"extracts at {source} (CCM v4.1.0, AICM v1.1.0, NIST CSF 2.0, "
-        f"COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022)."
+        f"COBIT 2019, ISO 31000:2018, ISO/IEC 27001:2022, AICPA TSC 2017)."
     )
     return 0
 

@@ -62,7 +62,8 @@ no known-title code (or whose subject carries no significant token) are counted
 UNASSESSABLE and LISTED as an advisory feeder for the /matrix-fit judge (the title is
 read from the reference-base extract, or the judge records `title-not-held` when it is
 absent there too); they are never silently folded into the assessed count (P-1.83 M5
-honest counts). Framework columns with no wired title map (the sector columns) are
+honest counts). Framework columns with no wired title map (the sector columns and the AICPA TSC
+2017 column) are
 surfaced as an unassessed-columns advisory rather than silently skipped (P-1.83 M3).
 
 WHAT IT SCANS:
@@ -240,7 +241,9 @@ def row_assessable(subject_text: str, codes: list[str]) -> bool:
 # code -> title map is wired for each) and the non-framework label columns. Any
 # OTHER header cell in a recognized mapping table is a framework column the
 # pre-filter cannot assess (no held title map: the sector columns CTPAT / PIP /
-# BASC v6 / WCO SAFE / AEO/AEO-S), accumulated and surfaced as an
+# BASC v6 / WCO SAFE / AEO/AEO-S, and the AICPA TSC 2017 column, whose criterion text is
+# AICPA-copyrighted and so is deliberately NOT held as a title map; its cells go to the
+# /matrix-fit judge via the advisory, read against the held TSC extract), accumulated and surfaced as an
 # unassessed-columns ADVISORY (P-1.83 M3) so those citations visibly reach the
 # /matrix-fit judge instead of silently vanishing from the counts.
 ASSESSED_COLUMN_LABELS = {
@@ -951,6 +954,27 @@ def _self_test() -> int:
                 out = buf.getvalue()
                 self.assertIn("ADVISORY", out)
                 self.assertIn("CTPAT, WCO SAFE", out)
+            finally:
+                os.unlink(path)
+
+        def test_tsc_column_surfaces_as_unassessed_advisory(self):
+            # 3.57: the AICPA TSC 2017 column carries no held title map (copyrighted
+            # criterion text), so it must surface in the advisory, never be silently
+            # counted as assessed; and its tokens must not be parsed as another
+            # family's codes by the shared CODE_RE.
+            self.assertNotIn("AICPA TSC 2017", ASSESSED_COLUMN_LABELS)
+            self.assertEqual(CODE_RE.findall("CC6.1, A1.2, C1.1, PI1.3, P4.1, P1.0"), [])
+            m = (
+                "| Domain | Document Title | Path | CSA CCM v4.1 | AICPA TSC 2017 |\n"
+                "| --- | --- | --- | --- | --- |\n"
+                "| Risk | Records Retention and Destruction | `x.md` | DSP-16 | CC6.5 |\n"
+            )
+            import tempfile, os
+            with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as f:
+                f.write(m); path = Path(f.name)
+            try:
+                _, stats = scan_matrix(path)
+                self.assertEqual(stats["unassessed_columns"], ["AICPA TSC 2017"])
             finally:
                 os.unlink(path)
 

@@ -3,18 +3,29 @@
 Every framework-control code cited in the central compliance matrix resolves to a
 real, correctly-placed entry in its framework. The check reads the matrix as a table:
 it activates on a header row that names the framework columns (a row carrying both the
-ISO/IEC 27001 and NIST CSF column headers, with the CSA CCM and CSA AICM column headers
-picked up as optional columns when present), then, for each subsequent row until the
-table block ends, tokenizes that row's cell in each framework column and validates the
-tokens against that framework. A NIST CSF code must be well-formed (a Core Function
-prefix plus a category) and name a current CSF Category, with a superseded-era code
-flagged and relocated; a CSA CCM column code must be a real CCM catalogue entry and
-must not be an AI-only code, while a CSA AICM column code must be an AI-only entry and
-must not be a CCM-base code; an ISO/IEC 27001 code must be a real Annex A control or a
-valid clause. Cells are split on the table pipe and tokenized, and separator rows and
-tables without the framework-column header are skipped. The five framework reference
-predicates (the NIST category and relocation lookups, the CCM and AICM membership
-tests, and the ISO Annex A token check) are supplied by the adopter and are not part of
-this clause; per-document framework tables are validated by separate checks, and title
-accuracy is covered by the citation gate. A matrix whose codes are all valid and
+ISO/IEC 27001 and NIST CSF column headers, with the CSA CCM, CSA AICM, and AICPA Trust
+Services Criteria column headers picked up as optional columns when present), then, for
+each subsequent row until the table block ends, tokenizes that row's cell in each
+framework column and validates the tokens against that framework. A NIST CSF code must
+be well-formed (a Core Function prefix plus a category) and name a current CSF Category,
+with a superseded-era code flagged and relocated; a CSA CCM column code must be a real
+CCM catalogue entry and must not be an AI-only code, while a CSA AICM column code must be
+an AI-only entry and must not be a CCM-base code; an ISO/IEC 27001 code must be a real
+Annex A control or a valid clause; and a Trust Services Criteria column token must be a
+criterion identifier in the catalogue's closed criterion set or a lone N/A, with a group
+heading, an out-of-set criterion-shaped token, any other token, and N/A mixed with
+criteria each flagged. In the Trust Services Criteria column a data row with no cell
+under the column, or an empty cell, is a finding, and a repeated Trust Services Criteria
+header is refused; the column is recognized by its exact label only. Cells are split on
+every table pipe and tokenized;
+in a framework table a data row whose cell count differs from its header's is a finding.
+Separator rows and tables without the framework-column header are
+skipped. The five framework reference predicates (the NIST category and relocation
+lookups, the CCM and AICM membership tests, and the ISO Annex A token check) and the two
+optional Trust Services Criteria predicates (criterion membership and group-heading
+recognition) are supplied by the adopter and are not part of this clause; a table that
+carries the Trust Services Criteria column while that catalogue is not supplied is a
+finding, never an unchecked column. A complete structural check of a specific matrix (the
+exact tables it may carry) is project configuration. Per-document framework tables are validated by separate checks, and
+title accuracy is covered by the citation gate. A matrix whose codes are all valid and
 correctly-placed contributes no findings.
