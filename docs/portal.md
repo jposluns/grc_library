@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Adopter Portal\
 **Document Type:** Guide\
 **Version:** 1.3.1\
-**Date:** 2026-09-24\
+**Date:** 2026-09-25\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/adopter-guide.md`](adopter-guide.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/maturity-scorecard.md`](maturity-scorecard.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -586,6 +586,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 - [Telecommunications Sector Requirements Annex](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) (maturity: Draft)
 - [Texas Responsible Artificial Intelligence Governance Act (TRAIGA) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-texas.md) (maturity: Draft)
 - [UK AEO-S IT and Cybersecurity Requirements](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) (maturity: Baseline)
+- [United States Federal AI Policy (OMB M-25-21, M-25-22, and M-26-04) Regulatory Requirements](../ai/jurisdictions/annex-ai-us-federal.md) (maturity: Draft)
 - [United States HIPAA Sector Requirements Annex](../compliance/healthcare/annex-healthcare-united-states.md) (maturity: Draft)
 - [eIDAS Sector Requirements Annex](../compliance/public-sector/annex-eidas-requirements.md) (maturity: Draft)
 
