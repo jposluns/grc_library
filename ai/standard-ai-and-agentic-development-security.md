@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.41\
+**Version:** 1.8.44\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -179,7 +179,7 @@ Absolute prohibitions. No exception without approval through the §4.2.2 risk-ti
 | P-05 | AI-generated code in auth, cryptography, or access control paths without security review | Hallucinated security controls |
 | P-06 | LLM conversation context persisted across user sessions without explicit consent | Context contamination, privacy breach |
 | P-07 | Unsigned or unverified model weights in any system | Supply chain compromise |
-| P-08 | Third-party MCP servers without security team review and approval | Tool poisoning |
+| P-08 | MCP servers (organization-hosted, supplier-hosted or developer-workstation-hosted) used in production without registration in the MCP server register, a security review against the register's server-security baseline, and the approval their tier requires | Tool poisoning |
 | P-09 | Agent internet egress without explicit endpoint allow-list | Data exfiltration |
 | P-10 | AI-generated SQL queries without parameterization | SQL injection |
 | P-11 | Full prompt content including retrieved documents logged without PII masking | Sensitive data in logs |
@@ -329,7 +329,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 ## 12. MCP security requirements
 
-**MCP-SEC-01:** Only organization-controlled MCP servers are permitted in production. Third-party MCP servers require security team review before any integration.
+**MCP-SEC-01:** Every MCP server used in production, whether organization-hosted, supplier-hosted or developer-workstation-hosted, must be recorded in the [MCP server register](register-mcp-server.md) and pass a security review against the register's server-security baseline, with the approval its tier requires, before any integration. Unregistered (shadow) MCP servers are prohibited in production.
 
 **MCP-SEC-02:** MCP server tool manifests must be signed and version-controlled. The client must verify signatures before trusting tool descriptions.
 
@@ -349,7 +349,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **MCP-SEC-10:** Tool-name shadowing across MCP servers must be detected. Where two MCP servers in the same agent session expose tools with the same name, the agent runtime rejects the configuration; resolution requires explicit naming or namespacing.
 
-**Framework anchors.** These controls align with the OWASP MCP Top 10 (2025, Beta; a living document whose categories may change, so it anchors these controls corroboratively rather than normatively): MCP-SEC-01 (organization-controlled servers only, with third-party review before integration) anchors MCP09 (Shadow MCP Servers); MCP-SEC-02, MCP-SEC-08, MCP-SEC-09, and MCP-SEC-10, together with the TC-09 tool-poisoning threat, anchor MCP03 (Tool Poisoning, whose held prevention set is signed schemas and manifests verified before use, content-addressable hash validation, and an immutable version-controlled registry); MCP-SEC-03 (client authentication) anchors MCP07 (Insufficient Authentication and Authorization); MCP-SEC-04 (per-tool RBAC) and MCP-SEC-07 (minimum tools per session) anchor MCP02 (Privilege Escalation via Scope Creep); MCP-SEC-05 (tool-result sanitization) anchors MCP06 (Intent Flow Subversion); and MCP-SEC-06 (SIEM logging of tool invocations and context changes) anchors MCP08 (Lack of Audit and Telemetry). MCP04 (Software Supply Chain Attacks and Dependency Tampering) is additionally engaged by MCP-SEC-01's third-party review and MCP-SEC-02's signed manifests, and more fully by the standard's supply-chain controls (the SUPPLY-SEC requirements); MCP10 (Context Injection and Over-Sharing) is engaged partly by MCP-SEC-05 and MCP-SEC-07, with its confidentiality face in the standard's session-scoped context-isolation controls. The two categories with no §12 anchor are addressed outside this section: MCP01 (Token Mismanagement and Secret Exposure) by the credential controls (TC-07, INFRA-SEC-07, INFRA-SEC-08, and the principle that secrets never enter inference context), and MCP05 (Command Injection and Execution) by the execution controls (TC-05, crosswalked to OWASP ASI05, and the AGENT-SEC-14 sandbox).
+**Framework anchors.** These controls align with the OWASP MCP Top 10 (2025, Beta; a living document whose categories may change, so it anchors these controls corroboratively rather than normatively): MCP-SEC-01 (only registered, security-reviewed servers in production, whatever their hosting) anchors MCP09 (Shadow MCP Servers); MCP-SEC-02, MCP-SEC-08, MCP-SEC-09, and MCP-SEC-10, together with the TC-09 tool-poisoning threat, anchor MCP03 (Tool Poisoning, whose held prevention set is signed schemas and manifests verified before use, content-addressable hash validation, and an immutable version-controlled registry); MCP-SEC-03 (client authentication) anchors MCP07 (Insufficient Authentication and Authorization); MCP-SEC-04 (per-tool RBAC) and MCP-SEC-07 (minimum tools per session) anchor MCP02 (Privilege Escalation via Scope Creep); MCP-SEC-05 (tool-result sanitization) anchors MCP06 (Intent Flow Subversion); and MCP-SEC-06 (SIEM logging of tool invocations and context changes) anchors MCP08 (Lack of Audit and Telemetry). MCP04 (Software Supply Chain Attacks and Dependency Tampering) is additionally engaged by MCP-SEC-01's third-party review and MCP-SEC-02's signed manifests, and more fully by the standard's supply-chain controls (the SUPPLY-SEC requirements); MCP10 (Context Injection and Over-Sharing) is engaged partly by MCP-SEC-05 and MCP-SEC-07, with its confidentiality face in the standard's session-scoped context-isolation controls. The two categories with no §12 anchor are addressed outside this section: MCP01 (Token Mismanagement and Secret Exposure) by the credential controls (TC-07, INFRA-SEC-07, INFRA-SEC-08, and the principle that secrets never enter inference context), and MCP05 (Command Injection and Execution) by the execution controls (TC-05, crosswalked to OWASP ASI05, and the AGENT-SEC-14 sandbox).
 
 ---
 
