@@ -2,7 +2,7 @@
 
 **Document Title:** Malaysia National Guidelines on AI Governance and Ethics (AIGE)\
 **Document Type:** Annex\
-**Version:** 0.0.1\
+**Version:** 0.0.2\
 **Date:** 2026-09-25\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -22,9 +22,9 @@ This annex gives the adopter a single per-framework view of Malaysia's National 
 
 ## Framework and issuing body
 
-The Guidelines are issued by Malaysia's Ministry of Science, Technology and Innovation (MOSTI). They were launched on 20 September 2024, and the edition MOSTI currently serves is a revised document dated 18 November 2024. They support the implementation of the Malaysia National Artificial Intelligence Roadmap 2021-2025 (AI-RMAP), and they describe themselves as a policy document and a living document, to be reviewed regularly and made available in both Malay and English.
+The Guidelines are issued by Malaysia's Ministry of Science, Technology and Innovation (MOSTI). They were launched in September 2024, and the PDF MOSTI served when this annex was written (checked 24 September 2026) is a revised file whose name and document metadata are dated 18 November 2024; it differs from the September launch PDF. They support the implementation of the Malaysia National Artificial Intelligence Roadmap 2021-2025 (AI-RMAP), and they describe themselves as a policy document and a living document, to be reviewed regularly and made available in both Malay and English.
 
-The Guidelines are voluntary: they state that they "are on a voluntary for the stakeholders" (source wording), and their aspiration is "the voluntary adoption of the seven AI Principles by developers and deployers of AI alongside existing laws", operationalized "as part of a self-governance mechanism alongside the use of AI assurance techniques when assessing and auditing AI systems". They carry no enforcement mechanism and no penalties. Their stated objectives are to support the AI-RMAP, to facilitate responsible AI according to the seven principles, to build trustworthiness in AI, to manage the risks of AI development and deployment, and to maximize AI's benefits for national productivity, growth, and competitiveness.
+The Guidelines are voluntary: they state that they "are on a voluntary for the stakeholders" (source wording), and their aspiration is "the voluntary adoption of the seven AI Principles by developers and deployers of AI alongside existing laws", operationalized "as part of a self-governance mechanism alongside the use of AI assurance techniques when assessing and auditing AI systems". Being voluntary, they set out no enforcement mechanism or penalties of their own. Their stated objectives are to support the AI-RMAP, to facilitate responsible AI according to the seven principles, to build trustworthiness in AI, to manage the risks of AI development and deployment, and to maximize AI's benefits for national productivity, growth, and competitiveness.
 
 ## The seven AI principles
 
@@ -40,7 +40,7 @@ The Guidelines adopt seven principles, stated to be in alignment with principles
 
 ## Structure by stakeholder
 
-The Guidelines address three stakeholder groups in separate parts: Part A for end users of AI; Part B for policy makers in government, agencies, organizations, and institutions; and Part C for developers, designers, technology providers, and suppliers ("sector players"). An adopter that develops, supplies, or deploys AI reads Part C as its primary guidance. Points of particular relevance to an adopter:
+The Guidelines address three stakeholder groups in separate parts: Part A for end users of AI; Part B for policy makers in government, agencies, organizations, and institutions; and Part C for developers, designers, technology providers, and suppliers ("sector players"). The Guidelines note that one organization can play more than one role: an organization that develops, designs, or supplies AI reads Part C, and one that uses AI products is also an end user under Part A, which the Guidelines apply to organizations as well as individuals. Points of particular relevance to an adopter:
 
 - **Consumer-protection principles (Part A).** The Guidelines set out consumer rights in relation to AI: to information (including awareness when an algorithm uses personal information to make offers or decisions, or reports data to third parties), to object and to receive an explanation, to have personal data deleted, to interact with a human instead of AI, to redress and compensation for damage (including collective redress), and to complain to a supervisory authority or take legal action; they state that developers and deployers of AI are to establish systems through which these rights are available. In a voluntary framework these are recommended practices, not enforceable rights; where Malaysian law separately confers a right (for example under the Personal Data Protection Act), that law governs.
 - **Responsible AI in contracts (Part C).** Where a sector player builds AI to a customer's specification, the Guidelines encourage advocating for responsible-AI clauses in contracts with the paying customer, including adherence to ethical guidelines, transparency requirements, and accountability mechanisms across the project lifecycle.
@@ -52,12 +52,12 @@ Because the Guidelines are voluntary, an adopter treats the seven principles and
 
 ## Relationship to corpus AI-governance content
 
-This annex is the per-framework view; it cross-references the operational substance in the corpus rather than duplicating it. The seven principles map onto the roles, assessment, and transparency practices in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the corpus AI assessment and lifecycle procedures. An adopter aligning to the Guidelines applies those existing corpus controls and records the alignment; the Guidelines add no control the corpus does not already carry.
+This annex is the per-framework view; it cross-references the operational substance in the corpus rather than duplicating it. The seven principles map onto the roles, assessment, and transparency practices in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the corpus AI assessment and lifecycle procedures. An adopter aligning to the Guidelines applies those existing corpus controls and records the alignment, noting any recommendation (for example the consumer-protection items on redress) that its current controls do not yet address.
 
 ## Limitations
 
 - This annex is voluntary guidance, not legal advice and not a binding obligation; the controlling text is the Guidelines themselves.
-- **Version sensitivity.** The Guidelines call themselves a living document, and MOSTI revised the published PDF after launch: the held edition is the revision of 18 November 2024, which differs from the September 2024 launch document (the launch document's example performance index, for instance, is not in the revision). The AI-RMAP they support ran to 2025. An adopter confirms the current edition with MOSTI before reliance.
+- **Version sensitivity.** The Guidelines call themselves a living document, and MOSTI revised the published PDF after launch: the held edition is the revised PDF dated 18 November 2024, which differs from the September 2024 launch document; the September text is retained in the reference base's superseded store. The AI-RMAP they support ran to 2025. An adopter confirms the current edition with MOSTI before reliance.
 - The consumer-protection section uses rights language; this annex presents those items as the Guidelines' recommendations, not as rights an individual can enforce under the Guidelines.
 
 ## Framework alignment
@@ -72,4 +72,4 @@ The Malaysia-principle column is the load-bearing, held-source-grounded content.
 | Inclusiveness | AI impact assessment across affected groups | Map | Annex A.5 |
 | Transparency | AI model documentation and transparency | Govern, Map | Annex A.8 |
 | Accountability | AI compliance roles and responsibility | Govern | Clause 5.3, Annex A.3 |
-| Pursuit of Human Benefit and Happiness | AI strategy and responsible-adoption framing | Govern | Clause 4 |
+| Pursuit of Human Benefit and Happiness | AI strategy and societal-impact assessment | Govern, Map | Annex A.5 |
