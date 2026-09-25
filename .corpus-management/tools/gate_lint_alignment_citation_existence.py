@@ -75,29 +75,33 @@ def _check_pf(code: str) -> bool:
 # --- OWASP ASVS: requirement (Vn.n.n) and section (Vn.n) identifiers, CONTEXT-GATED. ---
 # A bare V-token is ambiguous: most corpus V-triples are other publishers' document versions
 # (ETSI "EN 304 223 V2.1.1"), several of which coincide with real ASVS ids. A token is checked
-# only in ASVS context: on a line naming ASVS (the acronym as a word, so never MASVS, or the
-# framework's full name), in a table cell under an ASVS-labelled header, or on a row whose first
-# cell names ASVS. Bare chapters (Vn) are not checked.
+# only in ASVS context: on a line naming ASVS (the acronym as a word, so never MASVS, or the full
+# name, never the mobile standard's), in a table cell under an ASVS-labelled header, anywhere in
+# the body of a table whose FIRST header cell names ASVS (a table about ASVS), or on a row whose
+# first cell names ASVS. Bare chapters (Vn) are not checked.
 # A token whose middle number is 0 (V5.0.0, V4.0.3, V2.0) is a version, never an identifier:
 # ASVS numbers its sections from 1, so no section or requirement has a zero middle component.
-# A token attributed to a non-held edition (the nearest preceding ASVS mention on the line, or
-# its column header, names ASVS 4.x) is not checked against the held numbering, which differs.
-_ASVS_WORD = re.compile(r"\bASVS\b|Application Security Verification Standard", re.IGNORECASE)
-# An edition mention: the framework name, optionally "version"/"edition"/"release", then an
-# edition number. A capital-V token with a non-zero middle number right after the name is an
-# identifier ("ASVS V1.2.4"), never an edition; "ASVS 4.0.3", "ASVS v4", "ASVS version 4.0.3" and
-# "ASVS V5.0.0" are editions.
-_ASVS_MENTION = re.compile(
-    r"(?:\bASVS\b|Application Security Verification Standard)"
-    r"(?:\W{0,3}(?:(?:version|edition|release)\W{0,3})?(V|v)?(\d+)(?:\.(\d+))?(?:\.\d+)?\b)?",
-    re.IGNORECASE)
+# Editions are handled by SCOPE, not per token: a prose line that names a non-held ASVS edition,
+# or a table token whose row or column header does, is not checked (its numbering differs from
+# the held edition's). Stated residue: a fabricated held-edition id on such a line or row is
+# missed; that trade avoids blocking false positives on legitimate legacy citations.
+_ASVS_WORD = re.compile(
+    r"\bASVS\b|(?<!Mobile )Application Security Verification Standard", re.IGNORECASE)
+# A non-held-edition mention: the name, then an optional version/edition/release word, then an
+# edition number. After such a word any form is an edition ("ASVS version V4.1.1"). Otherwise an
+# edition is written with no V or a lowercase v ("ASVS 4.0.3", "ASVS v4"), or as a capital-V token
+# with a zero middle number ("ASVS V4.0.3"); a capital V with a dotless number ("ASVS V6") or a
+# non-zero middle number ("ASVS V1.2.4") is a chapter or an identifier, never an edition.
+_ASVS_AFTER = re.compile(
+    r"\W{0,3}((?:version|edition|release)\W{0,3})?(V|v)?(\d+)((?:\.\d+){0,2})\b", re.IGNORECASE)
 _ASVS_TOKEN = re.compile(r"(?<![\w.])V(\d+)\.(\d+)(?:\.(\d+))?(?![\w]|\.\d)")
 # A token directly after these is a version of that word's subject or of another publisher's
 # document, not an ASVS identifier ("version V2.1", "EN 304 223 V2.1.1", "TOGAF V9.2").
 _ASVS_NOT_ID_BEFORE = re.compile(
     r"(?:\b(?:version|edition|release|rev(?:ision)?)\s*[:(]?\s*`?"
     r"|\b(?:EN|TR|TS|ES|EG|GR|GS)\s+\d{3}\s+\d{3}(?:-\d+)*\s*`?"
-    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|IEEE\s*\d+(?:\.\d+)*|ISO(?:/IEC)?\s*\d+(?:[-:]\d+)*)"
+    r"|\b(?:CMMI|TOGAF|ITIL|COBIT|SAMM|CSF|NIST(?:\s+[A-Z]+)?|PCI\s+DSS|CIS(?:\s+Controls)?|BSI"
+    r"|IEEE\s*\d+(?:\.\d+)*|ISO(?:/IEC)?\s*\d+(?:[-:]\d+)*)"
     r"\s*[:,(]?\s*`?)$",
     re.IGNORECASE,
 )
@@ -121,7 +125,7 @@ def _cells(line: str) -> list[str] | None:
 
 
 def _is_separator(cells: list[str] | None) -> bool:
-    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
+    return bool(cells) and all(re.fullmatch(r":?-+:?", c) for c in cells)
 
 
 def _cell_index(line: str, pos: int) -> int:
@@ -130,60 +134,56 @@ def _cell_index(line: str, pos: int) -> int:
     return before - 1 if line.lstrip().startswith("|") else before
 
 
-def _mention_edition(m: "re.Match") -> str | None:
-    """The major edition an ASVS mention names, or None when it names none (or when what follows
-    the name is an identifier, not an edition)."""
-    vee, major, minor = m.group(1), m.group(2), m.group(3)
-    if major is None:
-        return None
-    if vee == "V" and minor not in (None, "0"):
-        return None  # "ASVS V1.2.4": a capital-V token with a non-zero middle number is an identifier
-    return major
+def _editions(text: str) -> set[str]:
+    """The ASVS edition majors `text` names (see _ASVS_AFTER)."""
+    out: set[str] = set()
+    for name in _ASVS_WORD.finditer(text):
+        m = _ASVS_AFTER.match(text, name.end())
+        if not m:
+            continue
+        word, vee, major, rest = m.groups()
+        if not word and vee and text[m.start(2)] == "V" and not rest.startswith(".0"):
+            continue  # a chapter or an identifier, not an edition
+        out.add(major)
+    return out
 
 
-def _attributed_to_other_edition(scope: str, pos: int) -> bool:
-    """True when the ASVS mention that governs the token at `pos` in `scope` names a major edition
-    other than the held one: the nearest preceding mention that names an edition, else the nearest
-    following one. A mention naming no edition leaves the token attributed to the held edition."""
-    if not _ASVS_MAJOR:
-        return False
-    before = [m for m in _ASVS_MENTION.finditer(scope) if m.end() <= pos and _mention_edition(m)]
-    after = [m for m in _ASVS_MENTION.finditer(scope) if m.start() >= pos and _mention_edition(m)]
-    gov = before[-1] if before else (after[0] if after else None)
-    return bool(gov) and _mention_edition(gov) != _ASVS_MAJOR
+def _names_other_edition(text: str) -> bool:
+    return bool(_ASVS_MAJOR) and bool(_editions(text) - {_ASVS_MAJOR})
 
 
 def _check_asvs(raw: str, lineno: int, rel: str, header: list[str] | None,
                 in_table: bool, findings: list[str]) -> None:
     if not (_ASVS_REQ or _ASVS_SEC):
         return
-    line_ctx = bool(_ASVS_WORD.search(raw))
     cells = _cells(raw) if in_table else None
+    if in_table and cells is None:
+        cells = [raw.strip()]
+    if cells is None and _names_other_edition(raw):
+        return  # a prose line naming a non-held edition: out of scope (stated residue)
+    line_ctx = bool(_ASVS_WORD.search(raw))
+    hdr = header or []
     row_ctx = bool(cells) and bool(_ASVS_WORD.search(cells[0]))
-    col_ctx = {i for i, h in enumerate(header or []) if _ASVS_WORD.search(h)}
-    col_other = {i for i in col_ctx if _attributed_to_other_edition(header[i], len(header[i]))}
+    row_other = bool(cells) and _names_other_edition(cells[0])
+    whole_table = bool(hdr) and bool(_ASVS_WORD.search(hdr[0])) and not _names_other_edition(hdr[0])
+    col_ctx = {i for i, h in enumerate(hdr) if _ASVS_WORD.search(h)}
+    col_other = {i for i, h in enumerate(hdr) if _names_other_edition(h)}
+    col_held = {i for i, h in enumerate(hdr) if _ASVS_MAJOR in _editions(h)}
     for m in _ASVS_TOKEN.finditer(raw):
-        col = _cell_index(raw, m.start()) if cells is not None else -1
-        in_col = col in col_ctx
-        if not (line_ctx or row_ctx or in_col):
+        if cells is not None:
+            col = _cell_index(raw, m.start()) if len(cells) > 1 else 0
+            cell = cells[col] if 0 <= col < len(cells) else ""
+            if col in col_other or _names_other_edition(cell):
+                continue  # its column header or its own cell names a non-held edition
+            if row_other and col not in col_held:
+                continue  # its row is about a non-held edition, and its column does not override
+            if not (line_ctx or row_ctx or col in col_ctx or whole_table):
+                continue
+        elif not line_ctx:
             continue
         if m.group(2) == "0":  # a zero middle number is a version, never an ASVS identifier
             continue
-        prefix = raw[:m.start()]
-        if _ASVS_NOT_ID_BEFORE.search(prefix):
-            continue
-        if cells is not None and col >= 0:
-            # In a table the edition is attributed within the token's own cell, then by its column
-            # header; another cell on the row never governs it.
-            cell_start = [x.end() for x in _PIPE.finditer(raw) if x.end() <= m.start()]
-            cstart = cell_start[-1] if cell_start else 0
-            nxt = _PIPE.search(raw, m.end())
-            cell = raw[cstart:nxt.start() if nxt else len(raw)]
-            if _attributed_to_other_edition(cell, m.start() - cstart):
-                continue
-            if col in col_other and not any(_mention_edition(x) for x in _ASVS_MENTION.finditer(cell)):
-                continue
-        elif _attributed_to_other_edition(raw, m.start()):
+        if _ASVS_NOT_ID_BEFORE.search(raw[:m.start()]):
             continue
         tok = m.group(0)
         if m.group(3) is not None:
@@ -217,10 +217,12 @@ def check_file(path: Path, rel: str) -> list[str]:
     prev_cells: list[str] | None = None
     for lineno, raw in iter_non_code_lines(text):
         cells = _cells(raw)
-        if cells is None:
-            header = None
+        if not raw.strip() or re.match(r"\s*(?:#|>)", raw):
+            header = None  # a table ends at a blank line or another block (GFM)
         elif _is_separator(cells):
             header = prev_cells
+        if header is not None and cells is None and raw.strip():
+            cells = [raw.strip()]  # a GFM body row may omit its pipes (a single cell)
         in_body = header is not None and cells is not None and not _is_separator(cells)
         _check_asvs(raw, lineno, rel, header if in_body else None, in_body, findings)
         _check_cwe(raw, lineno, rel, findings)
