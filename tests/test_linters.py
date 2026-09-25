@@ -11679,6 +11679,17 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
             f.write_text(body, encoding="utf-8")
             r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
             self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
+        for name, data in (("two_boms.md", ("\ufeff\ufeff" + rendered).encode("utf-8")),
+                           ("latin1.md", b"\xff\xfe not utf-8\n")):
+            f = td / name
+            f.write_bytes(data)
+            r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(f), "--json")
+            self.assertEqual(r.returncode, 2, (name, r.stdout[-200:], r.stderr[-200:]))
+            self.assertNotIn("Traceback", r.stderr)
+        # r4: a generated title carrying an escaped pipe is one cell, not two.
+        mod = runpy.run_path(str(REPO_ROOT / "tools/adopt-bootstrap-ref.py"))
+        entries = mod["parse_manifest"]("| A \\| B | 1 | I | https://x | FREE |\n")
+        self.assertEqual([e["title"] for e in entries], ["A | B"])
         crlf = td / "crlf.md"
         crlf.write_bytes(("\ufeff" + rendered).replace("\n", "\r\n").encode("utf-8"))
         r = run_linter("tools/adopt-bootstrap-ref.py", "--manifest", str(crlf), "--json")
