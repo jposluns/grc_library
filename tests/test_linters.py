@@ -14907,6 +14907,11 @@ class ReferenceManifestGeneratorTests(unittest.TestCase):
         self.assertEqual(e["title"], "Line\u2028Sep kept")
         self.assertEqual(e["origin"], "AA\u00e9\U0001F600\tB\u2028")
         self.assertIsNone(e["checked_edition"])
+        # Malformed escapes never raise (a code point beyond U+10FFFF, short hex, a lone
+        # trailing backslash); they keep their characters literally.
+        self.assertEqual(mod._scalar('"a\\U00110000b"'), "aU00110000b")
+        self.assertEqual(mod._scalar('"\\x4"'), "x4")
+        self.assertEqual(mod._scalar('"end\\"'), "end\\")
         self.assertEqual(e["pages"], 42)
         out = mod.render(cat)
         self.assertNotIn("| null |", out)

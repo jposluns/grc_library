@@ -64,8 +64,10 @@ _DQ_HEX = {"x": 2, "u": 4, "U": 8}
 def _unescape_double(s: str) -> str:
     """Unescape a YAML double-quoted scalar's backslash escapes: the named escapes and the
     \\x, \\u and \\U hex forms, matching yaml.safe_load for every escape YAML defines.
-    An escape YAML does not define keeps its character (yaml.safe_load would raise instead);
-    the catalogue is machine-generated and carries none."""
+    Malformed input never raises: an escape YAML does not define, a hex escape with too few or
+    non-hex digits or a code point beyond U+10FFFF, and a lone trailing backslash all keep their
+    characters literally (yaml.safe_load would raise instead). The catalogue is machine-generated
+    and carries none of these."""
     out = []
     i = 0
     while i < len(s):
@@ -75,9 +77,11 @@ def _unescape_double(s: str) -> str:
             digits = s[i + 2:i + 2 + width] if width else ""
             if width and len(digits) == width and all(ch in "0123456789abcdefABCDEF"
                                                       for ch in digits):
-                out.append(chr(int(digits, 16)))
-                i += 2 + width
-                continue
+                code = int(digits, 16)
+                if code <= 0x10FFFF:  # beyond Unicode is malformed: fall through, keep the char
+                    out.append(chr(code))
+                    i += 2 + width
+                    continue
             out.append(_DQ_ESCAPES.get(c, c))
             i += 2
         else:
