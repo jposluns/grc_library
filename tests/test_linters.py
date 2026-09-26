@@ -4027,6 +4027,25 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertEqual(guard.stale_date_after_bump(bump, {"b.md": staged}, "2026-09-25"), ["b.md"])
         self.assertEqual(guard.stale_date_after_bump(
             bump, {"b.md": staged.replace("2026-09-01", "2026-09-25")}, "2026-09-25"), [])
+        # 3b86 r2 (codex, gemini): a Date on line 1 behind the BOM.
+        date_first = "\ufeff**Date:** 2026-09-01\n**Version:** 1.0.1\n\nbody\n"
+        bump2 = "diff --git a/b.md b/b.md\n@@ -2 +2 @@\n-**Version:** 1.0.0\n+**Version:** 1.0.1\n"
+        self.assertEqual(guard.stale_date_after_bump(bump2, {"b.md": date_first}, "2026-09-25"), ["b.md"])
+        self.assertEqual(guard.stale_date_after_bump(
+            bump2, {"b.md": date_first.replace("2026-09-01", "2026-09-25")}, "2026-09-25"), [])
+        # 3b86 r2 (codex): content rendered '---'/'+++' inside a hunk is counted, so line 2 cannot
+        # pose as line 1 (the real Version on line 3 is unchanged; the body changed).
+        shifted = ("diff --git a/b.md b/b.md\n--- a/b.md\n+++ b/b.md\n@@ -1,2 +1,2 @@\n"
+                   "--- old lead\n-\ufeff**Version:** 7.0.0\n+++ new lead\n+\ufeff**Version:** 7.0.1\n"
+                   "@@ -9 +9 @@\n-old\n+new\n")
+        self.assertEqual(guard.offenders(shifted, {"b.md"}), ["b.md"])
+        # 3b86 r2 (claude): old and new start lines differ, and context lines advance both counters.
+        self.assertEqual(guard.classify_hunk(["@@ -2,2 +1,2 @@", " ctx", "-\ufeffx", "+\ufeff**Version:** 2"]),
+                         (True, False))  # new line 2, not 1: the BOM line is body
+        self.assertEqual(guard.classify_hunk(["@@ -1 +1 @@", "-\ufeff**Version:** 1", "+\ufeff**Version:** 2"]),
+                         (False, True))
+        self.assertEqual(guard.classify_hunk(["@@ -3 +1 @@", "-\ufeffold", "+\ufeff**Version:** 2"]),
+                         (True, True))  # old line 3 is body; new line 1 is the Version
 
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it

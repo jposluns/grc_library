@@ -189,7 +189,8 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
                 n += 1
         if not hit:
             return
-        m = DATE_META.search(head)
+        # A Date on line 1 sits behind any BOM; the ^-anchored search needs it set aside (3b86 r2).
+        m = DATE_META.search(head[len(BOM):] if head.startswith(BOM) else head)
         if m and m.group(2) != today:
             out.append(cur)
 
@@ -298,23 +299,28 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
     the other key's line is treated like any other metadata line.
 
     A changed line counts as BODY unless it is blank/whitespace-only or a column-zero `**Key:**
-    value` metadata line (matched by position anywhere, not only in a leading block). Header lines
-    beginning `+++`/`---`/`@@`/`diff `/`index `/`new file`/`deleted file` are skipped by a prefix check
-    on the RAW diff line (before the +/- change marker is stripped), so a `+`/`-`-marked content line
-    starting `diff `/`index `/`@@`/etc. does NOT match and is kept as body, though content rendered
-    `+++`/`---` does match and is skipped. Returns two independent
+    value` metadata line (matched by position anywhere, not only in a leading block). Before the
+    first `@@` hunk header, file-header lines (`+++`/`---`/`diff `/`index `/`new file`/`deleted file`)
+    are skipped; after it every `+`/`-`/space line is hunk content, classified and counted, including
+    content rendered `+++`/`---`. Physical line numbers come from the hunk headers, and a UTF-8 BOM
+    is set aside only on line 1 (3b86). Returns two independent
     booleans because the interesting state is
     body-without-version, and collapsing them early would hide it.
     """
     body = version = False
     key = version_key(path)
     old_n = new_n = 1  # physical line numbers, from each hunk header (3b86)
+    in_hunk = False
     for ln in lines:
         h = HUNK_BOTH.match(ln)
         if h:
             old_n, new_n = int(h.group(1)), int(h.group(2))
+            in_hunk = True
             continue
-        if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+        # Before the first hunk header these are file headers; INSIDE a hunk every line is content,
+        # including content rendered `+++`/`---`, so it is classified and counted (3b86 r2, codex:
+        # skipping it shifted the line counters and let line 2 pose as line 1).
+        if not in_hunk and ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
         if not ln or ln[0] not in "+- ":
             continue
