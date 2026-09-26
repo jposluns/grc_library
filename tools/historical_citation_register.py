@@ -90,13 +90,18 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     """Why the page is out of step with the data, or None when it matches."""
     if page is None:
         return f"{PAGE_REL} is missing; run python3 tools/build-historical-citation-exceptions.py"
+    # LF line endings only: the generated block uses LF, and a CR or another separator changes
+    # where a renderer sees lines (a CRLF front-matter opener passed the r4 check; codex, claude,
+    # gemini r4).
+    if re.search(r"[\r\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]", page):
+        return f"{PAGE_REL}: the page must use LF line endings only"
     block = page_block(page)
     if block is None:
         return f"{PAGE_REL}: the generated-table sentinels are missing or out of order"
     if block != render(rows):
         return (f"{PAGE_REL}: the generated table differs from {DATA_REL}; run "
                 "python3 tools/build-historical-citation-exceptions.py")
-    # The page must SHOW the generated table as the only table (3b75 QA, codex and claude): the
+    # The page must SHOW the generated table as the only table (with no math markup either) (3b75 QA, codex and claude): the
     # block stands alone at column 1, and the rest of the page carries no front matter, no raw
     # HTML or comment, no fence marker, and no pipe, any of which could hide the real table or
     # show a fake one.
@@ -114,6 +119,9 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     for n, line in enumerate(outside.splitlines(), 1):
         if re.search(r"<[A-Za-z/!?]", line):
             return f"{PAGE_REL}: raw HTML or a comment outside the generated block"
+        if "$" in line:
+            # GitHub math can draw a ruled array with no pipe (3b75 redesign QA r4, claude).
+            return f"{PAGE_REL}: math markup (a dollar sign) outside the generated block"
         if "```" in line or "~~~" in line:
             # Any fence marker, wherever it sits (a quoted or listed fence too; 3b75 redesign QA r3,
             # claude): the page's prose needs none.

@@ -827,6 +827,9 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             ("> ```\n> x\n\n" + good, "a fence marker outside the generated block"),   # a quoted fence (claude r3)
             ("- ~~~\n\n" + good, "a fence marker outside the generated block"),
             ("---\nException ID: HCE-999\nPath: ai/phantom.md\n---\n\n" + good, "front matter at the top of the page"),  # codex r3
+            (("---\nException ID: HCE-999\n---\n\n" + good).replace("\n", "\r\n"), "LF line endings only"),  # r4
+            (good.replace("# Register\n", "# Register\u2028"), "LF line endings only"),
+            (good + "\n$$\n\\begin{array}{ll} HCE-001 & ai/x.md \\end{array}\n$$\n", "math markup"),  # claude r4
             (fake + "\n" + good, "a table (or a pipe) outside the generated block"),
             ("a | b\n:-- | --:\n1 | 2\n\n" + good, "a table (or a pipe) outside the generated block"),  # no outer pipes
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
@@ -879,6 +882,9 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 self.assertEqual(B.main(["--check", "--root", d]), 0)
                 (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
                 self.assertEqual(B.main(["--check", "--root", d]), 1)
+                (root / H.PAGE_REL).write_text("<details>\n\n" + good.split("\n", 2)[2] + "\n</details>\n")
+                self.assertEqual(B.main(["--check", "--root", d]), 1)  # a page gate 6 refuses (r4)
+                (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
                 self.assertEqual(B.main(["--root", d]), 0)
                 self.assertEqual((root / H.PAGE_REL).read_text(), good)
                 (root / H.DATA_REL).write_text("schema_version = 2\n")
