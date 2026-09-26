@@ -26854,4 +26854,11 @@ class RealPathMessageTests(unittest.TestCase):
             self.assertEqual(code, 2, err.getvalue())
             self.assertIn(f"operational store {expected} ", err.getvalue())
             self.assertIn("found neither", err.getvalue())
+        # An unresolvable store (a symlink loop) is reported, never a crash (QA r2, codex).
+        err = io.StringIO()
+        with mock.patch.object(mod, "_store_root", side_effect=RuntimeError("loop")), \
+                mock.patch.object(mod, "private_store_roots", return_value=[]), \
+                contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(mod.main(["--update-state"]), 2)
+        self.assertIn("(unresolvable GRC_STORE)", err.getvalue())
 

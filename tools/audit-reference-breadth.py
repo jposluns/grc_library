@@ -398,7 +398,11 @@ def main(argv: list[str] | None = None) -> int:
                     is_private = False
             if not is_private:
                 # Name the paths actually looked for, not a placeholder (3b98).
-                store = _store_root(REPO_ROOT.resolve())  # resolved exactly as the check resolves it
+                try:
+                    store = _store_root(REPO_ROOT.resolve())  # resolved as the check resolves it
+                except (OSError, RuntimeError):
+                    # The check treats an unresolvable store as absent; say so, do not crash (QA r2).
+                    store = "(unresolvable GRC_STORE)"
                 sibling = REPO_ROOT.parent / "grc_library_private"
                 print("ERROR: --update-state requires a private maintainer store (looked for "
                       f"the operational store {store} and the private sibling {sibling}; found "
