@@ -494,7 +494,8 @@ class LinterTestCase(unittest.TestCase):
         generator method, an early return, or an earlier probe failure). The static
         _runs_scope_probes scan is only a pre-screen. Residue: a class- or module-level skip
         (setUpClass, setUpModule) or a direct debug() call never reaches run() and is not
-        guarded."""
+        guarded, and a test excluded by selection (a -k filter or load_tests) simply does not run
+        in that invocation; CI runs the full suite (3b64 round 11, gemini)."""
         self._scope_probes_completed = False
         if self._testMethodName in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}):
             self.addCleanup(self._check_scope_probes_completed)
@@ -23443,6 +23444,17 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertEqual(scope_probe_registry_issues({"_E": _E}),
                          ["TEST-PROBE-EXPECTED-FAILURE: _E.test_x is expectedFailure-marked, so a "
                           "probe that did not run would count as a pass"])
+
+        # A class-level expectedFailure (unittest honours it for every method of the class).
+        class _EC(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _EC = unittest.expectedFailure(_EC)
+        self.assertIn("TEST-PROBE-EXPECTED-FAILURE: _EC is expectedFailure-marked and declares scope probes",
+                      scope_probe_registry_issues({"_EC": _EC}))
 
     def test_a_one_shot_probe_collection_is_refused(self) -> None:
         # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
