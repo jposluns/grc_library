@@ -27122,3 +27122,30 @@ class RealPathMessageTests(unittest.TestCase):
             self.assertEqual(mod.main(["--update-state"]), 2)
         self.assertIn("(unresolvable GRC_STORE)", err.getvalue())
 
+
+
+class SelfTestTempdirTests(unittest.TestCase):
+    """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
+
+    def targets(self):
+        found = []
+        for pattern in (".claude/hooks/*.py", "tools/*.py"):
+            for path in sorted(REPO_ROOT.glob(pattern)):
+                text = path.read_text(errors="replace")
+                if "mkdtemp(" in text and "--self-test" in text:
+                    found.append(path)
+        return found
+
+    def test_discovery_is_not_vacuous(self) -> None:
+        # Nine self-tests leaked before 3b103; the scan must still see at least those.
+        self.assertGreaterEqual(len(self.targets()), 9)
+
+    def test_self_tests_leave_no_temp_directories(self) -> None:
+        for path in self.targets():
+            with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()), \
+                    tempfile.TemporaryDirectory() as tmp:
+                env = dict(os.environ, TMPDIR=tmp)
+                run = subprocess.run([sys.executable, "-B", str(path), "--self-test"], cwd=REPO_ROOT,
+                                     env=env, capture_output=True, text=True, timeout=600)
+                self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-400:])
+                self.assertEqual(sorted(os.listdir(tmp)), [])
