@@ -4046,6 +4046,32 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          (False, True))
         self.assertEqual(guard.classify_hunk(["@@ -3 +1 @@", "-\ufeffold", "+\ufeff**Version:** 2"]),
                          (True, True))  # old line 3 is body; new line 1 is the Version
+        # 3b86 r3 (codex): the old side is positioned by the old start line.
+        self.assertEqual(guard.classify_hunk(["@@ -1 +3 @@", "-\ufeff**Version:** 1", "+\ufeffx"]),
+                         (True, True))  # old line 1 is the Version; new line 3 is body
+        # 3b86 r3 (codex): EXACTLY ONE BOM is set aside everywhere, so a double BOM hides the key
+        # consistently (never a Version from one site and body from another).
+        double = "\ufeff\ufeff**Date:** 2026-09-01\n**Version:** 1.0.0\n\nnew body\n"
+        self.assertEqual(guard._metadata_region_end(double), 0)
+        with tempfile.TemporaryDirectory() as td2:
+            r2 = Path(td2)
+            def g2(*a):
+                subprocess.run(["git", "-C", str(r2), *a], check=True, capture_output=True, text=True)
+            g2("init", "-q")
+            g2("config", "user.email", "t@example.invalid")
+            g2("config", "user.name", "t")
+            (r2 / "d.md").write_text(double.replace("new body", "old body"), encoding="utf-8")
+            g2("add", "d.md")
+            g2("commit", "-q", "-m", "init")
+            (r2 / "d.md").write_text(double, encoding="utf-8")
+            g2("add", "d.md")
+            self.assertFalse(guard.try_auto_bump(r2, "d.md", "2026-09-26"))
+            self.assertEqual((r2 / "d.md").read_text(encoding="utf-8"), double)
+        # 3b86 r3 (claude): a two-file buffer (a rename) resets hunk state at each diff header, so
+        # the second file's ---/+++ headers are not read as body.
+        two = ["diff --git a/o.md b/o.md", "--- a/o.md", "+++ /dev/null", "@@ -1 +0,0 @@", "-**Version:** 1",
+               "diff --git a/n.md b/n.md", "--- /dev/null", "+++ b/n.md", "@@ -0,0 +1 @@", "+**Version:** 2"]
+        self.assertEqual(guard.classify_hunk(two), (False, True))
 
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
@@ -24857,7 +24883,9 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         add("readme", "readme", evidence=("README.md",),
             sites=(("try_auto_bump", "return False", 0),))
         # Occurrence 2 is the lone-CR decline (3b84); nonnumeric and the exception follow it.
-        for name, occurrence in (("unstaged", 1), ("lone-cr", 2), ("nonnumeric", 3), ("read-error", 4)):
+        # Occurrence 3 is the double-BOM decline (3b86).
+        for name, occurrence in (("unstaged", 1), ("lone-cr", 2), ("double-bom", 3),
+                                 ("nonnumeric", 4), ("read-error", 5)):
             add(name, name, evidence=("doc.md",),
                 sites=(("try_auto_bump", "return False", occurrence),))
         add("mixed", "mixed", evidence=("bad.md",), absent=("  - good.md",),
@@ -25181,6 +25209,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         # (3b84; it previously never raised on either read).
                         if arg == "read-error":
                             raise OSError("crafted read failure")
+                        if arg == "double-bom":
+                            return "\ufeff\ufeff**Version:** 1.0.0\nBody\n".encode("utf-8")
                         if arg == "lone-cr":
                             return b"**Version:** 1.0.0\rBody\r"
                         return read_text(path).encode("utf-8")

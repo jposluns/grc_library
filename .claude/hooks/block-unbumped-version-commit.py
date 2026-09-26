@@ -117,7 +117,9 @@ DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 # otherwise catches only at the pre-push guard (2026-09-24, #2492).
 README_PATH = "README.md"
 # A UTF-8 byte-order mark before a file's first line hides a column-zero key from the ^-anchored
-# patterns; eligibility, classification and the auto-bump set it aside (3b86).
+# patterns; eligibility, classification, the metadata region, the date-lag note and the auto-bump
+# each set aside EXACTLY ONE leading BOM (removeprefix), so no site reads a double BOM differently
+# from another (3b86 QA r3, codex).
 BOM = "\ufeff"
 README_VERSION_LINE = re.compile(r"^\*\*README Version:\*\*", re.M)
 
@@ -182,7 +184,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
             elif not in_hunk:
                 continue
             elif ln.startswith("+"):
-                if version_key(cur).match(ln[1:].lstrip(BOM) if n == 1 else ln[1:]) and 1 <= n <= header_lines:
+                if version_key(cur).match(ln[1:].removeprefix(BOM) if n == 1 else ln[1:]) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
             elif ln.startswith(" "):
@@ -190,7 +192,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
         if not hit:
             return
         # A Date on line 1 sits behind any BOM; the ^-anchored search needs it set aside (3b86 r2).
-        m = DATE_META.search(head[len(BOM):] if head.startswith(BOM) else head)
+        m = DATE_META.search(head.removeprefix(BOM))
         if m and m.group(2) != today:
             out.append(cur)
 
@@ -312,6 +314,10 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
     old_n = new_n = 1  # physical line numbers, from each hunk header (3b86)
     in_hunk = False
     for ln in lines:
+        if ln.startswith("diff --git "):
+            in_hunk = False  # a new file's headers follow (a rename passes a two-path diff)
+            old_n = new_n = 1
+            continue
         h = HUNK_BOTH.match(ln)
         if h:
             old_n, new_n = int(h.group(1)), int(h.group(2))
@@ -335,7 +341,7 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
             new_n += 1
         # A UTF-8 BOM is stripped ONLY from a file's first line, where it can exist; stripping it
         # from any changed line let a BOM-prefixed body example pose as a Version change (3b86 QA).
-        text = ln[1:].lstrip(BOM) if pos == 1 else ln[1:]
+        text = ln[1:].removeprefix(BOM) if pos == 1 else ln[1:]
         if key.match(text):  # the path's own key (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
@@ -385,7 +391,7 @@ def _metadata_region_end(text: str) -> int:
     off = 0
     for i, line in enumerate(_lf_lines(text, keepends=True)):
         # A UTF-8 BOM exists only before the FIRST line; str.strip() does not remove it (3b86).
-        st = (line.lstrip(BOM) if i == 0 else line).strip()
+        st = (line.removeprefix(BOM) if i == 0 else line).strip()
         if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
             off += len(line)
             continue
@@ -444,6 +450,10 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
         # the first line and the file's bytes are preserved (3b86).
         bom = BOM if text.startswith(BOM) else ""
         text = text[len(bom):]
+        if text.startswith(BOM):
+            # A second leading BOM is malformed: the region helper would set it aside too and
+            # bump the Version while the Date search misses line 1 (3b86 QA r3, codex). Decline.
+            return False
         bumped = bump_semver(text)
         if bumped is None:
             return False
@@ -495,7 +505,7 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace").lstrip(BOM)):
+                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace").removeprefix(BOM)):
                     versioned.add(p)
             except OSError:
                 continue
