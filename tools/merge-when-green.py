@@ -79,7 +79,7 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
     absent = [w for w in required
               if not any(c.get("__typename") == "CheckRun" and c.get("name") == w
                          for c in rollup if isinstance(c, dict))]
-    note = ("; required check(s) not yet reported: " + ", ".join(absent)) if absent else ""
+    note = ("; required check(s) not yet reported as a CheckRun: " + ", ".join(absent)) if absent else ""
     if failed or unknown:
         parts: list[str] = []
         if failed:
@@ -152,17 +152,24 @@ def _self_test() -> int:
     _, r_req = evaluate([cr("b", "COMPLETED", "SUCCESS")], req)
     checks.append(("required-missing-reason-names-check", "Lint" in r_req))
     _, r_pend_req = evaluate([cr("b", "IN_PROGRESS", None)], req)
-    checks.append(("pending-reason-names-unreported-required", "not yet reported: Lint" in r_pend_req))
+    checks.append(("pending-reason-names-unreported-required", "not yet reported as a CheckRun: Lint" in r_pend_req))
     _, r_green = evaluate([cr("Lint", "COMPLETED", "SUCCESS")], req)
     checks.append(("green-reason-names-required", "required: Lint" in r_green))
     _, r_none = evaluate([cr("Lint", "COMPLETED", "SUCCESS")])
     checks.append(("green-reason-says-none-required", "required: none" in r_none))
     _, r_fail_req = evaluate([cr("b", "COMPLETED", "FAILURE")], req)
-    checks.append(("failing-reason-names-unreported-required", "not yet reported: Lint" in r_fail_req))
+    checks.append(("failing-reason-names-unreported-required", "not yet reported as a CheckRun: Lint" in r_fail_req))
     _, r_coll = evaluate([cr("Lint", "COMPLETED", "SUCCESS"), sc("Lint", "SUCCESS")], req)
     checks.append(("collision-reason-says-collision", "name collision" in r_coll))
     # main() passes the default required checks through (3b104 QA r2): drive it with a stubbed gh.
     import contextlib as _cl, io as _io
+    with _cl.redirect_stderr(_io.StringIO()):
+        try:
+            main(["merge-when-green.py", "1", "--require-n", "--dry-run"])
+            abbrev_refused = False
+        except SystemExit as exc:
+            abbrev_refused = exc.code == 2
+    checks.append(("abbreviated-require-none-refused", abbrev_refused))
     lint = REQUIRED_CHECKS[0]
     rollups = {
         "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
@@ -216,7 +223,8 @@ def _self_test() -> int:
 
 
 def main(argv: list[str]) -> int:
-    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    # No abbreviations: `--require-n` must not silently become --require-none (3b104 QA r5).
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0], allow_abbrev=False)
     ap.add_argument("pr", nargs="?", help="PR number")
     ap.add_argument("--repo", help="owner/name (defaults to the current repo's remote)")
     ap.add_argument("--merge-method", default="squash", choices=["squash", "merge", "rebase"])
