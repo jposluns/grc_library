@@ -97,7 +97,9 @@ OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
 # suppress the warn for the other (the #1454 codex E1 routing catch).
 TAXONOMY_GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
 NARRATIVE_GENERATED = ("narrative.yml",)
-GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
+# Its Version is the generator's schema version; gate 40 exempts it too (3b102 QA r1).
+OTHER_GENERATED = ("docs/reference-acquisition-manifest.md",)
+GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED + OTHER_GENERATED
 # A `**Version:**` line beginning with three dot-separated digit groups (auto-bumpable); the trailing
 # `(.*)` preserves any remainder, so this does NOT distinguish semver from a numerically similar CalVer
 # and increments a `**Version:** 2026.07.725` just as it would a semver value. README's `**Library
@@ -789,6 +791,7 @@ def self_test() -> int:
     r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                        capture_output=True, text=True)
     ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
+    ck("the reference manifest is exempt as generated, matching gate 40", "docs/reference-acquisition-manifest.md" in GENERATED, True)
     # control: an ordinary versioned doc with an extra unstaged change still blocks
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")
