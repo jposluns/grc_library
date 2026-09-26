@@ -64,7 +64,7 @@ import signal
 import subprocess
 import sys
 
-from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots
+from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots, _store_root
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -307,7 +307,7 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "Maps each corpus document to the grc_library_ref commit at its last",
         "per-document reference audit (the /reference-audit --docs mode's delta",
         "anchor). Live surface: non-dated, held in the operational store (the fleet-standard",
-        "`/opt/<project>/private/reference-audit/doc-state.md`, or the `grc_library_private`",
+        "`<repo-parent>/private/reference-audit/doc-state.md` or `$GRC_STORE`, or the `grc_library_private`",
         "sibling as the transitional fallback). Rewritten by",
         "`tools/audit-reference-breadth.py --update-state`; include the store refresh in the",
         "touching PR's QA batch.",
@@ -399,7 +399,7 @@ def main(argv: list[str] | None = None) -> int:
                     is_private = False
             if not is_private:
                 # Name the paths actually looked for, not a placeholder (3b98).
-                store = os.environ.get("GRC_STORE") or str(REPO_ROOT.parent / "private")
+                store = _store_root(REPO_ROOT.resolve())  # resolved exactly as the check resolves it
                 sibling = REPO_ROOT.parent / "grc_library_private"
                 print("ERROR: --update-state requires a private maintainer store (looked for "
                       f"the operational store {store} and the private sibling {sibling}; found "

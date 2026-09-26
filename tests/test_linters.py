@@ -26829,3 +26829,29 @@ class RealPathMessageTests(unittest.TestCase):
             self.assertIn(f"{Path(d) / 'done' / 'drops' / month}/", r.stdout, r.stdout + r.stderr)
             self.assertNotIn("<YYYY-MM>", r.stdout)
 
+    def test_reference_breadth_names_the_resolved_store(self):
+        # 3b98 QA r1: a relative GRC_STORE is reported as the check resolves it (against the repo
+        # root), and an absolute one as given.
+        import contextlib
+        import io
+        from unittest import mock
+        import importlib.util
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+        spec = importlib.util.spec_from_file_location("arb_3b98", REPO_ROOT / "tools/audit-reference-breadth.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["arb_3b98"] = mod  # @dataclass looks its module up here
+        self.addCleanup(sys.modules.pop, "arb_3b98", None)
+        spec.loader.exec_module(mod)
+        for value, expected in (("../somewhere-store", (REPO_ROOT / "../somewhere-store").resolve()),
+                                ("/srv/example/store", Path("/srv/example/store"))):
+            err = io.StringIO()
+            with mock.patch.dict(os.environ, {"GRC_STORE": value}), \
+                    mock.patch.object(mod, "private_store_roots", return_value=[]), \
+                    contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                code = mod.main(["--update-state"])
+            self.assertEqual(code, 2, err.getvalue())
+            self.assertIn(f"operational store {expected} ", err.getvalue())
+            self.assertIn("found neither", err.getvalue())
+
