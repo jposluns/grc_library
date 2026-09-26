@@ -27235,7 +27235,12 @@ class SelfTestTempdirTests(unittest.TestCase):
         self.assertGreaterEqual(len(self.targets()), 9)
 
     def test_self_tests_leave_no_temp_directories(self) -> None:
+        # The guardrails-owned copies allocate under their own explicit base, which this TMPDIR run cannot
+        # observe, and one carries a wall-clock assertion that flakes on CI runners; they are skipped here
+        # as they are in the explicit-base check (3b103, CI on #2618).
         for path in self.targets():
+            if path.name in self.EXPLICIT_BASE_OWNED:
+                continue
             with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()), \
                     tempfile.TemporaryDirectory() as tmp:
                 env = dict(os.environ, TMPDIR=tmp)
