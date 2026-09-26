@@ -3917,6 +3917,44 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         )
         self.assertIn("self-test OK", result.stdout)
 
+    def test_unbumped_version_guard_auto_bump_runs_without_newer_read_text(self) -> None:
+        """P-TODO 3b84: CI runs Python 3.11, whose Path.read_text/write_text lack the newline
+        keyword before 3.13; the auto-bump must not depend on it, and keeps CRLF endings."""
+        import importlib.util
+        from unittest.mock import patch
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b84", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        real_read, real_write = Path.read_text, Path.write_text
+
+        def old_read(path, *a, **kw):
+            if "newline" in kw:
+                raise TypeError("read_text() got an unexpected keyword argument 'newline'")
+            return real_read(path, *a, **kw)
+
+        def old_write(path, data, *a, **kw):
+            if "newline" in kw and sys.version_info < (3, 10):
+                raise TypeError("write_text() got an unexpected keyword argument 'newline'")
+            return real_write(path, data, *a, **kw)
+
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            def git(*a):
+                subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True, text=True)
+            git("init", "-q")
+            git("config", "user.email", "t@example.invalid")
+            git("config", "user.name", "t")
+            (repo / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nold body\r\n")
+            git("add", "c.md")
+            git("commit", "-q", "-m", "init")
+            (repo / "c.md").write_bytes(b"**Version:** 1.0.0\\\r\n**Date:** 2026-07-01\\\r\n\r\nnew body\r\n")
+            git("add", "c.md")
+            with patch.object(Path, "read_text", old_read), patch.object(Path, "write_text", old_write):
+                self.assertTrue(guard.try_auto_bump(repo, "c.md", "2026-09-26"))
+            self.assertEqual((repo / "c.md").read_bytes(),
+                             b"**Version:** 1.0.1\\\r\n**Date:** 2026-09-26\\\r\n\r\nnew body\r\n")
+
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
         bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""
@@ -25030,26 +25068,39 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                             return args[3] if arg == "unstaged" or args[3] == "bad.md" else ""
                         if arg == "mixed" and args == ("add", "--", "good.md"):
                             return ""
+                        if arg == "read-error" and args == ("add", "--", "doc.md"):
+                            return ""  # reached only if the crafted read failure did not fire
                         self.fail(("unexpected git", args))
 
                     p(mod, "git", git)
 
                     def read_text(path, *a, **kw):
+                        # The eligibility read in main(); the auto-bump reads bytes (3b84).
                         self.assertIn(path.name, paths)
-                        if arg == "read-error" and not kw:
-                            raise OSError("crafted read failure")
                         if arg == "readme":
                             return "**README Version:** 1.0.0\n**Version:** 8.0.0\nBody\n"
                         return "**Version:** " + ("<x.y.z>" if arg == "nonnumeric" else "1.0.0") + "\nBody\n"
 
                     p(Path, "read_text", read_text)
 
-                    def write_text(path, text, *a, **kw):
-                        self.assertEqual((arg, path), ("mixed", Path(self.P) / "good.md"))
-                        writes.append(text)
-                        return len(text)
+                    def read_bytes(path):
+                        # The auto-bump read: the read-error case fails HERE, the read it names
+                        # (3b84; it previously never raised on either read).
+                        if arg == "read-error":
+                            raise OSError("crafted read failure")
+                        return read_text(path).encode("utf-8")
 
-                    p(Path, "write_text", write_text)
+                    p(Path, "read_bytes", read_bytes)
+
+                    def write_bytes(path, data):
+                        # read-error may write only if its read did not fail; the branch trace
+                        # then lands on the success return and the case fails (3b84).
+                        self.assertIn((arg, path), (("mixed", Path(self.P) / "good.md"),
+                                                    ("read-error", Path(self.P) / "doc.md")))
+                        writes.append(data.decode("utf-8"))
+                        return len(data)
+
+                    p(Path, "write_bytes", write_bytes)
                 elif hook == "block-unjustified-decision":
                     payload.update(tool_name="Write", tool_input={
                         "file_path": self.P + "/autonomous-decisions-log.md", "content": arg})
