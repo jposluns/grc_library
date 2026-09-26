@@ -464,6 +464,12 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
         return False
 
 
+def escape_filter(bad, opted):
+    """PURE. The offenders left after the VersionBump: none escape, which covers README.md only
+    (3b102): every other unbumped document stays an offender."""
+    return [p for p in bad if p != "README.md"] if opted else list(bad)
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -472,8 +478,11 @@ def main() -> int:
     if payload.get("tool_name") != "Bash":
         return 0
     cmd = (payload.get("tool_input") or {}).get("command", "") or ""
-    if not is_commit(cmd) or OPT_OUT.search(cmd):
+    if not is_commit(cmd):
         return 0
+    # The VersionBump: none escape covers README.md only (its README Version is bumped once per PR,
+    # at the last pre-push commit); any other versioned document is still bumped or refused (3b102).
+    opted = bool(OPT_OUT.search(cmd))
     # Act ONLY on this guard's own checkout. A commit aimed elsewhere (another worktree via `git -C`
     # or `cd`) is left to that checkout's git-native commit-msg check (3b25); an undeterminable
     # target is also left alone rather than guessed.
@@ -533,6 +542,7 @@ def main() -> int:
             return 0
         diff = git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
         bad = offenders(diff, versioned)
+        bad = escape_filter(bad, opted)
     except Exception:
         return 0  # fail OPEN, deliberately: see the module docstring
 
@@ -584,10 +594,8 @@ def main() -> int:
         "at the pre-push guard six minutes later.",
         "",
         "CONSIDER INSTEAD: bump `**Version:**` (README.md: `**README Version:**`) AND `**Date:**` in the "
-        "SAME edit, then re-stage. If "
-        "this body edit genuinely does not warrant a bump, include `VersionBump: none <reason>` in the "
-        "commit COMMAND text (e.g. an inline `-m` message; a `-F` message file is not inspected) and it "
-        "will proceed.",
+        "SAME edit, then re-stage. The `VersionBump: none <reason>` escape covers README.md only (its "
+        "README Version is bumped at the last commit before push); it does not excuse any other document.",
     ]
     print("\n".join(lines), file=sys.stderr)
     return 2
@@ -613,6 +621,8 @@ def self_test() -> int:
 
     # --- the opt-out ---
     ck("the opt-out phrase is recognized", bool(OPT_OUT.search("m 'x\n\nVersionBump: none typo only'")), True)
+    ck("the escape excuses README.md only (3b102)", escape_filter(["README.md", "governance/x.md"], True), ["governance/x.md"])
+    ck("without the escape every offender stays", escape_filter(["README.md", "governance/x.md"], False), ["README.md", "governance/x.md"])
     ck("a mention of versions is not an opt-out", bool(OPT_OUT.search("bump the version")), False)
 
     # --- THE REALITY FIXTURE: the actual 2026-07-26 miss, the spec body edited with no bump ---

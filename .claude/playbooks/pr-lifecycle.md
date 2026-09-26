@@ -422,7 +422,8 @@ is external. Two mechanisms:
      generated artefact is staged. It deliberately does NOT check `Date` against the commit date
      (delta gate D4 owns that, and the commit date does not exist yet at PreToolUse time) and skips
      `--amend`. The narrow escape hatch is a `VersionBump: none <reason>` line in the commit
-     message, which exists because a guard with no stated exception gets bypassed wholesale the
+     message; since 3b102 it covers README.md only (any other unbumped document is still auto-bumped
+     by the hook or refused by the commit-msg check). It exists because a guard with no stated exception gets bypassed wholesale the
      first time it is wrong. The convention above remains the primary control; this is defence in
      depth, and it was earned by that convention failing five times in one session.
    - **README.md's own version key moves once per PR** (maintainer-decided 2026-09-26, 3b87).

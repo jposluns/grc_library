@@ -48,8 +48,17 @@ def decide(allow, sequencer, opt_out, ok, bad):
     the opt-out; ok: the staged state was read; bad: the offender paths (meaningful only when ok)."""
     if allow:
         return 0, f"check-version-bump-commit: NOTE: {_OVERRIDE} is set; skipping the Version-bump check."
-    if sequencer or opt_out:
+    if sequencer:
         return 0, ""
+    if opt_out:
+        # The escape covers README.md only (3b102); any other unbumped document is still refused.
+        others = sorted(p for p in (bad or ()) if p != "README.md") if ok else []
+        if not others:
+            return 0, ""
+        return 1, ("check-version-bump-commit: REFUSING the commit: `VersionBump: none` covers README.md "
+                   f"only, and these staged documents changed their body without a Version change: "
+                   f"{', '.join(others)}. Bump **Version:** (patch) and set **Date:** to today (UTC) in "
+                   f"the same edit, `git add` them, and commit again. Deliberate override: {_OVERRIDE}=1.")
     if not ok:
         return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, so "
                    f"it is unknown whether a Version bump is missing. Deliberate override: {_OVERRIDE}=1.")
@@ -57,8 +66,8 @@ def decide(allow, sequencer, opt_out, ok, bad):
         return 1, ("check-version-bump-commit: REFUSING the commit: these staged documents changed their body "
                    f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (README.md: **README "
                    "Version:**) (patch) and set "
-                   "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a commit that "
-                   "genuinely needs no bump carries a `VersionBump: none <reason>` line in its message. "
+                   "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a README.md-only "
+                   "body change may carry a `VersionBump: none <reason>` line in its message. "
                    f"Deliberate override: {_OVERRIDE}=1.")
     return 0, ""
 
@@ -344,7 +353,9 @@ def _self_test():
          message_opts_out(_cr_text, _G), False),
         ("override allows", decide(True, False, False, True, ["a.md"])[0], 0),
         ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
-        ("opt-out allows", decide(False, False, True, True, ["a.md"])[0], 0),
+        ("opt-out allows a README.md-only body change", decide(False, False, True, True, ["README.md"])[0], 0),
+        ("opt-out does not excuse another document (3b102)", decide(False, False, True, True, ["README.md", "a.md"])[0], 1),
+        ("opt-out on an unreadable state still allows", decide(False, False, True, False, [])[0], 0),
         ("unreadable state refuses", decide(False, False, False, False, [])[0], 1),
         ("an offender refuses", decide(False, False, False, True, ["a.md"])[0], 1),
         ("no offender allows", decide(False, False, False, True, [])[0], 0),
