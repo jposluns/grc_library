@@ -27128,12 +27128,14 @@ class RealPathMessageTests(unittest.TestCase):
 class SelfTestTempdirTests(unittest.TestCase):
     """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
 
+    ALLOCATORS = ("mkdtemp", "mkstemp", "TemporaryDirectory", "NamedTemporaryFile")
+
     def targets(self):
         found = []
         for pattern in (".claude/hooks/*.py", "tools/*.py"):
             for path in sorted(REPO_ROOT.glob(pattern)):
                 text = path.read_text(errors="replace")
-                if "mkdtemp(" in text and "--self-test" in text:
+                if "--self-test" in text and any(api + "(" in text for api in self.ALLOCATORS):
                     found.append(path)
         return found
 
@@ -27143,9 +27145,10 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
         # The run below watches only TMPDIR, so a self-test that passes dir= to mkdtemp would leak
-        # unseen (3b103 QA r1, codex). Residue: tests/ is not scanned here; a leak there is caught
-        # only by running the full suite under a fresh TMPDIR.
-        pattern = re.compile(r"mkdtemp\([^)]*\bdir\s*=")
+        # unseen (3b103 QA r1, codex); the keyword may sit on a later line. Residue: a positional dir
+        # argument is not recognized, and tests/ is not scanned here, so a leak there is caught only by
+        # running the full suite under a fresh TMPDIR.
+        pattern = re.compile(r"(?:" + "|".join(self.ALLOCATORS) + r")\([^)]*\bdir\s*=")
         for path in self.targets():
             if path.name in self.EXPLICIT_BASE_OWNED:
                 continue
