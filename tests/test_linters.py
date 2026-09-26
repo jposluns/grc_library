@@ -26825,13 +26825,26 @@ class WorkerIdAnonymityTests(unittest.TestCase):
         self.assertIn((1, "R5", lease), self.findings("[lease](" + lease + ")"))
         for family in ("claude", "codex", "gemini"):
             for value in (family + "-enterprise", family + "-team", family + "-max",
-                          family + "-vertex-ai", "--" + family + "-max-output-tokens",
-                          family + "_max_output_tokens", family + ".max_tokens", family + ".team",
+                          family + "-vertex-ai", family + ".max_tokens", family + ".team",
                           family + "-business-review.md", family + "_personal_notes.md",
-                          family + "-max-plan-pricing", family + "-work-log",
-                          "-".join((family, "15", "pro", "20240229"))):
+                          family + "-work-log", "-".join((family, "15", "pro", "20240229")),
+                          "-".join((family, "pro", "20240801")), "-".join((family, "flash", "20240801"))):
                 with self.subTest(value=value):
                     self.assertEqual(self.findings(value), [])
+
+    def test_round_three_fixes_and_stated_false_positives(self) -> None:
+        # 3b97 QA r3: a name starting with a former parameter word and a doubled separator are found;
+        # an account path cannot span Markdown code spans; long family-plus-plan slugs and flags are
+        # the stated false-positive class and ARE reported.
+        for value in ("-".join(("codex", "team", "api", "backend")), "--".join(("claude-max", "a1-b2"))):
+            with self.subTest(value=value):
+                self.assertIn("R2", [r for _, r, _ in self.findings(value)])
+        span = "`" + "-".join(("orch", "accounts")) + "/` stores accounts; see `docs/README.md`."
+        self.assertEqual(self.findings(span), [])
+        for value in ("-".join(("claude", "enterprise", "data", "retention")),
+                      "--" + "-".join(("gemini", "max", "output", "tokens"))):
+            with self.subTest(value=value):
+                self.assertIn("R2", [r for _, r, _ in self.findings(value)])
 
     def test_a_name_in_a_path_is_found(self) -> None:
         name = "-".join(("codex", "team", "x", "y"))

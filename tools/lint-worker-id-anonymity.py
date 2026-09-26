@@ -27,25 +27,23 @@ from lint_common import REPO_ROOT, guard_explicit_paths, positional_args
 # "-", "_" or "."; a family token may follow "_" (3b97 QA r1).
 FAMILY = r"(?<![A-Za-z0-9])(claude|codex|gemini)[-_.]"
 ALIAS = re.compile(r"(?:acct|acct-[a-z0-9]|orchestrator|example)", re.I)
-# Parameter words that start a product setting rather than an account name (3b97 QA r2).
-PARAM_WORDS = (r"(?:tokens?|output|input|api|ai|models?|plans?|keys?|ids?|mode|config|limits?|context"
-               r"|version|pricing|tier|admin|console|docs?)")
 RULES = (
     ("R1", re.compile(
-        r"(?<![A-Za-z0-9])orch[-_]accounts[\\/]+[^\\/\n]+[\\/]+(?P<account>[A-Za-z0-9._-]+)",
+        r"(?<![A-Za-z0-9])orch[-_]accounts[\\/]+[^\\/\n`'\x22()<>\[\]]+[\\/]+(?P<account>[A-Za-z0-9._-]+)",
         re.I,
     )),
-    # A plan word followed by at least two "-" or "_" segments: every real account name has two, and
-    # product or parameter names (gemini-enterprise, --gemini-max-output-tokens, claude.max_tokens)
-    # do not (3b97 QA r2). "pro" and "api" are left out as real product and model names; an account
-    # on such a plan is still caught by R3 or R4 (3b97 QA r1).
+    # A plan word followed by at least two "-" or "_" segments: every real account name has two, so
+    # one-word product names (gemini-enterprise, claude.max_tokens) are not findings (3b97 QA r2).
+    # Longer slugs and flags of that shape ARE reported: a parameter-word list removed few of them
+    # and let an account whose name starts with such a word through (3b97 QA r3). "pro" and "api"
+    # are left out as real product and model names; such an account is still caught by R3 or R4.
     ("R2", re.compile(
-        FAMILY + r"(team|max|plus|aistudio|vertex|enterprise|business|personal|work)[-_]"
-        r"(?!" + PARAM_WORDS + r"(?![a-z0-9]))[a-z0-9]+([-_][a-z0-9]+)+", re.I,
+        FAMILY + r"(team|max|plus|aistudio|vertex|enterprise|business|personal|work)[-_]+"
+        r"[a-z0-9]+([-_]+[a-z0-9]+)+", re.I,
     )),
     ("R3", re.compile(FAMILY + r"[a-z0-9._-]*worker[-_.]?[0-9]+(?![0-9])", re.I)),
     ("R4", re.compile(
-        FAMILY + r"(?!(opus|sonnet|haiku|fable)(?![a-z0-9])|[0-9])[a-z0-9]+([-_.][a-z0-9]+)*[-_.]"
+        FAMILY + r"(?!(opus|sonnet|haiku|fable|pro|flash|ultra|nano)(?![a-z0-9])|[0-9])[a-z0-9]+([-_.][a-z0-9]+)*[-_.]"
         r"(20[0-9]{6}([T_-]?[0-9]{4,6}Z?)?|20[0-9]{2}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:?[0-9]{2}(:?[0-9]{2})?Z?)?"
         r"|[0-9]{10,13})(?![0-9])", re.I,
     )),
