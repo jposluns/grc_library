@@ -2,7 +2,7 @@
 
 **Document Title:** Historical-Context Citation Exceptions Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,12 +25,12 @@ This register is the only sanctioned way to cite a superseded edition as history
 - Use a row only for a sentence that describes the past. The gate refuses a sentence carrying common present-tense wording, but that screen is a vocabulary heuristic; the reviewer of the row confirms the sentence makes no claim about what a superseded edition requires, states or governs today.
 - The sentence is pinned verbatim and must stand as its own paragraph in the citing document: the whole line from column 1 (not in a list, heading, quotation, table or indented block), with a blank line above and below, and exactly one sentence ending in `.`, `!` or `?`. The sentence is plain ASCII text: letters, digits, spaces and the marks . , ; : ' " ( ) / % - only. A citing document that carries raw HTML or any HTML comment, a line the line model reads as a fence (after any leading whitespace) other than a three-character fence at column 1, with no backtick in a backtick fence's info string, closed by a bare line of the same character, or a line separator other than LF or CRLF cannot hold a sanctioned sentence. Any edit to it, a second copy of it outside a fenced code block (an indented code block is counted), or moving it into a longer paragraph makes the row invalid, and an invalid row blocks.
 - The citation appears in the sentence exactly once, written as in the Citation column. Another written form of the same edition in the same sentence is not sanctioned.
-- The rows are recorded in the data file [`register-historical-citation-exceptions.toml`](register-historical-citation-exceptions.toml), which is what the gate reads. The table below is generated from it by `python3 tools/build-historical-citation-exceptions.py`, and the gate refuses a table that differs from the data. Edit the data file, never the table; how this page renders cannot change what is sanctioned.
+- The rows are recorded in the data file [`register-historical-citation-exceptions.toml`](register-historical-citation-exceptions.toml), which is what the gate reads. The table below is generated from it by `python3 tools/build-historical-citation-exceptions.py`, and the gate refuses a table that differs from the data, and any raw HTML, comment, fence or other table elsewhere on this page. Edit the data file, never the table; how this page renders cannot change what is sanctioned.
 - A row sanctions only the citation it names. Any other citation in the same sentence, or on the same line, is checked as usual.
 
 ## Schema
 
-Each row is a `[[exception]]` table in the data file, with exactly these keys, under `schema_version = 1`:
+Each row is one table in the data file's `exception` array (usually written as an `[[exception]]` block), with exactly these keys, under `schema_version = 1`:
 
 - **id**: `HCE-NNN`, unique, never reused.
 - **path**: the repository-relative Markdown path of the citing document.

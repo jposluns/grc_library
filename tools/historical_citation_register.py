@@ -96,6 +96,23 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     if block != render(rows):
         return (f"{PAGE_REL}: the generated table differs from {DATA_REL}; run "
                 "python3 tools/build-historical-citation-exceptions.py")
+    # The page must SHOW the generated table as the only table (3b75 QA, codex and claude): the
+    # block stands alone at column 1, and the rest of the page carries no raw HTML or comment,
+    # no fence, and no other table, any of which could hide the real table or show a fake one.
+    start = page.index(BEGIN)
+    after = start + len(block)
+    if not (page[:start] == "" or page[:start].endswith("\n\n")) or not (
+        page[after:] in ("", "\n") or page[after:].startswith("\n\n")
+    ):
+        return f"{PAGE_REL}: the generated block must stand alone, with a blank line before and after it"
+    outside = page[:start] + page[after:]
+    for n, line in enumerate(outside.splitlines(), 1):
+        if re.search(r"<[A-Za-z/!?]", line):
+            return f"{PAGE_REL}: raw HTML or a comment outside the generated block"
+        if re.match(r"\s*(?:```|~~~)", line):
+            return f"{PAGE_REL}: a fenced block on the page"
+        if re.match(r"\s*(?:[>*+-]\s*)*\|", line):
+            return f"{PAGE_REL}: a table outside the generated block"
     return None
 
 

@@ -150,7 +150,7 @@ class CitationCoverageTests(unittest.TestCase):
             if page is None:
                 try:
                     rows = W.HCR.load(exceptions if isinstance(exceptions, str) else exceptions.decode())
-                except (W.HCR.RegisterDataError, UnicodeError):
+                except (W.HCR.RegisterDataError, UnicodeError, AttributeError):
                     rows = []
                 page = "# Register\n\n## Exceptions\n\n" + W.HCR.render(rows) + "\n"
         if page is not None and page is not False:  # page=False: the page file is absent
@@ -817,6 +817,33 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, page)
             self.assertIn(message, err, page)
             self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
+        # The page must show the generated table as its only table (3b75 redesign QA, codex, claude).
+        fake = "| Exception ID | Path |\n| --- | --- |\n| HCE-999 | governance/x.md |\n"
+        for page, message in [
+            ("<script>\n\n" + good + "\n</script>\n", "raw HTML or a comment outside the generated block"),
+            ("<script>\n" + good + "</script>\n", "must stand alone"),
+            ("<details>\n\n" + good + "\n</details>\n", "raw HTML or a comment outside the generated block"),
+            ("```\n\n" + good + "\n```\n", "a fenced block on the page"),
+            (fake + "\n" + good, "a table outside the generated block"),
+            ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
+            (good.replace(H.END + "\n", H.END + "x\n"), "must stand alone"),
+        ]:
+            code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
+            self.assertEqual(code, 1, page)
+            self.assertIn(message, err, page)
+            self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
+        # A list item that ends before the block leaves the block standing alone: accepted.
+        code, found, _ = self.run_json("\n" + s + "\n\n", data, page="- " + good)
+        self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
+        # No data file: an empty generated table with a populated table beside it is refused.
+        code, _, err = self.invoke("The earlier edition was withdrawn.\n", register=HREG,
+                                   page=fake + "\n" + H.render([]) + "\n")
+        self.assertEqual(code, 1)
+        self.assertIn("a table outside the generated block", err)
+        # An unreadable data file is an input error (exit 2), never an absent register.
+        code, _, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=PermissionError("denied"),
+                                   page=good)
+        self.assertEqual(code, 2, err)
         # A data file with no page at all is refused.
         code, found, err = self.run_json("\n" + s + "\n\n", data, page=False)
         self.assertEqual(code, 1)

@@ -14,8 +14,9 @@ everything else keeps blocking. The Markdown page of the same name is a generate
 never parsed for policy; this gate refuses a page whose generated table differs from the
 data (tools/build-historical-citation-exceptions.py regenerates it).
 
-Exit: 0 no blocking findings; 1 blocking findings or malformed/empty
-register; 2 missing/unreadable intended inputs.
+Exit: 0 no blocking findings; 1 blocking findings, a malformed or empty
+canonical register, malformed historical register data, or a historical
+register page out of step with its data; 2 missing/unreadable intended inputs.
 """
 
 from __future__ import annotations
@@ -115,7 +116,7 @@ EXEMPT_REASONS = {
     "TODO-REFERENCE.md": "Explicit defect/backlog documentation.",
     "governance/register-canonical-citations.md": "Authority parsed separately.",
     ".project-governance/register-historical-citation-exceptions.md": (
-        "Sanctioned historical citations; policy parsed separately."
+        "The generated view of the historical-citation exception data; the gate reads the .toml, and checks this page only for sync."
     ),
     "tools/": "Implementation and fixtures.",
     "docs/": "Existing explicit meta-document exemption.",
@@ -419,18 +420,22 @@ def main(argv=None):
     HISTORICAL_DATA = REPO_ROOT / HISTORICAL_DATA_REL
     try:
         entries = parse_canonical_register()
+        # Read directly: only a missing file counts as absent, so a permission or other I/O
+        # error reaches the exit-2 handler instead of reading as "no register" (3b75 QA, codex:
+        # Path.exists() swallows OSError on Python 3.14).
+        def _read(path):
+            try:
+                return path.read_bytes().decode("utf-8")
+            except FileNotFoundError:
+                return None
+        data_text, page = _read(HISTORICAL_DATA), _read(HISTORICAL_REGISTER)
         historical = (
-            parse_historical_exceptions(
-                HISTORICAL_DATA.read_bytes().decode("utf-8"), entries
-            )
-            if HISTORICAL_DATA.exists() else []
+            parse_historical_exceptions(data_text, entries) if data_text is not None else []
         )
         # The page's generated table must match the data (3b75 redesign). With no data file, a
         # page that exists must show the empty table; with a data file, the page must exist.
-        if HISTORICAL_DATA.exists() or HISTORICAL_REGISTER.exists():
-            page = (HISTORICAL_REGISTER.read_bytes().decode("utf-8")
-                    if HISTORICAL_REGISTER.exists() else None)
-            rows = HCR.load(HISTORICAL_DATA.read_bytes().decode("utf-8")) if HISTORICAL_DATA.exists() else []
+        if data_text is not None or page is not None:
+            rows = HCR.load(data_text) if data_text is not None else []
             problem = HCR.sync_problem(page, rows)
             if problem:
                 raise RegisterError(problem)
