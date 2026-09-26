@@ -93,7 +93,7 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
         return False, "pending / incomplete check(s): " + ", ".join(pending) + note
     for want in required:
         if want in absent:
-            return False, f"required check not reported: {want}"
+            return False, f"required check not reported as a CheckRun: {want}"
         for c in rollup:
             if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
                 return False, (f"required check {want} is also reported as a commit status of the same name "
@@ -196,7 +196,12 @@ def _self_test() -> int:
         except SystemExit as exc:
             both_refused = exc.code == 2
     checks.append(("require-and-require-none-conflict-refused", both_refused))
-    checks.append(("default-requires-the-corpus-lint", "Lint markdown corpus" in REQUIRED_CHECKS))
+    # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
+    # they cannot notice a name dropped from it (3b104 QA r4).
+    checks.append(("default-required-list-exact",
+                   REQUIRED_CHECKS == ("Lint markdown corpus", "PR attribution (title and body)")))
+    _, r_status_only = evaluate([sc("Lint", "SUCCESS")], ("Lint",))
+    checks.append(("status-only-reason-says-not-a-checkrun", "not reported as a CheckRun: Lint" in r_status_only))
     # a failure names the failing check; a pending names the pending one
     _, r_fail = evaluate([cr("Lint", "COMPLETED", "FAILURE")])
     checks.append(("failure-reason-names-check", "Lint" in r_fail))
