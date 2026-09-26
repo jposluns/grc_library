@@ -26617,8 +26617,10 @@ class RepoRelativeDefaultPathTests(unittest.TestCase):
         # The block message names the resolved sentinel path, never a literal <repo-parent> placeholder
         # that a copied command cannot use (P-1.21 PR 2 QA r2, codex).
         import shlex
+        # Both halves read the environment, so compare them under the same one (r3, codex).
         with self._env():
             mod = self._load(REPO_ROOT / self.CASES[3][0], "rrd_msg")
             msg = mod._block_message(None)
+            expected = "touch " + shlex.quote(str(mod._sentinel_path()))
         self.assertNotIn("<repo-parent>", msg)
-        self.assertIn("touch " + shlex.quote(str(mod._sentinel_path())), msg)
+        self.assertIn(expected, msg)
