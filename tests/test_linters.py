@@ -27130,13 +27130,33 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     ALLOCATORS = ("mkdtemp", "mkstemp", "mktemp", "TemporaryDirectory", "NamedTemporaryFile")
 
+    @staticmethod
+    def imports_tempfile(text: str) -> bool:
+        import ast
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            return True
+        return any((isinstance(node, ast.Import) and any(a.name == "tempfile" for a in node.names))
+                   or (isinstance(node, ast.ImportFrom) and node.module == "tempfile")
+                   for node in ast.walk(tree))
+
+    def test_discovery_reads_imports(self) -> None:
+        for text, expected in (("import os, tempfile\n", True), ("import atexit as a, tempfile as t\n", True),
+                               ("from tempfile import mkdtemp as m\n", True), ("import os\n", False),
+                               ("# tempfile is mentioned only\n", False)):
+            with self.subTest(text=text):
+                self.assertEqual(self.imports_tempfile(text), expected)
+
     def targets(self):
         found = []
         for pattern in (".claude/hooks/*.py", "tools/*.py"):
             for path in sorted(REPO_ROOT.glob(pattern)):
                 text = path.read_text(errors="replace")
-                # Any self-test that imports tempfile, so a renamed allocator is still run (3b103 QA r3).
-                if "--self-test" in text and re.search(r"^\s*(?:import|from)\s+tempfile\b", text, re.M):
+                # Any self-test that imports tempfile, read from the AST so `import os, tempfile` and
+                # renamed allocators count (3b103 QA r3, r4); an unparseable file is kept, and the
+                # explicit-base check then fails on it.
+                if "--self-test" in text and "tempfile" in text and self.imports_tempfile(text):
                     found.append(path)
         return found
 
@@ -27184,7 +27204,8 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
         # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
-        # unseen (3b103 QA r1, codex). Residue: a dir passed through **kwargs, functools.partial or
+        # unseen (3b103 QA r1, codex). Residue: a self-test killed before exit (atexit does not run),
+        # a dir passed through **kwargs, functools.partial or
         # getattr, and a hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
         # tests/ is not scanned here, so a leak there is caught only by running the full suite under
         # a fresh TMPDIR.
