@@ -394,7 +394,7 @@ def main(argv: list[str] | None = None) -> int:
                 try:
                     sp = args.state.resolve()
                     is_private = any(sp.is_relative_to(sr) for sr in stores)
-                except OSError:
+                except (OSError, RuntimeError):  # a symlink loop raises RuntimeError (3b98 QA r3)
                     is_private = False
             if not is_private:
                 # Name the paths actually looked for, not a placeholder (3b98).
