@@ -210,7 +210,7 @@ orchestration runbook") and defers to the INDEX for the file.
 - **Maintainer orchestrator** (`detect-env` identity `maintainer` / `maintainer-fresh-machine`):
   `_private` is a REQUIRED dependency, like `grc_library_ref`. If present, read its INDEX and use
   it. If ABSENT, do NOT proceed with operational work and do NOT reconstruct its content from
-  memory: CLONE it (`git clone https://github.com/jposluns/grc_library_private.git
+  memory: CLONE it (`git clone <the private sibling's remote URL>
   ../grc_library_private`) or grant access (`--add-dir ../grc_library_private`), then continue. A
   missing `_private` for the maintainer is a broken setup to FIX, never to silently work around.
   This is enforced mechanically, not left to intent: `detect-env` emits a `private_availability`
@@ -853,7 +853,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   persisted working directory drifts between calls (an observed recurrence: a
   `grc_library` tool run from a drifted `scratch` cwd, and a near-miss `git add -A` in the
   wrong repo). The DEFAULT form is an ABSOLUTE tool path
-  (`python3 /home/grc/<repo>/tools/<x>`) and `git -C /home/grc/<repo>` for git;
+  (`python3 <repo-parent>/<repo>/tools/<x>`) and `git -C <repo-parent>/<repo>` for git;
   an absolute path for Write/Edit. Use an explicit `cd <repo-root> &&` prefix ONLY for the
   narrow case of a tool that carries a cwd-guard (the scratch `validate.py` and
   `credit-offload-queue.py list-pending`), and when you do, type the `cd` as the LITERAL
@@ -864,7 +864,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   cwd-relative stays ALLOWED, so this file's documented `tools/x` commands are unaffected)
   and a repo-mutating bare `git` from the hook's fixed subcommand set (add/commit/push/reset/checkout/switch/merge/rebase/stash/rm/mv/clean/apply/restore/cherry-pick/revert; `branch` and `tag` are NOT in the set) without `-C`/`cd`, printing the
   copy-paste fix. Accordingly, the `git commit` / `git push` / `git add` examples elsewhere
-  in this file are to be run in the `git -C /home/grc/grc_library` (or `cd`-prefixed)
+  in this file are to be run in the `git -C <repo-parent>/grc_library` (or `cd`-prefixed)
   form; a bare project `tools/x` example stays valid as written.
 
 ## Behavioral rule: clarify before acting
@@ -890,7 +890,7 @@ a better-targeted backstop is deferred to the guardrails pack for a future revis
 
 Two disciplines layered on `evidence-grounded-completion`, closing the failure where the assistant substitutes what it MEANT to do for what it actually did.
 
-- **Read-back before every sibling-repo or previously-blocked command.** Before running a command that targets a sibling repo, or that a PreToolUse hook just blocked, READ the literal command string you are about to submit and confirm its key property in your reasoning. The cwd-independent form is the DEFAULT and the first choice: an ABSOLUTE tool path (`python3 /home/grc/<repo>/tools/<x>`) or `git -C /home/grc/<repo> ...`; an explicit `cd <repo-root> &&` prefix is reserved for a cwd-guard tool, and there the `cd` must be the LITERAL first tokens (the recurring slip was narrating a `cd` the command string did not contain, the intent-vs-artefact gap). Do not rely on a persisted working directory. The widened [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) hook (softened scope) now blocks a cwd-relative SIBLING tool and any repo-mutating bare `git` (no `-C`/`cd`), so `git -C` and absolute paths are the reliable defaults. On a repeated identical hook-block, change the command STRUCTURE, never resubmit the same shape.
+- **Read-back before every sibling-repo or previously-blocked command.** Before running a command that targets a sibling repo, or that a PreToolUse hook just blocked, READ the literal command string you are about to submit and confirm its key property in your reasoning. The cwd-independent form is the DEFAULT and the first choice: an ABSOLUTE tool path (`python3 <repo-parent>/<repo>/tools/<x>`) or `git -C <repo-parent>/<repo> ...`; an explicit `cd <repo-root> &&` prefix is reserved for a cwd-guard tool, and there the `cd` must be the LITERAL first tokens (the recurring slip was narrating a `cd` the command string did not contain, the intent-vs-artefact gap). Do not rely on a persisted working directory. The widened [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) hook (softened scope) now blocks a cwd-relative SIBLING tool and any repo-mutating bare `git` (no `-C`/`cd`), so `git -C` and absolute paths are the reliable defaults. On a repeated identical hook-block, change the command STRUCTURE, never resubmit the same shape.
 - **Intent is not action: never narrate a change as made unless the artefact shows it.** Do not write "added the cd", "fixed it", "recorded it", or any done-claim unless the artefact you just wrote or ran actually reflects it. Editing a tool call's `description` field, or saying it in chat, is NOT editing the command string or the file. The immediate next action after describing a fix is to read or confirm the artefact reflects it (a `git status` / `git diff`, a re-read, the tool's own output). Before opening any PR, confirm `git status` is clean or intentionally staged (a targeted `git add <list>` can silently drop a file edited after it).
 
 The mechanical backstop is the [`block-repeated-tool-failure.py`](hooks/block-repeated-tool-failure.py) PreToolUse hook: it refuses a byte-identical resubmission of a just-blocked command, and after two consecutive same-class blocks escalates the refusal with a hard-stop instruction to write a mechanism diagnosis before retrying. The byte-identical-resubmit refusal is the mechanical part; the hook does not verify the diagnosis, and a command whose subject matches no recent blocked subject passes, so writing the diagnosis is the instructed discipline. Defence in depth, not a substitute for the read-back habit.

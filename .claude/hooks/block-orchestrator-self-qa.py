@@ -638,7 +638,7 @@ def _self_test() -> int:
         def test_orchestrator_pooled_account_dir_still_blocks(self):
             with mock.patch.dict(
                 os.environ,
-                {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/grc/claude-team-pro-jposluns-work"},
+                {"CLAUDE_CONFIG_DIR": "/opt/orch-accounts/grc/acct-a"},
             ):
                 self.assertEqual(decide(dispatch(prompt="research"))[0], "block")
 
