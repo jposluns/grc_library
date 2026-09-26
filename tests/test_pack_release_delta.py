@@ -168,8 +168,10 @@ class ReleaseDeltaTests(unittest.TestCase):
         with self.repo() as repo:
             repo.write("README.md", "Changed.\n")
             repo.write("notes/unreferenced.toml", "not even valid TOML")
-            repo.write("notes/scratch.py", "not Python")
             self.expect(repo, "NONE", 0)
+            # Python anywhere in the pack is engine code, referenced or not (3b81 QA r1).
+            repo.write("notes/helper.py", "def run():\n    return 1\n")
+            self.assertIn("notes/helper.py", self.expect(repo, "MINOR"))
 
     def test_patch_surfaces_need_a_bump(self):
         cases = [
@@ -265,6 +267,28 @@ class ReleaseDeltaTests(unittest.TestCase):
                 if action == "edit":
                     self.assertIn("strengthening vs clarifying is not machine-decidable", output)
 
+    def test_round_one_refactors_and_scope(self):
+        # 3b81 QA r1: renaming a key-set variable or adding a private helper that assigns `keys`
+        # is not a configuration change; an engine outside tools/ is classified; the manifest's
+        # declared waiver path must be the supported one.
+        with self.repo() as repo:
+            repo.replace("tools/engine.py", "    gate_keys = ", "    allowed_gate_keys = ")
+            repo.replace("tools/engine.py", "def _private():", "def _helper(d):\n    keys = sorted(d)\n    return keys\n\ndef _private():")
+            self.expect(repo, "PATCH")
+        with self.repo() as repo:
+            repo.write("engines/language.py", "def run():\n    return 1\n")
+            repo.checkpoint()
+            repo.replace("engines/language.py", "def run():", "def _run():")
+            self.assertIn("removed run", self.expect(repo, "MAJOR"))
+        with self.repo() as repo:
+            repo.replace("tools/engine.py", "KNOWN_KEYS = {\"first\", \"second\"}", "KNOWN_KEYS = {\"first\"}")
+            self.assertIn("removed second", self.expect(repo, "MAJOR"))
+        with self.repo() as repo:
+            repo.replace("core/manifest.toml", 'waivers = "core/release-waivers.toml"', 'waivers = "core/other.toml"')
+            code, output = self.result(repo)
+            self.assertEqual(code, 2, output)
+            self.assertIn("[release].waivers must be", output)
+
     def test_engine_public_api_and_configuration(self):
         cases = [
             ("def public(", "def _public(", "MAJOR"),
@@ -349,9 +373,17 @@ class ReleaseDeltaTests(unittest.TestCase):
     def test_version_decrease_and_strict_versions(self):
         with self.repo() as repo:
             repo.version("1.2.2")
-            repo.waiver("PATCH", after="1.2.2")
             output = self.expect(repo, "PATCH", 1, "DECREASE")
             self.assertIn("version decreased", output)
+        # A waiver row that does not move the version up is refused outright: an equal or
+        # backward row would waive every later unbumped change (3b81 QA r1).
+        for after in ("1.2.3", "1.2.2"):
+            with self.subTest(after=after), self.repo() as repo:
+                repo.replace("tools/engine.py", "return 1", "return 2")
+                repo.waiver("PATCH", after=after)
+                code, output = self.result(repo)
+                self.assertEqual(code, 2, output)
+                self.assertIn("to must be greater than from", output)
         for value in ("1.2", "01.2.3", "1.2.3-rc1", "1.2.3+build"):
             with self.subTest(value=value), self.repo() as repo:
                 repo.version(value)

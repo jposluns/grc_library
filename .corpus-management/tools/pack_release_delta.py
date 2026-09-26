@@ -165,8 +165,9 @@ def _scope(snapshot, manifest):
 
 
 def _engine_path(rel):
+    # Every Python file in the pack is engine code, wherever it sits (3b81 QA r1).
     path = PurePosixPath(rel)
-    return path.parent == PurePosixPath("tools") and path.suffix == ".py"
+    return path.suffix == ".py" and "__pycache__" not in path.parts
 
 
 def _clause_path(rel):
@@ -304,10 +305,14 @@ def _literal_set(node, label):
 
 
 def _accepted_sets(tree, label):
-    result = {}
+    # One union per module, so renaming a key-set variable is not a removal; private (underscore)
+    # scopes are skipped, so a local helper's `keys` is not an accepted-key declaration.
+    keys = set()
 
     def visit(node, scope):
         if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            if node.name.startswith("_"):
+                return
             scope = (*scope, node.name)
         if isinstance(node, (ast.Assign, ast.AnnAssign)):
             targets = node.targets if isinstance(node, ast.Assign) else [node.target]
@@ -316,14 +321,14 @@ def _accepted_sets(tree, label):
                     name = target.id.lower()
                     if name == "keys" or name.endswith("_keys"):
                         identity = ".".join((*scope, target.id))
-                        if node.value is None or identity in result:
-                            raise ValueError(f"{label}: ambiguous accepted-key declaration {identity}")
-                        result[identity] = _literal_set(node.value, f"{label}: {identity}")
+                        if node.value is None:
+                            raise ValueError(f"{label}: accepted-key declaration {identity} has no value")
+                        keys.update(_literal_set(node.value, f"{label}: {identity}"))
         for child in ast.iter_child_nodes(node):
             visit(child, scope)
 
     visit(tree, ())
-    return result
+    return {"module": keys} if keys else {}
 
 
 def _configure_fields(node, label):
@@ -428,6 +433,9 @@ def _waivers(snapshot):
             raise ValueError(f"{label}: approved_by must be maintainer")
         if type(row["approved"]) is not datetime.date:
             raise ValueError(f"{label}: approved must be a TOML date")
+        if _version(row["to"], f"{label}.to") <= _version(row["from"], f"{label}.from"):
+            # An equal or backward row would waive every later unbumped change (3b81 QA r1).
+            raise ValueError(f"{label}: to must be greater than from")
     return data["waiver"]
 
 
@@ -459,6 +467,10 @@ def _evaluate(root, pack_root, base):
     before_version, after_version = versions
     registers = [_registers(s, m) for s, m in zip(snapshots, manifests)]
     profiles = [_profiles(s, r) for s, r in zip(snapshots, registers)]
+    for data in manifests:
+        declared = data.get("release", {}).get("waivers", _WAIVERS) if isinstance(data.get("release", {}), dict) else None
+        if declared != _WAIVERS:
+            raise ValueError(f"{_MANIFEST}: [release].waivers must be {_WAIVERS!r}")
     _waivers(snapshots[0])
     waivers = _waivers(snapshots[1])
     changes = []
