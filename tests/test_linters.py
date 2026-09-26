@@ -27156,7 +27156,10 @@ class SelfTestTempdirTests(unittest.TestCase):
                 # Any self-test that imports tempfile, read from the AST so `import os, tempfile` and
                 # renamed allocators count (3b103 QA r3, r4); an unparseable file is kept, and the
                 # explicit-base check then fails on it.
-                if "--self-test" in text and "tempfile" in text and self.imports_tempfile(text):
+                # A tool may detect the flag through lint_common.self_test_requested and never spell it
+                # (3b103 QA r5).
+                flagged = "--self-test" in text or "self_test_requested" in text
+                if flagged and "tempfile" in text and self.imports_tempfile(text):
                     found.append(path)
         return found
 
@@ -27174,6 +27177,8 @@ class SelfTestTempdirTests(unittest.TestCase):
         # A name imported from tempfile under another name maps back to the allocator (3b103 QA r3).
         alias = {a.asname or a.name: a.name for node in ast.walk(tree)
                  if isinstance(node, ast.ImportFrom) and node.module == "tempfile" for a in node.names}
+        if "*" in alias:  # from tempfile import * brings every allocator in by name (3b103 QA r5)
+            alias.update({name: name for name in self.DIR_POSITION})
         lines = []
         for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
@@ -27197,6 +27202,7 @@ class SelfTestTempdirTests(unittest.TestCase):
             "from tempfile import mkdtemp as m\nm(dir=base)": True,
             "from tempfile import mktemp\nmktemp('', 'p', base)": True,
             "from tempfile import mkdtemp as m\nm()": False,
+            "from tempfile import *\nmkdtemp(dir=base)": True,
         }
         for source, expected in cases.items():
             with self.subTest(source=source):
@@ -27204,7 +27210,8 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
         # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
-        # unseen (3b103 QA r1, codex). Residue: a self-test killed before exit (atexit does not run),
+        # unseen (3b103 QA r1, codex). Residue: a self-test whose temp use lives in an imported module
+        # outside tools/ and .claude/hooks/, a self-test killed before exit (atexit does not run),
         # a dir passed through **kwargs, functools.partial or
         # getattr, and a hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
         # tests/ is not scanned here, so a leak there is caught only by running the full suite under
@@ -27218,6 +27225,10 @@ class SelfTestTempdirTests(unittest.TestCase):
                 except SyntaxError as exc:
                     self.fail(f"cannot parse, so explicit bases cannot be checked: {exc}")
                 self.assertEqual(found, [])
+
+    def test_discovery_includes_self_test_requested_tools(self) -> None:
+        names = {p.name for p in self.targets()}
+        self.assertIn("lint-narrative-metadata.py", names)
 
     def test_discovery_is_not_vacuous(self) -> None:
         # Nine self-tests leaked before 3b103; the scan must still see at least those.
