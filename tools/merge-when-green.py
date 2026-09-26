@@ -9,7 +9,7 @@ pending / no-checks as acceptable. The code was fine (locally green), but merge-
 violates the merge-on-green discipline. This tool makes the decision mechanical and fail-safe:
 it reads the PR's ``statusCheckRollup``, REFUSES unless every check is terminal-success with
 zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE,
-as does a required check (REQUIRED_CHECKS, or --require) that is missing or did not conclude
+as does a required check (REQUIRED_CHECKS, or --require) that is missing as a CheckRun or did not conclude
 SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
 
 It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
@@ -73,6 +73,13 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
             # StatusContext (codex vpr1327: the else-via-state branch fail-OPENED on an
             # unknown typename carrying state=SUCCESS).
             unknown.append(f"{name} [unrecognized shape: {typename!r}]")
+    # Required checks bind to CheckRuns only: a commit status of the same name must not stand in
+    # for an Actions job that never ran (3b104 QA r1). Every entry under a required name must
+    # have succeeded, so a skipped duplicate still refuses (deliberately fail closed).
+    absent = [w for w in required
+              if not any(c.get("__typename") == "CheckRun" and c.get("name") == w
+                         for c in rollup if isinstance(c, dict))]
+    note = ("; required check(s) not yet reported: " + ", ".join(absent)) if absent else ""
     if failed or unknown:
         parts: list[str] = []
         if failed:
@@ -81,18 +88,19 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
             parts.append("UNRECOGNIZED shape (fail-closed refuse): " + ", ".join(unknown))
         if pending:
             parts.append("pending: " + ", ".join(pending))
-        return False, "; ".join(parts)
+        return False, "; ".join(parts) + note
     if pending:
-        return False, "pending / incomplete check(s): " + ", ".join(pending)
+        return False, "pending / incomplete check(s): " + ", ".join(pending) + note
     for want in required:
-        runs = [c for c in rollup if (c.get("name") or c.get("context")) == want]
-        if not runs:
+        if want in absent:
             return False, f"required check not reported: {want}"
-        for c in runs:
-            result = c.get("conclusion") if c.get("__typename") == "CheckRun" else c.get("state")
-            if result != "SUCCESS":
-                return False, f"required check did not succeed: {want} [{result}]"
-    return True, f"all {len(rollup)} check(s) completed successfully"
+        for c in rollup:
+            if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
+                return False, f"required check {want} is reported only as a commit status, not a CheckRun"
+            if c.get("__typename") == "CheckRun" and c.get("name") == want and c.get("conclusion") != "SUCCESS":
+                return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
+    verified = ", ".join(required) if required else "none"
+    return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
 
 
 def gh(*args: str) -> str:
@@ -134,13 +142,28 @@ def _self_test() -> int:
         ("required-skipped-refused", [cr("Lint", "COMPLETED", "SKIPPED"), cr("b", "COMPLETED", "SUCCESS")], False),
         ("required-neutral-refused", [cr("Lint", "COMPLETED", "NEUTRAL")], False),
         ("required-missing-refused", [cr("b", "COMPLETED", "SUCCESS")], False),
-        ("required-statuscontext-success", [sc("Lint", "SUCCESS")], True),
+        ("required-statuscontext-only-refused", [sc("Lint", "SUCCESS")], False),
+        ("required-checkrun-plus-same-name-status-refused", [cr("Lint", "COMPLETED", "SUCCESS"), sc("Lint", "SUCCESS")], False),
         ("required-one-of-two-skipped-refused", [cr("Lint", "COMPLETED", "SUCCESS"), cr("Lint", "COMPLETED", "SKIPPED")], False),
     ]:
         green, _ = evaluate(rollup, req)
         checks.append((name, green == want_green))
     _, r_req = evaluate([cr("b", "COMPLETED", "SUCCESS")], req)
     checks.append(("required-missing-reason-names-check", "Lint" in r_req))
+    _, r_pend_req = evaluate([cr("b", "IN_PROGRESS", None)], req)
+    checks.append(("pending-reason-names-unreported-required", "not yet reported: Lint" in r_pend_req))
+    _, r_green = evaluate([cr("Lint", "COMPLETED", "SUCCESS")], req)
+    checks.append(("green-reason-names-required", "required: Lint" in r_green))
+    _, r_none = evaluate([cr("Lint", "COMPLETED", "SUCCESS")])
+    checks.append(("green-reason-says-none-required", "required: none" in r_none))
+    import contextlib as _cl, io as _io
+    with _cl.redirect_stderr(_io.StringIO()):
+        try:
+            main(["merge-when-green.py", "1", "--require", "Lint", "--require-none", "--dry-run"])
+            both_refused = False
+        except SystemExit as exc:
+            both_refused = exc.code == 2
+    checks.append(("require-and-require-none-conflict-refused", both_refused))
     checks.append(("default-requires-the-corpus-lint", "Lint markdown corpus" in REQUIRED_CHECKS))
     # a failure names the failing check; a pending names the pending one
     _, r_fail = evaluate([cr("Lint", "COMPLETED", "FAILURE")])
@@ -162,10 +185,11 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--merge-method", default="squash", choices=["squash", "merge", "rebase"])
     ap.add_argument("--admin", action="store_true", help="pass --admin (REVIEW_REQUIRED bypass) to gh pr merge")
     ap.add_argument("--dry-run", action="store_true", help="report the verdict; do NOT merge")
-    ap.add_argument("--require", action="append", metavar="NAME",
-                    help="a check that must be present and SUCCESS (repeatable; replaces the default list)")
-    ap.add_argument("--require-none", action="store_true",
-                    help="require no named check (for a repository without the default checks)")
+    group = ap.add_mutually_exclusive_group()  # both at once would silently drop NAME (3b104 QA r1)
+    group.add_argument("--require", action="append", metavar="NAME",
+                       help="a check that must be present and SUCCESS (repeatable; replaces the default list)")
+    group.add_argument("--require-none", action="store_true",
+                       help="require no named check (for a repository without the default checks)")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv[1:])
     if args.self_test:
