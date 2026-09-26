@@ -447,23 +447,36 @@ def scope_probe_registry_issues(classes):
     for name, cls in sorted(classes.items()):
         if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
             continue
-        cases = cls.__dict__.get("IDENTIFIER_SCOPE_PROBES", {})
+        # Inherited registrations count (3b64 round 11, codex): LinterTestCase.run enforces
+        # them too, so a subclass that inherits probes gets the skip, expected-failure and method
+        # checks; the per-probe declaration checks run once, on the declaring class.
+        cases = getattr(cls, "IDENTIFIER_SCOPE_PROBES", {})
         if not cases:
             continue
+        own = "IDENTIFIER_SCOPE_PROBES" in cls.__dict__
         if getattr(cls, "__unittest_skip__", False):
             # 3b64 round 10 (claude, codex): unittest returns before doCleanups for a skip-marked
             # class or method, so the run-time completion check never executes; refuse the
-            # marker here, reading the live attribute (a wrapper applied after definition too).
+            # marker here, reading the live attribute (a wrapper applied after definition, or a
+            # skip inherited from a base class, too).
             issues.append(f"TEST-PROBE-SKIP-MARKED: {name} is skip-marked and declares scope probes")
+        if getattr(cls, "__unittest_expecting_failure__", False):
+            # 3b64 round 11 (gemini): under expectedFailure the NOT-RUN failure is recorded as an
+            # expected failure, which unittest counts as success.
+            issues.append(f"TEST-PROBE-EXPECTED-FAILURE: {name} is expectedFailure-marked and declares scope probes")
         for method in cases:
             func = getattr(cls, method, None)
             if not method.startswith("test_") or not callable(func):
                 issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
             elif getattr(func, "__unittest_skip__", False):
                 issues.append(f"TEST-PROBE-SKIP-MARKED: {name}.{method} is skip-marked and never runs its probes")
+            elif getattr(func, "__unittest_expecting_failure__", False):
+                issues.append(f"TEST-PROBE-EXPECTED-FAILURE: {name}.{method} is expectedFailure-marked, "
+                              f"so a probe that did not run would count as a pass")
             elif not _runs_scope_probes(func):
                 issues.append(f"TEST-PROBE-UNUSED: {name}.{method} never runs its probes")
-        issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
+        if own:
+            issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
     return issues
 
 
@@ -23383,8 +23396,53 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
 
         self.assertEqual(scope_probe_registry_issues({"_M": _M}),
                          ["TEST-PROBE-SKIP-MARKED: _M.test_x is skip-marked and never runs its probes"])
-        self.assertIn("TEST-PROBE-SKIP-MARKED: _C is skip-marked and declares scope probes",
-                      scope_probe_registry_issues({"_C": _C}))
+        self.assertEqual(scope_probe_registry_issues({"_C": _C}),
+                         ["TEST-PROBE-SKIP-MARKED: _C is skip-marked and declares scope probes"])
+
+        # 3b64 round 11 (claude, codex): a skip on a BASE class, and a skip-marked subclass that
+        # only INHERITS the registration, are both refused (run() enforces inherited probes).
+        class _Base(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        @unittest.skip("base")
+        class _SkippedBase(_Base):
+            pass
+
+        class _S(_SkippedBase):
+            pass
+
+        self.assertEqual(scope_probe_registry_issues({"_S": _S}),
+                         ["TEST-PROBE-SKIP-MARKED: _S is skip-marked and declares scope probes"])
+        self.assertEqual(scope_probe_registry_issues({"_Base": _Base}), [])
+
+        # A bad inherited declaration is reported once, on the declaring class.
+        class _BadBase(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": (("asvs", "V1.6", "ASVS 3.0.1 {probe}.\n",
+                                                   "ASVS requirement {probe}.\n"),)}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        class _Child(_BadBase):
+            pass
+
+        self.assertEqual(scope_probe_registry_issues({"_BadBase": _BadBase, "_Child": _Child}),
+                         ["_BadBase: TEST-PROBE-VALID-ID: test_x[0]: asvs 'V1.6' exists in the held catalogue"])
+
+        # 3b64 round 11 (gemini): an expectedFailure wrapper applied after definition.
+        class _E(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _E.test_x = unittest.expectedFailure(_E.test_x)
+        self.assertEqual(scope_probe_registry_issues({"_E": _E}),
+                         ["TEST-PROBE-EXPECTED-FAILURE: _E.test_x is expectedFailure-marked, so a "
+                          "probe that did not run would count as a pass"])
 
     def test_a_one_shot_probe_collection_is_refused(self) -> None:
         # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
