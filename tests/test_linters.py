@@ -450,10 +450,17 @@ def scope_probe_registry_issues(classes):
         cases = cls.__dict__.get("IDENTIFIER_SCOPE_PROBES", {})
         if not cases:
             continue
+        if getattr(cls, "__unittest_skip__", False):
+            # 3b64 round 10 (claude, codex): unittest returns before doCleanups for a skip-marked
+            # class or method, so the run-time completion check never executes; refuse the
+            # marker here, reading the live attribute (a wrapper applied after definition too).
+            issues.append(f"TEST-PROBE-SKIP-MARKED: {name} is skip-marked and declares scope probes")
         for method in cases:
             func = getattr(cls, method, None)
             if not method.startswith("test_") or not callable(func):
                 issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
+            elif getattr(func, "__unittest_skip__", False):
+                issues.append(f"TEST-PROBE-SKIP-MARKED: {name}.{method} is skip-marked and never runs its probes")
             elif not _runs_scope_probes(func):
                 issues.append(f"TEST-PROBE-UNUSED: {name}.{method} never runs its probes")
         issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
@@ -493,7 +500,8 @@ class LinterTestCase(unittest.TestCase):
         cases = {name: self.IDENTIFIER_SCOPE_PROBES[name]}
         if not isinstance(cases[name], tuple):
             # 3b64 round 9 (codex): a one-shot iterable is consumed by validation and would then
-            # run zero probes; the declaration must be a tuple.
+            # run zero probes; the declaration must be a tuple. (identifier_scope_probe_issues
+            # refuses it too, without consuming it; this is a deliberate second layer.)
             self.fail(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
         issues = identifier_scope_probe_issues(cases)
         if issues:
@@ -23353,6 +23361,31 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
         self.assertTrue(any("TEST-PROBE-SKIPPED" in f for f in failed["test_runner_skips"]),
                         failed["test_runner_skips"])
 
+    def test_skip_marked_probe_tests_are_refused(self) -> None:
+        # 3b64 round 10 (claude, codex): a skip marker returns before doCleanups, so the runtime
+        # check cannot see it; the registry check reads the live attribute.
+        probe = (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),)
+
+        class _M(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _M.test_x = unittest.skip("reference unavailable")(_M.test_x)
+
+        @unittest.skip("x")
+        class _C(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        self.assertEqual(scope_probe_registry_issues({"_M": _M}),
+                         ["TEST-PROBE-SKIP-MARKED: _M.test_x is skip-marked and never runs its probes"])
+        self.assertIn("TEST-PROBE-SKIP-MARKED: _C is skip-marked and declares scope probes",
+                      scope_probe_registry_issues({"_C": _C}))
+
     def test_a_one_shot_probe_collection_is_refused(self) -> None:
         # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
         gen = (p for p in (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),))
@@ -23600,7 +23633,7 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             "TEST-PROBE-UNUSED: _Mentions.test_comment never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_branch never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_after_return never runs its probes",
-            "TEST-PROBE-UNUSED: _Mentions.test_skipped never runs its probes",
+            "TEST-PROBE-SKIP-MARKED: _Mentions.test_skipped is skip-marked and never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_swallowed never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_with_unreached never runs its probes",
             "TEST-PROBE-UNUSED: _Mentions.test_suppressed never runs its probes",
