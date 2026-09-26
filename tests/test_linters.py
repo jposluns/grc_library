@@ -3964,6 +3964,57 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             self.assertFalse(guard.try_auto_bump(repo, "r.md", "2026-09-26"))
             self.assertEqual((repo / "r.md").read_bytes(), lone)
 
+    def test_unbumped_version_guard_sees_a_bom_prefixed_document(self) -> None:
+        """P-TODO 3b86: a UTF-8 BOM before the first line hid a column-zero **Version:** from the
+        ^-anchored patterns, so a BOM-prefixed document was never selected and a body edit without
+        a bump passed both guards. Selection, classification and the auto-bump now set it aside."""
+        import importlib.util
+        import json
+        spec = importlib.util.spec_from_file_location(
+            "_vbump_guard_3b86", REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py")
+        guard = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(guard)
+        cspec = importlib.util.spec_from_file_location(
+            "_vbump_check_3b86", REPO_ROOT / "tools" / "check-version-bump-commit.py")
+        check = importlib.util.module_from_spec(cspec)
+        cspec.loader.exec_module(check)
+        bom = "\ufeff".encode("utf-8")
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            def git(*a):
+                subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True, text=True)
+            git("init", "-q")
+            git("config", "user.email", "t@example.invalid")
+            git("config", "user.name", "t")
+            (repo / "b.md").write_bytes(bom + b"**Version:** 1.0.0\\\n**Date:** 2026-09-01\\\n\nold body\n")
+            git("add", "b.md")
+            git("commit", "-q", "-m", "init")
+            (repo / "b.md").write_bytes(bom + b"**Version:** 1.0.0\\\n**Date:** 2026-09-01\\\n\nnew body\n")
+            git("add", "b.md")
+            self.assertEqual(check.staged_offenders(repo, guard), ["b.md"])  # selected and refused
+            self.assertTrue(guard.try_auto_bump(repo, "b.md", "2026-09-26"))
+            self.assertEqual((repo / "b.md").read_bytes(),
+                             bom + b"**Version:** 1.0.1\\\n**Date:** 2026-09-26\\\n\nnew body\n")
+            self.assertEqual(check.staged_offenders(repo, guard), [])  # the bump counts
+            # The hook's own main() selects the BOM-prefixed document (run from a copy in the
+            # scratch repo, whose root the hook derives from its location) and auto-bumps it.
+            git("commit", "-q", "-m", "bumped")
+            hooks = repo / ".claude" / "hooks"
+            hooks.mkdir(parents=True)
+            hook = hooks / "block-unbumped-version-commit.py"
+            shutil.copy(REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py", hook)
+            (repo / "b.md").write_bytes(bom + b"**Version:** 1.0.1\\\n**Date:** 2026-09-26\\\n\nnewer body\n")
+            git("add", "b.md")
+            payload = json.dumps({"tool_name": "Bash", "cwd": str(repo),
+                                  "tool_input": {"command": "git commit -m x"}})
+            cp = subprocess.run([sys.executable, str(hook)], input=payload, capture_output=True,
+                                text=True, env=dict(os.environ, CLAUDE_PROJECT_DIR=str(repo)))
+            self.assertEqual(cp.returncode, 0, cp.stderr)
+            self.assertTrue((repo / "b.md").read_bytes().startswith(bom + b"**Version:** 1.0.2"), cp.stderr)
+        diff = ("diff --git a/b.md b/b.md\n@@ -1 +1 @@\n-\ufeff**Version:** 1.0.0\n"
+                "+\ufeff**Version:** 1.0.1\n@@ -4 +4 @@\n-old\n+new\n")
+        self.assertEqual(guard.offenders(diff, {"b.md"}), [])
+
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
         bumped is not an offender; without it (or with only **Library Version:** bumped) it still is."""

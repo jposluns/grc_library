@@ -141,7 +141,7 @@ def staged_offenders(root, guard):
                 or new in guard.GENERATED or new.startswith(".corpus-management/"):
             continue
         text = guard.git(root, "show", f":{new}")   # a non-deleted entry must be readable
-        if not guard.version_key(new).search(text):  # the path's own key (3b80)
+        if not guard.version_key(new).search(text.lstrip(guard.BOM)):  # own key (3b80); BOM (3b86)
             continue
         paths = [old, new] if old else [new]
         diff = _gitz(guard, root, "diff", "--cached", "-M", "--no-ext-diff", "--no-color",

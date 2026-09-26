@@ -116,6 +116,9 @@ DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 # Version change whose staged ``**Date:**`` is not today UTC is the UTC-rollover co-bump miss D4
 # otherwise catches only at the pre-push guard (2026-09-24, #2492).
 README_PATH = "README.md"
+# A UTF-8 byte-order mark before a file's first line hides a column-zero key from the ^-anchored
+# patterns; eligibility, classification and the auto-bump set it aside (3b86).
+BOM = "\ufeff"
 README_VERSION_LINE = re.compile(r"^\*\*README Version:\*\*", re.M)
 
 
@@ -146,7 +149,7 @@ def version_line_changed(lines: list[str], path: "str | None" = None) -> bool:
     for ln in lines:
         if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
-        if ln and ln[0] in "+-" and key.match(ln[1:]):
+        if ln and ln[0] in "+-" and key.match(ln[1:].lstrip(BOM)):
             return True
     return False
 
@@ -178,7 +181,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
             elif not in_hunk:
                 continue
             elif ln.startswith("+"):
-                if version_key(cur).match(ln[1:]) and 1 <= n <= header_lines:
+                if version_key(cur).match(ln[1:].lstrip(BOM)) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
             elif ln.startswith(" "):
@@ -309,7 +312,7 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
             continue
         if not ln or ln[0] not in "+-":
             continue
-        text = ln[1:]
+        text = ln[1:].lstrip(BOM)  # a first line carrying a UTF-8 BOM (3b86)
         if key.match(text):  # the path's own key (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
@@ -413,10 +416,14 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
             # Lone-CR line endings: re.M's ^ and $ see no line starts, so the Version would be
             # bumped while the Date is never found, and success reported (3b84 QA, claude).
             return False
+        # A leading UTF-8 BOM is set aside and written back unchanged, so the metadata regexes see
+        # the first line and the file's bytes are preserved (3b86).
+        bom = BOM if text.startswith(BOM) else ""
+        text = text[len(bom):]
         bumped = bump_semver(text)
         if bumped is None:
             return False
-        f.write_bytes(set_date(bumped, today).encode("utf-8"))
+        f.write_bytes((bom + set_date(bumped, today)).encode("utf-8"))
         git(root, "add", "--", path)
         return True
     except Exception:
@@ -464,7 +471,7 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace")):
+                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace").lstrip(BOM)):
                     versioned.add(p)
             except OSError:
                 continue
