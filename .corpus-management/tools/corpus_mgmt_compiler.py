@@ -1036,15 +1036,28 @@ def _main(argv: list[str] | None = None) -> int:
                         help="directory whose tools/aiqt_corpus.py holds the AIQT "
                              "generic core (standalone use; the grc wrapper "
                              "bootstraps it instead)")
+    parser.add_argument("--release-delta", action="store_true",
+                        help="check the pack release floor without writing; "
+                             "combine with --check to also check generated outputs")
+    parser.add_argument("--base", metavar="REF",
+                        help="release base (default: git merge-base HEAD origin/main)")
     args = parser.parse_args(argv)
+    if args.base is not None and not args.release_delta:
+        parser.error("--base requires --release-delta")
+
+    root = (args.root or _default_root()).resolve()
+    pack_root = (args.pack_root or (root / PACK_DIR_NAME)).resolve()
+    release_status = 0
+    if args.release_delta:
+        import pack_release_delta
+        release_status = pack_release_delta.check(root, pack_root, args.base)
+        if not args.check or release_status == 2:
+            return release_status
 
     prob = _ensure_aiqt(args.aiqt_root)
     if prob is not None:
         print(f"[corpus-management] CONFIG: {prob}", file=sys.stderr)
         return 2
-
-    root = (args.root or _default_root()).resolve()
-    pack_root = (args.pack_root or (root / PACK_DIR_NAME)).resolve()
 
     rules, problems = load_and_validate(root, pack_root)
     if problems:
@@ -1067,7 +1080,7 @@ def _main(argv: list[str] | None = None) -> int:
             return 1
         print(f"OK: corpus-management generated outputs in sync "
               f"({len(rules)} rule(s), {n_targets} target(s)).")
-        return 0
+        return release_status
 
     problems, writes = plan_generate(root, rules)
     if problems:
