@@ -4067,6 +4067,30 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             g2("add", "d.md")
             self.assertFalse(guard.try_auto_bump(r2, "d.md", "2026-09-26"))
             self.assertEqual((r2 / "d.md").read_text(encoding="utf-8"), double)
+            # Eligibility selects a double-BOM file (the git-native check), so its unbumped body
+            # edit is refused rather than skipped as unversioned (3b86 r4, claude).
+            self.assertEqual(check.staged_offenders(r2, guard), ["d.md"])
+            key_first = "\ufeff\ufeff**Version:** 1.0.0\n**Date:** 2026-09-01\n\nold\n"
+            (r2 / "e.md").write_text(key_first, encoding="utf-8")
+            g2("add", "e.md")
+            g2("commit", "-q", "-m", "e")
+            (r2 / "e.md").write_text(key_first.replace("old", "new"), encoding="utf-8")
+            g2("add", "e.md")
+            self.assertIn("e.md", check.staged_offenders(r2, guard))  # key only on line 1
+            hk = r2 / ".claude" / "hooks"
+            hk.mkdir(parents=True)
+            shutil.copy(REPO_ROOT / ".claude" / "hooks" / "block-unbumped-version-commit.py", hk)
+            payload2 = json.dumps({"tool_name": "Bash", "cwd": str(r2),
+                                   "tool_input": {"command": "git commit -m x"}})
+            cp2 = subprocess.run([sys.executable, str(hk / "block-unbumped-version-commit.py")],
+                                 input=payload2, capture_output=True, text=True,
+                                 env=dict(os.environ, CLAUDE_PROJECT_DIR=str(r2)))
+            self.assertEqual(cp2.returncode, 2, cp2.stderr)  # selected, not auto-bumped: refused
+            self.assertIn("e.md", cp2.stderr)
+        # 3b86 r4 (claude, codex): the classifier removes EXACTLY ONE BOM, so a changed double-BOM
+        # line 1 is body, not the Version.
+        self.assertEqual(guard.classify_hunk(["@@ -1 +1 @@", "-\ufeff\ufeff**Version:** 1",
+                                              "+\ufeff\ufeff**Version:** 2"]), (True, False))
         # 3b86 r3 (claude): a two-file buffer (a rename) resets hunk state at each diff header, so
         # the second file's ---/+++ headers are not read as body.
         two = ["diff --git a/o.md b/o.md", "--- a/o.md", "+++ /dev/null", "@@ -1 +0,0 @@", "-**Version:** 1",

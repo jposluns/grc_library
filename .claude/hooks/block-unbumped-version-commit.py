@@ -505,7 +505,11 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace").removeprefix(BOM)):
+                ftext = f.read_text(errors="replace")
+                # A double leading BOM is malformed: select the file rather than skip it, so the
+                # commit is judged (and refused) instead of passing unexamined (3b86 QA r4, claude).
+                if f.suffix == ".md" and (version_key(p).search(ftext.removeprefix(BOM))
+                                          or ftext.startswith(BOM * 2)):
                     versioned.add(p)
             except OSError:
                 continue
