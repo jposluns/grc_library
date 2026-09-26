@@ -63,7 +63,7 @@ import signal
 import subprocess
 import sys
 
-from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots
+from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots, _store_root
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -306,7 +306,7 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "Maps each corpus document to the grc_library_ref commit at its last",
         "per-document reference audit (the /reference-audit --docs mode's delta",
         "anchor). Live surface: non-dated, held in the operational store (the fleet-standard",
-        "`/opt/<project>/private/reference-audit/doc-state.md`, or the `grc_library_private`",
+        "`<repo-parent>/private/reference-audit/doc-state.md` or `$GRC_STORE`, or the `grc_library_private`",
         "sibling as the transitional fallback). Rewritten by",
         "`tools/audit-reference-breadth.py --update-state`; include the store refresh in the",
         "touching PR's QA batch.",
@@ -394,13 +394,20 @@ def main(argv: list[str] | None = None) -> int:
                 try:
                     sp = args.state.resolve()
                     is_private = any(sp.is_relative_to(sr) for sr in stores)
-                except OSError:
+                except (OSError, RuntimeError):  # a symlink loop raises RuntimeError (3b98 QA r3)
                     is_private = False
             if not is_private:
-                print("ERROR: --update-state requires a private maintainer store (the "
-                      "operational store /opt/<project>/private or the grc_library_private "
-                      "sibling); pass an explicit --state only for intentional adopter-local "
-                      "state.", file=sys.stderr)
+                # Name the paths actually looked for, not a placeholder (3b98).
+                try:
+                    store = _store_root(REPO_ROOT.resolve())  # resolved as the check resolves it
+                except (OSError, RuntimeError):
+                    # The check treats an unresolvable store as absent; say so, do not crash (QA r2).
+                    store = "(unresolvable GRC_STORE)"
+                sibling = REPO_ROOT.parent / "grc_library_private"
+                print("ERROR: --update-state requires a private maintainer store (looked for "
+                      f"the operational store {store} and the private sibling {sibling}; found "
+                      f"{', '.join(map(str, stores)) or 'neither'}); pass an explicit --state "
+                      "only for intentional adopter-local state.", file=sys.stderr)
                 return 2
 
     # Adopter graceful-degradation (3.91 (closing PR #1011)): with no reachable reference base (the
