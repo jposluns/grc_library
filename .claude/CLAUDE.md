@@ -813,7 +813,11 @@ per surface:
    `2026.MM.NNN`): bump once per PR, in the last commit before push.
 4. **README `Version` field** (the `Version` line in [`README.md`](../README.md)'s
    metadata block): bump once per PR, in the same commit as the CalVer bump (the two move
-   together).
+   together). The commit-time version-bump guards judge README.md by this key, the
+   `**README Version:**` line, so an EARLIER commit in the PR that edits the README body
+   carries a `VersionBump: none <reason>` line in its message (for example
+   `VersionBump: none README Version moves with the CalVer in the closing commit`); the
+   closing commit then bumps it (maintainer-decided 2026-09-26, 3b87).
 
 **Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
 `run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
