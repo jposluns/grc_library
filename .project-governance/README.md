@@ -2,8 +2,8 @@
 
 **Document Title:** Project Governance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-06-26\
+**Version:** 1.0.3\
+**Date:** 2026-09-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/specification-project-governance-separation.md`](../governance/specification-project-governance-separation.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -36,6 +36,7 @@ The project-governance artefacts migrated here under the project-governance sepa
 | --- | --- | --- |
 | Register | Citation Verifications Register | [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md) |
 | Register | Citation Verification Bundle Index | [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md) |
+| Register | Historical-Context Citation Exceptions Register (rows in [`.project-governance/register-historical-citation-exceptions.toml`](register-historical-citation-exceptions.toml); the page's table is generated from them) | [`.project-governance/register-historical-citation-exceptions.md`](register-historical-citation-exceptions.md) |
 | Worklist | Citation Verification Worklist: Batch Q2 (ISO and ISO/IEC) | [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md) |
 | Worklist | Citation Verification Worklist: Batch Q3 (AI Tooling Provenance) | [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md) |
 | Worklist | Citation Verification Worklist: Batch Q3.1 (New Canonical Citations) | [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md) |

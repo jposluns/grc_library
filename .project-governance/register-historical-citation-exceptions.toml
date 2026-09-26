@@ -1,0 +1,13 @@
+# Historical-context citation exceptions: the rows gate 6 (tools/lint-standards-currency.py) reads.
+# Policy, schema and the generated table: register-historical-citation-exceptions.md.
+# After any change, run: python3 tools/build-historical-citation-exceptions.py
+schema_version = 1
+
+# [[exception]]
+# id = "HCE-001"
+# path = "ai/example.md"
+# citation = "ISO/IEC 27001:2013"
+# sentence = "The 2019 edition of ISO/IEC 27701 extended ISO/IEC 27001:2013 with privacy controls."
+# reason = "Records the edition lineage accurately."
+# upstream = "https://www.iso.org/standard/71670.html"
+# verified = 2026-09-01
