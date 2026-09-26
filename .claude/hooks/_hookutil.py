@@ -208,7 +208,7 @@ def _self_test() -> int:
     saved = {k: os.environ.get(k) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
     cases = [({"ORCH_VERIFY_OWNER": "x"}, True), ({"ORCH_VERIFY_OWNER": ""}, True),
              ({"CLAUDE_CONFIG_DIR": "/a/orch-worker.claude-1"}, True),
-             ({"CLAUDE_CONFIG_DIR": "/a/claude-max-worker5-mailz"}, False),
+             ({"CLAUDE_CONFIG_DIR": "/a/acct-b"}, False),
              ({"CLAUDE_CONFIG_DIR": "/orch-worker.x/child"}, False), ({}, False)]
     wbad = 0
     try:
