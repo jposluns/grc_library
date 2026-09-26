@@ -26612,3 +26612,13 @@ class RepoRelativeDefaultPathTests(unittest.TestCase):
             with self._env(GRC_DROP_ROOT=d):
                 hook = self._load(repo / self.CASES[0][0], "rrd_moved_hook_env")
             self.assertEqual(hook.ESCAPE_FILE, Path(d) / ".allow-idle-stop")
+
+    def test_pr_guard_message_prints_a_runnable_escape(self):
+        # The block message names the resolved sentinel path, never a literal <repo-parent> placeholder
+        # that a copied command cannot use (P-1.21 PR 2 QA r2, codex).
+        import shlex
+        with self._env():
+            mod = self._load(REPO_ROOT / self.CASES[3][0], "rrd_msg")
+            msg = mod._block_message(None)
+        self.assertNotIn("<repo-parent>", msg)
+        self.assertIn("touch " + shlex.quote(str(mod._sentinel_path())), msg)

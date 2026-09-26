@@ -213,7 +213,8 @@ def _block_message(threshold) -> str:
         "CONSIDER INSTEAD: dispatch the triple-family corpus-wide /validate and record its history row, "
         "then re-run this. For a genuine exception (e.g. a handoff-only session), create the one-shot "
         "sentinel then retry:\n"
-        '    touch "${GRC_DROP_ROOT:-<repo-parent>/grc_working}/.allow-pr-without-resume-validate"'
+        # The resolved path, shell-quoted: a literal <repo-parent> fallback does not run (P-1.21 r2, codex).
+        f"    touch {shlex.quote(str(_sentinel_path()))}"
     )
 
 
