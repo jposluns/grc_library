@@ -36,12 +36,14 @@ suggestion templates. These are regex and filesystem checks, not shell execution
 
 Scanning is limited to existing tools directories under the configured
 ``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
-no project tools entry in this scan, except that the project directory's own ``tools/`` always
-counts (a linked-worktree session, 3b85). For the absolute-path suggestion, the last ``cd``
+no project tools entry in this scan, except that the project directory's own ``tools/`` counts
+when it is a git linked worktree of a configured repo (3b85). Residue: in such a session a
+cwd-relative project tool with no cd is allowed, so drift into the main checkout goes
+undetected (the softened scope's residue, as in a main-checkout session). For the absolute-path suggestion, the last ``cd``
 before the tool wins when its operand is an absolute directory holding ``tools/<name>`` (a
 linked worktree's own copy, 3b85); otherwise a project-file match wins, then the first
-matching configured repo. The operand is read textually (one enclosing quote pair removed,
-no variable or ``~`` expansion, a bare ``cd`` has none), so a relative or option-prefixed
+matching configured repo. The operand is read textually (the whole shell word unquoted with
+shlex; a word needing expansion is not read; a bare ``cd`` has none), so a relative or option-prefixed
 operand (``cd ../wt``, ``cd -P /x``) and a cd inside a subshell are residue: the suggestion
 then falls back or names a tree the tool will not run in. The path is shell-quoted. The
 sibling suggestion
@@ -167,6 +169,43 @@ def _sibling_roots(project_dir: str) -> dict:
     return roots
 
 
+def _is_linked_worktree_of_configured(proj: Path) -> bool:
+    """True when ``proj`` is a git LINKED WORKTREE of a configured repo beside it: its ``.git`` is
+    a file reading ``gitdir: <parent>/<configured name>/.git/worktrees/<id>`` (3b85 round 2: an
+    unrelated directory that merely has a tools/ folder must not count as the project)."""
+    try:
+        dotgit = proj / ".git"
+        if not dotgit.is_file():
+            return False
+        line = dotgit.read_text(encoding="utf-8", errors="replace").splitlines()[0]
+        if not line.startswith("gitdir:"):
+            return False
+        gitdir = Path(line[len("gitdir:"):].strip())
+        if not gitdir.is_absolute():
+            gitdir = proj / gitdir
+        gitdir = gitdir.resolve()
+        for name in SIBLING_REPO_NAMES:
+            base = (proj.parent / name / ".git" / "worktrees").resolve()
+            if gitdir.parent == base:
+                return True
+    except (OSError, IndexError, ValueError):
+        return False
+    return False
+
+
+def _cd_operand(word: str):
+    """The literal directory a cd operand names, or None when it cannot be read textually: the
+    whole shell word is unquoted with shlex (so ``"/p"/x`` is ``/p/x``, 3b85 round 2), and a word
+    needing expansion (``$``, ``~``, a backquote, a backslash) or an option is not read."""
+    if any(c in word for c in "$~`\\") or word.startswith("-"):
+        return None
+    try:
+        parts = shlex.split(word)
+    except ValueError:
+        return None
+    return parts[0] if len(parts) == 1 else None
+
+
 def decide(command: str, project_dir: str) -> tuple[bool, str]:
     if not isinstance(command, str) or not command.strip():
         return False, ""
@@ -175,9 +214,13 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     parent = proj.parent
     roots = _sibling_roots(project_dir)
     project_tools = roots.get(project_name) if roots else None
-    if project_tools is None and (proj / "tools").is_dir():
+    if project_tools is None and (proj / "tools").is_dir() and _is_linked_worktree_of_configured(proj):
         # 3b85: a linked-worktree session (project dir /opt/grc/wt-X) is the project even though
         # its directory name is not a configured repo name; its own tools/ are project tools.
+        # Residue: a cwd-relative project tool with no cd is then allowed there, so drift into
+        # the main checkout (which holds a same-named tool) goes undetected, as in a main-checkout
+        # session under the softened scope; and check (0) now flags a cd-prefixed tool that
+        # exists only in the worktree (stricter, with the worktree's own path suggested).
         project_tools = proj / "tools"
     invoked = list(dict.fromkeys(_INVOKE.findall(command)))
     has_cd = bool(re.search(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command))
@@ -205,11 +248,9 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # exactly one enclosing quote pair is removed, nothing is expanded, and a bare cd counts.
     cd_args = []
     for cm in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd(?=[\s;&|)]|$)", command):
-        om = re.match(r"[ \t]+(\"[^\"]*\"|'[^']*'|[^\s;&|)]+)", command[cm.end():])
-        arg = om.group(1) if om else None
-        if arg and len(arg) >= 2 and arg[0] == arg[-1] and arg[0] in "'\"":
-            arg = arg[1:-1]
-        cd_args.append((cm.start(), arg))
+        # The whole shell word after cd (quoted segments and bare text concatenated).
+        om = re.match(r"[ \t]+((?:\"[^\"]*\"|'[^']*'|[^\s;&|)'\"])+)", command[cm.end():])
+        cd_args.append((cm.start(), _cd_operand(om.group(1)) if om else None))
 
     def _suggested(t, repo, at):
         # 3b85: after `cd <absolute dir>` in a LINKED WORKTREE, the tool meant is that tree's own
@@ -255,7 +296,8 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # SOFTENED SCOPE (maintainer-directed 2026-07-24): project-file matches do not trigger
     # this sibling check. Files absent from all scanned roots do not trigger it either.
     # This does not inspect the Bash cwd or establish file-not-found there: an unlisted
-    # project has no project_tools entry, and another cwd may contain a matching path.
+    # project has no project_tools entry unless it is a linked worktree of a configured repo
+    # (3b85), and another cwd may contain a matching path.
     # Absolute tool paths do not themselves match _INVOKE; other matches can still block.
     if invoked and roots:
         hits = []
@@ -420,6 +462,31 @@ def _self_test() -> int:
             self.assertNotIn(f"python3 {plain}/tools/run_all_audits.sh", reason)
             _, reason = decide(f"cd {plain} && cd && bash tools/run_all_audits.sh", self.pd)
             self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+            # 3b85 round 2 (claude): a bare `cd;` also resets the suggestion.
+            _, reason = decide(f"cd {plain}; cd; bash tools/run_all_audits.sh", self.pd)
+            self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+            # 3b85 round 2 (codex): a partially quoted operand is read as one shell word.
+            _, reason = decide(f'cd "{self.parent}"/wt && bash tools/run_all_audits.sh', self.pd)
+            self.assertIn(f"python3 {plain}/tools/run_all_audits.sh", reason)
+            # 3b85 round 2 (claude): a relative operand is not resolved against the hook's cwd
+            # (run from the fixture parent, where wt/tools/ does exist relative to that cwd).
+            here = os.getcwd()
+            os.chdir(self.parent)
+            try:
+                _, reason = decide("cd wt && bash tools/run_all_audits.sh", self.pd)
+            finally:
+                os.chdir(here)
+            self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+
+        def test_fallback_suggestion_is_quoted(self):
+            # 3b85 round 2 (claude): the fallback path is shell-quoted too.
+            import shlex as _sh
+            parent = Path(self.parent) / "with space"
+            proj = parent / "grc_library"
+            (proj / "tools").mkdir(parents=True)
+            (proj / "tools" / "run_all_audits.sh").write_text("")
+            _, reason = decide("cd /nowhere && bash tools/run_all_audits.sh", str(proj))
+            self.assertIn(f"python3 {_sh.quote(str(proj / 'tools' / 'run_all_audits.sh'))} ...", reason)
 
         def test_worktree_session_tools_are_project_tools(self):
             # 3b85 QA round 1 (claude): in a linked-worktree session (a project dir whose name is
@@ -428,10 +495,26 @@ def _self_test() -> int:
             wt = Path(self.parent) / "wt-session"
             (wt / "tools").mkdir(parents=True)
             (wt / "tools" / "credit-offload-queue.py").write_text("")
+            (wt / "tools" / "wt_only.py").write_text("")
+            gitdir = self.proj / ".git" / "worktrees" / "wt-session"
+            gitdir.mkdir(parents=True)
+            (wt / ".git").write_text(f"gitdir: {gitdir}\n")
             block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
             self.assertFalse(block)
             block, reason = decide("python3 tools/validate.py", str(wt))
             self.assertTrue(block)  # absent from the worktree, present in a sibling
+            self.assertIn("grc_library_scratch", reason)
+            # check (0) now flags a cd-prefixed worktree-only tool, suggesting the worktree path.
+            block, reason = decide(f"cd {wt} && python3 tools/wt_only.py", str(wt))
+            self.assertTrue(block)
+            self.assertIn(f"python3 {wt}/tools/wt_only.py", reason)
+            # 3b85 round 2 (codex): an unrelated directory with a tools/ folder is NOT the
+            # project, so its stale copy does not exempt a sibling tool.
+            export = Path(self.parent) / "export"
+            (export / "tools").mkdir(parents=True)
+            (export / "tools" / "credit-offload-queue.py").write_text("")
+            block, reason = decide("python3 tools/credit-offload-queue.py list-workers", str(export))
+            self.assertTrue(block)
             self.assertIn("grc_library_scratch", reason)
 
         def test_cd_allowlist_tool_allowed(self):
