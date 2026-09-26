@@ -138,6 +138,41 @@ def check_text(
     return findings
 
 
+def _same_edition(rest: str, version: str) -> bool:
+    """Whether a legacy message (after its "stale citation '<id> " prefix) names this edition:
+    a legacy match counts for an occurrence only when it starts where the occurrence starts and
+    reports the same edition, so an overlapping match for another stretch or a shorter edition does
+    not lend its label (3b88 QA r2)."""
+    core = rest.split("'", 1)[0]
+    left, right = edition_key(core), edition_key(version or "")
+    if left is not None and right is not None:
+        return left == right
+    return core.strip().casefold() == (version or "").strip().casefold()
+
+
+def _legacy_match_spans(
+    text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
+    eligible_from: str | None = None,
+) -> list[tuple[int, int, int, str]]:
+    """Where check_text's patterns match: (line, first column, last column, message), columns
+    1-based and inclusive, over exactly the lines check_text reads (3b88)."""
+    pairs = iter_non_code_lines(text)
+    if eligible_from is not None:
+        keep = {ln for ln, _ in iter_non_code_lines(eligible_from)}
+        masked_lines = text.splitlines()
+        pairs = [(ln, masked_lines[ln - 1]) for ln in sorted(keep) if ln - 1 < len(masked_lines)]
+    spans = []
+    for ln, line in pairs:
+        line_lower = line.lower()
+        line_is_ascii = line.isascii()
+        for prefilter, pattern, message in compiled:
+            if prefilter is not None and line_is_ascii and prefilter not in line_lower:
+                continue
+            for m in pattern.finditer(line):
+                spans.append((ln, m.start() + 1, max(m.end(), m.start() + 1), message))
+    return spans
+
+
 def run(
     files: list[Path],
     compiled: list[tuple[str | None, re.Pattern[str], str]],
@@ -998,7 +1033,11 @@ def coverage_report(
             )
 
         # This exact HEAD check alone controls PR1 blocking behavior.
+        legacy_spans = []
         if suffix == ".md":
+            legacy_spans = _legacy_match_spans(
+                masked, compiled, eligible_from=source if sanctioned_spans else None
+            )
             for line, message in check_text(
                 masked, compiled, eligible_from=source if sanctioned_spans else None
             ):
@@ -1037,21 +1076,22 @@ def coverage_report(
             for kind, detail in resolve(
                 occurrence, entries, bare_exceptions
             ):
-                # Avoid reporting the same recognized stale occurrence
-                # twice through legacy and normalized channels.
+                # A normalized occurrence is legacy (BLOCKING) only where a legacy pattern for
+                # its identifier matches at its own position, and it replaces exactly the legacy
+                # findings it covers: a second citation on the line keeps its label, and another
+                # edition or spelling the legacy check misses does not inherit one (3b88).
+                (line_no, first), (_, last) = occurrence["span"]
+                prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
+                covering = {
+                    message for ln, start, end, message in legacy_spans
+                    if kind == "STALE" and ln == line_no and start == first
+                    and message.casefold().startswith(prefix)
+                    and _same_edition(message[len(prefix):], occurrence["version"])
+                }
                 matched = [
                     f for f in findings
-                    if kind == "STALE"
-                    and f["legacy"]
-                    and f["family"] == "legacy"
-                    and f["path"] == rel
-                    and f["span"][0][0] == occurrence["span"][0][0]
-                    and f["detail"].casefold().startswith(
-                        (
-                            "stale citation '"
-                            + occurrence["observed"] + " "
-                        ).casefold()
-                    )
+                    if f["legacy"] and f["family"] == "legacy" and f["path"] == rel
+                    and f["span"][0][0] == line_no and f["detail"] in covering
                 ]
                 for f in matched:
                     findings.remove(f)
@@ -1059,7 +1099,7 @@ def coverage_report(
                     occurrence,
                     kind=kind,
                     detail=detail,
-                    legacy=bool(matched),
+                    legacy=bool(covering),
                 ))
 
     order = lambda x: (

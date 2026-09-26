@@ -166,6 +166,33 @@ class CitationCoverageTests(unittest.TestCase):
             code = W.main(["--root", str(root), *args])
             return code, out.getvalue(), err.getvalue()
 
+    def test_legacy_label_follows_the_legacy_match_position(self):
+        # 3b88: a normalized occurrence blocks only where a legacy pattern matches at its own
+        # position, so another spelling or edition the legacy check misses keeps ADVISORY,
+        # whichever comes first on the line.
+        def labels(text, register=REGISTER):
+            _, out, _ = self.invoke(text, "--format", "json", register=register)
+            return [(f["version"], f["legacy"]) for f in json.loads(out)["findings"]
+                    if f["kind"] == "STALE"]
+        self.assertEqual(labels("NIST SP 800-61 Rev. 2 and NIST SP 800-61r2."),
+                         [("Rev. 2", True), ("r2", False)])
+        self.assertEqual(labels("NIST SP 800-61r2 and NIST SP 800-61 Rev. 2."),
+                         [("r2", False), ("Rev. 2", True)])
+        reg = REGISTER.replace("| Security | 2013 |", "| Security | 2013, 2005 |")
+        self.assertEqual(labels("ISO/IEC 27001:2013 and ISO/IEC **27001**:2005.", reg),
+                         [("2013", True), ("2005", False)])
+        # r2: a legacy match lends its label only where it starts at the occurrence and names the
+        # same edition (an attribute match or a shorter edition overlapping it does not).
+        def spans(text, register=REGISTER):
+            _, out, _ = self.invoke(text, "--format", "json", register=register)
+            return [(f["span"][0], f["version"], f["legacy"]) for f in json.loads(out)["findings"]
+                    if f["kind"] == "STALE"]
+        self.assertEqual(spans('ISO/IEC <b title="ISO/IEC 27001:2013">27001</b>:2013.'),
+                         [([1, 1], "2013", False), ([1, 19], "2013", True)])
+        rev = REGISTER.replace("Rev. 2, Rev. 1", "Rev. 2, Rev. 2.1, Rev. 1")
+        self.assertEqual(spans("NIST SP 800-61 Rev. 2**.1**.", rev),
+                         [([1, 1], "Rev. 2.1", False), ([1, 1], "", True)])
+
     def test_table_version_column(self):
         # A framework in a table with an explicit Version column carries its
         # edition in that column; it resolves clean, not a false UNPINNED.
@@ -560,6 +587,16 @@ class HistoricalContextTests(unittest.TestCase):
         )
         self.assertIn("HISTORICAL: 1 identities; 1 occurrences", out)
 
+    def test_two_stale_occurrences_on_one_line_both_block(self):
+        # 3b88: each normalized occurrence consumes exactly one legacy finding, so the second
+        # stale citation of the same identifier on a line stays BLOCKING (legacy) too.
+        code, found, _ = self.run_json(
+            "Adopted ISO/IEC 27001:2013 first and ISO/IEC 27001:2013 again.\n", None,
+        )
+        self.assertEqual(code, 1)
+        stale = [f for f in found if f["kind"] == "STALE"]
+        self.assertEqual([f["legacy"] for f in stale], [True, True], found)
+
     def test_unmarked_citation_still_blocks(self):
         for exceptions in (None, HXHEAD):
             code, out, _ = self.invoke(
@@ -638,10 +675,13 @@ class HistoricalContextTests(unittest.TestCase):
         line = "ISO/IEC 27001:2013 anchors this control set. " + sentence
         code, found, _ = self.run_json(line + "\n", hx(hrow(sentence)))
         self.assertEqual(code, 1)
+        # The row is invalid here (the sentence is not its own paragraph), so it sanctions
+        # nothing and both stale citations on the line block (3b88: the second one used to be
+        # downgraded to advisory).
         self.assertEqual(
             [f["span"][0] for f in found
              if f["kind"] == "STALE" and f["legacy"]],
-            [[1, 1]],
+            [[1, 1], [1, 68]],
         )
         # Another superseded edition of the same standard is not declared.
         two = HREG.replace(
