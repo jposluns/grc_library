@@ -22992,6 +22992,10 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             ("asvs", "V2.14",
              "| ASVS | ZAP {probe} (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
              "| ASVS | ASVS ZAP {probe} |\n| --- | --- |\n| V1.2.4 | enabled |\n"),
+            # The tool-version signal alone: the twin differs only by "(tool version)" (3b82 QA).
+            ("asvs", "V2.14",
+             "| ASVS | ASVS ZAP {probe} (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
+             "| ASVS | ASVS ZAP {probe} |\n| --- | --- |\n| V1.2.4 | enabled |\n"),
             ("asvs", "V3.9.9",
              "| Control | ASVS version |\n| --- | --- |\n| X | {probe} |\n",
              "| Control | ASVS |\n| --- | --- |\n| X | {probe} |\n"),
@@ -23149,6 +23153,11 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     def test_other_publisher_versions_are_not_asvs_ids(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-versions.md", body))
+        # The original line, with every fabricated token together, still passes (3b82 QA).
+        r = self._run("asvs-versions.md",
+                      "ETSI EN 304 223 V9.9.9 and CMMI V9.9 sit beside OWASP ASVS V5.0.0 in this table.\n"
+                      "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V9.9.9 |\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_v_token_outside_asvs_context_ignored(self) -> None:
         self.assertIdentifierScopeProbes(lambda body: self._run("asvs-nocontext.md", body))
