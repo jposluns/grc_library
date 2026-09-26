@@ -7908,6 +7908,7 @@ class LintCommonHelperTests(unittest.TestCase):
         import pathlib
         lc = self._lint_common()
         d = pathlib.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d, True)  # 3b103 QA r1: the directory was left behind
 
         # absent config -> empty
         self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
@@ -27135,6 +27136,21 @@ class SelfTestTempdirTests(unittest.TestCase):
                 if "mkdtemp(" in text and "--self-test" in text:
                     found.append(path)
         return found
+
+    # Guardrails-owned byte-identical copies that allocate under an explicit base and clean it up
+    # themselves; they are edited only by re-adoption from the guardrails share.
+    EXPLICIT_BASE_OWNED = {"clock-inject.py", "future-stamp-write.py", "stamp-truth-stop.py"}
+
+    def test_no_explicit_base_outside_the_monitored_root(self) -> None:
+        # The run below watches only TMPDIR, so a self-test that passes dir= to mkdtemp would leak
+        # unseen (3b103 QA r1, codex). Residue: tests/ is not scanned here; a leak there is caught
+        # only by running the full suite under a fresh TMPDIR.
+        pattern = re.compile(r"mkdtemp\([^)]*\bdir\s*=")
+        for path in self.targets():
+            if path.name in self.EXPLICIT_BASE_OWNED:
+                continue
+            with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()):
+                self.assertIsNone(pattern.search(path.read_text(errors="replace")))
 
     def test_discovery_is_not_vacuous(self) -> None:
         # Nine self-tests leaked before 3b103; the scan must still see at least those.
