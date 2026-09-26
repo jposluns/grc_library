@@ -2,7 +2,7 @@
 
 **Document Title:** Historical-Context Citation Exceptions Register\
 **Document Type:** Register\
-**Version:** 1.0.16\
+**Version:** 1.0.17\
 **Date:** 2026-09-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -39,7 +39,7 @@ Each row is one table in the data file's `exception` array (usually written as a
 - **reason**: why the historical citation is needed.
 - **upstream** and **verified**: the publisher evidence for the historical fact (an `https://` URL that names a host, with no user name or password and a valid port if one is given), and the past UTC date it was checked (a TOML date, `YYYY-MM-DD`).
 
-Every value is a single line of printable ASCII with no leading, trailing or doubled space, and no emoji shortcode such as `:+1:` (outside the upstream URL).
+Every value is a single line of printable ASCII with no leading, trailing or doubled space. An emoji shortcode such as `:+1:` is not refused and may render as a glyph in the table, so review the rendered table.
 
 ## Exceptions
 

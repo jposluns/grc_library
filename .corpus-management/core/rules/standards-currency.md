@@ -31,7 +31,7 @@ A superseded edition cited as history, rather than as a current reference, is
 the one sanctioned exception form. The project wrapper reads it from a reviewed
 machine-readable data file, parsed strictly (valid structured data, exactly the
 declared fields, typed values, every string single-line printable ASCII with
-no doubled space or emoji shortcode, rows
+no doubled space, rows
 unique by identifier and by path, sentence and citation); a human-readable page
 shows the rows in a table generated from the data, and the wrapper refuses a page
 whose generated table differs, whose table does not stand alone, or that carries
@@ -39,7 +39,8 @@ a line ending other than LF, front matter, raw HTML, a comment, a fence marker,
 math markup, an image, a table or a pipe character outside it. The page can
 never change what is sanctioned, and no table drawn in Markdown, HTML, math or
 an image can appear beside the generated one; prose or an indented block that
-imitates a row is not detected, so review of the page is the control. Each
+imitates a row, or an emoji shortcode that renders as a glyph, is not
+detected, so review of the page is the control. Each
 declaration names one path, one verbatim sentence, one registered
 superseded citation written exactly once in that sentence, a reason and
 upstream evidence (an https URL naming a host, with no credentials). The wrapper screens the declared text against a

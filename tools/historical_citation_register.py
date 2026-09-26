@@ -57,14 +57,13 @@ def load(text: str) -> list[dict]:
             raise RegisterDataError(f"{where}: verified must be a TOML date (YYYY-MM-DD)")
         for key in FIELDS[:-1]:
             value = row[key]
-            # A doubled space would render as one, and GitHub turns an emoji shortcode such as :+1:
-            # into a glyph, so two rows could look the same (3b75 redesign QA r5 and r6, claude).
+            # A doubled space would render as one, so two rows could look the same (3b75 redesign
+            # QA r5, claude). An emoji shortcode such as :+1: may also render as a glyph; it is not
+            # refused (a pattern for it refused times and edition suffixes, r7) and is a stated residue.
             if (not isinstance(value, str) or not _PRINTABLE.fullmatch(value)
-                    or value != value.strip() or "  " in value
-                    or (key != "upstream" and re.search(r":[a-z0-9_+-]+:", value))):
+                    or value != value.strip() or "  " in value):
                 raise RegisterDataError(f"{where}: {key} must be a non-empty single-line printable "
-                                        "ASCII string with no leading, trailing or doubled space"
-                                        " and no emoji shortcode")
+                                        "ASCII string with no leading, trailing or doubled space")
     return rows
 
 

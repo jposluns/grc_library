@@ -802,12 +802,15 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             (HXHEAD + hrow(url="https://u@www.iso.org/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:0/x"), "upstream evidence URL required"),
-            (HXHEAD + hrow(reason="Records the edition lineage :+1: accurately."), "emoji shortcode"),
         ]:
             code, _, err = self.invoke(HSENT + "\n", register=HREG, exceptions=data)
             self.assertEqual(code, 1, data)
             self.assertIn(message, err, data)
             self.assertNotIn("\u0435", err)  # the error names the field, it does not echo content
+        # Colon-delimited times, edition suffixes and URNs are ordinary text, not refused (r7).
+        for reason in ["Records ISO/IEC 27001:2013: the previous baseline.",
+                       "Checked 12:30:00 UTC.", "Cites urn:uuid:12345 as the record."]:
+            self.assertEqual(len(W.HCR.load(hx(hrow(reason=reason)))), 1, reason)
 
     def test_register_page_is_generated_and_in_sync(self):
         import importlib, tempfile
