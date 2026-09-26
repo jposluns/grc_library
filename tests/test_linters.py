@@ -26541,3 +26541,74 @@ from tests.test_standards_currency_coverage import CitationCoverageTests, Histor
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+class RepoRelativeDefaultPathTests(unittest.TestCase):
+    """P-1.21 PR 2 reality fixtures: every changed hook and tool derives its default drop root (or
+    tool path) from its own location, so the value follows the checkout when it moves, and an
+    explicit environment override still wins."""
+
+    CASES = [  # (script, attribute or zero-argument function, path below the repo parent)
+        (".claude/hooks/block-idle-stop-with-actionable-backlog.py", "ESCAPE_FILE", "grc_working/.allow-idle-stop"),
+        (".claude/hooks/block-turn-end-with-outstanding-work.py", "ESCAPE_FILE", "grc_working/.allow-stop"),
+        (".claude/hooks/block-orchestrator-self-qa.py", "WORKING_ROOT", "grc_working"),
+        (".claude/hooks/block-pr-without-resume-validate.py", "_sentinel_path", None),
+        ("tools/audit-inbox-drops.py", "DEFAULT_ROOT", "grc_working"),
+        ("tools/audit-token-spend.py", "FILEDROP_DEFAULT", "grc_working"),
+    ]
+
+    @staticmethod
+    def _load(path, name):
+        import importlib.machinery
+        import importlib.util
+        loader = importlib.machinery.SourceFileLoader(name, str(path))
+        spec = importlib.util.spec_from_loader(name, loader)
+        mod = importlib.util.module_from_spec(spec)
+        loader.exec_module(mod)
+        return mod
+
+    def _value(self, mod, attr):
+        v = getattr(mod, attr)
+        return Path(v() if callable(v) else v)
+
+    def _env(self, **extra):
+        env = {k: v for k, v in os.environ.items() if k not in ("GRC_DROP_ROOT", "NMW_ACTIONABLE_TOOL")}
+        env.update(extra)
+        from unittest import mock
+        return mock.patch.dict(os.environ, env, clear=True)
+
+    def test_defaults_derive_from_the_checkout(self):
+        for i, (script, attr, below) in enumerate(self.CASES):
+            with self.subTest(script=script), self._env():
+                got = self._value(self._load(REPO_ROOT / script, f"rrd_{i}"), attr)
+                if below is None:  # the sentinel lives directly in the drop root
+                    self.assertEqual(got.parent, REPO_ROOT.parent / "grc_working")
+                else:
+                    self.assertEqual(got, REPO_ROOT.parent / below)
+        with self._env():
+            nmw = self._load(REPO_ROOT / ".claude/hooks/nmw-actionable", "rrd_nmw")
+        self.assertEqual(Path(nmw.TOOL), REPO_ROOT / "tools" / "audit-backlog-actionability.py")
+
+    def test_defaults_follow_a_moved_checkout_and_the_override_wins(self):
+        # Load each copy from a tree whose parent is not the real repo parent, so a hardcoded host
+        # path cannot pass by coincidence.
+        import shutil
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            repo = Path(d).resolve() / "elsewhere" / "grc_library"
+            (repo / ".claude").mkdir(parents=True)
+            shutil.copytree(REPO_ROOT / ".claude" / "hooks", repo / ".claude" / "hooks")
+            shutil.copytree(REPO_ROOT / "tools", repo / "tools")
+            for i, (script, attr, below) in enumerate(self.CASES):
+                with self.subTest(script=script), self._env():
+                    got = self._value(self._load(repo / script, f"rrd_moved_{i}"), attr)
+                    if below is None:
+                        self.assertEqual(got.parent, repo.parent / "grc_working")
+                    else:
+                        self.assertEqual(got, repo.parent / below)
+            with self._env():
+                nmw = self._load(repo / ".claude/hooks/nmw-actionable", "rrd_moved_nmw")
+            self.assertEqual(Path(nmw.TOOL), repo / "tools" / "audit-backlog-actionability.py")
+            with self._env(GRC_DROP_ROOT=d):
+                hook = self._load(repo / self.CASES[0][0], "rrd_moved_hook_env")
+            self.assertEqual(hook.ESCAPE_FILE, Path(d) / ".allow-idle-stop")

@@ -109,8 +109,8 @@ serialization the maintainer would gladly parallelize.
 
 ## Standard pipeline: seeds -> plan -> worker draft -> tri-family QA -> orchestrator finalize (2026-08-28)
 
-The fleet operating mode for substantive build work (Architect-directed 2026-08-28; the model guardrails converged
-with the Architect, adopted across the fleet's orchestrators). It layers a DRAFT stage on the
+The fleet operating mode for substantive build work (fleet-directed 2026-08-28; the model guardrails converged
+with the fleet operator, adopted across the fleet's orchestrators). It layers a DRAFT stage on the
 research-assistant discipline so the orchestrator stays off the synthesis AND authoring critical path, doing only
 the finalize + integrate:
 
