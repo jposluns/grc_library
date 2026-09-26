@@ -21384,6 +21384,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-ungated-dashes.py
         lint-version-date-consistency.py
         lint-web-corpus-links.py
+        lint-worker-id-anonymity.py
         run-linter-regression.py
         """.split())
         delegated = {"check-class-attestation-on-pr.py": "check-class-completeness.py"}
