@@ -96,7 +96,8 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
             return False, f"required check not reported: {want}"
         for c in rollup:
             if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
-                return False, f"required check {want} is reported only as a commit status, not a CheckRun"
+                return False, (f"required check {want} is also reported as a commit status of the same name "
+                               "(a name collision); only the CheckRun may satisfy it")
             if c.get("__typename") == "CheckRun" and c.get("name") == want and c.get("conclusion") != "SUCCESS":
                 return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
     verified = ", ".join(required) if required else "none"
@@ -156,7 +157,26 @@ def _self_test() -> int:
     checks.append(("green-reason-names-required", "required: Lint" in r_green))
     _, r_none = evaluate([cr("Lint", "COMPLETED", "SUCCESS")])
     checks.append(("green-reason-says-none-required", "required: none" in r_none))
+    _, r_fail_req = evaluate([cr("b", "COMPLETED", "FAILURE")], req)
+    checks.append(("failing-reason-names-unreported-required", "not yet reported: Lint" in r_fail_req))
+    _, r_coll = evaluate([cr("Lint", "COMPLETED", "SUCCESS"), sc("Lint", "SUCCESS")], req)
+    checks.append(("collision-reason-says-collision", "name collision" in r_coll))
+    # main() passes the default required checks through (3b104 QA r2): drive it with a stubbed gh.
     import contextlib as _cl, io as _io
+    lint = REQUIRED_CHECKS[0]
+    rollups = {
+        "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
+        "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+    }
+    real_gh = globals()["gh"]
+    try:
+        for label, want_rc in (("skipped", 1), ("green", 0)):
+            globals()["gh"] = lambda *a, _r=rollups[label]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1", "--dry-run"])
+            checks.append((f"main-default-required-{label}", rc == want_rc))
+    finally:
+        globals()["gh"] = real_gh
     with _cl.redirect_stderr(_io.StringIO()):
         try:
             main(["merge-when-green.py", "1", "--require", "Lint", "--require-none", "--dry-run"])
