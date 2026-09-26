@@ -823,7 +823,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             ("<script>\n\n" + good + "\n</script>\n", "raw HTML or a comment outside the generated block"),
             ("<script>\n" + good + "</script>\n", "must stand alone"),
             ("<details>\n\n" + good + "\n</details>\n", "raw HTML or a comment outside the generated block"),
-            ("```\n\n" + good + "\n```\n", "a fenced block on the page"),
+            ("```\n\n" + good + "\n```\n", "a fence marker outside the generated block"),
+            ("> ```\n> x\n\n" + good, "a fence marker outside the generated block"),   # a quoted fence (claude r3)
+            ("- ~~~\n\n" + good, "a fence marker outside the generated block"),
+            ("---\nException ID: HCE-999\nPath: ai/phantom.md\n---\n\n" + good, "front matter at the top of the page"),  # codex r3
             (fake + "\n" + good, "a table (or a pipe) outside the generated block"),
             ("a | b\n:-- | --:\n1 | 2\n\n" + good, "a table (or a pipe) outside the generated block"),  # no outer pipes
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item

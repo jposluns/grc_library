@@ -34,7 +34,8 @@ declared fields, typed values, every string single-line printable ASCII, rows
 unique by identifier and by path, sentence and citation); a human-readable page
 shows the rows in a table generated from the data, and the wrapper refuses a page
 whose generated table differs, whose table does not stand alone, or that carries
-raw HTML, a comment, a fence, a table or a pipe character outside it, so the page can never
+front matter, raw HTML, a comment, a fence marker, a table or a pipe character
+outside it, so the page can never
 change what is sanctioned or show a table that is not the data. Each
 declaration names one path, one verbatim sentence, one registered
 superseded citation written exactly once in that sentence, a reason and

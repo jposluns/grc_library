@@ -97,10 +97,14 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
         return (f"{PAGE_REL}: the generated table differs from {DATA_REL}; run "
                 "python3 tools/build-historical-citation-exceptions.py")
     # The page must SHOW the generated table as the only table (3b75 QA, codex and claude): the
-    # block stands alone at column 1, and the rest of the page carries no raw HTML or comment,
-    # no fence, and no other table, any of which could hide the real table or show a fake one.
+    # block stands alone at column 1, and the rest of the page carries no front matter, no raw
+    # HTML or comment, no fence marker, and no pipe, any of which could hide the real table or
+    # show a fake one.
     start = page.index(BEGIN)
     after = start + len(block)
+    if re.match(r"\A\ufeff?(?:---|\+\+\+)[ \t]*\n", page):
+        # Front matter renders as a table on GitHub (3b75 redesign QA r3, codex).
+        return f"{PAGE_REL}: front matter at the top of the page"
     # A Markdown blank line may hold spaces or tabs (3b75 redesign QA r2, codex).
     if not re.search(r"(?:\A|\n[ \t]*\n)\Z", page[:start]) or not re.match(
         r"(?:\n?\Z|\n[ \t]*\n)", page[after:]
@@ -110,8 +114,10 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     for n, line in enumerate(outside.splitlines(), 1):
         if re.search(r"<[A-Za-z/!?]", line):
             return f"{PAGE_REL}: raw HTML or a comment outside the generated block"
-        if re.match(r"\s*(?:```|~~~)", line):
-            return f"{PAGE_REL}: a fenced block on the page"
+        if "```" in line or "~~~" in line:
+            # Any fence marker, wherever it sits (a quoted or listed fence too; 3b75 redesign QA r3,
+            # claude): the page's prose needs none.
+            return f"{PAGE_REL}: a fence marker outside the generated block"
         if "|" in line:
             # Any pipe: a GFM table needs one in its delimiter row, with or without outer pipes
             # (3b75 redesign QA r2, claude, codex, gemini), so none may appear outside the block.
