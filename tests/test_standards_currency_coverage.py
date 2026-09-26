@@ -166,6 +166,22 @@ class CitationCoverageTests(unittest.TestCase):
             code = W.main(["--root", str(root), *args])
             return code, out.getvalue(), err.getvalue()
 
+    def test_legacy_label_follows_the_legacy_match_position(self):
+        # 3b88: a normalized occurrence blocks only where a legacy pattern matches at its own
+        # position, so another spelling or edition the legacy check misses keeps ADVISORY,
+        # whichever comes first on the line.
+        def labels(text, register=REGISTER):
+            _, out, _ = self.invoke(text, "--format", "json", register=register)
+            return [(f["version"], f["legacy"]) for f in json.loads(out)["findings"]
+                    if f["kind"] == "STALE"]
+        self.assertEqual(labels("NIST SP 800-61 Rev. 2 and NIST SP 800-61r2."),
+                         [("Rev. 2", True), ("r2", False)])
+        self.assertEqual(labels("NIST SP 800-61r2 and NIST SP 800-61 Rev. 2."),
+                         [("r2", False), ("Rev. 2", True)])
+        reg = REGISTER.replace("| Security | 2013 |", "| Security | 2013, 2005 |")
+        self.assertEqual(labels("ISO/IEC 27001:2013 and ISO/IEC **27001**:2005.", reg),
+                         [("2013", True), ("2005", False)])
+
     def test_table_version_column(self):
         # A framework in a table with an explicit Version column carries its
         # edition in that column; it resolves clean, not a false UNPINNED.

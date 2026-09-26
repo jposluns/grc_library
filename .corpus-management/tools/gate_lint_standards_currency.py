@@ -138,6 +138,29 @@ def check_text(
     return findings
 
 
+def legacy_match_spans(
+    text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
+    eligible_from: str | None = None,
+) -> list[tuple[int, int, int, str]]:
+    """Where check_text's patterns match: (line, first column, last column, message), columns
+    1-based and inclusive, over exactly the lines check_text reads (3b88)."""
+    pairs = iter_non_code_lines(text)
+    if eligible_from is not None:
+        keep = {ln for ln, _ in iter_non_code_lines(eligible_from)}
+        masked_lines = text.splitlines()
+        pairs = [(ln, masked_lines[ln - 1]) for ln in sorted(keep) if ln - 1 < len(masked_lines)]
+    spans = []
+    for ln, line in pairs:
+        line_lower = line.lower()
+        line_is_ascii = line.isascii()
+        for prefilter, pattern, message in compiled:
+            if prefilter is not None and line_is_ascii and prefilter not in line_lower:
+                continue
+            for m in pattern.finditer(line):
+                spans.append((ln, m.start() + 1, max(m.end(), m.start() + 1), message))
+    return spans
+
+
 def run(
     files: list[Path],
     compiled: list[tuple[str | None, re.Pattern[str], str]],
@@ -998,7 +1021,11 @@ def coverage_report(
             )
 
         # This exact HEAD check alone controls PR1 blocking behavior.
+        legacy_spans = []
         if suffix == ".md":
+            legacy_spans = legacy_match_spans(
+                masked, compiled, eligible_from=source if sanctioned_spans else None
+            )
             for line, message in check_text(
                 masked, compiled, eligible_from=source if sanctioned_spans else None
             ):
@@ -1015,7 +1042,6 @@ def coverage_report(
                     legacy=True,
                 ))
 
-        consumed = []
         for occurrence in discover(source, suffix):
             if tuple(map(tuple, occurrence["span"])) in sanctioned_spans:
                 continue
@@ -1038,38 +1064,29 @@ def coverage_report(
             for kind, detail in resolve(
                 occurrence, entries, bare_exceptions
             ):
-                # Avoid reporting the same recognized stale occurrence
-                # twice through legacy and normalized channels.
+                # A normalized occurrence is legacy (BLOCKING) only where a legacy pattern for
+                # its identifier matches at its own position, and it replaces exactly the legacy
+                # findings it covers: a second citation on the line keeps its label, and another
+                # edition or spelling the legacy check misses does not inherit one (3b88).
+                (line_no, first), (_, last) = occurrence["span"]
+                prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
+                covering = {
+                    message for ln, start, end, message in legacy_spans
+                    if kind == "STALE" and ln == line_no and start <= last and end >= first
+                    and message.casefold().startswith(prefix)
+                }
                 matched = [
                     f for f in findings
-                    if kind == "STALE"
-                    and f["legacy"]
-                    and f["family"] == "legacy"
-                    and f["path"] == rel
-                    and f["span"][0][0] == occurrence["span"][0][0]
-                    and f["detail"].casefold().startswith(
-                        (
-                            "stale citation '"
-                            + occurrence["observed"] + " "
-                        ).casefold()
-                    )
+                    if f["legacy"] and f["family"] == "legacy" and f["path"] == rel
+                    and f["span"][0][0] == line_no and f["detail"] in covering
                 ]
                 for f in matched:
                     findings.remove(f)
-                    consumed.append((f["path"], f["span"][0][0], f["detail"].casefold()))
-                # The legacy check reports a line once, so a second stale citation of the same
-                # identifier on that line finds nothing left to remove; remember what was
-                # consumed so it keeps the blocking label too (3b88).
-                prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
-                was_consumed = kind == "STALE" and any(
-                    path == rel and line == occurrence["span"][0][0] and text.startswith(prefix)
-                    for path, line, text in consumed
-                )
                 findings.append(dict(
                     occurrence,
                     kind=kind,
                     detail=detail,
-                    legacy=bool(matched) or was_consumed,
+                    legacy=bool(covering),
                 ))
 
     order = lambda x: (
