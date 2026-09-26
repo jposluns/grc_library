@@ -842,8 +842,8 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
             (good.replace(H.END + "\n", H.END + "x\n"), "must stand alone"),
             # An image can show a picture of a table (claude r5).
-            ("![Exceptions](https://example.org/t.png)\n\n" + good, "an image outside the generated block"),
-            (good + "\n![Exceptions][t]\n\n[t]: https://example.org/t.svg\n", "an image outside the generated block"),
+            ("![Exceptions](https://www.iso.org/t.png)\n\n" + good, "an image outside the generated block"),
+            (good + "\n![Exceptions][t]\n\n[t]: https://www.iso.org/t.svg\n", "an image outside the generated block"),
             (" \t" + H.render(rows) + "\n", "must stand alone"),  # an indented block on line 1
         ]:
             code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
