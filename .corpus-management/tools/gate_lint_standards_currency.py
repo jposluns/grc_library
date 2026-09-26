@@ -1015,6 +1015,7 @@ def coverage_report(
                     legacy=True,
                 ))
 
+        consumed = []
         for occurrence in discover(source, suffix):
             if tuple(map(tuple, occurrence["span"])) in sanctioned_spans:
                 continue
@@ -1055,11 +1056,20 @@ def coverage_report(
                 ]
                 for f in matched:
                     findings.remove(f)
+                    consumed.append((f["path"], f["span"][0][0], f["detail"].casefold()))
+                # The legacy check reports a line once, so a second stale citation of the same
+                # identifier on that line finds nothing left to remove; remember what was
+                # consumed so it keeps the blocking label too (3b88).
+                prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
+                was_consumed = kind == "STALE" and any(
+                    path == rel and line == occurrence["span"][0][0] and text.startswith(prefix)
+                    for path, line, text in consumed
+                )
                 findings.append(dict(
                     occurrence,
                     kind=kind,
                     detail=detail,
-                    legacy=bool(matched),
+                    legacy=bool(matched) or was_consumed,
                 ))
 
     order = lambda x: (

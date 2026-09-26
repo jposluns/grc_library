@@ -560,6 +560,16 @@ class HistoricalContextTests(unittest.TestCase):
         )
         self.assertIn("HISTORICAL: 1 identities; 1 occurrences", out)
 
+    def test_two_stale_occurrences_on_one_line_both_block(self):
+        # 3b88: each normalized occurrence consumes exactly one legacy finding, so the second
+        # stale citation of the same identifier on a line stays BLOCKING (legacy) too.
+        code, found, _ = self.run_json(
+            "Adopted ISO/IEC 27001:2013 first and ISO/IEC 27001:2013 again.\n", None,
+        )
+        self.assertEqual(code, 1)
+        stale = [f for f in found if f["kind"] == "STALE"]
+        self.assertEqual([f["legacy"] for f in stale], [True, True], found)
+
     def test_unmarked_citation_still_blocks(self):
         for exceptions in (None, HXHEAD):
             code, out, _ = self.invoke(
@@ -638,10 +648,13 @@ class HistoricalContextTests(unittest.TestCase):
         line = "ISO/IEC 27001:2013 anchors this control set. " + sentence
         code, found, _ = self.run_json(line + "\n", hx(hrow(sentence)))
         self.assertEqual(code, 1)
+        # The row is invalid here (the sentence is not its own paragraph), so it sanctions
+        # nothing and both stale citations on the line block (3b88: the second one used to be
+        # downgraded to advisory).
         self.assertEqual(
             [f["span"][0] for f in found
              if f["kind"] == "STALE" and f["legacy"]],
-            [[1, 1]],
+            [[1, 1], [1, 68]],
         )
         # Another superseded edition of the same standard is not declared.
         two = HREG.replace(
