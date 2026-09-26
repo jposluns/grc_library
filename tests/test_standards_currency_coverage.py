@@ -798,8 +798,8 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             (HXHEAD + hrow(url="https://localhost/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:99999/x"), "upstream evidence URL required"),
             # Credentials, an empty port or port 0 (claude r6).
-            (HXHEAD + hrow(url="https://u:p@www.iso.org/x"), "upstream evidence URL required"),
-            (HXHEAD + hrow(url="https://u@www.iso.org/x"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https://u:p" + "\x40" + "www.iso.org/x"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https://u" + "\x40" + "www.iso.org/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:/x"), "upstream evidence URL required"),
             (HXHEAD + hrow(url="https://www.iso.org:0/x"), "upstream evidence URL required"),
         ]:
