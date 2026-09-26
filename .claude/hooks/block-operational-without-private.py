@@ -104,7 +104,7 @@ def decide(project_dir: str) -> tuple[bool, str]:
         "it is a REQUIRED dependency, and reconstructing its content from memory is the failure "
         "this guard prevents.\n"
         "CONSIDER INSTEAD: clone grc_library_private "
-        "(git clone https://github.com/jposluns/grc_library_private.git ../grc_library_private) "
+        "(git clone <the private sibling's remote URL> ../grc_library_private) "
         "or grant sibling access (--add-dir ../grc_library_private), then continue (Read and Bash "
         "stay available so you can do exactly that). (If your origin matches that path but you are an "
         "adopter, or the origin was misdetected, resolve it and retry.)"

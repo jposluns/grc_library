@@ -338,14 +338,14 @@ def private_availability_decision(classification: str, private_readable: bool) -
             "the operational state the CLAUDE.md delegation directive points to); "
             "do NOT proceed on operational work and do NOT reconstruct its content "
             "from memory. Grant sibling access (the FIX line above) or clone it "
-            "(git clone https://github.com/jposluns/grc_library_private.git "
+            "(git clone <the private sibling's remote URL> "
             "../grc_library_private), then re-resume.")
     if classification == "maintainer-fresh-machine":
         return (
             "clone _private FIRST: a fresh maintainer clone has no "
             "grc_library_private; operational work requires it, so clone the "
             "private siblings (git clone "
-            "https://github.com/jposluns/grc_library_private.git "
+            "<the private sibling's remote URL> "
             "../grc_library_private) before proceeding.")
     if classification == "adopter":
         return (
