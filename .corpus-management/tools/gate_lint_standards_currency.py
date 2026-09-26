@@ -10,6 +10,9 @@ check_file path. Newly discovered stale forms, HTML findings and coverage
 findings remain advisory. Explicit enforce mode additionally blocks
 recognized stale, unregistered, noncanonical and unpinned citations.
 Ambiguity, candidate forms and unresolved editions remain review inventories.
+coverage_report also accepts wrapper-validated historical-context declarations;
+the engine masks only the declared occurrences inside one bound sentence, and a
+declaration that does not bind blocks in every mode (3b75).
 
 No register schema, repository roots, publisher lookup or current-version
 catalogue is owned here.
@@ -104,11 +107,26 @@ def check_file(
     path: Path, compiled: list[tuple[str | None, re.Pattern[str], str]]
 ) -> list[tuple[int, str]]:
     """Return list of (line-number, message) findings for the file."""
-    findings: list[tuple[int, str]] = []
     text = read_text_safe(path)
     if text is None:
-        return findings
-    for ln, line in iter_non_code_lines(text):
+        return []
+    return check_text(text, compiled)
+
+
+def check_text(
+    text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
+    eligible_from: str | None = None,
+) -> list[tuple[int, str]]:
+    """check_file over text already read (3b75: sanctioned spans masked). With
+    ``eligible_from``, which lines are code is decided from THAT text (the original), so masking
+    can never create or remove a fence and change what else is checked (3b75 QA r4)."""
+    findings: list[tuple[int, str]] = []
+    pairs = iter_non_code_lines(text)
+    if eligible_from is not None:
+        keep = {ln for ln, _ in iter_non_code_lines(eligible_from)}
+        masked_lines = text.splitlines()  # the SAME line model as iter_non_code_lines (r5)
+        pairs = [(ln, masked_lines[ln - 1]) for ln in sorted(keep) if ln - 1 < len(masked_lines)]
+    for ln, line in pairs:
         line_lower = line.lower()
         line_is_ascii = line.isascii()
         for prefilter, pattern, message in compiled:
@@ -733,7 +751,180 @@ def resolve(occurrence, entries, bare_exceptions=None):
 KINDS = (
     "STALE", "UNREGISTERED", "NONCANONICAL_ID", "UNPINNED",
     "AMBIGUOUS", "UNRESOLVED_EDITION", "CANDIDATE",
+    "HISTORICAL", "INVALID_EXCEPTION",
 )
+
+# 3b75: sanctioned historical-context citations. The wrapper validates each
+# declaration (policy, reason, evidence, historical wording); the engine binds
+# it to exactly one whole sentence of one Markdown file and masks ONLY the
+# declared superseded occurrences inside that sentence, so every other
+# citation on the line, stale or not, is checked exactly as before.
+
+
+_ABBREV = re.compile(r"\b(?:e\.g|i\.e|cf|etc|vs|viz|al|approx|no|fig)\.[\"')\]*_]*\s*$", re.I)
+_INTERNAL_BREAK = re.compile(r"[.!?;:][\"')]*\s")
+# A sanctioned sentence is plain ASCII text: letters, digits, spaces and a few punctuation marks.
+# Anything that can change what renders (markup, a backslash escape, a character reference, a
+# tilde or backtick run, emphasis) is refused rather than modelled (3b75 QA r6, codex, claude),
+# and so is a non-ASCII letter, which can be a lookalike a reader and a word screen miss (r7, claude).
+SENTENCE_TEXT = re.compile(r"[A-Za-z0-9 .,;:'\"()/%-]+[.!?]")
+_FENCE_LINE = re.compile(r"\s*(?:```|~~~)")
+
+
+def _simple_fences(lines):
+    """True when every fence-shaped line (what the toggle line model reads as a fence) is one a
+    Markdown renderer reads the same way: at column 1, a run of exactly three, an opener whose
+    backtick info string carries no backtick, and a closer of the opener's character with nothing
+    after it, with no block left open (3b75 QA r6, claude: a 4-backtick fence around a 3-backtick
+    line is one code block to a renderer and two toggles to the line model)."""
+    open_char = None
+    for line in lines:
+        text = line.rstrip("\r\n")
+        if not _FENCE_LINE.match(text):
+            continue
+        run = re.match(r"(`+|~+)", text)
+        if run is None or len(run.group(1)) != 3:
+            return False
+        rest = text[3:]
+        if open_char is None:
+            if run.group(1)[0] == "`" and "`" in rest:
+                return False
+            open_char = run.group(1)[0]
+        elif run.group(1)[0] == open_char and not rest.strip(" \t"):
+            open_char = None
+        else:
+            return False
+    return open_char is None
+
+
+def _whole_unit(lines, idx, start, end, sentence):
+    """True when lines[idx][start:end] is a STANDALONE PARAGRAPH (3b75 QA r3: every structural
+    branch allowed so far, table cells and list items, was talked around, so exactly one shape is
+    accepted). The line holds nothing but the sentence, starting at column 1; the sentence does not
+    begin with a list, heading, blockquote, table or indentation marker; the raw lines above and
+    below are blank (or the file boundary); and the sentence ends with `.`, `!` or `?` (not an
+    abbreviation's period) with no other sentence or clause break."""
+    body = sentence.rstrip()
+    if not SENTENCE_TEXT.fullmatch(body):
+        return False  # plain text only, ending in a terminator (3b75 QA r4, r6)
+    if _INTERNAL_BREAK.search(body[:-1]) or _ABBREV.search(body):
+        return False
+    line = lines[idx].rstrip("\n")
+    if start != 0 or line[end:].strip():
+        return False
+    if re.match(r"(?:\s|[-+*]\s|\d+[.)]\s|#{1,6}\s|>|\|)", sentence):
+        return False
+
+    def blank(k):
+        # Markdown blank lines are ASCII spaces and tabs only; a no-break space is text (r4).
+        return k < 0 or k >= len(lines) or not lines[k].strip(" \t\r\n")
+
+    return blank(idx - 1) and blank(idx + 1)
+
+
+def apply_historical_exceptions(
+    source, rel, exceptions, entries, bare_exceptions=None, raw=None
+):
+    """Return (masked_source, sanctioned, errors) for one Markdown file.
+
+    A declaration binds when its sentence occurs exactly once on a non-code
+    line, is sentence-bounded there, and contains at least one grammar
+    occurrence of the declared identity and edition that resolves STALE.
+    Anything else is an INVALID_EXCEPTION, which always blocks."""
+    lines = source.splitlines(keepends=True)
+    # A document whose line model is ambiguous, or that carries raw HTML, cannot carry a
+    # sanction: Python and a Markdown renderer disagree on where lines end (U+2028, form feed,
+    # NEL, a lone CR and kin), and raw HTML can wrap the paragraph in a container whatever the
+    # Markdown says. Deny by default (3b75 QA r5).
+    # ``raw`` is the file's untranslated text: a universal-newline read has already turned a lone
+    # CR into LF (3b75 QA r6, codex). HTML comments get no carve-out: comment markers inside a
+    # code span, an escaped or a `<!-->` marker all blank real HTML to a regex (r6, all three).
+    ambiguous = re.search(
+        r"[\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]|\r(?!\n)", source if raw is None else raw
+    )
+    html = re.search(r"<[A-Za-z/!?]", source)
+    fences = _simple_fences(lines)
+    allowed = {ln for ln, _ in iter_non_code_lines(source)}
+    masked = [list(line) for line in lines]
+    sanctioned, errors, occs = [], [], None
+    for ex in exceptions:
+        if ex["path"] != rel:
+            continue
+        sites = [
+            (i, m.start())
+            for i, line in enumerate(lines) if i + 1 in allowed
+            for m in re.finditer(re.escape(ex["sentence"]), line)
+        ]
+        problem, hits, span = None, [], [[1, 1], [1, 1]]
+        if ambiguous:
+            problem = "the document uses line separators other than LF or CRLF"
+        elif html:
+            problem = "the document carries raw HTML or an HTML comment"
+        elif not fences:
+            problem = "the document's fenced blocks are not all simple three-character fences"
+        elif len(sites) != 1:
+            problem = (
+                "declared sentence not found" if not sites
+                else "declared sentence occurs %d times" % len(sites)
+            )
+        else:
+            idx, start = sites[0]
+            end = start + len(ex["sentence"])
+            span = [[idx + 1, start + 1], [idx + 1, end]]
+            if not _whole_unit(lines, idx, start, end, ex["sentence"]):
+                problem = (
+                    "declared sentence is not a standalone paragraph at its site (the whole "
+                    "line from column 1, blank lines above and below)"
+                )
+        if problem is None:
+            if occs is None:
+                occs = [
+                    o for o in discover(source, ".md")
+                    if o["channel"] == "grammar"
+                ]
+            for o in occs:
+                (l1, c1), (l2, c2) = o["span"]
+                if (
+                    l1 == l2 == idx + 1 and start < c1 and c2 <= end
+                    and o["identity"] == ex["identity"]
+                    and edition_key(o["version"]) == ex["edition"]
+                    and [k for k, _ in resolve(
+                        o, entries, bare_exceptions
+                    )] == ["STALE"]
+                ):
+                    hits.append(o)
+            # Exactly one occurrence, written exactly as the row's citation (3b75 QA r2): a row
+            # sanctions the citation it names, not every written form of the same edition.
+            if ex.get("citation") is not None:  # a wrapper that names the written citation
+                hits = [
+                    o for o in hits
+                    if lines[o["span"][0][0] - 1][o["span"][0][1] - 1:o["span"][1][1]]
+                    == ex["citation"]
+                ]
+            if len(hits) != 1:
+                problem = (
+                    "no registered superseded citation of the declared "
+                    "edition inside the declared sentence" if not hits
+                    else "the declared citation occurs more than once in the sentence"
+                )
+        if problem:
+            errors.append(dict(
+                kind="INVALID_EXCEPTION", family="exception",
+                identity=ex["id"], observed=ex["id"], version="",
+                channel="exception", context=ex["sentence"], path=rel,
+                suffix=".md", span=span, detail=ex["id"] + ": " + problem,
+                legacy=False,
+            ))
+            continue
+        for o in hits:
+            (l1, c1), (_, c2) = o["span"]
+            for j in range(c1 - 1, c2):
+                masked[l1 - 1][j] = " "
+            sanctioned.append(dict(
+                o, path=rel, suffix=".md", kind="HISTORICAL",
+                detail=ex["id"] + ": " + ex["reason"], legacy=False,
+            ))
+    return "".join("".join(line) for line in masked), sanctioned, errors
 
 VERSION_CELL = re.compile(
     r"(?:v)?\d{1,4}(?:\.\d+)*|Rev\.?\s*\d+(?:\.\d+)*|\d{4}", re.I
@@ -772,7 +963,8 @@ def table_column_version(source, line_no):
 
 
 def coverage_report(
-    files, entries, *, repo_root, mode="report", bare_exceptions=None
+    files, entries, *, repo_root, mode="report", bare_exceptions=None,
+    historical_exceptions=None,
 ):
     compiled = compile_entry_patterns(entries)
     findings, occurrences, file_counts = [], [], Counter()
@@ -784,9 +976,32 @@ def coverage_report(
         suffix = path.suffix
         file_counts[suffix] += 1
 
+        masked, sanctioned_spans = source, set()
+        if suffix == ".md" and historical_exceptions:
+            masked, sanctioned, errors = apply_historical_exceptions(
+                source, rel, historical_exceptions, entries, bare_exceptions,
+                raw=(
+                    path.read_bytes().decode("utf-8")
+                    if any(ex["path"] == rel for ex in historical_exceptions) else None
+                ),
+            )
+            # Discovery reads the ORIGINAL text and skips only the sanctioned spans (3b75 QA r1:
+            # masking before discovery erased a neighbouring bare series member's context).
+            sanctioned_spans = {
+                tuple(map(tuple, f["span"])) for f in sanctioned
+            }
+            findings.extend(sanctioned + errors)
+            occurrences.extend(
+                {k: v for k, v in f.items()
+                 if k not in ("kind", "detail", "legacy")}
+                for f in sanctioned
+            )
+
         # This exact HEAD check alone controls PR1 blocking behavior.
         if suffix == ".md":
-            for line, message in check_file(path, compiled):
+            for line, message in check_text(
+                masked, compiled, eligible_from=source if sanctioned_spans else None
+            ):
                 findings.append(dict(
                     kind="STALE",
                     family="legacy",
@@ -801,6 +1016,8 @@ def coverage_report(
                 ))
 
         for occurrence in discover(source, suffix):
+            if tuple(map(tuple, occurrence["span"])) in sanctioned_spans:
+                continue
             occurrence.update(path=rel, suffix=suffix)
             # A framework cited in a Markdown table with an explicit
             # Version/Edition column carries its edition in that column,
@@ -859,8 +1076,9 @@ def coverage_report(
         f["kind"] in blocking_kinds and not f["legacy"]
         for f in findings
     )
+    invalid = sum(f["kind"] == "INVALID_EXCEPTION" for f in findings)
     status = int(bool(
-        legacy or (mode == "enforce" and new_blocking)
+        legacy or invalid or (mode == "enforce" and new_blocking)
     ))
 
     inventories = {}
@@ -940,13 +1158,15 @@ def print_coverage(report, *, as_json=False):
         if not subset:
             print("  (none)")
         for f in subset:
-            label = "BLOCKING" if f["legacy"] or (
+            label = "BLOCKING" if (
+                f["legacy"] or kind == "INVALID_EXCEPTION"
+            ) or (
                 report["mode"] == "enforce"
                 and kind in {
                     "STALE", "UNREGISTERED",
                     "NONCANONICAL_ID", "UNPINNED",
                 }
-            ) else "ADVISORY"
+            ) else "SANCTIONED" if kind == "HISTORICAL" else "ADVISORY"
             print(
                 "  %s:%s:%s %s %s %r edition=%r: %s" % (
                     f["path"], *f["span"][0], label, f["family"],

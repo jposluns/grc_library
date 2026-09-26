@@ -29,6 +29,45 @@ current or superseded. Final and compound register cells do not automatically
 authorize bare citations. Exceptions require explicit project policy and
 evidence.
 
+A superseded edition cited as history, rather than as a current reference, is
+the one sanctioned exception form. The project wrapper reads it from one table
+of a reviewed policy register (the register holds no fenced block, no HTML
+comment or raw HTML and no line separator other than LF or CRLF, has exactly
+one exceptions section (every heading plain ASCII text and at the top level, no
+setext heading, no blockquote, and
+no second line that renders, or could render, as an Exceptions heading), rows
+unique by path, sentence and citation, and that
+section holds nothing but the table, each row starting at column 1): each declaration names one path, one verbatim sentence, one registered
+superseded citation written exactly once in that sentence, a reason and
+upstream evidence. The wrapper screens the declared text against a
+present-tense vocabulary and requires a historical cue; this is a heuristic on
+the declared text only, and review of each row is the control. The engine
+binds a declaration only where its sentence occurs exactly once on a non-code
+line of that file, ends with a sentence terminator (not an abbreviation's),
+contains no other sentence or clause break, and stands as its own paragraph
+there: the whole line from column 1, not a list item, heading, quotation, table
+row or indented block, and with a blank line (spaces and tabs only, or the
+file boundary) above and below. The sentence is plain ASCII text: letters,
+digits, spaces and the marks . , ; : ' " ( ) / % - only, so no markup, escape,
+character reference or lookalike letter can change what renders or what the
+screen reads, and a closing quote or bracket
+after a terminator still counts as a break. Nothing binds in a file that
+carries raw HTML or any HTML comment, a line the line model reads as a fence
+(after any leading whitespace) other than a three-character fence at column 1,
+with no backtick in a backtick fence's info string, closed by a bare line of
+the same character, or a line
+separator other than LF or CRLF in its untranslated bytes; each such
+declaration is a blocking finding. It then removes only the finding at the one
+occurrence written exactly as the declared citation, reading the original text
+for discovery, so every other citation, including another written form of the
+same edition, is checked unchanged: the established check still blocks it, and
+a discovery-only stale form stays advisory in report mode. Sanctioned
+citations are reported as their own inventory. A declaration that does not
+bind is a blocking finding in every mode, a default run refuses one that names
+a file outside its scan scope, and an absent register sanctions nothing; a
+malformed or empty canonical register, or a malformed historical register,
+fails.
+
 The project wrapper owns the register schema, publication surfaces, exclusions
 and exception reasons. Malformed or empty registers fail; missing or unreadable
 intended inputs are environmental errors. Reports include counts and every

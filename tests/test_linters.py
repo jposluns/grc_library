@@ -21453,7 +21453,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.5.1", "P-1.89 bumps the pack version to 0.5.1 (3.57 PR1 set 0.5.0)")
+        self.assertEqual(man["pack"]["version"], "0.6.0", "3b75 bumps the pack version to 0.6.0 (P-1.89 set 0.5.1)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -26537,7 +26537,7 @@ class FileArgRefusalTests(LinterTestCase):
             self.assertEqual(r.returncode, 0, (script, r.stdout[-300:], r.stderr[-300:]))
 
 
-from tests.test_standards_currency_coverage import CitationCoverageTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers it)
+from tests.test_standards_currency_coverage import CitationCoverageTests, HistoricalContextTests, HistoricalContextRoundTwoTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers them)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
