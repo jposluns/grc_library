@@ -26846,6 +26846,26 @@ class WorkerIdAnonymityTests(unittest.TestCase):
             with self.subTest(value=value):
                 self.assertIn("R2", [r for _, r, _ in self.findings(value)])
 
+    def test_round_four_fixes(self) -> None:
+        # 3b97 QA r4: a timestamped id on a pro or ultra plan, doubled separators after the family and
+        # before a timestamp, and a real account after an earlier bare account-root mention are found.
+        stamp = "20260926T123456Z"
+        found = {
+            "R4": ["-".join(("claude", "pro", "blue", stamp)), "-".join(("gemini", "ultra", "blue", stamp)),
+                   "--".join(("codex", "blue")) + "-" + stamp, "-".join(("codex", "blue")) + "--" + stamp],
+            "R2": ["--".join(("codex", "-".join(("team", "a1", "b2"))))],
+            "R1": ["see " + "-".join(("orch", "accounts")) + "/ and " +
+                   "/".join(("-".join(("orch", "accounts")), "orchestrator", "x" * 8)) + " here"],
+        }
+        for rule, values in found.items():
+            for value in values:
+                with self.subTest(rule=rule, value=value):
+                    self.assertIn(rule, [r for _, r, _ in self.findings(value)])
+        for value in ("-".join(("claude", "opus", "5", "5", "20260901")), "-".join(("gemini", "pro", "20240801")),
+                      "-".join(("gemini", "flash", "2", "0", "20250101"))):
+            with self.subTest(value=value):
+                self.assertEqual(self.findings(value), [])
+
     def test_a_name_in_a_path_is_found(self) -> None:
         name = "-".join(("codex", "team", "x", "y"))
         rc, out, err = self.run_tree({name + "/note.md": b"safe\n"})

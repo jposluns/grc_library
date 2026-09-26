@@ -24,26 +24,29 @@ from pathlib import Path
 from lint_common import REPO_ROOT, guard_explicit_paths, positional_args
 
 # Character classes keep the source itself free of matching example paths. Separators may be
-# "-", "_" or "."; a family token may follow "_" (3b97 QA r1).
-FAMILY = r"(?<![A-Za-z0-9])(claude|codex|gemini)[-_.]"
+# "-", "_" or ".", repeated; a family token may follow "_" (3b97 QA r1, r4).
+FAMILY = r"(?<![A-Za-z0-9])(claude|codex|gemini)[-_.]+"
 ALIAS = re.compile(r"(?:acct|acct-[a-z0-9]|orchestrator|example)", re.I)
 RULES = (
     ("R1", re.compile(
-        r"(?<![A-Za-z0-9])orch[-_]accounts[\\/]+[^\\/\n`'\x22()<>\[\]]+[\\/]+(?P<account>[A-Za-z0-9._-]+)",
+        r"(?<![A-Za-z0-9])orch[-_]accounts[\\/]+(?:(?!orch[-_]accounts)[^\\/\n`'\x22()<>\[\]])+[\\/]+(?P<account>[A-Za-z0-9._-]+)",
         re.I,
     )),
     # A plan word followed by at least two "-" or "_" segments: every real account name has two, so
     # one-word product names (gemini-enterprise, claude.max_tokens) are not findings (3b97 QA r2).
     # Longer slugs and flags of that shape ARE reported: a parameter-word list removed few of them
     # and let an account whose name starts with such a word through (3b97 QA r3). "pro" and "api"
-    # are left out as real product and model names; such an account is still caught by R3 or R4.
+    # are left out as real product and model names; such an account is still caught by R3, or by R4
+    # when it carries a timestamp.
     ("R2", re.compile(
         FAMILY + r"(team|max|plus|aistudio|vertex|enterprise|business|personal|work)[-_]+"
         r"[a-z0-9]+([-_]+[a-z0-9]+)+", re.I,
     )),
     ("R3", re.compile(FAMILY + r"[a-z0-9._-]*worker[-_.]?[0-9]+(?![0-9])", re.I)),
     ("R4", re.compile(
-        FAMILY + r"(?!(opus|sonnet|haiku|fable|pro|flash|ultra|nano)(?![a-z0-9])|[0-9])[a-z0-9]+([-_.][a-z0-9]+)*[-_.]"
+        # A model id (a model word then a digit-led part, or a digit-led first part) is not an account
+        # identifier; a model word followed by a name is (3b97 QA r4).
+        FAMILY + r"(?!(opus|sonnet|haiku|fable|pro|flash|ultra|nano)[-_.]+[0-9]|[0-9])[a-z0-9]+([-_.]+[a-z0-9]+)*[-_.]+"
         r"(20[0-9]{6}([T_-]?[0-9]{4,6}Z?)?|20[0-9]{2}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:?[0-9]{2}(:?[0-9]{2})?Z?)?"
         r"|[0-9]{10,13})(?![0-9])", re.I,
     )),
