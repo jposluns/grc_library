@@ -9,8 +9,10 @@ check blocks in that mode. New findings are advisory. Explicit enforce
 mode supports migration fixtures; no gate invocation enables it in PR1.
 
 3b75: a superseded edition cited as history passes only through a reviewed row
-of `.project-governance/register-historical-citation-exceptions.md`; everything
-else keeps blocking.
+of the TOML data file `.project-governance/register-historical-citation-exceptions.toml`;
+everything else keeps blocking. The Markdown page of the same name is a generated view,
+never parsed for policy; this gate refuses a page whose generated table differs from the
+data (tools/build-historical-citation-exceptions.py regenerates it).
 
 Exit: 0 no blocking findings; 1 blocking findings or malformed/empty
 register; 2 missing/unreadable intended inputs.
@@ -26,6 +28,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from lint_common import AUDITED_DOMAIN_DIRS, require_dir  # noqa: E402  # grc-config/store, stays local
+import historical_citation_register as HCR  # noqa: E402  # 3b75: the register data and page sync
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
@@ -75,21 +78,16 @@ BARE_EXCEPTIONS = {}
 
 # 3b75: the sanctioned historical-context form. A superseded edition cited
 # as HISTORY ("the 2019 edition of ISO/IEC 27701 extended ISO/IEC
-# 27001:2013") passes only through a reviewed row of this policy register:
+# 27001:2013") passes only through a reviewed row of the register data file:
 # one path, one verbatim whole sentence, one registered superseded citation,
 # a reason and upstream evidence. The two wording screens are this project's
 # policy vocabulary; they refuse a present-tense claim at parse time, and the
 # engine refuses a fragment of a longer sentence at scan time. An absent
 # register sanctions nothing, so every stale citation keeps blocking.
-HISTORICAL_REGISTER_REL = (
-    ".project-governance/register-historical-citation-exceptions.md"
-)
+HISTORICAL_REGISTER_REL = HCR.PAGE_REL  # the generated view (never parsed for policy)
+HISTORICAL_DATA_REL = HCR.DATA_REL  # the rows gate 6 reads
 HISTORICAL_REGISTER = REPO_ROOT / HISTORICAL_REGISTER_REL
-HISTORICAL_SECTION = "Exceptions"
-HISTORICAL_HEADER = [
-    "Exception ID", "Path", "Citation", "Sentence", "Reason",
-    *EVIDENCE_HEADER,
-]
+HISTORICAL_DATA = REPO_ROOT / HISTORICAL_DATA_REL
 HISTORICAL_CUE = re.compile(
     r"\b(?:superseded|replaced|withdrawn|revised|previous(?:ly)?"
     r"|former(?:ly)?|prior|earlier|original(?:ly)?|historical(?:ly)?"
@@ -219,100 +217,23 @@ def parse_register_text(text):
 
 
 def parse_historical_exceptions(text, entries):
-    """3b75: parse and validate the historical-context exception register.
+    """3b75: load and validate the historical-context exception DATA file (TOML).
 
-    Only the table under the section heading is policy; it must carry the
-    exact header and separator, and every row is screened before use."""
+    The rows live in a TOML data file (historical_citation_register.load applies the structural
+    checks: strict TOML, exact keys, exact types, single-line printable ASCII strings); this
+    function applies the policy checks to each row. The Markdown register page is a generated
+    view and is never parsed for policy (maintainer ruling 2026-09-26, after ten QA rounds of
+    Markdown shapes that rendered differently from what a parser read)."""
     engine, out, seen = _engine(), [], set()
     today = datetime.now(timezone.utc).date()
-    where0 = "historical register: " + HISTORICAL_SECTION
-    # 3b75 QA r1-r2 (codex, claude): what renders is what counts. The register carries no fenced
-    # block and no unterminated HTML comment anywhere (either could hide or reveal rows depending
-    # on the renderer), closed comments are blanked with the line count kept, and the Exceptions
-    # section holds NOTHING but one contiguous table whose every row has both outer pipes. Any
-    # other content there is refused, never silently dropped or joined.
-    # The text is read untranslated, so a lone CR survives to be refused here (3b75 QA r6, codex):
-    # Python and a Markdown renderer disagree on where such separators end a line, so they could
-    # manufacture a section or a table that does not render.
-    if re.search(r"[\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029]|\r(?!\n)", text):
-        raise RegisterError(f"{where0}: the register uses line separators other than LF or CRLF")
-    for n, raw in enumerate(text.splitlines(), 1):
-        if re.match(r"\s*(?:```|~~~)", raw):
-            raise RegisterError(f"{where0}: line {n}: no fenced block may appear in the register")
-        if re.search(r"<[A-Za-z/!?]", raw):
-            # Raw HTML or a comment anywhere can wrap or hide the table when rendered, and comment
-            # markers in a code span fool a regex (3b75 QA r4-r6).
-            raise RegisterError(
-                f"{where0}: line {n}: no raw HTML or HTML comment may appear in the register"
-            )
-    live = text
-    # Any line that renders, or could render, as an Exceptions heading counts: an ATX heading of any
-    # level with or without closing hashes, in any case, or a bare line a setext underline could
-    # turn into one (3b75 QA r7, codex: `## Exceptions ##` rendered as a second section). There is
-    # exactly one, written exactly `## Exceptions`.
-    def heading_text(line):
-        m = re.fullmatch(r" {0,3}#{1,6}(?:[ \t]+(.*?))?(?:[ \t]+#+)?[ \t]*", line)
-        return (m.group(1) or "") if m else line.strip(" \t")
-
-    # Headings are plain ASCII text and never setext, so nothing a renderer turns into heading text
-    # (a character reference, emphasis, a code span, a link) can make a second Exceptions heading
-    # that a text comparison misses (3b75 QA r8, codex: `## Except&#105;ons`).
-    lines = live.splitlines()
-    for n, raw in enumerate(lines, 1):
-        if re.fullmatch(r" {0,3}#{1,6}(?:[ \t].*)?", raw) and not re.fullmatch(
-            r"[A-Za-z0-9 ,()/-]+", heading_text(raw)
-        ):
-            raise RegisterError(f"{where0}: line {n}: a heading must be plain ASCII text")
-        if n > 1 and lines[n - 2].strip(" \t") and re.fullmatch(r"[ \t]*(?:=+|-+)[ \t]*", raw):
-            raise RegisterError(f"{where0}: line {n}: no setext heading may appear in the register")
-        # A heading inside a container renders too, and escapes the top-level checks (3b75 QA r9,
-        # claude and codex): no blockquote at all, and no heading below a list marker or indented.
-        if re.match(r"[ \t]*>", raw):
-            raise RegisterError(f"{where0}: line {n}: no blockquote may appear in the register")
-        body = re.sub(r"^[ \t]*(?:(?:[-+*]|\d{1,9}[.)])(?:[ \t]+|$))*", "", raw)
-        if re.match(r"#{1,6}(?:[ \t]|$)", body) and not re.fullmatch(r" {0,3}#{1,6}(?:[ \t].*)?", raw):
-            raise RegisterError(f"{where0}: line {n}: a heading may appear only at the top level")
-    marks = [
-        raw for raw in lines
-        if heading_text(raw).lower() == HISTORICAL_SECTION.lower()
-    ]
-    if marks != ["## " + HISTORICAL_SECTION]:
-        raise RegisterError(f"{where0}: the register needs exactly one '## {HISTORICAL_SECTION}' section")
-    section, table, ended = None, [], False
-    for n, raw in enumerate(live.splitlines(), 1):
-        if raw.startswith("## ") or raw.startswith("# "):
-            # Exactly one Exceptions section (checked above), so leaving it cannot re-enter it.
-            section = raw[3:].strip() if raw.startswith("## ") else None
-            continue
-        if section != HISTORICAL_SECTION:
-            continue
-        # Structural whitespace is ASCII space and tab only: a no-break space is text to a renderer,
-        # so a delimiter cell or row padded with one is no table at all (3b75 QA r7, codex).
-        s = raw.strip(" \t")
-        if not s:
-            if table:
-                ended = True
-            continue
-        if ended:
-            raise RegisterError(f"{where0}: line {n}: a second table or stray row")
-        if not (raw.startswith("|") and s.endswith("|") and len(s) > 1):
-            # A row starts at column 1: an indented table renders as a code block (3b75 QA r3).
-            raise RegisterError(
-                f"{where0}: line {n}: only one table may appear here; each row starts at "
-                "column 1 and has both outer pipes"
-            )
-        table.append((n, [c.strip(" \t") for c in re.split(r"(?<!\\)\|", s[1:-1])]))
-    if len(table) < 2 or table[0][1] != HISTORICAL_HEADER or not all(
-        re.fullmatch(r":?-{3,}:?", c) for c in table[1][1]
-    ) or len(table[1][1]) != len(HISTORICAL_HEADER):
-        raise RegisterError(
-            f"{where0}: expected header {HISTORICAL_HEADER!r} and separator"
-        )
-    for n, row in table[2:]:
-        if len(row) != len(HISTORICAL_HEADER):
-            raise RegisterError(f"{where0}: line {n}: malformed row")
-        xid, path, citation, sentence, reason, upstream, verified = row
-        where = f"historical register:{n}: {xid}"
+    try:
+        rows = HCR.load(text)
+    except HCR.RegisterDataError as exc:
+        raise RegisterError(str(exc)) from None
+    for n, row in enumerate(rows, 1):
+        xid, path, citation, sentence = row["id"], row["path"], row["citation"], row["sentence"]
+        reason, upstream, verified = row["reason"], row["upstream"], row["verified"]
+        where = f"historical register data: exception {n}: {xid}"
         if not re.fullmatch(r"HCE-\d{3}", xid) or xid in seen:
             raise RegisterError(f"{where}: needs a unique HCE-NNN id")
         seen.add(xid)
@@ -320,11 +241,12 @@ def parse_historical_exceptions(text, entries):
             # Two rows would sanction the one occurrence twice (3b75 QA r7, claude).
             raise RegisterError(f"{where}: repeats another row's path, sentence and citation")
         seen.add((path, sentence, citation))
+        parts = path.split("/")
         if (
-            not path.endswith(".md") or path.startswith("/")
-            or ".." in path.split("/")
+            not re.fullmatch(r"[A-Za-z0-9._/-]+\.md", path)
+            or any(part in {"", ".", ".."} for part in parts)
         ):
-            raise RegisterError(f"{where}: path must be a repo .md path")
+            raise RegisterError(f"{where}: path must be a canonical repo .md path")
         occ = [
             o for o in engine.discover(citation, ".md")
             if o["channel"] == "grammar"
@@ -340,10 +262,9 @@ def parse_historical_exceptions(text, entries):
                 f"{where}: citation {citation!r} is not exactly "
                 "one registered superseded edition"
             )
-        if sentence.count(citation) != 1 or "|" in sentence:
+        if sentence.count(citation) != 1:
             raise RegisterError(
-                f"{where}: sentence must contain the citation "
-                "verbatim exactly once and no pipe"
+                f"{where}: sentence must contain the citation verbatim exactly once"
             )
         if not engine.SENTENCE_TEXT.fullmatch(sentence):
             raise RegisterError(
@@ -362,18 +283,13 @@ def parse_historical_exceptions(text, entries):
             )
         if len(reason) < 10 or reason.lower() in {"-", "tbd", "n/a"}:
             raise RegisterError(f"{where}: reason required")
-        if not re.fullmatch(r"https://\S+", upstream):
+        if not re.fullmatch(r"https://[^\s|<>`\\]+", upstream):
             raise RegisterError(
                 f"{where}: upstream evidence URL required"
             )
-        try:
-            when = date.fromisoformat(verified) if re.fullmatch(
-                r"\d{4}-\d\d-\d\d", verified) else None
-        except ValueError:
-            when = None
-        if when is None or when > today:
+        if verified > today:
             raise RegisterError(
-                f"{where}: Last verified (UTC) must be an ISO date on or before today"
+                f"{where}: verified must be a date on or before today (UTC)"
             )
         out.append(dict(
             id=xid, path=path, citation=citation, sentence=sentence,
@@ -472,7 +388,7 @@ def iter_files(paths, *, explicit=True):
 
 
 def main(argv=None):
-    global REPO_ROOT, CANONICAL_REGISTER, HISTORICAL_REGISTER
+    global REPO_ROOT, CANONICAL_REGISTER, HISTORICAL_REGISTER, HISTORICAL_DATA
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--paths", nargs="+", default=None)
@@ -500,14 +416,24 @@ def main(argv=None):
         REPO_ROOT / "governance/register-canonical-citations.md"
     )
     HISTORICAL_REGISTER = REPO_ROOT / HISTORICAL_REGISTER_REL
+    HISTORICAL_DATA = REPO_ROOT / HISTORICAL_DATA_REL
     try:
         entries = parse_canonical_register()
         historical = (
             parse_historical_exceptions(
-                HISTORICAL_REGISTER.read_bytes().decode("utf-8"), entries
+                HISTORICAL_DATA.read_bytes().decode("utf-8"), entries
             )
-            if HISTORICAL_REGISTER.exists() else []
+            if HISTORICAL_DATA.exists() else []
         )
+        # The page's generated table must match the data (3b75 redesign). With no data file, a
+        # page that exists must show the empty table; with a data file, the page must exist.
+        if HISTORICAL_DATA.exists() or HISTORICAL_REGISTER.exists():
+            page = (HISTORICAL_REGISTER.read_bytes().decode("utf-8")
+                    if HISTORICAL_REGISTER.exists() else None)
+            rows = HCR.load(HISTORICAL_DATA.read_bytes().decode("utf-8")) if HISTORICAL_DATA.exists() else []
+            problem = HCR.sync_problem(page, rows)
+            if problem:
+                raise RegisterError(problem)
         paths = (
             args.paths if args.paths is not None
             else [*DEFAULT_PATHS, HTML_ROOT]

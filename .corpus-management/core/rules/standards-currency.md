@@ -28,14 +28,13 @@ authorize bare citations. Exceptions require explicit project policy and
 evidence.
 
 A superseded edition cited as history, rather than as a current reference, is
-the one sanctioned exception form. The project wrapper reads it from one table
-of a reviewed policy register (the register holds no fenced block, no HTML
-comment or raw HTML and no line separator other than LF or CRLF, has exactly
-one exceptions section (every heading plain ASCII text and at the top level, no
-setext heading, no blockquote, and
-no second line that renders, or could render, as an Exceptions heading), rows
-unique by path, sentence and citation, and that
-section holds nothing but the table, each row starting at column 1): each declaration names one path, one verbatim sentence, one registered
+the one sanctioned exception form. The project wrapper reads it from a reviewed
+machine-readable data file, parsed strictly (valid structured data, exactly the
+declared fields, typed values, every string single-line printable ASCII, rows
+unique by identifier and by path, sentence and citation); a human-readable page
+shows the rows in a table generated from the data, and the wrapper refuses a page
+whose table differs, so the page can never change what is sanctioned. Each
+declaration names one path, one verbatim sentence, one registered
 superseded citation written exactly once in that sentence, a reason and
 upstream evidence. The wrapper screens the declared text against a
 present-tense vocabulary and requires a historical cue; this is a heuristic on

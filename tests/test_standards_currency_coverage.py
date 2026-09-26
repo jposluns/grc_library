@@ -135,7 +135,7 @@ class CitationCoverageTests(unittest.TestCase):
         ]
 
     def invoke(
-        self, text, *args, suffix=".md", register=REGISTER, exceptions=None
+        self, text, *args, suffix=".md", register=REGISTER, exceptions=None, page=None
     ):
         relative = (
             "ai/citation.md" if suffix == ".md"
@@ -145,8 +145,16 @@ class CitationCoverageTests(unittest.TestCase):
             "governance/register-canonical-citations.md": register,
             relative: text,
         }
-        if exceptions is not None:  # 3b75: the historical policy register
-            values[W.HISTORICAL_REGISTER_REL] = exceptions
+        if exceptions is not None:  # 3b75: the historical register data and its generated page
+            values[W.HISTORICAL_DATA_REL] = exceptions
+            if page is None:
+                try:
+                    rows = W.HCR.load(exceptions if isinstance(exceptions, str) else exceptions.decode())
+                except (W.HCR.RegisterDataError, UnicodeError):
+                    rows = []
+                page = "# Register\n\n## Exceptions\n\n" + W.HCR.render(rows) + "\n"
+        if page is not None and page is not False:  # page=False: the page file is absent
+            values[W.HISTORICAL_REGISTER_REL] = page
         with memory_tree("/currency-fixture", values) as root, \
              patch.object(W, "REPO_ROOT", root), \
              patch.object(
@@ -467,12 +475,8 @@ HREG = (
     + "| ISO/IEC 27002 | 2022 | 2022 | Controls | 2013 |\n"
     + "| ISO/IEC 27701 | 2025 | 2025 | PIMS | 2019 |\n"
 )
-HXHEAD = (
-    "# Historical-context citation exceptions\n\n## Exceptions\n\n"
-    "| Exception ID | Path | Citation | Sentence | Reason "
-    "| Upstream check location | Last verified (UTC) |\n"
-    "| --- | --- | --- | --- | --- | --- | --- |\n"
-)
+# 3b75 redesign: the rows live in a TOML data file; the Markdown page is a generated view.
+HXHEAD = "schema_version = 1\n"
 HSENT = (
     "The 2019 edition of ISO/IEC 27701 extended ISO/IEC 27001:2013 "
     "with privacy-specific controls."
@@ -481,11 +485,14 @@ HURL = "https://www.iso.org/standard/71670.html"
 
 
 def hrow(sentence=HSENT, citation="ISO/IEC 27001:2013", path="ai/citation.md",
-         xid="HCE-001", url=HURL, verified="2026-09-01"):
-    return "| %s | %s | %s | %s | %s | %s | %s |\n" % (
-        xid, path, citation, sentence,
-        "Records the edition lineage accurately.", url, verified,
-    )
+         xid="HCE-001", url=HURL, verified="2026-09-01",
+         reason="Records the edition lineage accurately."):
+    """One [[exception]] table; strings as TOML basic strings (JSON escaping is valid TOML)."""
+    import json as _json
+    q = _json.dumps
+    return ("\n[[exception]]\nid = %s\npath = %s\ncitation = %s\nsentence = %s\n"
+            "reason = %s\nupstream = %s\nverified = %s\n") % (
+        q(xid), q(path), q(citation), q(sentence), q(reason), q(url), verified)
 
 
 def hx(*rows):
@@ -523,10 +530,10 @@ def assert_refused(tc, doc, sent, citation="ISO/IEC 27001:2013", msg=None):
 class HistoricalContextTests(unittest.TestCase):
     invoke = CitationCoverageTests.invoke
 
-    def run_json(self, text, exceptions, *args, register=HREG):
+    def run_json(self, text, exceptions, *args, register=HREG, page=None):
         code, out, err = self.invoke(
             text, "--format", "json", *args,
-            register=register, exceptions=exceptions,
+            register=register, exceptions=exceptions, page=page,
         )
         return code, (json.loads(out)["findings"] if out.strip() else []), err
 
@@ -686,11 +693,12 @@ class HistoricalContextTests(unittest.TestCase):
             (hx(hrow(current, citation="ISO/IEC 27001:2022")),
              "is not exactly one registered superseded edition"),
             (hx(hrow(url="-")), "upstream evidence URL required"),
-            (hx(hrow(verified="2999-01-01")), "must be an ISO date on or before today"),
+            (hx(hrow(verified="2999-01-01")), "must be a date on or before today"),
             (hx(hrow(xid="H-1")), "needs a unique HCE-NNN id"),
             (hx(hrow(), hrow()), "needs a unique HCE-NNN id"),
-            (hx(hrow(path="../x.md")), "path must be a repo .md path"),
-            (HXHEAD.replace("| Reason ", "| Why "), "expected header"),
+            (hx(hrow(path="../x.md")), "path must be a canonical repo .md path"),
+            (hx(hrow(path="ai//x.md")), "path must be a canonical repo .md path"),
+            (hx(hrow().replace("reason =", "why =")), "fields must be exactly"),
         ]:
             code, _, err = self.invoke(
                 HSENT + "\n", register=HREG, exceptions=exceptions
@@ -762,22 +770,85 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         self.assertEqual(len([f for f in found if f["kind"] == "HISTORICAL"]), 1, doc)
         self.assertIn("STALE", [f["kind"] for f in found], doc)
 
-    def test_register_parsing_is_strict(self):
-        head = HXHEAD
-        for body, message in [
-            ("```text\n" + hrow() + "```\n", "no fenced block may appear in the register"),
-            ("<!--\n" + hrow() + "-->\n", "no raw HTML or HTML comment may appear in the register"),
-            (hrow().rstrip().rstrip("|") + "X\n", "has both outer pipes"),
-            (hrow().lstrip("|"), "has both outer pipes"),
-            ("    " + hrow(), "each row starts at column 1"),
-            (hrow() + "\nText.\n\n" + hrow(xid="HCE-002"), "a second table or stray row"),
+    def test_register_data_is_strict(self):
+        # 3b75 redesign: the rows live in TOML; the structural checks refuse, fail closed.
+        row = hrow()
+        for data, message in [
+            ("schema_version = 1\nschema_version = 1\n", "not valid TOML"),            # duplicate key
+            ("schema_version = 2\n" + row, "schema_version must be the integer 1"),
+            ("schema_version = true\n" + row, "schema_version must be the integer 1"),
+            ("schema_version = 1\nextra = 1\n", "top-level keys must be"),
+            ("exception = []\n", "top-level keys must be"),                             # no schema_version
+            ("schema_version = 1\nexception = 3\n", "exception must be an array of tables"),
+            (HXHEAD + row.replace("reason =", "why ="), "fields must be exactly"),
+            (HXHEAD + row + 'extra = "x"\n', "fields must be exactly"),  # every key present, one extra
+            (HXHEAD + row.replace('reason = "Records the edition lineage accurately."\n', ""), "fields must be exactly"),
+            (HXHEAD + row.replace("path = ", "path = 3 #"), "path must be"),
+            (HXHEAD + hrow(verified="2026-09-01T00:00:00"), "verified must be a TOML date"),
+            (HXHEAD + hrow(verified='"2026-09-01"'), "verified must be a TOML date"),
+            (HXHEAD + hrow(reason="Records the edition lin\u0435age accurately."), "single-line printable ASCII"),
+            (HXHEAD + hrow(reason="Records the edition\nlineage accurately."), "single-line printable ASCII"),
+            (HXHEAD + hrow(reason=" Records the edition lineage accurately."), "no leading or trailing space"),
+            (HXHEAD + hrow(url="https://www.iso.org/standard/71670.html|x"), "upstream evidence URL required"),
         ]:
-            code, _, err = self.invoke(HSENT + "\n", register=HREG, exceptions=head + body)
-            self.assertEqual(code, 1, body)
-            if message:
-                self.assertIn(message, err, body)
-            else:  # an inactive row sanctions nothing, so the citation still blocks
-                self.assertNotIn("ERROR", err, body)
+            code, _, err = self.invoke(HSENT + "\n", register=HREG, exceptions=data)
+            self.assertEqual(code, 1, data)
+            self.assertIn(message, err, data)
+            self.assertNotIn("\u0435", err)  # the error names the field, it does not echo content
+
+    def test_register_page_is_generated_and_in_sync(self):
+        import importlib, tempfile
+        H = W.HCR
+        s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
+        data = hx(hrow(s))
+        rows = H.load(data)
+        good = "# Register\n\n" + H.render(rows) + "\n"
+        # In sync: the sanction binds.
+        code, found, _ = self.run_json("\n" + s + "\n\n", data, page=good)
+        self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
+        # Drift, a missing page, or missing sentinels: refused, and nothing is sanctioned.
+        for page, message in [
+            ("# Register\n\n" + H.render([]) + "\n", "the generated table differs"),
+            (good.replace("HCE\\-001", "HCE\\-002"), "the generated table differs"),
+            ("# Register\n\nno table\n", "sentinels are missing"),
+            (good.replace(H.END, ""), "sentinels are missing"),
+        ]:
+            code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
+            self.assertEqual(code, 1, page)
+            self.assertIn(message, err, page)
+            self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
+        # A data file with no page at all is refused.
+        code, found, err = self.run_json("\n" + s + "\n\n", data, page=False)
+        self.assertEqual(code, 1)
+        self.assertIn("is missing; run python3 tools/build-historical-citation-exceptions.py", err)
+        # No data file: a page showing rows is refused; an empty generated table passes.
+        code, _, err = self.invoke("\n" + s + "\n", register=HREG, page=good)
+        self.assertEqual(code, 1)
+        self.assertIn("the generated table differs", err)
+        code, _, err = self.invoke("The earlier edition was withdrawn.\n", register=HREG,
+                                   page="# Register\n\n" + H.render([]) + "\n")
+        self.assertEqual(code, 0, err)
+        # Rendering escapes every punctuation character, so a cell cannot introduce markup, and the
+        # rendered cells read back as the data (round trip).
+        cell = "a|b<c>`d`*e*_f_[g](h)&#105;\\i"
+        esc = H.escape(cell)
+        self.assertNotRegex(esc, r"(?<!\\)[|<>`*_\[\]()&#]")
+        self.assertEqual(re.sub(r"\\(.)", r"\1", esc), cell)
+        # The build tool: --check exits 0 in sync, 1 on drift, 2 on malformed data.
+        spec = importlib.util.spec_from_file_location(
+            "bhce", Path(W.__file__).with_name("build-historical-citation-exceptions.py"))
+        B = importlib.util.module_from_spec(spec); spec.loader.exec_module(B)
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d); (root / ".project-governance").mkdir()
+            (root / H.DATA_REL).write_text(data); (root / H.PAGE_REL).write_text(good)
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(B.main(["--check", "--root", d]), 0)
+                (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
+                self.assertEqual(B.main(["--check", "--root", d]), 1)
+                self.assertEqual(B.main(["--root", d]), 0)
+                self.assertEqual((root / H.PAGE_REL).read_text(), good)
+                (root / H.DATA_REL).write_text("schema_version = 2\n")
+                self.assertEqual(B.main(["--check", "--root", d]), 2)
 
     def test_round_three_structural_rules(self):
         # 3b75 QA r2 (claude, codex, gemini): the sentence is the WHOLE of its line or cell.
@@ -818,11 +889,11 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, found, _ = self.run_json("Intro.\n\n" + s + "\n\nMore.\n", hx(hrow(s)))
         self.assertEqual(code, 0)
         self.assertEqual([f["kind"] for f in found if f["kind"] in ("HISTORICAL", "STALE")], ["HISTORICAL"])
-        # The wrapper refuses a pipe in the sentence (it cannot be one table cell).
-        piped = "The earlier ISO/IEC 27001:2013 edition \\| was withdrawn."
+        # The wrapper refuses a pipe in the sentence (the plain-text sentence grammar).
+        piped = "The earlier ISO/IEC 27001:2013 edition | was withdrawn."
         code, _, err = self.run_json(piped + "\n", hx(hrow(piped)))
         self.assertEqual(code, 1)
-        self.assertIn("no pipe", err)
+        self.assertIn("sentence must be plain text", err)
         # The citation named by the row, written exactly: another written form of the same edition
         # in the sentence is not sanctioned by it.
         sent = "The earlier ISO/IEC 27001 (2013) edition was withdrawn."
@@ -853,10 +924,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         _, sanctioned, errors = eng.apply_historical_exceptions(twice + "\n", "ai/c.md", [ex], entries)
         self.assertEqual(sanctioned, [])
         self.assertIn("occurs more than once", errors[0]["detail"])
-        # Register: an unterminated comment, and content other than the table in the section.
+        # Anything in the data file that is not TOML data (markup, stray text) fails closed.
         for body, message in [
-            ("<!-- hidden\n" + hrow(), "no raw HTML or HTML comment may appear in the register"),
-            (hrow() + "Some text.\n", "only one table may appear here"),
+            ("<!-- hidden\n" + hrow(), "not valid TOML"),
+            (hrow() + "Some text.\n", "not valid TOML"),
         ]:
             code, _, err = self.invoke(HSENT + "\n", register=HREG, exceptions=HXHEAD + body)
             self.assertEqual(code, 1, body)
@@ -886,84 +957,34 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, found, _ = self.run_json("```\n" + s + "\n```\n", hx(hrow(s)))
         self.assertEqual(code, 1)
         self.assertTrue(any("declared sentence not found" in f["detail"] for f in found))
-        # Register structure (codex r4, claude r4).
-        row = hrow(s)
+        # A citation cell carrying more than the one registered edition (codex r4).
         for register, message in [
-            (HXHEAD + "\n## Notes\nNot policy.\n## Exceptions\n" + row, "exactly one '## Exceptions' section"),
-            ("<pre>\n" + HXHEAD + row + "</pre>\n", "no raw HTML or HTML comment may appear in the register"),
-            (HXHEAD.replace("| --- | --- |", "| --- | x |", 1) + row, "expected header"),
-            (HXHEAD + "| HCE-001 | ai/citation.md |\n", "malformed row"),
-            (HXHEAD + row.replace("| ISO/IEC 27001:2013 |", "| ISO/IEC 27001:2013 extra |"), "is not exactly one registered superseded edition"),
+            (hx(hrow(s, citation="ISO/IEC 27001:2013 extra")), "is not exactly one registered superseded edition"),
         ]:
             code, _, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=register)
             self.assertEqual(code, 1, register)
             self.assertIn(message, err, register)
 
-    def test_round_ten_container_headings(self):
+    def test_round_nine_guards(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        header = HXHEAD.split("## Exceptions\n\n")[1]
-        second = header + hrow(s, xid="HCE-002", path="ai/missing.md", verified="2999-01-01")
-        quoted = "".join("> " + line + "\n" for line in ("## Exceptions", "") + tuple(second.splitlines()))
-        # 3b75 QA r9 (claude, codex): a second Exceptions heading and table inside a blockquote or a
-        # list item render on GitHub but escaped the top-level checks.
-        for extra, message in (
-            ("\n" + quoted, "no blockquote may appear in the register"),
-            ("\n> ## Except&#105;ons\n", "no blockquote may appear in the register"),
-            ("\n- ## Exceptions\n", "a heading may appear only at the top level"),
-            ("\n1.  note\n\n    ## Exceptions\n\n" + "".join("    " + l + "\n" for l in second.splitlines()),
-             "a heading may appear only at the top level"),
-            ("\n- Exceptions\n    ---\n", "no setext heading may appear"),
-        ):
-            for mode in ("report", "enforce"):
-                code, found, err = self.run_json("\n" + s + "\n\n", hx(hrow(s)) + extra, "--coverage-mode", mode)
-                self.assertEqual(code, 1, (extra, mode))
-                self.assertIn(message, err, extra)
-                self.assertNotIn("HISTORICAL", [f["kind"] for f in found], extra)
-        # Ordinary bullets (the register's own Policy list) and a thematic break stay accepted.
-        code, found, _ = self.run_json("\n" + s + "\n\n", "- A policy point.\n- Another.\n\n---\n\n" + hx(hrow(s)))
-        self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
-
-    def test_round_nine_heading_grammar_and_guards(self):
-        s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
-        header = HXHEAD.split("## Exceptions\n\n")[1]
-        second = header + hrow(s, xid="HCE-002", path="ai/missing.md", verified="2999-01-01")
-        # 3b75 QA r8 (codex): markup a renderer turns into heading text hides a second Exceptions
-        # section from a text comparison; register headings are plain ASCII text.
-        for head in ("## Except&#105;ons", "## **Exceptions**", "## `Exceptions`", "## Excepti\\ons",
-                     "## [Exceptions](x)", "## Exc\u0435ptions"):
-            for mode in ("report", "enforce"):
-                code, found, err = self.run_json("\n" + s + "\n\n", hx(hrow(s)) + "\n" + head + "\n\n" + second,
-                                                 "--coverage-mode", mode)
-                self.assertEqual(code, 1, (head, mode))
-                self.assertIn("a heading must be plain ASCII text", err, head)
-                self.assertNotIn("HISTORICAL", [f["kind"] for f in found], head)
-        # No setext heading at all: an underline after any text line is refused.
-        code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s)) + "\nNotes\n===\n")
-        self.assertEqual(code, 1)
-        self.assertIn("no setext heading may appear", err)
-        # A thematic break after a blank line is not a setext underline.
-        code, found, _ = self.run_json("\n" + s + "\n\n", "Intro.\n\n---\n\n" + hx(hrow(s)))
-        self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
-        # 3b75 QA r8 (claude): the absolute-path and extra-cell guards.
+        # 3b75 QA r8 (claude): the absolute-path guard.
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s, path="/ai/citation.md")))
         self.assertEqual(code, 1)
-        self.assertIn("path must be a repo .md path", err)
-        code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s).rstrip("\n") + " extra |\n"))
-        self.assertEqual(code, 1)
-        self.assertIn("malformed row", err)
+        self.assertIn("path must be a canonical repo .md path", err)
         # 3b75 QA r8 (claude): a fence line carrying text after its run does not close the block.
         self.assertIn("HCE-001: the document's fenced blocks are not all simple three-character fences",
                       assert_refused(self, "```\nx\n```y\n\n" + s + "\n\n", s))
 
-    def test_round_eight_lookalikes_and_register_shape(self):
+    def test_round_eight_lookalikes_and_rows(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
         # 3b75 QA r7 (claude): a non-ASCII lookalike letter hides a present-tense verb from the
-        # word screen and from the reviewer, so the sentence is ASCII only, in both layers.
+        # word screen and from the reviewer; the data file refuses non-ASCII text, and the engine
+        # alone refuses the sentence too.
         for sent in ("The previously adopted ISO/IEC 27001:2013 r\u0435quires annual audits.",
                      "The earlier ISO/IEC 27001:2013 edition \u0433overns audits."):
             code, _, err = self.run_json("\n" + sent + "\n\n", hx(hrow(sent)))
             self.assertEqual(code, 1, sent)
-            self.assertIn("sentence must be plain text", err, sent)
+            self.assertIn("single-line printable ASCII", err, sent)
             assert_refused(self, "\n" + sent + "\n\n", sent)
         # 3b75 QA r7 (claude): further present-tense verbs.
         for sent in ("The control set, previously agreed, conforms to ISO/IEC 27001:2013.",
@@ -975,27 +996,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s), hrow(s, xid="HCE-002")))
         self.assertEqual(code, 1)
         self.assertIn("repeats another row's path, sentence and citation", err)
-        # 3b75 QA r7 (codex): a no-break space in the delimiter row leaves no table to a renderer.
-        for register in (hx(hrow(s)).replace("| ---", "| \u00a0---", 1),
-                         hx(hrow(s)).replace("--- |\n", "--- |\u00a0\n", 1)):
-            code, found, err = self.run_json("\n" + s + "\n\n", register)
-            self.assertEqual(code, 1, repr(register[:120]))
-            self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
-            self.assertIn("ERROR: historical register", err)
-        # 3b75 QA r7 (codex): a second section that renders as Exceptions, in any heading form.
-        header = HXHEAD.split("## Exceptions\n\n")[1]
-        second = header + hrow(s, xid="HCE-002", path="docs/outside.md")
-        for head in ("## Exceptions ##", "# Exceptions", "### exceptions", "Exceptions\n---"):
-            register = hx(hrow(s)) + "\n" + head + "\n\n" + second
-            code, found, err = self.run_json("\n" + s + "\n\n", register)
-            self.assertEqual(code, 1, head)
-            self.assertTrue("needs exactly one '## Exceptions' section" in err
-                            or "no setext heading may appear" in err, (head, err))
-        # The canonical heading must be the one written exactly `## Exceptions`.
-        code, _, err = self.run_json("\n" + s + "\n\n", hx(hrow(s)).replace("## Exceptions\n", "## Exceptions ##\n"))
-        self.assertEqual(code, 1)
-        self.assertIn("needs exactly one '## Exceptions' section", err)
-        # The shipped shape still binds.
+        # A valid row binds.
         code, found, _ = self.run_json("\n" + s + "\n\n", hx(hrow(s)))
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
 
@@ -1049,17 +1050,17 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, sent)
             self.assertIn("sentence must be plain text", err, sent)
             assert_refused(self, "\n" + sent + "\n\n", sent)
-        # The register: separators that invent lines, and comment markers in a code span (codex r6,
-        # claude r6).
+        # The data file: separators other than LF or CRLF, and Markdown or HTML around the data,
+        # are not TOML and fail closed (codex r6, claude r6; the redesign removes the page parser).
         for sep in ("\u2028", "\x0b", "\x85", "\r"):
             body = (HXHEAD + hrow(s)).replace("\n", sep).encode("utf-8")
-            code, _, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=body)
+            code, found, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=body)
             self.assertEqual(code, 1, repr(sep))
-            self.assertIn("line separators other than LF or CRLF", err, repr(sep))
+            self.assertIn("ERROR: historical register data", err, repr(sep))
         code, _, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=(
             "Write `<!--` to comment a row out.\n<details>\nWrite `-->` to close it.\n" + hx(hrow(s))))
         self.assertEqual(code, 1)
-        self.assertIn("no raw HTML or HTML comment may appear in the register", err)
+        self.assertIn("not valid TOML", err)
 
     def test_round_six_line_model_and_html(self):
         s = "The earlier ISO/IEC 27001:2013 edition was withdrawn."
@@ -1085,18 +1086,19 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         # Curly quotes do not hide a sentence break (codex r5).
         curly = "He wrote \u201cThe earlier ISO/IEC 27001:2013 edition was withdrawn.\u201d The replacement followed."
         assert_refused(self, "\n" + curly + "\n\n", curly)
-        # Inline HTML anywhere in the register is refused (codex r5).
+        # HTML around the data is not TOML and fails closed (codex r5).
         code, _, err = self.invoke("\n" + s + "\n", register=HREG,
                                    exceptions="Policy <script type=\"text/plain\">\n" + hx(hrow(s)) + "End </script>\n")
         self.assertEqual(code, 1)
-        self.assertIn("no raw HTML or HTML comment may appear in the register", err)
+        self.assertIn("not valid TOML", err)
 
     def test_wrapper_screens_and_schema(self):
         for sent, cit, reason, verified, message in [
             ("We use the previous edition ISO/IEC 27001:2013 for certification.",
              "ISO/IEC 27001:2013", None, "2026-09-01", "present-tense wording 'use'"),
             (HSENT, "ISO/IEC 27001:2013", "short", "2026-09-01", "reason required"),
-            (HSENT, "ISO/IEC 27001:2013", None, "2026-13-45", "on or before today"),
+            (HSENT, "ISO/IEC 27001:2013", None, '"2026-09-01"', "verified must be a TOML date"),
+            (HSENT, "ISO/IEC 27001:2013", None, "2026-09-01T00:00:00", "verified must be a TOML date"),
         ]:
             row = hrow(sent, cit, verified=verified)
             if reason:
