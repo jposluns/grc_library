@@ -227,8 +227,13 @@ def _https_evidence_url(url: str) -> bool:
         return False
     try:
         parts = urllib.parse.urlsplit(url)
-        host, _ = parts.hostname, parts.port
+        host, port = parts.hostname, parts.port
     except ValueError:
+        return False
+    # No credentials on a public page, and a port, when present, is a real one (r6, claude).
+    if parts.username is not None or parts.password is not None:
+        return False
+    if parts.netloc.endswith(":") or port == 0:
         return False
     return parts.scheme == "https" and bool(host) and bool(_HOST.fullmatch(host))
 

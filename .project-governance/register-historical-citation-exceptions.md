@@ -2,7 +2,7 @@
 
 **Document Title:** Historical-Context Citation Exceptions Register\
 **Document Type:** Register\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-09-26\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -37,9 +37,9 @@ Each row is one table in the data file's `exception` array (usually written as a
 - **citation**: exactly one registered identifier with a registered superseded edition, written as it appears in the sentence (for example `ISO/IEC 27001:2013`).
 - **sentence**: the whole sentence, verbatim, in plain ASCII. A sentence containing a full stop followed by a space before its end (for example a citation written with `Rev. 4`) reads as two sentences and cannot be sanctioned.
 - **reason**: why the historical citation is needed.
-- **upstream** and **verified**: the publisher evidence for the historical fact (an `https://` URL that names a host), and the past UTC date it was checked (a TOML date, `YYYY-MM-DD`).
+- **upstream** and **verified**: the publisher evidence for the historical fact (an `https://` URL that names a host, with no user name or password and a valid port if one is given), and the past UTC date it was checked (a TOML date, `YYYY-MM-DD`).
 
-Every value is a single line of printable ASCII with no leading, trailing or doubled space.
+Every value is a single line of printable ASCII with no leading, trailing or doubled space, and no emoji shortcode such as `:+1:` (outside the upstream URL).
 
 ## Exceptions
 
