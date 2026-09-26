@@ -3918,8 +3918,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test OK", result.stdout)
 
     def test_unbumped_version_guard_auto_bump_runs_without_newer_read_text(self) -> None:
-        """P-TODO 3b84: CI runs Python 3.11, whose Path.read_text/write_text lack the newline
-        keyword before 3.13; the auto-bump must not depend on it, and keeps CRLF endings."""
+        """P-TODO 3b84: CI runs Python 3.11, whose Path.read_text lacked the newline keyword
+        (added in 3.13; write_text has it from 3.10); the auto-bump must not depend on it, keeps
+        CRLF endings, and declines a lone-CR file rather than bump the Version without the Date."""
         import importlib.util
         from unittest.mock import patch
         spec = importlib.util.spec_from_file_location(
@@ -3954,6 +3955,14 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                 self.assertTrue(guard.try_auto_bump(repo, "c.md", "2026-09-26"))
             self.assertEqual((repo / "c.md").read_bytes(),
                              b"**Version:** 1.0.1\\\r\n**Date:** 2026-09-26\\\r\n\r\nnew body\r\n")
+            lone = b"**Version:** 1.0.0\\\r**Date:** 2026-07-01\\\r\rnew body\r"
+            (repo / "r.md").write_bytes(lone.replace(b"new", b"old"))
+            git("add", "r.md")
+            git("commit", "-q", "-m", "lone")
+            (repo / "r.md").write_bytes(lone)
+            git("add", "r.md")
+            self.assertFalse(guard.try_auto_bump(repo, "r.md", "2026-09-26"))
+            self.assertEqual((repo / "r.md").read_bytes(), lone)
 
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
@@ -24764,7 +24773,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         # Occurrence 0 is the README decline (3b80); the others follow it.
         add("readme", "readme", evidence=("README.md",),
             sites=(("try_auto_bump", "return False", 0),))
-        for name, occurrence in (("unstaged", 1), ("nonnumeric", 2), ("read-error", 3)):
+        # Occurrence 2 is the lone-CR decline (3b84); nonnumeric and the exception follow it.
+        for name, occurrence in (("unstaged", 1), ("lone-cr", 2), ("nonnumeric", 3), ("read-error", 4)):
             add(name, name, evidence=("doc.md",),
                 sites=(("try_auto_bump", "return False", occurrence),))
         add("mixed", "mixed", evidence=("bad.md",), absent=("  - good.md",),
@@ -25088,6 +25098,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         # (3b84; it previously never raised on either read).
                         if arg == "read-error":
                             raise OSError("crafted read failure")
+                        if arg == "lone-cr":
+                            return b"**Version:** 1.0.0\rBody\r"
                         return read_text(path).encode("utf-8")
 
                     p(Path, "read_bytes", read_bytes)

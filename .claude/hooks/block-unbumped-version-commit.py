@@ -409,6 +409,10 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
         # read_text(newline=""): that keyword needs Python 3.13, and on CI's 3.11 it raised, so
         # the auto-bump always fell into the except branch there (3b84).
         text = f.read_bytes().decode("utf-8")
+        if re.search(r"\r(?!\n)", text):
+            # Lone-CR line endings: re.M's ^ and $ see no line starts, so the Version would be
+            # bumped while the Date is never found, and success reported (3b84 QA, claude).
+            return False
         bumped = bump_semver(text)
         if bumped is None:
             return False
