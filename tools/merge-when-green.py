@@ -175,6 +175,18 @@ def _self_test() -> int:
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run"])
             checks.append((f"main-default-required-{label}", rc == want_rc))
+        # --require replaces the list and must be enforced; --require-none must reach evaluate() as ()
+        # (3b104 QA r3): a custom name missing from a green rollup refuses, and require-none passes it.
+        globals()["gh"] = lambda *a, _r=rollups["green"]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+        for label, flags, want_rc in (("require-custom-missing", ["--require", "Custom check"], 1),
+                                      ("require-custom-present", ["--require", lint], 0)):
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
+            checks.append((f"main-{label}", rc == want_rc))
+        globals()["gh"] = lambda *a, _r=rollups["skipped"]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            rc = main(["merge-when-green.py", "1", "--dry-run", "--require-none"])
+        checks.append(("main-require-none-skips-required", rc == 0))
     finally:
         globals()["gh"] = real_gh
     with _cl.redirect_stderr(_io.StringIO()):
