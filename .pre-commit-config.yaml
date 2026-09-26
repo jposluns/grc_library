@@ -701,3 +701,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-worker-id-anonymity
+        name: Worker-id anonymity audit
+        entry: python3 tools/lint-worker-id-anonymity.py
+        language: system
+        pass_filenames: false
+        always_run: true

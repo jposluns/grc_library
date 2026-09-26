@@ -317,6 +317,9 @@ jobs:
       - name: Citation-publisher table in sync with its source of record
         run: python3 tools/build-citation-publishers.py --check
 
+      - name: Worker-id anonymity audit
+        run: python3 tools/lint-worker-id-anonymity.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

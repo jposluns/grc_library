@@ -21384,6 +21384,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-ungated-dashes.py
         lint-version-date-consistency.py
         lint-web-corpus-links.py
+        lint-worker-id-anonymity.py
         run-linter-regression.py
         """.split())
         delegated = {"check-class-attestation-on-pr.py": "check-class-completeness.py"}
@@ -26725,6 +26726,265 @@ class FileArgRefusalTests(LinterTestCase):
 
 
 from tests.test_standards_currency_coverage import CitationCoverageTests, HistoricalContextTests, HistoricalContextRoundTwoTests  # noqa: F401  (imported so `-m unittest tests.test_linters` discovers them)
+
+class WorkerIdAnonymityTests(unittest.TestCase):
+    """Gate 103: identifiers are assembled so fixtures cannot leak themselves."""
+
+    def setUp(self) -> None:
+        import importlib.util
+        from unittest.mock import patch
+
+        self.patch = patch
+        path_patch = patch.object(sys, "path", [str(REPO_ROOT / "tools"), *sys.path])
+        path_patch.start()
+        self.addCleanup(path_patch.stop)
+        spec = importlib.util.spec_from_file_location(
+            "worker_id_anonymity", REPO_ROOT / "tools/lint-worker-id-anonymity.py",
+        )
+        self.gate = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.gate)
+
+    def findings(self, text: str):
+        return self.gate.scan_bytes(text.encode("utf-8"))
+
+    def run_tree(self, files, *args):
+        from contextlib import redirect_stderr, redirect_stdout
+
+        out, err = io.StringIO(), io.StringIO()
+        root = self.gate.REPO_ROOT
+        names = b"".join(os.fsencode(name) + b"\0" for name in files)
+
+        def read(path):
+            value = files[path.relative_to(root).as_posix()]
+            if isinstance(value, OSError):
+                raise value
+            return value
+
+        result = subprocess.CompletedProcess([], 0, stdout=names, stderr=b"")
+        with self.patch.object(self.gate.subprocess, "run", return_value=result) as git, \
+                self.patch.object(Path, "read_bytes", read), \
+                redirect_stdout(out), redirect_stderr(err):
+            rc = self.gate.main(["lint-worker-id-anonymity.py", *args])
+        git.assert_called_once_with(
+            ["git", "-C", str(root), "ls-files", "-z"],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True,
+        )
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_positive_rules_and_case(self) -> None:
+        cases = {
+            "R1": "/".join(("orch-accounts", "project", "private-user")),
+            "R2": "-".join(("codex", "team", "blue", "x")),
+            "R3": "-".join(("gemini", "custom", "worker7")),
+            "R4": "-".join(("claude", "private", "20260926T123456Z")),
+            "R5": "/" + "/".join(("worker-registry", "lease.json")),
+        }
+        for rule, value in cases.items():
+            for spelling in (value, value.upper()):
+                with self.subTest(rule=rule, spelling=spelling):
+                    self.assertIn((2, rule, spelling), self.findings("\n" + spelling))
+
+    def test_plan_vocabulary_and_families(self) -> None:
+        for family in ("claude", "codex", "gemini"):
+            for plan in ("team", "max", "plus", "aistudio", "vertex",
+                         "enterprise", "business", "personal", "work"):
+                value = "-".join((family, plan, "a1", "b2"))
+                self.assertIn((1, "R2", value), self.findings(value))
+
+    def test_round_one_widening_and_false_positives(self) -> None:
+        # 3b97 QA r1: other separators, path forms, worker numbering and timestamp shapes are found;
+        # product names, model ids, CLI flags and a markdown link are not.
+        acct = "x" * 8
+        found = {
+            "R1": ["orch-accounts//grc//" + acct, "orch-accounts" + chr(92) + "grc" + chr(92) + acct,
+                   "orch_accounts/grc/" + acct],
+            "R2": ["_".join(("codex", "team", "x", "y")), "claude." + "-".join(("max", "x", "y")),
+                   "my_" + "-".join(("gemini", "aistudio", "x", "y"))],
+            "R3": ["-".join(("codex", "worker", "3")), ".".join(("codex", "worker", "3"))],
+            "R4": ["-".join(("claude", "blue", "20260926_1234")), "-".join(("codex", "blue", "2026-09-26T12:34Z"))],
+            "R5": ["-".join(("worker", "registry")) + "/lease.json"],
+        }
+        for rule, values in found.items():
+            for value in values:
+                with self.subTest(rule=rule, value=value):
+                    self.assertIn(rule, [r for _, r, _ in self.findings(value)])
+        for value in ("-".join(("gemini", "pro")), "-".join(("gemini", "pro", "vision")),
+                      "-".join(("gemini", "api")), "--" + "-".join(("codex", "api", "key")),
+                      "claude-3-5-sonnet-20241022", "claude-3-opus-20240229",
+                      "[x](" + "/".join(("orch-accounts", "project", "acct")) + ")"):
+            with self.subTest(value=value):
+                self.assertEqual(self.findings(value), [])
+
+    def test_round_two_widening_and_false_positives(self) -> None:
+        # 3b97 QA r2: a project directory with a space and a link-closing parenthesis; product and
+        # parameter names, digit-led model ids and one-segment plan names are not findings.
+        acct = "x" * 8
+        path = "/".join(("orch-accounts", "my project", acct))
+        self.assertIn((1, "R1", path), self.findings(path))
+        lease = "/" + "/".join(("worker-registry", "lease.json"))
+        self.assertIn((1, "R5", lease), self.findings("[lease](" + lease + ")"))
+        for family in ("claude", "codex", "gemini"):
+            for value in (family + "-enterprise", family + "-team", family + "-max",
+                          family + "-vertex-ai", family + ".max_tokens", family + ".team",
+                          family + "-business-review.md", family + "_personal_notes.md",
+                          family + "-work-log", "-".join((family, "15", "pro", "20240229")),
+                          "-".join((family, "pro", "20240801")), "-".join((family, "flash", "20240801"))):
+                with self.subTest(value=value):
+                    self.assertEqual(self.findings(value), [])
+
+    def test_round_three_fixes_and_stated_false_positives(self) -> None:
+        # 3b97 QA r3: a name starting with a former parameter word and a doubled separator are found;
+        # an account path cannot span Markdown code spans; long family-plus-plan slugs and flags are
+        # the stated false-positive class and ARE reported.
+        for value in ("-".join(("codex", "team", "api", "backend")), "--".join(("claude-max", "a1-b2"))):
+            with self.subTest(value=value):
+                self.assertIn("R2", [r for _, r, _ in self.findings(value)])
+        span = "`" + "-".join(("orch", "accounts")) + "/` stores accounts; see `docs/README.md`."
+        self.assertEqual(self.findings(span), [])
+        for value in ("-".join(("claude", "enterprise", "data", "retention")),
+                      "--" + "-".join(("gemini", "max", "output", "tokens"))):
+            with self.subTest(value=value):
+                self.assertIn("R2", [r for _, r, _ in self.findings(value)])
+
+    def test_round_four_fixes(self) -> None:
+        # 3b97 QA r4: a timestamped id on a pro or ultra plan, doubled separators after the family and
+        # before a timestamp, and a real account after an earlier bare account-root mention are found.
+        stamp = "20260926T123456Z"
+        found = {
+            "R4": ["-".join(("claude", "pro", "blue", stamp)), "-".join(("gemini", "ultra", "blue", stamp)),
+                   "--".join(("codex", "blue")) + "-" + stamp, "-".join(("codex", "blue")) + "--" + stamp],
+            "R2": ["--".join(("codex", "-".join(("team", "a1", "b2"))))],
+            "R1": ["/".join(("-".join(("orch", "accounts")), ".", "orchestrator", "x" * 8)),
+                   "see " + "-".join(("orch", "accounts")) + "/ and " +
+                   "/".join(("-".join(("orch", "accounts")), "orchestrator", "x" * 8)) + " here"],
+        }
+        for rule, values in found.items():
+            for value in values:
+                with self.subTest(rule=rule, value=value):
+                    self.assertIn(rule, [r for _, r, _ in self.findings(value)])
+        for value in ("-".join(("claude", "opus", "5", "5", "20260901")), "-".join(("gemini", "pro", "20240801")),
+                      "-".join(("gemini", "flash", "2", "0", "20250101"))):
+            with self.subTest(value=value):
+                self.assertEqual(self.findings(value), [])
+
+    def test_a_name_in_a_path_is_found(self) -> None:
+        name = "-".join(("codex", "team", "x", "y"))
+        rc, out, err = self.run_tree({name + "/note.md": b"safe\n"})
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn(f"{name}/note.md:0: R2:", out)
+
+    def test_worker_and_timestamp_variants(self) -> None:
+        for family in ("claude", "codex", "gemini"):
+            for middle in ("", "some-", "some"):
+                value = family + "-" + middle + "worker" + "12"
+                self.assertIn((1, "R3", value), self.findings(value))
+            for stamp in ("20260926", "20260926T1234", "20260926123456Z",
+                          "20260926T123456Z", "1234567890", "1234567890123"):
+                value = "-".join((family, "custom", "blue", stamp))
+                self.assertIn((1, "R4", value), self.findings(value))
+        for directory in ("worker-registry", "orch-worker-broker"):
+            value = "/" + directory + "/"
+            self.assertIn((1, "R5", value), self.findings(value))
+
+    def test_documented_account_aliases_full_match(self) -> None:
+        aliases = ["acct", "orchestrator", "<account>", "example"]
+        aliases += ["acct-" + char for char in "abcdefghijklmnopqrstuvwxyz0123456789"]
+        for alias in aliases:
+            value = "/".join(("orch-accounts", "project", alias, "file"))
+            with self.subTest(alias=alias):
+                self.assertEqual(self.findings(value), [])
+                self.assertEqual(self.findings(value.upper()), [])
+        for alias in ("acct-aa", "acct-", "acct_extra", "example-user",
+                      "orchestrator2"):
+            value = "/".join(("orch-accounts", "project", alias))
+            self.assertIn((1, "R1", value), self.findings(value))
+
+    def test_negative_models_placeholders_and_record_aliases(self) -> None:
+        values = [
+            "claude-opus-5-5-20260901", "codex-m05-0XKI2R",
+            "claude-prompts", "claude-code-action", "<family>-<account>-<timestamp>",
+        ]
+        for family in ("claude", "codex", "gemini"):
+            values.extend(f"{family}-W{n}" for n in (1, 2, 123))
+            for model in ("opus", "sonnet", "haiku", "fable"):
+                values.append("-".join((family, model, "5", "20260901")))
+        for value in values:
+            with self.subTest(value=value):
+                self.assertEqual(self.findings(value), [])
+                self.assertEqual(self.findings(value.upper()), [])
+
+    def test_markdown_fence_is_scanned(self) -> None:
+        value = "-".join(("codex", "plus", "a1", "b2"))
+        self.assertIn((2, "R2", value), self.findings("```text\n" + value + "\n```\n"))
+
+    def test_all_tracked_surfaces_and_literal_filenames(self) -> None:
+        value = "-".join(("gemini", "worker8")).encode()
+        names = (
+            ".claude/hooks/no-extension", ".working/record.md",
+            ".corpus-management/record.md", "executive/record.md",
+            "tests/record.txt", "references/record.txt", "space and\nnewline.txt",
+        )
+        rc, out, err = self.run_tree(dict.fromkeys(names, value))
+        self.assertEqual(rc, 1, out + err)
+        for name in names:
+            self.assertIn(f"{name}:1: R3: {value.decode()}", out)
+        self.assertEqual(err, "")
+
+    def test_non_utf8_file_is_a_finding_and_still_scanned(self) -> None:
+        value = "-".join(("codex", "team", "a1", "b2"))
+        rc, out, err = self.run_tree({"bad.txt": b"safe\n\xff\n" + value.encode()})
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("bad.txt:2: UTF8: b'\\xff'", out)
+        self.assertIn(f"bad.txt:3: R2: {value}", out)
+
+    def test_nul_probe_skips_binary_even_past_prefix(self) -> None:
+        value = "-".join(("codex", "team", "a1", "b2")).encode()
+        rc, out, err = self.run_tree({"binary": value + b"x" * 9000 + b"\0\xff"})
+        self.assertEqual(rc, 0, out + err)
+
+    def test_unreadable_file_is_environment_error(self) -> None:
+        rc, out, err = self.run_tree({"missing": FileNotFoundError("missing")})
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("ERROR: missing:", err)
+
+    def test_git_failure_is_environment_error(self) -> None:
+        from contextlib import redirect_stderr
+
+        with self.patch.object(self.gate.subprocess, "run", side_effect=
+                               subprocess.CalledProcessError(128, ["git"])), \
+                redirect_stderr(io.StringIO()):
+            self.assertEqual(self.gate.main(["lint-worker-id-anonymity.py"]), 2)
+
+    def test_explicit_path_guard_and_unknown_option(self) -> None:
+        from contextlib import redirect_stderr
+
+        for value in ("", "--typo", str(REPO_ROOT.parent),
+                      str(REPO_ROOT / "absent-worker-anonymity-fixture")):
+            with self.subTest(value=value), redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as caught:
+                    self.gate.main(["lint-worker-id-anonymity.py", value])
+                self.assertEqual(caught.exception.code, 2)
+        with self.patch.object(self.gate, "tracked_files", return_value=[]):
+            with self.assertRaises(ValueError):
+                self.gate.select_targets(["README.md"])
+
+    def test_explicit_directory_selects_tracked_files_only(self) -> None:
+        root = self.gate.REPO_ROOT
+        paths = [root / ".claude/hooks/fixture", root / "README.md"]
+        with self.patch.object(self.gate, "tracked_files", return_value=paths):
+            self.assertEqual(self.gate.select_targets([".claude"]), paths[:1])
+            self.assertEqual(self.gate.select_targets(["README.md"]), paths[1:])
+
+    def test_real_tree_and_regex_source_are_clean(self) -> None:
+        from contextlib import redirect_stdout
+
+        source = (REPO_ROOT / "tools/lint-worker-id-anonymity.py").read_bytes()
+        self.assertEqual(self.gate.scan_bytes(source), [])
+        out = io.StringIO()
+        with redirect_stdout(out):
+            rc = self.gate.main(["lint-worker-id-anonymity.py"])
+        self.assertEqual(rc, 0, out.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
