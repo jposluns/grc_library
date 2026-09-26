@@ -57,9 +57,12 @@ def load(text: str) -> list[dict]:
             raise RegisterDataError(f"{where}: verified must be a TOML date (YYYY-MM-DD)")
         for key in FIELDS[:-1]:
             value = row[key]
-            if not isinstance(value, str) or not _PRINTABLE.fullmatch(value) or value != value.strip():
+            # A doubled space would render as one, so two rows could look the same (3b75 redesign
+            # QA r5, claude).
+            if (not isinstance(value, str) or not _PRINTABLE.fullmatch(value)
+                    or value != value.strip() or "  " in value):
                 raise RegisterDataError(f"{where}: {key} must be a non-empty single-line printable "
-                                        "ASCII string with no leading or trailing space")
+                                        "ASCII string with no leading, trailing or doubled space")
     return rows
 
 
@@ -103,16 +106,19 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
                 "python3 tools/build-historical-citation-exceptions.py")
     # The page must SHOW the generated table as the only table (with no math markup either) (3b75 QA, codex and claude): the
     # block stands alone at column 1, and the rest of the page carries no front matter, no raw
-    # HTML or comment, no fence marker, and no pipe, any of which could hide the real table or
-    # show a fake one.
+    # HTML or comment, no fence marker, no image, and no pipe, any of which could hide the real
+    # table or show a fake one. Prose or an indented block that imitates a row is not detected;
+    # review of the page is the control for that.
     start = page.index(BEGIN)
     after = start + len(block)
     if re.match(r"\A\ufeff?(?:---|\+\+\+)[ \t]*\n", page):
         # Front matter renders as a table on GitHub (3b75 redesign QA r3, codex).
         return f"{PAGE_REL}: front matter at the top of the page"
     # A Markdown blank line may hold spaces or tabs (3b75 redesign QA r2, codex).
-    if not re.search(r"(?:\A|\n[ \t]*\n)\Z", page[:start]) or not re.match(
-        r"(?:\n?\Z|\n[ \t]*\n)", page[after:]
+    # The start and end of the file count as a boundary, so a single blank line there is enough
+    # (3b75 redesign QA r5, codex).
+    if not re.search(r"(?:\A|\A[ \t]*\n|\n[ \t]*\n)\Z", page[:start]) or not re.match(
+        r"(?:\n?[ \t]*\Z|\n[ \t]*\n)", page[after:]
     ):
         return f"{PAGE_REL}: the generated block must stand alone, with a blank line before and after it"
     outside = page[:start] + page[after:]
@@ -126,6 +132,10 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
             # Any fence marker, wherever it sits (a quoted or listed fence too; 3b75 redesign QA r3,
             # claude): the page's prose needs none.
             return f"{PAGE_REL}: a fence marker outside the generated block"
+        if "![" in line:
+            # An image, inline or by reference, can show a picture of a table (3b75 redesign QA r5,
+            # claude).
+            return f"{PAGE_REL}: an image outside the generated block"
         if "|" in line:
             # Any pipe: a GFM table needs one in its delimiter row, with or without outer pipes
             # (3b75 redesign QA r2, claude, codex, gemini), so none may appear outside the block.

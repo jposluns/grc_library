@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import re
 import sys
+import urllib.parse
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -217,6 +218,21 @@ def parse_register_text(text):
     return entries
 
 
+_HOST = re.compile(r"(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z](?:[a-z0-9-]*[a-z0-9])?")
+
+
+def _https_evidence_url(url: str) -> bool:
+    """True for an https URL naming a real-looking host; "https://#" names none (3b75 r5, codex)."""
+    if not re.fullmatch(r"https://[^\s|<>`\\]+", url):
+        return False
+    try:
+        parts = urllib.parse.urlsplit(url)
+        host, _ = parts.hostname, parts.port
+    except ValueError:
+        return False
+    return parts.scheme == "https" and bool(host) and bool(_HOST.fullmatch(host))
+
+
 def parse_historical_exceptions(text, entries):
     """3b75: load and validate the historical-context exception DATA file (TOML).
 
@@ -284,7 +300,7 @@ def parse_historical_exceptions(text, entries):
             )
         if len(reason) < 10 or reason.lower() in {"-", "tbd", "n/a"}:
             raise RegisterError(f"{where}: reason required")
-        if not re.fullmatch(r"https://[^\s|<>`\\]+", upstream):
+        if not _https_evidence_url(upstream):
             raise RegisterError(
                 f"{where}: upstream evidence URL required"
             )

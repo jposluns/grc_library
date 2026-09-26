@@ -788,8 +788,15 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             (HXHEAD + hrow(verified='"2026-09-01"'), "verified must be a TOML date"),
             (HXHEAD + hrow(reason="Records the edition lin\u0435age accurately."), "single-line printable ASCII"),
             (HXHEAD + hrow(reason="Records the edition\nlineage accurately."), "single-line printable ASCII"),
-            (HXHEAD + hrow(reason=" Records the edition lineage accurately."), "no leading or trailing space"),
+            (HXHEAD + hrow(reason=" Records the edition lineage accurately."), "no leading, trailing or doubled space"),
+            (HXHEAD + hrow(reason="Records the  edition lineage accurately."), "doubled space"),  # claude r5
             (HXHEAD + hrow(url="https://www.iso.org/standard/71670.html|x"), "upstream evidence URL required"),
+            # An https URL that names no host is not evidence (codex r5).
+            (HXHEAD + hrow(url="https://#"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https:///"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https://?"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https://localhost/x"), "upstream evidence URL required"),
+            (HXHEAD + hrow(url="https://www.iso.org:99999/x"), "upstream evidence URL required"),
         ]:
             code, _, err = self.invoke(HSENT + "\n", register=HREG, exceptions=data)
             self.assertEqual(code, 1, data)
@@ -834,6 +841,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             ("a | b\n:-- | --:\n1 | 2\n\n" + good, "a table (or a pipe) outside the generated block"),  # no outer pipes
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
             (good.replace(H.END + "\n", H.END + "x\n"), "must stand alone"),
+            # An image can show a picture of a table (claude r5).
+            ("![Exceptions](https://example.org/t.png)\n\n" + good, "an image outside the generated block"),
+            (good + "\n![Exceptions][t]\n\n[t]: https://example.org/t.svg\n", "an image outside the generated block"),
+            (" \t" + H.render(rows) + "\n", "must stand alone"),  # an indented block on line 1
         ]:
             code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
             self.assertEqual(code, 1, page)
@@ -842,6 +853,11 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         # Blank lines may hold spaces or tabs (codex r2): accepted.
         code, found, _ = self.run_json("\n" + s + "\n\n", data, page="# Register\n \t\n" + H.render(rows) + "\n  \nEnd.\n")
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
+        # The start and end of the file are a boundary: one blank line there is enough (codex r5).
+        R = H.render(rows)
+        for page in ["\n" + R + "\n", " \t\n" + R + "\n", R + "\n \t", R, R + "\n"]:
+            code, found, err = self.run_json("\n" + s + "\n\n", data, page=page)
+            self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]), (page, err))
         # A list item that ends before the block leaves the block standing alone: accepted.
         code, found, _ = self.run_json("\n" + s + "\n\n", data, page="- " + good)
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
@@ -887,6 +903,10 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 (root / H.PAGE_REL).write_text("# Register\n\n" + H.render([]) + "\n")
                 self.assertEqual(B.main(["--root", d]), 0)
                 self.assertEqual((root / H.PAGE_REL).read_text(), good)
+                # Write mode still reports a page gate 6 would refuse (claude r5).
+                (root / H.PAGE_REL).write_text("a | b\n\n" + good)
+                self.assertEqual(B.main(["--root", d]), 1)
+                (root / H.PAGE_REL).write_text(good)
                 (root / H.DATA_REL).write_text("schema_version = 2\n")
                 self.assertEqual(B.main(["--check", "--root", d]), 2)
                 # An unreadable data file is an input error, never "no rows" (codex, gemini r2).

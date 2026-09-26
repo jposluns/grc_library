@@ -5,7 +5,8 @@ Writes the generated block of .project-governance/register-historical-citation-e
 .project-governance/register-historical-citation-exceptions.toml. An absent data file renders an
 empty table; the page itself must exist with its sentinel pair. --check writes nothing: exit 0 in
 sync, 1 on drift or a page gate 6 would refuse, 2 on malformed input or a missing page or sentinel
-pair. Gate 6
+pair. Without --check it writes the table and then exits 1 if the page still fails a page
+check (a pipe in the prose, say). Gate 6
 (tools/lint-standards-currency.py) refuses the same drift, so a stale page cannot pass CI.
 
 Usage: python3 tools/build-historical-citation-exceptions.py [--check] [--root DIR]
@@ -54,6 +55,10 @@ def main(argv=None) -> int:
         print(f"Wrote {H.PAGE_REL} ({len(rows)} row(s)).")
     else:
         print(f"OK: {H.PAGE_REL} already in sync ({len(rows)} row(s)).")
+    problem = H.sync_problem(new, rows)  # report a page gate 6 would refuse (3b75 r5, claude)
+    if problem:
+        print(f"PAGE: {problem}", file=sys.stderr)
+        return 1
     return 0
 
 
