@@ -33,7 +33,8 @@
       "lint-section-anchors.py",
       "lint-ssdf-control-ids.py",
       "lint-unbalanced-fences.py",
-      "lint-version-bump-recency.py"
+      "lint-version-bump-recency.py",
+      "lint-worker-id-anonymity.py"
     ],
     "corpus-structural": [
       "build-citation-publishers.py",
