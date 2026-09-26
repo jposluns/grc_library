@@ -260,7 +260,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # the whole shell word is unquoted with shlex; a word needing expansion, a backslash, an
     # option or a `..` component is not read; a redirection ends the word; a bare cd counts.
     cd_args = []
-    for cm in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd(?=[\s;&|)]|$)", command):
+    for cm in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd(?=[\s;&|)<>]|$)", command):
         # The whole shell word after cd (quoted segments and bare text concatenated).
         om = re.match(r"[ \t]+((?:\"[^\"]*\"|'[^']*'|[^\s;&|)'\"<>])+)", command[cm.end():])
         cd_args.append((cm.start(), _cd_operand(om.group(1)) if om else None))
@@ -478,6 +478,12 @@ def _self_test() -> int:
             # 3b85 round 2 (claude): a bare `cd;` also resets the suggestion.
             _, reason = decide(f"cd {plain}; cd; bash tools/run_all_audits.sh", self.pd)
             self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+            # 3b85 round 5 (codex): a bare cd with an attached redirection also resets it.
+            _, reason = decide(f"cd {plain}; cd>/dev/null; bash tools/run_all_audits.sh", self.pd)
+            self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+            # 3b85 round 5 (claude): a cd AFTER the tool does not steer its suggestion.
+            _, reason = decide(f'cd {plain} && bash tools/run_all_audits.sh && cd "{ap}"', self.pd)
+            self.assertIn(f"python3 {plain}/tools/run_all_audits.sh", reason)
             # 3b85 round 2 (codex): a partially quoted operand is read as one shell word.
             _, reason = decide(f'cd "{self.parent}"/wt && bash tools/run_all_audits.sh', self.pd)
             self.assertIn(f"python3 {plain}/tools/run_all_audits.sh", reason)
@@ -562,6 +568,17 @@ def _self_test() -> int:
             self.assertTrue(block)
             block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
             self.assertFalse(block)  # the real worktree, whose registration points back
+            # 3b85 round 5 (claude): a RELATIVE gitdir line in the worktree's .git
+            # (worktree.useRelativePaths) resolves against the worktree, from any cwd.
+            (wt / ".git").write_text(f"gitdir: {os.path.relpath(gitdir, wt)}\n")
+            here = os.getcwd()
+            os.chdir("/")
+            try:
+                block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
+            finally:
+                os.chdir(here)
+            self.assertFalse(block)
+            (wt / ".git").write_text(f"gitdir: {gitdir}\n")
             # 3b85 round 4 (codex): a RELATIVE backpointer resolves against the registration
             # (checked from a different cwd), and a symlinked .git is refused.
             rel = os.path.relpath(wt / ".git", gitdir)
