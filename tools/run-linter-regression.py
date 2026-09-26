@@ -9,8 +9,9 @@ that all four audit-programme surfaces (spec inventory, workflow,
 runner, pre-commit hook) can reference the same ``tools/X.py`` shape
 that the gate-name parity linter expects.
 
-Equivalent to ``python3 -m unittest tests.test_linters``. Exit code is
-forwarded from unittest: 0 if all tests pass, non-zero on failure.
+Equivalent to ``python3 -m unittest tests.test_linters
+tests.test_pack_release_delta``. Exit code is forwarded from unittest:
+0 if all tests pass, non-zero on failure.
 
 Stdlib-only Python 3.11.
 """
@@ -26,7 +27,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 
 def main() -> int:
     result = subprocess.run(
-        [sys.executable, "-m", "unittest", "tests.test_linters"],
+        [sys.executable, "-m", "unittest",
+         "tests.test_linters", "tests.test_pack_release_delta"],
         cwd=str(REPO_ROOT),
     )
     return result.returncode

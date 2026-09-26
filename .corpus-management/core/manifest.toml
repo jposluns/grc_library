@@ -7,7 +7,7 @@ schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.6.0"
+version = "0.6.80"
 state = "active"
 source_root = "."
 
@@ -53,6 +53,9 @@ owned_targets = [".claude/CLAUDE.md", ".claude/rules/corpus-management/language-
 available = ["matrix-fit", "claim-fit", "reference-audit"]
 enabled = []
 requires_reference_base = true
+
+[release]
+waivers = "core/release-waivers.toml"
 
 [rollout]
 phase_2b = "skip"

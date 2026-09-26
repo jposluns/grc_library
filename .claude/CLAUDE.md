@@ -839,7 +839,7 @@ the last commit before push (bump library CalVer and the README Version field)?
   register" (`gate-discipline`, `change-tracking`, `artefact-and-branch-discipline`) find no
   such register in this project: if a gate fails or a rule's protocol cannot be satisfied,
   the artefact is fixed or the PR is descoped. This is the strict-mode stance each pack
-  rule's exception section defaults to when no register exists.
+  rule's exception section defaults to when no register exists. One carve-out (maintainer-ruled 2026-09-26, 3b81): gate 99's release-delta check accepts a maintainer-approved row in `.corpus-management/core/release-waivers.toml` for one exact pack-version transition; no other gate or rule has one.
 - If a protected-branch force-push is ever genuinely necessary (credential leaked into
   history, copyright violation must be expunged, malformed merge corrupted the branch),
   follow the procedure in

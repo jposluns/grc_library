@@ -309,7 +309,7 @@ jobs:
         run: python3 tools/lint-aiqt-vendor-digest.py
 
       - name: Corpus-management generated outputs in sync
-        run: python3 tools/build-corpus-management.py --check
+        run: python3 tools/build-corpus-management.py --check --release-delta
 
       - name: Allow-list and publisher-table parity audit
         run: python3 tools/lint-allowlist-spec-parity.py

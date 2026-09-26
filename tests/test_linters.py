@@ -21453,7 +21453,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.6.0", "3b75 bumps the pack version to 0.6.0 (P-1.89 set 0.5.1)")
+        self.assertEqual(man["pack"]["version"], "0.6.80", "3b81 re-baselines the pack version to 0.6.80 (3b75 set 0.6.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
