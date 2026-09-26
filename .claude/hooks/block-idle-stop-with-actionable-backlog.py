@@ -2,7 +2,7 @@
 """Stop-hook arm: refuse an IDLE-STOP while authorized backlog remains.
 
 RETIRED 2026-09-03 (registration only): SUPERSEDED as the active Stop guard by the fleet-canonical
-`stop-guard-unattended.py` (lab_infra "No Manufactured Wind-Down" adoption). This file is RETAINED on
+`stop-guard-unattended.py` (fleet "No Manufactured Wind-Down" adoption). This file is RETAINED on
 disk (its unit tests still validate this logic; its `.allow-idle-stop` escape is preserved by the new
 guard) but is NO LONGER registered in .claude/settings.json. Kept pending full retirement once the
 canonical guard is proven.
@@ -30,7 +30,7 @@ yield-with-work-remaining is an idle-stop unless a legitimate wait is declared.
 
 The escape IS the declaration. A genuine reason to yield in these modes -- waiting on
 CI, on a dispatched worker, on a maintainer decision, or a real session-closing
-wind-down -- is declared by ``touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-idle-stop"`` (default ``/opt/grc/grc_working/.allow-idle-stop`` when GRC_DROP_ROOT is unset; this guard's
+wind-down -- is declared by ``touch "${GRC_DROP_ROOT:-<repo-parent>/grc_working}/.allow-idle-stop"`` (default ``<repo-parent>/grc_working/.allow-idle-stop`` when GRC_DROP_ROOT is unset; this guard's
 OWN one-shot sentinel, distinct from the branch guard's ``.allow-stop`` so the two never
 race on a shared file under parallel Stop-hook execution). A wait during branch-bearing
 work declares both. The reliable loop-terminator remains ``stop_hook_active``.
@@ -84,7 +84,7 @@ except Exception:                                  # pragma: no cover - fail OPE
         return True
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")) / ".allow-idle-stop"
+ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or (Path(__file__).resolve().parents[3] / "grc_working"))) / ".allow-idle-stop"
 
 # Modes where the maintainer is NOT watching every step, so a yield with authorized
 # work remaining is an idle-stop unless a wait is declared. Fully "attended" is absent

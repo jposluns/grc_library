@@ -81,7 +81,7 @@ def _working_file(rel_below, root):
 
 def project_root() -> Path:
     # Derived from this file's location, never hardcoded, so the guard follows a repo relocation
-    # (the row-E lesson from the /home/grc move, where five hooks kept a stale absolute root).
+    # (the row-E lesson from an earlier checkout move, where five hooks kept a stale absolute root).
     return Path(__file__).resolve().parents[2]
 
 

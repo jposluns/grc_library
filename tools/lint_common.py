@@ -306,7 +306,7 @@ def resolve_sibling(name: str, *, strict: bool = False) -> Path | None:
 WORKING_SUBDIR = ".working"
 
 
-# The lab_infra-standard operational store (adopt-with-overlay migration, 2026-08-23; decision (a)):
+# The fleet-standard operational store (adopt-with-overlay migration, 2026-08-23; decision (a)):
 # `/opt/<project>/private` (wire-orch's `@STORE@`). Files live at the store ROOT (NO `.working`
 # subdir), unlike the transitional `grc_library_private/.working/` location. It is PREFERRED over
 # both the private sibling's `.working/` and the in-repo `.working/`, so a seeded store wins while an
@@ -326,7 +326,7 @@ def _store_root(root: "Path") -> "Path":
 def private_store_roots(root: "Path | None" = None) -> "list[Path]":
     """The recognized PRIVATE maintainer-store roots a private-required file may live under.
 
-    Both the lab_infra-standard operational store (``/opt/<project>/private`` or ``$GRC_STORE``)
+    Both the fleet-standard operational store (``/opt/<project>/private`` or ``$GRC_STORE``)
     and the private sibling (``grc_library_private``) are private (maintainer-owned, not a public
     or adopter checkout), so a private-required write guarded as "must be under a private store"
     accepts EITHER. Returns only the roots that actually exist, resolved. Order: store first, then
@@ -391,7 +391,7 @@ def resolve_working(relpath: str, *, repo_root: Path | None = None, strict: bool
     `relpath` is POSIX-relative to the `.working/` root (e.g.
     ``"validate-pr/history.md"``). Resolution order:
       1. ``<store>/<relpath>`` where ``<store>`` is ``$GRC_STORE`` or ``<repo-parent>/private``
-         (the lab_infra-standard operational store, adopt-with-overlay migration 2026-08-23),
+         (the fleet-standard operational store, adopt-with-overlay migration 2026-08-23),
          if the store dir is present AND the file exists there (NO ``.working`` subdir at the store);
       2. ``grc_library_private/.working/<relpath>`` (the transitional location), if present there;
       3. ``<repo>/.working/<relpath>`` (the pre-migration in-repo location), if present;
@@ -514,7 +514,7 @@ def resolve_working_for_write_private(relpath: str, *, repo_root: Path | None = 
     existing = resolve_working(relpath, repo_root=root)
     if existing is not None:
         return existing
-    # Prefer the lab_infra-standard store (a private maintainer location) for a NEW
+    # Prefer the fleet-standard store (a private maintainer location) for a NEW
     # private-required record, so it unifies with the rest of the operational state
     # (adopt-with-overlay migration, option B). Fall back to the private sibling, else None.
     store = _store_dir(root)

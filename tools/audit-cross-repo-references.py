@@ -274,7 +274,7 @@ def audit_tree(
             continue  # binary or non-UTF-8: skip
         if logical_prefix:
             # The walked tree is an operational store whose physical dir is NOT named
-            # `.working` (the lab_infra store /opt/<project>/private). Re-root each file to a
+            # `.working` (the fleet-standard store /opt/<project>/private). Re-root each file to a
             # LOGICAL `<logical_prefix>/...` path so classification keys on `.working/` exactly
             # as for the sibling `.working/` tree (adopt-with-overlay migration, option B).
             _relp = path.relative_to(root)

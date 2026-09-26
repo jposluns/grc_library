@@ -38,7 +38,7 @@ import os
 import sys
 from pathlib import Path
 
-DEFAULT_ROOT = "/opt/grc/grc_working"
+DEFAULT_ROOT = str(Path(__file__).resolve().parents[2] / "grc_working")  # <repo-parent>/grc_working
 ROOT_ENV = "GRC_WORKING"
 DROP_DIRNAME = "inbox"
 DONE_DROPS = ("done", "drops")

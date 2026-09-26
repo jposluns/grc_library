@@ -16,7 +16,7 @@ acting on one, and the gap between those two is where the cost lives, so the blo
 ## What it reads
 
 The hook reads `open-findings.md` via `lint_common.resolve_working`, taking the first existing of: an
-eligible operational store (`$GRC_STORE`, or `<repo-parent>/private` by default, which is `/opt/grc/private`
+eligible operational store (`$GRC_STORE`, or `<repo-parent>/private` by default
 for this checkout; used only when it is a directory resolving OUTSIDE the repo), then `<repo-parent>/grc_library_private/.working/open-findings.md`, then the in-repo
 `.working/open-findings.md`. If the helper cannot be imported it checks only the in-repo path; a missing
 or unreadable selected ledger fails open. Its `## Open` table carries one row per

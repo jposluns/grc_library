@@ -9,7 +9,7 @@ carries no protocol and no per-session state of its own by design, so it cannot 
 from the real resume behaviour.
 
 To resume, read and follow the rendered resume command at
-`/opt/grc/.claude/commands/orch.md` verbatim, exactly as if
+the orchestrator's `/orch` command file verbatim, exactly as if
 `/orch` had been invoked. That protocol reads
 `grc_library_private/.working/session-handoff.md` for the live per-session
 state and the next-actions queue, and its first step points at that handoff's "Known

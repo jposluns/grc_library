@@ -438,9 +438,9 @@ def _self_test() -> int:
                     (base / name).mkdir()
                     (base / name / ".keep").write_text("x")
                 info = repo_env_map(base / "grc_library")
-                # env follows the parent, no hardcoded /home/grc
+                # env follows the parent: no hardcoded host path
                 self.assertTrue(info["env"]["GRC_REF_PATH"].startswith(str(base)))
-                self.assertNotIn("/home/grc", info["env"]["GRC_REPO"])
+                self.assertTrue(info["env"]["GRC_REPO"].startswith(str(base)))
 
         def test_repo_env_omits_absent_sibling(self):
             import tempfile
@@ -484,10 +484,10 @@ def _self_test() -> int:
 
 # --- Repo-structure env resolution (the /orch structure-detection step; maintainer-directed
 # 2026-08-17). The grc_* repos are siblings under ONE parent (the model for all VMs:
-# /opt/<project>/grc_*, e.g. /opt/grc; historically /home/grc). Five tools read GRC_REPO /
+# <parent>/grc_*, one parent per host). Five tools read GRC_REPO /
 # GRC_REF_PATH, so setting these to the DETECTED layout makes a
 # repo-root relocation need no file edits. The worker-exchange root (GRC_WORKING / GRC_DROP_ROOT)
-# is deliberately NOT set here: it belongs to the worker-pool setup (lab_infra), not repo structure.
+# is deliberately NOT set here: it belongs to the worker-pool setup (the fleet infrastructure orchestrator), not repo structure.
 def repo_env_map(root: "Path") -> dict:
     """Pure: given the grc_library root, resolve the sibling grc_* repos under its parent and
     return {parent, env, structure, missing}. Takes root explicitly so it is unit-testable."""

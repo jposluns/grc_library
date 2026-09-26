@@ -123,7 +123,7 @@ def strip_heredocs(command: str) -> str:
 # `--account` path), so no orchestrator account can be labelled into a masquerade.
 # An unforgeable signal (a distinct worker UID, or a root-owned marker) requires a
 # privileged step the dispatch path does not currently have; it is designed as a
-# deliberate lab_infra follow-up, and when it lands this function becomes a single
+# deliberate fleet-infrastructure follow-up, and when it lands this function becomes a single
 # ownership or UID check and this caveat goes away.
 WORKER_CONFIG_DIR_PREFIX = "orch-worker."
 

@@ -3723,7 +3723,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
     def test_stop_guard_unattended_hook_self_test(self) -> None:
         """The adopted No-Manufactured-Wind-Down Stop guard's own self-test (22 cases), wired at
-        introduction (2026-09-03, lab_infra "No Manufactured Wind-Down" delivery). This canonical
+        introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical
         guard replaces the bespoke block-idle-stop guard's registration; enforcing its self-test here
         keeps the active idle-stop guard from rotting untested."""
         result = self._run_selftest(
@@ -15632,7 +15632,7 @@ class ResolveSiblingTests(unittest.TestCase):
                 lc.REPO_ROOT = orig
 
     def test_resolve_working_prefers_store_over_private_and_local(self) -> None:
-        # adopt-with-overlay migration (option B): the lab_infra store <repo-parent>/private
+        # adopt-with-overlay migration (option B): the fleet-standard store <repo-parent>/private
         # is preferred over both the private sibling .working/ and the in-repo .working/.
         lc = self._lc()
         self._clear_grc_store()
