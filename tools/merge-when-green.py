@@ -8,7 +8,9 @@ registered (exited "no checks reported"), and the merge step's ``grep -q fail`` 
 pending / no-checks as acceptable. The code was fine (locally green), but merge-on-unconfirmed-CI
 violates the merge-on-green discipline. This tool makes the decision mechanical and fail-safe:
 it reads the PR's ``statusCheckRollup``, REFUSES unless every check is terminal-success with
-zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE.
+zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE,
+as does a required check (REQUIRED_CHECKS, or --require) that is missing or did not conclude
+SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
 
 It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
 discipline); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
@@ -31,12 +33,16 @@ import sys
 
 _OK_CONCLUSION = {"SUCCESS", "NEUTRAL", "SKIPPED"}  # a CheckRun that finished acceptably
 _OK_STATE = {"SUCCESS"}  # a legacy StatusContext that finished acceptably
+# Checks that must be PRESENT and SUCCESS: NEUTRAL or SKIPPED is acceptable for any other check,
+# never for these, so a skipped corpus lint cannot read as green (3b104).
+REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
 
 
-def evaluate(rollup: list[dict]) -> tuple[bool, str]:
+def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, str]:
     """PURE decision over a GitHub ``statusCheckRollup``: (green, reason). Fails CLOSED:
     green ONLY when at least one check exists and EVERY check is terminal-success with none
-    pending; a no-checks, any-pending, any-failing, or unknown-shape check REFUSES."""
+    pending; a no-checks, any-pending, any-failing, or unknown-shape check REFUSES. Each name
+    in ``required`` must also be reported and must have concluded SUCCESS itself (3b104)."""
     if not rollup:
         return False, "no checks reported for this PR (never merge on no-checks)"
     pending: list[str] = []
@@ -78,6 +84,14 @@ def evaluate(rollup: list[dict]) -> tuple[bool, str]:
         return False, "; ".join(parts)
     if pending:
         return False, "pending / incomplete check(s): " + ", ".join(pending)
+    for want in required:
+        runs = [c for c in rollup if (c.get("name") or c.get("context")) == want]
+        if not runs:
+            return False, f"required check not reported: {want}"
+        for c in runs:
+            result = c.get("conclusion") if c.get("__typename") == "CheckRun" else c.get("state")
+            if result != "SUCCESS":
+                return False, f"required check did not succeed: {want} [{result}]"
     return True, f"all {len(rollup)} check(s) completed successfully"
 
 
@@ -114,6 +128,20 @@ def _self_test() -> int:
     for name, rollup, want_green in cases:
         green, _ = evaluate(rollup)
         checks.append((name, green == want_green))
+    req = ("Lint",)
+    for name, rollup, want_green in [
+        ("required-success-green", [cr("Lint", "COMPLETED", "SUCCESS"), cr("b", "COMPLETED", "SKIPPED")], True),
+        ("required-skipped-refused", [cr("Lint", "COMPLETED", "SKIPPED"), cr("b", "COMPLETED", "SUCCESS")], False),
+        ("required-neutral-refused", [cr("Lint", "COMPLETED", "NEUTRAL")], False),
+        ("required-missing-refused", [cr("b", "COMPLETED", "SUCCESS")], False),
+        ("required-statuscontext-success", [sc("Lint", "SUCCESS")], True),
+        ("required-one-of-two-skipped-refused", [cr("Lint", "COMPLETED", "SUCCESS"), cr("Lint", "COMPLETED", "SKIPPED")], False),
+    ]:
+        green, _ = evaluate(rollup, req)
+        checks.append((name, green == want_green))
+    _, r_req = evaluate([cr("b", "COMPLETED", "SUCCESS")], req)
+    checks.append(("required-missing-reason-names-check", "Lint" in r_req))
+    checks.append(("default-requires-the-corpus-lint", "Lint markdown corpus" in REQUIRED_CHECKS))
     # a failure names the failing check; a pending names the pending one
     _, r_fail = evaluate([cr("Lint", "COMPLETED", "FAILURE")])
     checks.append(("failure-reason-names-check", "Lint" in r_fail))
@@ -134,6 +162,10 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--merge-method", default="squash", choices=["squash", "merge", "rebase"])
     ap.add_argument("--admin", action="store_true", help="pass --admin (REVIEW_REQUIRED bypass) to gh pr merge")
     ap.add_argument("--dry-run", action="store_true", help="report the verdict; do NOT merge")
+    ap.add_argument("--require", action="append", metavar="NAME",
+                    help="a check that must be present and SUCCESS (repeatable; replaces the default list)")
+    ap.add_argument("--require-none", action="store_true",
+                    help="require no named check (for a repository without the default checks)")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv[1:])
     if args.self_test:
@@ -153,7 +185,8 @@ def main(argv: list[str]) -> int:
     if view.get("state") != "OPEN":
         print(f"REFUSE: PR #{args.pr} is {view.get('state')}, not OPEN.", file=sys.stderr)
         return 1
-    green, reason = evaluate(view.get("statusCheckRollup") or [])
+    required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
+    green, reason = evaluate(view.get("statusCheckRollup") or [], required)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
         return 1
