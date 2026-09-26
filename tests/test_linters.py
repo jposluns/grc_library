@@ -273,6 +273,9 @@ def identifier_scope_probe_issues(cases):
     }
     issues = []
     for name, probes in sorted(cases.items()):
+        if not isinstance(probes, tuple):
+            issues.append(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
+            continue
         if not probes:
             issues.append(f"TEST-PROBE-EMPTY: {name}")
         for index, probe in enumerate(probes):
@@ -463,29 +466,35 @@ class LinterTestCase(unittest.TestCase):
     IDENTIFIER_SCOPE_PROBES = {}
 
     def run(self, result=None):
-        """Run the test; a test that declares scope probes but ends without every probe having
-        run is recorded as a FAILURE (3b64 round 8). This is the authoritative guard: whatever
-        stopped the probes (a skip before or inside the call, a generator method, an early
-        return), a registered probe that did not run is reported rather than read as a pass. The
-        static _runs_scope_probes scan is only a pre-screen."""
-        if result is None:
-            result = self.defaultTestResult()
+        """Run the test with the scope-probe completion check registered as a CLEANUP, so it runs
+        inside the test's own result lifecycle (3b64 round 9: after stopTest, a failure breaks
+        the TestResult protocol; unittest's startTestRun/stopTestRun are untouched). A test that
+        declares scope probes but ends without every probe having run fails with
+        TEST-PROBE-NOT-RUN, whatever stopped the probes (a skip before or inside the call, a
+        generator method, an early return, or an earlier probe failure). The static
+        _runs_scope_probes scan is only a pre-screen. Residue: a class- or module-level skip
+        (setUpClass, setUpModule) or a direct debug() call never reaches run() and is not
+        guarded."""
         self._scope_probes_completed = False
-        outcome = super().run(result)
-        name = self._testMethodName
-        if name in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}) and not self._scope_probes_completed:
-            try:
-                raise AssertionError(
-                    f"TEST-PROBE-NOT-RUN: {type(self).__name__}.{name} declares scope probes but "
-                    f"ended without running them all (skipped, a generator, or an early exit)")
-            except AssertionError:
-                result.addFailure(self, sys.exc_info())
-        return outcome
+        if self._testMethodName in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}):
+            self.addCleanup(self._check_scope_probes_completed)
+        return super().run(result)
+
+    def _check_scope_probes_completed(self) -> None:
+        if not self._scope_probes_completed:
+            raise AssertionError(
+                f"TEST-PROBE-NOT-RUN: {type(self).__name__}.{self._testMethodName} declares scope "
+                f"probes but ended without running them all (skipped, a generator, an early "
+                f"exit, or an earlier probe failure)")
 
     def assertIdentifierScopeProbes(self, run) -> None:
         """Check absence before invoking a strict linter or asserting no finding."""
         name = self._testMethodName
         cases = {name: self.IDENTIFIER_SCOPE_PROBES[name]}
+        if not isinstance(cases[name], tuple):
+            # 3b64 round 9 (codex): a one-shot iterable is consumed by validation and would then
+            # run zero probes; the declaration must be a tuple.
+            self.fail(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
         issues = identifier_scope_probe_issues(cases)
         if issues:
             self.fail("\n".join(issues))
@@ -23337,12 +23346,59 @@ class IdentifierScopeProbeGuardTests(unittest.TestCase):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 _G(name).run(result)
-            failed[name] = [str(err) for _test, err in result.failures]
+            failed[name] = [str(err) for _test, err in result.failures + result.errors]
         self.assertEqual(failed["test_ok"], [])
         for name in ("test_skip_first", "test_default_yield", "test_iife"):
             self.assertTrue(any("TEST-PROBE-NOT-RUN" in f for f in failed[name]), (name, failed[name]))
         self.assertTrue(any("TEST-PROBE-SKIPPED" in f for f in failed["test_runner_skips"]),
                         failed["test_runner_skips"])
+
+    def test_a_one_shot_probe_collection_is_refused(self) -> None:
+        # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
+        gen = (p for p in (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),))
+        self.assertEqual(identifier_scope_probe_issues({"runTest": gen}),
+                         ["TEST-PROBE-SHAPE: runTest: probes must be declared as a tuple"])
+
+    def test_probe_guard_keeps_the_result_lifecycle(self) -> None:
+        # 3b64 round 9 (codex, gemini): the NOT-RUN failure is recorded before stopTest, and
+        # run(None) keeps unittest's startTestRun/stopTestRun.
+        events = []
+
+        class _Recording(unittest.TestResult):
+            def startTestRun(self):
+                events.append("startTestRun")
+
+            def stopTestRun(self):
+                events.append("stopTestRun")
+
+            def startTest(self, test):
+                events.append("start")
+                super().startTest(test)
+
+            def stopTest(self, test):
+                events.append("stop")
+                super().stopTest(test)
+
+            def addFailure(self, test, err):
+                events.append("fail")
+                super().addFailure(test, err)
+
+            def addError(self, test, err):
+                events.append("fail")
+                super().addError(test, err)
+
+        class _L(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_early": (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "ASVS requirement {probe}.\n"),)}
+
+            def defaultTestResult(self):
+                return _Recording()
+
+            def test_early(self) -> None:
+                return None
+
+        _L("test_early").run()
+        self.assertEqual(events, ["startTestRun", "start", "fail", "stop", "stopTestRun"])
 
     def test_twin_must_report_the_declared_token_itself(self) -> None:
         # 3b64 round 6 (codex): a twin rendering 'V9.9.90' is refused statically, and a report
