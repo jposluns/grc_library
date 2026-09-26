@@ -811,9 +811,9 @@ per surface:
    today.
 3. **Library CalVer in [`README.md`](../README.md)** (the `Library Version` line, format
    `2026.MM.NNN`): bump once per PR, in the last commit before push.
-4. **README `Version` field** (the `Version` line in [`README.md`](../README.md)'s
-   metadata block): bump once per PR, in the same commit as the CalVer bump (the two move
-   together).
+4. **README `Version` field** (the `**README Version:**` line in [`README.md`](../README.md)): bump
+   once per PR, with the CalVer; an earlier README-body commit carries `VersionBump: none <reason>`
+   (3b87; detail in the [PR lifecycle](../.claude/playbooks/pr-lifecycle.md) playbook).
 
 **Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
 `run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
