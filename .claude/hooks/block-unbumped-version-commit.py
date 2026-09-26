@@ -116,6 +116,11 @@ DATE_META = re.compile(r"^(\*\*Date:\*\*[ \t]*)(\d{4}-\d{2}-\d{2})(.*)$", re.M)
 # Version change whose staged ``**Date:**`` is not today UTC is the UTC-rollover co-bump miss D4
 # otherwise catches only at the pre-push guard (2026-09-24, #2492).
 README_PATH = "README.md"
+# A UTF-8 byte-order mark before a file's first line hides a column-zero key from the ^-anchored
+# patterns; eligibility, classification, the metadata region, the date-lag note and the auto-bump
+# each set aside EXACTLY ONE leading BOM (removeprefix), so no site reads a double BOM differently
+# from another (3b86 QA r3, codex).
+BOM = "\ufeff"
 README_VERSION_LINE = re.compile(r"^\*\*README Version:\*\*", re.M)
 
 
@@ -124,6 +129,7 @@ def version_key(path: "str | None") -> "re.Pattern[str]":
     ``**README Version:**`` for the root README, ``**Version:**`` for any other path or ``None``."""
     return README_VERSION_LINE if path == README_PATH else VERSION_LINE
 HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+HUNK_BOTH = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
 def _lf_lines(s: str, keepends: bool = False) -> list[str]:
@@ -178,14 +184,15 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
             elif not in_hunk:
                 continue
             elif ln.startswith("+"):
-                if version_key(cur).match(ln[1:]) and 1 <= n <= header_lines:
+                if version_key(cur).match(ln[1:].removeprefix(BOM) if n == 1 else ln[1:]) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
             elif ln.startswith(" "):
                 n += 1
         if not hit:
             return
-        m = DATE_META.search(head)
+        # A Date on line 1 sits behind any BOM; the ^-anchored search needs it set aside (3b86 r2).
+        m = DATE_META.search(head.removeprefix(BOM))
         if m and m.group(2) != today:
             out.append(cur)
 
@@ -294,22 +301,47 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
     the other key's line is treated like any other metadata line.
 
     A changed line counts as BODY unless it is blank/whitespace-only or a column-zero `**Key:**
-    value` metadata line (matched by position anywhere, not only in a leading block). Header lines
-    beginning `+++`/`---`/`@@`/`diff `/`index `/`new file`/`deleted file` are skipped by a prefix check
-    on the RAW diff line (before the +/- change marker is stripped), so a `+`/`-`-marked content line
-    starting `diff `/`index `/`@@`/etc. does NOT match and is kept as body, though content rendered
-    `+++`/`---` does match and is skipped. Returns two independent
+    value` metadata line (matched by position anywhere, not only in a leading block). Before the
+    first `@@` hunk header, file-header lines (`+++`/`---`/`diff `/`index `/`new file`/`deleted file`)
+    are skipped; after it every `+`/`-`/space line is hunk content, classified and counted, including
+    content rendered `+++`/`---`. Physical line numbers come from the hunk headers, and a UTF-8 BOM
+    is set aside only on line 1 (3b86). Returns two independent
     booleans because the interesting state is
     body-without-version, and collapsing them early would hide it.
     """
     body = version = False
     key = version_key(path)
+    old_n = new_n = 1  # physical line numbers, from each hunk header (3b86)
+    in_hunk = False
     for ln in lines:
-        if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+        if ln.startswith("diff --git "):
+            in_hunk = False  # a new file's headers follow (a rename passes a two-path diff)
+            old_n = new_n = 1
             continue
-        if not ln or ln[0] not in "+-":
+        h = HUNK_BOTH.match(ln)
+        if h:
+            old_n, new_n = int(h.group(1)), int(h.group(2))
+            in_hunk = True
             continue
-        text = ln[1:]
+        # Before the first hunk header these are file headers; INSIDE a hunk every line is content,
+        # including content rendered `+++`/`---`, so it is classified and counted (3b86 r2, codex:
+        # skipping it shifted the line counters and let line 2 pose as line 1).
+        if not in_hunk and ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
+            continue
+        if not ln or ln[0] not in "+- ":
+            continue
+        if ln[0] == " ":
+            old_n += 1
+            new_n += 1
+            continue
+        pos = old_n if ln[0] == "-" else new_n
+        if ln[0] == "-":
+            old_n += 1
+        else:
+            new_n += 1
+        # A UTF-8 BOM is stripped ONLY from a file's first line, where it can exist; stripping it
+        # from any changed line let a BOM-prefixed body example pose as a Version change (3b86 QA).
+        text = ln[1:].removeprefix(BOM) if pos == 1 else ln[1:]
         if key.match(text):  # the path's own key (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
@@ -357,8 +389,9 @@ def _metadata_region_end(text: str) -> int:
     before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
     is left untouched."""
     off = 0
-    for line in _lf_lines(text, keepends=True):
-        st = line.strip()
+    for i, line in enumerate(_lf_lines(text, keepends=True)):
+        # A UTF-8 BOM exists only before the FIRST line; str.strip() does not remove it (3b86).
+        st = (line.removeprefix(BOM) if i == 0 else line).strip()
         if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
             off += len(line)
             continue
@@ -413,10 +446,18 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
             # Lone-CR line endings: re.M's ^ and $ see no line starts, so the Version would be
             # bumped while the Date is never found, and success reported (3b84 QA, claude).
             return False
+        # A leading UTF-8 BOM is set aside and written back unchanged, so the metadata regexes see
+        # the first line and the file's bytes are preserved (3b86).
+        bom = BOM if text.startswith(BOM) else ""
+        text = text[len(bom):]
+        if text.startswith(BOM):
+            # A second leading BOM is malformed: the region helper would set it aside too and
+            # bump the Version while the Date search misses line 1 (3b86 QA r3, codex). Decline.
+            return False
         bumped = bump_semver(text)
         if bumped is None:
             return False
-        f.write_bytes(set_date(bumped, today).encode("utf-8"))
+        f.write_bytes((bom + set_date(bumped, today)).encode("utf-8"))
         git(root, "add", "--", path)
         return True
     except Exception:
@@ -464,7 +505,11 @@ def main() -> int:
                 continue
             f = root / p
             try:
-                if f.suffix == ".md" and version_key(p).search(f.read_text(errors="replace")):
+                ftext = f.read_text(errors="replace")
+                # A double leading BOM is malformed: select the file rather than skip it, so the
+                # commit is judged (and refused) instead of passing unexamined (3b86 QA r4, claude).
+                if f.suffix == ".md" and (version_key(p).search(ftext.removeprefix(BOM))
+                                          or ftext.startswith(BOM * 2)):
                     versioned.add(p)
             except OSError:
                 continue
