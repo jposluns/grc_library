@@ -186,8 +186,11 @@ def _is_linked_worktree_of_configured(proj: Path) -> bool:
         gitdir = gitdir.resolve()
         for name in SIBLING_REPO_NAMES:
             base = (proj.parent / name / ".git" / "worktrees").resolve()
-            if gitdir.parent == base:
-                return True
+            if gitdir.parent == base and gitdir.is_dir():
+                # 3b85 round 3 (codex): the registration must point BACK at this project's .git,
+                # so a copied or stale .git file naming someone else's registration fails.
+                back = (gitdir / "gitdir").read_text(encoding="utf-8", errors="replace").strip()
+                return Path(back).resolve() == dotgit.resolve()
     except (OSError, IndexError, ValueError):
         return False
     return False
@@ -203,7 +206,11 @@ def _cd_operand(word: str):
         parts = shlex.split(word)
     except ValueError:
         return None
-    return parts[0] if len(parts) == 1 else None
+    if len(parts) != 1 or ".." in Path(parts[0]).parts:
+        # 3b85 round 3 (codex): bash's cd resolves `..` logically while a filesystem check
+        # resolves it physically (through a symlink), so a `..` operand is not read.
+        return None
+    return parts[0]
 
 
 def decide(command: str, project_dir: str) -> tuple[bool, str]:
@@ -245,11 +252,12 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # then cd and whitespace. It does not recognize every shell cd form or parse quoting.
     cd_pos = [m.start() for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command)]
     # The operand of each cd (None for a bare cd), for the suggestion below. Read textually:
-    # exactly one enclosing quote pair is removed, nothing is expanded, and a bare cd counts.
+    # the whole shell word is unquoted with shlex; a word needing expansion, a backslash, an
+    # option or a `..` component is not read; a redirection ends the word; a bare cd counts.
     cd_args = []
     for cm in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd(?=[\s;&|)]|$)", command):
         # The whole shell word after cd (quoted segments and bare text concatenated).
-        om = re.match(r"[ \t]+((?:\"[^\"]*\"|'[^']*'|[^\s;&|)'\"])+)", command[cm.end():])
+        om = re.match(r"[ \t]+((?:\"[^\"]*\"|'[^']*'|[^\s;&|)'\"<>])+)", command[cm.end():])
         cd_args.append((cm.start(), _cd_operand(om.group(1)) if om else None))
 
     def _suggested(t, repo, at):
@@ -311,8 +319,8 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
         if hits:
             lines = [
                 f"  - `tools/{tool}`: found in `{where}`; no scanned project-file match for `{project_name}`. "
-                f"Templates: `python3 {parent}/{where}/tools/{tool} ...` (or "
-                f"`cd {parent}/{where} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
+                f"Templates: `python3 {shlex.quote(f'{parent}/{where}/tools/{tool}')} ...` (or "
+                f"`cd {shlex.quote(f'{parent}/{where}')} && python3 tools/{tool} ...`, subject to the cd-tool allowlist)."
                 for tool, where in hits
             ]
             reason = (
@@ -444,8 +452,8 @@ def _self_test() -> int:
             self.assertIn(f"{self.proj}/tools/run_all_audits.sh", reason)
 
         def test_worktree_suggestion_quoting_and_bare_cd(self):
-            # 3b85 QA round 1 (codex, claude): a path with a space is shell-quoted; exactly one
-            # enclosing quote pair is removed (a trailing apostrophe in the name survives); a
+            # 3b85 QA round 1 (codex, claude): a path with a space is shell-quoted; the operand is
+            # unquoted as one shell word (a trailing apostrophe in the name survives); a
             # bare cd after the worktree cd means the tool no longer runs there, so the
             # suggestion falls back.
             import shlex as _sh
@@ -478,6 +486,24 @@ def _self_test() -> int:
                 os.chdir(here)
             self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
 
+        def test_dotdot_and_attached_redirection_operands(self):
+            # 3b85 round 3 (codex): a `..` operand is not read (bash resolves it logically, the
+            # filesystem physically); an attached redirection ends the operand word.
+            real = Path(self.parent) / "q"
+            (real / "tools").mkdir(parents=True)
+            (real / "tools" / "run_all_audits.sh").write_text("")
+            (real / "child").mkdir()
+            link = self.proj / "link"
+            link.symlink_to(real / "child")
+            _, reason = decide(f"cd {link}/.. && bash tools/run_all_audits.sh", self.pd)
+            self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+            self.assertNotIn(f"{real}/tools", reason)
+            wt = Path(self.parent) / "wt-r"
+            (wt / "tools").mkdir(parents=True)
+            (wt / "tools" / "run_all_audits.sh").write_text("")
+            _, reason = decide(f"cd {wt}>&1 && bash tools/run_all_audits.sh", self.pd)
+            self.assertIn(f"python3 {wt}/tools/run_all_audits.sh", reason)
+
         def test_fallback_suggestion_is_quoted(self):
             # 3b85 round 2 (claude): the fallback path is shell-quoted too.
             import shlex as _sh
@@ -499,6 +525,7 @@ def _self_test() -> int:
             gitdir = self.proj / ".git" / "worktrees" / "wt-session"
             gitdir.mkdir(parents=True)
             (wt / ".git").write_text(f"gitdir: {gitdir}\n")
+            (gitdir / "gitdir").write_text(f"{wt / '.git'}\n")
             block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
             self.assertFalse(block)
             block, reason = decide("python3 tools/validate.py", str(wt))
@@ -516,6 +543,20 @@ def _self_test() -> int:
             block, reason = decide("python3 tools/credit-offload-queue.py list-workers", str(export))
             self.assertTrue(block)
             self.assertIn("grc_library_scratch", reason)
+            # 3b85 round 3 (claude): a .git file naming ANOTHER repo's worktree registration.
+            other = Path(self.parent) / "other" / ".git" / "worktrees" / "x"
+            other.mkdir(parents=True)
+            (other / "gitdir").write_text(f"{export / '.git'}\n")  # a valid backpointer: only
+            (export / ".git").write_text(f"gitdir: {other}\n")   # the configured-repo check refuses
+            block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(export))
+            self.assertTrue(block)
+            # 3b85 round 3 (codex): a copied .git naming a real registration that points elsewhere.
+            (gitdir / "gitdir").write_text(f"{wt / '.git'}\n")
+            (export / ".git").write_text(f"gitdir: {gitdir}\n")
+            block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(export))
+            self.assertTrue(block)
+            block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
+            self.assertFalse(block)  # the real worktree, whose registration points back
 
         def test_cd_allowlist_tool_allowed(self):
             # P-1.19: cd + a cwd-guard allow-list tool stays allowed.
