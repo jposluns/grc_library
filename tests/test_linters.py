@@ -27143,17 +27143,47 @@ class SelfTestTempdirTests(unittest.TestCase):
     # themselves; they are edited only by re-adoption from the guardrails share.
     EXPLICIT_BASE_OWNED = {"clock-inject.py", "future-stamp-write.py", "stamp-truth-stop.py"}
 
+    # The position of the dir parameter for each allocator, so a positional dir is caught too.
+    DIR_POSITION = {"mkdtemp": 2, "mkstemp": 2, "TemporaryDirectory": 2, "NamedTemporaryFile": 6}
+
+    def explicit_bases(self, source: str) -> list[int]:
+        """Lines of allocator calls that pass dir, by keyword or position (3b103 QA r1-r2)."""
+        import ast
+        lines = []
+        for node in ast.walk(ast.parse(source)):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
+            if name not in self.DIR_POSITION:
+                continue
+            if any(kw.arg == "dir" for kw in node.keywords) or len(node.args) > self.DIR_POSITION[name]:
+                lines.append(node.lineno)
+        return lines
+
+    def test_explicit_base_detection(self) -> None:
+        cases = {
+            'tempfile.mkdtemp(prefix=f"t-{os.getpid()}-",\n    dir=base)': True,
+            "tempfile.mkdtemp('', 'p', base)": True,
+            "tempfile.TemporaryDirectory(dir=base)": True,
+            "NamedTemporaryFile('w', -1, None, None, '', 'p', base)": True,
+            "tempfile.mkdtemp(prefix=str(n))": False,
+            "tempfile.mkstemp()": False,
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(bool(self.explicit_bases(source)), expected)
+
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
-        # The run below watches only TMPDIR, so a self-test that passes dir= to mkdtemp would leak
-        # unseen (3b103 QA r1, codex); the keyword may sit on a later line. Residue: a positional dir
-        # argument is not recognized, and tests/ is not scanned here, so a leak there is caught only by
-        # running the full suite under a fresh TMPDIR.
-        pattern = re.compile(r"(?:" + "|".join(self.ALLOCATORS) + r")\([^)]*\bdir\s*=")
+        # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
+        # unseen (3b103 QA r1, codex). Residue: a dir passed through **kwargs is not recognized, and
+        # tests/ is not scanned here, so a leak there is caught only by running the full suite under
+        # a fresh TMPDIR.
         for path in self.targets():
             if path.name in self.EXPLICIT_BASE_OWNED:
                 continue
             with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()):
-                self.assertIsNone(pattern.search(path.read_text(errors="replace")))
+                self.assertEqual(self.explicit_bases(path.read_text(errors="replace")), [])
 
     def test_discovery_is_not_vacuous(self) -> None:
         # Nine self-tests leaked before 3b103; the scan must still see at least those.
