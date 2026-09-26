@@ -70,8 +70,9 @@ auto-bump path fails toward the block it was already going to issue. Defence in 
 D2, which remain the authority.
 
 THE ESCAPE HATCH IS DELIBERATE AND NARROW. A command whose text contains the bare token
-`VersionBump: none` proceeds (matched anywhere in the command string; the `<reason>` is a CONVENTION
-for the reviewer, NOT mechanically required or checked by this hook). Some body edits genuinely do
+`VersionBump: none` excuses the root README.md only (matched anywhere in the command string; the
+`<reason>` is a CONVENTION for the reviewer, NOT mechanically required or checked by this hook); every
+other staged document is still auto-bumped or blocked (3b102). Some body edits genuinely do
 not warrant a bump, and without a sanctioned opt-out an author whose edit genuinely does not warrant one
 has no clean path, so the guard becomes friction that invites disabling it wholesale, which is worse than a
 hatch that, by convention, leaves a reason in the commit message where a reviewer can see it.
@@ -97,7 +98,9 @@ OPT_OUT = re.compile(r"VersionBump:\s*none\b", re.I)
 # suppress the warn for the other (the #1454 codex E1 routing catch).
 TAXONOMY_GENERATED = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
 NARRATIVE_GENERATED = ("narrative.yml",)
-GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED
+# Its Version is the generator's schema version; gate 40 exempts it too (3b102 QA r1).
+OTHER_GENERATED = ("docs/reference-acquisition-manifest.md",)
+GENERATED = TAXONOMY_GENERATED + NARRATIVE_GENERATED + OTHER_GENERATED
 # A `**Version:**` line beginning with three dot-separated digit groups (auto-bumpable); the trailing
 # `(.*)` preserves any remainder, so this does NOT distinguish semver from a numerically similar CalVer
 # and increments a `**Version:** 2026.07.725` just as it would a semver value. README's `**Library
@@ -464,6 +467,12 @@ def try_auto_bump(root: Path, path: str, today: str) -> bool:
         return False
 
 
+def escape_filter(bad, opted):
+    """PURE. The offenders left after the VersionBump: none escape, which covers README.md only
+    (3b102): every other unbumped document stays an offender."""
+    return [p for p in bad if p != "README.md"] if opted else list(bad)
+
+
 def main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -472,8 +481,11 @@ def main() -> int:
     if payload.get("tool_name") != "Bash":
         return 0
     cmd = (payload.get("tool_input") or {}).get("command", "") or ""
-    if not is_commit(cmd) or OPT_OUT.search(cmd):
+    if not is_commit(cmd):
         return 0
+    # The VersionBump: none escape covers README.md only (its README Version is bumped once per PR,
+    # at the last pre-push commit); any other versioned document is still bumped or refused (3b102).
+    opted = bool(OPT_OUT.search(cmd))
     # Act ONLY on this guard's own checkout. A commit aimed elsewhere (another worktree via `git -C`
     # or `cd`) is left to that checkout's git-native commit-msg check (3b25); an undeterminable
     # target is also left alone rather than guessed.
@@ -533,6 +545,7 @@ def main() -> int:
             return 0
         diff = git(root, "diff", "--cached", "--unified=0", "--", *sorted(versioned))
         bad = offenders(diff, versioned)
+        bad = escape_filter(bad, opted)
     except Exception:
         return 0  # fail OPEN, deliberately: see the module docstring
 
@@ -584,10 +597,8 @@ def main() -> int:
         "at the pre-push guard six minutes later.",
         "",
         "CONSIDER INSTEAD: bump `**Version:**` (README.md: `**README Version:**`) AND `**Date:**` in the "
-        "SAME edit, then re-stage. If "
-        "this body edit genuinely does not warrant a bump, include `VersionBump: none <reason>` in the "
-        "commit COMMAND text (e.g. an inline `-m` message; a `-F` message file is not inspected) and it "
-        "will proceed.",
+        "SAME edit, then re-stage. The `VersionBump: none <reason>` escape covers README.md only (its "
+        "README Version is bumped at the last commit before push); it does not excuse any other document.",
     ]
     print("\n".join(lines), file=sys.stderr)
     return 2
@@ -613,6 +624,8 @@ def self_test() -> int:
 
     # --- the opt-out ---
     ck("the opt-out phrase is recognized", bool(OPT_OUT.search("m 'x\n\nVersionBump: none typo only'")), True)
+    ck("the escape excuses README.md only (3b102)", escape_filter(["README.md", "governance/x.md"], True), ["governance/x.md"])
+    ck("without the escape every offender stays", escape_filter(["README.md", "governance/x.md"], False), ["README.md", "governance/x.md"])
     ck("a mention of versions is not an opt-out", bool(OPT_OUT.search("bump the version")), False)
 
     # --- THE REALITY FIXTURE: the actual 2026-07-26 miss, the spec body edited with no bump ---
@@ -779,6 +792,7 @@ def self_test() -> int:
     r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                        capture_output=True, text=True)
     ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
+    ck("the reference manifest is exempt as generated, matching gate 40", "docs/reference-acquisition-manifest.md" in GENERATED, True)
     # control: an ordinary versioned doc with an extra unstaged change still blocks
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")

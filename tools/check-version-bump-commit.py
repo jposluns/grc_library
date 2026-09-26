@@ -21,13 +21,14 @@ same-checkout commits before git runs (never the root README.md), and a git hook
 than a refusal naming the fix.
 
 Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff
-then carries other commits' changes); a message carrying `VersionBump: none <reason>` (comment lines
-ignored); the override GRC_ALLOW_UNBUMPED_COMMIT=1. A checkout without the guard file (older branch)
+then carries other commits' changes); the override GRC_ALLOW_UNBUMPED_COMMIT=1. A message carrying
+`VersionBump: none <reason>` (comment lines ignored) excuses the root README.md only: every other
+staged document is still checked and refused when unbumped (3b102). A checkout without the guard file (older branch)
 is allowed (fail OPEN, stated). A git error while checking REFUSES, naming the override (ignorance
 refuses, as in check-commit-on-main.py).
 
 Residue, stated: `git commit --amend` is indistinguishable here, and an amend whose earlier commit
-already bumped can be refused (use the opt-out or the override); `--no-verify` skips the hook; and it
+already bumped can be refused (use the override); `--no-verify` skips the hook; and it
 guards nothing until tools/install-git-hooks.sh has installed the commit-msg shim in the clone.
 """
 import importlib.util
@@ -48,8 +49,22 @@ def decide(allow, sequencer, opt_out, ok, bad):
     the opt-out; ok: the staged state was read; bad: the offender paths (meaningful only when ok)."""
     if allow:
         return 0, f"check-version-bump-commit: NOTE: {_OVERRIDE} is set; skipping the Version-bump check."
-    if sequencer or opt_out:
+    if sequencer:
         return 0, ""
+    if opt_out:
+        # The escape covers README.md only (3b102); any other unbumped document is still refused.
+        # An unreadable state cannot show the offenders are README.md only, so it refuses (3b102 QA r2).
+        if not ok:
+            return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, "
+                       "so it is unknown whether `VersionBump: none` covers only README.md. "
+                       f"Deliberate override: {_OVERRIDE}=1.")
+        others = sorted(p for p in (bad or ()) if p != "README.md")
+        if not others:
+            return 0, ""
+        return 1, ("check-version-bump-commit: REFUSING the commit: `VersionBump: none` covers README.md "
+                   f"only, and these staged documents changed their body without a Version change: "
+                   f"{', '.join(others)}. Bump **Version:** (patch) and set **Date:** to today (UTC) in "
+                   f"the same edit, `git add` them, and commit again. Deliberate override: {_OVERRIDE}=1.")
     if not ok:
         return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, so "
                    f"it is unknown whether a Version bump is missing. Deliberate override: {_OVERRIDE}=1.")
@@ -57,8 +72,8 @@ def decide(allow, sequencer, opt_out, ok, bad):
         return 1, ("check-version-bump-commit: REFUSING the commit: these staged documents changed their body "
                    f"without a Version change: {', '.join(sorted(bad))}. Bump **Version:** (README.md: **README "
                    "Version:**) (patch) and set "
-                   "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a commit that "
-                   "genuinely needs no bump carries a `VersionBump: none <reason>` line in its message. "
+                   "**Date:** to today (UTC) in the same edit, `git add` them, and commit again; a README.md-only "
+                   "body change may carry a `VersionBump: none <reason>` line in its message. "
                    f"Deliberate override: {_OVERRIDE}=1.")
     return 0, ""
 
@@ -164,6 +179,7 @@ def _in_sequencer(root):
 
 
 def _commit_msg(msgfile):
+    sequencer = opt_out = False
     try:
         top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
                              check=True).stdout.strip()
@@ -173,10 +189,11 @@ def _commit_msg(msgfile):
             return 0
         text = read_message(msgfile)
         sequencer, opt_out = _in_sequencer(root), message_opts_out(text, guard, _comment_char(root))
-        bad = [] if (sequencer or opt_out) else staged_offenders(root, guard)
+        # The escape no longer skips the read: decide() excuses README.md only (3b102 QA r1).
+        bad = [] if sequencer else staged_offenders(root, guard)
         ok = True
     except Exception:
-        sequencer = opt_out = False
+        # decide() refuses an unreadable state, with or without the escape (3b102 QA r2).
         bad, ok = [], False
     code, msg = decide(bool(os.environ.get(_OVERRIDE)), sequencer, opt_out, ok, bad)
     if msg:
@@ -235,7 +252,9 @@ def _integration_self_test():
             failures.append(f"installer failed after the .local migration: {cp.stderr.strip()}")
         must(["git", "add", "tools", ".claude"])
         doc(repo / "d.md", "1.0.0", "first body")
-        must(["git", "add", "d.md"])
+        readme_text = lambda b: f"**README Version:** 1.0.0\\\n**Date:** 2026-01-01\\\n\n---\n\n{b}\n"
+        (repo / "README.md").write_text(readme_text("readme one"))
+        must(["git", "add", "d.md", "README.md"])
         must(["git", "commit", "-q", "-m", "init"])
         if "local hook ran" not in must(["git", "log", "-1", "--format=%B"]).stdout:
             failures.append("the chained commit-msg-local hook did not run")
@@ -245,8 +264,17 @@ def _integration_self_test():
         if cp.returncode == 0 or "without a Version change" not in cp.stderr:
             failures.append("a body-only change without a Version bump was not refused")
         cp = run(["git", "commit", "-q", "-m", "body only\n\nVersionBump: none (test)"])
+        if cp.returncode == 0 or "covers README.md only" not in cp.stderr:
+            failures.append("the VersionBump opt-out let a non-README document through (3b102)")
+        must(["git", "restore", "--staged", "d.md"])
+        (repo / "README.md").write_text(readme_text("readme two"))
+        must(["git", "add", "README.md"])
+        cp = run(["git", "commit", "-q", "-m", "readme body"])
+        if cp.returncode == 0:
+            failures.append("a README.md body change without the opt-out was not refused (vacuous case)")
+        cp = run(["git", "commit", "-q", "-m", "readme body\n\nVersionBump: none (test)"])
         if cp.returncode != 0:
-            failures.append(f"the VersionBump opt-out did not allow the commit: {cp.stderr.strip()}")
+            failures.append(f"the VersionBump opt-out did not allow a README.md-only commit: {cp.stderr.strip()}")
         doc(repo / "d.md", "1.0.1", "third body")
         must(["git", "add", "d.md"])
         cp = run(["git", "commit", "-q", "-m", "bumped"])
@@ -260,6 +288,14 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "regen"])
         if cp.returncode != 0:
             failures.append(f"a generated-artefact body change was refused: {cp.stderr.strip()}")
+        doc(repo / "docs" / "reference-acquisition-manifest.md", "1.0.0", "generated")
+        must(["git", "add", "docs"])
+        must(["git", "commit", "-q", "-m", "add manifest"])
+        doc(repo / "docs" / "reference-acquisition-manifest.md", "1.0.0", "regenerated")
+        must(["git", "add", "docs"])
+        cp = run(["git", "commit", "-q", "-m", "regen manifest"])
+        if cp.returncode != 0:
+            failures.append(f"a regenerated reference manifest was refused: {cp.stderr.strip()}")
         # The crux: a commit made with `git -C` in a LINKED worktree is checked too.
         linked = Path(base) / "wt"
         must(["git", "worktree", "add", "-q", "-b", "other", str(linked)])
@@ -344,7 +380,9 @@ def _self_test():
          message_opts_out(_cr_text, _G), False),
         ("override allows", decide(True, False, False, True, ["a.md"])[0], 0),
         ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
-        ("opt-out allows", decide(False, False, True, True, ["a.md"])[0], 0),
+        ("opt-out allows a README.md-only body change", decide(False, False, True, True, ["README.md"])[0], 0),
+        ("opt-out does not excuse another document (3b102)", decide(False, False, True, True, ["README.md", "a.md"])[0], 1),
+        ("opt-out on an unreadable state refuses", decide(False, False, True, False, [])[0], 1),
         ("unreadable state refuses", decide(False, False, False, False, [])[0], 1),
         ("an offender refuses", decide(False, False, False, True, ["a.md"])[0], 1),
         ("no offender allows", decide(False, False, False, True, [])[0], 0),
@@ -369,7 +407,7 @@ def _self_test():
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 16
+    total = len(cases) + 19
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures
