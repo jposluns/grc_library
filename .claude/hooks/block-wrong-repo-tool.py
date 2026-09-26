@@ -36,11 +36,15 @@ suggestion templates. These are regex and filesystem checks, not shell execution
 
 Scanning is limited to existing tools directories under the configured
 ``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
-no project tools entry in this scan. For the absolute-path suggestion, the last matched
-``cd`` operand before the tool wins when it is an absolute directory holding
-``tools/<name>`` (a linked worktree's own copy, 3b85); otherwise a project-file match wins,
-then the first matching configured repo. The operand is read textually (quotes stripped, no
-variable or ``~`` expansion). The sibling suggestion
+no project tools entry in this scan, except that the project directory's own ``tools/`` always
+counts (a linked-worktree session, 3b85). For the absolute-path suggestion, the last ``cd``
+before the tool wins when its operand is an absolute directory holding ``tools/<name>`` (a
+linked worktree's own copy, 3b85); otherwise a project-file match wins, then the first
+matching configured repo. The operand is read textually (one enclosing quote pair removed,
+no variable or ``~`` expansion, a bare ``cd`` has none), so a relative or option-prefixed
+operand (``cd ../wt``, ``cd -P /x``) and a cd inside a subshell are residue: the suggestion
+then falls back or names a tree the tool will not run in. The path is shell-quoted. The
+sibling suggestion
 uses the first matching other repo. Neither choice establishes the intended target.
 
 After check (0), ANY matched ``cd`` allows the whole command, even a cd after a sibling
@@ -81,6 +85,7 @@ Self-test: ``python3 .claude/hooks/block-wrong-repo-tool.py --self-test``.
 import json
 import os
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -170,6 +175,10 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     parent = proj.parent
     roots = _sibling_roots(project_dir)
     project_tools = roots.get(project_name) if roots else None
+    if project_tools is None and (proj / "tools").is_dir():
+        # 3b85: a linked-worktree session (project dir /opt/grc/wt-X) is the project even though
+        # its directory name is not a configured repo name; its own tools/ are project tools.
+        project_tools = proj / "tools"
     invoked = list(dict.fromkeys(_INVOKE.findall(command)))
     has_cd = bool(re.search(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command))
 
@@ -192,23 +201,29 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # The cd regex accepts start, ; & newline ( && || followed by optional whitespace,
     # then cd and whitespace. It does not recognize every shell cd form or parse quoting.
     cd_pos = [m.start() for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command)]
-    # The operand of each cd match, for the suggestion below (textual; quotes stripped).
-    cd_args = [(m.start(), m.group(1).strip("'\""))
-               for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s+(\"[^\"]*\"|'[^']*'|[^\s;&|)]+)", command)]
+    # The operand of each cd (None for a bare cd), for the suggestion below. Read textually:
+    # exactly one enclosing quote pair is removed, nothing is expanded, and a bare cd counts.
+    cd_args = []
+    for cm in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd(?=[\s;&|)]|$)", command):
+        om = re.match(r"[ \t]+(\"[^\"]*\"|'[^']*'|[^\s;&|)]+)", command[cm.end():])
+        arg = om.group(1) if om else None
+        if arg and len(arg) >= 2 and arg[0] == arg[-1] and arg[0] in "'\"":
+            arg = arg[1:-1]
+        cd_args.append((cm.start(), arg))
 
     def _suggested(t, repo, at):
         # 3b85: after `cd <absolute dir>` in a LINKED WORKTREE, the tool meant is that tree's own
         # copy; suggesting the main checkout's path would run the right tool against the wrong
         # tree. Name the cd target's tools/ path when it holds the tool; else the scanned repo.
         before = [arg for pos, arg in cd_args if pos < at]
-        if before and before[-1].startswith("/"):
+        if before and before[-1] and before[-1].startswith("/"):
             cand = Path(before[-1]) / "tools" / t
             try:
                 if cand.is_file():
-                    return str(cand)
+                    return shlex.quote(str(cand))
             except OSError:
                 pass
-        return f"{parent}/{repo}/tools/{t}"
+        return shlex.quote(f"{parent}/{repo}/tools/{t}")
 
     flagged = []
     for m in _INVOKE.finditer(command):
@@ -385,6 +400,39 @@ def _self_test() -> int:
             block, reason = decide(f"cd {empty} && bash tools/run_all_audits.sh", self.pd)
             self.assertTrue(block)
             self.assertIn(f"{self.proj}/tools/run_all_audits.sh", reason)
+
+        def test_worktree_suggestion_quoting_and_bare_cd(self):
+            # 3b85 QA round 1 (codex, claude): a path with a space is shell-quoted; exactly one
+            # enclosing quote pair is removed (a trailing apostrophe in the name survives); a
+            # bare cd after the worktree cd means the tool no longer runs there, so the
+            # suggestion falls back.
+            import shlex as _sh
+            sp = Path(self.parent) / "wt space"
+            ap = Path(self.parent) / "wt'"
+            plain = Path(self.parent) / "wt"
+            for d in (sp, ap, plain):
+                (d / "tools").mkdir(parents=True)
+                (d / "tools" / "run_all_audits.sh").write_text("")
+            _, reason = decide(f'cd "{sp}" && bash tools/run_all_audits.sh', self.pd)
+            self.assertIn(f"python3 {_sh.quote(str(sp / 'tools' / 'run_all_audits.sh'))} ...", reason)
+            _, reason = decide(f'cd "{ap}" && bash tools/run_all_audits.sh', self.pd)
+            self.assertIn(_sh.quote(str(ap / "tools" / "run_all_audits.sh")), reason)
+            self.assertNotIn(f"python3 {plain}/tools/run_all_audits.sh", reason)
+            _, reason = decide(f"cd {plain} && cd && bash tools/run_all_audits.sh", self.pd)
+            self.assertIn(f"python3 {self.proj}/tools/run_all_audits.sh", reason)
+
+        def test_worktree_session_tools_are_project_tools(self):
+            # 3b85 QA round 1 (claude): in a linked-worktree session (a project dir whose name is
+            # not a configured repo name) its own tools/ are project tools, so a tool present
+            # there and in a sibling is not a false sibling block.
+            wt = Path(self.parent) / "wt-session"
+            (wt / "tools").mkdir(parents=True)
+            (wt / "tools" / "credit-offload-queue.py").write_text("")
+            block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
+            self.assertFalse(block)
+            block, reason = decide("python3 tools/validate.py", str(wt))
+            self.assertTrue(block)  # absent from the worktree, present in a sibling
+            self.assertIn("grc_library_scratch", reason)
 
         def test_cd_allowlist_tool_allowed(self):
             # P-1.19: cd + a cwd-guard allow-list tool stays allowed.
