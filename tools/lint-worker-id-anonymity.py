@@ -23,24 +23,28 @@ from pathlib import Path
 
 from lint_common import REPO_ROOT, guard_explicit_paths, positional_args
 
-# Character classes keep the source itself free of matching example paths.
-FAMILY = r"\b(claude|codex|gemini)-"
-ALIAS = re.compile(r"(?:acct|acct-[a-z0-9]|orchestrator|<account>|example)", re.I)
+# Character classes keep the source itself free of matching example paths. Separators may be
+# "-", "_" or "."; a family token may follow "_" (3b97 QA r1).
+FAMILY = r"(?<![A-Za-z0-9])(claude|codex|gemini)[-_.]"
+ALIAS = re.compile(r"(?:acct|acct-[a-z0-9]|orchestrator|example)", re.I)
 RULES = (
     ("R1", re.compile(
-        r"\borch[-]accounts/[^/\s\"'`]+/(?P<account>[^/\s\"'`]+)",
+        r"(?<![A-Za-z0-9])orch[-_]accounts[\\/]+[A-Za-z0-9._-]+[\\/]+(?P<account>[A-Za-z0-9._-]+)",
         re.I,
     )),
+    # "pro" and "api" are left out: they are real product and model names (gemini-pro, the Gemini
+    # API, --codex-api-key); an account on such a plan is still caught by R3 or R4 (3b97 QA r1).
     ("R2", re.compile(
-        FAMILY + r"(team|pro|max|plus|aistudio|vertex|api|enterprise|business|personal)"
-        r"\b(-[a-z0-9]+)*", re.I,
+        FAMILY + r"(team|max|plus|aistudio|vertex|enterprise|business|personal)(?![a-z0-9])"
+        r"([-_.][a-z0-9]+)*", re.I,
     )),
-    ("R3", re.compile(FAMILY + r"[a-z0-9-]*worker[0-9]+\b", re.I)),
+    ("R3", re.compile(FAMILY + r"[a-z0-9._-]*worker[-_]?[0-9]+(?![0-9])", re.I)),
     ("R4", re.compile(
-        FAMILY + r"(?!(opus|sonnet|haiku|fable)\b)[a-z0-9]+(-[a-z0-9]+)*-"
-        r"(20\d{6}(T?\d{4,6}Z?)?|\d{10,13})\b", re.I,
+        FAMILY + r"(?!(opus|sonnet|haiku|fable|[0-9])(?![a-z0-9]))[a-z0-9]+([-_.][a-z0-9]+)*[-_.]"
+        r"(20[0-9]{6}([T_-]?[0-9]{4,6}Z?)?|20[0-9]{2}-[0-9]{2}-[0-9]{2}(T[0-9]{2}:?[0-9]{2}(:?[0-9]{2})?Z?)?"
+        r"|[0-9]{10,13})(?![0-9])", re.I,
     )),
-    ("R5", re.compile(r"/(worker-registry|orch-worker-broker)/[^\s\"'`]*", re.I)),
+    ("R5", re.compile(r"(?:/|(?<![A-Za-z0-9]))(worker-registry|orch-worker-broker)[\\/][^\s\"'`]*", re.I)),
 )
 
 
@@ -111,6 +115,10 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: {rel}: {exc}", file=sys.stderr)
             errors = True
             continue
+        # The path itself is scanned too: a name in a file or directory name is as public as its
+        # content (3b97 QA r1). Line 0 marks a path finding.
+        findings += [(0, rule, match) for _, rule, match in scan_bytes(rel.encode("utf-8"))
+                     if rule != "UTF8"]
         for lineno, rule, match in findings:
             print(f"{rel}:{lineno}: {rule}: {match}")
         count += len(findings)

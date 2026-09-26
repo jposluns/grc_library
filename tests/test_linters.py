@@ -26786,10 +26786,40 @@ class WorkerIdAnonymityTests(unittest.TestCase):
 
     def test_plan_vocabulary_and_families(self) -> None:
         for family in ("claude", "codex", "gemini"):
-            for plan in ("team", "pro", "max", "plus", "aistudio", "vertex",
-                         "api", "enterprise", "business", "personal"):
+            for plan in ("team", "max", "plus", "aistudio", "vertex",
+                         "enterprise", "business", "personal"):
                 value = "-".join((family, plan, "a1", "b2"))
                 self.assertIn((1, "R2", value), self.findings(value))
+
+    def test_round_one_widening_and_false_positives(self) -> None:
+        # 3b97 QA r1: other separators, path forms, worker numbering and timestamp shapes are found;
+        # product names, model ids, CLI flags and a markdown link are not.
+        acct = "x" * 8
+        found = {
+            "R1": ["orch-accounts//grc//" + acct, "orch-accounts" + chr(92) + "grc" + chr(92) + acct,
+                   "orch_accounts/grc/" + acct],
+            "R2": ["_".join(("codex", "team", "x")), ".".join(("claude", "max", "x")),
+                   "my_" + "-".join(("gemini", "aistudio", "x"))],
+            "R3": ["-".join(("codex", "worker", "3"))],
+            "R4": ["-".join(("claude", "blue", "20260926_1234")), "-".join(("codex", "blue", "2026-09-26T12:34Z"))],
+            "R5": ["-".join(("worker", "registry")) + "/lease.json"],
+        }
+        for rule, values in found.items():
+            for value in values:
+                with self.subTest(rule=rule, value=value):
+                    self.assertIn(rule, [r for _, r, _ in self.findings(value)])
+        for value in ("-".join(("gemini", "pro")), "-".join(("gemini", "pro", "vision")),
+                      "-".join(("gemini", "api")), "--" + "-".join(("codex", "api", "key")),
+                      "claude-3-5-sonnet-20241022", "claude-3-opus-20240229",
+                      "[x](" + "/".join(("orch-accounts", "project", "acct")) + ")"):
+            with self.subTest(value=value):
+                self.assertEqual(self.findings(value), [])
+
+    def test_a_name_in_a_path_is_found(self) -> None:
+        name = "-".join(("codex", "team", "x"))
+        rc, out, err = self.run_tree({name + "/note.md": b"safe\n"})
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn(f"{name}/note.md:0: R2:", out)
 
     def test_worker_and_timestamp_variants(self) -> None:
         for family in ("claude", "codex", "gemini"):
@@ -26813,7 +26843,7 @@ class WorkerIdAnonymityTests(unittest.TestCase):
                 self.assertEqual(self.findings(value), [])
                 self.assertEqual(self.findings(value.upper()), [])
         for alias in ("acct-aa", "acct-", "acct_extra", "example-user",
-                      "orchestrator2", "<account>-extra"):
+                      "orchestrator2"):
             value = "/".join(("orch-accounts", "project", alias))
             self.assertIn((1, "R1", value), self.findings(value))
 
@@ -26849,14 +26879,14 @@ class WorkerIdAnonymityTests(unittest.TestCase):
         self.assertEqual(err, "")
 
     def test_non_utf8_file_is_a_finding_and_still_scanned(self) -> None:
-        value = "-".join(("codex", "pro"))
+        value = "-".join(("codex", "team"))
         rc, out, err = self.run_tree({"bad.txt": b"safe\n\xff\n" + value.encode()})
         self.assertEqual(rc, 1, out + err)
         self.assertIn("bad.txt:2: UTF8: b'\\xff'", out)
         self.assertIn(f"bad.txt:3: R2: {value}", out)
 
     def test_nul_probe_skips_binary_even_past_prefix(self) -> None:
-        value = "-".join(("codex", "pro")).encode()
+        value = "-".join(("codex", "team")).encode()
         rc, out, err = self.run_tree({"binary": value + b"x" * 9000 + b"\0\xff"})
         self.assertEqual(rc, 0, out + err)
 
