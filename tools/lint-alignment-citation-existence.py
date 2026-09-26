@@ -35,7 +35,7 @@ PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "to
 EXEMPT_SUFFIXES = (
     "CHANGELOG.md",
     "governance/specification-audit-programme.md",        # gate-description prose uses example codes
-    "governance/specification-citation-verification.md",  # ditto
+    "governance/specification-citation-verification.md",  # listed with the audit spec (no example-code reason)
 )
 
 
