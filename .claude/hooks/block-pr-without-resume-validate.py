@@ -33,7 +33,7 @@ gets removed, and a removed guard protects nothing. Adopters (no private store) 
 
 ESCAPE. A genuine exception (a handoff-only session that must open a PR without a sweep) is honoured
 via a one-shot sentinel the actor creates, consumed only when the hook would otherwise block:
-    touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-pr-without-resume-validate"
+    touch "${GRC_DROP_ROOT:-<repo-parent>/grc_working}/.allow-pr-without-resume-validate"
 """
 from __future__ import annotations
 
@@ -166,7 +166,7 @@ def has_qualifying_row(text: str, threshold_date: _dt.date) -> bool:
 
 
 def _sentinel_path() -> Path:
-    root = os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working"
+    root = os.environ.get("GRC_DROP_ROOT") or str((Path(__file__).resolve().parents[3] / "grc_working"))
     return Path(root) / SENTINEL_NAME
 
 
@@ -213,7 +213,8 @@ def _block_message(threshold) -> str:
         "CONSIDER INSTEAD: dispatch the triple-family corpus-wide /validate and record its history row, "
         "then re-run this. For a genuine exception (e.g. a handoff-only session), create the one-shot "
         "sentinel then retry:\n"
-        '    touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-pr-without-resume-validate"'
+        # The resolved path, shell-quoted: a literal <repo-parent> fallback does not run (P-1.21 r2, codex).
+        f"    touch {shlex.quote(str(_sentinel_path()))}"
     )
 
 
@@ -355,7 +356,7 @@ def self_test() -> int:
     try:
         os.environ["GRC_DROP_ROOT"] = ""
         ck("empty GRC_DROP_ROOT uses the default sentinel root",
-           str(_sentinel_path()), "/opt/grc/grc_working/" + SENTINEL_NAME)
+           str(_sentinel_path()), str(Path(__file__).resolve().parents[3] / "grc_working" / SENTINEL_NAME))
     finally:
         if _saved is None:
             os.environ.pop("GRC_DROP_ROOT", None)

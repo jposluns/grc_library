@@ -23,8 +23,9 @@ import os
 import re
 import subprocess
 import sys
+from pathlib import Path
 
-TOOL = os.environ.get("NMW_ACTIONABLE_TOOL") or "/opt/grc/grc_library/tools/audit-backlog-actionability.py"
+TOOL = os.environ.get("NMW_ACTIONABLE_TOOL") or str(Path(__file__).resolve().parents[2] / "tools" / "audit-backlog-actionability.py")
 _SUMMARY = re.compile(r"^\d+ open item\(s\).*;\s*(\d+)\s+ACTIONABLE\b")  # the AUTHORITATIVE summary line only
 _HEADER = re.compile(r"^ACTIONABLE \((\d+)\):\s*$")               # item-section header
 _ITEM = re.compile(r"^\s+-\s+(\S+)\s+(?:\[[^\]]*\]\s+)?(.*)$")    # '  - <id>  [tags]  <title>'

@@ -35,7 +35,7 @@ WHAT IT DOES NOT BLOCK, by construction:
     this guard's remedies, so the check is skipped there (#1695).
 
 ESCAPE, and it is reachable. Create the file named by ESCAPE_FILE from any shell:
-``touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-stop"`` (default ``/opt/grc/grc_working/.allow-stop`` when GRC_DROP_ROOT is unset). The hook honours it ONCE and deletes it, so an escape
+``touch "${GRC_DROP_ROOT:-<repo-parent>/grc_working}/.allow-stop"`` (default ``<repo-parent>/grc_working/.allow-stop`` when GRC_DROP_ROOT is unset). The hook honours it ONCE and deletes it, so an escape
 cannot silently become the standing state. It is reachable from a Bash tool call, which the previous
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
@@ -81,7 +81,7 @@ except Exception:                                  # pragma: no cover - fail OPE
         return True
 
 REPO = Path(os.environ.get("CLAUDE_PROJECT_DIR") or Path(__file__).resolve().parents[2])
-ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")) / ".allow-stop"
+ESCAPE_FILE = Path((os.environ.get("GRC_DROP_ROOT") or (Path(__file__).resolve().parents[3] / "grc_working"))) / ".allow-stop"
 # Held branches live in a FILE with a reason per line, not a constant in this file: a hardcoded set
 # goes stale the day it is written, and a comment saying "cite a decision record" enforces nothing.
 # The file is resolved via the store-aware resolver (local operational store preferred, the

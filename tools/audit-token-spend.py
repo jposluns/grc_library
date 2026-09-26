@@ -46,7 +46,7 @@ from pathlib import Path
 # derives it (absolute path, separators to hyphens), never hardcoded, so this follows a checkout
 # that moves on disk (the repo-root-relocation row of the change-impact surface map).
 TRANSCRIPT_HOME = Path.home() / ".claude" / "projects"
-FILEDROP_DEFAULT = Path("/opt/grc/grc_working")
+FILEDROP_DEFAULT = Path(__file__).resolve().parents[2] / "grc_working"  # <repo-parent>/grc_working
 # NOTE (2026-08-23): the exec-dispatch / delivery-tray model is retired (orch-verify is synchronous
 # and returns its result in hand, never via a tray). This tool's worker-spend source below therefore
 # reads empty on the now-absent tray; re-pointing it to the orch-verify spend signal is a tracked
@@ -161,8 +161,8 @@ def transcript_dir_for(repo_root: Path) -> Path:
     """The harness transcript directory for a repo path. Observer.
 
     The harness names it after the absolute repo path with BOTH path separators and underscores
-    replaced by hyphens, so `/home/grc/grc_library` becomes `-home-grc-grc-library`. Getting only
-    the separators produced `-home-grc-grc_library`, which does not exist; the tool reported the
+    replaced by hyphens, so `/srv/example/grc_library` becomes `-srv-example-grc-library`. Getting only
+    the separators produced `-srv-example-grc_library`, which does not exist; the tool reported the
     transcript as ABSENT rather than counting zero, which is how the mistake surfaced instead of
     shipping as a silent "0 tokens spent".
     """
@@ -368,7 +368,7 @@ def self_test() -> int:
         check(f"find_reported_spend: {name}", find_reported_spend(text), want)
 
     check("transcript_dir_for: underscores hyphenate too, not only separators",
-          transcript_dir_for(Path("/home/grc/grc_library")).name, "-home-grc-grc-library")
+          transcript_dir_for(Path("/srv/example/grc_library")).name, "-srv-example-grc-library")
     # The #1175 sweep's own cases, kept verbatim as reality fixtures. The first two are the defect:
     # the earlier parser turned a NEGATED spend statement into a real figure by grabbing an unrelated
     # budget number later in the sentence, which is worse than returning None because an invented

@@ -64,4 +64,4 @@
     - "issue the SAME order again"
     - "Every QA pass gets one worker per available family"
     - "WORKERS ARE ELASTIC"
-    - "credit-offload-design.md"
+    - "design of record and the orchestrator-side operating discipline"

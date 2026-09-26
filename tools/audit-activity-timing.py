@@ -48,7 +48,7 @@ def transcript_dir_for(repo_root: Path) -> Path:
     """The harness transcript directory for a repo path. Observer.
 
     The harness names it after the absolute repo path with BOTH path separators and underscores
-    replaced by hyphens, so `/home/grc/grc_library` becomes `-home-grc-grc-library`.
+    replaced by hyphens, so `/srv/example/grc_library` becomes `-srv-example-grc-library`.
     """
     return TRANSCRIPT_HOME / str(repo_root.resolve()).replace("/", "-").replace("_", "-")
 

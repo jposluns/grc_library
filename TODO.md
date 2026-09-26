@@ -152,6 +152,6 @@ Durable behavioural guidance from the maintainer. NOT actionable items; referenc
 
 - Add new items at the appropriate band; a row's position is its queue order. Move items between bands as context changes (the number never changes).
 - When an item is completed, delete its index row here (no strikethroughs, no `[done]` suffixes); the item's `### <id>` detail block in the private `grc_library_private/TODO-REFERENCE.md` and the `grc_library_private/.working/DONE.md` entry rotate in the private sibling. Rotation discipline: the PR-finalization-protocol section of [`.claude/rules/governance/change-tracking.md`](.claude/rules/governance/change-tracking.md).
-- Design decisions belong in `grc_library_private/design-decisions.md`, not TODO.
+- Design decisions belong in the private decision record, not TODO.
 - This file (the public index; per-item detail in the private `grc_library_private/TODO-REFERENCE.md`) is the source of truth for what's queued; conversation history is not.
 - Fitness-review backlogs remain the authoritative per-finding evidence source; this file is the action-organized view.

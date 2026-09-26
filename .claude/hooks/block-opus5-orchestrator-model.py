@@ -8,7 +8,7 @@ moment a session (or a mid-session model swap) lands on Opus 5.
 
 AMENDED 2026-09-23 (maintainer-directed): the ban is narrowed to Opus 5.0 (the `claude-opus-5-0` family,
 with the bare `claude-opus-5` id still treated as 5.0). Opus 5.5 (`claude-opus-5-5`) and 5.1 are AUTHORIZED
-orchestrator models, matching lab_infra D-267's Opus-5.0-only fleet semantics. The function keeps its
+orchestrator models, matching fleet decision D-267's Opus-5.0-only fleet semantics. The function keeps its
 historical name `is_opus5` (tests and callers reference it); read it as "is a banned Opus 5.0 id".
 
 MAINTAINER-SCOPED: the Opus-5 ban is the maintainer's preference for THIS project, NOT a portable

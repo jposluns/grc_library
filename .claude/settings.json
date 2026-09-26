@@ -154,7 +154,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md ORCH_STORE_ROOT=\"$CLAUDE_PROJECT_DIR\"/../private:\"$CLAUDE_PROJECT_DIR\"/../grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }
@@ -164,7 +164,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=/opt/grc/private/session-state.md ORCH_STORE_ROOT=/opt/grc/private:/opt/grc/grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md ORCH_STORE_ROOT=\"$CLAUDE_PROJECT_DIR\"/../private:\"$CLAUDE_PROJECT_DIR\"/../grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }

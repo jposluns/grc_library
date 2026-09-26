@@ -109,8 +109,8 @@ serialization the maintainer would gladly parallelize.
 
 ## Standard pipeline: seeds -> plan -> worker draft -> tri-family QA -> orchestrator finalize (2026-08-28)
 
-The fleet operating mode for substantive build work (Architect-directed 2026-08-28; the model guardrails converged
-with the Architect, adopted across lab_infra, worker-harness, and grc). It layers a DRAFT stage on the
+The fleet operating mode for substantive build work (fleet-directed 2026-08-28; the model guardrails converged
+with the fleet operator, adopted across the fleet's orchestrators). It layers a DRAFT stage on the
 research-assistant discipline so the orchestrator stays off the synthesis AND authoring critical path, doing only
 the finalize + integrate:
 
@@ -143,6 +143,5 @@ parallel worktrees; one integrator serializes the merges. Workers stay READ-ONLY
 merge stays the orchestrator's, because giving a worker write access needs OS-isolation and erodes single-writer
 integrity. This takes the orchestrator off the authoring critical path too; it only finalizes + integrates.
 
-The design of record is `grc_library_private/credit-offload-design.md`; the orchestrator-side
-operating discipline is `grc_library_private/orchestrator-claude.md` (`## Credit-offload mode`,
-group A1).
+The design of record and the orchestrator-side operating discipline are kept in the private
+operational store.

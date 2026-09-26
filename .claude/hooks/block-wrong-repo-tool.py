@@ -227,7 +227,7 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     roots = _sibling_roots(project_dir)
     project_tools = roots.get(project_name) if roots else None
     if project_tools is None and (proj / "tools").is_dir() and _is_linked_worktree_of_configured(proj):
-        # 3b85: a linked-worktree session (project dir /opt/grc/wt-X) is the project even though
+        # 3b85: a linked-worktree session (project dir <repo-parent>/wt-X) is the project even though
         # its directory name is not a configured repo name; its own tools/ are project tools.
         # Residue: a cwd-relative project tool with no cd is then allowed there, so drift into
         # the main checkout (which holds a same-named tool) goes undetected, as in a main-checkout

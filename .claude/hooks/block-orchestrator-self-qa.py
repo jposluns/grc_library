@@ -55,7 +55,7 @@ AUTHORIZATION. The sentinel is an actor-creatable speed bump, not a
 maintainer-only capability or a security boundary. Where filesystem
 permissions permit, the actor can create it with:
 
-    touch "${GRC_DROP_ROOT:-/opt/grc/grc_working}/.allow-orchestrator-qa"
+    touch "${GRC_DROP_ROOT:-<repo-parent>/grc_working}/.allow-orchestrator-qa"
 
 The hook renames the sentinel to a PID-derived claim path, checks that path
 with lstat for regular-file status, then unlinks it. It returns successful
@@ -94,7 +94,7 @@ lost, and it changed nothing.
 
 REGISTER. main() attempts a row for BLOCK, BYPASS-AUTHORIZED, FAIL-OPEN,
 WORKER-ALLOWED, and, when severity is disabled, WARN-ALLOWED, in
-``${GRC_DROP_ROOT:-/opt/grc/grc_working}/guard-fires.tsv``.
+``${GRC_DROP_ROOT:-<repo-parent>/grc_working}/guard-fires.tsv``.
 Appending is best-effort: a writable directory alone does not guarantee
 success. log_fire() returns False on Exception, and main() ignores that
 result, so logging failure does not change the decision. This hook neither
@@ -141,7 +141,7 @@ BLOCK_SEVERITY = True
 # The settings matcher scopes the hook, and this set is the internal re-check.
 DISPATCH_TOOLS = {"Task", "Agent", "Workflow", "SendMessage"}
 
-WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working")
+WORKING_ROOT = Path(os.environ.get("GRC_DROP_ROOT") or (Path(__file__).resolve().parents[3] / "grc_working"))
 
 # Actor-creatable where permissions permit; shared by calls using this root.
 # Successful consumption permits the current call; a same-inode rename can leave SENTINEL present.
