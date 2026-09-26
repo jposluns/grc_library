@@ -425,6 +425,14 @@ is external. Two mechanisms:
      message, which exists because a guard with no stated exception gets bypassed wholesale the
      first time it is wrong. The convention above remains the primary control; this is defence in
      depth, and it was earned by that convention failing five times in one session.
+   - **README.md's own version key moves once per PR** (maintainer-decided 2026-09-26, 3b87).
+     The commit-time version-bump guards judge README.md by its `**README Version:**` line (not
+     `**Library Version:**`, and not the fenced `**Version:**` metadata template in its body), and
+     they refuse a commit that edits the README body without changing that line. CLAUDE.md's
+     version-bump discipline moves the README Version once per PR, with the library CalVer, in the
+     closing commit. So an EARLIER commit in the PR that edits the README body carries a
+     `VersionBump: none <reason>` line in its message (for example `VersionBump: none README
+     Version moves with the CalVer in the closing commit`), and the closing commit bumps it.
    - **Generated-artefact regen order** (the false-clean guard): after any per-document
      `Version` bump, regenerate `taxonomy.yml` FIRST, then `docs/portal.md` and
      `docs/maturity-scorecard.md` (which derive from the taxonomy); an
