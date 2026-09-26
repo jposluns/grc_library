@@ -189,8 +189,13 @@ def _is_linked_worktree_of_configured(proj: Path) -> bool:
             if gitdir.parent == base and gitdir.is_dir():
                 # 3b85 round 3 (codex): the registration must point BACK at this project's .git,
                 # so a copied or stale .git file naming someone else's registration fails.
-                back = (gitdir / "gitdir").read_text(encoding="utf-8", errors="replace").strip()
-                return Path(back).resolve() == dotgit.resolve()
+                back = Path((gitdir / "gitdir").read_text(encoding="utf-8", errors="replace").strip())
+                if not back.is_absolute():
+                    back = gitdir / back  # git resolves it against the registration (round 4)
+                # The registration must name THIS directory's .git: compare the owning directory,
+                # not the resolved file, so borrowed metadata (a copied or symlinked .git, round 4)
+                # cannot resolve onto it.
+                return back.name == ".git" and back.parent.resolve() == proj.resolve()
     except (OSError, IndexError, ValueError):
         return False
     return False
@@ -557,6 +562,21 @@ def _self_test() -> int:
             self.assertTrue(block)
             block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
             self.assertFalse(block)  # the real worktree, whose registration points back
+            # 3b85 round 4 (codex): a RELATIVE backpointer resolves against the registration
+            # (checked from a different cwd), and a symlinked .git is refused.
+            rel = os.path.relpath(wt / ".git", gitdir)
+            (gitdir / "gitdir").write_text(rel + "\n")
+            here = os.getcwd()
+            os.chdir("/")
+            try:
+                block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(wt))
+            finally:
+                os.chdir(here)
+            self.assertFalse(block)
+            (export / ".git").unlink()
+            (export / ".git").symlink_to(wt / ".git")
+            block, _ = decide("python3 tools/credit-offload-queue.py list-workers", str(export))
+            self.assertTrue(block)
 
         def test_cd_allowlist_tool_allowed(self):
             # P-1.19: cd + a cwd-guard allow-list tool stays allowed.
