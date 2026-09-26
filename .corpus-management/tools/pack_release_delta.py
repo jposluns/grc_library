@@ -127,13 +127,10 @@ def _registers(snapshot, manifest):
 
 
 def _scope(snapshot):
-    # Every file in the pack is a release surface except README.md files and __pycache__.
-    # Following references from the manifest let pack-root or noncanonical references escape
-    # (3b81 QA r2 and r3, codex), so the scope no longer depends on them.
-    return {
-        rel for rel in snapshot.files
-        if PurePosixPath(rel).name != "README.md" and "__pycache__" not in PurePosixPath(rel).parts
-    }
+    # Every file in the pack is a release surface except __pycache__. Following manifest
+    # references let pack-root or noncanonical references escape (3b81 QA r2 and r3, codex), and a
+    # README can be a generation source (QA r4, claude), so neither decides the scope.
+    return {rel for rel in snapshot.files if "__pycache__" not in PurePosixPath(rel).parts}
 
 
 def _engine_path(rel):

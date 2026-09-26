@@ -164,14 +164,14 @@ class ReleaseDeltaTests(unittest.TestCase):
             self.expect(repo, "NONE", 0)
             self.expect(repo, "NONE", 0, base=repo.base)
 
-    def test_readme_and_pycache_are_the_only_exclusions(self):
-        # 3b81 QA r3: the scope is every pack file except README.md files and __pycache__, so a
-        # file reached only through a pack-root or noncanonical reference cannot escape it.
+    def test_pycache_is_the_only_exclusion(self):
+        # 3b81 QA r3 and r4: the scope is every pack file except __pycache__, so no reference form
+        # and no README (which a tree or block rule can consume) escapes it.
         with self.repo() as repo:
-            repo.write("README.md", "Changed.\n")
-            repo.write("notes/README.md", "Changed.\n")
             repo.write("tools/__pycache__/engine.cpython-314.pyc", "bytes")
             self.expect(repo, "NONE", 0)
+            repo.write("notes/README.md", "Changed.\n")
+            self.assertIn("notes/README.md", self.expect(repo, "PATCH"))
             repo.write("notes/unreferenced.toml", "not even valid TOML")
             self.assertIn("notes/unreferenced.toml", self.expect(repo, "PATCH"))
             repo.write("notes/helper.py", "def run():\n    return 1\n")
