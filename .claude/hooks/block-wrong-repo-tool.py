@@ -36,8 +36,11 @@ suggestion templates. These are regex and filesystem checks, not shell execution
 
 Scanning is limited to existing tools directories under the configured
 ``SIBLING_REPO_NAMES`` beside the resolved project directory. An unlisted project name has
-no project tools entry in this scan. For the absolute-path suggestion, a project-file
-match wins; otherwise the first matching configured repo wins. The sibling suggestion
+no project tools entry in this scan. For the absolute-path suggestion, the last matched
+``cd`` operand before the tool wins when it is an absolute directory holding
+``tools/<name>`` (a linked worktree's own copy, 3b85); otherwise a project-file match wins,
+then the first matching configured repo. The operand is read textually (quotes stripped, no
+variable or ``~`` expansion). The sibling suggestion
 uses the first matching other repo. Neither choice establishes the intended target.
 
 After check (0), ANY matched ``cd`` allows the whole command, even a cd after a sibling
@@ -189,18 +192,36 @@ def decide(command: str, project_dir: str) -> tuple[bool, str]:
     # The cd regex accepts start, ; & newline ( && || followed by optional whitespace,
     # then cd and whitespace. It does not recognize every shell cd form or parse quoting.
     cd_pos = [m.start() for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s", command)]
+    # The operand of each cd match, for the suggestion below (textual; quotes stripped).
+    cd_args = [(m.start(), m.group(1).strip("'\""))
+               for m in re.finditer(r"(?:^|[;&\n(]|&&|\|\|)\s*cd\s+(\"[^\"]*\"|'[^']*'|[^\s;&|)]+)", command)]
+
+    def _suggested(t, repo, at):
+        # 3b85: after `cd <absolute dir>` in a LINKED WORKTREE, the tool meant is that tree's own
+        # copy; suggesting the main checkout's path would run the right tool against the wrong
+        # tree. Name the cd target's tools/ path when it holds the tool; else the scanned repo.
+        before = [arg for pos, arg in cd_args if pos < at]
+        if before and before[-1].startswith("/"):
+            cand = Path(before[-1]) / "tools" / t
+            try:
+                if cand.is_file():
+                    return str(cand)
+            except OSError:
+                pass
+        return f"{parent}/{repo}/tools/{t}"
+
     flagged = []
     for m in _INVOKE.finditer(command):
         t = m.group(1)
         if t in CWD_GUARD_ALLOWLIST or _tool_repo(t) is None:
             continue
         if any(cp < m.start() for cp in cd_pos):
-            flagged.append((t, _tool_repo(t)))
+            flagged.append((t, _suggested(t, _tool_repo(t), m.start())))
     flagged = list(dict.fromkeys(flagged))
     if flagged:
-        lines = [f"  - `tools/{t}`: use `python3 {parent}/{repo}/tools/{t} ...` "
+        lines = [f"  - `tools/{t}`: use `python3 {path} ...` "
                  f"(absolute), not a cd-prefixed cwd-relative invocation."
-                 for t, repo in flagged]
+                 for t, path in flagged]
         reason = (
             "BLOCKED (wrong-repo-tool-abspath): (P-1.19) a cwd-relative repo-tool match follows a `cd` match in the command text.\n"
             "WHY: the standing directive is ABSOLUTE PATHS BY DEFAULT "
@@ -347,6 +368,23 @@ def _self_test() -> int:
                 "cd ../grc_library && bash tools/run_all_audits.sh", self.pd)
             self.assertTrue(block)
             self.assertIn("wrong-repo-tool-abspath", reason)
+
+        def test_cd_into_linked_worktree_suggests_its_own_tool(self):
+            # 3b85: after `cd <linked worktree>`, the suggestion names that tree's tools/ path,
+            # not the main checkout's (which would run the right tool on the wrong tree).
+            wt = Path(self.parent) / "wt-x"
+            (wt / "tools").mkdir(parents=True)
+            (wt / "tools" / "run_all_audits.sh").write_text("")
+            block, reason = decide(f"cd {wt} && bash tools/run_all_audits.sh", self.pd)
+            self.assertTrue(block)
+            self.assertIn(f"python3 {wt}/tools/run_all_audits.sh", reason)
+            self.assertNotIn(f"{self.proj}/tools/run_all_audits.sh", reason)
+            # A cd target without the tool keeps the scanned repo's path.
+            empty = Path(self.parent) / "elsewhere"
+            empty.mkdir()
+            block, reason = decide(f"cd {empty} && bash tools/run_all_audits.sh", self.pd)
+            self.assertTrue(block)
+            self.assertIn(f"{self.proj}/tools/run_all_audits.sh", reason)
 
         def test_cd_allowlist_tool_allowed(self):
             # P-1.19: cd + a cwd-guard allow-list tool stays allowed.
