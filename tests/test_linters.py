@@ -7908,6 +7908,7 @@ class LintCommonHelperTests(unittest.TestCase):
         import pathlib
         lc = self._lint_common()
         d = pathlib.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, d, True)  # 3b103 QA r1: the directory was left behind
 
         # absent config -> empty
         self.assertEqual(set(lc._load_adopter_extra_exempt_dirs(d)), set())
@@ -27122,3 +27123,128 @@ class RealPathMessageTests(unittest.TestCase):
             self.assertEqual(mod.main(["--update-state"]), 2)
         self.assertIn("(unresolvable GRC_STORE)", err.getvalue())
 
+
+
+class SelfTestTempdirTests(unittest.TestCase):
+    """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
+
+    ALLOCATORS = ("mkdtemp", "mkstemp", "mktemp", "TemporaryDirectory", "NamedTemporaryFile")
+
+    @staticmethod
+    def imports_tempfile(text: str) -> bool:
+        import ast
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            return True
+        return any((isinstance(node, ast.Import) and any(a.name == "tempfile" for a in node.names))
+                   or (isinstance(node, ast.ImportFrom) and node.module == "tempfile")
+                   for node in ast.walk(tree))
+
+    def test_discovery_reads_imports(self) -> None:
+        for text, expected in (("import os, tempfile\n", True), ("import atexit as a, tempfile as t\n", True),
+                               ("from tempfile import mkdtemp as m\n", True), ("import os\n", False),
+                               ("# tempfile is mentioned only\n", False)):
+            with self.subTest(text=text):
+                self.assertEqual(self.imports_tempfile(text), expected)
+
+    def targets(self):
+        found = []
+        for pattern in (".claude/hooks/*.py", "tools/*.py"):
+            for path in sorted(REPO_ROOT.glob(pattern)):
+                text = path.read_text(errors="replace")
+                # Any self-test that imports tempfile, read from the AST so `import os, tempfile` and
+                # renamed allocators count (3b103 QA r3, r4); an unparseable file is kept, and the
+                # explicit-base check then fails on it.
+                # A tool may detect the flag through lint_common.self_test_requested and never spell it
+                # (3b103 QA r5).
+                flagged = "--self-test" in text or "self_test_requested" in text
+                if flagged and "tempfile" in text and self.imports_tempfile(text):
+                    found.append(path)
+        return found
+
+    # Guardrails-owned byte-identical copies that allocate under an explicit base and clean it up
+    # themselves; they are edited only by re-adoption from the guardrails share.
+    EXPLICIT_BASE_OWNED = {"clock-inject.py", "future-stamp-write.py", "stamp-truth-stop.py"}
+
+    # The position of the dir parameter for each allocator, so a positional dir is caught too.
+    DIR_POSITION = {"mkdtemp": 2, "mkstemp": 2, "mktemp": 2, "TemporaryDirectory": 2, "NamedTemporaryFile": 6}
+
+    def explicit_bases(self, source: str) -> list[int]:
+        """Lines of allocator calls that pass dir, by keyword or position (3b103 QA r1-r2)."""
+        import ast
+        tree = ast.parse(source)
+        # A name imported from tempfile under another name maps back to the allocator (3b103 QA r3).
+        alias = {a.asname or a.name: a.name for node in ast.walk(tree)
+                 if isinstance(node, ast.ImportFrom) and node.module == "tempfile" for a in node.names}
+        if "*" in alias:  # from tempfile import * brings every allocator in by name (3b103 QA r5)
+            alias.update({name: name for name in self.DIR_POSITION})
+        lines = []
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
+                continue
+            func = node.func
+            name = func.attr if isinstance(func, ast.Attribute) else alias.get(getattr(func, "id", None))
+            if name not in self.DIR_POSITION:
+                continue
+            if any(kw.arg == "dir" for kw in node.keywords) or len(node.args) > self.DIR_POSITION[name]:
+                lines.append(node.lineno)
+        return lines
+
+    def test_explicit_base_detection(self) -> None:
+        cases = {
+            'tempfile.mkdtemp(prefix=f"t-{os.getpid()}-",\n    dir=base)': True,
+            "tempfile.mkdtemp('', 'p', base)": True,
+            "tempfile.TemporaryDirectory(dir=base)": True,
+            "from tempfile import NamedTemporaryFile\nNamedTemporaryFile('w', -1, None, None, '', 'p', base)": True,
+            "tempfile.mkdtemp(prefix=str(n))": False,
+            "tempfile.mkstemp()": False,
+            "from tempfile import mkdtemp as m\nm(dir=base)": True,
+            "from tempfile import mktemp\nmktemp('', 'p', base)": True,
+            "from tempfile import mkdtemp as m\nm()": False,
+            "from tempfile import *\nmkdtemp(dir=base)": True,
+        }
+        for source, expected in cases.items():
+            with self.subTest(source=source):
+                self.assertEqual(bool(self.explicit_bases(source)), expected)
+
+    def test_no_explicit_base_outside_the_monitored_root(self) -> None:
+        # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
+        # unseen (3b103 QA r1, codex). Residue: a self-test whose temp use lives in an imported module
+        # outside tools/ and .claude/hooks/, a self-test killed before exit (atexit does not run),
+        # a dir passed through **kwargs, functools.partial or
+        # getattr, and a hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
+        # tests/ is not scanned here, so a leak there is caught only by running the full suite under
+        # a fresh TMPDIR.
+        for path in self.targets():
+            if path.name in self.EXPLICIT_BASE_OWNED:
+                continue
+            with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()):
+                try:
+                    found = self.explicit_bases(path.read_text(errors="replace"))
+                except SyntaxError as exc:
+                    self.fail(f"cannot parse, so explicit bases cannot be checked: {exc}")
+                self.assertEqual(found, [])
+
+    def test_discovery_includes_self_test_requested_tools(self) -> None:
+        names = {p.name for p in self.targets()}
+        self.assertIn("lint-narrative-metadata.py", names)
+
+    def test_discovery_is_not_vacuous(self) -> None:
+        # Nine self-tests leaked before 3b103; the scan must still see at least those.
+        self.assertGreaterEqual(len(self.targets()), 9)
+
+    def test_self_tests_leave_no_temp_directories(self) -> None:
+        # The guardrails-owned copies allocate under their own explicit base, which this TMPDIR run cannot
+        # observe, and one carries a wall-clock assertion that flakes on CI runners; they are skipped here
+        # as they are in the explicit-base check (3b103, CI on #2618).
+        for path in self.targets():
+            if path.name in self.EXPLICIT_BASE_OWNED:
+                continue
+            with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()), \
+                    tempfile.TemporaryDirectory() as tmp:
+                env = dict(os.environ, TMPDIR=tmp)
+                run = subprocess.run([sys.executable, "-B", str(path), "--self-test"], cwd=REPO_ROOT,
+                                     env=env, capture_output=True, text=True, timeout=600)
+                self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-400:])
+                self.assertEqual(sorted(os.listdir(tmp)), [])

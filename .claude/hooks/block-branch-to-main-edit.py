@@ -128,6 +128,11 @@ def main(argv: list[str]) -> int:
 
 
 def _self_test() -> int:
+    # Every scratch path the self-test makes (including a child git's) lands under one root that is
+    # removed on exit, so a run leaves nothing behind in the temp directory (3b103).
+    import atexit as _atx, os as _os, shutil as _shu, tempfile as _tpf
+    _tpf.tempdir = _tpf.mkdtemp(prefix="grc-selftest-"); _os.environ["TMPDIR"] = _tpf.tempdir
+    _atx.register(_shu.rmtree, _tpf.tempdir, True)
     import tempfile
     import unittest
 

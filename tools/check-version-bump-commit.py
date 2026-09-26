@@ -374,7 +374,10 @@ def _self_test():
     import os as _os, tempfile as _tf
     _fd, _crp = _tf.mkstemp()
     _os.write(_fd, b"subject\n# junk\rVersionBump: none x\n"); _os.close(_fd)
-    _cr_text = read_message(_crp); _os.unlink(_crp)
+    try:
+        _cr_text = read_message(_crp)
+    finally:
+        _os.unlink(_crp)  # removed even when the read fails (3b103 QA r3)
     cases = [
         ("a stray CR in a comment line is not translated into an opt-out line",
          message_opts_out(_cr_text, _G), False),
