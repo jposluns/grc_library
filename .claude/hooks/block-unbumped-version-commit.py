@@ -127,6 +127,7 @@ def version_key(path: "str | None") -> "re.Pattern[str]":
     ``**README Version:**`` for the root README, ``**Version:**`` for any other path or ``None``."""
     return README_VERSION_LINE if path == README_PATH else VERSION_LINE
 HUNK_NEW = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@")
+HUNK_BOTH = re.compile(r"^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@")
 
 
 def _lf_lines(s: str, keepends: bool = False) -> list[str]:
@@ -149,7 +150,7 @@ def version_line_changed(lines: list[str], path: "str | None" = None) -> bool:
     for ln in lines:
         if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
-        if ln and ln[0] in "+-" and key.match(ln[1:].lstrip(BOM)):
+        if ln and ln[0] in "+-" and key.match(ln[1:]):
             return True
     return False
 
@@ -181,7 +182,7 @@ def stale_date_after_bump(diff: str, staged_text: dict, today: str) -> list[str]
             elif not in_hunk:
                 continue
             elif ln.startswith("+"):
-                if version_key(cur).match(ln[1:].lstrip(BOM)) and 1 <= n <= header_lines:
+                if version_key(cur).match(ln[1:].lstrip(BOM) if n == 1 else ln[1:]) and 1 <= n <= header_lines:
                     hit = True
                 n += 1
             elif ln.startswith(" "):
@@ -307,12 +308,28 @@ def classify_hunk(lines: list[str], path: "str | None" = None) -> tuple[bool, bo
     """
     body = version = False
     key = version_key(path)
+    old_n = new_n = 1  # physical line numbers, from each hunk header (3b86)
     for ln in lines:
+        h = HUNK_BOTH.match(ln)
+        if h:
+            old_n, new_n = int(h.group(1)), int(h.group(2))
+            continue
         if ln.startswith(("+++", "---", "@@", "diff ", "index ", "new file", "deleted file")):
             continue
-        if not ln or ln[0] not in "+-":
+        if not ln or ln[0] not in "+- ":
             continue
-        text = ln[1:].lstrip(BOM)  # a first line carrying a UTF-8 BOM (3b86)
+        if ln[0] == " ":
+            old_n += 1
+            new_n += 1
+            continue
+        pos = old_n if ln[0] == "-" else new_n
+        if ln[0] == "-":
+            old_n += 1
+        else:
+            new_n += 1
+        # A UTF-8 BOM is stripped ONLY from a file's first line, where it can exist; stripping it
+        # from any changed line let a BOM-prefixed body example pose as a Version change (3b86 QA).
+        text = ln[1:].lstrip(BOM) if pos == 1 else ln[1:]
         if key.match(text):  # the path's own key (3b80)
             version = True
         elif METADATA_PREFIX.match(text):
@@ -360,8 +377,9 @@ def _metadata_region_end(text: str) -> int:
     before this offset, so a `**Version:**`/`**Date:**` at or after it (a fenced example or a template)
     is left untouched."""
     off = 0
-    for line in _lf_lines(text, keepends=True):
-        st = line.strip()
+    for i, line in enumerate(_lf_lines(text, keepends=True)):
+        # A UTF-8 BOM exists only before the FIRST line; str.strip() does not remove it (3b86).
+        st = (line.lstrip(BOM) if i == 0 else line).strip()
         if st == "" or st.startswith("#") or METADATA_PREFIX.match(st):
             off += len(line)
             continue

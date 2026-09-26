@@ -4014,6 +4014,19 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         diff = ("diff --git a/b.md b/b.md\n@@ -1 +1 @@\n-\ufeff**Version:** 1.0.0\n"
                 "+\ufeff**Version:** 1.0.1\n@@ -4 +4 @@\n-old\n+new\n")
         self.assertEqual(guard.offenders(diff, {"b.md"}), [])
+        # 3b86 QA (codex): the BOM is set aside ONLY on line 1; a BOM-prefixed example deep in the
+        # body is not the document's Version, so its edit cannot stand in for the bump.
+        body_example = ("diff --git a/b.md b/b.md\n@@ -6 +6 @@\n-\ufeff**Version:** 7.0.0\n"
+                        "+\ufeff**Version:** 7.0.1\n@@ -9 +9 @@\n-old\n+new\n")
+        self.assertEqual(guard.offenders(body_example, {"b.md"}), ["b.md"])
+        # 3b86 QA (claude, codex, gemini): the metadata region, and so the stale-date note, see a
+        # BOM-prefixed header.
+        staged = "\ufeff**Version:** 1.0.1\n**Date:** 2026-09-01\n\nbody\n"
+        self.assertEqual(guard._metadata_region_end(staged), len("\ufeff**Version:** 1.0.1\n**Date:** 2026-09-01\n\n"))
+        bump = "diff --git a/b.md b/b.md\n@@ -1 +1 @@\n-\ufeff**Version:** 1.0.0\n+\ufeff**Version:** 1.0.1\n"
+        self.assertEqual(guard.stale_date_after_bump(bump, {"b.md": staged}, "2026-09-25"), ["b.md"])
+        self.assertEqual(guard.stale_date_after_bump(
+            bump, {"b.md": staged.replace("2026-09-01", "2026-09-25")}, "2026-09-25"), [])
 
     def test_unbumped_version_guard_counts_readme_version_key(self) -> None:
         """P-TODO 3b80: README.md's per-document version is **README Version:**. A README body edit with it
