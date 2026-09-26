@@ -181,6 +181,17 @@ class CitationCoverageTests(unittest.TestCase):
         reg = REGISTER.replace("| Security | 2013 |", "| Security | 2013, 2005 |")
         self.assertEqual(labels("ISO/IEC 27001:2013 and ISO/IEC **27001**:2005.", reg),
                          [("2013", True), ("2005", False)])
+        # r2: a legacy match lends its label only where it starts at the occurrence and names the
+        # same edition (an attribute match or a shorter edition overlapping it does not).
+        def spans(text, register=REGISTER):
+            _, out, _ = self.invoke(text, "--format", "json", register=register)
+            return [(f["span"][0], f["version"], f["legacy"]) for f in json.loads(out)["findings"]
+                    if f["kind"] == "STALE"]
+        self.assertEqual(spans('ISO/IEC <b title="ISO/IEC 27001:2013">27001</b>:2013.'),
+                         [([1, 1], "2013", False), ([1, 19], "2013", True)])
+        rev = REGISTER.replace("Rev. 2, Rev. 1", "Rev. 2, Rev. 2.1, Rev. 1")
+        self.assertEqual(spans("NIST SP 800-61 Rev. 2**.1**.", rev),
+                         [([1, 1], "Rev. 2.1", False), ([1, 1], "", True)])
 
     def test_table_version_column(self):
         # A framework in a table with an explicit Version column carries its

@@ -138,6 +138,18 @@ def check_text(
     return findings
 
 
+def _same_edition(rest: str, version: str) -> bool:
+    """Whether a legacy message (after its "stale citation '<id> " prefix) names this edition:
+    a legacy match counts for an occurrence only when it starts where the occurrence starts and
+    reports the same edition, so an overlapping match for another stretch or a shorter edition does
+    not lend its label (3b88 QA r2)."""
+    core = rest.split("'", 1)[0]
+    left, right = edition_key(core), edition_key(version or "")
+    if left is not None and right is not None:
+        return left == right
+    return core.strip().casefold() == (version or "").strip().casefold()
+
+
 def _legacy_match_spans(
     text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
     eligible_from: str | None = None,
@@ -1072,8 +1084,9 @@ def coverage_report(
                 prefix = ("stale citation '" + occurrence["observed"] + " ").casefold()
                 covering = {
                     message for ln, start, end, message in legacy_spans
-                    if kind == "STALE" and ln == line_no and start <= last and end >= first
+                    if kind == "STALE" and ln == line_no and start == first
                     and message.casefold().startswith(prefix)
+                    and _same_edition(message[len(prefix):], occurrence["version"])
                 }
                 matched = [
                     f for f in findings
