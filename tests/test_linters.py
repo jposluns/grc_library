@@ -27128,14 +27128,15 @@ class RealPathMessageTests(unittest.TestCase):
 class SelfTestTempdirTests(unittest.TestCase):
     """3b103: a hook or tool self-test that makes temp directories leaves none behind."""
 
-    ALLOCATORS = ("mkdtemp", "mkstemp", "TemporaryDirectory", "NamedTemporaryFile")
+    ALLOCATORS = ("mkdtemp", "mkstemp", "mktemp", "TemporaryDirectory", "NamedTemporaryFile")
 
     def targets(self):
         found = []
         for pattern in (".claude/hooks/*.py", "tools/*.py"):
             for path in sorted(REPO_ROOT.glob(pattern)):
                 text = path.read_text(errors="replace")
-                if "--self-test" in text and any(api + "(" in text for api in self.ALLOCATORS):
+                # Any self-test that imports tempfile, so a renamed allocator is still run (3b103 QA r3).
+                if "--self-test" in text and re.search(r"^\s*(?:import|from)\s+tempfile\b", text, re.M):
                     found.append(path)
         return found
 
@@ -27144,17 +27145,21 @@ class SelfTestTempdirTests(unittest.TestCase):
     EXPLICIT_BASE_OWNED = {"clock-inject.py", "future-stamp-write.py", "stamp-truth-stop.py"}
 
     # The position of the dir parameter for each allocator, so a positional dir is caught too.
-    DIR_POSITION = {"mkdtemp": 2, "mkstemp": 2, "TemporaryDirectory": 2, "NamedTemporaryFile": 6}
+    DIR_POSITION = {"mkdtemp": 2, "mkstemp": 2, "mktemp": 2, "TemporaryDirectory": 2, "NamedTemporaryFile": 6}
 
     def explicit_bases(self, source: str) -> list[int]:
         """Lines of allocator calls that pass dir, by keyword or position (3b103 QA r1-r2)."""
         import ast
+        tree = ast.parse(source)
+        # A name imported from tempfile under another name maps back to the allocator (3b103 QA r3).
+        alias = {a.asname or a.name: a.name for node in ast.walk(tree)
+                 if isinstance(node, ast.ImportFrom) and node.module == "tempfile" for a in node.names}
         lines = []
-        for node in ast.walk(ast.parse(source)):
+        for node in ast.walk(tree):
             if not isinstance(node, ast.Call):
                 continue
             func = node.func
-            name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", None)
+            name = func.attr if isinstance(func, ast.Attribute) else alias.get(getattr(func, "id", None))
             if name not in self.DIR_POSITION:
                 continue
             if any(kw.arg == "dir" for kw in node.keywords) or len(node.args) > self.DIR_POSITION[name]:
@@ -27166,9 +27171,12 @@ class SelfTestTempdirTests(unittest.TestCase):
             'tempfile.mkdtemp(prefix=f"t-{os.getpid()}-",\n    dir=base)': True,
             "tempfile.mkdtemp('', 'p', base)": True,
             "tempfile.TemporaryDirectory(dir=base)": True,
-            "NamedTemporaryFile('w', -1, None, None, '', 'p', base)": True,
+            "from tempfile import NamedTemporaryFile\nNamedTemporaryFile('w', -1, None, None, '', 'p', base)": True,
             "tempfile.mkdtemp(prefix=str(n))": False,
             "tempfile.mkstemp()": False,
+            "from tempfile import mkdtemp as m\nm(dir=base)": True,
+            "from tempfile import mktemp\nmktemp('', 'p', base)": True,
+            "from tempfile import mkdtemp as m\nm()": False,
         }
         for source, expected in cases.items():
             with self.subTest(source=source):
@@ -27176,14 +27184,19 @@ class SelfTestTempdirTests(unittest.TestCase):
 
     def test_no_explicit_base_outside_the_monitored_root(self) -> None:
         # The run below watches only TMPDIR, so a self-test that allocates under an explicit dir leaks
-        # unseen (3b103 QA r1, codex). Residue: a dir passed through **kwargs is not recognized, and
+        # unseen (3b103 QA r1, codex). Residue: a dir passed through **kwargs, functools.partial or
+        # getattr, and a hard-coded base path (os.makedirs("/dev/shm/x")), are not recognized, and
         # tests/ is not scanned here, so a leak there is caught only by running the full suite under
         # a fresh TMPDIR.
         for path in self.targets():
             if path.name in self.EXPLICIT_BASE_OWNED:
                 continue
             with self.subTest(path=path.relative_to(REPO_ROOT).as_posix()):
-                self.assertEqual(self.explicit_bases(path.read_text(errors="replace")), [])
+                try:
+                    found = self.explicit_bases(path.read_text(errors="replace"))
+                except SyntaxError as exc:
+                    self.fail(f"cannot parse, so explicit bases cannot be checked: {exc}")
+                self.assertEqual(found, [])
 
     def test_discovery_is_not_vacuous(self) -> None:
         # Nine self-tests leaked before 3b103; the scan must still see at least those.
