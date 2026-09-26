@@ -26,7 +26,13 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     data, page_path = args.root / H.DATA_REL, args.root / H.PAGE_REL
     try:
-        rows = H.load(data.read_bytes().decode("utf-8")) if data.exists() else []
+        # Read directly: only a missing data file means "no rows"; any other I/O error exits 2
+        # (Path.exists() swallows OSError on Python 3.14; 3b75 redesign QA r2, codex, gemini).
+        try:
+            text = data.read_bytes().decode("utf-8")
+        except FileNotFoundError:
+            text = None
+        rows = H.load(text) if text is not None else []
         page = page_path.read_bytes().decode("utf-8")
         new = H.with_block(page, rows)
     except (H.RegisterDataError, OSError, UnicodeError) as exc:

@@ -824,7 +824,8 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             ("<script>\n" + good + "</script>\n", "must stand alone"),
             ("<details>\n\n" + good + "\n</details>\n", "raw HTML or a comment outside the generated block"),
             ("```\n\n" + good + "\n```\n", "a fenced block on the page"),
-            (fake + "\n" + good, "a table outside the generated block"),
+            (fake + "\n" + good, "a table (or a pipe) outside the generated block"),
+            ("a | b\n:-- | --:\n1 | 2\n\n" + good, "a table (or a pipe) outside the generated block"),  # no outer pipes
             ("# Register\n\n- item\n\n  " + H.render(rows) + "\n", "must stand alone"),  # nested in a list item
             (good.replace(H.END + "\n", H.END + "x\n"), "must stand alone"),
         ]:
@@ -832,6 +833,9 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
             self.assertEqual(code, 1, page)
             self.assertIn(message, err, page)
             self.assertNotIn("HISTORICAL", [f["kind"] for f in found])
+        # Blank lines may hold spaces or tabs (codex r2): accepted.
+        code, found, _ = self.run_json("\n" + s + "\n\n", data, page="# Register\n \t\n" + H.render(rows) + "\n  \nEnd.\n")
+        self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
         # A list item that ends before the block leaves the block standing alone: accepted.
         code, found, _ = self.run_json("\n" + s + "\n\n", data, page="- " + good)
         self.assertEqual((code, [f["kind"] for f in found]), (0, ["HISTORICAL"]))
@@ -839,7 +843,7 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
         code, _, err = self.invoke("The earlier edition was withdrawn.\n", register=HREG,
                                    page=fake + "\n" + H.render([]) + "\n")
         self.assertEqual(code, 1)
-        self.assertIn("a table outside the generated block", err)
+        self.assertIn("a table (or a pipe) outside the generated block", err)
         # An unreadable data file is an input error (exit 2), never an absent register.
         code, _, err = self.invoke("\n" + s + "\n", register=HREG, exceptions=PermissionError("denied"),
                                    page=good)
@@ -876,6 +880,15 @@ class HistoricalContextRoundTwoTests(unittest.TestCase):
                 self.assertEqual((root / H.PAGE_REL).read_text(), good)
                 (root / H.DATA_REL).write_text("schema_version = 2\n")
                 self.assertEqual(B.main(["--check", "--root", d]), 2)
+                # An unreadable data file is an input error, never "no rows" (codex, gemini r2).
+                (root / H.DATA_REL).write_text(data)
+                os.chmod(root / H.DATA_REL, 0)
+                try:
+                    if os.access(root / H.DATA_REL, os.R_OK):
+                        self.skipTest("running with permission to read a mode-000 file")
+                    self.assertEqual(B.main(["--check", "--root", d]), 2)
+                finally:
+                    os.chmod(root / H.DATA_REL, 0o600)
 
     def test_round_three_structural_rules(self):
         # 3b75 QA r2 (claude, codex, gemini): the sentence is the WHOLE of its line or cell.

@@ -101,8 +101,9 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
     # no fence, and no other table, any of which could hide the real table or show a fake one.
     start = page.index(BEGIN)
     after = start + len(block)
-    if not (page[:start] == "" or page[:start].endswith("\n\n")) or not (
-        page[after:] in ("", "\n") or page[after:].startswith("\n\n")
+    # A Markdown blank line may hold spaces or tabs (3b75 redesign QA r2, codex).
+    if not re.search(r"(?:\A|\n[ \t]*\n)\Z", page[:start]) or not re.match(
+        r"(?:\n?\Z|\n[ \t]*\n)", page[after:]
     ):
         return f"{PAGE_REL}: the generated block must stand alone, with a blank line before and after it"
     outside = page[:start] + page[after:]
@@ -111,8 +112,10 @@ def sync_problem(page: str | None, rows: list[dict]) -> str | None:
             return f"{PAGE_REL}: raw HTML or a comment outside the generated block"
         if re.match(r"\s*(?:```|~~~)", line):
             return f"{PAGE_REL}: a fenced block on the page"
-        if re.match(r"\s*(?:[>*+-]\s*)*\|", line):
-            return f"{PAGE_REL}: a table outside the generated block"
+        if "|" in line:
+            # Any pipe: a GFM table needs one in its delimiter row, with or without outer pipes
+            # (3b75 redesign QA r2, claude, codex, gemini), so none may appear outside the block.
+            return f"{PAGE_REL}: a table (or a pipe) outside the generated block"
     return None
 
 
