@@ -138,7 +138,7 @@ def check_text(
     return findings
 
 
-def legacy_match_spans(
+def _legacy_match_spans(
     text: str, compiled: list[tuple[str | None, re.Pattern[str], str]],
     eligible_from: str | None = None,
 ) -> list[tuple[int, int, int, str]]:
@@ -1023,7 +1023,7 @@ def coverage_report(
         # This exact HEAD check alone controls PR1 blocking behavior.
         legacy_spans = []
         if suffix == ".md":
-            legacy_spans = legacy_match_spans(
+            legacy_spans = _legacy_match_spans(
                 masked, compiled, eligible_from=source if sanctioned_spans else None
             )
             for line, message in check_text(
