@@ -22853,6 +22853,238 @@ class AlignmentCitationExistenceTests(LinterTestCase):
              "Mobile OWASP Application Security Verification Standard {probe}.\n",
              "OWASP Application Security Verification Standard {probe}.\n"),
         ),
+        "test_other_publisher_versions_are_not_asvs_ids": (
+            ("asvs", "V9.9.9",
+             "ETSI EN 304 223 {probe} and CMMI V1.2.4 sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V1.2.4 |\n",
+             "{probe} and CMMI V1.2.4 sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V1.2.4 |\n"),
+            ("asvs", "V9.9",
+             "ETSI EN 304 223 V1.2.4 and CMMI {probe} sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V1.2.4 |\n",
+             "ETSI EN 304 223 V1.2.4 and {probe} sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V1.2.4 |\n"),
+            ("asvs", "V9.9.9",
+             "ETSI EN 304 223 V1.2.4 and CMMI V1.2.4 sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | {probe} |\n",
+             "ETSI EN 304 223 V1.2.4 and CMMI V1.2.4 sit beside OWASP ASVS V5.0.0 in this table.\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | ASVS {probe} |\n"),
+        ),
+        "test_v_token_outside_asvs_context_ignored": (
+            ("asvs", "V9.9.9",
+             "The tool moved from {probe} to V9.9.8 last year.\n",
+             "The ASVS tool moved from {probe} to V9.9.8 last year.\n"),
+            ("asvs", "V9.9.8",
+             "The tool moved from V9.9.9 to {probe} last year.\n",
+             "The ASVS tool moved from V9.9.9 to {probe} last year.\n"),
+        ),
+        "test_masvs_is_not_asvs_context": (
+            ("asvs", "V9.9.9",
+             "OWASP MASVS {probe} is a mobile standard.\n",
+             "OWASP ASVS {probe} is a mobile standard.\n"),
+        ),
+        "test_asvs_v4_line_not_checked_against_v5": (
+            ("asvs", "V9.9.9",
+             "Legacy mapping: ASVS 3.0.1 requirement {probe}.\n",
+             "Legacy mapping: ASVS 5.0.0 requirement {probe}.\n"),
+        ),
+        "test_other_publisher_prefixes_are_not_ids": (
+            ("asvs", "V9.9",
+             "OWASP ASVS alongside TOGAF {probe} and ISO 27001 V9.8.\n",
+             "OWASP ASVS alongside {probe} and ISO 27001 V9.8.\n"),
+            ("asvs", "V9.8",
+             "OWASP ASVS alongside TOGAF V9.9 and ISO 27001 {probe}.\n",
+             "OWASP ASVS alongside TOGAF V9.9 and {probe}.\n"),
+        ),
+        "test_escaped_pipe_keeps_the_asvs_column": (
+            ("asvs", "V9.9",
+             "| Control | Other | ASVS |\n| --- | --- | --- |\n| a \\| b | TOGAF {probe} | V1.2.4 |\n",
+             "| Control | Other | ASVS |\n| --- | --- | --- |\n| a \\| b | {probe} | V1.2.4 |\n"),
+        ),
+        "test_back_to_back_tables_do_not_leak_context": (
+            ("asvs", "V9.9.9",
+             "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n\n"
+             "| Standard | Version |\n| --- | --- |\n| ETSI thing | {probe} |\n",
+             "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n\n"
+             "| Standard | ASVS |\n| --- | --- |\n| ETSI thing | {probe} |\n"),
+        ),
+        "test_asvs4_prose_line_is_out_of_scope_and_column_attribution_holds": (
+            ("asvs", "V9.9.9",
+             "ASVS 3.0.1 {probe} maps to ASVS 5.0.0 requirement V1.2.99.\n",
+             "ASVS 5.0.0 {probe} maps to ASVS 5.0.0 requirement V1.2.99.\n"),
+            ("asvs", "V1.2.99",
+             "ASVS 3.0.1 V9.9.9 maps to ASVS 5.0.0 requirement {probe}.\n",
+             "ASVS 5.0.0 V9.9.9 maps to ASVS 5.0.0 requirement {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "V1.2.4 in ASVS 5.0.0 (formerly {probe} in ASVS 3.0.1).\n",
+             "V1.2.4 in ASVS 5.0.0 (formerly {probe} in ASVS 5.0.0).\n"),
+            ("asvs", "V9.9.9",
+             "Formerly {probe} in ASVS 3.0.1, now V1.2.4 in ASVS 5.0.0.\n",
+             "Formerly {probe} in ASVS 5.0.0, now V1.2.4 in ASVS 5.0.0.\n"),
+            ("asvs", "V9.9.9",
+             "| Control | OWASP ASVS 3.0.1 |\n| --- | --- |\n| X | {probe} |\n",
+             "| Control | OWASP ASVS 5.0.0 |\n| --- | --- |\n| X | {probe} |\n"),
+        ),
+        "test_dotless_capital_v_after_the_name_is_a_chapter_not_an_edition": (
+            ("asvs", "V9.9.9",
+             "ASVS version V3.1.1 requirement {probe}.\n",
+             "ASVS version V5.0.0 requirement {probe}.\n"),
+        ),
+        "test_row_first_cell_edition_scopes_the_row_unless_the_column_names_the_held_edition": (
+            ("asvs", "V9.9.9",
+             "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS 3.0.1 | {probe} |\n",
+             "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS 5.0.0 | {probe} |\n"),
+        ),
+        "test_mixed_edition_header_scopes_by_column": (
+            ("asvs", "V9.9.9",
+             "| ASVS 5.0.0 | ASVS 3.0.1 |\n| --- | --- |\n| V1.2.4 | {probe} |\n",
+             "| ASVS 5.0.0 | ASVS 5.0.0 |\n| --- | --- |\n| V1.2.4 | {probe} |\n"),
+        ),
+        "test_masvs_full_name_is_not_asvs_context": (
+            ("asvs", "V9.9.9",
+             "Mobile Application Security Verification Standard {probe}.\n",
+             "Application Security Verification Standard {probe}.\n"),
+        ),
+        "test_other_standard_prefixes_are_versions": (
+            ("asvs", "V9.9.9",
+             "ASVS alongside PCI DSS {probe}.\n",
+             "ASVS alongside {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "ASVS and NIST {probe}.\n",
+             "ASVS and {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "ASVS with CIS Controls {probe}.\n",
+             "ASVS with {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "ASVS and BSI {probe}.\n",
+             "ASVS and {probe}.\n"),
+        ),
+        "test_round5_table_and_exclusion_seams": (
+            ("asvs", "V2.14",
+             "| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | {probe} |\n",
+             "| ASVS requirement | Tool | Notes |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | {probe} |\n"),
+            ("asvs", "V9.9.9",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n## SDK {probe} | Release notes\n",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\nSDK {probe} | Release notes\n"),
+            ("asvs", "V9.9.9",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n- SDK {probe} | note\n",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\nSDK {probe} | note\n"),
+            ("asvs", "V4.20",
+             "ASVS 5.0.0 V1.2.4 maps to **MITRE CWE** {probe}.\n",
+             "ASVS 5.0.0 V1.2.4 maps to {probe}.\n"),
+            ("asvs", "V9.9",
+             "ASVS and NIST Special Publication 800-53 {probe}.\n",
+             "ASVS and {probe}.\n"),
+            ("asvs", "V9.9",
+             "ASVS and ISO/IEC 27001 (2022) {probe}.\n",
+             "ASVS and {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "Mobile ASVS {probe}.\n",
+             "ASVS {probe}.\n"),
+        ),
+        "test_round6_signalled_columns_and_header_rows_are_not_identifiers": (
+            ("asvs", "V2.14",
+             "| ASVS | Tools |\n| --- | --- |\n| V1.2.4 | ZAP {probe} |\n",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | ZAP {probe} |\n"),
+            ("asvs", "V2.1.0",
+             "| ASVS | SAMM |\n| --- | --- |\n| V1.2.4 | {probe} |\n",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | {probe} |\n"),
+            ("asvs", "V2.14",
+             "| ASVS | ZAP {probe} (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
+             "| ASVS | ASVS ZAP {probe} |\n| --- | --- |\n| V1.2.4 | enabled |\n"),
+            ("asvs", "V3.9.9",
+             "| Control | ASVS version |\n| --- | --- |\n| X | {probe} |\n",
+             "| Control | ASVS |\n| --- | --- |\n| X | {probe} |\n"),
+            ("asvs", "V2.14",
+             "| ASVS | OWASP MASVS |\n| --- | --- |\n| V1.2.4 | {probe} |\n",
+             "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | {probe} |\n"),
+            ("asvs", "V8.9.9",
+             "ASVS aligns with ISO-27001 {probe}.\n",
+             "ASVS aligns with {probe}.\n"),
+            ("asvs", "V8.9.9",
+             "ASVS aligns with (ISO 27001) {probe}.\n",
+             "ASVS aligns with {probe}.\n"),
+            ("asvs", "V8.9.9",
+             "ASVS aligns with ISO/IEC 27001:2013/Cor 1:2014 {probe}.\n",
+             "ASVS aligns with {probe}.\n"),
+        ),
+        "test_round7_an_edition_before_the_name_scopes_the_line": (
+            ("asvs", "V9.9.9",
+             "3.0.1 ASVS requirement {probe}.\n",
+             "5.0.0 ASVS requirement {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "Version 3.0 of the ASVS requires {probe}.\n",
+             "Version 5.0 of the ASVS requires {probe}.\n"),
+        ),
+        "test_round7_markdown_and_more_standard_forms_are_excluded": (
+            ("asvs", "V8.9.9",
+             "Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP MASVS {probe}.\n",
+             "Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP ASVS {probe}.\n"),
+            ("asvs", "V8.9",
+             "ASVS maps to `CWE` {probe}.\n",
+             "ASVS maps to {probe}.\n"),
+            ("asvs", "V8.9",
+             "ASVS maps to [CWE](https://cwe.mitre.org/) {probe}.\n",
+             "ASVS maps to {probe}.\n"),
+            ("asvs", "V8.9",
+             "| Control | ASVS tools |\n|---|---|\n| Scanner | ZAP {probe} |\n",
+             "| Control | ASVS |\n|---|---|\n| Scanner | ZAP {probe} |\n"),
+            ("asvs", "V8.9.9",
+             "ASVS and ISO 27001 2022 {probe}.\n",
+             "ASVS and {probe}.\n"),
+            ("asvs", "V8.9.9",
+             "ASVS and ISO/IEC/IEEE 29119 {probe}.\n",
+             "ASVS and {probe}.\n"),
+            ("asvs", "V8.9.9",
+             "ASVS and the CMMI standard {probe}.\n",
+             "ASVS and the {probe}.\n"),
+        ),
+        "test_round8_shortcut_links_tool_headers_and_titles_are_excluded": (
+            ("asvs", "V8.9",
+             "ASVS mappings use [CWE] {probe}.\n\n[CWE]: https://cwe.mitre.org/\n",
+             "ASVS mappings use {probe}.\n\n[CWE]: https://cwe.mitre.org/\n"),
+            ("asvs", "V8.9",
+             "| ASVS tools (ZAP {probe}) | Result |\n| --- | --- |\n| Enabled | Pass |\n",
+             "| ASVS (ZAP {probe}) | Result |\n| --- | --- |\n| Enabled | Pass |\n"),
+            ("asvs", "V8.9.9",
+             "| ASVS |\n| --- |\n| IEEE Standard for Information Technology {probe} |\n",
+             "| ASVS |\n| --- |\n| {probe} |\n"),
+        ),
+        "test_round9_long_standard_names_and_generic_columns_are_excluded": (
+            ("asvs", "V8.9.9",
+             "ASVS maps to NIST Cybersecurity Framework {probe}.\n",
+             "ASVS maps to {probe}.\n"),
+            ("asvs", "V8.9.9",
+             "ASVS maps to ISO International Standard 27001 {probe}.\n",
+             "ASVS maps to {probe}.\n"),
+        ),
+        "test_adjacent_legacy_cell_does_not_disable_a_current_column": (
+            ("asvs", "V9.9.9",
+             "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 3.0.1 {probe} | V1.2.4 |\n",
+             "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 5.0.0 {probe} | V1.2.4 |\n"),
+        ),
+        "test_named_standard_prefix_tolerates_punctuation": (
+            ("asvs", "V9.8",
+             "OWASP ASVS alongside ISO 27001: {probe} and TOGAF, V9.9.\n",
+             "OWASP ASVS alongside {probe} and TOGAF, V9.9.\n"),
+            ("asvs", "V9.9",
+             "OWASP ASVS alongside ISO 27001: V9.8 and TOGAF, {probe}.\n",
+             "OWASP ASVS alongside ISO 27001: V9.8 and {probe}.\n"),
+        ),
+        "test_edition_wording_and_placement_forms": (
+            ("asvs", "V9.9.9",
+             "ASVS version 3.0.1 requirement {probe}.\n",
+             "ASVS version 5.0.0 requirement {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "ASVS v3 requirement {probe}.\n",
+             "ASVS v5 requirement {probe}.\n"),
+            ("asvs", "V9.9.9",
+             "Requirement {probe} (ASVS 3.0.1).\n",
+             "Requirement {probe} (ASVS 5.0.0).\n"),
+            ("asvs", "V9.9.9",
+             "| Control | ASVS version 3.0.1 |\n| --- | --- |\n| X | {probe} |\n",
+             "| Control | ASVS |\n| --- | --- |\n| X | {probe} |\n"),
+        ),
     }
 
     def test_fabricated_pf_subcategory_flagged(self) -> None:
@@ -22916,24 +23148,16 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_other_publisher_versions_are_not_asvs_ids(self) -> None:
-        # ETSI document versions and CMMI versions are V-shaped but are not ASVS identifiers,
-        # even on a line that names ASVS; nor is an ASVS edition string.
-        r = self._run("asvs-versions.md",
-                      "ETSI EN 304 223 V9.9.9 and CMMI V9.9 sit beside OWASP ASVS V5.0.0 in this table.\n"
-                      "| Standard | Version |\n| --- | --- |\n| ETSI TR 104 128 | V9.9.9 |\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-versions.md", body))
 
     def test_v_token_outside_asvs_context_ignored(self) -> None:
-        r = self._run("asvs-nocontext.md", "The tool moved from V9.9.9 to V9.9.8 last year.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-nocontext.md", body))
 
     def test_masvs_is_not_asvs_context(self) -> None:
-        r = self._run("masvs.md", "OWASP MASVS V9.9.9 is a mobile standard.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("masvs.md", body))
 
     def test_asvs_v4_line_not_checked_against_v5(self) -> None:
-        r = self._run("asvs-v4.md", "Legacy mapping: ASVS 3.0.1 requirement V9.9.9.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-v4.md", body))
 
     def test_fabricated_cwe_flagged_and_valid_passes(self) -> None:
         r = self._run("cwe.md", "Weaknesses: CWE-79, CWE-89 and CWE-99999.\n")
@@ -22954,24 +23178,21 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertEqual(r.returncode, 0, r.stdout)
 
     def test_other_publisher_prefixes_are_not_ids(self) -> None:
-        r = self._run("asvs-publishers.md", "OWASP ASVS alongside TOGAF V9.9 and ISO 27001 V9.8.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-publishers.md", body))
 
     def test_escaped_pipe_keeps_the_asvs_column(self) -> None:
         r = self._run("asvs-escaped.md",
                       "| Control | Other | ASVS |\n| --- | --- | --- |\n| a \\| b | TOGAF V9.9 | V99.1.1 |\n")
         self.assertLinterFails(r, "V99.1.1")
         self.assertNotIn("'V9.9'", r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-escaped.md", body))
 
     def test_header_without_leading_pipe(self) -> None:
         r = self._run("asvs-nolead.md", "Control | ASVS\n--- | ---\nX | V1.2.99\n")
         self.assertLinterFails(r, "V1.2.99")
 
     def test_back_to_back_tables_do_not_leak_context(self) -> None:
-        r = self._run("asvs-b2b.md",
-                      "| Control | ASVS |\n| --- | --- |\n| X | V1.2.4 |\n\n"
-                      "| Standard | Version |\n| --- | --- |\n| ETSI thing | V9.9.9 |\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-b2b.md", body))
 
     def test_full_framework_name_is_context(self) -> None:
         r = self._run("asvs-fullname.md",
@@ -22979,15 +23200,11 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(r, "V1.2.99")
 
     def test_asvs4_prose_line_is_out_of_scope_and_column_attribution_holds(self) -> None:
-        # A prose line naming a non-held edition is not checked at all (stated residue), so a
-        # migration note mixing editions never yields a false positive.
-        for body in ("ASVS 3.0.1 V9.9.9 maps to ASVS 5.0.0 requirement V1.2.99.\n",
-                     "V1.2.4 in ASVS 5.0.0 (formerly V9.9.9 in ASVS 3.0.1).\n",
-                     "Formerly V9.9.9 in ASVS 3.0.1, now V1.2.4 in ASVS 5.0.0.\n"):
-            r = self._run("asvs-mixed.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
-        r = self._run("asvs-v4col.md", "| Control | OWASP ASVS 3.0.1 |\n| --- | --- |\n| X | V9.9.9 |\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run(
+                "asvs-v4col.md" if body.startswith("|") else "asvs-mixed.md", body
+            )
+        )
 
     def test_lowercase_cwe_is_checked(self) -> None:
         self.assertLinterFails(self._run("cwe-lower.md", "See cwe-99999.\n"), "cwe-99999")
@@ -23018,37 +23235,31 @@ class AlignmentCitationExistenceTests(LinterTestCase):
     def test_dotless_capital_v_after_the_name_is_a_chapter_not_an_edition(self) -> None:
         self.assertLinterFails(self._run("asvs-dotless.md", "ASVS V6 covers V6.2.99.\n"), "V6.2.99")
         self.assertLinterFails(self._run("asvs-idafter.md", "ASVS V1.2.99.\n"), "V1.2.99")
-        r = self._run("asvs-verword.md", "ASVS version V3.1.1 requirement V9.9.9.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-verword.md", body))
 
     def test_a_table_about_asvs_checks_every_body_column(self) -> None:
         body = "| ASVS Area | Level 1 | Level 2 |\n| --- | --- | --- |\n| Auth | V6.2.1 | V6.2.99 |\n"
         self.assertLinterFails(self._run("asvs-area.md", body), "V6.2.99")
 
     def test_row_first_cell_edition_scopes_the_row_unless_the_column_names_the_held_edition(self) -> None:
-        body = "| Framework | Reference |\n| --- | --- |\n| OWASP ASVS 3.0.1 | V9.9.9 |\n"
-        r = self._run("asvs-rowlegacy.md", body)
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-rowlegacy.md", body))
 
     def test_mixed_edition_header_scopes_by_column(self) -> None:
         body = ("| ASVS 5.0.0 | ASVS 3.0.1 |\n| --- | --- |\n| V1.2.99 | V9.9.9 |\n")
         r = self._run("asvs-mixhdr.md", body)
         self.assertLinterFails(r, "V1.2.99")
         self.assertNotIn("'V9.9.9'", r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-mixhdr.md", body))
 
     def test_masvs_full_name_is_not_asvs_context(self) -> None:
-        r = self._run("masvs.md", "Mobile Application Security Verification Standard V9.9.9.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("masvs.md", body))
 
     def test_gfm_short_separator_and_pipeless_body_row(self) -> None:
         self.assertLinterFails(self._run("asvs-short.md", "| x | OWASP ASVS |\n|-|-|\n| a | V1.2.99 |\n"),
                                "V1.2.99")
 
     def test_other_standard_prefixes_are_versions(self) -> None:
-        for body in ("ASVS alongside PCI DSS V9.9.9.\n", "ASVS and NIST V9.9.9.\n",
-                     "ASVS with CIS Controls V9.9.9.\n", "ASVS and BSI V9.9.9.\n"):
-            r = self._run("asvs-otherstd.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-otherstd.md", body))
 
     # --- round-5: union of held editions (5.0.0 live, 4.0.3 retained) ---
     def test_a_held_legacy_identifier_passes_anywhere(self) -> None:
@@ -23063,15 +23274,9 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("asvs-403fab.md", "ASVS 4.0.3 requirement V9.9.9.\n"), "V9.9.9")
 
     def test_round5_table_and_exclusion_seams(self) -> None:
-        passing = ("| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| ASVS V1.2.4 | ZAP | V2.14 |\n",
-                   "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n## SDK V9.9.9 | Release notes\n",
-                   "| ASVS | Notes |\n| --- | --- |\n| V1.2.4 | x |\n- SDK V9.9.9 | note\n",
-                   "ASVS 5.0.0 V1.2.4 maps to **MITRE CWE** V4.20.\n",
-                   "ASVS and NIST Special Publication 800-53 V9.9.\n", "ASVS and ISO/IEC 27001 (2022) V9.9.\n",
-                   "Mobile ASVS V9.9.9.\n", "ASVS maps CWE-4.14 terms.\n")
-        for body in passing:
-            r = self._run("asvs-r5.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r5.md", body))
+        r = self._run("asvs-r5.md", "ASVS maps CWE-4.14 terms.\n")
+        self.assertEqual(r.returncode, 0, r.stdout)
         self.assertLinterFails(self._run("asvs-r5b.md", "OWASP ASVS: **3** levels; L1 includes V1.2.99.\n"), "V1.2.99")
         self.assertLinterFails(self._run("asvs-r5c.md",
                                          "| Requirement ID | OWASP ASVS |\n|---|---|\n| V1.2.99 | Implemented |\n"), "V1.2.99")
@@ -23084,15 +23289,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-r6fn.md", body), "V1.2.99")
 
     def test_round6_signalled_columns_and_header_rows_are_not_identifiers(self) -> None:
-        for body in ("| ASVS | Tools |\n| --- | --- |\n| V1.2.4 | ZAP V2.14 |\n",
-                     "| ASVS | SAMM |\n| --- | --- |\n| V1.2.4 | V2.1.0 |\n",
-                     "| ASVS | ZAP V2.14 (tool version) |\n| --- | --- |\n| V1.2.4 | enabled |\n",
-                     "| Control | ASVS version |\n| --- | --- |\n| X | V3.9.9 |\n",
-                     "| ASVS | OWASP MASVS |\n| --- | --- |\n| V1.2.4 | V2.14 |\n",
-                     "ASVS aligns with ISO-27001 V8.9.9.\n", "ASVS aligns with (ISO 27001) V8.9.9.\n",
-                     "ASVS aligns with ISO/IEC 27001:2013/Cor 1:2014 V8.9.9.\n"):
-            r = self._run("asvs-r6fp.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r6fp.md", body))
 
     def test_a_header_cell_naming_asvs_is_still_checked(self) -> None:
         self.assertLinterFails(self._run("asvs-hdrcell.md",
@@ -23107,18 +23304,10 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-r7int.md", body), "V1.2.99")
 
     def test_round7_an_edition_before_the_name_scopes_the_line(self) -> None:
-        for body in ("3.0.1 ASVS requirement V9.9.9.\n", "Version 3.0 of the ASVS requires V9.9.9.\n"):
-            r = self._run("asvs-r7before.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r7before.md", body))
 
     def test_round7_markdown_and_more_standard_forms_are_excluded(self) -> None:
-        for body in ("Align web apps to OWASP ASVS V6.3.1 and mobile apps to OWASP MASVS V8.9.9.\n",
-                     "ASVS maps to `CWE` V8.9.\n", "ASVS maps to [CWE](https://cwe.mitre.org/) V8.9.\n",
-                     "| Control | ASVS tools |\n|---|---|\n| Scanner | ZAP V8.9 |\n",
-                     "ASVS and ISO 27001 2022 V8.9.9.\n", "ASVS and ISO/IEC/IEEE 29119 V8.9.9.\n",
-                     "ASVS and the CMMI standard V8.9.9.\n"):
-            r = self._run("asvs-r7fp.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r7fp.md", body))
 
     # --- round-8 QA regressions (P-1.63 part d) ---
     def test_round8_section_sign_and_hyphen_range_are_checked(self) -> None:
@@ -23126,11 +23315,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
         self.assertLinterFails(self._run("cwe-r8range.md", "Weakness range: CWE-79-CWE-99999.\n"), "CWE-99999")
 
     def test_round8_shortcut_links_tool_headers_and_titles_are_excluded(self) -> None:
-        for body in ("ASVS mappings use [CWE] V8.9.\n\n[CWE]: https://cwe.mitre.org/\n",
-                     "| ASVS tools (ZAP V8.9) | Result |\n| --- | --- |\n| Enabled | Pass |\n",
-                     "| ASVS |\n| --- |\n| IEEE Standard for Information Technology V8.9.9 |\n"):
-            r = self._run("asvs-r8fp.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r8fp.md", body))
 
     # --- round-9 QA regressions (P-1.63 part d) ---
     def test_round9_misses_are_checked(self) -> None:
@@ -23144,10 +23329,7 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-r9fn.md", body), tok)
 
     def test_round9_long_standard_names_and_generic_columns_are_excluded(self) -> None:
-        for body in ("ASVS maps to NIST Cybersecurity Framework V8.9.9.\n",
-                     "ASVS maps to ISO International Standard 27001 V8.9.9.\n"):
-            r = self._run("asvs-r9fp.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-r9fp.md", body))
 
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
@@ -23188,17 +23370,13 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                       "| Legacy mapping | OWASP ASVS 5.0.0 |\n| --- | --- |\n| ASVS 3.0.1 V9.9.9 | V1.2.99 |\n")
         self.assertLinterFails(r, "V1.2.99")
         self.assertNotIn("'V9.9.9'", r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-adjacent.md", body))
 
     def test_edition_wording_and_placement_forms(self) -> None:
-        for body in ("ASVS version 3.0.1 requirement V9.9.9.\n", "ASVS v3 requirement V9.9.9.\n",
-"Requirement V9.9.9 (ASVS 3.0.1).\n",
-                     "| Control | ASVS version 3.0.1 |\n| --- | --- |\n| X | V9.9.9 |\n"):
-            r = self._run("asvs-edition-forms.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-edition-forms.md", body))
 
     def test_named_standard_prefix_tolerates_punctuation(self) -> None:
-        r = self._run("asvs-punct.md", "OWASP ASVS alongside ISO 27001: V9.8 and TOGAF, V9.9.\n")
-        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIdentifierScopeProbes(lambda body: self._run("asvs-punct.md", body))
 
     def test_registry_digest_guard_fails_loudly(self) -> None:
         # A hand edit that keeps the counts but changes an identifier must fail at load.
