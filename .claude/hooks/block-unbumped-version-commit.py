@@ -70,8 +70,9 @@ auto-bump path fails toward the block it was already going to issue. Defence in 
 D2, which remain the authority.
 
 THE ESCAPE HATCH IS DELIBERATE AND NARROW. A command whose text contains the bare token
-`VersionBump: none` proceeds (matched anywhere in the command string; the `<reason>` is a CONVENTION
-for the reviewer, NOT mechanically required or checked by this hook). Some body edits genuinely do
+`VersionBump: none` excuses the root README.md only (matched anywhere in the command string; the
+`<reason>` is a CONVENTION for the reviewer, NOT mechanically required or checked by this hook); every
+other staged document is still auto-bumped or blocked (3b102). Some body edits genuinely do
 not warrant a bump, and without a sanctioned opt-out an author whose edit genuinely does not warrant one
 has no clean path, so the guard becomes friction that invites disabling it wholesale, which is worse than a
 hatch that, by convention, leaves a reason in the commit message where a reviewer can see it.

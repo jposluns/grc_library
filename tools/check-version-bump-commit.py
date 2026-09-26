@@ -53,7 +53,12 @@ def decide(allow, sequencer, opt_out, ok, bad):
         return 0, ""
     if opt_out:
         # The escape covers README.md only (3b102); any other unbumped document is still refused.
-        others = sorted(p for p in (bad or ()) if p != "README.md") if ok else []
+        # An unreadable state cannot show the offenders are README.md only, so it refuses (3b102 QA r2).
+        if not ok:
+            return 1, ("check-version-bump-commit: REFUSING the commit: the staged state could not be read, "
+                       "so it is unknown whether `VersionBump: none` covers only README.md. "
+                       f"Deliberate override: {_OVERRIDE}=1.")
+        others = sorted(p for p in (bad or ()) if p != "README.md")
         if not others:
             return 0, ""
         return 1, ("check-version-bump-commit: REFUSING the commit: `VersionBump: none` covers README.md "
@@ -188,7 +193,7 @@ def _commit_msg(msgfile):
         bad = [] if sequencer else staged_offenders(root, guard)
         ok = True
     except Exception:
-        # opt_out keeps any value already read, so an unreadable state under the escape still allows.
+        # decide() refuses an unreadable state, with or without the escape (3b102 QA r2).
         bad, ok = [], False
     code, msg = decide(bool(os.environ.get(_OVERRIDE)), sequencer, opt_out, ok, bad)
     if msg:
@@ -377,7 +382,7 @@ def _self_test():
         ("sequencer state allows", decide(False, True, False, True, ["a.md"])[0], 0),
         ("opt-out allows a README.md-only body change", decide(False, False, True, True, ["README.md"])[0], 0),
         ("opt-out does not excuse another document (3b102)", decide(False, False, True, True, ["README.md", "a.md"])[0], 1),
-        ("opt-out on an unreadable state still allows", decide(False, False, True, False, [])[0], 0),
+        ("opt-out on an unreadable state refuses", decide(False, False, True, False, [])[0], 1),
         ("unreadable state refuses", decide(False, False, False, False, [])[0], 1),
         ("an offender refuses", decide(False, False, False, True, ["a.md"])[0], 1),
         ("no offender allows", decide(False, False, False, True, [])[0], 0),
@@ -402,7 +407,7 @@ def _self_test():
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
     integ = _integration_self_test()
     failures += integ
-    total = len(cases) + 16
+    total = len(cases) + 19
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures
