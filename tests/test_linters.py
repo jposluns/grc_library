@@ -26854,7 +26854,8 @@ class WorkerIdAnonymityTests(unittest.TestCase):
             "R4": ["-".join(("claude", "pro", "blue", stamp)), "-".join(("gemini", "ultra", "blue", stamp)),
                    "--".join(("codex", "blue")) + "-" + stamp, "-".join(("codex", "blue")) + "--" + stamp],
             "R2": ["--".join(("codex", "-".join(("team", "a1", "b2"))))],
-            "R1": ["see " + "-".join(("orch", "accounts")) + "/ and " +
+            "R1": ["/".join(("-".join(("orch", "accounts")), ".", "orchestrator", "x" * 8)),
+                   "see " + "-".join(("orch", "accounts")) + "/ and " +
                    "/".join(("-".join(("orch", "accounts")), "orchestrator", "x" * 8)) + " here"],
         }
         for rule, values in found.items():
