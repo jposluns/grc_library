@@ -172,8 +172,382 @@ def load_linter_module(script: str, unique: str):
     return mod
 
 
+def _identifier_probe_catalogues():
+    """Use committed references, including the digest-checked ASVS edition union."""
+    ref = load_linter_module(
+        "tools/alignment_citation_reference.py", "_identifier_probe_reference"
+    )
+    return {
+        "asvs": ref.ASVS["requirements"] | ref.ASVS["sections"],
+        "pf": frozenset(ref.PF_ALL_EDITIONS_VALID),
+        "cwe": ref.CWE["all"],
+    }
+
+
+_PROBE_ENGINE = []
+
+
+def _identifier_probe_engine():
+    """The configured alignment-citation engine (loaded once), for the flaggability checks."""
+    if not _PROBE_ENGINE:
+        mod = load_linter_module(
+            "tools/lint-alignment-citation-existence.py", "_identifier_probe_engine"
+        )
+        _PROBE_ENGINE.append(mod._engine())
+    return _PROBE_ENGINE[0]
+
+
+def identifier_probe_unflaggable(family, token, template):
+    """Why a declared probe cannot witness a scope rule, or None.
+
+    Absence from the catalogue is not enough (3b64 QA). None means three things, and no more:
+    the placeholder sits on a line the engine reads and renders as a WHOLE token of the family's
+    engine pattern at exactly that position (a glued prefix or trailing digit cannot change it,
+    and it is not part of a PF range); the engine flags the token on a neutral line of its family
+    (a zero-middle ASVS token, which the engine reads as a version, is refused). What makes the
+    template's difference the suppressing rule is proved at run time by the probe's declared twin
+    (LinterTestCase.assertIdentifierScopeProbes). CWE and PF have no context gate in this engine,
+    so no CWE or PF probe can currently pass; the families are supported for a future context rule.
+    """
+    eng = _identifier_probe_engine()
+    whole = _probe_is_whole_token(family, token, template)
+    if whole is not True:
+        return whole
+    findings = []
+    if family == "asvs":
+        eng._check_asvs(f"ASVS requirement {token}.\n", 1, "probe.md", None, False, findings)
+    elif family == "cwe":
+        eng._check_cwe(f"See {token}.\n", 1, "probe.md", findings)
+    elif not eng._check_pf(token):
+        findings.append(token)
+    if not findings:
+        return "is not flagged by the engine even in a neutral context"
+    return None
+
+
+def _probe_is_whole_token(family, token, template):
+    """True when ``token`` renders at ``template``'s placeholder as a whole engine token on a line
+    the engine reads, and (PF) is neither inside a range nor rebuilt as a range endpoint elsewhere;
+    a reason string otherwise. Shared by the template and twin checks.
+
+    The placeholder is located with the ENGINE's line model (3b64 round 2): the file is read in
+    universal-newline mode and split by splitlines() (so a bare CR breaks a line), and fenced lines
+    are dropped. The position comes from the placeholder itself (round 3: a sentinel character
+    could collide with the template), and the text checked is exactly the text the run writes."""
+    eng = _identifier_probe_engine()
+    rendered = template.replace("{probe}", token)
+    lineno, column = next((n, ln.index("{probe}")) for n, ln in
+                          enumerate(template.splitlines(), start=1) if "{probe}" in ln)
+    engine_lines = dict(eng.iter_non_code_lines(rendered))
+    if lineno not in engine_lines:
+        return "sits on a line the engine never reads (a fenced block)"
+    pattern = {"asvs": eng._ASVS_TOKEN, "cwe": eng._CWE_TOKEN, "pf": eng._PF_SINGLE}[family]
+    span = (column, column + len(token))
+    if not any(m.span() == span for m in pattern.finditer(engine_lines[lineno])):
+        return "is not a whole token at its placeholder once rendered"
+    if family == "pf":
+        if any(m.start() < span[1] and span[0] < m.end()
+               for m in eng._PF_RANGE.finditer(engine_lines[lineno])):
+            return "is part of a PF range (not supported as a probe)"
+        # 3b64 round 7 (claude): the engine rebuilds range endpoints ('CT.PO-P1 to P9' reports
+        # 'CT.PO-P9'), so an endpoint equal to the token elsewhere could be the one reported.
+        for _n, line in engine_lines.items():
+            for m in eng._PF_RANGE.finditer(line):
+                if token in (f"{m.group(1)}{int(m.group(2))}",
+                             f"{m.group(3) or m.group(1)}{int(m.group(4))}"):
+                    return "is also a PF range endpoint elsewhere, which the engine reports"
+    return True
+
+
+def identifier_scope_probe_issues(cases):
+    """Check declared (catalogue, token, template, twin) suppression probes. The twin is a
+    minimally different template in which the linter must REPORT the token; running it proves the
+    template's difference is what suppresses the finding (3b64 round 4). Stated residue: it does
+    not prove that difference is the rule the test NAMES; choosing a twin whose only difference is
+    that rule is the author's judgement, reviewed like any test."""
+    catalogues = _identifier_probe_catalogues()
+    patterns = {
+        "asvs": r"V[0-9]+\.[0-9]+(?:\.[0-9]+)?",
+        "pf": r"[A-Z]{2}\.[A-Z]{2}-P[0-9]*",
+        "cwe": r"(?i:CWE)-[0-9]+",
+    }
+    issues = []
+    for name, probes in sorted(cases.items()):
+        if not isinstance(probes, tuple):
+            issues.append(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
+            continue
+        if not probes:
+            issues.append(f"TEST-PROBE-EMPTY: {name}")
+        for index, probe in enumerate(probes):
+            where = f"{name}[{index}]"
+            if not (isinstance(probe, tuple) and len(probe) == 4):
+                issues.append(f"TEST-PROBE-SHAPE: {where}: expected (family, token, template, twin)")
+                continue
+            family, token, template, twin = probe
+            if family not in catalogues:
+                issues.append(f"TEST-PROBE-CATALOGUE: {where}: unknown {family!r}")
+                continue
+            if not re.fullmatch(patterns[family], token):
+                issues.append(f"TEST-PROBE-TOKEN: {where}: malformed {family} {token!r}")
+                continue
+            canonical = (
+                f"CWE-{int(token.split('-')[1])}" if family == "cwe" else token
+            )
+            valid_id = canonical in catalogues[family]
+            if valid_id:
+                issues.append(
+                    f"TEST-PROBE-VALID-ID: {where}: {family} {token!r} "
+                    f"exists in the held catalogue"
+                )
+            if template.count("{probe}") != 1:
+                issues.append(
+                    f"TEST-PROBE-TEMPLATE: {where}: expected one {{probe}} placeholder"
+                )
+                continue
+            if twin.count("{probe}") != 1 or twin == template:
+                issues.append(
+                    f"TEST-PROBE-TWIN: {where}: the twin needs one {{probe}} and must differ "
+                    f"from the template"
+                )
+                continue
+            if token in template.replace("{probe}", "") or token in twin.replace("{probe}", ""):
+                # 3b64 round 5 (claude, codex): the twin control matches the token in the report,
+                # so the token must occur only at the placeholder or another occurrence could be
+                # the one reported.
+                issues.append(
+                    f"TEST-PROBE-DUPLICATE: {where}: {family} {token!r} also appears outside the "
+                    f"placeholder in the template or twin"
+                )
+                continue
+            if valid_id:
+                continue  # already refused; flaggability is moot for a real identifier
+            why = identifier_probe_unflaggable(family, token, template)
+            if why:
+                issues.append(f"TEST-PROBE-UNFLAGGABLE: {where}: {family} {token!r} {why}")
+            else:
+                # 3b64 round 6 (codex): the twin's placeholder must render as the declared token
+                # itself, or the twin can be reported for a longer identifier ('V9.9.90').
+                twin_ok = _probe_is_whole_token(family, token, twin)
+                if twin_ok is not True:
+                    issues.append(f"TEST-PROBE-TWIN: {where}: {family} {token!r} in the twin "
+                                  f"{twin_ok}")
+    return issues
+
+
+def _runs_scope_probes(func):
+    """A static PRE-SCREEN (the authoritative guard is LinterTestCase.run, which fails a registered
+    test whose probes did not all run). True when ``func`` is undecorated and its body reaches a
+    ``self.assertIdentifierScopeProbes(...)`` call statement, at the top level or inside
+    ``with self.subTest(...)`` blocks, before any return, raise or try on the way (parsed, so a
+    comment, a string, a call under a branch or a try, a call after a return, a call under any
+    other context manager such as contextlib.suppress, or a skip decorator does not count).
+    Residue, caught at run time instead: an exit the scan cannot see (an immediately invoked
+    lambda, a skip inside the runner, a yield in a default expression). A call routed through
+    another helper is not recognized, so it must be made directly."""
+    import ast
+    import inspect
+    import textwrap
+    tree = ast.parse(textwrap.dedent(inspect.getsource(func)))
+    if not tree.body or not isinstance(tree.body[0], ast.FunctionDef) or tree.body[0].decorator_list:
+        return False
+
+    def is_call(stmt):
+        return (isinstance(stmt, ast.Expr) and isinstance(stmt.value, ast.Call)
+                and isinstance(stmt.value.func, ast.Attribute)
+                and stmt.value.func.attr == "assertIdentifierScopeProbes"
+                and isinstance(stmt.value.func.value, ast.Name)
+                and stmt.value.func.value.id == "self")
+
+    def is_subtest(item):
+        expr = item.context_expr
+        return (isinstance(expr, ast.Call) and isinstance(expr.func, ast.Attribute)
+                and expr.func.attr == "subTest" and isinstance(expr.func.value, ast.Name)
+                and expr.func.value.id == "self")
+
+    exits = {"skipTest", "fail", "exit", "_exit"}
+
+    scopes = (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)
+
+    def walk_same_scope(node):
+        """ast.walk, but not into a nested def, lambda or class (its body does not run here)."""
+        stack = [node]
+        while stack:
+            cur = stack.pop()
+            yield cur
+            if cur is not node and isinstance(cur, scopes):
+                continue  # judged by its definition-time parts, not its deferred body
+            stack.extend(ast.iter_child_nodes(cur))
+
+    def definition_time(node):
+        """The parts of a def, lambda or class that RUN when it is reached (3b64 round 7):
+        decorators, argument defaults, a class's bases and keywords, and a class body."""
+        parts = list(getattr(node, "decorator_list", []))
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            parts += [d for d in [*node.args.defaults, *node.args.kw_defaults] if d is not None]
+        else:  # ClassDef
+            parts += [*node.bases, *(k.value for k in node.keywords), *node.body]
+        return parts
+
+    def may_exit(node):
+        """A statement or expression that can leave the method when it runs: a return or raise in
+        it, or a skipTest, fail or exit call in it (3b64 rounds 5 to 7). A def, lambda or class is
+        judged by what runs when it is reached, never by its deferred body."""
+        if isinstance(node, scopes):
+            # A bare decorator (@self.skipTest) is CALLED when applied, without call syntax.
+            if any((getattr(d, "attr", None) or getattr(d, "id", None)) in exits
+                   for d in getattr(node, "decorator_list", [])):
+                return True
+            return any(may_exit(part) for part in definition_time(node))
+        for sub in walk_same_scope(node):
+            if isinstance(sub, scopes):
+                if may_exit(sub):
+                    return True
+                continue
+            if isinstance(sub, (ast.Return, ast.Raise)):
+                return True
+            if isinstance(sub, ast.Call):
+                name = getattr(sub.func, "attr", None) or getattr(sub.func, "id", None)
+                if name in exits:
+                    return True
+        return False
+
+    def scan(stmts):
+        """True: the call is reached; False: something that may exit comes first; None: neither."""
+        for stmt in stmts:
+            if isinstance(stmt, (ast.Return, ast.Raise, ast.Try)):
+                return False
+            if is_call(stmt):
+                call = stmt.value
+                return not any(may_exit(arg) for arg in [*call.args, *(k.value for k in call.keywords)])
+            if isinstance(stmt, ast.With):
+                if not all(is_subtest(item) for item in stmt.items):
+                    return False
+                if any(may_exit(arg) for item in stmt.items
+                       for arg in [*item.context_expr.args, *(k.value for k in item.context_expr.keywords)]):
+                    return False
+                found = scan(stmt.body)
+                if found is not None:
+                    return found
+                continue
+            if may_exit(stmt):
+                return False
+        return None
+
+    if any(isinstance(node, (ast.Yield, ast.YieldFrom)) for node in walk_same_scope(tree.body[0])
+           if node is not tree.body[0]):
+        return False  # a generator test method never runs its body under unittest
+    return scan(tree.body[0].body) is True
+
+
+def scope_probe_registry_issues(classes):
+    """Issues across every LinterTestCase subclass in ``classes`` that declares probes: stale
+    method keys, a test that declares probes but never calls the helper, and the per-probe checks."""
+    import inspect
+    issues = []
+    for name, cls in sorted(classes.items()):
+        if not isinstance(cls, type) or not issubclass(cls, LinterTestCase):
+            continue
+        # Inherited registrations count (3b64 round 11, codex): LinterTestCase.run enforces
+        # them too, so a subclass that inherits probes gets the skip, expected-failure and method
+        # checks; the per-probe declaration checks run once, on the declaring class.
+        cases = getattr(cls, "IDENTIFIER_SCOPE_PROBES", {})
+        if not cases:
+            continue
+        own = "IDENTIFIER_SCOPE_PROBES" in cls.__dict__
+        if getattr(cls, "__unittest_skip__", False):
+            # 3b64 round 10 (claude, codex): unittest returns before doCleanups for a skip-marked
+            # class or method, so the run-time completion check never executes; refuse the
+            # marker here, reading the live attribute (a wrapper applied after definition, or a
+            # skip inherited from a base class, too).
+            issues.append(f"TEST-PROBE-SKIP-MARKED: {name} is skip-marked and declares scope probes")
+        if getattr(cls, "__unittest_expecting_failure__", False):
+            # 3b64 round 11 (gemini): under expectedFailure the NOT-RUN failure is recorded as an
+            # expected failure, which unittest counts as success.
+            issues.append(f"TEST-PROBE-EXPECTED-FAILURE: {name} is expectedFailure-marked and declares scope probes")
+        for method in cases:
+            func = getattr(cls, method, None)
+            if not method.startswith("test_") or not callable(func):
+                issues.append(f"TEST-PROBE-METHOD: {name}.{method}")
+            elif getattr(func, "__unittest_skip__", False):
+                issues.append(f"TEST-PROBE-SKIP-MARKED: {name}.{method} is skip-marked and never runs its probes")
+            elif getattr(func, "__unittest_expecting_failure__", False):
+                issues.append(f"TEST-PROBE-EXPECTED-FAILURE: {name}.{method} is expectedFailure-marked, "
+                              f"so a probe that did not run would count as a pass")
+            elif not _runs_scope_probes(func):
+                issues.append(f"TEST-PROBE-UNUSED: {name}.{method} never runs its probes")
+        if own:
+            issues.extend(f"{name}: {issue}" for issue in identifier_scope_probe_issues(cases))
+    return issues
+
+
 class LinterTestCase(unittest.TestCase):
     """Base class providing fixture-file helpers."""
+
+    IDENTIFIER_SCOPE_PROBES = {}
+
+    def run(self, result=None):
+        """Run the test with the scope-probe completion check registered as a CLEANUP, so it runs
+        inside the test's own result lifecycle (3b64 round 9: after stopTest, a failure breaks
+        the TestResult protocol; unittest's startTestRun/stopTestRun are untouched). A test that
+        declares scope probes but ends without every probe having run fails with
+        TEST-PROBE-NOT-RUN, whatever stopped the probes (a skip before or inside the call, a
+        generator method, an early return, or an earlier probe failure). The static
+        _runs_scope_probes scan is only a pre-screen. Residue: a class- or module-level skip
+        (setUpClass, setUpModule) or a direct debug() call never reaches run() and is not
+        guarded, and a test excluded by selection (a -k filter or load_tests) simply does not run
+        in that invocation; CI runs the full suite (3b64 round 11, gemini)."""
+        self._scope_probes_completed = False
+        if self._testMethodName in getattr(type(self), "IDENTIFIER_SCOPE_PROBES", {}):
+            self.addCleanup(self._check_scope_probes_completed)
+        return super().run(result)
+
+    def _check_scope_probes_completed(self) -> None:
+        if not self._scope_probes_completed:
+            raise AssertionError(
+                f"TEST-PROBE-NOT-RUN: {type(self).__name__}.{self._testMethodName} declares scope "
+                f"probes but ended without running them all (skipped, a generator, an early "
+                f"exit, or an earlier probe failure)")
+
+    def assertIdentifierScopeProbes(self, run) -> None:
+        """Check absence before invoking a strict linter or asserting no finding."""
+        name = self._testMethodName
+        cases = {name: self.IDENTIFIER_SCOPE_PROBES[name]}
+        if not isinstance(cases[name], tuple):
+            # 3b64 round 9 (codex): a one-shot iterable is consumed by validation and would then
+            # run zero probes; the declaration must be a tuple. (identifier_scope_probe_issues
+            # refuses it too, without consuming it; this is a deliberate second layer.)
+            self.fail(f"TEST-PROBE-SHAPE: {name}: probes must be declared as a tuple")
+        issues = identifier_scope_probe_issues(cases)
+        if issues:
+            self.fail("\n".join(issues))
+        def call(text):
+            try:
+                return run(text)
+            except unittest.SkipTest as exc:
+                # 3b64 round 8 (claude): a skip inside the runner would be recorded as a skipped
+                # subtest and the probe would silently not run.
+                self.fail(f"TEST-PROBE-SKIPPED: the run callable skipped ({exc}); probes must run")
+
+        for family, token, template, twin in cases[name]:
+            with self.subTest(catalogue=family, token=token, template=template):
+                # Counterfactual twin (3b64 round 4): the same run callable must REPORT the token
+                # in the twin, so a zero exit below proves the template's difference suppresses it
+                # (not report mode, an exempt path, or a probe trivially out of context).
+                checked = call(twin.replace("{probe}", token))
+                # The engine quotes the identifier it reports ('V9.9.9'); match that exactly, so a
+                # longer identifier sharing the prefix is not taken as the probe (round 6).
+                if checked.returncode == 0 or f"'{token}'" not in checked.stdout:
+                    self.fail(
+                        f"TEST-PROBE-CONTROL: {family} {token!r}: the run callable did not report "
+                        f"it in the twin (exit {checked.returncode})\n{checked.stdout}{checked.stderr}"
+                    )
+                result = call(template.replace("{probe}", token))
+                if result.returncode != 0:
+                    self.fail(
+                        f"TEST-PROBE-FINDING: {family} {token!r}: "
+                        f"exit {result.returncode}\n{result.stdout}{result.stderr}"
+                    )
+        self._scope_probes_completed = True
 
     fixture_paths: list[Path] = []
 
@@ -22429,6 +22803,58 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     SCRIPT = "tools/lint-alignment-citation-existence.py"
 
+    IDENTIFIER_SCOPE_PROBES = {
+        "test_table_context_ends_at_a_pipeless_line_or_a_fence": (
+            ("asvs", "V8.9",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "CycloneDX note\n"
+             "| CycloneDX {probe} | y |\n",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "| CycloneDX {probe} | y |\n"),
+            ("asvs", "V9.9.9",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "```text\n\nexample\n\n```\n"
+             "| The tool moved to {probe} | y |\n",
+             "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n"
+             "| The tool moved to {probe} | y |\n"),
+        ),
+        "test_version_columns_in_an_asvs_table_are_not_checked": (
+            ("asvs", "V2.14",
+             "| ASVS requirement | Tool | Version |\n| --- | --- | --- |\n"
+             "| V1.2.4 | ZAP | {probe} |\n",
+             "| ASVS requirement | Tool | Notes |\n| --- | --- | --- |\n"
+             "| V1.2.4 | ZAP | {probe} |\n"),
+            ("asvs", "V8.9",
+             "| ASVS 5.0.0 | CycloneDX spec |\n| --- | --- |\n"
+             "| V1.2.4 | {probe} |\n",
+             "| ASVS 5.0.0 | Notes |\n| --- | --- |\n"
+             "| V1.2.4 | {probe} |\n"),
+        ),
+        "test_markdown_formatting_between_name_and_edition": (
+            ("asvs", "V9.9.9",
+             "| Control | **ASVS** (3.0.1) |\n| --- | --- |\n"
+             "| Legacy | {probe} |\n",
+             "| Control | **ASVS** (5.0.0) |\n| --- | --- |\n"
+             "| Legacy | {probe} |\n"),
+            ("asvs", "V9.9.9",
+             "[ASVS](https://owasp.org/) 3.0.1 requirement {probe}.\n",
+             "[ASVS](https://owasp.org/) 5.0.0 requirement {probe}.\n"),
+        ),
+        "test_more_other_standard_versions_are_excluded": (
+            ("asvs", "V4.20",
+             "OWASP ASVS 5.0.0 V1.2.4 maps to MITRE CWE {probe}.\n",
+             "OWASP ASVS 5.0.0 V1.2.4 maps to {probe}.\n"),
+            ("asvs", "V3.9", "ASVS and CAPEC {probe}.\n", "ASVS and {probe}.\n"),
+            ("asvs", "V4.9", "ASVS and MITRE ATLAS {probe}.\n", "ASVS and {probe}.\n"),
+            ("asvs", "V8.9.9", "ASVS and ETSI GR SAI 002 {probe}.\n", "ASVS and {probe}.\n"),
+            ("asvs", "V8.9", "ASVS and NIST SP 800-218 {probe}.\n", "ASVS and {probe}.\n"),
+            ("asvs", "V8.9.9", "ASVS and CIS Controls v8 {probe}\n", "ASVS and {probe}\n"),
+            ("asvs", "V9.9.9",
+             "Mobile OWASP Application Security Verification Standard {probe}.\n",
+             "OWASP Application Security Verification Standard {probe}.\n"),
+        ),
+    }
+
     def test_fabricated_pf_subcategory_flagged(self) -> None:
         fixture = self.make_fixture(
             "align-cite-fabricated.md",
@@ -22725,21 +23151,18 @@ class AlignmentCitationExistenceTests(LinterTestCase):
 
     # --- round-4 QA regressions (P-1.63 part d) ---
     def test_table_context_ends_at_a_pipeless_line_or_a_fence(self) -> None:
-        for body in ("| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n- CycloneDX V8.9 list item\n",
-                     "| ASVS | Notes |\n| - | - |\n| V1.2.4 | x |\n```text\n\nexample\n\n```\n"
-                     "| The tool moved to V9.9.9 | y |\n"):
-            r = self._run("asvs-tableend.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-tableend.md", body)
+        )
 
     def test_a_dash_only_body_row_keeps_the_header(self) -> None:
         body = "| Control | ASVS |\n| --- | --- |\n| A | V1.2.4 |\n| - | - |\n| B | V1.2.99 |\n"
         self.assertLinterFails(self._run("asvs-dashrow.md", body), "V1.2.99")
 
     def test_version_columns_in_an_asvs_table_are_not_checked(self) -> None:
-        for body in ("| ASVS requirement | Tool | Tool version |\n| --- | --- | --- |\n| V1.2.4 | ZAP | V2.14 |\n",
-                     "| ASVS 5.0.0 | CycloneDX spec |\n| --- | --- |\n| V1.2.4 | V8.9 |\n"):
-            r = self._run("asvs-vercol.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-vercol.md", body)
+        )
 
     def test_a_year_or_count_after_the_name_is_not_an_edition(self) -> None:
         for body in ("OWASP ASVS (2025) requirement V99.9.9\n", "OWASP ASVS: 3 levels; V99.9.9\n",
@@ -22747,18 +23170,14 @@ class AlignmentCitationExistenceTests(LinterTestCase):
             self.assertLinterFails(self._run("asvs-year.md", body), "V99.9.9")
 
     def test_markdown_formatting_between_name_and_edition(self) -> None:
-        for body in ("| Control | **ASVS** (3.0.1) |\n| --- | --- |\n| Legacy | V9.9.9 |\n",
-                     "[ASVS](https://owasp.org/) 3.0.1 requirement V9.9.9.\n"):
-            r = self._run("asvs-bold.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-bold.md", body)
+        )
 
     def test_more_other_standard_versions_are_excluded(self) -> None:
-        for body in ("OWASP ASVS 5.0.0 V1.2.4 maps to MITRE CWE V4.20.\n", "ASVS and CAPEC V3.9.\n",
-                     "ASVS and MITRE ATLAS V4.9.\n", "ASVS and ETSI GR SAI 002 V8.9.9.\n",
-                     "ASVS and NIST SP 800-218 V8.9.\n", "ASVS and CIS Controls v8 V8.9.9\n",
-                     "Mobile OWASP Application Security Verification Standard V9.9.9.\n"):
-            r = self._run("asvs-otherstd2.md", body)
-            self.assertEqual(r.returncode, 0, body + r.stdout)
+        self.assertIdentifierScopeProbes(
+            lambda body: self._run("asvs-otherstd2.md", body)
+        )
 
     def test_cwe_leading_zero_is_normalized(self) -> None:
         r = self._run("cwe-zero.md", "See CWE-079.\n")
@@ -22817,6 +23236,609 @@ class AlignmentCitationExistenceTests(LinterTestCase):
                          f"PF 1.1 code should pass via the edition union; stdout:\n{result.stdout}")
 
 
+
+
+class IdentifierScopeProbeMetaTests(unittest.TestCase):
+    def test_registered_scope_probes_use_absent_identifiers(self) -> None:
+        issues = scope_probe_registry_issues(dict(globals()))
+        if issues:
+            self.fail("\n".join(issues))
+
+
+class IdentifierScopeProbeGuardTests(unittest.TestCase):
+    @staticmethod
+    def _cases(family, token, template="{probe}", twin="ASVS requirement {probe}.\n"):
+        return {"runTest": ((family, token, template, twin),)}
+
+    def test_real_identifiers_in_either_held_edition_are_rejected(self) -> None:
+        for family, token in (
+            ("asvs", "V1.6"), ("asvs", "V5.3.4"), ("asvs", "V16.3.1"),
+            ("pf", "CT.PO-P4"), ("pf", "GV.RR-P1"), ("cwe", "CWE-79"),
+            ("cwe", "cwe-079"),
+        ):
+            with self.subTest(family=family, token=token):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases(family, token)),
+                    [f"TEST-PROBE-VALID-ID: runTest[0]: {family} {token!r} "
+                     "exists in the held catalogue"],
+                )
+
+    def test_absent_probe_with_valid_companion_is_allowed(self) -> None:
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases(
+                "asvs", "V9.9.9", "ASVS V1.2.4; other version {probe}"
+            )),
+            [],
+        )
+        for family, token in (("pf", "CT.PO-P5"), ("cwe", "CWE-99999")):
+            self.assertEqual(identifier_scope_probe_issues(self._cases(family, token)), [])
+
+    def test_probes_the_linter_could_never_flag_are_rejected(self) -> None:
+        # 3b64 QA (claude, codex): absent from the catalogue yet unflaggable, so a test built on
+        # them passes whatever the scope logic does.
+        for family, token, template, why in (
+            ("asvs", "V9.9.9", "ASVS requirement X{probe}.", "is not a whole token at its placeholder once rendered"),
+            ("asvs", "V5.0.1", "ASVS requirement {probe}.", "is not flagged by the engine even in a neutral context"),
+            ("cwe", "CWE-0", "{probe}79", "is not a whole token at its placeholder once rendered"),
+            ("pf", "CT.PO-P04", "{probe} to P4", "is part of a PF range (not supported as a probe)"),
+        ):
+            with self.subTest(token=token, template=template):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases(family, token, template)),
+                    [f"TEST-PROBE-UNFLAGGABLE: runTest[0]: {family} {token!r} {why}"],
+                )
+
+    def test_a_nul_in_the_template_does_not_move_the_probe(self) -> None:
+        # 3b64 round 3 (claude, codex): the text checked is the text the run writes.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "\x00\n```\nASVS {probe}\n```\n")),
+            ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' sits on a line the engine "
+             "never reads (a fenced block)"],
+        )
+
+    def test_a_probe_needs_a_distinct_twin(self) -> None:
+        # 3b64 round 4 (claude): the twin replaces the name heuristic; a missing or identical
+        # twin cannot prove what suppresses the finding.
+        self.assertEqual(identifier_scope_probe_issues({"runTest": (("asvs", "V9.9.9", "ASVS {probe}."),)}),
+                         ["TEST-PROBE-SHAPE: runTest[0]: expected (family, token, template, twin)"])
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS {probe}.", "ASVS {probe}.")),
+            ["TEST-PROBE-TWIN: runTest[0]: the twin needs one {probe} and must differ from the template"])
+
+    def test_a_rebuilt_pf_range_endpoint_is_refused(self) -> None:
+        # 3b64 round 7 (claude): 'CT.PO-P1 to P9' makes the engine report 'CT.PO-P9'.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("pf", "CT.PO-P9", "{probe} x\n",
+                                                      "CT.PO-P1 to P9, {probe}\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: pf 'CT.PO-P9' in the twin is also a PF range endpoint "
+             "elsewhere, which the engine reports"])
+
+    def test_twin_placeholder_count_and_duplicates_are_refused(self) -> None:
+        # 3b64 round 5 (claude, codex).
+        for twin in ("ASVS requirement.\n", "ASVS {probe} and {probe}.\n"):
+            with self.subTest(twin=twin):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.", twin)),
+                    ["TEST-PROBE-TWIN: runTest[0]: the twin needs one {probe} and must differ from the template"])
+        for template, twin in (("ASVS 3.0.1 V9.9.9 and TOGAF {probe}.\n", "ASVS and TOGAF {probe}.\n"),
+                               ("ASVS 3.0.1 {probe}.\n", "ASVS V9.9.9 and {probe}.\n")):
+            with self.subTest(template=template):
+                self.assertEqual(
+                    identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", template, twin)),
+                    ["TEST-PROBE-DUPLICATE: runTest[0]: asvs 'V9.9.9' also appears outside the "
+                     "placeholder in the template or twin"])
+
+    def test_a_registered_test_whose_probes_do_not_run_fails(self) -> None:
+        # 3b64 round 8 (claude, codex): the runtime guard catches every way the probes can fail
+        # to run, including shapes the static pre-screen cannot see.
+        import warnings
+        from unittest.mock import Mock
+        ok = Mock(side_effect=lambda body: subprocess.CompletedProcess(
+            [], 1 if "requirement" in body else 0, "x.md:1: 'V9.9.9' finding\n" if "requirement" in body else "OK\n", ""))
+        probe = (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),)
+
+        class _G(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {name: probe for name in (
+                "test_ok", "test_skip_first", "test_default_yield", "test_runner_skips", "test_iife")}
+
+            def test_ok(self) -> None:
+                self.assertIdentifierScopeProbes(ok)
+
+            def test_skip_first(self) -> None:
+                self.skipTest("x")
+                self.assertIdentifierScopeProbes(ok)
+
+            def test_default_yield(self) -> None:
+                def run(body, unused=(yield None)):
+                    return ok(body)
+                self.assertIdentifierScopeProbes(run)
+
+            def test_runner_skips(self) -> None:
+                def run(body):
+                    self.skipTest("reference not held")
+                self.assertIdentifierScopeProbes(run)
+
+            def test_iife(self) -> None:
+                (lambda: self.skipTest("x"))()
+                self.assertIdentifierScopeProbes(ok)
+
+        failed = {}
+        for name in _G.IDENTIFIER_SCOPE_PROBES:
+            result = unittest.TestResult()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                _G(name).run(result)
+            failed[name] = [str(err) for _test, err in result.failures + result.errors]
+        self.assertEqual(failed["test_ok"], [])
+        for name in ("test_skip_first", "test_default_yield", "test_iife"):
+            self.assertTrue(any("TEST-PROBE-NOT-RUN" in f for f in failed[name]), (name, failed[name]))
+        self.assertTrue(any("TEST-PROBE-SKIPPED" in f for f in failed["test_runner_skips"]),
+                        failed["test_runner_skips"])
+
+    def test_skip_marked_probe_tests_are_refused(self) -> None:
+        # 3b64 round 10 (claude, codex): a skip marker returns before doCleanups, so the runtime
+        # check cannot see it; the registry check reads the live attribute.
+        probe = (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),)
+
+        class _M(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _M.test_x = unittest.skip("reference unavailable")(_M.test_x)
+
+        @unittest.skip("x")
+        class _C(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        self.assertEqual(scope_probe_registry_issues({"_M": _M}),
+                         ["TEST-PROBE-SKIP-MARKED: _M.test_x is skip-marked and never runs its probes"])
+        self.assertEqual(scope_probe_registry_issues({"_C": _C}),
+                         ["TEST-PROBE-SKIP-MARKED: _C is skip-marked and declares scope probes"])
+
+        # 3b64 round 11 (claude, codex): a skip on a BASE class, and a skip-marked subclass that
+        # only INHERITS the registration, are both refused (run() enforces inherited probes).
+        class _Base(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        @unittest.skip("base")
+        class _SkippedBase(_Base):
+            pass
+
+        class _S(_SkippedBase):
+            pass
+
+        self.assertEqual(scope_probe_registry_issues({"_S": _S}),
+                         ["TEST-PROBE-SKIP-MARKED: _S is skip-marked and declares scope probes"])
+        self.assertEqual(scope_probe_registry_issues({"_Base": _Base}), [])
+
+        # A bad inherited declaration is reported once, on the declaring class.
+        class _BadBase(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": (("asvs", "V1.6", "ASVS 3.0.1 {probe}.\n",
+                                                   "ASVS requirement {probe}.\n"),)}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        class _Child(_BadBase):
+            pass
+
+        self.assertEqual(scope_probe_registry_issues({"_BadBase": _BadBase, "_Child": _Child}),
+                         ["_BadBase: TEST-PROBE-VALID-ID: test_x[0]: asvs 'V1.6' exists in the held catalogue"])
+
+        # 3b64 round 11 (gemini): an expectedFailure wrapper applied after definition.
+        class _E(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _E.test_x = unittest.expectedFailure(_E.test_x)
+        self.assertEqual(scope_probe_registry_issues({"_E": _E}),
+                         ["TEST-PROBE-EXPECTED-FAILURE: _E.test_x is expectedFailure-marked, so a "
+                          "probe that did not run would count as a pass"])
+
+        # A class-level expectedFailure (unittest honours it for every method of the class).
+        class _EC(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": probe}
+
+            def test_x(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        _EC = unittest.expectedFailure(_EC)
+        self.assertIn("TEST-PROBE-EXPECTED-FAILURE: _EC is expectedFailure-marked and declares scope probes",
+                      scope_probe_registry_issues({"_EC": _EC}))
+
+    def test_a_one_shot_probe_collection_is_refused(self) -> None:
+        # 3b64 round 9 (codex): a generator is consumed by validation and would run nothing.
+        gen = (p for p in (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n", "ASVS requirement {probe}.\n"),))
+        self.assertEqual(identifier_scope_probe_issues({"runTest": gen}),
+                         ["TEST-PROBE-SHAPE: runTest: probes must be declared as a tuple"])
+
+    def test_probe_guard_keeps_the_result_lifecycle(self) -> None:
+        # 3b64 round 9 (codex, gemini): the NOT-RUN failure is recorded before stopTest, and
+        # run(None) keeps unittest's startTestRun/stopTestRun.
+        events = []
+
+        class _Recording(unittest.TestResult):
+            def startTestRun(self):
+                events.append("startTestRun")
+
+            def stopTestRun(self):
+                events.append("stopTestRun")
+
+            def startTest(self, test):
+                events.append("start")
+                super().startTest(test)
+
+            def stopTest(self, test):
+                events.append("stop")
+                super().stopTest(test)
+
+            def addFailure(self, test, err):
+                events.append("fail")
+                super().addFailure(test, err)
+
+            def addError(self, test, err):
+                events.append("fail")
+                super().addError(test, err)
+
+        class _L(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_early": (("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "ASVS requirement {probe}.\n"),)}
+
+            def defaultTestResult(self):
+                return _Recording()
+
+            def test_early(self) -> None:
+                return None
+
+        _L("test_early").run()
+        self.assertEqual(events, ["startTestRun", "start", "fail", "stop", "stopTestRun"])
+
+    def test_twin_must_report_the_declared_token_itself(self) -> None:
+        # 3b64 round 6 (codex): a twin rendering 'V9.9.90' is refused statically, and a report
+        # naming only a longer identifier does not satisfy the helper.
+        from unittest.mock import Mock
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "ASVS requirement {probe}0.\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' in the twin is not a whole token at "
+             "its placeholder once rendered"])
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n",
+                                                      "```\nASVS {probe}\n```\n")),
+            ["TEST-PROBE-TWIN: runTest[0]: asvs 'V9.9.9' in the twin sits on a line the engine "
+             "never reads (a fenced block)"])
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS 3.0.1 {probe}.\n")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "x.md:1: 'V9.9.90' is not valid\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+
+    def test_helper_refuses_a_twin_the_run_does_not_report(self) -> None:
+        # 3b64 round 4 (claude, codex): the helper refuses when the twin is not reported (here
+        # the run callable exits 0), before running the template.
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases(
+            "asvs", "V9.9.9", "```\nASVS\n```\n{probe}\n", "```\nASVS\n```\nThe {probe}\n")
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "OK\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+        run.assert_called_once_with("```\nASVS\n```\nThe V9.9.9\n")
+
+    def test_helper_refuses_a_control_that_does_not_name_the_token(self) -> None:
+        # 3b64 round 3 (codex): a non-zero exit about something else is not a report of the token.
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "other finding\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+        run.assert_called_once_with("ASVS requirement V9.9.9.\n")
+
+    def test_probe_location_follows_the_engine_line_model(self) -> None:
+        # 3b64 round 2 (claude, codex): a fenced probe is never read; a bare CR is a line break.
+        self.assertEqual(
+            identifier_scope_probe_issues(self._cases("asvs", "V9.9.9", "```\nASVS {probe}\n```\n")),
+            ["TEST-PROBE-UNFLAGGABLE: runTest[0]: asvs 'V9.9.9' sits on a line the engine "
+             "never reads (a fenced block)"],
+        )
+        self.assertEqual(identifier_scope_probe_issues(
+            self._cases("pf", "CT.PO-P04", "{probe}\rto P4")), [])
+
+    def test_stale_registry_keys_are_reported(self) -> None:
+        class _Stale(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {
+                "test_gone": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),),
+                "helper": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),),
+                "test_attr": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),),
+            }
+            test_attr = 3
+
+            def helper(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+        self.assertEqual(scope_probe_registry_issues({"_Stale": _Stale}), [
+            "TEST-PROBE-METHOD: _Stale.test_gone",
+            "TEST-PROBE-METHOD: _Stale.helper",
+            "TEST-PROBE-METHOD: _Stale.test_attr",
+        ])
+
+    def test_a_mentioned_or_unreached_call_does_not_count(self) -> None:
+        class _Mentions(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {
+                "test_comment": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),),
+                "test_branch": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),),
+            }
+
+            def test_comment(self) -> None:
+                # self.assertIdentifierScopeProbes(run)
+                self.assertTrue("assertIdentifierScopeProbes")
+
+            def test_branch(self) -> None:
+                if False:
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_return(self) -> None:
+                return
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            @unittest.skip("x")
+            def test_skipped(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_swallowed(self) -> None:
+                try:
+                    self.assertIdentifierScopeProbes(lambda body: None)
+                except AssertionError:
+                    pass
+
+            def test_with(self) -> None:
+                with self.subTest("wrapped"):
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_with_unreached(self) -> None:
+                with self.subTest("wrapped"):
+                    return
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_suppressed(self) -> None:
+                import contextlib
+                with contextlib.suppress(AssertionError):
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_raise(self) -> None:
+                raise unittest.SkipTest("x")
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_try(self) -> None:
+                try:
+                    pass
+                except ValueError:
+                    pass
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_if_return(self) -> None:
+                if True:
+                    return
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_loop_raise(self) -> None:
+                for _ in (1,):
+                    raise unittest.SkipTest("x")
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_skip_call(self) -> None:
+                self.skipTest("x")
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_after_harmless_if(self) -> None:
+                if True:
+                    value = 1
+                self.assertIdentifierScopeProbes(lambda body: value)
+
+            def test_exit_in_argument(self) -> None:
+                self.assertIdentifierScopeProbes(self.skipTest("x"))
+
+            def test_exit_in_subtest_argument(self) -> None:
+                with self.subTest(label=self.skipTest("x")):
+                    self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_generator(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: None)
+                yield None
+
+            def test_local_runner(self) -> None:
+                def run(body):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
+            def test_lambda_runner(self) -> None:
+                self.assertIdentifierScopeProbes(lambda body: self.fail("x") if body is None else None)
+
+            def test_nested_lambda_runner(self) -> None:
+                # The lambda is only passed on, never called here, so its fail() is deferred.
+                self.assertIdentifierScopeProbes(dict(run=lambda body: self.fail("x"))["run"])
+
+            def test_class_body_exit(self) -> None:
+                class _S:
+                    raise unittest.SkipTest("x")
+                self.assertIdentifierScopeProbes(lambda body: None)
+
+            def test_default_exit(self) -> None:
+                def run(body, skip=self.skipTest("x")):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
+            def test_decorator_exit(self) -> None:
+                @self.skipTest
+                def run(body):
+                    return None
+                self.assertIdentifierScopeProbes(run)
+
+        _Mentions.IDENTIFIER_SCOPE_PROBES = {
+            name: (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),)
+            for name in ("test_comment", "test_branch", "test_after_return", "test_skipped",
+                         "test_swallowed", "test_with", "test_with_unreached", "test_suppressed",
+                         "test_after_raise", "test_after_try", "test_after_if_return",
+                         "test_after_loop_raise", "test_after_skip_call", "test_after_harmless_if",
+                         "test_exit_in_argument", "test_exit_in_subtest_argument", "test_generator",
+                         "test_local_runner", "test_lambda_runner", "test_nested_lambda_runner",
+                         "test_class_body_exit",
+                         "test_default_exit", "test_decorator_exit")
+        }
+        self.assertEqual(scope_probe_registry_issues({"_Mentions": _Mentions}), [
+            "TEST-PROBE-UNUSED: _Mentions.test_comment never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_branch never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_return never runs its probes",
+            "TEST-PROBE-SKIP-MARKED: _Mentions.test_skipped is skip-marked and never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_swallowed never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_with_unreached never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_suppressed never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_raise never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_try never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_if_return never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_loop_raise never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_after_skip_call never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_exit_in_argument never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_exit_in_subtest_argument never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_generator never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_class_body_exit never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_default_exit never runs its probes",
+            "TEST-PROBE-UNUSED: _Mentions.test_decorator_exit never runs its probes",
+        ])
+
+    def test_declared_probes_must_be_run(self) -> None:
+        class _Declares(LinterTestCase):
+            IDENTIFIER_SCOPE_PROBES = {"test_x": (("asvs", "V9.9.9", "ASVS {probe}.", "ASVS requirement {probe}.\n"),)}
+
+            def test_x(self) -> None:
+                self.assertTrue(True)
+
+        self.assertEqual(scope_probe_registry_issues({"_Declares": _Declares}),
+                         ["TEST-PROBE-UNUSED: _Declares.test_x never runs its probes"])
+
+    def test_bad_declarations_fail_with_exact_rules(self) -> None:
+        examples = (
+            ({"runTest": ()}, ["TEST-PROBE-EMPTY: runTest"]),
+            (self._cases("typo", "V9.9.9"),
+             ["TEST-PROBE-CATALOGUE: runTest[0]: unknown 'typo'"]),
+            (self._cases("asvs", "garbage"),
+             ["TEST-PROBE-TOKEN: runTest[0]: malformed asvs 'garbage'"]),
+            (self._cases("asvs", "V9.9.9", "no placeholder"),
+             ["TEST-PROBE-TEMPLATE: runTest[0]: expected one {probe} placeholder"]),
+            (self._cases("asvs", "V9.9.9", "{probe} and {probe}"),
+             ["TEST-PROBE-TEMPLATE: runTest[0]: expected one {probe} placeholder"]),
+        )
+        for cases, expected in examples:
+            with self.subTest(cases=cases):
+                self.assertEqual(identifier_scope_probe_issues(cases), expected)
+
+    def test_helper_rejects_real_id_before_running_linter(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V1.6")
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "OK\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertEqual(
+            str(caught.exception),
+            "TEST-PROBE-VALID-ID: runTest[0]: asvs 'V1.6' exists in the held catalogue",
+        )
+        run.assert_not_called()
+
+    def test_helper_renders_the_guarded_token(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases(
+            "asvs", "V9.9.9", "ASVS V1.2.4; other version {probe}\n"
+        )
+        run = Mock(side_effect=[subprocess.CompletedProcess([], 1, "'V9.9.9' finding\n", ""),
+                                subprocess.CompletedProcess([], 0, "OK\n", "")])
+        case.assertIdentifierScopeProbes(run)
+        self.assertEqual([c.args[0] for c in run.call_args_list],
+                         ["ASVS requirement V9.9.9.\n", "ASVS V1.2.4; other version V9.9.9\n"])
+
+    def test_helper_refuses_a_run_callable_that_cannot_report(self) -> None:
+        # 3b64 round 2 (claude): a run callable in report mode (or on an exempt path) exits 0
+        # whatever it finds, which would make every probe pass.
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
+        run = Mock(return_value=subprocess.CompletedProcess([], 0, "'V9.9.9' finding\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertTrue(str(caught.exception).startswith("TEST-PROBE-CONTROL: asvs 'V9.9.9'"))
+        run.assert_called_once_with("ASVS requirement V9.9.9.\n")
+
+    def test_helper_still_rejects_a_linter_finding(self) -> None:
+        from unittest.mock import Mock
+        case = LinterTestCase()
+        case.IDENTIFIER_SCOPE_PROBES = self._cases("asvs", "V9.9.9", "ASVS {probe}.")
+        run = Mock(return_value=subprocess.CompletedProcess([], 1, "'V9.9.9' finding\n", ""))
+        with self.assertRaises(AssertionError) as caught:
+            case.assertIdentifierScopeProbes(run)
+        self.assertEqual(
+            str(caught.exception),
+            "TEST-PROBE-FINDING: asvs 'V9.9.9': exit 1\n'V9.9.9' finding\n",
+        )
+
+    def test_meta_test_detects_a_real_id_inserted_into_an_actual_probe(self) -> None:
+        from unittest.mock import patch
+        cls = AlignmentCitationExistenceTests
+        cases = dict(cls.IDENTIFIER_SCOPE_PROBES)
+        name = next(n for n, p in sorted(cases.items())
+                    if any(f == "asvs" for f, *_ in p))
+        probes = list(cases[name])
+        index = next(i for i, (f, *_) in enumerate(probes) if f == "asvs")
+        family, _, template, twin = probes[index]
+        probes[index] = (family, "V1.6", template, twin)
+        cases[name] = tuple(probes)
+        meta = IdentifierScopeProbeMetaTests(
+            "test_registered_scope_probes_use_absent_identifiers"
+        )
+        with patch.object(cls, "IDENTIFIER_SCOPE_PROBES", cases):
+            with self.assertRaises(AssertionError) as caught:
+                meta.test_registered_scope_probes_use_absent_identifiers()
+        self.assertEqual(
+            str(caught.exception),
+            "AlignmentCitationExistenceTests: TEST-PROBE-VALID-ID: "
+            f"{name}[{index}]: asvs 'V1.6' exists in the held catalogue",
+        )
+
+    def test_each_migrated_token_is_reported_in_live_asvs_context(self) -> None:
+        mod = load_linter_module(
+            "tools/lint-alignment-citation-existence.py", "_scope_probe_live_control"
+        )
+        tokens = sorted({
+            token
+            for probes in AlignmentCitationExistenceTests.IDENTIFIER_SCOPE_PROBES.values()
+            for family, token, *_ in probes
+            if family == "asvs"
+        })
+        for token in tokens:
+            with self.subTest(token=token):
+                findings = []
+                mod._engine()._check_asvs(
+                    f"ASVS requirement {token}.\n", 1, "probe.md", None, False, findings
+                )
+                kind = "requirement" if token.count(".") == 2 else "section"
+                self.assertEqual(findings, [
+                    f"probe.md:1: '{token}' is not a valid OWASP ASVS (5.0.0 and 4.0.3) "
+                    f"{kind} identifier (no such {kind} in any held edition)"
+                ])
 
 
 class AIQTVendorDigestTests(LinterTestCase):
