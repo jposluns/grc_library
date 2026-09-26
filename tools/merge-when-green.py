@@ -11,6 +11,8 @@ it reads the PR's ``statusCheckRollup``, REFUSES unless every check is terminal-
 zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE,
 as does a required check (REQUIRED_CHECKS, or --require) that is missing as a CheckRun or did not conclude
 SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
+The merge is pinned to the head commit it evaluated (gh pr merge --match-head-commit), so a push
+landing after the read is never merged unchecked; a missing head SHA refuses (3b106).
 
 It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
 discipline); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
@@ -163,37 +165,59 @@ def _self_test() -> int:
     checks.append(("collision-reason-says-collision", "name collision" in r_coll))
     # main() passes the default required checks through (3b104 QA r2): drive it with a stubbed gh.
     import contextlib as _cl, io as _io
-    with _cl.redirect_stderr(_io.StringIO()):
-        try:
-            main(["merge-when-green.py", "1", "--require-n", "--dry-run"])
-            abbrev_refused = False
-        except SystemExit as exc:
-            abbrev_refused = exc.code == 2
-    checks.append(("abbreviated-require-none-refused", abbrev_refused))
     lint = REQUIRED_CHECKS[0]
     rollups = {
         "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
         "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
     }
+    head = "a" * 40
+    view = lambda r, h=head: json.dumps({"state": "OPEN", "statusCheckRollup": r, "headRefOid": h})
     real_gh = globals()["gh"]
     try:
+        # Inside the stub, so even a mutated file that allows abbreviations never calls the real gh (3b104 r6).
+        globals()["gh"] = lambda *a: view(rollups["green"])
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            try:
+                main(["merge-when-green.py", "1", "--require-n", "--dry-run"])
+                abbrev_refused = False
+            except SystemExit as exc:
+                abbrev_refused = exc.code == 2
+        checks.append(("abbreviated-require-none-refused", abbrev_refused))
         for label, want_rc in (("skipped", 1), ("green", 0)):
-            globals()["gh"] = lambda *a, _r=rollups[label]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+            globals()["gh"] = lambda *a, _r=rollups[label]: view(_r)
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run"])
             checks.append((f"main-default-required-{label}", rc == want_rc))
         # --require replaces the list and must be enforced; --require-none must reach evaluate() as ()
         # (3b104 QA r3): a custom name missing from a green rollup refuses, and require-none passes it.
-        globals()["gh"] = lambda *a, _r=rollups["green"]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+        globals()["gh"] = lambda *a: view(rollups["green"])
         for label, flags, want_rc in (("require-custom-missing", ["--require", "Custom check"], 1),
                                       ("require-custom-present", ["--require", lint], 0)):
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))
-        globals()["gh"] = lambda *a, _r=rollups["skipped"]: json.dumps({"state": "OPEN", "statusCheckRollup": _r})
+        globals()["gh"] = lambda *a: view(rollups["skipped"])
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
             rc = main(["merge-when-green.py", "1", "--dry-run", "--require-none"])
         checks.append(("main-require-none-skips-required", rc == 0))
+        # 3b106: the real merge call carries the evaluated head; a missing or short SHA refuses.
+        calls = []
+        def rec(*a):
+            calls.append(a)
+            return view(rollups["green"]) if a[:2] == ("pr", "view") else ""
+        globals()["gh"] = rec
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            rc = main(["merge-when-green.py", "1"])
+        merges = [a for a in calls if a[:2] == ("pr", "merge")]
+        checks.append(("merge-pins-evaluated-head", rc == 0 and len(merges) == 1
+                       and list(merges[0][-2:]) == ["--match-head-commit", head]))
+        for label, bad in (("missing", None), ("short", "abc123")):
+            calls.clear()
+            globals()["gh"] = lambda *a, _b=bad: (json.dumps({"state": "OPEN", "statusCheckRollup": rollups["green"],
+                                                              "headRefOid": _b}) if a[:2] == ("pr", "view") else "")
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1"])
+            checks.append((f"head-{label}-refused", rc == 1))
     finally:
         globals()["gh"] = real_gh
     with _cl.redirect_stderr(_io.StringIO()):
@@ -246,7 +270,7 @@ def main(argv: list[str]) -> int:
     repo_args = ["--repo", args.repo] if args.repo else []
     try:
         raw = gh("pr", "view", args.pr, *repo_args,
-                 "--json", "statusCheckRollup,number,title,state")
+                 "--json", "statusCheckRollup,number,title,state,headRefOid")
         view = json.loads(raw)
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
         print(f"ERROR: gh pr view failed: {exc}", file=sys.stderr)
@@ -254,16 +278,23 @@ def main(argv: list[str]) -> int:
     if view.get("state") != "OPEN":
         print(f"REFUSE: PR #{args.pr} is {view.get('state')}, not OPEN.", file=sys.stderr)
         return 1
+    # The merge is pinned to the head these checks describe, so a push landing between this read and
+    # the merge cannot be merged unchecked (3b106).
+    head = view.get("headRefOid")
+    if not (isinstance(head, str) and len(head) == 40 and all(ch in "0123456789abcdef" for ch in head)):
+        print(f"REFUSE: PR #{args.pr} did not report a full head commit SHA ({head!r}); cannot pin the merge.",
+              file=sys.stderr)
+        return 1
     required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
     green, reason = evaluate(view.get("statusCheckRollup") or [], required)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
         return 1
-    print(f"PR #{args.pr} is GREEN: {reason}")
+    print(f"PR #{args.pr} is GREEN at {head[:12]}: {reason}")
     if args.dry_run:
         print("--dry-run: not merging.")
         return 0
-    merge = ["pr", "merge", args.pr, *repo_args, f"--{args.merge_method}"]
+    merge = ["pr", "merge", args.pr, *repo_args, f"--{args.merge_method}", "--match-head-commit", head]
     if args.admin:
         merge.append("--admin")
     try:
