@@ -58,6 +58,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import signal
 import subprocess
@@ -397,10 +398,13 @@ def main(argv: list[str] | None = None) -> int:
                 except OSError:
                     is_private = False
             if not is_private:
-                print("ERROR: --update-state requires a private maintainer store (the "
-                      "operational store /opt/<project>/private or the grc_library_private "
-                      "sibling); pass an explicit --state only for intentional adopter-local "
-                      "state.", file=sys.stderr)
+                # Name the paths actually looked for, not a placeholder (3b98).
+                store = os.environ.get("GRC_STORE") or str(REPO_ROOT.parent / "private")
+                sibling = REPO_ROOT.parent / "grc_library_private"
+                print("ERROR: --update-state requires a private maintainer store (looked for "
+                      f"the operational store {store} and the private sibling {sibling}; found "
+                      f"{', '.join(map(str, stores)) or 'neither'}); pass an explicit --state "
+                      "only for intentional adopter-local state.", file=sys.stderr)
                 return 2
 
     # Adopter graceful-degradation (3.91 (closing PR #1011)): with no reachable reference base (the

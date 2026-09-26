@@ -26811,3 +26811,21 @@ class RepoRelativeDefaultPathTests(unittest.TestCase):
             expected = "touch " + shlex.quote(str(mod._sentinel_path()))
         self.assertNotIn("<repo-parent>", msg)
         self.assertIn(expected, msg)
+
+
+class RealPathMessageTests(unittest.TestCase):
+    """3b98: runtime messages name the real destination, never a placeholder path."""
+
+    def test_inbox_drops_names_this_months_folder(self):
+        import datetime
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            (Path(d) / "inbox").mkdir()
+            (Path(d) / "inbox" / "note.md").write_text("x")
+            r = subprocess.run([sys.executable, str(REPO_ROOT / "tools" / "audit-inbox-drops.py"),
+                                "--root", d], capture_output=True, text=True)
+            month = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m")
+            self.assertIn(f"{Path(d) / 'done' / 'drops' / month}/", r.stdout, r.stdout + r.stderr)
+            self.assertNotIn("<YYYY-MM>", r.stdout)
+

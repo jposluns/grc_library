@@ -135,7 +135,9 @@ def report(root: Path, oneline: bool) -> int:
         for p in sorted(unprocessed, key=age_days, reverse=True):
             kb = size_kb(p)
             print(f"  {age_days(p):5.1f}d  {kb:7.1f}KB  {p.name}")
-        print("\n  Process each, then MOVE it to done/drops/<YYYY-MM>/ so the location records")
+        month = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m")
+        # The real destination for this month, not a placeholder (3b98).
+        print(f"\n  Process each, then MOVE it to {Path(root) / 'done' / 'drops' / month}/ so the location records")
         print("  that it was read. Do not infer processed-ness from age or from a grep.")
     else:
         print("\n  No unprocessed drops.")
@@ -234,7 +236,7 @@ def self_test() -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--root", help="file-drop exchange root (default $GRC_WORKING or the VM path)")
+    ap.add_argument("--root", help="file-drop exchange root (default $GRC_WORKING, else <repo-parent>/grc_working)")
     ap.add_argument("--oneline", action="store_true", help="one short line, for a statusline")
     ap.add_argument("--self-test", action="store_true")
     a = ap.parse_args(argv)
