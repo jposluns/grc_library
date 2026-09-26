@@ -104,17 +104,6 @@ class _Snapshot:
             raise ValueError(f"{rel}: invalid TOML: {exc}") from exc
 
 
-def _strings(value):
-    if isinstance(value, str):
-        yield value
-    elif isinstance(value, dict):
-        for child in value.values():
-            yield from _strings(child)
-    elif isinstance(value, list):
-        for child in value:
-            yield from _strings(child)
-
-
 def _schema(data, label):
     value = data.get("schema_version")
     if type(value) is not int or value < 1:
@@ -137,36 +126,14 @@ def _registers(snapshot, manifest):
     return result
 
 
-def _scope(snapshot, manifest):
-    selected = {_MANIFEST, _WAIVERS}
-    pending = [manifest]
-    inspected = {_MANIFEST, _WAIVERS}
-    while pending:
-        for value in _strings(pending.pop()):
-            if value in ("", "."):
-                continue
-            path = PurePosixPath(value)
-            if path.is_absolute() or ".." in path.parts or "\\" in value:
-                continue
-            # Normalize as the compiler resolves it, so `./core/x.md` or `core//x.md` stays in
-            # scope (3b81 QA r2, codex).
-            value = path.as_posix()
-            if value == ".":
-                continue
-            matches = {
-                rel for rel in snapshot.files
-                if rel == value or rel.startswith(value.rstrip("/") + "/")
-            }
-            selected.update(matches)
-            for rel in sorted(matches - inspected):
-                inspected.add(rel)
-                if rel.endswith(".toml"):
-                    pending.append(snapshot.toml(rel))
-    selected.update(
+def _scope(snapshot):
+    # Every file in the pack is a release surface except README.md files and __pycache__.
+    # Following references from the manifest let pack-root or noncanonical references escape
+    # (3b81 QA r2 and r3, codex), so the scope no longer depends on them.
+    return {
         rel for rel in snapshot.files
-        if _engine_path(rel) or _clause_path(rel)
-    )
-    return selected - {"README.md"}
+        if PurePosixPath(rel).name != "README.md" and "__pycache__" not in PurePosixPath(rel).parts
+    }
 
 
 def _engine_path(rel):
@@ -516,7 +483,7 @@ def _evaluate(root, pack_root, base):
             {k: v for k, v in new.items() if k != "schema_version"},
             new_rel, emit,
         )
-    scope = _scope(snapshots[0], manifests[0]) | _scope(snapshots[1], manifests[1])
+    scope = _scope(snapshots[0]) | _scope(snapshots[1])
     for rel in sorted(scope):
         old, new = (snapshot.read(rel) for snapshot in snapshots)
         if old == new and snapshots[0].modes.get(rel) == snapshots[1].modes.get(rel):
