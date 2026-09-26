@@ -148,6 +148,11 @@ def _scope(snapshot, manifest):
             path = PurePosixPath(value)
             if path.is_absolute() or ".." in path.parts or "\\" in value:
                 continue
+            # Normalize as the compiler resolves it, so `./core/x.md` or `core//x.md` stays in
+            # scope (3b81 QA r2, codex).
+            value = path.as_posix()
+            if value == ".":
+                continue
             matches = {
                 rel for rel in snapshot.files
                 if rel == value or rel.startswith(value.rstrip("/") + "/")

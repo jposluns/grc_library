@@ -289,6 +289,15 @@ class ReleaseDeltaTests(unittest.TestCase):
             self.assertEqual(code, 2, output)
             self.assertIn("[release].waivers must be", output)
 
+    def test_dot_slash_reference_stays_in_scope(self):
+        # 3b81 QA r2 (codex): a reference written ./path is the same file to the compiler.
+        with self.repo() as repo:
+            repo.replace("core/clauses.toml", 'source = "core/policies/note.md"', 'source = "./core/policies/note.md"')
+            repo.replace("gensrc.toml", '["core/policies/note.md"]', '["./core/policies/note.md"]')
+            repo.checkpoint()
+            repo.replace("core/policies/note.md", "Pack policy.", "Changed policy.")
+            self.assertIn("core/policies/note.md", self.expect(repo, "PATCH"))
+
     def test_engine_public_api_and_configuration(self):
         cases = [
             ("def public(", "def _public(", "MAJOR"),
