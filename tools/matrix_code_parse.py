@@ -159,7 +159,8 @@ def _self_test() -> int:
             # DEL is ASCII, so it does not stop a read
             self.assertEqual(CODE_RE.findall("A.5.1\x7f DSP-16\x7f"), ["A.5.1", "DSP-16"])
             self.assertEqual(expand_codes("STA-01\u200b to 03"), set())
-            self.assertEqual(expand_codes("STA-01\u00a0to 03"), set())  # a no-break space ends the ASCII token
+            # a no-break space after the start code ends its ASCII token, so the range is not read
+            self.assertEqual(expand_codes("STA-01\u00a0to 03"), set())
             self.assertEqual(expand_codes("STA-01 to 03"), {"STA-01", "STA-02", "STA-03"})
             self.assertEqual(CODE_RE.findall("DSS05. 3 A.5.1 2 A.5.1.a"),
                              ["DSS05", "A.5.1", "A.5.1"])
