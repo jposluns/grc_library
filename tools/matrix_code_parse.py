@@ -25,8 +25,8 @@ import re
 # Shared by CSA_CODE_RE and by the CSA branch of CODE_RE, so both aids parse one canonical CSA
 # shape. A code's own digits are [0-9], not \d: \d matches any Unicode decimal digit, so a
 # document showing Arabic-Indic digits would read as carrying the ASCII code (3b117). A GUARD that
-# rejects a match (a sub-clause lookahead) keeps the Unicode-wide \d, since narrowing a rejecting
-# guard makes it reject less.
+# rejects a match must not be narrowed the same way, since narrowing a rejecting guard makes it
+# reject less; the COBIT and ISO guards are closed on the ASCII side instead (3b118, below).
 CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
 
 # Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE; identical on ASCII input,
@@ -48,24 +48,20 @@ CSA_RANGE_RE = re.compile(
 # (APO12, DSS05.03), or an ISO/IEC 27001:2022 Annex A control (A.5.1, A.7.10,
 # A.8.34). The CSA branch is CSA_CODE_CORE, so both aids share one canonical CSA
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
-# What a REJECTING guard treats as a digit (3b118): \d (Unicode decimal digits) plus every character
-# str.isdigit() accepts that is not decimal (superscripts, circled and other No-category digits), so
-# DSS05.0\u00b3 or A.5.1.\u00b2 is not read as the ASCII code before it. Built from the running
-# Python's Unicode tables; none of these characters is ASCII, so ASCII behaviour is unchanged.
-_NON_DECIMAL_DIGITS = "".join(
-    re.escape(chr(c)) for c in range(0x80, 0x110000) if chr(c).isdigit() and not chr(c).isdecimal())
-_GUARD_DIGIT = "(?:\\d|[" + _NON_DECIMAL_DIGITS + "])"
-# Non-ASCII whitespace between a code and a further digit keeps the token together for the guards
-# (DSS05.\u00a0\u0663); ASCII whitespace still ends it, as before.
-_WIDE_SPACE = r"[^\S\x00-\x7f]"
-
-# a further digit, possibly after non-ASCII whitespace
-_GUARD_NEXT = _WIDE_SPACE + "*" + _GUARD_DIGIT
+# The COBIT and ISO guards are CLOSED on the ASCII side (3b118 QA r1): a guarded code is read only
+# when the character right after its ASCII token (a run of ASCII digits and dots) is ASCII or the
+# end of the text. Any non-ASCII character there (a digit of any kind, a superscript, a no-break
+# space, a format character, a non-ASCII dot or separator) means the token continues in a form this
+# parser does not read, so the code is not taken from it. Enumerating Unicode classes kept leaving
+# new gaps; this closes the class. ASCII behaviour is unchanged, and no live corpus document has a
+# COBIT or ISO code followed by a non-ASCII character (measured 2026-09-27), so live output is
+# unchanged too.
+_NON_ASCII = r"[^\x00-\x7f]"
 
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)(?![0-9.]*(?![0-9.])" + _GUARD_NEXT + r")[0-9]{2}(?:\.[0-9]{2})?"
-    r"|A\.[5-8]\.[0-9]{1,2}(?!" + _GUARD_NEXT + r"|\." + _GUARD_NEXT + r"))\b"
+    r"|(?:EDM|APO|BAI|DSS|MEA)(?![0-9.]*" + _NON_ASCII + r")[0-9]{2}(?:\.[0-9]{2})?"
+    r"|A\.[5-8]\.[0-9]{1,2}(?!\.?(?:[0-9]|" + _NON_ASCII + r")))\b"
 )
 
 
@@ -146,10 +142,14 @@ def _self_test() -> int:
                 self.assertEqual(CODE_RE.findall(s), [], s)
             self.assertEqual(CODE_RE.findall("DSS05.03.1"), ["DSS05.03"])
 
-        def test_non_decimal_digits_and_wide_space(self):
-            # 3b118: No-category digits and non-ASCII whitespace do not let a guard pass.
+        def test_guards_closed_on_the_ascii_side(self):
+            # 3b118: any non-ASCII character right after a guarded code's ASCII token stops the
+            # read: non-decimal digits, no-break spaces before a digit or a dot, format characters,
+            # non-ASCII dots and separators, a supplementary-plane digit, and non-digit numerics.
             for s in ("DSS05.0\u00b3", "A.5.1.\u00b2", "APO12\u2460", "A.5.1\u00b9",
-                      "DSS05.\u00a0\u0663", "A.5.1.\u3000\u00b2", "A.5.1\u00a0\u0662"):
+                      "DSS05.\u00a0\u0663", "A.5.1.\u3000\u00b2", "A.5.1\u00a0\u0662",
+                      "DSS05\u00a0.\u00b3", "A.5.1\u00a0.\u00b2", "DSS05.\u200b3", "A.5.1\uff0e2",
+                      "DSS05.0\U0001f100", "A.5.1\u2028.2", "APO12\u2160"):
                 self.assertEqual(CODE_RE.findall(s), [], ascii(s))
             # ASCII behaviour is unchanged: ASCII space still ends a token.
             self.assertEqual(CODE_RE.findall("DSS05. 3 A.5.1 2 A.5.1.a"),
