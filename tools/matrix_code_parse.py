@@ -20,13 +20,13 @@ from __future__ import annotations
 
 import re
 
-# Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose
-# first character is a letter and remainder letters or ampersand (so A&A / I&S
-# match), a hyphen, two ASCII digits. Shared by CSA_CODE_RE and by the CSA branch of
-# CODE_RE, so both aids parse one canonical CSA shape. A code's own digits are [0-9], not
-# \d: \d matches any Unicode decimal digit, so a document showing Arabic-Indic digits would read
-# as carrying the ASCII code (3b117). A GUARD that rejects a match (a sub-clause lookahead)
-# keeps the Unicode-wide \d, since narrowing a rejecting guard makes it reject less.
+# Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose first character
+# is a letter and remainder letters or ampersand (so A&A / I&S match), a hyphen, two ASCII digits.
+# Shared by CSA_CODE_RE and by the CSA branch of CODE_RE, so both aids parse one canonical CSA
+# shape. A code's own digits are [0-9], not \d: \d matches any Unicode decimal digit, so a
+# document showing Arabic-Indic digits would read as carrying the ASCII code (3b117). A GUARD that
+# rejects a match (a sub-clause lookahead) keeps the Unicode-wide \d, since narrowing a rejecting
+# guard makes it reject less.
 CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
 
 # Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE; identical on ASCII input,
@@ -125,9 +125,10 @@ def _self_test() -> int:
             self.assertEqual(expand_codes("STA-\u0660\u0661 to 03"), set())
             self.assertEqual(CODE_RE.findall("A.5.1.\u0662 A.5.1.\uff12 A.5.1.2"), [])
             self.assertEqual(CODE_RE.findall("DSS05.\u0660\u0663 APO12.\u0661\u0662"), [])
-            # a guard right after the prefix sees every ASCII digit and dot, so a mixed practice or a trailing
-            # non-ASCII sub-part cannot backtrack to the ASCII objective (3b117 QA r2)
-            for s in ("DSS05.0\u0663", "APO12.0\uff12", "DSS05.03.\u0661", "STA-APO15.1\u0663", "DSS05\u0663"):
+            # a guard right after the prefix sees every ASCII digit and dot, so a mixed practice or
+            # a trailing non-ASCII sub-part cannot backtrack to the ASCII objective (3b117 QA r2)
+            for s in ("DSS05.0\u0663", "APO12.0\uff12", "DSS05.03.\u0661",
+                      "STA-APO15.1\u0663", "DSS05\u0663"):
                 self.assertEqual(CODE_RE.findall(s), [], s)
             self.assertEqual(CODE_RE.findall("DSS05.03.1"), ["DSS05.03"])
             self.assertEqual(CODE_RE.findall("DSS05.03 DSS05.3"), ["DSS05.03", "DSS05"])
