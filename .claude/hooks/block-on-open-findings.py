@@ -312,7 +312,9 @@ TERMINAL = ("fixed", "routed", "refuted", "accepted")
 # private `P-N.M` item (`P-1.71`), or a `TODO`-qualified item. The private `P-` namespace is a
 # first-class routing target (e.g. P-1.60/P-1.61); rejecting it read a valid `ROUTED P-1.71` as
 # undispositioned (self-caught 2026-09-05, #2016). `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
-_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
+# The private backlog's letter-series ids (3b108, 3b50b2e1) are refs too: routing to one was read as
+# undispositioned before (3b108).
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?|\d+[a-z]\d+(?:[a-z]\d*)*)"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
     r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
@@ -784,6 +786,11 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
+    # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
+    ck("ROUTED 3b108 is dispositioned", disposition_valid("ROUTED 3b108 (next PR)"), True)
+    ck("FIXED 3b50b2e1 is dispositioned", disposition_valid("FIXED 3b50b2e1"), True)
+    ck("ROUTED 3b alone is not", disposition_valid("ROUTED 3b later"), False)
+    ck("ROUTED b12 is not", disposition_valid("ROUTED b12"), False)
     # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated;
     # detection over-gates by intent (QA r1: shell parsing could not be made complete).
     for c in ("python3 tools/merge-when-green.py 12 --repo o/r --admin",
