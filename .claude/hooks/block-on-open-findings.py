@@ -18,8 +18,9 @@ A row leaves the ledger only via FIXED, ROUTED, REFUTED or ACCEPTED, so "no disp
 primary blocking condition; the one other blocking condition is a MIS-FILED row (below).
 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
-whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (so it
-misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), or any command
+whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose
+shell tokens run `gh`, `pr`, `create` or `merge` in that order (so a quoted `gh pr 'merge'` is caught and
+`echo "gh pr merge"` is gated; a verb held in a variable still evades; 3b112), or any command
 that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
 see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
@@ -517,12 +518,44 @@ def invokes_merge_tool(cmd: str) -> bool:
     return True
 
 def is_blocking_command(cmd: str) -> bool:
-    """PURE. After whitespace collapse, does the command text contain the case-sensitive substring
-    `gh pr create` or `gh pr merge`, or mention tools/merge-when-green.py other than a simple direct
-    --dry-run or --self-test (3b108; see invokes_merge_tool)?
-    Quote-unaware on the gh half: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
+    """PURE. Does this command open or merge a PR? Three detectors, OR'd, matching
+    block-pr-without-resume-validate.py so the two hooks agree (3b112):
+      (1) the case-sensitive substring `gh pr create` or `gh pr merge` after whitespace collapse
+          (operator-glued and unbalanced-quote forms);
+      (2) the ordered shlex token subsequence `gh` (bare or a path ending /gh), `pr`, `create` or
+          `merge` (quoted subcommands such as gh "pr" merge or gh pr 'merge', and interleaved flags);
+      (3) a mention of tools/merge-when-green.py other than a simple direct --dry-run or --self-test
+          (3b108; see invokes_merge_tool).
+    Over-gating is the safe direction: `echo "gh pr merge"` is gated. RESIDUE: a verb held in a
+    variable (c=merge; gh pr $c) or an alias still evades; a speed bump, not an adversarial control."""
+    if not isinstance(cmd, str):
+        return False
     flat = " ".join(cmd.split())
-    return any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd)
+    if any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd):
+        return True
+    toks = _tokens(cmd)
+    if toks is None:
+        return False  # unparseable is already covered by the substring pass above
+    seen_gh = seen_pr = False
+    for tk in toks:
+        if tk == "gh" or tk.endswith("/gh"):
+            seen_gh, seen_pr = True, False
+        elif seen_gh and tk == "pr":
+            seen_pr = True
+        elif seen_pr and tk in ("create", "merge"):
+            return True
+    return False
+
+
+def _tokens(cmd: str):
+    """PURE. shlex tokens with operators split out and a trailing # comment dropped, as bash does;
+    None on an unparseable command (unbalanced quotes). Same as block-pr-without-resume-validate.py."""
+    try:
+        lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
+        lex.whitespace_split = True
+        return list(lex)
+    except ValueError:
+        return None
 
 
 def decide_exit(rows, ledger_text) -> int:
@@ -802,6 +835,17 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
+    # 3b112: the token detector, matching block-pr-without-resume-validate.py
+    ck("quoted verb blocks (gh pr 'merge')", is_blocking_command("gh pr 'merge' 12 --admin"), True)
+    ck("quoted subcommand blocks (gh \"pr\" create)", is_blocking_command('gh "pr" create --title x'), True)
+    ck("interleaved flag blocks (gh -R o/r pr merge)", is_blocking_command("gh -R o/r pr merge 12"), True)
+    ck("path to gh blocks (/usr/bin/gh pr merge)", is_blocking_command("/usr/bin/gh pr  'merge' 1"), True)
+    ck("glued operator and flag block (gh -R x pr merge&&echo)",
+       is_blocking_command("gh -R x pr merge&&echo ok"), True)
+    ck("quoted gh pr view does not block", is_blocking_command("gh 'pr' view 12"), False)
+    ck("commented-out verb does not block", is_blocking_command("gh pr view 12 # then merge"), False)
+    ck("unbalanced quote falls back to substring only", is_blocking_command("gh 'pr view 12"), False)
+    ck("non-string does not block", is_blocking_command(None), False)
     # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
     ck("ROUTED 3b108 is dispositioned", disposition_valid("ROUTED 3b108 (next PR)"), True)
     ck("FIXED 3b50b2e1 is dispositioned", disposition_valid("FIXED 3b50b2e1"), True)
