@@ -59,6 +59,9 @@ block-idle-stop-with-actionable-backlog.py (retained, de-registered).
 Paths follow the checkout: GRC_STORE or <repo-parent>/private holds the lease; GRC_DROP_ROOT or
 <repo-parent>/grc_working holds the escape. Relative overrides resolve against the repo root.
 Reconciles to the fleet-canonical form when the guardrails/AIQT pack ships it.
+GRC NOTE (3b113 QA r1): the live-group count below is scoped by uid and ORCH_OWNER, not by session or
+repository. grc's orchestrator and its workers share one uid, so groups recorded by another grc session
+(a second orchestrator, or a worker dispatching workers of its own) count toward the floor too.
 
 Dispatch-and-await is separately observed through the broker's per-uid kill registry
 (/run/orch-workers/killreg.<euid>; tools/orch-worker-broker:killreg_record, tools/orch-verify:load_registry).
@@ -418,7 +421,9 @@ def is_orchestrator_session(root):
         owner_uid = os.stat(root).st_uid
     except Exception:
         owner_uid = None
-    return _is_orchestrator(euid, owner_uid, "ORCH_VERIFY_OWNER" in os.environ)
+    # GRC: both fleet worker signals (3b113 QA r1): a worker marked only by its CLAUDE_CONFIG_DIR must not be
+    # armed by a file-based mode record either.
+    return _is_orchestrator(euid, owner_uid, _grc_is_worker())
 
 # ============================================================================
 # END ADAPTER SEAM -- B core below; decision predicates and registry code are unchanged. (GRC:
@@ -1547,8 +1552,13 @@ def _self_test():
                     os.environ["ORCH_VERIFY_OWNER"] = ""  # even an EMPTY marker means a worker exported it
                     self.assertFalse(is_orchestrator_session(d))
                     self.assertEqual(run(d, {"stop_hook_active": False}), 0)
+                    os.environ.pop("ORCH_VERIFY_OWNER", None)
+                    os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orch-worker.example")  # 3b113 QA r1
+                    self.assertFalse(is_orchestrator_session(d))
+                    self.assertEqual(run(d, {"stop_hook_active": False}), 0)
                 finally:
                     os.environ.pop("ORCH_VERIFY_OWNER", None)
+                    os.environ.pop("CLAUDE_CONFIG_DIR", None)
 
         # ---- payload robustness (uncertain payload -> fail open) ----
         def test_parse_payload(self):
