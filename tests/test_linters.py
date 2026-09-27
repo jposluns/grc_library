@@ -20103,6 +20103,19 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "compound id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
             "hyphen compound": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7-ii residue (2026-09-01)\n", 0),
             "dotted child": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7.1 child (2026-09-01)\n", 0),
+            "lettered id recycled": ("## Q\n- **3b7a fix** x\n", "# DONE\n### PR #1: 3b7a: done (2026-09-01)\n", 1),
+            "tail list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-ups (3b6, 3b7) (2026-09-01)\n", 1),
+            "date prefix recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### 2026-09-25: 3b7 tool made atomic (no PR)\n", 1),
+            "repo prefix recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### grc_library_ref PR #156: 3b7 additions (2026-09-01)\n", 1),
+            "lead parenthetical stays open": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7(closed) wording (2026-09-01)\n", 0),
+            "lead comma list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6, 3b7: residue (2026-09-01)\n", 1),
+            "lead split is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 split (2026-09-01)\n", 0),
+            "colon part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: part d completed (2026-09-01)\n", 0),
+            "backtick source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-up from `3b7` QA (2026-09-01)\n", 0),
+            "destination list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b6/3b7 (2026-09-01)\n", 0),
+            "destination comma list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b8, 3b7 (2026-09-01)\n", 0),
+            "unlisted verb": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: blocks 3b7 (2026-09-01)\n", 0),
+            "creation mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: gate fix (3b7 filed) (2026-09-01)\n", 0),
             "fenced bullet not live": ("## Q\n```\n- **3b7 example** x\n```\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 0),
         }
         for name, (ptodo, done, want) in cases.items():
@@ -20113,6 +20126,10 @@ class TodoNumberPermanenceTests(LinterTestCase):
                            "## Q\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("3b7", out)
+        # An unclosed fence in P-TODO.md hides later bullets, so the gate reports it (design note 1c).
+        rc, out = self._rc("perm-3b120-unclosed", "# TODO\n", "# DONE\n", "## Q\n```\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("unclosed", out)
         # An untagged coded bullet is not an item, so it cannot make a cross-list duplicate.
         rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **RB-6 fix** x\n")
@@ -20132,6 +20149,8 @@ class TodoNumberPermanenceTests(LinterTestCase):
         want = sorted(it[0] for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
         self.assertEqual(sorted(g.parse_live_bullets(text)), want)
         self.assertEqual(want, sorted(["3b7", "P-1.5", "RB-9", "4.6", "3b10"]))
+        # A repeated bullet id keeps every declaring line.
+        self.assertEqual(g.parse_live_bullets("## Q\n- **3b7 a** x\n\n- **3b7 b** y\n"), {"3b7": [2, 4]})
 
 class TodoNumberAllocationRobustnessTests(unittest.TestCase):
     """Gate 91 frozen-allocation invariants beyond the existing --self-test."""
