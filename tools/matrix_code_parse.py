@@ -24,7 +24,7 @@ import re
 # first character is a letter and remainder letters or ampersand (so A&A / I&S
 # match), a hyphen, two ASCII digits. Shared by CSA_CODE_RE and by the CSA branch of
 # CODE_RE, so both aids parse one canonical CSA shape. A code's own digits are [0-9], not
-# \d: \d matches any Unicode digit, so a document showing Arabic-Indic digits would read
+# \d: \d matches any Unicode decimal digit, so a document showing Arabic-Indic digits would read
 # as carrying the ASCII code (3b117). A GUARD that rejects a match (a sub-clause lookahead)
 # keeps the Unicode-wide \d, since narrowing a rejecting guard makes it reject less.
 CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
