@@ -45,11 +45,12 @@ from `grc_library_ref/catalogue.yml`; regenerate on any reference-base change (t
 generator is maintainer-side, never a CI gate, so the public repo stays clonable
 without the private reference sibling).
 
-## Standards (268: 186 free, 82 licensed)
+## Standards (272: 190 free, 82 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
 | CA/Browser Forum Baseline Requirements for the Issuance and Management of Publicly-Trusted Code Signing Certificates, v3.11.0 | v3.11.0 | CA/Browser Forum |  | FREE |
+| CA/Browser Forum Baseline Requirements for the Issuance and Management of Publicly-Trusted S/MIME Certificates, Version 1.0.15 (30 July 2026) | Version 1.0.15, July 30, 2026 (SBR.md in the Forum repository github.com/cabforum/smime) | CA/Browser Forum |  | FREE |
 | CAN/DGSI 101:2025, Ethical Design and Use of Artificial Intelligence by Small and Medium Organizations (2nd edition) | Edition 2, 2025 (DGSI catalogue: Second edition, published 2025) | CAN/DGSI |  | LICENSED |
 | ETSI EN 303 645 V3.1.3, Cyber Security for Consumer Internet of Things: Baseline Requirements |  | ETSI |  | FREE |
 | ETSI EN 304 223 V2.1.1, Baseline Cyber Security Requirements for AI Models and Systems |  | ETSI |  | FREE |
@@ -261,6 +262,9 @@ without the private reference sibling).
 | NIST SP 800-190, Application Container Security Guide |  | NIST |  | FREE |
 | NIST SP 800-193, Platform Firmware Resiliency Guidelines | SP 800-193 (Final, May 2018) | NIST |  | FREE |
 | NIST SP 800-204, Security Strategies for Microservices-based Application Systems |  | NIST |  | FREE |
+| NIST SP 800-204A, Building Secure Microservices-based Applications Using Service-Mesh Architecture | NIST SP 800-204A (May 2020), final | NIST |  | FREE |
+| NIST SP 800-204B, Attribute-based Access Control for Microservices-based Applications Using a Service Mesh | NIST SP 800-204B (August 2021), final | NIST |  | FREE |
+| NIST SP 800-204C, Implementation of DevSecOps for a Microservices-based Application with Service Mesh | NIST SP 800-204C (March 2022), final | NIST |  | FREE |
 | NIST SP 800-204D, Strategies for the Integration of Software Supply Chain Security in DevSecOps CI/CD Pipelines |  | NIST |  | FREE |
 | NIST SP 800-207, Zero Trust Architecture |  | NIST |  | FREE |
 | NIST SP 800-207A, A Zero Trust Architecture Model for Access Control in Cloud-Native Applications in Multi-Cloud Environments |  | NIST |  | FREE |
@@ -318,7 +322,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (313: 269 free, 44 licensed)
+## Frameworks (329: 285 free, 44 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -328,6 +332,7 @@ without the private reference sibling).
 | AICPA SOC 2 Guide: Reporting on an Examination of Controls at a Service Organization Relevant to Security, Availability, Processing Integrity, Confidentiality, or Privacy (2022) | AICPA Guide, Reporting on an Examination of Controls at a Service Organization (SOC 2), October 15, 2022 | AICPA |  | LICENSED |
 | AICPA SOC for Service Organizations (overview brochure) | AICPA SOC for Service Organizations brochure (System and Organization Controls suite overview) | AICPA |  | LICENSED |
 | AICPA Trust Services Criteria (TSP Section 100, 2017), for Security, Availability, Processing Integrity, Confidentiality, and Privacy | AICPA TSP Section 100, 2017 Trust Services Criteria; held copy includes the March 2020 updates | AICPA (Assurance Services Executive Committee) |  | LICENSED |
+| Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249, adopted 8 June 2017) | WP 249, adopted 8 June 2017 | Article 29 Working Party |  | FREE |
 | At a Glance: PCI DSS v4.0 |  | PCI SSC |  | FREE |
 | Australia APRA Prudential Standard CPS 230: Operational Risk Management (July 2023, effective 1 July 2025) |  | APRA |  | FREE |
 | Australia APRA Prudential Standard CPS 234: Information Security (July 2019) |  | APRA |  | FREE |
@@ -345,6 +350,7 @@ without the private reference sibling).
 | BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo) |  | BASC |  | LICENSED |
 | BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls) |  | BASC |  | LICENSED |
 | BASC International Standards Implementation Guide V6-2022 (CSMS) |  | BASC |  | LICENSED |
+| Basel Framework SCO, Scope and definitions (includes SCO60 Cryptoasset exposures), generated 27 September 2026 from the BIS Basel Framework data | BIS-generated standard PDF, 27/09/2026, 67 pages; SCO60 Cryptoasset exposures at page contents entry 60 | Basel Committee on Banking Supervision |  | FREE |
 | Canada CCCS Baseline Security Requirements for Network Security Zones (ITSP.80.022) | version 2.0, effective 2021-01-12 (confirmed current upstream 2026-07-15) | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS Developing Your Incident Response Plan (ITSAP.40.003) | ITSAP.40.003, 2026-01 | Canadian Centre for Cyber Security |  | FREE |
 | Canada CCCS ITSP.50.103 Medium Cloud Control Profile (Annex B: Medium Cloud Profile Recommendations) | ITSP.50.103 Annex B, CCCS Medium Cloud Control Profile; effective 2020-05-20 per the held GC Cloud Profile reference note (spreadsheet docProps modified 2019-10-15) | Canadian Centre for Cyber Security | https://www.cyber.gc.ca/en/guidance/guidance-security-categorization-cloud-based-services-itsp50103 | FREE |
@@ -420,6 +426,7 @@ without the private reference sibling).
 | COBIT for DevOps Audit Program (Internal Control Questionnaire) |  | ISACA |  | LICENSED |
 | COBIT for DevOps Audit Program (work program) |  | ISACA |  | LICENSED |
 | Configuration Management Using COBIT 5 |  | ISACA |  | LICENSED |
+| Council of Europe Recommendation CM/Rec(2015)5 on the processing of personal data in the context of employment (adopted 1 April 2015) | CM/Rec(2015)5, adopted 1 April 2015 | Council of Europe Committee of Ministers |  | FREE |
 | CSA AI Controls Matrix (AICM) v1.1.0 |  | CSA |  | FREE |
 | CSA AI-CAIQ v1.1.0 |  | CSA |  | FREE |
 | CSA CAIQ v4.1.0 |  | CSA |  | FREE |
@@ -455,6 +462,7 @@ without the private reference sibling).
 | EU General-Purpose AI Code of Practice, Safety and Security Chapter (July 2025) | General-Purpose AI Code of Practice, final, published 10 July 2025, Safety and Security Chapter | European Commission / EU AI Office (facilitated); independent expert Working Groups 2 to 4 |  | FREE |
 | EU General-Purpose AI Code of Practice, Transparency Chapter (July 2025) | General-Purpose AI Code of Practice, final, published 10 July 2025, Transparency Chapter | European Commission / EU AI Office (facilitated); independent expert Working Group 1 |  | FREE |
 | EU General-Purpose AI Code of Practice, Transparency Chapter, Model Documentation Form (July 2025) | Model Documentation Form (DOCX) accompanying the GPAI Code of Practice Transparency Chapter, final 10 July 2025 | European Commission / EU AI Office |  | FREE |
+| FATF Updated Guidance for a Risk-Based Approach to Virtual Assets and Virtual Asset Service Providers (October 2021) | October 2021 | FATF |  | FREE |
 | FFIEC IT Examination Handbook: Architecture, Infrastructure, and Operations |  | FFIEC |  | FREE |
 | FFIEC IT Examination Handbook: Audit |  | FFIEC |  | FREE |
 | FFIEC IT Examination Handbook: Business Continuity Management |  | FFIEC |  | FREE |
@@ -487,6 +495,8 @@ without the private reference sibling).
 | HITRUST CSF v11.8.0 Comparison (v11.7.1 to v11.8.0) | v11.8.0 | HITRUST |  | LICENSED |
 | HITRUST CSF v11.8.0 Summary of Changes | v11.8.0 | HITRUST |  | LICENSED |
 | ICAO Aviation Cybersecurity Strategy (October 2019) | October 2019 (approved by and published under the authority of the Secretary General; no Doc number) | ICAO |  | FREE |
+| ILO Code of Practice on the Protection of Workers' Personal Data (1997) | 1997 code of practice (PDF dated 2003) | International Labour Organization |  | FREE |
+| IMO MSC-FAL.1/Circ.3/Rev.4, Guidelines on Maritime Cyber Risk Management | MSC-FAL.1/Circ.3/Rev.4 (supersedes Rev.3 named in the request) | International Maritime Organization |  | FREE |
 | Implementing the NIST Cybersecurity Framework Using COBIT 2019 |  | ISACA |  | LICENSED |
 | Internal Control Using COBIT 5 (white paper) |  | ISACA |  | LICENSED |
 | International AI Safety Report 2026 (2nd edition, February 2026) | 2nd edition, February 2026 (Bengio-chaired) | International AI Safety Report (UK AISI secretariat) |  | FREE |
@@ -505,11 +515,14 @@ without the private reference sibling).
 | MITRE CAPEC v3.9 (Common Attack Pattern Enumeration and Classification, distilled) | CAPEC List Version 3.9 (confirmed current at capec.mitre.org/data 2026-07-07; latest diff report is 3.8 to 3.9). MITRE royalty-free licence with attribution (terms of use confirmed at capec.mitre.org 2026-07-07). | MITRE |  | FREE |
 | MITRE CWE v4.20 (Common Weakness Enumeration, distilled) | CWE List Version 4.20 (confirmed current at cwe.mitre.org/data 2026-07-07; latest diff report is 4.19.1 to 4.20). MITRE royalty-free licence with attribution. | MITRE |  | FREE |
 | MITRE D3FEND v1.4.0 (defensive techniques, distilled) | D3FEND ontology v1.4.0 (confirmed current at d3fend.mitre.org/resources/ontology 2026-07-07; released 2026-03-31 per prior maintainer confirmation). MITRE royalty-free licence with attribution; Approved for Public Release, Distribution Unlimited. | MITRE |  | FREE |
+| NIST CMVP FIPS 140-3 Transition Effort (web page, retrieved 2026-09-27) | csrc.nist.gov project page as retrieved 2026-09-27 (FIPS 140-2 certificates to the Historical List on September 22, 2026) | NIST |  | FREE |
 | NYDFS Cybersecurity Regulation Exemption Flowchart (Am I Exempt?) | NYDFS job aid, 2024 | New York State Department of Financial Services (NYDFS) |  | FREE |
 | NYDFS Cybersecurity Resource Center (dfs.ny.gov) | dfs.ny.gov capture 2026-07-20 (content current to the November 2023 Part 500 amendment) | New York State Department of Financial Services (NYDFS) |  | FREE |
 | NYDFS Guidance on Multi-Factor Authentication (23 NYCRR Part 500, Section 500.12) | NYDFS, July 2025 | New York State Department of Financial Services (NYDFS) |  | FREE |
 | NYDFS Part 500 Requirement Checklist for DFS-Regulated Entities with Section 500.19(a) Limited Exemptions | NYDFS job aid, 2024 | New York State Department of Financial Services (NYDFS) |  | FREE |
 | OECD Recommendation of the Council on Artificial Intelligence (OECD/LEGAL/0449; adopted 2019, revised 3 May 2024) |  | OECD |  | FREE |
+| OpenChain Specification 2.1 (functionally identical to ISO/IEC 5230:2020, open source license compliance) | Version 2.1 (English, ISO-5230-2020/en in the specification repository) | OpenChain Project (Linux Foundation) |  | FREE |
+| OSFI Guideline E-21, Operational Risk Management and Resilience (August 22, 2024) | Guideline page dated August 22, 2024 | OSFI |  | FREE |
 | OWASP Agentic Skills Top 10 (August 2026) | August 2026 Publication, OWASP Foundation Community Project; ten risks AST01-AST10. | OWASP |  | FREE |
 | OWASP AI Exchange (the world's AI security guide) | OWASP AI Exchange, living document (generated 2026-07-17) | OWASP Foundation |  | FREE |
 | OWASP AI Maturity Assessment (AIMA) v1.0 | OWASP AIMA v1.0 (August 11, 2025); current version and CC BY-SA 4.0 licence confirmed at owasp.org/www-project-ai-maturity-assessment and the repo LICENSE.md on 2026-07-07 | OWASP |  | FREE |
@@ -524,6 +537,8 @@ without the private reference sibling).
 | OWASP MCP Top 10 (2025, Beta) | OWASP MCP Top 10, 2025 categories MCP01-MCP10:2025, Phase-3 Beta living document (confirmed on owasp.org/www-project-mcp-top-10 and the OWASP/www-project-mcp-top-10 repo 2026-07-10). Assembled from the repo Markdown; beta, so re-check before any normative reliance. OWASP Foundation, CC BY-SA 4.0. | OWASP |  | FREE |
 | OWASP Mobile Application Security Testing Guide (MASTG) v2.0.0 | OWASP MASTG 2.0.0 (released 30 June 2026; current stable release as of 2026-07-07, the first stable non-beta release of the refactored MAS framework, ~271 new components for ~860 total). Assembled from the tagged v2.0.0 release (commit 990472dbcffe126f5556045d60270c4ffdfdde72), NOT the repo master branch (in-development, not a release). CC BY-SA 4.0 (repo OWASP/owasp-mastg). | OWASP |  | FREE |
 | OWASP Mobile Application Security Verification Standard (MASVS) v2.1.0 | OWASP MASVS 2.1.0 (released 18 January 2024; current stable release as of 2026-07-07, no later stable release). v2.1.0 added the MASVS-PRIVACY control group. Assembled from the tagged v2.1.0 release (annotated-tag object 1de2913fe799137ac4695eabaae633da693070cd -> commit 8e133d09f4140518ed04cc254b18be9ff4990ffc), NOT the repo master branch (in-development, not a release). CC BY-SA 4.0 (repo OWASP/owasp-masvs). | OWASP |  | FREE |
+| OWASP Smart Contract Security Verification Standard (SCSVS) 0.0.1 (bleeding-edge release, 2024) | 0.0.1 (2024), the only published release | OWASP |  | FREE |
+| OWASP Smart Contract Top 10: 2026 | 2026 edition (project index plus SC01 to SC10, English) | OWASP |  | FREE |
 | OWASP Software Assurance Maturity Model (SAMM) v2.2.0 | OWASP SAMM v2.2.0 (release published 6 July 2026; current, supersedes v2.1.0). Live core model repo owaspsamm/core, NOT the archived OWASP/samm (stuck at v2.0). CC BY-SA 4.0. | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: Active Directory |  | OWASP |  | FREE |
 | OWASP Subtractive Security Top 10: AI |  | OWASP |  | FREE |
@@ -610,11 +625,15 @@ without the private reference sibling).
 | SPDX v3.0.1: Terms and definitions | SPDX Specification 3.0.1 (published 2024-12-17; tag 3.0.1) | SPDX project (The Linux Foundation) |  | FREE |
 | Summary of Changes from PCI DSS Version 4.0 to 4.0.1 |  | PCI SSC |  | FREE |
 | The AI Adoption Maturity Model v1.0 (CMU SEI, with Accenture) | v1.0 | CMU SEI |  | FREE |
+| The FATF Recommendations: International Standards on Combating Money Laundering and the Financing of Terrorism and Proliferation (updated October 2025) | Updated October 2025 | FATF |  | FREE |
 | The Prioritized Approach to Pursue PCI DSS Compliance (v4.0.1) |  | PCI SSC |  | FREE |
+| TIBER-EU Framework: How to implement the European framework for Threat Intelligence-Based Ethical Red teaming (January 2025) | January 2025 (aligned with DORA TLPT) | European Central Bank |  | FREE |
 | UK AI Regulation White Paper: A pro-innovation approach to AI regulation (CP 815, March 2023) |  | UK Government |  | FREE |
 | UK AI Regulation: A pro-innovation approach to AI regulation, government response to consultation (CP 1019, February 2024) | CP 1019, February 2024 (amended web-ready version as published on gov.uk) | UK Government |  | FREE |
 | UK FCA Policy Statement PS21/3: Building operational resilience (March 2021) |  | UK FCA |  | FREE |
 | UK Government Cyber Security Strategy 2022 to 2030 |  | UK Government |  | FREE |
+| UK ICO Employment practices and data protection guidance: keeping employment records, recruitment and selection, information about workers' health | ico.org.uk guidance series, 25 pages, latest updates 11 October 2023, 5 March 2024 and 5 February 2025 | UK Information Commissioner's Office |  | FREE |
+| UK ICO Employment practices and data protection: Monitoring workers (guidance series, latest update 6 June 2024) | ico.org.uk guidance series, six pages, latest update 6 June 2024 | UK Information Commissioner's Office |  | FREE |
 | UK NCSC Cyber Assessment Framework (CAF) v4.0 |  | UK NCSC |  | FREE |
 | UK PRA Supervisory Statement SS1/21: Operational resilience, impact tolerances for important business services (March 2021, incl. March 2022 update) |  | UK PRA |  | FREE |
 | UK PRA Supervisory Statement SS2/21: Outsourcing and third party risk management (November 2024 update) |  | UK PRA |  | FREE |
@@ -627,6 +646,7 @@ without the private reference sibling).
 | United States Executive Order 14319, Preventing Woke AI in the Federal Government (23 July 2025) | EO 14319, Federal Register (signed 23 July 2025) | US White House |  | FREE |
 | United States Executive Order 14320, Promoting the Export of the American AI Technology Stack (23 July 2025) | EO 14320, Federal Register (signed 23 July 2025) | US White House |  | FREE |
 | United States Executive Order 14365, Ensuring a National Policy Framework for Artificial Intelligence (11 December 2025) | EO 14365, Federal Register (signed 11 December 2025) | US White House |  | FREE |
+| United States OMB Memorandum M-24-15, Modernizing the Federal Risk and Authorization Management Program (FedRAMP) (25 July 2024) | M-24-15, 25 July 2024 | US OMB |  | FREE |
 | United States OMB Memorandum M-25-21, Accelerating Federal Use of AI through Innovation, Governance, and Public Trust (3 April 2025) | OMB M-25-21 (3 April 2025) | US OMB |  | FREE |
 | United States OMB Memorandum M-25-22, Driving Efficient Acquisition of Artificial Intelligence in Government (3 April 2025) | OMB M-25-22 (3 April 2025) | US OMB |  | FREE |
 | United States OMB Memorandum M-26-04, Increasing Public Trust in Artificial Intelligence Through Unbiased AI Principles (11 December 2025) | OMB M-26-04 (11 December 2025) | US OMB |  | FREE |
@@ -636,7 +656,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (230: 230 free, 0 licensed)
+## Legislation (240: 240 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -660,6 +680,8 @@ without the private reference sibling).
 | Brazil ANPD Resolução CD/ANPD nº 2/2022 (aplicação da LGPD para agentes de tratamento de pequeno porte; Small Processing Agents) | Resolução CD/ANPD nº 2, de 27 de janeiro de 2022 (DOU 28/01/2022); gov.br-served text (host confirmed reachable 2026-07-16; worker-acquired 2026-07-16). | Brazil |  | FREE |
 | Brazil ANPD Resolução CD/ANPD nº 4, de 24 de fevereiro de 2023 (Regulamento de Dosimetria e Aplicação de Sanções Administrativas / administrative sanctions dosimetry) | Resolução CD/ANPD nº 4/2023, published DOU 27/02/2023 (Edição 39, Seção 1, p. 59); in force since publication; current | Brazil |  | FREE |
 | Brazil Lei Geral de Proteção de Dados Pessoais (LGPD), Lei nº 13.709/2018 | Lei 13.709/2018, in force since 2020-09-18; law text unchanged, current | Brazil | https://www.gov.br/anpd/pt-br/centrais-de-conteudo/outros-documentos-e-publicacoes-institucionais/lgpd-en-lei-no-13-709-capa.pdf | FREE |
+| Brazil Resolucao BCB No. 85 (8 April 2021), politica de seguranca cibernetica for payment institutions (Portuguese, current version) | BCB normativos version 4.0, not revoked (includes the Resolucao BCB 368/2024 amendments) | Brazil |  | FREE |
+| Brazil Resolucao CMN No. 4.893 (26 February 2021), politica de seguranca cibernetica (Portuguese, current version) | BCB normativos version 3.0, not revoked (includes the Resolucao CMN 5.117/2024 amendments) | Brazil |  | FREE |
 | British Columbia E-Health (Personal Health Information Access and Protection of Privacy) Act (SBC 2008, c. 38) | SBC 2008 c. 38, consolidated | Canada (British Columbia) |  | FREE |
 | British Columbia Freedom of Information and Protection of Privacy Act (RSBC 1996, c. 165) | RSBC 1996 c. 165, consolidated: current to 2026-09-15 (BC Laws) | Canada (British Columbia) |  | FREE |
 | British Columbia Personal Information Protection Act (PIPA), S.B.C. 2003, c. 63 |  | Canada |  | FREE |
@@ -669,12 +691,15 @@ without the private reference sibling).
 | California Delete Act / Data Broker Registration law, Cal. Civ. Code § 1798.99.80 et seq. (effective January 1, 2026, SB 361 update) | CPPA-published consolidated statute, Data Broker Registry / Delete Act, effective January 1, 2026 (SB 361 update); Cal. Civ. Code sections 1798.99.80 to 1798.99.89; posted cppa.ca.gov December 2025 | US | https://cppa.ca.gov/regulations/pdf/data_broker_reg_delete_act_statute_eff_20260101.pdf | FREE |
 | Canada Bill C-36, Protecting Privacy and Consumer Data Act (PPCDA), 45-1 first reading 2026 (PROPOSED, not in force) |  | Canada |  | FREE |
 | Canada Breach of Security Safeguards Regulations, SOR/2018-64 (under PIPEDA) | SOR/2018-64, Justice Laws consolidation current to 2026-05-26, last amended 2018-11-01; in force since 2018-11-01 | Canada |  | FREE |
+| Canada Customs Act (R.S.C. 1985, c. 1 (2nd Supp.)), consolidation | Justice Laws consolidation PDF (C-52.6), generated 2026-09-23 | Canada |  | FREE |
+| Canada Imported Goods Records Regulations (SOR/86-1011), consolidation | Justice Laws consolidation PDF, generated 2026-09-16 | Canada |  | FREE |
 | Canada Treasury Board Directive on Automated Decision-Making (in force; current text reflects the fourth-review amendments, whose 24 June 2025 to 24 June 2026 compliance transition has ENDED, per the held text sections 1.2.1 and 1.2.2) |  | Canada |  | FREE |
 | Canada's Anti-Spam Legislation (An Act to promote the efficiency and adaptability of the Canadian economy by regulating certain activities that discourage reliance on electronic means of carrying out commercial activities) | S.C. 2010, c. 23 (consolidated, current to 2026-06-17) | Canada |  | FREE |
 | Chile Ley 19.628 sobre proteccion de la vida privada (consolidated 2023-05-09) |  | Chile |  | FREE |
 | Chile Ley 21.459, delitos informaticos (Budapest Convention), 2022 |  | Chile |  | FREE |
 | Chile Ley 21.663, Ley Marco de Ciberseguridad (consolidated, status 2025-03-01) |  | Chile |  | FREE |
 | Chile Ley 21.719, proteccion de datos personales y crea la Agencia (2024, deferred to 2026-12) |  | Chile |  | FREE |
+| China CAC Provisions on Promoting and Regulating Cross-Border Data Flows (CAC Order No. 16, 22 March 2024), Chinese original | CAC Order No. 16, published and effective 22 March 2024 | China |  | FREE |
 | China Data Security Law (2021), English translation (UNOFFICIAL) |  | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021) | PIPL (adopted 20 Aug 2021, effective 1 Nov 2021) | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021), English translation (UNOFFICIAL) |  | China |  | FREE |
@@ -699,11 +724,13 @@ without the private reference sibling).
 | Commission Delegated Regulation (EU) 2025/532 (DORA RTS: elements to assess when subcontracting ICT services supporting critical or important functions), 24 March 2025 | Delegated Reg (EU) 2025/532 (OJ 2 July 2025) | EU |  | FREE |
 | Commission Implementing Regulation (EU) 2024/2956 (DORA ITS: standard templates for the register of information), 29 November 2024 | Implementing Reg (EU) 2024/2956 (OJ 2 December 2024) | EU |  | FREE |
 | Commission Implementing Regulation (EU) 2025/302 (DORA ITS: standard forms and templates for incident reporting), 23 October 2024 | Implementing Reg (EU) 2025/302 (OJ 20 February 2025) | EU |  | FREE |
+| Commission Recommendation 2003/361/EC of 6 May 2003 concerning the definition of micro, small and medium-sized enterprises (OJ L 124, 20.5.2003) | OJ L 124, 20.5.2003, p. 36 (Publications Office Cellar PDF for CELEX 32003H0361) | EU |  | FREE |
 | COPPA Rule, 16 CFR Part 312, Children's Online Privacy Protection |  | US |  | FREE |
 | Council of Europe Framework Convention on Artificial Intelligence and Human Rights, Democracy and the Rule of Law (CETS No. 225) | CETS No. 225, adopted 17 May 2024, opened for signature 5 September 2024 | Council of Europe |  | FREE |
 | Cyber Incident Reporting for Critical Infrastructure Act (CIRCIA), 6 U.S.C. § 681 et seq. |  | US |  | FREE |
 | Digital Operational Resilience Act (DORA), Regulation (EU) 2022/2554 |  | EU |  | FREE |
 | DR Congo Code du numerique, Ordonnance-loi 23/010 du 13 mars 2023 (FR) |  | DRC |  | FREE |
+| Ecuador Ley Organica de Proteccion de Datos Personales (Registro Oficial Quinto Suplemento No. 459, 26 May 2021), Spanish original | Registro Oficial Quinto Suplemento No. 459, 26 May 2021 (as published) | Ecuador |  | FREE |
 | Ecuador Ley Organica para el Fortalecimiento de la Ciberseguridad (2026-05-22) |  | Ecuador |  | FREE |
 | Egypt Personal Data Protection Law No. 151 of 2020 | Law No. 151 of 2020 | Egypt |  | FREE |
 | Egypt Personal Data Protection Law No. 151 of 2020 (English translation) | Law No. 151 of 2020 (English translation) | Egypt |  | FREE |
@@ -816,8 +843,11 @@ without the private reference sibling).
 | Northwest Territories Access to Information and Protection of Privacy Act (SNWT 1994, c. 20) | SNWT 1994 c. 20, consolidated | Canada (Northwest Territories) |  | FREE |
 | Nova Scotia Freedom of Information and Protection of Privacy Act (SNS 1993, c. 5) | SNS 1993 c. 5, consolidated | Canada (Nova Scotia) |  | FREE |
 | Nova Scotia Personal Health Information Act (SNS 2010, c. 41) | SNS 2010 c. 41, consolidated | Canada (Nova Scotia) |  | FREE |
+| Nunavut Access to Information and Protection of Privacy Act (C.S.Nu., c. A-20), official consolidation | Official consolidation date May 31, 2024 (listed as current consolidated law) | Canada |  | FREE |
 | Oman Personal Data Protection Law, Royal Decree 6/2022 (EN) |  | Oman |  | FREE |
 | Ontario Enhancing Digital Security and Trust Act, 2024 (Bill 194, S.O. 2024, c. 24) |  | Canada |  | FREE |
+| Ontario Freedom of Information and Protection of Privacy Act (R.S.O. 1990, c. F.31), consolidation | e-Laws consolidation period from September 15, 2026; last amendment 2026, c. 2, Sched. 7 | Canada |  | FREE |
+| Ontario Municipal Freedom of Information and Protection of Privacy Act (R.S.O. 1990, c. M.56), consolidation | e-Laws consolidation period from July 1, 2026; last amendment 2026, c. 2, Sched. 11 | Canada |  | FREE |
 | Ontario Order in Council 361/2025 (commencement of the Enhancing Digital Security and Trust Act, 2024) | O.C. 361/2025, approved and ordered 2025-01-28 | Canada |  | FREE |
 | Ontario Personal Health Information Protection Act, 2004, S.O. 2004, c. 3, Sch. A (PHIPA) |  | Canada |  | FREE |
 | Personal Information Protection Act (PIPA), S.A. 2003, c. P-6.5 (Alberta, consolidated) | S.A. 2003, c. P-6.5 (consolidated, current as of September 1, 2025) | Canada |  | FREE |
@@ -918,5 +948,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 853 sources (727 free, 126 licensed).**
+**Total: 883 sources (757 free, 126 licensed).**
 
