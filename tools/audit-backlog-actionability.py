@@ -117,8 +117,9 @@ TOP_BULLET_ITEM_RE = re.compile(
 # an optional ``[ ]``/``[x]`` task box. ``### `` headings the heading grammar does not take are tested the same
 # way. Every counted form meets one of these, so the counted-or-reported invariant holds by construction.
 # DECLARED RESIDUE: a digit-free id in lowercase or mixed case (``orch-ci-status``) is not an id any counted
-# grammar takes and cannot be told from a hyphenated prose word, and an id behind an emoji or HTML markup is not
-# read; both need their [private]/[public] tag to be reported.
+# grammar takes and cannot be told from a hyphenated prose word; an id behind an emoji or HTML markup is not
+# read; both need their [private]/[public] tag to be reported. The net reads one physical line, so a tag that a
+# hard wrap moves onto a continuation line is not seen (QA r9).
 _ITEM_LIKE_LEAD_RE = re.compile(
     r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>.*)$"
 )
@@ -138,7 +139,7 @@ def _lead_word_is_id(text: str) -> bool:
     raw = (t.split(None, 1) or [""])[0]
     if re.fullmatch(r"#\d+[:,;.)]*", raw.strip("*_")):
         return False  # a bare #123 PR reference is not an item id
-    tok = raw.lstrip("#([`_*").replace("`", "").rstrip(":,;.)]_*!/")
+    tok = raw.lstrip("#([`_*").replace("`", "")  # every test below is a prefix or contains test (QA r9)
     if tok and any(c.isdigit() for c in tok):
         return True
     if tok.lower().startswith("p-"):
@@ -153,15 +154,20 @@ def _is_item_like(line: str) -> bool:
     rest = m.group("rest")
     if _TAG_RE.search(rest):
         return True
-    em = rest[1:] if rest.startswith("[") else rest
+    em = rest[1:].lstrip(" \t") if rest.startswith("[") else rest  # ``[ **3b7 fix**](url)`` (QA r9)
+    em = em[2:] if em.startswith("~~") else em  # ``~~**3b7 fix**~~`` strikethrough (QA r9)
     return em.startswith(("*", "_")) and _lead_word_is_id(em)
+
+
+_H3_RE = re.compile(r"^ {0,3}###[ \t]+(?P<rest>.*)$")  # any CommonMark h3 spelling (``###\t``, one to three spaces)
 
 
 def _is_item_like_heading(line: str) -> bool:
     """A ``### `` heading the heading grammar does not count, whose lead word or tag marks it an item (QA r8)."""
-    if not line.startswith("### ") or ITEM_HEADING_RE.match(line):
+    h = _H3_RE.match(line)
+    if not h or ITEM_HEADING_RE.match(line):
         return False
-    rest = line[4:]
+    rest = h.group("rest")
     return bool(_TAG_RE.search(rest)) or _lead_word_is_id(rest)
 
 
@@ -1401,6 +1407,15 @@ def _self_test() -> int:
         check("r8-bullet-grant-not-by-suffix", build_report("", "## Q\n- **P-1.37 fix:** [BLOCKED:source]\n")[1] == 0)
     finally:
         set_approvals(saved_r8)
+    # QA r9
+    for net_line in ("- [ **3b7 fix**](url)", "- [\t**ORCH-CI-STATUS**](url)", "- ~~**3b7 fix**~~",
+                     "- **(ORCH-CI-STATUS)** wire CI", "- **P-1.2.3.4 x** y", "- _3b7 fix_",
+                     "### uncounted prose heading [private]", "###\t3.1 Real heading", " ### 3.1 Real heading"):
+        check("r9-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
+              == [net_line.strip()])
+    check("r9-pr-ref-with-colon", uncounted_item_like("## Q\n- **#2477:** MERGED\n") == [])
+    bh = "## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n"
+    check("r9-heading-after-bullet", [x[0] for x in parse_items(bh, "private", ref_bodies={})] == ["3b7", "9.9"])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
 
