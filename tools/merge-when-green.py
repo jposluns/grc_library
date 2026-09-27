@@ -10,7 +10,8 @@ violates the merge-on-green discipline. This tool makes the decision mechanical 
 it reads the PR's ``statusCheckRollup``, REFUSES unless every check is terminal-success with
 zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE,
 as does a required check (REQUIRED_CHECKS, or --require) that is missing as a CheckRun or did not conclude
-SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
+SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104). A required name listed in
+REQUIRED_WORKFLOWS counts only from that workflow, so a same-named job elsewhere cannot stand in (3b105).
 The merge is pinned to the head commit it evaluated (gh pr merge --match-head-commit), so a push
 landing after the read is never merged unchecked; a missing head SHA refuses (3b106).
 It also applies the open-findings guard's own decision before merging, so an undispositioned
@@ -32,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 
@@ -40,14 +42,28 @@ _OK_STATE = {"SUCCESS"}  # a legacy StatusContext that finished acceptably
 # Checks that must be PRESENT and SUCCESS: NEUTRAL or SKIPPED is acceptable for any other check,
 # never for these, so a skipped corpus lint cannot read as green (3b104).
 REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
+# The workflow each default required check comes from: a same-named job in another workflow must not
+# stand in for it (3b105). The binding applies to these names however they are required (the default list
+# or --require); any other --require name is matched by name only. RESIDUE: a workflow name is not unique
+# and a PR runs its own workflow files, so this stops an accidental or foreign same-named job, not a PR
+# that edits or adds a workflow under this name; every bound entry must still succeed, and the
+# workflow-file review is the control for that.
+REQUIRED_WORKFLOWS = {"Lint markdown corpus": "Repository quality checks",
+                      "PR attribution (title and body)": "PR attribution"}
 _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 
 
-def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, str]:
+def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict | None = None) -> tuple[bool, str]:
     """PURE decision over a GitHub ``statusCheckRollup``: (green, reason). Fails CLOSED:
     green ONLY when at least one check exists and EVERY check is terminal-success with none
     pending; a no-checks, any-pending, any-failing, or unknown-shape check REFUSES. Each name
-    in ``required`` must also be reported and must have concluded SUCCESS itself (3b104)."""
+    in ``required`` must also be reported and must have concluded SUCCESS itself (3b104); where
+    ``workflows`` names its workflow, only a CheckRun from that workflow counts (3b105)."""
+    workflows = workflows or {}
+
+    def bound(c: dict, want: str) -> bool:
+        return (c.get("__typename") == "CheckRun" and c.get("name") == want
+                and (want not in workflows or c.get("workflowName") == workflows[want]))
     if not rollup:
         return False, "no checks reported for this PR (never merge on no-checks)"
     pending: list[str] = []
@@ -81,10 +97,11 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
     # Required checks bind to CheckRuns only: a commit status of the same name must not stand in
     # for an Actions job that never ran (3b104 QA r1). Every entry under a required name must
     # have succeeded, so a skipped duplicate still refuses (deliberately fail closed).
-    absent = [w for w in required
-              if not any(c.get("__typename") == "CheckRun" and c.get("name") == w
-                         for c in rollup if isinstance(c, dict))]
-    note = ("; required check(s) not yet reported as a CheckRun: " + ", ".join(absent)) if absent else ""
+    absent = [w for w in required if not any(bound(c, w) for c in rollup if isinstance(c, dict))]
+    def unreported(w: str) -> str:
+        return f"{w} (from workflow {workflows[w]!r})" if w in workflows else w
+    note = ("; required check(s) not yet reported as a CheckRun: "
+            + ", ".join(unreported(w) for w in absent)) if absent else ""
     if failed or unknown:
         parts: list[str] = []
         if failed:
@@ -98,15 +115,165 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
         return False, "pending / incomplete check(s): " + ", ".join(pending) + note
     for want in required:
         if want in absent:
-            return False, f"required check not reported as a CheckRun: {want}"
+            return False, f"required check not reported as a CheckRun: {unreported(want)}"
         for c in rollup:
             if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
                 return False, (f"required check {want} is also reported as a commit status of the same name "
                                "(a name collision); only the CheckRun may satisfy it")
-            if c.get("__typename") == "CheckRun" and c.get("name") == want and c.get("conclusion") != "SUCCESS":
+            if c.get("__typename") == "CheckRun" and c.get("name") == want and not bound(c, want):
+                return False, (f"required check {want} is also reported by workflow {c.get('workflowName')!r}, "
+                               f"not only {workflows[want]!r} (a name collision); only its own workflow may satisfy it")
+            if bound(c, want) and c.get("conclusion") != "SUCCESS":
                 return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
     verified = ", ".join(required) if required else "none"
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
+
+
+class _Unreadable(Exception):
+    """A construct the workflow reader recognizes as outside its grammar; the pin then fails (3b105 QA r3, r4)."""
+
+
+def _yaml_scalar(raw: str) -> str:
+    """A single-line YAML scalar: plain (an inline ` #` comment dropped), single-quoted (a doubled quote is
+    a literal quote), or double-quoted without escapes. A scalar form it recognizes as outside that set
+    raises _Unreadable rather than returning a guess (3b105 QA r2, r3)."""
+    s = raw.strip(" ")  # YAML whitespace is the space (tabs are refused); Unicode spaces are content (r4)
+    if s.startswith("#"):
+        return ""  # only a comment follows the key
+    if s[:1] in ("{", "[", "|", ">", "&", "*", "!"):
+        raise _Unreadable(f"unsupported scalar form: {s[:20]!r}")
+    if s[:1] == "'":
+        out, i = [], 1
+        while i < len(s):
+            if s[i] == "'":
+                if s[i + 1:i + 2] == "'":
+                    out.append("'")
+                    i += 2
+                    continue
+                rest = s[i + 1:].strip(" ")
+                if rest and not rest.startswith("#"):
+                    raise _Unreadable("text after a quoted scalar")
+                return "".join(out)
+            out.append(s[i])
+            i += 1
+        raise _Unreadable("unterminated single-quoted scalar")
+    if s[:1] == '"':
+        end = s.find('"', 1)
+        if end < 0 or "\\" in s[:end]:
+            raise _Unreadable("unterminated or escaped double-quoted scalar")
+        rest = s[end + 1:].strip(" ")
+        if rest and not rest.startswith("#"):
+            raise _Unreadable("text after a quoted scalar")
+        return s[1:end]
+    cut = s.find(" #")
+    return (s[:cut] if cut >= 0 else s).strip(" ")
+
+
+def _check_value(value: str) -> None:
+    """Refuse a value the reader cannot bound to its own line: a flow collection or an unterminated quote
+    could carry a `name:` on a later line (3b105 QA r3)."""
+    v = value.strip(" ")
+    if v[:1] in ("{", "["):
+        raise _Unreadable("flow collection inside jobs")
+    if v[:1] in ("&", "*", "!"):  # an anchor can front a flow collection or a quote (3b105 QA r4)
+        raise _Unreadable("anchor, alias or tag inside jobs")
+    if v[:1] in ("'", '"'):
+        _yaml_scalar(v)
+
+
+def workflow_names(text: str) -> tuple[str | None, set[str]]:
+    """(top-level name, set of job names) from a workflow file, read with the stdlib: the top-level `name:`
+    and the `name:` of each job directly under `jobs:`, at the indentation of that job's own properties, so
+    a step's or an env block's `name:` is not taken for a job name (3b105 QA r2). Constructs it recognizes
+    as outside its grammar (a tab; inside jobs a flow collection, an anchor, alias or tag, an unterminated
+    or escaped quote; a quote left open at the top level; a name continued on the next line; a duplicate
+    name) make it return (None, set()), so the pin fails on them (3b105 QA r3, r4). Block-scalar bodies
+    are skipped.
+    RESIDUE, stated: this is an early-warning pin for a plain rename, NOT a YAML parser. Constructs it
+    does not recognize (for example a duplicate non-name key, whose last value YAML keeps) can still
+    mislead it in either direction. A misread does not by itself cause a wrong merge, since this pin runs
+    only in the self-test: it removes the early warning of a rename. evaluate() still requires a
+    successful CheckRun with the required name from the bound workflow; a same-named job added under that
+    workflow is the REQUIRED_WORKFLOWS residue, whose control is workflow-file review (3b105 QA r5)."""
+    try:
+        return _workflow_names(text)
+    except _Unreadable:
+        return None, set()
+
+
+def _workflow_names(text: str) -> tuple[str | None, set[str]]:
+    if "\t" in text:
+        raise _Unreadable("tab")
+    top, jobs = None, set()
+    in_jobs, key_indent, prop_indent, job_named = False, None, None, False
+    block_indent = None  # indentation of a key whose block-scalar body is being skipped
+    name_at = None  # indentation of the name line just read: a deeper next line would continue it (r4)
+    for line in text.splitlines():
+        if not line.strip(" ") or line.lstrip(" ").startswith("#"):
+            continue
+        indent = len(line) - len(line.lstrip(" "))
+        if block_indent is not None:
+            if indent > block_indent:
+                continue
+            block_indent = None
+        if name_at is not None and indent > name_at:
+            raise _Unreadable("a name continued on the next line")
+        name_at = None
+        stripped = line.strip(" ")
+        is_item = stripped.startswith("- ") or stripped == "-"  # a bare dash opens an item (3b105 QA r6)
+        item = stripped[2:].lstrip() if is_item else stripped
+        key, sep, value = item.partition(":")
+        key = key.rstrip(" ")  # `name :` is the key name (3b105 QA r6)
+        is_key = bool(sep) and bool(key) and not key.startswith(("-", "'", '"')) and (value[:1] in ("", " "))
+        if is_key and re.match(r"[|>][-+0-9]*\s*(#.*)?$", value.strip() or "x"):
+            block_indent = indent
+        if indent == 0:
+            if not is_key:
+                raise _Unreadable("top-level line that is not a key")
+            in_jobs = key == "jobs"
+            key_indent = prop_indent = None
+            if in_jobs and _yaml_scalar(value) if value.strip(" ") else False:
+                raise _Unreadable("jobs: with a value on its own line")
+            if value.strip(" ")[:1] in ("'", '"'):
+                _yaml_scalar(value)  # a quote left open could hide a fake jobs block (3b105 QA r4)
+            if key == "name":
+                if top is not None:
+                    raise _Unreadable("duplicate top-level name")
+                top = _yaml_scalar(value)
+                name_at = indent
+            continue
+        if not in_jobs:
+            continue
+        if is_key and value.strip():
+            _check_value(value)
+        elif is_item:
+            _check_value(item)
+        if key_indent is None:
+            key_indent = indent
+        if indent < key_indent:
+            raise _Unreadable("line outdented past the job keys")
+        if indent == key_indent:
+            if is_item or not (is_key and not value.strip()):
+                raise _Unreadable("job entry that is not a block mapping")
+            prop_indent, job_named = None, False
+            continue
+        if prop_indent is None:
+            prop_indent = indent
+        if indent == prop_indent and not is_key and not is_item:
+            raise _Unreadable("a job property that is not a plain key (a quoted key, for example)")
+        if indent == prop_indent and is_key and not is_item and key == "name":
+            if job_named:
+                raise _Unreadable("duplicate job name")
+            jobs.add(_yaml_scalar(value))
+            job_named = True
+            name_at = indent
+    return top, jobs
+
+
+def pin_ok(text: str, check: str) -> bool:
+    """The workflow file names the check's workflow at the top level and carries a job of that name."""
+    top, jobs = workflow_names(text)
+    return top == REQUIRED_WORKFLOWS[check] and check in jobs
 
 
 def open_findings_block(root, ledger=None) -> tuple[int, str]:
@@ -204,9 +371,15 @@ def _self_test() -> int:
     # main() passes the default required checks through (3b104 QA r2): drive it with a stubbed gh.
     import contextlib as _cl, io as _io
     lint = REQUIRED_CHECKS[0]
+    crw = lambda n, s, c: dict(cr(n, s, c), workflowName=REQUIRED_WORKFLOWS.get(n))
     rollups = {
-        "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
-        "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
+        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        # 3b105 QA r1: main() must hand the workflow map to evaluate(); these pass on names alone.
+        "foreign": [dict(cr(n, "COMPLETED", "SUCCESS"), workflowName="Other") for n in REQUIRED_CHECKS],
+        "no-workflow": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        "collision": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS]
+                     + [dict(cr(lint, "COMPLETED", "SUCCESS"), workflowName="Other")],
     }
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
     def view(r, h=head, fields=None, state="OPEN"):
@@ -230,7 +403,7 @@ def _self_test() -> int:
             except SystemExit as exc:
                 abbrev_refused = exc.code == 2
         checks.append(("abbreviated-require-none-refused", abbrev_refused))
-        for label, want_rc in (("skipped", 1), ("green", 0)):
+        for label, want_rc in (("skipped", 1), ("green", 0), ("foreign", 1), ("no-workflow", 1), ("collision", 1)):
             globals()["gh"] = lambda *a, _r=rollups[label]: view(_r, fields=json_arg(a))
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run"])
@@ -243,6 +416,11 @@ def _self_test() -> int:
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))
+        # A default name named through --require still binds to its workflow (3b105 QA r1).
+        globals()["gh"] = lambda *a: view(rollups["foreign"], fields=json_arg(a))
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            rc = main(["merge-when-green.py", "1", "--dry-run", "--require", lint])
+        checks.append(("main-require-default-name-foreign-workflow", rc == 1))
         globals()["gh"] = lambda *a: view(rollups["skipped"], fields=json_arg(a))
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
             rc = main(["merge-when-green.py", "1", "--dry-run", "--require-none"])
@@ -334,6 +512,93 @@ def _self_test() -> int:
         broken.mkdir(parents=True)
         (broken / "block-on-open-findings.py").write_text("raise RuntimeError('broken')\n", encoding="utf-8")
         checks.append(("unloadable-guard-refuses", open_findings_block(_P(_d), led)[0] == 1))
+    # 3b105: a required check binds to its workflow; a same-named job from another workflow refuses.
+    wf = {"Lint": "Repository quality checks"}
+    for name, rollup, want_green in [
+        ("workflow-bound-green", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Repository quality checks")], True),
+        ("workflow-missing-refused", [cr("Lint", "COMPLETED", "SUCCESS")], False),
+        ("workflow-other-only-refused", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], False),
+        ("workflow-collision-refused", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Repository quality checks"),
+                                        dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], False),
+    ]:
+        checks.append((name, evaluate(rollup, ("Lint",), wf)[0] == want_green))
+    checks.append(("default-workflows-exact", REQUIRED_WORKFLOWS == {
+        "Lint markdown corpus": "Repository quality checks", "PR attribution (title and body)": "PR attribution"}))
+    # The map matches the workflow files themselves (3b105 QA r1): each file's top-level name, and a job
+    # carrying the required check's name. A plain rename in either file fails here rather than first at
+    # merge time; the reader's residue (workflow_names) names what it cannot see.
+    wf_files = {"Lint markdown corpus": "quality.yml", "PR attribution (title and body)": "pr-attribution.yml"}
+    for check, fname in wf_files.items():
+        try:
+            text = (_REPO_ROOT / ".github" / "workflows" / fname).read_text(encoding="utf-8")
+        except OSError:
+            text = ""
+        checks.append((f"workflow-file-{fname}", pin_ok(text, check)))
+    # The reader takes job names only, and reads quoted and commented scalars (3b105 QA r2).
+    wf = ("name: \"Repository quality checks\"  # quoted\non:\n  pull_request:\njobs:\n  lint:\n"
+          "    name: 'Lint markdown corpus' # commented\n    runs-on: x\n    env:\n      name: Env name\n"
+          "    steps:\n      - name: Step name\n        uses: a\n      - uses: b\n        name: Mapped step\n"
+          "  other:\n    name: Other job\n# name: Commented out\n")
+    checks.append(("workflow-reader-jobs-only", workflow_names(wf) == ("Repository quality checks",
+                                                                      {"Lint markdown corpus", "Other job"})))
+    nested_only = "name: W\njobs:\n  lint:\n    name: Renamed\n    env:\n      name: Lint markdown corpus\n"
+    checks.append(("workflow-reader-nested-name-not-a-job", "Lint markdown corpus" not in workflow_names(nested_only)[1]))
+    # 3b105 QA r3: the pin fails on each way the job or workflow can be absent, and on the constructs the
+    # reader recognizes as outside its grammar (reviewers' reproductions included; the residue is stated).
+    lint_ = "Lint markdown corpus"
+    good = "name: Repository quality checks\njobs: # CI\n  lint:\n    name: Lint markdown corpus # plain\n    runs-on: x\n"
+    checks.append(("pin-good", pin_ok(good, lint_)))
+    for label, text in (
+        ("renamed-top", good.replace("name: Repository quality checks", "name: Other")),
+        ("renamed-job", good.replace("name: Lint markdown corpus", "name: Renamed")),
+        ("empty-file", ""),
+        ("flow-env", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\n    env: {A: 1,\n"
+                     "    name: Lint markdown corpus\n    }\n"),
+        ("flow-job", "name: Repository quality checks\njobs:\n  lint: {name: Renamed, env: {\n"
+                     "    name: Lint markdown corpus}}\n"),
+        ("open-quote-if", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\n    if: \"a &&\n"
+                          "    name: Lint markdown corpus\n    && b\"\n"),
+        ("doubled-quote", "name: Repository quality checks\njobs:\n  lint:\n    name: 'Lint markdown corpus'' renamed'\n"),
+        ("doubled-quote-top", good.replace("name: Repository quality checks", "name: 'Repository quality checks'' x'")),
+        ("duplicate-job-name", good.replace("    runs-on: x\n", "    name: Renamed\n    runs-on: x\n")),
+        ("tab", good.replace("    runs-on", "\trun")),
+        ("mixed-job-indent", "name: Repository quality checks\njobs:\n  a:\n      name: A\n  lint:\n    name: Renamed\n"
+                             "    env:\n      name: Lint markdown corpus\n"),
+        ("flow-env-unnamed", "name: Repository quality checks\njobs:\n  lint:\n    runs-on: x\n    env: {A: 1,\n"
+                             "    name: Lint markdown corpus\n    }\n"),
+        ("open-quote-unnamed", "name: Repository quality checks\njobs:\n  lint:\n    runs-on: x\n    if: 'a &&\n"
+                               "    name: Lint markdown corpus\n    && b'\n"),
+        ("second-top-after-jobs", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\nenv:\n"
+                                  "  lint:\n    name: Lint markdown corpus\n"),
+    ):
+        checks.append((f"pin-refuses-{label}", not pin_ok(text, lint_)))
+    block = good + "    steps:\n      - run: |\n          name: Lint markdown corpus\n          note: 'it\n"
+    checks.append(("pin-block-scalar-body-skipped", pin_ok(block, lint_)))
+    checks.append(("reader-plain-comment", workflow_names(good)[1] == {lint_}))
+    odd = "name: W\njobs:\n  a:\n    name: 'Lint''s job'\n  b:\n    name: C#-lint # c\n"
+    # 3b105 QA r4: fail-open reproductions from all three families, each now refused.
+    H_ = "name: Repository quality checks\non: push\n"
+    for label, text in (
+        ("folded-job-name", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n      renamed\n"),
+        ("folded-top-name", "name: Repository quality checks\n  renamed\njobs:\n  lint:\n    name: Lint markdown corpus\n"),
+        ("anchored-flow", H_ + "jobs:\n  lint:\n    env: &e {A: 1,\n    name: Lint markdown corpus\n    }\n"),
+        ("anchored-quote", H_ + "jobs:\n  lint:\n    if: &q 'a\n    name: Lint markdown corpus\n    b'\n"),
+        ("unicode-space", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\u00a0\n"),
+        ("quoted-name-key", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n    \"name\": Renamed\n"),
+        ("spaced-name-key", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n    name : Renamed\n"),
+        ("jobs-with-value", H_ + "jobs: &j\n  lint:\n    name: Lint markdown corpus\n"),
+        ("open-quote-top", "name: Repository quality checks\nenv: 'x\njobs:\n  lint:\n    name: Lint markdown corpus\n'\n"),
+    ):
+        checks.append((f"pin-refuses-{label}", not pin_ok(text, lint_)))
+    # The quoted-key refusal stays narrow: list items at the property indentation, a bare dash, comments and
+    # blank lines still read (3b105 QA r6).
+    styles = ("name: W\njobs:\n  lint:\n    name: Lint markdown corpus\n    steps:\n    - run: x\n    -\n"
+              "      uses: y\n\n    # c\n    runs-on: z\n")
+    checks.append(("reader-narrow-refusal", workflow_names(styles) == ("W", {lint_})))
+    checks.append(("reader-doubled-quote-and-plain-hash", workflow_names(odd) == ("W", {"Lint's job", "C#-lint"})))
+    _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
+                            {"Lint": "Repository quality checks"})
+    checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
     checks.append(("default-required-list-exact",
@@ -363,7 +628,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--dry-run", action="store_true", help="report the verdict; do NOT merge")
     group = ap.add_mutually_exclusive_group()  # both at once would silently drop NAME (3b104 QA r1)
     group.add_argument("--require", action="append", metavar="NAME",
-                       help="a check that must be present and SUCCESS (repeatable; replaces the default list)")
+                       help="a check that must be present and SUCCESS (repeatable; replaces the default list; a default "
+                            "check name still binds to its workflow)")
     group.add_argument("--require-none", action="store_true",
                        help="require no named check (for a repository without the default checks)")
     ap.add_argument("--self-test", action="store_true")
@@ -393,7 +659,8 @@ def main(argv: list[str]) -> int:
               file=sys.stderr)
         return 1
     required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
-    green, reason = evaluate(view.get("statusCheckRollup") or [], required)
+    workflows = REQUIRED_WORKFLOWS  # a default name binds to its workflow even via --require (3b105 QA r1)
+    green, reason = evaluate(view.get("statusCheckRollup") or [], required, workflows)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
         return 1
