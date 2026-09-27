@@ -108,8 +108,8 @@ TOP_BULLET_ITEM_RE = re.compile(
 # The REPORT net (QA r3-r4): a list line (optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or
 # ``1.``/``1)``, any indentation, an optional ``[ ]``/``[x]`` task box) whose text opens with emphasis (``*`` or
 # ``_``, any run length) and whose lead token (after emphasis, a backtick and ``#([`` punctuation) holds a digit
-# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or whose first 160 characters carry
-# a ``[private]`` / ``[public]`` tag. Every counted form meets one of these, so the counted-or-reported
+# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or which carries a ``[private]`` /
+# ``[public]`` tag anywhere (QA r6: a 160-character window let a long title hide the tag). Every counted form meets one of these, so the counted-or-reported
 # invariant holds by construction; the net is deliberately wider than the grammar.
 _ITEM_LIKE_LEAD_RE = re.compile(
     r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>[*_]+.*)$"
@@ -132,7 +132,7 @@ def _is_item_like(line: str) -> bool:
         return True
     if tok.lower().startswith("p-"):
         return True
-    return bool(_TAG_RE.search(rest[:160]))
+    return bool(_TAG_RE.search(rest))
 
 
 # A fence opens at 0 to 3 spaces of indentation (deeper indentation is list or code content, not a fence).
@@ -150,49 +150,59 @@ def _comment_open_after(s: str, open_: bool) -> bool:
     return open_
 
 
-def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
-    """True for each line inside (or opening/closing) a code fence, or inside an HTML comment that STARTS a
-    line; such a line is never an item and never changes item containment. A ``<!--`` later in a line (inline
-    code, a trailing note) does not mask it (QA r2)."""
+def _mask_scan(lines: "list[str]") -> "tuple[list[bool], int | None]":
+    """The mask (below) plus the 0-based line index of a fence or comment still open at end of file, from the
+    scanner's own final state (QA r6), or None."""
     mask: list[bool] = []
     fence: "str | None" = None
     in_comment = False
-    for ln in lines:
+    open_at: "int | None" = None
+    for i, ln in enumerate(lines):
         if fence is not None:
             mask.append(True)
             m = _FENCE_OPEN_RE.match(ln)
             if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not ln.strip()[len(m.group(1)):].strip():
                 fence = None
+                open_at = None
             continue
         if in_comment:
             mask.append(True)
             in_comment = _comment_open_after(ln, True)
+            if not in_comment:
+                open_at = None
             continue
         m = _FENCE_OPEN_RE.match(ln)
         if m:
             fence = m.group(1)
+            open_at = i
             mask.append(True)
             continue
         stripped = ln.lstrip(" ")
         if stripped.startswith("<!--") and len(ln) - len(stripped) <= 3:
             mask.append(True)
             in_comment = _comment_open_after(ln, False)
+            if in_comment:
+                open_at = i
             continue
         mask.append(False)
-    return mask
+    return mask, open_at
+
+
+def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
+    """True for each line inside (or opening/closing) a code fence, or inside an HTML comment that STARTS a
+    line; such a line is never an item and never changes item containment. A ``<!--`` later in a line (inline
+    code, a trailing note) does not mask it (QA r2)."""
+    return _mask_scan(lines)[0]
 
 
 def unclosed_blocks(text: str) -> "list[tuple[int, str]]":
     """A code fence or line-starting HTML comment still open at end of file (QA r5): everything after its
     opening line is masked, so it is reported rather than left to hide items silently."""
     lines = text.splitlines()
-    mask = _fence_comment_mask(lines)
-    if not lines or not mask[-1]:
+    open_at = _mask_scan(lines)[1]
+    if open_at is None:
         return []
-    n = len(lines)
-    while n > 1 and mask[n - 2]:
-        n -= 1
-    return [(n, "unclosed fence or comment opened here: " + lines[n - 1].strip()[:60])]
+    return [(open_at + 1, "unclosed fence or comment opened here: " + lines[open_at].strip()[:60])]
 
 
 def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
@@ -520,15 +530,12 @@ def parse_items(text: str, source: str,
             continue
         m = ITEM_HEADING_RE.match(line)
         if m and masked[ln_no]:
-            # A masked ``### <id>`` heading still counts, as on main (QA r5), but as a one-line item: it never
-            # takes in the bullets that follow the fence or comment (QA r2).
-            flush()
-            cur = (m.group("id"), m.group("title"))
-            body_lines = [line]
-            flush()
-            cur = None
-            cur_is_bullet = False
-            body_lines = []
+            # A masked ``### <id>`` heading still counts, as on main (QA r5), but as a one-line item that leaves
+            # the open block untouched (QA r6): like any masked line it never changes containment, so the hook's
+            # count, which skips masked lines, agrees.
+            legacy_items.append((m.group("id"), m.group("title").strip(), line, source, umbrella))
+            if cur is not None:
+                body_lines.append(line)
             continue
         if m:
             flush()
@@ -1326,6 +1333,15 @@ def _self_test() -> int:
     unc = "## A\n<!-- TODO: tidy this band\n### 3.7 Expiry-tail\nbody\n### 3.8 Another\nbody\n"
     check("r5-unclosed-comment-headings-count", [x[0] for x in parse_items(unc, "private", ref_bodies={})] == ["3.7", "3.8"])
     check("r5-unclosed-comment-reported", any("unclosed fence or comment" in x[1] for x in uncounted_item_like(unc)))
+    # QA r6
+    r6 = "## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n"
+    check("r6-masked-heading-keeps-containment", sorted(x[0] for x in parse_items(r6, "private", ref_bodies={}))
+          == ["9.8", "9.9"])
+    check("r6-long-title-tag-reported", len(uncounted_item_like("## Q\n- **GR-GAP " + "word " * 60 + "[private]** x\n")) == 1)
+    check("r6-closed-at-eof-not-unclosed", unclosed_blocks("## Q\n```\nx\n```") == []
+          and unclosed_blocks("## Q\n<!-- a -->") == [])
+    check("r6-adjacent-regions-report-real-opener",
+          [n for n, _m in unclosed_blocks("## Q\n```\nx\n```\n<!-- open\nmore\n")] == [5])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
 

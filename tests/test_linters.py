@@ -17353,6 +17353,9 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "heading item body": ("## L\n### 9.9 Heading item\n- **3b7 in body** a\n### Notes\n- **3b8 still body** b\n"
                                   "## M\n- **3b9 after section** c\n", 1),
             "non-item heading": ("## L\n### PR #1 follow-ups\n- **3b7 counted** a\n", 1),
+            # QA r6: a masked ``### <id>`` heading never changes containment, inside a heading item or a bullet.
+            "masked heading in heading item": ("## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n", 0),
+            "masked heading in bullet item": ("## Q\n- **3b7 x** y\n```\n### 9.8 ex\n```\n  more\n- **3b8 z** w\n", 2),
         }
         for name, (text, want) in cases.items():
             tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
@@ -17375,6 +17378,17 @@ class HookToolItemCountParityTests(unittest.TestCase):
             (priv / "P-TODO.md").write_text(text, encoding="utf-8")
             self.assertEqual(hook._todo_item_count(str(root)), 3)
         self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["9.9", "9.8", "3.1"])
+        # QA r6 repro: the hook's total and the tool's must agree when a masked heading sits in a heading item.
+        text = "## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n"
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(text, encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 2)
+        self.assertEqual(len(tool.parse_items(text, "private", ref_bodies={})), 2)
 
     def test_cli_prints_item_like_lines(self):
         # 3b119 QA r4: the CLI must print the not-counted list (the counted-or-reported invariant's output half).
