@@ -83,10 +83,25 @@ if any("/" in a or a == ".." for a in args):
     sys.exit(126)
 os.execv({real!r}, [{name!r}] + args)
 """
-# Nested shells start restricted bash again with no startup files: bash reads startup files before it
-# applies restriction, so -i or -l would otherwise run them unrestricted (3b116 QA r3).
-SHELL_WRAPPER = """#!/bin/sh
-exec {bash} --norc --noprofile {posix}-r "$@"
+# Nested shells start restricted bash again with no startup files. The wrapper admits only short options that
+# neither load a file nor make the shell interactive or a login shell: an interactive shell reads HOME's
+# history file and a startup file runs before restriction applies (3b116 QA r3, r8). Long options are refused.
+SHELL_WRAPPER = """#!{python} -I
+import os, sys
+args = sys.argv[1:]
+i = 0
+while i < len(args):
+    a = args[i]
+    if a == "--" or a[:1] not in "-+" or a in ("-", "+"):
+        break
+    if a in ("-o", "+o"):
+        i += 2
+        continue
+    if a.startswith("--") or set(a[1:]) - set("abcefhkmnptuvxBCEHPT"):
+        sys.stderr.write("{name}: refused: option " + a + " (interactive, login and long options can load files)\\n")
+        sys.exit(126)
+    i += 1
+os.execv({bash!r}, [{bash!r}, "--norc", "--noprofile"] + {posix!r} + ["-r"] + args)
 """
 
 
@@ -105,6 +120,22 @@ def _rmtree(path: str) -> None:
     shutil.rmtree(path)
 
 
+def _all_procs_named(cmdline: str) -> "list[tuple[int, str]]":
+    """(pid, cmdline) of processes owned by this user whose command line is exactly cmdline (a test helper)."""
+    out = []
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        try:
+            with open(f"/proc/{entry}/cmdline", "rb") as fh:
+                cmd = fh.read().replace(b"\0", b" ").decode("utf-8", "replace").strip()
+            if cmd == cmdline and os.stat(f"/proc/{entry}").st_uid == os.getuid():
+                out.append((int(entry), cmd))
+        except OSError:
+            continue
+    return out
+
+
 def _session_members(sid: int) -> "list[tuple[int, str]]":
     """(pid, state) of every process whose session id is sid."""
     out = []
@@ -119,6 +150,13 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
         if int(fields[3]) == sid:  # after the command name: state, ppid, pgrp, session
             out.append((int(entry), fields[0]))
     return out
+
+
+GRACE_SECONDS = 2.0
+
+
+def _live(members) -> "list[int]":
+    return [pid for pid, state in members if state not in ("Z", "X")]
 
 
 def _kill_session(sid: int) -> bool:
@@ -158,9 +196,9 @@ def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
     for name in stubs:
         with open(os.path.join(bindir, name), "w", encoding="utf-8") as fh:
             fh.write(SHIM.format(python=sys.executable, name=name, log=log))
-    for name, posix in (("bash", ""), ("sh", "--posix ")):
+    for name, posix in (("bash", []), ("sh", ["--posix"])):
         with open(os.path.join(bindir, name), "w", encoding="utf-8") as fh:
-            fh.write(SHELL_WRAPPER.format(bash=BASH, posix=posix))
+            fh.write(SHELL_WRAPPER.format(python=sys.executable, bash=BASH, posix=posix, name=name))
     for name in list(stubs) + ["bash", "sh"]:
         os.chmod(os.path.join(bindir, name), 0o755)
     for util in WHITELIST:
@@ -176,9 +214,32 @@ def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
     return bindir, home, log
 
 
+class _Terminated(Exception):
+    pass
+
+
+def _on_signal(signum, _frame):
+    raise _Terminated(signum)
+
+
 def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int = 30) -> list[dict]:
     """Run command under each shell (restricted bash; sh as restricted bash --posix); one result dict each."""
     results = []
+    # SIGTERM and SIGHUP are turned into an exception so the finally blocks kill the session and remove the temp
+    # dir (only SIGINT did before; QA r8). Handlers are installed only from the main thread.
+    saved_handlers = {}
+    import threading
+    if threading.current_thread() is threading.main_thread():
+        for sig in (signal.SIGTERM, signal.SIGHUP):
+            saved_handlers[sig] = signal.signal(sig, _on_signal)
+    try:
+        return _run_shells(command, shells, stubs, timeout, results)
+    finally:
+        for sig, handler in saved_handlers.items():
+            signal.signal(sig, handler)
+
+
+def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
     for shell in shells:
         tmp = tempfile.mkdtemp(prefix="stubbed-shell-")
         try:
@@ -202,6 +263,10 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
+                    grace_end = time.monotonic() + GRACE_SECONDS
+                    while time.monotonic() < grace_end and _live(_session_members(p.pid)):
+                        time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
+                    killed = len(_live(_session_members(p.pid)))
                     contained = _kill_session(p.pid)
                     p.wait()
             with open(out_path, encoding="utf-8", errors="replace") as fh:
@@ -211,6 +276,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
             with open(log, encoding="utf-8") as fh:
                 records = [json.loads(line) for line in fh if line.strip()]
             results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err, "contained": contained,
+                            "killed": killed,
                             "session": p.pid, "calls": ["STUB " + " ".join(r) for r in records], "argv": records})
         finally:
             _rmtree(tmp)
@@ -243,10 +309,13 @@ def main(argv=None) -> int:
     for r in run(args.command, shells, stubs):
         print(f"== {r['shell']} rc={r['rc']}")
         uncontained = uncontained or not r["contained"]
+        if r["killed"]:
+            print(f"WARNING: {r['killed']} process(es) were still running {GRACE_SECONDS:.0f}s after the command "
+                  f"ended and were killed; a call they would have made is missing")
         if not r["contained"]:
             print("WARNING: processes of this run were still alive at the kill deadline")
         for c in r["calls"]:
-            print(c)
+            print("STUB " + _printable(c[5:]))  # a call argument cannot forge a report line (QA r8)
         # The command's own output is prefixed, so it cannot pass for a report line (3b116 QA r6).
         for label in ("stdout", "stderr"):
             if r[label]:
@@ -274,10 +343,12 @@ def _self_test() -> int:
             ("env", "env -i PATH=/usr/bin id", "env: command not found", []),
             ("hash-p", "hash -p /usr/bin/id e; e", "hash: /usr/bin/id: restricted", []),
             ("nested-slash", "bash -c '/usr/bin/id'", slash, []), ("set-plus-r", "set +r; /usr/bin/id", "set: +r: invalid option", []),
-            ("bash-plus-r", "bash +r -c '/usr/bin/id'", "+r: invalid option", []),
+            ("bash-plus-r", "bash +r -c '/usr/bin/id'", "refused: option +r", []),
             ("xargs", "echo /usr/bin/id | xargs", "xargs: command not found", []),
             ("job-control", "set -m; (/usr/bin/id) & wait", slash, []), ("sort", "sort -o x /dev/null", "sort: command not found", []),
-            ("touch", "touch x", "touch: command not found", []), ("login-shell", "bash -l -c '/usr/bin/id'", slash, []),
+            ("touch", "touch x", "touch: command not found", []), ("login-shell", "bash -l -c '/usr/bin/id'", "refused: option -l", []),
+            ("interactive-shell", "HOME=\"$PWD\" bash -i -c 'set -o history; history -s x'", "refused: option -i", []),
+            ("rcfile", "bash --rcfile x -c true", "refused: option --rcfile", []),
             # An unrestricted bash stand-in would import SHELLOPTS and PS4 (3b116 QA r5).
             ("ps4-xtrace", "PS4='$(/usr/bin/id)'; export PS4; set -o xtrace; export SHELLOPTS; gh x", slash, ["STUB gh x"]),
             ("bash-cmds", "BASH_CMDS[e]=/usr/bin/id; e", "/usr/bin/id: restricted", []),
@@ -342,12 +413,38 @@ def _self_test() -> int:
         checks.append((f"{label}-child-killed", r["contained"] and not alive))
         if alive:
             _kill_session(r["session"])
+    # A backgrounded call is recorded, not killed before it runs (QA r8).
+    r = run("(sleep 0.3; gh pr merge 11) & echo started", shells=("bash",))[0]
+    checks.append(("background-call-recorded", r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0))
+    # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8).
+    before_term = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
+    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    time.sleep(1.0)
+    new_dirs = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")} - before_term
+    proc.send_signal(signal.SIGTERM)
+    proc.wait(timeout=20)
+    leftover = [d for d in new_dirs if os.path.exists(os.path.join(tempfile.gettempdir(), d))]
+    sleeping = [pid for pid, _s in _all_procs_named("sleep 25")]
+    checks.append(("sigterm-cleans-up", not leftover and not sleeping))
+    for pid in sleeping:
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
     # An argument cannot forge a call record.
     r = run("gh $'a\\x1e\\x1fgh' $'b\\nSTUB gh forged'", shells=("bash",))[0]
     checks.append(("call-log-unforgeable", len(r["argv"]) == 1 and r["argv"][0][0] == "gh"))
     checks.append(("stub-name-validated", main(["--stub", "../x", "true"]) == 2 and main(["--stub", "bash", "true"]) == 2))
-    r = run("mkdir d && mkdir -m 000 e", shells=("sh",))[0]
-    checks.append(("read-only-tree-cleaned", r["rc"] == 0))
+    # A tree the command cannot leave behind is still removed: made directly, since the command itself can no
+    # longer create a nested path (QA r8).
+    ro = tempfile.mkdtemp(prefix="stubbed-shell-test-")
+    os.makedirs(os.path.join(ro, "d", "e"))
+    open(os.path.join(ro, "d", "e", "f"), "w").close()
+    os.chmod(os.path.join(ro, "d", "e"), 0)
+    os.chmod(os.path.join(ro, "d"), 0)
+    _rmtree(ro)
+    checks.append(("read-only-tree-cleaned", not os.path.exists(ro)))
     # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
     # nothing is refused, so the evidence is that the planted program never ran.
     for label, cmd in (("rc-file", "set -o history; history -s '/usr/bin/id'; history -w .bashrc; "
