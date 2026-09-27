@@ -36,3 +36,13 @@ authoritative source.
   so a refresh from source changes nothing. The file is not a near-duplicate of the primary
   pack, so it is kept with this divergence recorded. Re-check upstream at the next overlay
   review; dropping the file remains an overlay-review choice.
+- This directory carries five of the upstream skills, so some of their pointers do not resolve here.
+  `security-and-hardening.md` lines 79 and 424 and `code-review-and-quality.md` lines 317-318 point to
+  `references/security-checklist.md` and `references/performance-checklist.md`, relative paths carried
+  over from the upstream skills; the directory does not carry those files. `code-review-and-quality.md`
+  line 76 says to see `performance-optimization`, `ci-cd-and-automation.md` line 191 names the
+  `debugging-and-error-recovery` skill, and `using-agent-skills.md` routes to 19 skills in its
+  quick-reference table (and elsewhere in that file) that are not here. For security
+  review, use the primary pack's rules instead (they win on conflict); the primary pack has no
+  performance-review equivalent. Vendoring the missing files under the upstream licence remains an
+  overlay-review choice.
