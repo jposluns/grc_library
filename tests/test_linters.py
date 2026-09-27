@@ -13216,6 +13216,7 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
             ("tools/audit-backlog-actionability.py", "--todo", str(td / "missing.md")),
             ("tools/audit-backlog-actionability.py", "--ptodo", str(td / "missing.md")),
             ("tools/audit-backlog-actionability.py", "--private-root", str(td / "missing")),
+            ("tools/audit-backlog-actionability.py", "--approvals", str(td / "missing.md")),
             ("tools/adopt-bootstrap-ref.py", "--manifest", str(plain)),
             ("tools/suggest-listing-surfaces.py", "--bogus"),
         )
@@ -17097,6 +17098,62 @@ class BacklogActionabilityTests(unittest.TestCase):
         "## Maintainer or Egress Gated\n"
         "| MEG-01 | §1.1 | an index row, NOT an item heading |\n"
     )
+
+    def test_backlog_actionability_self_test(self):
+        """The tool's own self-test carries the approvals-grammar and origin-lookup regression cases
+        (P-1.36 S36 QA r4: they were not reached by CI)."""
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "audit-backlog-actionability.py"), "--self-test"],
+            capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: all pipeline cases passed", result.stdout)
+
+    def test_approvals_register_gates_blocked_tags(self):
+        # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register; an
+        # unapproved tag is listed and counted ACTIONABLE. Explicit --approvals keeps the run hermetic.
+        import tempfile
+        import subprocess
+        import sys
+        tool = str(REPO_ROOT / "tools/audit-backlog-actionability.py")
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "TODO.md").write_text(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n"
+                "| 1.1 | granted | `[public]` `[BLOCKED:source-acquisition]` |\n"
+                "| 1.2 | self-tagged | `[public]` `[BLOCKED:egress-ingest]` |\n"
+                "| 1.3 | open | `[public]` |\n", encoding="utf-8")
+            (d / "P-TODO.md").write_text("| ID | Item | Tags |\n| --- | --- | --- |\n", encoding="utf-8")
+            (d / "approvals.md").write_text(
+                "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                "| 1.1 | source-acquisition | 2026-09-18 | #2364 |\n", encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals.md"), "--actionable-only"],
+                capture_output=True, text=True)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            self.assertIn("3 open item(s) across both lists; 1 BLOCKED", out.stdout)
+            self.assertIn("UNAPPROVED [BLOCKED] TAG (1)", out.stdout)
+            self.assertRegex(out.stdout, r"UNAPPROVED[^\n]*\n  - 1\.2 ")
+            self.assertIn("1 granted row(s)", out.stdout)
+            # --pipeline consults the register too (QA r1): the unapproved leaf stays visible.
+            (d / "P-TODO.md").write_text("## 9. Umb\n### P-9.1 Umbrella\n- **P-9.1.1** leaf self-tagged `[BLOCKED:z]`\n"
+                                         "- **P-9.1.2** leaf b\n", encoding="utf-8")
+            pipe = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals.md"), "--pipeline"],
+                capture_output=True, text=True)
+            self.assertEqual(pipe.returncode, 0, pipe.stderr)
+            self.assertIn("granted row(s)", pipe.stderr)  # the approvals note stays visible (QA r7-r8)
+            # a row that grants nothing is named in the printed note (QA r9)
+            (d / "approvals2.md").write_text("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                                              "| 1.1 | r | soon | #1 |\n", encoding="utf-8")
+            named = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals2.md")], capture_output=True, text=True)
+            self.assertIn("line 3: granted: not a YYYY-MM-DD calendar date", named.stdout)
+            self.assertIn("P-9.1.1", pipe.stdout)
+            self.assertIn("P-9.1.2", pipe.stdout)
 
     def test_no_tag_means_all_actionable(self):
         # No [BLOCKED:] tag anywhere -> every item ACTIONABLE, even those whose prose

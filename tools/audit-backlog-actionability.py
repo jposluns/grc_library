@@ -11,11 +11,15 @@ AND the PRIVATE ``grc_library_private/P-TODO.md`` and, per item, reports whether
 it is BLOCKED.
 
 THE AUTHORITATIVE BLOCKER SIGNAL IS THE TAG, NOT PROSE. An item is counted
-BLOCKED only if it carries a ``[BLOCKED:<reason>]`` tag. That tag is a
-maintainer-GRANTED status: the assistant never self-applies it (a PreToolUse
-hook rejects a ``[BLOCKED]`` written without a matching maintainer approval
-record), it proposes a block in ``.working/pending-decisions.md`` and only an
-approved block becomes a tag. So "all blocked" is assertable only when EVERY
+BLOCKED only if it carries a ``[BLOCKED:<reason>]`` tag AND the operational
+store's approvals register (``blocked-approvals.md``) holds a granted row for it,
+citing the maintainer's ruling (P-1.36 S36), in every mode including --pipeline. On a
+clone with no operational store at all (an adopter), tags count as written; a store
+without a readable register counts no tag. The tag is a maintainer-GRANTED
+status: the assistant proposes a block in ``pending-decisions.md`` and only an
+approved block becomes a tag and a register row; a tag with no row is reported as
+UNAPPROVED and counted ACTIONABLE (a hook that rejects writing such a tag is still
+a queued backstop). So "all blocked" is assertable only when EVERY
 open item on BOTH lists literally carries an approved ``[BLOCKED:...]`` tag,
 which is essentially never. Until the maintainer approves blocks, every item
 reads ACTIONABLE, which is the honest state.
@@ -54,7 +58,11 @@ Stdlib-only (gate 71). Python 3.11.
 from __future__ import annotations
 
 import argparse
+import datetime
+import os
 import re
+import subprocess
+import unicodedata
 import sys
 from pathlib import Path
 
@@ -63,7 +71,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working, has_todo_index_header
+from lint_common import resolve_working, has_todo_index_header, _store_dir, InaccessiblePath
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -85,6 +93,165 @@ ITEM_HEADING_RE = re.compile(
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
+
+# A [BLOCKED:] tag is maintainer-GRANTED, never assistant-asserted (P-1.36 S36). The grant is recorded as a
+# row of the approvals register in the operational store: ``| <item id> | <reason> | <date> | <evidence> |``,
+# where the evidence cell cites the ruling (a pending-decisions entry, a commit or a PR). A tag counts as
+# BLOCKED only when its item has a row. None = no store on a git clone whose origin is another repository: tags count
+# as written. When a store exists but the register does not, NO tag counts: a missing register must not
+# widen what is blocked, since BLOCKED licenses less work (the asymmetric-skepticism rule).
+APPROVALS_FILE = "blocked-approvals.md"
+_APPROVALS: "set[str] | None" = None
+
+
+_APPROVAL_HEADER = "| Item | Reason | Granted | Evidence |"
+_APPROVAL_SEPARATOR_RE = re.compile(r"\|(?:[ \t]*:?-+:?[ \t]*\|){4}")
+_APPROVAL_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_APPROVAL_ITEM_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?")
+# Characters Python's splitlines treats as line breaks but Markdown does not (QA r5).
+_NON_MARKDOWN_BREAKS = "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+_FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+# A line allowed before the header: a heading, or a prose line that cannot open a list, blockquote, code
+# block, setext underline, thematic break or table (QA r6: lazy continuation and pipe-less tables).
+_PRE_HEADER_HEADING_RE = re.compile(r"#{1,6}(?:[ \t][^|]*)?")
+_PRE_HEADER_PROSE_RE = re.compile(r"(?![-+>=_#~\s])(?![*](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
+
+
+_CELL_FORBIDDEN = set("`&[]<>\\~")
+_SHORTCODE_RE = re.compile(r":[A-Za-z0-9_+\-]+:")
+
+
+def _cell_problem(cell: str, needs_text: bool) -> "str | None":
+    """Why a cell cannot grant, or None (QA r7-r8). A cell is a whitelist: printable ASCII and tab only, without
+    a backtick (a code span can swallow pipes), ``&`` (an entity such as ``&nbsp;`` renders as blank),
+    brackets (an empty link or image renders as blank), angle brackets, a backslash, ``~`` (strikethrough
+    reads as withdrawn) or an emoji shortcode such as ``:x:``. A reason or evidence
+    cell must also contain a letter or digit, so it cannot look blank to a reader."""
+    bad = sorted({c for c in cell if c in _CELL_FORBIDDEN or not (c == "\t" or " " <= c <= "~")})
+    if bad:
+        return "a character outside the cell whitelist: " + ", ".join(repr(c) for c in bad)
+    if _SHORTCODE_RE.search(cell):
+        return "an emoji shortcode, which renders as a symbol"
+    if needs_text and not any(c.isalnum() for c in cell):
+        return "no letter or digit"
+    return None
+
+
+def _register_lines(text: str) -> "tuple[list[str], str | None]":
+    """The register's lines and why it is refused, or None (QA r5-r6). The grammar is CLOSED: rather than track
+    every Markdown construct that can hide or reveal a table, a register that contains any of them grants
+    nothing, and the tool says why. One leading BOM is dropped and CRLF becomes LF; the same line list serves
+    the refusal and the parse. Refused: another BOM, a lone CR, a non-Markdown line-break character, any ``<``
+    (HTML, comments, autolinks), an escaped pipe, a code-fence line, and before the exact header line anything
+    but blank lines (spaces and tabs only), headings and plain prose lines without a ``|`` (so no table, list, blockquote, indented or
+    lazy-continuation context can contain the header); the header must follow a blank line or open the file."""
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    text = text.replace("\r\n", "\n")
+    lines = text.split("\n")
+    if "\ufeff" in text:
+        return lines, "it contains a byte-order mark after the start"
+    if "\r" in text:
+        return lines, "it contains a carriage return that is not part of CRLF"
+    if any(c in text for c in _NON_MARKDOWN_BREAKS):
+        return lines, "it contains a line-break character Markdown does not treat as one"
+    if "<" in text:
+        return lines, "it contains '<' (HTML or a comment could hide or reveal a table)"
+    controls = sorted({c for c in text if unicodedata.category(c) == "Cc" and c not in "\t\n"})
+    if controls:
+        return lines, "it contains a control character: " + ", ".join(repr(c) for c in controls)
+    if "\\|" in text:
+        return lines, "it contains an escaped pipe, which shifts the cells a reader sees"
+    if any(_FENCE_LINE_RE.match(line) for line in lines):
+        return lines, "it contains a code fence"
+    for n, line in enumerate(lines):
+        if line.rstrip(" \t") == _APPROVAL_HEADER:
+            if n and lines[n - 1].strip(" \t"):
+                return lines, "the header line does not follow a blank line"
+            return lines, None
+        if line.strip(" \t") and not (_PRE_HEADER_HEADING_RE.fullmatch(line) or _PRE_HEADER_PROSE_RE.fullmatch(line)):
+            return lines, f"line {n + 1}, before the header, is not a heading or plain prose"
+    return lines, None
+
+
+def register_refusal(text: str) -> "str | None":
+    """Why the register text is refused as a whole, or None (see _register_lines)."""
+    return _register_lines(text)[1]
+
+
+def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
+    """The item ids granted by the register (see parse_approvals)."""
+    return parse_approvals(text, today)[0]
+
+
+def parse_approvals(text: str, today: "datetime.date | None" = None) -> "tuple[set[str], list[str]]":
+    """(granted item ids, one note per table row that grants nothing) for the register (QA r1-r8). A refused
+    register grants nothing. Otherwise the table is opened by the first line that is exactly ``| Item | Reason |
+    Granted | Evidence |`` (trailing spaces ignored) and must be followed at once by a four-cell separator row;
+    it ends at the first line not starting with ``|``. A row starts at column 0, ends with ``|`` (trailing
+    spaces ignored) and has exactly five ``|`` characters; it grants only with an item id (optionally
+    backtick-wrapped, not ending in a dot), whitelisted cells, a reason and evidence containing a letter or
+    digit, and a ``YYYY-MM-DD`` calendar date not after today. A row that grants nothing is reported, never
+    silently dropped; an indented row ends the table (it grants less, never more)."""
+    lines, refusal = _register_lines(text)
+    if refusal is not None:
+        return set(), []
+    today = today or datetime.date.today()
+    ids: set = set()
+    skipped: list = []
+    state = "before"  # before -> separator -> rows
+    for n, raw in enumerate(lines, 1):
+        if state == "before":
+            if raw.rstrip(" \t") == _APPROVAL_HEADER:
+                state = "separator"
+            continue
+        if state == "separator":
+            if not _APPROVAL_SEPARATOR_RE.fullmatch(raw.rstrip(" \t")):
+                skipped.append(f"line {n}: the header is not followed by its separator row, so no row grants")
+                break
+            state = "rows"
+            continue
+        if not raw.startswith("|"):
+            # GFM continues a table through indented and pipe-less lines; they and any rows after them grant
+            # nothing here, so name each one that still looks like a row (QA r9).
+            skipped.extend(f"line {k}: after the table ends at line {n}, not read"
+                           for k, rest in enumerate(lines[n - 1:], n) if "|" in rest)
+            break
+        row = raw.rstrip(" \t")
+        if row.count("|") != 5 or not row.endswith("|"):
+            skipped.append(f"line {n}: not exactly four cells between pipes")
+            continue
+        item, reason, granted, evidence = (c.strip(" \t") for c in row[1:-1].split("|"))
+        if item.startswith("`") and item.endswith("`") and len(item) > 2:
+            item = item[1:-1]
+        problem = next((f"{name}: {why}" for name, cell, needs in (("item", item, False), ("reason", reason, True),
+                                                                   ("granted", granted, False), ("evidence", evidence, True))
+                        for why in [_cell_problem(cell, needs)] if why), None)
+        if problem is None and not _APPROVAL_ITEM_RE.fullmatch(item):
+            problem = "item: not an item id"
+        if problem is None:
+            try:
+                when = datetime.date.fromisoformat(granted) if _APPROVAL_DATE_RE.fullmatch(granted) else None
+            except ValueError:
+                when = None
+            if when is None:
+                problem = "granted: not a YYYY-MM-DD calendar date"
+            elif when > today:
+                problem = "granted: after today"
+        if problem is None:
+            ids.add(item)
+        else:
+            skipped.append(f"line {n}: {problem}")
+    return ids, skipped
+
+
+def set_approvals(approvals: "set[str] | None") -> None:
+    global _APPROVALS
+    _APPROVALS = approvals
+
+
+def _approved(item_id: "str | None") -> bool:
+    return _APPROVALS is None or (item_id is not None and item_id in _APPROVALS)
 
 # ADVISORY prose-signal set (closed). Detected only to SUGGEST proposing a block;
 # it never counts an item blocked. Kept deliberately narrow to avoid false hints.
@@ -244,13 +411,44 @@ def parse_items(text: str, source: str,
     return idx_items + legacy_items
 
 
-def is_blocked(block_text: str) -> bool:
+# The heading id; _heading_id checks what follows it (a heading such as ``### 1.1\u0662`` is not item 1.1
+# and must not inherit its grant, QA r9 and its fix-checks).
+_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
+# Returned when a heading's id does not end cleanly (``### 1.1\u0662``, ``### 3.92.<ZWSP>a``): the heading
+# is not the ASCII item, and it must not fall back to a shorter parsed id either (fix-check after QA r9),
+# so it gets an id that no approvals row can match.
+_UNREADABLE_HEADING_ID = "<unreadable heading id>"
+
+
+def _heading_id(block_text: str) -> "str | None":
+    """The item id exactly as the heading writes it (a ``### 3.92.a`` heading or an index row's first cell);
+    parse_items may shorten a lettered child's id, and approval must bind to the full one (QA r2)."""
+    line = block_text.splitlines()[0].strip() if block_text else ""
+    m = _HEADING_ID_RE.match(line)
+    if not m:
+        return None
+    nxt = line[m.end():m.end() + 1]
+    # The id must end at the end of the line, a space or tab, or printable ASCII punctuation. Anything else
+    # (a letter, digit or underscore; an invisible, combining, control or other non-ASCII character that
+    # would hide a longer id such as 3.92.<ZWSP>a) makes the id unreadable, never a shorter grantable one.
+    if nxt and not (nxt in " \t" or (nxt.isascii() and nxt.isprintable() and not (nxt.isalnum() or nxt == "_"))):
+        return _UNREADABLE_HEADING_ID
+    return m.group("id").rstrip(".")
+
+
+def is_blocked(block_text: str, item_id: "str | None" = None) -> bool:
     """True iff the item's HEADING carries an (approved) ``[BLOCKED:...]`` tag.
 
     Scans ONLY the heading (first line of the block): per the design the tag lives
     on the item heading, so a ``[BLOCKED:...]`` appearing in an item's BODY prose
     (e.g. an item describing the blocked-tag feature) must NOT false-match as
     blocked, which is the unsafe direction (it would hide an actionable item)."""
+    heading = block_text.splitlines()[0] if block_text else ""
+    return bool(BLOCKED_TAG_RE.search(heading)) and _approved(_heading_id(block_text) or item_id)
+
+
+def has_blocked_tag(block_text: str) -> bool:
+    """The heading carries a [BLOCKED:] tag, approved or not."""
     heading = block_text.splitlines()[0] if block_text else ""
     return bool(BLOCKED_TAG_RE.search(heading))
 
@@ -271,7 +469,7 @@ def build_report(public_text: str,
     rows = []
     blocked = 0
     for item_id, title, block, source, _umbrella in items:
-        b = is_blocked(block)
+        b = is_blocked(block, item_id)
         rows.append((item_id, title, source, b, prose_signals(block)))
         if b:
             blocked += 1
@@ -386,7 +584,7 @@ def render_pipeline(public_text: str, private_text: str | None,
     # a ``### `` block with no bullets is itself a leaf (umbrella = its ## parent).
     open_items: list[tuple[str, str, str, str, str]] = []
     for item_id, title, block, source, umb in items:
-        if is_blocked(block):
+        if is_blocked(block, item_id):
             continue  # a [BLOCKED:] parent heading excludes itself AND its bullet leaves
         head_umb = f"{item_id} {title}".strip()
         # An umbrella's CHILDREN are the formal ids in its block that are dotted DESCENDANTS
@@ -417,7 +615,7 @@ def render_pipeline(public_text: str, private_text: str | None,
             bm = BULLET_ITEM_RE.match(line)
             if bm:
                 _consider(bm.group("id"), bm.group("title"), line, True,
-                          bool(BLOCKED_TAG_RE.search(line)))
+                          bool(BLOCKED_TAG_RE.search(line)) and _approved(bm.group("id")))
         for line in lines:                 # pass 2: inline wave-prose ids (non-bullet lines)
             if BULLET_ITEM_RE.match(line):
                 continue
@@ -436,7 +634,7 @@ def render_pipeline(public_text: str, private_text: str | None,
                 idesc = im.group("title").strip()
                 # context = the child's OWN desc (the shared wave line mixes sibling items and
                 # track keywords, which would mis-type an inline child).
-                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)))
+                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)) and _approved(iid))
 
         children = [(oid, o["title"], o["line"]) for oid, o in occ.items()
                     if not o["blocked"] and o["descendant"]]
@@ -648,6 +846,243 @@ def _self_test() -> int:
     check("non-descendant-inline-token-ignored",
           any(l.startswith("3.500 ") for l in rEl) and not any("NOT-READY" in l for l in rEl))
 
+    # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register.
+    reg = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+           "| 2.1 | source | 2026-09-18 | #2364 |\n| `P-1.77` | ext | 2026-09-18 | 8168ee2 |\n"
+           "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | 2026-09-18 | x | y |\n"
+           "| 2.6 |  | 2026-09-18 | #1 |\n")
+    check("approvals-parse", load_approvals(reg) == {"2.1", "P-1.77"})
+    reg2 = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 2.1 | ok | 2026-09-18 | #1 |\n"
+            "| 6.6 | bad date | 2026-13-45 | #5 |\n| 7.7 | future | 2999-01-01 | #6 |\n\nLifted:\n\n"
+            "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 3.3 | lifted | 2026-09-01 | #2 |\n")
+    check("approvals-canonical-table-only", load_approvals(reg2) == {"2.1"})
+    H = "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+    R = lambda i: f"| {i} | r | 2026-09-18 | #1 |\n"
+    check("approvals-nested-fence", load_approvals("````markdown\n```\n" + H + R("1.1") + "```\n````\n") == set())
+    check("approvals-mixed-fence", load_approvals("```\n~~~\n" + H + R("1.1") + "~~~\n```\n") == set())
+    check("approvals-fence-refused", load_approvals("```\nexample\n```\n" + H + R("1.1")) == set()
+          and load_approvals(H + R("1.1") + "```\nexample\n```\n") == set())
+    check("approvals-header-exact", load_approvals(H.lower() + R("1.1")) == set()
+          and load_approvals(H.replace("Item", "`Item`") + R("1.1")) == set())
+    check("approvals-empty-fifth-cell", load_approvals(H + R("1.1").rstrip("\n") + "|\n") == set())
+    # QA r4: the grammar is literal from column 0; commented, indented and malformed tables grant nothing.
+    check("approvals-header-spacing", load_approvals(H.replace("| Item", "|  Item") + R("1.1")) == set()
+          and load_approvals(H.replace("| Item", "|\tItem") + R("1.1")) == set())
+    check("approvals-indented-table", load_approvals("para\n\n" + "".join("    " + l + "\n" for l in (H + R("1.1")).splitlines())) == set())
+    check("approvals-commented-table", load_approvals("<!-- revoked\n" + H + R("1.1") + "-->\n") == set()
+          and load_approvals("<!-- a --> <!-- revoked\n" + H + R("1.1") + "-->\n") == set()
+          and load_approvals("<pre>\n" + H + R("1.1") + "</pre>\n") == set()
+          and load_approvals(H + R("1.1").replace("#1", "e <!-- c -->")) == set())
+    check("approvals-list-nested-fence", load_approvals("- example:\n\n    ```markdown\n    " + H.replace("\n", "\n    ")
+                                                         + R("1.1") + "    ```\n") == set())
+    check("approvals-table-before-header", load_approvals("|  Item | Reason | Granted | Evidence |\n\n" + H + R("2.2")) == set()
+          and load_approvals("| A | B | C | D |\n|---|---|---|---|\n" + H + R("1.1")) == set()
+          and load_approvals("  " + H + R("1.1")) == set())
+    # QA r5: only LF, CRLF and CR break lines; other splitlines characters refuse the register.
+    check("approvals-line-breaks", all(load_approvals("note:" + c + H.replace("\n", c) + R("1.1")) == set()
+                                       for c in "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029")
+          and load_approvals(H.replace("\n", "\r\n") + R("1.1").replace("\n", "\r\n")) == {"1.1"})
+    check("approvals-row-tail", load_approvals(H + "| 1.1 | r | 2026-09-18 | #1 | tail\n" + R("1.2")) == {"1.2"})
+    check("approvals-row-trailing-space", load_approvals(H + R("1.1").replace("|\n", "|  \n")) == {"1.1"})
+    check("approvals-mid-table-text-ends", load_approvals(H + R("1.1") + "note\n" + R("1.2")) == {"1.1"})
+    # QA r6: one line model for refusal and parse; nothing before the header can contain it.
+    check("approvals-cr-only", load_approvals("note\r```\r" + H.replace("\n", "\r") + R("1.1").replace("\n", "\r") + "```\r") == set()
+          and register_refusal(H.replace("\n", "\r") + R("1.1")) is not None)
+    check("approvals-pipeless-table-before", load_approvals("Revoked | Reason | Granted | Evidence\n--- | --- | --- | ---\n\n" + H + R("1.1")) == set())
+    check("approvals-lazy-continuation", all(load_approvals(f"{m} revoked:\n" + H + R("1.1")) == set() for m in (">", "-", "*", "+", "1."))
+          and load_approvals("revoked:\n" + H + R("1.1")) == set()
+          and load_approvals("> quote\n\n" + H + R("1.1")) == set())
+    check("approvals-escaped-pipe", load_approvals(H + "| 1.1 | r \\| 2026-09-18 | #1 |\n") == set())
+    check("approvals-double-bom", load_approvals("\ufeff\ufeff" + H + R("1.1")) == set())
+    # QA r7: blank means spaces and tabs only; cells a reader would read differently do not grant.
+    check("approvals-unicode-blank", all(load_approvals("revoked:\n" + c + "\n" + H + R("1.1")) == set()
+                                         for c in ("\xa0", "\u3000", "\u202f", "\x1f")))
+    check("approvals-cell-code-span", load_approvals(H + "| 1.1 | r ` | 2026-09-18 | ` #1 |\n") == set()
+          and load_approvals(H + "| `1.1` | r | 2026-09-18 | #1 |\n") == {"1.1"})
+    check("approvals-cell-entity-invisible", load_approvals(H + "| 1.1 | r | 2026-09-18 | &nbsp; |\n") == set()
+          and load_approvals(H + "| 1.1 | \u200b | 2026-09-18 | #1 |\n") == set())
+    check("approvals-header-trailing-space", load_approvals(H.replace("Evidence |\n", "Evidence |  \n") + R("1.1")) == {"1.1"})
+    check("approvals-front-matter", load_approvals("---\nx: y\n\n" + H + R("1.1") + "---\n") == set())
+    check("approvals-harmless-prose", load_approvals("`blocked-approvals.md` lists grants.\n*Maintainer-granted.*\n"
+                                                     "1.26.44 has no recorded grant.\n\n" + H + R("1.1")) == {"1.1"}
+          and load_approvals("* item\n\n" + H + R("1.1")) == set() and load_approvals("1. item\n\n" + H + R("1.1")) == set())
+    # QA r7: the file is read without newline translation, so a lone-CR register is refused from disk too.
+    import tempfile as _tf2
+    with _tf2.TemporaryDirectory(prefix="approvals-file-") as ad:
+        reg_path = Path(ad) / "reg.md"
+        reg_path.write_bytes((H + R("1.1")).replace("\n", "\r").encode("utf-8"))
+        saved = _APPROVALS
+        try:
+            note = _load_default_approvals(str(reg_path))
+            check("approvals-file-lone-cr", "refused" in note and _APPROVALS == set())
+        finally:
+            set_approvals(saved)
+    # QA r8: cells are a whitelist; controls anywhere refuse; skipped rows are reported.
+    check("approvals-cell-whitelist", all(load_approvals(H + f"| 1.1 | {r} | 2026-09-18 | {e} |\n") == set() for r, e in (
+        ("[]()", "#1"), ("r", "[](x)"), ("r", "![]()"), ("r", "\u3164"), ("\u2800", "#1"), ("r\u034f", "#1"),
+        ("r", "\ue000"), ("\xa0r", "#1"), ("\x1fr", "#1"), ("r\x1f", "#1"), ("r", "a\\b"), ("r", "--"))))
+    check("approvals-cell-tab", load_approvals(H + "| 1.1 | source\tgated | 2026-09-18 | #1 |\n") == {"1.1"})
+    check("approvals-file-controls", register_refusal("Register\x1b[8m\n\n" + H + R("1.1")) is not None
+          and register_refusal("note\x00\n\n" + H + R("1.1")) is not None)
+    check("approvals-toml-and-lists", all(load_approvals(pre + "\n\n" + H + R("1.1")) == set()
+                                          for pre in ("+++\ntitle = 'x'", "+ item", "1) item")))
+    ids, skipped = parse_approvals(H + R("1.1") + "| 1.2 | r | soon | #1 |\n| 1.3 | r | 2026-09-18 |\n")
+    check("approvals-skips-reported", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0])
+    # QA r9
+    ids, skipped = parse_approvals(H + R("1.1") + "   " + R("1.2") + R("1.3"))
+    check("approvals-after-table-named", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0] and "line 5" in skipped[1])
+    check("approvals-strike-shortcode", load_approvals(H + "| 1.1 | ~~r~~ | 2026-09-18 | #1 |\n") == set()
+          and load_approvals(H + "| 1.1 | r | 2026-09-18 | :x: |\n") == set()
+          and load_approvals(H + "| 1.1 | r | 2026-09-18 | see https://github.com/x |\n") == {"1.1"})
+    ids, skipped = parse_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1"))
+    check("approvals-separator-note", ids == set() and "separator" in skipped[0])
+    saved_h = _APPROVALS
+    try:
+        set_approvals({"1.1", "3.92"})
+        rep_h = build_report("", "## 1. Band\n### 1.1 a [BLOCKED:x]\n### 1.1\u0662 b [BLOCKED:y]\n### 1.1.\u0663 c [BLOCKED:z]\n"
+                             "### 3.92.a: child [BLOCKED:x]\n### 3.92.a, child [BLOCKED:x]\n### 1.1-x: t [BLOCKED:x]\n"
+                             "### 1.1.a\u0662 c [BLOCKED:x]\n")
+        # a child never inherits its parent's grant, however its id ends (fix-check after QA r9)
+        check("approvals-non-ascii-heading", _heading_id("### 1.1\u0662 b") == _UNREADABLE_HEADING_ID
+              and _heading_id("### 1.1 a") == "1.1" and _heading_id("### 3.92.a: child") == "3.92.a"
+              and all(_heading_id("### 3.92." + c + "a: child") == _UNREADABLE_HEADING_ID
+                      for c in ("\u200b", "\u00ad", "\u2060", "\u0301", "\x9b", "\x7f", "\u200e"))
+              and _heading_id("### 3.92.a_b x") == _UNREADABLE_HEADING_ID
+              and rep_h[1] == 1)
+    finally:
+        set_approvals(saved_h)
+    check("approvals-refusal-layers", "carriage return" in (register_refusal("note\rmore") or "")
+          and "byte-order" in (register_refusal("\ufeff\ufeffnote") or ""))
+    check("approvals-prose-and-heading-before", load_approvals("# Title\n\nSome prose (with parens).\n\n" + H + R("1.1")) == {"1.1"})
+    check("approvals-separator-padding", load_approvals(H.replace("| --- | --- | --- | --- |", "|  ---  | :--- | ---: |  ---  |  ") + R("1.1")) == {"1.1"})
+    check("approvals-refusal-reason", register_refusal("<!--\n" + H) is not None and register_refusal(H + R("1.1")) is None
+          and register_refusal(H + R("1.1") + "\x85") is not None)
+    check("approvals-needs-separator", load_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1") + R("1.2")) == set())
+    check("approvals-indented-row", load_approvals(H + "    " + R("1.1") + R("1.2")) == set())
+    check("approvals-date-form", load_approvals(H + "| 1.1 | r | 20260918 | #1 |\n| 1.2 | r | 2026-W38-5 | #1 |\n") == set())
+    check("approvals-trailing-dot-id", load_approvals(H + R("1.1.")) == set())
+    check("approvals-bom", load_approvals("\ufeff" + H + R("1.1")) == {"1.1"})
+    # QA r4: the origin lookup against real (local, offline) repositories.
+    import tempfile as _tf
+    with _tf.TemporaryDirectory(prefix="origin-probe-") as od:
+        od = Path(od)
+        plain = od / "plain"; plain.mkdir()
+        repo = od / "repo"
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True, env=_git_env())
+        def with_origin(url):
+            subprocess.run(["git", "-C", str(repo), "config", "remote.origin.url", url], check=True, capture_output=True,
+                           env=_git_env())
+            return _origin_is_maintainer(repo)
+        results = {"not-a-repo": _origin_is_maintainer(plain), "no-origin": _origin_is_maintainer(repo),
+                   "other": with_origin("https://github.com/someone/repo.git"),
+                   "canonical": with_origin("https://github.com/jposluns/grc_library.git"),
+                   "trailing-slash": with_origin("https://github.com/jposluns/grc_library/"),
+                   "case": with_origin("github.com:JPosluns/grc_library.git"),
+                   "owner-suffix": with_origin("https://github.com/evil-jposluns/grc_library")}
+        with_origin("https://github.com/jposluns/grc_library.git")
+        injected = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://github.com/x/y.git", "GIT_DIR": str(plain)}
+        saved_env = {k: os.environ.get(k) for k in injected}
+        os.environ.update(injected)
+        try:
+            results["inherited-git-env"] = _origin_is_maintainer(repo)  # QA r5: inherited variables are dropped
+        finally:
+            for k, v in saved_env.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+        with open(repo / ".git" / "config", "ab") as fh:
+            fh.write(b'\n[remote "origin"]\n\turl = https://github.com/\xff/repo.git\n')
+        results["undecodable"] = _origin_is_maintainer(repo)
+        check("origin-lookup", results == {"not-a-repo": None, "no-origin": False, "other": False,
+                                           "canonical": True, "trailing-slash": True, "case": True,
+                                           "owner-suffix": False, "inherited-git-env": True, "undecodable": None})
+    tagged = "| 2.1 | t | `[BLOCKED:x]` |"
+    saved_approvals = _APPROVALS
+    try:
+        set_approvals(None)
+        check("approvals-none-counts-tag", is_blocked(tagged, "2.1"))
+        set_approvals(set())
+        check("approvals-empty-counts-nothing", not is_blocked(tagged, "2.1"))
+        set_approvals({"2.1"})
+        check("approvals-row-counts", is_blocked(tagged, "2.1"))
+        check("approvals-other-id-does-not", not is_blocked(tagged.replace("2.1", "2.5"), "2.5"))
+        check("approvals-no-id-does-not", not is_blocked("`[BLOCKED:x]` a heading with no item id"))
+        check("approvals-heading-id-read", is_blocked(tagged))
+        check("approvals-tag-still-seen", has_blocked_tag(tagged.replace("2.1", "2.5")))
+        set_approvals({"3.92"})
+        check("approvals-bind-full-heading-id", not is_blocked("### 3.92.a Child A [BLOCKED:x]", "3.92"))
+        set_approvals({"3.92.a"})
+        check("approvals-full-heading-id-granted", is_blocked("### 3.92.a Child A [BLOCKED:x]", "3.92"))
+        umb = ("## 9. U\n### 9.1 Umbrella\n- **9.1.1** leaf a `[BLOCKED:x]`\n- **9.1.2** leaf b\n")
+        set_approvals(set())
+        out_none = render_pipeline(umb, None, None, None)
+        check("approvals-unapproved-bullet-stays-open", "9.1.1" in out_none)
+        set_approvals({"9.1.1"})
+        out_ok = render_pipeline(umb, None, None, None)
+        check("approvals-approved-bullet-excluded", "9.1.1" not in out_ok and "9.1.2" in out_ok)
+        wave = "## 9. U\n### 9.2 Waves\n_Wave 1_: **9.2.1** inline a `[BLOCKED:x]`; **9.2.2** inline b\n"
+        set_approvals(set())
+        check("approvals-unapproved-inline-stays-open", "9.2.1" in render_pipeline(wave, None, None, None))
+        set_approvals({"9.2.1"})
+        check("approvals-approved-inline-excluded", "9.2.1" not in render_pipeline(wave, None, None, None))
+        # The default register lookup (QA r1, r2): only the authoritative store is read; a store that cannot be
+        # examined, a maintainer checkout without a store, a missing register and a non-regular register count
+        # no tag; only a non-maintainer checkout with no store keeps tags as written.
+        g = globals()
+        real_sd, real_om = g["_store_dir"], g["_origin_is_maintainer"]
+        import tempfile as _tf
+        try:
+            with _tf.TemporaryDirectory() as _d:
+                store = Path(_d) / "private"
+                store.mkdir()
+                g["_store_dir"], g["_origin_is_maintainer"] = (lambda *a, **k: None), (lambda *a, **k: False)
+                _load_default_approvals(None)
+                check("approvals-adopter-no-store-tags-count", _APPROVALS is None)
+                g["_origin_is_maintainer"] = lambda *a, **k: True
+                _load_default_approvals(None)
+                check("approvals-maintainer-without-store-counts-nothing", _APPROVALS == set())
+                g["_origin_is_maintainer"] = lambda *a, **k: None
+                _load_default_approvals(None)
+                check("approvals-unknown-origin-counts-nothing", _APPROVALS == set())
+                def _inaccessible(*a, **k):
+                    raise InaccessiblePath(13, "Permission denied", str(store))
+                g["_store_dir"] = _inaccessible
+                _load_default_approvals(None)
+                check("approvals-inaccessible-store-counts-nothing", _APPROVALS == set())
+                g["_store_dir"] = lambda *a, **k: store
+                _load_default_approvals(None)
+                check("approvals-store-without-register-counts-nothing", _APPROVALS == set())
+                reg = store / APPROVALS_FILE
+                reg.write_bytes(b"| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                                b"| 1.1 | x | 2026-09-18 | \xff\xfe |\n")
+                _load_default_approvals(None)
+                check("approvals-undecodable-counts-nothing", _APPROVALS == set())
+                reg.unlink()
+                reg.mkdir()
+                _load_default_approvals(None)
+                check("approvals-directory-register-counts-nothing", _APPROVALS == set())
+                real_exists = Path.exists
+                def _raising_exists(self, *a, **k):
+                    if self.name == APPROVALS_FILE:
+                        raise PermissionError(13, "Permission denied")
+                    return real_exists(self, *a, **k)
+                Path.exists = _raising_exists
+                try:
+                    _load_default_approvals(None)
+                    check("approvals-stat-error-counts-nothing", _APPROVALS == set())
+                finally:
+                    Path.exists = real_exists
+                reg.rmdir()
+                os.mkfifo(reg)
+                _load_default_approvals(None)  # must not block on the FIFO
+                check("approvals-fifo-register-counts-nothing", _APPROVALS == set())
+        finally:
+            g["_store_dir"], g["_origin_is_maintainer"] = real_sd, real_om
+    finally:
+        set_approvals(saved_approvals)
+
     if failures:
         for f in failures:
             print(f"  SELF-TEST FAIL: {f}")
@@ -657,6 +1092,97 @@ def _self_test() -> int:
           "recent-done date-ordering + compound headings, umbrella grouping, inline-wave children, "
           "foreign-bullet promotion, blocked exclusion, umbrella filter).")
     return 0
+
+
+_MAINTAINER_ORIGIN = "jposluns/grc_library"
+
+
+def _git_env() -> "dict[str, str]":
+    """The environment without inherited git variables (GIT_DIR, GIT_CONFIG_COUNT/KEY/VALUE and the rest), which
+    could point git at another repository or inject an origin; global and system config are not read (QA r5)."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    return env
+
+
+def _git_out(root: Path, *args: str) -> "tuple[int, str] | None":
+    """(returncode, stripped stdout) of a git command, or None if git cannot run or its output is not UTF-8."""
+    try:
+        proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=3, env=_git_env())
+        return proc.returncode, proc.stdout.decode("utf-8").strip()
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
+        return None
+
+
+def _origin_is_maintainer(root: Path = REPO_ROOT) -> "bool | None":
+    """True when the checkout's origin is the maintainer repository, False when git reports another origin or
+    none, and None when the origin cannot be established: ignorance is not evidence of an adopter (QA r3).
+    The match is block-operational-without-private's boundary test (trailing ``.git`` stripped; equal to, or
+    containing after ``/`` or ``:``, ``jposluns/grc_library``), made case-insensitive, so a trailing slash or
+    a suffixed sibling name also reads as the maintainer; that errs toward counting fewer tags (QA r4). A
+    directory git does not recognize as a repository (not one, or refused as dubious ownership) is None, since
+    ``config --get`` would report such a failure the same way as an unset key (QA r4). The two 3 s git timeouts
+    keeps the lookup inside the unattended stop guard's budget."""
+    probe = _git_out(root, "rev-parse", "--git-dir")
+    if probe is None or probe[0] != 0:
+        return None
+    got = _git_out(root, "config", "--get", "remote.origin.url")
+    if got is None:
+        return None
+    rc, out = got
+    if rc == 1 and not out:
+        return False  # a repository with no origin configured
+    if rc != 0:
+        return None
+    url = out[:-4] if out.endswith(".git") else out
+    url, target = url.lower(), _MAINTAINER_ORIGIN
+    return url == target or f"/{target}" in url or f":{target}" in url
+
+
+def _load_default_approvals(explicit: "str | None") -> str:
+    """Set the approvals for this run and return a one-line note saying which rule applied. Only the
+    authoritative store is read (no fallback location can grant); a store that cannot be examined, a
+    maintainer checkout without a store, a missing register and a register that is not a regular file all
+    count no tag; only a non-maintainer checkout with no store at all keeps tags as written (QA r2)."""
+    if explicit:
+        path = Path(explicit)
+    else:
+        try:
+            store = _store_dir(REPO_ROOT, strict=True)
+        except (InaccessiblePath, OSError) as exc:
+            set_approvals(set())
+            return f"[BLOCKED] approvals: the operational store cannot be examined ({exc}); NO tag counts as blocked."
+        if store is None:
+            origin = _origin_is_maintainer()
+            if origin is not False:
+                set_approvals(set())
+                why = "maintainer checkout" if origin else "checkout whose origin cannot be established"
+                return f"[BLOCKED] approvals: {why} without the operational store; NO tag counts as blocked."
+            set_approvals(None)
+            return "[BLOCKED] approvals: no operational store (adopter clone); tags count as written."
+        path = store / APPROVALS_FILE
+    try:  # every probe inside the handler: a metadata error must not cost the actionable count (QA r3)
+        if not path.exists():
+            set_approvals(set())
+            return (f"[BLOCKED] approvals: no register at {path}; NO tag counts as blocked "
+                    f"(a missing register never widens what is blocked).")
+        if not path.is_file():
+            set_approvals(set())
+            return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
+        text = path.read_bytes().decode("utf-8")  # keep lone CRs for the refusal check (QA r7)
+    except (OSError, UnicodeDecodeError) as exc:
+        set_approvals(set())
+        return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
+    refusal = register_refusal(text)
+    if refusal is not None:
+        set_approvals(set())
+        return f"[BLOCKED] approvals: {path} refused ({refusal}); NO tag counts as blocked."
+    ids, skipped = parse_approvals(text)
+    set_approvals(ids)
+    note = f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
+    if skipped:
+        note += f" {len(skipped)} row(s) grant nothing: " + "; ".join(skipped)
+    return note
 
 
 def main(argv: list[str]) -> int:
@@ -671,6 +1197,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--todo", default=None, help="public TODO.md path")
     ap.add_argument("--ptodo", default=None,
                     help="private P-TODO.md path (no-op if absent)")
+    ap.add_argument("--approvals", default=None,
+                    help="the [BLOCKED] approvals register (default: blocked-approvals.md in the operational store)")
     ap.add_argument("--private-root", default=None,
                     help="override the private-sibling dir the reference (detail) bodies "
                          "load from (F1793-5 / P-1.53), at parity with the index-reference "
@@ -680,7 +1208,7 @@ def main(argv: list[str]) -> int:
     # used to become a portable-clone no-op, a silent public-only run, or be ignored. The defaults
     # keep their documented portable-clone behaviour.
     for flag, value, want in (("--todo", args.todo, "file"), ("--ptodo", args.ptodo, "file"),
-                              ("--private-root", args.private_root, "dir")):
+                              ("--private-root", args.private_root, "dir"), ("--approvals", args.approvals, "file")):
         if value is None:
             continue
         ok = value.strip() and (Path(value).is_file() if want == "file" else Path(value).is_dir())
@@ -709,7 +1237,9 @@ def main(argv: list[str]) -> int:
     private_note = "" if private_text is not None \
         else f" (private list {ptodo} absent; public-only)"
 
+    approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
     if args.pipeline:
+        print(approvals_note, file=sys.stderr)  # the refusal reason stays visible in --pipeline mode (QA r7)
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
         print(render_pipeline(public_text, private_text, done_text, args.umbrella,
@@ -735,6 +1265,17 @@ def main(argv: list[str]) -> int:
           f"(approved [BLOCKED:] tag); {actionable} ACTIONABLE.")
     print("An item is BLOCKED only via a maintainer-approved [BLOCKED:<reason>] "
           "tag. 'all blocked' is assertable only when EVERY item carries one.")
+
+    print(approvals_note)
+    items_all = parse_items(public_text, "public", private_dir=private_dir) + (
+        parse_items(private_text, "private", private_dir=private_dir) if private_text is not None else [])
+    unapproved = [(i, t) for i, t, blk, _s, _u in items_all
+                  if has_blocked_tag(blk) and not _approved(_heading_id(blk) or i)]
+    if unapproved:
+        print(f"\nUNAPPROVED [BLOCKED] TAG ({len(unapproved)}) -- no row in the approvals register, so "
+              f"counted ACTIONABLE; record the maintainer's grant or remove the tag:")
+        for item_id, title in unapproved:
+            print(f"  - {item_id}  {trunc(title)}")
 
     # Advisory: items whose PROSE mentions a blocker but that carry no approved tag
     # are ACTIONABLE and are candidates to PROPOSE for a [BLOCKED] tag (never self-tag).
