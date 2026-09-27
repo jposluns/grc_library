@@ -204,7 +204,7 @@ TODO_ROW_RE = re.compile(
 # and on fixtures.
 BULLET_ITEM_RE = re.compile(
     r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|3b\d+[a-z]?"
-    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))(?=[ \t*:])"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=(?:\*\*)? \[(?:private|public)\]))(?=[ \t*:])"
 )
 _BULLET_ITEM_HEADING_RE = re.compile(
     r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b"
@@ -249,7 +249,7 @@ def _masked_lines(text: str) -> "list[tuple[str, bool]]":
 
 def _heading_item_count(text: str) -> int:
     """ITEM_HEADING_RE headings outside a fence or line-starting comment (the tool never makes one an item)."""
-    return sum(1 for line, masked in _masked_lines(text) if not masked and ITEM_HEADING_RE.match(line))
+    return len(ITEM_HEADING_RE.findall(text))  # headings count as on main, masked or not (QA r5)
 
 
 def _bullet_item_count(text: str) -> int:
@@ -259,7 +259,8 @@ def _bullet_item_count(text: str) -> int:
     in_heading_item = False
     for line, masked in _masked_lines(text):
         if masked:
-            continue
+            continue  # a masked line never counts as a bullet and never changes containment (a masked heading
+            # still counts in _heading_item_count, as a one-line item, as in the tool)
         if _BULLET_ITEM_HEADING_RE.match(line):
             in_heading_item = True
         elif line.startswith("## ") or (line.startswith("### ") and not in_heading_item):

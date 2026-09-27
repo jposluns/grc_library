@@ -102,7 +102,7 @@ ITEM_HEADING_RE = re.compile(
 TOP_BULLET_ITEM_RE = re.compile(
     r"^- \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
     r"|3b\d+[a-z]?"
-    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=(?:\*\*)? \[(?:private|public)\]))"
     r"(?=[ \t*:])(?P<title>.*)$"
 )
 # The REPORT net (QA r3-r4): a list line (optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or
@@ -114,7 +114,7 @@ TOP_BULLET_ITEM_RE = re.compile(
 _ITEM_LIKE_LEAD_RE = re.compile(
     r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>[*_]+.*)$"
 )
-_LEAD_TOKEN_RE = re.compile(r"^[*_]+[ \t]*`?(?P<pr>#\d+(?![\w.-]))?[#(\[]*(?P<tok>[^\s*_`:,;()\[\]]*)")
+_LEAD_TOKEN_RE = re.compile(r"^[*_]+[ \t]*`?(?P<word>[^\s*`]*)")
 _TAG_RE = re.compile(r"\[(?:private|public)\]", re.IGNORECASE)
 
 
@@ -124,8 +124,9 @@ def _is_item_like(line: str) -> bool:
         return False
     rest = m.group("rest")
     lt = _LEAD_TOKEN_RE.match(rest)
-    tok = lt.group("tok") if lt else ""
-    if lt and lt.group("pr"):
+    word = (lt.group("word") if lt else "").rstrip(":,;.)]_")
+    tok = word.lstrip("#([_")
+    if re.fullmatch(r"#\d+", word):
         tok = ""  # a bare #123 PR reference is not an item id
     if tok and any(c.isdigit() for c in tok):
         return True
@@ -181,6 +182,19 @@ def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
     return mask
 
 
+def unclosed_blocks(text: str) -> "list[tuple[int, str]]":
+    """A code fence or line-starting HTML comment still open at end of file (QA r5): everything after its
+    opening line is masked, so it is reported rather than left to hide items silently."""
+    lines = text.splitlines()
+    mask = _fence_comment_mask(lines)
+    if not lines or not mask[-1]:
+        return []
+    n = len(lines)
+    while n > 1 and mask[n - 2]:
+        n -= 1
+    return [(n, "unclosed fence or comment opened here: " + lines[n - 1].strip()[:60])]
+
+
 def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
     """Every item-like line (a bold id led by a list marker) that parse_items does not count as an item head,
     wherever it is (inside a fence, a comment or a ``### <id>`` item body included): the counted-or-reported
@@ -189,7 +203,7 @@ def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
     parse_items(text, "private", ref_bodies={}, _heads=heads)
     counted = set(heads)
     return [(n, ln.strip()) for n, ln in enumerate(text.splitlines(), 1)
-            if _is_item_like(ln) and n not in counted]
+            if _is_item_like(ln) and n not in counted] + unclosed_blocks(text)
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
@@ -497,18 +511,25 @@ def parse_items(text: str, source: str,
 
     masked = _fence_comment_mask(lines)
     for ln_no, line in enumerate(lines):
-        if masked[ln_no]:
-            # A fenced or commented line is never an item head and never changes containment (QA r2); an
-            # indented one continues a bullet, any one continues a ``### <id>`` body, and otherwise it ends a bullet.
-            if cur is not None and (not cur_is_bullet or line.startswith("  ") or line.startswith("\t")):
+        if masked[ln_no] and not ITEM_HEADING_RE.match(line):
+            # A fenced or commented line is never a bullet item and never changes containment (QA r2, r5): it
+            # continues whatever block is open. A ``### <id>`` heading counts as on main even when masked
+            # (QA r5), and an unclosed fence or comment is reported by unclosed_blocks.
+            if cur is not None:
                 body_lines.append(line)
-            elif cur_is_bullet:
-                flush()
-                cur = None
-                cur_is_bullet = False
-                body_lines = []
             continue
         m = ITEM_HEADING_RE.match(line)
+        if m and masked[ln_no]:
+            # A masked ``### <id>`` heading still counts, as on main (QA r5), but as a one-line item: it never
+            # takes in the bullets that follow the fence or comment (QA r2).
+            flush()
+            cur = (m.group("id"), m.group("title"))
+            body_lines = [line]
+            flush()
+            cur = None
+            cur_is_bullet = False
+            body_lines = []
+            continue
         if m:
             flush()
             cur = (m.group("id"), m.group("title"))
@@ -1261,7 +1282,7 @@ def _self_test() -> int:
          "<!-- closed --> <!-- still open\n- **3b17 hidden** h\n-->\n"
          "```\n### 9.8 fenced heading\n```\n- **3b18 [private] after fenced heading** i\n")
     gi = {x[0]: x for x in parse_items(g, "private")}
-    check("grammar-counted", sorted(gi) == sorted(["3b7", "RB-6", "4.5", "3b13", "3b14", "3b18"]))
+    check("grammar-counted", sorted(gi) == sorted(["3b7", "RB-6", "4.5", "3b13", "3b14", "9.8", "3b18"]))  # 9.8: a masked heading counts, as on main
     check("grammar-tab-continuation", "tab continuation" in gi.get("3b7", empty)[2])
     check("grammar-whitespace-line-ends-block", "after whitespace-only" not in gi.get("3b7", empty)[2])
     check("grammar-title-no-bold-marks", "**" not in gi.get("RB-6", empty)[1])
@@ -1295,6 +1316,16 @@ def _self_test() -> int:
     check("r3-net-tag-only", [ln for _n, ln in uncounted_item_like("## Q\n* **GR-GAP [private]** x\n")]
           == ["* **GR-GAP [private]** x"])
     check("r3-net-pr-ref-not-reported", uncounted_item_like("## Q\n- **#2477 MERGED** (x)\n") == [])
+    # QA r5
+    r5 = uncounted_item_like("## Q\n- **TASK_123 implement fix**\n- **#123/3b20 fix regression**\n- [X] **3b42 upper box** x\n")
+    check("r5-underscore-and-pr-prefix-reported", len([x for x in r5 if "TASK_123" in x[1] or "#123/3b20" in x[1] or "3b42" in x[1]]) == 3)
+    check("r5-tag-after-bold-counted", [x[0] for x in parse_items("## Q\n- **RB-6** [private] Title\n", "private",
+                                                                  ref_bodies={})] == ["RB-6"])
+    body = parse_items("## Q\n- **3b7 fix**\n<!-- note -->\n  deferred until source acquired\n", "private", ref_bodies={})
+    check("r5-comment-keeps-bullet-body", len(body) == 1 and "deferred until" in body[0][2])
+    unc = "## A\n<!-- TODO: tidy this band\n### 3.7 Expiry-tail\nbody\n### 3.8 Another\nbody\n"
+    check("r5-unclosed-comment-headings-count", [x[0] for x in parse_items(unc, "private", ref_bodies={})] == ["3.7", "3.8"])
+    check("r5-unclosed-comment-reported", any("unclosed fence or comment" in x[1] for x in uncounted_item_like(unc)))
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
 

@@ -17340,6 +17340,8 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "inline comment markers": ("## Q\n- **3b7 [private] a** x <!-- owner: ops -->\n"
                                        "Note: the `<!--` scanner is fragile.\n- **3b8 [private] b** y\n"
                                        "<!-- closed --> <!-- still open\n- **3b9 hidden** z\n-->\n- **3b10 after** w\n", 3),
+            "tag after bold": ("## Q\n- **RB-6** [private] Title\n- **4.7** [public] t\n- **RB-8** untagged x\n", 2),
+            "comment inside bullet body": ("## Q\n- **3b7 fix**\n<!-- note -->\n  deferred\n- **3b8 [private] next** y\n", 2),
             "three-space fence": ("## Q\n   ```\n- **3b7 [private] example**\n   ```\n- **3b8 [private] real** y\n", 1),
             "masked heading": ("## Q\n```\n### 9.9 Example\n## Not a section\n```\n- **3b7 [private] real** a\n"
                                "    ```\n- **3b8 [private] after indented fence** b\n", 2),
@@ -17362,7 +17364,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             root.mkdir()
             (root / "TODO.md").write_text("| 1.1 | pub | `[public]` |\n- **3b7 [public] bullet** x\n", encoding="utf-8")
             self.assertEqual(hook._todo_item_count(str(root)), 2)
-        # A fenced or commented heading is never an item in either count (QA r2).
+        # A fenced or commented heading still counts in both, as on main (QA r5), as a one-line item.
         text = "## A\n```\n### 9.9 fenced heading\n```\n<!--\n### 9.8 commented heading\n-->\n### 3.1 real heading\n"
         with tempfile.TemporaryDirectory() as d:
             root = Path(d) / "grc_library"
@@ -17371,8 +17373,8 @@ class HookToolItemCountParityTests(unittest.TestCase):
             priv = Path(d) / "grc_library_private"
             priv.mkdir()
             (priv / "P-TODO.md").write_text(text, encoding="utf-8")
-            self.assertEqual(hook._todo_item_count(str(root)), 1)
-        self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["3.1"])
+            self.assertEqual(hook._todo_item_count(str(root)), 3)
+        self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["9.9", "9.8", "3.1"])
 
     def test_cli_prints_item_like_lines(self):
         # 3b119 QA r4: the CLI must print the not-counted list (the counted-or-reported invariant's output half).
