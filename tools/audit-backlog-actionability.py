@@ -933,7 +933,7 @@ def _self_test() -> int:
     check("approvals-after-table-named", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0] and "line 5" in skipped[1])
     check("approvals-strike-shortcode", load_approvals(H + "| 1.1 | ~~r~~ | 2026-09-18 | #1 |\n") == set()
           and load_approvals(H + "| 1.1 | r | 2026-09-18 | :x: |\n") == set()
-          and load_approvals(H + "| 1.1 | r | 2026-09-18 | see https://example.org/x |\n") == {"1.1"})
+          and load_approvals(H + "| 1.1 | r | 2026-09-18 | see https://github.com/x |\n") == {"1.1"})
     ids, skipped = parse_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1"))
     check("approvals-separator-note", ids == set() and "separator" in skipped[0])
     saved_h = _APPROVALS
