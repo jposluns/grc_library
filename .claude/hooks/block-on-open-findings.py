@@ -19,7 +19,9 @@ primary blocking condition; the one other blocking condition is a MIS-FILED row 
 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (so it
-misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), because
+misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), or any command
+that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
+see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
 (an in-flight change should finish rather than be abandoned half-landed) and is surfaced instead.
 Notes never block. SECOND blocking condition (P-1.70, 2026-09-10): a MIS-FILED finding-row - one that
@@ -50,7 +52,9 @@ set. A FIXED class row missing the attestation is SURFACED AS A WARNING here, ne
 from __future__ import annotations
 
 import json
+import os
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -311,7 +315,9 @@ TERMINAL = ("fixed", "routed", "refuted", "accepted")
 # private `P-N.M` item (`P-1.71`), or a `TODO`-qualified item. The private `P-` namespace is a
 # first-class routing target (e.g. P-1.60/P-1.61); rejecting it read a valid `ROUTED P-1.71` as
 # undispositioned (self-caught 2026-09-05, #2016). `(` or `[` may sit immediately before it (a parenthesized or link-form ref).
-_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?)"
+# The private backlog's letter-series ids (3b108, 3b50b2e1) are refs too: routing to one was read as
+# undispositioned before (3b108).
+_REF = r"[(\[]?(?:#[1-9]\d*|TODO\s+(?:P-)?\d+(?:\.\d+)+[a-z]?|P-\d+(?:\.\d+)+[a-z]?|\d+(?:\.\d+)+[a-z]?|\d+b\d+(?:[a-z]\d+)*)"
 _DISPOSITION_RE = re.compile(
     r"^(?:fixed|routed)\s+" + _REF + r"(?:\b|[.,;:)\]])"   # FIXED/ROUTED + adjacent ref
     r"|^(?:refuted|accepted)\b",                            # REFUTED/ACCEPTED + prose (word only)
@@ -471,11 +477,52 @@ def fixed_class_rows_unattested(rows: list) -> list:
     ]
 
 
+
+def invokes_merge_tool(cmd: str) -> bool:
+    """PURE. Could this command run tools/merge-when-green.py for a real merge (3b108)? That tool runs
+    `gh pr merge` as a subprocess, so the literal-text match never sees it. Parsing shell for every way
+    to run it (wrappers, bash -c, backticks, python -m, continuations, newlines) cannot be made
+    complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
+    honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
+    gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
+    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
+    continuations, any mention of merge-when-green gates, except a single simple command (one line,
+    no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
+    gated too; that costs little, since this hook blocks only while its blocking state holds, and
+    merge-when-green.py enforces the open-findings check itself on every merge."""
+    if not isinstance(cmd, str):
+        return False
+    norm = cmd.replace("\\\n", "")
+    for q in ("'", '"', "`", "\\"):  # quotes and escapes (merge-when-\\green) do not hide the name
+        norm = norm.replace(q, "")
+    if "merge-when-green" not in norm:
+        return False
+    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool, or a
+    # python interpreter with single-letter options, then the tool): a comment, a `bash -c ... --dry-run`
+    # ($0 of the inner shell) or any other placement gates (3b108 QA r2).
+    simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\", "#"))
+    if simple:
+        try:
+            toks = shlex.split(cmd)
+        except ValueError:
+            return True
+        i = 0
+        if toks and os.path.basename(toks[0]).startswith("python"):
+            i = 1
+            while i < len(toks) and len(toks[i]) == 2 and toks[i].startswith("-") and toks[i] not in ("-m", "-c"):
+                i += 1
+        if i < len(toks) and os.path.basename(toks[i]) == "merge-when-green.py":
+            if "--dry-run" in toks[i + 1:] or "--self-test" in toks[i + 1:]:
+                return False
+    return True
+
 def is_blocking_command(cmd: str) -> bool:
     """PURE. After whitespace collapse, does the command text contain the case-sensitive substring
-    `gh pr create` or `gh pr merge`? Quote-unaware: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
+    `gh pr create` or `gh pr merge`, or mention tools/merge-when-green.py other than a simple direct
+    --dry-run or --self-test (3b108; see invokes_merge_tool)?
+    Quote-unaware on the gh half: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
     flat = " ".join(cmd.split())
-    return any(" ".join(parts) in flat for parts in BLOCKING_CMDS)
+    return any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd)
 
 
 def decide_exit(rows, ledger_text) -> int:
@@ -755,6 +802,35 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
+    # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
+    ck("ROUTED 3b108 is dispositioned", disposition_valid("ROUTED 3b108 (next PR)"), True)
+    ck("FIXED 3b50b2e1 is dispositioned", disposition_valid("FIXED 3b50b2e1"), True)
+    ck("ROUTED 3b alone is not", disposition_valid("ROUTED 3b later"), False)
+    ck("ROUTED b12 is not", disposition_valid("ROUTED b12"), False)
+    for bad in ("ROUTED 3b108pending", "ROUTED 3b108garbage", "ROUTED 24x7 support", "FIXED 1e2rror"):
+        ck(f"not a ref: {bad}", disposition_valid(bad), False)
+    # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated;
+    # detection over-gates by intent (QA r1: shell parsing could not be made complete).
+    for c in ("python3 tools/merge-when-green.py 12 --repo o/r --admin",
+              "for i in 1; do out=$(python3 -B /x/tools/merge-when-green.py 12 --admin 2>&1); done",
+              "./tools/merge-when-green.py 12",
+              "python3 tools/merge-when-green.py 12 --admin\npython3 tools/merge-when-green.py 13 --dry-run",
+              "timeout 60 ./tools/merge-when-green.py 12", "bash -c 'tools/merge-when-green.py 12 --admin'",
+              "out=`python3 tools/merge-when-green.py 12`", 'out="$(python3 tools/merge-when-green.py 12)"',
+              "python3 -m tools.merge-when-green 12", "python3 tools/merge-when-\\\ngreen.py 12",
+              'python3 tools/merge-when-""green.py 12 --admin', "python3 tools/merge-when-green.py 12 --admin # ' --dry-run",
+              "python3 tools/merge-when-green.py 12 --admin > --dry-run", "grep -n x tools/merge-when-green.py",
+              "python3 tools/merge-when-green.py 12 --admin # --dry-run",
+              "bash -c 'python3 tools/merge-when-green.py 12 --admin' --dry-run",
+              "sh -c 'tools/merge-when-green.py 12' --self-test", "env python3 tools/merge-when-green.py 12 --dry-run",
+              "python3 -c 'import os' tools/merge-when-green.py --dry-run",
+              "python3 tools/merge-when-\\green.py 12 --admin",
+              "python3 -c 'print(1) or 1/merge-when-green.py' --dry-run"):
+        ck(f"gated: {c[:48]}", is_blocking_command(c), True)
+    for c in ("python3 tools/merge-when-green.py 12 --dry-run", "python3 tools/merge-when-green.py --self-test",
+              "python3 -B /opt/x/tools/merge-when-green.py 2620 --repo o/r --dry-run", "git status --short",
+              "/usr/bin/python3.12 -B tools/merge-when-green.py --self-test", "./tools/merge-when-green.py 12 --dry-run"):
+        ck(f"not gated: {c[:48]}", is_blocking_command(c), False)
 
     # --- P-1.70 part-2b: mis-filed finding-row detector (reality fixture + negative controls) ----
     # Mirrors the observed corruption: rows spliced into the PREAMBLE legend (above `## Open`), a

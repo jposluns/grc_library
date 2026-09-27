@@ -13,6 +13,8 @@ as does a required check (REQUIRED_CHECKS, or --require) that is missing as a Ch
 SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
 The merge is pinned to the head commit it evaluated (gh pr merge --match-head-commit), so a push
 landing after the read is never merged unchecked; a missing head SHA refuses (3b106).
+It also applies the open-findings guard's own decision before merging, so an undispositioned
+`error` finding refuses the merge however the tool was started (3b108).
 
 It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
 discipline); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
@@ -38,6 +40,7 @@ _OK_STATE = {"SUCCESS"}  # a legacy StatusContext that finished acceptably
 # Checks that must be PRESENT and SUCCESS: NEUTRAL or SKIPPED is acceptable for any other check,
 # never for these, so a skipped corpus lint cannot read as green (3b104).
 REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
+_REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 
 
 def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, str]:
@@ -104,6 +107,41 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
                 return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
     verified = ", ".join(required) if required else "none"
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
+
+
+def open_findings_block(root, ledger=None) -> tuple[int, str]:
+    """(exit code, message) from the open-findings guard's own decision on the ledger (3b108).
+
+    The PreToolUse hook that refuses a merge while an `error` finding is undispositioned matches the
+    shell command text, which a merge through this tool can evade in many shell forms; checking here
+    makes the rule hold for every invocation. It reuses the hook's parse and decision functions, so the
+    two can never disagree. No hook file (an adopter checkout) or no readable ledger allows, matching the
+    hook's fail-open posture; a hook file that exists but cannot be loaded REFUSES (ignorance refuses)."""
+    import contextlib
+    import importlib.util
+    import io
+    from pathlib import Path
+    hook = Path(root) / ".claude" / "hooks" / "block-on-open-findings.py"
+    if not hook.is_file():
+        return 0, ""
+    try:
+        spec = importlib.util.spec_from_file_location("_mwg_open_findings", hook)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        path = ledger if ledger is not None else mod._working_file("open-findings.md", Path(root))
+    except Exception as exc:  # noqa: BLE001 - any load failure refuses
+        return 1, f"the open-findings guard could not be loaded ({exc}); refusing to merge unchecked"
+    if path is None:
+        return 0, ""
+    try:
+        text = Path(path).read_text(encoding="utf-8")
+        rows = mod.parse_open_rows(text)
+    except Exception:  # noqa: BLE001 - an unreadable ledger allows, as in the hook
+        return 0, ""
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        code = mod.decide_exit(rows, text)
+    return (1 if code else 0), err.getvalue().strip()
 
 
 def gh(*args: str) -> str:
@@ -178,6 +216,10 @@ def _self_test() -> int:
         return json.dumps({k: full[k] for k in wanted if k in full})
     json_arg = lambda a: a[a.index("--json") + 1] if "--json" in a else ""
     real_gh = globals()["gh"]
+    real_block = globals()["open_findings_block"]
+    # The stubbed main() cases must not depend on the live ledger: the check is stubbed here and tested
+    # on its own below with fixture ledgers (3b108).
+    globals()["open_findings_block"] = lambda root, ledger=None: (0, "")
     try:
         # Inside the stub, so even a mutated file that allows abbreviations never calls the real gh (3b104 r6).
         globals()["gh"] = lambda *a: view(rollups["green"], fields=json_arg(a))
@@ -264,8 +306,34 @@ def _self_test() -> int:
             except SystemExit as exc:
                 both_refused = exc.code == 2
         checks.append(("require-and-require-none-conflict-refused", both_refused and not calls))
+        # A blocked ledger stops main() before any merge, on a dry run too (3b108).
+        globals()["open_findings_block"] = lambda root, ledger=None: (1, "an open error finding")
+        for dry in ([], ["--dry-run"]):
+            calls.clear()
+            globals()["gh"] = rec
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1", "--admin", *dry])
+            checks.append((f"open-finding-blocks-main{'-dry' if dry else ''}",
+                           rc == 1 and not any(c[:2] == ("pr", "merge") for c in calls)))
     finally:
         globals()["gh"] = real_gh
+        globals()["open_findings_block"] = real_block
+    # 3b108: the tool applies the open-findings guard itself, with the hook's own decision.
+    import tempfile as _tf
+    from pathlib import Path as _P
+    with _tf.TemporaryDirectory() as _d:
+        led = _P(_d) / "open-findings.md"
+        head_rows = "## Open\n| Date | Severity | Finding | Source | Disposition |\n| --- | --- | --- | --- | --- |\n"
+        led.write_text(head_rows + "| 2026-09-27 | error | a live defect | probe |  |\n", encoding="utf-8")
+        code, msg = open_findings_block(_REPO_ROOT, led)
+        checks.append(("open-error-refuses-merge", code == 1 and "a live defect" in msg))
+        led.write_text(head_rows + "| 2026-09-27 | error | a fixed defect | probe | FIXED #1 |\n", encoding="utf-8")
+        checks.append(("dispositioned-error-allows", open_findings_block(_REPO_ROOT, led)[0] == 0))
+        checks.append(("no-hook-allows", open_findings_block(_P(_d), led)[0] == 0))
+        broken = _P(_d) / ".claude" / "hooks"
+        broken.mkdir(parents=True)
+        (broken / "block-on-open-findings.py").write_text("raise RuntimeError('broken')\n", encoding="utf-8")
+        checks.append(("unloadable-guard-refuses", open_findings_block(_P(_d), led)[0] == 1))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
     checks.append(("default-required-list-exact",
@@ -328,6 +396,10 @@ def main(argv: list[str]) -> int:
     green, reason = evaluate(view.get("statusCheckRollup") or [], required)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
+        return 1
+    blocked, why = open_findings_block(_REPO_ROOT)
+    if blocked:
+        print(f"REFUSE to merge PR #{args.pr}: {why}", file=sys.stderr)
         return 1
     print(f"PR #{args.pr} is GREEN at {head[:12]}: {reason}")
     if args.dry_run:

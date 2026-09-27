@@ -27,8 +27,11 @@ A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 1. **Undispositioned `error` row (primary).** An `error`-severity row with no disposition blocks
    a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create`
-   or `gh pr merge` (it misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell
-   syntax), because shipping past a known wrong behaviour is the thing worth
+   or `gh pr merge` (it misses `gh pr 'merge'` and gates `echo "gh pr merge"`; that half does not parse
+   shell syntax), or a command that mentions `tools/merge-when-green.py` other than as a single simple
+   `--dry-run` or `--self-test` command (over-gated by intent, since shell parsing cannot find every
+   way to run it; `merge-when-green.py` also applies this guard's decision itself; the text match is a speed bump for an
+   honest actor's slip, not an adversarial control, so a deliberately obfuscated command can still evade it; 3b108), because shipping past a known wrong behaviour is the thing worth
    preventing. A `warning` does NOT block a PR (an in-flight change should finish rather than be
    abandoned half-landed) and is surfaced instead. Notes never block.
 2. **Mis-filed finding-row (second condition, P-1.70, 2026-09-10).** A row carrying the finding-row
