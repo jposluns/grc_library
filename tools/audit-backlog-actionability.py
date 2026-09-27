@@ -413,14 +413,24 @@ def parse_items(text: str, source: str,
 
 # The id must end at whitespace, a backtick, a pipe or the line end: a heading such as ``### 1.1\u0662`` (a
 # non-ASCII digit) is not item 1.1 and must not inherit its grant (QA r9); it falls back to the parsed id.
-_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)(?=[\s`|]|$)")
+_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
+# Returned when a heading's id runs straight into another word character (``### 1.1\u0662``): the heading
+# is not the ASCII item, and it must not fall back to a shorter parsed id either (fix-check after QA r9),
+# so it gets an id that no approvals row can match.
+_UNREADABLE_HEADING_ID = "<unreadable heading id>"
 
 
 def _heading_id(block_text: str) -> "str | None":
     """The item id exactly as the heading writes it (a ``### 3.92.a`` heading or an index row's first cell);
     parse_items may shorten a lettered child's id, and approval must bind to the full one (QA r2)."""
-    m = _HEADING_ID_RE.match(block_text.splitlines()[0].strip()) if block_text else None
-    return m.group("id").rstrip(".") if m else None
+    line = block_text.splitlines()[0].strip() if block_text else ""
+    m = _HEADING_ID_RE.match(line)
+    if not m:
+        return None
+    nxt = line[m.end():m.end() + 1]
+    if nxt and (nxt.isalnum() or nxt == "_"):
+        return _UNREADABLE_HEADING_ID
+    return m.group("id").rstrip(".")
 
 
 def is_blocked(block_text: str, item_id: "str | None" = None) -> bool:
@@ -925,9 +935,13 @@ def _self_test() -> int:
     check("approvals-separator-note", ids == set() and "separator" in skipped[0])
     saved_h = _APPROVALS
     try:
-        set_approvals({"1.1"})
-        rep_h = build_report("", "## 1. Band\n### 1.1 a [BLOCKED:x]\n### 1.1\u0662 b [BLOCKED:y]\n### 1.1.\u0663 c [BLOCKED:z]\n")
-        check("approvals-non-ascii-heading", _heading_id("### 1.1\u0662 b") is None and _heading_id("### 1.1 a") == "1.1"
+        set_approvals({"1.1", "3.92"})
+        rep_h = build_report("", "## 1. Band\n### 1.1 a [BLOCKED:x]\n### 1.1\u0662 b [BLOCKED:y]\n### 1.1.\u0663 c [BLOCKED:z]\n"
+                             "### 3.92.a: child [BLOCKED:x]\n### 3.92.a, child [BLOCKED:x]\n### 1.1-x: t [BLOCKED:x]\n"
+                             "### 1.1.a\u0662 c [BLOCKED:x]\n")
+        # a child never inherits its parent's grant, however its id ends (fix-check after QA r9)
+        check("approvals-non-ascii-heading", _heading_id("### 1.1\u0662 b") == _UNREADABLE_HEADING_ID
+              and _heading_id("### 1.1 a") == "1.1" and _heading_id("### 3.92.a: child") == "3.92.a"
               and rep_h[1] == 1)
     finally:
         set_approvals(saved_h)
