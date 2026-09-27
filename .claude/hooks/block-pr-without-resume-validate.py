@@ -97,39 +97,32 @@ def _tokens(cmd: str):
         return None
 
 
-_MWG_OPS = {";", "&&", "||", "|", "&", "(", ")", ";;", "|&"}
-
 
 def invokes_merge_tool(cmd: str) -> bool:
-    """PURE. Does the command run tools/merge-when-green.py for a real merge (3b108)? That tool runs
-    `gh pr merge` as a subprocess, so the literal-text match never sees it, and it is the sanctioned
-    merge path. Flags the tool run directly or under a python interpreter, in any shell segment
-    (including a `$(...)` substitution), unless that segment passes --dry-run or --self-test; a
-    read of the file (grep, sed, cat) is not flagged. An unparseable command falls back to a
-    substring test (over-gating is the safe direction)."""
-    if not isinstance(cmd, str) or "merge-when-green" not in cmd:
+    """PURE. Could this command run tools/merge-when-green.py for a real merge (3b108)? That tool runs
+    `gh pr merge` as a subprocess, so the literal-text match never sees it. Parsing shell for every way
+    to run it (wrappers, bash -c, backticks, python -m, continuations, newlines) cannot be made
+    complete (3b108 QA r1), so this over-gates by intent: after dropping quotes and backslash-newline
+    continuations, any mention of merge-when-green gates, except a single simple command (one line,
+    no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
+    gated too; that costs little, since this hook blocks only while its blocking state holds, and
+    merge-when-green.py enforces the open-findings check itself on every merge."""
+    if not isinstance(cmd, str):
         return False
-    try:
-        lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
-        lex.whitespace_split = True
-        toks = list(lex)
-    except ValueError:
-        return "--dry-run" not in cmd and "--self-test" not in cmd
-    segs = [[]]
-    for t in toks:
-        if t in _MWG_OPS:
-            segs.append([])
-        else:
-            segs[-1].append(t)
-    for seg in segs:
-        for i, t in enumerate(seg):
-            if os.path.basename(t) != "merge-when-green.py":
-                continue
-            ran = i == 0 or any(os.path.basename(p).startswith("python") for p in seg[:i])
-            if ran and not any(a in ("--dry-run", "--self-test") for a in seg[i + 1:]):
-                return True
-    return False
-
+    norm = cmd.replace("\\\n", "")
+    for q in ("'", '"', "`"):
+        norm = norm.replace(q, "")
+    if "merge-when-green" not in norm:
+        return False
+    simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\"))
+    if simple:
+        try:
+            toks = shlex.split(cmd)
+        except ValueError:
+            return True
+        if "--dry-run" in toks or "--self-test" in toks:
+            return False
+    return True
 
 def is_blocking_command(cmd: str) -> bool:
     """PURE. Does this command open or merge a PR? Deliberately robust (over-gating is the safe
@@ -351,16 +344,21 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 1840 --admin"), True)
     ck("gh pr checks not blocking", is_blocking_command("gh pr checks 1840 --watch"), False)
     ck("git push not blocking", is_blocking_command("git push -u origin br"), False)
-    # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated.
-    ck("merge-when-green merge blocks", is_blocking_command("python3 tools/merge-when-green.py 12 --repo o/r --admin"), True)
-    ck("merge-when-green in a $() loop blocks",
-       is_blocking_command('for i in 1; do out=$(python3 -B /x/tools/merge-when-green.py 12 --admin 2>&1); done'), True)
-    ck("merge-when-green run directly blocks", is_blocking_command("./tools/merge-when-green.py 12"), True)
-    ck("merge-when-green dry run does not block", is_blocking_command("python3 tools/merge-when-green.py 12 --dry-run"), False)
-    ck("merge-when-green self-test does not block", is_blocking_command("python3 tools/merge-when-green.py --self-test"), False)
-    ck("reading merge-when-green does not block", is_blocking_command("grep -n evaluate tools/merge-when-green.py"), False)
-    ck("a later segment's dry run does not excuse a merge",
-       is_blocking_command("python3 tools/merge-when-green.py 12 --admin; python3 tools/merge-when-green.py 13 --dry-run"), True)
+    # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated;
+    # detection over-gates by intent (QA r1: shell parsing could not be made complete).
+    for c in ("python3 tools/merge-when-green.py 12 --repo o/r --admin",
+              "for i in 1; do out=$(python3 -B /x/tools/merge-when-green.py 12 --admin 2>&1); done",
+              "./tools/merge-when-green.py 12",
+              "python3 tools/merge-when-green.py 12 --admin\npython3 tools/merge-when-green.py 13 --dry-run",
+              "timeout 60 ./tools/merge-when-green.py 12", "bash -c 'tools/merge-when-green.py 12 --admin'",
+              "out=`python3 tools/merge-when-green.py 12`", 'out="$(python3 tools/merge-when-green.py 12)"',
+              "python3 -m tools.merge-when-green 12", "python3 tools/merge-when-\\\ngreen.py 12",
+              'python3 tools/merge-when-""green.py 12 --admin', "python3 tools/merge-when-green.py 12 --admin # ' --dry-run",
+              "python3 tools/merge-when-green.py 12 --admin > --dry-run", "grep -n x tools/merge-when-green.py"):
+        ck(f"gated: {c[:48]}", is_blocking_command(c), True)
+    for c in ("python3 tools/merge-when-green.py 12 --dry-run", "python3 tools/merge-when-green.py --self-test",
+              "python3 -B /opt/x/tools/merge-when-green.py 2620 --repo o/r --dry-run", "git status --short"):
+        ck(f"not gated: {c[:48]}", is_blocking_command(c), False)
     ck("body text containing the phrase is OVER-gated (substring, safe direction)",
        is_blocking_command("gh pr view 5 --body 'run gh pr create later'"), True)
     ck("UNPARSEABLE command containing the phrase is still blocking (no bypass)",
