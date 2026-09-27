@@ -91,6 +91,16 @@ ITEM_HEADING_RE = re.compile(
     r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b[ \t]*(?P<title>.*)$"
 )
 
+# An open backlog item written as a top-level bold bullet (3b119): ``- **<id> [private] <title>...`` or
+# ``- **<id> <title>:**``, where <id> is a ``3bNN`` queue id, a private ``P-n.m`` id or a section number. It is
+# an item only outside a ``### <id>`` item block (inside one it is that item's body), and its block is the
+# bullet line plus its indented continuation lines. Before 3b119 these items were invisible to the count.
+TOP_BULLET_ITEM_RE = re.compile(
+    r"^- \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
+    r"|\d+b\d+[a-z]?"
+    r"|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:])(?P<title>.*)$"
+)
+
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
 
@@ -381,6 +391,7 @@ def parse_items(text: str, source: str,
 
     legacy_items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
+    cur_is_bullet = False  # the open block is a bold-bullet item (3b119), not a ``### `` item
     body_lines: list[str] = []
     umbrella = ""  # the most-recent ``## `` section header (the item's umbrella)
 
@@ -393,13 +404,38 @@ def parse_items(text: str, source: str,
         if m:
             flush()
             cur = (m.group("id"), m.group("title"))
+            cur_is_bullet = False
             body_lines = [line]
-        elif line.startswith("## "):
+            continue
+        if line.startswith("## ") or (line.startswith("### ") and (cur is None or cur_is_bullet)):
+            # A ``## `` header ends any block and sets the umbrella. A ``### `` heading that is not an item
+            # (``### PR #1646 QA follow-ups``) ends a bullet item; inside a ``### <id>`` item it stays part of
+            # that item's body, as before 3b119.
             flush()
             cur = None
+            cur_is_bullet = False
             body_lines = []
-            umbrella = line[3:].strip()
-        elif cur is not None:
+            if line.startswith("## "):
+                umbrella = line[3:].strip()
+            continue
+        if cur is None or cur_is_bullet:
+            b = TOP_BULLET_ITEM_RE.match(line)
+            if b:
+                flush()
+                cur = (b.group("id"), b.group("title"))
+                cur_is_bullet = True
+                body_lines = [line]
+                continue
+            if cur_is_bullet:
+                if line.startswith("  ") or line.startswith("\t"):
+                    body_lines.append(line)
+                    continue
+                flush()  # a blank or unindented line ends a bullet item
+                cur = None
+                cur_is_bullet = False
+                body_lines = []
+                continue
+        if cur is not None:
             body_lines.append(line)
     flush()
 
@@ -413,7 +449,7 @@ def parse_items(text: str, source: str,
 
 # The heading id; _heading_id checks what follows it (a heading such as ``### 1.1\u0662`` is not item 1.1
 # and must not inherit its grant, QA r9 and its fix-checks).
-_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
+_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*|- \*\*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
 # Returned when a heading's id does not end cleanly (``### 1.1\u0662``, ``### 3.92.<ZWSP>a``): the heading
 # is not the ASCII item, and it must not fall back to a shorter parsed id either (fix-check after QA r9),
 # so it gets an id that no approvals row can match.
@@ -1082,6 +1118,26 @@ def _self_test() -> int:
             g["_store_dir"], g["_origin_is_maintainer"] = real_sd, real_om
     finally:
         set_approvals(saved_approvals)
+
+    # 3b119: a top-level bold-bullet item outside any ``### <id>`` item is an item; its block is the bullet
+    # plus its indented continuation lines; inside a ``### <id>`` item a bullet stays that item's body.
+    bl = ("## Up next\n\n- **3b7 [private] fix the thing (MEDIUM):** detail\n  - 2026-09-27: deferred note\n"
+          "- **P-9.1 [private]** another item\nplain prose after\n\n"
+          "### PR #1 QA follow-ups (routed)\n- **P-9.2 not-tagged item:** body\n\n"
+          "## Legacy\n### 9.9 Heading item\n- **9.9.1 sub-bullet in body** text\n### Notes (not an item)\n"
+          "- **9.9.2 still body** text\n")
+    bi = parse_items(bl, "private")
+    ids = [x[0] for x in bi]
+    check("bullet-items-counted", ids == ["3b7", "P-9.1", "P-9.2", "9.9"])
+    bd = {x[0]: x for x in bi}
+    empty = ("", "", "", "", "")
+    check("bullet-continuation-kept", "deferred note" in bd.get("3b7", empty)[2]
+          and "plain prose" not in bd.get("P-9.1", empty)[2])
+    check("bullet-signal-from-continuation", "deferred" in prose_signals(bd.get("3b7", empty)[2]))
+    check("bullet-inside-heading-item-is-body", "9.9.1" in bd.get("9.9", empty)[2] and "9.9.2" in bd.get("9.9", empty)[2])
+    check("bullet-blocked-tag-binds-id", _heading_id("- **3b7 [BLOCKED:x] t") == "3b7")
+    check("bullet-unreadable-id", _heading_id("- **3b7\u200b t") == _UNREADABLE_HEADING_ID)
+    check("bullet-umbrella", bd.get("3b7", empty)[4] == "Up next" and bd.get("9.9", empty)[4] == "Legacy")
 
     if failures:
         for f in failures:
