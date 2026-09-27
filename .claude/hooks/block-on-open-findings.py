@@ -861,7 +861,7 @@ def self_test() -> int:
     ck("commented-out verb does not block", is_blocking_command("gh pr view 12 # then merge"), False)
     ck("unbalanced quote falls back to substring only", is_blocking_command("gh 'pr view 12"), False)
     ck("non-string does not block", is_blocking_command(None), False)
-    # 3b112 QA r1: a fresh gh resets the match; a continuation is joined, as bash does
+    # 3b112 QA r1: a fresh gh resets the match; a continuation is also checked joined
     ck("gh repo create is not a pr command", is_blocking_command("gh repo create foo"), False)
     ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
     ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
