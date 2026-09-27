@@ -11,11 +11,13 @@ AND the PRIVATE ``grc_library_private/P-TODO.md`` and, per item, reports whether
 it is BLOCKED.
 
 THE AUTHORITATIVE BLOCKER SIGNAL IS THE TAG, NOT PROSE. An item is counted
-BLOCKED only if it carries a ``[BLOCKED:<reason>]`` tag. That tag is a
-maintainer-GRANTED status: the assistant never self-applies it (a PreToolUse
-hook rejects a ``[BLOCKED]`` written without a matching maintainer approval
-record), it proposes a block in ``.working/pending-decisions.md`` and only an
-approved block becomes a tag. So "all blocked" is assertable only when EVERY
+BLOCKED only if it carries a ``[BLOCKED:<reason>]`` tag AND the operational
+store's approvals register (``blocked-approvals.md``) holds a granted row for it,
+citing the maintainer's ruling (P-1.36 S36). The tag is a maintainer-GRANTED
+status: the assistant proposes a block in ``pending-decisions.md`` and only an
+approved block becomes a tag and a register row; a tag with no row is reported as
+UNAPPROVED and counted ACTIONABLE (a hook that rejects writing such a tag is still
+a queued backstop). So "all blocked" is assertable only when EVERY
 open item on BOTH lists literally carries an approved ``[BLOCKED:...]`` tag,
 which is essentially never. Until the maintainer approves blocks, every item
 reads ACTIONABLE, which is the honest state.
@@ -63,7 +65,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working, has_todo_index_header
+from lint_common import resolve_working, resolve_working_dir, has_todo_index_header
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -85,6 +87,39 @@ ITEM_HEADING_RE = re.compile(
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
+
+# A [BLOCKED:] tag is maintainer-GRANTED, never assistant-asserted (P-1.36 S36). The grant is recorded as a
+# row of the approvals register in the operational store: ``| <item id> | <reason> | <date> | <evidence> |``,
+# where the evidence cell cites the ruling (a pending-decisions entry, a commit or a PR). A tag counts as
+# BLOCKED only when its item has a row. None = no operational store at all (an adopter clone): tags count
+# as written. When a store exists but the register does not, NO tag counts: a missing register must not
+# widen what is blocked, since BLOCKED licenses less work (the asymmetric-skepticism rule).
+APPROVALS_FILE = "blocked-approvals.md"
+_APPROVALS: "set[str] | None" = None
+_APPROVAL_ROW_RE = re.compile(r"^\|\s*`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)`?\s*\|(?P<rest>.*)\|\s*$")
+
+
+def load_approvals(text: str) -> "set[str]":
+    """The item ids with a granted row: four cells, a date and non-empty evidence (header rows skip)."""
+    ids: set = set()
+    for line in text.splitlines():
+        m = _APPROVAL_ROW_RE.match(line.strip())
+        if not m:
+            continue
+        cells = [c.strip() for c in m.group("rest").split("|")]
+        if len(cells) != 3 or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", cells[1]) or not cells[2]:
+            continue
+        ids.add(m.group("id"))
+    return ids
+
+
+def set_approvals(approvals: "set[str] | None") -> None:
+    global _APPROVALS
+    _APPROVALS = approvals
+
+
+def _approved(item_id: "str | None") -> bool:
+    return _APPROVALS is None or (item_id is not None and item_id in _APPROVALS)
 
 # ADVISORY prose-signal set (closed). Detected only to SUGGEST proposing a block;
 # it never counts an item blocked. Kept deliberately narrow to avoid false hints.
@@ -244,13 +279,19 @@ def parse_items(text: str, source: str,
     return idx_items + legacy_items
 
 
-def is_blocked(block_text: str) -> bool:
+def is_blocked(block_text: str, item_id: "str | None" = None) -> bool:
     """True iff the item's HEADING carries an (approved) ``[BLOCKED:...]`` tag.
 
     Scans ONLY the heading (first line of the block): per the design the tag lives
     on the item heading, so a ``[BLOCKED:...]`` appearing in an item's BODY prose
     (e.g. an item describing the blocked-tag feature) must NOT false-match as
     blocked, which is the unsafe direction (it would hide an actionable item)."""
+    heading = block_text.splitlines()[0] if block_text else ""
+    return bool(BLOCKED_TAG_RE.search(heading)) and _approved(item_id)
+
+
+def has_blocked_tag(block_text: str) -> bool:
+    """The heading carries a [BLOCKED:] tag, approved or not."""
     heading = block_text.splitlines()[0] if block_text else ""
     return bool(BLOCKED_TAG_RE.search(heading))
 
@@ -271,7 +312,7 @@ def build_report(public_text: str,
     rows = []
     blocked = 0
     for item_id, title, block, source, _umbrella in items:
-        b = is_blocked(block)
+        b = is_blocked(block, item_id)
         rows.append((item_id, title, source, b, prose_signals(block)))
         if b:
             blocked += 1
@@ -386,7 +427,7 @@ def render_pipeline(public_text: str, private_text: str | None,
     # a ``### `` block with no bullets is itself a leaf (umbrella = its ## parent).
     open_items: list[tuple[str, str, str, str, str]] = []
     for item_id, title, block, source, umb in items:
-        if is_blocked(block):
+        if is_blocked(block, item_id):
             continue  # a [BLOCKED:] parent heading excludes itself AND its bullet leaves
         head_umb = f"{item_id} {title}".strip()
         # An umbrella's CHILDREN are the formal ids in its block that are dotted DESCENDANTS
@@ -417,7 +458,7 @@ def render_pipeline(public_text: str, private_text: str | None,
             bm = BULLET_ITEM_RE.match(line)
             if bm:
                 _consider(bm.group("id"), bm.group("title"), line, True,
-                          bool(BLOCKED_TAG_RE.search(line)))
+                          bool(BLOCKED_TAG_RE.search(line)) and _approved(bm.group("id")))
         for line in lines:                 # pass 2: inline wave-prose ids (non-bullet lines)
             if BULLET_ITEM_RE.match(line):
                 continue
@@ -436,7 +477,7 @@ def render_pipeline(public_text: str, private_text: str | None,
                 idesc = im.group("title").strip()
                 # context = the child's OWN desc (the shared wave line mixes sibling items and
                 # track keywords, which would mis-type an inline child).
-                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)))
+                _consider(iid, idesc, idesc, False, bool(BLOCKED_TAG_RE.search(segment)) and _approved(iid))
 
         children = [(oid, o["title"], o["line"]) for oid, o in occ.items()
                     if not o["blocked"] and o["descendant"]]
@@ -648,6 +689,51 @@ def _self_test() -> int:
     check("non-descendant-inline-token-ignored",
           any(l.startswith("3.500 ") for l in rEl) and not any("NOT-READY" in l for l in rEl))
 
+    # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register.
+    reg = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+           "| 2.1 | source | 2026-09-18 | #2364 |\n| `P-1.77` | ext | 2026-09-18 | 8168ee2 |\n"
+           "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | many | 2026-09-18 | x |\n")
+    check("approvals-parse", load_approvals(reg) == {"2.1", "P-1.77"})
+    tagged = "| 2.1 | t | `[BLOCKED:x]` |"
+    saved_approvals = _APPROVALS
+    try:
+        set_approvals(None)
+        check("approvals-none-counts-tag", is_blocked(tagged, "2.1"))
+        set_approvals(set())
+        check("approvals-empty-counts-nothing", not is_blocked(tagged, "2.1"))
+        set_approvals({"2.1"})
+        check("approvals-row-counts", is_blocked(tagged, "2.1"))
+        check("approvals-other-id-does-not", not is_blocked(tagged.replace("2.1", "2.5"), "2.5"))
+        check("approvals-no-id-does-not", not is_blocked(tagged))
+        check("approvals-tag-still-seen", has_blocked_tag(tagged.replace("2.1", "2.5")))
+        umb = ("## 9. U\n### 9.1 Umbrella\n- **9.1.1** leaf a `[BLOCKED:x]`\n- **9.1.2** leaf b\n")
+        set_approvals(set())
+        out_none = render_pipeline(umb, None, None, None)
+        check("approvals-unapproved-bullet-stays-open", "9.1.1" in out_none)
+        set_approvals({"9.1.1"})
+        out_ok = render_pipeline(umb, None, None, None)
+        check("approvals-approved-bullet-excluded", "9.1.1" not in out_ok and "9.1.2" in out_ok)
+        wave = "## 9. U\n### 9.2 Waves\n_Wave 1_: **9.2.1** inline a `[BLOCKED:x]`; **9.2.2** inline b\n"
+        set_approvals(set())
+        check("approvals-unapproved-inline-stays-open", "9.2.1" in render_pipeline(wave, None, None, None))
+        set_approvals({"9.2.1"})
+        check("approvals-approved-inline-excluded", "9.2.1" not in render_pipeline(wave, None, None, None))
+        # The default register lookup: no store at all -> tags as written; a store without the register ->
+        # nothing counts (a missing register never widens what is blocked).
+        g = globals()
+        real_rw, real_rwd = g["resolve_working"], g["resolve_working_dir"]
+        try:
+            g["resolve_working"], g["resolve_working_dir"] = (lambda *a, **k: None), (lambda *a, **k: None)
+            _load_default_approvals(None)
+            check("approvals-adopter-no-store-tags-count", _APPROVALS is None)
+            g["resolve_working_dir"] = lambda *a, **k: Path(".")
+            _load_default_approvals(None)
+            check("approvals-store-without-register-counts-nothing", _APPROVALS == set())
+        finally:
+            g["resolve_working"], g["resolve_working_dir"] = real_rw, real_rwd
+    finally:
+        set_approvals(saved_approvals)
+
     if failures:
         for f in failures:
             print(f"  SELF-TEST FAIL: {f}")
@@ -657,6 +743,28 @@ def _self_test() -> int:
           "recent-done date-ordering + compound headings, umbrella grouping, inline-wave children, "
           "foreign-bullet promotion, blocked exclusion, umbrella filter).")
     return 0
+
+
+def _load_default_approvals(explicit: "str | None") -> str:
+    """Set the approvals for this run and return a one-line note saying which rule applied."""
+    if explicit:
+        path = Path(explicit)
+    else:
+        path = resolve_working(APPROVALS_FILE)
+        if path is None:
+            if resolve_working_dir() is None:
+                set_approvals(None)
+                return "[BLOCKED] approvals: no operational store (adopter clone); tags count as written."
+            set_approvals(set())
+            return (f"[BLOCKED] approvals: the store has no {APPROVALS_FILE}; NO tag counts as blocked "
+                    f"(a missing register never widens what is blocked).")
+    try:
+        ids = load_approvals(path.read_text(encoding="utf-8"))
+    except OSError as exc:
+        set_approvals(set())
+        return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
+    set_approvals(ids)
+    return f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
 
 
 def main(argv: list[str]) -> int:
@@ -671,6 +779,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--todo", default=None, help="public TODO.md path")
     ap.add_argument("--ptodo", default=None,
                     help="private P-TODO.md path (no-op if absent)")
+    ap.add_argument("--approvals", default=None,
+                    help="the [BLOCKED] approvals register (default: blocked-approvals.md in the operational store)")
     ap.add_argument("--private-root", default=None,
                     help="override the private-sibling dir the reference (detail) bodies "
                          "load from (F1793-5 / P-1.53), at parity with the index-reference "
@@ -680,7 +790,7 @@ def main(argv: list[str]) -> int:
     # used to become a portable-clone no-op, a silent public-only run, or be ignored. The defaults
     # keep their documented portable-clone behaviour.
     for flag, value, want in (("--todo", args.todo, "file"), ("--ptodo", args.ptodo, "file"),
-                              ("--private-root", args.private_root, "dir")):
+                              ("--private-root", args.private_root, "dir"), ("--approvals", args.approvals, "file")):
         if value is None:
             continue
         ok = value.strip() and (Path(value).is_file() if want == "file" else Path(value).is_dir())
@@ -716,6 +826,7 @@ def main(argv: list[str]) -> int:
                               private_dir=private_dir))
         return 0
 
+    approvals_note = _load_default_approvals(args.approvals)
     rows, blocked, actionable = build_report(public_text, private_text, private_dir=private_dir)
 
     def trunc(t: str, w: int = 52) -> str:
@@ -735,6 +846,16 @@ def main(argv: list[str]) -> int:
           f"(approved [BLOCKED:] tag); {actionable} ACTIONABLE.")
     print("An item is BLOCKED only via a maintainer-approved [BLOCKED:<reason>] "
           "tag. 'all blocked' is assertable only when EVERY item carries one.")
+
+    print(approvals_note)
+    items_all = parse_items(public_text, "public", private_dir=private_dir) + (
+        parse_items(private_text, "private", private_dir=private_dir) if private_text is not None else [])
+    unapproved = [(i, t) for i, t, blk, _s, _u in items_all if has_blocked_tag(blk) and not _approved(i)]
+    if unapproved:
+        print(f"\nUNAPPROVED [BLOCKED] TAG ({len(unapproved)}) -- no row in the approvals register, so "
+              f"counted ACTIONABLE; record the maintainer's grant or remove the tag:")
+        for item_id, title in unapproved:
+            print(f"  - {item_id}  {trunc(title)}")
 
     # Advisory: items whose PROSE mentions a blocker but that carry no approved tag
     # are ACTIONABLE and are candidates to PROPOSE for a [BLOCKED] tag (never self-tag).

@@ -17098,6 +17098,34 @@ class BacklogActionabilityTests(unittest.TestCase):
         "| MEG-01 | §1.1 | an index row, NOT an item heading |\n"
     )
 
+    def test_approvals_register_gates_blocked_tags(self):
+        # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register; an
+        # unapproved tag is listed and counted ACTIONABLE. Explicit --approvals keeps the run hermetic.
+        import tempfile
+        import subprocess
+        import sys
+        tool = str(REPO_ROOT / "tools/audit-backlog-actionability.py")
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "TODO.md").write_text(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n"
+                "| 1.1 | granted | `[public]` `[BLOCKED:source-acquisition]` |\n"
+                "| 1.2 | self-tagged | `[public]` `[BLOCKED:egress-ingest]` |\n"
+                "| 1.3 | open | `[public]` |\n", encoding="utf-8")
+            (d / "P-TODO.md").write_text("| ID | Item | Tags |\n| --- | --- | --- |\n", encoding="utf-8")
+            (d / "approvals.md").write_text(
+                "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                "| 1.1 | source-acquisition | 2026-09-18 | #2364 |\n", encoding="utf-8")
+            out = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals.md"), "--actionable-only"],
+                capture_output=True, text=True)
+            self.assertEqual(out.returncode, 0, out.stderr)
+            self.assertIn("3 open item(s) across both lists; 1 BLOCKED", out.stdout)
+            self.assertIn("UNAPPROVED [BLOCKED] TAG (1)", out.stdout)
+            self.assertRegex(out.stdout, r"UNAPPROVED[^\n]*\n  - 1\.2 ")
+            self.assertIn("1 granted row(s)", out.stdout)
+
     def test_no_tag_means_all_actionable(self):
         # No [BLOCKED:] tag anywhere -> every item ACTIONABLE, even those whose prose
         # carries a keyword signal (the strongest anti-false-completeness stance).
