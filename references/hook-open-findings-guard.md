@@ -27,9 +27,10 @@ A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
 
 1. **Undispositioned `error` row (primary).** An `error`-severity row with no disposition blocks
    a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create`
-   or `gh pr merge`, or whose shell tokens run `gh`, `pr`, `create` or `merge` in that order (so a quoted
-   `gh pr 'merge'` is caught and `echo "gh pr merge"` is gated; a verb held in a variable still evades;
-   3b112), or a command that mentions `tools/merge-when-green.py` other than as a single simple
+   or `gh pr merge`, or whose shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh
+   `gh` between (so a quoted `gh pr 'merge'` is caught, and `echo "gh pr merge"` and
+   `gh pr view 1 && git merge x` are gated; a word held in a variable, an alias, or an unquoted mid-word
+   `#` earlier on the line still evades; 3b112), or a command that mentions `tools/merge-when-green.py` other than as a single simple
    `--dry-run` or `--self-test` command (over-gated by intent, since shell parsing cannot find every
    way to run it; `merge-when-green.py` also applies this guard's decision itself; the text match is a speed bump for an
    honest actor's slip, not an adversarial control, so a deliberately obfuscated command can still evade it; 3b108), because shipping past a known wrong behaviour is the thing worth

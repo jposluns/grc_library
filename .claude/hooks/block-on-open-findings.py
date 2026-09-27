@@ -19,8 +19,9 @@ primary blocking condition; the one other blocking condition is a MIS-FILED row 
 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose
-shell tokens run `gh`, `pr`, `create` or `merge` in that order (so a quoted `gh pr 'merge'` is caught and
-`echo "gh pr merge"` is gated; a verb held in a variable still evades; 3b112), or any command
+shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` between (so a quoted
+`gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; a word
+held in a variable still evades; 3b112), or any command
 that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
 see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
@@ -526,10 +527,14 @@ def is_blocking_command(cmd: str) -> bool:
           `merge` (quoted subcommands such as gh "pr" merge or gh pr 'merge', and interleaved flags);
       (3) a mention of tools/merge-when-green.py other than a simple direct --dry-run or --self-test
           (3b108; see invokes_merge_tool).
-    Over-gating is the safe direction: `echo "gh pr merge"` is gated. RESIDUE: a verb held in a
-    variable (c=merge; gh pr $c) or an alias still evades; a speed bump, not an adversarial control."""
+    The token match allows any tokens or operators between gh, pr and the verb, and a fresh gh resets
+    it, so `gh pr view 12 && git merge main` and `echo "gh pr merge"` are gated (over-gating is the safe
+    direction). A backslash-newline continuation is joined first, as bash does (3b112 QA r1). RESIDUE:
+    a word held in a variable (c=merge; gh pr $c, or GH=gh; $GH pr merge), an alias, or an
+    unquoted mid-word # earlier on the line (shlex starts a comment there, bash does not) still evades; a speed bump, not an adversarial control."""
     if not isinstance(cmd, str):
         return False
+    cmd = cmd.replace("\\\n", "")  # join backslash-newline continuations, as bash does (3b112 QA r1)
     flat = " ".join(cmd.split())
     if any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd):
         return True
@@ -846,6 +851,11 @@ def self_test() -> int:
     ck("commented-out verb does not block", is_blocking_command("gh pr view 12 # then merge"), False)
     ck("unbalanced quote falls back to substring only", is_blocking_command("gh 'pr view 12"), False)
     ck("non-string does not block", is_blocking_command(None), False)
+    # 3b112 QA r1: a fresh gh resets the match; a continuation is joined, as bash does
+    ck("gh repo create is not a pr command", is_blocking_command("gh repo create foo"), False)
+    ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
+    ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
+    ck("backslash-newline continuation blocks", is_blocking_command("gh pr \\\nmerge 1"), True)
     # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
     ck("ROUTED 3b108 is dispositioned", disposition_valid("ROUTED 3b108 (next PR)"), True)
     ck("FIXED 3b50b2e1 is dispositioned", disposition_valid("FIXED 3b50b2e1"), True)

@@ -151,12 +151,15 @@ def is_blocking_command(cmd: str) -> bool:
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
 
-    RESIDUE (stated): the `gh` token is matched bare OR as a path (`*/gh`). Only a deliberately obfuscated
-    command (variable indirection like `c=create; gh pr $c`, or a shell alias) can still evade. Accepted: this guard is a SPEED BUMP for an
+    A backslash-newline continuation is joined first, as bash does (3b112 QA r1).
+
+    RESIDUE (stated): the `gh` token is matched bare OR as a path (`*/gh`). a word held in a variable (c=merge; gh pr $c, or GH=gh; $GH pr merge), an alias, or an unquoted mid-word # earlier on the line (shlex starts a comment there, bash does not) still evades.
+    Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
     if not isinstance(cmd, str):
         return False
+    cmd = cmd.replace("\\\n", "")  # join backslash-newline continuations, as bash does (3b112 QA r1)
     flat = " ".join(cmd.split())
     if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
         return True
@@ -395,6 +398,8 @@ def self_test() -> int:
     ck("gh repo create is NOT a pr command", is_blocking_command("gh repo create foo"), False)
     ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
     ck("non-string command is not blocking", is_blocking_command(None), False)
+    ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
+    ck("backslash-newline continuation blocks (3b112 QA r1)", is_blocking_command("gh pr \\\nmerge 1"), True)
 
     # decide() core -- the single source of truth main() calls
     ck("decide blocks: library create, no sweep, no sentinel",
