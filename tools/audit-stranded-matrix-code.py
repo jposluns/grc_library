@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Master-matrix same-family stranded control-code scan (master compliance matrix vs per-document).
 
-Advisory enumeration (exit 0, `audit-*` not `lint-*`) of the same-family subset of the STRANDED paired-surface
+Advisory enumeration (exit 0 once a matrix row was checked, exit 2 on input it cannot check; `audit-*` not `lint-*`) of the same-family subset of the STRANDED paired-surface
 class: the master matrix cites a CSA CCM / AICM control code that is absent from the
 referenced document's own expanded code set, while that set contains another code of the
 SAME prefix (family). This is a SIGNAL of a possible stale mapping (a per-document
@@ -36,8 +36,10 @@ not falsely reported stranded.
 
 Input handling (3b107). The matrix is read as GFM tables, split as cmark-gfm splits them: a table is a
 header line followed at once by a delimiter row with the same number of cells, it ends at a blank line or
-at a line that starts another block (a heading, even one carrying pipes; a quote; a fence; a list item),
-tables inside code fences are ignored, and a pipe preceded by a backslash is cell content. A referenced
+at a line that starts another block (a heading, even one carrying pipes; a quote; a fence; a list item,
+empty or not; a thematic break; an HTML line), tables inside code fences are ignored, and a pipe preceded
+by a backslash is cell content. A matrix containing an HTML block, an indented line carrying a pipe or a
+quoted line carrying a pipe is refused rather than modelled. A referenced
 document is read only when it resolves inside the repository to a regular UTF-8 file; any other row is
 listed as not assessed. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
 that holds no master-matrix table, or none of whose rows could be checked.
@@ -76,9 +78,31 @@ _HEADER_CELLS = ("Domain", "Document Title", "Path", "CSA CCM v4.1", "CSA AICM v
 _LINE_BREAK_RE = re.compile(r"\r\n|\r|\n")
 # A line that starts another block ends a GFM table (a heading, even one carrying pipes; a quote; a fence;
 # a list item) (3b107; the round-6 cross-table reset missed a pipe-bearing heading).
-_BLOCK_START_RE = re.compile(r" {0,3}(?:#{1,6}(?:[ \t]|$)|>|`{3,}|~{3,}|[-*+][ \t]|\d{1,9}[.)][ \t])")
-_FENCE_RE = re.compile(r" {0,3}(`{3,}|~{3,})")
+_BLOCK_START_RE = re.compile(r" {0,3}(?:#{1,6}(?:[ \t]|$)|>|[-*+](?:[ \t]|$)|\d{1,9}[.)](?:[ \t]|$)|<"
+                             r"|([-*_])(?:[ \t]*\1){2,}[ \t]*$)")
+# A fence opener; a backtick fence whose info string contains a backtick is not one (CommonMark), which is
+# how an inline code span at the start of a pipe-less row stays a row (3b107 QA r1).
+_FENCE_RE = re.compile(r" {0,3}(`{3,}(?=[^`]*$)|~{3,})")
 _DELIM_CELL_RE = re.compile(r":?-+:?")
+
+
+def _block_start(line: str) -> bool:
+    return bool(_BLOCK_START_RE.match(line) or _FENCE_RE.match(line))
+
+
+def matrix_refusal(text: str) -> "str | None":
+    """Why the matrix text cannot be read reliably, or None (3b107 QA r1). Rather than model every construct
+    that can hide a table or turn table text into something else, the scan refuses a matrix containing any
+    of them: an HTML block (a line starting with ``<``), a line indented four or more columns that carries a
+    pipe (indented code), or a quoted line that carries a pipe (a table inside a quote is not read)."""
+    for n, line in enumerate(_LINE_BREAK_RE.split(text), 1):
+        if re.match(r" {0,3}<", line):
+            return f"line {n} starts an HTML block, which can hide or wrap a table"
+        if "|" in line and re.match(r"(?: {4,}|[ ]{0,3}\t)", line):
+            return f"line {n} is indented four or more columns and carries a pipe (indented code is not a table)"
+        if "|" in line and re.match(r" {0,3}>", line):
+            return f"line {n} is a quoted line carrying a pipe (a quoted table is not read)"
+    return None
 
 
 def _cells(line: str) -> list[str]:
@@ -120,7 +144,7 @@ def _is_delimiter_row(cells: list[str]) -> bool:
 def _tables(text: str):
     """Yield (header_cells, [(line_number, cells), ...]) for each GFM table outside code fences. A table is a
     header line followed at once by a delimiter row with the same number of cells; it continues until a
-    blank line or a line that starts another block. A body row with fewer cells is padded and one with more is
+    blank line (spaces and tabs only) or a line that starts another block. A body row with fewer cells is padded and one with more is
     cut to the header's width, as GFM renders it."""
     lines = _LINE_BREAK_RE.split(text)
     fence = None
@@ -137,13 +161,13 @@ def _tables(text: str):
             fence = (m.group(1)[0], len(m.group(1)))
             k += 1
             continue
-        header = _cells(line) if not _BLOCK_START_RE.match(line) else []
+        header = _cells(line) if not _block_start(line) else []
         if header and k + 1 < len(lines):
             delim = _cells(lines[k + 1])
             if len(delim) == len(header) and _is_delimiter_row(delim):
                 rows = []
                 k += 2
-                while k < len(lines) and lines[k].strip() and not _BLOCK_START_RE.match(lines[k]):
+                while k < len(lines) and lines[k].strip(" \t") and not _block_start(lines[k]):
                     cells = _cells(lines[k]) or [lines[k].strip()]
                     cells = (cells + [""] * len(header))[:len(header)]
                     rows.append((k + 1, cells))
@@ -256,7 +280,7 @@ def _outside_read_refused() -> bool:
 
 
 def _self_test() -> int:
-    """Exercise the strand signature against constructed fixtures (no corpus reads),
+    """Exercise the strand signature against constructed fixtures (the reader cases read two corpus paths),
     covering the same-family, carried, representative, missing-doc, RANGE, and
     ampersand-family (A&A/I&S) cases the production defects of 2026-09-02 exposed."""
     docs = {
@@ -333,6 +357,23 @@ def _self_test() -> int:
         (_outside_read_refused(), "the reader does not leave the repository"),
         (_default_doc_reader("compliance") is None and _default_doc_reader("governance/README.md") is not None,
          "the reader reads regular files only"),
+        # QA r1: every CommonMark block start ends a table; a fake fence is a row; refusals.
+        (all(rows_seen(hdr + row("risk/a.md") + sep + row("risk/b.md")) == (1, 1, 0)
+             for sep in ("***\n", "---\n", "___\n", "> quote\n", "- item\n", "-\n", "1. item\n", "<div>\n")),
+         "a thematic break, quote, list item or HTML line ends the table"),
+        (rows_seen(hdr + row("risk/a.md") + "```bash``` | x | `risk/b.md` | STA-02 | N/A\n" + row("risk/b.md")) == (1, 3, 0),
+         "a line starting with inline code is a row, not a fence"),
+        (rows_seen("~~~\n```\n" + hdr + row("risk/a.md") + "~~~\n") == (0, 0, 0)
+         and rows_seen("```\n~~~\n```x\n" + hdr + row("risk/a.md") + "```\n") == (0, 0, 0),
+         "a fence closes only on its own character with no trailing text"),
+        (rows_seen("| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 |\n"
+                   "| a | b | c | d | e |\n" + row("risk/a.md")) == (0, 0, 0), "the second line must be a delimiter row"),
+        (rows_seen(hdr + row("risk/a.md") + "\u00a0\n" + row("risk/b.md"))[1] == 2,
+         "a line of Unicode space is not blank; the table goes on"),
+        (matrix_refusal("<!--\n" + hdr + row("risk/a.md") + "-->\n") is not None
+         and matrix_refusal(hdr + "    " + row("risk/a.md")) is not None
+         and matrix_refusal("> " + hdr) is not None and matrix_refusal(hdr + row("risk/a.md")) is None,
+         "HTML blocks, indented pipe lines and quoted pipe lines refuse the matrix"),
     ]
     ok = True
     for passed, label in checks:
@@ -364,6 +405,10 @@ def main(argv: list[str]) -> int:
     except (OSError, UnicodeDecodeError) as exc:
         print(f"ERROR: cannot read --matrix {args.matrix}: {exc}", file=sys.stderr)
         return 2
+    refusal = matrix_refusal(text)
+    if refusal:
+        print(f"ERROR: {args.matrix} cannot be scanned reliably: {refusal}", file=sys.stderr)
+        return 2
     try:
         matrix_rel = str(mp.resolve().relative_to(REPO_ROOT))
     except (ValueError, OSError, RuntimeError):
@@ -378,7 +423,7 @@ def main(argv: list[str]) -> int:
         return 2
     if not stats["rows"]:
         print(f"ERROR: no matrix row in {args.matrix} could be checked; nothing is established:", file=sys.stderr)
-        for s in skipped[:20]:
+        for s in skipped:
             print(f"  - {s}", file=sys.stderr)
         return 2
     if skipped:

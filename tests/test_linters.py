@@ -13091,13 +13091,18 @@ class StrandedMatrixRefusalTests(LinterTestCase):
         header = lines[h] + "\n" + lines[h + 1] + "\n"
         good = td / "matrix.md"
         good.write_text(header + row + "\n", encoding="utf-8")
+        outside = td / "outside-doc.md"  # a real document outside the repository (containment, QA r1)
+        outside.write_text("DSP-01", encoding="utf-8")
         r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(good))
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         no_aicm = header.replace(" CSA AICM v1.1 |", " Other |")
         for name, body in (("header_only.md", header),
                            ("fenced.md", "```text\n" + header + "```\n"),
                            ("unresolved.md", header + row.replace(".md", "-nonexistent.md") + "\n"),
-                           ("outside.md", header + "| X | Y | [`/etc/hostname.md`](/etc/hostname.md) | DSP-07 | - |\n"),
+                           ("outside.md", header + f"| X | Y | [`{outside}`]({outside}) | DSP-07 | - |\n"),
+                           ("comment.md", "<!--\n" + header + row + "\n-->\n"),
+                           ("indented.md", "".join("    " + x + "\n" for x in (header + row).splitlines())),
+                           ("quoted.md", "".join("> " + x + "\n" for x in (header + row).splitlines())),
                            ("leak.md", header + "\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
                            ("heading.md", header + "## Section | two\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
                            ("no_aicm.md", no_aicm + row + "\n"),
@@ -13108,6 +13113,13 @@ class StrandedMatrixRefusalTests(LinterTestCase):
             r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(f))
             self.assertEqual(r.returncode, 2, (name, r.stdout + r.stderr))
             self.assertNotIn("Traceback", r.stderr)
+        # every unassessed row is listed, not the first twenty (QA r1)
+        many = td / "many.md"
+        many.write_text(header + "".join(row.replace(".md", f"-missing-{k}.md") + "\n" for k in range(25)),
+                        encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(many))
+        self.assertEqual(r.returncode, 2)
+        self.assertEqual(r.stderr.count("is not a readable document"), 25, r.stderr[-300:])
         for arg in (str(td), str(td / "missing.md")):
             r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", arg)
             self.assertEqual(r.returncode, 2, (arg, r.stdout + r.stderr))
