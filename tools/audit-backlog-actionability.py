@@ -114,14 +114,23 @@ _FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
 # A line allowed before the header: a heading, or a prose line that cannot open a list, blockquote, code
 # block, setext underline, thematic break or table (QA r6: lazy continuation and pipe-less tables).
 _PRE_HEADER_HEADING_RE = re.compile(r"#{1,6}(?:[ \t][^|]*)?")
-_PRE_HEADER_PROSE_RE = re.compile(r"(?![->=_#~\s])(?![*+](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
+_PRE_HEADER_PROSE_RE = re.compile(r"(?![-+>=_#~\s])(?![*](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
 
 
-def _plain_cell(cell: str) -> bool:
-    """True when the cell reads the same to a person and to this parser: no backtick (a code span can swallow
-    pipes), no ``&`` (an entity such as ``&nbsp;`` renders as blank), and no control or format character
-    (a zero-width space is invisible)."""
-    return not any(c in "`&" or unicodedata.category(c) in ("Cc", "Cf") for c in cell)
+_CELL_FORBIDDEN = set("`&[]<>\\")
+
+
+def _cell_problem(cell: str, needs_text: bool) -> "str | None":
+    """Why a cell cannot grant, or None (QA r7-r8). A cell is a whitelist: printable ASCII and tab only, without
+    a backtick (a code span can swallow pipes), ``&`` (an entity such as ``&nbsp;`` renders as blank),
+    brackets (an empty link or image renders as blank), angle brackets or a backslash. A reason or evidence
+    cell must also contain a letter or digit, so it cannot look blank to a reader."""
+    bad = sorted({c for c in cell if c in _CELL_FORBIDDEN or not (c == "\t" or " " <= c <= "~")})
+    if bad:
+        return "a character outside the cell whitelist: " + ", ".join(repr(c) for c in bad)
+    if needs_text and not any(c.isalnum() for c in cell):
+        return "no letter or digit"
+    return None
 
 
 def _register_lines(text: str) -> "tuple[list[str], str | None]":
@@ -144,6 +153,9 @@ def _register_lines(text: str) -> "tuple[list[str], str | None]":
         return lines, "it contains a line-break character Markdown does not treat as one"
     if "<" in text:
         return lines, "it contains '<' (HTML or a comment could hide or reveal a table)"
+    controls = sorted({c for c in text if unicodedata.category(c) == "Cc" and c not in "\t\n"})
+    if controls:
+        return lines, "it contains a control character: " + ", ".join(repr(c) for c in controls)
     if "\\|" in text:
         return lines, "it contains an escaped pipe, which shifts the cells a reader sees"
     if any(_FENCE_LINE_RE.match(line) for line in lines):
@@ -164,26 +176,34 @@ def register_refusal(text: str) -> "str | None":
 
 
 def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
-    """The item ids granted by the register (QA r1-r6). A refused register grants nothing. Otherwise the table
-    is opened by the first line that is exactly ``| Item | Reason | Granted | Evidence |`` (trailing spaces
-    ignored) and must be followed at once by a four-cell separator row; it ends at the first line not starting
-    with ``|``. A row starts at column 0, ends with ``|`` (trailing spaces ignored) and has exactly five ``|``
-    characters; it grants only with an item id (optionally backtick-wrapped, not ending in a dot), a non-empty
-    reason, a ``YYYY-MM-DD`` calendar date not after today and non-empty evidence. A malformed or indented row
-    is skipped (it grants less, never more)."""
+    """The item ids granted by the register (see parse_approvals)."""
+    return parse_approvals(text, today)[0]
+
+
+def parse_approvals(text: str, today: "datetime.date | None" = None) -> "tuple[set[str], list[str]]":
+    """(granted item ids, one note per table row that grants nothing) for the register (QA r1-r8). A refused
+    register grants nothing. Otherwise the table is opened by the first line that is exactly ``| Item | Reason |
+    Granted | Evidence |`` (trailing spaces ignored) and must be followed at once by a four-cell separator row;
+    it ends at the first line not starting with ``|``. A row starts at column 0, ends with ``|`` (trailing
+    spaces ignored) and has exactly five ``|`` characters; it grants only with an item id (optionally
+    backtick-wrapped, not ending in a dot), whitelisted cells, a reason and evidence containing a letter or
+    digit, and a ``YYYY-MM-DD`` calendar date not after today. A row that grants nothing is reported, never
+    silently dropped; an indented row ends the table (it grants less, never more)."""
     lines, refusal = _register_lines(text)
     if refusal is not None:
-        return set()
+        return set(), []
     today = today or datetime.date.today()
     ids: set = set()
+    skipped: list = []
     state = "before"  # before -> separator -> rows
-    for raw in lines:
+    for n, raw in enumerate(lines, 1):
         if state == "before":
             if raw.rstrip(" \t") == _APPROVAL_HEADER:
                 state = "separator"
             continue
         if state == "separator":
             if not _APPROVAL_SEPARATOR_RE.fullmatch(raw.rstrip(" \t")):
+                skipped.append(f"line {n}: the header is not followed by its separator row, so no row grants")
                 break
             state = "rows"
             continue
@@ -191,21 +211,30 @@ def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]
             break
         row = raw.rstrip(" \t")
         if row.count("|") != 5 or not row.endswith("|"):
+            skipped.append(f"line {n}: not exactly four cells between pipes")
             continue
-        item, reason, granted, evidence = (c.strip() for c in row[1:-1].split("|"))
+        item, reason, granted, evidence = (c.strip(" \t") for c in row[1:-1].split("|"))
         if item.startswith("`") and item.endswith("`") and len(item) > 2:
             item = item[1:-1]
-        if not all(_plain_cell(c) for c in (item, reason, granted, evidence)):
-            continue  # a code span, an entity or an invisible character can change what a reader sees (QA r7)
-        if not _APPROVAL_DATE_RE.fullmatch(granted):
-            continue
-        try:
-            when = datetime.date.fromisoformat(granted)
-        except ValueError:
-            continue
-        if reason and evidence and when <= today and _APPROVAL_ITEM_RE.fullmatch(item):
+        problem = next((f"{name}: {why}" for name, cell, needs in (("item", item, False), ("reason", reason, True),
+                                                                   ("granted", granted, False), ("evidence", evidence, True))
+                        for why in [_cell_problem(cell, needs)] if why), None)
+        if problem is None and not _APPROVAL_ITEM_RE.fullmatch(item):
+            problem = "item: not an item id"
+        if problem is None:
+            try:
+                when = datetime.date.fromisoformat(granted) if _APPROVAL_DATE_RE.fullmatch(granted) else None
+            except ValueError:
+                when = None
+            if when is None:
+                problem = "granted: not a YYYY-MM-DD calendar date"
+            elif when > today:
+                problem = "granted: after today"
+        if problem is None:
             ids.add(item)
-    return ids
+        else:
+            skipped.append(f"line {n}: {problem}")
+    return ids, skipped
 
 
 def set_approvals(approvals: "set[str] | None") -> None:
@@ -865,6 +894,17 @@ def _self_test() -> int:
             check("approvals-file-lone-cr", "refused" in note and _APPROVALS == set())
         finally:
             set_approvals(saved)
+    # QA r8: cells are a whitelist; controls anywhere refuse; skipped rows are reported.
+    check("approvals-cell-whitelist", all(load_approvals(H + f"| 1.1 | {r} | 2026-09-18 | {e} |\n") == set() for r, e in (
+        ("[]()", "#1"), ("r", "[](x)"), ("r", "![]()"), ("r", "\u3164"), ("\u2800", "#1"), ("r\u034f", "#1"),
+        ("r", "\ue000"), ("\xa0r", "#1"), ("\x1fr", "#1"), ("r\x1f", "#1"), ("r", "a\\b"), ("r", "--"))))
+    check("approvals-cell-tab", load_approvals(H + "| 1.1 | source\tgated | 2026-09-18 | #1 |\n") == {"1.1"})
+    check("approvals-file-controls", register_refusal("Register\x1b[8m\n\n" + H + R("1.1")) is not None
+          and register_refusal("note\x00\n\n" + H + R("1.1")) is not None)
+    check("approvals-toml-and-lists", all(load_approvals(pre + "\n\n" + H + R("1.1")) == set()
+                                          for pre in ("+++\ntitle = 'x'", "+ item", "1) item")))
+    ids, skipped = parse_approvals(H + R("1.1") + "| 1.2 | r | soon | #1 |\n| 1.3 | r | 2026-09-18 |\n")
+    check("approvals-skips-reported", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0])
     check("approvals-refusal-layers", "carriage return" in (register_refusal("note\rmore") or "")
           and "byte-order" in (register_refusal("\ufeff\ufeffnote") or ""))
     check("approvals-prose-and-heading-before", load_approvals("# Title\n\nSome prose (with parens).\n\n" + H + R("1.1")) == {"1.1"})
@@ -1091,9 +1131,12 @@ def _load_default_approvals(explicit: "str | None") -> str:
     if refusal is not None:
         set_approvals(set())
         return f"[BLOCKED] approvals: {path} refused ({refusal}); NO tag counts as blocked."
-    ids = load_approvals(text)
+    ids, skipped = parse_approvals(text)
     set_approvals(ids)
-    return f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
+    note = f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
+    if skipped:
+        note += f" {len(skipped)} row(s) grant nothing: " + "; ".join(skipped)
+    return note
 
 
 def main(argv: list[str]) -> int:

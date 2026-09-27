@@ -17144,6 +17144,7 @@ class BacklogActionabilityTests(unittest.TestCase):
                  "--approvals", str(d / "approvals.md"), "--pipeline"],
                 capture_output=True, text=True)
             self.assertEqual(pipe.returncode, 0, pipe.stderr)
+            self.assertIn("granted row(s)", pipe.stderr)  # the approvals note stays visible (QA r7-r8)
             self.assertIn("P-9.1.1", pipe.stdout)
             self.assertIn("P-9.1.2", pipe.stdout)
 
