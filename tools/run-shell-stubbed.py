@@ -14,8 +14,11 @@ leans on an enforcement mechanism bash itself provides:
      files, and an audited whitelist of utilities none of which can run another program or write file
      content. Restricted mode forbids changing PATH, SHELL, ENV or BASH_ENV, command names containing a
      slash, `command -p`, `hash -p`, `exec`, `enable -f`, turning restriction off, and output redirection;
-     on this host it also passes no exported function to a child. A real gh or git is therefore
-     unreachable, including from a nested shell or a background child.
+     on this host it also passes no exported function to a child. Bash builtins such as `history -w`
+     and `fc` can still write into the working directory (a temp dir), but restricted mode refuses a
+     slash in their file names, the PATH directory is read-only, and a file there cannot be run by name
+     or sourced out of restriction. A real gh or git is therefore unreachable, including from a nested
+     shell or a background child.
   2. The environment is built from scratch, not inherited: PATH, a temporary HOME and gh/XDG config dirs,
      and, as a second layer, an invalid GH_TOKEN, a reserved .invalid GH_HOST and git config off.
   3. Every process in the run's session is killed, and the temp dir removed, when the command ends; a child
@@ -32,7 +35,7 @@ Usage:
     python3 tools/run-shell-stubbed.py --self-test
 
 Output: per shell, the exit code, stdout, stderr and each stubbed call as `STUB <name> <argv...>`.
-Exit codes: 0 ran; 2 usage error.
+Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error.
 """
 from __future__ import annotations
 
@@ -209,7 +212,9 @@ def _self_test() -> int:
                        ("set-plus-r", "set +r; /usr/bin/gh x"), ("bash-plus-r", "bash +r -c '/usr/bin/gh x'"),
                        ("xargs", "echo /usr/bin/gh | xargs"), ("job-control", "set -m; (/usr/bin/gh x) & wait"),
                        ("sort", "sort -o \"$HOME/x\" /dev/null"), ("touch", "touch \"$PATH/gh2\""),
-                       ("login-shell", "bash -l -c '/usr/bin/gh x'")):
+                       ("login-shell", "bash -l -c '/usr/bin/gh x'"),
+                       ("history-path", "set -o history; history -w \"$HOME/.bashrc\""),
+                       ("source-path", ". ./x")):
         rr = run(cmd, shells=("bash",))[0]
         # The evidence must be bash's own refusal, not merely the absence of a visible real run.
         refused = any(s in rr["stderr"] for s in ("restricted", "readonly variable", "command not found",
