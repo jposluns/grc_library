@@ -117,14 +117,35 @@ def repo_root():
 # Paths follow the checkout (3b101): the repo root is this file's grandparent's parent, the lease lives
 # in the operational store (GRC_STORE, else <repo-parent>/private), and the declared-wait sentinel in
 # GRC_DROP_ROOT, else <repo-parent>/grc_working. No host path is hard-coded.
-_GRC_REPO_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+# Same fully resolved path as repo_root(), so a symlinked hook file cannot split the two (3b101 QA r1).
+_GRC_REPO_ROOT = str(Path(__file__).resolve().parents[2])
 _GRC_PARENT = os.path.dirname(_GRC_REPO_ROOT)
-_GRC_STATE_FILE = os.path.join(os.environ.get("GRC_STORE") or os.path.join(_GRC_PARENT, "private"),
+
+
+def _grc_under_root(value, default):
+    """An override path, resolved against the repo root when relative so the working directory cannot
+    change its meaning; the default when unset or empty (3b101 QA r1)."""
+    if not value:
+        return default
+    return value if os.path.isabs(value) else os.path.normpath(os.path.join(_GRC_REPO_ROOT, value))
+
+
+_GRC_STATE_FILE = os.path.join(_grc_under_root(os.environ.get("GRC_STORE"), os.path.join(_GRC_PARENT, "private")),
                                "session-state.md")
+
+
 def _grc_escape_file():
     """Path of the grc one-shot declared-wait sentinel, resolved at call time (honours GRC_DROP_ROOT)."""
-    return os.path.join(os.environ.get("GRC_DROP_ROOT") or os.path.join(_GRC_PARENT, "grc_working"),
+    return os.path.join(_grc_under_root(os.environ.get("GRC_DROP_ROOT"), os.path.join(_GRC_PARENT, "grc_working")),
                         ".allow-idle-stop")
+
+
+def _is_grc_main_checkout(root):
+    """The grc adapter applies only in the MAIN checkout: <root>/.git is a directory there and a file in
+    every linked worktree, so a worker's Stop in a sibling worktree can neither consume the orchestrator's
+    declared-wait sentinel nor be armed by its lease. The old hard-coded root path gave this scoping;
+    deriving the root from __file__ alone made the check always true (3b101 QA r1, claude F1)."""
+    return os.path.realpath(root) == _GRC_REPO_ROOT and os.path.isdir(os.path.join(root, ".git"))
 
 
 def _grc_consume_escape(root):
@@ -135,7 +156,7 @@ def _grc_consume_escape(root):
     the malformed-payload and worker/unconfirmable-owner fail-open paths that return before run() -- so a
     declared wait cannot survive to authorize a later, unintended stop (codex validate-pr #1945 f1;
     parity with the retired hook's test_block_idle_stop_fail_open_consumes_escape invariant)."""
-    if os.path.realpath(root) != _GRC_REPO_ROOT:
+    if not _is_grc_main_checkout(root):
         return False
     ef = _grc_escape_file()
     try:
@@ -157,7 +178,7 @@ def _grc_map_mode(raw):
         return None
     # Map the LEADING mode token only: commentary such as "attended; was overnight-unattended" must not
     # arm the guard, and fully-attended is attended (3b101, from the NMW-map-bug finding).
-    m = re.match(r"\s*([a-z][a-z-]*)", raw.lower())
+    m = re.match(r"\s*([a-z][a-z-]*)(?![a-z0-9_-])", raw.lower())  # a whole token: no -autonomous_v2 prefix
     word = m.group(1) if m else ""
     if word in ("unattended", "overnight-unattended", "daytime-unattended", "attended-autonomous"):
         return "unattended"
@@ -216,7 +237,7 @@ def read_operating_mode(root):
     except OSError:
         return None
     # 2. grc production adapter -- gated on the grc repo root so temp-root self-tests never reach it
-    if os.path.realpath(root) != _GRC_REPO_ROOT:
+    if not _is_grc_main_checkout(root):
         return None
     # grc mode source: session-state.md 'Operating-mode:' -> mapped arm-state. (The one-shot declared-wait
     # escape is handled at the top of main() via _grc_consume_escape, not here, so it is consumed on the
@@ -454,6 +475,41 @@ def _self_test():
             self.assertTrue(_GRC_REPO_ROOT.endswith(os.sep + os.path.basename(_GRC_REPO_ROOT)))
             with open(__file__, encoding="utf-8") as fh:
                 self.assertNotIn("/opt/" + "grc", fh.read())
+
+        def test_grc_mode_map_needs_a_whole_token(self):
+            # 3b101 QA r1: a malformed suffix is not a known mode, so it passes through (and allows).
+            for raw in ("attended-autonomous_v2", "attended-autonomous2", "overnight-unattended9"):
+                self.assertEqual(_grc_map_mode(raw), raw.strip(), raw)
+
+        def test_grc_relative_override_resolves_against_the_repo_root(self):
+            # 3b101 QA r1: a relative GRC_STORE must not change meaning with the working directory.
+            self.assertEqual(_grc_under_root("../private", "x"),
+                             os.path.normpath(os.path.join(_GRC_REPO_ROOT, "../private")))
+            self.assertEqual(_grc_under_root("", "dflt"), "dflt")
+            self.assertEqual(_grc_under_root("/abs/store", "x"), "/abs/store")
+
+        def test_grc_sentinel_is_the_main_checkouts_alone(self):
+            # 3b101 QA r1 (claude F1): a worker's Stop in a sibling worktree must not consume the
+            # orchestrator's declared-wait sentinel; the main checkout's Stop consumes it.
+            import shutil, subprocess, tempfile
+            with tempfile.TemporaryDirectory() as parent:
+                main_root = os.path.join(parent, "grc_library")
+                wt_root = os.path.join(parent, "wt-x")
+                for r in (main_root, wt_root):
+                    os.makedirs(os.path.join(r, ".claude", "hooks"))
+                    shutil.copy(__file__, os.path.join(r, ".claude", "hooks", os.path.basename(__file__)))
+                os.makedirs(os.path.join(main_root, ".git"))
+                with open(os.path.join(wt_root, ".git"), "w", encoding="utf-8") as fh:
+                    fh.write("gitdir: " + os.path.join(main_root, ".git", "worktrees", "wt-x") + "\n")
+                drop = os.path.join(parent, "grc_working")
+                os.makedirs(drop)
+                sentinel = os.path.join(drop, ".allow-idle-stop")
+                env = {k: v for k, v in os.environ.items() if k not in ("GRC_DROP_ROOT", "GRC_STORE")}
+                for r, want_present in ((wt_root, True), (main_root, False)):
+                    open(sentinel, "w").close()
+                    subprocess.run([sys.executable, "-B", os.path.join(r, ".claude", "hooks", os.path.basename(__file__))],
+                                   input="{}", text=True, capture_output=True, env=env, cwd=r, timeout=60)
+                    self.assertEqual(os.path.exists(sentinel), want_present, r)
 
         def test_mode_missing_is_none(self):
             with tempfile.TemporaryDirectory() as d:
