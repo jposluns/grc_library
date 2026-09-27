@@ -19,7 +19,9 @@ primary blocking condition; the one other blocking condition is a MIS-FILED row 
 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge` (so it
-misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), because
+misses `gh pr 'merge'` and gates `echo "gh pr merge"`; it does not parse shell syntax), or any command
+that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
+see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
 (an in-flight change should finish rather than be abandoned half-landed) and is surfaced instead.
 Notes never block. SECOND blocking condition (P-1.70, 2026-09-10): a MIS-FILED finding-row - one that
@@ -516,7 +518,8 @@ def invokes_merge_tool(cmd: str) -> bool:
 
 def is_blocking_command(cmd: str) -> bool:
     """PURE. After whitespace collapse, does the command text contain the case-sensitive substring
-    `gh pr create` or `gh pr merge`, or run tools/merge-when-green.py for a real merge (3b108)?
+    `gh pr create` or `gh pr merge`, or mention tools/merge-when-green.py other than a simple direct
+    --dry-run or --self-test (3b108; see invokes_merge_tool)?
     Quote-unaware on the gh half: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
     flat = " ".join(cmd.split())
     return any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd)

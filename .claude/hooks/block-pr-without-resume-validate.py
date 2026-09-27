@@ -12,7 +12,9 @@ per-iteration rows record every sweep a session runs. A row qualifies as a resum
 first cell parses as a date on or after the session's start date and the row mentions both "resume"
 and "validate" (case-insensitive).
 
-WHAT IT BLOCKS. `gh pr create` and `gh pr merge` when no qualifying row exists for the session. Once
+WHAT IT BLOCKS. `gh pr create` and `gh pr merge`, and any command that mentions tools/merge-when-green.py
+other than a simple direct --dry-run or --self-test (3b108; see invokes_merge_tool), when no qualifying
+row exists for the session. Once
 the row exists the hook passes for the rest of the session. ALL `gh pr create`/`merge` are gated
 regardless of `--repo` (the orchestrator opens PRs only against this library; over-gating a
 hypothetical other-repo PR is the safe direction and the sentinel escapes it).
