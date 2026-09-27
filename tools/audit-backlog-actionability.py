@@ -1409,7 +1409,7 @@ def _self_test() -> int:
         set_approvals(saved_r8)
     # QA r9
     for net_line in ("- [ **3b7 fix**](url)", "- [\t**ORCH-CI-STATUS**](url)", "- ~~**3b7 fix**~~",
-                     "- **(ORCH-CI-STATUS)** wire CI", "- **P-1.2.3.4 x** y", "- _3b7 fix_",
+                     "- **(ORCH-CI-STATUS)** wire CI", "- **P-10.1.2.3 x** y", "- _3b7 fix_",
                      "### uncounted prose heading [private]", "###\t3.1 Real heading", " ### 3.1 Real heading"):
         check("r9-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
               == [net_line.strip()])

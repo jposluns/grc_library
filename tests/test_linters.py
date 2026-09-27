@@ -17366,7 +17366,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             # QA r9: a bullet item then a ``### <id>`` item; a comment reopened on one line; a four-level P- id.
             "heading after bullet": ("## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n", 1),
             "comment reopened on one line": ("## Q\n<!-- a\n--> <!-- b\n- **3b7 x** y\n-->\n", 0),
-            "four-level P- id": ("## Q\n- **P-1.2.3.4 x** y\n", 0),
+            "four-level P- id": ("## Q\n- **P-10.1.2.3 x** y\n", 0),
             "inline code is not a fence": ("## Q\n```x``` inline\n- **3b7 [private] real** a\n```\n"
                                           "- **3b8 [private] example** b\n```\n", 1),
         }
