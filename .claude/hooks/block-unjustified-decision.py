@@ -55,7 +55,8 @@ None. These checks do not prove that an audit occurred or was fresh or complete.
 
 The count sums all ``TODO_ROW_RE`` matches in public ``root/TODO.md`` and all
 ``ITEM_HEADING_RE`` matches in sibling ``root.parent/grc_library_private/P-TODO.md``,
-plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true. A missing
+plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true, plus the
+bold-bullet items ``_bullet_item_count`` finds in both files (3b119). A missing
 private file contributes zero. A public path that is not a file, or any Exception caught
 during counting, yields None and skips only audit-count equality. These are syntax counts,
 not independent verification of open-item status.
@@ -172,7 +173,8 @@ SET_COMPLETENESS_RE = re.compile(
 # only the first match; token presence and count equality do not prove an audit.
 AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
 
-# Heading-prefix regex used by _todo_item_count only for private P-TODO.md.
+# Heading-prefix regex _todo_item_count counts in private P-TODO.md (bullet counting uses its own
+# _BULLET_ITEM_HEADING_RE for item blocks in both files).
 # Matches include numeric prefixes such as 1.19.10a and coded prefixes such as
 # SR-1, RB-R6, and GR-GAP-1; P-1.15 matches through its P-1 prefix.
 # This does not validate the complete item ID or establish open-item status.
@@ -182,7 +184,8 @@ AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.
 # tests/test_linters.py compares the combined hook and tool counts on the live
 # public and private files; that check does not prove parity for every input.
 ITEM_HEADING_RE = re.compile(
-    r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
+    r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b",  # P- as the tool's (3b119 QA r10)
+    re.MULTILINE
 )
 # _todo_item_count counts every match of this row regex in public TODO.md.
 # In private P-TODO.md it counts these matches only if _has_todo_index_header
@@ -193,14 +196,101 @@ TODO_ROW_RE = re.compile(
     re.MULTILINE,
 )
 
+# A top-level bold-bullet backlog item (3b119), the audit tool's closed TOP_BULLET_ITEM_RE grammar: ``- **<id>``
+# at column 0 with a ``3bNN`` or ``P-n.m`` id, or a coded id (``RB-6``) or section number followed by a
+# `` [private]`` / `` [public]`` tag; the id ends at a space, tab, ``*`` or ``:``. It counts only outside a
+# ``### <id>`` item block (where the tool treats it as that item's body) and outside a code fence (0 to 3
+# spaces of indentation) or an HTML comment that starts a line; a fenced or commented line never counts and
+# never changes containment. tests/test_linters.py compares these counts with the tool's on the live files
+# and on fixtures.
+BULLET_ITEM_RE = re.compile(
+    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|3b\d+[a-z]?"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=(?:\*\*)? \[(?:private|public)\]))(?=[ \t*:])"
+)
+_BULLET_ITEM_HEADING_RE = re.compile(
+    r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b"
+)
+_FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_COMMENT_TOKEN_RE = re.compile(r"<!--|-->")
+
+
+def _comment_open_after(s: str, open_: bool) -> bool:
+    for tok in _COMMENT_TOKEN_RE.findall(s):
+        if tok == "<!--" and not open_:
+            open_ = True
+        elif tok == "-->" and open_:
+            open_ = False
+    return open_
+
+
+def _masked_lines(text: str) -> "list[tuple[str, bool]]":
+    """Each line with whether it is inside a code fence or a line-starting HTML comment (the tool's mask)."""
+    out: list[tuple[str, bool]] = []
+    fence: "str | None" = None
+    in_comment = False
+    for line in text.splitlines():
+        if fence is not None:
+            m = _FENCE_OPEN_RE.match(line)
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not line.strip()[len(m.group(1)):].strip():
+                fence = None
+            out.append((line, True))
+        elif in_comment:
+            in_comment = _comment_open_after(line, True)
+            out.append((line, True))
+        elif _FENCE_OPEN_RE.match(line) and not (
+                _FENCE_OPEN_RE.match(line).group(1)[0] == "`" and "`" in line[_FENCE_OPEN_RE.match(line).end():]):
+            fence = _FENCE_OPEN_RE.match(line).group(1)  # ```x``` is inline code, not a fence (QA r8)
+            out.append((line, True))
+        elif line.lstrip(" ").startswith("<!--") and len(line) - len(line.lstrip(" ")) <= 3:
+            in_comment = _comment_open_after(line, False)
+            out.append((line, True))
+        else:
+            out.append((line, False))
+    return out
+
+
+def _heading_item_count(text: str) -> int:
+    """Every ITEM_HEADING_RE heading, masked or not, as on main and as the tool counts them (QA r5). Lines are
+    split as the tool splits them (``splitlines``: CR, form feed and U+2028 too), so the two agree (QA r8)."""
+    return sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
+
+
+def _bullet_item_count(text: str) -> int:
+    """Count bold-bullet items outside ``### <id>`` item blocks, code fences and line-starting HTML comments
+    (a ``## `` header, or a non-item ``### `` heading outside an item, ends an item block, as in the tool)."""
+    n = 0
+    in_heading_item = False
+    for line, masked in _masked_lines(text):
+        if masked:
+            continue  # a masked line never counts as a bullet and never changes containment (a masked heading
+            # still counts in _heading_item_count, as a one-line item, as in the tool)
+        if _BULLET_ITEM_HEADING_RE.match(line):
+            in_heading_item = True
+        elif line.startswith("## ") or (line.startswith("### ") and not in_heading_item):
+            in_heading_item = False
+        elif not in_heading_item and BULLET_ITEM_RE.match(line):
+            n += 1
+    return n
+
+
+def _file_item_count(text: str, gate_rows: bool) -> int:
+    """One backlog file's count: index rows (for the private file only under an index header, F1793-12;
+    row-regex matches anywhere once the header is found, fenced text included), every ITEM_HEADING_RE heading,
+    and the bold-bullet items. Matches are not deduplicated. The public file now counts headings as the tool
+    does (3b119 QA r10); its rows are still counted without the header gate the tool applies, a known
+    divergence open as P-TODO 3b121 (one row grammar and gate for hook and tool)."""
+    rows = len(TODO_ROW_RE.findall(text)) if (not gate_rows or _has_todo_index_header(text)) else 0
+    return rows + _heading_item_count(text) + _bullet_item_count(text)
+
 
 def _todo_item_count(project_dir: str | None) -> int | None:
     """Return a syntax-based count from the public and private backlog files.
 
     Resolve a truthy ``project_dir`` as root; otherwise use this script's repository
-    root. Count all ``TODO_ROW_RE`` matches in ``root/TODO.md``. In sibling
-    ``root.parent/grc_library_private/P-TODO.md``, count all ``ITEM_HEADING_RE``
-    matches and add ``TODO_ROW_RE`` matches if ``_has_todo_index_header`` is true.
+    root. Count ``root/TODO.md`` and sibling ``root.parent/grc_library_private/P-TODO.md``
+    with _file_item_count: all ``ITEM_HEADING_RE`` headings (the public file too since
+    3b119 QA r10), ``TODO_ROW_RE`` matches (in the private file only if
+    ``_has_todo_index_header`` is true), and the bold-bullet items ``_bullet_item_count`` finds.
     The sum does not deduplicate IDs or independently verify open-item status.
 
     Return None if public TODO.md is not a file or any operation in the try block
@@ -214,18 +304,10 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        count = len(TODO_ROW_RE.findall(todo.read_text(encoding="utf-8")))
+        count = _file_item_count(todo.read_text(encoding="utf-8"), gate_rows=False)
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
-            ptodo_text = ptodo.read_text(encoding="utf-8")
-            # F1793-12: gate private row counting on the header classifier,
-            # as the audit tool gates its index parser. Once a header is found,
-            # count row-regex matches throughout ptodo_text, including body tables
-            # or fenced text that matches. Add heading matches independently;
-            # do not deduplicate matches between the two counts.
-            if _has_todo_index_header(ptodo_text):
-                count += len(TODO_ROW_RE.findall(ptodo_text))
-            count += len(ITEM_HEADING_RE.findall(ptodo_text))
+            count += _file_item_count(ptodo.read_text(encoding="utf-8"), gate_rows=True)
         return count
     except Exception:
         return None

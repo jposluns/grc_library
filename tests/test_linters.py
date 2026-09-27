@@ -17323,6 +17323,135 @@ class HookToolItemCountParityTests(unittest.TestCase):
             f"ITEM_HEADING_RE or their two-list unioning have drifted; re-align them "
             f"(guardrail layers 1 and 2 are a pair, both union TODO.md + P-TODO.md).")
 
+    def test_hook_and_tool_bullet_counts_agree_on_fixtures(self):
+        # 3b119: bullet-form items. The hook's _bullet_item_count and the tool's bullet items must agree on
+        # every grammar case (QA r1: most hook mutations survived the live-file parity test alone).
+        import tempfile
+        hook = self._load("_hook_bullets", ".claude/hooks/block-unjustified-decision.py")
+        tool = self._load("_tool_bullets", "tools/audit-backlog-actionability.py")
+        cases = {
+            "top-level ids": ("## Q\n- **3b7 [private] a** x\n- **3b7a b:** y\n- **P-1.49 [private]** c\n"
+                              "- **P-1.37 d:** e\n- **RB-6 [private] f** g\n- **P-F5 [private] (x):** h\n"
+                              "- **4.5 [private] i** j\n", 7),
+            "public tags and binary literal": ("## Q\n- **RB-9 [public] x** a\n- **4.6 [public] y** b\n"
+                                               "- **0b1010** mask\n- **12b3 [private] not a queue id** c\n", 2),
+            "untagged coded and acronyms": ("## Q\n- **RB-6 f** g\n- **SHA-256:** pins\n- **UTF-8 only** x\n"
+                                            "- **CVE-2024-3094:** y\n", 0),
+            "inline comment markers": ("## Q\n- **3b7 [private] a** x <!-- owner: ops -->\n"
+                                       "Note: the `<!--` scanner is fragile.\n- **3b8 [private] b** y\n"
+                                       "<!-- closed --> <!-- still open\n- **3b9 hidden** z\n-->\n- **3b10 after** w\n", 3),
+            "tag after bold": ("## Q\n- **RB-6** [private] Title\n- **4.7** [public] t\n- **RB-8** untagged x\n", 2),
+            "comment inside bullet body": ("## Q\n- **3b7 fix**\n<!-- note -->\n  deferred\n- **3b8 [private] next** y\n", 2),
+            "three-space fence": ("## Q\n   ```\n- **3b7 [private] example**\n   ```\n- **3b8 [private] real** y\n", 1),
+            "masked heading": ("## Q\n```\n### 9.9 Example\n## Not a section\n```\n- **3b7 [private] real** a\n"
+                               "    ```\n- **3b8 [private] after indented fence** b\n", 2),
+            "colon and tab": ("## Q\n- **3b7: a** x\n\tcontinuation\n- **3b8\ttab-delimited** y\n", 2),
+            "not ids": ("## Q\n- **2026.09.1340** shipped\n- **1.5x faster** g\n- **4.5 untagged** h\n"
+                        "- **P-v3nit (w):** i\n  - **3b9 indented** j\n* **3b10 star** k\n1. **3b11 numbered** l\n", 0),
+            "fence and comments": ("## Q\n```\n- **3b7 [private] example**\n```\n~~~~\n- **3b8 x**\n~~~\n~~~~\n"
+                                   "<!--\n- **3b9 old:** gone\n-->\n<!-- - **3b10 inline** -->\n- **3b11 real** z\n", 1),
+            "heading item body": ("## L\n### 9.9 Heading item\n- **3b7 in body** a\n### Notes\n- **3b8 still body** b\n"
+                                  "## M\n- **3b9 after section** c\n", 1),
+            "non-item heading": ("## L\n### PR #1 follow-ups\n- **3b7 counted** a\n", 1),
+            # QA r6: a masked ``### <id>`` heading never changes containment, inside a heading item or a bullet.
+            "masked heading in heading item": ("## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n", 0),
+            "masked heading in bullet item": ("## Q\n- **3b7 x** y\n```\n### 9.8 ex\n```\n  more\n- **3b8 z** w\n", 2),
+            # QA r7: one-sided mask and containment changes.
+            "bullet under coded heading": ("## L\n### RB-6 coded item\n- **3b7 body** a\n", 0),
+            "fence character must match": ("## Q\n```\n~~~\n- **3b7 x** y\n```\n", 0),
+            "closer carries no info string": ("## Q\n```\n```py\n- **3b7 x** y\n```\n", 0),
+            "comment indented four spaces": ("## Q\n    <!-- c\n- **3b7 x** y\n-->\n", 1),
+            "bare 3b is not an id": ("## Q\n- **3b fix** y\n", 0),
+            # QA r9: a bullet item then a ``### <id>`` item; a comment reopened on one line; a four-level P- id.
+            "heading after bullet": ("## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n", 1),
+            "comment reopened on one line": ("## Q\n<!-- a\n--> <!-- b\n- **3b7 x** y\n-->\n", 0),
+            "four-level P- id": ("## Q\n- **P-10.1.2.3 x** y\n", 0),
+            # QA r8, made asymmetric in r10: read as a fence, the inline code would count 0 items here, not 1.
+            "inline code is not a fence": ("## Q\n```x``` inline\n- **3b7 [private] real** a\n", 1),
+            # QA r10: bullet grammar edges, a tab-indented comment opener, and a form feed inside a line.
+            "grammar edges": ("## Q\n- **P-1.2ab x** a\n- **3b7ab x** b\n- **4 [private] x** c\n- **RB [private] x** d\n", 0),
+            "tab before comment opener": ("## Q\n\t<!-- c\n- **3b7 x** y\n", 1),
+            "form feed splits a line": ("## Q\n- **3b7 x**\x0c- **3b8 y**\n", 2),
+        }
+        for name, (text, want) in cases.items():
+            tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
+            self.assertEqual(hook._bullet_item_count(text), want, f"hook: {name}")
+            self.assertEqual(tool_n, want, f"tool: {name}")
+        # A public TODO.md bullet counts in the hook's union too.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("| 1.1 | pub | `[public]` |\n- **3b7 [public] bullet** x\n", encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 2)
+        # A fenced or commented heading still counts in both, as on main (QA r5), as a one-line item.
+        text = "## A\n```\n### 9.9 fenced heading\n```\n<!--\n### 9.8 commented heading\n-->\n### 3.1 real heading\n"
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(text, encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 3)
+        self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["9.9", "9.8", "3.1"])
+        # QA r8: a form feed splits a line for both (the hook's heading count uses splitlines, as the tool does).
+        ff = "## Q\nx\x0c### 9.9 x\n"
+        self.assertEqual(hook._heading_item_count(ff), len(tool.parse_items(ff, "private", ref_bodies={})))
+        # QA r10: a P- heading with a non-ASCII digit counts in both (the hook's heading regex has the P- branch).
+        uni = "## Q\n### P-\u0663.1 u\n"
+        self.assertEqual(hook._heading_item_count(uni), len(tool.parse_items(uni, "private", ref_bodies={})))
+        # QA r10: the public file's headings count in the hook as in the tool. (Header-less public rows still
+        # diverge: open as P-TODO 3b121.)
+        for pub_text in ("## Q\n- **3b7 [public] first** x\n### 9.9 second [public]\n", "## Q\n### 1.1 title\n"):
+            with tempfile.TemporaryDirectory() as d:
+                root = Path(d) / "grc_library"
+                root.mkdir()
+                (root / "TODO.md").write_text(pub_text, encoding="utf-8")
+                priv = Path(d) / "grc_library_private"
+                priv.mkdir()
+                (priv / "P-TODO.md").write_text("", encoding="utf-8")
+                self.assertEqual(hook._todo_item_count(str(root)),
+                                 len(tool.parse_items(pub_text, "public", ref_bodies={})), pub_text)
+        # QA r6 repro: the hook's total and the tool's must agree when a masked heading sits in a heading item.
+        text = "## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n"
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(text, encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 2)
+        self.assertEqual(len(tool.parse_items(text, "private", ref_bodies={})), 2)
+
+    def test_cli_prints_item_like_lines(self):
+        # 3b119 QA r4: the CLI must print the not-counted list (the counted-or-reported invariant's output half).
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            pub = Path(d) / "TODO.md"
+            priv = Path(d) / "P-TODO.md"
+            pub.write_text("", encoding="utf-8")
+            priv.write_text("## Q\n- [ ] **3b120 [private] task box** x\n- **3b121 [private] counted** y\n", encoding="utf-8")
+            appr = Path(d) / "approvals.md"
+            appr.write_text("", encoding="utf-8")
+            r = run_linter("tools/audit-backlog-actionability.py", "--todo", str(pub), "--ptodo", str(priv),
+                           "--approvals", str(appr))
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (1)", r.stdout)
+            self.assertIn("3b120", r.stdout)
+            self.assertIn("1 open item(s)", r.stdout)
+            # QA r7: every mode keeps the report, --pipeline on stderr (its stdout is machine-read), and a
+            # public-file line is reported too.
+            pub.write_text("- **ORCH-CI-STATUS (tooling):** wire it\n", encoding="utf-8")
+            args = ("--todo", str(pub), "--ptodo", str(priv), "--approvals", str(appr))
+            r = run_linter("tools/audit-backlog-actionability.py", *args, "--actionable-only")
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (2)", r.stdout)
+            self.assertIn("public:1:", r.stdout)
+            r = run_linter("tools/audit-backlog-actionability.py", *args, "--pipeline")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (2)", r.stderr)
+            self.assertNotIn("ITEM-LIKE", r.stdout)
+
     def test_hook_unions_private_ptodo(self):
         # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),
         # and a missing private sibling degrades to the public count (0 added), never None.
