@@ -20,8 +20,10 @@ mechanical backstop (built in PR #1173).
 Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
 ``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
 
-  A. RECYCLE. A live index-row id from ``TODO.md`` OR the private
-     ``P-TODO.md`` (the two are unioned into the live set) whose number is
+  A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md`` (an
+     index row, a ``### <id>`` heading, or, since 3b120, a top-level bold
+     bullet in the audit tool's closed grammar, read by that tool's own
+     parser; the two lists are unioned into the live set) whose number is
      also recorded as retired in a ``.working/DONE.md`` heading. Such a
      number denotes two items, which is exactly what the rule forbids.
 
@@ -91,6 +93,22 @@ false-negative cost:
      structured-DONE-id-field durable fix (guardrail seed
      gate78-parse-retired-misses-pr-prefixed-P3-ids, part 2), not a wider paren
      scan that would reintroduce the destination false positive.
+
+     1b. QUEUE ids (3bNN, 3b120) use a third convention and sit in a third
+     place: after the ``PR #N:`` prefix (``### PR #2638: 3b119: ...``), bare
+     in a title (``3b59/3b61 residue``), or in a parenthetical just before the
+     date (``... guard (3b64) (2026-09-26)``). So THREEB_RETIRED_RE scans the
+     WHOLE raw heading, parentheticals included, the opposite of the P-pass.
+     It stays false-positive-safe by guards rather than by stripping: (a) the
+     token is whole (``3b7b2e1``, ``3b7-ii`` and ``3b7.1`` yield nothing, not
+     ``3b7``); (b) a partial close is skipped (``3b65 part d``, ``3b27(b)``,
+     ``3b14 (b) and (d)``, ``3b50 split``), since the item stays open; (c) a
+     source or destination mention is skipped (``from 3b119 QA``, ``routed to
+     3b120``). Measured at adoption: 71 retired queue ids, none live. The
+     queue series has no counter and no public floor, so only checks A and C
+     apply to it. FALSE-NEGATIVE RISK: a DONE heading that does not name its
+     queue id (several 2026-09 closures, e.g. the #2634 annex fix of 3b110) is
+     invisible, as with the other series.
 
      Sub-bullet ids (``§5.9-R1``, ``§6.3-R3``) are NOT retired item
      numbers, so the id pattern requires a bare dotted number and rejects
@@ -213,6 +231,15 @@ COUNTER_RE = re.compile(
 )
 
 PAREN_RE = re.compile(r"\([^()]*\)")
+
+# A retired queue id (3bNN) in a DONE.md heading (design note 1b, 3b120). The token is whole: a longer compound
+# (``3b50b2e1``) or a dotted child yields nothing rather than its parent.
+THREEB_RETIRED_RE = re.compile(r"(?<![\w.-])(3b\d+[a-z]?)(?![\w-])(?!\.\d)")
+# A partial close names a still-open item: ``3b65 part d``, ``3b27(b)``, ``3b14 (b) and (d)``, ``3b50 split``.
+THREEB_PARTIAL_RE = re.compile(r"^(?:\(|\s+(?:part\b|split\b|\(\s*[a-z]\s*\)))", re.IGNORECASE)
+# A source or destination mention names a live or other item (``from 3b119 QA``, ``routed to 3b120``).
+THREEB_REF_CUE_RE = re.compile(r"(?:\b(?:from|routed|see|to|into|as|by|of|advances|now)|->|\u2192)\s*$",
+                               re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> rationale. A partial close
 # recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
@@ -891,6 +918,38 @@ def parse_live(text: str) -> dict[str, list[int]]:
     return live
 
 
+_AUDIT_TOOL = None
+
+
+def _audit_tool():
+    """tools/audit-backlog-actionability.py, loaded once from beside this file (3b120). Gate 78 takes bullet
+    items from the audit tool's own parser, so the two cannot disagree on which bullets are items."""
+    global _AUDIT_TOOL
+    if _AUDIT_TOOL is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_gate78_audit_tool", Path(__file__).resolve().parent / "audit-backlog-actionability.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _AUDIT_TOOL = mod
+    return _AUDIT_TOOL
+
+
+def parse_live_bullets(text: str) -> dict[str, list[int]]:
+    """Live bullet-form item ids (3b119's closed grammar: ``- **3bNN``, ``- **P-n.m``, or a tagged coded or
+    section id, outside a ``### <id>`` item, a fence or a line-starting comment) -> their line numbers."""
+    tool = _audit_tool()
+    heads: list[int] = []
+    tool.parse_items(text, "private", ref_bodies={}, _heads=heads)
+    lines = text.splitlines()
+    live: dict[str, list[int]] = {}
+    for n in heads:
+        m = tool.TOP_BULLET_ITEM_RE.match(lines[n - 1])
+        if m:
+            live.setdefault(m.group("id"), []).append(n)
+    return live
+
+
 def done_headings(text: str) -> dict[int, str]:
     """DONE.md line number -> heading text, for exemption matching."""
     return {
@@ -935,6 +994,15 @@ def parse_retired(text: str) -> dict[str, list[int]]:
         # RAW head; a live destination like 'advances P-3.210' is not a cue and
         # stays untouched.
         for m in RETIRE_CUE_PID_RE.finditer(head):
+            retired.setdefault(m.group(1), []).append(lineno)
+        # 3b pass (design note 1b): the WHOLE raw heading, parentheticals included, because a queue item's
+        # closure usually sits in one (``... (3b64) (2026-09-26)``). Guarded against a partial close and a
+        # source or destination mention instead of by stripping parentheticals.
+        for m in THREEB_RETIRED_RE.finditer(head):
+            if THREEB_PARTIAL_RE.match(head[m.end():]):
+                continue
+            if THREEB_REF_CUE_RE.search(head[max(0, m.start() - 40):m.start()]):
+                continue
             retired.setdefault(m.group(1), []).append(lineno)
     return retired
 
@@ -1109,6 +1177,9 @@ def main(argv: list[str]) -> int:
         return 2
 
     todo_live = parse_live_index(todo_text)
+    # Bullet-form items (3b120), in both lists, from the audit tool's own parser.
+    for _bid, _blines in parse_live_bullets(todo_text).items():
+        todo_live.setdefault(_bid, []).extend(_blines)
     # Transitional (2026-08 migration): P-TODO.md is moving from the legacy
     # ``### <id>`` block shape to the index-row shape (its detail splits into
     # P-TODO-REFERENCE.md). Union both parsers so gate 78 sees every live
@@ -1117,6 +1188,8 @@ def main(argv: list[str]) -> int:
     ptodo_live = parse_live(ptodo_text)
     for _pid, _plines in parse_live_index(ptodo_text).items():
         ptodo_live.setdefault(_pid, []).extend(_plines)
+    for _bid, _blines in parse_live_bullets(ptodo_text).items():
+        ptodo_live.setdefault(_bid, []).extend(_blines)
     live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)
     counters = parse_counters(todo_text)

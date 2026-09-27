@@ -20078,6 +20078,61 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+    def _rc(self, name, todo, done, ptodo=None):
+        root, result = self._run(name, todo, done, ptodo=ptodo)
+        try:
+            return result.returncode, result.stdout + result.stderr
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_bullet_ids_and_3b_retirements(self) -> None:
+        """3b120: bullet-form items are live ids (from the audit tool's own parser), and a 3bNN closure in a
+        DONE heading is a retirement, except a partial close or a source or destination mention."""
+        todo = "# TODO\n"
+        cases = {
+            # (P-TODO text, DONE text, expected rc)
+            "lead form recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 1),
+            "trailing paren recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: a fix (3b7) (2026-09-01)\n", 1),
+            "slash list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6/3b7 residue (2026-09-01)\n", 1),
+            "P- bullet recycled": ("## Q\n- **P-1.5 fix:** x\n", "# DONE\n### PR #1: P-1.5 done (2026-09-01)\n", 1),
+            "part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: spec (3b7 part d) (2026-09-01)\n", 0),
+            "lettered part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7(b) wording (2026-09-01)\n", 0),
+            "spaced letter is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: guards, 3b7 (b) and (d) (2026-09-01)\n", 0),
+            "source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix routed from 3b7 QA (2026-09-01)\n", 0),
+            "destination mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b7 (2026-09-01)\n", 0),
+            "compound id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
+            "hyphen compound": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7-ii residue (2026-09-01)\n", 0),
+            "dotted child": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7.1 child (2026-09-01)\n", 0),
+            "fenced bullet not live": ("## Q\n```\n- **3b7 example** x\n```\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 0),
+        }
+        for name, (ptodo, done, want) in cases.items():
+            rc, out = self._rc("perm-3b120", todo, done, ptodo)
+            self.assertEqual(rc, want, f"{name}:\n{out}")
+        # A bullet id live in both lists is a cross-list duplicate.
+        rc, out = self._rc("perm-3b120-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
+                           "## Q\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("3b7", out)
+        # An untagged coded bullet is not an item, so it cannot make a cross-list duplicate.
+        rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
+                           "## Q\n- **RB-6 fix** x\n")
+        self.assertEqual(rc, 0, out)
+
+    def test_bullet_ids_match_the_audit_tool(self) -> None:
+        """3b120: gate 78's bullet ids are exactly the audit tool's bullet items on a mixed fixture."""
+        import importlib.util, sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT / "tools"))
+        spec = importlib.util.spec_from_file_location(
+            "perm_bullets", REPO_ROOT / "tools" / "lint-todo-number-permanence.py")
+        g = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(g)
+        text = ("## Q\n- **3b7 x** a\n- **P-1.5 y:** b\n- **RB-9 [private] z** c\n- **4.6 [public] w** d\n"
+                "```\n- **3b8 fenced** e\n```\n### 9.9 item\n- **3b9 body** f\n## R\n- **3b10 z** g\n")
+        tool = g._audit_tool()
+        want = sorted(it[0] for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
+        self.assertEqual(sorted(g.parse_live_bullets(text)), want)
+        self.assertEqual(want, sorted(["3b7", "P-1.5", "RB-9", "4.6", "3b10"]))
+
 class TodoNumberAllocationRobustnessTests(unittest.TestCase):
     """Gate 91 frozen-allocation invariants beyond the existing --self-test."""
 
