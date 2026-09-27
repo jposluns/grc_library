@@ -114,14 +114,23 @@ def invokes_merge_tool(cmd: str) -> bool:
         norm = norm.replace(q, "")
     if "merge-when-green" not in norm:
         return False
-    simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\"))
+    # The exemption needs the flag among the tool's OWN arguments in a direct invocation (the tool, or a
+    # python interpreter with single-letter options, then the tool): a comment, a `bash -c ... --dry-run`
+    # ($0 of the inner shell) or any other placement gates (3b108 QA r2).
+    simple = "\n" not in cmd.strip() and not any(op in cmd for op in (";", "&", "|", "`", "$(", "<", ">", "\\", "#"))
     if simple:
         try:
             toks = shlex.split(cmd)
         except ValueError:
             return True
-        if "--dry-run" in toks or "--self-test" in toks:
-            return False
+        i = 0
+        if toks and os.path.basename(toks[0]).startswith("python"):
+            i = 1
+            while i < len(toks) and len(toks[i]) == 2 and toks[i].startswith("-") and toks[i] != "-m":
+                i += 1
+        if i < len(toks) and os.path.basename(toks[i]) == "merge-when-green.py":
+            if "--dry-run" in toks[i + 1:] or "--self-test" in toks[i + 1:]:
+                return False
     return True
 
 def is_blocking_command(cmd: str) -> bool:
@@ -354,10 +363,15 @@ def self_test() -> int:
               "out=`python3 tools/merge-when-green.py 12`", 'out="$(python3 tools/merge-when-green.py 12)"',
               "python3 -m tools.merge-when-green 12", "python3 tools/merge-when-\\\ngreen.py 12",
               'python3 tools/merge-when-""green.py 12 --admin', "python3 tools/merge-when-green.py 12 --admin # ' --dry-run",
-              "python3 tools/merge-when-green.py 12 --admin > --dry-run", "grep -n x tools/merge-when-green.py"):
+              "python3 tools/merge-when-green.py 12 --admin > --dry-run", "grep -n x tools/merge-when-green.py",
+              "python3 tools/merge-when-green.py 12 --admin # --dry-run",
+              "bash -c 'python3 tools/merge-when-green.py 12 --admin' --dry-run",
+              "sh -c 'tools/merge-when-green.py 12' --self-test", "env python3 tools/merge-when-green.py 12 --dry-run",
+              "python3 -c 'import os' tools/merge-when-green.py --dry-run"):
         ck(f"gated: {c[:48]}", is_blocking_command(c), True)
     for c in ("python3 tools/merge-when-green.py 12 --dry-run", "python3 tools/merge-when-green.py --self-test",
-              "python3 -B /opt/x/tools/merge-when-green.py 2620 --repo o/r --dry-run", "git status --short"):
+              "python3 -B /opt/x/tools/merge-when-green.py 2620 --repo o/r --dry-run", "git status --short",
+              "/usr/bin/python3.12 -B tools/merge-when-green.py --self-test", "./tools/merge-when-green.py 12 --dry-run"):
         ck(f"not gated: {c[:48]}", is_blocking_command(c), False)
     ck("body text containing the phrase is OVER-gated (substring, safe direction)",
        is_blocking_command("gh pr view 5 --body 'run gh pr create later'"), True)
