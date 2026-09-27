@@ -22,7 +22,7 @@ whitespace-collapsed text contains the case-sensitive substring `gh pr create` o
 shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` between (so a quoted
 `gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; text
 matching, not a shell model, so the class the is_blocking_command docstring states (another shell or eval,
-stdin or a heredoc, a variable or alias, shlex-vs-bash quoting, mixed continuations) evades; 3b112), or any command
+stdin or a heredoc, a variable or alias, shlex-vs-bash quoting, mixed continuations) can evade when gh, pr and the verb are not one command's words; 3b112), or any command
 that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
 see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
@@ -853,6 +853,7 @@ def self_test() -> int:
 
     ck("gh pr create blocks", is_blocking_command("cd /x && gh pr create --title y"), True)
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
+    ck("whitespace is collapsed before the substring pass", is_blocking_command("gh  pr\tmerge 1 'x"), True)
     ck("an unparseable command is still caught by the substring pass", is_blocking_command("gh pr merge 1 'unclosed"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
