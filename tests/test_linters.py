@@ -3735,8 +3735,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("OK", result.stderr)
 
     def test_stop_guard_unattended_grc_map_mode(self) -> None:
-        """_grc_map_mode preserves the retired block-idle-stop coverage: attended-autonomous and any
-        *unattended* mode arm the guard; fully-attended allows (codex validate-pr #1945 f4 coverage gap)."""
+        """_grc_map_mode arms on the whole leading token (unattended, overnight-unattended,
+        daytime-unattended, attended-autonomous) and allows attended and fully-attended (codex validate-pr
+        #1945 f4 coverage gap; 3b101 leading-token mapping)."""
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_map")
         self.assertEqual(mod._grc_map_mode("daytime-unattended"), "unattended")
         self.assertEqual(mod._grc_map_mode("overnight-unattended"), "unattended")
