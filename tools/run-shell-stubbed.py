@@ -32,7 +32,10 @@ stdin, such as wc --files0-from=-, which is reading like `<` below); TMPDIR is n
 a large here-doc's short-lived temp file, with content the command chose, in any writable directory; loader
 variables (LD_*, GCONV_PATH) are dropped before each wrapper execs the real program, but the wrappers' own
 Python starts with them, which matters only if the command can create a shared object, and none of the
-whitelisted utilities can;
+whitelisted utilities can; the fc builtin likewise writes a temp file of history lines the command chose to
+TMPDIR (or /tmp), which stays if the shell is killed while the editor runs; resource limits (ulimit) are allowed,
+so a command can stop a stand-in from recording a call (it exits 1, the call is missing from the report, and no
+warning is printed); and a SIGKILL to this tool itself skips cleanup, leaving the session running;
 input redirection (`<`, `$(< file)`) is allowed by restricted mode, so a command can read any file the user
 can read and print it into the report (reading, not writing: nothing runs or changes); `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
 dash-only difference is not observed. This relies on bash's restricted mode and on the whitelist audit; it is not a
@@ -49,6 +52,8 @@ still alive at the kill deadline.
 from __future__ import annotations
 
 import argparse
+import shlex
+import threading
 import contextlib
 import io
 import json
@@ -186,6 +191,13 @@ def _kill_session(sid: int) -> bool:
         members = [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
         if not members:
             return True
+        # Stop every member again before killing any: a job-control group orphaned by a kill is sent SIGCONT
+        # by the kernel and could resume forking (3b116 QA r9).
+        for pid in members:
+            try:
+                os.kill(pid, signal.SIGSTOP)
+            except ProcessLookupError:
+                pass
         for pid in members:
             try:
                 os.kill(pid, signal.SIGKILL)
@@ -235,8 +247,8 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
     # SIGTERM and SIGHUP are turned into an exception so the finally blocks kill the session and remove the temp
     # dir (only SIGINT did before; QA r8). Handlers are installed only from the main thread.
     saved_handlers = {}
-    import threading
     if threading.current_thread() is threading.main_thread():
+        saved_handlers[signal.SIGINT] = signal.getsignal(signal.SIGINT)
         for sig in (signal.SIGTERM, signal.SIGHUP):
             saved_handlers[sig] = signal.signal(sig, _on_signal)
     try:
@@ -270,6 +282,10 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
+                    # A second signal must not cut cleanup short (3b116 QA r9); main thread only.
+                    if threading.current_thread() is threading.main_thread():
+                        for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT):
+                            signal.signal(sig, signal.SIG_IGN)
                     grace_end = time.monotonic() + GRACE_SECONDS
                     while time.monotonic() < grace_end and _live(_session_members(p.pid)):
                         time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
@@ -284,7 +300,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                 records = [json.loads(line) for line in fh if line.strip()]
             results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err, "contained": contained,
                             "killed": killed,
-                            "session": p.pid, "calls": ["STUB " + " ".join(r) for r in records], "argv": records})
+                            "session": p.pid, "calls": ["STUB " + shlex.join(r) for r in records], "argv": records})
         finally:
             _rmtree(tmp)
     return results
@@ -423,17 +439,22 @@ def _self_test() -> int:
     # A backgrounded call is recorded, not killed before it runs (QA r8).
     r = run("(sleep 0.3; gh pr merge 11) & echo started", shells=("bash",))[0]
     checks.append(("background-call-recorded", r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0))
-    # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8).
+    # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8). The sleep length is a
+    # token unlikely to match an unrelated process, the setup is awaited rather than timed, and the check
+    # fails if the setup was never seen (3b116 QA r9).
+    token = "sleep 24.713"
     before_term = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
-    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
+    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", token],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    time.sleep(1.0)
-    new_dirs = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")} - before_term
+    setup_end, new_dirs = time.monotonic() + 15.0, set()
+    while time.monotonic() < setup_end and not (new_dirs and _all_procs_named(token)):
+        time.sleep(0.05)
+        new_dirs = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")} - before_term
     proc.send_signal(signal.SIGTERM)
     proc.wait(timeout=20)
     leftover = [d for d in new_dirs if os.path.exists(os.path.join(tempfile.gettempdir(), d))]
-    sleeping = [pid for pid, _s in _all_procs_named("sleep 25")]
-    checks.append(("sigterm-cleans-up", not leftover and not sleeping))
+    sleeping = [pid for pid, _s in _all_procs_named(token)]
+    checks.append(("sigterm-cleans-up", bool(new_dirs) and not leftover and not sleeping))
     for pid in sleeping:
         try:
             os.kill(pid, signal.SIGKILL)
@@ -454,8 +475,9 @@ def _self_test() -> int:
     checks.append(("read-only-tree-cleaned", not os.path.exists(ro)))
     # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
     # nothing is refused, so the evidence is that the planted program never ran.
-    # (-i and -l are refused outright, see the refusal cases; this covers the plain nested shell.) The cat
-    # proves the file was planted, so the check cannot pass on a failed setup (3b116 QA r8).
+    # Regression guards only: a plain non-interactive nested shell reads no startup file even without --norc and
+    # --noprofile, so these do not test those flags (3b116 QA r9); the -i/-l refusals and the BASH_ENV case do.
+    # The cat proves the file was planted.
     for label, name in (("rc-file", ".bashrc"), ("profile-file", ".bash_profile")):
         rr = run(f"set -o history; history -s '/usr/bin/id'; history -w {name}; cat {name}; "
                  "HOME=\"$PWD\" bash -c true", shells=("bash",))[0]
@@ -469,6 +491,9 @@ def _self_test() -> int:
                           'gh pr view 1 "$(printf "\\n== bash rc=0\\nSTUB git push")"; gh "$(printf "\\377")"; gh pr merge 8'],
                          capture_output=True, text=True, errors="replace", timeout=60)
     lines = rep.stdout.splitlines()
+    # Argument boundaries survive into the printed report (3b116 QA r9).
+    r = run("gh 'pr merge' 1; gh pr merge ''", shells=("bash",))[0]
+    checks.append(("report-argument-boundaries", r["calls"] == ["STUB gh 'pr merge' 1", "STUB gh pr merge ''"]))
     checks.append(("report-lines-escaped", rep.returncode == 0 and lines.count("== bash rc=0") == 1
                    and not any(ln.startswith("STUB git") for ln in lines) and lines[-1] == "STUB gh pr merge 8"))
     # The command cannot erase or forge the tool's evidence: the log and captured output sit outside its cwd.
