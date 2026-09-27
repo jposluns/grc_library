@@ -411,10 +411,10 @@ def parse_items(text: str, source: str,
     return idx_items + legacy_items
 
 
-# The id must end at whitespace, a backtick, a pipe or the line end: a heading such as ``### 1.1\u0662`` (a
-# non-ASCII digit) is not item 1.1 and must not inherit its grant (QA r9); it falls back to the parsed id.
+# The heading id; _heading_id checks what follows it (a heading such as ``### 1.1\u0662`` is not item 1.1
+# and must not inherit its grant, QA r9 and its fix-checks).
 _HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
-# Returned when a heading's id runs straight into another word character (``### 1.1\u0662``): the heading
+# Returned when a heading's id does not end cleanly (``### 1.1\u0662``, ``### 3.92.<ZWSP>a``): the heading
 # is not the ASCII item, and it must not fall back to a shorter parsed id either (fix-check after QA r9),
 # so it gets an id that no approvals row can match.
 _UNREADABLE_HEADING_ID = "<unreadable heading id>"
@@ -428,7 +428,10 @@ def _heading_id(block_text: str) -> "str | None":
     if not m:
         return None
     nxt = line[m.end():m.end() + 1]
-    if nxt and (nxt.isalnum() or nxt == "_"):
+    # The id must end at the end of the line, a space or tab, or printable ASCII punctuation. Anything else
+    # (a letter, digit or underscore; an invisible, combining, control or other non-ASCII character that
+    # would hide a longer id such as 3.92.<ZWSP>a) makes the id unreadable, never a shorter grantable one.
+    if nxt and not (nxt in " \t" or (nxt.isascii() and nxt.isprintable() and not (nxt.isalnum() or nxt == "_"))):
         return _UNREADABLE_HEADING_ID
     return m.group("id").rstrip(".")
 
@@ -942,6 +945,9 @@ def _self_test() -> int:
         # a child never inherits its parent's grant, however its id ends (fix-check after QA r9)
         check("approvals-non-ascii-heading", _heading_id("### 1.1\u0662 b") == _UNREADABLE_HEADING_ID
               and _heading_id("### 1.1 a") == "1.1" and _heading_id("### 3.92.a: child") == "3.92.a"
+              and all(_heading_id("### 3.92." + c + "a: child") == _UNREADABLE_HEADING_ID
+                      for c in ("\u200b", "\u00ad", "\u2060", "\u0301", "\x9b", "\x7f", "\u200e"))
+              and _heading_id("### 3.92.a_b x") == _UNREADABLE_HEADING_ID
               and rep_h[1] == 1)
     finally:
         set_approvals(saved_h)
