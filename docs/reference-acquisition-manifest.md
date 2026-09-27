@@ -656,7 +656,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (240: 240 free, 0 licensed)
+## Legislation (245: 245 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -732,6 +732,7 @@ without the private reference sibling).
 | DR Congo Code du numerique, Ordonnance-loi 23/010 du 13 mars 2023 (FR) |  | DRC |  | FREE |
 | Ecuador Ley Organica de Proteccion de Datos Personales (Registro Oficial Quinto Suplemento No. 459, 26 May 2021), Spanish original | Registro Oficial Quinto Suplemento No. 459, 26 May 2021 (as published) | Ecuador |  | FREE |
 | Ecuador Ley Organica para el Fortalecimiento de la Ciberseguridad (2026-05-22) |  | Ecuador |  | FREE |
+| Ecuador Reglamento General a la Ley Organica de Proteccion de Datos Personales (Decreto Ejecutivo 904, Registro Oficial Suplemento 435, 13 November 2023), Spanish | Decreto Ejecutivo 904, Registro Oficial Suplemento 435, 2023-11-13; LEXIS compilation marked Vigente | Ecuador |  | FREE |
 | Egypt Personal Data Protection Law No. 151 of 2020 | Law No. 151 of 2020 | Egypt |  | FREE |
 | Egypt Personal Data Protection Law No. 151 of 2020 (English translation) | Law No. 151 of 2020 (English translation) | Egypt |  | FREE |
 | EU Artificial Intelligence Act, Regulation (EU) 2024/1689 |  | EU |  | FREE |
@@ -864,6 +865,9 @@ without the private reference sibling).
 | Quebec Act respecting health and social services information (CQLR c. R-22.1) | CQLR c. R-22.1, consolidated | Canada (Quebec) |  | FREE |
 | Quebec Act respecting the protection of personal information in the private sector, CQLR c. P-39.1 (as amended by Law 25) | P-39.1 as amended by Law 25; all provisions in force (final phase 2024-09-22), current | Canada | https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1 | FREE |
 | Quebec Règlement sur l'anonymisation des renseignements personnels (A-2.1, r. 0.1) | Règlement sur l'anonymisation des renseignements personnels (A-2.1, r. 0.1), sections I to III, arts. 1 to 10; in force 30 May 2024 (D. 783-2024, 2024 G.O. 2, 2847); consolidation à jour au 2026-03-01 per the worker acquisition. Orchestrator re-fetch blocked (legisquebec.gouv.qc.ca JS-gated, HTTP 403 on 2026-07-16); worker-acquired and recorded 2026-07-16. | Canada |  | FREE |
+| Saskatchewan Freedom of Information and Protection of Privacy Act (SS 1990-91, c F-22.01), consolidation | Publications Saskatchewan consolidation, amendments through 2024, c 4 | Canada |  | FREE |
+| Saskatchewan Health Information Protection Act (SS 1999, c H-0.021), consolidation | Publications Saskatchewan consolidation, amendments through 2024, c 4 | Canada |  | FREE |
+| Saskatchewan Local Authority Freedom of Information and Protection of Privacy Act (SS 1990-91, c L-27.1), consolidation | Publications Saskatchewan consolidation, amendments through 2024, c 4 | Canada |  | FREE |
 | Saudi Arabia Essential Cybersecurity Controls ECC-1:2018 (EN, SUPERSEDED by ECC-2:2024) |  | Saudi-Arabia |  | FREE |
 | Saudi Arabia Essential Cybersecurity Controls ECC-2:2024 (EN, current) |  | Saudi-Arabia |  | FREE |
 | Saudi Arabia PDPL Implementing Regulation (2023) | Implementing Regulation issued 7 Sep 2023 | Saudi Arabia |  | FREE |
@@ -871,12 +875,13 @@ without the private reference sibling).
 | Singapore Personal Data Protection Act 2012 (2020 Revised Edition) |  | Singapore |  | FREE |
 | South Africa Protection of Personal Information Act 4 of 2013 (POPIA) |  | South-Africa |  | FREE |
 | South Korea Framework Act on AI Development and Establishment of Trust (AI Basic Act, 2025) (English translation) | AI Basic Act, effective 22 Jan 2026 (CSET English translation) | South Korea |  | FREE |
-| South Korea Personal Information Protection Act (Act No. 16930, enforcement 2020-08-05) |  | South-Korea |  | FREE |
+| South Korea Personal Information Protection Act, English translation (KLRI), as amended by Act No. 19234 (Mar. 14, 2023) | KLRI English service, text including Act No. 19234 (Mar. 14, 2023) and provisions with enforcement dates to Mar. 15, 2024 | South Korea |  | FREE |
 | Switzerland Data Protection Ordinance (DPO/OPDo), SR 235.11 (status 1 April 2025) |  | Switzerland |  | FREE |
 | Switzerland Federal Act on Data Protection (FADP/nDSG), SR 235.1 (status 1 September 2023) |  | Switzerland |  | FREE |
 | Switzerland FINMA Circular 2023/1, Operational risks and resilience, banks |  | Switzerland |  | FREE |
 | Thailand Personal Data Protection Act B.E. 2562 (2019), English translation (UNOFFICIAL) |  | Thailand |  | FREE |
 | Tunisia Loi organique 2004-63 relative a la protection des donnees a caractere personnel (FR) |  | Tunisia |  | FREE |
+| Turkey KVKK administrative fine amounts under Law No. 6698 Article 18, revalued for 2017 to 2026 (Turkish) | KVKK announcement published 31 December 2025; table with 2017 to 2026 columns | Turkey |  | FREE |
 | Turkey Law No. 6698 on the Protection of Personal Data (KVKK), consolidated, Turkish original | Kanun No. 6698, adopted 2016-03-24, Official Gazette 2016-04-07 No. 29677; consolidated text including the Law No. 7499 (2024) amendments, per the official mevzuat.gov.tr text; Turkish original | Turkey |  | FREE |
 | UAE DIFC Data Protection Law No. 5 of 2020 (consolidated March 2022) |  | UAE-DIFC |  | FREE |
 | UAE Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data | Federal Decree-Law No. 45 of 2021 (Executive Regulations not yet issued as of 2026-08-14) | United Arab Emirates |  | FREE |
@@ -901,7 +906,7 @@ without the private reference sibling).
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
 | Yukon Access to Information and Protection of Privacy Act (SY 2018, c. 9) | SY 2018 c. 9, consolidated | Canada (Yukon) |  | FREE |
 
-## Programs (42: 42 free, 0 licensed)
+## Programs (44: 44 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -941,6 +946,8 @@ without the private reference sibling).
 | Government of Canada AI Register (Minimum Viable Product) | MVP; published 2025-11-28; modified 2026-04-28 | Treasury Board of Canada Secretariat |  | FREE |
 | Government of Canada AI Register (MVP) dataset | MVP dataset export (slug pmv-04-26 indicates an April 2026 export); 24 columns, 412 records; companion to the landing page (published 2025-11-28; modified 2026-04-28) | Treasury Board of Canada Secretariat |  | FREE |
 | Government of Canada Enterprise Cyber Security Strategy | modified 2024-07-12 | Treasury Board of Canada Secretariat |  | FREE |
+| GovRAMP Security Assessment Framework, Version 4.2 (April 2026) | Version 4.2, April 2026 (GovRAMP, formerly StateRAMP) | GovRAMP |  | FREE |
+| HMRC Customs Technical Handbook, Authorised Economic Operator: AEO Criteria, Security and Safety (AEOS only) (updated 17 July 2025) | gov.uk guidance page, public_updated_at 2025-07-17 | HM Revenue and Customs |  | FREE |
 | Japan Customs Authorized Economic Operator (AEO) Program (pamphlet) |  | Japan Customs (Ministry of Finance) |  | FREE |
 | Mexico: Lineamientos del Sistema Electronico para el Control de Inventarios de Importaciones Temporales (IMMEX) |  | SAT (Mexico) |  | FREE |
 | Partners in Protection (PIP) security requirements (public criteria summary) |  | Canada Border Services Agency |  | FREE |
@@ -948,5 +955,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 883 sources (757 free, 126 licensed).**
+**Total: 890 sources (764 free, 126 licensed).**
 
