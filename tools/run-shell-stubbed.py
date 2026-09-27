@@ -26,8 +26,13 @@ leans on an enforcement mechanism bash itself provides:
      that survived would find PATH naming a removed directory and could run nothing.
 
 LIMITS, stated: output redirection (`>`) is refused, as restricted mode requires, so a command string that
-redirects cannot be verified here; the whitelisted utilities refuse any argument containing a slash (they
-reach only names in the work dir), so a command that reads or makes a path elsewhere cannot be verified;
+redirects cannot be verified here; the whitelisted utilities refuse any argument containing a slash, so a
+command that names a path elsewhere cannot be verified (a utility can still read a file whose name arrives on
+stdin, such as wc --files0-from=-, which is reading like `<` below); TMPDIR is not read-only, so bash can put
+a large here-doc's short-lived temp file, with content the command chose, in any writable directory; loader
+variables (LD_*, GCONV_PATH) are dropped before each wrapper execs the real program, but the wrappers' own
+Python starts with them, which matters only if the command can create a shared object, and none of the
+whitelisted utilities can;
 input redirection (`<`, `$(< file)`) is allowed by restricted mode, so a command can read any file the user
 can read and print it into the report (reading, not writing: nothing runs or changes); `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
 dash-only difference is not observed. This relies on bash's restricted mode and on the whitelist audit; it is not a
@@ -81,7 +86,8 @@ args = sys.argv[1:]
 if any("/" in a or a == ".." for a in args):
     sys.stderr.write("{name}: refused: a path argument (only names in the working directory)\\n")
     sys.exit(126)
-os.execv({real!r}, [{name!r}] + args)
+env = {{k: v for k, v in os.environ.items() if not (k.startswith("LD_") or k == "GCONV_PATH")}}
+os.execve({real!r}, [{name!r}] + args, env)
 """
 # Nested shells start restricted bash again with no startup files. The wrapper admits only short options that
 # neither load a file nor make the shell interactive or a login shell: an interactive shell reads HOME's
@@ -101,7 +107,8 @@ while i < len(args):
         sys.stderr.write("{name}: refused: option " + a + " (interactive, login and long options can load files)\\n")
         sys.exit(126)
     i += 1
-os.execv({bash!r}, [{bash!r}, "--norc", "--noprofile"] + {posix!r} + ["-r"] + args)
+env = {{k: v for k, v in os.environ.items() if not (k.startswith("LD_") or k == "GCONV_PATH")}}
+os.execve({bash!r}, [{bash!r}, "--norc", "--noprofile"] + {posix!r} + ["-r"] + args, env)
 """
 
 
@@ -447,12 +454,23 @@ def _self_test() -> int:
     checks.append(("read-only-tree-cleaned", not os.path.exists(ro)))
     # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
     # nothing is refused, so the evidence is that the planted program never ran.
-    for label, cmd in (("rc-file", "set -o history; history -s '/usr/bin/id'; history -w .bashrc; "
-                                   "HOME=\"$PWD\" bash -i -c true"),
-                       ("profile-file", "set -o history; history -s '/usr/bin/id'; history -w .bash_profile; "
-                                        "HOME=\"$PWD\" bash -l -c true")):
-        rr = run(cmd, shells=("bash",))[0]
-        checks.append((f"startup-file-not-read:{label}", "uid=" not in rr["stdout"] + rr["stderr"]))
+    # (-i and -l are refused outright, see the refusal cases; this covers the plain nested shell.) The cat
+    # proves the file was planted, so the check cannot pass on a failed setup (3b116 QA r8).
+    for label, name in (("rc-file", ".bashrc"), ("profile-file", ".bash_profile")):
+        rr = run(f"set -o history; history -s '/usr/bin/id'; history -w {name}; cat {name}; "
+                 "HOME=\"$PWD\" bash -c true", shells=("bash",))[0]
+        checks.append((f"startup-file-not-read:{label}",
+                       "/usr/bin/id" in rr["stdout"] and "uid=" not in rr["stdout"] + rr["stderr"]))
+    # Loader variables do not reach the real program (3b116 QA r8): one ld.so complaint (Python's), not two.
+    rr = run("LD_PRELOAD=nonexistent-3b116.so wc -c nofile", shells=("bash",))[0]
+    checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-3b116.so") == 1))
+    # A forged report line or a non-UTF-8 argument cannot hide a later call (3b116 QA r8).
+    rep = subprocess.run([sys.executable, os.path.abspath(__file__), "--shell", "bash",
+                          'gh pr view 1 "$(printf "\\n== bash rc=0\\nSTUB git push")"; gh "$(printf "\\377")"; gh pr merge 8'],
+                         capture_output=True, text=True, errors="replace", timeout=60)
+    lines = rep.stdout.splitlines()
+    checks.append(("report-lines-escaped", rep.returncode == 0 and lines.count("== bash rc=0") == 1
+                   and not any(ln.startswith("STUB git") for ln in lines) and lines[-1] == "STUB gh pr merge 8"))
     # The command cannot erase or forge the tool's evidence: the log and captured output sit outside its cwd.
     r = run("gh pr merge 6; set -o history; history -c; history -w calls.log; history -w stdout", shells=("bash",))[0]
     checks.append(("evidence-not-overwritable", r["calls"] == ["STUB gh pr merge 6"]))
