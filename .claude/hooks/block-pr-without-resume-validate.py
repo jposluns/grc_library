@@ -146,7 +146,7 @@ def is_blocking_command(cmd: str) -> bool:
           / unbalanced-quote forms (`gh pr create&&echo`, `gh pr merge;x`, `gh pr create # '`).
       (2) ORDERED TOKEN SUBSEQUENCE `gh` -> `pr` -> `create`|`merge` over shlex tokens -- catches
           quoted subcommands (`gh "pr" create`, `gh pr 'create'`) and interleaved flags
-          (`gh -R x pr create`), which the substring misses because shlex unquotes and reorders.
+          (`gh -R x pr create`), which the substring misses because shlex removes the quotes and the token order ignores flags.
 
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
@@ -157,7 +157,8 @@ def is_blocking_command(cmd: str) -> bool:
     RESIDUE (stated, as a class): the `gh` token is matched bare OR as a path (`*/gh`). This is text
     matching, not a shell model: a command run through another shell or eval (bash -c "...", sh -c,
     eval), fed on stdin or through a heredoc, built from a variable or an alias, or quoted in a way shlex
-    reads differently from bash (ANSI-C quoting, a mid-word #) still evades (3b112 kept this deliberately
+    reads differently from bash (ANSI-C quoting, a mid-word #), or split by a mix of
+    continuations bash joins and does not, still evades (3b112 kept this deliberately
     after attempts to model those forms kept introducing misses). Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
