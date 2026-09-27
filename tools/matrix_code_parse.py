@@ -27,7 +27,10 @@ import re
 # document showing Arabic-Indic digits would read as carrying the ASCII code (3b117). A GUARD that
 # rejects a match must not be narrowed the same way, since narrowing a rejecting guard makes it
 # reject less; the COBIT and ISO guards are closed on the ASCII side instead (3b118, below).
-CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
+_NON_ASCII = r"[^\x00-\x7f]"
+# The closed guard (3b118): no non-ASCII character right after a code's ASCII digit-and-dot run.
+_ASCII_END = r"(?![0-9.]*" + _NON_ASCII + ")"
+CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}" + _ASCII_END
 
 # Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE; identical on ASCII input,
 # digits narrowed to ASCII by 3b117):
@@ -39,8 +42,8 @@ CSA_CODE_RE = re.compile(r"(?<![\w&])(" + CSA_CODE_CORE + r")\b")
 # (was audit-stranded-matrix-code._CSA_RANGE; identical on ASCII input, digits narrowed
 # to ASCII by 3b117).
 CSA_RANGE_RE = re.compile(
-    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})\s*(?:to|through)\s*"
-    r"(?:([A-Z][A-Z&]{1,4})-)?([0-9]{1,2})\b"
+    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})" + _ASCII_END + r"\s*(?:to|through)\s*"
+    r"(?:([A-Z][A-Z&]{1,4})-)?([0-9]{1,2})" + _ASCII_END + r"\b"
 )
 
 # Multi-framework code token (was audit-matrix-semantic-fit.CODE_RE): the CSA core
@@ -48,20 +51,19 @@ CSA_RANGE_RE = re.compile(
 # (APO12, DSS05.03), or an ISO/IEC 27001:2022 Annex A control (A.5.1, A.7.10,
 # A.8.34). The CSA branch is CSA_CODE_CORE, so both aids share one canonical CSA
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
-# The COBIT and ISO guards are CLOSED on the ASCII side (3b118 QA r1): a guarded code is read only
-# when the character right after its ASCII token (a run of ASCII digits and dots) is ASCII or the
-# end of the text. Any non-ASCII character there (a digit of any kind, a superscript, a no-break
-# space, a format character, a non-ASCII dot or separator) means the token continues in a form this
-# parser does not read, so the code is not taken from it. Enumerating Unicode classes kept leaving
-# new gaps; this closes the class. ASCII behaviour is unchanged, and no live corpus document has a
-# COBIT or ISO code followed by a non-ASCII character (measured 2026-09-27), so live output is
-# unchanged too.
-_NON_ASCII = r"[^\x00-\x7f]"
+# Every code branch is CLOSED on the ASCII side (3b118 QA r1-r2; _ASCII_END above): a code is read
+# only when the character right after its ASCII token (a run of ASCII digits and dots) is ASCII or
+# the end of the text. Any non-ASCII character there (a digit of any kind, a superscript, a no-
+# break space, a format character, a non-ASCII dot or separator) means the token continues in a
+# form this parser does not read, so the code is not taken from it. Enumerating Unicode classes
+# kept leaving new gaps; this closes the class. ASCII behaviour is unchanged, and no live corpus
+# document has a CSA, COBIT or ISO code followed by a non-ASCII character (measured 2026-09-27),
+# so live output is unchanged too.
 
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)(?![0-9.]*" + _NON_ASCII + r")[0-9]{2}(?:\.[0-9]{2})?"
-    r"|A\.[5-8]\.[0-9]{1,2}(?!\.?(?:[0-9]|" + _NON_ASCII + r")))\b"
+    r"|(?:EDM|APO|BAI|DSS|MEA)" + _ASCII_END + r"[0-9]{2}(?:\.[0-9]{2})?"
+    r"|A\.[5-8]\.[0-9]{1,2}(?!\.?[0-9])" + _ASCII_END + r")\b"
 )
 
 
@@ -149,9 +151,16 @@ def _self_test() -> int:
             for s in ("DSS05.0\u00b3", "A.5.1.\u00b2", "APO12\u2460", "A.5.1\u00b9",
                       "DSS05.\u00a0\u0663", "A.5.1.\u3000\u00b2", "A.5.1\u00a0\u0662",
                       "DSS05\u00a0.\u00b3", "A.5.1\u00a0.\u00b2", "DSS05.\u200b3", "A.5.1\uff0e2",
-                      "DSS05.0\U0001f100", "A.5.1\u2028.2", "APO12\u2160"):
+                      "DSS05.0\U0001f100", "A.5.1\u2028.2", "APO12\u2160",
+                      "A.5.1..\u00b2", "A.5.1...\u0663", "A.5.1\u0301", "DSS05\u0301",
+                      "DSP-16\u200b7", "DSP-16\u0301"):
                 self.assertEqual(CODE_RE.findall(s), [], ascii(s))
             # ASCII behaviour is unchanged: ASCII space still ends a token.
+            # DEL is ASCII, so it does not stop a read
+            self.assertEqual(CODE_RE.findall("A.5.1\x7f DSP-16\x7f"), ["A.5.1", "DSP-16"])
+            self.assertEqual(expand_codes("STA-01\u200b to 03"), set())
+            self.assertEqual(expand_codes("STA-01\u00a0to 03"), set())  # a no-break space ends the ASCII token
+            self.assertEqual(expand_codes("STA-01 to 03"), {"STA-01", "STA-02", "STA-03"})
             self.assertEqual(CODE_RE.findall("DSS05. 3 A.5.1 2 A.5.1.a"),
                              ["DSS05", "A.5.1", "A.5.1"])
             self.assertEqual(CODE_RE.findall("DSS05.03 DSS05.3"), ["DSS05.03", "DSS05"])
