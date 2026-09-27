@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-09-25\
+**Date:** 2026-09-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -789,7 +789,7 @@ without the private reference sibling).
 | Israel Privacy Protection Law 5741-1981 (as amended by Amendment 13) | Privacy Protection Law 5741-1981 as amended by Amendment 13 (in force 14 Aug 2025) | Israel |  | FREE |
 | Israel Privacy Protection Law Amendment No. 13 (Hebrew official gazette) | Amendment No. 13 (5784-2024), official gazette (Hebrew) | Israel |  | FREE |
 | Israel Protection of Privacy Law 5741-1981, English translation (UNOFFICIAL, base pre-Amendment 13) |  | Israel |  | FREE |
-| Japan Act on the Protection of Personal Information (APPI), Act No. 57 of 2003 (English translation) |  | Japan |  | FREE |
+| Japan Act on the Protection of Personal Information (APPI), Act No. 57 of 2003, English translation, consolidated text as of April 1, 2023 | Act No. 57 of May 30, 2003, consolidated text as of April 1, 2023 (PPC listing: all the amended Acts entered into full force); Japanese Law Translation PDF, 100 pages | Japan |  | FREE |
 | Japan APPI Enforcement Rules of the Personal Information Protection Commission (PPC tentative English translation, Ver.1 December 2016; effective 30 May 2017) | Ver.1 December 2016, PPC tentative English translation, effective 30 May 2017 (2015-amendment implementation); SUPERSEDED upstream by the 2021 PPC Enforcement Rules for the amended APPI (in force 1 April 2022) | Japan |  | FREE |
 | Japan Cabinet Order to Enforce the Act on the Protection of Personal Information (PPC tentative English translation, Ver.1 December 2016; effective 30 May 2017) | Ver.1 December 2016, PPC tentative English translation, effective 30 May 2017 (2015-amendment implementation); SUPERSEDED upstream by the 2021 Cabinet Order for the amended APPI (in force 1 April 2022) | Japan |  | FREE |
 | Jordan Personal Data Protection Law No. 24 of 2023 |  | Jordan |  | FREE |
