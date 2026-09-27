@@ -13216,6 +13216,7 @@ class AdvisoryAidInputRefusalTests(LinterTestCase):
             ("tools/audit-backlog-actionability.py", "--todo", str(td / "missing.md")),
             ("tools/audit-backlog-actionability.py", "--ptodo", str(td / "missing.md")),
             ("tools/audit-backlog-actionability.py", "--private-root", str(td / "missing")),
+            ("tools/audit-backlog-actionability.py", "--approvals", str(td / "missing.md")),
             ("tools/adopt-bootstrap-ref.py", "--manifest", str(plain)),
             ("tools/suggest-listing-surfaces.py", "--bogus"),
         )
@@ -17125,6 +17126,16 @@ class BacklogActionabilityTests(unittest.TestCase):
             self.assertIn("UNAPPROVED [BLOCKED] TAG (1)", out.stdout)
             self.assertRegex(out.stdout, r"UNAPPROVED[^\n]*\n  - 1\.2 ")
             self.assertIn("1 granted row(s)", out.stdout)
+            # --pipeline consults the register too (QA r1): the unapproved leaf stays visible.
+            (d / "P-TODO.md").write_text("## 9. Umb\n### P-9.1 Umbrella\n- **P-9.1.1** leaf self-tagged `[BLOCKED:z]`\n"
+                                         "- **P-9.1.2** leaf b\n", encoding="utf-8")
+            pipe = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals.md"), "--pipeline"],
+                capture_output=True, text=True)
+            self.assertEqual(pipe.returncode, 0, pipe.stderr)
+            self.assertIn("P-9.1.1", pipe.stdout)
+            self.assertIn("P-9.1.2", pipe.stdout)
 
     def test_no_tag_means_all_actionable(self):
         # No [BLOCKED:] tag anywhere -> every item ACTIONABLE, even those whose prose

@@ -13,7 +13,9 @@ it is BLOCKED.
 THE AUTHORITATIVE BLOCKER SIGNAL IS THE TAG, NOT PROSE. An item is counted
 BLOCKED only if it carries a ``[BLOCKED:<reason>]`` tag AND the operational
 store's approvals register (``blocked-approvals.md``) holds a granted row for it,
-citing the maintainer's ruling (P-1.36 S36). The tag is a maintainer-GRANTED
+citing the maintainer's ruling (P-1.36 S36), in every mode including --pipeline. On a
+clone with no operational store at all (an adopter), tags count as written; a store
+without a readable register counts no tag. The tag is a maintainer-GRANTED
 status: the assistant proposes a block in ``pending-decisions.md`` and only an
 approved block becomes a tag and a register row; a tag with no row is reported as
 UNAPPROVED and counted ACTIONABLE (a hook that rejects writing such a tag is still
@@ -100,14 +102,15 @@ _APPROVAL_ROW_RE = re.compile(r"^\|\s*`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)`?\s*\
 
 
 def load_approvals(text: str) -> "set[str]":
-    """The item ids with a granted row: four cells, a date and non-empty evidence (header rows skip)."""
+    """The item ids with a granted row: exactly four cells, a non-empty reason, a date and non-empty evidence
+    (header and malformed rows skip)."""
     ids: set = set()
     for line in text.splitlines():
         m = _APPROVAL_ROW_RE.match(line.strip())
         if not m:
             continue
         cells = [c.strip() for c in m.group("rest").split("|")]
-        if len(cells) != 3 or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", cells[1]) or not cells[2]:
+        if len(cells) != 3 or not cells[0] or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", cells[1]) or not cells[2]:
             continue
         ids.add(m.group("id"))
     return ids
@@ -692,7 +695,8 @@ def _self_test() -> int:
     # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register.
     reg = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
            "| 2.1 | source | 2026-09-18 | #2364 |\n| `P-1.77` | ext | 2026-09-18 | 8168ee2 |\n"
-           "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | many | 2026-09-18 | x |\n")
+           "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | 2026-09-18 | x | y |\n"
+           "| 2.6 |  | 2026-09-18 | #1 |\n")
     check("approvals-parse", load_approvals(reg) == {"2.1", "P-1.77"})
     tagged = "| 2.1 | t | `[BLOCKED:x]` |"
     saved_approvals = _APPROVALS
@@ -729,6 +733,17 @@ def _self_test() -> int:
             g["resolve_working_dir"] = lambda *a, **k: Path(".")
             _load_default_approvals(None)
             check("approvals-store-without-register-counts-nothing", _APPROVALS == set())
+            import tempfile as _tf
+            with _tf.TemporaryDirectory() as _d:
+                bad = Path(_d) / "blocked-approvals.md"
+                bad.write_bytes(b"| 1.1 | x | 2026-09-18 | \xff\xfe |\n")
+                _load_default_approvals(str(bad))
+                check("approvals-undecodable-counts-nothing", _APPROVALS == set())
+                bad.unlink()
+                bad.mkdir()
+                g["resolve_working"] = lambda *a, **k: bad
+                _load_default_approvals(None)
+                check("approvals-unreadable-counts-nothing", _APPROVALS == set())
         finally:
             g["resolve_working"], g["resolve_working_dir"] = real_rw, real_rwd
     finally:
@@ -760,7 +775,7 @@ def _load_default_approvals(explicit: "str | None") -> str:
                     f"(a missing register never widens what is blocked).")
     try:
         ids = load_approvals(path.read_text(encoding="utf-8"))
-    except OSError as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
         return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
     set_approvals(ids)
@@ -819,6 +834,7 @@ def main(argv: list[str]) -> int:
     private_note = "" if private_text is not None \
         else f" (private list {ptodo} absent; public-only)"
 
+    approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
     if args.pipeline:
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
@@ -826,7 +842,6 @@ def main(argv: list[str]) -> int:
                               private_dir=private_dir))
         return 0
 
-    approvals_note = _load_default_approvals(args.approvals)
     rows, blocked, actionable = build_report(public_text, private_text, private_dir=private_dir)
 
     def trunc(t: str, w: int = 52) -> str:
