@@ -13076,7 +13076,7 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
 
 
 class StrandedMatrixRefusalTests(LinterTestCase):
-    """3b107: audit-stranded-matrix-code.py exits 0 only when a master-matrix row was checked; a directory,
+    """3b107: audit-stranded-matrix-code.py exits 0 only when a matrix code was compared; a directory,
     a missing or unreadable file, a file with no master-matrix table and a matrix none of whose rows can be
     checked all exit 2 without a traceback. Rebuilt on a structural table parser (the 3b50b2e1 follow-up)."""
 
@@ -13107,6 +13107,7 @@ class StrandedMatrixRefusalTests(LinterTestCase):
                            ("listfence.md", "- item\n  ```\n\n" + header + row + "\n"),
                            ("nbsp.md", header.replace("---", "---\u00a0") + row + "\n"),
                            ("nocodes.md", header + "| X | Y | [`ai/README.md`](../ai/README.md) | N/A | N/A |\n"),
+                           ("escaped.md", header + row.replace("-0", "\\-0", 1) + "\n"),
                            ("leak.md", header + "\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
                            ("heading.md", header + "## Section | two\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
                            ("no_aicm.md", no_aicm + row + "\n"),
@@ -13117,6 +13118,13 @@ class StrandedMatrixRefusalTests(LinterTestCase):
             r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(f))
             self.assertEqual(r.returncode, 2, (name, r.stdout + r.stderr))
             self.assertNotIn("Traceback", r.stderr)
+        # the zero-code refusal still lists unassessed rows (QA r3)
+        zero = td / "zero.md"
+        zero.write_text(header + "| X | Y | [`ai/README.md`](../ai/README.md) | N/A | N/A |\n"
+                        + row.replace(".md", "-missing-z.md") + "\n", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(zero))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("-missing-z.md", r.stderr)
         # every unassessed row is listed, not the first twenty (QA r1)
         many = td / "many.md"
         many.write_text(header + "".join(row.replace(".md", f"-missing-{k}.md") + "\n" for k in range(25)),

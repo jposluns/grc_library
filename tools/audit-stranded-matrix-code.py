@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Master-matrix same-family stranded control-code scan (master compliance matrix vs per-document).
 
-Advisory enumeration (exit 0 once a matrix row was checked, exit 2 on input it cannot check; `audit-*` not `lint-*`) of the same-family subset of the STRANDED paired-surface
+Advisory enumeration (exit 0 once a matrix code was compared with its document, exit 2 on input it cannot check; `audit-*` not `lint-*`) of the same-family subset of the STRANDED paired-surface
 class: the master matrix cites a CSA CCM / AICM control code that is absent from the
 referenced document's own expanded code set, while that set contains another code of the
 SAME prefix (family). This is a SIGNAL of a possible stale mapping (a per-document
@@ -41,7 +41,9 @@ empty or not; a thematic break; an HTML line), tables inside code fences are ign
 by a backslash is cell content. A matrix containing an HTML block, an indented line carrying a pipe or a
 quoted line carrying a pipe is refused rather than modelled: the matrix must follow a closed line grammar
 (matrix_refusal: blank lines, ATX headings, thematic breaks, plain prose without a pipe or block marker,
-and table lines at column 0, with tables set apart from prose; only space and tab as whitespace). A run
+and table lines at column 0, with tables set apart from prose; each run of table lines is one table opening
+with its header and delimiter rows; no escape, entity or HTML in a table line; only space and tab as
+whitespace). A run
 exits 0 only after comparing at least one CCM or AICM code with its document. A referenced
 document is read only when it resolves inside the repository to a regular UTF-8 file; any other row is
 listed as not assessed. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
@@ -128,12 +130,22 @@ def matrix_refusal(text: str) -> "str | None":
         if ch not in "\t\n\r" and (unicodedata.category(ch) in ("Zs", "Zl", "Zp", "Cc") and ch != " "):
             return f"it contains the character {ch!r}, which Markdown and this parser may read differently"
     prev = "blank"
-    for n, line in enumerate(_LINE_BREAK_RE.split(text), 1):
+    lines = _LINE_BREAK_RE.split(text)
+    for n, line in enumerate(lines, 1):
         kind = _line_kind(line)
         if kind is None:
             return f"line {n} is not a blank line, heading, thematic break, plain prose or a table line at column 0"
         if kind == "table" and not _cells(line):
             return f"line {n} is a table line with no cells, which ends a table in cmark-gfm"
+        if kind == "table" and re.search(r"<|&(?:#|[A-Za-z][A-Za-z0-9]*;)|\\(?!\|)", line):
+            return (f"line {n} is a table line with an escape, an entity or HTML, which can hide or reveal a "
+                    "code the scan would not see")
+        if kind == "table" and prev != "table":
+            head = _cells(line)
+            delim = _cells(lines[n]) if n < len(lines) else []
+            if not (len(delim) == len(head) and _is_delimiter_row(delim)):
+                return (f"line {n} starts a run of table lines that is not a header followed by its delimiter row "
+                        "(cmark-gfm would not read a table later in the same run)")
         if kind == "table" and prev == "prose":
             return f"line {n} starts a table directly after prose, which may join the paragraph"
         if kind == "prose" and prev == "table":
@@ -227,8 +239,9 @@ def _doc_path(path_cell: str) -> str | None:
 
 def _default_doc_reader(docrel: str) -> str | None:
     """The referenced document's text, or None. Tries repo-relative, then compliance/-relative; a candidate
-    counts only when it resolves inside the repository and is a regular file. Any filesystem or decoding
-    error makes the row unassessed rather than crashing the run (3b107)."""
+    counts only when it resolves inside the repository and is a regular file. The first such candidate is
+    the one read: if it is not UTF-8 the row is unassessed and the other location is not tried. Any
+    filesystem or decoding error makes the row unassessed rather than crashing the run (3b107)."""
     root = REPO_ROOT.resolve()
     for cand in (REPO_ROOT / docrel, REPO_ROOT / "compliance" / docrel):
         try:
@@ -260,6 +273,9 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
     skipped: list[str] = []
     for header, rows in _tables(matrix_text):
         if header[:3] != list(_HEADER_CELLS[:3]) or "CSA CCM v4.1" not in header or "CSA AICM v1.1" not in header:
+            if rows and ("CSA CCM v4.1" in header or "CSA AICM v1.1" in header):
+                skipped.append(f"line {rows[0][0] - 2}: a table with CCM or AICM columns whose header is not the "
+                               f"master header; its {len(rows)} row(s) are not read")
             continue
         n_tables += 1
         path_idx = header.index("Path")
@@ -404,6 +420,9 @@ def _self_test() -> int:
         (rows_seen("~~~\n```\n" + hdr + row("risk/a.md") + "~~~\n") == (0, 0, 0)
          and rows_seen("```\n~~~\n```x\n" + hdr + row("risk/a.md") + "```\n") == (0, 0, 0),
          "a fence closes only on its own character with no trailing text"),
+        (rows_seen("| Domain | Document Title | Other | CSA CCM v4.1 | CSA AICM v1.1 |\n"
+                   "| --- | --- | --- | --- | --- |\n" + row("risk/a.md")) == (0, 0, 1),
+         "a CCM/AICM table without the master header is listed, not read, and does not crash"),
         (rows_seen("| Domain | Document Title | Path | CSA CCM v4.1 | CSA AICM v1.1 |\n"
                    "| a | b | c | d | e |\n" + row("risk/a.md")) == (0, 0, 0), "the second line must be a delimiter row"),
         (rows_seen(hdr + row("risk/a.md") + "\u00a0\n" + row("risk/b.md"))[1] == 2,
@@ -432,6 +451,20 @@ def _self_test() -> int:
          and _cells("| a\u00a0 | b |") == ["a\u00a0", "b"],
          "each refusal layer holds on its own: BOM, pipe-less table line, list item; cells strip only spaces and tabs"),
         (matrix_refusal(hdr + row("risk/a.md") + "|\n" + row("risk/b.md")) is not None, "a lone pipe line refuses the matrix"),
+        # QA r3
+        (all(matrix_refusal(hdr + row("risk/a.md").replace("STA-02", bad)) is not None
+             for bad in ("STA\\-02", "STA&#45;02", "STA-01 <!-- STA-02 -->")),
+         "an escape, entity or HTML in a table line refuses the matrix"),
+        (all(matrix_refusal(hdr + row("risk/a.md").replace("STA-02", bad)) is not None for bad in ("STA&amp;02", "A&#65;A-02"))
+         and matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "A&A-02, I&S-01")) is None,
+         "named and numeric entities refuse; the A&A and I&S families do not"),
+        (matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "a \\| b")) is None, "an escaped pipe is allowed"),
+        (matrix_refusal("| a |\n| --- | --- |\n" + hdr + row("risk/a.md")) is not None
+         and matrix_refusal("| a | b |\n| - |\n" + hdr + row("risk/a.md")) is not None,
+         "a run of table lines must open with its own header and delimiter"),
+        (matrix_refusal("<!--\n\n" + hdr + row("risk/a.md") + "\n-->\n") is not None
+         and matrix_refusal("  <!--\n\n" + hdr + row("risk/a.md")) is not None,
+         "an HTML or indented line before a set-apart table refuses"),
     ]
     ok = True
     for passed, label in checks:
@@ -487,6 +520,8 @@ def main(argv: list[str]) -> int:
     if not stats["codes"]:
         print(f"ERROR: no CCM or AICM code in {args.matrix} was compared with its document; nothing is established",
               file=sys.stderr)
+        for s in skipped:
+            print(f"  - {s}", file=sys.stderr)
         return 2
     if skipped:
         print(f"NOTE: {len(skipped)} matrix row(s) not assessed (listed at the end); {stats['rows']} row(s) checked.")
