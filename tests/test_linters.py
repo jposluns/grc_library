@@ -3758,6 +3758,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         mod._is_grc_main_checkout = lambda root: os.path.realpath(root) == mod._GRC_REPO_ROOT
         with tempfile.TemporaryDirectory() as d:
             old = os.environ.get("GRC_DROP_ROOT")
+            # A worker never consumes the wait, so clear both worker signals: this test also runs inside
+            # dispatched workers (3b101 QA r3).
+            saved = {k: os.environ.pop(k, None) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
             os.environ["GRC_DROP_ROOT"] = d
             try:
                 sentinel = os.path.join(d, ".allow-idle-stop")
@@ -3773,6 +3776,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                     os.environ.pop("GRC_DROP_ROOT", None)
                 else:
                     os.environ["GRC_DROP_ROOT"] = old
+                for k, v in saved.items():
+                    if v is not None:
+                        os.environ[k] = v
 
     def test_stop_guard_unattended_main_consumes_escape_end_to_end(self) -> None:
         """End-to-end: main() actually WIRES _grc_consume_escape (codex #1945 rv f4). Running the real
