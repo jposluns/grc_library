@@ -159,7 +159,7 @@ def is_blocking_command(cmd: str) -> bool:
     eval), fed on stdin or through a heredoc, built from a variable or an alias, or quoted in a way shlex
     reads differently from bash (ANSI-C quoting, a mid-word #), or split by a mix of
     continuations bash joins and does not, can evade when the hook does not see gh, pr and the verb as one
-    command's words (3b112 kept this deliberately
+    command's words (a plain bash -c "gh pr merge 1" is still caught by the substring pass; 3b112 kept this deliberately
     after attempts to model those forms kept introducing misses). Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
