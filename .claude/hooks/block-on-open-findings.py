@@ -529,21 +529,31 @@ def is_blocking_command(cmd: str) -> bool:
           (3b108; see invokes_merge_tool).
     The token match allows any tokens or operators between gh, pr and the verb, and a fresh gh resets
     it, so `gh pr view 12 && git merge main` and `echo "gh pr merge"` are gated (over-gating is the safe
-    direction). A backslash-newline continuation is joined first, as bash does (3b112 QA r1). RESIDUE:
-    a word held in a variable (c=merge; gh pr $c, or GH=gh; $GH pr merge), an alias, or an
-    unquoted mid-word # earlier on the line (shlex starts a comment there, bash does not) still evades; a speed bump, not an adversarial control."""
+    direction). The gh detectors run on the text as written AND with backslash-newlines joined, and
+    block on either (3b112 QA r1, r2). RESIDUE: a word held in a variable (c=merge; gh pr $c, or GH=gh;
+    $GH pr merge), an alias, or an unquoted mid-word # earlier on the line (shlex starts a comment
+    there, bash does not) still evades; a speed bump, not an adversarial control."""
     if not isinstance(cmd, str):
         return False
-    cmd = cmd.replace("\\\n", "")  # join backslash-newline continuations, as bash does (3b112 QA r1)
+    if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
+        return True
+    # Both the text as written and the text with every backslash-newline joined: bash joins only some of
+    # them (not after an even run of backslashes or in a comment), so blocking on either keeps both cases
+    # (3b112 QA r1, r2). The merge-tool exemption above reads only the unjoined text.
+    return _gh_pr_verb(cmd) or _gh_pr_verb(cmd.replace("\\\n", ""))
+
+
+def _gh_pr_verb(cmd: str) -> bool:
+    """PURE. The substring pass and the ordered shlex token pass for `gh pr create|merge`."""
     flat = " ".join(cmd.split())
-    if any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd):
+    if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
         return True
     toks = _tokens(cmd)
     if toks is None:
         return False  # unparseable is already covered by the substring pass above
     seen_gh = seen_pr = False
     for tk in toks:
-        if tk == "gh" or tk.endswith("/gh"):
+        if tk == "gh" or tk.endswith("/gh"):   # bare `gh` or an absolute/relative path to it
             seen_gh, seen_pr = True, False
         elif seen_gh and tk == "pr":
             seen_pr = True
@@ -856,6 +866,12 @@ def self_test() -> int:
     ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
     ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
     ck("backslash-newline continuation blocks", is_blocking_command("gh pr \\\nmerge 1"), True)
+    # 3b112 QA r2: bash does not join after an even backslash run or inside a comment; both texts are checked
+    for s in ("echo x\\\\\ngh pr 'merge' 1", "# note \\\ngh pr 'merge' 1", "true # trailing\\\ngh pr 'create'",
+              '# note \\\ngh "pr" create'):
+        ck(f"unjoined text still checked: {s!r}", is_blocking_command(s), True)
+    ck("quoted --dry-ru<nl>n is not a dry-run exemption",
+       is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
     # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
     ck("ROUTED 3b108 is dispositioned", disposition_valid("ROUTED 3b108 (next PR)"), True)
     ck("FIXED 3b50b2e1 is dispositioned", disposition_valid("FIXED 3b50b2e1"), True)

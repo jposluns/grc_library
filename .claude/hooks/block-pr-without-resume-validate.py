@@ -151,19 +151,28 @@ def is_blocking_command(cmd: str) -> bool:
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
 
-    A backslash-newline continuation is joined first, as bash does (3b112 QA r1).
+    The gh detectors run on the text as written AND with backslash-newlines joined, and block on either
+    (3b112 QA r1, r2).
 
-    RESIDUE (stated): the `gh` token is matched bare OR as a path (`*/gh`). a word held in a variable (c=merge; gh pr $c, or GH=gh; $GH pr merge), an alias, or an unquoted mid-word # earlier on the line (shlex starts a comment there, bash does not) still evades.
-    Accepted: this guard is a SPEED BUMP for an
+    RESIDUE (stated): the `gh` token is matched bare OR as a path (`*/gh`). A word held in a variable
+    (c=merge; gh pr $c, or GH=gh; $GH pr merge), an alias, or an unquoted mid-word # earlier on the line
+    (shlex starts a comment there, bash does not) still evades. Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
     if not isinstance(cmd, str):
         return False
-    cmd = cmd.replace("\\\n", "")  # join backslash-newline continuations, as bash does (3b112 QA r1)
+    if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
+        return True
+    # Both the text as written and the text with every backslash-newline joined: bash joins only some of
+    # them (not after an even run of backslashes or in a comment), so blocking on either keeps both cases
+    # (3b112 QA r1, r2). The merge-tool exemption above reads only the unjoined text.
+    return _gh_pr_verb(cmd) or _gh_pr_verb(cmd.replace("\\\n", ""))
+
+
+def _gh_pr_verb(cmd: str) -> bool:
+    """PURE. The substring pass and the ordered shlex token pass for `gh pr create|merge`."""
     flat = " ".join(cmd.split())
     if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
-        return True
-    if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
         return True
     toks = _tokens(cmd)
     if toks is None:
@@ -400,6 +409,12 @@ def self_test() -> int:
     ck("non-string command is not blocking", is_blocking_command(None), False)
     ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
     ck("backslash-newline continuation blocks (3b112 QA r1)", is_blocking_command("gh pr \\\nmerge 1"), True)
+    # 3b112 QA r2: bash does not join after an even backslash run or inside a comment; both texts are checked
+    for s in ("echo x\\\\\ngh pr 'merge' 1", "# note \\\ngh pr 'merge' 1", "true # trailing\\\ngh pr 'create'",
+              '# note \\\ngh "pr" create'):
+        ck(f"unjoined text still checked: {s!r}", is_blocking_command(s), True)
+    ck("quoted --dry-ru<nl>n is not a dry-run exemption",
+       is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
 
     # decide() core -- the single source of truth main() calls
     ck("decide blocks: library create, no sweep, no sentinel",
