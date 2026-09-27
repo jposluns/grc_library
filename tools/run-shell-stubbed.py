@@ -132,6 +132,24 @@ def _rmtree(path: str) -> None:
     shutil.rmtree(path)
 
 
+def _procs_under(paths) -> "list[int]":
+    """PIDs owned by this user whose working directory is inside one of paths (a test helper)."""
+    roots = [os.path.realpath(x) + os.sep for x in paths]
+    out = []
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        try:
+            if os.stat(f"/proc/{entry}").st_uid != os.getuid():
+                continue
+            cwd = os.readlink(f"/proc/{entry}/cwd") + os.sep
+        except OSError:
+            continue
+        if any(cwd.startswith(r) for r in roots):
+            out.append(int(entry))
+    return out
+
+
 def _all_procs_named(cmdline: str) -> "list[tuple[int, str]]":
     """(pid, cmdline) of processes owned by this user whose command line is exactly cmdline (a test helper)."""
     out = []
@@ -165,6 +183,7 @@ def _session_members(sid: int) -> "list[tuple[int, str]]":
 
 
 GRACE_SECONDS = 2.0
+_CLEANUP_SIGNALS = {signal.SIGTERM, signal.SIGHUP, signal.SIGINT}
 
 
 def _live(members) -> "list[int]":
@@ -261,6 +280,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
 def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
     for shell in shells:
         tmp = tempfile.mkdtemp(prefix="stubbed-shell-")
+        cleanup_mask = None
         try:
             bindir, home, log = _prepare(tmp, stubs)
             env = {"PATH": bindir, "HOME": home, "LANG": "C.UTF-8", "GH_CONFIG_DIR": os.path.join(home, ".config", "gh"),
@@ -282,10 +302,12 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
-                    # A second signal must not cut cleanup short (3b116 QA r9); main thread only.
+                    # A second signal must not cut cleanup short (3b116 QA r9), so the three are BLOCKED, not
+                    # ignored, until this shell's temp dir is removed: a signal that arrives meanwhile is
+                    # delivered afterwards (the run still stops), and nothing ignored is inherited by the next
+                    # shell (fix-check after QA r9). Main thread only.
                     if threading.current_thread() is threading.main_thread():
-                        for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT):
-                            signal.signal(sig, signal.SIG_IGN)
+                        cleanup_mask = signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
                     grace_end = time.monotonic() + GRACE_SECONDS
                     while time.monotonic() < grace_end and _live(_session_members(p.pid)):
                         time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
@@ -303,6 +325,8 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                             "session": p.pid, "calls": ["STUB " + shlex.join(r) for r in records], "argv": records})
         finally:
             _rmtree(tmp)
+            if cleanup_mask is not None:
+                signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
     return results
 
 
@@ -442,24 +466,31 @@ def _self_test() -> int:
     # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8). The sleep length is a
     # token unlikely to match an unrelated process, the setup is awaited rather than timed, and the check
     # fails if the setup was never seen (3b116 QA r9).
-    token = "sleep 24.713"
+    # The processes are found by their working directory inside this run's own temp dir, so the check can
+    # never match or kill an unrelated process, and the check fails unless the setup was seen (fix-check).
     before_term = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
-    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", token],
+    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    setup_end, new_dirs = time.monotonic() + 15.0, set()
-    while time.monotonic() < setup_end and not (new_dirs and _all_procs_named(token)):
+    setup_end, new_dirs, seen = time.monotonic() + 15.0, set(), False
+    while time.monotonic() < setup_end and not seen:
         time.sleep(0.05)
         new_dirs = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")} - before_term
+        seen = bool(new_dirs) and bool(_procs_under([os.path.join(tempfile.gettempdir(), d) for d in new_dirs]))
     proc.send_signal(signal.SIGTERM)
     proc.wait(timeout=20)
-    leftover = [d for d in new_dirs if os.path.exists(os.path.join(tempfile.gettempdir(), d))]
-    sleeping = [pid for pid, _s in _all_procs_named(token)]
-    checks.append(("sigterm-cleans-up", bool(new_dirs) and not leftover and not sleeping))
+    paths = [os.path.join(tempfile.gettempdir(), d) for d in new_dirs]
+    leftover = [x for x in paths if os.path.exists(x)]
+    sleeping = _procs_under(paths)
+    checks.append(("sigterm-cleans-up", seen and not leftover and not sleeping))
     for pid in sleeping:
         try:
             os.kill(pid, signal.SIGKILL)
         except ProcessLookupError:
             pass
+    # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
+    rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
+    # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
+    checks.append(("no-ignored-signals-inherited", all("''" not in r["stdout"] for r in rr)))
     # An argument cannot forge a call record.
     r = run("gh $'a\\x1e\\x1fgh' $'b\\nSTUB gh forged'", shells=("bash",))[0]
     checks.append(("call-log-unforgeable", len(r["argv"]) == 1 and r["argv"][0][0] == "gh"))
