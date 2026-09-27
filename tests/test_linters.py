@@ -17356,6 +17356,12 @@ class HookToolItemCountParityTests(unittest.TestCase):
             # QA r6: a masked ``### <id>`` heading never changes containment, inside a heading item or a bullet.
             "masked heading in heading item": ("## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n", 0),
             "masked heading in bullet item": ("## Q\n- **3b7 x** y\n```\n### 9.8 ex\n```\n  more\n- **3b8 z** w\n", 2),
+            # QA r7: one-sided mask and containment changes.
+            "bullet under coded heading": ("## L\n### RB-6 coded item\n- **3b7 body** a\n", 0),
+            "fence character must match": ("## Q\n```\n~~~\n- **3b7 x** y\n```\n", 0),
+            "closer carries no info string": ("## Q\n```\n```py\n- **3b7 x** y\n```\n", 0),
+            "comment indented four spaces": ("## Q\n    <!-- c\n- **3b7 x** y\n-->\n", 1),
+            "bare 3b is not an id": ("## Q\n- **3b fix** y\n", 0),
         }
         for name, (text, want) in cases.items():
             tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
@@ -17406,6 +17412,17 @@ class HookToolItemCountParityTests(unittest.TestCase):
             self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (1)", r.stdout)
             self.assertIn("3b120", r.stdout)
             self.assertIn("1 open item(s)", r.stdout)
+            # QA r7: every mode keeps the report, --pipeline on stderr (its stdout is machine-read), and a
+            # public-file line is reported too.
+            pub.write_text("- **ORCH-CI-STATUS (tooling):** wire it\n", encoding="utf-8")
+            args = ("--todo", str(pub), "--ptodo", str(priv), "--approvals", str(appr))
+            r = run_linter("tools/audit-backlog-actionability.py", *args, "--actionable-only")
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (2)", r.stdout)
+            self.assertIn("public:1:", r.stdout)
+            r = run_linter("tools/audit-backlog-actionability.py", *args, "--pipeline")
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (2)", r.stderr)
+            self.assertNotIn("ITEM-LIKE", r.stdout)
 
     def test_hook_unions_private_ptodo(self):
         # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),

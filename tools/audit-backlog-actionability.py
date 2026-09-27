@@ -108,14 +108,15 @@ TOP_BULLET_ITEM_RE = re.compile(
 # The REPORT net (QA r3-r4): a list line (optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or
 # ``1.``/``1)``, any indentation, an optional ``[ ]``/``[x]`` task box) whose text opens with emphasis (``*`` or
 # ``_``, any run length) and whose lead token (after emphasis, a backtick and ``#([`` punctuation) holds a digit
-# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or which carries a ``[private]`` /
-# ``[public]`` tag anywhere (QA r6: a 160-character window let a long title hide the tag). Every counted form meets one of these, so the counted-or-reported
+# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, is a coded id (``ORCH-CI-STATUS``), or
+# which carries a ``[private]`` / ``[public]`` tag (or a compound ``[private, ...]``) anywhere (QA r6, r7). Every counted form meets one of these, so the counted-or-reported
 # invariant holds by construction; the net is deliberately wider than the grammar.
 _ITEM_LIKE_LEAD_RE = re.compile(
     r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>[*_]+.*)$"
 )
 _LEAD_TOKEN_RE = re.compile(r"^[*_]+[ \t]*`?(?P<word>[^\s*`]*)")
-_TAG_RE = re.compile(r"\[(?:private|public)\]", re.IGNORECASE)
+_TAG_RE = re.compile(r"\[(?:private|public)[,\]]", re.IGNORECASE)  # compound ``[private, WARN]`` too (QA r7)
+_CODED_WORD_RE = re.compile(r"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+")  # a digit-free coded id, as ITEM_HEADING_RE takes
 
 
 def _is_item_like(line: str) -> bool:
@@ -132,6 +133,8 @@ def _is_item_like(line: str) -> bool:
         return True
     if tok.lower().startswith("p-"):
         return True
+    if _CODED_WORD_RE.fullmatch(tok):
+        return True  # ORCH-CI-STATUS: the shape a ``### `` heading counts, so a bullet of it is reported (QA r7)
     return bool(_TAG_RE.search(rest))
 
 
@@ -170,6 +173,8 @@ def _mask_scan(lines: "list[str]") -> "tuple[list[bool], int | None]":
             in_comment = _comment_open_after(ln, True)
             if not in_comment:
                 open_at = None
+            elif "-->" in ln:
+                open_at = i  # closed and reopened on this line: the open comment starts here (QA r7)
             continue
         m = _FENCE_OPEN_RE.match(ln)
         if m:
@@ -1342,6 +1347,12 @@ def _self_test() -> int:
           and unclosed_blocks("## Q\n<!-- a -->") == [])
     check("r6-adjacent-regions-report-real-opener",
           [n for n, _m in unclosed_blocks("## Q\n```\nx\n```\n<!-- open\nmore\n")] == [5])
+    # QA r7
+    for net_line in ("- **ORCH-CI-STATUS (tooling, LOW):** wire CI", "- **Gap sweep [private, WARN]:** x",
+                     "- **Some task [PRIVATE]** x", "- **`3b7` untagged** x", "- **p-hookfix** repair"):
+        check("r7-net-" + net_line[4:14], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")] == [net_line])
+    check("r7-reopened-comment-opener", [n for n, _m in unclosed_blocks("<!-- old\n--> <!-- new\ntext\n")] == [2])
+    check("r7-closed-multiline-comment", unclosed_blocks("## Q\n<!-- a\nb\n-->\n") == [])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
 
@@ -1500,8 +1511,20 @@ def main(argv: list[str]) -> int:
         else f" (private list {ptodo} absent; public-only)"
 
     approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
+    item_like = [(src, n, ln) for src, txt in (("public", public_text), ("private", private_text)) if txt is not None
+                 for n, ln in uncounted_item_like(txt)]
+
+    def print_item_like(out) -> None:
+        if item_like:
+            print(f"\nITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR ({len(item_like)}) -- not counted above; if one is an "
+                  f"open item, rewrite it as a top-level `- **<id> ...` bullet, an index row or a `### <id>` heading:",
+                  file=out)
+            for src, n, ln in item_like:
+                print(f"  - {src}:{n}: {ln.strip()[:87] + '...' if len(ln.strip()) > 90 else ln.strip()}", file=out)
+
     if args.pipeline:
         print(approvals_note, file=sys.stderr)  # the refusal reason stays visible in --pipeline mode (QA r7)
+        print_item_like(sys.stderr)  # the counted-or-reported invariant holds in every mode (3b119 QA r7)
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
         print(render_pipeline(public_text, private_text, done_text, args.umbrella,
@@ -1529,13 +1552,7 @@ def main(argv: list[str]) -> int:
           "tag. 'all blocked' is assertable only when EVERY item carries one.")
 
     print(approvals_note)
-    item_like = [(src, n, ln) for src, txt in (("public", public_text), ("private", private_text)) if txt is not None
-                 for n, ln in uncounted_item_like(txt)]
-    if item_like:
-        print(f"\nITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR ({len(item_like)}) -- not counted above; if one is an open "
-              f"item, rewrite it as a top-level `- **<id> ...` bullet, an index row or a `### <id>` heading:")
-        for src, n, ln in item_like:
-            print(f"  - {src}:{n}: {trunc(ln, 90)}")
+    print_item_like(sys.stdout)
     items_all = parse_items(public_text, "public", private_dir=private_dir) + (
         parse_items(private_text, "private", private_dir=private_dir) if private_text is not None else [])
     unapproved = [(i, t) for i, t, blk, _s, _u in items_all
