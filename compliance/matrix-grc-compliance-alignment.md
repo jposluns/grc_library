@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.1\
-**Date:** 2026-09-25\
+**Version:** 1.12.2\
+**Date:** 2026-09-27\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -416,7 +416,7 @@ This matrix is indicative only. It reflects the best available assessment of con
 | AI | AI Board Oversight Guide | [`ai/guide-ai-board-oversight.md`](../ai/guide-ai-board-oversight.md) | GRC-02, GRC-06 | HRS-14 | §5.1, §5.3, §9.3 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Synthetic-Content Provenance Guideline | [`ai/guideline-ai-synthetic-content-provenance.md`](../ai/guideline-ai-synthetic-content-provenance.md) | GRC-07 | N/A | A.5.31 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 | AI | Integrated AI and Privacy Assessment Procedure | [`ai/procedure-integrated-ai-and-privacy-assessment.md`](../ai/procedure-integrated-ai-and-privacy-assessment.md) | DSP-09, GRC-07 | GRC-10 | A.5.34, §6.1.2 | ID.RA | N/A | N/A | N/A | N/A | N/A | N/A |
-| AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.5.20, A.8.10 | ID.AM, PR.DS | N/A | N/A | N/A | N/A | N/A | N/A |
+| AI | AI Data Quality and Readiness Validation Standard | [`ai/standard-ai-data-quality-and-readiness-validation.md`](../ai/standard-ai-data-quality-and-readiness-validation.md) | DSP-16, STA-11 | DSP-23, DSP-24 | §8.1, A.8.10 | ID.AM, PR.DS | N/A | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Model Succession and Identity Continuity Standard | [`ai/standard-ai-model-succession-and-identity.md`](../ai/standard-ai-model-succession-and-identity.md) | CCC-01, IAM-05 | MDS-03, MDS-05, MDS-08, MDS-10 | A.5.18 | PR.AA | N/A | N/A | N/A | N/A | N/A | N/A |
 | AI | AI Actor Role and Forum Standing Charter | [`ai/charter-ai-actor-role-and-forum-standing.md`](../ai/charter-ai-actor-role-and-forum-standing.md) | GRC-01, GRC-06 | GRC-15 | A.5.2 | N/A | N/A | N/A | N/A | N/A | N/A | N/A |
 
