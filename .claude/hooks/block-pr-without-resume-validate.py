@@ -146,7 +146,7 @@ def is_blocking_command(cmd: str) -> bool:
           / unbalanced-quote forms (`gh pr create&&echo`, `gh pr merge;x`, `gh pr create # '`).
       (2) ORDERED TOKEN SUBSEQUENCE `gh` -> `pr` -> `create`|`merge` over shlex tokens -- catches
           quoted subcommands (`gh "pr" create`, `gh pr 'create'`) and interleaved flags
-          (`gh -R x pr create`), which the substring misses because shlex removes the quotes and the token order ignores flags.
+          (`gh -R x pr create`), which the substring misses because the quotes or flags break the literal text; shlex removes the quotes.
 
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
@@ -158,7 +158,8 @@ def is_blocking_command(cmd: str) -> bool:
     matching, not a shell model: a command run through another shell or eval (bash -c "...", sh -c,
     eval), fed on stdin or through a heredoc, built from a variable or an alias, or quoted in a way shlex
     reads differently from bash (ANSI-C quoting, a mid-word #), or split by a mix of
-    continuations bash joins and does not, can evade when gh, pr and the verb are not one command's words (3b112 kept this deliberately
+    continuations bash joins and does not, can evade when the hook does not see gh, pr and the verb as one
+    command's words (3b112 kept this deliberately
     after attempts to model those forms kept introducing misses). Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
@@ -411,6 +412,7 @@ def self_test() -> int:
     ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
     ck("non-string command is not blocking", is_blocking_command(None), False)
     ck("whitespace is collapsed before the substring pass", is_blocking_command("gh  pr\tmerge 1 'x"), True)
+    ck("stated residue: ANSI-C quoting is not seen (text matching, not a shell model)", is_blocking_command("gh pr $'merge' 1"), False)
     ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
     ck("backslash-newline continuation blocks (3b112 QA r1)", is_blocking_command("gh pr \\\nmerge 1"), True)
     # 3b112 QA r2: bash does not join after an even backslash run or inside a comment; both texts are checked
