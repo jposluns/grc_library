@@ -93,7 +93,9 @@ PRODUCER_TIMEOUT_S = 8
 MODE_SET_HINT = (
     "set the operating mode to attended in your project's mode record (the operator-set escape hatch); "
     "for a genuine external wait (a running QA leg or CI check), record the blocker, then touch "
-    + os.path.join(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working", ".allow-idle-stop")
+    + os.path.join(os.environ.get("GRC_DROP_ROOT") or os.path.join(os.path.dirname(os.path.realpath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))), "grc_working"),
+        ".allow-idle-stop")
     + " (the grc one-shot declared-wait escape, honoured once)"
 )
 
@@ -112,11 +114,17 @@ def repo_root():
 # Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
 # gated on the grc repo root so the bundled --self-test stays hermetic on this host.
 # ---------------------------------------------------------------------------
-_GRC_REPO_ROOT = "/opt/grc/grc_library"
-_GRC_STATE_FILE = "/opt/grc/private/session-state.md"
+# Paths follow the checkout (3b101): the repo root is this file's grandparent's parent, the lease lives
+# in the operational store (GRC_STORE, else <repo-parent>/private), and the declared-wait sentinel in
+# GRC_DROP_ROOT, else <repo-parent>/grc_working. No host path is hard-coded.
+_GRC_REPO_ROOT = os.path.realpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+_GRC_PARENT = os.path.dirname(_GRC_REPO_ROOT)
+_GRC_STATE_FILE = os.path.join(os.environ.get("GRC_STORE") or os.path.join(_GRC_PARENT, "private"),
+                               "session-state.md")
 def _grc_escape_file():
     """Path of the grc one-shot declared-wait sentinel, resolved at call time (honours GRC_DROP_ROOT)."""
-    return os.path.join(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working", ".allow-idle-stop")
+    return os.path.join(os.environ.get("GRC_DROP_ROOT") or os.path.join(_GRC_PARENT, "grc_working"),
+                        ".allow-idle-stop")
 
 
 def _grc_consume_escape(root):
@@ -147,12 +155,13 @@ def _grc_map_mode(raw):
     modes and exempted fully-attended."""
     if raw is None:
         return None
-    low = raw.strip().lower()
-    if "unattended" in low:
+    # Map the LEADING mode token only: commentary such as "attended; was overnight-unattended" must not
+    # arm the guard, and fully-attended is attended (3b101, from the NMW-map-bug finding).
+    m = re.match(r"\s*([a-z][a-z-]*)", raw.lower())
+    word = m.group(1) if m else ""
+    if word in ("unattended", "overnight-unattended", "daytime-unattended", "attended-autonomous"):
         return "unattended"
-    if low == "attended-autonomous":
-        return "unattended"
-    if low.startswith("attended"):
+    if word in ("attended", "fully-attended"):
         return "attended"
     return raw.strip() or None
 
@@ -189,7 +198,8 @@ def read_operating_mode(root):
       1. Portable default (UNCHANGED, serves the bundled --self-test and any file-based adopter):
          the repo-relative single-word file MODE_FILE. Present -> its trimmed word (or None).
       2. grc PRODUCTION adapter (only when root is the grc repo; hermetic for temp-root self-tests):
-         read '**Operating-mode:**' from /opt/grc/private/session-state.md and map it via _grc_map_mode.
+         read '**Operating-mode:**' from the store lease (GRC_STORE, else <repo-parent>/private, then
+         session-state.md) and map it via _grc_map_mode.
          (The one-shot declared-wait escape is consumed at the top of main() by _grc_consume_escape.)
 
     GRC WIRING NOTE: grc keeps the mode in session-state.md (not MODE_FILE) and declares a genuine wait
@@ -428,6 +438,23 @@ def _self_test():
             self.assertLess(len(reason), 1200)
 
         # ---- default file-based mode adapter ----
+        def test_grc_mode_map_reads_the_leading_token(self):
+            # 3b101: commentary mentioning "unattended" must not arm the guard; fully-attended is attended.
+            for raw, want in (("overnight-unattended", "unattended"), ("daytime-unattended", "unattended"),
+                              ("attended-autonomous", "unattended"), ("  Attended-Autonomous ", "unattended"),
+                              ("attended; was overnight-unattended", "attended"),
+                              ("attended (previously unattended)", "attended"), ("fully-attended", "attended"),
+                              (None, None)):
+                self.assertEqual(_grc_map_mode(raw), want, raw)
+
+        def test_grc_paths_follow_the_checkout(self):
+            # 3b101: no hard-coded host path; the lease and sentinel sit beside the checkout unless overridden.
+            self.assertEqual(os.path.dirname(_GRC_STATE_FILE) if not os.environ.get("GRC_STORE") else "",
+                             os.path.join(_GRC_PARENT, "private") if not os.environ.get("GRC_STORE") else "")
+            self.assertTrue(_GRC_REPO_ROOT.endswith(os.sep + os.path.basename(_GRC_REPO_ROOT)))
+            with open(__file__, encoding="utf-8") as fh:
+                self.assertNotIn("/opt/" + "grc", fh.read())
+
         def test_mode_missing_is_none(self):
             with tempfile.TemporaryDirectory() as d:
                 self.assertIsNone(read_operating_mode(d))
