@@ -2,7 +2,7 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-09-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Act on the Protection of Personal Information (APPI)**: Amended several times since 2003; the consolidated text in force from April 1, 2023 includes conditions on third-party and cross-border provision of personal data, pseudonymized personal information as a category, rights to request cessation of use, deletion and cessation of third-party provision, and PPC recommendation, order and inspection powers.
+- **Act on the Protection of Personal Information (APPI)**: Amended several times since 2003; the consolidated text as of April 1, 2023 includes conditions on third-party and cross-border provision of personal data, pseudonymized personal information as a category, rights to request cessation of use, deletion and cessation of third-party provision, and PPC recommendation, order and inspection powers.
 - **Regulatory authority:** Personal Information Protection Commission (PPC).
 - **PPC AI-related guidance:** The PPC has published material on applying APPI to AI systems. That specific guidance is not held in the reference base, so an adopter confirms the current PPC AI guidance directly; the APPI obligations below apply to AI processing regardless.
 
@@ -32,20 +32,20 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- **Purpose specification:** APPI's purpose-limitation principle applies to personal information used to train AI: using it beyond the originally specified purpose of use generally requires the individual's consent. For third-party-sourced data, an adopter confirms the use is within the purpose for which the data was provided, or obtains consent for the new purpose.
+- **Purpose specification:** APPI's purpose-limitation principle applies to personal information used to train AI: handling it beyond the scope necessary to achieve the specified purpose of use requires the individual's prior consent, unless an exception applies [Article 18(1)]. The purpose of use may be altered only within the extent that can be appreciably linked to the prior purpose, and the altered purpose is notified or published [Articles 17(2), 21(3)]. For third-party-sourced data, an adopter confirms the use is within the purpose for which the data was provided, or obtains consent for the new purpose.
 - **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition and inappropriate-use duties apply: a business must not acquire personal information by deception or other wrongful means [Article 20(1)], and must not utilize personal information in a way that may foment or induce an unlawful or unjust act [Article 19]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation.
-- **Pseudonymous information (kamei kakō jōhō, 仮名加工情報: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
-- **Third-party provision:** Consent is required before providing personal data to AI system operators as third parties, unless an exception applies [Article 27(1)].
+- **Pseudonymized personal information (kamei kakō jōhō, 仮名加工情報):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing [Article 41].
+- **Third-party provision:** Consent is required before providing personal data to AI system operators as third parties, unless an exception or the notification-and-opt-out route applies [Article 27(1), (2)]. A recipient entrusted with all or part of the handling within the scope necessary for the purpose of use is not a third party for this purpose [Article 27(5)(i)].
 - **Sensitive personal information:** Prior consent is required to acquire sensitive personal information (race, creed, social status, medical history, criminal record, the fact of having suffered damage by a crime, or other categories prescribed by Cabinet Order), subject to statutory exceptions [Articles 2(3), 20(2)]. The notification-and-opt-out route for third-party provision is not available for it [Article 27(2)].
 
 ---
 
 ## Operational requirements
 
-Article numbers follow the current consolidated APPI (confirmed against the official English translation of the consolidated text; the pre-2022 amendment texts number these provisions differently).
+Article numbers follow the consolidated APPI as of April 1, 2023 (confirmed against the official English translation of that consolidated text; earlier versions of the Act number some of these provisions differently).
 
 - **Breach report and individual notification (Article 26):** A business handling personal information must, pursuant to PPC rules, report a leak, loss, damage or other situation concerning the security of personal data, of a kind the PPC rules prescribe as likely to harm individual rights and interests, to the PPC, and notify the affected individual. Two exceptions are in the Act itself: a business entrusted with the handling that notifies the entrusting business or administrative entity as the PPC rules prescribe does not report to the PPC or notify the individual [Article 26(1) proviso, 26(2)], and individual notification is not required where it is difficult and necessary alternative measures are taken to protect the person's rights and interests [Article 26(2) proviso]. The specific report deadlines and category thresholds are set by the PPC Enforcement Rules, not by the Act; confirm the current rule values before encoding them in incident playbooks.
-- **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), cease-of-use or deletion where the data is handled in violation of Articles 18 or 19 or was acquired in violation of Article 20 (Article 35(1)), cessation of third-party provision made in violation of Article 27(1) or 28 (Article 35(3)), and cease-of-use, deletion or cessation of third-party provision where the business no longer needs the data, a situation described in the main clause of Article 26(1) (a leak, loss, damage or other security situation) has occurred, or handling is likely to harm the person's rights and interests (Article 35(5)). The business acts where it finds grounds for the request, and the Act allows necessary alternative measures in some cases (Article 35(2), (6)). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
+- **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), cease-of-use or deletion where the data is handled in violation of Articles 18 or 19 or was acquired in violation of Article 20 (Article 35(1)), cessation of third-party provision made in violation of Article 27(1) or 28 (Article 35(3)), and cease-of-use, deletion or cessation of third-party provision where the business no longer needs the data, a situation described in the main clause of Article 26(1) (a leak, loss, damage or other security situation) has occurred, or handling is likely to harm the person's rights and interests (Article 35(5)). The business acts where it finds grounds for the request, and the Act allows necessary alternative measures in some cases (Article 35(2), (4), (6)). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
 - **Accuracy and deletion (Article 22):** A business must strive to keep personal data accurate and up to date within the scope necessary for the purpose of use, and to delete it without delay when its use is no longer necessary. The Act phrases this as an endeavour duty (the statutory text reads `must endeavor to`), not an absolute one; adopting organizations typically operationalize it as a firm internal control anyway.
 
 ---

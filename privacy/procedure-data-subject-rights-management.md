@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.28\
+**Version:** 1.6.29\
 **Date:** 2026-09-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -265,7 +265,7 @@ The fee schedule should be documented as an internal cost-recovery policy review
 | **PIPL** (China, Article 50) | Requires a convenient mechanism to receive and handle individuals' rights requests; reasons must be given for rejection, and the individual may bring proceedings in a people's court | Article 50 prescribes no fee rule or repeated-request fee exception; do not cite it as authority for charging |
 | **PIPEDA** (Canada) | OPC guidance: minimal or no cost; where a cost applies, the organization notifies the individual of the approximate cost before proceeding | Subject must have option to abandon request after fee notice |
 | **CCPA / CPRA** (California) | Generally free; "manifestly unfounded or excessive, in particular because of their repetitive nature" exception; controller may charge reasonable fee or decline | Mirrors GDPR Article 12(5) language closely |
-| **APPI** (Japan, Articles 32(1)(iii), 38) | A fee within a reasonable amount considering actual costs is permitted for purpose-of-use notification and disclosure requests (Article 38); the fee amount is made accessible to the person in advance (Article 32(1)(iii)) | No explicit "manifestly unfounded" gate |
+| **APPI** (Japan, Articles 32(1)(iii), 38) | A fee within a reasonable amount considering actual costs is permitted for purpose-of-use notification and disclosure requests (Article 38); the fee amount must be accessible to the person, including through answers provided without delay on request (Article 32(1)(iii)) | No explicit "manifestly unfounded" gate |
 
 When the joint controllers or processors operate across multiple regimes, the strictest applicable regime governs (typically GDPR/UK GDPR where applicable).
 
