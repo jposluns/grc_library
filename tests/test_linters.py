@@ -26379,8 +26379,8 @@ class BlockingHookMessageContractTests(unittest.TestCase):
             add(name, command, label=guard, evidence=(evidence,),
                 sites=(("decide", "BLOCKED (" + guard + ")"),))
         add = group("stop-guard-unattended", "continue",
-                    ("run", "print(reason, file=sys.stderr)"), "stop-guard-unattended")
-        add("actionable", None, evidence=("1 actionable open backlog item",))
+                    ("run", "_diagnostic(reason + '\\n')"), "stop-guard-unattended")
+        add("actionable", None, evidence=("1 actionable open backlog item",), transport="diagnostic")
         return cases
 
     def assert_refusal(self, message, *, guard, imperative):
@@ -26417,6 +26417,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
         required = [emitter] + [self._site(source, *s) for s in case["sites"]]
         stdout, stderr = io.StringIO(), io.StringIO()
         seen, prints, external = set(), [], []
+        diag_calls = []  # (caller line, message) for the forked-transport hooks (3b113)
         old_trace, old_path = sys.gettrace(), sys.path[:]
         frozen = datetime.datetime(2026, 9, 22, 12, tzinfo=datetime.timezone.utc)
 
@@ -26683,6 +26684,10 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     m(mod, "is_orchestrator_session", True)
                     m(mod, "read_operating_mode", "unattended")
                     m(mod, "actionable_items", [("P-1.95", "probe")])
+                    m(mod, "live_dispatch_groups", 0)  # 3b113 base: never read the real /run/orch-workers registry
+                    # 3b113 base: _diagnostic forks a writer child (its own --self-test covers that transport);
+                    # here it writes directly so the rendered refusal is captured and checked.
+                    p(mod, "_diagnostic", lambda message: diag_calls.append((sys._getframe(1).f_lineno, message)))
                 else:
                     self.fail("No adapter: " + hook)
 
@@ -26718,6 +26723,13 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                         self.assertEqual([ln for ln, _, _ in prints], diagnostics + [emitter])
                         self.assertTrue(all(err for _, err, _ in prints))
                         messages = [s for ln, _, s in prints if ln == emitter]
+                elif transport == "diagnostic":
+                    # 3b113: the base emits through a forked _diagnostic writer (its own --self-test covers the
+                    # fork); the stub records the caller, which must be the reviewed emitter, and the message.
+                    self.assertEqual((stdout.getvalue(), stderr.getvalue()), ("", ""))
+                    self.assertEqual(prints, [])
+                    self.assertEqual([ln for ln, _ in diag_calls], [emitter])
+                    messages = [msg for _, msg in diag_calls]
                 elif transport == "json":
                     self.assertEqual(stderr.getvalue(), "")
                     self.assertEqual([ln for ln, _, _ in prints], [emitter])
