@@ -17,11 +17,13 @@ live; a pre-push verifier caught both. A class-width check then found a
 further live violation predating #1151 at ``§3.100``. This gate is the
 mechanical backstop (built in PR #1173).
 
-Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
+Four checks, spanning ``TODO.md``, the private ``P-TODO.md``,
 ``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
 
-  A. RECYCLE. A live index-row id from ``TODO.md`` OR the private
-     ``P-TODO.md`` (the two are unioned into the live set) whose number is
+  A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md`` (an
+     index row, a ``### <id>`` heading, or, since 3b120, a top-level bold
+     bullet in the audit tool's closed grammar, read by that tool's own
+     parser; the two lists are unioned into the live set) whose number is
      also recorded as retired in a ``.working/DONE.md`` heading. Such a
      number denotes two items, which is exactly what the rule forbids.
 
@@ -38,6 +40,11 @@ Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
      duplicate. Because A and B read the DEDUPLICATED union (an id in both
      lists collapses to a single live entry), only this check, comparing
      the two lists as separate sets, catches a copied-not-moved duplicate.
+
+  D. UNCLOSED BLOCK (3b120). A code fence or line-starting HTML comment
+     left open at the end of ``TODO.md`` or ``P-TODO.md``: it hides every
+     later bullet item from the live set, so checks A and C would pass
+     over a recycled or duplicated id there (design note 1c).
 
 Design decisions, stated because each has a false-positive or
 false-negative cost:
@@ -92,6 +99,49 @@ false-negative cost:
      gate78-parse-retired-misses-pr-prefixed-P3-ids, part 2), not a wider paren
      scan that would reintroduce the destination false positive.
 
+     1b. QUEUE ids (3bNN, 3b120) are read from TWO STRUCTURED POSITIONS only:
+     the id list right after the heading's ``PR #N:`` or date prefix
+     (``### PR #2638: 3b119: ...``, ``### PR #2565: 3b59/3b61 residue``), and
+     a parenthetical holding only ids just before the trailing date
+     (``... guard (3b64) (2026-09-26)``, ``... (3b18, 3b24) (2026-09-24)``).
+     A queue id anywhere else in a heading is a MENTION and retires nothing,
+     however it is worded. A first version scanned the whole heading with
+     guard lists for partial-close words and source or destination verbs;
+     QA round 1 showed any such list is a sample (``blocks 3b7``, ``closure of
+     3b7``, ``routed to 3b8, 3b7``), so the pass reads positions instead of
+     words. In the lead position the item stays open when any parenthetical
+     follows the ids, with or without a space or a ``:``, ``,`` or ``-``
+     separator and whatever it holds (``3b27(b)``, ``3b7 (part d)``,
+     ``3b7: (b)``, ``3b7 (closed)``), or a partial word
+     follows after an optional ``:``, ``,`` or ``-`` (``3b65 part d``,
+     ``3b120: part d``, ``3b7 partial``, ``3b7 phase 1``, ``3b7 slice 1``,
+     ``3b50 split``); a compound token yields nothing (``3b7-ii``,
+     ``3b7b2e1``, ``3b7.1``). Other partial wording in the lead position
+     retires the id: that failure is loud (the gate goes red on a live item)
+     and an EXEMPT row clears it, as for the other series. Measured at adoption: the same 71 retired queue
+     ids as the whole-heading scan, none live. The queue series has no
+     counter and no public floor, so only checks A and C apply to it.
+     FALSE-NEGATIVE RISK (silent, unlike a false retirement, which is loud by
+     construction because it only matters when the id is live): a closure is
+     not read when it is written only as a mention (``closure of 3b7``), with
+     a lead parenthetical (``3b7 (closed)``), in a heading that omits the id
+     (several 2026-09 closures, e.g. the #2634 annex fix of 3b110), or in a
+     shape outside the two positions: a multi-PR prefix (``PR #1 + #2:``), an
+     id-first heading (``### 3b8 closed:``), ``PR #1 QA:``, a lead list joined
+     by ``and``, ``+`` or ``&``, a backticked or bold lead id, a tail joined
+     by ``and`` or ``;``, a tail whose date carries a suffix, or no tail date.
+     These are examples, not a complete list: any shape outside the two
+     positions is not read. Others seen in probes: ``PR #1:3b7`` (no space
+     after the colon), ``PR #1 (repo): 3b7``, ``3b7. Title`` (a period reads
+     as a compound token), ``(3b7 )`` (a space inside the tail), and an
+     upper-case ``3B7``. P-TODO 3b127 (open) will make the finalize tool
+     write the closed id in the lead position, which is the durable fix.
+
+     1c. An UNCLOSED code fence or line-starting HTML comment in TODO.md or
+     P-TODO.md hides every later bullet from the audit tool's parser, so a
+     recycled id there would pass. Gate 78 therefore reports the tool's
+     unclosed_blocks for both files as a finding (3b120 QA r1).
+
      Sub-bullet ids (``§5.9-R1``, ``§6.3-R3``) are NOT retired item
      numbers, so the id pattern requires a bare dotted number and rejects
      a ``-R<n>`` suffix. Otherwise closing a sub-bullet would read as
@@ -113,9 +163,13 @@ false-negative cost:
      ``Next item number: TF-3.`` counter, so it is checked, with its
      integer as the ordinal. The reference-base ids (``SR-1``, ``RB-R6``,
      ``Group ...``, ``Reference-base ...``) have NO counter and no
-     retirement convention in ``DONE.md``, so they are OUT OF SCOPE and
-     are skipped rather than half-checked. Stated so a later reader does
-     not mistake the silence for a clean result.
+     retirement convention in ``DONE.md``, so they are skipped for checks
+     A and B rather than half-checked. Since 3b120 a TAGGED coded bullet
+     (``- **RB-6 [private] ...**``) is in the live set, so check C does see
+     a coded id live as a bullet in both lists; a coded id written as a
+     ``### RB-6`` heading is not read by LIVE_HEADING_RE (a parity gap with
+     the audit tool, which counts it; routed with P-TODO 3b121). Stated so a
+     later reader does not mistake the silence for a clean result.
 
   4. EXEMPTIONS. A ``DONE.md`` entry that records a PARTIAL close against
      a still-open umbrella item legitimately names a live number (for
@@ -130,7 +184,8 @@ false-negative cost:
 
 Exit codes:
 
-  0   no recycled number and no stale counter.
+  0   no recycled number, no stale counter, no cross-list duplicate and no
+      unclosed block.
   1   one or more findings.
   2   a required file is missing or unparseable. `.working/DONE.md` counts as
       "required" only under an EXPLICIT ``--root``; on the DEFAULT lookup it
@@ -213,6 +268,26 @@ COUNTER_RE = re.compile(
 )
 
 PAREN_RE = re.compile(r"\([^()]*\)")
+
+# Retired queue ids (3bNN) in a DONE.md heading are read ONLY from two structured positions (design note 1b,
+# 3b120 QA r1): the id list right after the heading's ``PR #N:`` (or date) prefix, and a parenthetical holding only
+# ids just before the trailing date. A queue id anywhere else in a heading is a mention and retires nothing.
+_THREEB_ID = r"3b\d+[a-z]?"
+THREEB_LEAD_RE = re.compile(
+    r"^### (?:[\w-]+ )?(?:PR #\d+|\d{4}-\d\d-\d\d):\s+(?P<ids>" + _THREEB_ID
+    + r"(?:\s*[/,]\s*" + _THREEB_ID + r")*)(?P<after>.*)$")
+THREEB_TAIL_RE = re.compile(
+    r"\((?P<ids>" + _THREEB_ID + r"(?:\s*[/,]\s*" + _THREEB_ID + r")*)\)\s*\(\d{4}-\d\d-\d\d\)\s*$")
+THREEB_ID_RE = re.compile(_THREEB_ID)
+# After a lead id list the item stays open when (3b120 QA r2): a word character, dot or hyphen follows at once (a
+# compound token: ``3b7-ii``, ``3b7b2e1``, ``3b7.1``); ANY parenthetical follows, with or without a space (``3b27(b)``,
+# ``3b7 (part d)``, ``3b7: (b)``, ``3b7 (closed)``: read structurally, whatever it holds, after an optional ``:``,
+# ``,`` or ``-``); or a partial word follows after an
+# optional ``:``, ``,`` or ``-`` separator (``3b65 part d``, ``3b120: part d``, ``3b7 - part d``, ``3b7 partial``,
+# ``3b7 phase 1``, ``3b7 slice 1``, ``3b50 split``). Any other partial wording retires the id loudly (the gate goes
+# red on a live item) and is cleared by an EXEMPT row, as for the other series.
+THREEB_LEAD_PARTIAL_RE = re.compile(
+    r"^(?:[\w.-]|\s*[:,-]?\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> rationale. A partial close
 # recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
@@ -891,6 +966,38 @@ def parse_live(text: str) -> dict[str, list[int]]:
     return live
 
 
+_AUDIT_TOOL = None
+
+
+def _audit_tool():
+    """tools/audit-backlog-actionability.py, loaded once from beside this file (3b120). Gate 78 takes bullet
+    items from the audit tool's own parser, so the two cannot disagree on which bullets are items."""
+    global _AUDIT_TOOL
+    if _AUDIT_TOOL is None:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_gate78_audit_tool", Path(__file__).resolve().parent / "audit-backlog-actionability.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _AUDIT_TOOL = mod
+    return _AUDIT_TOOL
+
+
+def parse_live_bullets(text: str) -> dict[str, list[int]]:
+    """Live bullet-form item ids (3b119's closed grammar: ``- **3bNN``, ``- **P-n.m``, or a tagged coded or
+    section id, outside a ``### <id>`` item, a fence or a line-starting comment) -> their line numbers."""
+    tool = _audit_tool()
+    heads: list[int] = []
+    tool.parse_items(text, "private", ref_bodies={}, _heads=heads)
+    lines = text.splitlines()
+    live: dict[str, list[int]] = {}
+    for n in heads:
+        m = tool.TOP_BULLET_ITEM_RE.match(lines[n - 1])
+        if m:
+            live.setdefault(m.group("id"), []).append(n)
+    return live
+
+
 def done_headings(text: str) -> dict[int, str]:
     """DONE.md line number -> heading text, for exemption matching."""
     return {
@@ -936,6 +1043,15 @@ def parse_retired(text: str) -> dict[str, list[int]]:
         # stays untouched.
         for m in RETIRE_CUE_PID_RE.finditer(head):
             retired.setdefault(m.group(1), []).append(lineno)
+        # Queue-id pass (design note 1b): two structured positions only.
+        lead = THREEB_LEAD_RE.match(line)
+        if lead and not THREEB_LEAD_PARTIAL_RE.match(lead.group("after")):
+            for tid in THREEB_ID_RE.findall(lead.group("ids")):
+                retired.setdefault(tid, []).append(lineno)
+        tail = THREEB_TAIL_RE.search(line)
+        if tail:
+            for tid in THREEB_ID_RE.findall(tail.group("ids")):
+                retired.setdefault(tid, []).append(lineno)
     return retired
 
 
@@ -1018,6 +1134,11 @@ def find_stale_counters(
             names = sorted({name for n in blocking for name in used[n]})
             findings.append((section, raw, lineno, max(used), names))
     return findings
+
+
+def _mark(item_id: str) -> str:
+    """The section marker a finding prints before an id: ``§`` for a section or TF id, none for a P- or queue id."""
+    return "" if item_id.startswith(("P-", "3b")) else "\u00a7"
 
 
 def find_cross_list_collisions(
@@ -1109,6 +1230,9 @@ def main(argv: list[str]) -> int:
         return 2
 
     todo_live = parse_live_index(todo_text)
+    # Bullet-form items (3b120), in both lists, from the audit tool's own parser.
+    for _bid, _blines in parse_live_bullets(todo_text).items():
+        todo_live.setdefault(_bid, []).extend(_blines)
     # Transitional (2026-08 migration): P-TODO.md is moving from the legacy
     # ``### <id>`` block shape to the index-row shape (its detail splits into
     # P-TODO-REFERENCE.md). Union both parsers so gate 78 sees every live
@@ -1117,6 +1241,8 @@ def main(argv: list[str]) -> int:
     ptodo_live = parse_live(ptodo_text)
     for _pid, _plines in parse_live_index(ptodo_text).items():
         ptodo_live.setdefault(_pid, []).extend(_plines)
+    for _bid, _blines in parse_live_bullets(ptodo_text).items():
+        ptodo_live.setdefault(_bid, []).extend(_blines)
     live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)
     counters = parse_counters(todo_text)
@@ -1125,14 +1251,22 @@ def main(argv: list[str]) -> int:
     floor = _load_number_floor()
     stale = find_stale_counters(live, retired, counters, floor)
     cross = find_cross_list_collisions(todo_live, ptodo_live)
+    # Design note 1c: an unclosed fence or comment hides later bullets from the live set.
+    unclosed = [(name, n, msg) for name, txt in (("TODO.md", todo_text), ("P-TODO.md", ptodo_text))
+                for n, msg in _audit_tool().unclosed_blocks(txt)]
 
-    if not recycled and not stale and not cross:
+    if not recycled and not stale and not cross and not unclosed:
         print(
             f"OK: {len(live)} live backlog item(s) (TODO.md + P-TODO.md), "
             f"{len(retired)} recorded retired number(s), {len(counters)} counter(s); "
             f"no recycled number, no cross-list duplicate, no stale counter."
         )
         return 0
+
+    if unclosed:
+        print("=== unclosed code fence or HTML comment (it hides every later bullet item from this gate) ===")
+        for name, n, msg in unclosed:
+            print(f"  {name}:{n}: {msg}")
 
     if recycled:
         print("=== recycled item numbers (a number denoting two items) ===")
@@ -1143,14 +1277,14 @@ def main(argv: list[str]) -> int:
             if item_id in ptodo_live:
                 srcs.append("P-TODO.md:" + ",".join(str(n) for n in ptodo_live[item_id]))
             dl = ", ".join(f"{done_path}:{n}" for n in done_lines)
-            print(f"  {'' if item_id.startswith('P-') else '§'}{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
+            print(f"  {_mark(item_id)}{item_id}: live at {'; '.join(srcs)}; recorded retired at {dl}")
 
     if cross:
         print("=== numbers live in BOTH lists (a copy-not-move migration bug) ===")
         for item_id in cross:
             tl = ",".join(str(n) for n in todo_live[item_id])
             pl = ",".join(str(n) for n in ptodo_live[item_id])
-            print(f"  {'' if item_id.startswith('P-') else '§'}{item_id}: TODO.md:{tl} AND P-TODO.md:{pl}")
+            print(f"  {_mark(item_id)}{item_id}: TODO.md:{tl} AND P-TODO.md:{pl}")
 
     if stale:
         print("=== counters pointing at an already-used number ===")
@@ -1161,7 +1295,7 @@ def main(argv: list[str]) -> int:
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
-    total = len(recycled) + len(stale) + len(cross)
+    total = len(recycled) + len(stale) + len(cross) + len(unclosed)
     print(f"\nFAIL: {total} item-number permanence finding(s).")
     print("TODO numbers are permanent and never recycled: a closed number retires with")
     print("its item, and every edit advances its section's 'Next item number' counter.")

@@ -20078,6 +20078,136 @@ class TodoNumberPermanenceTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True)
 
+    def _rc(self, name, todo, done, ptodo=None):
+        root, result = self._run(name, todo, done, ptodo=ptodo)
+        try:
+            return result.returncode, result.stdout + result.stderr
+        finally:
+            shutil.rmtree(root, ignore_errors=True)
+
+    def test_bullet_ids_and_3b_retirements(self) -> None:
+        """3b120: bullet-form items are live ids (from the audit tool's own parser), and a 3bNN closure in a
+        DONE heading is a retirement, except a partial close or a source or destination mention."""
+        todo = "# TODO\n"
+        cases = {
+            # (P-TODO text, DONE text, expected rc)
+            "lead form recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 1),
+            "trailing paren recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: a fix (3b7) (2026-09-01)\n", 1),
+            "slash list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6/3b7 residue (2026-09-01)\n", 1),
+            "P- bullet recycled": ("## Q\n- **P-1.5 fix:** x\n", "# DONE\n### PR #1: P-1.5 done (2026-09-01)\n", 1),
+            "part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: spec (3b7 part d) (2026-09-01)\n", 0),
+            "lettered part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7(b) wording (2026-09-01)\n", 0),
+            "spaced letter is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: guards, 3b7 (b) and (d) (2026-09-01)\n", 0),
+            "source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix routed from 3b7 QA (2026-09-01)\n", 0),
+            "destination mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b7 (2026-09-01)\n", 0),
+            "compound id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
+            "hyphen compound": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7-ii residue (2026-09-01)\n", 0),
+            "dotted child": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7.1 child (2026-09-01)\n", 0),
+            "lettered id recycled": ("## Q\n- **3b7a fix** x\n", "# DONE\n### PR #1: 3b7a: done (2026-09-01)\n", 1),
+            "tail list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-ups (3b6, 3b7) (2026-09-01)\n", 1),
+            "date prefix recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### 2026-09-25: 3b7 tool made atomic (no PR)\n", 1),
+            "repo prefix recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### grc_library_ref PR #156: 3b7 additions (2026-09-01)\n", 1),
+            "lead parenthetical stays open": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7(closed) wording (2026-09-01)\n", 0),
+            "lead comma list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6, 3b7: residue (2026-09-01)\n", 1),
+            "spaced lead parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (part d) completed (2026-09-01)\n", 0),
+            "lead letter list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (b and d) completed (2026-09-01)\n", 0),
+            "spaced lead letter": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (b) wording (2026-09-01)\n", 0),
+            "spaced colon part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 : part d completed (2026-09-01)\n", 0),
+            "hyphen part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 - part d (2026-09-01)\n", 0),
+            "comma part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7, part d (2026-09-01)\n", 0),
+            "capital part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 Part d (2026-09-01)\n", 0),
+            "partial word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partial: wording (2026-09-01)\n", 0),
+            "phase word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 phase 1 (2026-09-01)\n", 0),
+            "slice word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 slice 1: gate (2026-09-01)\n", 0),
+            "tail slash list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixed (3b6/3b7) (2026-09-01)\n", 1),
+            "paren not before the date": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) wording (2026-09-01)\n", 0),
+            "paren before a date then text": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) (2026-09-01) note\n", 0),
+            "compound with lettered live id": ("## Q\n- **3b7b fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
+            "last of three lead ids": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b5/3b6/3b7 residue (2026-09-01)\n", 1),
+            "first of three lead ids": ("## Q\n- **3b5 fix** x\n", "# DONE\n### PR #1: 3b5/3b6/3b7 residue (2026-09-01)\n", 1),
+            "middle of three lead ids": ("## Q\n- **3b6 fix** x\n", "# DONE\n### PR #1: 3b5, 3b6, 3b7: residue (2026-09-01)\n", 1),
+            "first of three tail ids": ("## Q\n- **3b5 fix** x\n", "# DONE\n### PR #1: follow-ups (3b5, 3b6, 3b7) (2026-09-01)\n", 1),
+            "middle of three tail ids": ("## Q\n- **3b6 fix** x\n", "# DONE\n### PR #1: follow-ups (3b5/3b6/3b7) (2026-09-01)\n", 1),
+            "word starting like split": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 splits the guard (2026-09-01)\n", 1),
+            "word starting like part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partner feed (2026-09-01)\n", 1),
+            "parts word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 parts b and d completed (2026-09-01)\n", 0),
+            "partially word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partially completed (2026-09-01)\n", 0),
+            "colon then parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: (b) wording (2026-09-01)\n", 0),
+            "hyphenated repo prefix": ("## Q\n- **3b7 fix** x\n", "# DONE\n### grc-library-ref PR #1: 3b7 additions (2026-09-01)\n", 1),
+            "bare lead id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7\n", 1),
+            "semicolon tail not read": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixes (3b6; 3b7) (2026-09-01)\n", 0),
+            "undated tail not read": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixes (3b7) 2026-09-01\n", 0),
+            "comma then parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7, (b) wording (2026-09-01)\n", 0),
+            "hyphen then parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 - (b) wording (2026-09-01)\n", 0),
+            "spaced colon then parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 : (b) wording (2026-09-01)\n", 0),
+            "lettered tail id recycled": ("## Q\n- **3b7a fix** x\n", "# DONE\n### PR #1: fix (3b7a) (2026-09-01)\n", 1),
+            "tail id beside a lead id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6: fix (3b7) (2026-09-01)\n", 1),
+            "tail with no space before the date": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7)(2026-09-01)\n", 1),
+            "tail with trailing space": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) (2026-09-01)   \n", 1),
+            "spaced list separator": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6 / 3b7 residue (2026-09-01)\n", 1),
+            "spaced tail separator": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixes (3b6 , 3b7) (2026-09-01)\n", 1),
+            "no space after the prefix colon": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1:3b7 fix (2026-09-01)\n", 0),
+            "lead split is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 split (2026-09-01)\n", 0),
+            "colon part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: part d completed (2026-09-01)\n", 0),
+            "backtick source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-up from `3b7` QA (2026-09-01)\n", 0),
+            "destination list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b6/3b7 (2026-09-01)\n", 0),
+            "destination comma list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: residue routed to 3b8, 3b7 (2026-09-01)\n", 0),
+            "unlisted verb": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: blocks 3b7 (2026-09-01)\n", 0),
+            "creation mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: gate fix (3b7 filed) (2026-09-01)\n", 0),
+            "fenced bullet not live": ("## Q\n```\n- **3b7 example** x\n```\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n", 0),
+        }
+        for name, (ptodo, done, want) in cases.items():
+            rc, out = self._rc("perm-3b120", todo, done, ptodo)
+            self.assertEqual(rc, want, f"{name}:\n{out}")
+        # A bullet id live in both lists is a cross-list duplicate.
+        rc, out = self._rc("perm-3b120-cross", "# TODO\n- **3b7 [public] fix** x\n", "# DONE\n",
+                           "## Q\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("3b7", out)
+        self.assertNotIn("\u00a73b7", out)  # a queue id prints without a section marker
+        # An unclosed fence in P-TODO.md hides later bullets, so the gate reports it (design note 1c).
+        rc, out = self._rc("perm-3b120-unclosed", "# TODO\n", "# DONE\n", "## Q\n```\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("unclosed", out)
+        rc, out = self._rc("perm-3b120-unclosed-pub", "# TODO\n```\n- **3b7 [public] fix** x\n", "# DONE\n", "## Q\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("TODO.md:2", out)
+        rc, out = self._rc("perm-3b120-unclosed-pub-comment", "# TODO\n<!-- note\n- **3b7 [public] fix** x\n",
+                           "# DONE\n", "## Q\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("TODO.md:2", out)
+        self.assertIn("FAIL: 1 item-number permanence finding(s)", out)
+        # A recycle finding prints a queue id without a section marker.
+        rc, out = self._rc("perm-3b120-recycle-mark", "# TODO\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n",
+                           "## Q\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("  3b7: live at", out)
+        self.assertNotIn("\u00a73b7", out)
+        rc, out = self._rc("perm-3b120-unclosed-comment", "# TODO\n", "# DONE\n", "## Q\n<!-- note\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("P-TODO.md:2", out)
+        # An untagged coded bullet is not an item, so it cannot make a cross-list duplicate.
+        rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
+                           "## Q\n- **RB-6 fix** x\n")
+        self.assertEqual(rc, 0, out)
+
+    def test_bullet_ids_match_the_audit_tool(self) -> None:
+        """3b120: gate 78's bullet ids are exactly the audit tool's bullet items on a mixed fixture."""
+        import importlib.util, sys as _sys
+        _sys.path.insert(0, str(REPO_ROOT / "tools"))
+        spec = importlib.util.spec_from_file_location(
+            "perm_bullets", REPO_ROOT / "tools" / "lint-todo-number-permanence.py")
+        g = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(g)
+        text = ("## Q\n- **3b7 x** a\n- **P-1.5 y:** b\n- **RB-9 [private] z** c\n- **4.6 [public] w** d\n"
+                "```\n- **3b8 fenced** e\n```\n### 9.9 item\n- **3b9 body** f\n## R\n- **3b10 z** g\n")
+        tool = g._audit_tool()
+        want = sorted(it[0] for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
+        self.assertEqual(sorted(g.parse_live_bullets(text)), want)
+        self.assertEqual(want, sorted(["3b7", "P-1.5", "RB-9", "4.6", "3b10"]))
+        # A repeated bullet id keeps every declaring line.
+        self.assertEqual(g.parse_live_bullets("## Q\n- **3b7 a** x\n\n- **3b7 b** y\n"), {"3b7": [2, 4]})
+
 class TodoNumberAllocationRobustnessTests(unittest.TestCase):
     """Gate 91 frozen-allocation invariants beyond the existing --self-test."""
 
