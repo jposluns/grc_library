@@ -242,7 +242,8 @@ def repo_root():
 
 # ---------------------------------------------------------------------------
 # GRC ADAPTATION (project wiring; see the module docstring's GRC note).
-# Lease-mode and producer adapters plus the grc helpers are carried from A.
+# Lease-mode and producer adapters plus the grc helpers are carried from A, with the 3b113 QA r1 worker
+# scoping (both fleet signals) and the r2 lease-only mode source in the grc checkout.
 # main() carries the one-shot escape; decision predicates and the new registry remain B's.
 # Emitted-message exceptions only: P-1.36, #2291, #2496.
 # ---------------------------------------------------------------------------
@@ -320,19 +321,19 @@ def read_operating_mode(root):
     """Return the operating mode: "unattended" arms the guard; any other string, or None
     (indeterminate), fails open (allows the stop).
 
-    Two sources, in order:
-      1. Portable default (UNCHANGED, serves the bundled --self-test and any file-based adopter):
-         the repo-relative single-word file MODE_FILE. Present -> its trimmed word (or None).
-      2. grc PRODUCTION adapter (only when root is the grc repo; hermetic for temp-root self-tests):
-         read '**Operating-mode:**' from the store lease (GRC_STORE, else <repo-parent>/private, then
-         session-state.md) and map it via _grc_map_mode.
+    One source per checkout (3b113 QA r2):
+      - the primary grc checkout: the store lease only (_grc_lease_mode: '**Operating-mode:**' from
+        GRC_STORE, else <repo-parent>/private, then session-state.md, mapped via _grc_map_mode); a
+        MODE_FILE there is ignored, so a stray file never shadows the lease.
+      - any other root (the bundled --self-test, a file-based adopter): the repo-relative single-word
+        file MODE_FILE. Present -> its trimmed word (or None); absent -> None.
          (The one-shot declared-wait escape is consumed at the top of main() by _grc_consume_escape.)
 
     GRC WIRING NOTE: grc keeps the mode in session-state.md (not MODE_FILE) and declares a genuine wait
     with the .allow-idle-stop sentinel (the retired block-idle-stop hook's documented escape), both
     preserved here. A read failure at either source returns None (fail open)."""
-    # 1. portable default branch (behaviour unchanged from the delivered core). GRC (3b113 QA r2): the grc
-    # main checkout keeps its mode ONLY in the lease, so a stray MODE_FILE there never shadows it.
+    # GRC (3b113 QA r2): the grc main checkout keeps its mode ONLY in the lease, so a stray MODE_FILE there
+    # never shadows it. Every other root takes the delivered core's portable MODE_FILE branch.
     if _is_grc_main_checkout(root):
         return _grc_lease_mode(root)
     path = os.path.join(root, MODE_FILE)
@@ -341,10 +342,10 @@ def read_operating_mode(root):
             val = fh.read().strip()
         return val or None
     except FileNotFoundError:
-        pass  # no file-based mode record -> try the grc production source below
+        pass  # no file-based mode record
     except OSError:
         return None
-    # 2. grc production adapter -- gated on the grc repo root so temp-root self-tests never reach it
+    # Not the grc checkout, so _grc_lease_mode returns None here; the call is kept as a defensive default.
     return _grc_lease_mode(root)
 
 
