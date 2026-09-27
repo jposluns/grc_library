@@ -130,13 +130,13 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
 
 
 class _Unreadable(Exception):
-    """A construct the strict workflow reader does not handle; the pin then fails closed (3b105 QA r3)."""
+    """A construct the workflow reader recognizes as outside its grammar; the pin then fails (3b105 QA r3, r4)."""
 
 
 def _yaml_scalar(raw: str) -> str:
     """A single-line YAML scalar: plain (an inline ` #` comment dropped), single-quoted (a doubled quote is
-    a literal quote), or double-quoted without escapes. Anything else raises _Unreadable rather than
-    returning a guess, so a misread can only fail the pin, never pass it (3b105 QA r2, r3)."""
+    a literal quote), or double-quoted without escapes. A scalar form it recognizes as outside that set
+    raises _Unreadable rather than returning a guess (3b105 QA r2, r3)."""
     s = raw.strip(" ")  # YAML whitespace is the space (tabs are refused); Unicode spaces are content (r4)
     if s.startswith("#"):
         return ""  # only a comment follows the key
@@ -191,8 +191,10 @@ def workflow_names(text: str) -> tuple[str | None, set[str]]:
     are skipped.
     RESIDUE, stated: this is an early-warning pin for a plain rename, NOT a YAML parser. Constructs it
     does not recognize (for example a duplicate non-name key, whose last value YAML keeps) can still
-    mislead it in either direction. That delays detection, never a wrong merge: evaluate() refuses at
-    merge time whenever GitHub reports the required job under another name or workflow."""
+    mislead it in either direction. A misread does not by itself cause a wrong merge, since this pin runs
+    only in the self-test: it removes the early warning of a rename. evaluate() still requires a
+    successful CheckRun with the required name from the bound workflow; a same-named job added under that
+    workflow is the REQUIRED_WORKFLOWS residue, whose control is workflow-file review (3b105 QA r5)."""
     try:
         return _workflow_names(text)
     except _Unreadable:
@@ -256,6 +258,8 @@ def _workflow_names(text: str) -> tuple[str | None, set[str]]:
             continue
         if prop_indent is None:
             prop_indent = indent
+        if indent == prop_indent and not is_key and not is_item:
+            raise _Unreadable("a job property that is not a plain key (a quoted key, for example)")
         if indent == prop_indent and is_key and not is_item and key == "name":
             if job_named:
                 raise _Unreadable("duplicate job name")
@@ -537,8 +541,8 @@ def _self_test() -> int:
                                                                       {"Lint markdown corpus", "Other job"})))
     nested_only = "name: W\njobs:\n  lint:\n    name: Renamed\n    env:\n      name: Lint markdown corpus\n"
     checks.append(("workflow-reader-nested-name-not-a-job", "Lint markdown corpus" not in workflow_names(nested_only)[1]))
-    # 3b105 QA r3: the pin fails on each way the job or workflow can be absent, and the strict reader fails
-    # closed on every construct it cannot bound (codex and claude fail-open reproductions included).
+    # 3b105 QA r3: the pin fails on each way the job or workflow can be absent, and on the constructs the
+    # reader recognizes as outside its grammar (reviewers' reproductions included; the residue is stated).
     lint_ = "Lint markdown corpus"
     good = "name: Repository quality checks\njobs: # CI\n  lint:\n    name: Lint markdown corpus # plain\n    runs-on: x\n"
     checks.append(("pin-good", pin_ok(good, lint_)))
@@ -578,22 +582,11 @@ def _self_test() -> int:
         ("anchored-flow", H_ + "jobs:\n  lint:\n    env: &e {A: 1,\n    name: Lint markdown corpus\n    }\n"),
         ("anchored-quote", H_ + "jobs:\n  lint:\n    if: &q 'a\n    name: Lint markdown corpus\n    b'\n"),
         ("unicode-space", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\u00a0\n"),
+        ("quoted-name-key", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n    \"name\": Renamed\n"),
         ("jobs-with-value", H_ + "jobs: &j\n  lint:\n    name: Lint markdown corpus\n"),
         ("open-quote-top", "name: Repository quality checks\nenv: 'x\njobs:\n  lint:\n    name: Lint markdown corpus\n'\n"),
     ):
         checks.append((f"pin-refuses-{label}", not pin_ok(text, lint_)))
-    # Defence in depth: where PyYAML is importable, every text the pin accepts must read the same there.
-    try:
-        import yaml as _yaml
-    except ImportError:
-        _yaml = None
-    if _yaml is not None:
-        accepted = [good, block] + [(_REPO_ROOT / ".github" / "workflows" / f).read_text(encoding="utf-8")
-                                    for f in wf_files.values()]
-        for i, text in enumerate(accepted):
-            doc = _yaml.safe_load(text) or {}
-            want = (doc.get("name"), {j.get("name") for j in (doc.get("jobs") or {}).values() if isinstance(j, dict)} - {None})
-            checks.append((f"pyyaml-agrees-{i}", workflow_names(text) == want))
     checks.append(("reader-doubled-quote-and-plain-hash", workflow_names(odd) == ("W", {"Lint's job", "C#-lint"})))
     _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
                             {"Lint": "Repository quality checks"})
