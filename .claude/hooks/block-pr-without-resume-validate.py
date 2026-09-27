@@ -102,7 +102,10 @@ def invokes_merge_tool(cmd: str) -> bool:
     """PURE. Could this command run tools/merge-when-green.py for a real merge (3b108)? That tool runs
     `gh pr merge` as a subprocess, so the literal-text match never sees it. Parsing shell for every way
     to run it (wrappers, bash -c, backticks, python -m, continuations, newlines) cannot be made
-    complete (3b108 QA r1), so this over-gates by intent: after dropping quotes and backslash-newline
+    complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
+    honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
+    gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
+    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
     continuations, any mention of merge-when-green gates, except a single simple command (one line,
     no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
     gated too; that costs little, since this hook blocks only while its blocking state holds, and
@@ -110,7 +113,7 @@ def invokes_merge_tool(cmd: str) -> bool:
     if not isinstance(cmd, str):
         return False
     norm = cmd.replace("\\\n", "")
-    for q in ("'", '"', "`"):
+    for q in ("'", '"', "`", "\\"):  # quotes and escapes (merge-when-\\green) do not hide the name
         norm = norm.replace(q, "")
     if "merge-when-green" not in norm:
         return False
@@ -126,7 +129,7 @@ def invokes_merge_tool(cmd: str) -> bool:
         i = 0
         if toks and os.path.basename(toks[0]).startswith("python"):
             i = 1
-            while i < len(toks) and len(toks[i]) == 2 and toks[i].startswith("-") and toks[i] != "-m":
+            while i < len(toks) and len(toks[i]) == 2 and toks[i].startswith("-") and toks[i] not in ("-m", "-c"):
                 i += 1
         if i < len(toks) and os.path.basename(toks[i]) == "merge-when-green.py":
             if "--dry-run" in toks[i + 1:] or "--self-test" in toks[i + 1:]:
@@ -367,7 +370,9 @@ def self_test() -> int:
               "python3 tools/merge-when-green.py 12 --admin # --dry-run",
               "bash -c 'python3 tools/merge-when-green.py 12 --admin' --dry-run",
               "sh -c 'tools/merge-when-green.py 12' --self-test", "env python3 tools/merge-when-green.py 12 --dry-run",
-              "python3 -c 'import os' tools/merge-when-green.py --dry-run"):
+              "python3 -c 'import os' tools/merge-when-green.py --dry-run",
+              "python3 tools/merge-when-\\green.py 12 --admin",
+              "python3 -c 'print(1) or 1/merge-when-green.py' --dry-run"):
         ck(f"gated: {c[:48]}", is_blocking_command(c), True)
     for c in ("python3 tools/merge-when-green.py 12 --dry-run", "python3 tools/merge-when-green.py --self-test",
               "python3 -B /opt/x/tools/merge-when-green.py 2620 --repo o/r --dry-run", "git status --short",
