@@ -34,7 +34,7 @@ contiguous block as a RANGE (`IAM-01 to 15`, `LOG-01 through LOG-14`); the scan 
 both sides' ranges before comparing, so a code covered by a range the document carries is
 not falsely reported stranded.
 
-Input handling (3b107). The matrix is read as GFM tables, split as cmark-gfm splits them: a table is a
+Input handling (3b107, rebuilt over QA rounds 1-6). The matrix is read as GFM tables, split as cmark-gfm splits them: a table is a
 header line followed at once by a delimiter row with the same number of cells, it ends at a blank line or
 at a line that starts another block (a heading, even one carrying pipes; a quote; a fence; a list item,
 empty or not; a thematic break; an HTML line), tables inside code fences are ignored, and a pipe preceded
@@ -43,10 +43,12 @@ quoted line carrying a pipe is refused rather than modelled: the matrix must fol
 (matrix_refusal: blank lines, ATX headings, thematic breaks, plain prose without a pipe or block marker,
 and table lines at column 0, with tables set apart from prose; each run of table lines is one table opening
 with its header and delimiter rows; no escape, entity or HTML in a table line; only space and tab as
-whitespace). A run
-exits 0 only after comparing at least one CCM or AICM code with its document. A referenced
-document is read only when it resolves inside the repository to a regular UTF-8 file; any other row is
-listed as not assessed. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
+whitespace; no control or format character). A master table has exactly one CCM and one AICM column; a
+CCM/AICM table that is not one is listed. A row is read only when its CCM and AICM cells are plain code
+lists with real ranges (one family, ascending) and its Path cell is exactly a backticked path or exactly a
+link whose backticked text is the path it points to; the referenced document is read only at that
+repository-relative path, inside the repository, as a regular UTF-8 file. Every row not read is listed.
+A run exits 0 only after comparing at least one CCM or AICM code with its document. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
 that holds no master-matrix table, or none of whose rows could be checked.
 
 The scan stays ADVISORY (never a blocking gate) until the strict-reproduce principle is
@@ -126,7 +128,7 @@ def _line_kind(line: str) -> "str | None":
 
 
 def matrix_refusal(text: str) -> "str | None":
-    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r4). The grammar is CLOSED: rather than
+    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r6). The grammar is CLOSED: rather than
     model every CommonMark construct that can hide a table or pull its text into something else (HTML,
     fences, indented code, quotes, lists and their lazy continuations), the matrix may hold only blank lines
     (spaces and tabs), ATX headings, thematic breaks, plain prose lines without a pipe or a block marker, and
@@ -273,12 +275,12 @@ def _range_problem(cell: str) -> "str | None":
 
 
 def _default_doc_reader(docrel: str) -> str | None:
-    """The referenced document's text, or None. Tries repo-relative, then compliance/-relative; a candidate
-    counts only when it resolves inside the repository and is a regular file. The first such candidate is
-    the one read: if it is not UTF-8 the row is unassessed and the other location is not tried. Any
-    filesystem or decoding error makes the row unassessed rather than crashing the run (3b107)."""
+    """The referenced document's text, or None. The path is repository-relative and is the only location
+    tried, so a broken link cannot fall back to a different file (3b107 QA r6); it counts only when it
+    resolves inside the repository to a regular UTF-8 file. Any filesystem or decoding error makes the row
+    unassessed rather than crashing the run."""
     root = REPO_ROOT.resolve()
-    for cand in (REPO_ROOT / docrel, REPO_ROOT / "compliance" / docrel):
+    for cand in (REPO_ROOT / docrel,):
         try:
             real = cand.resolve()
             if not real.is_relative_to(root):
@@ -382,7 +384,8 @@ def _outside_read_refused() -> bool:
 
 
 def _self_test() -> int:
-    """Exercise the strand signature against constructed fixtures (the reader cases read two corpus paths),
+    """Exercise the strand signature against constructed fixtures (the reader cases read two corpus paths and
+    create, then remove, one temporary directory under the system temp directory),
     covering the same-family, carried, representative, missing-doc, RANGE, and
     ampersand-family (A&A/I&S) cases the production defects of 2026-09-02 exposed."""
     docs = {
@@ -525,6 +528,12 @@ def _self_test() -> int:
              for extra in ("CSA CCM v4.1", "CSA CCM v4.1 (extra)")),
          "a second CCM column makes the table not the master table, and it is listed"),
         (matrix_refusal("note\u00a0here\n\n" + hdr + row("risk/a.md")) is not None, "a no-break space in prose refuses"),
+        # QA r6: each prose exclusion holds on its own; a broken link does not fall back.
+        (all(_line_kind(s) is None for s in ("> q", "`code` start", "~~~", "=== x", "1. item", "2) item", "- x", "+ x", "* x"))
+         and all(_line_kind(s) == "prose" for s in ("**Bold:** x", "1.26.44 has no grant", "*emphasis* x")),
+         "prose exclusions: quote, backtick, tilde, setext, ordered and bullet markers; emphasis and dotted ids are prose"),
+        (_default_doc_reader("matrix-grc-compliance-alignment.md") is None,
+         "the reader does not fall back from the repository root to compliance/"),
         (rows_seen(hdr.replace("CSA CCM v4.1", "*CSA CCM v4.1*").replace("CSA AICM v1.1", "**CSA AICM v1.1**")
                    + row("risk/a.md")) == (0, 0, 1),
          "a table whose CCM header is emphasized is listed, not dropped"),
@@ -618,7 +627,7 @@ def main(argv: list[str]) -> int:
               "SAME control family via a same-prefix sibling). This does NOT establish universal presence: "
               "a code whose family the document does not engage is TREATED AS a representative mapping and "
               "is deliberately not flagged (module docstring; strict-reproduce-vs-representative decision), "
-              "and rows without a readable document inside the repository are not assessed (listed below).")
+              "and rows that could not be read (their reason is listed below) are not assessed.")
     for s in skipped:
         print(f"  not assessed: {s}")
     return 0  # advisory: never blocks

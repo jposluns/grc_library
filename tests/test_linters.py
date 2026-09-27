@@ -13143,7 +13143,8 @@ class StrandedMatrixRefusalTests(LinterTestCase):
             self.assertEqual(r.returncode, 2, (arg, r.stdout + r.stderr))
             self.assertNotIn("Traceback", r.stderr)
         bad = td / "latin1.md"
-        bad.write_bytes(header.encode("utf-8") + b"\xff\n")
+        # the undecodable byte sits in set-apart prose, which a lenient decode would accept (QA r6)
+        bad.write_bytes((header + row + "\n\nNote ").encode("utf-8") + b"\xff\n")
         r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(bad))
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertNotIn("Traceback", r.stderr)
