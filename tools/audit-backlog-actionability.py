@@ -1247,7 +1247,6 @@ def _self_test() -> int:
     check("grammar-reported", rep_ids == sorted(["P-F5", "2026.09.1340", "1.5x", "SHA-256", "3b8", "P-9.3",
                                                    "3b10", "3b11", "3b12", "P-v3nit", "p-1.37", "3b15", "3b16",
                                                    "3b17"]))
-    import re as _re
     like = [n for n, ln in enumerate(g.splitlines(), 1) if ITEM_LIKE_RE.match(ln)]
     heads: list[int] = []
     parse_items(g, "private", ref_bodies={}, _heads=heads)
