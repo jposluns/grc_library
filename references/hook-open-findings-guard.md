@@ -30,9 +30,10 @@ A row leaves the ledger only via `FIXED`, `ROUTED`, `REFUTED`, or `ACCEPTED`.
    or `gh pr merge`, or whose shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh
    `gh` between (so a quoted `gh pr 'merge'` is caught, and `echo "gh pr merge"` and
    `gh pr view 1 && git merge x` are gated; the text is also read with backslash-newline continuations
-   joined and a quoted argument as a command, as in `bash -c "..."`; shell forms it does not model, for
-   example a word held in a variable, an alias, ANSI-C quoting, brace expansion or an unquoted mid-word
-   `#` earlier on the line, still evade, and the list is not exhaustive; 3b112), or a command that mentions `tools/merge-when-green.py` other than as a single simple
+   joined, line by line, and with a shell's `-c` argument or `eval`'s read as a command; shell forms it
+   does not model, for example a word held in a variable, an alias, ANSI-C quoting, brace expansion, an
+   unquoted mid-word `#` earlier on the line, or a heredoc body with an unbalanced quote before a split
+   verb, still evade, and the list is not exhaustive; 3b112), or a command that mentions `tools/merge-when-green.py` other than as a single simple
    `--dry-run` or `--self-test` command (over-gated by intent, since shell parsing cannot find every
    way to run it; `merge-when-green.py` also applies this guard's decision itself; the text match is a speed bump for an
    honest actor's slip, not an adversarial control, so a deliberately obfuscated command can still evade it; 3b108), because shipping past a known wrong behaviour is the thing worth

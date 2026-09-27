@@ -21,7 +21,7 @@ WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command wh
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose
 shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` between (so a quoted
 `gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; the text
-is also read with continuations joined and a quoted argument as a command; shell forms it does not model,
+is also read with continuations joined, line by line, and a shell's -c argument as a command; unmodelled forms,
 such as a word held in a variable, still evade; 3b112), or any command
 that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
 see invokes_merge_tool), because
@@ -531,25 +531,32 @@ def is_blocking_command(cmd: str) -> bool:
     The token match allows any tokens or operators between gh, pr and the verb, and a fresh gh resets
     it, so `gh pr view 12 && git merge main` and `echo "gh pr merge"` are gated (over-gating is the safe
     direction). The gh detectors read the text as written, with every backslash-newline joined, and
-    joined as bash joins, and read a quoted argument as a command too (bash -c "..."); any match blocks
+    joined as bash joins, and read line by line and a shell's -c argument or eval's as a command too; any match blocks
     (3b112 QA r1-r3). RESIDUE, not exhaustive: shell forms this does not model still evade, for
     example a word held in a variable (c=merge; gh pr $c), an alias, ANSI-C quoting (gh pr $'merge'),
-    brace expansion (gh pr {merge,}), or an unquoted mid-word # earlier on the line (shlex starts a
-    comment there, bash does not); a speed bump, not an adversarial control."""
+    brace expansion (gh pr {merge,}), an unquoted mid-word # earlier on the line (shlex starts a
+    comment there, bash does not), or a heredoc body with an unbalanced quote followed by a verb split
+    across a continuation; a speed bump, not an adversarial control."""
     if not isinstance(cmd, str):
         return False
     if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
         return True
     # Three readings of the text: as written, with every backslash-newline joined, and joined as bash joins
-    # (not after an even backslash run, in a comment, or in single quotes); a quoted argument is also read
-    # as a command, for `bash -c "..."` (3b112 QA r1-r3). Blocking on any over-gates, the safe direction.
-    # The merge-tool exemption above reads only the text as written.
+    # (not after an even backslash run, in a comment, or in single quotes). Each is read whole and line by
+    # line, so one unparseable line (an apostrophe in a heredoc body) cannot hide the rest; the argument of
+    # a shell's -c option or of eval is read as a command too (3b112 QA r1-r4). Blocking on any over-gates,
+    # the safe direction. The merge-tool exemption above reads only the text as written.
     for text in (cmd, cmd.replace("\\\n", ""), _bash_join(cmd)):
-        if _gh_pr_verb(text):
-            return True
-        for tk in _tokens(text) or ():
-            if any(ch.isspace() for ch in tk) and _gh_pr_verb(tk):
+        for part in (text, *text.split("\n")):
+            if _gh_pr_verb(part):
                 return True
+            toks = _tokens(part) or []
+            for i, tk in enumerate(toks[1:], 1):
+                prev = toks[i - 1]
+                shell_c = (prev.startswith("-") and prev.endswith("c") and i >= 2
+                           and os.path.basename(toks[i - 2]) in ("bash", "sh", "zsh", "dash", "ksh"))
+                if (shell_c or prev == "eval") and _gh_pr_verb(tk):
+                    return True
     return False
 
 
@@ -598,7 +605,7 @@ def _gh_pr_verb(cmd: str) -> bool:
         return True
     toks = _tokens(cmd)
     if toks is None:
-        return False  # unparseable is already covered by the substring pass above
+        return False  # unparseable: the caller also reads each line on its own
     seen_gh = seen_pr = False
     for tk in toks:
         if tk == "gh" or tk.endswith("/gh"):   # bare `gh` or an absolute/relative path to it
@@ -924,6 +931,14 @@ def self_test() -> int:
               "sh -c 'gh \"pr\" merge 1'"):
         ck(f"r3 form blocks: {s!r}", is_blocking_command(s), True)
     ck("quoted text without gh does not block", is_blocking_command('git commit -m "merge the pr"'), False)
+    # 3b112 QA r4: a heredoc apostrophe does not hide a later command; ordinary quoted data does not block
+    ck("heredoc apostrophe then flagged verb blocks",
+       is_blocking_command("cat <<EOF >/dev/null\nit's done\nEOF\ngh pr -R o/r merge 12"), True)
+    for s in ('git commit -m "update gh and pr to merge"', 'git commit -m "docs: gh for pr create flows"',
+              "python3 tools/x.py --note 'gh then pr then merge'"):
+        ck(f"quoted data does not block: {s!r}", is_blocking_command(s), False)
+    ck("eval argument read as a command", is_blocking_command("eval \"gh -R o/r pr merge 1\""), True)
+    ck("bash -lc argument read as a command", is_blocking_command("bash -lc \"gh 'pr' merge\""), True)
     ck("quoted --dry-ru<nl>n is not a dry-run exemption",
        is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
     # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
