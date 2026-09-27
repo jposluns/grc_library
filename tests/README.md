@@ -94,6 +94,18 @@ test: relying on a discarded per-test module instance for isolation is
 fragile, since a later change to a shared or cached import would silently
 reintroduce the leak.
 
+## Real-shell checks
+
+A test or a verification that has to confirm how a real shell treats a command string (whether bash joins
+a continuation, whether `sh -c` runs an argument) runs it through
+[`tools/run-shell-stubbed.py`](../tools/run-shell-stubbed.py), never through a shell-function stub, which a
+nested `sh -c` does not inherit (that gap once let a real `gh pr merge` run during hook verification,
+backlog item 3b116). The tool runs the command in restricted bash with PATH holding only gh and git stand-ins,
+restricted `bash` and `sh` wrappers and a few harmless utilities, and with an environment built from scratch;
+restricted mode then refuses a slash in a command name, a PATH change, `command -p`, `exec` and similar, so
+a real gh or git cannot be reached. Output redirection is refused too, and `sh` is emulated by
+`bash --posix`; the tool's docstring states these limits.
+
 ## Coverage
 
 Each linter has its own `LinterTestCase` subclass (e.g. `LanguageLinterTests`,
