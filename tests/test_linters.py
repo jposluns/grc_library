@@ -11296,7 +11296,7 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
     directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases and
     reported clean for an empty or unknown --section (3b71). Each
-    now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
+    now exits 2. (audit-stranded-matrix-code's refusals are StrandedMatrixRefusalTests, 3b107.)"""
 
     def test_bad_explicit_arguments_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aidargs-"))
@@ -13073,6 +13073,126 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
                 "tools/lint-followup-ageing.py", "tools/lint-hooks-syntax.py"):
             result = run_linter(script)
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+
+
+class StrandedMatrixRefusalTests(LinterTestCase):
+    """3b107: audit-stranded-matrix-code.py exits 0 only when a matrix code was compared; a directory,
+    a missing or unreadable file, a file with no master-matrix table and a matrix none of whose rows can be
+    checked all exit 2 without a traceback. Rebuilt on a structural table parser (the 3b50b2e1 follow-up)."""
+
+    def test_stranded_matrix_refuses_unless_a_row_is_checked(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="stranded-"))
+        self.addCleanup(shutil.rmtree, td)
+        lines = (REPO_ROOT / "compliance/matrix-grc-compliance-alignment.md").read_text(
+            encoding="utf-8").splitlines()
+        h = next(k for k, line in enumerate(lines)
+                 if line.startswith("| Domain | Document Title | Path |") and "CSA AICM v1.1" in line)
+        row = next(line for line in lines[h + 2:] if "](" in line and ".md" in line)
+        header = lines[h] + "\n" + lines[h + 1] + "\n"
+        good = td / "matrix.md"
+        good.write_text(header + row + "\n", encoding="utf-8")
+        outside = td / "outside-doc.md"  # a real document outside the repository (containment, QA r1)
+        outside.write_text("DSP-01", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(good))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        no_aicm = header.replace(" CSA AICM v1.1 |", " Other |")
+
+        def mk(path_cell: str, ccm: str, aicm: str) -> str:
+            # a full-width row built from the real row, so each case fails for its own reason (QA r8 width rule)
+            cells = row.strip().strip("|").split("|")
+            cells[2], cells[3], cells[4] = f" {path_cell} ", f" {ccm} ", f" {aicm} "
+            return "|" + "|".join(cells) + "|\n"
+        ai = "[`ai/README.md`](../ai/README.md)"
+        for name, body in (("header_only.md", header),
+                           ("fenced.md", "```text\n" + header + "```\n"),
+                           ("unresolved.md", header + row.replace(".md", "-nonexistent.md") + "\n"),
+                           ("outside.md", header + mk(f"[`{outside}`]({outside})", "DSP-07", "-")),
+                           ("comment.md", "<!--\n" + header + row + "\n-->\n"),
+                           ("indented.md", "".join("    " + x + "\n" for x in (header + row).splitlines())),
+                           ("quoted.md", "".join("> " + x + "\n" for x in (header + row).splitlines())),
+                           ("lazy.md", "> quoted note\n" + header + row + "\n"),
+                           ("listfence.md", "- item\n  ```\n\n" + header + row + "\n"),
+                           ("nbsp.md", header.replace("---", "---\u00a0") + row + "\n"),
+                           ("nocodes.md", header + mk(ai, "N/A", "N/A")),
+                           ("escaped.md", header + row.replace("-0", "\\-0", 1) + "\n"),
+                           ("leak.md", header + "\n" + mk(ai, "DSP-07", "-")),
+                           ("heading.md", header + "## Section | two\n" + mk(ai, "DSP-07", "-")),
+                           ("no_aicm.md", no_aicm + row + "\n"),
+                           ("prose.md", "Choose left | right.\n"),
+                           ("other.md", "| A | B |\n| --- | --- |\n| 1 | 2 |\n")):
+            f = td / name
+            f.write_text(body, encoding="utf-8")
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(f))
+            self.assertEqual(r.returncode, 2, (name, r.stdout + r.stderr))
+            self.assertNotIn("Traceback", r.stderr)
+        # the zero-code refusal still lists unassessed rows (QA r3)
+        zero = td / "zero.md"
+        zero.write_text(header + mk(ai, "N/A", "N/A")
+                        + row.replace(".md", "-missing-z.md") + "\n", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(zero))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("-missing-z.md", r.stderr)
+        # a CCM table without the master header is named even when no master table exists (QA r4)
+        other = td / "othercols.md"
+        other.write_text(header.replace(" CSA AICM v1.1 |", " Other |") + row + "\n", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(other))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("whose header is not the master header", r.stderr)
+        # every unassessed row is listed, not the first twenty (QA r1)
+        many = td / "many.md"
+        many.write_text(header + "".join(row.replace(".md", f"-missing-{k}.md") + "\n" for k in range(25)),
+                        encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(many))
+        self.assertEqual(r.returncode, 2)
+        self.assertEqual(r.stderr.count("is not a readable document"), 25, r.stderr[-300:])
+        for arg in (str(td), str(td / "missing.md")):
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout + r.stderr))
+            self.assertNotIn("Traceback", r.stderr)
+        bad = td / "latin1.md"
+        # the undecodable byte sits in set-apart prose, which a lenient decode would accept (QA r6)
+        bad.write_bytes((header + row + "\n\nNote ").encode("utf-8") + b"\xff\n")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(bad))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        if os.geteuid() != 0:  # root reads a mode-000 file, so the case only holds unprivileged
+            locked = td / "locked.md"
+            locked.write_text(header + row + "\n", encoding="utf-8")
+            locked.chmod(0)
+            self.addCleanup(locked.chmod, 0o600)
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(locked))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
+
+
+class StrandedMatrixReaderTests(LinterTestCase):
+    """3b107 QA r8: the regular-file and strict-decode checks, for the matrix argument and for a referenced
+    document, exercised with a FIFO and a non-UTF-8 file (the reader only reads inside the repository, so its
+    fixtures live under tests/tmp). The --matrix FIFO case runs in a subprocess with a timeout, so a lost check
+    there fails rather than hangs; the reader's FIFO case runs in-process, so a lost check there hangs the test
+    run (no time limit applies), which is loud rather than silent."""
+
+    def test_fifo_and_non_utf8_inputs_are_refused(self) -> None:
+        import runpy
+        FIXTURE_DIR.mkdir(exist_ok=True)
+        d = Path(tempfile.mkdtemp(prefix="stranded-reader-", dir=FIXTURE_DIR))
+        self.addCleanup(shutil.rmtree, d)
+        fifo = d / "pipe.md"
+        os.mkfifo(fifo)
+        r = subprocess.run([sys.executable, str(REPO_ROOT / "tools/audit-stranded-matrix-code.py"), "--matrix", str(fifo)],
+                           cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=30)
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("not a regular file", r.stderr)
+        latin = d / "latin1.md"
+        latin.write_bytes(b"GRC-01 caf\xe9\n")
+        mod = runpy.run_path(str(REPO_ROOT / "tools/audit-stranded-matrix-code.py"))
+        rel = str(d.relative_to(REPO_ROOT))
+        reader = mod["_default_doc_reader"]
+        self.assertIsNone(reader(rel + "/latin1.md"))
+        self.assertIsNone(reader(rel + "/pipe.md"))  # returns without opening the FIFO
+        good = d / "good.md"
+        good.write_text("GRC-01", encoding="utf-8")
+        self.assertEqual(reader(rel + "/good.md"), "GRC-01")
 
 
 class AdvisoryAidInputRefusalTests(LinterTestCase):
