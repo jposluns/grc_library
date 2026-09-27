@@ -34,7 +34,7 @@ contiguous block as a RANGE (`IAM-01 to 15`, `LOG-01 through LOG-14`); the scan 
 both sides' ranges before comparing, so a code covered by a range the document carries is
 not falsely reported stranded.
 
-Input handling (3b107, rebuilt over QA rounds 1-6). The matrix is read as GFM tables, split as cmark-gfm splits them: a table is a
+Input handling (3b107, rebuilt over QA rounds 1-8). The matrix is read as GFM tables, split as cmark-gfm splits them: a table is a
 header line followed at once by a delimiter row with the same number of cells, it ends at a blank line or
 at a line that starts another block (a heading, even one carrying pipes; a quote; a fence; a list item,
 empty or not; a thematic break; an HTML line), tables inside code fences are ignored, and a pipe preceded
@@ -43,9 +43,10 @@ quoted line carrying a pipe is refused rather than modelled: the matrix must fol
 (matrix_refusal: blank lines, ATX headings, thematic breaks, plain prose without a pipe or block marker,
 and table lines at column 0, with tables set apart from prose; each run of table lines is one table opening
 with its header and delimiter rows; no escape, entity or HTML in a table line; only space and tab as
-whitespace; no control or format character). A master table has exactly one CCM and one AICM column; a
+whitespace; no control or format character; header cells are plain text; every row of a table has the
+header's width). A master table has exactly one Path, one CCM and one AICM column; a
 CCM/AICM table that is not one is listed. A row is read only when its CCM and AICM cells are plain code
-lists with real ranges (one family, ascending) and its Path cell is exactly a backticked path or exactly a
+lists with real ranges (one family, ascending) and its Path cell is exactly a backticked (not absolute) path or exactly a
 link whose backticked text is the path it points to; the referenced document is read only at that
 repository-relative path, inside the repository, as a regular UTF-8 file. Every row not read is listed.
 A run exits 0 only after comparing at least one CCM or AICM code with its document. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
@@ -131,15 +132,15 @@ def _line_kind(line: str) -> "str | None":
 
 
 def matrix_refusal(text: str) -> "str | None":
-    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r6). The grammar is CLOSED: rather than
+    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r8). The grammar is CLOSED: rather than
     model every CommonMark construct that can hide a table or pull its text into something else (HTML,
     fences, indented code, quotes, lists and their lazy continuations), the matrix may hold only blank lines
     (spaces and tabs), ATX headings, thematic breaks, plain prose lines without a pipe or a block marker, and
     table lines starting with a pipe at column 0; a table must follow a blank line, a heading, a break or the
     start of the file, and be followed by one of those; each run of table lines must open with its own
     header and delimiter row; a table line may carry no escape (other than before a pipe), entity or HTML
-    and must have cells; no whitespace other than space and tab, and no control or format character, may
-    appear. Anything else refuses the matrix, and the reason names the line. Cell CONTENT is checked in
+    and must have cells; a header's cells must be plain text and every row must have the header's width; no
+    whitespace other than space and tab, and no control or format character, may appear. Anything else refuses the matrix, and the reason names the line. Cell CONTENT is checked in
     scan: a CCM/AICM cell that is not a plain code list is not read, and its row is listed."""
     if "\ufeff" in text:
         return "it contains a byte-order mark"
@@ -147,6 +148,7 @@ def matrix_refusal(text: str) -> "str | None":
         if ch not in "\t\n\r" and (unicodedata.category(ch) in ("Zs", "Zl", "Zp", "Cc", "Cf") and ch != " "):
             return f"it contains the character {ch!r}, which Markdown and this parser may read differently"
     prev = "blank"
+    width = 0
     lines = _LINE_BREAK_RE.split(text)
     for n, line in enumerate(lines, 1):
         kind = _line_kind(line)
@@ -157,8 +159,12 @@ def matrix_refusal(text: str) -> "str | None":
         if kind == "table" and re.search(r"<|&(?:#|[A-Za-z][A-Za-z0-9]*;)|\\(?!\|)", line):
             return (f"line {n} is a table line with an escape, an entity or HTML, which can hide or reveal a "
                     "code the scan would not see")
+        if kind == "table" and prev == "table" and len(_cells(line)) != width:
+            return (f"line {n} has {len(_cells(line))} cell(s) where its table has {width}; a row of another width is "
+                    "padded, cut or dropped differently by renderers (3b107 QA r8)")
         if kind == "table" and prev != "table":
             head = _cells(line)
+            width = len(head)
             plain = [c for c in head if not _PLAIN_HEADER_CELL_RE.fullmatch(c)]
             if plain:
                 return (f"line {n} is a table header with markup or unusual characters in {plain[0]!r}; headers must be "
@@ -555,6 +561,12 @@ def _self_test() -> int:
         (_doc_path("`/abs/risk/a.md`") is None and _doc_path("`risk/a.md`") == "risk/a.md", "_doc_path refuses an absolute path"),
         (rows_seen("| Other | CSA CCM v4.1 |\n| --- | --- |\n\n" + hdr + row("risk/a.md")) == (1, 1, 1),
          "an empty non-master CCM table is listed"),
+        # QA r8: row width; link shape is a full match; a seven-hash line is not a heading.
+        (matrix_refusal(hdr + row("risk/a.md").replace("| N/A |", "| N/A | extra |")) is not None
+         and matrix_refusal(hdr + row("risk/a.md").replace(" N/A |", "")) is not None,
+         "a row wider or narrower than its header refuses the matrix"),
+        (_doc_path("~~[`risk/b.md`](../risk/b.md)~~ [`risk/a.md`](../risk/a.md)") is None, "the link shape must be the whole cell"),
+        (_line_kind("####### x") is None and _line_kind("###### x") == "heading", "a seven-hash line is not a heading"),
         (_default_doc_reader("matrix-grc-compliance-alignment.md") is None,
          "the reader does not fall back from the repository root to compliance/"),
         (rows_seen(hdr.replace("CSA CCM v4.1", "*CSA CCM v4.1*").replace("CSA AICM v1.1", "**CSA AICM v1.1**")
@@ -635,7 +647,8 @@ def main(argv: list[str]) -> int:
             print(f"  - {s}", file=sys.stderr)
         return 2
     if skipped:
-        print(f"NOTE: {len(skipped)} matrix row(s) not assessed (listed at the end); {stats['rows']} row(s) checked.")
+        print(f"NOTE: {len(skipped)} matrix row(s) or table(s) not assessed (listed at the end); "
+              f"{stats['rows']} row(s) checked.")
     if findings:
         uniq = sorted(set(findings))
         print(f"REPORT: {len(uniq)} stranded-code candidate(s) (matrix cites a code absent "
