@@ -127,8 +127,10 @@ def _is_primary_checkout(root):
     directory), False for a linked worktree or anything unreadable. The test is structural, as git's own:
     a linked worktree's admin directory holds a `commondir` file, a submodule's does not. The gitdir is
     resolved against the checkout with every symlink followed, so neither the spelling of the path nor an
-    ancestor directory named `worktrees` changes the answer (3b101 QA r3). A gitdir that is missing or not
-    a directory returns False: the adapter then stays off, which allows the stop and consumes nothing."""
+    ancestor directory named `worktrees` changes the answer (3b101 QA r3). The admin directory must hold a
+    HEAD file, as every git directory does, so a gitdir naming some other directory is not taken for one
+    (3b101 QA r5). A gitdir that is missing, malformed or not a git directory returns False: the adapter
+    then stays off, which allows the stop and consumes nothing."""
     dotgit = os.path.join(root, ".git")
     if os.path.isdir(dotgit):
         return True
@@ -142,14 +144,14 @@ def _is_primary_checkout(root):
     target = first[len("gitdir:"):].strip()
     if not target:
         return False
-    admin = os.path.realpath(os.path.join(root, target))
-    if not os.path.isdir(admin):
-        return False
-    try:  # only a confirmed absence counts: exists() would also read EACCES as absent (3b101 QA r4)
-        os.stat(os.path.join(admin, "commondir"))
+    try:  # a NUL in the gitdir raises ValueError (3b101 QA r5)
+        admin = os.path.realpath(os.path.join(root, target))
+        if not (os.path.isdir(admin) and os.path.isfile(os.path.join(admin, "HEAD"))):
+            return False
+        os.stat(os.path.join(admin, "commondir"))  # only a confirmed absence counts (3b101 QA r4)
     except FileNotFoundError:
         return True
-    except OSError:
+    except (OSError, ValueError):
         return False
     return False
 
@@ -586,9 +588,10 @@ def _self_test():
                     self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT))
                     self.assertTrue(os.path.exists(sentinel))
                     del os.environ["ORCH_VERIFY_OWNER"]  # the config-dir signal alone marks a worker too
-                    os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orch-worker.example") + "/"
-                    self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT))
-                    self.assertTrue(os.path.exists(sentinel))
+                    for suffix in ("", "/", "/."):  # every spelling Path(...).name reads as the dir (3b101 QA r5)
+                        os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orch-worker.example") + suffix
+                        self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT), suffix)
+                        self.assertTrue(os.path.exists(sentinel), suffix)
                     os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orchestrator")  # control: consumes
                     self.assertTrue(_grc_consume_escape(_GRC_REPO_ROOT))
                     self.assertFalse(os.path.exists(sentinel))
@@ -617,6 +620,9 @@ def _self_test():
                 open(os.path.join(wt_admin, "commondir"), "w").close()
                 os.makedirs(os.path.join(parent, ".git", "modules", "sub"))
                 os.makedirs(os.path.join(parent, "worktrees", "modules", "sub-deep"))
+                for a in (wt_admin, os.path.join(parent, ".git", "modules", "sub"),
+                          os.path.join(parent, "worktrees", "modules", "sub-deep")):
+                    open(os.path.join(a, "HEAD"), "w").close()  # every git directory holds HEAD
                 os.makedirs(os.path.join(parent, "wt-alias"))
                 os.symlink(os.path.join(parent, "grc_library", ".git", "worktrees"),
                            os.path.join(parent, "wt-alias", "worktrees"))
@@ -625,11 +631,15 @@ def _self_test():
                            "sub-deep": f"gitdir: {os.path.join(parent, 'worktrees', 'modules', 'sub-deep')}\n",
                            "missing": "gitdir: ../nowhere\n",
                            # 3b101 QA r4: a gitdir naming a file, no .git at all, and an unsearchable admin dir
-                           "file-target": f"gitdir: {os.path.join(parent, 'admin-file')}\n", "no-git": ""}
+                           "file-target": f"gitdir: {os.path.join(parent, 'admin-file')}\n", "no-git": "",
+                           # 3b101 QA r5: a directory that is not a git directory, an empty target, no prefix
+                           "not-admin": "gitdir: .\n", "empty-target": "gitdir:   \n", "no-prefix": "hello\n",
+                           "nul-target": "gitdir: ../x\x00y\n"}
                 open(os.path.join(parent, "admin-file"), "w").close()
                 locked = os.path.join(parent, "locked-admin")
                 os.makedirs(locked)
                 open(os.path.join(locked, "commondir"), "w").close()
+                open(os.path.join(locked, "HEAD"), "w").close()
                 check_locked = os.geteuid() != 0  # root traverses a mode-000 directory anyway
                 if check_locked:
                     layouts["wt-locked"] = f"gitdir: {locked}\n"
@@ -659,7 +669,8 @@ def _self_test():
                         os.chmod(locked, 0o755)
                     got[name] = out.stdout.strip()
                 want = {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None", "sub": "unattended",
-                        "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None"}
+                        "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None",
+                        "not-admin": "None", "empty-target": "None", "no-prefix": "None", "nul-target": "None"}
                 if check_locked:
                     want["wt-locked"] = "None"
                 self.assertEqual(got, want, got)
