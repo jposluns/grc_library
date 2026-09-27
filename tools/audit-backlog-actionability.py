@@ -103,44 +103,50 @@ APPROVALS_FILE = "blocked-approvals.md"
 _APPROVALS: "set[str] | None" = None
 
 
-_APPROVAL_HEADER = ("item", "reason", "granted", "evidence")
+_APPROVAL_HEADER = "| Item | Reason | Granted | Evidence |"
+_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 
 
 def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
-    """The item ids granted by the register: rows of the FIRST table whose header is exactly
-    ``| Item | Reason | Granted | Evidence |``, outside code fences. A row grants only with exactly four
-    cells, a non-empty reason, a real calendar date not after today, and non-empty evidence. Rows in a
-    fenced example, in a later table (a history of lifted blocks) or with a malformed cell never grant
-    (3b QA r1, r2)."""
+    """The item ids granted by the register, read by a deliberately literal grammar (QA r1-r3): only the FIRST
+    table whose header line is exactly ``| Item | Reason | Granted | Evidence |``, outside code fences (a fence
+    closes only on its own character with at least its opening length), grants. A row is a line with exactly
+    five ``|`` characters, i.e. four cells; it grants only with an item id (optionally backtick-wrapped), a
+    non-empty reason, a real calendar date not after today and non-empty evidence."""
     today = today or datetime.date.today()
     ids: set = set()
-    in_fence = in_table = seen_table = False
+    fence = None  # (char, length) of the open fence
+    in_table = seen_table = False
     for raw in text.splitlines():
-        line = raw.strip()
-        if line.startswith("```") or line.startswith("~~~"):
-            in_fence = not in_fence
+        m = _FENCE_RE.match(raw)
+        if fence is not None:
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1] and not raw.strip()[len(m.group(1)):].strip():
+                fence = None
+            continue
+        if m:
+            fence = (m.group(1)[0], len(m.group(1)))
             in_table = False
             continue
-        if in_fence:
-            continue
-        cells = [c.strip().strip("`").strip() for c in line.strip("|").split("|")] if line.startswith("|") else None
-        if cells is None:
-            if in_table:
-                in_table = False
-                seen_table = True
-            continue
+        line = raw.strip()
         if not in_table:
-            if not seen_table and tuple(c.lower() for c in cells) == _APPROVAL_HEADER:
-                in_table = True
+            if not seen_table and " ".join(line.split()) == _APPROVAL_HEADER:
+                in_table = seen_table = True  # the allowance is used when the header is seen
             continue
-        if len(cells) != 4 or set(cells[0]) <= {"-", ":", " "}:
+        if not line.startswith("|"):
+            in_table = False
             continue
-        item, reason, granted, evidence = cells
+        if line.count("|") != 5 or not line.endswith("|"):
+            continue
+        item, reason, granted, evidence = (c.strip() for c in line[1:-1].split("|"))
+        if re.fullmatch(r"-+|:?-+:?", item):
+            continue  # the separator row
+        if item.startswith("`") and item.endswith("`") and len(item) > 2:
+            item = item[1:-1]
         try:
             when = datetime.date.fromisoformat(granted)
         except ValueError:
             continue
-        if item and reason and evidence and when <= today and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.\-]*", item):
+        if reason and evidence and when <= today and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.\-]*", item):
             ids.add(item)
     return ids
 
@@ -742,6 +748,15 @@ def _self_test() -> int:
             "| 6.6 | bad date | 2026-13-45 | #5 |\n| 7.7 | future | 2999-01-01 | #6 |\n\nLifted:\n\n"
             "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 3.3 | lifted | 2026-09-01 | #2 |\n")
     check("approvals-canonical-table-only", load_approvals(reg2) == {"2.1"})
+    H = "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+    R = lambda i: f"| {i} | r | 2026-09-18 | #1 |\n"
+    check("approvals-nested-fence", load_approvals("````markdown\n```\n" + H + R("1.1") + "```\n````\n") == set())
+    check("approvals-mixed-fence", load_approvals("```\n~~~\n" + H + R("1.1") + "~~~\n```\n") == set())
+    check("approvals-fence-after-table-ends-allowance",
+          load_approvals(H + R("1.1") + "```\nexample\n```\n\nLifted:\n" + H + R("2.2")) == {"1.1"})
+    check("approvals-header-exact", load_approvals(H.lower() + R("1.1")) == set()
+          and load_approvals(H.replace("Item", "`Item`") + R("1.1")) == set())
+    check("approvals-empty-fifth-cell", load_approvals(H + R("1.1").rstrip("\n") + "|\n") == set())
     tagged = "| 2.1 | t | `[BLOCKED:x]` |"
     saved_approvals = _APPROVALS
     try:
@@ -787,6 +802,9 @@ def _self_test() -> int:
                 g["_origin_is_maintainer"] = lambda *a, **k: True
                 _load_default_approvals(None)
                 check("approvals-maintainer-without-store-counts-nothing", _APPROVALS == set())
+                g["_origin_is_maintainer"] = lambda *a, **k: None
+                _load_default_approvals(None)
+                check("approvals-unknown-origin-counts-nothing", _APPROVALS == set())
                 def _inaccessible(*a, **k):
                     raise InaccessiblePath(13, "Permission denied", str(store))
                 g["_store_dir"] = _inaccessible
@@ -804,6 +822,17 @@ def _self_test() -> int:
                 reg.mkdir()
                 _load_default_approvals(None)
                 check("approvals-directory-register-counts-nothing", _APPROVALS == set())
+                real_exists = Path.exists
+                def _raising_exists(self, *a, **k):
+                    if self.name == APPROVALS_FILE:
+                        raise PermissionError(13, "Permission denied")
+                    return real_exists(self, *a, **k)
+                Path.exists = _raising_exists
+                try:
+                    _load_default_approvals(None)
+                    check("approvals-stat-error-counts-nothing", _APPROVALS == set())
+                finally:
+                    Path.exists = real_exists
                 reg.rmdir()
                 os.mkfifo(reg)
                 _load_default_approvals(None)  # must not block on the FIFO
@@ -827,14 +856,20 @@ def _self_test() -> int:
 _MAINTAINER_ORIGIN_RE = re.compile(r"(?:^|[/:])jposluns/grc_library$")
 
 
-def _origin_is_maintainer(root: Path = REPO_ROOT) -> bool:
-    """The checkout's origin is the maintainer repository (the boundary test block-operational-without-private
-    uses). An unknown origin is not the maintainer's, so an adopter keeps its tags."""
+def _origin_is_maintainer(root: Path = REPO_ROOT) -> "bool | None":
+    """True when the checkout's origin is the maintainer repository (the boundary test
+    block-operational-without-private uses), False when git reports another origin or none, and None when the
+    origin cannot be established (git missing or failing): ignorance is not evidence of an adopter (QA r3)."""
     try:
-        out = subprocess.run(["git", "-C", str(root), "config", "--get", "remote.origin.url"],
-                             capture_output=True, text=True, timeout=10).stdout.strip()
+        proc = subprocess.run(["git", "-C", str(root), "config", "--get", "remote.origin.url"],
+                              capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.SubprocessError):
-        return False
+        return None
+    if proc.returncode == 1 and not proc.stdout.strip():
+        return False  # no origin configured
+    if proc.returncode != 0:
+        return None
+    out = proc.stdout.strip()
     url = out[:-4] if out.endswith(".git") else out
     return bool(_MAINTAINER_ORIGIN_RE.search(url))
 
@@ -849,25 +884,26 @@ def _load_default_approvals(explicit: "str | None") -> str:
     else:
         try:
             store = _store_dir(REPO_ROOT, strict=True)
-        except InaccessiblePath as exc:
+        except (InaccessiblePath, OSError) as exc:
             set_approvals(set())
             return f"[BLOCKED] approvals: the operational store cannot be examined ({exc}); NO tag counts as blocked."
         if store is None:
-            if _origin_is_maintainer():
+            origin = _origin_is_maintainer()
+            if origin is not False:
                 set_approvals(set())
-                return ("[BLOCKED] approvals: maintainer checkout without the operational store; "
-                        "NO tag counts as blocked.")
+                why = "maintainer checkout" if origin else "checkout whose origin cannot be established"
+                return f"[BLOCKED] approvals: {why} without the operational store; NO tag counts as blocked."
             set_approvals(None)
             return "[BLOCKED] approvals: no operational store (adopter clone); tags count as written."
         path = store / APPROVALS_FILE
+    try:  # every probe inside the handler: a metadata error must not cost the actionable count (QA r3)
         if not path.exists():
             set_approvals(set())
-            return (f"[BLOCKED] approvals: the store has no {APPROVALS_FILE}; NO tag counts as blocked "
+            return (f"[BLOCKED] approvals: no register at {path}; NO tag counts as blocked "
                     f"(a missing register never widens what is blocked).")
-    if not path.is_file():
-        set_approvals(set())
-        return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
-    try:
+        if not path.is_file():
+            set_approvals(set())
+            return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
         ids = load_approvals(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
