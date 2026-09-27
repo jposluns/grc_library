@@ -171,11 +171,11 @@ def _self_test() -> int:
         "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
     }
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
-    def view(r, h=head, fields=None):
-        out = {"state": "OPEN", "statusCheckRollup": r}
-        if fields is None or "headRefOid" in fields:
-            out["headRefOid"] = h
-        return json.dumps(out)
+    def view(r, h=head, fields=None, state="OPEN"):
+        # Only the requested --json fields come back, as from the real gh (3b106 QA r3).
+        full = {"state": state, "statusCheckRollup": r, "headRefOid": h, "number": 1, "title": "t"}
+        wanted = full.keys() if fields is None else [f for f in fields.split(",") if f]
+        return json.dumps({k: full[k] for k in wanted if k in full})
     json_arg = lambda a: a[a.index("--json") + 1] if "--json" in a else ""
     real_gh = globals()["gh"]
     try:
@@ -238,8 +238,10 @@ def _self_test() -> int:
                 checks.append((f"head-{label}-refused{'-dry' if dry else ''}", rc == 1 and not merged))
         for state in ("MERGED", "CLOSED"):
             calls.clear()
-            globals()["gh"] = lambda *a, _s=state: (calls.append(a) or json.dumps(
-                {"state": _s, "statusCheckRollup": rollups["green"], "headRefOid": head}) if a[:2] == ("pr", "view") else "")
+            def rec_state(*a, _s=state):
+                calls.append(a)  # every call, a merge included, is recorded before dispatch
+                return view(rollups["green"], head, json_arg(a), _s) if a[:2] == ("pr", "view") else ""
+            globals()["gh"] = rec_state
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1"])
             checks.append((f"not-open-{state.lower()}-refused",
