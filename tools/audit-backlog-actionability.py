@@ -1268,7 +1268,7 @@ def _self_test() -> int:
     # QA r3: every one of these is counted or reported (never both missed); a binary literal is never counted.
     r3 = ["- **3b20.** t", "- **3b20, 3b21** t", "- **3b20\u2014fix** t", "- **3b20-followup [private]**",
           "- **3b20/3b21 [private]**", "- **3b20ab [private]**", "- **3b7.1 [private] child**",
-          "- **1.2.3.4 [private]**", "- **3b20\u00a0[private]**", "- **GR-GAP-1-A [private]** fix",
+          "- **9.8.7.6.5 [private]**", "- **3b20\u00a0[private]**", "- **GR-GAP-1-A [private]** fix",
           "* **GR-GAP-1-A [private]** fix", "- **gr-gap-1-a [private]** fix", "- **`GR-GAP-1-A` [private]** fix",
           "- **v2-wave2-PR2b-scope (website):** x", "1. **IPY-02/04 fix = PARKED**", "- **P-hookfix (m):** x",
           "- **0b1010** is a binary mask", "- **RB-9 [public] public coded** x", "- **4.6 [public] public section** y"]
