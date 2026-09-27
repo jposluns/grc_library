@@ -196,25 +196,35 @@ TODO_ROW_RE = re.compile(
 )
 
 # A top-level bold-bullet backlog item (3b119), the audit tool's closed TOP_BULLET_ITEM_RE grammar: ``- **<id>``
-# at column 0 with a ``3bNN``, ``P-n.m`` or coded id (``RB-6``, ``P-F5``), or a section number followed by a
+# at column 0 with a ``3bNN`` or ``P-n.m`` id, or a coded id (``RB-6``) or section number followed by a
 # `` [private]`` / `` [public]`` tag; the id ends at a space, tab, ``*`` or ``:``. It counts only outside a
-# ``### <id>`` item block (where the tool treats it as that item's body) and outside a code fence or an HTML
-# comment. tests/test_linters.py compares this count with the tool's on the live files and on fixtures.
+# ``### <id>`` item block (where the tool treats it as that item's body) and outside a code fence (0 to 3
+# spaces of indentation) or an HTML comment that starts a line; a fenced or commented line never counts and
+# never changes containment. tests/test_linters.py compares these counts with the tool's on the live files
+# and on fixtures.
 BULLET_ITEM_RE = re.compile(
-    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+"
-    r"|\d+(?:\.\d+){1,2}[a-z]?(?= \[(?:private|public)\]))(?=[ \t*:])"
+    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))(?=[ \t*:])"
 )
 _BULLET_ITEM_HEADING_RE = re.compile(
     r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b"
 )
-_FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+_FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_COMMENT_TOKEN_RE = re.compile(r"<!--|-->")
 
 
-def _bullet_item_count(text: str) -> int:
-    """Count bold-bullet items outside ``### <id>`` item blocks, code fences and HTML comments (a ``## ``
-    header, or a non-item ``### `` heading outside an item, ends an item block, as in the audit tool)."""
-    n = 0
-    in_heading_item = False
+def _comment_open_after(s: str, open_: bool) -> bool:
+    for tok in _COMMENT_TOKEN_RE.findall(s):
+        if tok == "<!--" and not open_:
+            open_ = True
+        elif tok == "-->" and open_:
+            open_ = False
+    return open_
+
+
+def _masked_lines(text: str) -> "list[tuple[str, bool]]":
+    """Each line with whether it is inside a code fence or a line-starting HTML comment (the tool's mask)."""
+    out: list[tuple[str, bool]] = []
     fence: "str | None" = None
     in_comment = False
     for line in text.splitlines():
@@ -222,24 +232,39 @@ def _bullet_item_count(text: str) -> int:
             m = _FENCE_OPEN_RE.match(line)
             if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not line.strip()[len(m.group(1)):].strip():
                 fence = None
-            masked = True
+            out.append((line, True))
         elif in_comment:
-            if "-->" in line:
-                in_comment = False
-            masked = True
+            in_comment = _comment_open_after(line, True)
+            out.append((line, True))
         elif _FENCE_OPEN_RE.match(line):
             fence = _FENCE_OPEN_RE.match(line).group(1)
-            masked = True
-        elif "<!--" in line:
-            in_comment = "-->" not in line[line.index("<!--") + 4:]
-            masked = True
+            out.append((line, True))
+        elif line.lstrip(" ").startswith("<!--") and len(line) - len(line.lstrip(" ")) <= 3:
+            in_comment = _comment_open_after(line, False)
+            out.append((line, True))
         else:
-            masked = False
+            out.append((line, False))
+    return out
+
+
+def _heading_item_count(text: str) -> int:
+    """ITEM_HEADING_RE headings outside a fence or line-starting comment (the tool never makes one an item)."""
+    return sum(1 for line, masked in _masked_lines(text) if not masked and ITEM_HEADING_RE.match(line))
+
+
+def _bullet_item_count(text: str) -> int:
+    """Count bold-bullet items outside ``### <id>`` item blocks, code fences and line-starting HTML comments
+    (a ``## `` header, or a non-item ``### `` heading outside an item, ends an item block, as in the tool)."""
+    n = 0
+    in_heading_item = False
+    for line, masked in _masked_lines(text):
+        if masked:
+            continue
         if _BULLET_ITEM_HEADING_RE.match(line):
             in_heading_item = True
         elif line.startswith("## ") or (line.startswith("### ") and not in_heading_item):
             in_heading_item = False
-        elif not in_heading_item and not masked and BULLET_ITEM_RE.match(line):
+        elif not in_heading_item and BULLET_ITEM_RE.match(line):
             n += 1
     return n
 
@@ -277,7 +302,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
             # do not deduplicate matches between the two counts.
             if _has_todo_index_header(ptodo_text):
                 count += len(TODO_ROW_RE.findall(ptodo_text))
-            count += len(ITEM_HEADING_RE.findall(ptodo_text))
+            count += _heading_item_count(ptodo_text)
             count += _bullet_item_count(ptodo_text)
         return count
     except Exception:

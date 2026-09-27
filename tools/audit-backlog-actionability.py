@@ -92,30 +92,44 @@ ITEM_HEADING_RE = re.compile(
 )
 
 # An open backlog item written as a top-level bold bullet (3b119), a CLOSED grammar: the line starts
-# ``- **<id>`` at column 0, and <id> is a ``3bNN`` queue id, a private ``P-n.m`` id, a coded id (``RB-6``,
-# ``P-F5``), or a section number followed by a `` [private]`` / `` [public]`` tag (a bare number such as a
-# CalVer or ``1.5x`` is not an id). The id ends at a space, tab, ``*`` or ``:``. It is an item only outside a
-# ``### <id>`` item block (inside one it is that item's body) and outside a code fence or HTML comment; its
-# block is the bullet line plus indented, non-blank continuation lines. Item-like lines outside this grammar
-# (indented, ``*`` or numbered bullets, lowercase ids) are not counted; ``uncounted_item_like`` lists them so
-# nothing drops silently. Before 3b119 bullet-form items were invisible to the count.
+# ``- **<id>`` at column 0, and <id> is a ``3bNN`` queue id or a private ``P-n.m`` id, or a coded id
+# (``RB-6``, ``P-F5``) or section number followed by a `` [private]`` / `` [public]`` tag (untagged, a coded or
+# numeric token is too often an acronym, a CalVer or a quantity). The id ends at a space, tab, ``*`` or ``:``.
+# It is an item only outside a ``### <id>`` item block (inside one it is that item's body) and outside a code
+# fence or an HTML comment; its block is the bullet line plus indented, non-blank continuation lines.
+# INVARIANT (QA r2): every item-like line is either counted or listed by ``uncounted_item_like``, so a form
+# the grammar does not take is visible, never silently dropped. Before 3b119 bullet items were invisible.
 TOP_BULLET_ITEM_RE = re.compile(
     r"^- \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
     r"|\d+b\d+[a-z]?"
-    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+"
-    r"|\d+(?:\.\d+){1,2}[a-z]?(?= \[(?:private|public)\]))(?=[ \t*:])(?P<title>.*)$"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))"
+    r"(?=[ \t*:])(?P<title>.*)$"
 )
-# A line that looks like an item but sits outside the counted grammar (reported, never counted).
+# A line that looks like an item (any list marker, any case, optional backtick): reported when not counted.
 ITEM_LIKE_RE = re.compile(
-    r"^(?:[ \t]*[-*+]|[ \t]*\d+[.)])[ \t]+\*\*(?P<id>\d+b\d+[a-z]?|P-[A-Za-z0-9][A-Za-z0-9.\-]*"
-    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:(])"
+    r"^(?:[ \t]*[-*+]|[ \t]*\d+[.)])[ \t]+\*\*`?(?P<id>\d+b\d+[a-z]?|p-[a-z0-9][a-z0-9.\-]*"
+    r"|[a-z][a-z0-9]*(?:-[a-z0-9]+)*-[a-z]*\d[a-z0-9]*|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:(\[`]|$)",
+    re.IGNORECASE,
 )
-_FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+# A fence opens at 0 to 3 spaces of indentation (deeper indentation is list or code content, not a fence).
+_FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
+_COMMENT_TOKEN_RE = re.compile(r"<!--|-->")
+
+
+def _comment_open_after(s: str, open_: bool) -> bool:
+    """Whether an HTML comment is still open after ``s``, reading its delimiters in order."""
+    for tok in _COMMENT_TOKEN_RE.findall(s):
+        if tok == "<!--" and not open_:
+            open_ = True
+        elif tok == "-->" and open_:
+            open_ = False
+    return open_
 
 
 def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
-    """True for each line inside (or opening/closing) a code fence or an HTML comment, where a bullet is
-    example text, never a backlog item (3b119 QA r1)."""
+    """True for each line inside (or opening/closing) a code fence, or inside an HTML comment that STARTS a
+    line; such a line is never an item and never changes item containment. A ``<!--`` later in a line (inline
+    code, a trailing note) does not mask it (QA r2)."""
     mask: list[bool] = []
     fence: "str | None" = None
     in_comment = False
@@ -128,42 +142,31 @@ def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
             continue
         if in_comment:
             mask.append(True)
-            if "-->" in ln:
-                in_comment = False
+            in_comment = _comment_open_after(ln, True)
             continue
         m = _FENCE_OPEN_RE.match(ln)
         if m:
             fence = m.group(1)
             mask.append(True)
             continue
-        if "<!--" in ln:
+        stripped = ln.lstrip(" ")
+        if stripped.startswith("<!--") and len(ln) - len(stripped) <= 3:
             mask.append(True)
-            in_comment = "-->" not in ln[ln.index("<!--") + 4:]
+            in_comment = _comment_open_after(ln, False)
             continue
         mask.append(False)
     return mask
 
 
 def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
-    """Item-like lines (a bold id led by a list marker) that the counted grammar does not take: not a counted
-    top-level bullet, not inside a ``### <id>`` item body, not in a fence or comment. Reported so a backlog
-    item written in another form is visible rather than silently uncounted."""
-    lines = text.splitlines()
-    mask = _fence_comment_mask(lines)
-    out: list[tuple[int, str]] = []
-    in_heading_item = False
-    for n, ln in enumerate(lines, 1):
-        if ITEM_HEADING_RE.match(ln):
-            in_heading_item = True
-            continue
-        if ln.startswith("## ") or (ln.startswith("### ") and not in_heading_item):
-            in_heading_item = False
-            continue
-        if in_heading_item or mask[n - 1]:
-            continue
-        if ITEM_LIKE_RE.match(ln) and not TOP_BULLET_ITEM_RE.match(ln):
-            out.append((n, ln.strip()))
-    return out
+    """Every item-like line (a bold id led by a list marker) that parse_items does not count as an item head,
+    wherever it is (inside a fence, a comment or a ``### <id>`` item body included): the counted-or-reported
+    invariant, so no item-like line is silently dropped."""
+    heads: list[int] = []
+    parse_items(text, "private", ref_bodies={}, _heads=heads)
+    counted = set(heads)
+    return [(n, ln.strip()) for n, ln in enumerate(text.splitlines(), 1)
+            if ITEM_LIKE_RE.match(ln) and n not in counted]
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
@@ -415,7 +418,8 @@ def _load_ref_bodies(which: str = "public", private_dir: "Path | None" = None) -
 
 def parse_items(text: str, source: str,
                 ref_bodies: dict[str, str] | None = None,
-                private_dir: "Path | None" = None) -> list[tuple[str, str, str, str, str]]:
+                private_dir: "Path | None" = None,
+                _heads: "list[int] | None" = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
     ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
     from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
@@ -470,6 +474,17 @@ def parse_items(text: str, source: str,
 
     masked = _fence_comment_mask(lines)
     for ln_no, line in enumerate(lines):
+        if masked[ln_no]:
+            # A fenced or commented line is never an item head and never changes containment (QA r2); an
+            # indented one continues a bullet, any one continues a ``### <id>`` body, and otherwise it ends a bullet.
+            if cur is not None and (not cur_is_bullet or line.startswith("  ") or line.startswith("\t")):
+                body_lines.append(line)
+            elif cur_is_bullet:
+                flush()
+                cur = None
+                cur_is_bullet = False
+                body_lines = []
+            continue
         m = ITEM_HEADING_RE.match(line)
         if m:
             flush()
@@ -489,8 +504,10 @@ def parse_items(text: str, source: str,
                 umbrella = line[3:].strip()
             continue
         if cur is None or cur_is_bullet:
-            b = None if masked[ln_no] else TOP_BULLET_ITEM_RE.match(line)
+            b = TOP_BULLET_ITEM_RE.match(line)
             if b:
+                if _heads is not None:
+                    _heads.append(ln_no + 1)
                 flush()
                 cur = (b.group("id"), b.group("title").replace("**", "").strip())
                 cur_is_bullet = True
@@ -1208,23 +1225,33 @@ def _self_test() -> int:
     check("bullet-blocked-tag-binds-id", _heading_id("- **3b7 [BLOCKED:x] t") == "3b7")
     check("bullet-unreadable-id", _heading_id("- **3b7\u200b t") == _UNREADABLE_HEADING_ID)
     check("bullet-umbrella", bd.get("3b7", empty)[4] == "Up next" and bd.get("9.9", empty)[4] == "Legacy")
-    # 3b119 QA r1: closed grammar, fences and comments, block ends, delimiters, coded and tagged ids.
+    # 3b119 QA r1-r2: closed grammar, fences and comments, block ends, delimiters, tagged coded and section ids,
+    # and the counted-or-reported invariant.
     g = ("## Q\n- **3b7: colon-delimited** x\n\tdeferred tab continuation\n  \n  after whitespace-only line\n"
-         "- **RB-6 coded item** y\n- **P-F5 (tooling, LOW):** z\n- **4.5 [private] tagged section id** w\n"
-         "- **2026.09.1340** shipped\n- **1.5x faster** gate\n"
+         "- **RB-6 [private] coded item** y\n- **P-F5 (tooling, LOW):** z\n- **4.5 [private] tagged section id** w\n"
+         "- **2026.09.1340** shipped\n- **1.5x faster** gate\n- **SHA-256:** pins\n"
          "```\n- **3b8 [private] fenced example**\n```\n<!--\n- **P-9.3 commented out:** gone\n-->\n"
-         "<!-- - **3b9 single-line comment** -->\n"
-         "  - **3b10 indented** a\n* **3b11 star** b\n1. **3b12 numbered** c\n- **P-v3nit (website):** d\n")
+         "<!-- - **3b9 single-line comment** -->\n- **3b13 [private] trailing note** a <!-- owner: ops -->\n"
+         "Note: the `<!--` scanner is fragile.\n- **3b14 [private] after inline marker** b\n"
+         "  - **3b10 indented** a\n* **3b11 star** b\n1. **3b12 numbered** c\n- **P-v3nit (website):** d\n"
+         "- **p-1.37 lowercase** e\n- **`3b15` [private] backticked** f\n- **3b16[private]** g\n"
+         "<!-- closed --> <!-- still open\n- **3b17 hidden** h\n-->\n"
+         "```\n### 9.8 fenced heading\n```\n- **3b18 [private] after fenced heading** i\n")
     gi = {x[0]: x for x in parse_items(g, "private")}
-    check("grammar-counted", sorted(gi) == sorted(["3b7", "RB-6", "P-F5", "4.5"]))
+    check("grammar-counted", sorted(gi) == sorted(["3b7", "RB-6", "4.5", "3b13", "3b14", "3b18"]))
     check("grammar-tab-continuation", "tab continuation" in gi.get("3b7", empty)[2])
     check("grammar-whitespace-line-ends-block", "after whitespace-only" not in gi.get("3b7", empty)[2])
-    check("grammar-title-no-bold-marks", "**" not in gi.get("P-F5", empty)[1])
+    check("grammar-title-no-bold-marks", "**" not in gi.get("RB-6", empty)[1])
     ul = [ln for _n, ln in uncounted_item_like(g)]
-    check("grammar-item-like-reported", sorted(x.split("**")[1].split()[0] for x in ul)
-          == sorted(["2026.09.1340", "1.5x", "3b10", "3b11", "3b12", "P-v3nit"]))  # untagged numbers: shown, not counted
-    check("grammar-fence-comment-not-reported", not any("3b8" in x or "P-9.3" in x or "3b9" in x for x in ul))
-
+    rep_ids = sorted(ln.split("**")[1].replace("`", "").split()[0].split("[")[0].rstrip(":") for ln in ul)
+    check("grammar-reported", rep_ids == sorted(["P-F5", "2026.09.1340", "1.5x", "SHA-256", "3b8", "P-9.3",
+                                                   "3b10", "3b11", "3b12", "P-v3nit", "p-1.37", "3b15", "3b16",
+                                                   "3b17"]))
+    import re as _re
+    like = [n for n, ln in enumerate(g.splitlines(), 1) if ITEM_LIKE_RE.match(ln)]
+    heads: list[int] = []
+    parse_items(g, "private", ref_bodies={}, _heads=heads)
+    check("grammar-counted-or-reported", set(like) == set(heads) | {n for n, _ in uncounted_item_like(g)})
 
     if failures:
         for f in failures:

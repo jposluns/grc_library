@@ -17331,7 +17331,15 @@ class HookToolItemCountParityTests(unittest.TestCase):
         tool = self._load("_tool_bullets", "tools/audit-backlog-actionability.py")
         cases = {
             "top-level ids": ("## Q\n- **3b7 [private] a** x\n- **3b7a b:** y\n- **P-1.49 [private]** c\n"
-                              "- **P-1.37 d:** e\n- **RB-6 f** g\n- **P-F5 (x):** h\n- **4.5 [private] i** j\n", 7),
+                              "- **P-1.37 d:** e\n- **RB-6 [private] f** g\n- **P-F5 [private] (x):** h\n"
+                              "- **4.5 [private] i** j\n", 7),
+            "untagged coded and acronyms": ("## Q\n- **RB-6 f** g\n- **SHA-256:** pins\n- **UTF-8 only** x\n"
+                                            "- **CVE-2024-3094:** y\n", 0),
+            "inline comment markers": ("## Q\n- **3b7 [private] a** x <!-- owner: ops -->\n"
+                                       "Note: the `<!--` scanner is fragile.\n- **3b8 [private] b** y\n"
+                                       "<!-- closed --> <!-- still open\n- **3b9 hidden** z\n-->\n- **3b10 after** w\n", 3),
+            "masked heading": ("## Q\n```\n### 9.9 Example\n## Not a section\n```\n- **3b7 [private] real** a\n"
+                               "    ```\n- **3b8 [private] after indented fence** b\n", 2),
             "colon and tab": ("## Q\n- **3b7: a** x\n\tcontinuation\n- **3b8\ttab-delimited** y\n", 2),
             "not ids": ("## Q\n- **2026.09.1340** shipped\n- **1.5x faster** g\n- **4.5 untagged** h\n"
                         "- **P-v3nit (w):** i\n  - **3b9 indented** j\n* **3b10 star** k\n1. **3b11 numbered** l\n", 0),
@@ -17351,6 +17359,17 @@ class HookToolItemCountParityTests(unittest.TestCase):
             root.mkdir()
             (root / "TODO.md").write_text("| 1.1 | pub | `[public]` |\n- **3b7 [public] bullet** x\n", encoding="utf-8")
             self.assertEqual(hook._todo_item_count(str(root)), 2)
+        # A fenced or commented heading is never an item in either count (QA r2).
+        text = "## A\n```\n### 9.9 fenced heading\n```\n<!--\n### 9.8 commented heading\n-->\n### 3.1 real heading\n"
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("", encoding="utf-8")
+            priv = Path(d) / "grc_library_private"
+            priv.mkdir()
+            (priv / "P-TODO.md").write_text(text, encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 1)
+        self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["3.1"])
 
     def test_hook_unions_private_ptodo(self):
         # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),
