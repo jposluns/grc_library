@@ -29,8 +29,8 @@ authoritative source.
 - Lines 42 and 306 also cite OWASP Top 10 (web) 2021 identifiers without an edition. The
   primary pack uses the 2025 web edition, in which A04 (Insecure Design, line 42) is
   A06:2025, and A06 (Vulnerable Components, line 306) is expanded into A03:2025 (Software
-  Supply Chain Failures). Use the current identifiers when mapping this guidance to the held
-  frameworks; the primary pack wins on conflict.
+  Supply Chain Failures). For both lists, use the current identifiers when mapping this
+  guidance to the held frameworks; the primary pack wins on conflict.
 - The upstream file (addyosmani/agent-skills, `skills/security-and-hardening/SKILL.md` on
   `main`, checked on 2026-09-27) has been reorganized but still carries the same identifiers,
   so a refresh from source changes nothing. The file is not a near-duplicate of the primary
