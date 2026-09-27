@@ -104,65 +104,65 @@ _APPROVALS: "set[str] | None" = None
 
 
 _APPROVAL_HEADER = "| Item | Reason | Granted | Evidence |"
-_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
-
-
 _APPROVAL_SEPARATOR_RE = re.compile(r"\|(?: ?:?-+:? ?\|){4}")
 _APPROVAL_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _APPROVAL_ITEM_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?")
+# Characters Python's splitlines treats as line breaks but Markdown does not (QA r5).
+_NON_MARKDOWN_BREAKS = "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+_FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+
+
+def register_refusal(text: str) -> "str | None":
+    """Why the register text is refused as a whole, or None. The grammar is CLOSED (QA r5): rather than track
+    every Markdown construct that can hide a table (comments, HTML blocks, fences, lazy lines), a register that
+    contains any of them grants nothing, and the tool says why. Refused: a non-Markdown line-break character;
+    any ``<`` (HTML, comments, autolinks); a code-fence line; and any line starting with ``|`` (after
+    indentation) before the exact header line, which would make the header a row of another table or an
+    indented one."""
+    if any(c in text for c in _NON_MARKDOWN_BREAKS):
+        return "it contains a line-break character Markdown does not treat as one"
+    if "<" in text:
+        return "it contains '<' (HTML or a comment could hide or reveal a table)"
+    lines = text.lstrip("\ufeff").split("\n")
+    if any(_FENCE_LINE_RE.match(line) for line in lines):
+        return "it contains a code fence"
+    for line in lines:
+        if line.rstrip("\r") == _APPROVAL_HEADER:
+            return None
+        if line.lstrip().startswith("|"):
+            return "a table line precedes the exact header line"
+    return None
 
 
 def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
-    """The item ids granted by the register, read by a deliberately literal grammar (QA r1-r4): only the FIRST
-    line that is exactly ``| Item | Reason | Granted | Evidence |`` (from column 0, no other spacing), outside
-    code fences and HTML comments, opens the granting table, and it must be followed at once by a four-cell
-    separator row. A fence closes only on its own character with at least its opening length. A row starts at
-    column 0, ends with ``|`` and has exactly five ``|`` characters; it grants only with an item id (optionally
+    """The item ids granted by the register (QA r1-r5). A register refused by register_refusal grants nothing.
+    Otherwise the table is the one opened by the first line that is exactly ``| Item | Reason | Granted |
+    Evidence |`` (lines split at LF, CRLF or CR only), which must be followed at once by a four-cell separator
+    row; it ends at the first line not starting with ``|``. A row starts at column 0, ends with ``|`` (trailing
+    spaces ignored) and has exactly five ``|`` characters; it grants only with an item id (optionally
     backtick-wrapped, not ending in a dot), a non-empty reason, a ``YYYY-MM-DD`` calendar date not after today
-    and non-empty evidence. Anything indented, commented out or fenced grants nothing and does not use up the
-    allowance."""
+    and non-empty evidence. A malformed row is skipped (it grants less, never more)."""
+    if register_refusal(text) is not None:
+        return set()
     today = today or datetime.date.today()
     ids: set = set()
-    fence = None  # (char, length) of the open fence
-    in_comment = False
-    state = "before"  # before -> separator -> rows -> done
-    for raw in text.lstrip("\ufeff").splitlines():
-        if in_comment:
-            if "-->" in raw:
-                in_comment = False
-            if state != "before":
-                state = "done"
-            continue
-        m = _FENCE_RE.match(raw)
-        if fence is not None:
-            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1] and not raw.strip()[len(m.group(1)):].strip():
-                fence = None
-            continue
-        if m:
-            fence = (m.group(1)[0], len(m.group(1)))
-            if state != "before":
-                state = "done"
-            continue
-        if "<!--" in raw:
-            in_comment = "-->" not in raw[raw.index("<!--") + 4:]
-            if state != "before":
-                state = "done"
-            continue
+    state = "before"  # before -> separator -> rows
+    for raw in re.split(r"\r\n|\r|\n", text.lstrip("\ufeff")):
         if state == "before":
             if raw == _APPROVAL_HEADER:
-                state = "separator"  # the allowance is used when the exact header is seen
+                state = "separator"
             continue
         if state == "separator":
-            state = "rows" if _APPROVAL_SEPARATOR_RE.fullmatch(raw) else "done"
-            continue
-        if state != "rows":
+            if not _APPROVAL_SEPARATOR_RE.fullmatch(raw):
+                break
+            state = "rows"
             continue
         if not raw.startswith("|"):
-            state = "done"
+            break
+        row = raw.rstrip(" \t")
+        if row.count("|") != 5 or not row.endswith("|"):
             continue
-        if raw.count("|") != 5 or not raw.endswith("|"):
-            continue
-        item, reason, granted, evidence = (c.strip() for c in raw[1:-1].split("|"))
+        item, reason, granted, evidence = (c.strip() for c in row[1:-1].split("|"))
         if item.startswith("`") and item.endswith("`") and len(item) > 2:
             item = item[1:-1]
         if not _APPROVAL_DATE_RE.fullmatch(granted):
@@ -768,8 +768,7 @@ def _self_test() -> int:
            "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | 2026-09-18 | x | y |\n"
            "| 2.6 |  | 2026-09-18 | #1 |\n")
     check("approvals-parse", load_approvals(reg) == {"2.1", "P-1.77"})
-    reg2 = ("```\n| Item | Reason | Granted | Evidence |\n| 9.9 | fenced | 2026-09-18 | x |\n```\n"
-            "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 2.1 | ok | 2026-09-18 | #1 |\n"
+    reg2 = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 2.1 | ok | 2026-09-18 | #1 |\n"
             "| 6.6 | bad date | 2026-13-45 | #5 |\n| 7.7 | future | 2999-01-01 | #6 |\n\nLifted:\n\n"
             "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 3.3 | lifted | 2026-09-01 | #2 |\n")
     check("approvals-canonical-table-only", load_approvals(reg2) == {"2.1"})
@@ -777,8 +776,8 @@ def _self_test() -> int:
     R = lambda i: f"| {i} | r | 2026-09-18 | #1 |\n"
     check("approvals-nested-fence", load_approvals("````markdown\n```\n" + H + R("1.1") + "```\n````\n") == set())
     check("approvals-mixed-fence", load_approvals("```\n~~~\n" + H + R("1.1") + "~~~\n```\n") == set())
-    check("approvals-fence-after-table-ends-allowance",
-          load_approvals(H + R("1.1") + "```\nexample\n```\n\nLifted:\n" + H + R("2.2")) == {"1.1"})
+    check("approvals-fence-refused", load_approvals("```\nexample\n```\n" + H + R("1.1")) == set()
+          and load_approvals(H + R("1.1") + "```\nexample\n```\n") == set())
     check("approvals-header-exact", load_approvals(H.lower() + R("1.1")) == set()
           and load_approvals(H.replace("Item", "`Item`") + R("1.1")) == set())
     check("approvals-empty-fifth-cell", load_approvals(H + R("1.1").rstrip("\n") + "|\n") == set())
@@ -787,10 +786,23 @@ def _self_test() -> int:
           and load_approvals(H.replace("| Item", "|\tItem") + R("1.1")) == set())
     check("approvals-indented-table", load_approvals("para\n\n" + "".join("    " + l + "\n" for l in (H + R("1.1")).splitlines())) == set())
     check("approvals-commented-table", load_approvals("<!-- revoked\n" + H + R("1.1") + "-->\n") == set()
-          and load_approvals("<!--\n" + H + R("1.1") + "-->\n" + H + R("2.2")) == {"2.2"})
+          and load_approvals("<!-- a --> <!-- revoked\n" + H + R("1.1") + "-->\n") == set()
+          and load_approvals("<pre>\n" + H + R("1.1") + "</pre>\n") == set()
+          and load_approvals(H + R("1.1").replace("#1", "e <!-- c -->")) == set())
     check("approvals-list-nested-fence", load_approvals("- example:\n\n    ```markdown\n    " + H.replace("\n", "\n    ")
                                                          + R("1.1") + "    ```\n") == set())
-    check("approvals-malformed-header-keeps-allowance", load_approvals("|  Item | Reason | Granted | Evidence |\n\n" + H + R("2.2")) == {"2.2"})
+    check("approvals-table-before-header", load_approvals("|  Item | Reason | Granted | Evidence |\n\n" + H + R("2.2")) == set()
+          and load_approvals("| A | B | C | D |\n|---|---|---|---|\n" + H + R("1.1")) == set()
+          and load_approvals("  " + H + R("1.1")) == set())
+    # QA r5: only LF, CRLF and CR break lines; other splitlines characters refuse the register.
+    check("approvals-line-breaks", all(load_approvals("note:" + c + H.replace("\n", c) + R("1.1")) == set()
+                                       for c in "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029")
+          and load_approvals(H.replace("\n", "\r\n") + R("1.1").replace("\n", "\r\n")) == {"1.1"})
+    check("approvals-row-tail", load_approvals(H + "| 1.1 | r | 2026-09-18 | #1 | tail\n" + R("1.2")) == {"1.2"})
+    check("approvals-row-trailing-space", load_approvals(H + R("1.1").replace("|\n", "|  \n")) == {"1.1"})
+    check("approvals-mid-table-text-ends", load_approvals(H + R("1.1") + "note\n" + R("1.2")) == {"1.1"})
+    check("approvals-refusal-reason", register_refusal("<!--\n" + H) is not None and register_refusal(H + R("1.1")) is None
+          and register_refusal(H + R("1.1") + "\x85") is not None)
     check("approvals-needs-separator", load_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1") + R("1.2")) == set())
     check("approvals-indented-row", load_approvals(H + "    " + R("1.1") + R("1.2")) == set())
     check("approvals-date-form", load_approvals(H + "| 1.1 | r | 20260918 | #1 |\n| 1.2 | r | 2026-W38-5 | #1 |\n") == set())
@@ -802,9 +814,10 @@ def _self_test() -> int:
         od = Path(od)
         plain = od / "plain"; plain.mkdir()
         repo = od / "repo"
-        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True, env=_git_env())
         def with_origin(url):
-            subprocess.run(["git", "-C", str(repo), "config", "remote.origin.url", url], check=True, capture_output=True)
+            subprocess.run(["git", "-C", str(repo), "config", "remote.origin.url", url], check=True, capture_output=True,
+                           env=_git_env())
             return _origin_is_maintainer(repo)
         results = {"not-a-repo": _origin_is_maintainer(plain), "no-origin": _origin_is_maintainer(repo),
                    "other": with_origin("https://example.org/someone/repo.git"),
@@ -812,12 +825,25 @@ def _self_test() -> int:
                    "trailing-slash": with_origin("https://github.com/jposluns/grc_library/"),
                    "case": with_origin("git@github.com:JPosluns/grc_library.git"),
                    "owner-suffix": with_origin("https://github.com/evil-jposluns/grc_library")}
+        with_origin("https://github.com/jposluns/grc_library.git")
+        injected = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.url",
+                    "GIT_CONFIG_VALUE_0": "https://example.org/x/y.git", "GIT_DIR": str(plain)}
+        saved_env = {k: os.environ.get(k) for k in injected}
+        os.environ.update(injected)
+        try:
+            results["inherited-git-env"] = _origin_is_maintainer(repo)  # QA r5: inherited variables are dropped
+        finally:
+            for k, v in saved_env.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
         with open(repo / ".git" / "config", "ab") as fh:
             fh.write(b'\n[remote "origin"]\n\turl = https://example.org/\xff/repo.git\n')
         results["undecodable"] = _origin_is_maintainer(repo)
         check("origin-lookup", results == {"not-a-repo": None, "no-origin": False, "other": False,
                                            "canonical": True, "trailing-slash": True, "case": True,
-                                           "owner-suffix": False, "undecodable": None})
+                                           "owner-suffix": False, "inherited-git-env": True, "undecodable": None})
     tagged = "| 2.1 | t | `[BLOCKED:x]` |"
     saved_approvals = _APPROVALS
     try:
@@ -917,10 +943,18 @@ def _self_test() -> int:
 _MAINTAINER_ORIGIN = "jposluns/grc_library"
 
 
+def _git_env() -> "dict[str, str]":
+    """The environment without inherited git variables (GIT_DIR, GIT_CONFIG_COUNT/KEY/VALUE and the rest), which
+    could point git at another repository or inject an origin; global and system config are not read (QA r5)."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
+    return env
+
+
 def _git_out(root: Path, *args: str) -> "tuple[int, str] | None":
     """(returncode, stripped stdout) of a git command, or None if git cannot run or its output is not UTF-8."""
     try:
-        proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=3)
+        proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=3, env=_git_env())
         return proc.returncode, proc.stdout.decode("utf-8").strip()
     except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
         return None
@@ -981,10 +1015,15 @@ def _load_default_approvals(explicit: "str | None") -> str:
         if not path.is_file():
             set_approvals(set())
             return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
-        ids = load_approvals(path.read_text(encoding="utf-8"))
+        text = path.read_text(encoding="utf-8")
     except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
         return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
+    refusal = register_refusal(text)
+    if refusal is not None:
+        set_approvals(set())
+        return f"[BLOCKED] approvals: {path} refused ({refusal}); NO tag counts as blocked."
+    ids = load_approvals(text)
     set_approvals(ids)
     return f"[BLOCKED] approvals: {len(ids)} granted row(s) in {path}."
 
