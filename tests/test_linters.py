@@ -11296,7 +11296,7 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
     audit-worklist-register-drift and sync-citation-worklist-baseline raised a traceback on a
     directory or missing file; audit-reference-acquisition-gaps ignored a missing --aliases and
     reported clean for an empty or unknown --section (3b71). Each
-    now exits 2. (audit-stranded-matrix-code's refusals move to the structural-parser follow-up.)"""
+    now exits 2. (audit-stranded-matrix-code's refusals are StrandedMatrixRefusalTests, 3b107.)"""
 
     def test_bad_explicit_arguments_refused(self) -> None:
         td = Path(tempfile.mkdtemp(prefix="aidargs-"))
@@ -13073,6 +13073,58 @@ class ExplicitPathGuardOwnWalkerTests(LinterTestCase):
                 "tools/lint-followup-ageing.py", "tools/lint-hooks-syntax.py"):
             result = run_linter(script)
             self.assertNotEqual(result.returncode, 2, script + result.stdout + result.stderr)
+
+
+class StrandedMatrixRefusalTests(LinterTestCase):
+    """3b107: audit-stranded-matrix-code.py exits 0 only when a master-matrix row was checked; a directory,
+    a missing or unreadable file, a file with no master-matrix table and a matrix none of whose rows can be
+    checked all exit 2 without a traceback. Rebuilt on a structural table parser (the 3b50b2e1 follow-up)."""
+
+    def test_stranded_matrix_refuses_unless_a_row_is_checked(self) -> None:
+        td = Path(tempfile.mkdtemp(prefix="stranded-"))
+        self.addCleanup(shutil.rmtree, td)
+        lines = (REPO_ROOT / "compliance/matrix-grc-compliance-alignment.md").read_text(
+            encoding="utf-8").splitlines()
+        h = next(k for k, line in enumerate(lines)
+                 if line.startswith("| Domain | Document Title | Path |") and "CSA AICM v1.1" in line)
+        row = next(line for line in lines[h + 2:] if "](" in line and ".md" in line)
+        header = lines[h] + "\n" + lines[h + 1] + "\n"
+        good = td / "matrix.md"
+        good.write_text(header + row + "\n", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(good))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        no_aicm = header.replace(" CSA AICM v1.1 |", " Other |")
+        for name, body in (("header_only.md", header),
+                           ("fenced.md", "```text\n" + header + "```\n"),
+                           ("unresolved.md", header + row.replace(".md", "-nonexistent.md") + "\n"),
+                           ("outside.md", header + "| X | Y | [`/etc/hostname.md`](/etc/hostname.md) | DSP-07 | - |\n"),
+                           ("leak.md", header + "\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
+                           ("heading.md", header + "## Section | two\n| A | B | [`ai/README.md`](../ai/README.md) | DSP-07 | - |\n"),
+                           ("no_aicm.md", no_aicm + row + "\n"),
+                           ("prose.md", "Choose left | right.\n"),
+                           ("other.md", "| A | B |\n| --- | --- |\n| 1 | 2 |\n")):
+            f = td / name
+            f.write_text(body, encoding="utf-8")
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(f))
+            self.assertEqual(r.returncode, 2, (name, r.stdout + r.stderr))
+            self.assertNotIn("Traceback", r.stderr)
+        for arg in (str(td), str(td / "missing.md")):
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", arg)
+            self.assertEqual(r.returncode, 2, (arg, r.stdout + r.stderr))
+            self.assertNotIn("Traceback", r.stderr)
+        bad = td / "latin1.md"
+        bad.write_bytes(header.encode("utf-8") + b"\xff\n")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(bad))
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        if os.geteuid() != 0:  # root reads a mode-000 file, so the case only holds unprivileged
+            locked = td / "locked.md"
+            locked.write_text(header + row + "\n", encoding="utf-8")
+            locked.chmod(0)
+            self.addCleanup(locked.chmod, 0o600)
+            r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(locked))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertNotIn("Traceback", r.stderr)
 
 
 class AdvisoryAidInputRefusalTests(LinterTestCase):
