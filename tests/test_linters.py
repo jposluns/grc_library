@@ -13169,8 +13169,8 @@ class StrandedMatrixReaderTests(LinterTestCase):
     """3b107 QA r8: the regular-file and strict-decode checks, for the matrix argument and for a referenced
     document, exercised with a FIFO and a non-UTF-8 file (the reader only reads inside the repository, so its
     fixtures live under tests/tmp). The --matrix FIFO case runs in a subprocess with a timeout, so a lost check
-    there fails rather than hangs; the reader's FIFO case runs in-process, so a lost check there hangs the test,
-    which still fails it under the suite's own time limit."""
+    there fails rather than hangs; the reader's FIFO case runs in-process, so a lost check there hangs the test
+    run (no time limit applies), which is loud rather than silent."""
 
     def test_fifo_and_non_utf8_inputs_are_refused(self) -> None:
         import runpy

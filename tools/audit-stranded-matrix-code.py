@@ -134,14 +134,14 @@ def _line_kind(line: str) -> "str | None":
 
 
 def matrix_refusal(text: str) -> "str | None":
-    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r8). The grammar is CLOSED: rather than
+    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r9). The grammar is CLOSED: rather than
     model every CommonMark construct that can hide a table or pull its text into something else (HTML,
     fences, indented code, quotes, lists and their lazy continuations), the matrix may hold only blank lines
     (spaces and tabs), ATX headings, thematic breaks, plain prose lines without a pipe or a block marker, and
     table lines starting with a pipe at column 0; a table must follow a blank line, a heading, a break or the
     start of the file, and be followed by one of those; each run of table lines must open with its own
-    header and delimiter row; a table line may carry no escape (other than before a pipe), entity or HTML
-    and must have cells; a header's cells must be plain text and every row must have the header's width; no
+    header and delimiter row, at most 64 columns wide; a table line may carry no escape (other than before
+    a pipe), entity or HTML and must have cells; a header's cells must be plain text and every row must have the header's width; no
     whitespace other than space and tab, and no control or format character, may appear. Anything else refuses the matrix, and the reason names the line. Cell CONTENT is checked in
     scan: a CCM/AICM cell that is not a plain code list is not read, and its row is listed."""
     if "\ufeff" in text:
