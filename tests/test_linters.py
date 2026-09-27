@@ -17099,6 +17099,16 @@ class BacklogActionabilityTests(unittest.TestCase):
         "| MEG-01 | §1.1 | an index row, NOT an item heading |\n"
     )
 
+    def test_backlog_actionability_self_test(self):
+        """The tool's own self-test carries the approvals-grammar and origin-lookup regression cases
+        (P-1.36 S36 QA r4: they were not reached by CI)."""
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "audit-backlog-actionability.py"), "--self-test"],
+            capture_output=True, text=True, timeout=300)
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: all pipeline cases passed", result.stdout)
+
     def test_approvals_register_gates_blocked_tags(self):
         # P-1.36 S36: a [BLOCKED:] tag counts only with a granted row in the approvals register; an
         # unapproved tag is listed and counted ACTIONABLE. Explicit --approvals keeps the run hermetic.

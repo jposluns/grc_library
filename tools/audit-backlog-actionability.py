@@ -96,7 +96,7 @@ BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
 # A [BLOCKED:] tag is maintainer-GRANTED, never assistant-asserted (P-1.36 S36). The grant is recorded as a
 # row of the approvals register in the operational store: ``| <item id> | <reason> | <date> | <evidence> |``,
 # where the evidence cell cites the ruling (a pending-decisions entry, a commit or a PR). A tag counts as
-# BLOCKED only when its item has a row. None = no operational store at all (an adopter clone): tags count
+# BLOCKED only when its item has a row. None = no store on a git clone whose origin is another repository: tags count
 # as written. When a store exists but the register does not, NO tag counts: a missing register must not
 # widen what is blocked, since BLOCKED licenses less work (the asymmetric-skepticism rule).
 APPROVALS_FILE = "blocked-approvals.md"
@@ -107,17 +107,32 @@ _APPROVAL_HEADER = "| Item | Reason | Granted | Evidence |"
 _FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 
 
+_APPROVAL_SEPARATOR_RE = re.compile(r"\|(?: ?:?-+:? ?\|){4}")
+_APPROVAL_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+_APPROVAL_ITEM_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?")
+
+
 def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
-    """The item ids granted by the register, read by a deliberately literal grammar (QA r1-r3): only the FIRST
-    table whose header line is exactly ``| Item | Reason | Granted | Evidence |``, outside code fences (a fence
-    closes only on its own character with at least its opening length), grants. A row is a line with exactly
-    five ``|`` characters, i.e. four cells; it grants only with an item id (optionally backtick-wrapped), a
-    non-empty reason, a real calendar date not after today and non-empty evidence."""
+    """The item ids granted by the register, read by a deliberately literal grammar (QA r1-r4): only the FIRST
+    line that is exactly ``| Item | Reason | Granted | Evidence |`` (from column 0, no other spacing), outside
+    code fences and HTML comments, opens the granting table, and it must be followed at once by a four-cell
+    separator row. A fence closes only on its own character with at least its opening length. A row starts at
+    column 0, ends with ``|`` and has exactly five ``|`` characters; it grants only with an item id (optionally
+    backtick-wrapped, not ending in a dot), a non-empty reason, a ``YYYY-MM-DD`` calendar date not after today
+    and non-empty evidence. Anything indented, commented out or fenced grants nothing and does not use up the
+    allowance."""
     today = today or datetime.date.today()
     ids: set = set()
     fence = None  # (char, length) of the open fence
-    in_table = seen_table = False
-    for raw in text.splitlines():
+    in_comment = False
+    state = "before"  # before -> separator -> rows -> done
+    for raw in text.lstrip("\ufeff").splitlines():
+        if in_comment:
+            if "-->" in raw:
+                in_comment = False
+            if state != "before":
+                state = "done"
+            continue
         m = _FENCE_RE.match(raw)
         if fence is not None:
             if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1] and not raw.strip()[len(m.group(1)):].strip():
@@ -125,28 +140,38 @@ def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]
             continue
         if m:
             fence = (m.group(1)[0], len(m.group(1)))
-            in_table = False
+            if state != "before":
+                state = "done"
             continue
-        line = raw.strip()
-        if not in_table:
-            if not seen_table and " ".join(line.split()) == _APPROVAL_HEADER:
-                in_table = seen_table = True  # the allowance is used when the header is seen
+        if "<!--" in raw:
+            in_comment = "-->" not in raw[raw.index("<!--") + 4:]
+            if state != "before":
+                state = "done"
             continue
-        if not line.startswith("|"):
-            in_table = False
+        if state == "before":
+            if raw == _APPROVAL_HEADER:
+                state = "separator"  # the allowance is used when the exact header is seen
             continue
-        if line.count("|") != 5 or not line.endswith("|"):
+        if state == "separator":
+            state = "rows" if _APPROVAL_SEPARATOR_RE.fullmatch(raw) else "done"
             continue
-        item, reason, granted, evidence = (c.strip() for c in line[1:-1].split("|"))
-        if re.fullmatch(r"-+|:?-+:?", item):
-            continue  # the separator row
+        if state != "rows":
+            continue
+        if not raw.startswith("|"):
+            state = "done"
+            continue
+        if raw.count("|") != 5 or not raw.endswith("|"):
+            continue
+        item, reason, granted, evidence = (c.strip() for c in raw[1:-1].split("|"))
         if item.startswith("`") and item.endswith("`") and len(item) > 2:
             item = item[1:-1]
+        if not _APPROVAL_DATE_RE.fullmatch(granted):
+            continue
         try:
             when = datetime.date.fromisoformat(granted)
         except ValueError:
             continue
-        if reason and evidence and when <= today and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.\-]*", item):
+        if reason and evidence and when <= today and _APPROVAL_ITEM_RE.fullmatch(item):
             ids.add(item)
     return ids
 
@@ -757,6 +782,42 @@ def _self_test() -> int:
     check("approvals-header-exact", load_approvals(H.lower() + R("1.1")) == set()
           and load_approvals(H.replace("Item", "`Item`") + R("1.1")) == set())
     check("approvals-empty-fifth-cell", load_approvals(H + R("1.1").rstrip("\n") + "|\n") == set())
+    # QA r4: the grammar is literal from column 0; commented, indented and malformed tables grant nothing.
+    check("approvals-header-spacing", load_approvals(H.replace("| Item", "|  Item") + R("1.1")) == set()
+          and load_approvals(H.replace("| Item", "|\tItem") + R("1.1")) == set())
+    check("approvals-indented-table", load_approvals("para\n\n" + "".join("    " + l + "\n" for l in (H + R("1.1")).splitlines())) == set())
+    check("approvals-commented-table", load_approvals("<!-- revoked\n" + H + R("1.1") + "-->\n") == set()
+          and load_approvals("<!--\n" + H + R("1.1") + "-->\n" + H + R("2.2")) == {"2.2"})
+    check("approvals-list-nested-fence", load_approvals("- example:\n\n    ```markdown\n    " + H.replace("\n", "\n    ")
+                                                         + R("1.1") + "    ```\n") == set())
+    check("approvals-malformed-header-keeps-allowance", load_approvals("|  Item | Reason | Granted | Evidence |\n\n" + H + R("2.2")) == {"2.2"})
+    check("approvals-needs-separator", load_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1") + R("1.2")) == set())
+    check("approvals-indented-row", load_approvals(H + "    " + R("1.1") + R("1.2")) == set())
+    check("approvals-date-form", load_approvals(H + "| 1.1 | r | 20260918 | #1 |\n| 1.2 | r | 2026-W38-5 | #1 |\n") == set())
+    check("approvals-trailing-dot-id", load_approvals(H + R("1.1.")) == set())
+    check("approvals-bom", load_approvals("\ufeff" + H + R("1.1")) == {"1.1"})
+    # QA r4: the origin lookup against real (local, offline) repositories.
+    import tempfile as _tf
+    with _tf.TemporaryDirectory(prefix="origin-probe-") as od:
+        od = Path(od)
+        plain = od / "plain"; plain.mkdir()
+        repo = od / "repo"
+        subprocess.run(["git", "init", "-q", str(repo)], check=True, capture_output=True)
+        def with_origin(url):
+            subprocess.run(["git", "-C", str(repo), "config", "remote.origin.url", url], check=True, capture_output=True)
+            return _origin_is_maintainer(repo)
+        results = {"not-a-repo": _origin_is_maintainer(plain), "no-origin": _origin_is_maintainer(repo),
+                   "other": with_origin("https://example.org/someone/repo.git"),
+                   "canonical": with_origin("https://github.com/jposluns/grc_library.git"),
+                   "trailing-slash": with_origin("https://github.com/jposluns/grc_library/"),
+                   "case": with_origin("git@github.com:JPosluns/grc_library.git"),
+                   "owner-suffix": with_origin("https://github.com/evil-jposluns/grc_library")}
+        with open(repo / ".git" / "config", "ab") as fh:
+            fh.write(b'\n[remote "origin"]\n\turl = https://example.org/\xff/repo.git\n')
+        results["undecodable"] = _origin_is_maintainer(repo)
+        check("origin-lookup", results == {"not-a-repo": None, "no-origin": False, "other": False,
+                                           "canonical": True, "trailing-slash": True, "case": True,
+                                           "owner-suffix": False, "undecodable": None})
     tagged = "| 2.1 | t | `[BLOCKED:x]` |"
     saved_approvals = _APPROVALS
     try:
@@ -853,25 +914,41 @@ def _self_test() -> int:
     return 0
 
 
-_MAINTAINER_ORIGIN_RE = re.compile(r"(?:^|[/:])jposluns/grc_library$")
+_MAINTAINER_ORIGIN = "jposluns/grc_library"
+
+
+def _git_out(root: Path, *args: str) -> "tuple[int, str] | None":
+    """(returncode, stripped stdout) of a git command, or None if git cannot run or its output is not UTF-8."""
+    try:
+        proc = subprocess.run(["git", "-C", str(root), *args], capture_output=True, timeout=3)
+        return proc.returncode, proc.stdout.decode("utf-8").strip()
+    except (OSError, subprocess.SubprocessError, UnicodeDecodeError):
+        return None
 
 
 def _origin_is_maintainer(root: Path = REPO_ROOT) -> "bool | None":
-    """True when the checkout's origin is the maintainer repository (the boundary test
-    block-operational-without-private uses), False when git reports another origin or none, and None when the
-    origin cannot be established (git missing or failing): ignorance is not evidence of an adopter (QA r3)."""
-    try:
-        proc = subprocess.run(["git", "-C", str(root), "config", "--get", "remote.origin.url"],
-                              capture_output=True, text=True, timeout=10)
-    except (OSError, subprocess.SubprocessError):
+    """True when the checkout's origin is the maintainer repository, False when git reports another origin or
+    none, and None when the origin cannot be established: ignorance is not evidence of an adopter (QA r3).
+    The match is block-operational-without-private's boundary test (trailing ``.git`` stripped; equal to, or
+    containing after ``/`` or ``:``, ``jposluns/grc_library``), made case-insensitive, so a trailing slash or
+    a suffixed sibling name also reads as the maintainer; that errs toward counting fewer tags (QA r4). A
+    directory git does not recognize as a repository (not one, or refused as dubious ownership) is None, since
+    ``config --get`` would report such a failure the same way as an unset key (QA r4). The two 3 s git timeouts
+    keeps the lookup inside the unattended stop guard's budget."""
+    probe = _git_out(root, "rev-parse", "--git-dir")
+    if probe is None or probe[0] != 0:
         return None
-    if proc.returncode == 1 and not proc.stdout.strip():
-        return False  # no origin configured
-    if proc.returncode != 0:
+    got = _git_out(root, "config", "--get", "remote.origin.url")
+    if got is None:
         return None
-    out = proc.stdout.strip()
+    rc, out = got
+    if rc == 1 and not out:
+        return False  # a repository with no origin configured
+    if rc != 0:
+        return None
     url = out[:-4] if out.endswith(".git") else out
-    return bool(_MAINTAINER_ORIGIN_RE.search(url))
+    url, target = url.lower(), _MAINTAINER_ORIGIN
+    return url == target or f"/{target}" in url or f":{target}" in url
 
 
 def _load_default_approvals(explicit: "str | None") -> str:
