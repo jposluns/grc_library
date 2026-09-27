@@ -102,6 +102,14 @@ _BREAK_LINE_RE = re.compile(r"([-*_])(?: *\1){2,} *")
 _PROSE_LINE_RE = re.compile(r"(?![#>`~<=|\s])(?![-*+](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
 
 
+# A CCM or AICM cell the scan reads: N/A, a dash, empty, or a plain list of codes and ranges (3b107 QA r4).
+# Inline markup (emphasis, code spans, links) can hide a displayed code or reveal a hidden one, so a cell
+# that is anything else is not read and its row is listed as not assessed.
+_CELL_CODE = r"[A-Z][A-Z&]{1,4}-\d{2}"
+_CELL_ITEM = rf"{_CELL_CODE}(?:[ \t]+(?:to|through)[ \t]+(?:{_CELL_CODE}|\d{{2}}))?"
+_CODE_LIST_RE = re.compile(rf"(?:N/A|-|)|{_CELL_ITEM}(?:[ \t]*[,;][ \t]*{_CELL_ITEM})*")
+
+
 def _line_kind(line: str) -> "str | None":
     if line.strip(" \t") == "":
         return "blank"
@@ -117,17 +125,20 @@ def _line_kind(line: str) -> "str | None":
 
 
 def matrix_refusal(text: str) -> "str | None":
-    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r2). The grammar is CLOSED: rather than
+    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r4). The grammar is CLOSED: rather than
     model every CommonMark construct that can hide a table or pull its text into something else (HTML,
     fences, indented code, quotes, lists and their lazy continuations), the matrix may hold only blank lines
     (spaces and tabs), ATX headings, thematic breaks, plain prose lines without a pipe or a block marker, and
     table lines starting with a pipe at column 0; a table must follow a blank line, a heading, a break or the
-    start of the file, and be followed by one of those; and no whitespace other than space and tab may
-    appear. Anything else refuses the matrix, and the reason names the line."""
+    start of the file, and be followed by one of those; each run of table lines must open with its own
+    header and delimiter row; a table line may carry no escape (other than before a pipe), entity or HTML
+    and must have cells; no whitespace other than space and tab, and no control or format character, may
+    appear. Anything else refuses the matrix, and the reason names the line. Cell CONTENT is checked in
+    scan: a CCM/AICM cell that is not a plain code list is not read, and its row is listed."""
     if "\ufeff" in text:
         return "it contains a byte-order mark"
     for ch in set(text):
-        if ch not in "\t\n\r" and (unicodedata.category(ch) in ("Zs", "Zl", "Zp", "Cc") and ch != " "):
+        if ch not in "\t\n\r" and (unicodedata.category(ch) in ("Zs", "Zl", "Zp", "Cc", "Cf") and ch != " "):
             return f"it contains the character {ch!r}, which Markdown and this parser may read differently"
     prev = "blank"
     lines = _LINE_BREAK_RE.split(text)
@@ -273,7 +284,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
     skipped: list[str] = []
     for header, rows in _tables(matrix_text):
         if header[:3] != list(_HEADER_CELLS[:3]) or "CSA CCM v4.1" not in header or "CSA AICM v1.1" not in header:
-            if rows and ("CSA CCM v4.1" in header or "CSA AICM v1.1" in header):
+            if rows and any(("ccm" in h.lower() or "aicm" in h.lower()) for h in header):
                 skipped.append(f"line {rows[0][0] - 2}: a table with CCM or AICM columns whose header is not the "
                                f"master header; its {len(rows)} row(s) are not read")
             continue
@@ -282,6 +293,11 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
         ccm_idx = header.index("CSA CCM v4.1")
         aicm_idx = header.index("CSA AICM v1.1")
         for lineno, cells in rows:
+            odd = [name for name, idx in (("CCM", ccm_idx), ("AICM", aicm_idx)) if not _CODE_LIST_RE.fullmatch(cells[idx])]
+            if odd:
+                skipped.append(f"line {lineno}: the {' and '.join(odd)} cell is not a plain list of codes and ranges "
+                               "(inline markup could hide or reveal a code); not read")
+                continue
             docrel = _doc_path(cells[path_idx])
             if not docrel:
                 skipped.append(f"line {lineno}: no document path in the Path cell")
@@ -451,6 +467,20 @@ def _self_test() -> int:
          and _cells("| a\u00a0 | b |") == ["a\u00a0", "b"],
          "each refusal layer holds on its own: BOM, pipe-less table line, list item; cells strip only spaces and tabs"),
         (matrix_refusal(hdr + row("risk/a.md") + "|\n" + row("risk/b.md")) is not None, "a lone pipe line refuses the matrix"),
+        # QA r4: CCM/AICM cells are a plain code list; format characters refuse; CCM-like headers are listed.
+        (all(rows_seen(hdr + row("risk/a.md").replace("STA-02", bad)) == (1, 0, 1) for bad in (
+            "STA-01, _STA-02_", "STA-01, __STA-02__", "STA-0*2*", "STA-01, **STA-02**", "STA-0`2`",
+            "[STA-01](STA-02)", "STA-01 to _09_")),
+         "a CCM cell with inline markup is not read and its row is listed"),
+        (all(rows_seen(hdr + row("risk/a.md").replace("STA-02", ok))[1] == 1 for ok in (
+            "STA-02", "STA-01, STA-02", "STA-01; STA-02", "STA-01 to 09", "STA-01 through STA-09", "A&A-02", "N/A", "-")),
+         "plain code lists, ranges and N/A are read"),
+        (matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "STA\u00ad-02")) is not None
+         and matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "STA-\u200b02")) is not None,
+         "a soft hyphen or zero-width space refuses the matrix"),
+        (rows_seen(hdr.replace("CSA CCM v4.1", "*CSA CCM v4.1*").replace("CSA AICM v1.1", "**CSA AICM v1.1**")
+                   + row("risk/a.md")) == (0, 0, 1),
+         "a table whose CCM header is emphasized is listed, not dropped"),
         # QA r3
         (all(matrix_refusal(hdr + row("risk/a.md").replace("STA-02", bad)) is not None
              for bad in ("STA\\-02", "STA&#45;02", "STA-01 <!-- STA-02 -->")),
@@ -508,6 +538,8 @@ def main(argv: list[str]) -> int:
     findings = scan(text, matrix_rel=matrix_rel, stats=stats)
     skipped = stats["skipped"]
     if not stats["tables"]:
+        for s in skipped:
+            print(f"  - {s}", file=sys.stderr)
         print(f"ERROR: {args.matrix} holds no master-matrix table (a header starting Domain | Document Title | "
               "Path with the CSA CCM v4.1 and CSA AICM v1.1 columns, followed at once by its delimiter row)",
               file=sys.stderr)

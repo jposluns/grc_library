@@ -13125,6 +13125,12 @@ class StrandedMatrixRefusalTests(LinterTestCase):
         r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(zero))
         self.assertEqual(r.returncode, 2)
         self.assertIn("-missing-z.md", r.stderr)
+        # a CCM table without the master header is named even when no master table exists (QA r4)
+        other = td / "othercols.md"
+        other.write_text(header.replace(" CSA AICM v1.1 |", " Other |") + row + "\n", encoding="utf-8")
+        r = run_linter("tools/audit-stranded-matrix-code.py", "--matrix", str(other))
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("whose header is not the master header", r.stderr)
         # every unassessed row is listed, not the first twenty (QA r1)
         many = td / "many.md"
         many.write_text(header + "".join(row.replace(".md", f"-missing-{k}.md") + "\n" for k in range(25)),
