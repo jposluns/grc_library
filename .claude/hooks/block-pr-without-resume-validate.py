@@ -107,7 +107,7 @@ def invokes_merge_tool(cmd: str) -> bool:
     complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
     honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
     gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
-    and merge-when-green.py enforces the open-findings decision itself on every merge. After dropping quotes and backslash-newline
+    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
     continuations, any mention of merge-when-green gates, except a single simple command (one line,
     no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
     gated too; that costs little, since this hook blocks only while its blocking state holds, and
@@ -146,159 +146,48 @@ def is_blocking_command(cmd: str) -> bool:
           / unbalanced-quote forms (`gh pr create&&echo`, `gh pr merge;x`, `gh pr create # '`).
       (2) ORDERED TOKEN SUBSEQUENCE `gh` -> `pr` -> `create`|`merge` over shlex tokens -- catches
           quoted subcommands (`gh "pr" create`, `gh pr 'create'`) and interleaved flags
-          (`gh -R x pr create`), which the substring misses because shlex removes the quotes and the token order ignores flags.
+          (`gh -R x pr create`), which the substring misses because shlex unquotes and reorders.
 
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
 
-    The gh detectors read the text as written, with every backslash-newline joined, and joined as bash
-    joins; heredoc bodies are data unless fed to a shell, and a shell's -c argument or eval's arguments are
-    read as a command; any match blocks (3b112 QA r1-r5; see _gh_pr_command).
+    The gh detectors run on the text as written AND with backslash-newlines joined, and block on either
+    (3b112 QA r1, r2).
 
-    The `gh` token is matched bare OR as a path (`*/gh`). RESIDUE, not exhaustive: shell forms this does
-    not model still evade, for
-    example a word held in a variable (c=merge; gh pr $c), an alias, ANSI-C quoting (gh pr $'merge'),
-    brace expansion (gh pr {merge,}), an unquoted mid-word # earlier on the line (shlex starts a
-    comment there, bash does not), a command fed to a shell on stdin other than by a heredoc
-    (bash <<< "...", echo ... | bash), xargs, or nesting deeper than three levels. Accepted: this guard is a SPEED BUMP for an
+    RESIDUE (stated, as a class): the `gh` token is matched bare OR as a path (`*/gh`). This is text
+    matching, not a shell model: a command run through another shell or eval (bash -c "...", sh -c,
+    eval), fed on stdin or through a heredoc, built from a variable or an alias, or quoted in a way shlex
+    reads differently from bash (ANSI-C quoting, a mid-word #) still evades (3b112 kept this deliberately
+    after attempts to model those forms kept introducing misses). Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
     if not isinstance(cmd, str):
         return False
     if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
         return True
-    # The merge-tool exemption above reads only the text as written (3b112 QA r2).
-    return _gh_pr_command(cmd, 0)
+    # Both the text as written and the text with every backslash-newline joined: bash joins only some of
+    # them (not after an even run of backslashes or in a comment), so blocking on either keeps both cases
+    # (3b112 QA r1, r2). The merge-tool exemption above reads only the unjoined text.
+    return _gh_pr_verb(cmd) or _gh_pr_verb(cmd.replace("\\\n", ""))
 
 
-_SHELLS = ("bash", "sh", "zsh", "dash", "ksh", "ash", "busybox")
-_OPERATORS = (";", "&&", "||", "|", "&", "(", ")", "\n")
-
-
-def _gh_pr_command(cmd: str, depth: int) -> bool:
-    """PURE. Three readings of the text: as written, with every backslash-newline joined, and joined as
-    bash joins (not after an even backslash run, in a comment or in single quotes). The substring pass reads
-    each as written. The token pass and the nested-command readings read each with heredoc bodies removed,
-    so a commit message written through a heredoc is data, not a command; a reading that still will not
-    tokenize is read line by line. In each command segment, the argument of a shell's -c option (after any
-    other options) and eval's joined arguments are read as commands, and so is a heredoc body fed to a
-    shell (bash <<EOF), to depth 3 (3b112 QA r1-r5). Blocking on any reading over-gates, the safe direction."""
-    if depth > 3:
-        return False
-    for text in dict.fromkeys((cmd, cmd.replace("\\\n", ""), _bash_join(cmd))):
-        flat = " ".join(text.split())
-        if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
-            return True
-        bare, bodies = _split_heredocs(text)
-        for line, body in bodies:
-            first = (_tokens(line) or [""])[0]
-            if os.path.basename(first) in _SHELLS and _gh_pr_command(body, depth + 1):
-                return True
-        toks = _tokens(bare)
-        if toks is None:
-            if any(_token_hit(_tokens(line) or []) for line in bare.split("\n")):
-                return True
-            continue
-        if _token_hit(toks):
-            return True
-        seg: list = []
-        for tk in toks + [";"]:
-            if tk in _OPERATORS:
-                if _nested_command(seg, depth):
-                    return True
-                seg = []
-            else:
-                seg.append(tk)
-    return False
-
-
-def _token_hit(toks) -> bool:
-    """PURE. The ordered token pass: gh (bare or a path), then pr, then create or merge; a fresh gh resets."""
+def _gh_pr_verb(cmd: str) -> bool:
+    """PURE. The substring pass and the ordered shlex token pass for `gh pr create|merge`."""
+    flat = " ".join(cmd.split())
+    if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
+        return True
+    toks = _tokens(cmd)
+    if toks is None:
+        return False  # unparseable is already covered by the substring pass above
     seen_gh = seen_pr = False
     for tk in toks:
-        if tk == "gh" or tk.endswith("/gh"):
+        if tk == "gh" or tk.endswith("/gh"):   # bare `gh` or an absolute/relative path to it
             seen_gh, seen_pr = True, False
         elif seen_gh and tk == "pr":
             seen_pr = True
         elif seen_pr and tk in ("create", "merge"):
             return True
     return False
-
-
-def _nested_command(seg: list, depth: int) -> bool:
-    """PURE. Does one command segment run a nested command that is itself a gh pr create or merge?"""
-    for i, tk in enumerate(seg):
-        if tk == "eval" and i + 1 < len(seg):
-            return _gh_pr_command(" ".join(seg[i + 1:]), depth + 1)
-        if os.path.basename(tk) in _SHELLS:
-            j = i + 1
-            while j < len(seg) and seg[j].startswith("-") and seg[j] != "--":
-                opt = seg[j]
-                j += 1
-                if not opt.startswith("--") and "c" in opt[1:]:
-                    if j < len(seg) and seg[j] == "--":
-                        j += 1
-                    return j < len(seg) and _gh_pr_command(seg[j], depth + 1)
-                if len(opt) > 1 and opt[0] in "-+" and not opt.startswith("--") and opt.endswith("o") \
-                        and j < len(seg):
-                    j += 1  # the option's argument (bash -o pipefail, bash -euo pipefail)
-            return False
-    return False
-
-
-def _split_heredocs(cmd: str):
-    """PURE. (the text with each heredoc body removed, [(the line that opened it, its body)]), so an
-    apostrophe or a word inside a heredoc body is neither a parse error nor a command (3b112 QA r5)."""
-    out, bodies, lines, i = [], [], cmd.split("\n"), 0
-    while i < len(lines):
-        line = lines[i]
-        out.append(line)
-        i += 1
-        for word in re.findall(r"<<-?\s*['\"]?([A-Za-z_][A-Za-z0-9_]*)['\"]?", line):
-            start = i
-            while i < len(lines) and lines[i].strip() != word:
-                i += 1
-            bodies.append((line, "\n".join(lines[start:i])))
-            i += 1  # the terminator line
-    return "\n".join(out), bodies
-
-
-def _bash_join(cmd: str) -> str:
-    """PURE. Remove the backslash-newlines bash treats as line continuations: outside single quotes and
-    comments, and only where the backslash is not itself escaped (3b112 QA r3). A model, not a shell."""
-    out, i, n = [], 0, len(cmd)
-    single = double = comment = False
-    word_start = True
-    while i < n:
-        c = cmd[i]
-        if comment:
-            out.append(c)
-            if c == "\n":
-                comment, word_start = False, True
-            i += 1
-            continue
-        if single:
-            out.append(c)
-            single = c != "'"
-            i += 1
-            continue
-        if c == "\\" and i + 1 < n:
-            if cmd[i + 1] == "\n":
-                i += 2
-                continue
-            out.append(cmd[i:i + 2])
-            i, word_start = i + 2, False
-            continue
-        if c == "'" and not double:
-            single = True
-        elif c == '"':
-            double = not double
-        elif c == "#" and not double and word_start:
-            comment = True
-        out.append(c)
-        word_start = c in " \t\n;&|()"
-        i += 1
-    return "".join(out)
 
 
 
@@ -526,36 +415,6 @@ def self_test() -> int:
     for s in ("echo x\\\\\ngh pr 'merge' 1", "# note \\\ngh pr 'merge' 1", "true # trailing\\\ngh pr 'create'",
               '# note \\\ngh "pr" create'):
         ck(f"unjoined text still checked: {s!r}", is_blocking_command(s), True)
-    # 3b112 QA r3: mixed continuations (one bash joins, one it does not) and a nested shell
-    for s in ("x\\\\\ngh pr 'me'\\\nrge 1", "# x \\\ngh pr 'me'\\\nrge 1", 'echo n # c \\\ngh "pr" me\\\nrge',
-              "# note \\\ngh -R o/r pr \\\nmerge 1", 'bash -c "gh -R o/r pr merge"', "bash -c \"gh 'pr' merge\"",
-              "sh -c 'gh \"pr\" merge 1'"):
-        ck(f"r3 form blocks: {s!r}", is_blocking_command(s), True)
-    ck("quoted text without gh does not block", is_blocking_command('git commit -m "merge the pr"'), False)
-    # 3b112 QA r4: a heredoc apostrophe does not hide a later command; ordinary quoted data does not block
-    ck("heredoc apostrophe then flagged verb blocks",
-       is_blocking_command("cat <<EOF >/dev/null\nit's done\nEOF\ngh pr -R o/r merge 12"), True)
-    for s in ('git commit -m "update gh and pr to merge"', 'git commit -m "docs: gh for pr create flows"',
-              "python3 tools/x.py --note 'gh then pr then merge'"):
-        ck(f"quoted data does not block: {s!r}", is_blocking_command(s), False)
-    ck("eval argument read as a command", is_blocking_command("eval \"gh -R o/r pr merge 1\""), True)
-    ck("heredoc fed to a shell is read as a command", is_blocking_command("bash <<'EOF'\ngh pr 'merge' 1\nEOF"), True)
-    ck("a line shlex cannot parse (ANSI-C quote) does not hide the next", is_blocking_command("echo $'it\\'s'\ngh -R o/r pr merge 1"), True)
-    # 3b112 QA r5: option clusters and separate options before -c, eval's joined arguments, two nested levels
-    for s in ('bash -e -c "gh -R o/r pr merge 12"', 'bash -ce "gh -R o/r pr merge 12"', 'sh -e -c "gh -R o/r pr merge 12"',
-              'sh -ce "gh -R o/r pr merge 12"', "bash -o pipefail -c \"gh pr 'merge' 1\"",
-              "bash -euo pipefail -c \"gh pr 'merge' 1\"", "bash -x -c \"gh pr 'merge' 2\"",
-              "bash --norc -c \"gh pr 'merge' 1\"", "bash -c -- \"gh pr 'merge' 3\"",
-              "eval 'gh -R o/r' 'pr merge 12'", "eval gh pr \"'merge'\" 6",
-              "bash -c \"bash -c \\\"gh pr 'merge' 1\\\"\""):
-        ck(f"r5 form blocks: {s!r}", is_blocking_command(s), True)
-    # ...and multi-line quoted data and heredoc commit messages do not block
-    for s in ('git commit -m "title\nupdate gh and pr to merge\n"',
-              "git -C /x commit -m \"$(cat <<'EOF'\ntooling: hooks\n\nThe gh pr view output now shows merge state.\nEOF\n)\"",
-              "git -C /x commit -F - <<'EOF'\ntooling: x\n- gh then pr then create order\nEOF",
-              "python3 tools/x.py --note 'a\ngh pr then merge\n'"):
-        ck(f"r5 quoted data does not block: {s!r}", is_blocking_command(s), False)
-    ck("bash -lc argument read as a command", is_blocking_command("bash -lc \"gh 'pr' merge\""), True)
     ck("quoted --dry-ru<nl>n is not a dry-run exemption",
        is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
 
