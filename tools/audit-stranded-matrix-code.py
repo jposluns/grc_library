@@ -56,6 +56,7 @@ output against the committed baseline to surface NEW strands.
 from __future__ import annotations
 
 import argparse
+import posixpath
 import re
 import stat
 import unicodedata
@@ -237,14 +238,37 @@ def _tables(text: str):
         k += 1
 
 
+_PATH_BARE_RE = re.compile(r"`([A-Za-z0-9_./-]+\.md)`")
+_PATH_LINK_RE = re.compile(r"\[`([A-Za-z0-9_./-]+\.md)`\]\(([A-Za-z0-9_./-]+\.md)\)")
+
+
 def _doc_path(path_cell: str) -> str | None:
-    # Prefer the backtick code text; fall back to the link target.
-    m = re.search(r"`([^`]+\.md)`", path_cell)
+    """The document a Path cell names, or None (3b107 QA r5). Only two shapes are read, so that text GFM does
+    not display (a link title, image alt text, struck-through text) cannot choose the document: the cell is
+    exactly a backticked path, or exactly a link whose backticked text is the path its target resolves to from
+    compliance/. Anything else is not read and its row is listed."""
+    m = _PATH_BARE_RE.fullmatch(path_cell)
     if m:
         return m.group(1)
-    m = re.search(r"\]\((?:\.\./)?([^)]+\.md)\)", path_cell)
-    if m:
+    m = _PATH_LINK_RE.fullmatch(path_cell)
+    if m and posixpath.normpath(posixpath.join("compliance", m.group(2))) == posixpath.normpath(m.group(1)):
         return m.group(1)
+    return None
+
+
+def _range_problem(cell: str) -> "str | None":
+    """Why a cell's range is not a real one, or None: a range must stay in one family and ascend (QA r5)."""
+    for m in re.finditer(rf"({_CELL_CODE})[ \t]+(?:to|through)[ \t]+({_CELL_CODE}|\d{{2}})", cell):
+        start, end = m.group(1), m.group(2)
+        prefix, s = start.rsplit("-", 1)
+        if "-" in end:
+            end_prefix, e = end.rsplit("-", 1)
+            if end_prefix != prefix:
+                return f"the range {m.group(0)!r} crosses families"
+        else:
+            e = end
+        if int(e) < int(s):
+            return f"the range {m.group(0)!r} runs backwards"
     return None
 
 
@@ -283,10 +307,12 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
     n_tables = n_rows = n_codes = 0
     skipped: list[str] = []
     for header, rows in _tables(matrix_text):
-        if header[:3] != list(_HEADER_CELLS[:3]) or "CSA CCM v4.1" not in header or "CSA AICM v1.1" not in header:
+        code_cols = [h for h in header if "ccm" in h.lower() or "aicm" in h.lower()]
+        if (header[:3] != list(_HEADER_CELLS[:3]) or sorted(code_cols) != ["CSA AICM v1.1", "CSA CCM v4.1"]):
             if rows and any(("ccm" in h.lower() or "aicm" in h.lower()) for h in header):
                 skipped.append(f"line {rows[0][0] - 2}: a table with CCM or AICM columns whose header is not the "
-                               f"master header; its {len(rows)} row(s) are not read")
+                               f"master header (or has more than one CCM or AICM column); its {len(rows)} row(s) "
+                               "are not read")
             continue
         n_tables += 1
         path_idx = header.index("Path")
@@ -298,9 +324,15 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
                 skipped.append(f"line {lineno}: the {' and '.join(odd)} cell is not a plain list of codes and ranges "
                                "(inline markup could hide or reveal a code); not read")
                 continue
+            bad_range = next((f"{name}: {why}" for name, idx in (("CCM", ccm_idx), ("AICM", aicm_idx))
+                              for why in [_range_problem(cells[idx])] if why), None)
+            if bad_range:
+                skipped.append(f"line {lineno}: {bad_range}; not read")
+                continue
             docrel = _doc_path(cells[path_idx])
             if not docrel:
-                skipped.append(f"line {lineno}: no document path in the Path cell")
+                skipped.append(f"line {lineno}: the Path cell is not a backticked path, or a link whose backticked "
+                               "text is the path it points to; not read")
                 continue
             if docrel not in doc_cache:
                 dt = doc_reader(docrel)
@@ -478,6 +510,21 @@ def _self_test() -> int:
         (matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "STA\u00ad-02")) is not None
          and matrix_refusal(hdr + row("risk/a.md").replace("STA-02", "STA-\u200b02")) is not None,
          "a soft hyphen or zero-width space refuses the matrix"),
+        # QA r5: the Path cell shapes, real ranges, a single CCM and AICM column.
+        (all(rows_seen(hdr + f"| R | A | {cell} | STA-02 | N/A |\n") == (1, 0, 1) for cell in (
+            '[doc](gov/x.md "`risk/a.md`")', "![`risk/a.md`](x.png)", "~~`risk/b.md`~~ `risk/a.md`",
+            "[`risk/a.md`](../gov/other.md)", "see `risk/a.md`")),
+         "a Path cell outside the two shapes is not read and its row is listed"),
+        (rows_seen(hdr + "| R | A | [`risk/a.md`](../risk/a.md) | STA-02 | N/A |\n")[1] == 1,
+         "a link whose text is the path it points to is read"),
+        (all(rows_seen(hdr + row("risk/a.md").replace("STA-02", r)) == (1, 0, 1) for r in ("STA-05 to 02", "STA-01 to GRC-05"))
+         and rows_seen(hdr + row("risk/a.md").replace("STA-02", "STA-01 to 05"))[1] == 1,
+         "a backward or cross-family range is listed; an ascending one is read"),
+        (all(rows_seen(hdr.replace("| CSA AICM v1.1 |", f"| CSA AICM v1.1 | {extra} |").replace("| --- |\n", "| --- | --- |\n")
+                       + row("risk/a.md").replace("| N/A |", "| N/A | STA-03 |")) == (0, 0, 1)
+             for extra in ("CSA CCM v4.1", "CSA CCM v4.1 (extra)")),
+         "a second CCM column makes the table not the master table, and it is listed"),
+        (matrix_refusal("note\u00a0here\n\n" + hdr + row("risk/a.md")) is not None, "a no-break space in prose refuses"),
         (rows_seen(hdr.replace("CSA CCM v4.1", "*CSA CCM v4.1*").replace("CSA AICM v1.1", "**CSA AICM v1.1**")
                    + row("risk/a.md")) == (0, 0, 1),
          "a table whose CCM header is emphasized is listed, not dropped"),
