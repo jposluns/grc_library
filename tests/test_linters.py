@@ -20109,6 +20109,20 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "repo prefix recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### grc_library_ref PR #156: 3b7 additions (2026-09-01)\n", 1),
             "lead parenthetical stays open": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7(closed) wording (2026-09-01)\n", 0),
             "lead comma list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b6, 3b7: residue (2026-09-01)\n", 1),
+            "spaced lead parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (part d) completed (2026-09-01)\n", 0),
+            "lead letter list": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (b and d) completed (2026-09-01)\n", 0),
+            "spaced lead letter": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 (b) wording (2026-09-01)\n", 0),
+            "spaced colon part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 : part d completed (2026-09-01)\n", 0),
+            "hyphen part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 - part d (2026-09-01)\n", 0),
+            "comma part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7, part d (2026-09-01)\n", 0),
+            "capital part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 Part d (2026-09-01)\n", 0),
+            "partial word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partial: wording (2026-09-01)\n", 0),
+            "phase word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 phase 1 (2026-09-01)\n", 0),
+            "slice word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 slice 1: gate (2026-09-01)\n", 0),
+            "tail slash list recycled": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixed (3b6/3b7) (2026-09-01)\n", 1),
+            "paren not before the date": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) wording (2026-09-01)\n", 0),
+            "paren before a date then text": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) (2026-09-01) note\n", 0),
+            "compound with lettered live id": ("## Q\n- **3b7b fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
             "lead split is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 split (2026-09-01)\n", 0),
             "colon part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: part d completed (2026-09-01)\n", 0),
             "backtick source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-up from `3b7` QA (2026-09-01)\n", 0),
@@ -20126,10 +20140,17 @@ class TodoNumberPermanenceTests(LinterTestCase):
                            "## Q\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("3b7", out)
+        self.assertNotIn("\u00a73b7", out)  # a queue id prints without a section marker
         # An unclosed fence in P-TODO.md hides later bullets, so the gate reports it (design note 1c).
         rc, out = self._rc("perm-3b120-unclosed", "# TODO\n", "# DONE\n", "## Q\n```\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("unclosed", out)
+        rc, out = self._rc("perm-3b120-unclosed-pub", "# TODO\n```\n- **3b7 [public] fix** x\n", "# DONE\n", "## Q\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("TODO.md:2", out)
+        rc, out = self._rc("perm-3b120-unclosed-comment", "# TODO\n", "# DONE\n", "## Q\n<!-- note\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("P-TODO.md:2", out)
         # An untagged coded bullet is not an item, so it cannot make a cross-list duplicate.
         rc, out = self._rc("perm-3b120-untagged", "# TODO\n- **RB-6 [public] fix** x\n", "# DONE\n",
                            "## Q\n- **RB-6 fix** x\n")

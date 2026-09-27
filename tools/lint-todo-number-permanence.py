@@ -104,14 +104,19 @@ false-negative cost:
      guard lists for partial-close words and source or destination verbs;
      QA round 1 showed any such list is a sample (``blocks 3b7``, ``closure of
      3b7``, ``routed to 3b8, 3b7``), so the pass reads positions instead of
-     words. In the lead position a partial close keeps the item open
-     (``3b27(b)``, ``3b65 part d``, ``3b120: part d``, ``3b14 (b) and (d)``,
-     ``3b50 split``) and a compound token yields nothing (``3b7-ii``,
-     ``3b7b2e1``, ``3b7.1``). Measured at adoption: the same 71 retired queue
+     words. In the lead position the item stays open when any parenthetical
+     follows the ids, with or without a space and whatever it holds
+     (``3b27(b)``, ``3b7 (part d)``, ``3b7 (closed)``), or a partial word
+     follows after an optional ``:``, ``,`` or ``-`` (``3b65 part d``,
+     ``3b120: part d``, ``3b7 partial``, ``3b7 phase 1``, ``3b7 slice 1``,
+     ``3b50 split``); a compound token yields nothing (``3b7-ii``,
+     ``3b7b2e1``, ``3b7.1``). Other partial wording in the lead position
+     retires the id: that failure is loud (the gate goes red on a live item)
+     and an EXEMPT row clears it, as for the other series. Measured at adoption: the same 71 retired queue
      ids as the whole-heading scan, none live. The queue series has no
      counter and no public floor, so only checks A and C apply to it.
      FALSE-NEGATIVE RISK: a closure written only as a mention (``closure of
-     3b7``), after a lead parenthetical (``3b7(closed)``), or in a heading that
+     3b7``), with a lead parenthetical (``3b7 (closed)``), or in a heading that
      omits the id (several 2026-09 closures, e.g. the #2634 annex fix of
      3b110) is not read. P-TODO 3b127 makes the finalize tool write the closed
      id in the lead position, which is the durable fix.
@@ -251,12 +256,16 @@ THREEB_LEAD_RE = re.compile(
     r"^### (?:[\w-]+ )?(?:PR #\d+|\d{4}-\d\d-\d\d):\s+(?P<ids>" + _THREEB_ID
     + r"(?:\s*[/,]\s*" + _THREEB_ID + r")*)(?P<after>.*)$")
 THREEB_TAIL_RE = re.compile(
-    r"\((?P<ids>" + _THREEB_ID + r"(?:\s*,\s*" + _THREEB_ID + r")*)\)\s*\(\d{4}-\d\d-\d\d\)\s*$")
+    r"\((?P<ids>" + _THREEB_ID + r"(?:\s*[/,]\s*" + _THREEB_ID + r")*)\)\s*\(\d{4}-\d\d-\d\d\)\s*$")
 THREEB_ID_RE = re.compile(_THREEB_ID)
-# After a lead id list, a partial close keeps the item open: ``3b27(b)``, ``3b65 part d``, ``3b120: part d``,
-# ``3b14 (b) and (d)``, ``3b50 split``; a word character or hyphen means a compound token (``3b7-ii``, ``3b7b2e1``).
+# After a lead id list the item stays open when (3b120 QA r2): a word character, dot or hyphen follows at once (a
+# compound token: ``3b7-ii``, ``3b7b2e1``, ``3b7.1``); ANY parenthetical follows, with or without a space (``3b27(b)``,
+# ``3b7 (part d)``, ``3b7 (closed)``: read structurally, whatever it holds); or a partial word follows after an
+# optional ``:``, ``,`` or ``-`` separator (``3b65 part d``, ``3b120: part d``, ``3b7 - part d``, ``3b7 partial``,
+# ``3b7 phase 1``, ``3b7 slice 1``, ``3b50 split``). Any other partial wording retires the id loudly (the gate goes
+# red on a live item) and is cleared by an EXEMPT row, as for the other series.
 THREEB_LEAD_PARTIAL_RE = re.compile(
-    r"^(?:[\w.-]|\(|:?\s*,?\s*(?:parts?\b|split\b|\(\s*[a-z](?:\s*,\s*[a-z])*\s*\)))", re.IGNORECASE)
+    r"^(?:[\w.-]|\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> rationale. A partial close
 # recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
