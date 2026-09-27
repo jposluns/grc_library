@@ -128,6 +128,50 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
 
 
+def _yaml_scalar(raw: str) -> str:
+    """A plain or quoted single-line YAML scalar, with an inline comment removed (3b105 QA r2)."""
+    s = raw.strip()
+    if s[:1] in ("'", '"'):
+        q = s[0]
+        end = s.find(q, 1)
+        return s[1:end] if end > 0 else s
+    cut = s.find(" #")
+    return (s[:cut] if cut >= 0 else s).strip()
+
+
+def workflow_names(text: str) -> tuple[str | None, set[str]]:
+    """(top-level name, set of job names) from a workflow file, read structurally with the stdlib: the
+    top-level `name:` and the `name:` of each job directly under `jobs:`, at the indentation of the
+    jobs' own keys, so a step's or an env block's `name:` is not taken for a job name (3b105 QA r2).
+    Single-line scalars only; a name this reader cannot read is absent, so the pin fails closed."""
+    top, jobs = None, set()
+    in_jobs, key_indent, prop_indent = False, None, None
+    for line in text.splitlines():
+        body = line.split("#", 1)[0] if line.lstrip().startswith("#") else line
+        if not body.strip():
+            continue
+        indent = len(body) - len(body.lstrip(" "))
+        stripped = body.strip()
+        if indent == 0:
+            in_jobs = stripped.rstrip() == "jobs:"
+            key_indent = prop_indent = None
+            if stripped.startswith("name:"):
+                top = _yaml_scalar(stripped[len("name:"):])
+            continue
+        if not in_jobs:
+            continue
+        if key_indent is None:
+            key_indent = indent
+        if indent == key_indent:
+            prop_indent = None
+            continue
+        if prop_indent is None and indent > key_indent:
+            prop_indent = indent
+        if indent == prop_indent and stripped.startswith("name:"):
+            jobs.add(_yaml_scalar(stripped[len("name:"):]))
+    return top, jobs
+
+
 def open_findings_block(root, ledger=None) -> tuple[int, str]:
     """(exit code, message) from the open-findings guard's own decision on the ledger (3b108).
 
@@ -378,17 +422,23 @@ def _self_test() -> int:
         "Lint markdown corpus": "Repository quality checks", "PR attribution (title and body)": "PR attribution"}))
     # The map matches the workflow files themselves (3b105 QA r1): each file's top-level name, and a job
     # carrying the required check's name. A rename in either file fails here, not first at merge time.
-    import re as _re
     wf_files = {"Lint markdown corpus": "quality.yml", "PR attribution (title and body)": "pr-attribution.yml"}
     for check, fname in wf_files.items():
         try:
             text = (_REPO_ROOT / ".github" / "workflows" / fname).read_text(encoding="utf-8")
         except OSError:
             text = ""
-        top = _re.search(r"(?m)^name:\s*(.+?)\s*$", text)
-        jobs = _re.findall(r"(?m)^\s+name:\s*(.+?)\s*$", text)
-        checks.append((f"workflow-file-{fname}", bool(top) and top.group(1) == REQUIRED_WORKFLOWS[check]
-                       and check in jobs))
+        top, jobs = workflow_names(text)
+        checks.append((f"workflow-file-{fname}", top == REQUIRED_WORKFLOWS[check] and check in jobs))
+    # The reader takes job names only, and reads quoted and commented scalars (3b105 QA r2).
+    wf = ("name: \"Repository quality checks\"  # quoted\non:\n  pull_request:\njobs:\n  lint:\n"
+          "    name: 'Lint markdown corpus' # commented\n    runs-on: x\n    env:\n      name: Env name\n"
+          "    steps:\n      - name: Step name\n        uses: a\n      - uses: b\n        name: Mapped step\n"
+          "  other:\n    name: Other job\n# name: Commented out\n")
+    checks.append(("workflow-reader-jobs-only", workflow_names(wf) == ("Repository quality checks",
+                                                                      {"Lint markdown corpus", "Other job"})))
+    nested_only = "name: W\njobs:\n  lint:\n    name: Renamed\n    env:\n      name: Lint markdown corpus\n"
+    checks.append(("workflow-reader-nested-name-not-a-job", "Lint markdown corpus" not in workflow_names(nested_only)[1]))
     _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
                             {"Lint": "Repository quality checks"})
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
@@ -421,7 +471,8 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--dry-run", action="store_true", help="report the verdict; do NOT merge")
     group = ap.add_mutually_exclusive_group()  # both at once would silently drop NAME (3b104 QA r1)
     group.add_argument("--require", action="append", metavar="NAME",
-                       help="a check that must be present and SUCCESS (repeatable; replaces the default list)")
+                       help="a check that must be present and SUCCESS (repeatable; replaces the default list; a default "
+                            "check name still binds to its workflow)")
     group.add_argument("--require-none", action="store_true",
                        help="require no named check (for a repository without the default checks)")
     ap.add_argument("--self-test", action="store_true")
