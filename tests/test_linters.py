@@ -20123,6 +20123,20 @@ class TodoNumberPermanenceTests(LinterTestCase):
             "paren not before the date": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) wording (2026-09-01)\n", 0),
             "paren before a date then text": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fix (3b7) (2026-09-01) note\n", 0),
             "compound with lettered live id": ("## Q\n- **3b7b fix** x\n", "# DONE\n### PR #1: 3b7b2e1 split (2026-09-01)\n", 0),
+            "last of three lead ids": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b5/3b6/3b7 residue (2026-09-01)\n", 1),
+            "first of three lead ids": ("## Q\n- **3b5 fix** x\n", "# DONE\n### PR #1: 3b5/3b6/3b7 residue (2026-09-01)\n", 1),
+            "middle of three lead ids": ("## Q\n- **3b6 fix** x\n", "# DONE\n### PR #1: 3b5, 3b6, 3b7: residue (2026-09-01)\n", 1),
+            "first of three tail ids": ("## Q\n- **3b5 fix** x\n", "# DONE\n### PR #1: follow-ups (3b5, 3b6, 3b7) (2026-09-01)\n", 1),
+            "middle of three tail ids": ("## Q\n- **3b6 fix** x\n", "# DONE\n### PR #1: follow-ups (3b5/3b6/3b7) (2026-09-01)\n", 1),
+            "word starting like split": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 splits the guard (2026-09-01)\n", 1),
+            "word starting like part": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partner feed (2026-09-01)\n", 1),
+            "parts word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 parts b and d completed (2026-09-01)\n", 0),
+            "partially word": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 partially completed (2026-09-01)\n", 0),
+            "colon then parenthetical": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: (b) wording (2026-09-01)\n", 0),
+            "hyphenated repo prefix": ("## Q\n- **3b7 fix** x\n", "# DONE\n### grc-library-ref PR #1: 3b7 additions (2026-09-01)\n", 1),
+            "bare lead id": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7\n", 1),
+            "semicolon tail not read": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixes (3b6; 3b7) (2026-09-01)\n", 0),
+            "undated tail not read": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: fixes (3b7) 2026-09-01\n", 0),
             "lead split is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7 split (2026-09-01)\n", 0),
             "colon part is partial": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: 3b7: part d completed (2026-09-01)\n", 0),
             "backtick source mention": ("## Q\n- **3b7 fix** x\n", "# DONE\n### PR #1: follow-up from `3b7` QA (2026-09-01)\n", 0),
@@ -20148,6 +20162,17 @@ class TodoNumberPermanenceTests(LinterTestCase):
         rc, out = self._rc("perm-3b120-unclosed-pub", "# TODO\n```\n- **3b7 [public] fix** x\n", "# DONE\n", "## Q\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("TODO.md:2", out)
+        rc, out = self._rc("perm-3b120-unclosed-pub-comment", "# TODO\n<!-- note\n- **3b7 [public] fix** x\n",
+                           "# DONE\n", "## Q\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("TODO.md:2", out)
+        self.assertIn("FAIL: 1 item-number permanence finding(s)", out)
+        # A recycle finding prints a queue id without a section marker.
+        rc, out = self._rc("perm-3b120-recycle-mark", "# TODO\n", "# DONE\n### PR #1: 3b7: done (2026-09-01)\n",
+                           "## Q\n- **3b7 fix** x\n")
+        self.assertEqual(rc, 1, out)
+        self.assertIn("  3b7: live at", out)
+        self.assertNotIn("\u00a73b7", out)
         rc, out = self._rc("perm-3b120-unclosed-comment", "# TODO\n", "# DONE\n", "## Q\n<!-- note\n- **3b7 fix** x\n")
         self.assertEqual(rc, 1, out)
         self.assertIn("P-TODO.md:2", out)

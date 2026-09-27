@@ -105,8 +105,9 @@ false-negative cost:
      QA round 1 showed any such list is a sample (``blocks 3b7``, ``closure of
      3b7``, ``routed to 3b8, 3b7``), so the pass reads positions instead of
      words. In the lead position the item stays open when any parenthetical
-     follows the ids, with or without a space and whatever it holds
-     (``3b27(b)``, ``3b7 (part d)``, ``3b7 (closed)``), or a partial word
+     follows the ids, with or without a space or a ``:``, ``,`` or ``-``
+     separator and whatever it holds (``3b27(b)``, ``3b7 (part d)``,
+     ``3b7: (b)``, ``3b7 (closed)``), or a partial word
      follows after an optional ``:``, ``,`` or ``-`` (``3b65 part d``,
      ``3b120: part d``, ``3b7 partial``, ``3b7 phase 1``, ``3b7 slice 1``,
      ``3b50 split``); a compound token yields nothing (``3b7-ii``,
@@ -115,11 +116,17 @@ false-negative cost:
      and an EXEMPT row clears it, as for the other series. Measured at adoption: the same 71 retired queue
      ids as the whole-heading scan, none live. The queue series has no
      counter and no public floor, so only checks A and C apply to it.
-     FALSE-NEGATIVE RISK: a closure written only as a mention (``closure of
-     3b7``), with a lead parenthetical (``3b7 (closed)``), or in a heading that
-     omits the id (several 2026-09 closures, e.g. the #2634 annex fix of
-     3b110) is not read. P-TODO 3b127 makes the finalize tool write the closed
-     id in the lead position, which is the durable fix.
+     FALSE-NEGATIVE RISK (silent, unlike a false retirement, which is loud by
+     construction because it only matters when the id is live): a closure is
+     not read when it is written only as a mention (``closure of 3b7``), with
+     a lead parenthetical (``3b7 (closed)``), in a heading that omits the id
+     (several 2026-09 closures, e.g. the #2634 annex fix of 3b110), or in a
+     shape outside the two positions: a multi-PR prefix (``PR #1 + #2:``), an
+     id-first heading (``### 3b8 closed:``), ``PR #1 QA:``, a lead list joined
+     by ``and``, ``+`` or ``&``, a backticked or bold lead id, a tail joined
+     by ``and`` or ``;``, a tail whose date carries a suffix, or no tail date.
+     P-TODO 3b127 (open) will make the finalize tool write the closed id in
+     the lead position, which is the durable fix.
 
      1c. An UNCLOSED code fence or line-starting HTML comment in TODO.md or
      P-TODO.md hides every later bullet from the audit tool's parser, so a
@@ -147,9 +154,13 @@ false-negative cost:
      ``Next item number: TF-3.`` counter, so it is checked, with its
      integer as the ordinal. The reference-base ids (``SR-1``, ``RB-R6``,
      ``Group ...``, ``Reference-base ...``) have NO counter and no
-     retirement convention in ``DONE.md``, so they are OUT OF SCOPE and
-     are skipped rather than half-checked. Stated so a later reader does
-     not mistake the silence for a clean result.
+     retirement convention in ``DONE.md``, so they are skipped for checks
+     A and B rather than half-checked. Since 3b120 a TAGGED coded bullet
+     (``- **RB-6 [private] ...**``) is in the live set, so check C does see
+     a coded id live as a bullet in both lists; a coded id written as a
+     ``### RB-6`` heading is not read by LIVE_HEADING_RE (a parity gap with
+     the audit tool, which counts it; routed with P-TODO 3b121). Stated so a
+     later reader does not mistake the silence for a clean result.
 
   4. EXEMPTIONS. A ``DONE.md`` entry that records a PARTIAL close against
      a still-open umbrella item legitimately names a live number (for
@@ -260,12 +271,13 @@ THREEB_TAIL_RE = re.compile(
 THREEB_ID_RE = re.compile(_THREEB_ID)
 # After a lead id list the item stays open when (3b120 QA r2): a word character, dot or hyphen follows at once (a
 # compound token: ``3b7-ii``, ``3b7b2e1``, ``3b7.1``); ANY parenthetical follows, with or without a space (``3b27(b)``,
-# ``3b7 (part d)``, ``3b7 (closed)``: read structurally, whatever it holds); or a partial word follows after an
+# ``3b7 (part d)``, ``3b7: (b)``, ``3b7 (closed)``: read structurally, whatever it holds, after an optional ``:``,
+# ``,`` or ``-``); or a partial word follows after an
 # optional ``:``, ``,`` or ``-`` separator (``3b65 part d``, ``3b120: part d``, ``3b7 - part d``, ``3b7 partial``,
 # ``3b7 phase 1``, ``3b7 slice 1``, ``3b50 split``). Any other partial wording retires the id loudly (the gate goes
 # red on a live item) and is cleared by an EXEMPT row, as for the other series.
 THREEB_LEAD_PARTIAL_RE = re.compile(
-    r"^(?:[\w.-]|\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
+    r"^(?:[\w.-]|\s*[:,-]?\s*\(|\s*[:,-]?\s*(?:parts?|partial(?:ly)?|phase|slice|split)\b)", re.IGNORECASE)
 
 # (id, distinctive DONE.md heading substring) -> rationale. A partial close
 # recorded against a still-open umbrella item. Keyed by a heading SUBSTRING, not
@@ -1273,7 +1285,7 @@ def main(argv: list[str]) -> int:
                 f"(highest used ordinal {highest}); advance it past {highest}"
             )
 
-    total = len(recycled) + len(stale) + len(cross)
+    total = len(recycled) + len(stale) + len(cross) + len(unclosed)
     print(f"\nFAIL: {total} item-number permanence finding(s).")
     print("TODO numbers are permanent and never recycled: a closed number retires with")
     print("its item, and every edit advances its section's 'Next item number' counter.")
