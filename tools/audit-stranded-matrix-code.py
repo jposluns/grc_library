@@ -108,9 +108,12 @@ _PROSE_LINE_RE = re.compile(r"(?![#>`~<=|\s])(?![-*+](?:[ \t]|$))(?!\d{1,9}[.)](
 # A CCM or AICM cell the scan reads: N/A, a dash, empty, or a plain list of codes and ranges (3b107 QA r4).
 # Inline markup (emphasis, code spans, links) can hide a displayed code or reveal a hidden one, so a cell
 # that is anything else is not read and its row is listed as not assessed.
-_CELL_CODE = r"[A-Z][A-Z&]{1,4}-\d{2}"
-_CELL_ITEM = rf"{_CELL_CODE}(?:[ \t]+(?:to|through)[ \t]+(?:{_CELL_CODE}|\d{{2}}))?"
+_CELL_CODE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
+_CELL_ITEM = rf"{_CELL_CODE}(?:[ \t]+(?:to|through)[ \t]+(?:{_CELL_CODE}|[0-9]{{2}}))?"
 _CODE_LIST_RE = re.compile(rf"(?:N/A|-|)|{_CELL_ITEM}(?:[ \t]*[,;][ \t]*{_CELL_ITEM})*")
+
+
+_PLAIN_HEADER_CELL_RE = re.compile(r"[A-Za-z0-9 ./:(),&-]*")
 
 
 def _line_kind(line: str) -> "str | None":
@@ -156,6 +159,10 @@ def matrix_refusal(text: str) -> "str | None":
                     "code the scan would not see")
         if kind == "table" and prev != "table":
             head = _cells(line)
+            plain = [c for c in head if not _PLAIN_HEADER_CELL_RE.fullmatch(c)]
+            if plain:
+                return (f"line {n} is a table header with markup or unusual characters in {plain[0]!r}; headers must be "
+                        "plain text so a CCM or AICM column cannot be disguised (3b107 QA r7)")
             delim = _cells(lines[n]) if n < len(lines) else []
             if not (len(delim) == len(head) and _is_delimiter_row(delim)):
                 return (f"line {n} starts a run of table lines that is not a header followed by its delimiter row "
@@ -205,7 +212,7 @@ def _is_delimiter_row(cells: list[str]) -> bool:
 
 
 def _tables(text: str):
-    """Yield (header_cells, [(line_number, cells), ...]) for each GFM table outside code fences. A table is a
+    """Yield (header_cells, [(line_number, cells), ...], header_line_number) for each GFM table outside code fences. A table is a
     header line followed at once by a delimiter row with the same number of cells; it continues until a
     blank line (spaces and tabs only) or a line that starts another block. A body row with fewer cells is padded and one with more is
     cut to the header's width, as GFM renders it."""
@@ -235,13 +242,13 @@ def _tables(text: str):
                     cells = (cells + [""] * len(header))[:len(header)]
                     rows.append((k + 1, cells))
                     k += 1
-                yield header, rows
+                yield header, rows, k - len(rows) - 1
                 continue
         k += 1
 
 
-_PATH_BARE_RE = re.compile(r"`([A-Za-z0-9_./-]+\.md)`")
-_PATH_LINK_RE = re.compile(r"\[`([A-Za-z0-9_./-]+\.md)`\]\(([A-Za-z0-9_./-]+\.md)\)")
+_PATH_BARE_RE = re.compile(r"`([A-Za-z0-9_.-][A-Za-z0-9_./-]*\.md)`")
+_PATH_LINK_RE = re.compile(r"\[`([A-Za-z0-9_.-][A-Za-z0-9_./-]*\.md)`\]\(([A-Za-z0-9_./-]+\.md)\)")
 
 
 def _doc_path(path_cell: str) -> str | None:
@@ -260,7 +267,7 @@ def _doc_path(path_cell: str) -> str | None:
 
 def _range_problem(cell: str) -> "str | None":
     """Why a cell's range is not a real one, or None: a range must stay in one family and ascend (QA r5)."""
-    for m in re.finditer(rf"({_CELL_CODE})[ \t]+(?:to|through)[ \t]+({_CELL_CODE}|\d{{2}})", cell):
+    for m in re.finditer(rf"({_CELL_CODE})[ \t]+(?:to|through)[ \t]+({_CELL_CODE}|[0-9]{{2}})", cell):
         start, end = m.group(1), m.group(2)
         prefix, s = start.rsplit("-", 1)
         if "-" in end:
@@ -303,16 +310,18 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
     document-text source (injected by the self-test; the corpus reader by default).
     A None return skips the row. `stats`, when given, receives ``tables`` (master-matrix tables found),
     ``rows`` (rows whose document was read), ``codes`` (matrix codes compared with a document) and ``skipped`` (one
-    ``line N: reason`` per row that was not assessed)."""
+    ``line N: reason`` per row that was not assessed, or per CCM/AICM table that is not a master table,
+    listed even when it has no rows)."""
     findings: list[str] = []
     doc_cache: dict[str, set[str] | None] = {}
     n_tables = n_rows = n_codes = 0
     skipped: list[str] = []
-    for header, rows in _tables(matrix_text):
+    for header, rows, header_line in _tables(matrix_text):
         code_cols = [h for h in header if "ccm" in h.lower() or "aicm" in h.lower()]
-        if (header[:3] != list(_HEADER_CELLS[:3]) or sorted(code_cols) != ["CSA AICM v1.1", "CSA CCM v4.1"]):
-            if rows and any(("ccm" in h.lower() or "aicm" in h.lower()) for h in header):
-                skipped.append(f"line {rows[0][0] - 2}: a table with CCM or AICM columns whose header is not the "
+        if (header[:3] != list(_HEADER_CELLS[:3]) or sorted(code_cols) != ["CSA AICM v1.1", "CSA CCM v4.1"]
+                or header.count("Path") != 1):
+            if any(("ccm" in h.lower() or "aicm" in h.lower()) for h in header):
+                skipped.append(f"line {header_line}: a table with CCM or AICM columns whose header is not the "
                                f"master header (or has more than one CCM or AICM column); its {len(rows)} row(s) "
                                "are not read")
             continue
@@ -532,6 +541,20 @@ def _self_test() -> int:
         (all(_line_kind(s) is None for s in ("> q", "`code` start", "~~~", "=== x", "1. item", "2) item", "- x", "+ x", "* x"))
          and all(_line_kind(s) == "prose" for s in ("**Bold:** x", "1.26.44 has no grant", "*emphasis* x")),
          "prose exclusions: quote, backtick, tilde, setext, ordered and bullet markers; emphasis and dotted ids are prose"),
+        # QA r7: plain headers; one Path column; ASCII digits; no absolute Path; empty non-master tables listed.
+        (matrix_refusal(hdr.replace("CSA CCM v4.1", "CSA C**C**M v4.1") + row("risk/a.md")) is not None
+         and matrix_refusal(hdr.replace("Domain", "_Domain_") + row("risk/a.md")) is not None,
+         "a header with markup refuses the matrix"),
+        (rows_seen(hdr.replace("| CSA AICM v1.1 |", "| CSA AICM v1.1 | Path |").replace("| --- |\n", "| --- | --- |\n")
+                   + row("risk/a.md").replace("| N/A |", "| N/A | `risk/b.md` |")) == (0, 0, 1),
+         "a second Path column makes the table not a master table, and it is listed"),
+        (all(rows_seen(hdr + row("risk/a.md").replace("STA-02", c)) == (1, 0, 1) for c in ("STA-\u0660\u0662", "STA-01 to \u0660\u0663")),
+         "non-ASCII digits are not a plain code list"),
+        (rows_seen(hdr + row("risk/a.md").replace("`risk/a.md`", "`/abs/risk/a.md`")) == (1, 0, 1),
+         "an absolute Path is not read"),
+        (_doc_path("`/abs/risk/a.md`") is None and _doc_path("`risk/a.md`") == "risk/a.md", "_doc_path refuses an absolute path"),
+        (rows_seen("| Other | CSA CCM v4.1 |\n| --- | --- |\n\n" + hdr + row("risk/a.md")) == (1, 1, 1),
+         "an empty non-master CCM table is listed"),
         (_default_doc_reader("matrix-grc-compliance-alignment.md") is None,
          "the reader does not fall back from the repository root to compliance/"),
         (rows_seen(hdr.replace("CSA CCM v4.1", "*CSA CCM v4.1*").replace("CSA AICM v1.1", "**CSA AICM v1.1**")
