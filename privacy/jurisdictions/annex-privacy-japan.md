@@ -2,8 +2,8 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-09-18\
+**Version:** 1.1.3\
+**Date:** 2026-09-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -33,10 +33,10 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - **Purpose specification:** APPI's purpose-limitation principle applies to personal information used to train AI: using it beyond the originally specified purpose of utilization generally requires the individual's consent. For third-party-sourced data, an adopter confirms the use is within the purpose for which the data was provided, or obtains consent for the new purpose.
-- **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition duty applies: a business must not acquire personal information by deceit or other improper means [Article 17], and must not use personal information by a method that may foment or prompt an unlawful or unfair act [Article 16-2]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation.
+- **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition duty applies: a business must not acquire personal information by deception or other wrongful means [Article 20(1)], and must not utilize personal information in a way that may foment or induce an unlawful or unjust act [Article 19]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation.
 - **Pseudonymous information (kamei kakō jōhō, 仮名加工情報: 2022 amendment):** May be used for internal analysis without consent under certain conditions, providing a lawful basis for some internal AI processing.
-- **Third-party provision:** Consent is required before providing personal information to AI system operators as third parties, unless an exception applies.
-- **Sensitive personal information:** Explicit opt-in consent required for processing of sensitive categories (race, creed, social status, medical history, criminal record, etc.) in AI systems.
+- **Third-party provision:** Consent is required before providing personal data to AI system operators as third parties, unless an exception applies [Article 27(1)].
+- **Sensitive personal information:** Prior consent is required to acquire sensitive personal information (race, creed, social status, medical history, criminal record, the fact of having suffered damage by a crime, or other categories prescribed by Cabinet Order), subject to statutory exceptions [Articles 2(3), 20(2)]. The notification-and-opt-out route for third-party provision is not available for it [Article 27(2)].
 
 ---
 
@@ -46,21 +46,21 @@ Article numbers follow the current consolidated APPI (confirmed against the offi
 
 - **Breach report and individual notification (Article 26):** A business handling personal information must, pursuant to PPC rules, report a leakage, loss, or damage of personal data that is likely to harm an individual's rights and interests to the PPC, and notify the affected individual. The specific report deadlines and category thresholds are set by the PPC Enforcement Rules, not by the Act; confirm the current rule values before encoding them in incident playbooks.
 - **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), and cease-of-use or deletion (Article 35). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
-- **Accuracy and deletion (Article 22):** A business must strive to keep personal data accurate and up to date within the scope necessary for the purpose of use, and to delete it without delay when its use is no longer necessary. The Act phrases this as an endeavour duty (the statutory text reads `shall strive to`), not an absolute one; adopting organizations typically operationalize it as a firm internal control anyway.
+- **Accuracy and deletion (Article 22):** A business must strive to keep personal data accurate and up to date within the scope necessary for the purpose of use, and to delete it without delay when its use is no longer necessary. The Act phrases this as an endeavour duty (the statutory text reads `must endeavor to`), not an absolute one; adopting organizations typically operationalize it as a firm internal control anyway.
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection, or the recipient has established a personal information protection system conforming to PPC rules [APPI Article 24].
+- Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection, or the recipient has established a personal information protection system conforming to PPC rules [APPI Article 28].
 - Japan participates in the APEC CBPR framework.
 
 ---
 
 ## Enforcement and fines
 
-- Fines up to JPY 100 million for organizations for violations, including unlawful cross-border transfers and failure to notify the PPC of data breaches.
-- Individuals responsible may face criminal penalties.
+- A corporation faces a fine of up to JPY 100 million when its representative or employee violates a PPC order, or provides or misappropriates a personal information database for illegal profit [Articles 178, 179, 184(1)(i)]. Contraventions such as an unlawful cross-border provision or an unreported leak are addressed first by PPC recommendations and orders [Article 148]; violating such an order is the offence.
+- Individuals responsible may face imprisonment or fines [Articles 178, 179].
 
 ---
 
