@@ -236,8 +236,9 @@ def _masked_lines(text: str) -> "list[tuple[str, bool]]":
         elif in_comment:
             in_comment = _comment_open_after(line, True)
             out.append((line, True))
-        elif _FENCE_OPEN_RE.match(line):
-            fence = _FENCE_OPEN_RE.match(line).group(1)
+        elif _FENCE_OPEN_RE.match(line) and not (
+                _FENCE_OPEN_RE.match(line).group(1)[0] == "`" and "`" in line[_FENCE_OPEN_RE.match(line).end():]):
+            fence = _FENCE_OPEN_RE.match(line).group(1)  # ```x``` is inline code, not a fence (QA r8)
             out.append((line, True))
         elif line.lstrip(" ").startswith("<!--") and len(line) - len(line.lstrip(" ")) <= 3:
             in_comment = _comment_open_after(line, False)
@@ -248,8 +249,9 @@ def _masked_lines(text: str) -> "list[tuple[str, bool]]":
 
 
 def _heading_item_count(text: str) -> int:
-    """ITEM_HEADING_RE headings outside a fence or line-starting comment (the tool never makes one an item)."""
-    return len(ITEM_HEADING_RE.findall(text))  # headings count as on main, masked or not (QA r5)
+    """Every ITEM_HEADING_RE heading, masked or not, as on main and as the tool counts them (QA r5). Lines are
+    split as the tool splits them (``splitlines``: CR, form feed and U+2028 too), so the two agree (QA r8)."""
+    return sum(1 for line in text.splitlines() if ITEM_HEADING_RE.match(line))
 
 
 def _bullet_item_count(text: str) -> int:

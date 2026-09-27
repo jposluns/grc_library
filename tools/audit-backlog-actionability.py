@@ -105,18 +105,45 @@ TOP_BULLET_ITEM_RE = re.compile(
     r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=(?:\*\*)? \[(?:private|public)\]))"
     r"(?=[ \t*:])(?P<title>.*)$"
 )
-# The REPORT net (QA r3-r4): a list line (optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or
-# ``1.``/``1)``, any indentation, an optional ``[ ]``/``[x]`` task box) whose text opens with emphasis (``*`` or
-# ``_``, any run length) and whose lead token (after emphasis, a backtick and ``#([`` punctuation) holds a digit
-# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, is a coded id (``ORCH-CI-STATUS``), or
-# which carries a ``[private]`` / ``[public]`` tag (or a compound ``[private, ...]``) anywhere (QA r6, r7). Every counted form meets one of these, so the counted-or-reported
-# invariant holds by construction; the net is deliberately wider than the grammar.
+# The REPORT net (QA r3-r8). Two anchors, either one reports a line:
+# 1. The TAG: the backlog's own rule is that every item carries a ``[private]`` / ``[public]`` tag, so any list
+#    line with ``private`` or ``public`` as an element of a bracketed tag list (``[ops, private]``, ``[ private ]``)
+#    is item-like wherever the tag sits (QA r8).
+# 2. The LEAD TOKEN of a list line whose text opens with emphasis (optionally inside a ``[`` link): after the
+#    emphasis, an optional leading ``[...]`` tag, and ``#([`` / backtick punctuation, the first word holds a digit
+#    (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or begins with an uppercase coded id
+#    (``ORCH-CI-STATUS``, the shape ITEM_HEADING_RE counts).
+# A list line is: optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or ``1.``/``1)``, any indentation,
+# an optional ``[ ]``/``[x]`` task box. ``### `` headings the heading grammar does not take are tested the same
+# way. Every counted form meets one of these, so the counted-or-reported invariant holds by construction.
+# DECLARED RESIDUE: a digit-free id in lowercase or mixed case (``orch-ci-status``) is not an id any counted
+# grammar takes and cannot be told from a hyphenated prose word, and an id behind an emoji or HTML markup is not
+# read; both need their [private]/[public] tag to be reported.
 _ITEM_LIKE_LEAD_RE = re.compile(
-    r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>[*_]+.*)$"
+    r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>.*)$"
 )
-_LEAD_TOKEN_RE = re.compile(r"^[*_]+[ \t]*`?(?P<word>[^\s*`]*)")
-_TAG_RE = re.compile(r"\[(?:private|public)[,\]]", re.IGNORECASE)  # compound ``[private, WARN]`` too (QA r7)
-_CODED_WORD_RE = re.compile(r"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+")  # a digit-free coded id, as ITEM_HEADING_RE takes
+_LEAD_TAG_RE = re.compile(r"^\[[^\]\n]*\][ \t]*")
+_TAG_RE = re.compile(r"\[[^\]\[\n]*?(?<![\w-])(?:private|public)(?![\w-])[^\]\[\n]*\]", re.IGNORECASE)
+_CODED_WORD_RE = re.compile(r"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?![a-z])")  # a digit-free coded id, as ITEM_HEADING_RE takes
+
+
+def _lead_word_is_id(text: str) -> bool:
+    """Whether the first word of ``text`` (after emphasis, a leading ``[...]`` tag and ``#([`` / backtick
+    punctuation) holds a digit, starts with ``P-`` in any case, or begins with an uppercase coded id."""
+    head = text.lstrip("*_ \t")
+    lead = _LEAD_TAG_RE.match(head)
+    if lead and _lead_word_is_id(head[1:lead.end()].rstrip(" \t]")):
+        return True  # the bracket holds the id itself (``[3b37] fix``), not a leading tag
+    t = head[lead.end():].lstrip("*_ \t") if lead else head
+    raw = (t.split(None, 1) or [""])[0]
+    if re.fullmatch(r"#\d+[:,;.)]*", raw.strip("*_")):
+        return False  # a bare #123 PR reference is not an item id
+    tok = raw.lstrip("#([`_*").replace("`", "").rstrip(":,;.)]_*!/")
+    if tok and any(c.isdigit() for c in tok):
+        return True
+    if tok.lower().startswith("p-"):
+        return True
+    return bool(_CODED_WORD_RE.match(tok))
 
 
 def _is_item_like(line: str) -> bool:
@@ -124,18 +151,18 @@ def _is_item_like(line: str) -> bool:
     if not m:
         return False
     rest = m.group("rest")
-    lt = _LEAD_TOKEN_RE.match(rest)
-    word = (lt.group("word") if lt else "").rstrip(":,;.)]_")
-    tok = word.lstrip("#([_")
-    if re.fullmatch(r"#\d+", word):
-        tok = ""  # a bare #123 PR reference is not an item id
-    if tok and any(c.isdigit() for c in tok):
+    if _TAG_RE.search(rest):
         return True
-    if tok.lower().startswith("p-"):
-        return True
-    if _CODED_WORD_RE.fullmatch(tok):
-        return True  # ORCH-CI-STATUS: the shape a ``### `` heading counts, so a bullet of it is reported (QA r7)
-    return bool(_TAG_RE.search(rest))
+    em = rest[1:] if rest.startswith("[") else rest
+    return em.startswith(("*", "_")) and _lead_word_is_id(em)
+
+
+def _is_item_like_heading(line: str) -> bool:
+    """A ``### `` heading the heading grammar does not count, whose lead word or tag marks it an item (QA r8)."""
+    if not line.startswith("### ") or ITEM_HEADING_RE.match(line):
+        return False
+    rest = line[4:]
+    return bool(_TAG_RE.search(rest)) or _lead_word_is_id(rest)
 
 
 # A fence opens at 0 to 3 spaces of indentation (deeper indentation is list or code content, not a fence).
@@ -177,7 +204,7 @@ def _mask_scan(lines: "list[str]") -> "tuple[list[bool], int | None]":
                 open_at = i  # closed and reopened on this line: the open comment starts here (QA r7)
             continue
         m = _FENCE_OPEN_RE.match(ln)
-        if m:
+        if m and not (m.group(1)[0] == "`" and "`" in ln[m.end():]):  # ```x``` is inline code (QA r8)
             fence = m.group(1)
             open_at = i
             mask.append(True)
@@ -195,7 +222,8 @@ def _mask_scan(lines: "list[str]") -> "tuple[list[bool], int | None]":
 
 def _fence_comment_mask(lines: "list[str]") -> "list[bool]":
     """True for each line inside (or opening/closing) a code fence, or inside an HTML comment that STARTS a
-    line; such a line is never an item and never changes item containment. A ``<!--`` later in a line (inline
+    line; such a line is never a bullet item and never changes item containment (a masked ``### <id>``
+    heading still counts, as a one-line item, see parse_items). A ``<!--`` later in a line (inline
     code, a trailing note) does not mask it (QA r2)."""
     return _mask_scan(lines)[0]
 
@@ -218,7 +246,7 @@ def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
     parse_items(text, "private", ref_bodies={}, _heads=heads)
     counted = set(heads)
     return [(n, ln.strip()) for n, ln in enumerate(text.splitlines(), 1)
-            if _is_item_like(ln) and n not in counted] + unclosed_blocks(text)
+            if (_is_item_like(ln) or _is_item_like_heading(ln)) and n not in counted] + unclosed_blocks(text)
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
@@ -1353,6 +1381,26 @@ def _self_test() -> int:
         check("r7-net-" + net_line[4:14], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")] == [net_line])
     check("r7-reopened-comment-opener", [n for n, _m in unclosed_blocks("<!-- old\n--> <!-- new\ntext\n")] == [2])
     check("r7-closed-multiline-comment", unclosed_blocks("## Q\n<!-- a\nb\n-->\n") == [])
+    # QA r8
+    for net_line in ("- **ops: disk full (ops):** fix it. [ops, private]", "- **Gap sweep [ private ]** x",
+                     "- **Follow-up [public]** implement it", "- **ORCH-CI-STATUS\u2014wire CI**",
+                     "- **ORCH-CI-STATUS/ORCH-X**", "- **ORCH-CI-STATUS!**", "- **[BLOCKED:x] 3b7 fix**",
+                     "- [**3b7 fix**](url)", "- **(`3b120`) implement fix:** pending",
+                     "- **[`3b120`](#3b120) implement fix:** pending", "### 3b7 heading form"):
+        check("r8-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")] == [net_line])
+    for prose in ("- **Start-side check.** Be careful", "- **#2477 MERGED** (x)", "### PR #1646 QA follow-ups",
+                  "- **Distinct filename.** This file", "- plain [privately] noted"):
+        check("r8-prose-not-reported-" + prose[:14], uncounted_item_like("## Q\n" + prose + "\n") == [])
+    inl = "## Q\n```x``` is inline code\n- **3b7 [private] real** a\n```\n- **3b8 [private] example** b\n```\n"
+    check("r8-inline-code-not-a-fence", [x[0] for x in parse_items(inl, "private", ref_bodies={})] == ["3b7"])
+    saved_r8 = _APPROVALS
+    try:
+        set_approvals({"P-1.37"})
+        check("r8-bullet-grant-binds-full-id", build_report("", "## Q\n- **P-1.37 fix:** [BLOCKED:source]\n")[1] == 1)
+        set_approvals({"1.37"})
+        check("r8-bullet-grant-not-by-suffix", build_report("", "## Q\n- **P-1.37 fix:** [BLOCKED:source]\n")[1] == 0)
+    finally:
+        set_approvals(saved_r8)
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
 

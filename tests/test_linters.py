@@ -17362,6 +17362,9 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "closer carries no info string": ("## Q\n```\n```py\n- **3b7 x** y\n```\n", 0),
             "comment indented four spaces": ("## Q\n    <!-- c\n- **3b7 x** y\n-->\n", 1),
             "bare 3b is not an id": ("## Q\n- **3b fix** y\n", 0),
+            # QA r8: inline code is not a fence opener (CommonMark: no backtick in a backtick fence's info string).
+            "inline code is not a fence": ("## Q\n```x``` inline\n- **3b7 [private] real** a\n```\n"
+                                          "- **3b8 [private] example** b\n```\n", 1),
         }
         for name, (text, want) in cases.items():
             tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
@@ -17384,6 +17387,9 @@ class HookToolItemCountParityTests(unittest.TestCase):
             (priv / "P-TODO.md").write_text(text, encoding="utf-8")
             self.assertEqual(hook._todo_item_count(str(root)), 3)
         self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["9.9", "9.8", "3.1"])
+        # QA r8: a form feed splits a line for both (the hook's heading count uses splitlines, as the tool does).
+        ff = "## Q\nx\x0c### 9.9 x\n"
+        self.assertEqual(hook._heading_item_count(ff), len(tool.parse_items(ff, "private", ref_bodies={})))
         # QA r6 repro: the hook's total and the tool's must agree when a masked heading sits in a heading item.
         text = "## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n"
         with tempfile.TemporaryDirectory() as d:
