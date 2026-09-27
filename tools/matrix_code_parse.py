@@ -50,7 +50,7 @@ CSA_RANGE_RE = re.compile(
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)[0-9]{2}(?:\.[0-9]{2})?(?!\.(?![0-9])\d)"
+    r"|(?:EDM|APO|BAI|DSS|MEA)(?![0-9.]*(?![0-9.])\d)[0-9]{2}(?:\.[0-9]{2})?"
     r"|A\.[5-8]\.[0-9]{1,2}(?!\d|\.\d))\b"
 )
 
@@ -125,6 +125,11 @@ def _self_test() -> int:
             self.assertEqual(expand_codes("STA-\u0660\u0661 to 03"), set())
             self.assertEqual(CODE_RE.findall("A.5.1.\u0662 A.5.1.\uff12 A.5.1.2"), [])
             self.assertEqual(CODE_RE.findall("DSS05.\u0660\u0663 APO12.\u0661\u0662"), [])
+            # a guard right after the prefix sees every ASCII digit and dot, so a mixed practice or a trailing
+            # non-ASCII sub-part cannot backtrack to the ASCII objective (3b117 QA r2)
+            for s in ("DSS05.0\u0663", "APO12.0\uff12", "DSS05.03.\u0661", "STA-APO15.1\u0663", "DSS05\u0663"):
+                self.assertEqual(CODE_RE.findall(s), [], s)
+            self.assertEqual(CODE_RE.findall("DSS05.03.1"), ["DSS05.03"])
             self.assertEqual(CODE_RE.findall("DSS05.03 DSS05.3"), ["DSS05.03", "DSS05"])
 
         # --- EQUIVALENCE against each original form (the critical tests) ---
