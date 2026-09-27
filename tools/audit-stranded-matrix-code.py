@@ -39,7 +39,10 @@ header line followed at once by a delimiter row with the same number of cells, i
 at a line that starts another block (a heading, even one carrying pipes; a quote; a fence; a list item,
 empty or not; a thematic break; an HTML line), tables inside code fences are ignored, and a pipe preceded
 by a backslash is cell content. A matrix containing an HTML block, an indented line carrying a pipe or a
-quoted line carrying a pipe is refused rather than modelled. A referenced
+quoted line carrying a pipe is refused rather than modelled: the matrix must follow a closed line grammar
+(matrix_refusal: blank lines, ATX headings, thematic breaks, plain prose without a pipe or block marker,
+and table lines at column 0, with tables set apart from prose; only space and tab as whitespace). A run
+exits 0 only after comparing at least one CCM or AICM code with its document. A referenced
 document is read only when it resolves inside the repository to a regular UTF-8 file; any other row is
 listed as not assessed. The run exits 2, never 0, for a matrix that is not a readable regular UTF-8 file,
 that holds no master-matrix table, or none of whose rows could be checked.
@@ -53,6 +56,7 @@ from __future__ import annotations
 import argparse
 import re
 import stat
+import unicodedata
 import sys
 from pathlib import Path
 
@@ -77,7 +81,8 @@ _HEADER_CELLS = ("Domain", "Document Title", "Path", "CSA CCM v4.1", "CSA AICM v
 
 _LINE_BREAK_RE = re.compile(r"\r\n|\r|\n")
 # A line that starts another block ends a GFM table (a heading, even one carrying pipes; a quote; a fence;
-# a list item) (3b107; the round-6 cross-table reset missed a pipe-bearing heading).
+# a list item, empty or not; a thematic break; an HTML line) (3b107). This parser is the second layer: the
+# closed grammar in matrix_refusal already refuses most of these constructs in the CLI run.
 _BLOCK_START_RE = re.compile(r" {0,3}(?:#{1,6}(?:[ \t]|$)|>|[-*+](?:[ \t]|$)|\d{1,9}[.)](?:[ \t]|$)|<"
                              r"|([-*_])(?:[ \t]*\1){2,}[ \t]*$)")
 # A fence opener; a backtick fence whose info string contains a backtick is not one (CommonMark), which is
@@ -90,18 +95,50 @@ def _block_start(line: str) -> bool:
     return bool(_BLOCK_START_RE.match(line) or _FENCE_RE.match(line))
 
 
+_HEADING_LINE_RE = re.compile(r"#{1,6}(?: |$)")
+_BREAK_LINE_RE = re.compile(r"([-*_])(?: *\1){2,} *")
+_PROSE_LINE_RE = re.compile(r"(?![#>`~<=|\s])(?![-*+](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
+
+
+def _line_kind(line: str) -> "str | None":
+    if line.strip(" \t") == "":
+        return "blank"
+    if _HEADING_LINE_RE.match(line):
+        return "heading"
+    if _BREAK_LINE_RE.fullmatch(line):
+        return "break"
+    if line.startswith("|"):
+        return "table"
+    if _PROSE_LINE_RE.fullmatch(line):
+        return "prose"
+    return None
+
+
 def matrix_refusal(text: str) -> "str | None":
-    """Why the matrix text cannot be read reliably, or None (3b107 QA r1). Rather than model every construct
-    that can hide a table or turn table text into something else, the scan refuses a matrix containing any
-    of them: an HTML block (a line starting with ``<``), a line indented four or more columns that carries a
-    pipe (indented code), or a quoted line that carries a pipe (a table inside a quote is not read)."""
+    """Why the matrix cannot be read reliably, or None (3b107 QA r1-r2). The grammar is CLOSED: rather than
+    model every CommonMark construct that can hide a table or pull its text into something else (HTML,
+    fences, indented code, quotes, lists and their lazy continuations), the matrix may hold only blank lines
+    (spaces and tabs), ATX headings, thematic breaks, plain prose lines without a pipe or a block marker, and
+    table lines starting with a pipe at column 0; a table must follow a blank line, a heading, a break or the
+    start of the file, and be followed by one of those; and no whitespace other than space and tab may
+    appear. Anything else refuses the matrix, and the reason names the line."""
+    if "\ufeff" in text:
+        return "it contains a byte-order mark"
+    for ch in set(text):
+        if ch not in "\t\n\r" and (unicodedata.category(ch) in ("Zs", "Zl", "Zp", "Cc") and ch != " "):
+            return f"it contains the character {ch!r}, which Markdown and this parser may read differently"
+    prev = "blank"
     for n, line in enumerate(_LINE_BREAK_RE.split(text), 1):
-        if re.match(r" {0,3}<", line):
-            return f"line {n} starts an HTML block, which can hide or wrap a table"
-        if "|" in line and re.match(r"(?: {4,}|[ ]{0,3}\t)", line):
-            return f"line {n} is indented four or more columns and carries a pipe (indented code is not a table)"
-        if "|" in line and re.match(r" {0,3}>", line):
-            return f"line {n} is a quoted line carrying a pipe (a quoted table is not read)"
+        kind = _line_kind(line)
+        if kind is None:
+            return f"line {n} is not a blank line, heading, thematic break, plain prose or a table line at column 0"
+        if kind == "table" and not _cells(line):
+            return f"line {n} is a table line with no cells, which ends a table in cmark-gfm"
+        if kind == "table" and prev == "prose":
+            return f"line {n} starts a table directly after prose, which may join the paragraph"
+        if kind == "prose" and prev == "table":
+            return f"line {n} is prose directly after a table, which may continue the table"
+        prev = kind
     return None
 
 
@@ -109,7 +146,7 @@ def _cells(line: str) -> list[str]:
     """The cells of a table line, split as cmark-gfm splits them: a pipe preceded by a backslash is cell
     content (so ``\\|`` is too, the escape binds to the pipe) and becomes a literal pipe; one leading and one
     trailing delimiter pipe are optional. [] when the line has no delimiter pipe (it is not a table line)."""
-    s = line.strip()
+    s = line.strip(" \t")
     parts: list[str] = []
     cur: list[str] = []
     found = False
@@ -134,7 +171,7 @@ def _cells(line: str) -> list[str]:
         parts = parts[1:]
     if parts and parts[-1] == "" and s.endswith("|"):
         parts = parts[:-1]
-    return [c.strip() for c in parts]
+    return [c.strip(" \t") for c in parts]
 
 
 def _is_delimiter_row(cells: list[str]) -> bool:
@@ -153,7 +190,7 @@ def _tables(text: str):
         line = lines[k]
         m = _FENCE_RE.match(line)
         if fence is not None:
-            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1] and not line.strip()[len(m.group(1)):].strip():
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= fence[1] and not line.strip(" \t")[len(m.group(1)):].strip(" \t"):
                 fence = None
             k += 1
             continue
@@ -215,11 +252,11 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
     """Flag same-family strand candidates. `doc_reader(docrel) -> text|None` is the
     document-text source (injected by the self-test; the corpus reader by default).
     A None return skips the row. `stats`, when given, receives ``tables`` (master-matrix tables found),
-    ``rows`` (rows whose document was read and whose codes were compared) and ``skipped`` (one
+    ``rows`` (rows whose document was read), ``codes`` (matrix codes compared with a document) and ``skipped`` (one
     ``line N: reason`` per row that was not assessed)."""
     findings: list[str] = []
     doc_cache: dict[str, set[str] | None] = {}
-    n_tables = n_rows = 0
+    n_tables = n_rows = n_codes = 0
     skipped: list[str] = []
     for header, rows in _tables(matrix_text):
         if header[:3] != list(_HEADER_CELLS[:3]) or "CSA CCM v4.1" not in header or "CSA AICM v1.1" not in header:
@@ -247,6 +284,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
                 if cell in ("", "N/A", "-"):
                     continue
                 for code in sorted(_expand_codes(cell)):
+                    n_codes += 1
                     if code in doc_codes:
                         continue
                     prefix = code.split("-")[0]
@@ -262,7 +300,7 @@ def scan(matrix_text: str, doc_reader=_default_doc_reader, matrix_rel: str = MAT
                             f"{prefix}: {', '.join(siblings)} (stranded-code candidate; verify at source)"
                         )
     if stats is not None:
-        stats.update(tables=n_tables, rows=n_rows, skipped=skipped)
+        stats.update(tables=n_tables, rows=n_rows, codes=n_codes, skipped=skipped)
     return findings
 
 
@@ -374,6 +412,26 @@ def _self_test() -> int:
          and matrix_refusal(hdr + "    " + row("risk/a.md")) is not None
          and matrix_refusal("> " + hdr) is not None and matrix_refusal(hdr + row("risk/a.md")) is None,
          "HTML blocks, indented pipe lines and quoted pipe lines refuse the matrix"),
+        # QA r2: the closed matrix grammar.
+        (all(matrix_refusal(bad) is not None for bad in (
+            "- item\n  ```\n\n" + hdr + row("risk/a.md"),          # a fence inside a list item
+            "> quote\n" + hdr + row("risk/a.md"),                   # a lazy quote continuation
+            "- item\n" + hdr + row("risk/a.md"),                    # a lazy list continuation
+            "Some prose.\n" + hdr + row("risk/a.md"),              # a table joined to a paragraph
+            hdr + row("risk/a.md") + "trailing prose\n",            # prose continuing the table
+            hdr.replace("---", "---\u00a0") + row("risk/a.md"),     # Unicode space in a delimiter
+            "```\n```\u00a0\n" + hdr + row("risk/a.md"),           # Unicode space after a fence
+            "note\x0c\n\n" + hdr + row("risk/a.md"),                # a form feed
+            "\ufeff" + hdr + row("risk/a.md"))),                    # a byte-order mark
+         "the closed matrix grammar refuses constructs outside it"),
+        (matrix_refusal("# Title\n\n**Bold:** prose\\\n\n---\n\n" + hdr + row("risk/a.md") + "\n## Next\n") is None,
+         "the grammar accepts headings, emphasis-led prose, breaks and tables"),
+        ("byte-order" in (matrix_refusal("\ufeffnote") or "")
+         and matrix_refusal("A | B\n--- | ---\n\n" + hdr + row("risk/a.md")) is not None
+         and matrix_refusal("- item\n\n" + hdr + row("risk/a.md")) is not None
+         and _cells("| a\u00a0 | b |") == ["a\u00a0", "b"],
+         "each refusal layer holds on its own: BOM, pipe-less table line, list item; cells strip only spaces and tabs"),
+        (matrix_refusal(hdr + row("risk/a.md") + "|\n" + row("risk/b.md")) is not None, "a lone pipe line refuses the matrix"),
     ]
     ok = True
     for passed, label in checks:
@@ -425,6 +483,10 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: no matrix row in {args.matrix} could be checked; nothing is established:", file=sys.stderr)
         for s in skipped:
             print(f"  - {s}", file=sys.stderr)
+        return 2
+    if not stats["codes"]:
+        print(f"ERROR: no CCM or AICM code in {args.matrix} was compared with its document; nothing is established",
+              file=sys.stderr)
         return 2
     if skipped:
         print(f"NOTE: {len(skipped)} matrix row(s) not assessed (listed at the end); {stats['rows']} row(s) checked.")
