@@ -26,7 +26,8 @@ leans on an enforcement mechanism bash itself provides:
      that survived would find PATH naming a removed directory and could run nothing.
 
 LIMITS, stated: output redirection (`>`) is refused, as restricted mode requires, so a command string that
-redirects cannot be verified here; `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
+redirects cannot be verified here; the whitelisted utilities refuse any argument containing a slash (they
+reach only names in the work dir), so a command that reads or makes a path elsewhere cannot be verified; `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
 dash-only difference is not observed; an argument containing the log's separator bytes (0x1e, 0x1f) is
 ambiguous in the call log. This relies on bash's restricted mode and on the whitelist audit; it is not a
 kernel sandbox.
@@ -41,6 +42,8 @@ Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error.
 from __future__ import annotations
 
 import argparse
+import contextlib
+import io
 import os
 import shutil
 import signal
@@ -68,6 +71,14 @@ import sys
 with open({log!r}, "a", encoding="utf-8") as fh:
     fh.write("\\x1f".join([{name!r}] + sys.argv[1:]) + "\\x1e")
 """
+UTIL_WRAPPER = """#!{python} -I
+import os, sys
+args = sys.argv[1:]
+if any("/" in a or a == ".." for a in args):
+    sys.stderr.write("{name}: refused: a path argument (only names in the working directory)\\n")
+    sys.exit(126)
+os.execv({real!r}, [{name!r}] + args)
+"""
 # Nested shells start restricted bash again with no startup files: bash reads startup files before it
 # applies restriction, so -i or -l would otherwise run them unrestricted (3b116 QA r3).
 SHELL_WRAPPER = """#!/bin/sh
@@ -90,29 +101,49 @@ def _rmtree(path: str) -> None:
     shutil.rmtree(path)
 
 
-def _kill_session(sid: int) -> None:
+def _session_members(sid: int) -> "list[tuple[int, str]]":
+    """(pid, state) of every process whose session id is sid."""
+    out = []
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        try:
+            with open(f"/proc/{entry}/stat", encoding="utf-8") as fh:
+                fields = fh.read().rsplit(")", 1)[1].split()
+        except OSError:
+            continue
+        if int(fields[3]) == sid:  # after the command name: state, ppid, pgrp, session
+            out.append((int(entry), fields[0]))
+    return out
+
+
+def _kill_session(sid: int) -> bool:
     """Kill every process in the run's session. start_new_session makes the shell a session leader; `set -m`
     moves a child into a new process group but not out of the session, and setsid is not reachable (3b116
-    QA r3)."""
-    for _ in range(3):
-        found = False
-        for entry in os.listdir("/proc"):
-            if not entry.isdigit():
-                continue
+    QA r3). A fork loop can outpace killing, so members are first STOPPED until a pass finds none still
+    running (a stopped process cannot fork), then killed until the session is empty (3b116 QA r6). True when
+    the session is empty; False if members remained at the deadline."""
+    deadline = time.monotonic() + 5.0
+    while time.monotonic() < deadline:
+        running = [pid for pid, state in _session_members(sid) if state not in ("T", "t", "Z", "X")]
+        if not running:
+            break
+        for pid in running:
             try:
-                with open(f"/proc/{entry}/stat", encoding="utf-8") as fh:
-                    fields = fh.read().rsplit(")", 1)[1].split()
-            except OSError:
-                continue
-            if int(fields[3]) == sid:  # after the command name: state, ppid, pgrp, session
-                found = True
-                try:
-                    os.kill(int(entry), signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-        if not found:
-            return
-        time.sleep(0.05)
+                os.kill(pid, signal.SIGSTOP)
+            except ProcessLookupError:
+                pass
+    while time.monotonic() < deadline:
+        members = [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
+        if not members:
+            return True
+        for pid in members:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        time.sleep(0.02)
+    return not [pid for pid, state in _session_members(sid) if state not in ("Z", "X")]
 
 
 def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
@@ -131,7 +162,12 @@ def _prepare(tmp: str, stubs) -> tuple[str, str, str]:
     for util in WHITELIST:
         real = shutil.which(util, path="/usr/bin:/bin")
         if real and not os.path.exists(os.path.join(bindir, util)):
-            os.symlink(real, os.path.join(bindir, util))
+            # A wrapper, not a symlink: restricted mode limits command names, not arguments, so the utility
+            # itself refuses a path argument; it cannot read or create anything outside the work dir
+            # (3b116 QA r6).
+            with open(os.path.join(bindir, util), "w", encoding="utf-8") as fh:
+                fh.write(UTIL_WRAPPER.format(python=sys.executable, name=util, real=real))
+            os.chmod(os.path.join(bindir, util), 0o755)
     os.chmod(bindir, 0o555)  # nothing can be planted on PATH (3b116 QA r3)
     return bindir, home, log
 
@@ -162,7 +198,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
-                    _kill_session(p.pid)
+                    contained = _kill_session(p.pid)
                     p.wait()
             with open(out_path, encoding="utf-8", errors="replace") as fh:
                 out = fh.read()
@@ -170,7 +206,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
                 err = fh.read() + timed_out
             with open(log, encoding="utf-8") as fh:
                 records = [r for r in fh.read().split(_RS) if r]
-            results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err,
+            results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err, "contained": contained,
                             "calls": ["STUB " + " ".join(r.split(_US)) for r in records],
                             "argv": [r.split(_US) for r in records]})
         finally:
@@ -193,12 +229,14 @@ def main(argv=None) -> int:
     shells = ("bash", "sh") if args.shell == "both" else (args.shell,)
     for r in run(args.command, shells, stubs):
         print(f"== {r['shell']} rc={r['rc']}")
+        if not r["contained"]:
+            print("WARNING: processes of this run were still alive at the kill deadline")
         for c in r["calls"]:
             print(c)
-        if r["stdout"]:
-            print("-- stdout\n" + r["stdout"].rstrip("\n"))
-        if r["stderr"]:
-            print("-- stderr\n" + r["stderr"].rstrip("\n"))
+        # The command's own output is prefixed, so it cannot pass for a report line (3b116 QA r6).
+        for label in ("stdout", "stderr"):
+            if r[label]:
+                print(f"-- {label}\n" + "\n".join("| " + line for line in r[label].rstrip("\n").split("\n")))
     return 0
 
 
@@ -210,26 +248,41 @@ def _self_test() -> int:
                        ["STUB gh pr merge 1", "STUB gh pr merge 2", "STUB git push", "STUB gh pr create"]))
     r = run("gh pr merge 'a b' ''", shells=("sh",))[0]
     checks.append(("argument-boundaries-kept", r["argv"] == [["gh", "pr", "merge", "a b", ""]]))
-    # Every route to a real binary that ordinary shell syntax offers is refused by restricted bash.
-    for label, cmd in (("slash-path", "/usr/bin/gh pr merge 1"), ("path-change", "PATH=/usr/bin; gh pr merge 1"),
-                       ("path-prefix", "PATH=/usr/bin gh pr merge 1"), ("command-p", "command -p gh pr merge 1"),
-                       ("exec", "exec /usr/bin/gh pr merge 1"), ("env", "env -i PATH=/usr/bin gh pr merge 1"),
-                       ("hash-p", "hash -p /usr/bin/gh gh; gh pr merge 1"), ("nested-slash", "bash -c '/usr/bin/gh x'"),
-                       ("set-plus-r", "set +r; /usr/bin/gh x"), ("bash-plus-r", "bash +r -c '/usr/bin/gh x'"),
-                       ("xargs", "echo /usr/bin/gh | xargs"), ("job-control", "set -m; (/usr/bin/gh x) & wait"),
-                       ("sort", "sort -o \"$HOME/x\" /dev/null"), ("touch", "touch \"$PATH/gh2\""),
-                       ("login-shell", "bash -l -c '/usr/bin/gh x'"),
-                       # An unrestricted bash stand-in would import SHELLOPTS and PS4 (3b116 QA r5).
-                       ("ps4-xtrace", "PS4='$(/usr/bin/id)'; export PS4; set -o xtrace; export SHELLOPTS; gh x"),
-                       ("bash-cmds", "BASH_CMDS[e]=/usr/bin/id; e"),
-                       ("history-path", "set -o history; history -w \"$HOME/.bashrc\""),
-                       ("source-path", ". ./x")):
+    # Every route to a real program that ordinary shell syntax offers is refused. The target is the harmless
+    # /usr/bin/id, so a regression can only ever run id; each case names the refusal it expects and the
+    # stand-in calls it expects, and no case may show id's output (3b116 QA r6).
+    slash = "restricted: cannot specify `/' in command names"
+    for label, cmd, expect, calls in (
+            ("slash-path", "/usr/bin/id", slash, []), ("path-change", "PATH=/usr/bin; id", "PATH: readonly variable", []),
+            ("path-prefix", "PATH=/usr/bin id", "PATH: readonly variable", []),
+            ("command-p", "command -p id", "command: -p: restricted", []), ("exec", "exec /usr/bin/id", "exec: restricted", []),
+            ("env", "env -i PATH=/usr/bin id", "env: command not found", []),
+            ("hash-p", "hash -p /usr/bin/id e; e", "hash: /usr/bin/id: restricted", []),
+            ("nested-slash", "bash -c '/usr/bin/id'", slash, []), ("set-plus-r", "set +r; /usr/bin/id", "set: +r: invalid option", []),
+            ("bash-plus-r", "bash +r -c '/usr/bin/id'", "+r: invalid option", []),
+            ("xargs", "echo /usr/bin/id | xargs", "xargs: command not found", []),
+            ("job-control", "set -m; (/usr/bin/id) & wait", slash, []), ("sort", "sort -o x /dev/null", "sort: command not found", []),
+            ("touch", "touch x", "touch: command not found", []), ("login-shell", "bash -l -c '/usr/bin/id'", slash, []),
+            # An unrestricted bash stand-in would import SHELLOPTS and PS4 (3b116 QA r5).
+            ("ps4-xtrace", "PS4='$(/usr/bin/id)'; export PS4; set -o xtrace; export SHELLOPTS; gh x", slash, ["STUB gh x"]),
+            ("bash-cmds", "BASH_CMDS[e]=/usr/bin/id; e", "/usr/bin/id: restricted", []),
+            ("history-path", "set -o history; history -w \"$HOME/.bashrc\"", ".bashrc: restricted", []),
+            ("source-path", ". ./x", ".: ./x: restricted", []),
+            ("histfile", "HISTFILE=../calls.log; history -w", "HISTFILE: readonly variable", []),
+            ("cat-outside", "cat /etc/hostname", "cat: refused: a path argument", []),
+            ("mkdir-outside", "mkdir /tmp/stubbed-shell-escape", "mkdir: refused: a path argument", [])):
         rr = run(cmd, shells=("bash",))[0]
-        # The evidence must be bash's own refusal, not merely the absence of a visible real run.
-        refused = any(s in rr["stderr"] for s in ("restricted", "readonly variable", "command not found",
-                                                   "invalid option"))
-        ran_real = "uid=" in rr["stdout"] + rr["stderr"]
-        checks.append((f"refused:{label}", refused and not ran_real and all(c.startswith("STUB ") for c in rr["calls"])))
+        checks.append((f"refused:{label}", expect in rr["stderr"] and rr["calls"] == calls
+                       and "uid=" not in rr["stdout"] + rr["stderr"]))
+    # A fork loop is contained: the session kill repeats until the session is empty (3b116 QA r6).
+    rr = run("while :; do ( : ) & done", shells=("bash",), timeout=2)[0]
+    checks.append(("fork-loop-contained", rr["contained"]))
+    # The command's output cannot pass for a report line.
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        main(["--shell", "sh", "printf 'STUB gh pr merge 9\\n== sh rc=0\\n'"])
+    checks.append(("report-lines-prefixed", "\n| STUB gh pr merge 9" in out.getvalue()
+                   and "\nSTUB gh pr merge 9" not in out.getvalue()))
     r = run("printf '%s|' \"$GH_TOKEN\" \"$GH_HOST\" \"$HOME\" \"$PATH\" \"${BASH_ENV:-unset}\"", shells=("sh",))[0]
     tok, host, home, path, benv = (r["stdout"].split("|") + [""] * 5)[:5]
     checks.append(("environment-built-from-scratch", tok == "stubbed-shell-invalid" and host == INVALID_HOST
@@ -251,8 +304,8 @@ def _self_test() -> int:
     r = run("printf() { /usr/bin/id; }; export -f printf; gh pr merge 5", shells=("bash",))[0]
     checks.append(("exported-function-cannot-hijack-stand-in", r["calls"] == ["STUB gh pr merge 5"]
                    and "uid=" not in r["stdout"]))
-    checks.append(("path-dir-read-only",
-                   "Permission denied" in run("mkdir \"$PATH/new\"", shells=("sh",))[0]["stderr"]))
+    err = run("mkdir \"$PATH/new\"", shells=("sh",))[0]["stderr"]
+    checks.append(("path-dir-not-writable", "Permission denied" in err or "refused: a path argument" in err))
     saved = os.environ.get("BASH_FUNC_gh%%")
     os.environ["BASH_FUNC_gh%%"] = "() { echo FUNC; }"
     try:
@@ -270,7 +323,7 @@ def _self_test() -> int:
         checks.append(("job-control-child-killed", not os.path.exists(marker + "-jc")))
     finally:
         shutil.rmtree(marker_dir, ignore_errors=True)
-    r = run("mkdir -p d && mkdir -m 000 d/e", shells=("sh",))[0]
+    r = run("mkdir d && mkdir -m 000 e", shells=("sh",))[0]
     checks.append(("read-only-tree-cleaned", r["rc"] == 0))
     # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
     # nothing is refused, so the evidence is that the planted program never ran.
