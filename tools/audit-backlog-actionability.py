@@ -101,16 +101,30 @@ ITEM_HEADING_RE = re.compile(
 # the grammar does not take is visible, never silently dropped. Before 3b119 bullet items were invisible.
 TOP_BULLET_ITEM_RE = re.compile(
     r"^- \*\*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
-    r"|\d+b\d+[a-z]?"
+    r"|3b\d+[a-z]?"
     r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))"
     r"(?=[ \t*:])(?P<title>.*)$"
 )
-# A line that looks like an item (any list marker, any case, optional backtick): reported when not counted.
-ITEM_LIKE_RE = re.compile(
-    r"^(?:[ \t]*[-*+]|[ \t]*\d+[.)])[ \t]+\*\*`?(?P<id>\d+b\d+[a-z]?|p-[a-z0-9][a-z0-9.\-]*"
-    r"|[a-z][a-z0-9]*(?:-[a-z0-9]+)*-[a-z]*\d[a-z0-9]*|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:(\[`]|$)",
-    re.IGNORECASE,
-)
+# The REPORT net (QA r3): a list line (any marker, any indentation) whose bold text starts with a token that
+# holds a digit (not a ``#123`` PR reference), starts with ``P-`` in any case, or whose bold text carries a
+# ``[private]`` / ``[public]`` tag. Every counted form meets one of these, so the counted-or-reported
+# invariant holds by construction; the net is deliberately wider than the grammar.
+_ITEM_LIKE_LEAD_RE = re.compile(r"^[ \t]*(?:[-*+]|\d+[.)])[ \t]+\*\*`?(?P<tok>[^\s*`:,;(\[\]]*)(?P<rest>[^\n]*)$")
+_TAG_IN_BOLD_RE = re.compile(r"^[^*]*\[(?:private|public)\]", re.IGNORECASE)
+
+
+def _is_item_like(line: str) -> bool:
+    m = _ITEM_LIKE_LEAD_RE.match(line)
+    if not m:
+        return False
+    tok = m.group("tok")
+    if tok and not tok.startswith("#") and any(c.isdigit() for c in tok):
+        return True
+    if tok.lower().startswith("p-"):
+        return True
+    return bool(_TAG_IN_BOLD_RE.match(m.group("rest")))
+
+
 # A fence opens at 0 to 3 spaces of indentation (deeper indentation is list or code content, not a fence).
 _FENCE_OPEN_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 _COMMENT_TOKEN_RE = re.compile(r"<!--|-->")
@@ -166,7 +180,7 @@ def uncounted_item_like(text: str) -> "list[tuple[int, str]]":
     parse_items(text, "private", ref_bodies={}, _heads=heads)
     counted = set(heads)
     return [(n, ln.strip()) for n, ln in enumerate(text.splitlines(), 1)
-            if ITEM_LIKE_RE.match(ln) and n not in counted]
+            if _is_item_like(ln) and n not in counted]
 
 # The AUTHORITATIVE blocker signal: a ``[BLOCKED:<reason>]`` tag (maintainer-granted).
 BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
@@ -1247,10 +1261,27 @@ def _self_test() -> int:
     check("grammar-reported", rep_ids == sorted(["P-F5", "2026.09.1340", "1.5x", "SHA-256", "3b8", "P-9.3",
                                                    "3b10", "3b11", "3b12", "P-v3nit", "p-1.37", "3b15", "3b16",
                                                    "3b17"]))
-    like = [n for n, ln in enumerate(g.splitlines(), 1) if ITEM_LIKE_RE.match(ln)]
+    like = [n for n, ln in enumerate(g.splitlines(), 1) if _is_item_like(ln)]
     heads: list[int] = []
     parse_items(g, "private", ref_bodies={}, _heads=heads)
     check("grammar-counted-or-reported", set(like) == set(heads) | {n for n, _ in uncounted_item_like(g)})
+    # QA r3: every one of these is counted or reported (never both missed); a binary literal is never counted.
+    r3 = ["- **3b20.** t", "- **3b20, 3b21** t", "- **3b20\u2014fix** t", "- **3b20-followup [private]**",
+          "- **3b20/3b21 [private]**", "- **3b20ab [private]**", "- **3b7.1 [private] child**",
+          "- **1.2.3.4 [private]**", "- **3b20\u00a0[private]**", "- **GR-GAP-1-A [private]** fix",
+          "* **GR-GAP-1-A [private]** fix", "- **gr-gap-1-a [private]** fix", "- **`GR-GAP-1-A` [private]** fix",
+          "- **v2-wave2-PR2b-scope (website):** x", "1. **IPY-02/04 fix = PARKED**", "- **P-hookfix (m):** x",
+          "- **0b1010** is a binary mask", "- **RB-9 [public] public coded** x", "- **4.6 [public] public section** y"]
+    r3_counted = {x[0] for x in parse_items("## Q\n" + "\n".join(r3) + "\n", "private", ref_bodies={})}
+    r3_reported = {ln for _n, ln in uncounted_item_like("## Q\n" + "\n".join(r3) + "\n")}
+    check("r3-counted-or-reported", all(any(ln.startswith(x) for x in r3_reported) or
+                                        ln.split("**")[1].replace("`", "").split()[0].split("[")[0] in r3_counted
+                                        for ln in r3))
+    check("r3-binary-not-counted", "0b1010" not in r3_counted)
+    check("r3-public-tag-counted", {"RB-9", "4.6", "GR-GAP-1-A"} <= r3_counted)
+    check("r3-net-tag-only", [ln for _n, ln in uncounted_item_like("## Q\n* **GR-GAP [private]** x\n")]
+          == ["* **GR-GAP [private]** x"])
+    check("r3-net-pr-ref-not-reported", uncounted_item_like("## Q\n- **#2477 MERGED** (x)\n") == [])
 
     if failures:
         for f in failures:

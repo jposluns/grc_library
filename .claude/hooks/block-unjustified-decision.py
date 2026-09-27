@@ -203,7 +203,7 @@ TODO_ROW_RE = re.compile(
 # never changes containment. tests/test_linters.py compares these counts with the tool's on the live files
 # and on fixtures.
 BULLET_ITEM_RE = re.compile(
-    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?"
+    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|3b\d+[a-z]?"
     r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))(?=[ \t*:])"
 )
 _BULLET_ITEM_HEADING_RE = re.compile(

@@ -17333,6 +17333,8 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "top-level ids": ("## Q\n- **3b7 [private] a** x\n- **3b7a b:** y\n- **P-1.49 [private]** c\n"
                               "- **P-1.37 d:** e\n- **RB-6 [private] f** g\n- **P-F5 [private] (x):** h\n"
                               "- **4.5 [private] i** j\n", 7),
+            "public tags and binary literal": ("## Q\n- **RB-9 [public] x** a\n- **4.6 [public] y** b\n"
+                                               "- **0b1010** mask\n- **12b3 [private] not a queue id** c\n", 2),
             "untagged coded and acronyms": ("## Q\n- **RB-6 f** g\n- **SHA-256:** pins\n- **UTF-8 only** x\n"
                                             "- **CVE-2024-3094:** y\n", 0),
             "inline comment markers": ("## Q\n- **3b7 [private] a** x <!-- owner: ops -->\n"
