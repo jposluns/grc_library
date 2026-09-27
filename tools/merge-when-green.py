@@ -227,6 +227,14 @@ def _self_test() -> int:
             views = [a for a in calls if a[:2] == ("pr", "view")]
             checks.append((f"merge-pins-evaluated-head-{label}", rc == 0 and len(merges) == 1 and pinned(merges[0])
                            and len(views) == 1 and (("--admin" in merges[0]) == bool(extra))))
+        # A dry run on a green PR reports and never merges, with or without --admin (3b106 QA r4).
+        for extra in ([], ["--admin"]):
+            calls.clear()
+            globals()["gh"] = rec
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1", "--dry-run", *extra])
+            checks.append((f"dry-run-never-merges{'-admin' if extra else ''}",
+                           rc == 0 and not any(c[:2] == ("pr", "merge") for c in calls)))
         # A missing, short, upper-case or non-hex head refuses, with no merge call, also on a dry run.
         for label, bad in (("missing", None), ("short", "abc123"), ("upper", "A" * 40), ("nonhex", "g" * 40)):
             for dry in ([], ["--dry-run"]):
