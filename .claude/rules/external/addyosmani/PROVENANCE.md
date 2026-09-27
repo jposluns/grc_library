@@ -18,9 +18,10 @@ authoritative source.
 
 ## Known divergence from the primary pack (recorded 2026-09-27)
 
-- `security-and-hardening.md` lines 356-363 use OWASP Top 10 for LLM Applications (2025)
+- `security-and-hardening.md` lines 306 and 356-363 use OWASP Top 10 for LLM Applications (2025)
   identifiers. The held 2026 edition keeps LLM01 (Prompt Injection) and LLM02 (Sensitive
-  Information Disclosure), but maps 2025 LLM05 to LLM10:2026 (Improper Output Handling), LLM06
+  Information Disclosure), but maps 2025 LLM03 (Supply Chain, line 306) to LLM04:2026 (in 2026
+  LLM03 is Excessive Agency, the sense the primary pack uses), LLM05 to LLM10:2026 (Improper Output Handling), LLM06
   to LLM03:2026 (Excessive Agency), LLM07 to LLM08:2026 (Hidden Context Exposure, renamed and
   broadened from System Prompt Leakage), LLM08 to LLM09:2026 (Vector and Embedding Weaknesses),
   and LLM10 to LLM06:2026 (Unbounded Consumption). Use the 2026 identifiers when mapping this
