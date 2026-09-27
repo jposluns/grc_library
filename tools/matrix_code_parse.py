@@ -20,22 +20,27 @@ from __future__ import annotations
 
 import re
 
-# Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose
-# first character is a letter and remainder letters or ampersand (so A&A / I&S
-# match), a hyphen, two digits. Shared by CSA_CODE_RE and by the CSA branch of
-# CODE_RE, so both aids parse one canonical CSA shape.
-CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-\d{2}"
+# Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose first character
+# is a letter and remainder letters or ampersand (so A&A / I&S match), a hyphen, two ASCII digits.
+# Shared by CSA_CODE_RE and by the CSA branch of CODE_RE, so both aids parse one canonical CSA
+# shape. A code's own digits are [0-9], not \d: \d matches any Unicode decimal digit, so a
+# document showing Arabic-Indic digits would read as carrying the ASCII code (3b117). A GUARD that
+# rejects a match (a sub-clause lookahead) keeps the Unicode-wide \d, since narrowing a rejecting
+# guard makes it reject less.
+CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
 
-# Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE, byte-identical):
+# Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE; identical on ASCII input,
+# digits narrowed to ASCII by 3b117):
 # a capturing group so .findall() yields the code; a (?<![\w&]) lookbehind and a
 # trailing \b so a code embedded in a word, or preceded by '&', does not match.
 CSA_CODE_RE = re.compile(r"(?<![\w&])(" + CSA_CODE_CORE + r")\b")
 
 # A contiguous CSA range: "IAM-01 to 15", "LOG-01 through LOG-14", "A&A-01 to A&A-06"
-# (was audit-stranded-matrix-code._CSA_RANGE, byte-identical).
+# (was audit-stranded-matrix-code._CSA_RANGE; identical on ASCII input, digits narrowed
+# to ASCII by 3b117).
 CSA_RANGE_RE = re.compile(
-    r"(?<![\w&])([A-Z][A-Z&]{1,4})-(\d{1,2})\s*(?:to|through)\s*"
-    r"(?:([A-Z][A-Z&]{1,4})-)?(\d{1,2})\b"
+    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})\s*(?:to|through)\s*"
+    r"(?:([A-Z][A-Z&]{1,4})-)?([0-9]{1,2})\b"
 )
 
 # Multi-framework code token (was audit-matrix-semantic-fit.CODE_RE): the CSA core
@@ -45,15 +50,15 @@ CSA_RANGE_RE = re.compile(
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?"
-    r"|A\.[5-8]\.\d{1,2}(?!\d|\.\d))\b"
+    r"|(?:EDM|APO|BAI|DSS|MEA)(?![0-9.]*(?![0-9.])\d)[0-9]{2}(?:\.[0-9]{2})?"
+    r"|A\.[5-8]\.[0-9]{1,2}(?!\d|\.\d))\b"
 )
 
 
 def expand_codes(text: str) -> set[str]:
     """Every CSA CCM/AICM control code in ``text``, contiguous ranges expanded.
 
-    Was audit-stranded-matrix-code._expand_codes, byte-identical behaviour. A
+    Was audit-stranded-matrix-code._expand_codes; identical behaviour on ASCII input (3b117). A
     cross-family range ("IAM-01 to LOG-05") is not a real range and is ignored; a
     range is bounded to <100 codes as a sanity guard.
     """
@@ -109,6 +114,24 @@ def _self_test() -> int:
             self.assertIn("AAA-50", expanded)
             self.assertIn("AAA-99", expanded)
             self.assertEqual(len(expanded), 99)
+
+        def test_ascii_digits_only(self):
+            # 3b117: Unicode digits are not code digits (\d would accept Arabic-Indic digits).
+            self.assertEqual(expand_codes("STA-\u0660\u0662"), set())
+            self.assertEqual(expand_codes("STA-01 to \u0660\u0663"), {"STA-01"})
+            self.assertEqual(CODE_RE.findall("APO\u0661\u0662 A.5.\u0661 DSP-\u0661\u0666"), [])
+            self.assertEqual(CODE_RE.findall("APO12 A.5.1 DSP-16"), ["APO12", "A.5.1", "DSP-16"])
+            # every changed site, and the guards that must stay Unicode-wide (3b117 QA r1)
+            self.assertEqual(expand_codes("STA-\u0660\u0661 to 03"), set())
+            self.assertEqual(CODE_RE.findall("A.5.1.\u0662 A.5.1.\uff12 A.5.1.2"), [])
+            self.assertEqual(CODE_RE.findall("DSS05.\u0660\u0663 APO12.\u0661\u0662"), [])
+            # a guard right after the prefix sees every ASCII digit and dot, so a mixed practice or
+            # a trailing non-ASCII sub-part cannot backtrack to the ASCII objective (3b117 QA r2)
+            for s in ("DSS05.0\u0663", "APO12.0\uff12", "DSS05.03.\u0661",
+                      "STA-APO15.1\u0663", "DSS05\u0663"):
+                self.assertEqual(CODE_RE.findall(s), [], s)
+            self.assertEqual(CODE_RE.findall("DSS05.03.1"), ["DSS05.03"])
+            self.assertEqual(CODE_RE.findall("DSS05.03 DSS05.3"), ["DSS05.03", "DSS05"])
 
         # --- EQUIVALENCE against each original form (the critical tests) ---
         def test_equiv_semantic_fit_CODE_RE(self):
