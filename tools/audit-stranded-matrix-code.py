@@ -42,7 +42,8 @@ by a backslash is cell content. A matrix containing an HTML block, an indented l
 quoted line carrying a pipe is refused rather than modelled: the matrix must follow a closed line grammar
 (matrix_refusal: blank lines, ATX headings, thematic breaks, plain prose without a pipe or block marker,
 and table lines at column 0, with tables set apart from prose; each run of table lines is one table opening
-with its header and delimiter rows; no escape, entity or HTML in a table line; only space and tab as
+with its header and delimiter rows; no escape (other than an escaped pipe), entity or HTML in a table line; at
+most 64 columns; only space and tab as
 whitespace; no control or format character; header cells are plain text; every row of a table has the
 header's width). A master table has exactly one Path, one CCM and one AICM column; a
 CCM/AICM table that is not one is listed. A row is read only when its CCM and AICM cells are plain code
@@ -114,6 +115,7 @@ _CELL_ITEM = rf"{_CELL_CODE}(?:[ \t]+(?:to|through)[ \t]+(?:{_CELL_CODE}|[0-9]{{
 _CODE_LIST_RE = re.compile(rf"(?:N/A|-|)|{_CELL_ITEM}(?:[ \t]*[,;][ \t]*{_CELL_ITEM})*")
 
 
+_MAX_TABLE_WIDTH = 64
 _PLAIN_HEADER_CELL_RE = re.compile(r"[A-Za-z0-9 ./:(),&-]*")
 
 
@@ -165,6 +167,9 @@ def matrix_refusal(text: str) -> "str | None":
         if kind == "table" and prev != "table":
             head = _cells(line)
             width = len(head)
+            if width > _MAX_TABLE_WIDTH:
+                return (f"line {n} opens a table of {width} columns; more than {_MAX_TABLE_WIDTH} is refused (cmark-gfm "
+                        "cannot build a row past 65,535 cells, and no real matrix is that wide) (3b107 QA r9)")
             plain = [c for c in head if not _PLAIN_HEADER_CELL_RE.fullmatch(c)]
             if plain:
                 return (f"line {n} is a table header with markup or unusual characters in {plain[0]!r}; headers must be "
@@ -566,6 +571,12 @@ def _self_test() -> int:
          and matrix_refusal(hdr + row("risk/a.md").replace(" N/A |", "")) is not None,
          "a row wider or narrower than its header refuses the matrix"),
         (_doc_path("~~[`risk/b.md`](../risk/b.md)~~ [`risk/a.md`](../risk/a.md)") is None, "the link shape must be the whole cell"),
+        # QA r9: the run rule on its own (a same-width non-delimiter second line); the width cap.
+        (matrix_refusal("| a | b |\n| c | d |\n\n" + hdr + row("risk/a.md")) is not None,
+         "a run whose second line is not a delimiter row refuses, even at the header's width"),
+        (matrix_refusal("|" + " h |" * 65 + "\n|" + " - |" * 65 + "\n") is not None
+         and matrix_refusal("|" + " h |" * 64 + "\n|" + " - |" * 64 + "\n") is None,
+         "a table wider than 64 columns refuses; 64 is accepted"),
         (_line_kind("####### x") is None and _line_kind("###### x") == "heading", "a seven-hash line is not a heading"),
         (_default_doc_reader("matrix-grc-compliance-alignment.md") is None,
          "the reader does not fall back from the repository root to compliance/"),
