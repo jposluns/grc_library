@@ -19,8 +19,9 @@ What it does, in order (all other paths fail OPEN -> allow):
      binds the singleton orchestrator's wind-down; a bounded worker legitimately finishing its one task
      must not be told to work the orchestrator's backlog (and cannot switch the mode or mark the backlog).
   1. The resolved operating mode is not `unattended` -> allow; only a resolved `unattended` arms the guard.
-     Via the grc adapter (`_grc_map_mode`), after trimming and lowercasing the mode, a value CONTAINING
-     `unattended` or exactly equal to `attended-autonomous` resolves to `unattended` and ARMS; EVERY other value (plain `attended`,
+     Via the grc adapter (`_grc_map_mode`), the WHOLE leading mode token decides (3b101): `unattended`,
+     `overnight-unattended`, `daytime-unattended` or `attended-autonomous` resolves to `unattended` and ARMS; commentary after it
+     is ignored, and EVERY other value (plain `attended`, `fully-attended`,
      `attended-manual`, an unknown string, an absent or unreadable mode) resolves to non-`unattended` and
      allows. The portable MODE_FILE branch returns its text unmapped, so there only a literal `unattended`
      arms (even `attended-autonomous` from that source allows).
@@ -90,10 +91,88 @@ PRODUCER_TIMEOUT_S = 8
 # path (resolved like _grc_escape_file, honouring GRC_DROP_ROOT), because the sentinel was once created
 # at the WRONG path for a whole session when the message did not say where it is read from. Carried in
 # the single refusal message (the blocking-hook message contract allows no trailing extra line).
+# Same fully resolved path as repo_root(), so a symlinked hook file cannot split the two (3b101 QA r1).
+_GRC_REPO_ROOT = str(Path(__file__).resolve().parents[2])
+_GRC_PARENT = os.path.dirname(_GRC_REPO_ROOT)
+
+
+def _grc_under_root(value, default):
+    """An override path, resolved against the repo root when relative so the working directory cannot
+    change its meaning; the default when unset or empty (3b101 QA r1)."""
+    if not value:
+        return default
+    return value if os.path.isabs(value) else os.path.normpath(os.path.join(_GRC_REPO_ROOT, value))
+
+
+_GRC_STATE_FILE = os.path.join(_grc_under_root(os.environ.get("GRC_STORE"), os.path.join(_GRC_PARENT, "private")),
+                               "session-state.md")
+
+
+def _grc_escape_file():
+    """Path of the grc one-shot declared-wait sentinel, resolved at call time (honours GRC_DROP_ROOT)."""
+    return os.path.join(_grc_under_root(os.environ.get("GRC_DROP_ROOT"), os.path.join(_GRC_PARENT, "grc_working")),
+                        ".allow-idle-stop")
+
+
+def _is_grc_main_checkout(root):
+    """The grc adapter applies only in the MAIN checkout: <root>/.git is a directory there and a file in
+    every linked worktree, so a worker's Stop in a sibling worktree can neither consume the orchestrator's
+    declared-wait sentinel nor be armed by its lease. The old hard-coded root path gave this scoping;
+    deriving the root from __file__ alone made the check always true (3b101 QA r1, claude F1)."""
+    return os.path.realpath(root) == _GRC_REPO_ROOT and _is_primary_checkout(root)
+
+
+def _is_primary_checkout(root):
+    """True for a main checkout (.git is a directory) or a submodule (.git is a file naming an admin
+    directory), False for a linked worktree or anything unreadable. The test is structural, as git's own:
+    a linked worktree's admin directory holds a `commondir` file, a submodule's does not. The gitdir is
+    resolved against the checkout with every symlink followed, so neither the spelling of the path nor an
+    ancestor directory named `worktrees` changes the answer (3b101 QA r3). The admin directory must hold a
+    HEAD file, as every git directory does, so a gitdir naming some other directory is not taken for one
+    (3b101 QA r5). A gitdir that is missing, malformed or not a git directory returns False: the adapter
+    then stays off, which allows the stop and consumes nothing."""
+    dotgit = os.path.join(root, ".git")
+    if os.path.isdir(dotgit):
+        return True
+    try:
+        with open(dotgit, encoding="utf-8") as fh:
+            first = fh.readline(4096).strip()
+    except (OSError, UnicodeDecodeError):
+        return False
+    if not first.startswith("gitdir: "):  # git's read_gitfile requires the space (3b101 QA r6)
+        return False
+    target = first[len("gitdir: "):].strip()
+    if not target:
+        return False
+    try:  # a NUL in the gitdir raises ValueError (3b101 QA r5)
+        admin = os.path.realpath(os.path.join(root, target))
+        # lexists: git accepts a symlinked HEAD (core.preferSymlinkRefs), even one that dangles (3b101 QA r6)
+        if not (os.path.isdir(admin) and os.path.lexists(os.path.join(admin, "HEAD"))):
+            return False
+        os.stat(os.path.join(admin, "commondir"))  # only a confirmed absence counts (3b101 QA r4)
+    except FileNotFoundError:
+        return True
+    except (OSError, ValueError):
+        return False
+    return False
+
+
+def _grc_is_worker():
+    """A dispatched worker, by either signal the fleet provides: the ORCH_VERIFY_OWNER marker that
+    orch-verify exports (presence, even empty), or a CLAUDE_CONFIG_DIR whose basename carries the broker's
+    reserved `orch-worker.` prefix (the signal _hookutil.is_worker_session reads). A worker is never armed
+    by the orchestrator's lease and never consumes its declared wait (3b101 QA r2, r3). Both signals are
+    environment values the same uid can set, so this separates honest sessions, it is not a boundary."""
+    if "ORCH_VERIFY_OWNER" in os.environ:
+        return True
+    cfg = os.environ.get("CLAUDE_CONFIG_DIR") or ""
+    return bool(cfg) and Path(cfg).name.startswith("orch-worker.")  # as _hookutil reads it (3b101 QA r4)
+
+
 MODE_SET_HINT = (
     "set the operating mode to attended in your project's mode record (the operator-set escape hatch); "
     "for a genuine external wait (a running QA leg or CI check), record the blocker, then touch "
-    + os.path.join(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working", ".allow-idle-stop")
+    + _grc_escape_file()  # the same resolution the reader uses (3b101 QA r2)
     + " (the grc one-shot declared-wait escape, honoured once)"
 )
 
@@ -112,22 +191,21 @@ def repo_root():
 # Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
 # gated on the grc repo root so the bundled --self-test stays hermetic on this host.
 # ---------------------------------------------------------------------------
-_GRC_REPO_ROOT = "/opt/grc/grc_library"
-_GRC_STATE_FILE = "/opt/grc/private/session-state.md"
-def _grc_escape_file():
-    """Path of the grc one-shot declared-wait sentinel, resolved at call time (honours GRC_DROP_ROOT)."""
-    return os.path.join(os.environ.get("GRC_DROP_ROOT") or "/opt/grc/grc_working", ".allow-idle-stop")
-
-
+# Paths follow the checkout (3b101): the repo root is this file's grandparent's parent, the lease lives
+# in the operational store (GRC_STORE, else <repo-parent>/private), and the declared-wait sentinel in
+# GRC_DROP_ROOT, else <repo-parent>/grc_working. No host path is hard-coded.
 def _grc_consume_escape(root):
     """grc one-shot operator escape. If this is the grc repo AND the declared-wait sentinel exists,
     CONSUME it (unlink) and return True (allow this stop). A failed unlink returns False (REFUSE the
-    escape, mirroring the retired hook). Non-grc-root, or absent sentinel, returns False. Called at the
-    TOP of main() so the sentinel is consumed one-shot on EVERY orchestrator Stop invocation -- including
-    the malformed-payload and worker/unconfirmable-owner fail-open paths that return before run() -- so a
-    declared wait cannot survive to authorize a later, unintended stop (codex validate-pr #1945 f1;
-    parity with the retired hook's test_block_idle_stop_fail_open_consumes_escape invariant)."""
-    if os.path.realpath(root) != _GRC_REPO_ROOT:
+    escape, mirroring the retired hook). Non-grc-root, a worker session, or an absent sentinel returns
+    False. Called at the TOP of main() so the sentinel is consumed one-shot on every ORCHESTRATOR Stop
+    invocation -- including the malformed-payload and unconfirmable-owner fail-open paths that return
+    before run() -- so a declared wait cannot survive to authorize a later, unintended stop (codex
+    validate-pr #1945 f1). A worker never consumes it (3b101 QA r2, r3), so a worker's stop cannot spend
+    the orchestrator's one-shot wait."""
+    if _grc_is_worker():
+        return False
+    if not _is_grc_main_checkout(root):
         return False
     ef = _grc_escape_file()
     try:
@@ -140,19 +218,21 @@ def _grc_consume_escape(root):
 
 
 def _grc_map_mode(raw):
-    """Map a grc Operating-mode word to the portable arm-state. grc's no-idle-stop modes
-    (attended-autonomous, and any mode containing 'unattended') map to 'unattended' (arm the guard);
-    fully 'attended' maps to 'attended' (allow). This preserves the mode coverage of the retired
+    """Map a grc Operating-mode word to the portable arm-state by its WHOLE leading token (3b101): the
+    no-idle-stop modes (unattended, overnight-unattended, daytime-unattended, attended-autonomous) map to
+    'unattended' (arm the guard); attended and fully-attended map to 'attended' (allow); anything else
+    passes through unchanged and allows. This preserves the mode coverage of the retired
     block-idle-stop-with-actionable-backlog.py, which armed on attended-autonomous + the unattended
     modes and exempted fully-attended."""
     if raw is None:
         return None
-    low = raw.strip().lower()
-    if "unattended" in low:
+    # Map the LEADING mode token only: commentary such as "attended; was overnight-unattended" must not
+    # arm the guard, and fully-attended is attended (3b101, from the NMW-map-bug finding).
+    m = re.match(r"\s*([a-z][a-z-]*)(?![a-z0-9_-])", raw.lower())  # a whole token: no -autonomous_v2 prefix
+    word = m.group(1) if m else ""
+    if word in ("unattended", "overnight-unattended", "daytime-unattended", "attended-autonomous"):
         return "unattended"
-    if low == "attended-autonomous":
-        return "unattended"
-    if low.startswith("attended"):
+    if word in ("attended", "fully-attended"):
         return "attended"
     return raw.strip() or None
 
@@ -189,7 +269,8 @@ def read_operating_mode(root):
       1. Portable default (UNCHANGED, serves the bundled --self-test and any file-based adopter):
          the repo-relative single-word file MODE_FILE. Present -> its trimmed word (or None).
       2. grc PRODUCTION adapter (only when root is the grc repo; hermetic for temp-root self-tests):
-         read '**Operating-mode:**' from /opt/grc/private/session-state.md and map it via _grc_map_mode.
+         read '**Operating-mode:**' from the store lease (GRC_STORE, else <repo-parent>/private, then
+         session-state.md) and map it via _grc_map_mode.
          (The one-shot declared-wait escape is consumed at the top of main() by _grc_consume_escape.)
 
     GRC WIRING NOTE: grc keeps the mode in session-state.md (not MODE_FILE) and declares a genuine wait
@@ -206,8 +287,8 @@ def read_operating_mode(root):
     except OSError:
         return None
     # 2. grc production adapter -- gated on the grc repo root so temp-root self-tests never reach it
-    if os.path.realpath(root) != _GRC_REPO_ROOT:
-        return None
+    if not _is_grc_main_checkout(root) or _grc_is_worker():
+        return None  # a worker is never armed by the orchestrator's lease (3b101 QA r3)
     # grc mode source: session-state.md 'Operating-mode:' -> mapped arm-state. (The one-shot declared-wait
     # escape is handled at the top of main() via _grc_consume_escape, not here, so it is consumed on the
     # malformed/worker fail-open paths too.)
@@ -377,7 +458,9 @@ def _self_test():
     import tempfile
     import unittest
 
-    _saved_vo = os.environ.pop("ORCH_VERIFY_OWNER", None)  # deterministic: tests control the worker marker
+    # Deterministic: the tests control both worker signals (3b101 QA r3: a worker running this self-test
+    # has CLAUDE_CONFIG_DIR set to a worker directory).
+    _saved_env = {k: os.environ.pop(k, None) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
 
     def _write(path, content):
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -428,6 +511,183 @@ def _self_test():
             self.assertLess(len(reason), 1200)
 
         # ---- default file-based mode adapter ----
+        def test_grc_mode_map_reads_the_leading_token(self):
+            # 3b101: commentary mentioning "unattended" must not arm the guard; fully-attended is attended.
+            for raw, want in (("overnight-unattended", "unattended"), ("daytime-unattended", "unattended"),
+                              ("attended-autonomous", "unattended"), ("  Attended-Autonomous ", "unattended"),
+                              ("attended; was overnight-unattended", "attended"),
+                              ("attended (previously unattended)", "attended"), ("fully-attended", "attended"),
+                              (None, None)):
+                self.assertEqual(_grc_map_mode(raw), want, raw)
+
+        def test_grc_paths_follow_the_checkout(self):
+            # 3b101: no hard-coded host path; the lease and sentinel sit beside the checkout unless overridden.
+            # (3b101 QA r3, claude O6: each assertion now pins a value rather than holding trivially.)
+            self.assertEqual(_GRC_REPO_ROOT, repo_root())
+            self.assertEqual(_GRC_PARENT, os.path.dirname(_GRC_REPO_ROOT))
+            saved = os.environ.pop("GRC_DROP_ROOT", None)
+            try:
+                self.assertEqual(_grc_escape_file(), os.path.join(_GRC_PARENT, "grc_working", ".allow-idle-stop"))
+            finally:
+                if saved is not None:
+                    os.environ["GRC_DROP_ROOT"] = saved
+            env = {k: v for k, v in os.environ.items() if k != "GRC_STORE"}
+            code = "import runpy,sys; print(runpy.run_path(sys.argv[1])['_GRC_STATE_FILE'])"
+            out = subprocess.run([sys.executable, "-B", "-c", code, __file__], capture_output=True, text=True,
+                                 env=env, timeout=60)
+            self.assertEqual(out.stdout.strip(), os.path.join(_GRC_PARENT, "private", "session-state.md"), out.stderr)
+            with open(__file__, encoding="utf-8") as fh:
+                self.assertNotIn("/opt/" + "grc", fh.read())
+
+        def test_grc_mode_map_needs_a_whole_token(self):
+            # 3b101 QA r1: a malformed suffix is not a known mode, so it passes through (and allows).
+            for raw in ("attended-autonomous_v2", "attended-autonomous2", "overnight-unattended9"):
+                self.assertEqual(_grc_map_mode(raw), raw.strip(), raw)
+
+        def test_grc_relative_override_resolves_against_the_repo_root(self):
+            # 3b101 QA r1: a relative GRC_STORE must not change meaning with the working directory.
+            self.assertEqual(_grc_under_root("../private", "x"),
+                             os.path.normpath(os.path.join(_GRC_REPO_ROOT, "../private")))
+            self.assertEqual(_grc_under_root("", "dflt"), "dflt")
+            self.assertEqual(_grc_under_root("/abs/store", "x"), "/abs/store")
+
+        def test_grc_sentinel_is_the_main_checkouts_alone(self):
+            # 3b101 QA r1 (claude F1): a worker's Stop in a sibling worktree must not consume the
+            # orchestrator's declared-wait sentinel; the main checkout's Stop consumes it.
+            import shutil, subprocess, tempfile
+            with tempfile.TemporaryDirectory() as parent:
+                main_root = os.path.join(parent, "grc_library")
+                wt_root = os.path.join(parent, "wt-x")
+                for r in (main_root, wt_root):
+                    os.makedirs(os.path.join(r, ".claude", "hooks"))
+                    shutil.copy(__file__, os.path.join(r, ".claude", "hooks", os.path.basename(__file__)))
+                os.makedirs(os.path.join(main_root, ".git"))
+                with open(os.path.join(wt_root, ".git"), "w", encoding="utf-8") as fh:
+                    fh.write("gitdir: " + os.path.join(main_root, ".git", "worktrees", "wt-x") + "\n")
+                drop = os.path.join(parent, "grc_working")
+                os.makedirs(drop)
+                sentinel = os.path.join(drop, ".allow-idle-stop")
+                env = {k: v for k, v in os.environ.items() if k not in ("GRC_DROP_ROOT", "GRC_STORE")}
+                for r, want_present in ((wt_root, True), (main_root, False)):
+                    open(sentinel, "w").close()
+                    subprocess.run([sys.executable, "-B", os.path.join(r, ".claude", "hooks", os.path.basename(__file__))],
+                                   input="{}", text=True, capture_output=True, env=env, cwd=r, timeout=60)
+                    self.assertEqual(os.path.exists(sentinel), want_present, r)
+
+        def test_grc_worker_in_main_checkout_leaves_the_sentinel(self):
+            # 3b101 QA r2: a dispatched worker running in the MAIN checkout must not consume the wait.
+            import tempfile
+            with tempfile.TemporaryDirectory() as d:
+                old = {k: os.environ.get(k) for k in ("GRC_DROP_ROOT", "ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+                real_gate = globals()["_is_grc_main_checkout"]
+                try:
+                    # Stand in the main-checkout gate so the worker rule is what is tested, not the layout.
+                    globals()["_is_grc_main_checkout"] = lambda root: True
+                    os.environ["GRC_DROP_ROOT"], os.environ["ORCH_VERIFY_OWNER"] = d, "worker"
+                    sentinel = os.path.join(d, ".allow-idle-stop")
+                    open(sentinel, "w").close()
+                    self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT))
+                    self.assertTrue(os.path.exists(sentinel))
+                    del os.environ["ORCH_VERIFY_OWNER"]  # the config-dir signal alone marks a worker too
+                    for suffix in ("", "/", "/."):  # every spelling Path(...).name reads as the dir (3b101 QA r5)
+                        os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orch-worker.example") + suffix
+                        self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT), suffix)
+                        self.assertTrue(os.path.exists(sentinel), suffix)
+                    os.environ["CLAUDE_CONFIG_DIR"] = os.path.join(d, "orchestrator")  # control: consumes
+                    self.assertTrue(_grc_consume_escape(_GRC_REPO_ROOT))
+                    self.assertFalse(os.path.exists(sentinel))
+                finally:
+                    globals()["_is_grc_main_checkout"] = real_gate
+                    for k, v in old.items():
+                        os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
+
+        def test_grc_hint_names_the_file_the_reader_uses(self):
+            # 3b101 QA r2 (codex): the refusal's touch path is the path the escape reader consumes.
+            self.assertIn(_grc_escape_file(), MODE_SET_HINT)
+
+        def test_grc_lease_arms_only_the_main_checkout_and_submodules(self):
+            # 3b101 QA r2: the lease half of the scoping, on real hook copies: the main checkout and a
+            # submodule read the lease; a linked worktree does not.
+            import shutil, subprocess, tempfile
+            with tempfile.TemporaryDirectory() as parent:
+                os.makedirs(os.path.join(parent, "private"))
+                with open(os.path.join(parent, "private", "session-state.md"), "w", encoding="utf-8") as fh:
+                    fh.write("# Session state: grc\n\n**Operating-mode:** overnight-unattended\n")
+                # Real admin directories (3b101 QA r3): a linked worktree's holds `commondir`, a submodule's
+                # does not. wt-alias reaches the worktree admin through a relative symlinked path; sub-deep
+                # is a submodule whose admin path has an ancestor named worktrees.
+                wt_admin = os.path.join(parent, "grc_library", ".git", "worktrees", "wt-x")
+                os.makedirs(wt_admin)
+                open(os.path.join(wt_admin, "commondir"), "w").close()
+                os.makedirs(os.path.join(parent, ".git", "modules", "sub"))
+                os.makedirs(os.path.join(parent, "worktrees", "modules", "sub-deep"))
+                for a in (wt_admin, os.path.join(parent, ".git", "modules", "sub"),
+                          os.path.join(parent, "worktrees", "modules", "sub-deep")):
+                    open(os.path.join(a, "HEAD"), "w").close()  # every git directory holds HEAD
+                os.makedirs(os.path.join(parent, "wt-alias"))
+                os.symlink(os.path.join(parent, "grc_library", ".git", "worktrees"),
+                           os.path.join(parent, "wt-alias", "worktrees"))
+                layouts = {"grc_library": None, "wt-x": f"gitdir: {wt_admin}\n",
+                           "wt-alias": "gitdir: worktrees/wt-x\n", "sub": "gitdir: ../.git/modules/sub\n",
+                           "sub-deep": f"gitdir: {os.path.join(parent, 'worktrees', 'modules', 'sub-deep')}\n",
+                           "missing": "gitdir: ../nowhere\n",
+                           # 3b101 QA r4: a gitdir naming a file, no .git at all, and an unsearchable admin dir
+                           "file-target": f"gitdir: {os.path.join(parent, 'admin-file')}\n", "no-git": "",
+                           # 3b101 QA r5: a directory that is not a git directory, an empty target, no prefix
+                           "not-admin": "gitdir: .\n", "empty-target": "gitdir:   \n", "no-prefix": "hello\n",
+                           "nul-target": "gitdir: ../x\x00y\n",
+                           # 3b101 QA r6: a dangling symlinked HEAD is still a git directory; no space is not a gitfile
+                           "sub-symhead": f"gitdir: {os.path.join(parent, 'symhead')}\n",
+                           "no-space": f"gitdir:{os.path.join(parent, '.git', 'modules', 'sub')}\n"}
+                os.makedirs(os.path.join(parent, "symhead"))
+                os.symlink("refs/heads/main", os.path.join(parent, "symhead", "HEAD"))
+                open(os.path.join(parent, "admin-file"), "w").close()
+                locked = os.path.join(parent, "locked-admin")
+                os.makedirs(locked)
+                open(os.path.join(locked, "commondir"), "w").close()
+                open(os.path.join(locked, "HEAD"), "w").close()
+                check_locked = os.geteuid() != 0  # root traverses a mode-000 directory anyway
+                if check_locked:
+                    layouts["wt-locked"] = f"gitdir: {locked}\n"
+                got = {}
+                for name, gitfile in layouts.items():
+                    r = os.path.join(parent, name)
+                    os.makedirs(os.path.join(r, ".claude", "hooks"))
+                    hook = os.path.join(r, ".claude", "hooks", os.path.basename(__file__))
+                    shutil.copy(__file__, hook)
+                    if gitfile is None:
+                        os.makedirs(os.path.join(r, ".git"), exist_ok=True)
+                    elif gitfile == "":
+                        pass
+                    else:
+                        with open(os.path.join(r, ".git"), "w", encoding="utf-8") as fh:
+                            fh.write(gitfile)
+                    env = {k: v for k, v in os.environ.items()
+                           if k not in ("GRC_STORE", "ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+                    code = ("import runpy,sys; m=runpy.run_path(sys.argv[1]); "
+                            "print(m['read_operating_mode'](m['repo_root']()))")
+                    if name == "wt-locked":
+                        os.chmod(locked, 0)
+                    try:
+                        out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True,
+                                             text=True, env=env, timeout=60)
+                    finally:
+                        os.chmod(locked, 0o755)
+                    got[name] = out.stdout.strip()
+                want = {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None", "sub": "unattended",
+                        "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None",
+                        "not-admin": "None", "empty-target": "None", "no-prefix": "None", "nul-target": "None",
+                        "sub-symhead": "unattended", "no-space": "None"}
+                if check_locked:
+                    want["wt-locked"] = "None"
+                self.assertEqual(got, want, got)
+                # A worker in the main checkout is never armed by the lease (3b101 QA r3).
+                hook = os.path.join(parent, "grc_library", ".claude", "hooks", os.path.basename(__file__))
+                env["CLAUDE_CONFIG_DIR"] = os.path.join(parent, "orch-worker.example")
+                out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
+                                     env=env, timeout=60)
+                self.assertEqual(out.stdout.strip(), "None", out.stderr)
+
         def test_mode_missing_is_none(self):
             with tempfile.TemporaryDirectory() as d:
                 self.assertIsNone(read_operating_mode(d))
@@ -526,8 +786,9 @@ def _self_test():
 
     result = unittest.TextTestRunner(verbosity=2).run(
         unittest.TestLoader().loadTestsFromTestCase(T))
-    if _saved_vo is not None:
-        os.environ["ORCH_VERIFY_OWNER"] = _saved_vo
+    for k, v in _saved_env.items():
+        if v is not None:
+            os.environ[k] = v
     return 0 if result.wasSuccessful() else 1
 
 

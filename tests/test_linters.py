@@ -3722,7 +3722,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: OK", result.stdout)
 
     def test_stop_guard_unattended_hook_self_test(self) -> None:
-        """The adopted No-Manufactured-Wind-Down Stop guard's own self-test (22 cases), wired at
+        """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
         introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical
         guard replaces the bespoke block-idle-stop guard's registration; enforcing its self-test here
         keeps the active idle-stop guard from rotting untested."""
@@ -3735,8 +3735,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("OK", result.stderr)
 
     def test_stop_guard_unattended_grc_map_mode(self) -> None:
-        """_grc_map_mode preserves the retired block-idle-stop coverage: attended-autonomous and any
-        *unattended* mode arm the guard; fully-attended allows (codex validate-pr #1945 f4 coverage gap)."""
+        """_grc_map_mode arms on the whole leading token (unattended, overnight-unattended,
+        daytime-unattended, attended-autonomous) and allows attended and fully-attended (codex validate-pr
+        #1945 f4 coverage gap; 3b101 leading-token mapping)."""
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_map")
         self.assertEqual(mod._grc_map_mode("daytime-unattended"), "unattended")
         self.assertEqual(mod._grc_map_mode("overnight-unattended"), "unattended")
@@ -3751,8 +3752,15 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         present sentinel -> True + unlinked; a second call -> False; a non-grc root -> no-op."""
         import tempfile
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_esc")
+        # The main-checkout gate (.git is a directory) is tested by the hook's own worktree-layout
+        # self-test; here it stands in as "root is the module's root", so this unit test of the one-shot
+        # consume logic holds in a linked worktree too (3b101).
+        mod._is_grc_main_checkout = lambda root: os.path.realpath(root) == mod._GRC_REPO_ROOT
         with tempfile.TemporaryDirectory() as d:
             old = os.environ.get("GRC_DROP_ROOT")
+            # A worker never consumes the wait, so clear both worker signals: this test also runs inside
+            # dispatched workers (3b101 QA r3).
+            saved = {k: os.environ.pop(k, None) for k in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
             os.environ["GRC_DROP_ROOT"] = d
             try:
                 sentinel = os.path.join(d, ".allow-idle-stop")
@@ -3768,6 +3776,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                     os.environ.pop("GRC_DROP_ROOT", None)
                 else:
                     os.environ["GRC_DROP_ROOT"] = old
+                for k, v in saved.items():
+                    if v is not None:
+                        os.environ[k] = v
 
     def test_stop_guard_unattended_main_consumes_escape_end_to_end(self) -> None:
         """End-to-end: main() actually WIRES _grc_consume_escape (codex #1945 rv f4). Running the real
@@ -3775,17 +3786,18 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         must exit 0 (allow) AND consume the sentinel one-shot -- proving the escape fires before parse."""
         import subprocess as sp
         import tempfile
-        # The hook's grc one-shot escape is gated to the literal grc repo path (/opt/grc/grc_library) so
-        # --self-test stays hermetic; off that host (e.g. CI at a different checkout path) the escape
-        # correctly does NOT fire, so this end-to-end assertion is only meaningful on the grc host.
-        if str(REPO_ROOT) != "/opt/grc/grc_library":
-            self.skipTest("grc-host-scoped: hook escape is gated to /opt/grc/grc_library")
+        # The hook's grc adapter applies only in a MAIN checkout (<root>/.git is a directory; 3b101), and
+        # its escape resolves the sentinel from GRC_DROP_ROOT; in a linked worktree the escape correctly
+        # does NOT fire, so this end-to-end assertion is only meaningful in a main checkout.
+        if not (REPO_ROOT / ".git").is_dir():
+            self.skipTest("main-checkout-scoped: the hook's adapter does not apply in a linked worktree")
         hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
         with tempfile.TemporaryDirectory() as d:
             sentinel = os.path.join(d, ".allow-idle-stop")
             open(sentinel, "w").close()
             env = dict(os.environ, GRC_DROP_ROOT=d)
             env.pop("ORCH_VERIFY_OWNER", None)
+            env.pop("CLAUDE_CONFIG_DIR", None)  # either worker signal skips the consume (3b101 QA r4)
             r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
                        text=True, env=env, cwd=str(REPO_ROOT))
             self.assertEqual(r.returncode, 0,
