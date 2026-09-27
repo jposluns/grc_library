@@ -62,6 +62,7 @@ import datetime
 import os
 import re
 import subprocess
+import unicodedata
 import sys
 from pathlib import Path
 
@@ -113,7 +114,14 @@ _FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
 # A line allowed before the header: a heading, or a prose line that cannot open a list, blockquote, code
 # block, setext underline, thematic break or table (QA r6: lazy continuation and pipe-less tables).
 _PRE_HEADER_HEADING_RE = re.compile(r"#{1,6}(?:[ \t][^|]*)?")
-_PRE_HEADER_PROSE_RE = re.compile(r"(?![-*+>=_#~`\s])(?!\d+[.)])[^|]*")
+_PRE_HEADER_PROSE_RE = re.compile(r"(?![->=_#~\s])(?![*+](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
+
+
+def _plain_cell(cell: str) -> bool:
+    """True when the cell reads the same to a person and to this parser: no backtick (a code span can swallow
+    pipes), no ``&`` (an entity such as ``&nbsp;`` renders as blank), and no control or format character
+    (a zero-width space is invisible)."""
+    return not any(c in "`&" or unicodedata.category(c) in ("Cc", "Cf") for c in cell)
 
 
 def _register_lines(text: str) -> "tuple[list[str], str | None]":
@@ -122,7 +130,7 @@ def _register_lines(text: str) -> "tuple[list[str], str | None]":
     nothing, and the tool says why. One leading BOM is dropped and CRLF becomes LF; the same line list serves
     the refusal and the parse. Refused: another BOM, a lone CR, a non-Markdown line-break character, any ``<``
     (HTML, comments, autolinks), an escaped pipe, a code-fence line, and before the exact header line anything
-    but blank lines, headings and plain prose lines without a ``|`` (so no table, list, blockquote, indented or
+    but blank lines (spaces and tabs only), headings and plain prose lines without a ``|`` (so no table, list, blockquote, indented or
     lazy-continuation context can contain the header); the header must follow a blank line or open the file."""
     if text.startswith("\ufeff"):
         text = text[1:]
@@ -142,10 +150,10 @@ def _register_lines(text: str) -> "tuple[list[str], str | None]":
         return lines, "it contains a code fence"
     for n, line in enumerate(lines):
         if line.rstrip(" \t") == _APPROVAL_HEADER:
-            if n and lines[n - 1].strip():
+            if n and lines[n - 1].strip(" \t"):
                 return lines, "the header line does not follow a blank line"
             return lines, None
-        if line.strip() and not (_PRE_HEADER_HEADING_RE.fullmatch(line) or _PRE_HEADER_PROSE_RE.fullmatch(line)):
+        if line.strip(" \t") and not (_PRE_HEADER_HEADING_RE.fullmatch(line) or _PRE_HEADER_PROSE_RE.fullmatch(line)):
             return lines, f"line {n + 1}, before the header, is not a heading or plain prose"
     return lines, None
 
@@ -187,6 +195,8 @@ def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]
         item, reason, granted, evidence = (c.strip() for c in row[1:-1].split("|"))
         if item.startswith("`") and item.endswith("`") and len(item) > 2:
             item = item[1:-1]
+        if not all(_plain_cell(c) for c in (item, reason, granted, evidence)):
+            continue  # a code span, an entity or an invisible character can change what a reader sees (QA r7)
         if not _APPROVAL_DATE_RE.fullmatch(granted):
             continue
         try:
@@ -832,6 +842,29 @@ def _self_test() -> int:
           and load_approvals("> quote\n\n" + H + R("1.1")) == set())
     check("approvals-escaped-pipe", load_approvals(H + "| 1.1 | r \\| 2026-09-18 | #1 |\n") == set())
     check("approvals-double-bom", load_approvals("\ufeff\ufeff" + H + R("1.1")) == set())
+    # QA r7: blank means spaces and tabs only; cells a reader would read differently do not grant.
+    check("approvals-unicode-blank", all(load_approvals("revoked:\n" + c + "\n" + H + R("1.1")) == set()
+                                         for c in ("\xa0", "\u3000", "\u202f", "\x1f")))
+    check("approvals-cell-code-span", load_approvals(H + "| 1.1 | r ` | 2026-09-18 | ` #1 |\n") == set()
+          and load_approvals(H + "| `1.1` | r | 2026-09-18 | #1 |\n") == {"1.1"})
+    check("approvals-cell-entity-invisible", load_approvals(H + "| 1.1 | r | 2026-09-18 | &nbsp; |\n") == set()
+          and load_approvals(H + "| 1.1 | \u200b | 2026-09-18 | #1 |\n") == set())
+    check("approvals-header-trailing-space", load_approvals(H.replace("Evidence |\n", "Evidence |  \n") + R("1.1")) == {"1.1"})
+    check("approvals-front-matter", load_approvals("---\nx: y\n\n" + H + R("1.1") + "---\n") == set())
+    check("approvals-harmless-prose", load_approvals("`blocked-approvals.md` lists grants.\n*Maintainer-granted.*\n"
+                                                     "1.26.44 has no recorded grant.\n\n" + H + R("1.1")) == {"1.1"}
+          and load_approvals("* item\n\n" + H + R("1.1")) == set() and load_approvals("1. item\n\n" + H + R("1.1")) == set())
+    # QA r7: the file is read without newline translation, so a lone-CR register is refused from disk too.
+    import tempfile as _tf2
+    with _tf2.TemporaryDirectory(prefix="approvals-file-") as ad:
+        reg_path = Path(ad) / "reg.md"
+        reg_path.write_bytes((H + R("1.1")).replace("\n", "\r").encode("utf-8"))
+        saved = _APPROVALS
+        try:
+            note = _load_default_approvals(str(reg_path))
+            check("approvals-file-lone-cr", "refused" in note and _APPROVALS == set())
+        finally:
+            set_approvals(saved)
     check("approvals-refusal-layers", "carriage return" in (register_refusal("note\rmore") or "")
           and "byte-order" in (register_refusal("\ufeff\ufeffnote") or ""))
     check("approvals-prose-and-heading-before", load_approvals("# Title\n\nSome prose (with parens).\n\n" + H + R("1.1")) == {"1.1"})
@@ -1050,7 +1083,7 @@ def _load_default_approvals(explicit: "str | None") -> str:
         if not path.is_file():
             set_approvals(set())
             return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
-        text = path.read_text(encoding="utf-8")
+        text = path.read_bytes().decode("utf-8")  # keep lone CRs for the refusal check (QA r7)
     except (OSError, UnicodeDecodeError) as exc:
         set_approvals(set())
         return f"[BLOCKED] approvals: {path} unreadable ({exc}); NO tag counts as blocked."
@@ -1117,6 +1150,7 @@ def main(argv: list[str]) -> int:
 
     approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
     if args.pipeline:
+        print(approvals_note, file=sys.stderr)  # the refusal reason stays visible in --pipeline mode (QA r7)
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
         print(render_pipeline(public_text, private_text, done_text, args.umbrella,
