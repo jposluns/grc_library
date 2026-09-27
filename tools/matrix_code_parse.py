@@ -22,9 +22,10 @@ import re
 
 # Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose
 # first character is a letter and remainder letters or ampersand (so A&A / I&S
-# match), a hyphen, two digits. Shared by CSA_CODE_RE and by the CSA branch of
-# CODE_RE, so both aids parse one canonical CSA shape.
-CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-\d{2}"
+# match), a hyphen, two ASCII digits. Shared by CSA_CODE_RE and by the CSA branch of
+# CODE_RE, so both aids parse one canonical CSA shape. Digits are [0-9], not \d: \d matches any Unicode
+# digit, so a document showing Arabic-Indic digits would read as carrying the ASCII code (3b117).
+CSA_CODE_CORE = r"[A-Z][A-Z&]{1,4}-[0-9]{2}"
 
 # Standalone CSA matcher (was audit-stranded-matrix-code._CSA_CODE, byte-identical):
 # a capturing group so .findall() yields the code; a (?<![\w&]) lookbehind and a
@@ -34,8 +35,8 @@ CSA_CODE_RE = re.compile(r"(?<![\w&])(" + CSA_CODE_CORE + r")\b")
 # A contiguous CSA range: "IAM-01 to 15", "LOG-01 through LOG-14", "A&A-01 to A&A-06"
 # (was audit-stranded-matrix-code._CSA_RANGE, byte-identical).
 CSA_RANGE_RE = re.compile(
-    r"(?<![\w&])([A-Z][A-Z&]{1,4})-(\d{1,2})\s*(?:to|through)\s*"
-    r"(?:([A-Z][A-Z&]{1,4})-)?(\d{1,2})\b"
+    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})\s*(?:to|through)\s*"
+    r"(?:([A-Z][A-Z&]{1,4})-)?([0-9]{1,2})\b"
 )
 
 # Multi-framework code token (was audit-matrix-semantic-fit.CODE_RE): the CSA core
@@ -45,8 +46,8 @@ CSA_RANGE_RE = re.compile(
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
-    r"|(?:EDM|APO|BAI|DSS|MEA)\d{2}(?:\.\d{2})?"
-    r"|A\.[5-8]\.\d{1,2}(?!\d|\.\d))\b"
+    r"|(?:EDM|APO|BAI|DSS|MEA)[0-9]{2}(?:\.[0-9]{2})?"
+    r"|A\.[5-8]\.[0-9]{1,2}(?![0-9]|\.[0-9]))\b"
 )
 
 
@@ -109,6 +110,13 @@ def _self_test() -> int:
             self.assertIn("AAA-50", expanded)
             self.assertIn("AAA-99", expanded)
             self.assertEqual(len(expanded), 99)
+
+        def test_ascii_digits_only(self):
+            # 3b117: Unicode digits are not code digits (\d would accept Arabic-Indic digits).
+            self.assertEqual(expand_codes("STA-\u0660\u0662"), set())
+            self.assertEqual(expand_codes("STA-01 to \u0660\u0663"), {"STA-01"})
+            self.assertEqual(CODE_RE.findall("APO\u0661\u0662 A.5.\u0661 DSP-\u0661\u0666"), [])
+            self.assertEqual(CODE_RE.findall("APO12 A.5.1 DSP-16"), ["APO12", "A.5.1", "DSP-16"])
 
         # --- EQUIVALENCE against each original form (the critical tests) ---
         def test_equiv_semantic_fit_CODE_RE(self):
