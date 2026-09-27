@@ -117,17 +117,21 @@ _PRE_HEADER_HEADING_RE = re.compile(r"#{1,6}(?:[ \t][^|]*)?")
 _PRE_HEADER_PROSE_RE = re.compile(r"(?![-+>=_#~\s])(?![*](?:[ \t]|$))(?!\d{1,9}[.)](?:[ \t]|$))[^|]*")
 
 
-_CELL_FORBIDDEN = set("`&[]<>\\")
+_CELL_FORBIDDEN = set("`&[]<>\\~")
+_SHORTCODE_RE = re.compile(r":[A-Za-z0-9_+\-]+:")
 
 
 def _cell_problem(cell: str, needs_text: bool) -> "str | None":
     """Why a cell cannot grant, or None (QA r7-r8). A cell is a whitelist: printable ASCII and tab only, without
     a backtick (a code span can swallow pipes), ``&`` (an entity such as ``&nbsp;`` renders as blank),
-    brackets (an empty link or image renders as blank), angle brackets or a backslash. A reason or evidence
+    brackets (an empty link or image renders as blank), angle brackets, a backslash, ``~`` (strikethrough
+    reads as withdrawn) or an emoji shortcode such as ``:x:``. A reason or evidence
     cell must also contain a letter or digit, so it cannot look blank to a reader."""
     bad = sorted({c for c in cell if c in _CELL_FORBIDDEN or not (c == "\t" or " " <= c <= "~")})
     if bad:
         return "a character outside the cell whitelist: " + ", ".join(repr(c) for c in bad)
+    if _SHORTCODE_RE.search(cell):
+        return "an emoji shortcode, which renders as a symbol"
     if needs_text and not any(c.isalnum() for c in cell):
         return "no letter or digit"
     return None
@@ -208,6 +212,10 @@ def parse_approvals(text: str, today: "datetime.date | None" = None) -> "tuple[s
             state = "rows"
             continue
         if not raw.startswith("|"):
+            # GFM continues a table through indented and pipe-less lines; they and any rows after them grant
+            # nothing here, so name each one that still looks like a row (QA r9).
+            skipped.extend(f"line {k}: after the table ends at line {n}, not read"
+                           for k, rest in enumerate(lines[n - 1:], n) if "|" in rest)
             break
         row = raw.rstrip(" \t")
         if row.count("|") != 5 or not row.endswith("|"):
@@ -403,7 +411,9 @@ def parse_items(text: str, source: str,
     return idx_items + legacy_items
 
 
-_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
+# The id must end at whitespace, a backtick, a pipe or the line end: a heading such as ``### 1.1\u0662`` (a
+# non-ASCII digit) is not item 1.1 and must not inherit its grant (QA r9); it falls back to the parsed id.
+_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)(?=[\s`|]|$)")
 
 
 def _heading_id(block_text: str) -> "str | None":
@@ -905,6 +915,22 @@ def _self_test() -> int:
                                           for pre in ("+++\ntitle = 'x'", "+ item", "1) item")))
     ids, skipped = parse_approvals(H + R("1.1") + "| 1.2 | r | soon | #1 |\n| 1.3 | r | 2026-09-18 |\n")
     check("approvals-skips-reported", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0])
+    # QA r9
+    ids, skipped = parse_approvals(H + R("1.1") + "   " + R("1.2") + R("1.3"))
+    check("approvals-after-table-named", ids == {"1.1"} and len(skipped) == 2 and "line 4" in skipped[0] and "line 5" in skipped[1])
+    check("approvals-strike-shortcode", load_approvals(H + "| 1.1 | ~~r~~ | 2026-09-18 | #1 |\n") == set()
+          and load_approvals(H + "| 1.1 | r | 2026-09-18 | :x: |\n") == set()
+          and load_approvals(H + "| 1.1 | r | 2026-09-18 | see https://example.org/x |\n") == {"1.1"})
+    ids, skipped = parse_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1"))
+    check("approvals-separator-note", ids == set() and "separator" in skipped[0])
+    saved_h = _APPROVALS
+    try:
+        set_approvals({"1.1"})
+        rep_h = build_report("", "## 1. Band\n### 1.1 a [BLOCKED:x]\n### 1.1\u0662 b [BLOCKED:y]\n### 1.1.\u0663 c [BLOCKED:z]\n")
+        check("approvals-non-ascii-heading", _heading_id("### 1.1\u0662 b") is None and _heading_id("### 1.1 a") == "1.1"
+              and rep_h[1] == 1)
+    finally:
+        set_approvals(saved_h)
     check("approvals-refusal-layers", "carriage return" in (register_refusal("note\rmore") or "")
           and "byte-order" in (register_refusal("\ufeff\ufeffnote") or ""))
     check("approvals-prose-and-heading-before", load_approvals("# Title\n\nSome prose (with parens).\n\n" + H + R("1.1")) == {"1.1"})

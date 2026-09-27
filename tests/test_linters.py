@@ -17145,6 +17145,13 @@ class BacklogActionabilityTests(unittest.TestCase):
                 capture_output=True, text=True)
             self.assertEqual(pipe.returncode, 0, pipe.stderr)
             self.assertIn("granted row(s)", pipe.stderr)  # the approvals note stays visible (QA r7-r8)
+            # a row that grants nothing is named in the printed note (QA r9)
+            (d / "approvals2.md").write_text("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                                              "| 1.1 | r | soon | #1 |\n", encoding="utf-8")
+            named = subprocess.run(
+                [sys.executable, tool, "--todo", str(d / "TODO.md"), "--ptodo", str(d / "P-TODO.md"),
+                 "--approvals", str(d / "approvals2.md")], capture_output=True, text=True)
+            self.assertIn("line 3: granted: not a YYYY-MM-DD calendar date", named.stdout)
             self.assertIn("P-9.1.1", pipe.stdout)
             self.assertIn("P-9.1.2", pipe.stdout)
 
