@@ -58,7 +58,10 @@ Stdlib-only (gate 71). Python 3.11.
 from __future__ import annotations
 
 import argparse
+import datetime
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -67,7 +70,7 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working, resolve_working_dir, has_todo_index_header
+from lint_common import resolve_working, has_todo_index_header, _store_dir, InaccessiblePath
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -98,21 +101,47 @@ BLOCKED_TAG_RE = re.compile(r"\[BLOCKED:[^\]]*\]")
 # widen what is blocked, since BLOCKED licenses less work (the asymmetric-skepticism rule).
 APPROVALS_FILE = "blocked-approvals.md"
 _APPROVALS: "set[str] | None" = None
-_APPROVAL_ROW_RE = re.compile(r"^\|\s*`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)`?\s*\|(?P<rest>.*)\|\s*$")
 
 
-def load_approvals(text: str) -> "set[str]":
-    """The item ids with a granted row: exactly four cells, a non-empty reason, a date and non-empty evidence
-    (header and malformed rows skip)."""
+_APPROVAL_HEADER = ("item", "reason", "granted", "evidence")
+
+
+def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
+    """The item ids granted by the register: rows of the FIRST table whose header is exactly
+    ``| Item | Reason | Granted | Evidence |``, outside code fences. A row grants only with exactly four
+    cells, a non-empty reason, a real calendar date not after today, and non-empty evidence. Rows in a
+    fenced example, in a later table (a history of lifted blocks) or with a malformed cell never grant
+    (3b QA r1, r2)."""
+    today = today or datetime.date.today()
     ids: set = set()
-    for line in text.splitlines():
-        m = _APPROVAL_ROW_RE.match(line.strip())
-        if not m:
+    in_fence = in_table = seen_table = False
+    for raw in text.splitlines():
+        line = raw.strip()
+        if line.startswith("```") or line.startswith("~~~"):
+            in_fence = not in_fence
+            in_table = False
             continue
-        cells = [c.strip() for c in m.group("rest").split("|")]
-        if len(cells) != 3 or not cells[0] or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", cells[1]) or not cells[2]:
+        if in_fence:
             continue
-        ids.add(m.group("id"))
+        cells = [c.strip().strip("`").strip() for c in line.strip("|").split("|")] if line.startswith("|") else None
+        if cells is None:
+            if in_table:
+                in_table = False
+                seen_table = True
+            continue
+        if not in_table:
+            if not seen_table and tuple(c.lower() for c in cells) == _APPROVAL_HEADER:
+                in_table = True
+            continue
+        if len(cells) != 4 or set(cells[0]) <= {"-", ":", " "}:
+            continue
+        item, reason, granted, evidence = cells
+        try:
+            when = datetime.date.fromisoformat(granted)
+        except ValueError:
+            continue
+        if item and reason and evidence and when <= today and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9.\-]*", item):
+            ids.add(item)
     return ids
 
 
@@ -282,6 +311,16 @@ def parse_items(text: str, source: str,
     return idx_items + legacy_items
 
 
+_HEADING_ID_RE = re.compile(r"^(?:#{2,6}\s+|\|\s*)`?(?P<id>[A-Za-z0-9][A-Za-z0-9.\-]*)")
+
+
+def _heading_id(block_text: str) -> "str | None":
+    """The item id exactly as the heading writes it (a ``### 3.92.a`` heading or an index row's first cell);
+    parse_items may shorten a lettered child's id, and approval must bind to the full one (QA r2)."""
+    m = _HEADING_ID_RE.match(block_text.splitlines()[0].strip()) if block_text else None
+    return m.group("id").rstrip(".") if m else None
+
+
 def is_blocked(block_text: str, item_id: "str | None" = None) -> bool:
     """True iff the item's HEADING carries an (approved) ``[BLOCKED:...]`` tag.
 
@@ -290,7 +329,7 @@ def is_blocked(block_text: str, item_id: "str | None" = None) -> bool:
     (e.g. an item describing the blocked-tag feature) must NOT false-match as
     blocked, which is the unsafe direction (it would hide an actionable item)."""
     heading = block_text.splitlines()[0] if block_text else ""
-    return bool(BLOCKED_TAG_RE.search(heading)) and _approved(item_id)
+    return bool(BLOCKED_TAG_RE.search(heading)) and _approved(_heading_id(block_text) or item_id)
 
 
 def has_blocked_tag(block_text: str) -> bool:
@@ -698,6 +737,11 @@ def _self_test() -> int:
            "| 2.2 | no date | soon | x |\n| 2.3 | no evidence | 2026-09-18 |  |\n| 2.4 | too | 2026-09-18 | x | y |\n"
            "| 2.6 |  | 2026-09-18 | #1 |\n")
     check("approvals-parse", load_approvals(reg) == {"2.1", "P-1.77"})
+    reg2 = ("```\n| Item | Reason | Granted | Evidence |\n| 9.9 | fenced | 2026-09-18 | x |\n```\n"
+            "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 2.1 | ok | 2026-09-18 | #1 |\n"
+            "| 6.6 | bad date | 2026-13-45 | #5 |\n| 7.7 | future | 2999-01-01 | #6 |\n\nLifted:\n\n"
+            "| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n| 3.3 | lifted | 2026-09-01 | #2 |\n")
+    check("approvals-canonical-table-only", load_approvals(reg2) == {"2.1"})
     tagged = "| 2.1 | t | `[BLOCKED:x]` |"
     saved_approvals = _APPROVALS
     try:
@@ -708,8 +752,13 @@ def _self_test() -> int:
         set_approvals({"2.1"})
         check("approvals-row-counts", is_blocked(tagged, "2.1"))
         check("approvals-other-id-does-not", not is_blocked(tagged.replace("2.1", "2.5"), "2.5"))
-        check("approvals-no-id-does-not", not is_blocked(tagged))
+        check("approvals-no-id-does-not", not is_blocked("`[BLOCKED:x]` a heading with no item id"))
+        check("approvals-heading-id-read", is_blocked(tagged))
         check("approvals-tag-still-seen", has_blocked_tag(tagged.replace("2.1", "2.5")))
+        set_approvals({"3.92"})
+        check("approvals-bind-full-heading-id", not is_blocked("### 3.92.a Child A [BLOCKED:x]", "3.92"))
+        set_approvals({"3.92.a"})
+        check("approvals-full-heading-id-granted", is_blocked("### 3.92.a Child A [BLOCKED:x]", "3.92"))
         umb = ("## 9. U\n### 9.1 Umbrella\n- **9.1.1** leaf a `[BLOCKED:x]`\n- **9.1.2** leaf b\n")
         set_approvals(set())
         out_none = render_pipeline(umb, None, None, None)
@@ -722,30 +771,45 @@ def _self_test() -> int:
         check("approvals-unapproved-inline-stays-open", "9.2.1" in render_pipeline(wave, None, None, None))
         set_approvals({"9.2.1"})
         check("approvals-approved-inline-excluded", "9.2.1" not in render_pipeline(wave, None, None, None))
-        # The default register lookup: no store at all -> tags as written; a store without the register ->
-        # nothing counts (a missing register never widens what is blocked).
+        # The default register lookup (QA r1, r2): only the authoritative store is read; a store that cannot be
+        # examined, a maintainer checkout without a store, a missing register and a non-regular register count
+        # no tag; only a non-maintainer checkout with no store keeps tags as written.
         g = globals()
-        real_rw, real_rwd = g["resolve_working"], g["resolve_working_dir"]
+        real_sd, real_om = g["_store_dir"], g["_origin_is_maintainer"]
+        import tempfile as _tf
         try:
-            g["resolve_working"], g["resolve_working_dir"] = (lambda *a, **k: None), (lambda *a, **k: None)
-            _load_default_approvals(None)
-            check("approvals-adopter-no-store-tags-count", _APPROVALS is None)
-            g["resolve_working_dir"] = lambda *a, **k: Path(".")
-            _load_default_approvals(None)
-            check("approvals-store-without-register-counts-nothing", _APPROVALS == set())
-            import tempfile as _tf
             with _tf.TemporaryDirectory() as _d:
-                bad = Path(_d) / "blocked-approvals.md"
-                bad.write_bytes(b"| 1.1 | x | 2026-09-18 | \xff\xfe |\n")
-                _load_default_approvals(str(bad))
-                check("approvals-undecodable-counts-nothing", _APPROVALS == set())
-                bad.unlink()
-                bad.mkdir()
-                g["resolve_working"] = lambda *a, **k: bad
+                store = Path(_d) / "private"
+                store.mkdir()
+                g["_store_dir"], g["_origin_is_maintainer"] = (lambda *a, **k: None), (lambda *a, **k: False)
                 _load_default_approvals(None)
-                check("approvals-unreadable-counts-nothing", _APPROVALS == set())
+                check("approvals-adopter-no-store-tags-count", _APPROVALS is None)
+                g["_origin_is_maintainer"] = lambda *a, **k: True
+                _load_default_approvals(None)
+                check("approvals-maintainer-without-store-counts-nothing", _APPROVALS == set())
+                def _inaccessible(*a, **k):
+                    raise InaccessiblePath(13, "Permission denied", str(store))
+                g["_store_dir"] = _inaccessible
+                _load_default_approvals(None)
+                check("approvals-inaccessible-store-counts-nothing", _APPROVALS == set())
+                g["_store_dir"] = lambda *a, **k: store
+                _load_default_approvals(None)
+                check("approvals-store-without-register-counts-nothing", _APPROVALS == set())
+                reg = store / APPROVALS_FILE
+                reg.write_bytes(b"| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                                b"| 1.1 | x | 2026-09-18 | \xff\xfe |\n")
+                _load_default_approvals(None)
+                check("approvals-undecodable-counts-nothing", _APPROVALS == set())
+                reg.unlink()
+                reg.mkdir()
+                _load_default_approvals(None)
+                check("approvals-directory-register-counts-nothing", _APPROVALS == set())
+                reg.rmdir()
+                os.mkfifo(reg)
+                _load_default_approvals(None)  # must not block on the FIFO
+                check("approvals-fifo-register-counts-nothing", _APPROVALS == set())
         finally:
-            g["resolve_working"], g["resolve_working_dir"] = real_rw, real_rwd
+            g["_store_dir"], g["_origin_is_maintainer"] = real_sd, real_om
     finally:
         set_approvals(saved_approvals)
 
@@ -760,19 +824,49 @@ def _self_test() -> int:
     return 0
 
 
+_MAINTAINER_ORIGIN_RE = re.compile(r"(?:^|[/:])jposluns/grc_library$")
+
+
+def _origin_is_maintainer(root: Path = REPO_ROOT) -> bool:
+    """The checkout's origin is the maintainer repository (the boundary test block-operational-without-private
+    uses). An unknown origin is not the maintainer's, so an adopter keeps its tags."""
+    try:
+        out = subprocess.run(["git", "-C", str(root), "config", "--get", "remote.origin.url"],
+                             capture_output=True, text=True, timeout=10).stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return False
+    url = out[:-4] if out.endswith(".git") else out
+    return bool(_MAINTAINER_ORIGIN_RE.search(url))
+
+
 def _load_default_approvals(explicit: "str | None") -> str:
-    """Set the approvals for this run and return a one-line note saying which rule applied."""
+    """Set the approvals for this run and return a one-line note saying which rule applied. Only the
+    authoritative store is read (no fallback location can grant); a store that cannot be examined, a
+    maintainer checkout without a store, a missing register and a register that is not a regular file all
+    count no tag; only a non-maintainer checkout with no store at all keeps tags as written (QA r2)."""
     if explicit:
         path = Path(explicit)
     else:
-        path = resolve_working(APPROVALS_FILE)
-        if path is None:
-            if resolve_working_dir() is None:
-                set_approvals(None)
-                return "[BLOCKED] approvals: no operational store (adopter clone); tags count as written."
+        try:
+            store = _store_dir(REPO_ROOT, strict=True)
+        except InaccessiblePath as exc:
+            set_approvals(set())
+            return f"[BLOCKED] approvals: the operational store cannot be examined ({exc}); NO tag counts as blocked."
+        if store is None:
+            if _origin_is_maintainer():
+                set_approvals(set())
+                return ("[BLOCKED] approvals: maintainer checkout without the operational store; "
+                        "NO tag counts as blocked.")
+            set_approvals(None)
+            return "[BLOCKED] approvals: no operational store (adopter clone); tags count as written."
+        path = store / APPROVALS_FILE
+        if not path.exists():
             set_approvals(set())
             return (f"[BLOCKED] approvals: the store has no {APPROVALS_FILE}; NO tag counts as blocked "
                     f"(a missing register never widens what is blocked).")
+    if not path.is_file():
+        set_approvals(set())
+        return f"[BLOCKED] approvals: {path} is not a regular file; NO tag counts as blocked."
     try:
         ids = load_approvals(path.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError) as exc:
@@ -865,7 +959,8 @@ def main(argv: list[str]) -> int:
     print(approvals_note)
     items_all = parse_items(public_text, "public", private_dir=private_dir) + (
         parse_items(private_text, "private", private_dir=private_dir) if private_text is not None else [])
-    unapproved = [(i, t) for i, t, blk, _s, _u in items_all if has_blocked_tag(blk) and not _approved(i)]
+    unapproved = [(i, t) for i, t, blk, _s, _u in items_all
+                  if has_blocked_tag(blk) and not _approved(_heading_id(blk) or i)]
     if unapproved:
         print(f"\nUNAPPROVED [BLOCKED] TAG ({len(unapproved)}) -- no row in the approvals register, so "
               f"counted ACTIONABLE; record the maintainer's grant or remove the tag:")
