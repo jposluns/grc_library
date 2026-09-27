@@ -10,7 +10,8 @@ violates the merge-on-green discipline. This tool makes the decision mechanical 
 it reads the PR's ``statusCheckRollup``, REFUSES unless every check is terminal-success with
 zero pending, and only then merges. Unknown / no-checks / any-pending / any-failing all REFUSE,
 as does a required check (REQUIRED_CHECKS, or --require) that is missing as a CheckRun or did not conclude
-SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104).
+SUCCESS: NEUTRAL or SKIPPED passes only for the other checks (3b104). A required name listed in
+REQUIRED_WORKFLOWS counts only from that workflow, so a same-named job elsewhere cannot stand in (3b105).
 The merge is pinned to the head commit it evaluated (gh pr merge --match-head-commit), so a push
 landing after the read is never merged unchecked; a missing head SHA refuses (3b106).
 It also applies the open-findings guard's own decision before merging, so an undispositioned
@@ -41,7 +42,11 @@ _OK_STATE = {"SUCCESS"}  # a legacy StatusContext that finished acceptably
 # never for these, so a skipped corpus lint cannot read as green (3b104).
 REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
 # The workflow each default required check comes from: a same-named job in another workflow must not
-# stand in for it (3b105). A custom --require list is matched by name only.
+# stand in for it (3b105). The binding applies to these names however they are required (the default list
+# or --require); any other --require name is matched by name only. RESIDUE: a workflow name is not unique
+# and a PR runs its own workflow files, so this stops an accidental or foreign same-named job, not a PR
+# that edits or adds a workflow under this name; every bound entry must still succeed, and the
+# workflow-file review is the control for that.
 REQUIRED_WORKFLOWS = {"Lint markdown corpus": "Repository quality checks",
                       "PR attribution (title and body)": "PR attribution"}
 _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
@@ -92,7 +97,10 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
     # for an Actions job that never ran (3b104 QA r1). Every entry under a required name must
     # have succeeded, so a skipped duplicate still refuses (deliberately fail closed).
     absent = [w for w in required if not any(bound(c, w) for c in rollup if isinstance(c, dict))]
-    note = ("; required check(s) not yet reported as a CheckRun: " + ", ".join(absent)) if absent else ""
+    def unreported(w: str) -> str:
+        return f"{w} (from workflow {workflows[w]!r})" if w in workflows else w
+    note = ("; required check(s) not yet reported as a CheckRun: "
+            + ", ".join(unreported(w) for w in absent)) if absent else ""
     if failed or unknown:
         parts: list[str] = []
         if failed:
@@ -106,7 +114,7 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
         return False, "pending / incomplete check(s): " + ", ".join(pending) + note
     for want in required:
         if want in absent:
-            return False, f"required check not reported as a CheckRun: {want}"
+            return False, f"required check not reported as a CheckRun: {unreported(want)}"
         for c in rollup:
             if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
                 return False, (f"required check {want} is also reported as a commit status of the same name "
@@ -219,6 +227,11 @@ def _self_test() -> int:
     rollups = {
         "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
         "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        # 3b105 QA r1: main() must hand the workflow map to evaluate(); these pass on names alone.
+        "foreign": [dict(cr(n, "COMPLETED", "SUCCESS"), workflowName="Other") for n in REQUIRED_CHECKS],
+        "no-workflow": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        "collision": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS]
+                     + [dict(cr(lint, "COMPLETED", "SUCCESS"), workflowName="Other")],
     }
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
     def view(r, h=head, fields=None, state="OPEN"):
@@ -242,7 +255,7 @@ def _self_test() -> int:
             except SystemExit as exc:
                 abbrev_refused = exc.code == 2
         checks.append(("abbreviated-require-none-refused", abbrev_refused))
-        for label, want_rc in (("skipped", 1), ("green", 0)):
+        for label, want_rc in (("skipped", 1), ("green", 0), ("foreign", 1), ("no-workflow", 1), ("collision", 1)):
             globals()["gh"] = lambda *a, _r=rollups[label]: view(_r, fields=json_arg(a))
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run"])
@@ -255,6 +268,11 @@ def _self_test() -> int:
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))
+        # A default name named through --require still binds to its workflow (3b105 QA r1).
+        globals()["gh"] = lambda *a: view(rollups["foreign"], fields=json_arg(a))
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            rc = main(["merge-when-green.py", "1", "--dry-run", "--require", lint])
+        checks.append(("main-require-default-name-foreign-workflow", rc == 1))
         globals()["gh"] = lambda *a: view(rollups["skipped"], fields=json_arg(a))
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
             rc = main(["merge-when-green.py", "1", "--dry-run", "--require-none"])
@@ -358,6 +376,22 @@ def _self_test() -> int:
         checks.append((name, evaluate(rollup, ("Lint",), wf)[0] == want_green))
     checks.append(("default-workflows-exact", REQUIRED_WORKFLOWS == {
         "Lint markdown corpus": "Repository quality checks", "PR attribution (title and body)": "PR attribution"}))
+    # The map matches the workflow files themselves (3b105 QA r1): each file's top-level name, and a job
+    # carrying the required check's name. A rename in either file fails here, not first at merge time.
+    import re as _re
+    wf_files = {"Lint markdown corpus": "quality.yml", "PR attribution (title and body)": "pr-attribution.yml"}
+    for check, fname in wf_files.items():
+        try:
+            text = (_REPO_ROOT / ".github" / "workflows" / fname).read_text(encoding="utf-8")
+        except OSError:
+            text = ""
+        top = _re.search(r"(?m)^name:\s*(.+?)\s*$", text)
+        jobs = _re.findall(r"(?m)^\s+name:\s*(.+?)\s*$", text)
+        checks.append((f"workflow-file-{fname}", bool(top) and top.group(1) == REQUIRED_WORKFLOWS[check]
+                       and check in jobs))
+    _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
+                            {"Lint": "Repository quality checks"})
+    checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
     checks.append(("default-required-list-exact",
@@ -417,7 +451,7 @@ def main(argv: list[str]) -> int:
               file=sys.stderr)
         return 1
     required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
-    workflows = REQUIRED_WORKFLOWS if not (args.require_none or args.require) else None
+    workflows = REQUIRED_WORKFLOWS  # a default name binds to its workflow even via --require (3b105 QA r1)
     green, reason = evaluate(view.get("statusCheckRollup") or [], required, workflows)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
