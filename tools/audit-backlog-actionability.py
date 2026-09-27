@@ -977,7 +977,7 @@ def _self_test() -> int:
                    "other": with_origin("https://github.com/someone/repo.git"),
                    "canonical": with_origin("https://github.com/jposluns/grc_library.git"),
                    "trailing-slash": with_origin("https://github.com/jposluns/grc_library/"),
-                   "case": with_origin("git@github.com:JPosluns/grc_library.git"),
+                   "case": with_origin("github.com:JPosluns/grc_library.git"),
                    "owner-suffix": with_origin("https://github.com/evil-jposluns/grc_library")}
         with_origin("https://github.com/jposluns/grc_library.git")
         injected = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.url",
