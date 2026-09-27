@@ -2,7 +2,7 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-09-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,7 +52,7 @@ Article numbers follow the current consolidated APPI (confirmed against the offi
 
 ## Cross-border transfer mechanisms
 
-- Outside the Article 27(1) exceptions, providing personal data to a third party in a foreign country requires the person's consent to that foreign provision, unless the country is one the PPC has designated as having equivalent standards or the recipient has established a system conforming to PPC standards for equivalent measures [APPI Article 28(1)]. Before seeking that consent, the business gives the person information on the foreign country's protection system and the recipient's measures [Article 28(2)]; when relying on a recipient's conforming system, it takes measures to ensure the equivalent measures continue and informs the person on request [Article 28(3)]. The ordinary third-party provision rules in Article 27 still apply to a designated-country or conforming-system recipient.
+- Outside the Article 27(1) exceptions, providing personal data to a third party in a foreign country requires the person's consent to that foreign provision, unless the country is one the PPC has designated as having equivalent standards or the recipient has established a system conforming to PPC standards for equivalent measures [APPI Article 28(1)]. Before seeking that consent, the business gives the person information on the foreign country's protection system and the recipient's measures [Article 28(2)]; when relying on a recipient's conforming system, it takes the measures necessary so that the recipient continues to implement the equivalent measures, and informs the person of them on request [Article 28(3)]. The ordinary third-party provision rules in Article 27 still apply to a designated-country or conforming-system recipient.
 - Japan participates in the APEC CBPR framework.
 
 ---
