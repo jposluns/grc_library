@@ -105,24 +105,33 @@ TOP_BULLET_ITEM_RE = re.compile(
     r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?= \[(?:private|public)\]))"
     r"(?=[ \t*:])(?P<title>.*)$"
 )
-# The REPORT net (QA r3): a list line (any marker, any indentation) whose bold text starts with a token that
-# holds a digit (not a ``#123`` PR reference), starts with ``P-`` in any case, or whose bold text carries a
-# ``[private]`` / ``[public]`` tag. Every counted form meets one of these, so the counted-or-reported
+# The REPORT net (QA r3-r4): a list line (optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or
+# ``1.``/``1)``, any indentation, an optional ``[ ]``/``[x]`` task box) whose text opens with emphasis (``*`` or
+# ``_``, any run length) and whose lead token (after emphasis, a backtick and ``#([`` punctuation) holds a digit
+# (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or whose first 160 characters carry
+# a ``[private]`` / ``[public]`` tag. Every counted form meets one of these, so the counted-or-reported
 # invariant holds by construction; the net is deliberately wider than the grammar.
-_ITEM_LIKE_LEAD_RE = re.compile(r"^[ \t]*(?:[-*+]|\d+[.)])[ \t]+\*\*`?(?P<tok>[^\s*`:,;(\[\]]*)(?P<rest>[^\n]*)$")
-_TAG_IN_BOLD_RE = re.compile(r"^[^*]*\[(?:private|public)\]", re.IGNORECASE)
+_ITEM_LIKE_LEAD_RE = re.compile(
+    r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>[*_]+.*)$"
+)
+_LEAD_TOKEN_RE = re.compile(r"^[*_]+[ \t]*`?(?P<pr>#\d+(?![\w.-]))?[#(\[]*(?P<tok>[^\s*_`:,;()\[\]]*)")
+_TAG_RE = re.compile(r"\[(?:private|public)\]", re.IGNORECASE)
 
 
 def _is_item_like(line: str) -> bool:
     m = _ITEM_LIKE_LEAD_RE.match(line)
     if not m:
         return False
-    tok = m.group("tok")
-    if tok and not tok.startswith("#") and any(c.isdigit() for c in tok):
+    rest = m.group("rest")
+    lt = _LEAD_TOKEN_RE.match(rest)
+    tok = lt.group("tok") if lt else ""
+    if lt and lt.group("pr"):
+        tok = ""  # a bare #123 PR reference is not an item id
+    if tok and any(c.isdigit() for c in tok):
         return True
     if tok.lower().startswith("p-"):
         return True
-    return bool(_TAG_IN_BOLD_RE.match(m.group("rest")))
+    return bool(_TAG_RE.search(rest[:160]))
 
 
 # A fence opens at 0 to 3 spaces of indentation (deeper indentation is list or code content, not a fence).
@@ -1271,10 +1280,14 @@ def _self_test() -> int:
           "- **9.8.7.6.5 [private]**", "- **3b20\u00a0[private]**", "- **GR-GAP-1-A [private]** fix",
           "* **GR-GAP-1-A [private]** fix", "- **gr-gap-1-a [private]** fix", "- **`GR-GAP-1-A` [private]** fix",
           "- **v2-wave2-PR2b-scope (website):** x", "1. **IPY-02/04 fix = PARKED**", "- **P-hookfix (m):** x",
-          "- **0b1010** is a binary mask", "- **RB-9 [public] public coded** x", "- **4.6 [public] public section** y"]
+          "- **0b1010** is a binary mask", "- **RB-9 [public] public coded** x", "- **4.6 [public] public section** y",
+          "- [ ] **3b30 [private] task** x", "- [x] **3b31 fix** x", "> - **3b32 [private] quoted** x",
+          "- __3b33 [private]__ x", "- ***3b34 [private] bolditalic*** x", "- ***3b35 fix*** x", "- **#3b36 fix**",
+          "- **[3b37] fix**", "- **(3b38) fix**", "\ufeff- **3b39 [private] bom** x", "+ **3b40 [private] plus** x",
+          "  1) **3b41 paren** x"]
     r3_counted = {x[0] for x in parse_items("## Q\n" + "\n".join(r3) + "\n", "private", ref_bodies={})}
     r3_reported = {ln for _n, ln in uncounted_item_like("## Q\n" + "\n".join(r3) + "\n")}
-    check("r3-counted-or-reported", all(any(ln.startswith(x) for x in r3_reported) or
+    check("r3-counted-or-reported", all(ln.strip() in r3_reported or
                                         ln.split("**")[1].replace("`", "").split()[0].split("[")[0] in r3_counted
                                         for ln in r3))
     check("r3-binary-not-counted", "0b1010" not in r3_counted)
@@ -1282,6 +1295,8 @@ def _self_test() -> int:
     check("r3-net-tag-only", [ln for _n, ln in uncounted_item_like("## Q\n* **GR-GAP [private]** x\n")]
           == ["* **GR-GAP [private]** x"])
     check("r3-net-pr-ref-not-reported", uncounted_item_like("## Q\n- **#2477 MERGED** (x)\n") == [])
+    check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
+                                                     ref_bodies={}) == [])
 
     if failures:
         for f in failures:

@@ -17340,6 +17340,7 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "inline comment markers": ("## Q\n- **3b7 [private] a** x <!-- owner: ops -->\n"
                                        "Note: the `<!--` scanner is fragile.\n- **3b8 [private] b** y\n"
                                        "<!-- closed --> <!-- still open\n- **3b9 hidden** z\n-->\n- **3b10 after** w\n", 3),
+            "three-space fence": ("## Q\n   ```\n- **3b7 [private] example**\n   ```\n- **3b8 [private] real** y\n", 1),
             "masked heading": ("## Q\n```\n### 9.9 Example\n## Not a section\n```\n- **3b7 [private] real** a\n"
                                "    ```\n- **3b8 [private] after indented fence** b\n", 2),
             "colon and tab": ("## Q\n- **3b7: a** x\n\tcontinuation\n- **3b8\ttab-delimited** y\n", 2),
@@ -17372,6 +17373,23 @@ class HookToolItemCountParityTests(unittest.TestCase):
             (priv / "P-TODO.md").write_text(text, encoding="utf-8")
             self.assertEqual(hook._todo_item_count(str(root)), 1)
         self.assertEqual([it[0] for it in tool.parse_items(text, "private", ref_bodies={})], ["3.1"])
+
+    def test_cli_prints_item_like_lines(self):
+        # 3b119 QA r4: the CLI must print the not-counted list (the counted-or-reported invariant's output half).
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            pub = Path(d) / "TODO.md"
+            priv = Path(d) / "P-TODO.md"
+            pub.write_text("", encoding="utf-8")
+            priv.write_text("## Q\n- [ ] **3b120 [private] task box** x\n- **3b121 [private] counted** y\n", encoding="utf-8")
+            appr = Path(d) / "approvals.md"
+            appr.write_text("", encoding="utf-8")
+            r = run_linter("tools/audit-backlog-actionability.py", "--todo", str(pub), "--ptodo", str(priv),
+                           "--approvals", str(appr))
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn("ITEM-LIKE LINES OUTSIDE THE COUNTED GRAMMAR (1)", r.stdout)
+            self.assertIn("3b120", r.stdout)
+            self.assertIn("1 open item(s)", r.stdout)
 
     def test_hook_unions_private_ptodo(self):
         # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),
