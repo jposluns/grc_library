@@ -100,12 +100,11 @@ A test or a verification that has to confirm how a real shell treats a command s
 a continuation, whether `sh -c` runs an argument) runs it through
 [`tools/run-shell-stubbed.py`](../tools/run-shell-stubbed.py), never through a shell-function stub, which a
 nested `sh -c` does not inherit (that gap once let a real `gh pr merge` run during hook verification,
-backlog item 3b116). The tool puts gh and git stand-in executables first on PATH; makes a real gh or git
-reached anyway inert (an invalid gh token and host, every git remote rewritten to a reserved `.invalid`
-host, an empty temporary HOME, inherited tokens and exported shell functions removed); refuses a command
-that would strip or override that environment (`env -i`, `unset`, an assignment to PATH, HOME, GH_*, GIT_*
-or XDG_*); and kills the command's whole process group before cleanup. It is not a sandbox; its docstring
-states what it does not contain.
+backlog item 3b116). The tool runs the command in restricted bash with PATH holding only gh and git stand-ins,
+restricted `bash` and `sh` wrappers and a few harmless utilities, and with an environment built from scratch;
+restricted mode then refuses a slash in a command name, a PATH change, `command -p`, `exec` and similar, so
+a real gh or git cannot be reached. Output redirection is refused too, and `sh` is emulated by
+`bash --posix`; the tool's docstring states these limits.
 
 ## Coverage
 
