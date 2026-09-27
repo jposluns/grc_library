@@ -50,7 +50,9 @@ set. A FIXED class row missing the attestation is SURFACED AS A WARNING here, ne
 from __future__ import annotations
 
 import json
+import os
 import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -471,11 +473,46 @@ def fixed_class_rows_unattested(rows: list) -> list:
     ]
 
 
+_MWG_OPS = {";", "&&", "||", "|", "&", "(", ")", ";;", "|&"}
+
+
+def invokes_merge_tool(cmd: str) -> bool:
+    """PURE. Does the command run tools/merge-when-green.py for a real merge (3b108)? That tool runs
+    `gh pr merge` as a subprocess, so the literal-text match never sees it, and it is the sanctioned
+    merge path. Flags the tool run directly or under a python interpreter, in any shell segment
+    (including a `$(...)` substitution), unless that segment passes --dry-run or --self-test; a
+    read of the file (grep, sed, cat) is not flagged. An unparseable command falls back to a
+    substring test (over-gating is the safe direction)."""
+    if not isinstance(cmd, str) or "merge-when-green" not in cmd:
+        return False
+    try:
+        lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
+        lex.whitespace_split = True
+        toks = list(lex)
+    except ValueError:
+        return "--dry-run" not in cmd and "--self-test" not in cmd
+    segs = [[]]
+    for t in toks:
+        if t in _MWG_OPS:
+            segs.append([])
+        else:
+            segs[-1].append(t)
+    for seg in segs:
+        for i, t in enumerate(seg):
+            if os.path.basename(t) != "merge-when-green.py":
+                continue
+            ran = i == 0 or any(os.path.basename(p).startswith("python") for p in seg[:i])
+            if ran and not any(a in ("--dry-run", "--self-test") for a in seg[i + 1:]):
+                return True
+    return False
+
+
 def is_blocking_command(cmd: str) -> bool:
     """PURE. After whitespace collapse, does the command text contain the case-sensitive substring
-    `gh pr create` or `gh pr merge`? Quote-unaware: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
+    `gh pr create` or `gh pr merge`, or run tools/merge-when-green.py for a real merge (3b108)?
+    Quote-unaware on the gh half: misses `gh pr 'merge'`, gates `echo "gh pr merge"`."""
     flat = " ".join(cmd.split())
-    return any(" ".join(parts) in flat for parts in BLOCKING_CMDS)
+    return any(" ".join(parts) in flat for parts in BLOCKING_CMDS) or invokes_merge_tool(cmd)
 
 
 def decide_exit(rows, ledger_text) -> int:
@@ -755,6 +792,16 @@ def self_test() -> int:
     ck("gh pr merge blocks", is_blocking_command("gh pr merge 12 --squash --admin"), True)
     ck("an unrelated command does not block", is_blocking_command("git status --short"), False)
     ck("gh pr checks does not block", is_blocking_command("gh pr checks 12"), False)
+    # 3b108: the sanctioned merge path runs gh pr merge as a subprocess, so the tool itself is gated.
+    ck("merge-when-green merge blocks", is_blocking_command("python3 tools/merge-when-green.py 12 --repo o/r --admin"), True)
+    ck("merge-when-green in a $() loop blocks",
+       is_blocking_command('for i in 1; do out=$(python3 -B /x/tools/merge-when-green.py 12 --admin 2>&1); done'), True)
+    ck("merge-when-green run directly blocks", is_blocking_command("./tools/merge-when-green.py 12"), True)
+    ck("merge-when-green dry run does not block", is_blocking_command("python3 tools/merge-when-green.py 12 --dry-run"), False)
+    ck("merge-when-green self-test does not block", is_blocking_command("python3 tools/merge-when-green.py --self-test"), False)
+    ck("reading merge-when-green does not block", is_blocking_command("grep -n evaluate tools/merge-when-green.py"), False)
+    ck("a later segment's dry run does not excuse a merge",
+       is_blocking_command("python3 tools/merge-when-green.py 12 --admin; python3 tools/merge-when-green.py 13 --dry-run"), True)
 
     # --- P-1.70 part-2b: mis-filed finding-row detector (reality fixture + negative controls) ----
     # Mirrors the observed corruption: rows spliced into the PREAMBLE legend (above `## Open`), a
