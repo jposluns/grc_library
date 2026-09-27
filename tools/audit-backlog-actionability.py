@@ -981,7 +981,7 @@ def _self_test() -> int:
                    "owner-suffix": with_origin("https://github.com/evil-jposluns/grc_library")}
         with_origin("https://github.com/jposluns/grc_library.git")
         injected = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.url",
-                    "GIT_CONFIG_VALUE_0": "https://example.org/x/y.git", "GIT_DIR": str(plain)}
+                    "GIT_CONFIG_VALUE_0": "https://github.com/x/y.git", "GIT_DIR": str(plain)}
         saved_env = {k: os.environ.get(k) for k in injected}
         os.environ.update(injected)
         try:
@@ -993,7 +993,7 @@ def _self_test() -> int:
                 else:
                     os.environ[k] = v
         with open(repo / ".git" / "config", "ab") as fh:
-            fh.write(b'\n[remote "origin"]\n\turl = https://example.org/\xff/repo.git\n')
+            fh.write(b'\n[remote "origin"]\n\turl = https://github.com/\xff/repo.git\n')
         results["undecodable"] = _origin_is_maintainer(repo)
         check("origin-lookup", results == {"not-a-repo": None, "no-origin": False, "other": False,
                                            "canonical": True, "trailing-slash": True, "case": True,
