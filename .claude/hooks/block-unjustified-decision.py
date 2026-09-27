@@ -184,7 +184,8 @@ AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.
 # tests/test_linters.py compares the combined hook and tool counts on the live
 # public and private files; that check does not prove parity for every input.
 ITEM_HEADING_RE = re.compile(
-    r"^### (?:\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b", re.MULTILINE
+    r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b",  # P- as the tool's (3b119 QA r10)
+    re.MULTILINE
 )
 # _todo_item_count counts every match of this row regex in public TODO.md.
 # In private P-TODO.md it counts these matches only if _has_todo_index_header
@@ -272,14 +273,24 @@ def _bullet_item_count(text: str) -> int:
     return n
 
 
+def _file_item_count(text: str, gate_rows: bool) -> int:
+    """One backlog file's count: index rows (for the private file only under an index header, F1793-12;
+    row-regex matches anywhere once the header is found, fenced text included), every ITEM_HEADING_RE heading,
+    and the bold-bullet items. Matches are not deduplicated. The public file now counts headings as the tool
+    does (3b119 QA r10); its rows are still counted without the header gate the tool applies, a known
+    divergence open as P-TODO 3b121 (one row grammar and gate for hook and tool)."""
+    rows = len(TODO_ROW_RE.findall(text)) if (not gate_rows or _has_todo_index_header(text)) else 0
+    return rows + _heading_item_count(text) + _bullet_item_count(text)
+
+
 def _todo_item_count(project_dir: str | None) -> int | None:
     """Return a syntax-based count from the public and private backlog files.
 
     Resolve a truthy ``project_dir`` as root; otherwise use this script's repository
-    root. Count all ``TODO_ROW_RE`` matches in ``root/TODO.md``. In sibling
-    ``root.parent/grc_library_private/P-TODO.md``, count all ``ITEM_HEADING_RE``
-    matches and add ``TODO_ROW_RE`` matches if ``_has_todo_index_header`` is true.
-    In both files add the bold-bullet items ``_bullet_item_count`` finds (3b119).
+    root. Count ``root/TODO.md`` and sibling ``root.parent/grc_library_private/P-TODO.md``
+    with _file_item_count: all ``ITEM_HEADING_RE`` headings (the public file too since
+    3b119 QA r10), ``TODO_ROW_RE`` matches (in the private file only if
+    ``_has_todo_index_header`` is true), and the bold-bullet items ``_bullet_item_count`` finds.
     The sum does not deduplicate IDs or independently verify open-item status.
 
     Return None if public TODO.md is not a file or any operation in the try block
@@ -293,20 +304,10 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        todo_text = todo.read_text(encoding="utf-8")
-        count = len(TODO_ROW_RE.findall(todo_text)) + _bullet_item_count(todo_text)
+        count = _file_item_count(todo.read_text(encoding="utf-8"), gate_rows=False)
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
-            ptodo_text = ptodo.read_text(encoding="utf-8")
-            # F1793-12: gate private row counting on the header classifier,
-            # as the audit tool gates its index parser. Once a header is found,
-            # count row-regex matches throughout ptodo_text, including body tables
-            # or fenced text that matches. Add heading matches independently;
-            # do not deduplicate matches between the two counts.
-            if _has_todo_index_header(ptodo_text):
-                count += len(TODO_ROW_RE.findall(ptodo_text))
-            count += _heading_item_count(ptodo_text)
-            count += _bullet_item_count(ptodo_text)
+            count += _file_item_count(ptodo.read_text(encoding="utf-8"), gate_rows=True)
         return count
     except Exception:
         return None

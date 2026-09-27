@@ -17362,13 +17362,16 @@ class HookToolItemCountParityTests(unittest.TestCase):
             "closer carries no info string": ("## Q\n```\n```py\n- **3b7 x** y\n```\n", 0),
             "comment indented four spaces": ("## Q\n    <!-- c\n- **3b7 x** y\n-->\n", 1),
             "bare 3b is not an id": ("## Q\n- **3b fix** y\n", 0),
-            # QA r8: inline code is not a fence opener (CommonMark: no backtick in a backtick fence's info string).
             # QA r9: a bullet item then a ``### <id>`` item; a comment reopened on one line; a four-level P- id.
             "heading after bullet": ("## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n", 1),
             "comment reopened on one line": ("## Q\n<!-- a\n--> <!-- b\n- **3b7 x** y\n-->\n", 0),
             "four-level P- id": ("## Q\n- **P-10.1.2.3 x** y\n", 0),
-            "inline code is not a fence": ("## Q\n```x``` inline\n- **3b7 [private] real** a\n```\n"
-                                          "- **3b8 [private] example** b\n```\n", 1),
+            # QA r8, made asymmetric in r10: read as a fence, the inline code would count 0 items here, not 1.
+            "inline code is not a fence": ("## Q\n```x``` inline\n- **3b7 [private] real** a\n", 1),
+            # QA r10: bullet grammar edges, a tab-indented comment opener, and a form feed inside a line.
+            "grammar edges": ("## Q\n- **P-1.2ab x** a\n- **3b7ab x** b\n- **4 [private] x** c\n- **RB [private] x** d\n", 0),
+            "tab before comment opener": ("## Q\n\t<!-- c\n- **3b7 x** y\n", 1),
+            "form feed splits a line": ("## Q\n- **3b7 x**\x0c- **3b8 y**\n", 2),
         }
         for name, (text, want) in cases.items():
             tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
@@ -17394,6 +17397,21 @@ class HookToolItemCountParityTests(unittest.TestCase):
         # QA r8: a form feed splits a line for both (the hook's heading count uses splitlines, as the tool does).
         ff = "## Q\nx\x0c### 9.9 x\n"
         self.assertEqual(hook._heading_item_count(ff), len(tool.parse_items(ff, "private", ref_bodies={})))
+        # QA r10: a P- heading with a non-ASCII digit counts in both (the hook's heading regex has the P- branch).
+        uni = "## Q\n### P-\u0663.1 u\n"
+        self.assertEqual(hook._heading_item_count(uni), len(tool.parse_items(uni, "private", ref_bodies={})))
+        # QA r10: the public file's headings count in the hook as in the tool. (Header-less public rows still
+        # diverge: open as P-TODO 3b121.)
+        for pub_text in ("## Q\n- **3b7 [public] first** x\n### 9.9 second [public]\n", "## Q\n### 1.1 title\n"):
+            with tempfile.TemporaryDirectory() as d:
+                root = Path(d) / "grc_library"
+                root.mkdir()
+                (root / "TODO.md").write_text(pub_text, encoding="utf-8")
+                priv = Path(d) / "grc_library_private"
+                priv.mkdir()
+                (priv / "P-TODO.md").write_text("", encoding="utf-8")
+                self.assertEqual(hook._todo_item_count(str(root)),
+                                 len(tool.parse_items(pub_text, "public", ref_bodies={})), pub_text)
         # QA r6 repro: the hook's total and the tool's must agree when a masked heading sits in a heading item.
         text = "## A\n### 9.9 item\n```\n### 9.8 ex\n```\n- **3b7 x** y\n"
         with tempfile.TemporaryDirectory() as d:
