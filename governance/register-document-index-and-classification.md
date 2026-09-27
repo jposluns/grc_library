@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.204\
-**Date:** 2026-09-25\
+**Version:** 1.27.205\
+**Date:** 2026-09-27\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -181,7 +181,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Privacy | Annex | Colombia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-colombia.md`](../privacy/jurisdictions/annex-privacy-colombia.md) | Data Protection Officer | Annual | Ley 1581 de 2012 + Decreto 1074 de 2015 (Cap 25/26) | template |
 | Privacy | Annex | Singapore Privacy Requirements | [`privacy/jurisdictions/annex-privacy-singapore.md`](../privacy/jurisdictions/annex-privacy-singapore.md) | Data Protection Officer | Annual | PDPA 2012 (amended 2020) | template |
 | Privacy | Annex | Australia Privacy Requirements | [`privacy/jurisdictions/annex-privacy-australia.md`](../privacy/jurisdictions/annex-privacy-australia.md) | Data Protection Officer | Annual | Privacy Act 1988, Privacy and Other Legislation Amendment Act 2024 | template |
-| Privacy | Annex | Japan Privacy Requirements | [`privacy/jurisdictions/annex-privacy-japan.md`](../privacy/jurisdictions/annex-privacy-japan.md) | Data Protection Officer | Annual | APPI (amended 2022) | template |
+| Privacy | Annex | Japan Privacy Requirements | [`privacy/jurisdictions/annex-privacy-japan.md`](../privacy/jurisdictions/annex-privacy-japan.md) | Data Protection Officer | Annual | APPI (consolidated as of April 1, 2023) | template |
 | Privacy | Annex | South Korea Privacy Requirements | [`privacy/jurisdictions/annex-privacy-south-korea.md`](../privacy/jurisdictions/annex-privacy-south-korea.md) | Data Protection Officer | Annual | PIPA (amended 2023) | template |
 | Privacy | Annex | New Zealand Privacy Requirements | [`privacy/jurisdictions/annex-privacy-new-zealand.md`](../privacy/jurisdictions/annex-privacy-new-zealand.md) | Data Protection Officer | Annual | Privacy Act 2020 | template |
 | Privacy | Annex | UAE Privacy Requirements | [`privacy/jurisdictions/annex-privacy-uae.md`](../privacy/jurisdictions/annex-privacy-uae.md) | Data Protection Officer | Annual | UAE PDPL, DIFC DPL, ADGM DPR | template |
