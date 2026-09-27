@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 
@@ -128,48 +129,127 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
 
 
+class _Unreadable(Exception):
+    """A construct the strict workflow reader does not handle; the pin then fails closed (3b105 QA r3)."""
+
+
 def _yaml_scalar(raw: str) -> str:
-    """A plain or quoted single-line YAML scalar, with an inline comment removed (3b105 QA r2)."""
+    """A single-line YAML scalar: plain (an inline ` #` comment dropped), single-quoted (a doubled quote is
+    a literal quote), or double-quoted without escapes. Anything else raises _Unreadable rather than
+    returning a guess, so a misread can only fail the pin, never pass it (3b105 QA r2, r3)."""
     s = raw.strip()
-    if s[:1] in ("'", '"'):
-        q = s[0]
-        end = s.find(q, 1)
-        return s[1:end] if end > 0 else s
+    if s[:1] in ("{", "[", "|", ">", "&", "*", "!"):
+        raise _Unreadable(f"unsupported scalar form: {s[:20]!r}")
+    if s[:1] == "'":
+        out, i = [], 1
+        while i < len(s):
+            if s[i] == "'":
+                if s[i + 1:i + 2] == "'":
+                    out.append("'")
+                    i += 2
+                    continue
+                rest = s[i + 1:].strip()
+                if rest and not rest.startswith("#"):
+                    raise _Unreadable("text after a quoted scalar")
+                return "".join(out)
+            out.append(s[i])
+            i += 1
+        raise _Unreadable("unterminated single-quoted scalar")
+    if s[:1] == '"':
+        end = s.find('"', 1)
+        if end < 0 or "\\" in s[:end]:
+            raise _Unreadable("unterminated or escaped double-quoted scalar")
+        rest = s[end + 1:].strip()
+        if rest and not rest.startswith("#"):
+            raise _Unreadable("text after a quoted scalar")
+        return s[1:end]
     cut = s.find(" #")
     return (s[:cut] if cut >= 0 else s).strip()
 
 
+def _check_value(value: str) -> None:
+    """Refuse a value the reader cannot bound to its own line: a flow collection or an unterminated quote
+    could carry a `name:` on a later line (3b105 QA r3)."""
+    v = value.strip()
+    if v[:1] in ("{", "["):
+        raise _Unreadable("flow collection inside jobs")
+    if v[:1] in ("'", '"'):
+        _yaml_scalar(v)
+
+
 def workflow_names(text: str) -> tuple[str | None, set[str]]:
-    """(top-level name, set of job names) from a workflow file, read structurally with the stdlib: the
-    top-level `name:` and the `name:` of each job directly under `jobs:`, at the indentation of the
-    jobs' own keys, so a step's or an env block's `name:` is not taken for a job name (3b105 QA r2).
-    Single-line scalars only; a name this reader cannot read is absent, so the pin fails closed."""
+    """(top-level name, set of job names) from a workflow file, read STRICTLY with the stdlib: the top-level
+    `name:` and the `name:` of each job directly under `jobs:`, at the indentation of that job's own
+    properties, so a step's or an env block's `name:` is not taken for a job name (3b105 QA r2). A
+    construct it does not handle (a tab, a flow collection or unterminated quote inside jobs, a duplicate
+    name, an escape) makes it return (None, set()), so the pin fails closed rather than passing on a
+    misread (3b105 QA r3). Block-scalar bodies (run: |) are skipped."""
+    try:
+        return _workflow_names(text)
+    except _Unreadable:
+        return None, set()
+
+
+def _workflow_names(text: str) -> tuple[str | None, set[str]]:
+    if "\t" in text:
+        raise _Unreadable("tab")
     top, jobs = None, set()
-    in_jobs, key_indent, prop_indent = False, None, None
+    in_jobs, key_indent, prop_indent, job_named = False, None, None, False
+    block_indent = None  # indentation of a key whose block-scalar body is being skipped
     for line in text.splitlines():
-        body = line.split("#", 1)[0] if line.lstrip().startswith("#") else line
-        if not body.strip():
+        if not line.strip() or line.lstrip().startswith("#"):
             continue
-        indent = len(body) - len(body.lstrip(" "))
-        stripped = body.strip()
+        indent = len(line) - len(line.lstrip(" "))
+        if block_indent is not None:
+            if indent > block_indent:
+                continue
+            block_indent = None
+        stripped = line.strip()
+        is_item = stripped.startswith("- ")
+        item = stripped[2:].lstrip() if is_item else stripped
+        key, sep, value = item.partition(":")
+        is_key = bool(sep) and bool(key) and not key.startswith(("-", "'", '"')) and (value[:1] in ("", " "))
+        if is_key and re.match(r"[|>][-+0-9]*\s*(#.*)?$", value.strip() or "x"):
+            block_indent = indent
         if indent == 0:
-            in_jobs = stripped.rstrip() == "jobs:"
+            if not is_key:
+                raise _Unreadable("top-level line that is not a key")
+            in_jobs = key == "jobs"
             key_indent = prop_indent = None
-            if stripped.startswith("name:"):
-                top = _yaml_scalar(stripped[len("name:"):])
+            if key == "name":
+                if top is not None:
+                    raise _Unreadable("duplicate top-level name")
+                top = _yaml_scalar(value)
             continue
         if not in_jobs:
             continue
+        if is_key and value.strip():
+            _check_value(value)
+        elif is_item:
+            _check_value(item)
         if key_indent is None:
             key_indent = indent
+        if indent < key_indent:
+            raise _Unreadable("line outdented past the job keys")
         if indent == key_indent:
-            prop_indent = None
+            if is_item or not (is_key and not value.strip()):
+                raise _Unreadable("job entry that is not a block mapping")
+            prop_indent, job_named = None, False
             continue
-        if prop_indent is None and indent > key_indent:
+        if prop_indent is None:
             prop_indent = indent
-        if indent == prop_indent and stripped.startswith("name:"):
-            jobs.add(_yaml_scalar(stripped[len("name:"):]))
+        if indent == prop_indent and is_key and not is_item and key == "name":
+            if job_named:
+                raise _Unreadable("duplicate job name")
+            jobs.add(_yaml_scalar(value))
+            job_named = True
     return top, jobs
+
+
+def pin_ok(text: str, check: str) -> bool:
+    """The workflow file names the check's workflow at the top level and carries a job of that name."""
+    top, jobs = workflow_names(text)
+    return top == REQUIRED_WORKFLOWS[check] and check in jobs
 
 
 def open_findings_block(root, ledger=None) -> tuple[int, str]:
@@ -428,8 +508,7 @@ def _self_test() -> int:
             text = (_REPO_ROOT / ".github" / "workflows" / fname).read_text(encoding="utf-8")
         except OSError:
             text = ""
-        top, jobs = workflow_names(text)
-        checks.append((f"workflow-file-{fname}", top == REQUIRED_WORKFLOWS[check] and check in jobs))
+        checks.append((f"workflow-file-{fname}", pin_ok(text, check)))
     # The reader takes job names only, and reads quoted and commented scalars (3b105 QA r2).
     wf = ("name: \"Repository quality checks\"  # quoted\non:\n  pull_request:\njobs:\n  lint:\n"
           "    name: 'Lint markdown corpus' # commented\n    runs-on: x\n    env:\n      name: Env name\n"
@@ -439,6 +518,40 @@ def _self_test() -> int:
                                                                       {"Lint markdown corpus", "Other job"})))
     nested_only = "name: W\njobs:\n  lint:\n    name: Renamed\n    env:\n      name: Lint markdown corpus\n"
     checks.append(("workflow-reader-nested-name-not-a-job", "Lint markdown corpus" not in workflow_names(nested_only)[1]))
+    # 3b105 QA r3: the pin fails on each way the job or workflow can be absent, and the strict reader fails
+    # closed on every construct it cannot bound (codex and claude fail-open reproductions included).
+    lint_ = "Lint markdown corpus"
+    good = "name: Repository quality checks\njobs: # CI\n  lint:\n    name: Lint markdown corpus # plain\n    runs-on: x\n"
+    checks.append(("pin-good", pin_ok(good, lint_)))
+    for label, text in (
+        ("renamed-top", good.replace("name: Repository quality checks", "name: Other")),
+        ("renamed-job", good.replace("name: Lint markdown corpus", "name: Renamed")),
+        ("empty-file", ""),
+        ("flow-env", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\n    env: {A: 1,\n"
+                     "    name: Lint markdown corpus\n    }\n"),
+        ("flow-job", "name: Repository quality checks\njobs:\n  lint: {name: Renamed, env: {\n"
+                     "    name: Lint markdown corpus}}\n"),
+        ("open-quote-if", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\n    if: \"a &&\n"
+                          "    name: Lint markdown corpus\n    && b\"\n"),
+        ("doubled-quote", "name: Repository quality checks\njobs:\n  lint:\n    name: 'Lint markdown corpus'' renamed'\n"),
+        ("doubled-quote-top", good.replace("name: Repository quality checks", "name: 'Repository quality checks'' x'")),
+        ("duplicate-job-name", good.replace("    runs-on: x\n", "    name: Renamed\n    runs-on: x\n")),
+        ("tab", good.replace("    runs-on", "\trun")),
+        ("mixed-job-indent", "name: Repository quality checks\njobs:\n  a:\n      name: A\n  lint:\n    name: Renamed\n"
+                             "    env:\n      name: Lint markdown corpus\n"),
+        ("flow-env-unnamed", "name: Repository quality checks\njobs:\n  lint:\n    runs-on: x\n    env: {A: 1,\n"
+                             "    name: Lint markdown corpus\n    }\n"),
+        ("open-quote-unnamed", "name: Repository quality checks\njobs:\n  lint:\n    runs-on: x\n    if: 'a &&\n"
+                               "    name: Lint markdown corpus\n    && b'\n"),
+        ("second-top-after-jobs", "name: Repository quality checks\njobs:\n  lint:\n    name: Renamed\nenv:\n"
+                                  "  lint:\n    name: Lint markdown corpus\n"),
+    ):
+        checks.append((f"pin-refuses-{label}", not pin_ok(text, lint_)))
+    block = good + "    steps:\n      - run: |\n          name: Lint markdown corpus\n          note: 'it\n"
+    checks.append(("pin-block-scalar-body-skipped", pin_ok(block, lint_)))
+    checks.append(("reader-plain-comment", workflow_names(good)[1] == {lint_}))
+    odd = "name: W\njobs:\n  a:\n    name: 'Lint''s job'\n  b:\n    name: C#-lint # c\n"
+    checks.append(("reader-doubled-quote-and-plain-hash", workflow_names(odd) == ("W", {"Lint's job", "C#-lint"})))
     _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
                             {"Lint": "Repository quality checks"})
     checks.append(("foreign-reason-names-workflow", "from workflow 'Repository quality checks'" in r_foreign))
