@@ -174,7 +174,8 @@ def _self_test() -> int:
             self.assertEqual(expand_codes("STA-01 to STA-03\u0301"), {"STA-01"})
             # token-ending punctuation and whitespace do not stop a read (3b118 QA r3)
             en_dash = chr(0x2013)  # built, not written, so the prose dash lint stays meaningful
-            self.assertEqual(CODE_RE.findall("DSP-16\u2019s \u201cDSS05.03\u201d A.5.1" + en_dash + "A.5.3"),
+            quoted = "DSP-16\u2019s \u201cDSS05.03\u201d A.5.1" + en_dash + "A.5.3"
+            self.assertEqual(CODE_RE.findall(quoted),
                              ["DSP-16", "DSS05.03", "A.5.1", "A.5.3"])
             self.assertEqual(expand_codes("STA-01\u00a0"), {"STA-01"})
             self.assertEqual(CODE_RE.findall("(APO12) [A.5.1]"), ["APO12", "A.5.1"])
