@@ -170,7 +170,7 @@ def _self_test() -> int:
         "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
         "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
     }
-    head = "a" * 40
+    head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
     def view(r, h=head, fields=None):
         out = {"state": "OPEN", "statusCheckRollup": r}
         if fields is None or "headRefOid" in fields:
@@ -180,7 +180,7 @@ def _self_test() -> int:
     real_gh = globals()["gh"]
     try:
         # Inside the stub, so even a mutated file that allows abbreviations never calls the real gh (3b104 r6).
-        globals()["gh"] = lambda *a: view(rollups["green"])
+        globals()["gh"] = lambda *a: view(rollups["green"], fields=json_arg(a))
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
             try:
                 main(["merge-when-green.py", "1", "--require-n", "--dry-run"])
@@ -189,19 +189,19 @@ def _self_test() -> int:
                 abbrev_refused = exc.code == 2
         checks.append(("abbreviated-require-none-refused", abbrev_refused))
         for label, want_rc in (("skipped", 1), ("green", 0)):
-            globals()["gh"] = lambda *a, _r=rollups[label]: view(_r)
+            globals()["gh"] = lambda *a, _r=rollups[label]: view(_r, fields=json_arg(a))
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run"])
             checks.append((f"main-default-required-{label}", rc == want_rc))
         # --require replaces the list and must be enforced; --require-none must reach evaluate() as ()
         # (3b104 QA r3): a custom name missing from a green rollup refuses, and require-none passes it.
-        globals()["gh"] = lambda *a: view(rollups["green"])
+        globals()["gh"] = lambda *a: view(rollups["green"], fields=json_arg(a))
         for label, flags, want_rc in (("require-custom-missing", ["--require", "Custom check"], 1),
                                       ("require-custom-present", ["--require", lint], 0)):
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", "--dry-run", *flags])
             checks.append((f"main-{label}", rc == want_rc))
-        globals()["gh"] = lambda *a: view(rollups["skipped"])
+        globals()["gh"] = lambda *a: view(rollups["skipped"], fields=json_arg(a))
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
             rc = main(["merge-when-green.py", "1", "--dry-run", "--require-none"])
         checks.append(("main-require-none-skips-required", rc == 0))
@@ -209,7 +209,11 @@ def _self_test() -> int:
         calls = []
         def rec(*a, _h=head):
             calls.append(a)
-            return view(rollups["green"], _h, json_arg(a)) if a[:2] == ("pr", "view") else ""
+            if a[:2] != ("pr", "view"):
+                return ""
+            # Any later read sees a moved head, so a re-read before the merge cannot match the pin (3b106 QA r2).
+            seen = sum(1 for c in calls if c[:2] == ("pr", "view"))
+            return view(rollups["green"], _h if seen == 1 or _h != head else "b" * 40, json_arg(a))
         def pinned(m):
             m = list(m)
             return "--match-head-commit" in m and m[m.index("--match-head-commit") + 1] == head
@@ -220,8 +224,9 @@ def _self_test() -> int:
             with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
                 rc = main(["merge-when-green.py", "1", *extra])
             merges = [a for a in calls if a[:2] == ("pr", "merge")]
+            views = [a for a in calls if a[:2] == ("pr", "view")]
             checks.append((f"merge-pins-evaluated-head-{label}", rc == 0 and len(merges) == 1 and pinned(merges[0])
-                           and (("--admin" in merges[0]) == bool(extra))))
+                           and len(views) == 1 and (("--admin" in merges[0]) == bool(extra))))
         # A missing, short, upper-case or non-hex head refuses, with no merge call, also on a dry run.
         for label, bad in (("missing", None), ("short", "abc123"), ("upper", "A" * 40), ("nonhex", "g" * 40)):
             for dry in ([], ["--dry-run"]):
@@ -231,6 +236,14 @@ def _self_test() -> int:
                     rc = main(["merge-when-green.py", "1", *dry])
                 merged = any(a[:2] == ("pr", "merge") for a in calls)
                 checks.append((f"head-{label}-refused{'-dry' if dry else ''}", rc == 1 and not merged))
+        for state in ("MERGED", "CLOSED"):
+            calls.clear()
+            globals()["gh"] = lambda *a, _s=state: (calls.append(a) or json.dumps(
+                {"state": _s, "statusCheckRollup": rollups["green"], "headRefOid": head}) if a[:2] == ("pr", "view") else "")
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1"])
+            checks.append((f"not-open-{state.lower()}-refused",
+                           rc == 1 and not any(c[:2] == ("pr", "merge") for c in calls)))
         # Inside the stub too, so a mutated parser that accepted both flags never reaches the real gh (3b106 QA r1).
         calls.clear()
         globals()["gh"] = rec

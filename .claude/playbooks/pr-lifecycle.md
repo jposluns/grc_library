@@ -103,8 +103,8 @@ drive end-to-end on the maintainer's behalf:
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
    false against the live protection config, which requires one approval, so the plain
    merge fails with `REVIEW_REQUIRED` / "base branch policy prohibits the merge". The
-   working path is the maintainer's always-bypass (`gh pr merge --admin`, or the
-   equivalent), which the same finding identifies as a governance-enforcement risk
+   working path is the maintainer's always-bypass (the `--admin` flag, passed through
+   `tools/merge-when-green.py`, never a bare `gh pr merge --admin`), which the same finding identifies as a governance-enforcement risk
    precisely because it is invisible when used.
    **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
    retain the emergency path and make its use auditable rather than remove it. Append
