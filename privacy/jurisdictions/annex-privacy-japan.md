@@ -2,7 +2,7 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
+**Version:** 1.1.4\
 **Date:** 2026-09-27\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -44,23 +44,23 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 Article numbers follow the current consolidated APPI (confirmed against the official English translation of the consolidated text; the pre-2022 amendment texts number these provisions differently).
 
-- **Breach report and individual notification (Article 26):** A business handling personal information must, pursuant to PPC rules, report a leakage, loss, or damage of personal data that is likely to harm an individual's rights and interests to the PPC, and notify the affected individual. The specific report deadlines and category thresholds are set by the PPC Enforcement Rules, not by the Act; confirm the current rule values before encoding them in incident playbooks.
-- **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), and cease-of-use or deletion (Article 35). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
+- **Breach report and individual notification (Article 26):** A business handling personal information must, pursuant to PPC rules, report a leak, loss, or damage of personal data of a kind the PPC rules prescribe as likely to harm individual rights and interests to the PPC, and notify the affected individual. Two exceptions are in the Act itself: a business entrusted with the handling that notifies the entrusting business or administrative entity as the PPC rules prescribe does not report to the PPC or notify the individual [Article 26(1) proviso, 26(2)], and individual notification is not required where it is difficult and necessary alternative measures are taken to protect the person's rights and interests [Article 26(2) proviso]. The specific report deadlines and category thresholds are set by the PPC Enforcement Rules, not by the Act; confirm the current rule values before encoding them in incident playbooks.
+- **Data-subject requests (Articles 33 to 35):** An identifiable person may demand disclosure of retained personal data (Article 33), correction of inaccurate data (Article 34), and cease-of-use or deletion on the grounds Article 35 sets out: handling in violation of Articles 18 or 19, acquisition in violation of Article 20, the business no longer needing the data, a reportable leak under Article 26(1), or handling likely to harm the person's rights and interests (Article 35(1), (5)). The business acts where it finds grounds for the request, and the Act allows necessary alternative measures in some cases (Article 35(2), (6)). The Act's response standard is "without delay"; it sets no fixed day-count, so adopting organizations set an internal service level and record it in their DSR procedure.
 - **Accuracy and deletion (Article 22):** A business must strive to keep personal data accurate and up to date within the scope necessary for the purpose of use, and to delete it without delay when its use is no longer necessary. The Act phrases this as an endeavour duty (the statutory text reads `must endeavor to`), not an absolute one; adopting organizations typically operationalize it as a firm internal control anyway.
 
 ---
 
 ## Cross-border transfer mechanisms
 
-- Cross-border third-party provision requires either consent of the data subject, or the recipient is in a country designated by the PPC as having equivalent protection, or the recipient has established a personal information protection system conforming to PPC rules [APPI Article 28].
+- Outside the Article 27(1) exceptions, providing personal data to a third party in a foreign country requires the person's consent to that foreign provision, unless the country is one the PPC has designated as having equivalent standards or the recipient has established a system conforming to PPC standards for equivalent measures [APPI Article 28(1)]. Before seeking that consent, the business gives the person information on the foreign country's protection system and the recipient's measures [Article 28(2)]; when relying on a recipient's conforming system, it takes measures to ensure the equivalent measures continue and informs the person on request [Article 28(3)]. The ordinary third-party provision rules in Article 27 still apply to a designated-country or conforming-system recipient.
 - Japan participates in the APEC CBPR framework.
 
 ---
 
 ## Enforcement and fines
 
-- A corporation faces a fine of up to JPY 100 million when its representative or employee violates a PPC order, or provides or misappropriates a personal information database for illegal profit [Articles 178, 179, 184(1)(i)]. Contraventions such as an unlawful cross-border provision or an unreported leak are addressed first by PPC recommendations and orders [Article 148]; violating such an order is the offence.
-- Individuals responsible may face imprisonment or fines [Articles 178, 179].
+- A corporation faces a fine of up to JPY 100 million when its representative, agent, employee or other worker, in relation to the corporation's business, violates a PPC order under Article 148(2) or (3), or provides or misappropriates a personal information database for illegal profit [Articles 178, 179, 184(1)(i)]. Contraventions such as an unlawful cross-border provision or an unreported leak are addressed by PPC recommendations and orders, including urgent orders issued without a prior recommendation [Article 148(1) to (3)]; violating such an order is the offence. Failing to report to the PPC, or obstructing a PPC inspection, is a separate offence with a fine of up to JPY 500,000, which also applies to the corporation [Articles 146(1), 182, 184(1)(ii)].
+- Individuals responsible may face imprisonment or fines [Articles 178, 179, 182].
 
 ---
 
