@@ -20,8 +20,9 @@ primary blocking condition; the one other blocking condition is a MIS-FILED row 
 WHAT IT BLOCKS. An `error`-severity undispositioned row blocks a Bash command whose
 whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose
 shell tokens have `gh`, then `pr`, then `create` or `merge`, with no fresh `gh` between (so a quoted
-`gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; a word
-held in a variable still evades; 3b112), or any command
+`gh pr 'merge'` is caught, and `echo "gh pr merge"` and `gh pr view 1 && git merge x` are gated; the text
+is also read with continuations joined and a quoted argument as a command; shell forms it does not model,
+such as a word held in a variable, still evade; 3b112), or any command
 that mentions tools/merge-when-green.py other than a simple direct --dry-run or --self-test (3b108;
 see invokes_merge_tool), because
 shipping past a known wrong behaviour is the thing worth preventing. A `warning` does not block a PR
@@ -487,7 +488,7 @@ def invokes_merge_tool(cmd: str) -> bool:
     complete (3b108 QA r1), so this over-gates by intent. THREAT MODEL, stated: a speed bump for an
     honest actor's slip, not an adversarial control; a deliberately obfuscated command (a glob such as
     gree[n] or gree*, a variable holding part of the name, code run through python -c) can still evade,
-    and merge-when-green.py enforces the open-findings decision itself on every merge. after dropping quotes and backslash-newline
+    and merge-when-green.py enforces the open-findings decision itself on every merge. After dropping quotes and backslash-newline
     continuations, any mention of merge-when-green gates, except a single simple command (one line,
     no shell operator, no substitution) that passes --dry-run or --self-test. A read of the file is
     gated too; that costs little, since this hook blocks only while its blocking state holds, and
@@ -529,18 +530,65 @@ def is_blocking_command(cmd: str) -> bool:
           (3b108; see invokes_merge_tool).
     The token match allows any tokens or operators between gh, pr and the verb, and a fresh gh resets
     it, so `gh pr view 12 && git merge main` and `echo "gh pr merge"` are gated (over-gating is the safe
-    direction). The gh detectors run on the text as written AND with backslash-newlines joined, and
-    block on either (3b112 QA r1, r2). RESIDUE: a word held in a variable (c=merge; gh pr $c, or GH=gh;
-    $GH pr merge), an alias, or an unquoted mid-word # earlier on the line (shlex starts a comment
-    there, bash does not) still evades; a speed bump, not an adversarial control."""
+    direction). The gh detectors read the text as written, with every backslash-newline joined, and
+    joined as bash joins, and read a quoted argument as a command too (bash -c "..."); any match blocks
+    (3b112 QA r1-r3). RESIDUE, not exhaustive: shell forms this does not model still evade, for
+    example a word held in a variable (c=merge; gh pr $c), an alias, ANSI-C quoting (gh pr $'merge'),
+    brace expansion (gh pr {merge,}), or an unquoted mid-word # earlier on the line (shlex starts a
+    comment there, bash does not); a speed bump, not an adversarial control."""
     if not isinstance(cmd, str):
         return False
     if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
         return True
-    # Both the text as written and the text with every backslash-newline joined: bash joins only some of
-    # them (not after an even run of backslashes or in a comment), so blocking on either keeps both cases
-    # (3b112 QA r1, r2). The merge-tool exemption above reads only the unjoined text.
-    return _gh_pr_verb(cmd) or _gh_pr_verb(cmd.replace("\\\n", ""))
+    # Three readings of the text: as written, with every backslash-newline joined, and joined as bash joins
+    # (not after an even backslash run, in a comment, or in single quotes); a quoted argument is also read
+    # as a command, for `bash -c "..."` (3b112 QA r1-r3). Blocking on any over-gates, the safe direction.
+    # The merge-tool exemption above reads only the text as written.
+    for text in (cmd, cmd.replace("\\\n", ""), _bash_join(cmd)):
+        if _gh_pr_verb(text):
+            return True
+        for tk in _tokens(text) or ():
+            if any(ch.isspace() for ch in tk) and _gh_pr_verb(tk):
+                return True
+    return False
+
+
+def _bash_join(cmd: str) -> str:
+    """PURE. Remove the backslash-newlines bash treats as line continuations: outside single quotes and
+    comments, and only where the backslash is not itself escaped (3b112 QA r3). A model, not a shell."""
+    out, i, n = [], 0, len(cmd)
+    single = double = comment = False
+    word_start = True
+    while i < n:
+        c = cmd[i]
+        if comment:
+            out.append(c)
+            if c == "\n":
+                comment, word_start = False, True
+            i += 1
+            continue
+        if single:
+            out.append(c)
+            single = c != "'"
+            i += 1
+            continue
+        if c == "\\" and i + 1 < n:
+            if cmd[i + 1] == "\n":
+                i += 2
+                continue
+            out.append(cmd[i:i + 2])
+            i, word_start = i + 2, False
+            continue
+        if c == "'" and not double:
+            single = True
+        elif c == '"':
+            double = not double
+        elif c == "#" and not double and word_start:
+            comment = True
+        out.append(c)
+        word_start = c in " \t\n;&|()"
+        i += 1
+    return "".join(out)
 
 
 def _gh_pr_verb(cmd: str) -> bool:
@@ -870,6 +918,12 @@ def self_test() -> int:
     for s in ("echo x\\\\\ngh pr 'merge' 1", "# note \\\ngh pr 'merge' 1", "true # trailing\\\ngh pr 'create'",
               '# note \\\ngh "pr" create'):
         ck(f"unjoined text still checked: {s!r}", is_blocking_command(s), True)
+    # 3b112 QA r3: mixed continuations (one bash joins, one it does not) and a nested shell
+    for s in ("x\\\\\ngh pr 'me'\\\nrge 1", "# x \\\ngh pr 'me'\\\nrge 1", 'echo n # c \\\ngh "pr" me\\\nrge',
+              "# note \\\ngh -R o/r pr \\\nmerge 1", 'bash -c "gh -R o/r pr merge"', "bash -c \"gh 'pr' merge\"",
+              "sh -c 'gh \"pr\" merge 1'"):
+        ck(f"r3 form blocks: {s!r}", is_blocking_command(s), True)
+    ck("quoted text without gh does not block", is_blocking_command('git commit -m "merge the pr"'), False)
     ck("quoted --dry-ru<nl>n is not a dry-run exemption",
        is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
     # 3b108: letter-series backlog ids are valid refs; a bare word or a lone letter-number is not.
