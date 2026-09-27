@@ -193,6 +193,27 @@ TODO_ROW_RE = re.compile(
     re.MULTILINE,
 )
 
+# A top-level bold-bullet backlog item (3b119): ``- **<id> [private] <title>...`` with a ``3bNN``, ``P-n.m`` or
+# section-number id. It counts only outside a ``### <id>`` item block, where the audit tool treats it as that
+# item's body (the tool's TOP_BULLET_ITEM_RE rule; the parity test compares the two counts).
+BULLET_ITEM_RE = re.compile(r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:])")
+
+
+def _bullet_item_count(text: str) -> int:
+    """Count bold-bullet items outside ``### <id>`` item blocks (a ``## `` header or a non-item ``### ``
+    heading closes an item block, as in the audit tool)."""
+    n = 0
+    in_heading_item = False
+    for line in text.splitlines():
+        if ITEM_HEADING_RE.match(line):
+            in_heading_item = True
+        elif line.startswith("## ") or line.startswith("### "):
+            if line.startswith("## ") or not in_heading_item:
+                in_heading_item = False
+        elif not in_heading_item and BULLET_ITEM_RE.match(line):
+            n += 1
+    return n
+
 
 def _todo_item_count(project_dir: str | None) -> int | None:
     """Return a syntax-based count from the public and private backlog files.
@@ -214,7 +235,8 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        count = len(TODO_ROW_RE.findall(todo.read_text(encoding="utf-8")))
+        todo_text = todo.read_text(encoding="utf-8")
+        count = len(TODO_ROW_RE.findall(todo_text)) + _bullet_item_count(todo_text)
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
             ptodo_text = ptodo.read_text(encoding="utf-8")
@@ -226,6 +248,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
             if _has_todo_index_header(ptodo_text):
                 count += len(TODO_ROW_RE.findall(ptodo_text))
             count += len(ITEM_HEADING_RE.findall(ptodo_text))
+            count += _bullet_item_count(ptodo_text)
         return count
     except Exception:
         return None
