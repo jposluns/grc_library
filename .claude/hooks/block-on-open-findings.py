@@ -50,7 +50,6 @@ set. A FIXED class row missing the attestation is SURFACED AS A WARNING here, ne
 from __future__ import annotations
 
 import json
-import os
 import re
 import shlex
 import sys
