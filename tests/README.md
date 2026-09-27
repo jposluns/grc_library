@@ -102,7 +102,7 @@ a continuation, whether `sh -c` runs an argument) runs it through
 tool puts gh and git stand-in executables first on PATH, so nested shells reach them; puts HOME and the gh
 config in an empty temporary directory and removes the tokens, so a real client has no credentials; and
 refuses a command that names a stubbed tool by path. A bash function is not inherited by a nested
-`sh -c`: that gap once let a real `gh pr merge` run during hook verification (P-TODO 3b116). The tool is
+`sh -c`: that gap once let a real `gh pr merge` run during hook verification (backlog item 3b116). The tool is
 not a sandbox; its docstring states what it does not contain.
 
 ## Coverage
