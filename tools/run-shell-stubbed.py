@@ -466,27 +466,29 @@ def _self_test() -> int:
     # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8). The sleep length is a
     # token unlikely to match an unrelated process, the setup is awaited rather than timed, and the check
     # fails if the setup was never seen (3b116 QA r9).
-    # The processes are found by their working directory inside this run's own temp dir, so the check can
-    # never match or kill an unrelated process, and the check fails unless the setup was seen (fix-check).
-    before_term = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
-    proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
-                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    setup_end, new_dirs, seen = time.monotonic() + 15.0, set(), False
-    while time.monotonic() < setup_end and not seen:
-        time.sleep(0.05)
-        new_dirs = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")} - before_term
-        seen = bool(new_dirs) and bool(_procs_under([os.path.join(tempfile.gettempdir(), d) for d in new_dirs]))
-    proc.send_signal(signal.SIGTERM)
-    proc.wait(timeout=20)
-    paths = [os.path.join(tempfile.gettempdir(), d) for d in new_dirs]
-    leftover = [x for x in paths if os.path.exists(x)]
-    sleeping = _procs_under(paths)
-    checks.append(("sigterm-cleans-up", seen and not leftover and not sleeping))
-    for pid in sleeping:
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+    # The child gets its OWN temp parent (TMPDIR), so discovery and cleanup see only its directories and
+    # processes, never a concurrent run's (second fix-check); the check fails unless the setup was seen.
+    parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
+    try:
+        proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
+                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                env={**os.environ, "TMPDIR": parent})
+        setup_end, seen = time.monotonic() + 15.0, False
+        while time.monotonic() < setup_end and not seen:
+            time.sleep(0.05)
+            seen = bool(os.listdir(parent)) and bool(_procs_under([parent]))
+        proc.send_signal(signal.SIGTERM)
+        proc.wait(timeout=20)
+        leftover = os.listdir(parent)
+        sleeping = _procs_under([parent])
+        checks.append(("sigterm-cleans-up", seen and not leftover and not sleeping))
+        for pid in sleeping:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+    finally:
+        _rmtree(parent)
     # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
     # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
