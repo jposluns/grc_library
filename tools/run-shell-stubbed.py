@@ -15,9 +15,10 @@ leans on an enforcement mechanism bash itself provides:
      content. Restricted mode forbids changing PATH, SHELL, ENV or BASH_ENV, command names containing a
      slash, `command -p`, `hash -p`, `exec`, `enable -f`, turning restriction off, and output redirection;
      on this host it also passes no exported function to a child. Bash builtins such as `history -w`
-     and `fc` can still write into the working directory (a temp dir), but restricted mode refuses a
-     slash in their file names, the PATH directory is read-only, and a file there cannot be run by name
-     or sourced out of restriction. A real gh or git is therefore unreachable, including from a nested
+     and `fc` can still write into the working directory (its own subdirectory of the temp dir), but
+     restricted mode refuses a slash in their file names, so they cannot reach the call log or captured
+     output one level up; the PATH directory is read-only; a file written there cannot be run by name or
+     sourced out of restriction; and the nested shells skip startup files, so a written .bashrc is inert. A real gh or git is therefore unreachable, including from a nested
      shell or a background child.
   2. The environment is built from scratch, not inherited: PATH, a temporary HOME and gh/XDG config dirs,
      and, as a second layer, an invalid GH_TOKEN, a reserved .invalid GH_HOST and git config off.
@@ -59,8 +60,9 @@ WHITELIST = ("cat", "sleep", "true", "false", "head", "tail", "tr", "wc", "grep"
              "dirname", "seq")
 INVALID_HOST = "stubbed-shell.invalid"
 _US, _RS = "\x1f", "\x1e"  # unit and record separators keep argument boundaries in the call log
-# The stand-in is an isolated Python recorder, not a shell: a function the command defines and exports
-# cannot hijack it (a bash stand-in ran unrestricted and read exported functions; 3b116 QA r3).
+# The stand-in is an isolated Python recorder, not a shell: a bash stand-in runs unrestricted and imports
+# SHELLOPTS and PS4 from the environment, so a command could make it run a program through PS4 (3b116 QA r3,
+# r5; restricted bash passes no exported function to a child here, so functions were not the route).
 SHIM = """#!{python} -I
 import sys
 with open({log!r}, "a", encoding="utf-8") as fh:
@@ -146,9 +148,13 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
                    "GH_HOST": INVALID_HOST, "GH_PROMPT_DISABLED": "1", "GIT_CONFIG_GLOBAL": os.devnull,
                    "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"}
             argv = [BASH, "--norc", "--noprofile"] + (["--posix"] if shell == "sh" else []) + ["-r", "-c", command]
+            # The command runs in its own subdirectory: restricted mode refuses a slash in a builtin's file
+            # name, so it cannot overwrite the call log or captured output one level up (3b116 QA r5).
+            work = os.path.join(tmp, "work")
+            os.makedirs(work)
             out_path, err_path = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
             with open(out_path, "w") as o_fh, open(err_path, "w") as e_fh:
-                p = subprocess.Popen(argv, stdout=o_fh, stderr=e_fh, stdin=subprocess.DEVNULL, env=env, cwd=tmp,
+                p = subprocess.Popen(argv, stdout=o_fh, stderr=e_fh, stdin=subprocess.DEVNULL, env=env, cwd=work,
                                      start_new_session=True)
                 timed_out = ""
                 try:
@@ -213,13 +219,17 @@ def _self_test() -> int:
                        ("xargs", "echo /usr/bin/gh | xargs"), ("job-control", "set -m; (/usr/bin/gh x) & wait"),
                        ("sort", "sort -o \"$HOME/x\" /dev/null"), ("touch", "touch \"$PATH/gh2\""),
                        ("login-shell", "bash -l -c '/usr/bin/gh x'"),
+                       # An unrestricted bash stand-in would import SHELLOPTS and PS4 (3b116 QA r5).
+                       ("ps4-xtrace", "PS4='$(/usr/bin/id)'; export PS4; set -o xtrace; export SHELLOPTS; gh x"),
+                       ("bash-cmds", "BASH_CMDS[e]=/usr/bin/id; e"),
                        ("history-path", "set -o history; history -w \"$HOME/.bashrc\""),
                        ("source-path", ". ./x")):
         rr = run(cmd, shells=("bash",))[0]
         # The evidence must be bash's own refusal, not merely the absence of a visible real run.
         refused = any(s in rr["stderr"] for s in ("restricted", "readonly variable", "command not found",
                                                    "invalid option"))
-        checks.append((f"refused:{label}", refused and all(c.startswith("STUB ") for c in rr["calls"])))
+        ran_real = "uid=" in rr["stdout"] + rr["stderr"]
+        checks.append((f"refused:{label}", refused and not ran_real and all(c.startswith("STUB ") for c in rr["calls"])))
     r = run("printf '%s|' \"$GH_TOKEN\" \"$GH_HOST\" \"$HOME\" \"$PATH\" \"${BASH_ENV:-unset}\"", shells=("sh",))[0]
     tok, host, home, path, benv = (r["stdout"].split("|") + [""] * 5)[:5]
     checks.append(("environment-built-from-scratch", tok == "stubbed-shell-invalid" and host == INVALID_HOST
@@ -262,6 +272,17 @@ def _self_test() -> int:
         shutil.rmtree(marker_dir, ignore_errors=True)
     r = run("mkdir -p d && mkdir -m 000 d/e", shells=("sh",))[0]
     checks.append(("read-only-tree-cleaned", r["rc"] == 0))
+    # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
+    # nothing is refused, so the evidence is that the planted program never ran.
+    for label, cmd in (("rc-file", "set -o history; history -s '/usr/bin/id'; history -w .bashrc; "
+                                   "HOME=\"$PWD\" bash -i -c true"),
+                       ("profile-file", "set -o history; history -s '/usr/bin/id'; history -w .bash_profile; "
+                                        "HOME=\"$PWD\" bash -l -c true")):
+        rr = run(cmd, shells=("bash",))[0]
+        checks.append((f"startup-file-not-read:{label}", "uid=" not in rr["stdout"] + rr["stderr"]))
+    # The command cannot erase or forge the tool's evidence: the log and captured output sit outside its cwd.
+    r = run("gh pr merge 6; set -o history; history -c; history -w calls.log; history -w stdout", shells=("bash",))[0]
+    checks.append(("evidence-not-overwritable", r["calls"] == ["STUB gh pr merge 6"]))
     left = [d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-") and d not in before]
     checks.append(("temp-dirs-removed", not left))
     failed = [n for n, ok in checks if not ok]
