@@ -528,13 +528,20 @@ def _self_test():
             import tempfile
             with tempfile.TemporaryDirectory() as d:
                 old = {k: os.environ.get(k) for k in ("GRC_DROP_ROOT", "ORCH_VERIFY_OWNER")}
+                real_gate = globals()["_is_grc_main_checkout"]
+                # Stand in the main-checkout gate so the worker rule is what is tested, not the layout.
+                globals()["_is_grc_main_checkout"] = lambda root: True
                 os.environ["GRC_DROP_ROOT"], os.environ["ORCH_VERIFY_OWNER"] = d, "worker"
                 try:
                     sentinel = os.path.join(d, ".allow-idle-stop")
                     open(sentinel, "w").close()
                     self.assertFalse(_grc_consume_escape(_GRC_REPO_ROOT))
                     self.assertTrue(os.path.exists(sentinel))
+                    del os.environ["ORCH_VERIFY_OWNER"]  # control: the orchestrator does consume it
+                    self.assertTrue(_grc_consume_escape(_GRC_REPO_ROOT))
+                    self.assertFalse(os.path.exists(sentinel))
                 finally:
+                    globals()["_is_grc_main_checkout"] = real_gate
                     for k, v in old.items():
                         os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
 
