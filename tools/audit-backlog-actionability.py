@@ -974,7 +974,7 @@ def _self_test() -> int:
                            env=_git_env())
             return _origin_is_maintainer(repo)
         results = {"not-a-repo": _origin_is_maintainer(plain), "no-origin": _origin_is_maintainer(repo),
-                   "other": with_origin("https://example.org/someone/repo.git"),
+                   "other": with_origin("https://github.com/someone/repo.git"),
                    "canonical": with_origin("https://github.com/jposluns/grc_library.git"),
                    "trailing-slash": with_origin("https://github.com/jposluns/grc_library/"),
                    "case": with_origin("git@github.com:JPosluns/grc_library.git"),
