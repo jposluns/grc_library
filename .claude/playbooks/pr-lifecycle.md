@@ -94,9 +94,11 @@ drive end-to-end on the maintainer's behalf:
    loop-break compensating control's cheap signals the next `/orch` `/validate`
    cross-checks against). The refresh commit lands in THIS PR, committed before it is
    finalized (the synchronous model retired the recursion-avoidance batching). See `## Session migration and PR close-out checklist`.
-7. On green CI, merge via `mcp__github__merge_pull_request` (or `gh pr merge --squash`
-   in a no-MCP session). The maintainer does not gate-keep merges of PRs they have
-   personally authored.
+7. On green CI, merge through `tools/merge-when-green.py <N> --repo jposluns/grc_library --admin`
+   (never a bare `mcp__github__merge_pull_request` or `gh pr merge`): it refuses unless the
+   required checks succeeded and pins the merge to the head commit it evaluated with
+   `--match-head-commit`, so a push landing after the green read is never merged unchecked
+   (3b106). The maintainer does not gate-keep merges of PRs they have personally authored.
    **CORRECTED 2026-07-25 (codex deep-assessment M-04): a plain merge attempt does NOT
    resolve `mergeable_state: blocked`.** This file previously claimed it did; that was
    false against the live protection config, which requires one approval, so the plain

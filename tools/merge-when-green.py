@@ -171,7 +171,12 @@ def _self_test() -> int:
         "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
     }
     head = "a" * 40
-    view = lambda r, h=head: json.dumps({"state": "OPEN", "statusCheckRollup": r, "headRefOid": h})
+    def view(r, h=head, fields=None):
+        out = {"state": "OPEN", "statusCheckRollup": r}
+        if fields is None or "headRefOid" in fields:
+            out["headRefOid"] = h
+        return json.dumps(out)
+    json_arg = lambda a: a[a.index("--json") + 1] if "--json" in a else ""
     real_gh = globals()["gh"]
     try:
         # Inside the stub, so even a mutated file that allows abbreviations never calls the real gh (3b104 r6).
@@ -202,31 +207,42 @@ def _self_test() -> int:
         checks.append(("main-require-none-skips-required", rc == 0))
         # 3b106: the real merge call carries the evaluated head; a missing or short SHA refuses.
         calls = []
-        def rec(*a):
+        def rec(*a, _h=head):
             calls.append(a)
-            return view(rollups["green"]) if a[:2] == ("pr", "view") else ""
+            return view(rollups["green"], _h, json_arg(a)) if a[:2] == ("pr", "view") else ""
+        def pinned(m):
+            m = list(m)
+            return "--match-head-commit" in m and m[m.index("--match-head-commit") + 1] == head
+        # Both merge paths, plain and --admin (the working path), carry the pin (3b106 QA r1).
+        for label, extra in (("plain", []), ("admin", ["--admin"])):
+            calls.clear()
+            globals()["gh"] = rec
+            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                rc = main(["merge-when-green.py", "1", *extra])
+            merges = [a for a in calls if a[:2] == ("pr", "merge")]
+            checks.append((f"merge-pins-evaluated-head-{label}", rc == 0 and len(merges) == 1 and pinned(merges[0])
+                           and (("--admin" in merges[0]) == bool(extra))))
+        # A missing, short, upper-case or non-hex head refuses, with no merge call, also on a dry run.
+        for label, bad in (("missing", None), ("short", "abc123"), ("upper", "A" * 40), ("nonhex", "g" * 40)):
+            for dry in ([], ["--dry-run"]):
+                calls.clear()
+                globals()["gh"] = lambda *a, _b=bad: rec(*a, _h=_b)
+                with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+                    rc = main(["merge-when-green.py", "1", *dry])
+                merged = any(a[:2] == ("pr", "merge") for a in calls)
+                checks.append((f"head-{label}-refused{'-dry' if dry else ''}", rc == 1 and not merged))
+        # Inside the stub too, so a mutated parser that accepted both flags never reaches the real gh (3b106 QA r1).
+        calls.clear()
         globals()["gh"] = rec
         with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
-            rc = main(["merge-when-green.py", "1"])
-        merges = [a for a in calls if a[:2] == ("pr", "merge")]
-        checks.append(("merge-pins-evaluated-head", rc == 0 and len(merges) == 1
-                       and list(merges[0][-2:]) == ["--match-head-commit", head]))
-        for label, bad in (("missing", None), ("short", "abc123")):
-            calls.clear()
-            globals()["gh"] = lambda *a, _b=bad: (json.dumps({"state": "OPEN", "statusCheckRollup": rollups["green"],
-                                                              "headRefOid": _b}) if a[:2] == ("pr", "view") else "")
-            with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
-                rc = main(["merge-when-green.py", "1"])
-            checks.append((f"head-{label}-refused", rc == 1))
+            try:
+                main(["merge-when-green.py", "1", "--require", "Lint", "--require-none", "--dry-run"])
+                both_refused = False
+            except SystemExit as exc:
+                both_refused = exc.code == 2
+        checks.append(("require-and-require-none-conflict-refused", both_refused and not calls))
     finally:
         globals()["gh"] = real_gh
-    with _cl.redirect_stderr(_io.StringIO()):
-        try:
-            main(["merge-when-green.py", "1", "--require", "Lint", "--require-none", "--dry-run"])
-            both_refused = False
-        except SystemExit as exc:
-            both_refused = exc.code == 2
-    checks.append(("require-and-require-none-conflict-refused", both_refused))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
     checks.append(("default-required-list-exact",
