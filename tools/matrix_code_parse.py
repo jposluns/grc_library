@@ -19,7 +19,6 @@ adjacent to a code); all real CCM/AICM prefixes are 3 characters.
 from __future__ import annotations
 
 import re
-import unicodedata
 
 # Canonical CSA CCM / AICM control-code CORE (no anchors): a 2-5 char prefix whose first character
 # is a letter and remainder letters or ampersand (so A&A / I&S match), a hyphen, two ASCII digits.
@@ -29,14 +28,23 @@ import unicodedata
 # rejects a match must not be narrowed the same way, since narrowing a rejecting guard makes it
 # reject less; every code branch uses the closed guard _ASCII_END instead (3b118, below).
 _NON_ASCII = r"[^\x00-\x7f]"
-# Non-ASCII characters that END a token rather than continue it (3b118 QA r3): dashes, opening and
-# closing brackets, and initial and final quotes (Unicode categories Pd, Ps, Pe, Pi, Pf), from
-# Python's Unicode tables at import.
-_END_CATEGORIES = ("Pd", "Ps", "Pe", "Pi", "Pf")
-_TOKEN_END_PUNCT = "[" + "".join(re.escape(chr(c)) for c in range(0x80, 0x110000)
-                                 if unicodedata.category(chr(c)) in _END_CATEGORIES) + "]"
-# Non-ASCII whitespace also ends a token unless a digit, a dot or another non-ASCII character
-# follows it.
+# Non-ASCII characters that END a token rather than continue it (3b118 QA r3-r4): dashes, opening
+# and closing brackets, and initial and final quotes (Unicode categories Pd, Ps, Pe, Pi, Pf). The
+# ranges are precomputed from Unicode 16.0 so every Python version reads the same set and the module
+# imports without scanning the Unicode tables; _self_test checks them against the running tables.
+_TOKEN_END_RANGES = (
+    "\u00ab\u00bb\u058a\u05be\u0f3a-\u0f3d\u1400\u169b-\u169c\u1806\u2010-\u2015"
+    "\u2018-\u201f\u2039-\u203a\u2045-\u2046\u207d-\u207e\u208d-\u208e\u2308-\u230b"
+    "\u2329-\u232a\u2768-\u2775\u27c5-\u27c6\u27e6-\u27ef\u2983-\u2998\u29d8-\u29db"
+    "\u29fc-\u29fd\u2e02-\u2e05\u2e09-\u2e0a\u2e0c-\u2e0d\u2e17\u2e1a\u2e1c-\u2e1d"
+    "\u2e20-\u2e29\u2e3a-\u2e3b\u2e40\u2e42\u2e55-\u2e5d\u3008-\u3011\u3014-\u301f"
+    "\u3030\u30a0\ufd3e-\ufd3f\ufe17-\ufe18\ufe31-\ufe32\ufe35-\ufe44\ufe47-\ufe48"
+    "\ufe58-\ufe5e\ufe63\uff08-\uff09\uff0d\uff3b\uff3d\uff5b\uff5d\uff5f-\uff60"
+    "\uff62-\uff63\U00010d6e\U00010ead"
+)
+_TOKEN_END_PUNCT = "[" + _TOKEN_END_RANGES + "]"
+# Non-ASCII whitespace ends a token when what follows the whitespace run is the end of the text,
+# an ASCII character other than a digit or dot, or a token-ending mark; otherwise it does not.
 _WIDE_SPACE = r"[^\S\x00-\x7f]"
 _WIDE_SPACE_END = _WIDE_SPACE + r"+(?:$|(?![0-9.])[\x00-\x7f]|" + _TOKEN_END_PUNCT + ")"
 # The closed guard (3b118): after a code's ASCII digit-and-dot run, a non-ASCII character stops the
@@ -54,7 +62,7 @@ CSA_CODE_RE = re.compile(r"(?<![\w&])(" + CSA_CODE_CORE + r")\b")
 # (was audit-stranded-matrix-code._CSA_RANGE; identical on ASCII input, digits narrowed
 # to ASCII by 3b117).
 CSA_RANGE_RE = re.compile(
-    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})" + _ASCII_END + r"\s*(?:to|through)\s*"
+    r"(?<![\w&])([A-Z][A-Z&]{1,4})-([0-9]{1,2})\s*(?:to|through)\s*"
     r"(?:([A-Z][A-Z&]{1,4})-)?([0-9]{1,2})" + _ASCII_END + r"\b"
 )
 
@@ -63,15 +71,18 @@ CSA_RANGE_RE = re.compile(
 # (APO12, DSS05.03), or an ISO/IEC 27001:2022 Annex A control (A.5.1, A.7.10,
 # A.8.34). The CSA branch is CSA_CODE_CORE, so both aids share one canonical CSA
 # shape. Verified identical (set AND order) to the prior CODE_RE on the live corpus.
-# Every CSA, COBIT and ISO code branch (CSA code, both CSA range endpoints, COBIT, ISO; NIST CSF
-# categories carry no digits and are unguarded) uses _ASCII_END (3b118 QA r1-r3): after the code's
-# ASCII digit-and-dot run, the read continues only into ASCII, the end of the text, a token-ending
-# mark (a dash, bracket or quote) or non-ASCII whitespace not followed by a digit or dot. Any
-# other non-ASCII character (a digit of any kind, a letter or mark, a format character, a non-
-# ASCII dot or other punctuation) means the token continues in a form this parser does not read,
-# so the code is not taken from it. ASCII behaviour is unchanged, and no live corpus document has
-# a CSA, COBIT or ISO code followed by a non-ASCII character (measured 2026-09-27), so live output
-# is unchanged too.
+# The CSA code, the CSA range end, COBIT and ISO use _ASCII_END (3b118 QA r1-r4; NIST CSF
+# categories carry no digits and are unguarded; the range start needs no guard of its own, since
+# only whitespace and 'to'/'through' can follow it and CSA_CODE_RE filters the start code). After
+# the code's ASCII digit-and-dot run the read continues only into ASCII, the end of the text, a
+# token-ending mark (a dash, bracket or quote), or non-ASCII whitespace as described above. By
+# design the guard FAILS CLOSED: before any other non-ASCII character (a digit of any kind, a
+# letter or combining mark, a format character, an ellipsis, CJK or fullwidth punctuation, a
+# symbol) the code is not read, because such a character may continue the token in a form this
+# parser does not read. Missing a code there is the accepted cost of never reading a non-ASCII
+# token as an ASCII code. ASCII behaviour is unchanged, and no live corpus document has a CSA,
+# COBIT or ISO code followed by a non-ASCII character (measured 2026-09-27), so live output is
+# unchanged too.
 
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
@@ -158,9 +169,10 @@ def _self_test() -> int:
             self.assertEqual(CODE_RE.findall("DSS05.03.1"), ["DSS05.03"])
 
         def test_guards_closed_on_the_ascii_side(self):
-            # 3b118: any non-ASCII character right after a guarded code's ASCII token stops the
-            # read: non-decimal digits, no-break spaces before a digit or a dot, format characters,
-            # non-ASCII dots and separators, a supplementary-plane digit, and non-digit numerics.
+            # 3b118: before these non-ASCII characters right after a guarded code's ASCII token the
+            # read stops (non-decimal digits, no-break spaces before a digit or a dot, format
+            # characters, non-ASCII dots and separators, a supplementary-plane digit, non-digit
+            # numerics, combining marks); token-ending marks and whitespace are tested below.
             for s in ("DSS05.0\u00b3", "A.5.1.\u00b2", "APO12\u2460", "A.5.1\u00b9",
                       "DSS05.\u00a0\u0663", "A.5.1.\u3000\u00b2", "A.5.1\u00a0\u0662",
                       "DSS05\u00a0.\u00b3", "A.5.1\u00a0.\u00b2", "DSS05.\u200b3", "A.5.1\uff0e2",
@@ -169,7 +181,7 @@ def _self_test() -> int:
                       "DSP-16\u200b7", "DSP-16\u0301"):
                 self.assertEqual(CODE_RE.findall(s), [], ascii(s))
             # ASCII behaviour is unchanged: ASCII space still ends a token.
-            # the range END is guarded too
+            # the range END is guarded too (the start is filtered by CSA_CODE_RE)
             self.assertEqual(expand_codes("STA-01 to 03\u0301"), {"STA-01"})
             self.assertEqual(expand_codes("STA-01 to STA-03\u0301"), {"STA-01"})
             # token-ending punctuation and whitespace do not stop a read (3b118 QA r3)
@@ -179,6 +191,28 @@ def _self_test() -> int:
                              ["DSP-16", "DSS05.03", "A.5.1", "A.5.3"])
             self.assertEqual(expand_codes("STA-01\u00a0"), {"STA-01"})
             self.assertEqual(CODE_RE.findall("(APO12) [A.5.1]"), ["APO12", "A.5.1"])
+            # each token-ending category after a code, a supplementary-plane dash, every non-ASCII
+            # space, a whitespace run, and whitespace then an end mark (3b118 QA r4)
+            em_dash = chr(0x2014)  # built, not written, so the prose dash lint stays meaningful
+            for s in ("A.5.1\uff08", "A.5.1\uff09", "A.5.1\u201c", "A.5.1\u2019", "A.5.1" + em_dash,
+                      "A.5.1\U00010d6e", "A.5.1\u2003", "A.5.1\u3000x", "A.5.1\u00a0\u00a0x",
+                      "A.5.1\u00a0\u201d"):
+                self.assertEqual(CODE_RE.findall(s), ["A.5.1"], ascii(s))
+            # fails closed before other non-ASCII characters, by design
+            for s in ("DSP-16\u2026", "A.5.1\u3002", "APO12\u00b7", "A.5.1\u00a0\u00e9t\u00e9"):
+                self.assertEqual(CODE_RE.findall(s), [], ascii(s))
+
+        def test_token_end_table_matches_unicode(self):
+            # The precomputed Pd/Ps/Pe/Pi/Pf set agrees with the running Unicode tables; a character
+            # newer than the running tables reads as unassigned (Cn), which is allowed (CI runs an
+            # older Python).
+            import unicodedata
+            cats = ("Pd", "Ps", "Pe", "Pi", "Pf")
+            listed = {c for c in range(0x80, 0x110000) if re.fullmatch(_TOKEN_END_PUNCT, chr(c))}
+            running = {c for c in range(0x80, 0x110000) if unicodedata.category(chr(c)) in cats}
+            self.assertEqual(running - listed, set())
+            newer = {c for c in listed - running if unicodedata.category(chr(c)) != "Cn"}
+            self.assertEqual(newer, set())
             # DEL is ASCII, so it does not stop a read
             self.assertEqual(CODE_RE.findall("A.5.1\x7f DSP-16\x7f"), ["A.5.1", "DSP-16"])
             self.assertEqual(expand_codes("STA-01\u200b to 03"), set())
