@@ -3751,6 +3751,10 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         present sentinel -> True + unlinked; a second call -> False; a non-grc root -> no-op."""
         import tempfile
         mod = load_linter_module(".claude/hooks/stop-guard-unattended.py", "nmw_stop_guard_esc")
+        # The main-checkout gate (.git is a directory) is tested by the hook's own worktree-layout
+        # self-test; here it stands in as "root is the module's root", so this unit test of the one-shot
+        # consume logic holds in a linked worktree too (3b101).
+        mod._is_grc_main_checkout = lambda root: os.path.realpath(root) == mod._GRC_REPO_ROOT
         with tempfile.TemporaryDirectory() as d:
             old = os.environ.get("GRC_DROP_ROOT")
             os.environ["GRC_DROP_ROOT"] = d
@@ -3775,11 +3779,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         must exit 0 (allow) AND consume the sentinel one-shot -- proving the escape fires before parse."""
         import subprocess as sp
         import tempfile
-        # The hook's grc one-shot escape is gated to the literal grc repo path (/opt/grc/grc_library) so
-        # --self-test stays hermetic; off that host (e.g. CI at a different checkout path) the escape
-        # correctly does NOT fire, so this end-to-end assertion is only meaningful on the grc host.
-        if str(REPO_ROOT) != "/opt/grc/grc_library":
-            self.skipTest("grc-host-scoped: hook escape is gated to /opt/grc/grc_library")
+        # The hook's grc adapter applies only in a MAIN checkout (<root>/.git is a directory; 3b101), and
+        # its escape resolves the sentinel from GRC_DROP_ROOT; in a linked worktree the escape correctly
+        # does NOT fire, so this end-to-end assertion is only meaningful in a main checkout.
+        if not (REPO_ROOT / ".git").is_dir():
+            self.skipTest("main-checkout-scoped: the hook's adapter does not apply in a linked worktree")
         hook = str(REPO_ROOT / ".claude" / "hooks" / "stop-guard-unattended.py")
         with tempfile.TemporaryDirectory() as d:
             sentinel = os.path.join(d, ".allow-idle-stop")
