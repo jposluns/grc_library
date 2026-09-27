@@ -3721,6 +3721,15 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
+    def test_run_shell_stubbed_self_test(self) -> None:
+        """tools/run-shell-stubbed.py (P-TODO 3b116): gh and git stand-ins reach nested shells, the
+        credentials are out of reach, and a path invocation is refused."""
+        result = self._run_selftest([sys.executable, str(REPO_ROOT / "tools" / "run-shell-stubbed.py"),
+                                     "--self-test"])
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
     def test_stop_guard_unattended_hook_self_test(self) -> None:
         """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
         introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical

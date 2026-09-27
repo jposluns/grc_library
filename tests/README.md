@@ -94,6 +94,17 @@ test: relying on a discarded per-test module instance for isolation is
 fragile, since a later change to a shared or cached import would silently
 reintroduce the leak.
 
+## Real-shell checks
+
+A test or a verification that has to confirm how a real shell treats a command string (whether bash joins
+a continuation, whether `sh -c` runs an argument) runs it through
+[`tools/run-shell-stubbed.py`](../tools/run-shell-stubbed.py), never through a shell-function stub. The
+tool puts gh and git stand-in executables first on PATH, so nested shells reach them; puts HOME and the gh
+config in an empty temporary directory and removes the tokens, so a real client has no credentials; and
+refuses a command that names a stubbed tool by path. A bash function is not inherited by a nested
+`sh -c`: that gap once let a real `gh pr merge` run during hook verification (P-TODO 3b116). The tool is
+not a sandbox; its docstring states what it does not contain.
+
 ## Coverage
 
 Each linter has its own `LinterTestCase` subclass (e.g. `LanguageLinterTests`,
