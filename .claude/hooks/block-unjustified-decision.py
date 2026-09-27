@@ -55,7 +55,8 @@ None. These checks do not prove that an audit occurred or was fresh or complete.
 
 The count sums all ``TODO_ROW_RE`` matches in public ``root/TODO.md`` and all
 ``ITEM_HEADING_RE`` matches in sibling ``root.parent/grc_library_private/P-TODO.md``,
-plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true. A missing
+plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true, plus the
+bold-bullet items ``_bullet_item_count`` finds in both files (3b119). A missing
 private file contributes zero. A public path that is not a file, or any Exception caught
 during counting, yields None and skips only audit-count equality. These are syntax counts,
 not independent verification of open-item status.
@@ -172,7 +173,8 @@ SET_COMPLETENESS_RE = re.compile(
 # only the first match; token presence and count equality do not prove an audit.
 AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
 
-# Heading-prefix regex used by _todo_item_count only for private P-TODO.md.
+# Heading-prefix regex _todo_item_count counts in private P-TODO.md (bullet counting uses its own
+# _BULLET_ITEM_HEADING_RE for item blocks in both files).
 # Matches include numeric prefixes such as 1.19.10a and coded prefixes such as
 # SR-1, RB-R6, and GR-GAP-1; P-1.15 matches through its P-1 prefix.
 # This does not validate the complete item ID or establish open-item status.
@@ -193,24 +195,51 @@ TODO_ROW_RE = re.compile(
     re.MULTILINE,
 )
 
-# A top-level bold-bullet backlog item (3b119): ``- **<id> [private] <title>...`` with a ``3bNN``, ``P-n.m`` or
-# section-number id. It counts only outside a ``### <id>`` item block, where the audit tool treats it as that
-# item's body (the tool's TOP_BULLET_ITEM_RE rule; the parity test compares the two counts).
-BULLET_ITEM_RE = re.compile(r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?|\d+(?:\.\d+){1,2}[a-z]?)(?=[ \t*:])")
+# A top-level bold-bullet backlog item (3b119), the audit tool's closed TOP_BULLET_ITEM_RE grammar: ``- **<id>``
+# at column 0 with a ``3bNN``, ``P-n.m`` or coded id (``RB-6``, ``P-F5``), or a section number followed by a
+# `` [private]`` / `` [public]`` tag; the id ends at a space, tab, ``*`` or ``:``. It counts only outside a
+# ``### <id>`` item block (where the tool treats it as that item's body) and outside a code fence or an HTML
+# comment. tests/test_linters.py compares this count with the tool's on the live files and on fixtures.
+BULLET_ITEM_RE = re.compile(
+    r"^- \*\*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+b\d+[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+"
+    r"|\d+(?:\.\d+){1,2}[a-z]?(?= \[(?:private|public)\]))(?=[ \t*:])"
+)
+_BULLET_ITEM_HEADING_RE = re.compile(
+    r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b"
+)
+_FENCE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
 
 
 def _bullet_item_count(text: str) -> int:
-    """Count bold-bullet items outside ``### <id>`` item blocks (a ``## `` header or a non-item ``### ``
-    heading closes an item block, as in the audit tool)."""
+    """Count bold-bullet items outside ``### <id>`` item blocks, code fences and HTML comments (a ``## ``
+    header, or a non-item ``### `` heading outside an item, ends an item block, as in the audit tool)."""
     n = 0
     in_heading_item = False
+    fence: "str | None" = None
+    in_comment = False
     for line in text.splitlines():
-        if ITEM_HEADING_RE.match(line):
+        if fence is not None:
+            m = _FENCE_OPEN_RE.match(line)
+            if m and m.group(1)[0] == fence[0] and len(m.group(1)) >= len(fence) and not line.strip()[len(m.group(1)):].strip():
+                fence = None
+            masked = True
+        elif in_comment:
+            if "-->" in line:
+                in_comment = False
+            masked = True
+        elif _FENCE_OPEN_RE.match(line):
+            fence = _FENCE_OPEN_RE.match(line).group(1)
+            masked = True
+        elif "<!--" in line:
+            in_comment = "-->" not in line[line.index("<!--") + 4:]
+            masked = True
+        else:
+            masked = False
+        if _BULLET_ITEM_HEADING_RE.match(line):
             in_heading_item = True
-        elif line.startswith("## ") or line.startswith("### "):
-            if line.startswith("## ") or not in_heading_item:
-                in_heading_item = False
-        elif not in_heading_item and BULLET_ITEM_RE.match(line):
+        elif line.startswith("## ") or (line.startswith("### ") and not in_heading_item):
+            in_heading_item = False
+        elif not in_heading_item and not masked and BULLET_ITEM_RE.match(line):
             n += 1
     return n
 
@@ -222,6 +251,7 @@ def _todo_item_count(project_dir: str | None) -> int | None:
     root. Count all ``TODO_ROW_RE`` matches in ``root/TODO.md``. In sibling
     ``root.parent/grc_library_private/P-TODO.md``, count all ``ITEM_HEADING_RE``
     matches and add ``TODO_ROW_RE`` matches if ``_has_todo_index_header`` is true.
+    In both files add the bold-bullet items ``_bullet_item_count`` finds (3b119).
     The sum does not deduplicate IDs or independently verify open-item status.
 
     Return None if public TODO.md is not a file or any operation in the try block

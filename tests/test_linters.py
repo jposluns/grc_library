@@ -17323,6 +17323,35 @@ class HookToolItemCountParityTests(unittest.TestCase):
             f"ITEM_HEADING_RE or their two-list unioning have drifted; re-align them "
             f"(guardrail layers 1 and 2 are a pair, both union TODO.md + P-TODO.md).")
 
+    def test_hook_and_tool_bullet_counts_agree_on_fixtures(self):
+        # 3b119: bullet-form items. The hook's _bullet_item_count and the tool's bullet items must agree on
+        # every grammar case (QA r1: most hook mutations survived the live-file parity test alone).
+        import tempfile
+        hook = self._load("_hook_bullets", ".claude/hooks/block-unjustified-decision.py")
+        tool = self._load("_tool_bullets", "tools/audit-backlog-actionability.py")
+        cases = {
+            "top-level ids": ("## Q\n- **3b7 [private] a** x\n- **3b7a b:** y\n- **P-1.49 [private]** c\n"
+                              "- **P-1.37 d:** e\n- **RB-6 f** g\n- **P-F5 (x):** h\n- **4.5 [private] i** j\n", 7),
+            "colon and tab": ("## Q\n- **3b7: a** x\n\tcontinuation\n- **3b8\ttab-delimited** y\n", 2),
+            "not ids": ("## Q\n- **2026.09.1340** shipped\n- **1.5x faster** g\n- **4.5 untagged** h\n"
+                        "- **P-v3nit (w):** i\n  - **3b9 indented** j\n* **3b10 star** k\n1. **3b11 numbered** l\n", 0),
+            "fence and comments": ("## Q\n```\n- **3b7 [private] example**\n```\n~~~~\n- **3b8 x**\n~~~\n~~~~\n"
+                                   "<!--\n- **3b9 old:** gone\n-->\n<!-- - **3b10 inline** -->\n- **3b11 real** z\n", 1),
+            "heading item body": ("## L\n### 9.9 Heading item\n- **3b7 in body** a\n### Notes\n- **3b8 still body** b\n"
+                                  "## M\n- **3b9 after section** c\n", 1),
+            "non-item heading": ("## L\n### PR #1 follow-ups\n- **3b7 counted** a\n", 1),
+        }
+        for name, (text, want) in cases.items():
+            tool_n = sum(1 for it in tool.parse_items(text, "private", ref_bodies={}) if it[2].startswith("- **"))
+            self.assertEqual(hook._bullet_item_count(text), want, f"hook: {name}")
+            self.assertEqual(tool_n, want, f"tool: {name}")
+        # A public TODO.md bullet counts in the hook's union too.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d) / "grc_library"
+            root.mkdir()
+            (root / "TODO.md").write_text("| 1.1 | pub | `[public]` |\n- **3b7 [public] bullet** x\n", encoding="utf-8")
+            self.assertEqual(hook._todo_item_count(str(root)), 2)
+
     def test_hook_unions_private_ptodo(self):
         # P-1.1: _todo_item_count sums TODO.md + grc_library_private/P-TODO.md (the union),
         # and a missing private sibling degrades to the public count (0 added), never None.
