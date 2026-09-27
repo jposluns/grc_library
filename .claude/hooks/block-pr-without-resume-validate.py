@@ -146,21 +146,37 @@ def is_blocking_command(cmd: str) -> bool:
           / unbalanced-quote forms (`gh pr create&&echo`, `gh pr merge;x`, `gh pr create # '`).
       (2) ORDERED TOKEN SUBSEQUENCE `gh` -> `pr` -> `create`|`merge` over shlex tokens -- catches
           quoted subcommands (`gh "pr" create`, `gh pr 'create'`) and interleaved flags
-          (`gh -R x pr create`), which the substring misses because shlex unquotes and reorders.
+          (`gh -R x pr create`), which the substring misses because the quotes or flags break the literal text; shlex removes the quotes.
 
     Token parsing uses `punctuation_chars=True`, so operator-glued verbs (`create&&echo`) split to a
     bare `create` token and are caught even when combined with interleaved flags.
 
-    RESIDUE (stated): the `gh` token is matched bare OR as a path (`*/gh`). Only a deliberately obfuscated
-    command (variable indirection like `c=create; gh pr $c`, or a shell alias) can still evade. Accepted: this guard is a SPEED BUMP for an
+    The gh detectors run on the text as written AND with backslash-newlines joined, and block on either
+    (3b112 QA r1, r2).
+
+    RESIDUE (stated, as a class): the `gh` token is matched bare OR as a path (`*/gh`). This is text
+    matching, not a shell model: a command run through another shell or eval (bash -c "...", sh -c,
+    eval), fed on stdin or through a heredoc, built from a variable or an alias, or quoted in a way shlex
+    reads differently from bash (ANSI-C quoting, a mid-word #), or split by a mix of
+    continuations bash joins and does not, can evade when the hook does not see gh, pr and the verb as one
+    command's words (a plain bash -c "gh pr merge 1" is still caught by the substring pass; 3b112 kept this deliberately
+    after attempts to model those forms kept introducing misses). Accepted: this guard is a SPEED BUMP for an
     honest actor's slipped resume-/validate, matching the sentinel's own "not a security boundary"
     stance, NOT an adversarial control."""
     if not isinstance(cmd, str):
         return False
+    if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
+        return True
+    # Both the text as written and the text with every backslash-newline joined: bash joins only some of
+    # them (not after an even run of backslashes or in a comment), so blocking on either keeps both cases
+    # (3b112 QA r1, r2). The merge-tool exemption above reads only the unjoined text.
+    return _gh_pr_verb(cmd) or _gh_pr_verb(cmd.replace("\\\n", ""))
+
+
+def _gh_pr_verb(cmd: str) -> bool:
+    """PURE. The substring pass and the ordered shlex token pass for `gh pr create|merge`."""
     flat = " ".join(cmd.split())
     if any(" ".join(parts) in flat for parts in BLOCKING_CMDS):
-        return True
-    if invokes_merge_tool(cmd):  # the sanctioned merge path runs gh pr merge as a subprocess (3b108)
         return True
     toks = _tokens(cmd)
     if toks is None:
@@ -395,6 +411,16 @@ def self_test() -> int:
     ck("gh repo create is NOT a pr command", is_blocking_command("gh repo create foo"), False)
     ck("gh pr list then gh repo create is not a pr-create", is_blocking_command("gh pr list && gh repo create x"), False)
     ck("non-string command is not blocking", is_blocking_command(None), False)
+    ck("whitespace is collapsed before the substring pass", is_blocking_command("gh  pr\tmerge 1 'x"), True)
+    ck("stated residue: ANSI-C quoting is not seen (text matching, not a shell model)", is_blocking_command("gh pr $'merge' 1"), False)
+    ck("pr merge without gh does not block", is_blocking_command("echo pr merge"), False)
+    ck("backslash-newline continuation blocks (3b112 QA r1)", is_blocking_command("gh pr \\\nmerge 1"), True)
+    # 3b112 QA r2: bash does not join after an even backslash run or inside a comment; both texts are checked
+    for s in ("echo x\\\\\ngh pr 'merge' 1", "# note \\\ngh pr 'merge' 1", "true # trailing\\\ngh pr 'create'",
+              '# note \\\ngh "pr" create'):
+        ck(f"unjoined text still checked: {s!r}", is_blocking_command(s), True)
+    ck("quoted --dry-ru<nl>n is not a dry-run exemption",
+       is_blocking_command("python3 tools/merge-when-green.py 12 '--dry-\\\nrun'"), True)
 
     # decide() core -- the single source of truth main() calls
     ck("decide blocks: library create, no sweep, no sentinel",
