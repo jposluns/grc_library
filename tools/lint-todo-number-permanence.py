@@ -17,7 +17,7 @@ live; a pre-push verifier caught both. A class-width check then found a
 further live violation predating #1151 at ``§3.100``. This gate is the
 mechanical backstop (built in PR #1173).
 
-Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
+Four checks, spanning ``TODO.md``, the private ``P-TODO.md``,
 ``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
 
   A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md`` (an
@@ -40,6 +40,11 @@ Three checks, spanning ``TODO.md``, the private ``P-TODO.md``,
      duplicate. Because A and B read the DEDUPLICATED union (an id in both
      lists collapses to a single live entry), only this check, comparing
      the two lists as separate sets, catches a copied-not-moved duplicate.
+
+  D. UNCLOSED BLOCK (3b120). A code fence or line-starting HTML comment
+     left open at the end of ``TODO.md`` or ``P-TODO.md``: it hides every
+     later bullet item from the live set, so checks A and C would pass
+     over a recycled or duplicated id there (design note 1c).
 
 Design decisions, stated because each has a false-positive or
 false-negative cost:
@@ -125,8 +130,12 @@ false-negative cost:
      id-first heading (``### 3b8 closed:``), ``PR #1 QA:``, a lead list joined
      by ``and``, ``+`` or ``&``, a backticked or bold lead id, a tail joined
      by ``and`` or ``;``, a tail whose date carries a suffix, or no tail date.
-     P-TODO 3b127 (open) will make the finalize tool write the closed id in
-     the lead position, which is the durable fix.
+     These are examples, not a complete list: any shape outside the two
+     positions is not read. Others seen in probes: ``PR #1:3b7`` (no space
+     after the colon), ``PR #1 (repo): 3b7``, ``3b7. Title`` (a period reads
+     as a compound token), ``(3b7 )`` (a space inside the tail), and an
+     upper-case ``3B7``. P-TODO 3b127 (open) will make the finalize tool
+     write the closed id in the lead position, which is the durable fix.
 
      1c. An UNCLOSED code fence or line-starting HTML comment in TODO.md or
      P-TODO.md hides every later bullet from the audit tool's parser, so a
@@ -175,7 +184,8 @@ false-negative cost:
 
 Exit codes:
 
-  0   no recycled number and no stale counter.
+  0   no recycled number, no stale counter, no cross-list duplicate and no
+      unclosed block.
   1   one or more findings.
   2   a required file is missing or unparseable. `.working/DONE.md` counts as
       "required" only under an EXPLICIT ``--root``; on the DEFAULT lookup it
