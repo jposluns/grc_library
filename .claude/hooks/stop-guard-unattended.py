@@ -53,8 +53,8 @@ allowance and bounded diagnostic transport. read_operating_mode reads session-st
 _grc_map_mode; main() consumes .allow-idle-stop before parsing the payload. Lease and escape
 helpers are scoped to the primary grc checkout and exclude both fleet worker signals.
 Actionable items come from .claude/hooks/nmw-actionable (-> tools/audit-backlog-actionability.py);
-grc does not use tools/flow.py or tools/pipeline.py. Generic orchestrator scoping uses the
-ORCH_VERIFY_OWNER marker exported by orch-verify. This hook replaces the registration of
+grc does not use tools/flow.py or tools/pipeline.py. Orchestrator scoping uses both fleet worker signals
+(the ORCH_VERIFY_OWNER marker exported by orch-verify, or an `orch-worker.` CLAUDE_CONFIG_DIR). This hook replaces the registration of
 block-idle-stop-with-actionable-backlog.py (retained, de-registered).
 Paths follow the checkout: GRC_STORE or <repo-parent>/private holds the lease; GRC_DROP_ROOT or
 <repo-parent>/grc_working holds the escape. Relative overrides resolve against the repo root.
@@ -184,7 +184,9 @@ def _is_primary_checkout(root):
     ancestor directory named `worktrees` changes the answer (3b101 QA r3). The admin directory must hold a
     HEAD file, as every git directory does, so a gitdir naming some other directory is not taken for one
     (3b101 QA r5). A gitdir that is missing, malformed or not a git directory returns False: the adapter
-    then stays off, which allows the stop and consumes nothing."""
+    then stays off, which allows the stop and consumes nothing. Known residue (3b101 INFO-1, open as
+    P-TODO 3b124): only the first line is read and it is whitespace-stripped, so a gitfile git itself
+    rejects (extra spaces around the target, a trailing line) is still accepted here."""
     dotgit = os.path.join(root, ".git")
     if os.path.isdir(dotgit):
         return True
@@ -329,7 +331,10 @@ def read_operating_mode(root):
     GRC WIRING NOTE: grc keeps the mode in session-state.md (not MODE_FILE) and declares a genuine wait
     with the .allow-idle-stop sentinel (the retired block-idle-stop hook's documented escape), both
     preserved here. A read failure at either source returns None (fail open)."""
-    # 1. portable default branch (behaviour unchanged from the delivered core)
+    # 1. portable default branch (behaviour unchanged from the delivered core). GRC (3b113 QA r2): the grc
+    # main checkout keeps its mode ONLY in the lease, so a stray MODE_FILE there never shadows it.
+    if _is_grc_main_checkout(root):
+        return _grc_lease_mode(root)
     path = os.path.join(root, MODE_FILE)
     try:
         with open(path, encoding="utf-8") as fh:
@@ -340,11 +345,16 @@ def read_operating_mode(root):
     except OSError:
         return None
     # 2. grc production adapter -- gated on the grc repo root so temp-root self-tests never reach it
+    return _grc_lease_mode(root)
+
+
+def _grc_lease_mode(root):
+    """grc mode source: session-state.md 'Operating-mode:' -> mapped arm-state, only in the primary grc
+    checkout and never for a worker (3b101 QA r3). (The one-shot declared-wait escape is handled at the top
+    of main() via _grc_consume_escape, not here, so it is consumed on the malformed/worker fail-open paths
+    too.) Split out of read_operating_mode in 3b113 QA r2 so the grc checkout reads the lease alone."""
     if not _is_grc_main_checkout(root) or _grc_is_worker():
-        return None  # a worker is never armed by the orchestrator's lease (3b101 QA r3)
-    # grc mode source: session-state.md 'Operating-mode:' -> mapped arm-state. (The one-shot declared-wait
-    # escape is handled at the top of main() via _grc_consume_escape, not here, so it is consumed on the
-    # malformed/worker fail-open paths too.)
+        return None
     try:
         with open(_GRC_STATE_FILE, encoding="utf-8") as fh:
             txt = fh.read()
@@ -410,7 +420,9 @@ def is_orchestrator_session(root):
     and decide via _is_orchestrator. Any read failure leaves that input None -> fail open (allow).
 
     WORKER-MARKER ASSUMPTION: a dispatched worker's shell exports `ORCH_VERIFY_OWNER` (presence, not
-    truthiness: even an empty string signals a worker). The orchestrator never sets it. If your fleet
+    truthiness: even an empty string signals a worker). The orchestrator never sets it. GRC: the marker
+    read is _grc_is_worker(), which also takes an `orch-worker.` CLAUDE_CONFIG_DIR (3b113 QA r1); grc's
+    orchestrator and workers share one uid, so the uid comparison alone does not separate them. If your fleet
     marks workers differently (a different env var, a marker file, a distinct uid range), adapt the
     marker check below to your worker launcher's convention."""
     try:
@@ -602,7 +614,7 @@ def decide(mode, stop_hook_active, actionable, live_groups=0):
         "CONSIDER INSTEAD: continue on the highest-priority actionable item "
         "(full list: %s)." % ACTIONABLE_PRODUCER,
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
-        "(granted **BLOCKED:**, not PROPOSED_HOLD)." % _MIN_LIVE_GROUPS,
+        "(a [BLOCKED:<reason>] tag with a granted approvals row)." % _MIN_LIVE_GROUPS,
         "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
         % _grc_escape_file(),
     ]
@@ -1432,7 +1444,7 @@ def _self_test():
             self.assertIn("CONSIDER INSTEAD:", reason)
             self.assertIn("continue on the highest-priority actionable item", reason)
             self.assertIn("10-TRUST-no-manufactured-winddown", reason)
-            self.assertIn("**BLOCKED:**", reason)
+            self.assertIn("[BLOCKED:<reason>]", reason)
             self.assertIn("set mode attended", reason)
             # The normal checkout path fits; very long overrides retain B's line clamp.
             self.assertIn("/drop/.allow-idle-stop", reason)
@@ -1443,7 +1455,7 @@ def _self_test():
             self.assertTrue(block)
             self.assertNotIn("legitimately", reason)  # not framed as the only legitimate stop
             self.assertIn("at least 3 live owned dispatch groups", reason)
-            self.assertIn("granted **BLOCKED:**, not PROPOSED_HOLD", reason)
+            self.assertIn("[BLOCKED:<reason>] tag with a granted approvals row", reason)  # grc's grammar (3b113 QA r2)
             # The complete await/exhaustion alternatives fit before the line clamp.
             line4 = reason.split("\n")[3]
             self.assertLessEqual(len(line4), 150, "line 4 has no margin under the 160 clamp: %r" % line4)
@@ -1772,6 +1784,15 @@ def _self_test():
                 out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
                                      env=env, timeout=60)
                 self.assertEqual(out.stdout.strip(), "None", out.stderr)
+                # A stray file-based mode record never shadows the lease in the main checkout (3b113 QA r2).
+                env.pop("CLAUDE_CONFIG_DIR")
+                main = os.path.join(parent, "grc_library")
+                os.makedirs(os.path.join(main, ".working"))
+                with open(os.path.join(main, MODE_FILE), "w", encoding="utf-8") as fh:
+                    fh.write("attended\n")
+                out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
+                                     env=env, timeout=60)
+                self.assertEqual(out.stdout.strip(), "unattended", out.stderr)
 
         def test_mode_missing_is_none(self):
             with tempfile.TemporaryDirectory() as d:
