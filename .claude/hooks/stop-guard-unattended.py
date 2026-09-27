@@ -143,7 +143,15 @@ def _is_primary_checkout(root):
     if not target:
         return False
     admin = os.path.realpath(os.path.join(root, target))
-    return os.path.isdir(admin) and not os.path.exists(os.path.join(admin, "commondir"))
+    if not os.path.isdir(admin):
+        return False
+    try:  # only a confirmed absence counts: exists() would also read EACCES as absent (3b101 QA r4)
+        os.stat(os.path.join(admin, "commondir"))
+    except FileNotFoundError:
+        return True
+    except OSError:
+        return False
+    return False
 
 
 def _grc_is_worker():
@@ -155,7 +163,7 @@ def _grc_is_worker():
     if "ORCH_VERIFY_OWNER" in os.environ:
         return True
     cfg = os.environ.get("CLAUDE_CONFIG_DIR") or ""
-    return os.path.basename(cfg.rstrip("/\\")).startswith("orch-worker.")
+    return bool(cfg) and Path(cfg).name.startswith("orch-worker.")  # as _hookutil reads it (3b101 QA r4)
 
 
 MODE_SET_HINT = (
@@ -615,7 +623,16 @@ def _self_test():
                 layouts = {"grc_library": None, "wt-x": f"gitdir: {wt_admin}\n",
                            "wt-alias": "gitdir: worktrees/wt-x\n", "sub": "gitdir: ../.git/modules/sub\n",
                            "sub-deep": f"gitdir: {os.path.join(parent, 'worktrees', 'modules', 'sub-deep')}\n",
-                           "missing": "gitdir: ../nowhere\n"}
+                           "missing": "gitdir: ../nowhere\n",
+                           # 3b101 QA r4: a gitdir naming a file, no .git at all, and an unsearchable admin dir
+                           "file-target": f"gitdir: {os.path.join(parent, 'admin-file')}\n", "no-git": ""}
+                open(os.path.join(parent, "admin-file"), "w").close()
+                locked = os.path.join(parent, "locked-admin")
+                os.makedirs(locked)
+                open(os.path.join(locked, "commondir"), "w").close()
+                check_locked = os.geteuid() != 0  # root traverses a mode-000 directory anyway
+                if check_locked:
+                    layouts["wt-locked"] = f"gitdir: {locked}\n"
                 got = {}
                 for name, gitfile in layouts.items():
                     r = os.path.join(parent, name)
@@ -624,6 +641,8 @@ def _self_test():
                     shutil.copy(__file__, hook)
                     if gitfile is None:
                         os.makedirs(os.path.join(r, ".git"), exist_ok=True)
+                    elif gitfile == "":
+                        pass
                     else:
                         with open(os.path.join(r, ".git"), "w", encoding="utf-8") as fh:
                             fh.write(gitfile)
@@ -631,11 +650,19 @@ def _self_test():
                            if k not in ("GRC_STORE", "ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
                     code = ("import runpy,sys; m=runpy.run_path(sys.argv[1]); "
                             "print(m['read_operating_mode'](m['repo_root']()))")
-                    out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
-                                         env=env, timeout=60)
+                    if name == "wt-locked":
+                        os.chmod(locked, 0)
+                    try:
+                        out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True,
+                                             text=True, env=env, timeout=60)
+                    finally:
+                        os.chmod(locked, 0o755)
                     got[name] = out.stdout.strip()
-                self.assertEqual(got, {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None",
-                                       "sub": "unattended", "sub-deep": "unattended", "missing": "None"}, got)
+                want = {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None", "sub": "unattended",
+                        "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None"}
+                if check_locked:
+                    want["wt-locked"] = "None"
+                self.assertEqual(got, want, got)
                 # A worker in the main checkout is never armed by the lease (3b101 QA r3).
                 hook = os.path.join(parent, "grc_library", ".claude", "hooks", os.path.basename(__file__))
                 env["CLAUDE_CONFIG_DIR"] = os.path.join(parent, "orch-worker.example")

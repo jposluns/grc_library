@@ -3722,7 +3722,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         self.assertIn("self-test: OK", result.stdout)
 
     def test_stop_guard_unattended_hook_self_test(self) -> None:
-        """The adopted No-Manufactured-Wind-Down Stop guard's own self-test (22 cases), wired at
+        """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
         introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical
         guard replaces the bespoke block-idle-stop guard's registration; enforcing its self-test here
         keeps the active idle-stop guard from rotting untested."""
@@ -3797,6 +3797,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
             open(sentinel, "w").close()
             env = dict(os.environ, GRC_DROP_ROOT=d)
             env.pop("ORCH_VERIFY_OWNER", None)
+            env.pop("CLAUDE_CONFIG_DIR", None)  # either worker signal skips the consume (3b101 QA r4)
             r = sp.run([sys.executable, hook], input="not-json", capture_output=True,
                        text=True, env=env, cwd=str(REPO_ROOT))
             self.assertEqual(r.returncode, 0,
