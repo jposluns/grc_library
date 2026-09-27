@@ -220,9 +220,10 @@ def _workflow_names(text: str) -> tuple[str | None, set[str]]:
             raise _Unreadable("a name continued on the next line")
         name_at = None
         stripped = line.strip(" ")
-        is_item = stripped.startswith("- ")
+        is_item = stripped.startswith("- ") or stripped == "-"  # a bare dash opens an item (3b105 QA r6)
         item = stripped[2:].lstrip() if is_item else stripped
         key, sep, value = item.partition(":")
+        key = key.rstrip(" ")  # `name :` is the key name (3b105 QA r6)
         is_key = bool(sep) and bool(key) and not key.startswith(("-", "'", '"')) and (value[:1] in ("", " "))
         if is_key and re.match(r"[|>][-+0-9]*\s*(#.*)?$", value.strip() or "x"):
             block_indent = indent
@@ -524,7 +525,8 @@ def _self_test() -> int:
     checks.append(("default-workflows-exact", REQUIRED_WORKFLOWS == {
         "Lint markdown corpus": "Repository quality checks", "PR attribution (title and body)": "PR attribution"}))
     # The map matches the workflow files themselves (3b105 QA r1): each file's top-level name, and a job
-    # carrying the required check's name. A rename in either file fails here, not first at merge time.
+    # carrying the required check's name. A plain rename in either file fails here rather than first at
+    # merge time; the reader's residue (workflow_names) names what it cannot see.
     wf_files = {"Lint markdown corpus": "quality.yml", "PR attribution (title and body)": "pr-attribution.yml"}
     for check, fname in wf_files.items():
         try:
@@ -583,10 +585,16 @@ def _self_test() -> int:
         ("anchored-quote", H_ + "jobs:\n  lint:\n    if: &q 'a\n    name: Lint markdown corpus\n    b'\n"),
         ("unicode-space", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\u00a0\n"),
         ("quoted-name-key", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n    \"name\": Renamed\n"),
+        ("spaced-name-key", H_ + "jobs:\n  lint:\n    name: Lint markdown corpus\n    name : Renamed\n"),
         ("jobs-with-value", H_ + "jobs: &j\n  lint:\n    name: Lint markdown corpus\n"),
         ("open-quote-top", "name: Repository quality checks\nenv: 'x\njobs:\n  lint:\n    name: Lint markdown corpus\n'\n"),
     ):
         checks.append((f"pin-refuses-{label}", not pin_ok(text, lint_)))
+    # The quoted-key refusal stays narrow: list items at the property indentation, a bare dash, comments and
+    # blank lines still read (3b105 QA r6).
+    styles = ("name: W\njobs:\n  lint:\n    name: Lint markdown corpus\n    steps:\n    - run: x\n    -\n"
+              "      uses: y\n\n    # c\n    runs-on: z\n")
+    checks.append(("reader-narrow-refusal", workflow_names(styles) == ("W", {lint_})))
     checks.append(("reader-doubled-quote-and-plain-hash", workflow_names(odd) == ("W", {"Lint's job", "C#-lint"})))
     _, r_foreign = evaluate([dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], ("Lint",),
                             {"Lint": "Repository quality checks"})
