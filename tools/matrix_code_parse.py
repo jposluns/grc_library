@@ -59,7 +59,8 @@ _GUARD_DIGIT = "(?:\\d|[" + _NON_DECIMAL_DIGITS + "])"
 # (DSS05.\u00a0\u0663); ASCII whitespace still ends it, as before.
 _WIDE_SPACE = r"[^\S\x00-\x7f]"
 
-_GUARD_NEXT = _WIDE_SPACE + "*" + _GUARD_DIGIT  # a further digit, possibly after non-ASCII whitespace
+# a further digit, possibly after non-ASCII whitespace
+_GUARD_NEXT = _WIDE_SPACE + "*" + _GUARD_DIGIT
 
 CODE_RE = re.compile(
     r"\b(?:" + CSA_CODE_CORE + r"|(?:GV|ID|PR|DE|RS|RC)\.[A-Z]{2}"
