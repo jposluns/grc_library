@@ -31,6 +31,11 @@ authoritative source.
   A06:2025, and A06 (Vulnerable Components, line 306) is expanded into A03:2025 (Software
   Supply Chain Failures). For both lists, use the current identifiers when mapping this
   guidance to the held frameworks; the primary pack wins on conflict.
+- `security-and-hardening.md` lines 79 and 424 and `code-review-and-quality.md` lines 317-318 point readers
+  to `references/security-checklist.md` and `references/performance-checklist.md`, relative paths carried over
+  from the upstream skills. This directory does not carry those files, so the pointers do not resolve here. For the
+  security review, use the primary pack's rules instead (they win on conflict); vendoring the two files
+  under the upstream licence remains an overlay-review choice.
 - The upstream file (addyosmani/agent-skills, `skills/security-and-hardening/SKILL.md` on
   `main`, checked on 2026-09-27) has been reorganized but still carries the same identifiers,
   so a refresh from source changes nothing. The file is not a near-duplicate of the primary
