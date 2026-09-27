@@ -27,9 +27,10 @@ leans on an enforcement mechanism bash itself provides:
 
 LIMITS, stated: output redirection (`>`) is refused, as restricted mode requires, so a command string that
 redirects cannot be verified here; the whitelisted utilities refuse any argument containing a slash (they
-reach only names in the work dir), so a command that reads or makes a path elsewhere cannot be verified; `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
-dash-only difference is not observed; an argument containing the log's separator bytes (0x1e, 0x1f) is
-ambiguous in the call log. This relies on bash's restricted mode and on the whitelist audit; it is not a
+reach only names in the work dir), so a command that reads or makes a path elsewhere cannot be verified;
+input redirection (`<`, `$(< file)`) is allowed by restricted mode, so a command can read any file the user
+can read and print it into the report (reading, not writing: nothing runs or changes); `sh` is emulated by `bash --posix` (dash has no restricted mode), so a
+dash-only difference is not observed. This relies on bash's restricted mode and on the whitelist audit; it is not a
 kernel sandbox.
 
 Usage:
@@ -37,13 +38,16 @@ Usage:
     python3 tools/run-shell-stubbed.py --self-test
 
 Output: per shell, the exit code, stdout, stderr and each stubbed call as `STUB <name> <argv...>`.
-Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error.
+Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error; 3 processes of the run were
+still alive at the kill deadline.
 """
 from __future__ import annotations
 
 import argparse
 import contextlib
 import io
+import json
+import re
 import os
 import shutil
 import signal
@@ -62,14 +66,14 @@ BASH = "/bin/bash"
 WHITELIST = ("cat", "sleep", "true", "false", "head", "tail", "tr", "wc", "grep", "mkdir", "ls", "basename",
              "dirname", "seq")
 INVALID_HOST = "stubbed-shell.invalid"
-_US, _RS = "\x1f", "\x1e"  # unit and record separators keep argument boundaries in the call log
 # The stand-in is an isolated Python recorder, not a shell: a bash stand-in runs unrestricted and imports
 # SHELLOPTS and PS4 from the environment, so a command could make it run a program through PS4 (3b116 QA r3,
 # r5; restricted bash passes no exported function to a child here, so functions were not the route).
+# One JSON line per call, so no argument (a separator byte, a newline) can split or forge a record (QA r7).
 SHIM = """#!{python} -I
-import sys
+import json, sys
 with open({log!r}, "a", encoding="utf-8") as fh:
-    fh.write("\\x1f".join([{name!r}] + sys.argv[1:]) + "\\x1e")
+    fh.write(json.dumps([{name!r}] + sys.argv[1:]) + "\\n")
 """
 UTIL_WRAPPER = """#!{python} -I
 import os, sys
@@ -205,13 +209,17 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
             with open(err_path, encoding="utf-8", errors="replace") as fh:
                 err = fh.read() + timed_out
             with open(log, encoding="utf-8") as fh:
-                records = [r for r in fh.read().split(_RS) if r]
+                records = [json.loads(line) for line in fh if line.strip()]
             results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err, "contained": contained,
-                            "calls": ["STUB " + " ".join(r.split(_US)) for r in records],
-                            "argv": [r.split(_US) for r in records]})
+                            "session": p.pid, "calls": ["STUB " + " ".join(r) for r in records], "argv": records})
         finally:
             _rmtree(tmp)
     return results
+
+
+def _printable(line: str) -> str:
+    """Control characters escaped, so the command's output cannot rewrite the report on a terminal (QA r7)."""
+    return "".join(c if c.isprintable() or c == "\t" else repr(c)[1:-1] for c in line)
 
 
 def main(argv=None) -> int:
@@ -225,10 +233,16 @@ def main(argv=None) -> int:
         return _self_test()
     if not args.command:
         ap.error("a command string is required")
+    for name in args.stub:  # a plain name only: it becomes a file in the PATH dir (QA r7)
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", name) or name in ("bash", "sh") + WHITELIST:
+            print(f"ERROR: --stub {name!r}: not a plain executable name, or a name the tool reserves.", file=sys.stderr)
+            return 2
     stubs = tuple(dict.fromkeys(DEFAULT_STUBS + tuple(args.stub)))
     shells = ("bash", "sh") if args.shell == "both" else (args.shell,)
+    uncontained = False
     for r in run(args.command, shells, stubs):
         print(f"== {r['shell']} rc={r['rc']}")
+        uncontained = uncontained or not r["contained"]
         if not r["contained"]:
             print("WARNING: processes of this run were still alive at the kill deadline")
         for c in r["calls"]:
@@ -236,8 +250,9 @@ def main(argv=None) -> int:
         # The command's own output is prefixed, so it cannot pass for a report line (3b116 QA r6).
         for label in ("stdout", "stderr"):
             if r[label]:
-                print(f"-- {label}\n" + "\n".join("| " + line for line in r[label].rstrip("\n").split("\n")))
-    return 0
+                print(f"-- {label}\n" + "\n".join("| " + _printable(line)
+                                                       for line in r[label].rstrip("\n").split("\n")))
+    return 3 if uncontained else 0  # an uncontained run is not a normal result (QA r7)
 
 
 def _self_test() -> int:
@@ -287,16 +302,17 @@ def _self_test() -> int:
     tok, host, home, path, benv = (r["stdout"].split("|") + [""] * 5)[:5]
     checks.append(("environment-built-from-scratch", tok == "stubbed-shell-invalid" and host == INVALID_HOST
                    and "stubbed-shell-" in home and path.endswith("/bin") and ":" not in path and benv == "unset"))
-    # An inherited BASH_ENV would run before restriction applies; the environment is built from scratch.
+    # An inherited BASH_ENV would run at startup, before restriction applies; the probe file calls the gh
+    # stand-in, so if it ever ran the call would be recorded (QA r7: the old probe used touch, not on PATH).
     env_dir = tempfile.mkdtemp(prefix="stubbed-shell-test-")
-    env_marker, env_file = os.path.join(env_dir, "ran"), os.path.join(env_dir, "env.sh")
+    env_file = os.path.join(env_dir, "env.sh")
     with open(env_file, "w", encoding="utf-8") as fh:
-        fh.write(f"touch '{env_marker}'\n")
+        fh.write("gh bash-env-ran\n")
     saved_env = os.environ.get("BASH_ENV")
     os.environ["BASH_ENV"] = env_file
     try:
-        run("true", shells=("bash",))
-        checks.append(("inherited-BASH_ENV-never-runs", not os.path.exists(env_marker)))
+        r = run("gh pr view 1", shells=("bash",))[0]
+        checks.append(("inherited-BASH_ENV-never-runs", r["calls"] == ["STUB gh pr view 1"]))
     finally:
         os.environ.pop("BASH_ENV", None) if saved_env is None else os.environ.__setitem__("BASH_ENV", saved_env)
         shutil.rmtree(env_dir, ignore_errors=True)
@@ -304,8 +320,13 @@ def _self_test() -> int:
     r = run("printf() { /usr/bin/id; }; export -f printf; gh pr merge 5", shells=("bash",))[0]
     checks.append(("exported-function-cannot-hijack-stand-in", r["calls"] == ["STUB gh pr merge 5"]
                    and "uid=" not in r["stdout"]))
-    err = run("mkdir \"$PATH/new\"", shells=("sh",))[0]["stderr"]
-    checks.append(("path-dir-not-writable", "Permission denied" in err or "refused: a path argument" in err))
+    # The PATH directory is read-only (tested on the directory itself; QA r7).
+    probe_tmp = tempfile.mkdtemp(prefix="stubbed-shell-test-")
+    try:
+        bindir, _home, _log = _prepare(probe_tmp, DEFAULT_STUBS)
+        checks.append(("path-dir-read-only", stat.S_IMODE(os.stat(bindir).st_mode) == 0o555))
+    finally:
+        _rmtree(probe_tmp)
     saved = os.environ.get("BASH_FUNC_gh%%")
     os.environ["BASH_FUNC_gh%%"] = "() { echo FUNC; }"
     try:
@@ -313,16 +334,18 @@ def _self_test() -> int:
         checks.append(("inherited-function-ignored", r["calls"] == ["STUB gh pr merge 4"]))
     finally:
         os.environ.pop("BASH_FUNC_gh%%", None) if saved is None else os.environ.__setitem__("BASH_FUNC_gh%%", saved)
-    marker_dir = tempfile.mkdtemp(prefix="stubbed-shell-test-")
-    marker = os.path.join(marker_dir, "alive")
-    try:
-        run(f"(sleep 1; mkdir '{marker}') & echo started", shells=("bash",), timeout=10)
-        run(f"set -m; (sleep 1; mkdir '{marker}-jc') & echo started", shells=("bash",), timeout=10)
-        time.sleep(2)
-        checks.append(("background-child-killed", not os.path.exists(marker)))
-        checks.append(("job-control-child-killed", not os.path.exists(marker + "-jc")))
-    finally:
-        shutil.rmtree(marker_dir, ignore_errors=True)
+    # Nothing in the run's session survives it, in the background or under job control (QA r7: the session is
+    # observed directly after the run returns).
+    for label, cmd in (("background", "sleep 30 & echo started"), ("job-control", "set -m; sleep 30 & echo started")):
+        r = run(cmd, shells=("bash",), timeout=10)[0]
+        alive = _session_members(r["session"])
+        checks.append((f"{label}-child-killed", r["contained"] and not alive))
+        if alive:
+            _kill_session(r["session"])
+    # An argument cannot forge a call record.
+    r = run("gh $'a\\x1e\\x1fgh' $'b\\nSTUB gh forged'", shells=("bash",))[0]
+    checks.append(("call-log-unforgeable", len(r["argv"]) == 1 and r["argv"][0][0] == "gh"))
+    checks.append(("stub-name-validated", main(["--stub", "../x", "true"]) == 2 and main(["--stub", "bash", "true"]) == 2))
     r = run("mkdir d && mkdir -m 000 e", shells=("sh",))[0]
     checks.append(("read-only-tree-cleaned", r["rc"] == 0))
     # --norc --noprofile are what stop a startup file the command writes with history -w (3b116 QA r5); here
