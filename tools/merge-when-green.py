@@ -40,14 +40,24 @@ _OK_STATE = {"SUCCESS"}  # a legacy StatusContext that finished acceptably
 # Checks that must be PRESENT and SUCCESS: NEUTRAL or SKIPPED is acceptable for any other check,
 # never for these, so a skipped corpus lint cannot read as green (3b104).
 REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
+# The workflow each default required check comes from: a same-named job in another workflow must not
+# stand in for it (3b105). A custom --require list is matched by name only.
+REQUIRED_WORKFLOWS = {"Lint markdown corpus": "Repository quality checks",
+                      "PR attribution (title and body)": "PR attribution"}
 _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 
 
-def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, str]:
+def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict | None = None) -> tuple[bool, str]:
     """PURE decision over a GitHub ``statusCheckRollup``: (green, reason). Fails CLOSED:
     green ONLY when at least one check exists and EVERY check is terminal-success with none
     pending; a no-checks, any-pending, any-failing, or unknown-shape check REFUSES. Each name
-    in ``required`` must also be reported and must have concluded SUCCESS itself (3b104)."""
+    in ``required`` must also be reported and must have concluded SUCCESS itself (3b104); where
+    ``workflows`` names its workflow, only a CheckRun from that workflow counts (3b105)."""
+    workflows = workflows or {}
+
+    def bound(c: dict, want: str) -> bool:
+        return (c.get("__typename") == "CheckRun" and c.get("name") == want
+                and (want not in workflows or c.get("workflowName") == workflows[want]))
     if not rollup:
         return False, "no checks reported for this PR (never merge on no-checks)"
     pending: list[str] = []
@@ -81,9 +91,7 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
     # Required checks bind to CheckRuns only: a commit status of the same name must not stand in
     # for an Actions job that never ran (3b104 QA r1). Every entry under a required name must
     # have succeeded, so a skipped duplicate still refuses (deliberately fail closed).
-    absent = [w for w in required
-              if not any(c.get("__typename") == "CheckRun" and c.get("name") == w
-                         for c in rollup if isinstance(c, dict))]
+    absent = [w for w in required if not any(bound(c, w) for c in rollup if isinstance(c, dict))]
     note = ("; required check(s) not yet reported as a CheckRun: " + ", ".join(absent)) if absent else ""
     if failed or unknown:
         parts: list[str] = []
@@ -103,7 +111,10 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = ()) -> tuple[bool, 
             if (c.get("name") or c.get("context")) == want and c.get("__typename") != "CheckRun":
                 return False, (f"required check {want} is also reported as a commit status of the same name "
                                "(a name collision); only the CheckRun may satisfy it")
-            if c.get("__typename") == "CheckRun" and c.get("name") == want and c.get("conclusion") != "SUCCESS":
+            if c.get("__typename") == "CheckRun" and c.get("name") == want and not bound(c, want):
+                return False, (f"required check {want} is also reported by workflow {c.get('workflowName')!r}, "
+                               f"not only {workflows[want]!r} (a name collision); only its own workflow may satisfy it")
+            if bound(c, want) and c.get("conclusion") != "SUCCESS":
                 return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
     verified = ", ".join(required) if required else "none"
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
@@ -204,9 +215,10 @@ def _self_test() -> int:
     # main() passes the default required checks through (3b104 QA r2): drive it with a stubbed gh.
     import contextlib as _cl, io as _io
     lint = REQUIRED_CHECKS[0]
+    crw = lambda n, s, c: dict(cr(n, s, c), workflowName=REQUIRED_WORKFLOWS.get(n))
     rollups = {
-        "skipped": [cr(lint, "COMPLETED", "SKIPPED")] + [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
-        "green": [cr(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
+        "skipped": [crw(lint, "COMPLETED", "SKIPPED")] + [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS[1:]],
+        "green": [crw(n, "COMPLETED", "SUCCESS") for n in REQUIRED_CHECKS],
     }
     head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"  # realistic, so a hard-coded SHA cannot coincide
     def view(r, h=head, fields=None, state="OPEN"):
@@ -334,6 +346,18 @@ def _self_test() -> int:
         broken.mkdir(parents=True)
         (broken / "block-on-open-findings.py").write_text("raise RuntimeError('broken')\n", encoding="utf-8")
         checks.append(("unloadable-guard-refuses", open_findings_block(_P(_d), led)[0] == 1))
+    # 3b105: a required check binds to its workflow; a same-named job from another workflow refuses.
+    wf = {"Lint": "Repository quality checks"}
+    for name, rollup, want_green in [
+        ("workflow-bound-green", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Repository quality checks")], True),
+        ("workflow-missing-refused", [cr("Lint", "COMPLETED", "SUCCESS")], False),
+        ("workflow-other-only-refused", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], False),
+        ("workflow-collision-refused", [dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Repository quality checks"),
+                                        dict(cr("Lint", "COMPLETED", "SUCCESS"), workflowName="Other")], False),
+    ]:
+        checks.append((name, evaluate(rollup, ("Lint",), wf)[0] == want_green))
+    checks.append(("default-workflows-exact", REQUIRED_WORKFLOWS == {
+        "Lint markdown corpus": "Repository quality checks", "PR attribution (title and body)": "PR attribution"}))
     # The exact default list is pinned: the main() cases build rollups from REQUIRED_CHECKS itself, so
     # they cannot notice a name dropped from it (3b104 QA r4).
     checks.append(("default-required-list-exact",
@@ -393,7 +417,8 @@ def main(argv: list[str]) -> int:
               file=sys.stderr)
         return 1
     required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
-    green, reason = evaluate(view.get("statusCheckRollup") or [], required)
+    workflows = REQUIRED_WORKFLOWS if not (args.require_none or args.require) else None
+    green, reason = evaluate(view.get("statusCheckRollup") or [], required, workflows)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
         return 1
