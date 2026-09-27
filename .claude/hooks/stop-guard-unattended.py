@@ -139,14 +139,15 @@ def _is_primary_checkout(root):
             first = fh.readline(4096).strip()
     except (OSError, UnicodeDecodeError):
         return False
-    if not first.startswith("gitdir:"):
+    if not first.startswith("gitdir: "):  # git's read_gitfile requires the space (3b101 QA r6)
         return False
-    target = first[len("gitdir:"):].strip()
+    target = first[len("gitdir: "):].strip()
     if not target:
         return False
     try:  # a NUL in the gitdir raises ValueError (3b101 QA r5)
         admin = os.path.realpath(os.path.join(root, target))
-        if not (os.path.isdir(admin) and os.path.isfile(os.path.join(admin, "HEAD"))):
+        # lexists: git accepts a symlinked HEAD (core.preferSymlinkRefs), even one that dangles (3b101 QA r6)
+        if not (os.path.isdir(admin) and os.path.lexists(os.path.join(admin, "HEAD"))):
             return False
         os.stat(os.path.join(admin, "commondir"))  # only a confirmed absence counts (3b101 QA r4)
     except FileNotFoundError:
@@ -634,7 +635,12 @@ def _self_test():
                            "file-target": f"gitdir: {os.path.join(parent, 'admin-file')}\n", "no-git": "",
                            # 3b101 QA r5: a directory that is not a git directory, an empty target, no prefix
                            "not-admin": "gitdir: .\n", "empty-target": "gitdir:   \n", "no-prefix": "hello\n",
-                           "nul-target": "gitdir: ../x\x00y\n"}
+                           "nul-target": "gitdir: ../x\x00y\n",
+                           # 3b101 QA r6: a dangling symlinked HEAD is still a git directory; no space is not a gitfile
+                           "sub-symhead": f"gitdir: {os.path.join(parent, 'symhead')}\n",
+                           "no-space": f"gitdir:{os.path.join(parent, '.git', 'modules', 'sub')}\n"}
+                os.makedirs(os.path.join(parent, "symhead"))
+                os.symlink("refs/heads/main", os.path.join(parent, "symhead", "HEAD"))
                 open(os.path.join(parent, "admin-file"), "w").close()
                 locked = os.path.join(parent, "locked-admin")
                 os.makedirs(locked)
@@ -670,7 +676,8 @@ def _self_test():
                     got[name] = out.stdout.strip()
                 want = {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None", "sub": "unattended",
                         "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None",
-                        "not-admin": "None", "empty-target": "None", "no-prefix": "None", "nul-target": "None"}
+                        "not-admin": "None", "empty-target": "None", "no-prefix": "None", "nul-target": "None",
+                        "sub-symhead": "unattended", "no-space": "None"}
                 if check_locked:
                     want["wt-locked"] = "None"
                 self.assertEqual(got, want, got)
