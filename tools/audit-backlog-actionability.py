@@ -104,56 +104,78 @@ _APPROVALS: "set[str] | None" = None
 
 
 _APPROVAL_HEADER = "| Item | Reason | Granted | Evidence |"
-_APPROVAL_SEPARATOR_RE = re.compile(r"\|(?: ?:?-+:? ?\|){4}")
+_APPROVAL_SEPARATOR_RE = re.compile(r"\|(?:[ \t]*:?-+:?[ \t]*\|){4}")
 _APPROVAL_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _APPROVAL_ITEM_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?")
 # Characters Python's splitlines treats as line breaks but Markdown does not (QA r5).
 _NON_MARKDOWN_BREAKS = "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
 _FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
+# A line allowed before the header: a heading, or a prose line that cannot open a list, blockquote, code
+# block, setext underline, thematic break or table (QA r6: lazy continuation and pipe-less tables).
+_PRE_HEADER_HEADING_RE = re.compile(r"#{1,6}(?:[ \t][^|]*)?")
+_PRE_HEADER_PROSE_RE = re.compile(r"(?![-*+>=_#~`\s])(?!\d+[.)])[^|]*")
+
+
+def _register_lines(text: str) -> "tuple[list[str], str | None]":
+    """The register's lines and why it is refused, or None (QA r5-r6). The grammar is CLOSED: rather than track
+    every Markdown construct that can hide or reveal a table, a register that contains any of them grants
+    nothing, and the tool says why. One leading BOM is dropped and CRLF becomes LF; the same line list serves
+    the refusal and the parse. Refused: another BOM, a lone CR, a non-Markdown line-break character, any ``<``
+    (HTML, comments, autolinks), an escaped pipe, a code-fence line, and before the exact header line anything
+    but blank lines, headings and plain prose lines without a ``|`` (so no table, list, blockquote, indented or
+    lazy-continuation context can contain the header); the header must follow a blank line or open the file."""
+    if text.startswith("\ufeff"):
+        text = text[1:]
+    text = text.replace("\r\n", "\n")
+    lines = text.split("\n")
+    if "\ufeff" in text:
+        return lines, "it contains a byte-order mark after the start"
+    if "\r" in text:
+        return lines, "it contains a carriage return that is not part of CRLF"
+    if any(c in text for c in _NON_MARKDOWN_BREAKS):
+        return lines, "it contains a line-break character Markdown does not treat as one"
+    if "<" in text:
+        return lines, "it contains '<' (HTML or a comment could hide or reveal a table)"
+    if "\\|" in text:
+        return lines, "it contains an escaped pipe, which shifts the cells a reader sees"
+    if any(_FENCE_LINE_RE.match(line) for line in lines):
+        return lines, "it contains a code fence"
+    for n, line in enumerate(lines):
+        if line.rstrip(" \t") == _APPROVAL_HEADER:
+            if n and lines[n - 1].strip():
+                return lines, "the header line does not follow a blank line"
+            return lines, None
+        if line.strip() and not (_PRE_HEADER_HEADING_RE.fullmatch(line) or _PRE_HEADER_PROSE_RE.fullmatch(line)):
+            return lines, f"line {n + 1}, before the header, is not a heading or plain prose"
+    return lines, None
 
 
 def register_refusal(text: str) -> "str | None":
-    """Why the register text is refused as a whole, or None. The grammar is CLOSED (QA r5): rather than track
-    every Markdown construct that can hide a table (comments, HTML blocks, fences, lazy lines), a register that
-    contains any of them grants nothing, and the tool says why. Refused: a non-Markdown line-break character;
-    any ``<`` (HTML, comments, autolinks); a code-fence line; and any line starting with ``|`` (after
-    indentation) before the exact header line, which would make the header a row of another table or an
-    indented one."""
-    if any(c in text for c in _NON_MARKDOWN_BREAKS):
-        return "it contains a line-break character Markdown does not treat as one"
-    if "<" in text:
-        return "it contains '<' (HTML or a comment could hide or reveal a table)"
-    lines = text.lstrip("\ufeff").split("\n")
-    if any(_FENCE_LINE_RE.match(line) for line in lines):
-        return "it contains a code fence"
-    for line in lines:
-        if line.rstrip("\r") == _APPROVAL_HEADER:
-            return None
-        if line.lstrip().startswith("|"):
-            return "a table line precedes the exact header line"
-    return None
+    """Why the register text is refused as a whole, or None (see _register_lines)."""
+    return _register_lines(text)[1]
 
 
 def load_approvals(text: str, today: "datetime.date | None" = None) -> "set[str]":
-    """The item ids granted by the register (QA r1-r5). A register refused by register_refusal grants nothing.
-    Otherwise the table is the one opened by the first line that is exactly ``| Item | Reason | Granted |
-    Evidence |`` (lines split at LF, CRLF or CR only), which must be followed at once by a four-cell separator
-    row; it ends at the first line not starting with ``|``. A row starts at column 0, ends with ``|`` (trailing
-    spaces ignored) and has exactly five ``|`` characters; it grants only with an item id (optionally
-    backtick-wrapped, not ending in a dot), a non-empty reason, a ``YYYY-MM-DD`` calendar date not after today
-    and non-empty evidence. A malformed row is skipped (it grants less, never more)."""
-    if register_refusal(text) is not None:
+    """The item ids granted by the register (QA r1-r6). A refused register grants nothing. Otherwise the table
+    is opened by the first line that is exactly ``| Item | Reason | Granted | Evidence |`` (trailing spaces
+    ignored) and must be followed at once by a four-cell separator row; it ends at the first line not starting
+    with ``|``. A row starts at column 0, ends with ``|`` (trailing spaces ignored) and has exactly five ``|``
+    characters; it grants only with an item id (optionally backtick-wrapped, not ending in a dot), a non-empty
+    reason, a ``YYYY-MM-DD`` calendar date not after today and non-empty evidence. A malformed or indented row
+    is skipped (it grants less, never more)."""
+    lines, refusal = _register_lines(text)
+    if refusal is not None:
         return set()
     today = today or datetime.date.today()
     ids: set = set()
     state = "before"  # before -> separator -> rows
-    for raw in re.split(r"\r\n|\r|\n", text.lstrip("\ufeff")):
+    for raw in lines:
         if state == "before":
-            if raw == _APPROVAL_HEADER:
+            if raw.rstrip(" \t") == _APPROVAL_HEADER:
                 state = "separator"
             continue
         if state == "separator":
-            if not _APPROVAL_SEPARATOR_RE.fullmatch(raw):
+            if not _APPROVAL_SEPARATOR_RE.fullmatch(raw.rstrip(" \t")):
                 break
             state = "rows"
             continue
@@ -801,6 +823,19 @@ def _self_test() -> int:
     check("approvals-row-tail", load_approvals(H + "| 1.1 | r | 2026-09-18 | #1 | tail\n" + R("1.2")) == {"1.2"})
     check("approvals-row-trailing-space", load_approvals(H + R("1.1").replace("|\n", "|  \n")) == {"1.1"})
     check("approvals-mid-table-text-ends", load_approvals(H + R("1.1") + "note\n" + R("1.2")) == {"1.1"})
+    # QA r6: one line model for refusal and parse; nothing before the header can contain it.
+    check("approvals-cr-only", load_approvals("note\r```\r" + H.replace("\n", "\r") + R("1.1").replace("\n", "\r") + "```\r") == set()
+          and register_refusal(H.replace("\n", "\r") + R("1.1")) is not None)
+    check("approvals-pipeless-table-before", load_approvals("Revoked | Reason | Granted | Evidence\n--- | --- | --- | ---\n\n" + H + R("1.1")) == set())
+    check("approvals-lazy-continuation", all(load_approvals(f"{m} revoked:\n" + H + R("1.1")) == set() for m in (">", "-", "*", "+", "1."))
+          and load_approvals("revoked:\n" + H + R("1.1")) == set()
+          and load_approvals("> quote\n\n" + H + R("1.1")) == set())
+    check("approvals-escaped-pipe", load_approvals(H + "| 1.1 | r \\| 2026-09-18 | #1 |\n") == set())
+    check("approvals-double-bom", load_approvals("\ufeff\ufeff" + H + R("1.1")) == set())
+    check("approvals-refusal-layers", "carriage return" in (register_refusal("note\rmore") or "")
+          and "byte-order" in (register_refusal("\ufeff\ufeffnote") or ""))
+    check("approvals-prose-and-heading-before", load_approvals("# Title\n\nSome prose (with parens).\n\n" + H + R("1.1")) == {"1.1"})
+    check("approvals-separator-padding", load_approvals(H.replace("| --- | --- | --- | --- |", "|  ---  | :--- | ---: |  ---  |  ") + R("1.1")) == {"1.1"})
     check("approvals-refusal-reason", register_refusal("<!--\n" + H) is not None and register_refusal(H + R("1.1")) is None
           and register_refusal(H + R("1.1") + "\x85") is not None)
     check("approvals-needs-separator", load_approvals("| Item | Reason | Granted | Evidence |\n" + R("1.1") + R("1.2")) == set())
