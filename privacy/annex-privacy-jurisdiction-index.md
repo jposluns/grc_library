@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.50\
+**Version:** 1.0.51\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -126,7 +126,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | China | PIPL, CSL, DSL, Generative AI Regulations | PIPL automated decision rights (Art. 24); pre-deployment security assessment; CAC labelling | CAC security assessment, PIPL SCCs, certification | RMB 50M / 5% revenue (PIPL) |
 | India | DPDPA 2023 / Rules 2025 | Children's-data safeguards (s. 9): verifiable parental consent and no tracking, behavioural monitoring, or targeted advertising (subject to s. 9(4)-(5) exemptions); no processing detrimental to a child's well-being; SDF DPIA requirement | Negative-list restriction power (s.16(1)); Rule 15 requirements; Rule 13(4) SDF localization (personal data specified by the Central Government, together with traffic data pertaining to its flow, not transferred outside India) | INR 250 crore (~USD 30M) |
 | Thailand | PDPA 2019 | PDPC guidance (voluntary); no statutory automated-decision provision | s. 16(5) Committee-rule adequacy; s. 28 exceptions; s. 29 certified intra-group policy | THB 5M (~USD 140K) |
-| Indonesia | UU PDP 2022 | Right to object to solely automated decisions, including profiling; national AI framework in development | Equivalent or higher protection, else adequate binding protection, else consent | 2% of annual revenue or receipts |
+| Indonesia | UU PDP 2022 | Right to object to solely automated decisions, including profiling, with legal or significant effects; national AI framework in development | Equivalent or higher protection, else adequate binding protection, else consent | 2% of annual revenue or receipts (administrative); corporate criminal fines up to IDR 60 billion |
 | Philippines | Data Privacy Act 2012 | Automated profiling PIA encouraged; NPC guidance | Comparable safeguards; consent | PHP 5M + imprisonment |
 | Vietnam | PDPL 91/2025; Decree 356/2025 | Automated-decision notice, algorithm explanation and opt-out; no data-localization duty under the PDPL/Decree 356 | 60-day cross-border transfer impact-assessment dossier (no adequacy or approval regime) | Administrative fines (up to 10x violation revenue / 5% prior-year turnover / VND 3bn); criminal prosecution |
 | Malaysia | PDPA 2010 (2024 amendment) | PDPA principles apply to AI; national AI Ethics framework (voluntary) | Substantially-similar-law or adequate protection (amended s. 129(2)); s. 129(3) exceptions incl. consent (former Minister-approved-country list repealed) | MYR 1M per offense |

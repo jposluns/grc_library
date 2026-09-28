@@ -2,7 +2,7 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.7\
+**Version:** 1.0.8\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted 17 October 2022, with a two-year period for controllers and processors to conform (Article 74), which ended in October 2024. Indonesia's first dedicated and comprehensive personal data protection law. An implementing Government Regulation (reported as No. 33 of 2026, enacted July 2026 and effective from January 2027) is not held in the reference base, so an adopter confirms its text and effective dates directly.
+- **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted 17 October 2022, with a two-year period for controllers, processors and other parties involved in processing to conform (Article 74), which ended in October 2024. Indonesia's first dedicated and comprehensive personal data protection law. An implementing Government Regulation (reported as No. 33 of 2026, enacted July 2026 and effective from January 2027) is not held in the reference base, so an adopter confirms its text and effective dates directly.
 - Data Controller and Processor framework aligned with GDPR concepts.
 - Rights: access, correction, portability, restriction, erasure, withdrawal of consent, and objection.
 - Mandatory breach notification: on a failure of personal data protection, the controller notifies the data subject and the data protection institution in writing within 3 x 24 hours (UU PDP Article 46(1)).
@@ -53,7 +53,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - Administrative fines: up to 2% of annual revenue or annual receipts in relation to the violation (Article 57(3)), imposed by the data protection institution (Article 57(4)).
 - Criminal penalties for individuals: imprisonment of up to 4 to 6 years and/or fines of up to IDR 4 billion to IDR 6 billion, depending on the offence (Articles 67 and 68).
-- Criminal penalties for corporations: fines only, of up to ten times the individual maximum (Article 70), so up to IDR 60 billion for the most serious offence.
+- Criminal penalties for corporations: the principal penalty is a fine of up to ten times the individual maximum (Article 70(2)-(3)), so up to IDR 60 billion for the most serious offence; additional penalties may follow, including confiscation of profits or assets, freezing or closure of the business, a permanent ban on specified acts, compensation, licence revocation and dissolution (Article 70(4)).
 
 ---
 
