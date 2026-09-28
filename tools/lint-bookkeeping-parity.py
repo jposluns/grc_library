@@ -438,9 +438,9 @@ def parse_changelog_prs(text: str) -> set[int]:
     a never-merged number that is not listed, the surplus surfaces as a DEMAND for
     a bypass row on a PR that has none. Nothing removes that demand, which is deliberate: it is
     the LOUD direction, and a guard that removed it was built and deleted on 2026-08-10 because it
-    could not distinguish a never-merged PR from one its input simply had not seen. Measured on the
-    live file, every one of the 319 in-window PRs is confirmed merged, so the surplus is currently
-    empty. The declared `(N PRs)` count, where a form carries one, is not relied on here; the
+    could not distinguish a never-merged PR from one its input simply had not seen. (Checked
+    2026-09-28 for #1826-#2639: every number there with no merge commit is in KNOWN_SKIPPED_PRS;
+    the older part of the window was not re-measured then.) The declared `(N PRs)` count, where a form carries one, is not relied on here; the
     weekly forms carry none.
     """
     # W5: a fenced example is documentation, not an entry. Before this, a header inside ``` in
