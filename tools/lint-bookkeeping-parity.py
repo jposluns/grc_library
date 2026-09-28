@@ -216,7 +216,7 @@ KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 # number would otherwise be demanded a validate-pr and a bypass-log row it can never
 # have. These PRs were opened-and-closed-without-merge (verified: no `(#N)` merge
 # commit on `main`), so excluding them is a false-positive fix, not a gate weakening.
-KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648})
+KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
@@ -431,15 +431,16 @@ def parse_changelog_prs(text: str) -> set[int]:
     The numbers stayed in the file; this parser is what had never been taught the new shape, so
     the checks built on it silently narrowed to the one remaining singular entry.
 
-    A range is expanded inclusively. Where the roll-up authors split a range to skip a PR that
-    never merged, the split is preserved in the header itself, so expansion follows their intent:
-    #1400 and #1471 are absent from the live universe for exactly that reason, with no filtering
-    needed. Where a range still spans a never-merged number, the surplus surfaces as a DEMAND for
+    A range is expanded inclusively. Roll-up headers keep ranges contiguous (the change-tracking
+    rule shows a never-merged number inside the range, not as a split), so a never-merged number
+    is excluded by listing it in KNOWN_SKIPPED_PRS, which the caller subtracts: #1221, #1400,
+    #1471 and #2083 sit inside unbroken weekly ranges for exactly that reason. Where a range spans
+    a never-merged number that is not listed, the surplus surfaces as a DEMAND for
     a bypass row on a PR that has none. Nothing removes that demand, which is deliberate: it is
     the LOUD direction, and a guard that removed it was built and deleted on 2026-08-10 because it
-    could not distinguish a never-merged PR from one its input simply had not seen. Measured on the
-    live file, every one of the 319 in-window PRs is confirmed merged, so the surplus is currently
-    empty. The declared `(N PRs)` count, where a form carries one, is not relied on here; the
+    could not distinguish a never-merged PR from one its input simply had not seen. (Checked
+    2026-09-28 for #1826-#2639: every number there with no merge commit is in KNOWN_SKIPPED_PRS;
+    the older part of the window was not re-measured then.) The declared `(N PRs)` count, where a form carries one, is not relied on here; the
     weekly forms carry none.
     """
     # W5: a fenced example is documentation, not an entry. Before this, a header inside ``` in
