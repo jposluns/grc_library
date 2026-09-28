@@ -43,41 +43,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-09-27 | 2026.09.1324 | PR #2620** - tooling: the final merge gate now pins each merge to the exact commit its checks approved.
 
-**2026-09-26 | 2026.09.1323 | PR #2619** - tooling: the final merge gate no longer counts a skipped or neutral corpus lint as green.
-
-**2026-09-26 | 2026.09.1322 | PR #2618** - tooling: hook and tool self-tests no longer leave temporary directories behind, and a regression test keeps it that way.
-
-**2026-09-26 | 2026.09.1321 | PR #2617** - tooling: a new audit gate checks that raw worker identifiers and account names never reach public files.
-
-**2026-09-26 | 2026.09.1320 | PR #2616** - tooling: the version-bump escape in commit messages now excuses only the root README; every other unbumped document is still refused or bumped.
-
-**2026-09-26 | 2026.09.1319 | PR #2615** - Two tool messages now name the real store and archive paths they check or write, instead of placeholders.
-
-**2026-09-26 | 2026.09.1318 | PR #2614** - The remaining citation-existence tests that assert no finding over a fabricated identifier now run on the scope-probe guard, so none can pass vacuously.
-
-**2026-09-26 | 2026.09.1317 | PR #2613** - Gate 6 now blocks every stale citation the legacy check catches on a line, not just the first, and leaves other spellings or editions it misses as advisory.
-
-**2026-09-26 | 2026.09.1316 | PR #2612** - Gate 99 now requires every change to the Corpus-Management pack to carry the version bump it needs, with a maintainer-approved waiver for one exact transition; the pack is re-baselined to 0.6.80.
-
-**2026-09-26 | 2026.09.1315 | PR #2611** - Hooks and tools now locate their working directory and store from the checkout instead of a fixed host path, and public prose names peer orchestrators by role.
-
-**2026-09-26 | 2026.09.1314 | PR #2610** - Gate 6 can now accept a citation of a superseded edition when a reviewed register row records it as history; the rows live in a strict data file and the register page's table is generated from it.
-
-**2026-09-26 | 2026.09.1313 | PR #2609** - Hook test fixtures now use neutral account aliases, and the private sibling's clone URL and host paths are replaced by placeholders.
-
-**2026-09-26 | 2026.09.1312 | PR #2608** - A test that declares identifier-scope probes now fails if any probe did not run, and probe declarations that could never run are refused.
-
-**2026-09-26 | 2026.09.1311 | PR #2607** - Gate 96 now also checks the citation-verification specification, which carries no identifier it validates; the spec lists exactly what stays exempt.
-
-**2026-09-26 | 2026.09.1310 | PR #2606** - The audit programme's gate 96 description now matches the gate and its clause, and defers the detailed recognition rules to the clause.
-
-**2026-09-26 | 2026.09.1309 | PR #2605** - The commit-time version-bump guards now read a document that starts with a byte-order mark, so its unbumped edits are caught instead of slipping through.
-
-**2026-09-26 | 2026.09.1308 | PR #2604** - The contributor guidance now says how to commit a README edit before the closing commit of a PR, so the README version still moves only once per PR.
-
-**2026-09-26 | 2026.09.1307 | PR #2603** - The wrong-repo guard now recognizes a genuine linked worktree as the project and, after a cd into one, suggests that worktree's own copy of a tool instead of the main checkout's.
-
-**2026-09-26 | 2026.09.1306 | PR #2602** - The commit-time version-bump guard's automatic patch bump now works on the Python version CI uses, keeps Windows line endings, and refuses a file with old Mac line endings rather than half-bumping it.
+**2026-09-26 | 2026.09.1323 | PRs #2602-#2619 (18 PRs)** - The day went to the library's audit and commit tooling, with few changes to the documents themselves: the audit programme's description of one citation check now matches the check, and the contributor guidance explains how to commit a README edit so that the README version still moves only once per pull request. The stale-citation check now blocks every outdated citation it finds on a line, and it can accept a citation of a superseded edition when a reviewed register entry records that edition as history; the register page's table is now generated from a strict data file. The commit-time version-bump guards now catch unbumped edits in files that begin with a byte-order mark, bump correctly on the Python version CI uses while keeping Windows line endings, and excuse only the root README from the bump requirement, and changes to the reusable governance pack must now carry the version bump they need. A new audit check keeps raw worker identifiers and account names out of public files; test fixtures now use neutral aliases and placeholders, public prose names peer orchestrators by role, and hooks and tools find their working directory from the checkout instead of a fixed host path. Test and merge safeguards were also tightened: citation-existence tests can no longer pass vacuously, self-tests clean up their temporary directories, and the final merge check no longer treats a skipped or neutral lint as passing.
 
 **2026-09-25 | 2026.09.1305 | PRs #2561-#2601 (41 PRs)** - The day's largest content thread brought standards citations up to date: ISO/IEC 27001 and 27002 references across 36 documents now name the 2022 edition, ISO/IEC 42001 references across 46 documents and the website name the 2023 edition, ISO 28000, ISO 31000, ISO 37301, ISO 22301 and ISO/IEC 23894 citations name their current editions, and sentences that had presented the organization's own risk criteria, metrics, documentation and disclosures as requirements of these standards now say the organization defines them, informed by the cited clause. The AI jurisdiction library gained annexes on United States federal executive-branch AI policy, Malaysia's 2024 national guidelines on AI governance and ethics, and the UK's principles-based AI regulation framework, and the decision tree now routes readers to every AI-jurisdiction annex, stating who each applies to and whether it binds. The Canada public-sector annex now quotes the federal Privacy Act, the Access to Information Act and British Columbia's Freedom of Information and Protection of Privacy Act alongside the related Treasury Board instruments, the Canadian AI and public-sector annexes describe their sources exactly and no longer claim coverage they lack, the Canada, New Zealand, Australia and UK privacy annexes distinguish the minister who administers each Privacy Act from the regulator that oversees it, and UK references now name the Information Commission, which takes over the Information Commissioner's Office's functions on 30 September 2026. Cryptographic and access baselines were tightened: integrity hashing chosen by the organization now uses SHA-512 or BLAKE2b-512 (except where an external specification mandates a digest), new message-authentication codes use HMAC-SHA-512, HMAC-SHA-384 or KMAC256 with keys of at least 256 bits, service-account passwords rotate at least annually and on personnel change or suspected compromise (the no-periodic-expiry rule now covers human passwords only), and every production Model Context Protocol server must be registered and security-reviewed however it is hosted. A new Jakarta EE application security standard covers server-side Java applications, the compliance matrix gained an empty SOC 2 Trust Services Criteria column, and the coverage-gap register now records semantic-layer and business-definition governance as a planned gap. Tooling work made many advisory and audit tools refuse unreadable, empty or unknown inputs instead of reporting a clean result, extended the fabricated-citation check to OWASP ASVS and MITRE CWE identifiers, made the version-bump guards judge each file by its own version key, and kept the reference manifest and changelog current.
 
