@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.11\
-**Date:** 2026-09-11\
+**Version:** 1.1.14\
+**Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -34,7 +34,7 @@ This template covers all data subject rights requests, including but not limited
 
 ## Request lifecycle
 
-The workflow has seven stages. Each stage has defined inputs, outputs, owners, and SLAs.
+The workflow has seven stages. Each stage has defined inputs, outputs, owners, and SLAs. The per-stage SLAs are ceilings: where a request falls under a statutory window measured in hours from receipt (for example Indonesia's 3 x 24-hour windows in Stage 4), every stage runs inside that window in calendar hours, including weekends and holidays, and stages run in parallel where needed to meet it.
 
 ### Stage 1: Intake
 
@@ -65,7 +65,7 @@ The workflow has seven stages. Each stage has defined inputs, outputs, owners, a
 
 Requests that do not require a verifiable consumer request, the CCPA / CPRA rights to opt out of sale or sharing, to limit sensitive personal information, and to opt out of ADMT (11 CCR sections 7026, 7027, 7221), skip this identity-verification stage and proceed to Stage 3 (scope definition) and fulfilment; a request to access ADMT instead requires the heightened Article 5 standard (a reasonably high degree of certainty for non-accountholders, 11 CCR s. 7062(c); password-protected-account verification, s. 7061).
 
-If identity cannot be verified within 10 business days, the request is suspended (not closed); for CCPA / CPRA requests the section 7021(b) clock runs from receipt regardless of verification time, so suspension marks case status only and does not pause that clock. The data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
+If identity cannot be verified within 10 business days, the request is suspended (not closed); for CCPA / CPRA requests the section 7021(b) clock runs from receipt regardless of verification time, so suspension marks case status only and does not pause that clock. The same applies to Indonesia's 3 x 24-hour windows, which run from receipt: verification does not pause them, and the request is verified and fulfilled, or refused on a lawful ground, within the window. The data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
 
 ### Stage 3: Scope definition
 
@@ -84,7 +84,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Owner | Each system-of-record steward; Privacy team coordinates |
 | Inputs | Scoped request; mapping of personal data to systems from the ROPA |
 | Outputs | Per-system extracts; aggregated assembly record; provenance per item |
-| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA for know, access, delete, and correct requests (11 CCR s. 7021), extendable once by an additional 45 days with notice within the first 45-day period, while an opt-out of sale/sharing (s. 7026(f)), a limit of sensitive personal information (s. 7027(g)), and an ADMT opt-out submitted after processing has begun (s. 7221(n)) each carry a 15-business-day ceiling, while an ADMT opt-out submitted before processing has begun requires the business not to initiate that processing (s. 7221(m)); 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
+| SLA | Per the right's regulatory window: one month from intake under the GDPR (Art. 12(3)), extendable by two further months for complex or numerous requests with documented reason and subject notification within the first month; 45 days under the CCPA / CPRA for know, access, delete, and correct requests (11 CCR s. 7021), extendable once by an additional 45 days with notice within the first 45-day period, while an opt-out of sale/sharing (s. 7026(f)), a limit of sensitive personal information (s. 7027(g)), and an ADMT opt-out submitted after processing has begun (s. 7221(n)) each carry a 15-business-day ceiling, while an ADMT opt-out submitted before processing has begun requires the business not to initiate that processing (s. 7221(m)); 30 days under PIPEDA; confirmation and access under Brazil's LGPD, Art. 19 (immediately in simplified format, or within 15 days by complete declaration); 20 days for an ARCO determination under Mexico's LFPDPPP (Art. 31); 3 x 24 hours from receipt under Indonesia's UU PDP for correction, access, stopping processing after consent is withdrawn, and delay or restriction (Arts. 30(1), 32(2), 40(2), 41(1)). Where more than one regime applies to a request, run the strictest (shortest) applicable window |
 | Quality gates | Each system queried with the subject identifier; null returns recorded explicitly; backups and cold storage included if reasonable; embeddings, vector stores, AI training data, and derived datasets considered |
 
 ### Stage 5: Redaction and exception handling
@@ -141,7 +141,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Confirmation of receipt | Where requested or required |
 | Closure timestamp (UTC) | |
 | Time to acknowledgement | Hours |
-| Time to delivery | Calendar days |
+| Time to delivery | Calendar days, or hours for a request under a clock measured in hours |
 | Extension invoked | Yes or no; rationale; subject notification date |
 | Appeal initiated | Yes or no; outcome reference |
 | Supervisory authority complaint reference | If a complaint follows |

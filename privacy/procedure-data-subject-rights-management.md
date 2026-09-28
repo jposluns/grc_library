@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.29\
-**Date:** 2026-09-27\
+**Version:** 1.6.32\
+**Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -71,6 +71,8 @@ The following table defines the rights managed under this procedure, the applica
 
 **Canadian legal basis.** The in-force Canadian federal basis for these rights is PIPEDA Schedule 1 (the CSA Model Code fair-information principles): access and amendment rest on Principle 9 (Individual Access), and objection rests on Principle 3 (Consent, including withdrawal of consent). PIPEDA does not provide a standalone right to erasure or a right not to be subject to automated decision-making; for those, the basis above is GDPR (and equivalents). The Consumer Privacy Protection Act (CPPA, Part 1 of Bill C-27) would have introduced disposal and automated-decision-explanation rights, but Bill C-27 lapsed at the 2025-01-06 prorogation and is **not in force**; its privacy successor Bill C-36 (Protecting Privacy and Consumer Data Act), introduced 2026-06-15, is proposed and not in force (see [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md)). Where the organization handles personal information in the course of carrying on an enterprise (Quebec Civil Code art. 1525), Quebec Law 25 provides stronger rights (including portability and de-indexing) and applies in addition to PIPEDA.
 
+**Indonesia 3 x 24-hour windows.** Where a request falls under Indonesia's Personal Data Protection Law (UU PDP, Law No. 27 of 2022), the controller acts within 3 x 24 hours of receiving it for correction or updating (Article 30(1)), access with the processing record (Article 32(2)), stopping processing after consent is withdrawn (Article 40(2)), and delaying or restricting processing (Article 41(1)). These windows are far shorter than the standard timeframes above and than the section 5 triage period, so an Indonesian request is flagged at intake and triaged and fulfilled within the statutory window; see the [Indonesia annex](jurisdictions/annex-privacy-indonesia.md).
+
 **Brazil and Mexico fixed windows.** Where a request falls under Brazil's LGPD, confirmation-of-existence and access requests must be met either immediately in simplified format or, by complete declaration, within 15 days (LGPD Art. 19); other LGPD Article 18 rights carry no fixed statutory day-count, so the internal service level applies. Where a request falls under Mexico's LFPDPPP, the controller must communicate its determination on an ARCO request (access, rectification, cancellation, opposition) within 20 days (LFPDPPP Art. 31). These windows are narrower than the GDPR one-month clock; where more than one regime applies to a single request, the fulfilment team runs the strictest (shortest) applicable window. See [`privacy/jurisdictions/annex-privacy-brazil.md`](jurisdictions/annex-privacy-brazil.md) and [`privacy/jurisdictions/annex-privacy-mexico.md`](jurisdictions/annex-privacy-mexico.md).
 
 **California (CCPA / CPRA) basis.** Where the CCPA / CPRA applies, the statutory window for the analogous consumer rights (to know / access, correct, and delete) is **45 days** from receipt of a verifiable consumer request, extendable once by an additional 45 days when reasonably necessary with notice to the consumer within the first 45-day period (Cal. Civ. Code section 1798.130(a)(2); section 1798.145 separately permits extending the response window by up to a total of 90 days where necessary). The one-month timeframes above state the GDPR Article 12(3) clock; requests governed by the CCPA / CPRA run on the 45-day clock, and the fee-handling row for the CCPA / CPRA in Section 7 is unchanged. The CCPA automated-decision-making regulations (11 CCR Article 11, effective 2026-01-01, with compliance for a significant decision required no later than 2027-01-01) add, alongside the GDPR-style human review, the right to opt out of ADMT used to make a significant decision (11 CCR section 7221; where processing has not begun the business must not initiate it, section 7221(m), and where it has the business ceases no later than 15 business days from receipt, section 7221(n)) and the right to access ADMT (section 7222); all four CCPA / CPRA rights are enumerated as rows in the rights table above. Requests to access or to appeal ADMT run on the section 7021 timeline (receipt confirmed no later than 10 business days, substantive response no later than 45 calendar days, extendable once to a 90-day maximum), matching the 45-day consumer-request clock above.
@@ -85,7 +87,7 @@ Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
 - Written correspondence to the organization's registered address, directed to the Data Protection Officer.
-- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day.
+- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day; a request that may fall under a clock measured in hours (for example Indonesia's 3 x 24-hour windows in section 3) is forwarded immediately, including outside business hours.
 
 The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
@@ -99,19 +101,19 @@ Identity verification is required before any personal data is disclosed or actio
 | **Enhanced** | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors |
 | **Re-verification** | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
 
-Requests where identity cannot be verified within 10 business days are suspended. For CCPA / CPRA requests the section 7021(b) response clock runs from receipt regardless of the time required to verify, so suspension marks case status only and does not pause that clock; a request the business still cannot verify within the 45-day period may be denied. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
+Requests where identity cannot be verified within 10 business days are suspended. For CCPA / CPRA requests the section 7021(b) response clock runs from receipt regardless of the time required to verify, so suspension marks case status only and does not pause that clock; a request the business still cannot verify within the 45-day period may be denied. The same applies to the Indonesia 3 x 24-hour windows in section 3, which run from receipt: identity verification does not pause them, and the request is verified and fulfilled, or refused on a lawful ground and the refusal recorded, within the window. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
 
 ### 4.3 DSR register logging
 
 Upon receipt, every request is assigned a unique DSR identifier and logged in the DSR register with:
 
 - DSR ID
-- Date received (and time where received electronically)
+- Date received (and time where received electronically, or for any request subject to a clock measured in hours, whatever the channel)
 - Right(s) requested
 - Data subject identity (verified / pending verification)
 - Applicable jurisdiction(s) and governing law
 - Assigned Data Protection Officer
-- Response deadline (calculated from date received)
+- Response deadline (calculated from date received, or as a date and time for a clock measured in hours)
 - Current status
 - Outcome
 
@@ -119,7 +121,7 @@ Upon receipt, every request is assigned a unique DSR identifier and logged in th
 
 ## 5. Triage and assessment
 
-Following intake and initial logging, the Data Protection Officer completes a triage assessment within 3 business days:
+Following intake and initial logging, the Data Protection Officer completes a triage assessment within 3 business days, or within the shorter statutory window where one applies (for example the Indonesia 3 x 24-hour windows in section 3):
 
 1. **Confirm identity:** Verify that identity verification has been completed or is in progress. If not in progress, initiate verification. The CCPA / CPRA opt-out rights (opt out of sale or sharing, s. 7026; limit sensitive personal information, s. 7027; opt out of ADMT, s. 7221(f)) require no verifiable consumer request and skip this identity-confirmation step, proceeding to scope and fulfilment; a request to access ADMT instead requires the heightened Article 5 standard (a reasonably high degree of certainty for non-accountholders, s. 7062(c); password-protected-account verification, s. 7061).
 2. **Determine applicable law:** Identify the jurisdiction(s) governing the request based on the data subject's location, the applicable privacy law, and the data categories involved.
@@ -345,7 +347,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | **Requests Received** | Total DSRs received in the reporting period, by right type | Tracked; volume trend monitored |
 | **On-Time Fulfilment Rate (%)** | Percentage of requests fulfilled within the applicable legal timeframe | ≥ 95% |
 | **Denial Rate (%)** | Percentage of requests denied wholly or in part | Tracked; material increase triggers process review |
-| **Average Response Time (days)** | Mean number of calendar days from request receipt to response delivery | Target: ≤ 25 days (ahead of the one-month deadline) |
+| **Average Response Time (days)** | Mean number of calendar days from request receipt to response delivery | Target: ≤ 25 days (ahead of the one-month deadline); requests under a clock measured in hours, such as Indonesia's 3 x 24-hour windows, are reported separately against that clock |
 | **Identity Verification Failure Rate (%)** | Percentage of requests suspended or closed due to failure to verify identity | Tracked; used to assess intake process usability |
 | **AI-Related DSR Rate (%)** | Percentage of SARs that included AI-derived data elements in scope | Tracked; informs AI data governance programme |
 | **Escalations to CIO** | Number of requests escalated to CIO as complex or contentious | Tracked |
