@@ -2,7 +2,7 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -29,7 +29,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 - Rights: information about the identity, legal basis, purpose of the request and use of the data, and accountability of the party requesting personal data (Article 5); correction (Article 6); access and a copy (Article 7); ending processing, erasure and destruction (Article 8); withdrawal of consent (Article 9); objection to solely automated decisions (Article 10); delay or restriction of processing (Article 11); suing and receiving compensation for a processing violation (Article 12); and portability (Article 13).
 - Response deadlines: the controller corrects or updates data (Article 30(1)), gives access with the processing record (Article 32(2)), stops processing after consent is withdrawn (Article 40(2)), and delays or restricts processing (Article 41(1)), each within 3 x 24 hours of receiving the request.
 - Mandatory breach notification: on a failure of personal data protection, the controller notifies the data subject and the data protection institution in writing within 3 x 24 hours (UU PDP Article 46(1)). The notice states at least the personal data exposed, when and how it was exposed, and the handling and recovery measures (Article 46(2)); in certain cases the controller also notifies the public (Article 46(3)).
-- Consent required from parent or guardian for children's personal data; processing of personal data of persons with disabilities is carried out in a specific manner and requires the consent of the person and/or their guardian (Article 26).
+- Consent required from parent or guardian for children's personal data (Article 25(2)); processing of personal data of persons with disabilities is carried out in a specific manner and requires the consent of the person and/or their guardian (Article 26).
 - The controller and processor appoint an official or officer for personal data protection where processing serves public services, where core activities need regular and systematic large-scale monitoring, or where core activities involve large-scale processing of specific personal data or data relating to criminal offences (Article 53(1)).
 - **Regulatory authority:** the UU PDP provides for a data protection institution; as of 2026 it remains in formation, with functions exercised in practice by the Ministry of Communication and Digital Affairs. The UU PDP (held in the reference base in its Indonesian original) provides that the institution is established by and answers to the President (Article 58); an adopter confirms the current institutional arrangement directly.
 

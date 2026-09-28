@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.13\
+**Version:** 1.1.14\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -141,7 +141,7 @@ If identity cannot be verified within 10 business days, the request is suspended
 | Confirmation of receipt | Where requested or required |
 | Closure timestamp (UTC) | |
 | Time to acknowledgement | Hours |
-| Time to delivery | Calendar days |
+| Time to delivery | Calendar days, or hours for a request under a clock measured in hours |
 | Extension invoked | Yes or no; rationale; subject notification date |
 | Appeal initiated | Yes or no; outcome reference |
 | Supervisory authority complaint reference | If a complaint follows |
