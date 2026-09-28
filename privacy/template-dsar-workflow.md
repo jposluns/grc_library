@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Access Request Workflow Template\
 **Document Type:** Template\
-**Version:** 1.1.12\
+**Version:** 1.1.13\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,7 +34,7 @@ This template covers all data subject rights requests, including but not limited
 
 ## Request lifecycle
 
-The workflow has seven stages. Each stage has defined inputs, outputs, owners, and SLAs.
+The workflow has seven stages. Each stage has defined inputs, outputs, owners, and SLAs. The per-stage SLAs are ceilings: where a request falls under a statutory window measured in hours from receipt (for example Indonesia's 3 x 24-hour windows in Stage 4), every stage runs inside that window in calendar hours, including weekends and holidays, and stages run in parallel where needed to meet it.
 
 ### Stage 1: Intake
 
@@ -65,7 +65,7 @@ The workflow has seven stages. Each stage has defined inputs, outputs, owners, a
 
 Requests that do not require a verifiable consumer request, the CCPA / CPRA rights to opt out of sale or sharing, to limit sensitive personal information, and to opt out of ADMT (11 CCR sections 7026, 7027, 7221), skip this identity-verification stage and proceed to Stage 3 (scope definition) and fulfilment; a request to access ADMT instead requires the heightened Article 5 standard (a reasonably high degree of certainty for non-accountholders, 11 CCR s. 7062(c); password-protected-account verification, s. 7061).
 
-If identity cannot be verified within 10 business days, the request is suspended (not closed); for CCPA / CPRA requests the section 7021(b) clock runs from receipt regardless of verification time, so suspension marks case status only and does not pause that clock. The data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
+If identity cannot be verified within 10 business days, the request is suspended (not closed); for CCPA / CPRA requests the section 7021(b) clock runs from receipt regardless of verification time, so suspension marks case status only and does not pause that clock. The same applies to Indonesia's 3 x 24-hour windows, which run from receipt: verification does not pause them, and the request is verified and fulfilled, or refused on a lawful ground, within the window. The data subject is notified of the outstanding verification requirement and given a reasonable further period to provide acceptable evidence, per the governing procedure.
 
 ### Stage 3: Scope definition
 
