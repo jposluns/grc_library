@@ -2,7 +2,7 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,8 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted 17 October 2022, with a two-year period for controllers, processors and other parties involved in processing to conform (Article 74), which ended in October 2024. Indonesia's first dedicated and comprehensive personal data protection law. An implementing Government Regulation (reported as No. 33 of 2026, enacted July 2026 and effective from January 2027) is not held in the reference base, so an adopter confirms its text and effective dates directly.
 - Data Controller and Processor framework aligned with GDPR concepts.
-- Rights: information about the identity, legal basis, purpose and accountability of the party requesting personal data (Article 5), access, correction, portability, restriction, erasure, withdrawal of consent, objection, and the right to sue and receive compensation for a processing violation (Article 12).
+- Rights: information about the identity, legal basis, purpose of the request and use of the data, and accountability of the party requesting personal data (Article 5); correction (Article 6); access and a copy (Article 7); ending processing, erasure and destruction (Article 8); withdrawal of consent (Article 9); objection to solely automated decisions (Article 10); delay or restriction of processing (Article 11); suing and receiving compensation for a processing violation (Article 12); and portability (Article 13).
+- Response deadlines: the controller corrects or updates data (Article 30(1)), gives access with the processing record (Article 32(2)), stops processing after consent is withdrawn (Article 40(2)), and delays or restricts processing (Article 41(1)), each within 3 x 24 hours of receiving the request.
 - Mandatory breach notification: on a failure of personal data protection, the controller notifies the data subject and the data protection institution in writing within 3 x 24 hours (UU PDP Article 46(1)). The notice states at least the personal data exposed, when and how it was exposed, and the handling and recovery measures (Article 46(2)); in certain cases the controller also notifies the public (Article 46(3)).
 - Consent required from parent or guardian for children's personal data; processing of personal data of persons with disabilities is carried out in a specific manner and requires the consent of the person and/or their guardian (Article 26).
 - The controller and processor appoint an official or officer for personal data protection where processing serves public services, where core activities need regular and systematic large-scale monitoring, or where core activities involve large-scale processing of specific personal data or data relating to criminal offences (Article 53(1)).
@@ -37,7 +38,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## AI and privacy obligations
 
 - A data subject may object to a decision based solely on automated processing, including profiling, that has legal effects or significantly affects the data subject (UU PDP Article 10(1)); the detailed procedure is left to a Government Regulation (Article 10(2)).
-- The controller carries out a personal data protection impact assessment where processing has potentially high risk, which expressly includes automated decision-making with legal or significant effects, as well as specific personal data, large-scale processing and systematic evaluation, scoring or monitoring (Article 34(1)-(2)).
+- The controller carries out a personal data protection impact assessment where processing has potentially high risk, which expressly includes automated decision-making with legal or significant effects, as well as specific personal data, large-scale processing, systematic evaluation, scoring or monitoring, matching or combining groups of data, the use of new technology in processing, and processing that restricts the data subject's rights (Article 34(1)-(2)).
 - Indonesia has no binding AI-specific regulation held in the reference base as of 2026; an adopter confirms the current state of national AI-governance instruments directly.
 - Purpose limitation and data minimization principles apply to AI systems processing personal data.
 
@@ -55,7 +56,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - Administrative fines: up to 2% of annual revenue or annual receipts in relation to the violation (Article 57(3)), imposed by the data protection institution (Article 57(4)).
 - Criminal penalties for individuals: imprisonment of up to 4 to 6 years and/or fines of up to IDR 4 billion to IDR 6 billion, depending on the offence (Articles 67 and 68).
-- Criminal penalties for corporations: the principal penalty is a fine of up to ten times the individual maximum (Article 70(2)-(3)), so up to IDR 60 billion for the most serious offence; additional penalties may follow, including confiscation of profits or assets obtained from or produced by the offence, freezing or closure of the business, a permanent ban on specified acts, compensation, licence revocation and dissolution (Article 70(4)).
+- Criminal penalties for corporations: the principal penalty is a fine of up to ten times the individual maximum (Article 70(2)-(3)), so up to IDR 60 billion for the most serious offence; additional penalties may follow, including confiscation of profits or assets obtained from or produced by the offence, freezing or closure of the business, a permanent ban on specified acts, an order to carry out neglected obligations, compensation, licence revocation and dissolution (Article 70(4)).
 
 ---
 
