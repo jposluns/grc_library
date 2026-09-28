@@ -2,7 +2,7 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,16 +43,17 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Cross-border transfer mechanisms
 
-- Transfers subject to equivalent protection standard in the recipient jurisdiction.
-- An approved country list is under development.
-- Contractual safeguards serve as the primary interim mechanism.
+- The controller confirms that the recipient's country provides personal data protection equivalent to or higher than the UU PDP (Article 56(2)).
+- Where that is not met, the controller puts adequate and binding personal data protection in place (Article 56(3)).
+- Where neither is met, the controller obtains the data subject's consent (Article 56(4)); further detail is left to a Government Regulation (Article 56(5)).
 
 ---
 
 ## Enforcement and fines
 
-- Administrative fines: up to 2% of annual Indonesian-derived revenue.
-- Criminal penalties: up to IDR 60 billion for serious violations, including imprisonment.
+- Administrative fines: up to 2% of annual revenue or annual receipts in relation to the violation (Article 57(3)), imposed by the data protection institution (Article 57(4)).
+- Criminal penalties for individuals: imprisonment of up to 4 to 6 years and/or fines of up to IDR 4 billion to IDR 6 billion, depending on the offence (Articles 67 and 68).
+- Criminal penalties for corporations: fines only, of up to ten times the individual maximum (Article 70), so up to IDR 60 billion for the most serious offence.
 
 ---
 
