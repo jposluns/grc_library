@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.30\
+**Version:** 1.6.31\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -87,7 +87,7 @@ Data subjects may submit requests through:
 
 - The designated privacy request contact (email address or web portal maintained by the Data Protection Officer).
 - Written correspondence to the organization's registered address, directed to the Data Protection Officer.
-- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day.
+- Any other channel where a request is received by an employee; employees must forward to the Data Protection Officer immediately on receipt, and in any event no later than the same business day; a request that may fall under a clock measured in hours (for example Indonesia's 3 x 24-hour windows in section 3) is forwarded immediately, including outside business hours.
 
 The Data Protection Officer maintains the official DSR submission channel and ensures that it is published in the organization's privacy notice.
 
@@ -101,19 +101,19 @@ Identity verification is required before any personal data is disclosed or actio
 | **Enhanced** | Requests involving health, financial, or biometric data; requests with indications of identity fraud; requests from authorized third parties acting on behalf of the data subject | Government-issued photo ID plus secondary verification; notarized authorization for third-party requestors |
 | **Re-verification** | Requests for the same data type made within 12 months of a prior request | Standard verification unless circumstances indicate heightened risk |
 
-Requests where identity cannot be verified within 10 business days are suspended. For CCPA / CPRA requests the section 7021(b) response clock runs from receipt regardless of the time required to verify, so suspension marks case status only and does not pause that clock; a request the business still cannot verify within the 45-day period may be denied. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
+Requests where identity cannot be verified within 10 business days are suspended. For CCPA / CPRA requests the section 7021(b) response clock runs from receipt regardless of the time required to verify, so suspension marks case status only and does not pause that clock; a request the business still cannot verify within the 45-day period may be denied. The same applies to the Indonesia 3 x 24-hour windows in section 3, which run from receipt: identity verification does not pause them, and the request is verified and fulfilled, or refused on a lawful ground and the refusal recorded, within the window. The data subject is notified of the verification requirement and given a reasonable further period to provide acceptable evidence.
 
 ### 4.3 DSR register logging
 
 Upon receipt, every request is assigned a unique DSR identifier and logged in the DSR register with:
 
 - DSR ID
-- Date received (and time where received electronically)
+- Date received (and time where received electronically, or for any request subject to a clock measured in hours, whatever the channel)
 - Right(s) requested
 - Data subject identity (verified / pending verification)
 - Applicable jurisdiction(s) and governing law
 - Assigned Data Protection Officer
-- Response deadline (calculated from date received)
+- Response deadline (calculated from date received, or as a date and time for a clock measured in hours)
 - Current status
 - Outcome
 
