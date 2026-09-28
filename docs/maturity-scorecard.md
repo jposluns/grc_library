@@ -386,11 +386,11 @@ _76 documents._
 | [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.17 | 2026-09-24 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.7 | 2026-09-04 |
-| [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.4 | 2026-09-28 |
+| [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.5 | 2026-09-28 |
 | [crypto/register-crypto-asset-inventory.md](../crypto/register-crypto-asset-inventory.md) | Crypto-Asset Domain Inventory Register | Register | 0.0.1 | 2026-09-11 |
 | [crypto/standard-crypto-asset-regulatory-submission.md](../crypto/standard-crypto-asset-regulatory-submission.md) | Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard | Standard | 0.0.1 | 2026-09-12 |
 | [crypto/standard-crypto-asset-reserve-and-prudential-requirements.md](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) | Crypto-Asset Reserve and Prudential Requirements Standard | Standard | 0.0.2 | 2026-09-12 |
-| [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.1 | 2026-09-11 |
+| [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.2 | 2026-09-28 |
 | [crypto/standard-crypto-asset-white-paper-disclosure.md](../crypto/standard-crypto-asset-white-paper-disclosure.md) | Crypto-Asset White-Paper Content and Disclosure Standard | Standard | 0.0.2 | 2026-09-24 |
 | [crypto/standard-digital-asset-custody.md](../crypto/standard-digital-asset-custody.md) | Digital Asset Custody Standard | Standard | 0.0.6 | 2026-09-05 |
 | [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.1 | 2026-09-11 |
