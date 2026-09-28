@@ -2,7 +2,7 @@
 
 **Document Title:** United Kingdom Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.12\
+**Version:** 1.1.13\
 **Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## AI and privacy obligations
 
-- The UK has adopted a pro-innovation, principles-based approach to AI regulation; see [`ai/jurisdictions/annex-ai-united-kingdom.md`](../../ai/jurisdictions/annex-ai-united-kingdom.md) for the per-framework view. The UK's AI Security Institute (the AI Safety Institute until 14 February 2025) evaluates frontier AI models; the reference base holds one Institute-affiliated research preprint (catalogued as untrusted) but not the Institute's official publications, so an adopter confirms them directly.
+- The UK has adopted a pro-innovation, principles-based approach to AI regulation; see [`ai/jurisdictions/annex-ai-united-kingdom.md`](../../ai/jurisdictions/annex-ai-united-kingdom.md) for the per-framework view. The UK's AI Security Institute (the AI Safety Institute until 14 February 2025) evaluates frontier AI models; the reference base holds the International AI Safety Report 2026, for which the Institute provides the secretariat, and two Institute-affiliated research items catalogued as untrusted, but not the Institute's own evaluation publications, so an adopter confirms them directly.
 - The ICO has published guidance on AI and data protection, including on explaining AI decisions and auditing AI systems; that guidance is not held in the reference base, so an adopter confirms the current edition directly.
 - The UK has not enacted legislation equivalent to the EU AI Act as of 2026. The Information Commission (the ICO until 30 September 2026), the Competition and Markets Authority (CMA), and the Financial Conduct Authority (FCA) each apply their existing sector powers to AI under the UK's principles-based approach; their specific AI positions are published guidance not held in the reference base.
 - **Automated decision-making:** Following DUAA 2025 commencement (5 February 2026), UK GDPR Article 22 is replaced by Articles 22A to 22D, which restructure the rules on significant decisions based solely on automated processing. The right to object and the right to human intervention remain available for decisions with legal or similarly significant effects, with sharper definitions of "significant" and clarified application to special-category data. Organizations whose ADM controls were modelled on the original Article 22 must review against the new 22A-22D framework.
