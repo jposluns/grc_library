@@ -3,45 +3,7 @@
 All notable changes to this repository are recorded in this file in two forms: while a week is current, one compact entry per change (a `date | version | PR` header followed by a short, plain-language summary a general reader can follow); once a week completes, its entries are rolled up into a single weekly summary carrying the week's contiguous PR range, so the root file preserves complete PR coverage while staying scannable as the entry count grows. The full maintainer-grade detail for each change (the Added / Changed / Removed / Fixed / Security / Verification sections) is kept in the private sibling working-state store and in git history; that mirror is how this project's maintainer tracks the full audit trail. The convention is project-specific; forks may keep their own working-state store and adopt their own approach to detailed change tracking. The mechanics are documented in the [`change-tracking` governance rule](guardrails/governance/change-tracking.md). Significant project milestones are recorded inline as dated `MILESTONE:` entries (`**YYYY-MM-DD | MILESTONE:** ...`) that float to the top of the entry stream, above that day's per-PR entries; those are never condensed by the daily or weekly roll-ups, and the roll-up tooling skips them by their `MILESTONE:` marker.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loosely; individual document versions follow semantic versioning as defined in [`specification-ingestion.md`](specification-ingestion.md). The library as a whole carries a Calendar Versioning (CalVer) version of the form `YYYY.MM.patch`; see [`specification-master-project.md`](specification-master-project.md) section 4.5.
 
-**2026-09-27 | 2026.09.1343 | PR #2639** - gate 78 (backlog number permanence): bullet-form backlog items are now checked for reuse and cross-list duplicates, retired queue ids are read from two structured positions of DONE headings, and an unclosed fence in a backlog file is reported
-
-**2026-09-27 | 2026.09.1342 | PR #2638** - backlog actionability: open items written as top-level bold bullets are now counted by the audit tool and the hold-decision hook, and lines that look like items but are not counted are listed; thirteen live open items were missing from the actionable count before
-
-**2026-09-27 | 2026.09.1341 | PR #2637** - unattended stop guard: ported to lab_infra's newer base, so a turn-end is also allowed while three live dispatch groups run; grc's lease-only mode source, both worker signals and its [BLOCKED:] tag wording are kept
-
-**2026-09-27 | 2026.09.1340 | PR #2636** - reference manifest: records 8 more sources fetched from their issuers for the maintainer egress list
-
-**2026-09-27 | 2026.09.1339 | PR #2635** - reference manifest: records 30 newly held sources fetched from their issuers for the maintainer egress list
-
-**2026-09-27 | 2026.09.1338 | PR #2634** - Japan privacy annex: sensitive information is a consent rule for acquisition, and article numbers, conditions and fines now follow the official English translation of the APPI consolidated as of April 1, 2023; the jurisdiction index, document register and DSR fee row are aligned
-
-**2026-09-27 | 2026.09.1337 | PR #2633** - reference manifest: records the newly held official English APPI translation, consolidated as of April 1, 2023
-
-**2026-09-27 | 2026.09.1336 | PR #2632** - compliance matrix: the AI Data Quality row no longer maps the standard to ISO/IEC 27001 A.5.20, a supplier-agreement control that does not fit a data-quality standard
-
-**2026-09-27 | 2026.09.1335 | PR #2631** - A new tool runs a shell command string with gh and git replaced by recording stand-ins, so shell behaviour can be checked without a real gh or git ever running (3b116).
-
-**2026-09-27 | 2026.09.1334 | PR #2630** - The shared matrix code parser now stops reading a code wherever non-ASCII text continues it, while still reading codes before dashes, brackets and quotes (3b118).
-
-**2026-09-27 | 2026.09.1333 | PR #2629** - A backlog [BLOCKED] tag now counts only when the maintainer's approvals register grants it, read by a closed grammar that refuses anything it cannot read reliably (P-1.36).
-
-**2026-09-27 | 2026.09.1332 | PR #2628** - The open-findings guard now catches quoted and flag-interleaved gh pr merge and create commands the way its sibling hook does, with the remaining gaps stated (3b112).
-
-**2026-09-27 | 2026.09.1331 | PR #2627** - The stranded-matrix scan now reads the compliance matrix as tables under a closed grammar and refuses, rather than passes, input it cannot check (3b107).
-
-**2026-09-27 | 2026.09.1330 | PR #2626** - The shared matrix code parser now reads control-code digits as ASCII only, so a document showing other digits cannot hide a stranded code (3b117).
-
-**2026-09-27 | 2026.09.1329 | PR #2625** - The addyosmani rules overlay now records where its files point to reference files and skills it does not carry (3b115).
-
-**2026-09-27 | 2026.09.1328 | PR #2624** - The merge gate now counts a required CI check only when it comes from its own workflow, so a same-named job elsewhere cannot stand in for it.
-
-**2026-09-27 | 2026.09.1327 | PR #2623** - The unattended stop guard's grc adapter no longer hard-codes a host path, and only the orchestrator in the main checkout reads the lease or uses the one-shot declared-wait escape.
-
-**2026-09-27 | 2026.09.1326 | PR #2622** - The addyosmani rules overlay now records that its security skill cites OWASP LLM 2025 and web 2021 identifiers, and which identifiers the same risks carry in the current editions.
-
-**2026-09-27 | 2026.09.1325 | PR #2621** - tooling: the merge guards now also catch merges made through the merge tool, and the tool checks for open error findings itself.
-
-**2026-09-27 | 2026.09.1324 | PR #2620** - tooling: the final merge gate now pins each merge to the exact commit its checks approved.
+**2026-09-27 | 2026.09.1343 | PRs #2620-#2639 (20 PRs)** - The Japan privacy annex now follows the official English translation of the Act on the Protection of Personal Information, consolidated as of April 1, 2023: sensitive information is treated as a consent rule for acquisition, article numbers, conditions and fines follow that translation, and the jurisdiction index, document register and data-subject-request fee entry were aligned to match. The compliance matrix's AI data-quality row no longer maps that standard to an ISO/IEC 27001 supplier-agreement control that does not fit it. The reference manifest now records the newly held translation, along with 30 newly held sources and 8 more fetched from their issuers. The rest of the day hardened internal tooling: merge safeguards now pin each merge to the exact commit its checks approved, count a required CI check only when it comes from its own workflow, and also catch merges made through the merge tool, while the matrix and backlog checks read their inputs under strict rules, refuse input they cannot check, and now count thirteen open backlog items that had been missing from the actionable total. Smaller changes allowed a backlog item to be marked blocked only with the maintainer's recorded approval, added a way to test shell commands without running the real git or GitHub tools, and updated the unattended-session guard.
 
 **2026-09-26 | 2026.09.1323 | PRs #2602-#2619 (18 PRs)** - The day went to the library's audit and commit tooling, with few changes to the documents themselves: the audit programme's description of one citation check now matches the check, and the contributor guidance explains how to commit a README edit so that the README version still moves only once per pull request. The stale-citation check now blocks every outdated citation it finds on a line, and it can accept a citation of a superseded edition when a reviewed register entry records that edition as history; the register page's table is now generated from a strict data file. The commit-time version-bump guards now catch unbumped edits in files that begin with a byte-order mark, bump correctly on the Python version CI uses while keeping Windows line endings, and excuse only the root README from the bump requirement, and changes to the reusable governance pack must now carry the version bump they need. A new audit check keeps raw worker identifiers and account names out of public files; test fixtures now use neutral aliases and placeholders, public prose names peer orchestrators by role, and hooks and tools find their working directory from the checkout instead of a fixed host path. Test and merge safeguards were also tightened: citation-existence tests can no longer pass vacuously, self-tests clean up their temporary directories, and the final merge check no longer treats a skipped or neutral lint as passing.
 
