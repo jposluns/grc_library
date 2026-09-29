@@ -2,8 +2,8 @@
 
 **Document Title:** Joint Controller Arrangement Template\
 **Document Type:** Template\
-**Version:** 1.0.11\
-**Date:** 2026-09-25\
+**Version:** 1.0.12\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](procedure-data-protection-and-privacy-breach-response.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/template-dpia.md`](template-dpia.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md)\
@@ -106,7 +106,7 @@ This section is the heart of the arrangement under Article 26(1): the parties **
 | Record of Processing Activities | Article 30 | Each party maintains its own | Both ROPAs cross-reference this arrangement |
 | Cooperation with supervisory authority | Article 31 | Both (each cooperates with its lead SA and with any SA requesting information about the joint processing) | |
 | Security of processing | Article 32 | Both (each is responsible for security in its own infrastructure; jointly responsible for security of inter-controller data flows) | Document the technical and organizational measures (TOMs) for each party |
-| Breach notification to SA | Article 33 | Party first aware notifies the lead SA within 72 hours; jointly notify additional SAs where one-stop-shop does not apply | Each party also notifies its own DPO and Legal Counsel |
+| Breach notification to SA | Article 33 | Party first aware notifies the lead SA without undue delay and, where feasible, within 72 hours of becoming aware; jointly notify additional SAs where one-stop-shop does not apply | Each party also notifies its own DPO and Legal Counsel |
 | Breach notification to data subjects | Article 34 | Lead party communicates; both parties acknowledge in their respective channels | |
 | DPIA | Article 35 | Joint DPIA by both parties; lead drafter named in this arrangement | Where one party already has a DPIA covering similar processing, the joint DPIA may incorporate by reference |
 | Prior consultation with SA | Article 36 | Joint, with the lead supervisory authority | See [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md) Step 5.2 |
