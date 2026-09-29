@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.35\
+**Version:** 1.3.36\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -173,7 +173,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
 | **GDPR (EU)** | Personal data breach within the GDPR's territorial scope, unless unlikely to result in a risk to individuals' rights and freedoms (Art. 33(1)) | Without undue delay, and where feasible within 72 hours of becoming aware | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk (Art. 34) |
-| **PIPEDA (Canada)** | Breach of security safeguards where it is reasonable in the circumstances to believe it creates a real risk of significant harm (PIPEDA s. 10.1(1)) | As soon as feasible after the organization determines that the breach has occurred (PIPEDA s. 10.1(2); no fixed hour or day limit) | DPO to Privacy Commissioner of Canada; affected individuals notified on the same clock unless otherwise prohibited by law (s. 10.1(3) and (6)) |
+| **PIPEDA (Canada)** | Breach of security safeguards where it is reasonable in the circumstances to believe it creates a real risk of significant harm (PIPEDA s. 10.1(1)) | As soon as feasible after the organization determines that the breach has occurred (PIPEDA s. 10.1(2); no fixed hour or day limit) | DPO to Privacy Commissioner of Canada; each affected individual for whom the same reasonable-belief test is met, on the same clock, unless otherwise prohibited by law (s. 10.1(3) and (6)) |
 | **Quebec Law 25** | Confirmed confidentiality incident involving personal information presenting a risk of serious injury | Promptly to the Commission d'accès à l'information (no fixed statutory hour-count) | DPO |
 | **PIPL (China)** | Actual or possible leakage, tampering, or loss of personal information of China data subjects (PIPL Art. 57) | Immediately / without delay | DPO to relevant authority (CISO coordinating) |
 

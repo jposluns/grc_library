@@ -2,7 +2,7 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
+**Version:** 1.0.12\
 **Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -118,7 +118,7 @@ Where an investigation identifies, or the organization otherwise becomes aware o
 | Regulation | Notification Obligation |
 | --- | --- |
 | GDPR | Notify the supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (GDPR Art. 33(1)) |
-| PIPEDA / Quebec Law 25 | Notify the OPC and affected individuals where a breach creates a real risk of significant harm (PIPEDA); notify the CAI and affected individuals where the incident presents a risk of serious injury (Quebec Law 25) |
+| PIPEDA / Quebec Law 25 | Notify the OPC, and each affected individual unless otherwise prohibited by law, where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to that individual (PIPEDA s. 10.1); notify the CAI and affected individuals where the incident presents a risk of serious injury (Quebec Law 25) |
 | UK GDPR | Notify the Information Commission (the ICO until 30 September 2026) without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (UK GDPR Art. 33(1)) |
 | LGPD | Notify ANPD and affected data subjects within 3 business days of becoming aware that the incident affected personal data, where it may cause risk or relevant harm (Resolution CD/ANPD No. 15/2024, Arts. 6 and 9) |
 | EU AI Act | Notify competent authority for serious incidents involving High-risk AI systems |
