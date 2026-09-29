@@ -67,7 +67,7 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 | Transport | Trust boundary | Authentication | Encryption |
 | --- | --- | --- | --- |
 | STDIO (local) | The local user and process that launched the server | Environment-passed credentials; no network auth gate | N/A (local pipe, no network channel) |
-| HTTP/SSE (network) | The network between client, agent, and server | OAuth 2.0 / token auth required; validate identity on every call | TLS 1.3 (or stronger) required |
+| HTTP/SSE (network) | The network between client, agent, and server | OAuth 2.0 / token or mutual TLS auth required; validate identity on every call | TLS 1.3 (or stronger) required |
 - Validate TLS certificates: do not use `verify=False` or equivalent in MCP clients
 - Do not expose MCP servers on public networks without an authentication gateway in front
 
