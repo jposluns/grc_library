@@ -1236,8 +1236,14 @@ class RefAbsenceClaimsTests(LinterTestCase):
     test_canonical_without_marker_flagged; the orphan-marker branch by
     test_orphan_marker_flagged; the staleness branch by
     test_held_query_flagged_stale; the case/whitespace normalization by
-    test_stale_match_is_case_insensitive; and the near-miss net by
-    test_near_miss_paraphrase_flagged.
+    test_stale_match_is_case_insensitive; the near-miss net by
+    test_near_miss_paraphrase_flagged; the prose-block joiner by
+    test_wrapped_canonical_claim_flagged; the next-line shield closure by
+    test_next_line_marker_does_not_shield_claim_above; the fence-width
+    matcher by test_nested_wider_fence_stays_code; and the
+    content-vs-holdings context split by
+    test_content_absence_from_held_text_not_flagged with
+    test_absent_from_reference_base_still_flagged.
     """
 
     SCRIPT = "tools/lint-ref-absence-claims.py"
@@ -1349,6 +1355,89 @@ class RefAbsenceClaimsTests(LinterTestCase):
         )
         result = run_linter(self.SCRIPT, fixture)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_wrapped_canonical_claim_flagged(self) -> None:
+        # Ordinary Markdown line wrapping must not hide the canonical
+        # sentence: detection is per prose block, not per physical line.
+        fixture = self.make_fixture(
+            "annex-absence-wrapped.md",
+            "# T\n\nISO/IEC 27002:2022 is not\nheld in the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_wrapped_claim_with_next_line_marker_passes(self) -> None:
+        # The wrapped claim ENDS on the second physical line; the marker on
+        # the line after that is adjacent.
+        fixture = self.make_fixture(
+            "annex-absence-wrapped-marker.md",
+            "# T\n\nThat guidance is not\nheld in the reference base.\n"
+            "<!-- ref-absence: NONESUCH-GUIDANCE-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_next_line_marker_does_not_shield_claim_above(self) -> None:
+        # One marker cannot cover two claims: a marker on line N+1 that has
+        # a claim of its own leaves an unmarked claim on line N red.
+        fixture = self.make_fixture(
+            "annex-absence-shielded.md",
+            "# T\n\n- The NDPA text is not held in the reference base.\n"
+            "- NDPC guidance is not held in the reference base. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_nested_wider_fence_stays_code(self) -> None:
+        # A four-backtick example fence legitimately encloses three-backtick
+        # lines; the enclosed absence sentence stays code because a close
+        # must match the opening fence's character and width.
+        fixture = self.make_fixture(
+            "annex-absence-nested-fence.md",
+            "# T\n\n````\n```\nX is not held in the reference base.\n```\n````\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_content_absence_from_held_text_not_flagged(self) -> None:
+        # "absent from the held text" asserts missing CONTENT of a held
+        # document, not a missing source; rephrasing it canonically would
+        # change the claim's meaning, so it is not a finding.
+        fixture = self.make_fixture(
+            "annex-absence-content-from-held.md",
+            "# T\n\nA signing date is absent from the held text.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_absent_from_reference_base_still_flagged(self) -> None:
+        # The collection vocabulary keeps "absent from" in the net when the
+        # assertion is about the reference base itself.
+        fixture = self.make_fixture(
+            "annex-absence-from-base.md",
+            "# T\n\nThat decree is absent from the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_marker_on_bare_not_held_line_accepted_and_checked(self) -> None:
+        # A bare "not held" holdings claim below the near-miss net's radar
+        # can be annotated (rule 2): the marker is no orphan, and its query
+        # is still staleness-checked ('27002' matches the manifest).
+        clean = self.make_fixture(
+            "annex-absence-bare-annotated.md",
+            "# T\n\nThe subordinate instruments are not held. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, clean)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        stale = self.make_fixture(
+            "annex-absence-bare-stale.md",
+            "# T\n\nThe control set is not held. <!-- ref-absence: 27002 -->\n",
+        )
+        result = run_linter(self.SCRIPT, stale)
+        self.assertLinterFails(result, "STALE")
 
     def test_exempt_meta_doc_ignored(self) -> None:
         # The audit-programme specification quotes the canonical sentence
@@ -21538,6 +21627,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         "lint-bare-normative-shall.py": "iter_markdown_files",
         "lint-todo-marked-done.py": "iter_markdown_files",
         "lint-positional-backlog-tokens.py": "iter_markdown_files",
+        "lint-ref-absence-claims.py": "iter_markdown_files",
     }
     WALKERS = {
         "lint-placeholder-leakage.py": "iter_targets",

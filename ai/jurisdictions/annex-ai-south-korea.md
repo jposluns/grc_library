@@ -2,7 +2,7 @@
 
 **Document Title:** South Korea AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.3\
+**Version:** 0.0.4\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -32,7 +32,7 @@ This annex gives the adopter a single per-regime view of South Korea's comprehen
 ## Transition timeline
 
 - **Already in force.** The Act took effect 22 January 2026, one year after promulgation; under the held translation's Addenda Article 1 the Act enters into force one year after the date of its promulgation, with the digital-medical-devices slice of the high-impact definition entering into force 24 January 2026. Both dates have passed, so the regime is live at the time of writing.
-- **The operative detail still awaited is decree- and guideline-level.** Nearly every threshold and much of the operative detail is delegated to the Presidential Decree (the Enforcement Decree) and to MSIT guidelines; the Enforcement Decree is not held in the reference base, and this annex asserts no decree-level value (see Limitations). <!-- ref-absence: Enforcement Decree of the Framework Act on Artificial Intelligence | AI Framework Act Enforcement Decree -->
+- **The operative detail still awaited is decree- and guideline-level.** Nearly every threshold and much of the operative detail is delegated to the Presidential Decree (the Enforcement Decree) and to MSIT guidelines; the Enforcement Decree is not held in the reference base, and this annex asserts no decree-level value (see Limitations). <!-- ref-absence: Enforcement Decree of the Framework Act on AI | AI Basic Act Enforcement Decree -->
 - **Institutional sunset.** The held translation provides that the National AI Committee subsists for five years from the date the Act takes effect (Article 7).
 
 ## Scope: covered actors and covered systems
@@ -97,7 +97,7 @@ The enforcement chain is asymmetric, and stating the asymmetry precisely is this
 ## Limitations
 
 - This annex is a consolidating per-regime view, not a substitute for the statute or for legal advice; the controlling text is the Korean statute, and this annex works from the held CSET English translation, so any binding use requires verification against the official Korean text.
-- **Decree-delegation.** Nearly every operative threshold lives in the Presidential Decree (the residual high-impact areas; the national-security exclusion scope; the Article 32 compute threshold; the Article 36 user and revenue thresholds; the Article 31 notification methods; the Article 34 measure details and equivalence-law list; and the fine procedure) or in MSIT guidelines. The Enforcement Decree is not held in the reference base; the adopter confirms current decree values upstream before committing to a compliance milestone, and no decree-level value (including any reported compute-threshold figure) is asserted here. <!-- ref-absence: Enforcement Decree of the Framework Act on Artificial Intelligence | AI Framework Act Enforcement Decree -->
+- **Decree-delegation.** Nearly every operative threshold lives in the Presidential Decree (the residual high-impact areas; the national-security exclusion scope; the Article 32 compute threshold; the Article 36 user and revenue thresholds; the Article 31 notification methods; the Article 34 measure details and equivalence-law list; and the fine procedure) or in MSIT guidelines. The Enforcement Decree is not held in the reference base; the adopter confirms current decree values upstream before committing to a compliance milestone, and no decree-level value (including any reported compute-threshold figure) is asserted here. <!-- ref-absence: Enforcement Decree of the Framework Act on AI | AI Basic Act Enforcement Decree -->
 - **Translation sensitivity.** Several provisions (notably the Article 31(3) synthetic-content duty and the Article 36(1) domestic-representative provision) have elliptical renderings in the held translation; their precise scope turns on the Korean text.
 - **Effort-based duties are stated as such;** this annex does not present the Article 35 impact assessment or the Article 30 verification and certification as mandatory.
 - The corpus operational substance this annex references is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the AI assessment procedures; on any divergence, those documents govern the operational procedure and this annex governs the per-regime framing.

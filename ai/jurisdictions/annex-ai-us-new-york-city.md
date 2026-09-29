@@ -2,7 +2,7 @@
 
 **Document Title:** New York City Automated Employment Decision Tool Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.4\
+**Version:** 0.0.5\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ Alongside [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md) 
 
 - **Local Law 144 of 2021**, the operative statutory mandate, codified in the New York City Administrative Code (the prohibition on using an AEDT without a bias audit, the published-results requirement, and the candidate-notice requirement, at Administrative Code sections 20-870 to 20-872).
 - **The Department of Consumer and Worker Protection (DCWP) final rule**, 6 RCNY 5-300 to 5-304 (Subchapter T of Chapter 5, Title 6 of the Rules of the City of New York), which implements the law: it defines the AEDT and the independent auditor, specifies the bias-audit calculations, and sets the data, published-results, and notice requirements.
-- **The DCWP is the enforcing agency.** Local Law 144 provides for civil penalties (Administrative Code section 20-872); this annex cites the penalty provision by section and does not state a penalty amount, because the Administrative Code penalty text is not held in the reference base (see Limitations). <!-- ref-absence: Administrative Code 20-870 | Administrative Code 20-872 -->
+- **The DCWP is the enforcing agency.** Local Law 144 provides for civil penalties (Administrative Code section 20-872); this annex cites the penalty provision by section and does not state a penalty amount, because the Administrative Code penalty text is not held in the reference base (see Limitations). <!-- ref-absence: Administrative Code 20-872 -->
 
 The controlling texts are the Administrative Code sections and the DCWP rule. The in-force date and enforcement-commencement facts are version-sensitive and are maintained in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md); this annex cross-references them rather than re-deriving them.
 

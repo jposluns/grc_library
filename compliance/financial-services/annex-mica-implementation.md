@@ -2,7 +2,7 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.3.7\
+**Version:** 0.3.8\
 **Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -49,7 +49,7 @@ Misclassification propagates into the wrong reserve, redemption, and authorizati
 
 ## Title II: offers of crypto-assets other than ART or EMT (Arts 4-15)
 
-Title II governs the crypto-asset white-paper lifecycle for offers to the public and admissions to trading of crypto-assets that are neither asset-referenced tokens (ART) nor e-money tokens (EMT). The white paper is a MiCA-specific supervisory document the offeror or person seeking admission drafts to the Annex I schema; the library holds the surrounding disclosure, marketing, conflict-of-interest, safeguarding, and regulator-interaction controls, but not the white paper or its notification, which are MiCA-specific. The obligations below rest on the MiCA Level 1 text (Regulation (EU) 2023/1114); the Art 6(11) or (12) technical standards are not held (see the technical-standards note).
+Title II governs the crypto-asset white-paper lifecycle for offers to the public and admissions to trading of crypto-assets that are neither asset-referenced tokens (ART) nor e-money tokens (EMT). The white paper is a MiCA-specific supervisory document the offeror or person seeking admission drafts to the Annex I schema; the library holds the surrounding disclosure, marketing, conflict-of-interest, safeguarding, and regulator-interaction controls, but not the white paper or its notification, which are MiCA-specific. The obligations below rest on the MiCA Level 1 text (Regulation (EU) 2023/1114); the Art 6(11) or (12) technical standards are not held (see the technical-standards note). <!-- ref-absence: crypto-asset white paper | sustainability indicators -->
 
 ### White-paper lifecycle and offer conditions (Arts 4-15)
 
@@ -79,7 +79,7 @@ The Art 6 white paper follows the Annex I schema, nine lettered parts: **Part A*
 
 ### Technical standards (held status)
 
-Art 6(11) mandates ESMA implementing technical standards (standard forms, formats, and templates for the white paper) and Art 6(12) mandates regulatory technical standards. **the Title II white-paper ITS and RTS are not held in the reference base (`grc_library_ref`)** (the held MiCA delegated-act set covers other Titles (III to VII), not Title II); they are acquisition items (egress-gated), and the mapping above rests on the MiCA Level 1 text alone. <!-- ref-absence: crypto-asset white paper ITS | Article 6(11) -->
+Art 6(11) mandates ESMA implementing technical standards (standard forms, formats, and templates for the white paper) and Art 6(12) mandates regulatory technical standards. **the Title II white-paper ITS and RTS are not held in the reference base (`grc_library_ref`)** (the held MiCA delegated-act set covers other Titles (III to VII), not Title II); they are acquisition items (egress-gated), and the mapping above rests on the MiCA Level 1 text alone. <!-- ref-absence: crypto-asset white paper | sustainability indicators -->
 
 ## Title III: asset-referenced tokens (Arts 16-47)
 
@@ -132,7 +132,7 @@ Gaps: the crypto custody standard now supplies the reusable core of client-asset
 
 ## Title VI: market abuse (Arts 86-92)
 
-Title VI imposes an EU market-abuse regime on crypto-assets that are admitted to trading, or for which a request for admission to trading has been made, applying to acts by any person and whether carried out on or off a trading platform (Art 86). The regime rests on the disclosure duty (Art 88) and the prohibitions on insider dealing (Art 89), unlawful disclosure (Art 90), and market manipulation (Art 91), backed by a prevention-and-detection duty (Art 92). Two Title VI technical standards are held and cited below: the ITS 2024/2861 (an implementing technical standard under Art 88(4)) and the RTS 2025/885 (a regulatory technical standard under Art 92(2)); the Art 92(3) ESMA guidelines are soft law and are not held.
+Title VI imposes an EU market-abuse regime on crypto-assets that are admitted to trading, or for which a request for admission to trading has been made, applying to acts by any person and whether carried out on or off a trading platform (Art 86). The regime rests on the disclosure duty (Art 88) and the prohibitions on insider dealing (Art 89), unlawful disclosure (Art 90), and market manipulation (Art 91), backed by a prevention-and-detection duty (Art 92). Two Title VI technical standards are held and cited below: the ITS 2024/2861 (an implementing technical standard under Art 88(4)) and the RTS 2025/885 (a regulatory technical standard under Art 92(2)); the Art 92(3) ESMA guidelines are soft law and are not held. <!-- ref-absence: prevent and detect market abuse | ESMA guidelines on supervisory practices -->
 
 | MiCA obligation (held cite) | Library artefact / disposition |
 | --- | --- |
@@ -146,7 +146,7 @@ Title VI imposes an EU market-abuse regime on crypto-assets that are admitted to
 | **Prohibition of market manipulation (Art 91)**: no person may engage, or attempt to engage, in market manipulation, including giving false or misleading signals, securing a price at an abnormal or artificial level, employing fictitious devices, or disseminating misleading information. | library conduct and market-integrity controls (adopter maps); the MiCA-specific application is a gap |
 | **Prevention-and-detection arrangements and suspicious-transaction-and-order reporting (Art 92; RTS 2025/885)**: any person professionally arranging or executing transactions in crypto-assets maintains effective arrangements, systems, and procedures to prevent and detect market abuse, and reports suspicious transactions and orders to the competent authority without delay, per the RTS 2025/885 detection, reporting-template, and record-retention requirements. | `operations/procedure-threat-intelligence-and-siem-operations.md`, `security/standard-logging-and-monitoring.md` (monitoring base; the market-abuse detection template and the suspicious-transaction-and-order report are MiCA-specific) |
 
-Art 92(3) provides for ESMA guidelines on the consistency of supervisory practices under Art 92; those guidelines are soft law and are not held in the reference base (`grc_library_ref`). <!-- ref-absence: ESMA guidelines Article 92 | supervisory practices under Article 92 -->
+Art 92(3) provides for ESMA guidelines on the consistency of supervisory practices under Art 92; those guidelines are soft law and are not held in the reference base (`grc_library_ref`). <!-- ref-absence: prevent and detect market abuse | ESMA guidelines on supervisory practices -->
 
 ## Supervisory architecture (Title VII)
 
@@ -182,7 +182,7 @@ MiCA is supervised two-tier: national competent authorities designated under Art
 
 ## Library gaps requiring additional documentation
 
-1. **Crypto-asset white-paper ESMA templates** (Title II Annex I; ART Annex II; EMT Annex III) - the [Crypto-Asset White-Paper Content and Disclosure Standard](../../crypto/standard-crypto-asset-white-paper-disclosure.md) now carries the Level-1 content, mandatory-statement, notification/approval, publication, modification, withdrawal, and liability controls per category; the ESMA implementing technical standards forms, formats, and templates (Arts 6(11), 19(10), 51(10)) and the regulatory technical standards on sustainability indicators (Arts 6(12), 19(11), 51(15)) remain the residual, MiCA-specific and not held.
+1. **Crypto-asset white-paper ESMA templates** (Title II Annex I; ART Annex II; EMT Annex III) - the [Crypto-Asset White-Paper Content and Disclosure Standard](../../crypto/standard-crypto-asset-white-paper-disclosure.md) now carries the Level-1 content, mandatory-statement, notification/approval, publication, modification, withdrawal, and liability controls per category; the ESMA implementing technical standards forms, formats, and templates (Arts 6(11), 19(10), 51(10)) and the regulatory technical standards on sustainability indicators (Arts 6(12), 19(11), 51(15)) remain the residual, MiCA-specific and not held. <!-- ref-absence: crypto-asset white paper | sustainability indicators -->
 2. **Client-asset segregation and insolvency-protection evidence** (Arts 70, 75).
 3. **Recovery and redemption plans** (Arts 46-47, 55) - the Crypto-Asset Reserve and Prudential Requirements Standard carries the Level-1 mandate; the EBA guidelines (Arts 46(6), 47(5)) remain the residual.
 4. **RTS/ITS-templated submissions** - the [Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard](../../crypto/standard-crypto-asset-regulatory-submission.md) now carries the submission-governance controls for the authorization submissions (2025/305, 2025/306, 2025/1125, 2025/1126), the financial-entity notification (2025/303, 2025/304), and the ongoing obligations (records 2025/1140, order-book 2025/416, remuneration 2025/418, complaints 2025/293, 2025/294, conflicts 2025/1141, 2025/1142); the held implementing regulations carry the forms and templates in their annexes (2025/304 notification form, 2025/306 CASP application form, 2025/1126 ART application form and template), so the residual is mapping them to operational submission steps; the market-abuse-detection RTS (2025/885, held) governs a separate market-abuse control class outside this submission standard's scope.

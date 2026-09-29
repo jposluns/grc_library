@@ -2,8 +2,8 @@
 
 **Document Title:** Fail-Closed Automation Principle\
 **Document Type:** Principle\
-**Version:** 0.0.3\
-**Date:** 2026-09-24\
+**Version:** 0.0.4\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/principle-capability-is-not-authority.md`](principle-capability-is-not-authority.md), [`security/framework-zero-trust-architecture.md`](../security/framework-zero-trust-architecture.md), [`operations/standard-network-security-and-segmentation.md`](../operations/standard-network-security-and-segmentation.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`privacy/framework-privacy-by-design.md`](../privacy/framework-privacy-by-design.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md)\
@@ -70,7 +70,7 @@ An adopter reusing this library inherits fail-closed as the default failure dire
 
 ## Framework alignment
 
-The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk; the functional-safety references govern physical safety systems, whose fail-safe/safe-state concept this principle generalizes to automation broadly. NIST and ISO control identifiers are verified against held source texts; the IEC editions are confirmed against the canonical-citations register (their source texts are not held).
+The alignment below is analogical (each row aligns with or is informed by the cited reference) and at the control-family and category level, not a prescriptive crosswalk; the functional-safety references govern physical safety systems, whose fail-safe/safe-state concept this principle generalizes to automation broadly. NIST and ISO control identifiers are verified against held source texts; the IEC editions are confirmed against the canonical-citations register (their source texts are not held). <!-- ref-absence: IEC 61508 | IEC 61511 -->
 
 | Requirement | NIST SP 800-53 Rev. 5 | ISO/IEC 27001:2022 | NIST CSF 2.0 | Functional safety |
 | --- | --- | --- | --- | --- |

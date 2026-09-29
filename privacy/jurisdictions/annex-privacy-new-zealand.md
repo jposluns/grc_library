@@ -2,7 +2,7 @@
 
 **Document Title:** New Zealand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -55,7 +55,7 @@ New Zealand's Privacy Act 2020 (s. 22) sets thirteen information privacy princip
 ## AI and privacy obligations
 
 - **IPP 1 (purpose of collection), IPP 6 (access), and IPP 10 (limits on use)** apply to personal information used in AI systems.
-- The OPC has published guidance on responsible use of AI and application of the IPPs to AI-assisted decision-making; that guidance is not held in the reference base, so an adopter confirms the current OPC AI guidance directly. <!-- ref-absence: OPC AI guidance New Zealand | responsible use of AI -->
+- The OPC has published guidance on responsible use of AI and application of the IPPs to AI-assisted decision-making; that guidance is not held in the reference base, so an adopter confirms the current OPC AI guidance directly. <!-- ref-absence: New Zealand OPC AI | New Zealand OPC guidance -->
 - **Automated decisions:** the Privacy Act 2020 contains no automated decision-making provision; an adopter applying the library's automated-decision controls does so as governance practice, not as a Privacy Act requirement.
 
 ---
