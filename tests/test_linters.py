@@ -1345,7 +1345,20 @@ class RefAbsenceClaimsTests(LinterTestCase):
     def test_pattern_inside_fence_ignored(self) -> None:
         fixture = self.make_fixture(
             "annex-absence-fence.md",
-            "# T\n\n
+            "# T\n\n```\nX is not held in the reference base.\n```\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_exempt_meta_doc_ignored(self) -> None:
+        # The audit-programme specification quotes the canonical sentence
+        # and the marker as rule patterns; it is exempt by name (the §3
+        # principle-4 meta-document carve-out).
+        result = run_linter(
+            self.SCRIPT, "governance/specification-audit-programme.md")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 class PlaceholderLeakageTests(LinterTestCase):
     """tools/lint-placeholder-leakage.py"""
 
