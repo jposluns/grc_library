@@ -2,8 +2,8 @@
 
 **Document Title:** Audit Evidence Package Template\
 **Document Type:** Template\
-**Version:** 1.1.3\
-**Date:** 2026-09-25\
+**Version:** 1.1.4\
+**Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/procedure-control-testing.md`](procedure-control-testing.md), [`compliance/procedure-audit-planning.md`](procedure-audit-planning.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`compliance/template-regulator-interaction.md`](template-regulator-interaction.md)\
@@ -95,7 +95,7 @@ The cover page is followed by a flat index of all in-scope controls. The index i
 ```
 | # | Control ID | Control title | Framework reference | Implementation status | Operating effectiveness | Section link |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO/IEC 27001 Annex A.5.16 / NIST SP 800-53 Rev. 5 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
+| 1 | <e.g. AC-2> | <e.g. Account management> | <e.g. ISO/IEC 27001:2022 Annex A.5.16 / NIST SP 800-53 Rev. 5 AC-2> | <Implemented / Partially implemented / Not implemented> | <Effective / Partially effective / Ineffective / Not yet assessed> | [link to per-control section] |
 | 2 | ... | ... | ... | ... | ... | ... |
 [continue per in-scope control]
 ```
