@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)\
 **Document Type:** Worklist\
-**Version:** 1.0.2\
-**Date:** 2026-09-25\
+**Version:** 1.0.3\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md)\
@@ -71,7 +71,7 @@ For entries in §5.8 of the tooling register:
 
 ### 3.3 Archived or unmaintained projects
 
-For entries explicitly marked archived (rebuff, CodeGate, Vigil-LLM) or unmaintained (LLMFuzzer):
+For entries explicitly marked archived (rebuff, CodeGate, llm-guard, IBM HEART) or unmaintained or inactive (LLMFuzzer; Vigil-LLM, last push January 2024):
 
 - The Source URL should still resolve; the project page should still be visible (archive flag preserves the repository).
 - Commit SHA capture is still meaningful (it pins the last state before archival).
@@ -86,13 +86,13 @@ Pre-filled by the AI verifier from the AI Security Tooling Landscape Register's 
 | Section ID | Project | Source URL | Hosting kind | Expected default branch | Captured commit SHA / page SHA-512 | Wayback snapshot URL | Capabilities still match? | Divergence detail | Captured by | Verification status | Date checked |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 5.1.1 | PROMPTPurify | https://github.com/securelayer7/PROMPTPurify | github | main |  |  |  |  |  |  |  |
-| 5.1.2 | Protect AI llm-guard | https://github.com/protectai/llm-guard | github | main |  |  |  |  |  |  |  |
+| 5.1.2 | Protect AI llm-guard (archived) | https://github.com/protectai/llm-guard | github | main |  |  |  |  |  |  |  |
 | 5.1.3 | Protect AI rebuff (archived) | https://github.com/protectai/rebuff | github | main |  |  |  |  |  |  |  |
 | 5.1.4 | ClawGuard | https://github.com/Claw-Guard/ClawGuard | github | main |  |  |  |  |  |  |  |
 | 5.1.5 | CourtGuard | https://github.com/isaacwu2000/CourtGuard | github | main |  |  |  |  |  |  |  |
-| 5.1.6 | NVIDIA NeMo Guardrails | https://github.com/NVIDIA/NeMo-Guardrails | github | develop |  |  |  |  |  |  |  |
+| 5.1.6 | NVIDIA NeMo Guardrails | https://github.com/NVIDIA-NeMo/Guardrails | github | develop |  |  |  |  |  |  |  |
 | 5.1.7 | Guardrails AI | https://github.com/guardrails-ai/guardrails | github | main |  |  |  |  |  |  |  |
-| 5.1.8 | Vigil-LLM (archived) | https://github.com/deadbits/vigil-llm | github | main |  |  |  |  |  |  |  |
+| 5.1.8 | Vigil-LLM | https://github.com/deadbits/vigil-llm | github | main |  |  |  |  |  |  |  |
 | 5.1.9 | Stacklok CodeGate (archived) | https://github.com/stacklok/codegate | github | main |  |  |  |  |  |  |  |
 | 5.1.10 | LLM Warden (jackhhao) | https://github.com/jackhhao/llm-warden | github | main |  |  |  |  |  |  |  |
 | 5.1.11 | KOKOSde LocalMod | https://github.com/KOKOSde/localmod | github | main |  |  |  |  |  |  |  |
@@ -106,7 +106,7 @@ Pre-filled by the AI verifier from the AI Security Tooling Landscape Register's 
 | 5.2.7 | ETH Zurich AgentDojo | https://github.com/ethz-spylab/agentdojo | github | main |  |  |  |  |  |  |  |
 | 5.2.8 | HarmBench | https://github.com/centerforaisafety/HarmBench | github | main |  |  |  |  |  |  |  |
 | 5.2.9 | Trusted-AI ART | https://github.com/Trusted-AI/adversarial-robustness-toolbox | github | main |  |  |  |  |  |  |  |
-| 5.2.10 | IBM HEART | https://github.com/IBM/heart-library | github | main |  |  |  |  |  |  |  |
+| 5.2.10 | IBM HEART (archived) | https://github.com/IBM/heart-library | github | main |  |  |  |  |  |  |  |
 | 5.2.11 | Open-Prompt-Injection | https://github.com/liu00222/Open-Prompt-Injection | github | main |  |  |  |  |  |  |  |
 | 5.2.12 | BCG-X ARTKIT | https://github.com/BCG-X-Official/artkit | github | main |  |  |  |  |  |  |  |
 | 5.2.13 | Giskard | https://github.com/Giskard-AI/giskard | github | main |  |  |  |  |  |  |  |

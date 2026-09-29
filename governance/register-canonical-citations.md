@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.104\
+**Version:** 1.5.105\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -346,13 +346,13 @@ This section records open-source AI security projects referenced by library cont
 | Project | Current version | Registration date | Topic | License | Status notes | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship | https://github.com/Trusted-AI/adversarial-robustness-toolbox/releases | 2026-09-29 |
-| IBM HEART | v0.7.0 | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; repository archived (read-only), found at the 2026-09-29 re-check | https://github.com/IBM/heart-library | 2026-09-29 |
+| IBM HEART | archived | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; archived 17 September 2026 (final release v0.7.0) | https://github.com/IBM/heart-library | 2026-09-29 |
 | AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - | https://github.com/Koukyosyumei/AIJack | 2026-09-29 |
 | HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - | https://github.com/centerforaisafety/HarmBench | 2026-09-29 |
 | Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - | https://github.com/meta-llama/PurpleLlama | 2026-09-29 |
 | NVIDIA NeMo Guardrails | continuous | 2024 | Programmable rails framework (Input / Output / Dialog / Retrieval / Execution) | Apache 2.0 | Repository moved from NVIDIA/NeMo-Guardrails, found at the 2026-09-29 re-check | https://github.com/NVIDIA-NeMo/Guardrails/releases | 2026-09-29 |
 | Guardrails AI | continuous | 2024 | RAIL validator framework with Hub of pluggable validators | Apache 2.0 | - | https://github.com/guardrails-ai/guardrails/releases | 2026-09-29 |
-| Protect AI llm-guard | archived | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | Repository archived (read-only), found at the 2026-09-29 re-check | https://github.com/protectai/llm-guard | 2026-09-29 |
+| Protect AI llm-guard | archived | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | Archived 9 July 2026 | https://github.com/protectai/llm-guard | 2026-09-29 |
 | Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 | https://github.com/protectai/rebuff | 2026-09-29 |
 | Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - | https://github.com/protectai/modelscan/releases | 2026-09-29 |
 | picklescan | continuous | 2024 | Pickle opcode-stream analyzer; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-09-29 |

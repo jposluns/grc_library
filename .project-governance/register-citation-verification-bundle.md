@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Bundle Index\
 **Document Type:** Register\
-**Version:** 1.0.9\
-**Date:** 2026-09-25\
+**Version:** 1.0.10\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`governance/register-ai-security-tooling-landscape.md`](../governance/register-ai-security-tooling-landscape.md), [`.project-governance/worklist-citation-verification-batch-q2-iso-iec.md`](worklist-citation-verification-batch-q2-iso-iec.md), [`.project-governance/worklist-citation-verification-batch-q3-ai-tooling.md`](worklist-citation-verification-batch-q3-ai-tooling.md), [`.project-governance/worklist-citation-verification-batch-q3-1-new-citations.md`](worklist-citation-verification-batch-q3-1-new-citations.md), [`.project-governance/worklist-citation-verification-batch-q4-canonical-citations.md`](worklist-citation-verification-batch-q4-canonical-citations.md)\
@@ -88,13 +88,13 @@ The Phase 23.6 canonical citations register additions in the AI security tooling
 | Canonical citations register entry | Q3 worklist section ID | Tool |
 | --- | --- | --- |
 | Trusted-AI ART | 5.2.9 | ART (Adversarial Robustness Toolbox) |
-| IBM HEART | 5.2.10 | IBM HEART |
+| IBM HEART | 5.2.10 | IBM HEART (archived) |
 | AIJack | 5.2.16 | AIJack |
 | HarmBench framework | 5.2.8 | HarmBench |
 | Meta PurpleLlama | 5.1.12 | PurpleLlama bundle (incl. Llama Guard, CyberSecEval, Code Shield) |
 | NVIDIA NeMo Guardrails | 5.1.6 | NeMo Guardrails |
 | Guardrails AI | 5.1.7 | Guardrails AI |
-| Protect AI llm-guard | 5.1.2 | llm-guard |
+| Protect AI llm-guard | 5.1.2 | llm-guard (archived) |
 | Protect AI rebuff | 5.1.3 | rebuff (archived) |
 | Protect AI modelscan | 5.3.1 | modelscan |
 | picklescan | 5.3.2 | picklescan |
@@ -105,7 +105,7 @@ The Phase 23.6 canonical citations register additions in the AI security tooling
 | NVIDIA garak | 5.2.2 | garak |
 | Microsoft PyRIT | 5.2.3 | PyRIT |
 | ETH Zurich AgentDojo | 5.2.7 | AgentDojo |
-| Vigil-LLM | 5.1.8 | Vigil-LLM (archived) |
+| Vigil-LLM | 5.1.8 | Vigil-LLM |
 | Stacklok CodeGate | 5.1.9 | CodeGate (archived) |
 | ClawGuard | 5.1.4 | ClawGuard |
 | Lasso MCP Gateway | 5.5.1 | Lasso MCP Gateway |
