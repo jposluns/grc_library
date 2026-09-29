@@ -2,8 +2,8 @@
 
 **Document Title:** Switzerland Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.8\
-**Date:** 2026-09-15\
+**Version:** 1.0.9\
+**Date:** 2026-09-28\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/jurisdictions/annex-privacy-european-union.md`](../jurisdictions/annex-privacy-european-union.md), [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -32,7 +32,7 @@ This annex defines privacy regulatory requirements applicable to the processing 
 
 ## AI and privacy obligations
 
-- Switzerland has not enacted standalone AI legislation as of 2026; the Federal Council has opted for a sector-specific approach (amending existing law where needed). Switzerland's status regarding the Council of Europe Framework Convention on AI is not held in the reference base, so an adopter confirms the current signature and ratification status directly.
+- Switzerland has not enacted standalone AI legislation as of 2026; the Federal Council has opted for a sector-specific approach (amending existing law where needed). The Council of Europe Framework Convention on AI (CETS No. 225) is held in the reference base, but Switzerland's signature and ratification status is not, so an adopter confirms that status directly.
 - The nFADP principles (purpose limitation, data minimization, accountability) apply to AI processing of personal data; the FDPIC's specific published position on AI is not held in the reference base, so an adopter confirms it directly.
 - **Automated decision-making:** Individuals may request human review of decisions made solely by automated means where those decisions significantly affect them. Organizations must inform data subjects when decisions are made on an automated basis.
 - **DPIA (Art. 22):** required beforehand where processing is likely to result in a high risk to the data subject's personality or fundamental rights. The existence of a high risk depends on the nature, extent, circumstances, and purpose of the processing (new technologies being a factor), and arises in particular for large-scale processing of sensitive personal data or systematic large-scale monitoring of public areas.

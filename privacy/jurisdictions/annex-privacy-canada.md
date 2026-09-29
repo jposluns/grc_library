@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.26\
-**Date:** 2026-09-25\
+**Version:** 1.1.27\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -102,7 +102,7 @@ Where the organization monitors the network and device activity of workers in Ca
 ### Under PIPEDA
 
 - PIPEDA does not prohibit cross-border transfers but requires comparable protection for personal information transferred to third parties including foreign affiliates. Contractual provisions are used to achieve this.
-- The OPC has recommended assessing recipient-jurisdiction laws and disclosing to individuals that their information may be accessible to foreign authorities; that OPC guidance is not held in the reference base, so an adopter confirms the current position directly.
+- The OPC's accountability guidance (PIPEDA Principle 1, held in the reference base) tells organizations transferring personal information to service providers outside Canada to assess the risks of the transfer and to be transparent that, while in another jurisdiction, the information may be accessed by the courts, law enforcement and national security authorities; an adopter confirms any later OPC guidance directly.
 
 ### Under Quebec Law 25
 

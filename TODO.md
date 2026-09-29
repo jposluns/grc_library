@@ -76,12 +76,12 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26.3 | OSCAL metadata-field alignment (S, M) | `[machinery]` `[public]` |
 | 2.26.4 | OSCAL catalog pilot: one domain, generated, gated (M, XL) | `[machinery]` `[public]` |
 | 2.26.5 | OSCAL profiles and crosswalks for framework alignments (M, L) | `[machinery]` `[public]` |
-| 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` `[BLOCKED:egress-ingest (acquisition egress-gated)]` |
+| 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (content) | `[public]` |
-| 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` `[BLOCKED:source-acquisition (awaiting maintainer source drop)]` |
-| 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered; WP249, ICO Monitoring-workers, ILO + Council of Europe workplace-monitoring recommendations remain egress-blocked, pending upload before source-verification and registration) | `[content]` `[public]` |
+| 2.34 | Workforce monitoring and network-telemetry compliance suite (umbrella; H, L) | `[content]` `[public]` |
+| 2.34.9 | Citations import for 2.34 (NIST Privacy Framework registered; WP249, ICO Monitoring-workers, the ILO code of practice and Council of Europe Recommendation CM/Rec(2015)5 are now held in the reference base, pending source-verification and registration) | `[content]` `[public]` |
 
 ## Priority 3 — Clean up and tooling
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Crypto-Asset Governance Domain README\
 **Document Type:** Register\
-**Version:** 0.1.7\
-**Date:** 2026-09-12\
+**Version:** 0.1.8\
+**Date:** 2026-09-28\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md)\
@@ -20,7 +20,7 @@
 
 This directory holds organization-neutral governance for crypto-assets and blockchain (distributed-ledger) technology: classifying crypto-assets, approving and inventorying crypto-asset activity, custody and key control, blockchain-platform vetting, staking governance, and smart-contract risk. The documents are regime-neutral; where a requirement is grounded in a specific instrument (notably the EU Markets in Crypto-Assets Regulation, Regulation (EU) 2023/1114), the instrument is named at the point of use.
 
-The domain complements the MiCA implementation annex in the compliance domain ([`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md)): the annex maps a regime's obligations to library artefacts, and this domain holds the reusable core artefacts the mapping points at. Anti-money-laundering, counter-terrorist-financing, and the transfer travel rule are not yet covered, pending acquisition of the grounding source.
+The domain complements the MiCA implementation annex in the compliance domain ([`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md)): the annex maps a regime's obligations to library artefacts, and this domain holds the reusable core artefacts the mapping points at. Anti-money-laundering, counter-terrorist-financing, and the transfer travel rule are not yet covered; the grounding Financial Action Task Force sources are now held in the reference base, and a dedicated document will be written from them.
 
 ---
 

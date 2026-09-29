@@ -81,7 +81,7 @@ _117 documents._
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.7 | 2026-09-25 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.13 | 2026-09-29 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.107 | 2026-09-29 |
-| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.49 | 2026-09-25 |
+| [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.50 | 2026-09-28 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.3 | 2026-08-30 |
 | [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.205 | 2026-09-27 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.19 | 2026-09-25 |
@@ -104,7 +104,7 @@ _117 documents._
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.32 | 2026-09-24 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.17 | 2026-09-25 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.10 | 2026-09-15 |
-| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.26 | 2026-09-25 |
+| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.27 | 2026-09-29 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-09-20 |
 | [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.20 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
@@ -116,7 +116,7 @@ _117 documents._
 | [privacy/jurisdictions/annex-privacy-south-africa.md](../privacy/jurisdictions/annex-privacy-south-africa.md) | South Africa Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-south-korea.md](../privacy/jurisdictions/annex-privacy-south-korea.md) | South Korea Privacy Regulatory Requirements | Annex | 1.1.1 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-thailand.md](../privacy/jurisdictions/annex-privacy-thailand.md) | Thailand Privacy Regulatory Requirements | Annex | 1.1.3 | 2026-09-15 |
-| [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.11 | 2026-09-25 |
+| [privacy/jurisdictions/annex-privacy-united-kingdom.md](../privacy/jurisdictions/annex-privacy-united-kingdom.md) | United Kingdom Privacy Regulatory Requirements | Annex | 1.1.13 | 2026-09-28 |
 | [privacy/jurisdictions/annex-privacy-united-states.md](../privacy/jurisdictions/annex-privacy-united-states.md) | United States Privacy Regulatory Requirements | Annex | 1.2.11 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-vietnam.md](../privacy/jurisdictions/annex-privacy-vietnam.md) | Vietnam Privacy Regulatory Requirements | Annex | 1.2.1 | 2026-08-04 |
 | [privacy/policy-privacy-and-data-governance.md](../privacy/policy-privacy-and-data-governance.md) | Privacy and Data Governance Policy | Policy | 1.4.27 | 2026-09-28 |
@@ -139,7 +139,7 @@ _117 documents._
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.7 | 2026-09-25 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.5 | 2026-09-20 |
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.15 | 2026-09-25 |
-| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.13 | 2026-09-25 |
+| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.14 | 2026-09-29 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.7 | 2026-09-24 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.2.2 | 2026-09-24 |
@@ -265,7 +265,7 @@ _163 documents._
 | [privacy/jurisdictions/annex-privacy-nigeria.md](../privacy/jurisdictions/annex-privacy-nigeria.md) | Nigeria Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-philippines.md](../privacy/jurisdictions/annex-privacy-philippines.md) | Philippines Privacy Regulatory Requirements | Annex | 1.0.5 | 2026-09-18 |
 | [privacy/jurisdictions/annex-privacy-saudi-arabia.md](../privacy/jurisdictions/annex-privacy-saudi-arabia.md) | Saudi Arabia Privacy Regulatory Requirements | Annex | 1.0.7 | 2026-09-15 |
-| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-09-15 |
+| [privacy/jurisdictions/annex-privacy-switzerland.md](../privacy/jurisdictions/annex-privacy-switzerland.md) | Switzerland Privacy Regulatory Requirements | Annex | 1.0.9 | 2026-09-28 |
 | [privacy/jurisdictions/annex-privacy-turkey.md](../privacy/jurisdictions/annex-privacy-turkey.md) | Turkey Privacy Regulatory Requirements | Annex | 1.0.4 | 2026-09-15 |
 | [privacy/jurisdictions/annex-privacy-uae.md](../privacy/jurisdictions/annex-privacy-uae.md) | United Arab Emirates Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-09-15 |
 | [privacy/register-automated-decision-making.md](../privacy/register-automated-decision-making.md) | Automated Decision-Making and Profiling Register | Register | 1.0.18 | 2026-09-21 |
@@ -377,7 +377,7 @@ _76 documents._
 | [architecture/standard-integration-architecture.md](../architecture/standard-integration-architecture.md) | Integration Architecture Standard | Standard | 0.0.6 | 2026-09-20 |
 | [compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md](../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md) | Energy and Utilities Sector Requirements Annex | Annex | 0.0.8 | 2026-09-04 |
 | [compliance/financial-services/annex-dora-implementation.md](../compliance/financial-services/annex-dora-implementation.md) | DORA Implementation Annex | Annex | 0.0.12 | 2026-09-24 |
-| [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.5 | 2026-09-24 |
+| [compliance/financial-services/annex-mica-implementation.md](../compliance/financial-services/annex-mica-implementation.md) | MiCA Implementation Annex | Annex | 0.3.6 | 2026-09-28 |
 | [compliance/financial-services/annex-sox-itgc.md](../compliance/financial-services/annex-sox-itgc.md) | SOX IT General Controls Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/healthcare/annex-healthcare-united-states.md](../compliance/healthcare/annex-healthcare-united-states.md) | United States HIPAA Sector Requirements Annex | Annex | 0.0.1 | 2026-07-09 |
 | [compliance/healthcare/procedure-hipaa-operational-compliance.md](../compliance/healthcare/procedure-hipaa-operational-compliance.md) | HIPAA Operational Compliance Procedure | Procedure | 0.0.3 | 2026-08-28 |
@@ -386,14 +386,14 @@ _76 documents._
 | [compliance/public-sector/annex-fedramp-requirements.md](../compliance/public-sector/annex-fedramp-requirements.md) | FedRAMP Sector Requirements Annex | Annex | 0.0.17 | 2026-09-24 |
 | [compliance/public-sector/annex-public-sector-requirements.md](../compliance/public-sector/annex-public-sector-requirements.md) | Public Sector GRC Requirements Annex | Annex | 0.0.6 | 2026-09-04 |
 | [compliance/telecommunications/annex-telecommunications-sector-requirements.md](../compliance/telecommunications/annex-telecommunications-sector-requirements.md) | Telecommunications Sector Requirements Annex | Annex | 0.0.7 | 2026-09-04 |
-| [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.3 | 2026-09-24 |
+| [crypto/framework-crypto-asset-governance.md](../crypto/framework-crypto-asset-governance.md) | Crypto-Asset Governance Framework | Framework | 0.1.5 | 2026-09-28 |
 | [crypto/register-crypto-asset-inventory.md](../crypto/register-crypto-asset-inventory.md) | Crypto-Asset Domain Inventory Register | Register | 0.0.1 | 2026-09-11 |
 | [crypto/standard-crypto-asset-regulatory-submission.md](../crypto/standard-crypto-asset-regulatory-submission.md) | Crypto-Asset MiCA Regulatory Submission and Templated-Filing Standard | Standard | 0.0.1 | 2026-09-12 |
 | [crypto/standard-crypto-asset-reserve-and-prudential-requirements.md](../crypto/standard-crypto-asset-reserve-and-prudential-requirements.md) | Crypto-Asset Reserve and Prudential Requirements Standard | Standard | 0.0.2 | 2026-09-12 |
-| [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.1 | 2026-09-11 |
+| [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.2 | 2026-09-28 |
 | [crypto/standard-crypto-asset-white-paper-disclosure.md](../crypto/standard-crypto-asset-white-paper-disclosure.md) | Crypto-Asset White-Paper Content and Disclosure Standard | Standard | 0.0.2 | 2026-09-24 |
 | [crypto/standard-digital-asset-custody.md](../crypto/standard-digital-asset-custody.md) | Digital Asset Custody Standard | Standard | 0.0.6 | 2026-09-05 |
-| [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.1 | 2026-09-11 |
+| [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.3 | 2026-09-29 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.8 | 2026-09-24 |
 | [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.13 | 2026-09-14 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.10 | 2026-09-24 |

@@ -2,8 +2,8 @@
 
 **Document Title:** Crypto-Asset Governance Framework\
 **Document Type:** Framework\
-**Version:** 0.1.3\
-**Date:** 2026-09-24\
+**Version:** 0.1.5\
+**Date:** 2026-09-28\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/README.md`](README.md), [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md), [`compliance/financial-services/annex-mica-implementation.md`](../compliance/financial-services/annex-mica-implementation.md), [`security/framework-cryptographic-key-lifecycle.md`](../security/framework-cryptographic-key-lifecycle.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md)\
@@ -63,6 +63,6 @@ The domain does not re-implement controls that exist elsewhere in the library. K
 
 ## Limitations
 
-Anti-money-laundering, counter-terrorist-financing, and the crypto-asset transfer travel rule are not covered in this release; the Financial Action Task Force guidance that grounds that content is not yet held in the reference base, and the gap is stated here rather than filled with unsourced material. It will be addressed in a dedicated document once the source is acquired.
+Anti-money-laundering, counter-terrorist-financing, and the crypto-asset transfer travel rule are not covered in this release; the Financial Action Task Force sources that ground that content (the 2021 updated guidance on virtual assets and virtual asset service providers, and the Recommendations as updated in October 2025) are now held in the reference base; the gap is stated here until a dedicated document is written from them.
 
 The technology grounding in this framework draws on NIST IR 8202, which is a NIST Internal Report, a foundational technical overview, not a formal standard, and dates from 2018; its consensus-landscape detail is treated as orientation, not as a current market survey. The regime grounding draws on the EU MiCA regulation, which the library holds in full; an organization under a different regime applies the same control structure against its own governing law, and per-regime jurisdiction annexes are a planned extension of this domain as further sources are held.
