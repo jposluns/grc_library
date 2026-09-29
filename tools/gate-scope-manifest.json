@@ -57,6 +57,7 @@
       "lint-metadata-line-breaks.py",
       "lint-metadata.py",
       "lint-positional-backlog-tokens.py",
+      "lint-ref-absence-claims.py",
       "lint-roles.py",
       "lint-shall-near-uncertainty.py",
       "lint-standards-currency.py",

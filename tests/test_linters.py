@@ -1228,6 +1228,124 @@ class ShallNearUncertaintyTests(LinterTestCase):
             f"skipped.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
 
+class RefAbsenceClaimsTests(LinterTestCase):
+    """tools/lint-ref-absence-claims.py (gate 104).
+
+    Mutation map (audit-gate-mutation convention), one killing fixture per
+    mutant: dropping the marker-presence branch is killed by
+    test_canonical_without_marker_flagged; the orphan-marker branch by
+    test_orphan_marker_flagged; the staleness branch by
+    test_held_query_flagged_stale; the case/whitespace normalization by
+    test_stale_match_is_case_insensitive; and the near-miss net by
+    test_near_miss_paraphrase_flagged.
+    """
+
+    SCRIPT = "tools/lint-ref-absence-claims.py"
+
+    def test_canonical_with_marker_and_no_match_passes(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-clean.md",
+            "# T\n\nThat guidance is not held in the reference base, so an "
+            "adopter confirms it directly. "
+            "<!-- ref-absence: NONESUCH-GUIDANCE-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_marker_on_next_line_passes(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-next-line.md",
+            "# T\n\nThat guidance is not held in the reference base.\n"
+            "<!-- ref-absence: NONESUCH-GUIDANCE-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_canonical_without_marker_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-unmarked.md",
+            "# T\n\nThat guidance is not held in the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_held_query_flagged_stale(self) -> None:
+        # '27002' matches the committed manifest's ISO/IEC 27002:2022 row,
+        # the exact 2026-07-17 partial-grep incident that motivated
+        # ref-holds.py; here it must flip the absence claim red.
+        fixture = self.make_fixture(
+            "annex-absence-stale.md",
+            "# T\n\nISO/IEC 27002:2022 is not held in the reference base. "
+            "<!-- ref-absence: 27002 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "STALE")
+
+    def test_stale_match_is_case_insensitive(self) -> None:
+        # Lowercase query, doubled interior whitespace: the normalization
+        # (casefold + whitespace collapse) must still match the row.
+        fixture = self.make_fixture(
+            "annex-absence-stale-case.md",
+            "# T\n\nThe control set is not held in the reference base. "
+            "<!-- ref-absence: iso/iec  27002:2022 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "STALE")
+
+    def test_multi_query_one_alternative_matching_flagged(self) -> None:
+        # One never-matching alternative does not shield a matching one.
+        fixture = self.make_fixture(
+            "annex-absence-multi.md",
+            "# T\n\nThe control set is not held in the reference base. "
+            "<!-- ref-absence: NONESUCH-99999 | 27002 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "STALE")
+
+    def test_orphan_marker_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-orphan.md",
+            "# T\n\nNothing is claimed on this line. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "orphan")
+
+    def test_empty_marker_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-empty-marker.md",
+            "# T\n\nThat guidance is not held in the reference base. "
+            "<!-- ref-absence: -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "malformed")
+
+    def test_near_miss_paraphrase_flagged(self) -> None:
+        # A paraphrase within the token window of the reference-base
+        # vocabulary must fail with the canonical-phrasing message.
+        fixture = self.make_fixture(
+            "annex-absence-near-miss.md",
+            "# T\n\nThe recommendations are not held in this library's "
+            "reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_content_absence_claim_not_flagged(self) -> None:
+        # A claim about the CONTENT of held texts is not a holdings claim
+        # (the annex-privacy-vietnam data-localization false-positive class).
+        fixture = self.make_fixture(
+            "annex-absence-content.md",
+            "# T\n\nSearches of both held texts return no such duty, and a "
+            "signing date is not in the held text.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_pattern_inside_fence_ignored(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-fence.md",
+            "# T\n\n
 class PlaceholderLeakageTests(LinterTestCase):
     """tools/lint-placeholder-leakage.py"""
 
