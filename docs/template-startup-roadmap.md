@@ -2,7 +2,7 @@
 
 **Document Title:** Adopter Startup Roadmap Template\
 **Document Type:** Template\
-**Version:** 2.2.12\
+**Version:** 2.2.13\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -204,7 +204,7 @@ Adopt:
 
 Adopt:
 - B1 with consumer-facing emphasis: cookies and tracker register, privacy notice, consent management.
-- Breach-notification procedure covering both regulator reporting (e.g. without undue delay and, where feasible, within 72 hours to the supervisory authority under GDPR Art. 33) and data-subject notification where the breach is likely to result in high risk to individuals (without undue delay under GDPR Art. 34; specific timelines under some US state laws).
+- Breach-notification procedure covering both regulator reporting (e.g. without undue delay and, where feasible, within 72 hours of becoming aware, to the supervisory authority under GDPR Art. 33) and data-subject notification where the breach is likely to result in high risk to individuals (without undue delay under GDPR Art. 34; specific timelines under some US state laws).
 
 #### C2: Businesses (B2B; your customers are other organizations)
 
