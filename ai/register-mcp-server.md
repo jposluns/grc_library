@@ -2,7 +2,7 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-09-29\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ Each row is one MCP server. Mandatory fields:
 | Hosting | Supplier-hosted, organization-hosted, developer-workstation-hosted |
 | Endpoint | Internal endpoint identifier; private record |
 | Protocol version | MCP protocol version supported |
-| Authentication | Authentication mechanism (token, mTLS, OAuth, no-auth restricted to local) |
+| Authentication | Authentication mechanism (token, mTLS, OAuth; for a local STDIO server, the operating-system user and process boundary) |
 | Encryption in transit | Yes / configurable / no |
 | Permitted capabilities | The explicit list of tools, resources, or prompts the server exposes |
 | Capability risk classification | Per the agentic development security standard: Read-only Low; Write Low; Write Sensitive; Destructive |
@@ -94,8 +94,8 @@ Every approved server satisfies:
 
 | Control area | Requirement |
 | --- | --- |
-| Authentication | Every client connection is authenticated (MCP-SEC-03), with no anonymous connections in production whatever the hosting (MCP-SEC-01). A local STDIO server launched as a child process authenticates through the operating-system user and process boundary; a network transport (HTTP or SSE), including one bound to localhost, requires token or OAuth authentication. Localhost binding or workstation ownership is not an exception. |
-| Encryption | TLS for non-local servers; mTLS where Tier 1 |
+| Authentication | Every client connection is authenticated, with no anonymous connections (MCP-SEC-03); this applies to every registered server, including developer-workstation-hosted ones (MCP-SEC-01). A local STDIO server launched as a child process authenticates through the operating-system user and process boundary; a network transport (HTTP or SSE), including one bound to localhost, requires token, OAuth or mTLS authentication. Localhost binding or workstation ownership is not an exception. |
+| Encryption | TLS 1.3 or stronger for network transports (HTTP or SSE), including localhost; not applicable to a local STDIO pipe; mTLS where Tier 1 |
 | Authorization | The server applies the user-on-whose-behalf authorization; agent identity alone does not unlock data |
 | Input validation | The server validates inputs against the declared schema; rejects out-of-schema requests |
 | Output sanitization | Where the server returns data fed into downstream model context, the data is delimited and identified as untrusted to mitigate indirect prompt injection |

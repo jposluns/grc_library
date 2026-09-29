@@ -2,7 +2,7 @@
 
 **Document Title:** AI and Agentic Development Security Standard\
 **Document Type:** Standard\
-**Version:** 1.8.45\
+**Version:** 1.8.46\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -333,7 +333,7 @@ External rule repositories (TikiTribe, Kariedo, addyosmani, Wiz) referenced in [
 
 **MCP-SEC-02:** MCP server tool manifests must be signed and version-controlled. The client must verify signatures before trusting tool descriptions.
 
-**MCP-SEC-03:** MCP servers must authenticate all client connections. No anonymous MCP connections in production. For a local STDIO server launched as a child process, the operating-system user and process boundary is the client authentication; a network transport (HTTP or SSE), including one bound to localhost, requires token or OAuth authentication.
+**MCP-SEC-03:** MCP servers must authenticate all client connections. No anonymous MCP connections in production. For a local STDIO server launched as a child process, the operating-system user and process boundary is the client authentication; a network transport (HTTP or SSE), including one bound to localhost, requires token, OAuth or mutual TLS authentication.
 
 **MCP-SEC-04:** MCP servers must implement per-tool RBAC. Server-level authentication does not grant access to all tools.
 
