@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)\
 **Document Type:** Worklist\
-**Version:** 1.0.4\
+**Version:** 1.0.5\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -71,7 +71,7 @@ For entries in §5.8 of the tooling register:
 
 ### 3.3 Archived or unmaintained projects
 
-For entries explicitly marked archived (rebuff, CodeGate, llm-guard, IBM HEART) or unmaintained or inactive (LLMFuzzer; Vigil-LLM, last push January 2024):
+For entries explicitly marked archived (rebuff, CodeGate, llm-guard, IBM HEART) or unmaintained (LLMFuzzer), and for Vigil-LLM (not archived; last recorded push 31 January 2024):
 
 - The Source URL should still resolve; the project page should still be visible (archive flag preserves the repository).
 - Commit SHA capture is still meaningful (it pins the last state before archival).
