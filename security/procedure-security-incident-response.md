@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.33\
+**Version:** 1.3.34\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -173,7 +173,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 | Regulation | Trigger | Notification Deadline | Notifying Authority |
 | --- | --- | --- | --- |
 | **GDPR (EU)** | Personal data breach within the GDPR's territorial scope, unless unlikely to result in a risk to individuals' rights and freedoms (Art. 33(1)) | Without undue delay, and where feasible within 72 hours of becoming aware | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk (Art. 34) |
-| **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible (no fixed statutory deadline) | DPO to Privacy Commissioner of Canada |
+| **PIPEDA (Canada)** | Confirmed breach of personal information with real risk of significant harm | As soon as feasible after the organization determines that the breach has occurred (PIPEDA s. 10.1(2); no fixed hour or day limit) | DPO to Privacy Commissioner of Canada |
 | **Quebec Law 25** | Confirmed confidentiality incident involving personal information presenting a risk of serious injury | Promptly to the Commission d'accès à l'information (no fixed statutory hour-count) | DPO |
 | **PIPL (China)** | Actual or possible leakage, tampering, or loss of personal information of China data subjects (PIPL Art. 57) | Immediately / without delay | DPO to relevant authority (CISO coordinating) |
 
