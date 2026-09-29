@@ -2,8 +2,8 @@
 
 **Document Title:** Adopter Guide\
 **Document Type:** Guide\
-**Version:** 1.3.29\
-**Date:** 2026-09-25\
+**Version:** 1.3.30\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`docs/decision-tree.md`](decision-tree.md), [`docs/worked-example.md`](worked-example.md), [`docs/worked-example-adoption.md`](worked-example-adoption.md), [`docs/adopter-guide-multi-entity.md`](adopter-guide-multi-entity.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -174,7 +174,7 @@ These items almost always need adapting before the artefacts become operational 
 | --- | --- | --- |
 | Owner and Approving Authority roles | Every document's metadata block | Map each role to a named function in your organization, recorded in a private overlay. |
 | Risk appetite and thresholds | `risk/` and `governance/` policies and standards | Replace illustrative thresholds with values your board has approved. |
-| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows (e.g. GDPR 72 hours) are fixed. Where more than one regulator applies with different clocks (for example a privacy regulator plus a sector regulator plus a US state breach law), set the procedure to the shortest binding window. |
+| Severity definitions and notification windows | [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) | Replace with the thresholds your incident commander uses. Regulatory windows are set by law (e.g. GDPR: without undue delay and, where feasible, within 72 hours of becoming aware). Where more than one regulator applies with different clocks (for example a privacy regulator plus a sector regulator plus a US state breach law), set the procedure to the shortest binding window. |
 | Enforcement and disciplinary clauses | Policy `## Enforcement` sections (for example [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md) section 9) and the privacy jurisdiction annexes | Reconcile disciplinary language ("up to and including termination") and regulatory-reporting language with your HR policy, employment contracts, and local labour law before going live. |
 | Jurisdiction scope | `privacy/jurisdictions/` and `compliance/` sector annexes | Remove jurisdictions and sectors you do not operate in. Keep the relevant ones. Do not delete documents merely because they do not apply yet; mark them with the `Status: Superseded` lifecycle marker so you do not lose the option. |
 | Framework references | Throughout | Confirm that each cited framework is current. Frameworks change versions; the corpus is reviewed annually for currency. |

@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy and Data Governance Policy\
 **Document Type:** Policy\
-**Version:** 1.4.27\
-**Date:** 2026-09-28\
+**Version:** 1.4.28\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -127,7 +127,7 @@ This policy defines principles, governance structure, and control framework for 
 ### 4.10 Incident response and breach management
 
 - Data breaches must be reported immediately to the CISO and the DPO.
-- Regulatory notifications must be issued within 72 hours (GDPR standard) or as required by local laws.
+- Regulatory notifications must be issued without undue delay and, where feasible, within 72 hours of becoming aware (GDPR Art. 33(1)), or as required by local laws.
 - Post-incident reviews must determine root cause, impact, and mitigation actions.
 
 ### 4.11 Monitoring and continual improvement

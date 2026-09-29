@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.8\
-**Date:** 2026-09-04\
+**Version:** 0.0.10\
+**Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -96,7 +96,7 @@ Reporting obligations vary; the entity may be required to report to multiple aut
 | National sector regulator (e.g. UK Ofgem, US FERC, EU national NIS competent authority) | Cybersecurity or operational incident affecting service | 24 hours to 72 hours per national rule |
 | National CSIRT under NIS 2 | Significant cybersecurity incident | Early warning within 24 hours of awareness |
 | Reliability authority (e.g. NERC) | CIP-008-required incident criteria | One hour after determination |
-| Privacy supervisor | Personal data breach | 72 hours under GDPR; equivalents elsewhere |
+| Privacy supervisor | Personal data breach | Without undue delay and, where feasible, within 72 hours of becoming aware under GDPR; equivalents elsewhere |
 | Stock-exchange disclosure | Material adverse event for listed entities | Per listing rules |
 
 Library coverage: [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md). Adopting entities maintain a per-incident reporting matrix mapping the regulatory recipients to the incident class and the report content required.

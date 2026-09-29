@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.34\
-**Date:** 2026-09-25\
+**Version:** 1.0.35\
+**Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
@@ -324,7 +324,7 @@ The CISO is responsible for preparing and submitting the report, in coordination
 
 Where an AI incident involves a personal data breach (as defined under GDPR Art. 4(12)), the Data Protection Officer must be notified immediately. The Data Protection Officer determines whether:
 
-- A GDPR Art. 33 notification to the supervisory authority within 72 hours is required.
+- A GDPR Art. 33 notification to the supervisory authority is required without undue delay and, where feasible, within 72 hours of becoming aware.
 - A GDPR Art. 34 notification to affected individuals is required.
 
 The AI incident report and the GDPR personal data breach report are managed as parallel but co-ordinated obligations. The CISO and Data Protection Officer jointly own the co-ordination process.

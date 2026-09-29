@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.6\
-**Date:** 2026-09-25\
+**Version:** 1.0.7\
+**Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -56,7 +56,7 @@ When an event meets the regulator-notification threshold under the applicable fr
 
 Determined by the framework. Common patterns:
 
-- **GDPR Article 33**: not later than 72 hours after becoming aware.
+- **GDPR Article 33**: without undue delay and, where feasible, not later than 72 hours after becoming aware.
 - **SEC Form 8-K cybersecurity item**: four business days after determination of materiality.
 - **HIPAA Breach Notification Rule**: 60 days from discovery (Secretary notification thresholds vary).
 - **NIS 2 (EU)**: 24 hours early warning, 72 hours incident notification, one month final report; where the incident is still ongoing at that point, a progress report then and the final report one month after handling of the incident (Article 23(4)(e)).

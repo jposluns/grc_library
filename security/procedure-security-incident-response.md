@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.32\
-**Date:** 2026-09-18\
+**Version:** 1.3.33\
+**Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -300,7 +300,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 
 - Validate eradication with a follow-on scan or forensic review before recovery (§5.3).
 - Recover: restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
-- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR 72 hours from awareness); Legal Counsel approves the content and the DPO submits (§6).
+- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR without undue delay and, where feasible, within 72 hours of awareness); Legal Counsel approves the content and the DPO submits (§6).
 - Document the return-to-service date and the basis for confirming eradication (§5.4).
 - Initiate the post-incident review track, mandatory for P1 and P2, due within 5 business days of closure (§7.1).
 
