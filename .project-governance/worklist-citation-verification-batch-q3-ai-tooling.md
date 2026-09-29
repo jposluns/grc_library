@@ -2,7 +2,7 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q3 (AI Security Tooling Landscape Provenance)\
 **Document Type:** Worklist\
-**Version:** 1.0.3\
+**Version:** 1.0.4\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -109,7 +109,7 @@ Pre-filled by the AI verifier from the AI Security Tooling Landscape Register's 
 | 5.2.10 | IBM HEART (archived) | https://github.com/IBM/heart-library | github | main |  |  |  |  |  |  |  |
 | 5.2.11 | Open-Prompt-Injection | https://github.com/liu00222/Open-Prompt-Injection | github | main |  |  |  |  |  |  |  |
 | 5.2.12 | BCG-X ARTKIT | https://github.com/BCG-X-Official/artkit | github | main |  |  |  |  |  |  |  |
-| 5.2.13 | Giskard | https://github.com/Giskard-AI/giskard | github | main |  |  |  |  |  |  |  |
+| 5.2.13 | Giskard | https://github.com/Giskard-AI/giskard-oss | github | main |  |  |  |  |  |  |  |
 | 5.2.14 | CyberArk FuzzyAI | https://github.com/cyberark/FuzzyAI | github | main |  |  |  |  |  |  |  |
 | 5.2.15 | LLMFuzzer (unmaintained) | https://github.com/mnns/LLMFuzzer | github | main |  |  |  |  |  |  |  |
 | 5.2.16 | AIJack | https://github.com/Koukyosyumei/AIJack | github | main |  |  |  |  |  |  |  |

@@ -2,7 +2,7 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.12\
+**Version:** 1.1.13\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -118,7 +118,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: Comprehensive Python toolkit for sanitization, harmful-language detection, data-leak prevention, and prompt-injection defence on LLM prompts and completions.
 - **License**: MIT.
-- **Library reference status**: Cited in Phase 23.6 register; referenced as exemplar for input/output scanner inventory in Phase 23.1.
+- **Library reference status**: Cited in Phase 23.6 register; referenced as exemplar for input/output scanner inventory in Phase 23.1; archive flagged.
 - **Key capabilities**:
   - 16 input scanners: Anonymize, BanCode, BanCompetitors, BanSubstrings, BanTopics, Code, EmotionDetection, Gibberish, InvisibleText, Language, PromptInjection, Regex, Secrets, Sentiment, TokenLimit, Toxicity.
   - 22 output scanners: BanCode, BanCompetitors, BanSubstrings, BanTopics, Bias, Code, Deanonymize, EmotionDetection, FactualConsistency, Gibberish, JSON, Language, LanguageSame, MaliciousURLs, NoRefusal, ReadingTime, Regex, Relevance, Sensitive, Sentiment, Toxicity, URLReachability.
@@ -540,14 +540,14 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 
 - **Scope**: DoD-oriented T&E wrapper providing a curated, auditable subset of ART for Test and Evaluation engineers.
 - **License**: MIT.
-- **Library reference status**: Cited in Phase 23.6 register.
+- **Library reference status**: Cited in Phase 23.6 register; archive flagged.
 - **Key capabilities**:
   - Attacks: curated ART attacks (PGD, AdversarialPatch, HopSkipJump for image classification and object detection).
   - Estimators: MAITE-compatible model wrappers.
   - Metrics: clean accuracy, robust accuracy, perturbation distance, attack success rate, query budget.
   - Gradio low-code front-end; Jupyter notebooks.
 - **GRC concern surfaced**: Demonstrates that ART-based attacks can be wrapped in a T&E governance shell. Relevant for adopters in regulated/DoD contexts.
-- **Status notes**: Archived (read-only) by its owner on 17 September 2026; v0.7.0 (Jul 2025) is its final release. Aligned to DoD CDAO/JAIC T&E protocols and MAITE.
+- **Status notes**: Archived (read-only) by its owner on 17 September 2026; v0.7.0 (Jul 2025) is its latest recorded release. Aligned to DoD CDAO/JAIC T&E protocols and MAITE.
 - **Provenance**:
   - Source URL: `https://github.com/IBM/heart-library`
   - Version at assessment: v0.7.0 (Jul 2025)
@@ -608,7 +608,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **GRC concern surfaced**: Native AVID export drove the AVID reference in Phase 23.6.
 - **Status notes**: Active.
 - **Provenance**:
-  - Source URL: `https://github.com/Giskard-AI/giskard`
+  - Source URL: `https://github.com/Giskard-AI/giskard-oss`
   - Version at assessment: default branch HEAD
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
   - Integrity anchor: pending human verification (capture commit SHA of default branch)

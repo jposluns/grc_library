@@ -2,7 +2,7 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.105\
+**Version:** 1.5.106\
 **Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -346,7 +346,7 @@ This section records open-source AI security projects referenced by library cont
 | Project | Current version | Registration date | Topic | License | Status notes | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship | https://github.com/Trusted-AI/adversarial-robustness-toolbox/releases | 2026-09-29 |
-| IBM HEART | archived | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; archived 17 September 2026 (final release v0.7.0) | https://github.com/IBM/heart-library | 2026-09-29 |
+| IBM HEART | archived | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; archived 17 September 2026 (latest recorded release v0.7.0) | https://github.com/IBM/heart-library | 2026-09-29 |
 | AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - | https://github.com/Koukyosyumei/AIJack | 2026-09-29 |
 | HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - | https://github.com/centerforaisafety/HarmBench | 2026-09-29 |
 | Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - | https://github.com/meta-llama/PurpleLlama | 2026-09-29 |
@@ -363,7 +363,7 @@ This section records open-source AI security projects referenced by library cont
 | NVIDIA garak | continuous | 2024 | LLM vulnerability scanner with 40+ probe families | Apache 2.0 | - | https://github.com/NVIDIA/garak/releases | 2026-09-29 |
 | Microsoft PyRIT | continuous | 2024 | Python Risk Identification Tool for GenAI red teaming with 75+ converters | MIT | - | https://github.com/microsoft/PyRIT/releases | 2026-09-29 |
 | ETH Zurich AgentDojo | continuous | 2024 | Benchmark of tool-using LLM agents in simulated environments under prompt injection | MIT | Hosted on inspect_evals | https://github.com/ethz-spylab/agentdojo | 2026-09-29 |
-| Vigil-LLM | continuous | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; dormant/unmaintained since 2024-01 (repository not archived on GitHub) | https://github.com/deadbits/vigil-llm | 2026-09-29 |
+| Vigil-LLM | continuous | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; not archived; last recorded push 31 January 2024 | https://github.com/deadbits/vigil-llm | 2026-09-29 |
 | Stacklok CodeGate | archived | 2024 | Local privacy and security gateway between IDE AI coding assistants and LLM providers | Apache 2.0 | Archived June 2025 | https://github.com/stacklok/codegate | 2026-09-29 |
 | ClawGuard | continuous | 2026 | Runtime security sidecar daemon for tool-augmented LLM agents (OpenClaw) | MIT | V1.0 May 2026 | https://github.com/Claw-Guard/ClawGuard | 2026-09-29 |
 | Lasso MCP Gateway | continuous | 2024 | Plugin-based local intermediary between MCP clients and downstream MCP servers with guardrail plugins | MIT | - | https://github.com/lasso-security/mcp-gateway | 2026-09-29 |
