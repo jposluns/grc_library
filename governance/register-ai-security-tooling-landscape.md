@@ -2,8 +2,8 @@
 
 **Document Title:** AI Security Tooling Landscape Register\
 **Document Type:** Register\
-**Version:** 1.1.10\
-**Date:** 2026-09-25\
+**Version:** 1.1.11\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-canonical-citations.md`](register-canonical-citations.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`ai/standard-ai-and-agentic-development-security.md`](../ai/standard-ai-and-agentic-development-security.md), [`ai/standard-ai-model-risk.md`](../ai/standard-ai-model-risk.md), [`ai/guide-ai-adversarial-test-reference.md`](../ai/guide-ai-adversarial-test-reference.md), [`dev-security/guideline-ai-coding-assistant-security.md`](../dev-security/guideline-ai-coding-assistant-security.md)\
@@ -130,7 +130,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - URLReachability (output): network-fetch check of LLM-emitted URLs.
   - Deanonymize: PII placeholder re-injection paired with Anonymize.
 - **GRC concern surfaced**: Demonstrates that input/output scanner inventory should be enumerated as discrete control categories rather than abstract "content safety filter". OWASP LLM Top 10 per-scanner mapping pattern.
-- **Status notes**: Ships as Python library and `llm_guard_api` HTTP service. ONNX optimization supported.
+- **Status notes**: Ships as Python library and `llm_guard_api` HTTP service. ONNX optimization supported. The repository was archived (read-only) as of the 2026-09-29 re-check.
 - **Provenance**:
   - Source URL: `https://github.com/protectai/llm-guard`
   - Version at assessment: default branch HEAD
@@ -218,7 +218,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
 - **GRC concern surfaced**: Library treated input and output as the two boundaries. NeMo's framework added dialog, retrieval, and execution as discrete enforcement points. Pattern reflected in Phase 23.4 multimodal section and runtime controls.
 - **Status notes**: Active.
 - **Provenance**:
-  - Source URL: `https://github.com/NVIDIA/NeMo-Guardrails`
+  - Source URL: `https://github.com/NVIDIA-NeMo/Guardrails` (moved from `NVIDIA/NeMo-Guardrails`)
   - Version at assessment: default branch HEAD
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
   - Integrity anchor: pending human verification (capture commit SHA of default branch)
@@ -260,10 +260,10 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Prompt-entropy heuristic.
   - REST API + Streamlit UI.
 - **GRC concern surfaced**: Multi-scanner layered approach reinforces the Phase 23.1 control pattern.
-- **Status notes**: Alpha (v0.10.3), archived. Explicit limitation in README: "Prompt injection attacks are currently unsolvable and there is no defense that will work 100% of the time."
+- **Status notes**: Alpha (v0.10.3); not archived, but no commits since January 2024 (2026-09-29 re-check). Explicit limitation in README: "Prompt injection attacks are currently unsolvable and there is no defense that will work 100% of the time."
 - **Provenance**:
   - Source URL: `https://github.com/deadbits/vigil-llm`
-  - Version at assessment: v0.10.3 (alpha, archived)
+  - Version at assessment: v0.10.3 (alpha; inactive since January 2024)
   - Date assessed: 2026-05-30 (Wave 1 / Wave 2 agent fetch)
   - Integrity anchor: pending human verification (capture commit SHA of default branch)
   - Wayback snapshot URL: pending human verification (web.archive.org blocked in AI sandbox)
@@ -547,7 +547,7 @@ Total: 55 entries (some projects appear under bundles: Meta PurpleLlama bundles 
   - Metrics: clean accuracy, robust accuracy, perturbation distance, attack success rate, query budget.
   - Gradio low-code front-end; Jupyter notebooks.
 - **GRC concern surfaced**: Demonstrates that ART-based attacks can be wrapped in a T&E governance shell. Relevant for adopters in regulated/DoD contexts.
-- **Status notes**: Active. v0.7.0 (Jul 2025). Aligned to DoD CDAO/JAIC T&E protocols and MAITE.
+- **Status notes**: Archived (read-only) as of the 2026-09-29 re-check; v0.7.0 (Jul 2025) is its latest release. Aligned to DoD CDAO/JAIC T&E protocols and MAITE.
 - **Provenance**:
   - Source URL: `https://github.com/IBM/heart-library`
   - Version at assessment: v0.7.0 (Jul 2025)
