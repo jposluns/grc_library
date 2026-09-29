@@ -129,7 +129,7 @@ import "crypto/sha1"
 hash := md5.Sum(data) // broken: do not use for security
 hash := sha1.Sum(data) // broken: do not use for security
 
-// CORRECT: SHA-256 for integrity
+// CORRECT: SHA-256 for integrity (the pack minimum; follow a stricter organizational policy where one applies)
 import "crypto/sha256"
 hash := sha256.Sum256(data)
 

@@ -16,6 +16,8 @@
 | TLS certificate | SHA-256 RSA or ECDSA | SHA-1 signed certificates |
 | HMAC | HMAC-SHA-256, HMAC-SHA-384 | HMAC-MD5, HMAC-SHA-1 |
 
+This table is the pack's minimum baseline for any adopting project. An adopting organization may set a stricter baseline in its own cryptography policy, for example requiring SHA-512 or BLAKE2b-512 for integrity hashing and HMAC-SHA-512, HMAC-SHA-384 or KMAC256 for message authentication; where it does, the organization's policy governs and code follows it.
+
 ---
 
 ## AES modes

@@ -106,7 +106,7 @@ string hash = hasher.HashPassword(null, password);
 using var md5 = MD5.Create();
 var hash = md5.ComputeHash(data);  // Broken for security
 
-// CORRECT: SHA-256 for integrity hashing
+// CORRECT: SHA-256 for integrity hashing (the pack minimum; follow a stricter organizational policy where one applies)
 using var sha256 = SHA256.Create();
 var hash = sha256.ComputeHash(data);
 

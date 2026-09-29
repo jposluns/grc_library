@@ -58,6 +58,8 @@ If you see a hardcoded secret in existing code, treat it as compromised and flag
 | TLS | TLS 1.3 (or stronger) | SSL, TLS 1.0, TLS 1.1, TLS 1.2 |
 | Certificates | SHA-256 RSA or ECDSA | SHA-1 |
 
+This table is the minimum baseline. Where the adopting organization's cryptography policy sets a stricter baseline (for example SHA-512 or BLAKE2b-512 for integrity hashing), that policy governs.
+
 Never hardcode keys. Keys go in the secrets management service.
 
 TLS 1.3 (or stronger) stands as this pack's standalone TLS requirement. An organization that maintains its own encryption and key-management policy aligns this row to that policy's canonical mandate (in the pack's parent GRC corpus, that is `security/policy-encryption-and-key-management.md` §4, Encryption standards).
