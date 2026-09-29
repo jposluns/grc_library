@@ -17654,6 +17654,147 @@ class OrchestratorAdvisoryToolTests(unittest.TestCase):
         )
         self.assertIn("OK", result.stdout)
 
+    def test_merge_when_green_actions_fallback_pins_and_refuses(self) -> None:
+        # 3b132: a repository whose token cannot read Checks gets a rollup with no CheckRun; the
+        # Actions-runs fallback decides from the runs for the head commit, pins the merge to that head,
+        # and refuses on anything it cannot confirm. Driven in process with gh stubbed (patched and
+        # restored by mock.patch.object), so no real gh runs.
+        import contextlib
+        import json
+        from unittest import mock
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_actions_fallback")
+        head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+        repo = "jposluns/grc_library_ref"
+        run = {"id": 7, "name": "validate", "path": ".github/workflows/validate.yml", "event": "pull_request",
+               "status": "completed", "conclusion": "success", "head_sha": head}
+
+        def drive(runs, *flags):
+            calls = []
+
+            def gh(*a):
+                calls.append(a)
+                if a[:2] == ("pr", "view"):
+                    return json.dumps({"state": "OPEN", "statusCheckRollup": [], "headRefOid": head,
+                                       "number": 1, "title": "t"})
+                if a[:1] == ("api",):
+                    return json.dumps({"total_count": len(runs), "workflow_runs": runs})
+                return ""
+            with mock.patch.object(mod, "gh", gh), \
+                    mock.patch.object(mod, "open_findings_block", lambda root, ledger=None: (0, "")), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                rc = mod.main(["merge-when-green.py", "1", "--repo", repo, *flags])
+            return rc, calls
+
+        rc, calls = drive([run], "--admin")
+        merges = [c for c in calls if c[:2] == ("pr", "merge")]
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(merges), 1)
+        self.assertIn("--match-head-commit", merges[0])
+        self.assertEqual(merges[0][merges[0].index("--match-head-commit") + 1], head)
+        self.assertIn("--admin", merges[0])
+        self.assertIn(("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100"), calls)
+        for label, runs in (
+            ("no runs", []),
+            ("pending", [dict(run, status="in_progress", conclusion=None)]),
+            ("failure", [dict(run, conclusion="failure")]),
+            ("skipped", [dict(run, conclusion="skipped")]),
+            ("other commit", [dict(run, head_sha="b" * 40)]),
+            ("foreign file", [dict(run, path=".github/workflows/fake.yml")]),
+            ("push event only", [dict(run, event="push")]),
+            ("required missing", [dict(run, name="other", path=".github/workflows/other.yml")]),
+        ):
+            with self.subTest(label):
+                rc, calls = drive(runs, "--admin")
+                self.assertEqual(rc, 1)
+                self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+
+    # The reality fixture (jposluns/grc_library_ref #181, 3b132 QA r1), verbatim: gh's stderr when the token
+    # cannot read the PR's check rollup.
+    _MWG_ROLLUP_FORBIDDEN = ("GraphQL: Resource not accessible by personal access token (repository.pullRequest."
+                             "statusCheckRollup.nodes.0.commit.statusCheckRollup.contexts.nodes.0)\n")
+
+    def _mwg_drive_processes(self, mod, rollup_result, runs, repo, *flags):
+        """main() with subprocess.run stubbed (patched and restored by mock.patch.object), so the real gh()
+        runs but no gh process does. The rollup query returns ``rollup_result`` (exit status, stderr); the PR
+        read without the rollup, the runs read and the merge succeed. Returns (exit code, gh calls, stderr)."""
+        import contextlib
+        import json
+        from unittest import mock
+        head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+        calls = []
+
+        def fake_run(cmd, **kw):
+            a = tuple(cmd[1:])
+            calls.append(a)
+            self.assertEqual((cmd[0], kw.get("capture_output"), kw.get("text")), ("gh", True, True))
+            if a[:2] == ("pr", "view"):
+                fields = a[a.index("--json") + 1].split(",")
+                if "statusCheckRollup" in fields:
+                    return subprocess.CompletedProcess(cmd, rollup_result[0], "", rollup_result[1])
+                full = {"state": "OPEN", "headRefOid": head, "number": 1, "title": "t"}
+                return subprocess.CompletedProcess(cmd, 0, json.dumps({k: full[k] for k in fields}), "")
+            if a[:1] == ("api",):
+                page = {"total_count": len(runs), "workflow_runs": runs}
+                return subprocess.CompletedProcess(cmd, 0, json.dumps(page), "")
+            return subprocess.CompletedProcess(cmd, 0, "", "")
+        err = io.StringIO()
+        with mock.patch.object(mod.subprocess, "run", fake_run), \
+                mock.patch.object(mod, "open_findings_block", lambda root, ledger=None: (0, "")), \
+                contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            rc = mod.main(["merge-when-green.py", "1", *(["--repo", repo] if repo else []), *flags])
+        return rc, calls, err.getvalue()
+
+    def test_merge_when_green_rollup_permission_error_uses_actions_fallback(self) -> None:
+        # 3b132 QA r1: for jposluns/grc_library_ref the rollup query does not return an empty rollup; it exits
+        # 1 with a GraphQL permission error (the reality fixture), so the 3b132 fallback was unreachable. For
+        # that listed repository and exactly that error, the PR is read again without the rollup, the Actions
+        # runs for its head decide, and the merge is pinned to that head.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_rollup_forbidden")
+        head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+        repo = "jposluns/grc_library_ref"
+        run = {"id": 7, "name": "validate", "path": ".github/workflows/validate.yml", "event": "pull_request",
+               "status": "completed", "conclusion": "success", "head_sha": head}
+        rc, calls, err = self._mwg_drive_processes(mod, (1, self._MWG_ROLLUP_FORBIDDEN), [run], repo, "--admin")
+        self.assertEqual(rc, 0, err)
+        views = [c for c in calls if c[:2] == ("pr", "view")]
+        self.assertEqual(len(views), 2)
+        self.assertEqual(views[1], ("pr", "view", "1", "--repo", repo, "--json", "number,title,state,headRefOid"))
+        self.assertIn(("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100"), calls)
+        merges = [c for c in calls if c[:2] == ("pr", "merge")]
+        self.assertEqual(len(merges), 1)
+        self.assertIn("--match-head-commit", merges[0])
+        self.assertEqual(merges[0][merges[0].index("--match-head-commit") + 1], head)
+        self.assertIn("--admin", merges[0])
+        # The runs still decide: a failing run refuses, with no merge.
+        rc, calls, _ = self._mwg_drive_processes(mod, (1, self._MWG_ROLLUP_FORBIDDEN),
+                                                 [dict(run, conclusion="failure")], repo, "--admin")
+        self.assertEqual(rc, 1)
+        self.assertFalse([c for c in calls if c[:2] == ("pr", "merge")])
+
+    def test_merge_when_green_other_rollup_errors_still_refuse(self) -> None:
+        # 3b132 QA r1: only exactly the permission error, for a listed repository, reads the PR again. Any
+        # other gh failure, or the same error for an unlisted repository or without --repo, stops at the
+        # first read with exit code 2 and gh's own stderr in the report: no second read, no runs, no merge.
+        mod = load_linter_module("tools/merge-when-green.py", "_mwg_rollup_other_error")
+        listed = "jposluns/grc_library_ref"
+        fx = self._MWG_ROLLUP_FORBIDDEN
+        for label, repo, result in (
+            ("integration token", listed, (1, fx.replace("personal access token", "integration"))),
+            ("other GraphQL error", listed,
+             (1, "GraphQL: Could not resolve to a PullRequest with the number of 1. (repository.pullRequest)\n")),
+            ("path outside the rollup", listed,
+             (1, "GraphQL: Resource not accessible by personal access token (repository.pullRequest)\n")),
+            ("extra line", listed, (1, fx + "HTTP 502: Bad Gateway\n")),
+            ("exit status 4", listed, (4, fx)),
+            ("unlisted repository", "other/repo", (1, fx)),
+            ("no --repo", None, (1, fx)),
+        ):
+            with self.subTest(label):
+                rc, calls, err = self._mwg_drive_processes(mod, result, [], repo, "--admin")
+                self.assertEqual(rc, 2)
+                self.assertEqual([c[:2] for c in calls], [("pr", "view")])
+                self.assertIn(result[1].splitlines()[0], err)
+
     def test_check_clean_language_upstream_self_test_passes(self) -> None:
         # P-1.13: the clean-language upstream-drift check's classify() self-test (drift on a
         # changed / missing-either-side blob SHA), wired here so the monthly-check logic

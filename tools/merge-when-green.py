@@ -16,6 +16,13 @@ The merge is pinned to the head commit it evaluated (gh pr merge --match-head-co
 landing after the read is never merged unchecked; a missing head SHA refuses (3b106).
 It also applies the open-findings guard's own decision before merging, so an undispositioned
 `error` finding refuses the merge however the tool was started (3b108).
+A repository listed in ACTIONS_FALLBACK, whose token cannot read Checks (its rollup then carries no
+CheckRun), is decided instead from the GitHub Actions runs for the evaluated head: every run completed
+success and each listed workflow ran from its own file on a pull_request event; anything the fallback
+cannot confirm refuses, and the merge stays pinned to that head (3b132). Where that token cannot read the
+rollup at all, so the rollup query fails with exactly the GraphQL permission error on it, the PR is read
+again without the rollup and decided the same way; any other gh failure, and any unlisted repository,
+still stops (3b132 QA r1).
 
 It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
 discipline); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
@@ -50,6 +57,18 @@ REQUIRED_CHECKS = ("Lint markdown corpus", "PR attribution (title and body)")
 # workflow-file review is the control for that.
 REQUIRED_WORKFLOWS = {"Lint markdown corpus": "Repository quality checks",
                       "PR attribution (title and body)": "PR attribution"}
+# Repositories whose token cannot read Checks, so the PR's rollup carries no CheckRun: there the verdict
+# falls back to the Actions runs for the head commit, and each workflow listed (its top-level name, bound
+# to its file) must be among them (3b132). An unlisted repository never falls back, so an empty rollup
+# there still refuses; --repo must be given, spelled exactly as here. RESIDUE: see evaluate_runs().
+ACTIONS_FALLBACK = {"jposluns/grc_library_ref": {"validate": ".github/workflows/validate.yml"}}
+_FALLBACK_EVENT = "pull_request"  # a required workflow counts only from a run on this event
+# The one gh failure that engages the fallback before any rollup is read (3b132 QA r1): the token cannot read
+# the rollup's contexts, so `gh pr view --json statusCheckRollup,...` exits 1 with exactly this one line on
+# stderr (the reality fixture, jposluns/grc_library_ref #181). Anything else, an added line included, is not it.
+_ROLLUP_FORBIDDEN = re.compile(r"GraphQL: Resource not accessible by personal access token "
+                               r"\(repository\.pullRequest\.statusCheckRollup(?:\.[A-Za-z0-9_]+)*\)")
+_VIEW_FIELDS = "number,title,state,headRefOid"  # the PR read again without its rollup
 _REPO_ROOT = __import__("pathlib").Path(__file__).resolve().parents[1]
 
 
@@ -127,6 +146,80 @@ def evaluate(rollup: list[dict], required: tuple[str, ...] = (), workflows: dict
                 return False, f"required check did not succeed: {want} [{c.get('conclusion')}]"
     verified = ", ".join(required) if required else "none"
     return True, f"all {len(rollup)} check(s) completed successfully; required: {verified}"
+
+
+def evaluate_runs(payload, head: str, workflows: dict) -> tuple[bool, str]:
+    """PURE decision over a GitHub Actions ``GET repos/<repo>/actions/runs?head_sha=<head>`` response, the
+    fallback for a repository whose token cannot read Checks (3b132): (green, reason). Fails CLOSED: green
+    ONLY when the response is a recognized, complete page, every run is for ``head``, every run completed
+    with conclusion ``success`` (a run carries no per-job detail, so skipped or neutral refuses here too),
+    and each workflow in ``workflows`` has a run from its own file on a pull_request event. No workflow
+    configured, no runs, a truncated page, a run for another commit, a same-named run from another file,
+    or an unrecognized entry REFUSES.
+    RESIDUE, stated: the runs API lists Actions workflow runs only. Check runs from other apps, and any
+    commit status the rollup did not show, are invisible here, as are a workflow that has not yet created
+    its run, the jobs inside a run (a job skipped by an `if:` leaves its run a success), and which PR a
+    run belongs to (another PR with the same head commit shares its runs). As with REQUIRED_WORKFLOWS, a
+    PR that edits the bound workflow file is caught by workflow-file review, not here."""
+    if not workflows:
+        return False, "no required workflow configured for the Actions-runs fallback"
+    total = payload.get("total_count") if isinstance(payload, dict) else None
+    runs = payload.get("workflow_runs") if isinstance(payload, dict) else None
+    if not isinstance(runs, list) or type(total) is not int:
+        return False, "the Actions runs response has an unrecognized shape (fail-closed refuse)"
+    if total != len(runs):
+        return False, f"the Actions runs response lists {len(runs)} of {total} run(s); cannot see them all"
+    if not runs:
+        return False, f"no Actions workflow runs reported for {head[:12]} (never merge on no-checks)"
+    pending: list[str] = []
+    failed: list[str] = []
+    unknown: list[str] = []
+    for r in runs:
+        if not (isinstance(r, dict) and isinstance(r.get("name"), str) and r["name"]):
+            unknown.append(f"<unrecognized run entry: {r!r:.60}>")
+            continue
+        label = f"{r['name']} (run {r.get('id')})"
+        if r.get("head_sha") != head:
+            unknown.append(f"{label} [for commit {r.get('head_sha')!r}, not the evaluated head]")
+        elif r.get("status") != "completed":
+            pending.append(f"{label} [{r.get('status') or 'no-status'}]")
+        elif r.get("conclusion") != "success":
+            failed.append(f"{label} [{r.get('conclusion') or 'no-conclusion'}]")
+    if failed or unknown:
+        parts: list[str] = []
+        if failed:
+            parts.append("failing / non-success run(s): " + ", ".join(failed))
+        if unknown:
+            parts.append("UNRECOGNIZED run(s) (fail-closed refuse): " + ", ".join(unknown))
+        if pending:
+            parts.append("pending: " + ", ".join(pending))
+        return False, "; ".join(parts)
+    if pending:
+        return False, "pending / incomplete run(s): " + ", ".join(pending)
+    for want, path in workflows.items():
+        named = [r for r in runs if r["name"] == want]
+        if not named:
+            return False, f"required workflow not among the Actions runs: {want} (from {path})"
+        foreign = [r for r in named if r.get("path") != path]
+        if foreign:
+            return False, (f"required workflow {want} is also reported from {foreign[0].get('path')!r}, not only "
+                           f"{path!r} (a name collision); only its own file may satisfy it")
+        if not any(r.get("event") == _FALLBACK_EVENT for r in named):
+            return False, f"required workflow {want} has no {_FALLBACK_EVENT} run for this head"
+    return True, (f"all {len(runs)} Actions run(s) for {head[:12]} completed successfully; required workflow(s): "
+                  + ", ".join(workflows) + " (Actions-runs fallback: the check rollup carried no CheckRun)")
+
+
+def rollup_forbidden(exc: BaseException) -> bool:
+    """PURE: whether a failed gh call is exactly the rollup permission error (3b132 QA r1): exit status 1 and
+    a stderr that is that one line. Another message (an integration token's included), a path outside the
+    rollup, another exit status, any other output, or no captured stderr is not, and the caller then stops
+    as on any gh failure.
+    RESIDUE, stated: this matches the gh CLI's wording as captured in the reality fixture. A gh release that
+    rewords the error, or a response carrying more than one error, is not matched, so the fallback is
+    unreachable again for it: that refuses, and never merges."""
+    return (isinstance(exc, subprocess.CalledProcessError) and exc.returncode == 1
+            and isinstance(exc.stderr, str) and _ROLLUP_FORBIDDEN.fullmatch(exc.stderr.rstrip("\n")) is not None)
 
 
 class _Unreadable(Exception):
@@ -312,7 +405,218 @@ def open_findings_block(root, ledger=None) -> tuple[int, str]:
 
 
 def gh(*args: str) -> str:
-    return subprocess.check_output(["gh", *args], text=True)
+    """Run gh and return its stdout. Its stderr is captured, so a failure carries it to rollup_forbidden()
+    and to the error report (3b132 QA r1); after a success it is passed through."""
+    done = subprocess.run(["gh", *args], text=True, capture_output=True)
+    if done.returncode != 0:
+        raise subprocess.CalledProcessError(done.returncode, done.args, done.stdout, done.stderr)
+    if done.stderr:
+        sys.stderr.write(done.stderr)
+    return done.stdout
+
+
+def _failure(exc: BaseException) -> str:
+    """A failed gh call for the operator: the exception and, as gh() now captures it, what gh printed."""
+    err = getattr(exc, "stderr", None)
+    return f"{exc} gh: {err.strip()}" if isinstance(err, str) and err.strip() else str(exc)
+
+
+def _self_test_actions_fallback() -> list[tuple[str, bool]]:
+    """The Actions-runs fallback (3b132): evaluate_runs() on its own, then main() with a stubbed gh."""
+    import contextlib as _cl, io as _io
+    checks = []
+    head = "3f0c9e71a2b48d5609ce17f4b23a8d60e95c1b7a"
+    path = ".github/workflows/validate.yml"
+    wf = {"validate": path}
+    def run(name="validate", status="completed", concl="success", sha=head, p=path, event="pull_request", rid=1):
+        return {"id": rid, "name": name, "path": p, "event": event, "status": status, "conclusion": concl,
+                "head_sha": sha}
+    page = lambda runs, total=None: {"total_count": len(runs) if total is None else total, "workflow_runs": runs}
+    other = run("other", p=".github/workflows/other.yml", event="push", rid=2)
+    for name, payload, want_green in [
+        ("runs-green", page([run()]), True),
+        ("runs-green-with-other-workflow", page([run(), other]), True),
+        ("runs-green-pr-and-push", page([run(), run(event="push", rid=2)]), True),
+        ("runs-none-refused", page([]), False),
+        ("runs-in-progress-refused", page([run(status="in_progress", concl=None)]), False),
+        ("runs-queued-refused", page([run(status="queued", concl=None)]), False),
+        ("runs-waiting-refused", page([run(status="waiting", concl=None)]), False),
+        ("runs-failure-refused", page([run(concl="failure")]), False),
+        ("runs-skipped-refused", page([run(concl="skipped")]), False),
+        ("runs-neutral-refused", page([run(concl="neutral")]), False),
+        ("runs-startup-failure-refused", page([run(concl="startup_failure")]), False),
+        ("runs-completed-null-conclusion-refused", page([run(concl=None)]), False),
+        ("runs-upper-case-refused", page([run(status="COMPLETED", concl="SUCCESS")]), False),
+        ("runs-other-workflow-failing-refused", page([run(), dict(other, conclusion="failure")]), False),
+        ("runs-other-workflow-pending-refused", page([run(), dict(other, status="in_progress", conclusion=None)]), False),
+        ("runs-required-missing-refused", page([other]), False),
+        ("runs-other-commit-refused", page([run(), run(sha="b" * 40, rid=2)]), False),
+        ("runs-truncated-refused", page([run()], total=2), False),
+        ("runs-foreign-file-refused", page([run(p=".github/workflows/fake.yml")]), False),
+        ("runs-collision-refused", page([run(), run(p=".github/workflows/fake.yml", rid=2)]), False),
+        ("runs-push-only-refused", page([run(event="push")]), False),
+        ("runs-non-dict-entry-refused", page([run(), "x"]), False),
+        ("runs-nameless-entry-refused", page([run(), dict(run(), name=None)]), False),
+        ("runs-payload-list-refused", [run()], False),
+        ("runs-payload-none-refused", None, False),
+        ("runs-payload-runs-not-list-refused", {"total_count": 1, "workflow_runs": "x"}, False),
+        ("runs-payload-count-missing-refused", {"workflow_runs": [run()]}, False),
+        ("runs-payload-count-bool-refused", {"total_count": True, "workflow_runs": [run()]}, False),
+    ]:
+        checks.append((name, evaluate_runs(payload, head, wf)[0] == want_green))
+    checks.append(("runs-no-workflow-configured-refused", not evaluate_runs(page([run()]), head, {})[0]))
+    _, r_missing = evaluate_runs(page([other]), head, wf)
+    checks.append(("runs-missing-reason-names-workflow", "validate" in r_missing and path in r_missing))
+    _, r_green = evaluate_runs(page([run()]), head, wf)
+    checks.append(("runs-green-reason-says-fallback", "Actions-runs fallback" in r_green))
+    checks.append(("fallback-map-exact", ACTIONS_FALLBACK == {
+        "jposluns/grc_library_ref": {"validate": ".github/workflows/validate.yml"}}))
+    # 3b132 QA r1: exactly the reality fixture's permission error engages the fallback; nothing else does.
+    fx = ("GraphQL: Resource not accessible by personal access token (repository.pullRequest."
+          "statusCheckRollup.nodes.0.commit.statusCheckRollup.contexts.nodes.0)\n")
+    denied = lambda err=fx, rc=1: subprocess.CalledProcessError(rc, ["gh"], "", err)
+    for name, exc, want in [
+        ("forbidden-fixture", denied(), True),
+        ("forbidden-no-trailing-newline", denied(fx.rstrip("\n")), True),
+        ("forbidden-rollup-root", denied(fx.split(".nodes")[0] + ")\n"), True),
+        ("forbidden-integration-token-not", denied(fx.replace("personal access token", "integration")), False),
+        ("forbidden-pr-path-not", denied(fx.split(".statusCheckRollup")[0] + ")\n"), False),
+        ("forbidden-other-field-not",
+         denied(fx.replace("pullRequest.statusCheckRollup", "pullRequest.commits", 1)), False),
+        ("forbidden-longer-field-not",
+         denied(fx.replace("statusCheckRollup.nodes", "statusCheckRollupX.nodes", 1)), False),
+        ("forbidden-extra-line-not", denied(fx + "HTTP 502\n"), False),
+        ("forbidden-leading-line-not", denied("warning\n" + fx), False),
+        ("forbidden-two-errors-not", denied(fx.rstrip("\n") + ", " + fx[len("GraphQL: "):]), False),
+        ("forbidden-exit-4-not", denied(rc=4), False),
+        ("forbidden-no-stderr-not", subprocess.CalledProcessError(1, ["gh"]), False),
+        ("forbidden-bytes-stderr-not", subprocess.CalledProcessError(1, ["gh"], b"", fx.encode()), False),
+        ("forbidden-os-error-not", OSError(fx), False),
+        ("forbidden-other-graphql-not",
+         denied("GraphQL: Could not resolve to a PullRequest with the number of 181. (repository.pullRequest)\n"), False),
+    ]:
+        checks.append((name, rollup_forbidden(exc) == want))
+    # gh() captures stderr, so the error can reach rollup_forbidden(): subprocess.run is stubbed here.
+    seen, captured, real_run = [], None, subprocess.run
+    subprocess.run = lambda cmd, **kw: (seen.append((cmd, kw)), subprocess.CompletedProcess(cmd, 1, "", fx))[1]
+    try:
+        gh("pr", "view", "1")
+    except subprocess.CalledProcessError as exc:
+        captured = exc
+    finally:
+        subprocess.run = real_run
+    checks.append(("gh-captures-stderr", captured is not None and rollup_forbidden(captured)
+                   and seen == [(["gh", "pr", "view", "1"], {"text": True, "capture_output": True})]))
+    # main(): the fallback engages only for a listed --repo whose rollup carries no CheckRun, reads the runs
+    # for the evaluated head, and pins the merge to it; every refusal makes no merge call.
+    repo = "jposluns/grc_library_ref"
+    calls = []
+    json_arg = lambda a: a[a.index("--json") + 1] if "--json" in a else ""
+    def stub(rollup=(), runs=None, h=head, api_error=None, rollup_error=None, view_error=None, state="OPEN"):
+        def gh_(*a):
+            calls.append(a)  # every call, a merge included, is recorded before dispatch
+            if a[:2] == ("pr", "view"):
+                with_rollup = "statusCheckRollup" in json_arg(a).split(",")
+                if with_rollup and rollup_error is not None:
+                    raise rollup_error
+                if not with_rollup and view_error is not None:
+                    raise view_error
+                full = {"state": state, "statusCheckRollup": list(rollup), "headRefOid": h, "number": 1, "title": "t"}
+                return json.dumps({k: full[k] for k in json_arg(a).split(",") if k in full})
+            if a[:1] == ("api",):
+                if api_error is not None:
+                    raise api_error
+                return runs if isinstance(runs, str) else json.dumps(page([run()]) if runs is None else runs)
+            return ""
+        return gh_
+    def drive(flags, **kw):
+        calls.clear()
+        globals()["gh"] = stub(**kw)
+        with _cl.redirect_stdout(_io.StringIO()), _cl.redirect_stderr(_io.StringIO()):
+            return main(["merge-when-green.py", "1", *flags])
+    api = lambda: [c for c in calls if c[:1] == ("api",)]
+    merges = lambda: [c for c in calls if c[:2] == ("pr", "merge")]
+    pinned = lambda m: "--match-head-commit" in m and m[m.index("--match-head-commit") + 1] == head
+    status = lambda st: {"__typename": "StatusContext", "context": "ci", "state": st}
+    real_gh, real_block = globals()["gh"], globals()["open_findings_block"]
+    # The ledger check is stubbed, as in _self_test(), so these cases never read the live ledger (3b108).
+    globals()["open_findings_block"] = lambda root, ledger=None: (0, "")
+    try:
+        rc = drive(["--repo", repo, "--dry-run"])
+        checks.append(("fallback-green-dry-run-never-merges", rc == 0 and not merges()
+                       and api() == [("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100")]))
+        for label, extra in (("plain", []), ("admin", ["--admin"])):
+            rc = drive(["--repo", repo, *extra])
+            m = merges()
+            checks.append((f"fallback-merge-pins-evaluated-head-{label}",
+                           rc == 0 and len(m) == 1 and pinned(m[0]) and ("--admin" in m[0]) == bool(extra)))
+        rc = drive(["--repo", repo, "--dry-run"], rollup=[status("SUCCESS")])
+        checks.append(("fallback-status-green-plus-runs-green", rc == 0 and len(api()) == 1))
+        # A CheckRun in the rollup means Checks are readable: the rollup decides, with no runs read.
+        crun = {"__typename": "CheckRun", "name": "validate", "status": "COMPLETED", "conclusion": "SUCCESS",
+                "workflowName": "validate"}
+        rc = drive(["--repo", repo, "--dry-run", "--require-none"], rollup=[crun], runs=page([]))
+        checks.append(("fallback-not-engaged-with-a-checkrun", rc == 0 and not api()))
+        # (label, flags, stub arguments, exit code, whether the runs may be read); none may merge.
+        for label, flags, kw, want_rc, reads in (
+            ("unlisted-repo", ["--repo", "other/repo"], {}, 1, False),
+            ("no-repo", [], {}, 1, False),
+            ("explicit-require", ["--repo", repo, "--require", "validate"], {}, 1, False),
+            ("bad-head", ["--repo", repo], {"h": "abc123"}, 1, False),
+            ("status-failing", ["--repo", repo], {"rollup": [status("FAILURE")]}, 1, False),
+            ("status-pending", ["--repo", repo], {"rollup": [status("PENDING")]}, 1, False),
+            ("runs-none", ["--repo", repo], {"runs": page([])}, 1, True),
+            ("runs-pending", ["--repo", repo], {"runs": page([run(status="in_progress", concl=None)])}, 1, True),
+            ("runs-other-commit", ["--repo", repo], {"runs": page([run(sha="b" * 40)])}, 1, True),
+            ("require-none-still-needs-workflow", ["--repo", repo, "--require-none"], {"runs": page([other])}, 1, True),
+            ("api-error", ["--repo", repo], {"api_error": subprocess.CalledProcessError(1, "gh")}, 2, True),
+            ("api-not-json", ["--repo", repo], {"runs": "<html>"}, 2, True),
+        ):
+            rc = drive(flags, **kw)
+            checks.append((f"fallback-{label}-refused", rc == want_rc and not merges() and (reads or not api())))
+        # 3b132 QA r1: the rollup query fails with the permission error (the reality fixture); the PR is read
+        # again without the rollup, the runs for that head decide, and the merge is pinned to it.
+        views = lambda: [c for c in calls if c[:2] == ("pr", "view")]
+        reread = [("pr", "view", "1", "--repo", repo, "--json", _VIEW_FIELDS)]
+        runs_call = [("api", f"repos/{repo}/actions/runs?head_sha={head}&per_page=100")]
+        rc = drive(["--repo", repo, "--dry-run"], rollup_error=denied())
+        checks.append(("forbidden-green-dry-run-never-merges", rc == 0 and not merges() and len(views()) == 2
+                       and views()[1:] == reread and api() == runs_call))
+        for label, extra in (("plain", []), ("admin", ["--admin"])):
+            rc = drive(["--repo", repo, *extra], rollup_error=denied())
+            m = merges()
+            checks.append((f"forbidden-merge-pins-evaluated-head-{label}", rc == 0 and len(m) == 1 and pinned(m[0])
+                           and ("--admin" in m[0]) == bool(extra) and api() == runs_call))
+        # (label, flags, stub arguments, exit code, whether the runs may be read, whether the PR is read again);
+        # none may merge. Any error but the exact one, or an unlisted repository, stops at the first read.
+        gh_err = lambda err, rc=1: {"rollup_error": denied(err, rc)}
+        for label, flags, kw, want_rc, reads, again in (
+            ("unlisted-repo", ["--repo", "other/repo"], gh_err(fx), 2, False, False),
+            ("no-repo", [], gh_err(fx), 2, False, False),
+            ("integration-token", ["--repo", repo], gh_err(fx.replace("personal access token", "integration")),
+             2, False, False),
+            ("pr-path", ["--repo", repo], gh_err(fx.split(".statusCheckRollup")[0] + ")\n"), 2, False, False),
+            ("extra-line", ["--repo", repo], gh_err(fx + "HTTP 502\n"), 2, False, False),
+            ("exit-status-4", ["--repo", repo], gh_err(fx, 4), 2, False, False),
+            ("no-stderr", ["--repo", repo], {"rollup_error": subprocess.CalledProcessError(1, ["gh"])},
+             2, False, False),
+            ("os-error", ["--repo", repo], {"rollup_error": OSError("gh not found")}, 2, False, False),
+            ("reread-fails", ["--repo", repo], dict(gh_err(fx), view_error=denied("HTTP 502\n")), 2, False, True),
+            ("reread-not-open", ["--repo", repo], dict(gh_err(fx), state="MERGED"), 1, False, True),
+            ("reread-bad-head", ["--repo", repo], dict(gh_err(fx), h="abc123"), 1, False, True),
+            ("explicit-require", ["--repo", repo, "--require", "validate"], gh_err(fx), 1, False, True),
+            ("runs-failing", ["--repo", repo], dict(gh_err(fx), runs=page([run(concl="failure")])), 1, True, True),
+            ("runs-none", ["--repo", repo], dict(gh_err(fx), runs=page([])), 1, True, True),
+            ("runs-other-commit", ["--repo", repo], dict(gh_err(fx), runs=page([run(sha="b" * 40)])),
+             1, True, True),
+        ):
+            rc = drive(flags, **kw)
+            checks.append((f"forbidden-{label}-refused", rc == want_rc and not merges() and (reads or not api())
+                           and len(views()) == (2 if again else 1)))
+    finally:
+        globals()["gh"] = real_gh
+        globals()["open_findings_block"] = real_block
+    return checks
 
 
 def _self_test() -> int:
@@ -610,6 +914,7 @@ def _self_test() -> int:
     checks.append(("failure-reason-names-check", "Lint" in r_fail))
     _, r_pend = evaluate([cr("Lint", "IN_PROGRESS", None)])
     checks.append(("pending-reason-names-check", "Lint" in r_pend))
+    checks.extend(_self_test_actions_fallback())
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"merge-when-green self-test: FAIL {bad}")
@@ -631,7 +936,8 @@ def main(argv: list[str]) -> int:
                        help="a check that must be present and SUCCESS (repeatable; replaces the default list; a default "
                             "check name still binds to its workflow)")
     group.add_argument("--require-none", action="store_true",
-                       help="require no named check (for a repository without the default checks)")
+                       help="require no named check (for a repository without the default checks); an "
+                            "ACTIONS_FALLBACK repository still requires its workflows")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv[1:])
     if args.self_test:
@@ -641,12 +947,22 @@ def main(argv: list[str]) -> int:
         print("ERROR: give a PR number (or --self-test).", file=sys.stderr)
         return 2
     repo_args = ["--repo", args.repo] if args.repo else []
+    fallback = ACTIONS_FALLBACK.get(args.repo or "")
+    unreadable = False  # the token could not read the rollup at all (3b132 QA r1)
     try:
-        raw = gh("pr", "view", args.pr, *repo_args,
-                 "--json", "statusCheckRollup,number,title,state,headRefOid")
+        try:
+            raw = gh("pr", "view", args.pr, *repo_args,
+                     "--json", "statusCheckRollup,number,title,state,headRefOid")
+        except subprocess.CalledProcessError as exc:
+            if fallback is None or not rollup_forbidden(exc):
+                raise
+            # A listed repository whose token cannot read the rollup: read the PR again without it, and the
+            # Actions runs for its head decide below. Any other failure stops here, as before.
+            unreadable = True
+            raw = gh("pr", "view", args.pr, *repo_args, "--json", _VIEW_FIELDS)
         view = json.loads(raw)
     except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
-        print(f"ERROR: gh pr view failed: {exc}", file=sys.stderr)
+        print(f"ERROR: gh pr view failed: {_failure(exc)}", file=sys.stderr)
         return 2
     if view.get("state") != "OPEN":
         print(f"REFUSE: PR #{args.pr} is {view.get('state')}, not OPEN.", file=sys.stderr)
@@ -658,9 +974,29 @@ def main(argv: list[str]) -> int:
         print(f"REFUSE: PR #{args.pr} did not report a full head commit SHA ({head!r}); cannot pin the merge.",
               file=sys.stderr)
         return 1
-    required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
-    workflows = REQUIRED_WORKFLOWS  # a default name binds to its workflow even via --require (3b105 QA r1)
-    green, reason = evaluate(view.get("statusCheckRollup") or [], required, workflows)
+    rollup = [] if unreadable else (view.get("statusCheckRollup") or [])
+    if fallback is not None and isinstance(rollup, list) and not any(
+            isinstance(c, dict) and c.get("__typename") == "CheckRun" for c in rollup):
+        # This repository's token cannot read Checks: the Actions runs for the head decide (3b132).
+        if args.require:
+            print(f"REFUSE to merge PR #{args.pr}: --require names check runs, which the Actions-runs fallback "
+                  "cannot see; its required workflows are set in ACTIONS_FALLBACK", file=sys.stderr)
+            return 1
+        green, reason = evaluate(rollup) if rollup else (True, "")  # a commit status present must still pass
+        if green:
+            try:
+                runs = json.loads(gh("api", f"repos/{args.repo}/actions/runs?head_sha={head}&per_page=100"))
+            except (subprocess.CalledProcessError, OSError, json.JSONDecodeError) as exc:
+                print(f"ERROR: gh api actions/runs failed: {_failure(exc)}", file=sys.stderr)
+                return 2
+            green, runs_reason = evaluate_runs(runs, head, fallback)
+            reason = f"{runs_reason}; commit statuses: {reason}" if (green and reason) else runs_reason
+            if green and unreadable:
+                reason += "; the check rollup itself was not readable, so no commit status was seen"
+    else:
+        required = () if args.require_none else tuple(args.require or REQUIRED_CHECKS)
+        workflows = REQUIRED_WORKFLOWS  # a default name binds to its workflow even via --require (3b105 QA r1)
+        green, reason = evaluate(rollup, required, workflows)
     if not green:
         print(f"REFUSE to merge PR #{args.pr}: {reason}", file=sys.stderr)
         return 1
@@ -678,7 +1014,7 @@ def main(argv: list[str]) -> int:
     try:
         gh(*merge)
     except (subprocess.CalledProcessError, OSError) as exc:
-        print(f"ERROR: gh pr merge failed: {exc}", file=sys.stderr)
+        print(f"ERROR: gh pr merge failed: {_failure(exc)}", file=sys.stderr)
         return 2
     print(f"MERGED PR #{args.pr} ({args.merge_method}).")
     return 0
