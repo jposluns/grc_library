@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-09-27\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -656,7 +656,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (245: 245 free, 0 licensed)
+## Legislation (247: 247 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -693,6 +693,7 @@ without the private reference sibling).
 | Canada Breach of Security Safeguards Regulations, SOR/2018-64 (under PIPEDA) | SOR/2018-64, Justice Laws consolidation current to 2026-05-26, last amended 2018-11-01; in force since 2018-11-01 | Canada |  | FREE |
 | Canada Customs Act (R.S.C. 1985, c. 1 (2nd Supp.)), consolidation | Justice Laws consolidation PDF (C-52.6), generated 2026-09-23 | Canada |  | FREE |
 | Canada Imported Goods Records Regulations (SOR/86-1011), consolidation | Justice Laws consolidation PDF, generated 2026-09-16 | Canada |  | FREE |
+| Canada Personal Information Protection and Electronic Documents Act (PIPEDA), S.C. 2000, c. 5 (consolidated) | Justice Laws consolidation, current to 2026-09-21 | Canada |  | FREE |
 | Canada Treasury Board Directive on Automated Decision-Making (in force; current text reflects the fourth-review amendments, whose 24 June 2025 to 24 June 2026 compliance transition has ENDED, per the held text sections 1.2.1 and 1.2.2) |  | Canada |  | FREE |
 | Canada's Anti-Spam Legislation (An Act to promote the efficiency and adaptability of the Canadian economy by regulating certain activities that discourage reliance on electronic means of carrying out commercial activities) | S.C. 2010, c. 23 (consolidated, current to 2026-06-17) | Canada |  | FREE |
 | Chile Ley 19.628 sobre proteccion de la vida privada (consolidated 2023-05-09) |  | Chile |  | FREE |
@@ -889,6 +890,7 @@ without the private reference sibling).
 | United Kingdom Data (Use and Access) Act 2025 (c. 18) | As enacted (Royal Assent 19 June 2025) | UK |  | FREE |
 | United Kingdom Data (Use and Access) Act 2025 (Commencement No. 9 and Transitional and Saving Provisions) Regulations 2026 (S.I. 2026/1015) | Made 10 September 2026 | UK |  | FREE |
 | United Kingdom Data Protection Act 2018 (c. 12) |  | UK |  | FREE |
+| United Kingdom General Data Protection Regulation (UK GDPR; retained Regulation (EU) 2016/679), consolidated text | consolidated on legislation.gov.uk as retrieved 2026-09-29, including Data (Use and Access) Act 2025 amendments (for example Articles 12A and 22A-22D, in force 5 February 2026) | UK |  | FREE |
 | United Kingdom Privacy and Electronic Communications (EC Directive) Regulations 2003 (S.I. 2003/2426) | As made (2003) | UK |  | FREE |
 | United States Illinois HB 3773 (Public Act 103-0804), artificial intelligence in employment | PA 103-0804, effective 1 Jan 2026 | US |  | FREE |
 | United States National Artificial Intelligence Initiative Act of 2020 (codified at 15 U.S.C. Chapter 119) | 15 U.S.C. Chapter 119 (2023 codification) | US |  | FREE |
@@ -955,5 +957,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 890 sources (764 free, 126 licensed).**
+**Total: 892 sources (766 free, 126 licensed).**
 
