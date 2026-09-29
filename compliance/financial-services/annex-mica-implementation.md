@@ -2,8 +2,8 @@
 
 **Document Title:** MiCA Implementation Annex\
 **Document Type:** Annex\
-**Version:** 0.3.6\
-**Date:** 2026-09-28\
+**Version:** 0.3.7\
+**Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/financial-services/annex-financial-services-sector-requirements.md`](annex-financial-services-sector-requirements.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](../../supply-chain/standard-supplier-security-and-privacy-assurance.md), [`compliance/financial-services/annex-dora-implementation.md`](annex-dora-implementation.md)\
@@ -79,7 +79,7 @@ The Art 6 white paper follows the Annex I schema, nine lettered parts: **Part A*
 
 ### Technical standards (held status)
 
-Art 6(11) mandates ESMA implementing technical standards (standard forms, formats, and templates for the white paper) and Art 6(12) mandates regulatory technical standards. **`grc_library_ref` does not hold the Title II white-paper ITS or RTS** (the held MiCA delegated-act set covers other Titles (III to VII), not Title II); they are acquisition items (egress-gated), and the mapping above rests on the MiCA Level 1 text alone.
+Art 6(11) mandates ESMA implementing technical standards (standard forms, formats, and templates for the white paper) and Art 6(12) mandates regulatory technical standards. **the Title II white-paper ITS and RTS are not held in the reference base (`grc_library_ref`)** (the held MiCA delegated-act set covers other Titles (III to VII), not Title II); they are acquisition items (egress-gated), and the mapping above rests on the MiCA Level 1 text alone. <!-- ref-absence: crypto-asset white paper ITS | Article 6(11) -->
 
 ## Title III: asset-referenced tokens (Arts 16-47)
 
@@ -146,7 +146,7 @@ Title VI imposes an EU market-abuse regime on crypto-assets that are admitted to
 | **Prohibition of market manipulation (Art 91)**: no person may engage, or attempt to engage, in market manipulation, including giving false or misleading signals, securing a price at an abnormal or artificial level, employing fictitious devices, or disseminating misleading information. | library conduct and market-integrity controls (adopter maps); the MiCA-specific application is a gap |
 | **Prevention-and-detection arrangements and suspicious-transaction-and-order reporting (Art 92; RTS 2025/885)**: any person professionally arranging or executing transactions in crypto-assets maintains effective arrangements, systems, and procedures to prevent and detect market abuse, and reports suspicious transactions and orders to the competent authority without delay, per the RTS 2025/885 detection, reporting-template, and record-retention requirements. | `operations/procedure-threat-intelligence-and-siem-operations.md`, `security/standard-logging-and-monitoring.md` (monitoring base; the market-abuse detection template and the suspicious-transaction-and-order report are MiCA-specific) |
 
-Art 92(3) provides for ESMA guidelines on the consistency of supervisory practices under Art 92; those guidelines are soft law and are not held in `grc_library_ref`.
+Art 92(3) provides for ESMA guidelines on the consistency of supervisory practices under Art 92; those guidelines are soft law and are not held in the reference base (`grc_library_ref`). <!-- ref-absence: ESMA guidelines Article 92 | supervisory practices under Article 92 -->
 
 ## Supervisory architecture (Title VII)
 
