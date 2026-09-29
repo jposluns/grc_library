@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.30\
+**Version:** 1.1.31\
 **Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -52,7 +52,7 @@ The following summarizes the PPCDA as introduced (Bill C-36, first reading 2026-
 ### Under PIPEDA (current)
 
 - **Consent:** Meaningful consent required for collection, use, or disclosure. The form of consent may vary with the circumstances and sensitivity of the information; an organization should generally seek express consent for information likely to be sensitive, and implied consent is generally appropriate for less-sensitive information (PIPEDA Schedule 1, Principle 4.3).
-- **Automated decision-making:** PIPEDA has no explicit equivalent to GDPR Article 22. The OPC has published guidance on automated decision-making (individuals informed when significant decisions use automated systems; human review available); that guidance is not held in the reference base, so an adopter confirms the current OPC position directly. <!-- ref-absence: OPC guidance on automated decision-making | OPC automated decision -->
+- **Automated decision-making:** PIPEDA has no explicit equivalent to GDPR Article 22. The OPC has published guidance on automated decision-making (individuals informed when significant decisions use automated systems; human review available); that guidance is not held in the reference base, so an adopter confirms the current OPC position directly. <!-- ref-absence: Canada OPC automated decision | Canada OPC guidance on automated decision -->
 - **Accountability:** Organizations must designate an individual responsible for compliance, develop privacy policies and procedures, and respond to individual complaints.
 
 ### Under the CPPA (lapsed; proposed, not in force)

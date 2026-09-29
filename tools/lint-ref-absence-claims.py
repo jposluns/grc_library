@@ -22,13 +22,21 @@ marker-plus-committed-manifest design):
 
    The marker renders invisible. Detection is per prose BLOCK, not per
    physical line: consecutive prose lines are joined (source line numbers
-   preserved; blank lines, fences, headings, table rows, list items and
-   blockquote lines bound a block), so ordinary Markdown line wrapping
-   cannot split the canonical sentence out of the gate's sight. A marker
-   on the next line counts ONLY when that line carries no canonical claim
-   of its own: one marker can never shield two claims. Authoring
-   guidance: use the most stable identifier available (a document number
-   such as ``SR 11-7`` beats an agency acronym) and keep each query
+   preserved; blank lines, fences, headings, table rows, list items and a
+   change of blockquote depth bound a block, and blockquote markers are
+   stripped first, so a quoted wrapped sentence joins like any other
+   prose), so ordinary Markdown line wrapping cannot split the canonical
+   sentence out of the gate's sight. A claim occupies its whole SENTENCE,
+   not just the canonical phrase: the marker is adjacent when it sits on
+   the line the claim's sentence ENDS on, or on the next line, so the
+   example above (phrase, a wrapped continuation, then the marker) is
+   correctly annotated. Marker accounting is per CLAIM, not per line: N
+   claims whose sentences end on one physical line need N adjacent
+   markers, and a next-line marker counts ONLY when that line ends no
+   canonical claim of its own: one marker can never shield two claims.
+   Authoring guidance: use the most stable identifier available (a
+   document number such as ``SR 11-7`` beats an agency acronym) and
+   keep each query
    jurisdiction-unambiguous (a bare ``AI Ethics Principles`` matches
    Australia's held principles). A class-claim with no nameable source
    (instruments outside an annex's scope) still carries a marker naming
@@ -68,15 +76,21 @@ marker-plus-committed-manifest design):
 4. NEAR-MISS NET. A paraphrase (``not held`` / ``not <adverb>ly held`` /
    ``does not hold`` / ``do not hold`` within eight tokens of
    ``reference base`` / ``reference library`` / ``held text`` /
-   ``grc_library_ref``, or ``absent from`` / ``missing from`` within
-   eight tokens of ``reference base`` / ``reference library`` /
-   ``grc_library_ref``) fails with a use-the-canonical-phrasing message,
-   converting a reworded claim into a style finding instead of a silent
-   blind spot. The ``absent from`` / ``missing from`` triggers
-   deliberately do NOT count beside ``held text``: that combination
-   asserts missing CONTENT of a held document ("a signing date is absent
-   from the held text"), a different claim from a missing SOURCE, and
-   rephrasing it canonically would change its meaning. Stated residue: a
+   ``grc_library_ref``; or a rewording, ``not included`` / ``not
+   present`` / ``not available`` / ``not indexed`` / ``not stored`` /
+   ``does not include`` / ``does not contain`` / ``does not carry`` /
+   ``absent from`` / ``missing from`` / ``excluded from`` / ``omitted
+   from``, within eight tokens of ``reference base`` / ``reference
+   library`` / ``grc_library_ref``) fails with a
+   use-the-canonical-phrasing message, converting a reworded claim into
+   a style finding instead of a silent blind spot. The rewording
+   triggers deliberately do NOT count beside ``held text``, and a
+   rewording whose OBJECT is the held text ("a signing date is absent
+   from the held text", "the duty is not included in the held text") is
+   skipped even when collection vocabulary sits elsewhere in the
+   window: both assert missing CONTENT of a held document, a different
+   claim from a missing SOURCE, and rephrasing either canonically would
+   change its meaning. Stated residue: a
    bare ``not held`` with no reference-base vocabulary in the window is
    not auto-detected (most such lines are content claims); a holdings
    claim worded that way is annotated manually with a marker, which rule
@@ -92,7 +106,10 @@ parity gate forbids hardcoding the run), and the ``guardrails/`` pack.
 Fenced code is skipped with a width- and character-matching fence parser
 (a four-backtick example fence may legitimately enclose three-backtick
 lines, which stay code; the shared toggle-only iterator would re-expose
-them).
+them). The fence parser reads THROUGH blockquote markers (a quoted
+fence still toggles, so a quoted absence sentence inside it stays
+code), and a fence opened inside a blockquote ends when the quote does
+(CommonMark), so quoted code cannot swallow the prose after it.
 
 Usage:
     python3 tools/lint-ref-absence-claims.py
@@ -157,15 +174,20 @@ CANONICAL_RE = re.compile(
 MARKER_RE = re.compile(r"<!--\s*ref-absence:(.*?)-->", re.DOTALL)
 
 # Paraphrase triggers: plain "not held", one optional -ly adverb ("not
-# independently held"), and the "does/do not hold" verb form. "not in the
-# held text" (a content-absence claim) does NOT match: "in"/"the" are not
-# -ly adverbs.
+# independently held"), the "does/do not hold" verb form, and the
+# plausible rewordings (not included / present / available / indexed /
+# stored; does not include / contain / carry; absent / missing /
+# excluded / omitted from). "not in the held text" (a content-absence
+# claim) does NOT match: "in"/"the" are not -ly adverbs.
 NEAR_MISS_TRIGGER_RE = re.compile(
-    r"\bnot\s+(?:\w+ly\s+)?held\b"
-    r"|\b(?:absent|missing)\s+from\b"
-    r"|\b(?:does|do)\s+not\s+(?:\w+ly\s+)?hold\b",
+    r"\bnot\s+(?:\w+ly\s+)?(?:held|included|present|available|indexed|stored)\b"
+    r"|\b(?:absent|missing|excluded|omitted)\s+from\b"
+    r"|\b(?:does|do)\s+not\s+(?:\w+ly\s+)?(?:hold|include|contain|carry)\b",
     re.IGNORECASE,
 )
+# Distinguishes the "held"/"hold" trigger wordings (which may use the
+# held-text context legitimately) from the rewordings, which may not.
+HELD_VERB_RE = re.compile(r"\bh[eo]ld\b", re.IGNORECASE)
 # A trigger is a finding only near the reference base's own vocabulary.
 # Deliberately NOT bare "reference": "absent from library section-20
 # references" is a content claim, not a holdings claim.
@@ -173,15 +195,33 @@ NEAR_MISS_CONTEXT_RE = re.compile(
     r"reference\s+(?:base|library)|held\s+texts?|grc_library_ref",
     re.IGNORECASE,
 )
-# The "absent from" / "missing from" triggers use this NARROWER context:
-# beside "held text(s)" they assert missing CONTENT of a held document
-# ("a signing date is absent from the held text"), not a missing source,
-# so only the collection vocabulary keeps them in the net (rule 4).
+# Every trigger except the "held"/"hold" wordings uses this NARROWER
+# context: beside "held text(s)" a rewording asserts missing CONTENT of
+# a held document ("a signing date is absent from the held text"), not a
+# missing source, so only the collection vocabulary keeps it in the net
+# (rule 4).
 NEAR_MISS_COLLECTION_CONTEXT_RE = re.compile(
     r"reference\s+(?:base|library)|grc_library_ref",
     re.IGNORECASE,
 )
 NEAR_MISS_WINDOW_TOKENS = 8
+
+# A rewording whose OBJECT is the held text is a content claim whatever
+# else the window carries: "absent from the held text" and "not included
+# in the held text" stay exempt even when "reference base" sits in the
+# same sentence. Matched against the text right after the trigger.
+HELD_TEXT_OBJECT_RE = re.compile(
+    r"^\s*(?:(?:in|within|from)\s+)?(?:[\w'-]+\s+){0,3}?held\s+texts?\b",
+    re.IGNORECASE,
+)
+
+# The end of the sentence a canonical phrase belongs to: the next
+# terminator (closing quotes or brackets tolerated) followed by
+# whitespace or the block end. The claim occupies its whole sentence, so
+# the marker's adjacency anchor is the line the SENTENCE ends on; anchor
+# on the phrase instead and the documented authoring example (phrase, a
+# wrapped continuation, then the marker) reads as unmarked plus orphan.
+SENTENCE_END_RE = re.compile(r"[.!?][\"')\]]*(?=\s|$)")
 
 # A fence line: a run of three-plus backticks or tildes (leading indent
 # tolerated). Unlike lint_common.iter_non_code_lines' toggle, the CLOSE
@@ -190,10 +230,24 @@ NEAR_MISS_WINDOW_TOKENS = 8
 # enclosed three-backtick lines as code instead of re-exposing them.
 FENCE_RE = re.compile(r"^(`{3,}|~{3,})(.*)$")
 
-# A line that STARTS a new Markdown block: heading, table row, list item,
-# or blockquote. A wrapped sentence never continues INTO one of these, so
-# they bound the prose blocks the cross-line detection joins.
-BLOCK_START_RE = re.compile(r"^\s*(?:#{1,6}\s|\||[-*+]\s|\d{1,3}[.)]\s|>)")
+# A line that STARTS a new Markdown block: heading, table row, or list
+# item. A wrapped sentence never continues INTO one of these, so they
+# bound the prose blocks the cross-line detection joins. Blockquote
+# markers are stripped BEFORE this test (a quoted wrapped sentence joins
+# like any other prose); a change of blockquote depth bounds the block
+# in iter_prose_blocks instead.
+BLOCK_START_RE = re.compile(r"^\s*(?:#{1,6}\s|\||[-*+]\s|\d{1,3}[.)]\s)")
+
+# One or more leading blockquote markers, each with its optional space.
+QUOTE_PREFIX_RE = re.compile(r"^\s*((?:>\s?)+)")
+
+
+def _dequote(line: str) -> "tuple[int, str]":
+    """(blockquote depth, the line with its blockquote markers stripped)."""
+    m = QUOTE_PREFIX_RE.match(line)
+    if not m:
+        return 0, line
+    return m.group(1).count(">"), line[m.end():]
 
 
 def _normalize(text: str) -> str:
@@ -221,16 +275,24 @@ def load_manifest_rows(repo_root: Path) -> "list[tuple[int, str, str]] | None":
     return rows
 
 
-def iter_prose_lines(text: str) -> "list[tuple[int, str]]":
-    """(lineno, line) for each line outside fenced code, fence-width-aware."""
-    out: list[tuple[int, str]] = []
-    fence_char, fence_len = "", 0
+def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
+    """(lineno, blockquote depth, dequoted line) for each line outside
+    fenced code, fence-width-aware. Fences are matched on the DEQUOTED
+    text, so a fence inside a blockquote still toggles; a fence opened
+    inside a blockquote ends when the quote does (CommonMark), so quoted
+    code cannot swallow the prose after the quote."""
+    out: list[tuple[int, int, str]] = []
+    fence_char, fence_len, fence_depth = "", 0, 0
     for lineno, line in enumerate(text.splitlines(), start=1):
-        m = FENCE_RE.match(line.lstrip())
+        depth, content = _dequote(line)
+        if fence_char and depth < fence_depth:
+            # Leaving the blockquote closes the fence it opened.
+            fence_char, fence_len = "", 0
+        m = FENCE_RE.match(content.lstrip())
         if m:
             run = m.group(1)
             if not fence_char:
-                fence_char, fence_len = run[0], len(run)
+                fence_char, fence_len, fence_depth = run[0], len(run), depth
                 continue
             if run[0] == fence_char and len(run) >= fence_len and not m.group(2).strip():
                 fence_char, fence_len = "", 0
@@ -239,29 +301,32 @@ def iter_prose_lines(text: str) -> "list[tuple[int, str]]":
             # is literal code content, not a toggle.
         if fence_char:
             continue
-        out.append((lineno, line))
+        out.append((lineno, depth, content))
     return out
 
 
 def iter_prose_blocks(text: str) -> "list[list[tuple[int, str]]]":
-    """Prose blocks as [(lineno, line), ...] runs: blank lines and fences
-    end a block; a heading, table-row, list-item or blockquote line starts
-    a fresh one (a wrapped sentence never continues into those)."""
+    """Prose blocks as [(lineno, dequoted line), ...] runs: blank lines
+    and fences end a block; a heading, table-row or list-item line starts
+    a fresh one (a wrapped sentence never continues into those), and so
+    does a change of blockquote depth (consecutive lines of ONE quote
+    join, so a quoted wrapped sentence stays in the gate's sight)."""
     blocks: list[list[tuple[int, str]]] = []
     block: list[tuple[int, str]] = []
-    prev = None
-    for lineno, line in iter_prose_lines(text):
+    prev_line, prev_depth = None, 0
+    for lineno, depth, line in iter_prose_lines(text):
         if not line.strip():
             if block:
                 blocks.append(block)
             block = []
-            prev = None
+            prev_line = None
             continue
-        if block and (lineno != prev + 1 or BLOCK_START_RE.match(line)):
+        if block and (lineno != prev_line + 1 or depth != prev_depth
+                      or BLOCK_START_RE.match(line)):
             blocks.append(block)
             block = []
         block.append((lineno, line))
-        prev = lineno
+        prev_line, prev_depth = lineno, depth
     if block:
         blocks.append(block)
     return blocks
@@ -281,14 +346,18 @@ def near_miss_hits(text: str, canonical_spans) -> "list[tuple[int, str]]":
     for m in NEAR_MISS_TRIGGER_RE.finditer(text):
         if any(m.start() < end and m.end() > start for start, end in canonical_spans):
             continue
+        if HELD_VERB_RE.search(m.group(0)):
+            context = NEAR_MISS_CONTEXT_RE
+        else:
+            # A rewording whose OBJECT is the held text asserts missing
+            # CONTENT, not a missing source: skip it however much
+            # collection vocabulary the rest of the window carries.
+            if HELD_TEXT_OBJECT_RE.match(text[m.end():]):
+                continue
+            context = NEAR_MISS_COLLECTION_CONTEXT_RE
         before = " ".join(text[: m.start()].split()[-NEAR_MISS_WINDOW_TOKENS:])
         after = " ".join(text[m.end():].split()[:NEAR_MISS_WINDOW_TOKENS])
         window = " ".join(part for part in (before, m.group(0), after) if part)
-        context = (
-            NEAR_MISS_COLLECTION_CONTEXT_RE
-            if m.group(0).lstrip().lower().startswith(("absent", "missing"))
-            else NEAR_MISS_CONTEXT_RE
-        )
         if context.search(window):
             hits.append((m.start(), m.group(0)))
     return hits
@@ -296,7 +365,11 @@ def near_miss_hits(text: str, canonical_spans) -> "list[tuple[int, str]]":
 
 def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
     findings: list[str] = []
-    canonical_lines: set[int] = set()  # the line each canonical claim ENDS on
+    # How many claims end on each line: the sentence-end line anchors the
+    # marker adjacency, and the COUNT keeps the accounting per claim (a
+    # set of line numbers would let one marker shield two claims that end
+    # on the same physical line).
+    canonical_counts: dict[int, int] = {}
     claim_lines: set[int] = set()      # every line any claim touches (orphan adjacency)
     markers: dict[int, list[list[str]]] = {}
 
@@ -318,8 +391,13 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
 
         spans = [(m.start(), m.end()) for m in CANONICAL_RE.finditer(joined)]
         for start, end in spans:
-            canonical_lines.add(line_at(end - 1))
-            claim_lines.update(range(line_at(start), line_at(end - 1) + 1))
+            # The claim runs to the end of its SENTENCE, not its phrase,
+            # so a marker after a wrapped continuation stays adjacent.
+            sentence = SENTENCE_END_RE.search(joined, end)
+            sent_end = sentence.end() if sentence else len(joined)
+            end_line = line_at(sent_end - 1)
+            canonical_counts[end_line] = canonical_counts.get(end_line, 0) + 1
+            claim_lines.update(range(line_at(start), end_line + 1))
         for m in NEAR_MISS_TRIGGER_RE.finditer(joined):
             # Any trigger line is annotatable (rule 2): a marker beside a
             # bare paraphrase the net does not flag is still no orphan.
@@ -336,17 +414,27 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
             if found:
                 markers[lineno] = found
 
-    for lineno in sorted(canonical_lines):
-        if lineno in markers:
+    for lineno in sorted(canonical_counts):
+        claims = canonical_counts[lineno]
+        covered = len(markers.get(lineno, []))
+        # Next-line markers count only when that line ends no canonical
+        # claim of its own, and the accounting is per CLAIM: N claims
+        # ending on one line need N adjacent markers, so one marker can
+        # never shield two claims.
+        if canonical_counts.get(lineno + 1, 0) == 0:
+            covered += len(markers.get(lineno + 1, []))
+        if covered >= claims:
             continue
-        # A next-line marker counts only when that line carries no canonical
-        # claim of its own: one marker can never shield two claims.
-        if (lineno + 1) in markers and (lineno + 1) not in canonical_lines:
-            continue
+        shortfall = (
+            f" ({claims} claims end on this line and only {covered} adjacent"
+            f" marker(s) cover them; each claim carries its own marker)"
+            if claims > 1 else ""
+        )
         findings.append(
             f"{rel}:{lineno}: canonical reference-absence claim carries no "
             f"adjacent <!-- ref-absence: query1 | query2 --> marker (same "
             f"line or the next line) naming the claimed-absent source"
+            + shortfall
         )
 
     for lineno in sorted(markers):

@@ -2,7 +2,7 @@
 
 **Document Title:** New York City Automated Employment Decision Tool Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.5\
+**Version:** 0.0.6\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -54,7 +54,7 @@ The DCWP enforces Local Law 144. A violation of the bias-audit, published-result
 ## Limitations
 
 - This annex is a consolidating per-regime view, not a substitute for the enacted law or for legal advice; the controlling texts are Administrative Code sections 20-870 to 20-872 and the DCWP rule (6 RCNY 5-300 to 5-304).
-- **Statutory text not held.** The library holds the DCWP final rule but not the Administrative Code sections (20-870 to 20-872) that carry the core statutory mandate and the penalty schedule. This annex attributes the audit, published-results, and notice mechanics to the DCWP rule and the statutory mandate and penalty to the Administrative Code sections by number; it does not state a penalty amount or reproduce the statutory text. An adopter needing the penalty amounts or the verbatim statutory mandate consults the Administrative Code directly.
+- **Statutory text not held.** The library holds the DCWP final rule but not the Administrative Code sections (20-870 to 20-872) that carry the core statutory mandate and the penalty schedule. This annex attributes the audit, published-results, and notice mechanics to the DCWP rule and the statutory mandate and penalty to the Administrative Code sections by number; it does not state a penalty amount or reproduce the statutory text. An adopter needing the penalty amounts or the verbatim statutory mandate consults the Administrative Code directly. <!-- ref-absence: Administrative Code 20-870 | Administrative Code 20-871 | Administrative Code 20-872 -->
 - **Version-sensitive status.** Local Law 144 has been enforced since its enforcement-commencement date; that date and any subsequent amendment are maintained in [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), and the adopter confirms the current position upstream before committing to a compliance milestone.
 - Detail that the rule leaves to practice (the form of the published summary, the statistical-significance judgment for using test data) is not fixed in the enacted text; the adopter confirms the current position against the rule as adopted.
 - The corpus operational substance this annex references (the AI classification and impact-assessment workflow, the bias-testing controls) is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md) and the AI assessment procedures; on any divergence, those documents govern the operational procedure and this annex governs the per-regime framing.
