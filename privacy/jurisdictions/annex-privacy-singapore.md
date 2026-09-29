@@ -2,7 +2,7 @@
 
 **Document Title:** Singapore Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Personal Data Protection Act 2012 (PDPA)**: Administered by the Personal Data Protection Commission (PDPC). Governs collection, use, disclosure, and care of personal data by private organizations. Significantly amended in 2020 (effective 2021-02-01) to introduce mandatory data breach notification, enhanced consent exceptions, data portability, and expanded enforcement powers.
-- **PDPC Advisory Guidelines on the Use of Personal Data in AI Recommendation and Decision Systems:** advisory guidelines on using personal data in AI recommendation and decision systems; the specific guidelines are not held in the reference base, so an adopter confirms the current edition and date directly.
+- **PDPC Advisory Guidelines on the Use of Personal Data in AI Recommendation and Decision Systems:** advisory guidelines on using personal data in AI recommendation and decision systems; the specific guidelines are not held in the reference base, so an adopter confirms the current edition and date directly. <!-- ref-absence: Advisory Guidelines on the Use of Personal Data in AI Recommendation and Decision Systems | PDPC AI advisory guidelines -->
 - **Regulatory authority:** Personal Data Protection Commission (PDPC).
 
 ---

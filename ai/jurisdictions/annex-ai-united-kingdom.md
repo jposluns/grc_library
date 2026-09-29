@@ -2,8 +2,8 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-09-25\
+**Version:** 0.0.7\
+**Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`ai/jurisdictions/annex-ai-singapore.md`](annex-ai-singapore.md), [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../../privacy/jurisdictions/annex-privacy-united-kingdom.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)\
@@ -54,7 +54,7 @@ This annex is the per-regime view; it cross-references the operational substance
 ## Limitations
 
 - This annex is a per-regime view, not legal advice; the controlling texts are the two policy documents and the law and guidance of each regulator.
-- **Version sensitivity.** The framework is policy that the government has said it will revisit, including through a possible statutory duty on regulators and targeted binding requirements for developers of highly capable general-purpose AI. UK AI policy published after the government response is not held in this library's reference base; an adopter confirms the current position with DSIT and its sector regulators before reliance.
+- **Version sensitivity.** The framework is policy that the government has said it will revisit, including through a possible statutory duty on regulators and targeted binding requirements for developers of highly capable general-purpose AI. UK AI policy published after the government response is not held in the reference base; an adopter confirms the current position with DSIT and its sector regulators before reliance. <!-- ref-absence: UK AI policy after the government response | DSIT AI regulation update -->
 - **Contestability.** The contestability and redress principle relies on existing routes to redress, and the white paper expects regulators to encourage and guide regulated entities to make clear, accessible routes for affected parties to contest harmful AI outcomes; the annex does not present it as a new individual right.
 
 ## Framework alignment

@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.11\
-**Date:** 2026-09-15\
+**Version:** 1.2.12\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -66,7 +66,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ### FTC AI enforcement themes
 
-Recurring themes in FTC AI-related enforcement actions and business guidance (a characterization, not an FTC-published list; not held in the reference base):
+Recurring themes in FTC AI-related enforcement actions and business guidance (a characterization, not an FTC-published list; not held in the reference base): <!-- ref-absence: FTC AI enforcement themes -->
 
 - AI systems making false or unsubstantiated capability claims.
 - AI used to manipulate consumers or engage in dark patterns.
@@ -79,7 +79,7 @@ Recurring themes in FTC AI-related enforcement actions and business guidance (a 
 
 ### Sectoral AI considerations
 
-- **Financial services:** the Federal Reserve's SR 11-7 model-risk-management guidance is commonly applied to AI in credit, fraud, and compliance decisions; that guidance is not held in the reference base, so an adopter confirms its current scope directly. Fair lending laws apply to AI-driven credit decisions.
+- **Financial services:** the Federal Reserve's SR 11-7 model-risk-management guidance is commonly applied to AI in credit, fraud, and compliance decisions; that guidance is not held in the reference base, so an adopter confirms its current scope directly. Fair lending laws apply to AI-driven credit decisions. <!-- ref-absence: SR 11-7 -->
 - **Healthcare:** AI clinical decision support may qualify as a medical device subject to FDA regulation. HIPAA applies to AI processing protected health information.
 - **Employment:** EEOC guidance (cited illustratively; adopters confirm the current EEOC position) that AI hiring tools may violate Title VII if they produce disparate impact.
 
@@ -89,7 +89,7 @@ Recurring themes in FTC AI-related enforcement actions and business guidance (a 
 
 Where the organization monitors the network and device activity of workers in the United States, the applicable requirements arise from a patchwork rather than a single federal regime, governed operationally by the Workforce Network Monitoring Policy ([`security/policy-workforce-network-monitoring.md`](../../security/policy-workforce-network-monitoring.md)) and its supporting suite. There is no federal omnibus privacy law; the position is assembled from state electronic-monitoring notice laws, the state comprehensive privacy laws that reach employee data, and sectoral interception law.
 
-- **State electronic-monitoring notice laws.** Several states require an employer to give employees notice of electronic monitoring; New York, Connecticut, and Delaware each require prior notice of the monitoring of employees' electronic communications or internet activity. These state statutes are cited illustratively and are not held in the reference base; the specific triggers, form of notice, and penalties differ by state, and adopters confirm the current statute, its scope, and the required notice form in each state where workers are located.
+- **State electronic-monitoring notice laws.** Several states require an employer to give employees notice of electronic monitoring; New York, Connecticut, and Delaware each require prior notice of the monitoring of employees' electronic communications or internet activity. These state statutes are cited illustratively and are not held in the reference base; the specific triggers, form of notice, and penalties differ by state, and adopters confirm the current statute, its scope, and the required notice form in each state where workers are located. <!-- ref-absence: New York electronic monitoring notice | Connecticut electronic monitoring | Delaware electronic monitoring -->
 - **State comprehensive privacy laws reach employee data in California.** The CCPA/CPRA has covered employee and applicant personal information since the employee-data exemption expired on 1 January 2023, so California workers hold notice, access, deletion, correction, and sensitive-information-limitation rights in their monitored personal information, and the CPPA regulations on automated decision-making technology, risk assessments, and cybersecurity audits apply where triggered. Several other state comprehensive privacy laws currently exclude data processed in an employment context, though the position varies by state and is changing; adopters confirm the scope of each applicable state law.
 - **Sectoral interception law.** The Electronic Communications Privacy Act and the Stored Communications Act constrain the interception of, and access to, electronic communications. Whether a given monitoring configuration falls within a statutory exception (for example a provider or consent-based exception) is provision-specific and fact-dependent; these statutes and their exceptions are cited illustratively rather than as a general permission for workplace monitoring, and adopters obtain jurisdiction-specific legal advice on interception and consent before deploying content inspection. Monitoring of communication content is treated as the exceptional, specifically approved measure under the parent policy, and legally privileged or protected communications are excluded.
 - **Purpose stated separately from footing; notice and proportionality.** A legitimate security aim states the purpose the monitoring serves; it does not displace the notice and proportionality expectations the state notice laws and the parent policy impose. Advance notice of the nature, purpose, and scope of monitoring is provided using the [Employee Monitoring Notice Template](../template-employee-monitoring-notice.md); the necessity, proportionality, and balancing analysis is worked in the [Legitimate Interest Assessment for Employment Monitoring Annex](../annex-legitimate-interest-employment-monitoring.md), applied here as an analytic aid rather than as a GDPR lawful basis. Connection metadata is governed by the [Network Telemetry and DPI Controls Standard](../standard-network-telemetry-and-dpi-controls.md) and presence signals by the [Presence Inference Limitations Standard](../standard-presence-inference-limitations.md).

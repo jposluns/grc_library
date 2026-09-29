@@ -2,8 +2,8 @@
 
 **Document Title:** Japan Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.9\
-**Date:** 2026-09-27\
+**Version:** 1.1.10\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -26,14 +26,14 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 - **Act on the Protection of Personal Information (APPI)**: Act No. 57 of 2003; the consolidated text as of April 1, 2023 includes conditions on third-party and cross-border provision of personal data, pseudonymized personal information as a category, rights to request cessation of use, deletion and cessation of third-party provision, and PPC recommendation, order and inspection powers.
 - **Regulatory authority:** Personal Information Protection Commission (PPC).
-- **PPC AI-related guidance:** The PPC has published material on applying APPI to AI systems. That specific guidance is not held in the reference base, so an adopter confirms the current PPC AI guidance directly; the APPI obligations below apply to AI processing regardless.
+- **PPC AI-related guidance:** The PPC has published material on applying APPI to AI systems. That specific guidance is not held in the reference base, so an adopter confirms the current PPC AI guidance directly; the APPI obligations below apply to AI processing regardless. <!-- ref-absence: PPC AI guidance | PPC guidance on AI -->
 
 ---
 
 ## AI and privacy obligations
 
 - **Purpose specification:** APPI's purpose-limitation principle applies to personal information used to train AI: handling it beyond the scope necessary to achieve the specified purpose of use requires the individual's prior consent, unless an exception applies [Article 18(1), (3)]. The purpose of use may be altered only within the extent that can be appreciably linked to the prior purpose, and the altered purpose is notified or published unless an Article 21(4) exception applies [Articles 17(2), 21(3), (4)]. For third-party-sourced data, an adopter confirms the use is within the purpose for which the data was provided, or obtains consent for the new purpose.
-- **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition and inappropriate-use duties apply: a business must not acquire personal information by deception or other wrongful means [Article 20(1)], and must not utilize personal information in a way that may foment or induce an unlawful or unjust act [Article 19]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation.
+- **Publicly available data:** APPI contains no general exemption for publicly available personal information, so it remains within scope. The proper-acquisition and inappropriate-use duties apply: a business must not acquire personal information by deception or other wrongful means [Article 20(1)], and must not utilize personal information in a way that may foment or induce an unlawful or unjust act [Article 19]. Guidance specific to web scraping for AI training is not held in the reference base; adopters confirm the current PPC position before relying on a scraping-specific interpretation. <!-- ref-absence: PPC web scraping | PPC scraping guidance -->
 - **Pseudonymized personal information (kamei kakō jōhō, 仮名加工情報):** May be used within the business for an altered purpose without consent, subject to the conditions in Article 41, including that it is not provided to third parties except in cases based on laws and regulations [Article 41(3), (6), (9)].
 - **Third-party provision:** Consent is required before providing personal data to AI system operators as third parties, unless an exception or the notification-and-opt-out route applies [Article 27(1), (2)]. A recipient entrusted with all or part of the handling within the scope necessary for the purpose of use is not a third party for this purpose [Article 27(5)(i)].
 - **Sensitive personal information:** Prior consent is required to acquire sensitive personal information (race, creed, social status, medical history, criminal record, the fact of having suffered damage by a crime, or other categories prescribed by Cabinet Order), subject to statutory exceptions [Articles 2(3), 20(2)]. The notification-and-opt-out route for third-party provision is not available for it [Article 27(2)].

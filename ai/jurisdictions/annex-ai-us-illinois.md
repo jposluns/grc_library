@@ -2,8 +2,8 @@
 
 **Document Title:** Illinois AI in Employment (HB 3773) Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.2\
-**Date:** 2026-09-25\
+**Version:** 0.0.3\
+**Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-new-york-city.md`](annex-ai-us-new-york-city.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-us-texas.md`](annex-ai-us-texas.md), [`ai/jurisdictions/annex-ai-us-california.md`](annex-ai-us-california.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -63,7 +63,7 @@ The amendment adds one new subdivision to the IHRA employment civil-rights-viola
 
 - **Federal anti-discrimination law.** HB 3773 overlays a state civil-rights prohibition on the same employment-decision surface that federal anti-discrimination law also governs; it does not displace an employer's federal obligations. The federal specifics are outside the held Illinois text and are not asserted here; an adopter treats compliance with HB 3773 as additive to, not a substitute for, its obligations under applicable federal law.
 - **Illinois biometric privacy (BIPA).** The Illinois Biometric Information Privacy Act (740 ILCS 14) governs the collection and handling of biometric identifiers that an employer's AI tooling may process; this annex cross-references the Illinois BIPA coverage in [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md) rather than duplicating it.
-- **Illinois Artificial Intelligence Video Interview Act (820 ILCS 42).** Illinois separately regulates AI analysis of applicant video interviews under this Act, which is a genuinely adjacent Illinois employment-AI statute. The reference base does not hold its text, so this annex names it only and describes none of its obligations; an adopter subject to it consults the Act directly.
+- **Illinois Artificial Intelligence Video Interview Act (820 ILCS 42).** Illinois separately regulates AI analysis of applicant video interviews under this Act, which is a genuinely adjacent Illinois employment-AI statute. Its text is not held in the reference base, so this annex names it only and describes none of its obligations; an adopter subject to it consults the Act directly. <!-- ref-absence: 820 ILCS 42 | Artificial Intelligence Video Interview Act -->
 
 ## Limitations
 

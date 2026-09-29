@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.52\
-**Date:** 2026-09-28\
+**Version:** 1.0.53\
+**Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -144,7 +144,7 @@ The following material regulatory developments occurred or were anticipated betw
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **Global CBPR:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
 - **India DPDPA:** the Act was brought into force by notification G.S.R. 843(E) of 13 November 2025 on a three-tranche schedule under s. 1(2): the definitions and the establishment of the Data Protection Board took effect on that date, the consent-manager registration duty commences around November 2026, and the core substantive regime and the Board's principal inquiry-and-penalty functions commence around 13 May 2027. The Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)), notified the same day, commence on their own matching rule 1(2) to (4) schedule.
-- **Southeast Asia expansion:** Indonesia's implementing Government Regulation under UU PDP was reported enacted in 2026 (not held in the reference base); Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023.
+- **Southeast Asia expansion:** Indonesia's implementing Government Regulation under UU PDP was reported enacted in 2026 (not held in the reference base); Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023. <!-- ref-absence: Government Regulation No. 33 of 2026 | GR 33/2026 -->
 - **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
 - **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.
 - **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localization requirements clarified.
