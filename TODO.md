@@ -76,7 +76,7 @@ Fill significant gaps: deepen thin-but-present content to operational sufficienc
 | 2.26.3 | OSCAL metadata-field alignment (S, M) | `[machinery]` `[public]` |
 | 2.26.4 | OSCAL catalog pilot: one domain, generated, gated (M, XL) | `[machinery]` `[public]` |
 | 2.26.5 | OSCAL profiles and crosswalks for framework alignments (M, L) | `[machinery]` `[public]` |
-| 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` `[BLOCKED:egress-ingest (acquisition egress-gated)]` |
+| 2.29 | Latin-American privacy jurisdiction annexes + corpus alignment for the newly-held primaries (M, M) | `[content]` `[public]` |
 | 2.25.2 | Control-to-policy-instrument coverage: international AI-governance authorities (M, M) | `[content]` `[public]` |
 | 2.26 | OSCAL machine-readable representation (umbrella; H, XL) | `[machinery]` `[public]` |
 | 2.33 | Canada-specific executive/jurisdiction document series (content) | `[public]` |

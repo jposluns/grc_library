@@ -2,8 +2,8 @@
 
 **Document Title:** Smart-Contract and Oracle Risk Standard\
 **Document Type:** Standard\
-**Version:** 0.0.2\
-**Date:** 2026-09-28\
+**Version:** 0.0.3\
+**Date:** 2026-09-29\
 **Owner:** Crypto-Asset Governance Approver\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`crypto/README.md`](README.md), [`crypto/framework-crypto-asset-governance.md`](framework-crypto-asset-governance.md), [`crypto/register-crypto-asset-inventory.md`](register-crypto-asset-inventory.md), [`crypto/standard-crypto-asset-service-provider-vetting.md`](standard-crypto-asset-service-provider-vetting.md), [`crypto/standard-digital-asset-custody.md`](standard-digital-asset-custody.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md), [`security/standard-threat-modelling.md`](../security/standard-threat-modelling.md)\
@@ -56,7 +56,7 @@ A fork, chain split, or deep re-organization is a governance event that can chan
 
 ### 3.8 Code-level assurance is inherited, not restated
 
-Secure design, secure coding, peer and independent code review, testing, and software-composition analysis for smart-contract source are governed by the developer-security domain and are applied to smart-contract code as to any other software the organization builds. This standard requires that the applicable developer-security controls have been applied and their evidence obtained before deployment; it does not define smart-contract secure-coding rules, which are deferred to a companion code-level standard pending held authoritative sources.
+Secure design, secure coding, peer and independent code review, testing, and software-composition analysis for smart-contract source are governed by the developer-security domain and are applied to smart-contract code as to any other software the organization builds. This standard requires that the applicable developer-security controls have been applied and their evidence obtained before deployment; it does not define smart-contract secure-coding rules, which are deferred to a companion code-level standard to be written from the held OWASP smart-contract sources (see section 5).
 
 ### 3.9 Deployment and upgrade decision record and inventory handoff
 
@@ -68,6 +68,6 @@ Evidence for this standard comprises the deployment and upgrade decision records
 
 ## 5. Limitations
 
-This is original library content and reproduces no external control text; framework-grounded requirements and the technology characteristics drawn from NIST IR 8202 are named at the point of use, and an organization under another regime applies its own governing law. NIST IR 8202 is an informative 2018 technical report used only for distributed-ledger and smart-contract technology characteristics, not as a normative control. The standard is governance-scoped: it owns the domain governance of deploying, upgrading, relying on, and integrating smart contracts and their oracle dependencies, and it does not restate code-level secure development (owned by the developer-security domain) or the threat-modelling method (owned by the Threat Modelling Standard). A companion code-level smart-contract security standard, covering re-entrancy, access-control, arithmetic, oracle-manipulation, and maximal-extractable-value controls, is deferred until it is written from the OWASP Smart Contract Security Verification Standard and the OWASP Smart Contract Top 10: 2026, both now held in the reference base, and is out of scope here.
+This is original library content and reproduces no external control text; framework-grounded requirements and the technology characteristics drawn from NIST IR 8202 are named at the point of use, and an organization under another regime applies its own governing law. NIST IR 8202 is an informative 2018 technical report used only for distributed-ledger and smart-contract technology characteristics, not as a normative control. The standard is governance-scoped: it owns the domain governance of deploying, upgrading, relying on, and integrating smart contracts and their oracle dependencies, and it does not restate code-level secure development (owned by the developer-security domain) or the threat-modelling method (owned by the Threat Modelling Standard). A companion code-level smart-contract security standard, covering re-entrancy, access-control, arithmetic, oracle-manipulation, and maximal-extractable-value controls, is deferred until it is written, grounded in the OWASP Smart Contract Security Verification Standard and the OWASP Smart Contract Top 10: 2026 (both now held in the reference base, though their maximal-extractable-value coverage is thin), and is out of scope here.
 
 **End of Document**

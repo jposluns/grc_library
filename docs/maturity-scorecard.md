@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-09-28\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -104,7 +104,7 @@ _117 documents._
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.32 | 2026-09-24 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.17 | 2026-09-25 |
 | [privacy/jurisdictions/annex-privacy-brazil.md](../privacy/jurisdictions/annex-privacy-brazil.md) | Brazil Privacy Regulatory Requirements | Annex | 1.1.10 | 2026-09-15 |
-| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.26 | 2026-09-25 |
+| [privacy/jurisdictions/annex-privacy-canada.md](../privacy/jurisdictions/annex-privacy-canada.md) | Canada Privacy Regulatory Requirements | Annex | 1.1.27 | 2026-09-29 |
 | [privacy/jurisdictions/annex-privacy-china.md](../privacy/jurisdictions/annex-privacy-china.md) | China Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-09-20 |
 | [privacy/jurisdictions/annex-privacy-european-union.md](../privacy/jurisdictions/annex-privacy-european-union.md) | European Union Privacy Regulatory Requirements | Annex | 1.1.20 | 2026-09-11 |
 | [privacy/jurisdictions/annex-privacy-india.md](../privacy/jurisdictions/annex-privacy-india.md) | India Privacy Regulatory Requirements | Annex | 1.1.8 | 2026-08-16 |
@@ -139,7 +139,7 @@ _117 documents._
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.7 | 2026-09-25 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.5 | 2026-09-20 |
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.15 | 2026-09-25 |
-| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.13 | 2026-09-25 |
+| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.14 | 2026-09-29 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.7 | 2026-09-24 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.2.2 | 2026-09-24 |
@@ -393,7 +393,7 @@ _76 documents._
 | [crypto/standard-crypto-asset-service-provider-vetting.md](../crypto/standard-crypto-asset-service-provider-vetting.md) | Crypto-Asset Service Provider Vetting Standard | Standard | 0.0.2 | 2026-09-28 |
 | [crypto/standard-crypto-asset-white-paper-disclosure.md](../crypto/standard-crypto-asset-white-paper-disclosure.md) | Crypto-Asset White-Paper Content and Disclosure Standard | Standard | 0.0.2 | 2026-09-24 |
 | [crypto/standard-digital-asset-custody.md](../crypto/standard-digital-asset-custody.md) | Digital Asset Custody Standard | Standard | 0.0.6 | 2026-09-05 |
-| [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.2 | 2026-09-28 |
+| [crypto/standard-smart-contract-and-oracle-risk.md](../crypto/standard-smart-contract-and-oracle-risk.md) | Smart-Contract and Oracle Risk Standard | Standard | 0.0.3 | 2026-09-29 |
 | [dev-security/procedure-secure-code-review.md](../dev-security/procedure-secure-code-review.md) | Secure Code Review Procedure | Procedure | 0.0.8 | 2026-09-24 |
 | [dev-security/standard-api-security.md](../dev-security/standard-api-security.md) | API Security Standard | Standard | 0.0.13 | 2026-09-14 |
 | [dev-security/standard-cloud-hardening-baseline-aws.md](../dev-security/standard-cloud-hardening-baseline-aws.md) | AWS Cloud Hardening Baseline Standard | Standard | 0.0.10 | 2026-09-24 |
