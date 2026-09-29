@@ -2,7 +2,7 @@
 
 **Document Title:** Model Context Protocol Server Register\
 **Document Type:** Register\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-09-29\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,7 +34,7 @@ This register covers:
 4. **Developer-environment MCP servers** that AI coding assistants connect to during software development.
 5. **Customer-deployed MCP servers** the organization distributes as part of its product (where applicable).
 
-It does not cover ad-hoc experimentation by individual developers; experimental servers are scoped to the developer's environment and do not connect to production data or systems.
+It does not cover ad-hoc experimentation by individual developers; experimental servers are scoped to the developer's environment and do not connect to production data or systems. This exclusion does not relax MCP-SEC-03: an experimental server on a network transport (HTTP or SSE), including one bound to localhost, still authenticates every client connection and accepts no anonymous connection.
 
 ---
 
@@ -94,7 +94,7 @@ Every approved server satisfies:
 
 | Control area | Requirement |
 | --- | --- |
-| Authentication | Every client connection is authenticated, with no anonymous connections in production (MCP-SEC-03); this includes developer-workstation-hosted servers used in production (MCP-SEC-01). A local STDIO server launched as a child process authenticates through the operating-system user and process boundary; a network transport (HTTP or SSE), including one bound to localhost, requires token, OAuth or mTLS authentication. Localhost binding or workstation ownership is not an exception. |
+| Authentication | Every client connection is authenticated, with no anonymous connections to any network MCP endpoint, in production or non-production (MCP-SEC-03); this includes developer-workstation-hosted servers, which MCP-SEC-01 also brings into this register when they are used in production. A local STDIO server launched as a child process authenticates through the operating-system user and process boundary; a network transport (HTTP or SSE), including one bound to localhost, requires token, OAuth or mTLS authentication. Localhost binding, workstation ownership or a non-production environment is not an exception. |
 | Encryption | TLS 1.3 or stronger for network transports (HTTP or SSE), including localhost; not applicable to a local STDIO pipe; mTLS where Tier 1 |
 | Authorization | The server applies the user-on-whose-behalf authorization; agent identity alone does not unlock data |
 | Input validation | The server validates inputs against the declared schema; rejects out-of-schema requests |
