@@ -2,7 +2,7 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.33\
+**Version:** 1.6.34\
 **Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -262,7 +262,7 @@ The fee schedule should be documented as an internal cost-recovery policy review
 
 | Regime | Equivalent provision | Notable variations |
 |---|---|---|
-| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6; confirm the current right-of-access guidance directly with the Information Commission (ICO until 30 September 2026) |
+| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6. Under UK GDPR Article 12A (inserted by the DUAA 2025, in force from 5 February 2026; see the [UK annex](jurisdictions/annex-privacy-united-kingdom.md)), the one-month period runs from the latest of receipt of the request, receipt of any identity information requested under Article 12(6), and payment of any Article 12(5) fee. Confirm the current right-of-access guidance directly with the Information Commission (ICO until 30 September 2026) |
 | **LGPD** (Brazil, Article 18) | Free of charge by default; ANPD may establish exceptions in regulation | No explicit "manifestly unfounded or excessive" exception in primary law |
 | **PIPL** (China, Article 50) | Requires a convenient mechanism to receive and handle individuals' rights requests; reasons must be given for rejection, and the individual may bring proceedings in a people's court | Article 50 prescribes no fee rule or repeated-request fee exception; do not cite it as authority for charging |
 | **PIPEDA** (Canada) | OPC guidance: minimal or no cost; where a cost applies, the organization notifies the individual of the approximate cost before proceeding | Subject must have option to abandon request after fee notice |
