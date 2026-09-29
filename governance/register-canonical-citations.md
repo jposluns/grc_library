@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.103\
-**Date:** 2026-09-25\
+**Version:** 1.5.107\
+**Date:** 2026-09-29\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -335,9 +335,9 @@ This section records international treaties and conventions, binding at the inte
 
 | Standard ID | Current version | Publication date | Topic | Superseded versions | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- |
-| UK AISI inspect_evals | continuous | 2024 | UK AI Security Institute (the AI Safety Institute until 14 February 2025) community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-06-30 |
-| Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 | https://github.com/meta-llama/PurpleLlama/tree/main/CybersecurityBenchmarks | 2026-06-30 |
-| NIST SP 800-218A | Final | 2024 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-06-30 |
+| UK AISI inspect_evals | continuous | 2024 | UK AI Security Institute (the AI Safety Institute until 14 February 2025) community evaluation catalogue running on Inspect AI harness; hosts third-party benchmarks including AgentDojo, AgentHarm, StrongREJECT | - | https://ukgovernmentbeis.github.io/inspect_evals/ | 2026-09-29 |
+| Meta CyberSecEval | v4 | 2025 | Offensive cyber benchmark covering ATT&CK compliance, FRR, secure code generation, prompt injection, code interpreter abuse, X86-64 CTF, spear phishing, autonomous offensive cyber ops, AutoPatch, CyberSOCEval | v3, v2, v1 | https://github.com/meta-llama/PurpleLlama/tree/main/CybersecurityBenchmarks | 2026-09-29 |
+| NIST SP 800-218A | Final | 2024 | Secure Software Development Practices for Generative AI and Dual-Use Foundation Models (SSDF profile) | - | https://csrc.nist.gov/pubs/sp/800/218/a/final | 2026-09-29 |
 
 ## AI security tooling references
 
@@ -345,33 +345,33 @@ This section records open-source AI security projects referenced by library cont
 
 | Project | Current version | Registration date | Topic | License | Status notes | Upstream check location | Last verified (UTC) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship | https://github.com/Trusted-AI/adversarial-robustness-toolbox/releases | 2026-06-30 |
-| IBM HEART | v0.7.0 | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset | https://github.com/IBM/heart-library | 2026-06-30 |
-| AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - | https://github.com/Koukyosyumei/AIJack | 2026-06-30 |
-| HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - | https://github.com/centerforaisafety/HarmBench | 2026-06-30 |
-| Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - | https://github.com/meta-llama/PurpleLlama | 2026-06-30 |
-| NVIDIA NeMo Guardrails | continuous | 2024 | Programmable rails framework (Input / Output / Dialog / Retrieval / Execution) | Apache 2.0 | - | https://github.com/NVIDIA/NeMo-Guardrails/releases | 2026-06-30 |
-| Guardrails AI | continuous | 2024 | RAIL validator framework with Hub of pluggable validators | Apache 2.0 | - | https://github.com/guardrails-ai/guardrails/releases | 2026-06-30 |
-| Protect AI llm-guard | continuous | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | - | https://github.com/protectai/llm-guard | 2026-06-30 |
-| Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 | https://github.com/protectai/rebuff | 2026-06-30 |
-| Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - | https://github.com/protectai/modelscan/releases | 2026-06-30 |
-| picklescan | continuous | 2024 | Pickle opcode-stream analyzer; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-06-30 |
-| Trail of Bits fickling | continuous | 2024 | Pickle decompiler, symbolic tracer, runtime import-hook with severity tiers | LGPL-3.0 | Copyleft caution for redistribution | https://github.com/trailofbits/fickling/releases | 2026-06-30 |
-| Giskard | continuous | 2024 | AI testing platform with 55 probes across 11 categories; native AVID export | Apache 2.0 | - | https://github.com/Giskard-AI/giskard-oss/releases | 2026-06-30 |
-| Confident AI deepteam | continuous | 2025 | Open-source LLM red-team framework with 50+ vulnerability categories incl. agentic-specific | Apache 2.0 | - | https://github.com/confident-ai/deepteam/releases | 2026-06-30 |
-| promptfoo | continuous | 2024 | LLM eval and red-team with 71 plugin categories + 30 attack strategies; multi-framework compliance mapping | MIT | - | https://github.com/promptfoo/promptfoo/releases | 2026-06-30 |
-| NVIDIA garak | continuous | 2024 | LLM vulnerability scanner with 40+ probe families | Apache 2.0 | - | https://github.com/NVIDIA/garak/releases | 2026-06-30 |
-| Microsoft PyRIT | continuous | 2024 | Python Risk Identification Tool for GenAI red teaming with 75+ converters | MIT | - | https://github.com/microsoft/PyRIT/releases | 2026-06-30 |
-| ETH Zurich AgentDojo | continuous | 2024 | Benchmark of tool-using LLM agents in simulated environments under prompt injection | MIT | Hosted on inspect_evals | https://github.com/ethz-spylab/agentdojo | 2026-06-30 |
-| Vigil-LLM | continuous | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; dormant/unmaintained since 2024-01 (repository not archived on GitHub) | https://github.com/deadbits/vigil-llm | 2026-06-30 |
-| Stacklok CodeGate | archived | 2024 | Local privacy and security gateway between IDE AI coding assistants and LLM providers | Apache 2.0 | Archived June 2025 | https://github.com/stacklok/codegate | 2026-06-30 |
-| ClawGuard | continuous | 2026 | Runtime security sidecar daemon for tool-augmented LLM agents (OpenClaw) | MIT | V1.0 May 2026 | https://github.com/Claw-Guard/ClawGuard | 2026-06-30 |
-| Lasso MCP Gateway | continuous | 2024 | Plugin-based local intermediary between MCP clients and downstream MCP servers with guardrail plugins | MIT | - | https://github.com/lasso-security/mcp-gateway | 2026-06-30 |
-| jackhhao llm-warden | continuous | 2024 | Single-purpose jailbreak-prompt classifier | MIT | - | https://github.com/jackhhao/llm-warden | 2026-06-30 |
-| TikiTribe claude-secure-coding-rules | continuous | 2024 | Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines | MIT | Referenced in dev-security CI gates | https://github.com/TikiTribe/claude-secure-coding-rules | 2026-06-30 |
-| Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - | https://github.com/wiz-sec-public/secure-rules-files | 2026-06-30 |
-| Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - | https://github.com/Kariedo/claude-code-security-rules | 2026-06-30 |
-| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (approximately 20 categories) | CC0-1.0 | CC0; suitable for direct library reuse | https://github.com/brinhosa/awesome-ai-security | 2026-06-30 |
+| Trusted-AI ART | v1.20.1 | 2025-07 | Adversarial Robustness Toolbox: evasion, poisoning, extraction, inference attacks and defences across classical ML and DL | MIT | Linux Foundation flagship | https://github.com/Trusted-AI/adversarial-robustness-toolbox/releases | 2026-09-29 |
+| IBM HEART | archived | 2025-07 | Hardened Extension of ART for DoD MAITE-aligned T&E | MIT | Curated ART subset; archived 17 September 2026 (latest recorded release v0.7.0) | https://github.com/IBM/heart-library | 2026-09-29 |
+| AIJack | continuous | 2024 | ML privacy and federated-learning attack/defence library | Apache 2.0 | - | https://github.com/Koukyosyumei/AIJack | 2026-09-29 |
+| HarmBench framework | continuous | 2024-02 | 18-method automated red-team benchmark with R2D2 defence recipe | MIT | - | https://github.com/centerforaisafety/HarmBench | 2026-09-29 |
+| Meta PurpleLlama | continuous | 2024 | Llama Guard safeguard models, Code Shield, CyberSecEval harness | MIT (SDK) + Llama Community License (Llama Guard / Prompt Guard weights) | - | https://github.com/meta-llama/PurpleLlama | 2026-09-29 |
+| NVIDIA NeMo Guardrails | continuous | 2024 | Programmable rails framework (Input / Output / Dialog / Retrieval / Execution) | Apache 2.0 | Repository moved from NVIDIA/NeMo-Guardrails, found at the 2026-09-29 re-check | https://github.com/NVIDIA-NeMo/Guardrails/releases | 2026-09-29 |
+| Guardrails AI | continuous | 2024 | RAIL validator framework with Hub of pluggable validators | Apache 2.0 | - | https://github.com/guardrails-ai/guardrails/releases | 2026-09-29 |
+| Protect AI llm-guard | archived | 2024 | 16 input + 22 output scanners covering PII, secrets, toxicity, prompt injection, malicious URLs | MIT | Archived 9 July 2026 | https://github.com/protectai/llm-guard | 2026-09-29 |
+| Protect AI rebuff | archived | 2023 | Multi-layer prompt injection detector (heuristics, vector-DB, LLM detector, canary tokens) | Apache 2.0 | Archived May 2025 | https://github.com/protectai/rebuff | 2026-09-29 |
+| Protect AI modelscan | continuous | 2024 | ML model file scanner for pickle, H5, Keras, SavedModel | Apache 2.0 | - | https://github.com/protectai/modelscan/releases | 2026-09-29 |
+| picklescan | continuous | 2024 | Pickle opcode-stream analyzer; underpins Hugging Face Hub-side scanning | MIT | - | https://github.com/mmaitre314/picklescan/releases | 2026-09-29 |
+| Trail of Bits fickling | continuous | 2024 | Pickle decompiler, symbolic tracer, runtime import-hook with severity tiers | LGPL-3.0 | Copyleft caution for redistribution | https://github.com/trailofbits/fickling/releases | 2026-09-29 |
+| Giskard | continuous | 2024 | AI testing platform with 55 probes across 11 categories; native AVID export | Apache 2.0 | - | https://github.com/Giskard-AI/giskard-oss/releases | 2026-09-29 |
+| Confident AI deepteam | continuous | 2025 | Open-source LLM red-team framework with 50+ vulnerability categories incl. agentic-specific | Apache 2.0 | - | https://github.com/confident-ai/deepteam/releases | 2026-09-29 |
+| promptfoo | continuous | 2024 | LLM eval and red-team with 71 plugin categories + 30 attack strategies; multi-framework compliance mapping | MIT | - | https://github.com/promptfoo/promptfoo/releases | 2026-09-29 |
+| NVIDIA garak | continuous | 2024 | LLM vulnerability scanner with 40+ probe families | Apache 2.0 | - | https://github.com/NVIDIA/garak/releases | 2026-09-29 |
+| Microsoft PyRIT | continuous | 2024 | Python Risk Identification Tool for GenAI red teaming with 75+ converters | MIT | - | https://github.com/microsoft/PyRIT/releases | 2026-09-29 |
+| ETH Zurich AgentDojo | continuous | 2024 | Benchmark of tool-using LLM agents in simulated environments under prompt injection | MIT | Hosted on inspect_evals | https://github.com/ethz-spylab/agentdojo | 2026-09-29 |
+| Vigil-LLM | continuous | 2023 | Prompt-injection and jailbreak detection toolkit; YARA + transformer + canary | Apache 2.0 | Alpha; not archived; last recorded push 31 January 2024 | https://github.com/deadbits/vigil-llm | 2026-09-29 |
+| Stacklok CodeGate | archived | 2024 | Local privacy and security gateway between IDE AI coding assistants and LLM providers | Apache 2.0 | Archived June 2025 | https://github.com/stacklok/codegate | 2026-09-29 |
+| ClawGuard | continuous | 2026 | Runtime security sidecar daemon for tool-augmented LLM agents (OpenClaw) | MIT | V1.0 May 2026 | https://github.com/Claw-Guard/ClawGuard | 2026-09-29 |
+| Lasso MCP Gateway | continuous | 2024 | Plugin-based local intermediary between MCP clients and downstream MCP servers with guardrail plugins | MIT | - | https://github.com/lasso-security/mcp-gateway | 2026-09-29 |
+| jackhhao llm-warden | continuous | 2024 | Single-purpose jailbreak-prompt classifier | MIT | - | https://github.com/jackhhao/llm-warden | 2026-09-29 |
+| TikiTribe claude-secure-coding-rules | continuous | 2024 | Claude Code secure-coding-rules repository with AI/agent/MCP/RAG security baselines | MIT | Referenced in dev-security CI gates | https://github.com/TikiTribe/claude-secure-coding-rules | 2026-09-29 |
+| Wiz secure-rules-files | continuous | 2024 | Language and framework baseline rules for AI coding assistants | MIT | - | https://github.com/wiz-sec-public/secure-rules-files | 2026-09-29 |
+| Kariedo claude-code-security-rules | continuous | 2024 | Modular Claude Code rules using @-syntax import | MIT | - | https://github.com/kariedo/claude-code-security-rules | 2026-09-29 |
+| awesome-ai-security | continuous | 2024 | Curated index of AI security, LLM security, prompt injection, red teaming, guardrail, and ML supply chain resources (approximately 20 categories) | CC0-1.0 | CC0; suitable for direct library reuse | https://github.com/brinhosa/awesome-ai-security | 2026-09-29 |
 
 ---
 
