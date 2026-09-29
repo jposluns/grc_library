@@ -6,7 +6,7 @@ Apply these rules to all code that builds, operates, or consumes MCP servers. MC
 
 ## MCP server authentication and authorization
 
-- **MCP servers exposed over a network transport (HTTP/SSE) must require authentication** (this pack's security floor: the MCP authorization spec makes network authentication a SHOULD for HTTP transports, and this pack mandates it): no unauthenticated network tool endpoints. A local STDIO server derives its trust boundary from the local user and process (the client launches it and passes credentials via the environment), not a network authentication gate.
+- **MCP servers exposed over a network transport (HTTP/SSE) must require authentication** (this pack's security floor: the MCP authorization spec makes network authentication a SHOULD for HTTP transports, and this pack mandates it): no unauthenticated or anonymous network tool endpoints in any environment, including development, test and localhost-bound servers (OWASP MCP Top 10 2025, MCP07: "Disable guest or anonymous access in all MCP endpoints"). A local STDIO server derives its trust boundary from the local user and process (the client launches it and passes credentials via the environment), not a network authentication gate.
 - Implement per-tool authorization: not every caller with access to the server should be able to call every tool
 - Use OAuth 2.0 or equivalent for MCP server authentication where the protocol supports it
 - Validate the caller's identity and authorization on **every tool call**, not just at connection time
@@ -69,7 +69,7 @@ MCP resource handlers expose data to the model. Treat them as APIs:
 | STDIO (local) | The local user and process that launched the server | Environment-passed credentials; no network auth gate | N/A (local pipe, no network channel) |
 | HTTP/SSE (network) | The network between client, agent, and server | OAuth 2.0 / token or mutual TLS auth required; validate identity on every call | TLS 1.3 (or stronger) required |
 - Validate TLS certificates: do not use `verify=False` or equivalent in MCP clients
-- Do not expose MCP servers on public networks without an authentication gateway in front
+- Do not expose MCP servers on public networks without an authentication gateway in front, in addition to the per-server authentication every network endpoint requires
 
 ---
 
