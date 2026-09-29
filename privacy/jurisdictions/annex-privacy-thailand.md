@@ -2,7 +2,7 @@
 
 **Document Title:** Thailand Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.4\
+**Version:** 1.1.5\
 **Date:** 2026-09-29\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -53,7 +53,7 @@ Cross-border transfers are governed by ss. 28-29 and are treated in the cross-bo
 
 ## AI and privacy obligations
 
-- The PDPA principles apply to AI systems processing personal data; specific PDPC guidance on AI is not held in the reference base, so an adopter confirms the current position directly. <!-- ref-absence: Thailand PDPC AI guidance | PDPC Thailand -->
+- The PDPA principles apply to AI systems processing personal data; specific PDPC guidance on AI is not held in the reference base, so an adopter confirms the current position directly. <!-- ref-absence: Thailand PDPC AI guidance | PDPC Thailand AI guidance -->
 - The PDPA B.E. 2562 contains no specific automated decision-making provision; an adopter applying the library's automated-decision controls does so as governance practice, not as a PDPA requirement.
 - Purpose limitation and data minimization apply to personal data used in AI training and inference.
 

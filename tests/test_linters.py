@@ -1246,11 +1246,25 @@ class RefAbsenceClaimsTests(LinterTestCase):
     blockquote joiner by test_blockquote_wrapped_claim_flagged; the
     blockquote-aware fence parser by test_blockquote_fenced_code_ignored;
     the fence-width matcher by test_nested_wider_fence_stays_code; the
-    rewording triggers by test_reworded_absence_claim_flagged; and the
+    rewording triggers by test_reworded_absence_claim_flagged; the
     content-vs-holdings context split by
     test_content_absence_from_held_text_not_flagged with
     test_absent_from_reference_base_still_flagged and
-    test_content_absence_near_collection_vocab_not_flagged.
+    test_content_absence_near_collection_vocab_not_flagged; the
+    next-line own-claim closure by
+    test_next_line_marker_on_bare_claim_line_does_not_shield; the
+    mid-sentence marker binding by
+    test_marker_between_phrase_and_sentence_end_passes; the
+    negative-subject triggers by test_negative_subject_claim_flagged
+    with test_negative_subject_content_claim_not_flagged; the
+    collection-subject triggers by
+    test_collection_lacks_reworded_flagged; the held-text subject
+    split by test_held_text_subject_content_claim_not_flagged with
+    test_possessive_collection_subject_still_flagged and
+    test_possessive_collection_object_still_flagged; the
+    lazy-continuation joiner by
+    test_lazy_continuation_blockquote_claim_flagged; and the
+    list-item fence opener by test_list_item_fence_toggles.
     """
 
     SCRIPT = "tools/lint-ref-absence-claims.py"
@@ -1522,6 +1536,128 @@ class RefAbsenceClaimsTests(LinterTestCase):
         )
         result = run_linter(self.SCRIPT, fixture)
         self.assertLinterFails(result, "canonical")
+
+    def test_next_line_marker_on_bare_claim_line_does_not_shield(self) -> None:
+        # r3 ERROR: a next-line marker that annotates its OWN bare "not
+        # held" claim (rule 2) must not also cover the unmarked canonical
+        # claim above: one marker never shields two claims, whatever the
+        # second claim's wording.
+        fixture = self.make_fixture(
+            "annex-absence-bare-shield.md",
+            "# T\n\nISO/IEC 27002:2022 is not held in the reference base.\n"
+            "The subordinate instruments are not held. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_marker_between_phrase_and_sentence_end_passes(self) -> None:
+        # r3 WARNING: the spec permits a marker right after the phrase;
+        # the sentence continuing past it onto the next line must not
+        # read as unmarked plus orphan.
+        fixture = self.make_fixture(
+            "annex-absence-mid-sentence-marker.md",
+            "# T\n\nThat guidance is not held in the reference base "
+            "<!-- ref-absence: NONESUCH-GUIDANCE-99999 --> and an adopter\n"
+            "confirms the current position directly.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_negative_subject_claim_flagged(self) -> None:
+        # r3 ERROR: a negative subject with a positive verb is the same
+        # holdings claim; the net must not be blind to it.
+        fixture = self.make_fixture(
+            "annex-absence-negative-subject.md",
+            "# T\n\nNeither instrument is held in the reference base, and "
+            "no successor decree is included in the reference library.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_negative_subject_content_claim_not_flagged(self) -> None:
+        # The negative-subject net keeps the content-vs-holdings split:
+        # a held-text object stays out, as for the other rewordings.
+        fixture = self.make_fixture(
+            "annex-absence-negative-content.md",
+            "# T\n\nThe reference base holds the decree, but no signing "
+            "date is present in the held text.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_held_text_subject_content_claim_not_flagged(self) -> None:
+        # r3 ERROR: held text as the SUBJECT ("the held text does not
+        # include ...") is the same content claim as the object form,
+        # even with collection vocabulary in the window.
+        fixture = self.make_fixture(
+            "annex-absence-content-subject.md",
+            "# T\n\nThe reference base holds the consolidated act, but "
+            "the held text does not include a signing date.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_possessive_collection_object_still_flagged(self) -> None:
+        # r3 WARNING: "the reference base's held texts" names the
+        # collection, not a held document; the possessive must not buy
+        # the content-claim exemption.
+        fixture = self.make_fixture(
+            "annex-absence-possessive-object.md",
+            "# T\n\nThat decree is absent from the reference base's held "
+            "texts.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_possessive_collection_subject_still_flagged(self) -> None:
+        fixture = self.make_fixture(
+            "annex-absence-possessive-subject.md",
+            "# T\n\nThe reference base's held texts do not include the "
+            "implementing decree.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_collection_lacks_reworded_flagged(self) -> None:
+        # r3 WARNING: an active-voice rewording with the collection as
+        # its subject is still a holdings claim.
+        fixture = self.make_fixture(
+            "annex-absence-lacks.md",
+            "# T\n\nThe reference base lacks the implementing decree.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_lazy_continuation_blockquote_claim_flagged(self) -> None:
+        # r3 WARNING: a lazy-continuation line (the quoted paragraph
+        # continuing without its ">") joins the quote's block, so the
+        # wrapped claim stays in the gate's sight.
+        fixture = self.make_fixture(
+            "annex-absence-lazy-quote.md",
+            "# T\n\n> ISO/IEC 27002:2022 is not\n"
+            "held in the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_list_item_fence_toggles(self) -> None:
+        # r3 WARNING: a fence opened on a list-item line toggles; its
+        # closing fence must not masquerade as an opener and hide the
+        # prose after the list.
+        hidden = self.make_fixture(
+            "annex-absence-list-fence.md",
+            "# T\n\n- ```\n  code sample\n  ```\n\n"
+            "That statute is not held in the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, hidden)
+        self.assertLinterFails(result, "no adjacent")
+        clean = self.make_fixture(
+            "annex-absence-list-fence-clean.md",
+            "# T\n\n- ```\n  X is not held in the reference base.\n  ```\n",
+        )
+        result = run_linter(self.SCRIPT, clean)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_exempt_meta_doc_ignored(self) -> None:
         # The audit-programme specification quotes the canonical sentence

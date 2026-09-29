@@ -2,7 +2,7 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.19\
+**Version:** 0.0.20\
 **Date:** 2026-09-29\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -546,7 +546,7 @@ Health-information rows remain source-gated until the exact official title, iden
 5. **Current-source acquisition and reconfirmation workflow** for publisher sites that block automated retrieval.
 6. **Source-specific control mappings** for each fit authority, with no inference of implementation or compliance.
 7. **Canadian authority coverage register** retaining no-fit, duplicate, draft, historical, superseded, and source-gated evidence.
-8. **British Columbia FOIPPA subordinate instruments** (the regulations prescribing fees, the manner of consent and of privacy breach notification, and conditions for disclosure outside Canada, and the minister's directions on privacy management programs and privacy impact assessments), which the British Columbia baseline refers to but which are not held. <!-- ref-absence: British Columbia FOIPPA regulation | FOIPPA subordinate instrument -->
+8. **British Columbia FOIPPA subordinate instruments** (the regulations prescribing fees, the manner of consent and of privacy breach notification, and conditions for disclosure outside Canada, and the minister's directions on privacy management programs and privacy impact assessments), which the British Columbia baseline refers to but which are not held. <!-- ref-absence: British Columbia FOIPPA regulation | FOIPPA subordinate instrument | direction on privacy management programs | direction on privacy impact assessment -->
 
 ---
 

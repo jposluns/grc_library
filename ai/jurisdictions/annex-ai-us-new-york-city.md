@@ -2,7 +2,7 @@
 
 **Document Title:** New York City Automated Employment Decision Tool Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 0.0.6\
+**Version:** 0.0.7\
 **Date:** 2026-09-29\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -41,7 +41,7 @@ An **AEDT** is defined (6 RCNY 5-300, by reference to Administrative Code sectio
 - **Annual independent bias audit (6 RCNY 5-301).** An employer or employment agency may not use an AEDT if more than one year has passed since the tool's most recent bias audit. The audit is conducted by an **independent auditor** (a person or group capable of exercising objective and impartial judgment, not involved in using, developing, or distributing the AEDT, not in an employment relationship with the employer or the vendor, and without a financial interest in them). For a selection tool, the audit calculates the selection rate and the impact ratio for each sex category, each race/ethnicity category, and their intersectional categories, using the categories required by the U.S. Equal Employment Opportunity Commission EEO Component 1 report; for a scoring tool, it calculates the median score, the scoring rate, and the impact ratio for the same categories. An independent auditor may exclude a category representing less than 2 percent of the data.
 - **Data requirements (6 RCNY 5-302).** The bias audit must use the AEDT's historical data; test data may be used only where insufficient historical data is available to conduct a statistically significant audit, with an explanation in the published summary.
 - **Published summary of results (6 RCNY 5-303).** Before using an AEDT, the employer or employment agency must make publicly available, on the employment section of its website in a clear and conspicuous manner, the date of the most recent bias audit and a summary of its results (including the data source and explanation, the number of individuals in an unknown category, and the selection or scoring rates and impact ratios for all categories) and the AEDT's distribution date, and must keep the summary posted for at least six months after the tool's latest use.
-- **Candidate and employee notice (Administrative Code section 20-871(b), implemented by 6 RCNY 5-304).** The employer or employment agency must notify each candidate or employee who resides in New York City that an AEDT will be used in their assessment; the content of that notice is set by Administrative Code section 20-871(b) (which the DCWP rule implements and which the library does not hold). The DCWP rule (5-304) sets the mechanics: notice at least ten business days before the AEDT is used, the permitted delivery methods, and a requirement that the notice include instructions for requesting an alternative selection process or a reasonable accommodation, though the law does not require that an alternative be provided. On written request, the employer must within thirty days disclose information about the data the AEDT collects, its source, and the employer's data-retention policy.
+- **Candidate and employee notice (Administrative Code section 20-871(b), implemented by 6 RCNY 5-304).** The employer or employment agency must notify each candidate or employee who resides in New York City that an AEDT will be used in their assessment; the content of that notice is set by Administrative Code section 20-871(b) (which the DCWP rule implements and which the library does not hold). The DCWP rule (5-304) sets the mechanics: notice at least ten business days before the AEDT is used, the permitted delivery methods, and a requirement that the notice include instructions for requesting an alternative selection process or a reasonable accommodation, though the law does not require that an alternative be provided. On written request, the employer must within thirty days disclose information about the data the AEDT collects, its source, and the employer's data-retention policy. <!-- ref-absence: Administrative Code 20-871 -->
 
 ## Relationship to federal anti-discrimination law
 
@@ -49,7 +49,7 @@ The bias audit is built on the U.S. Equal Employment Opportunity Commission's EE
 
 ## Enforcement
 
-The DCWP enforces Local Law 144. A violation of the bias-audit, published-results, or notice requirements is subject to civil penalties under Administrative Code section 20-872. The penalty structure and amounts are set in the Administrative Code, which the library does not hold (see Limitations); this annex cites the penalty provision by section only and states no figure. An adopter consults Administrative Code section 20-872 directly for the penalty schedule.
+The DCWP enforces Local Law 144. A violation of the bias-audit, published-results, or notice requirements is subject to civil penalties under Administrative Code section 20-872. The penalty structure and amounts are set in the Administrative Code, which the library does not hold (see Limitations); this annex cites the penalty provision by section only and states no figure. An adopter consults Administrative Code section 20-872 directly for the penalty schedule. <!-- ref-absence: Administrative Code 20-872 -->
 
 ## Limitations
 
