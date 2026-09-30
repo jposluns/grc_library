@@ -190,6 +190,18 @@ def _live(members) -> "list[int]":
     return [pid for pid, state in members if state not in ("Z", "X")]
 
 
+def _session_survivors(sid: int, timeout: float = 5.0) -> "list[int]":
+    """Live members of a finished run's session, read once the session is empty or timeout has passed (a test
+    helper). A killed process stays in /proc as a zombie until its reaper collects it, and a loaded host delays
+    that; a zombie is dead, so it is not a survivor (3b125)."""
+    deadline = time.monotonic() + timeout
+    members = _session_members(sid)
+    while members and time.monotonic() < deadline:
+        time.sleep(0.02)
+        members = _session_members(sid)
+    return _live(members)
+
+
 def _kill_session(sid: int) -> bool:
     """Kill every process in the run's session. start_new_session makes the shell a session leader; `set -m`
     moves a child into a new process group but not out of the session, and setsid is not reachable (3b116
@@ -371,6 +383,19 @@ def main(argv=None) -> int:
     return 3 if uncontained else 0  # an uncontained run is not a normal result (QA r7)
 
 
+# The loaded-host reproduction for 3b125: the probe adopts the run's orphans (PR_SET_CHILD_SUBREAPER, 36) and
+# never reaps them, so a killed child stays a zombie for as long as the check looks, as behind a slow reaper.
+SLOW_REAPER_PROBE = """
+import ctypes, json, runpy, sys
+tool = runpy.run_path(sys.argv[1], run_name="run_shell_stubbed_probe")
+adopted = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+r = tool["run"]("sleep 30 & echo started", shells=("bash",), timeout=10)[0]
+print(json.dumps(dict(adopted=adopted, contained=r["contained"],
+                      zombies=[pid for pid, state in tool["_session_members"](r["session"]) if state == "Z"],
+                      survivors=tool["_session_survivors"](r["session"], timeout=0.5))))
+"""
+
+
 def _self_test() -> int:
     checks = []
     before = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
@@ -453,13 +478,24 @@ def _self_test() -> int:
     finally:
         os.environ.pop("BASH_FUNC_gh%%", None) if saved is None else os.environ.__setitem__("BASH_FUNC_gh%%", saved)
     # Nothing in the run's session survives it, in the background or under job control (QA r7: the session is
-    # observed directly after the run returns).
+    # observed directly after the run returns). A killed child its reaper has not yet collected is still listed,
+    # as a zombie, so the session is awaited (bounded) and only a live member fails the check (3b125).
     for label, cmd in (("background", "sleep 30 & echo started"), ("job-control", "set -m; sleep 30 & echo started")):
         r = run(cmd, shells=("bash",), timeout=10)[0]
-        alive = _session_members(r["session"])
-        checks.append((f"{label}-child-killed", r["contained"] and not alive))
-        if alive:
+        survivors = _session_survivors(r["session"])
+        checks.append((f"{label}-child-killed", r["contained"] and not survivors))
+        if survivors:
             _kill_session(r["session"])
+    # Behind a reaper that never collects (the loaded-host case, made certain), the killed child is a zombie and is
+    # not a survivor. The check fails unless the probe adopted the orphan and the zombie was really there (3b125).
+    probe = subprocess.run([sys.executable, "-I", "-B", "-c", SLOW_REAPER_PROBE, os.path.abspath(__file__)],
+                           capture_output=True, text=True, timeout=60)
+    try:
+        seen = json.loads(probe.stdout.splitlines()[-1])
+    except (IndexError, ValueError):
+        seen = {}
+    checks.append(("slow-reaper-zombie-not-a-survivor", seen.get("adopted") is True and seen.get("contained") is True
+                   and bool(seen.get("zombies")) and seen.get("survivors") == []))
     # A backgrounded call is recorded, not killed before it runs (QA r8).
     r = run("(sleep 0.3; gh pr merge 11) & echo started", shells=("bash",))[0]
     checks.append(("background-call-recorded", r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0))

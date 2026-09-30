@@ -4297,6 +4297,26 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"--self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
 
+    def test_run_shell_stubbed_self_test_behind_a_slow_reaper(self) -> None:
+        """P-TODO 3b125: the run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's
+        killed children are adopted by a parent that never reaps them (PR_SET_CHILD_SUBREAPER), so each stays a
+        zombie in /proc for the whole self-test; the background-child-killed and job-control-child-killed checks
+        read the session straight after run() returned and counted such a zombie as a live survivor."""
+        wrapper = (
+            "import ctypes, subprocess, sys\n"
+            "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:\n"
+            "    sys.exit('prctl(PR_SET_CHILD_SUBREAPER) failed')\n"
+            "r = subprocess.run([sys.executable, sys.argv[1], '--self-test'], capture_output=True, text=True,\n"
+            "                   timeout=600)\n"
+            "sys.stdout.write(r.stdout); sys.stderr.write(r.stderr); sys.exit(r.returncode)\n"
+        )
+        result = self._run_selftest([sys.executable, "-c", wrapper,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")])
+        self.assertEqual(result.returncode, 0,
+                         f"--self-test failed behind a non-reaping parent.\nstdout:\n{result.stdout}\n"
+                         f"stderr:\n{result.stderr}")
+        self.assertIn("self-test: OK", result.stdout)
+
     def test_stop_guard_unattended_hook_self_test(self) -> None:
         """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
         introduction (2026-09-03, fleet "No Manufactured Wind-Down" delivery). This canonical
