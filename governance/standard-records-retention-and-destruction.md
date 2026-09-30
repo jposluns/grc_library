@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.32\
+**Version:** 1.4.33\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -171,7 +171,7 @@ Quarterly reviews confirm:
 
 - Timely destruction of records whose retention period has expired.
 - No records deleted while subject to an active hold.
-- Destruction stopped or recalled, as soon as the Compliance Manager learned of the change, where a hold or investigation came to apply before destruction was complete, and the Compliance Manager notified without delay.
+- Destruction stopped or recalled, as soon as the Compliance Manager learned of the change, where a hold or investigation came to apply before destruction was complete, and the Compliance Manager was notified without delay.
 - No records destroyed without a hold check completed immediately before destruction, or immediately before release for queued, scheduled or contracted destruction, and Legal Counsel's written confirmation.
 - Compliance with privacy and AI recordkeeping standards.
 
