@@ -103,8 +103,9 @@ DUE_SOON_DAYS = 21
 # invocation path of this script cannot switch the echo off. The token is random
 # per gate run, so no data a gate prints can forge the line, as a record ID that
 # holds the marker text could in gate 93's WARN lines. With the variable unset or
-# empty (a direct run, the pre-commit hook, CI) the line is not printed. The line
-# holds no WARN, NOTE or DUE-SOON, so no count or grep of those tags sees it.
+# empty (a direct run, the pre-commit hook, the quality.yml gate step) the line is
+# not printed. The line holds no WARN, NOTE or DUE-SOON, so no count or grep of
+# those tags sees it.
 RUNNER_ECHO_MARKER = (
     "runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
 )

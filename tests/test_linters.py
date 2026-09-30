@@ -16966,7 +16966,12 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("checked 4 row(s)", out)
         self.assertIn("WARN: 1 source(s) past their re-check window", out)
         self.assertIn("WARN: 1 source(s) dated after today", out)
-        self.assertIn("ISO/IEC AHEAD: last verified 2027-01-01 is 170 day(s) after today", out)
+        # The whole future-dated row line, from column 0 with its WARN prefix and
+        # heading: kills that row printed as "NOTE  [...]" or with "[heading] "
+        # dropped, which both the line-start loop below and a substring of the
+        # line's tail pass.
+        self.assertIn("\nWARN  [ISO / IEC standards] ISO/IEC AHEAD: last verified "
+                      "2027-01-01 is 170 day(s) after today.\n", "\n" + out)
         self.assertIn("NOTE: sub-table(s) with no explicit tier", out)
         self.assertIn("DUE-SOON  verified 2025-07-20", out)
         lines = out.splitlines()
@@ -17373,10 +17378,18 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
     def test_runner_token_comes_from_a_csprng(self) -> None:
         # Equality and length checks cannot show a token is unpredictable, so pin
         # the generator: Python's secrets module, else /dev/urandom (3b137 r3
-        # codex P3). Kills a counter or $RANDOM generator.
+        # codex P3). Each exact command must sit on a line that runs, not in a
+        # comment: the run_gate comment also names /dev/urandom, so a check of the
+        # whole text passed with the fallback command reading /dev/zero (its 32
+        # zeros pass the hex check). Kills that /dev/zero mutation and a counter
+        # or $RANDOM generator.
         text = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
-        self.assertIn("secrets.token_hex(16)", text)
-        self.assertIn("/dev/urandom", text)
+        code = [ln for ln in text.splitlines() if not ln.lstrip().startswith("#")]
+        for command in (
+            "python3 -c 'import secrets; print(secrets.token_hex(16))'",
+            "od -An -N16 -tx1 /dev/urandom",
+        ):
+            self.assertTrue(any(command in ln for ln in code), command)
 
     # The real gate under the shipped run_gate body. A python3 shell function
     # runs the script it is given (or CADENCE_GATE, when set) with the real
