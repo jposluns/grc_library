@@ -176,6 +176,9 @@ def _is_grc_main_checkout(root):
     return os.path.realpath(root) == _GRC_REPO_ROOT and _is_primary_checkout(root)
 
 
+_MAX_GITFILE_BYTES = 1 << 20  # git's read_gitfile refuses a larger gitfile
+
+
 def _is_primary_checkout(root):
     """True for a main checkout (.git is a directory) or a submodule (.git is a file naming an admin
     directory), False for a linked worktree or anything unreadable. The test is structural, as git's own:
@@ -184,24 +187,33 @@ def _is_primary_checkout(root):
     ancestor directory named `worktrees` changes the answer (3b101 QA r3). The admin directory must hold a
     HEAD file, as every git directory does, so a gitdir naming some other directory is not taken for one
     (3b101 QA r5). A gitdir that is missing, malformed or not a git directory returns False: the adapter
-    then stays off, which allows the stop and consumes nothing. Known residue (3b101 INFO-1, open as
-    P-TODO 3b124): only the first line is read and it is whitespace-stripped, so a gitfile git itself
-    rejects (extra spaces around the target, a trailing line) is still accepted here."""
+    then stays off, which allows the stop and consumes nothing. The gitfile is parsed as git's
+    read_gitfile parses it (3b124): a regular file of at most 1 MiB that starts with exactly `gitdir: `,
+    whose target is every byte after that prefix except the trailing run of newlines and carriage
+    returns. Nothing else is stripped, so a doubled space after the prefix, trailing spaces or a trailing
+    extra line leaves a target naming no git directory, and git and this check both refuse the gitfile.
+    A target that still holds a newline is refused outright (git accepts one only when a directory's own
+    name contains it), so the parse is never more lenient than git's. The HEAD-and-directory test stays
+    lighter than git's own, which also requires objects and refs."""
     dotgit = os.path.join(root, ".git")
     if os.path.isdir(dotgit):
         return True
     try:
-        with open(dotgit, encoding="utf-8") as fh:
-            first = fh.readline(4096).strip()
-    except (OSError, UnicodeDecodeError):
+        # O_NONBLOCK: a FIFO named .git cannot stall the hook; git reads only a regular file (3b124)
+        with os.fdopen(os.open(dotgit, os.O_RDONLY | os.O_NONBLOCK | os.O_CLOEXEC), "rb") as fh:
+            st = os.fstat(fh.fileno())
+            if not stat.S_ISREG(st.st_mode) or st.st_size > _MAX_GITFILE_BYTES:
+                return False
+            data = fh.read(_MAX_GITFILE_BYTES + 1)
+    except OSError:
         return False
-    if not first.startswith("gitdir: "):  # git's read_gitfile requires the space (3b101 QA r6)
+    if len(data) > _MAX_GITFILE_BYTES or not data.startswith(b"gitdir: "):  # exact prefix (3b101 QA r6)
         return False
-    target = first[len("gitdir: "):].strip()
-    if not target:
+    target = data[len(b"gitdir: "):].rstrip(b"\r\n")  # git drops the trailing CR/LF run, nothing more
+    if not target or b"\n" in target:  # no path, or a second line (3b124)
         return False
     try:  # a NUL in the gitdir raises ValueError (3b101 QA r5)
-        admin = os.path.realpath(os.path.join(root, target))
+        admin = os.path.realpath(os.path.join(root, os.fsdecode(target)))
         # lexists: git accepts a symlinked HEAD (core.preferSymlinkRefs), even one that dangles (3b101 QA r6)
         if not (os.path.isdir(admin) and os.path.lexists(os.path.join(admin, "HEAD"))):
             return False
@@ -789,7 +801,8 @@ def _self_test():
         try:
             os.dup2(writer, 2)
             # Execute the child branch inline so capture remains observable.
-            # Real process boundaries are exercised by test_killreg_writes.py.
+            # Real process boundaries: T.test_diagnostic_fork_delivery and
+            # T.test_diagnostic_fork_drops_terminals run hook copies as processes (3b123).
             with mock.patch.object(os, "fork", return_value=0), \
                     mock.patch.object(os, "listdir", return_value=[]), \
                     mock.patch.object(os, "setsid"), \
@@ -1519,19 +1532,24 @@ def _self_test():
 
         # ---- production ENTRY point via subprocess: real exit protocol + __file__-root beats a hostile
         # payload root (a regression restoring payload-trust would otherwise ship green) ----
+        def _hook_copy(self, d):
+            """Copy this hook to <d>/.claude/hooks/hook.py, reading this test's fixture registry."""
+            hooks = os.path.join(d, ".claude", "hooks")
+            os.makedirs(hooks)
+            source = Path(__file__).read_text()
+            seam = '_KILLREG_DIR = "/run/orch-workers"'
+            self.assertEqual(source.count(seam + "\n"), 1)
+            Path(hooks, "hook.py").write_text(source.replace(
+                seam + "\n", "_KILLREG_DIR = %r\n" % self.registry.name))
+            return os.path.join(hooks, "hook.py")
+
         def _subproc(self, mode, producer_lines, payload):
             import subprocess
             with tempfile.TemporaryDirectory() as d:
-                hooks = os.path.join(d, ".claude", "hooks")
-                os.makedirs(hooks)
-                source = Path(__file__).read_text()
-                seam = '_KILLREG_DIR = "/run/orch-workers"'
-                self.assertEqual(source.count(seam + "\n"), 1)
-                Path(hooks, "hook.py").write_text(source.replace(
-                    seam + "\n", "_KILLREG_DIR = %r\n" % self.registry.name))
+                hook = self._hook_copy(d)
                 build(d, mode=mode, producer_lines=producer_lines)
                 with tempfile.TemporaryDirectory() as foreign:
-                    r = subprocess.run([sys.executable, os.path.join(hooks, "hook.py")],
+                    r = subprocess.run([sys.executable, hook],
                                        input=payload, capture_output=True, text=True, cwd=foreign)
                     return r.returncode
 
@@ -1546,6 +1564,66 @@ def _self_test():
         def test_subprocess_empty_stdin_allows(self):
             # empty stdin is an absent/uncertain payload -> fail open (allow), even unattended + actionable.
             self.assertEqual(self._subproc(UNATT, ITEMS_MIXED, ""), 0)
+
+        # ---- diagnostic transport across real process boundaries (3b123) ----
+        def _blocking_hook(self, stderr):
+            """Run a hook copy that blocks an unattended stop (actionable work, no live groups) with the
+            given stderr; return its exit status and any stderr captured through a pipe."""
+            with tempfile.TemporaryDirectory() as d:
+                hook = self._hook_copy(d)
+                build(d, mode=UNATT, producer_lines=ITEMS_MIXED)
+                env = {k: v for k, v in os.environ.items() if k not in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+                proc = subprocess.Popen([sys.executable, "-B", hook], stdin=subprocess.PIPE,
+                                        stdout=subprocess.DEVNULL, stderr=stderr, cwd=d, env=env)
+                _out, err = proc.communicate(_json.dumps({"stop_hook_active": False}).encode(), timeout=60)
+                return proc.returncode, err
+
+        def test_diagnostic_fork_delivery(self):
+            # 3b123: capture_stderr runs the writer's child branch inline; here the real fork delivers.
+            # Only the forked child writes, so the refusal arriving on a pipe, a socket and a regular file
+            # shows the child's delivery, and each exit status still carries the block.
+            import socket
+            marker = b"BLOCKED (stop-guard-unattended):"
+            rc, err = self._blocking_hook(subprocess.PIPE)
+            self.assertEqual(rc, 2, err)
+            self.assertIn(marker, err)
+            ours, theirs = socket.socketpair()
+            with ours:
+                with theirs:
+                    rc, _err = self._blocking_hook(theirs.fileno())
+                self.assertEqual(rc, 2)
+                ours.settimeout(30)
+                received = chunk = ours.recv(4096)
+                while chunk:  # EOF once the hook and its writer child have both closed the socket
+                    chunk = ours.recv(4096)
+                    received += chunk
+                self.assertIn(marker, received)
+            with tempfile.TemporaryFile() as sink:
+                rc, _err = self._blocking_hook(sink.fileno())
+                self.assertEqual(rc, 2)
+                deadline = time.monotonic() + 10  # the writer child may finish after the hook exits
+                while marker not in os.pread(sink.fileno(), 4096, 0) and time.monotonic() < deadline:
+                    time.sleep(0.01)
+                self.assertIn(marker, os.pread(sink.fileno(), 4096, 0))
+
+        def test_diagnostic_fork_drops_terminals(self):
+            # 3b123: a terminal stderr receives no diagnostic (it is never written or reopened), and the
+            # exit status alone carries the block.
+            import select
+            try:
+                master, slave = os.openpty()
+            except OSError as exc:
+                self.skipTest("no pseudo-terminal available: %s" % exc)
+            try:
+                rc, _err = self._blocking_hook(slave)
+                self.assertEqual(rc, 2)
+                # The slave stays open here, so a late write would wait on the master; the writer's own
+                # deadline is 0.2 seconds.
+                leaked = os.read(master, 4096) if select.select([master], [], [], 1.0)[0] else b""
+                self.assertEqual(leaked, b"")
+            finally:
+                os.close(master)
+                os.close(slave)
 
         # ---- orchestrator-vs-worker scoping (the guard binds the orchestrator only) ----
         def test_is_orchestrator_truth_table(self):
@@ -1699,6 +1777,41 @@ def _self_test():
                     for k, v in old.items():
                         os.environ.pop(k, None) if v is None else os.environ.__setitem__(k, v)
 
+        def test_grc_escape_is_consumed_before_the_payload_parse(self):
+            # 3b123: main() spends the declared wait before it reads or parses the payload, so the malformed,
+            # empty and non-object fail-open returns consume it too. The hook runs from a temporary main
+            # checkout, so this holds in a linked worktree as well. A mutant with the escape moved after the
+            # payload's fail-open return must leave the sentinel on exactly those payloads; "{}" alone (the
+            # payload of the sentinel test above) cannot tell the two orders apart.
+            source = Path(__file__).read_text(encoding="utf-8")
+            escape = ("    if _grc_consume_escape(repo_root()):\n        return 0  # grc one-shot declared-wait"
+                      " sentinel consumed -> allow this stop (before any parse)\n")
+            parsed = "    return run(repo_root(), payload)\n"
+            self.assertEqual(source.count(escape), 1)
+            self.assertEqual(source.count(parsed), 1)
+            mutant = source.replace(escape, "").replace(parsed, escape + parsed)
+            env = {k: v for k, v in os.environ.items()
+                   if k not in ("GRC_DROP_ROOT", "GRC_STORE", "ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
+            payloads = ("not-json", "", "[1, 2, 3]", "{}")
+            got = {}
+            with tempfile.TemporaryDirectory() as parent:
+                os.makedirs(os.path.join(parent, "grc_working"))
+                sentinel = os.path.join(parent, "grc_working", ".allow-idle-stop")
+                for name, text in (("grc_library", source), ("mutant", mutant)):
+                    root = os.path.join(parent, name)
+                    os.makedirs(os.path.join(root, ".git"))  # a main checkout, whichever checkout runs this
+                    hook = os.path.join(root, ".claude", "hooks", os.path.basename(__file__))
+                    os.makedirs(os.path.dirname(hook))
+                    Path(hook).write_text(text, encoding="utf-8")
+                    for payload in payloads:
+                        open(sentinel, "w").close()
+                        out = subprocess.run([sys.executable, "-B", hook], input=payload, text=True,
+                                             capture_output=True, env=env, cwd=root, timeout=60)
+                        got[name, payload] = (out.returncode, os.path.exists(sentinel))
+            want = {("grc_library", p): (0, False) for p in payloads}
+            want.update({("mutant", p): (0, p != "{}") for p in payloads})
+            self.assertEqual(got, want)
+
         def test_grc_hint_names_the_file_the_reader_uses(self):
             # 3b101 QA r2 (codex): the refusal's touch path is the path the escape reader consumes.
             self.assertIn(_grc_escape_file(), MODE_SET_HINT)
@@ -1736,7 +1849,11 @@ def _self_test():
                            "nul-target": "gitdir: ../x\x00y\n",
                            # 3b101 QA r6: a dangling symlinked HEAD is still a git directory; no space is not a gitfile
                            "sub-symhead": f"gitdir: {os.path.join(parent, 'symhead')}\n",
-                           "no-space": f"gitdir:{os.path.join(parent, '.git', 'modules', 'sub')}\n"}
+                           "no-space": f"gitdir:{os.path.join(parent, '.git', 'modules', 'sub')}\n",
+                           # 3b124: gitfiles git refuses that the old first-line strip accepted
+                           "two-space": f"gitdir:  {os.path.join(parent, '.git', 'modules', 'sub')}\n",
+                           "trailing-space": f"gitdir: {os.path.join(parent, '.git', 'modules', 'sub')}  \n",
+                           "trailing-line": f"gitdir: {os.path.join(parent, '.git', 'modules', 'sub')}\nextra\n"}
                 os.makedirs(os.path.join(parent, "symhead"))
                 os.symlink("refs/heads/main", os.path.join(parent, "symhead", "HEAD"))
                 open(os.path.join(parent, "admin-file"), "w").close()
@@ -1775,7 +1892,8 @@ def _self_test():
                 want = {"grc_library": "unattended", "wt-x": "None", "wt-alias": "None", "sub": "unattended",
                         "sub-deep": "unattended", "missing": "None", "file-target": "None", "no-git": "None",
                         "not-admin": "None", "empty-target": "None", "no-prefix": "None", "nul-target": "None",
-                        "sub-symhead": "unattended", "no-space": "None"}
+                        "sub-symhead": "unattended", "no-space": "None", "two-space": "None",
+                        "trailing-space": "None", "trailing-line": "None"}
                 if check_locked:
                     want["wt-locked"] = "None"
                 self.assertEqual(got, want, got)
@@ -1794,6 +1912,40 @@ def _self_test():
                 out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
                                      env=env, timeout=60)
                 self.assertEqual(out.stdout.strip(), "unattended", out.stderr)
+
+        def test_gitfile_parse_agrees_with_git(self):
+            # 3b124: _is_primary_checkout reads a gitfile as git's read_gitfile does. Every variant names a
+            # real git directory, and git's own verdict (git rev-parse --git-dir exits 128 on a refused
+            # gitfile) is pinned beside the hook's, so a fixture that stops reproducing on the installed
+            # git fails here as well.
+            import shutil
+            git = shutil.which("git")
+            if git is None:
+                self.skipTest("git is not installed")
+            with tempfile.TemporaryDirectory() as parent:
+                env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+                env.update(HOME=parent, GIT_CONFIG_NOSYSTEM="1", GIT_CEILING_DIRECTORIES=parent)
+                subprocess.run([git, "init", "-q", os.path.join(parent, "real")], env=env,
+                               capture_output=True, check=True, timeout=60)
+                admin = os.path.join(parent, "real", ".git")
+                cases = {"exact": (f"gitdir: {admin}\n", True), "relative": ("gitdir: ../real/.git\n", True),
+                         "no-newline": (f"gitdir: {admin}", True), "crlf": (f"gitdir: {admin}\r\n", True),
+                         "blank-tail": (f"gitdir: {admin}\n\n", True),
+                         # the three 3b124 reproductions, then two prefix controls
+                         "two-space": (f"gitdir:  {admin}\n", False),
+                         "trailing-space": (f"gitdir: {admin}  \n", False),
+                         "trailing-line": (f"gitdir: {admin}\nextra\n", False),
+                         "no-space": (f"gitdir:{admin}\n", False), "leading-space": (f" gitdir: {admin}\n", False)}
+                got = {}
+                for name, (gitfile, _want) in cases.items():
+                    root = os.path.join(parent, name)
+                    os.makedirs(root)
+                    with open(os.path.join(root, ".git"), "w", encoding="utf-8", newline="") as fh:
+                        fh.write(gitfile)
+                    out = subprocess.run([git, "rev-parse", "--git-dir"], cwd=root, env=env,
+                                         capture_output=True, text=True, timeout=60)
+                    got[name] = (out.returncode == 0, _is_primary_checkout(root))
+                self.assertEqual(got, {name: (want, want) for name, (_gitfile, want) in cases.items()}, got)
 
         def test_mode_missing_is_none(self):
             with tempfile.TemporaryDirectory() as d:
