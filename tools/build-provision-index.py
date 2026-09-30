@@ -37,12 +37,21 @@ RESIDUE (stated, not hidden):
     count only with the instrument adjacent; Recitals, Schedules, Annexes and
     ``Principle 4.3`` forms are not parsed; ranges wider than MAX_RANGE_SPAN
     index their endpoints only.
-  - False positives: the line, heading, section and document tiers are
-    inferences (a bare ``Art. 68(7)`` beside ``DORA (`` reads as DORA even
-    where the prose means MiCA); a seeded phrase can restate a different
+  - False positives: the explicit tier is syntactic adjacency, so a bare
+    ``Art 68(7)`` beside ``DORA (`` is an EXPLICIT DORA record even where
+    the surrounding prose means MiCA, and --min-tier explicit does NOT
+    remove that shape; the line, heading, section and document tiers are
+    inferences, and a table cell whose instrument is named only in the
+    header row is still attributed to the last instrument named in an
+    earlier cell of the same row; a seeded phrase can restate a different
     regime whose wording matches; keys are section-level, so s. 10.1(1) and
     s. 10.1(6) are siblings even when a change touched only one of them.
-  Filter with --min-tier explicit for the high-precision subset.
+  - Refused rather than guessed (in the unresolved bucket): a citation whose
+    line earlier names two different instruments, a non-explicit citation
+    after a foreign-prefix refusal on the same line, and a bare citation
+    whose innermost section body and an enclosing heading name different
+    instruments.
+  Filter with --min-tier explicit for the highest-precision subset.
 
 Stdlib-only Python 3.11.
 """

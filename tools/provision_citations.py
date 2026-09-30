@@ -18,42 +18,58 @@ Extraction model (stdlib ``re``, fenced code skipped via
 
   1. A CITATION is a section marker (``Art.``, ``Arts.``, ``Article(s)``,
      ``s.``, ``ss.``, ``Section(s)``, ``section(s)``, ``§``, ``§§``) followed
-     by one or more numbers with optional parenthesised subdivisions, lists
-     and ranges: ``s. 10.1(2) and (6)``, ``Arts. 33 to 34``,
-     ``ss. 7 to 9, 11``. A bare parenthesised continuation (``and (6)``)
-     attaches to the preceding section. A numeric range spanning at most
-     ``MAX_RANGE_SPAN`` sections is expanded; each interior section carries
-     the range as its pinpoint (``25 to 39``). A continuation number
-     followed by a unit (``and 72 hours``) or shaped as a year is not
-     absorbed.
+     by one or more numbers with optional letter suffixes (``55-A``, ``4a``)
+     and parenthesised subdivisions, lists (including slashed lists,
+     ``Art 5/6/12``) and ranges: ``s. 10.1(2) and (6)``, ``Arts. 33 to 34``,
+     ``Arts. 44–49``, ``ss. 7 to 9, 11``. A bare parenthesised continuation
+     (``and (6)``) attaches to the preceding section. A numeric range
+     spanning at most ``MAX_RANGE_SPAN`` sections is expanded; each interior
+     section carries the range as its pinpoint (``25 to 39``). A continuation
+     number followed by a unit (``and 72 hours``, ``and 72-hour``,
+     ``and 20%``) or shaped as a year is not absorbed.
   2. The KEY is section-level: ``PIPEDA s. 10.1(3)`` and ``PIPEDA s. 10.1(6)``
      both key to ``PIPEDA s. 10.1``; the pinpoint is kept for display.
   3. The INSTRUMENT is resolved in this order, and the tier is recorded:
        explicit  an alias directly before the marker (``GDPR Art. 33``,
-                 ``PIPEDA (s. 10.1(2)``) or directly after the citation
-                 (``Article 33 of the GDPR``);
-       line      the nearest alias earlier on the same line (a table row);
+                 ``PIPEDA (s. 10.1(2)``; this wins over an alias after the
+                 citation) or directly after the citation (``Article 33 of
+                 the GDPR``; a bracketed alias, ``Art 26 (PDPL)``, counts
+                 only when the bracket closes right after the alias, so
+                 ``section 3.9 (MiCA Article 35(1))`` never keys the outer
+                 citation to MiCA);
+       line      the nearest alias earlier on the same line (a table row),
+                 only when every alias earlier on the line names ONE
+                 instrument and no foreign-prefix refusal precedes the
+                 citation on the line (such a refusal means an instrument
+                 outside the alias table is being cited there, so the
+                 line's later bare citations are plausibly its, not the
+                 alias's);
        heading   the nearest enclosing heading that names exactly one
                  instrument (for a citation ON a heading line, the
                  enclosing parent headings);
        section   the last alias mentioned in the body of the innermost
-                 section so far;
+                 section so far, only where no enclosing heading names a
+                 DIFFERENT instrument (that conflict is refused);
        document  the single instrument named in the Document Title.
      ``Section`` and ``§`` citations are indexed only at the explicit tier:
      a bare ``Section 4.2`` or ``§6.3`` is this corpus's internal
      cross-reference form, not a statute citation. Inference is REFUSED,
      and the citation left unresolved, where the marker directly follows an
      unaliased acronym or identifier (``CCR s. 7001``, ``RTS 2025/1140
-     Arts 2``) or a law word (``Ley Art 33``, ``the Privacy Act (s. 3)``),
-     or the citation is followed by ``of this Law`` or ``of <Name>``:
-     inference there would attach the citation to whichever aliased
-     instrument happened to be mentioned nearby.
+     Arts 2``), a law word optionally followed by a number (``Ley Art 33``,
+     ``the Privacy Act (s. 3)``, ``Decree 356 Art. 20``) or a possessive or
+     relative reference to another instrument (``its Articles 46 and 48``,
+     ``whose Article 11``), or the citation is followed by ``of this Law``,
+     ``of that Regulation`` or ``of <Name>``, or directly by an instrument
+     word (``Article 29(7) Regulation (EU) 2018/1725``): inference there
+     would attach the citation to whichever aliased instrument happened to
+     be mentioned nearby.
   4. Ambiguous short names (``PDPA``, ``PDPL``, ``CPPA``, ``PIPA``,
      ``AI Act``) resolve by the last jurisdiction word within
      ``JURISDICTION_WINDOW`` characters before the alias, then by a
      jurisdiction token in the document path, else to
      ``<alias> (jurisdiction unresolved)``. An alias used as an adjectival
-     compound (``GDPR-style``) is not a mention.
+     compound (``GDPR-style``, ``GDPR-Article-26-style``) is not a mention.
   5. SIGNATURE PHRASES: a small seed table of phrases that restate a
      provision WITHOUT citing it (before #2649 most PIPEDA s. 10.1 surfaces
      carried no section number at all). A hit is reported with tier
@@ -192,7 +208,7 @@ _AMBIGUOUS: dict[str, dict[str, str]] = {
 ALIAS_RE = re.compile(
     r"(?<![A-Za-z0-9])(?:"
     + "|".join(re.escape(a) for a in sorted([*_ALIAS_TO_CANON, *_AMBIGUOUS], key=len, reverse=True))
-    + r")(?![A-Za-z0-9]|-[a-z])"
+    + r")(?![A-Za-z0-9]|-[A-Za-z0-9])"
 )
 _JURISDICTION_RE = re.compile(
     r"\b(" + "|".join(sorted(JURISDICTION_WORDS, key=len, reverse=True)) + r")\b", re.IGNORECASE
@@ -200,10 +216,10 @@ _JURISDICTION_RE = re.compile(
 
 # Citation grammar: marker, then ITEM (SEP ITEM-or-bare-subdivision)*.
 _SUB = r"\((?:[0-9]{1,3}|[a-z]{1,4}|[A-Z])\)"
-_NUM = r"\d{1,4}[A-Z]{0,2}(?:\.\d{1,4}[A-Z]{0,2})*(?![0-9])"
+_NUM = r"\d{1,4}(?:-?[A-Z]{1,2}(?![a-z])|[a-z]{1,2}(?![a-z]))?(?:\.\d{1,4}[A-Z]{0,2})*(?![0-9])"
 _ITEM = _NUM + "(?:" + _SUB + ")*"
-_SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*-\s*|\s*&\s*)"
-_UNIT = r"(?!\s*(?:hours?|days?|weeks?|months?|years?|minutes?|%|per\s?cent|percent)\b)"
+_SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*[-–]\s*|\s*[&/]\s*)"
+_UNIT = r"(?![\s–-]*(?:hours?|days?|weeks?|months?|years?|minutes?|%|per\s?cent|percent)(?![A-Za-z]))"
 _NOT_YEAR = r"(?!(?:19|20)\d\d(?![.\d]))"
 CITE_RE = re.compile(
     r"(?<![A-Za-z0-9])"
@@ -213,22 +229,32 @@ CITE_RE = re.compile(
 )
 _BODY_TOKEN_RE = re.compile(
     "(?P<item>" + _NUM + ")(?P<subs>(?:" + _SUB + ")*)"
-    "|(?P<bare>(?:" + _SUB + r")+)|(?P<range>\bto\b|\bthrough\b|-)"
+    "|(?P<bare>(?:" + _SUB + r")+)|(?P<range>\bto\b|\bthrough\b|[-–])"
 )
 _EXPLICIT_ONLY_MARKERS = frozenset(("Sections", "Section", "sections", "section", "§§", "§"))
 
-# Explicit adjacency: "GDPR Art.", "PIPEDA (s.", "the GDPR's Article", "Article 33 of the GDPR".
+# Explicit adjacency: "GDPR Art.", "PIPEDA (s.", "the GDPR's Article", "Article 33 of the GDPR",
+# "Art 26 (PDPL)". A bracket-lead postfix alias counts only when the bracket closes right after
+# the alias: in "section 3.9 (MiCA Article 35(1))" the bracket opens a SEPARATE citation.
 _PREFIX_TAIL_RE = re.compile(r"(?:'s)?\s*[,:]?\s*\(?\s*")
-_POSTFIX_LEAD_RE = re.compile(r"\s*(?:of\s+(?:the\s+)?|\(\s*)?")
-_OF_THIS_RE = re.compile(r"\s*of\s+this\s+[A-Z]?[a-z]+")
+_POSTFIX_LEAD_RE = re.compile(r"\s*(?:of\s+(?:the\s+)?|(?P<paren>\(\s*))?")
+_POSTFIX_CLOSE_RE = re.compile(r"\s*\)")
+_ANAPHOR_RE = re.compile(r"\b(?:its|whose|their)\s+$")
+_OF_THIS_RE = re.compile(r"\s*of\s+(?:this|that|such|said)\s+[A-Z]?[a-z]+")
 _OF_OTHER_RE = re.compile(r"\s*of\s+(?:the\s+)?[A-Z]")
+_POST_INSTRUMENT_RE = re.compile(
+    r"\s+(?:Regulation|Directive|Decision|Decree|Act|Law|Code|Statute|Convention|Ordinance)\b"
+)
 # Inference refusal: an unaliased acronym or letter/slash-bearing identifier
-# DIRECTLY before the marker, or a law word before it (optionally through "(").
+# DIRECTLY before the marker, or a law word (optionally followed by a number,
+# and optionally through "(") before it. A hit POISONS the rest of the line:
+# an unaliased instrument is being cited here, so the line's later inferred
+# tiers would misattribute. _ANAPHOR_RE refuses per-citation only.
 _FOREIGN_PREFIX_RE = re.compile(
     r"(?:\b(?:[A-Z][A-Za-z]*[A-Z][\w./-]*|(?=[\w./-]*[A-Za-z/])[\w./-]*\d[\w./-]*)\s+"
     r"|\b(?:Ley|Code|Act|Law|Stat\.|Regulations?|Directive|Rules?|Decree|Norm|Standard|"
     r"Specification|Policy|Procedure|Guidelines?|Convention|Constitution|Ordinance|Regs?\.)"
-    r"\s*[,:]?\s*\(?\s*)$"
+    r"(?:\s+(?:No\.?\s*)?\d[\w./()-]*)?\s*[,:]?\s*\(?\s*)$"
 )
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 TITLE_RE = re.compile(r"^\*\*Document Title:\*\*\s*(.+?)\s*\\?$", re.M)
@@ -320,35 +346,59 @@ def _snippet(line: str, start: int, end: int) -> str:
 
 
 def _context(stack: list, doc_instrument: "str | None", *, body: bool = True) -> "tuple[str | None, str]":
-    """Instrument and tier from the heading chain, section body, or Document Title."""
-    for depth, (_level, heading_instrument, body_instrument) in enumerate(reversed(stack)):
+    """Instrument and tier from the heading chain, section body, or Document Title.
+
+    The innermost heading wins outright (it governs its own body); the
+    innermost section body is used only where no enclosing heading names a
+    DIFFERENT instrument, since that conflict is a misattribution either way
+    it is guessed, so it is refused.
+    """
+    body_instrument = stack[-1][2] if body else None
+    if stack[-1][1]:
+        return stack[-1][1], "heading"
+    for _level, heading_instrument, _body in reversed(stack[:-1]):
         if heading_instrument:
+            if body_instrument and body_instrument != heading_instrument:
+                return None, UNRESOLVED
             return heading_instrument, "heading"
-        if body and depth == 0 and body_instrument:
-            return body_instrument, "section"
+    if body_instrument:
+        return body_instrument, "section"
     if doc_instrument:
         return doc_instrument, "document"
     return None, UNRESOLVED
 
 
-def _resolve_citation(m: "re.Match[str]", line: str, rel: str) -> "tuple[str | None, str]":
-    """Explicit or line-tier resolution; ``_NEEDS_CONTEXT`` defers to the heading chain."""
+def _resolve_citation(
+    m: "re.Match[str]", line: str, rel: str, poisoned: bool = False
+) -> "tuple[str | None, str, bool]":
+    """Explicit or line-tier resolution: ``(instrument, tier, foreign prefix?)``.
+
+    ``_NEEDS_CONTEXT`` defers to the heading chain. ``poisoned`` (a refused
+    foreign-prefix citation earlier on the line) blocks the inferred tiers.
+    """
     pre, post = line[:m.start()], line[m.end():]
-    post_alias = ALIAS_RE.match(post, _POSTFIX_LEAD_RE.match(post).end())
-    if post_alias:
-        return resolve_alias(post_alias.group(0), post, post_alias.start(), rel), "explicit"
     pre_alias = None
     for a in ALIAS_RE.finditer(pre):
         if _PREFIX_TAIL_RE.fullmatch(pre, a.end()):
             pre_alias = a
     if pre_alias:
-        return resolve_alias(pre_alias.group(0), line, pre_alias.start(), rel), "explicit"
-    if _FOREIGN_PREFIX_RE.search(pre) or _OF_THIS_RE.match(post) or _OF_OTHER_RE.match(post):
-        return None, UNRESOLVED
+        return resolve_alias(pre_alias.group(0), line, pre_alias.start(), rel), "explicit", False
+    lead = _POSTFIX_LEAD_RE.match(post)
+    post_alias = ALIAS_RE.match(post, lead.end())
+    if post_alias and (not lead.group("paren") or _POSTFIX_CLOSE_RE.match(post, post_alias.end())):
+        return resolve_alias(post_alias.group(0), line, m.end() + post_alias.start(), rel), "explicit", False
+    foreign = bool(_FOREIGN_PREFIX_RE.search(pre))
+    if foreign or _ANAPHOR_RE.search(pre) or _OF_THIS_RE.match(post) or _OF_OTHER_RE.match(post) \
+            or _POST_INSTRUMENT_RE.match(post):
+        return None, UNRESOLVED, foreign
+    if poisoned:
+        return None, UNRESOLVED, False
     earlier = aliases_in(line, rel, 0, m.start())
     if earlier:
-        return earlier[-1], "line"
-    return None, _NEEDS_CONTEXT
+        if _single(earlier) is None:
+            return None, UNRESOLVED, False
+        return earlier[-1], "line", False
+    return None, _NEEDS_CONTEXT, False
 
 
 def scan_text(rel: str, text: str) -> list[Citation]:
@@ -366,8 +416,10 @@ def scan_text(rel: str, text: str) -> list[Citation]:
                 stack.pop()
             stack.append([level, _single(aliases_in(heading.group(2), rel)), None])
         resolved_here = False
+        poisoned = False
         for m in CITE_RE.finditer(line):
-            instrument, tier = _resolve_citation(m, line, rel)
+            instrument, tier, foreign = _resolve_citation(m, line, rel, poisoned)
+            poisoned = poisoned or foreign
             if tier != "explicit" and m.group("marker") in _EXPLICIT_ONLY_MARKERS:
                 continue
             if tier == _NEEDS_CONTEXT:

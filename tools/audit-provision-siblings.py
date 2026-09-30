@@ -21,7 +21,7 @@ Usage:
     python3 tools/audit-provision-siblings.py --docs a.md b.md --provision "PIPEDA s. 10.1"
     python3 tools/audit-provision-siblings.py --docs a.md --min-tier heading --no-phrases --json
     git diff --name-only --diff-filter=d origin/main...HEAD -- '*.md' \\
-        | xargs python3 tools/audit-provision-siblings.py --docs
+        | xargs -r python3 tools/audit-provision-siblings.py --docs
 
 ``--scan PATH...`` replaces the default corpus roots (the regression tests
 point it at a fixture tree).

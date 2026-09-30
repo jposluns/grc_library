@@ -28819,15 +28819,36 @@ class ProvisionIndexTests(LinterTestCase):
 
     Mutation map, one killing test per extractor branch: the subsection
     continuation by test_continuation_subsection_attaches; longest-alias-first
-    by test_longest_alias_wins; the postfix alias by test_postfix_alias; range
-    expansion and the unit guard by test_range_expansion_and_unit_guard; the
-    line / heading / section / document tiers by their test_*_tier cases; the
-    heading-over-body precedence by test_heading_beats_earlier_body_mention;
-    the inference refusal by test_foreign_prefix_refuses_inference; the
-    explicit-only Section/§ rule by test_internal_section_refs_ignored; the
-    jurisdiction resolution by test_ambiguous_alias_*; the adjectival-compound
-    guard by test_adjectival_compound_is_not_a_mention; the phrase channel by
-    the test_phrase_* cases.
+    by test_longest_alias_wins (both cases); prefix-over-postfix order by
+    test_prefix_alias_wins_over_bracketed_postfix; the postfix alias by
+    test_postfix_alias, its bracket-close rule by
+    test_postfix_bracket_alias_must_close and its jurisdiction window by
+    test_postfix_alias_jurisdiction_from_full_line; range expansion and the
+    unit guard by test_range_expansion_and_unit_guard,
+    test_percent_and_hyphenated_unit_not_absorbed, test_range_span_bound and
+    test_lettered_endpoints_not_expanded; the year guard by
+    test_year_not_absorbed_as_continuation; list separators by
+    test_slash_list_expands and test_en_dash_range_expands; section letter
+    suffixes by test_letter_suffix_sections_preserved; the line tier by
+    test_line_tier, test_line_tier_requires_single_instrument and
+    test_foreign_citation_poisons_line_inference; the heading / section /
+    document tiers by their test_*_tier cases,
+    test_heading_line_citation_uses_parent_heading,
+    test_heading_line_citation_ignores_own_heading_instrument and
+    test_conflicting_heading_and_body_context_refuses; the heading-over-body
+    precedence by test_heading_beats_earlier_body_mention; the inference
+    refusals by test_foreign_prefix_refuses_inference,
+    test_law_word_with_number_refuses_inference,
+    test_year_prefix_does_not_refuse_inference,
+    test_of_that_instrument_refuses_inference,
+    test_of_other_instrument_refuses_inference,
+    test_trailing_instrument_word_refuses_inference and
+    test_anaphoric_reference_refuses_inference; the explicit-only Section/§
+    rule by test_internal_section_refs_ignored; the jurisdiction resolution
+    by test_ambiguous_alias_*; the adjectival-compound guard by
+    test_adjectival_compound_is_not_a_mention (both cases); the phrase channel
+    by the test_phrase_* cases, test_phrase_not_matched_on_heading_line and
+    test_phrase_context_excludes_section_body.
     """
 
     BUILD = "tools/build-provision-index.py"
@@ -28855,6 +28876,9 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_longest_alias_wins(self) -> None:
         self.assertEqual(self.scan("UK GDPR Art. 33(1)")[0][0], "UK GDPR Art. 33")
+        # Kills removing the longest-first sort in ALIAS_RE: "NIS 2" would match first and
+        # leave "Directive" to refuse the inference.
+        self.assertEqual(self.scan("NIS 2 Directive Article 4")[0][0], "NIS2 Art. 4")
 
     def test_postfix_alias(self) -> None:
         self.assertEqual(self.scan("Article 33 of the GDPR")[0][:2], ("GDPR Art. 33", "33"))
@@ -28915,6 +28939,10 @@ class ProvisionIndexTests(LinterTestCase):
     def test_adjectival_compound_is_not_a_mention(self) -> None:
         got = self.scan("the LFPDPPP has no GDPR-style basis (Articles 21 to 22)")
         self.assertEqual([k for k, _p, _t in got], ["LFPDPPP Art. 21", "LFPDPPP Art. 22"])
+        # Kills narrowing the compound guard back to a lowercase letter after the hyphen
+        # (privacy/template-joint-controller-arrangement.md:25, "GDPR-Article-26-style").
+        got = self.scan("the LGPD has no GDPR-Article-26-style duty: Article 5 defines the controller")
+        self.assertEqual(got, [("LGPD Art. 5", "5", "line")])
 
     def test_phrase_candidate_on_uncited_line(self) -> None:
         got = self.scan("| PIPEDA | breach notification (real risk of significant harm) |")
@@ -28935,6 +28963,142 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.pc.parse_key("GDPR art 33"), None)
         self.assertEqual(self.pc.parse_key("GDPR Art 33"), "GDPR Art. 33")
         self.assertIsNone(self.pc.parse_key("Article 12(5)"))
+
+    def test_year_not_absorbed_as_continuation(self) -> None:
+        # Kills removing _NOT_YEAR from CITE_RE ("2018" would read as a section).
+        self.assertEqual(self.scan("GDPR Arts. 33 and 2018"), [("GDPR Art. 33", "33", "explicit")])
+
+    def test_range_span_bound(self) -> None:
+        # Kills removing the MAX_RANGE_SPAN cap: only the endpoints of a too-wide range index.
+        self.assertEqual(len(self.scan("GDPR Arts. 1 to 99")), 2)
+
+    def test_lettered_endpoints_not_expanded(self) -> None:
+        # Kills replacing expand_body's isdigit() guards with True (int("22A") would raise).
+        got = self.scan("UK GDPR Arts. 22A-22D")
+        self.assertEqual([k for k, _p, _t in got], ["UK GDPR Art. 22A", "UK GDPR Art. 22D"])
+
+    def test_letter_suffix_sections_preserved(self) -> None:
+        # Kills reverting _NUM's letter suffixes: LGPD Art. 55-A is not Art. 55
+        # (privacy/jurisdictions/annex-privacy-brazil.md:29), and Art. 4a is not Art. 4
+        # (privacy/jurisdictions/annex-privacy-european-union.md:38).
+        self.assertEqual(self.scan("LGPD Article 55-A")[0][0], "LGPD Art. 55-A")
+        self.assertEqual(self.scan("Article 4a of the GDPR")[0][:2], ("GDPR Art. 4a", "4a"))
+
+    def test_slash_list_expands(self) -> None:
+        # Kills removing "/" from _SEP (compliance/financial-services/
+        # annex-financial-services-sector-requirements.md:77 lost SOX s. 404).
+        self.assertEqual([k for k, _p, _t in self.scan("Sarbanes-Oxley Act Section 302/404")],
+                         ["SOX s. 302", "SOX s. 404"])
+
+    def test_en_dash_range_expands(self) -> None:
+        # Kills removing the en-dash from _SEP and _BODY_TOKEN_RE's range token.
+        self.assertEqual([k for k, _p, _t in self.scan("GDPR Arts. 44–49")],
+                         ["GDPR Art. %d" % n for n in range(44, 50)])
+
+    def test_percent_and_hyphenated_unit_not_absorbed(self) -> None:
+        # Kills reverting _UNIT's boundary: "\b" never matched after "%", and a
+        # hyphenated duration ("72-hour") was absorbed as a section.
+        self.assertEqual(len(self.scan("GDPR Art. 33 and 20% of revenue")), 1)
+        self.assertEqual(len(self.scan("GDPR Art. 33 and 72-hour notice")), 1)
+
+    def test_prefix_alias_wins_over_bracketed_postfix(self) -> None:
+        # Kills restoring postfix-before-prefix resolution order.
+        self.assertEqual(self.scan("GDPR Art. 33 (UK GDPR)")[0][0], "GDPR Art. 33")
+
+    def test_postfix_bracket_alias_must_close(self) -> None:
+        # Kills removing _POSTFIX_CLOSE_RE: in "section 3.9 (MiCA Article 35(1))" the bracket
+        # opens a SEPARATE citation, and the internal "section 3.9" keyed to MiCA as explicit
+        # (crypto/standard-crypto-asset-reserve-and-prudential-requirements.md:73).
+        got = self.scan("calculated per the fixed-overheads method of section 3.9 (MiCA Article 35(1)).")
+        self.assertEqual(got, [("MiCA Art. 35", "35(1)", "explicit")])
+        # Kills removing the bracket lead itself (privacy/annex-privacy-jurisdiction-index.md:120).
+        self.assertEqual(self.scan("Cabinet decision under Art 26 (PDPL)")[0],
+                         ("PDPL (jurisdiction unresolved) Art. 26", "26", "explicit"))
+
+    def test_postfix_alias_jurisdiction_from_full_line(self) -> None:
+        # Kills resolving a postfix alias against the post-citation substring only, which
+        # discarded the jurisdiction words before the citation.
+        self.assertEqual(self.scan("Singapore: Article 26 of the PDPA")[0][0], "PDPA (Singapore) s. 26")
+
+    def test_line_tier_requires_single_instrument(self) -> None:
+        # Kills reverting the line tier to the last earlier alias: a row naming two
+        # instruments is refused, not keyed to the second one (governance/
+        # register-document-index-and-classification.md:160 and the "GDPR / UK GDPR" rows).
+        self.assertEqual(self.scan("| GDPR / UK GDPR | processor terms (Article 28) |"),
+                         [(None, "28", "unresolved")])
+        self.assertEqual(self.scan("EU GDPR Art 5/6 (UK GDPR: no Art 88 equivalent)"),
+                         [("GDPR Art. 5", "5", "explicit"), ("GDPR Art. 6", "6", "explicit"),
+                          (None, "88", "unresolved")])
+
+    def test_law_word_with_number_refuses_inference(self) -> None:
+        # Kills dropping the optional number after a law word in _FOREIGN_PREFIX_RE
+        # (privacy/jurisdictions/annex-privacy-vietnam.md:69: "Decree 356 Art. 20" is not PDPL).
+        got = self.scan("- **Updating (PDPL Art. 22; Decree 356 Art. 20):**",
+                        "privacy/jurisdictions/annex-privacy-vietnam.md")
+        self.assertEqual(got, [("PDPL (Vietnam) Art. 22", "22", "explicit"),
+                               (None, "20", "unresolved")])
+
+    def test_year_prefix_does_not_refuse_inference(self) -> None:
+        # Kills removing the letter/slash lookahead from _FOREIGN_PREFIX_RE's identifier
+        # branch (a bare year before the marker is not a foreign identifier).
+        self.assertEqual(self.scan("## PIPEDA\n\nIn 2018 s. 5 was amended.\n"),
+                         [("PIPEDA s. 5", "5", "heading")])
+
+    def test_of_that_instrument_refuses_inference(self) -> None:
+        # Kills narrowing _OF_THIS_RE back to "this" (crypto/standard-crypto-asset-reserve-
+        # and-prudential-requirements.md:73: "Article 36 of that Regulation" is the CRR).
+        got = self.scan("MiCA Article 35(1) applies the deductions pursuant to Article 36 of that Regulation.")
+        self.assertEqual(got, [("MiCA Art. 35", "35(1)", "explicit"), (None, "36", "unresolved")])
+
+    def test_of_other_instrument_refuses_inference(self) -> None:
+        # Kills removing the _OF_OTHER_RE refusal ("of the Charter" names the instrument).
+        self.assertEqual(self.scan("## PIPEDA\n\nArticle 5 of the Charter applies.\n"),
+                         [(None, "5", "unresolved")])
+
+    def test_trailing_instrument_word_refuses_inference(self) -> None:
+        # Kills removing _POST_INSTRUMENT_RE (governance/register-canonical-citations.md:140:
+        # "Article 29(7) Regulation (EU) 2018/1725" is not the GDPR named earlier).
+        got = self.scan("SCCs under Article 28(7) GDPR and Article 29(7) Regulation (EU) 2018/1725")
+        self.assertEqual(got, [("GDPR Art. 28", "28(7)", "explicit"), (None, "29(7)", "unresolved")])
+
+    def test_anaphoric_reference_refuses_inference(self) -> None:
+        # Kills removing _ANAPHOR_RE (crypto/...:73 "of its Articles 46 and 48" is the CRR;
+        # ai/jurisdictions/annex-ai-us-california.md:25 "whose Article 11" is 11 CCR).
+        got = self.scan("MiCA Article 35(1); the CRR applies without the threshold exemptions "
+                        "of its Articles 46 and 48.")
+        self.assertEqual(got, [("MiCA Art. 35", "35(1)", "explicit"),
+                               (None, "46", "unresolved"), (None, "48", "unresolved")])
+
+    def test_foreign_citation_poisons_line_inference(self) -> None:
+        # Kills removing the poisoned flag (privacy/template-dsar-workflow.md:87: bare
+        # "(s. 7026(f))" is an 11 CCR section, not the CCPA / CPRA named earlier on the row).
+        got = self.scan("| CCPA / CPRA | 45 days (11 CCR s. 7021), while an opt-out of sale "
+                        "(s. 7026(f)) runs shorter |")
+        self.assertEqual(got, [(None, "7021", "unresolved"), (None, "7026(f)", "unresolved")])
+
+    def test_conflicting_heading_and_body_context_refuses(self) -> None:
+        # Kills reverting _context to innermost-body-before-outer-heading (privacy/
+        # template-dpa-article-28.md:27: a bare "Article 28(9)" under a GDPR document
+        # heading read as PIPEDA s. 28 from a body mention).
+        text = ("# Data Processing Agreement Template (GDPR Article 28)\n\n## Purpose\n\n"
+                "It also accommodates PIPEDA equally.\n\nIt must be in writing (Article 28(9)).\n")
+        self.assertEqual(self.scan(text)[-1], (None, "28(9)", "unresolved"))
+        text = ("# Data Processing Agreement Template (GDPR Article 28)\n\n## Purpose\n\n"
+                "It implements the GDPR contract duty.\n\nIt must be in writing (Article 28(9)).\n")
+        self.assertEqual(self.scan(text)[-1], ("GDPR Art. 28", "28(9)", "heading"))
+
+    def test_heading_line_citation_ignores_own_heading_instrument(self) -> None:
+        # Kills passing the full stack (instead of the parents) for a heading-line citation.
+        text = "# PIPEDA Annex\n\n## Breach duties (s. 10.1) and PPCDA alignment\n"
+        self.assertEqual(self.scan(text), [("PIPEDA s. 10.1", "10.1", "heading")])
+
+    def test_phrase_not_matched_on_heading_line(self) -> None:
+        # Kills removing the not-heading guard on the phrase channel.
+        self.assertEqual(self.scan("## Canada (PIPEDA)\n\n### A real risk of significant harm\n"), [])
+
+    def test_phrase_context_excludes_section_body(self) -> None:
+        # Kills removing body=False from the phrase-channel context lookup.
+        self.assertEqual(self.scan("## Breach\n\nPIPEDA applies.\n\nA real risk of significant harm.\n"), [])
 
     def _pair(self) -> tuple:
         a = self.make_fixture("breach-a.md", "# A\n\nNotify the OPC (PIPEDA s. 10.1(1)).\n")
