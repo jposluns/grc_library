@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.12\
-**Date:** 2026-09-29\
+**Version:** 1.2.13\
+**Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -66,7 +66,7 @@ The United States does not have a single comprehensive federal privacy law. Obli
 
 ### FTC AI enforcement themes
 
-Recurring themes in FTC AI-related enforcement actions and business guidance (a characterization, not an FTC-published list; not held in the reference base): <!-- ref-absence: FTC AI enforcement themes -->
+Recurring themes in FTC AI-related enforcement actions and business guidance (a characterization, not an FTC-published list; not held in the reference base): <!-- ref-absence: FTC AI | Federal Trade Commission artificial intelligence -->
 
 - AI systems making false or unsubstantiated capability claims.
 - AI used to manipulate consumers or engage in dark patterns.

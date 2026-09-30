@@ -1288,6 +1288,63 @@ class RefAbsenceClaimsTests(LinterTestCase):
         super().assertLinterFails(result, needle)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
+    def test_manual_absence_annotations_are_not_orphans(self) -> None:
+        claims = (
+            "The reference base carries no copy of X.",
+            "Nor is X held in the reference base.",
+            "Nor is the implementing decree held.",
+            "The decree is not held.",
+            "The decree is absent from it.",
+            "The decree is not included among the many other sources "
+            "that have already been acquired for the reference base.",
+            "The held texts of the decree as officially published last year "
+            "do not include X.",
+            "Neither decree is held in the reference base.",
+            "The reference base lacks X.",
+            "X is absent from the reference base, so an adopter\n"
+            "checks the issuing authority\n"
+            "before relying on it.",
+        )
+        for claim in claims:
+            for separator in (" ", "\n"):
+                for query in ("NONESUCH-99999", "27002"):
+                    with self.subTest(claim=claim, separator=separator, query=query):
+                        fixture = self.make_fixture(
+                            "annex-manual-absence.md",
+                            claim + separator + f"<!-- ref-absence: {query} -->\n",
+                        )
+                        result = run_linter(self.SCRIPT, fixture)
+                        self.assertNotIn("orphan", result.stdout)
+                        if query == "27002":
+                            self.assertLinterFails(result, "STALE")
+                        else:
+                            self.assertEqual(result.returncode, 0,
+                                             result.stdout + result.stderr)
+        for prose in ("The reference base carries a copy of X.",
+                      "X is held in the reference base.",
+                      "Consult the reference base."):
+            fixture = self.make_fixture(
+                "annex-no-absence.md",
+                prose + " <!-- ref-absence: NONESUCH-99999 -->\n",
+            )
+            self.assertLinterFails(run_linter(self.SCRIPT, fixture), "orphan")
+
+    def test_only_atx_headings_end_paragraph_before_indent(self) -> None:
+        claim = "    The decree is not held in the reference base.\n"
+        for prefix in ("| c | d |", "#tag line", "####### heading",
+                       "#", "######", "# Heading", "###### Heading"):
+            with self.subTest(prefix=prefix):
+                fixture = self.make_fixture(
+                    "annex-indent-after-block.md", prefix + "\n" + claim,
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                if prefix in ("| c | d |", "#tag line", "####### heading"):
+                    self.assertLinterFails(result, "no adjacent")
+                    self.assertIn(":2:", result.stdout)
+                else:
+                    self.assertEqual(result.returncode, 0,
+                                     result.stdout + result.stderr)
+
     def test_multiline_markers_are_checked(self) -> None:
         claim = "X is not held in the reference base.\n"
         for body, expected in (

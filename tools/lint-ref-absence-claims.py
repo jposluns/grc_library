@@ -265,13 +265,21 @@ COLLECTION_SUBJECT_TRIGGER_RE = re.compile(
     r"(?:[\w'-]+\s+){0,2}?(?:lacks|omits)\b",
     re.IGNORECASE,
 )
-# Every trigger family the near-miss net and the rule-2 claim-line
-# accounting consult, in one place.
+# Every trigger family the advisory near-miss net consults.
 TRIGGER_RES = (
     NEAR_MISS_TRIGGER_RE,
     NEGATIVE_SUBJECT_TRIGGER_RE,
     COLLECTION_SUBJECT_TRIGGER_RE,
 )
+# Manual annotations cover documented residue without widening the advisory
+# net. Require an absence wording; collection vocabulary alone is not a claim.
+MANUAL_ABSENCE_RE = re.compile(
+    r"\b(?:carries|carry)\s+no\s+copy\s+of\b"
+    r"|\bnor\s+(?:is|are|was|were)\b[^.!?]*?\b"
+    r"(?:held|included|present|available|indexed|stored)\b",
+    re.IGNORECASE,
+)
+ANNOTATABLE_TRIGGER_RES = (*TRIGGER_RES, MANUAL_ABSENCE_RE)
 # Distinguishes the "held"/"hold" trigger wordings (which may use the
 # held-text context legitimately) from the rewordings, which may not.
 HELD_VERB_RE = re.compile(r"\bh[eo]ld\b", re.IGNORECASE)
@@ -482,7 +490,7 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
             continue
         out.append((lineno, depth, content))
         comment_open = _comment_open(content)
-        paragraph = bool(content.strip()) and not re.match(r"^ {0,3}(?:#|\|)", content)
+        paragraph = bool(content.strip()) and not re.match(r"^ {0,3}#{1,6}(?: |$)", content)
     return out
 
 
@@ -613,15 +621,16 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
             claims.append(dict(phrase_end=end, next_start=next_start,
                                end_line=end_line,
                                block=block_id, covered=False))
-        for trigger_re in TRIGGER_RES:
+        for trigger_re in ANNOTATABLE_TRIGGER_RES:
             for m in trigger_re.finditer(joined):
                 # Any trigger line is annotatable (rule 2): a marker beside
                 # a bare paraphrase the net does not flag is still no
                 # orphan; and a trigger line has a claim of ITS OWN, so a
                 # marker there never binds to the claim above (rule 1).
-                for edge in (m.start(), m.end() - 1):
-                    claim_lines.add(line_at(edge))
-                    trigger_lines.add(line_at(edge))
+                sentence = SENTENCE_END_RE.search(joined, m.end())
+                sent_end = sentence.end() if sentence else len(joined)
+                claim_lines.update(range(line_at(m.start()), line_at(sent_end - 1) + 1))
+                trigger_lines.update(range(line_at(m.start()), line_at(m.end() - 1) + 1))
         for offset, snippet in near_miss_hits(joined, spans):
             findings.append(
                 f"ADVISORY: {rel}:{line_at(offset)}: non-canonical reference-absence phrasing "
