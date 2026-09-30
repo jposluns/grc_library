@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.37\
+**Version:** 1.3.38\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ Encryption keys rotated at least every 90 days for Restricted data and annually 
 
 ### 5.5 Key destruction
 
-Retired or expired keys destroyed by zeroization (the recommended key sanitization technique per NIST SP 800-88 Rev. 2), except that a data-encryption key is retained until the data it protects has been re-encrypted under a new key or destroyed, and a key-wrapping key is retained while any key it protects is still needed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6). A key that protects data under a legal hold or investigation, directly or through a key it wraps, is also retained until Legal Counsel, in writing, releases the hold or confirms that the investigation no longer requires the key. The [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md) section 7 sets out the check and release. Destruction events logged in the Key Lifecycle Register and retained for seven years.
+Retired or expired keys destroyed by zeroization (the recommended key sanitization technique per NIST SP 800-88 Rev. 2), except that a data-encryption key is retained until the data it protects has been re-encrypted under a new key or destroyed, and a key-wrapping key is retained while any key it protects is still needed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6). A key that protects data under a legal hold or investigation, directly or through a key it wraps, is also retained until Legal Counsel, in writing, releases or narrows the hold or confirms that the investigation no longer treats that data or the key as evidence. The [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md) section 7 sets out the check and release. Destruction events logged in the Key Lifecycle Register and retained for seven years.
 
 ---
 
