@@ -144,6 +144,50 @@ counts by PRESENCE whatever its Mechanism cell says, so a future protection chan
 permits a plain merge is recorded honestly rather than forced to keep reading
 `--admin`. An empty or absent log no-ops rather than flagging the whole history.
 
+**Store scope (rows and Check 3; maintainer ruling 2026-09-30 17:07Z, option B,
+simplified 21:03Z).** The operational store is shared by every open branch, so the
+per-PR row-integrity pass and Check 3 can see another open PR's in-flight rows and
+mirror entry. Those two passes defer an entry only after this branch DECLARES its own
+PR: the single new singular root ``CHANGELOG.md`` header naming a PR absent from the
+merge-base root headers, from origin/main's root headers and from origin/main's
+``(#N)`` and ``Merge pull request #N`` commit subjects
+(``lint_common.own_pr_declaration``). No other ref is consulted. Historical header
+edits, roll-ups, a merged PR's header, a second new identity, a combined identity,
+an unparseable or unrecognized new header, and any fence or HTML-comment delimiter
+at or above the candidate declare nothing. No declaration, or an unreadable
+merge-base changelog, origin/main changelog or origin/main log, means no deferral
+and a printed note.
+
+The shared ``StoreScope`` always protects the own PR and every PR covered by this
+branch's root headers, origin/main's root headers or origin/main's merge subjects,
+range interiors included, so a missing or wrong record for a merged PR or for the
+own PR is never deferred (a merged PR that took a D1 ``Changelog:`` trailer instead
+of a root entry is protected by its merge subject). Another entry can defer when
+every PR it names exceeds the ceiling ``max(declared own PR, highest root header
+PR)``, or when every named PR is another open PR absent from all of that evidence.
+origin/main is read offline, from the local remote-tracking ref, so merged means
+reachable from that ref: a PR merged after the last fetch reads as open, and its
+deferral is printed like every other.
+
+Every reader takes its text raw; nothing is masked. One shared, case-insensitive
+grammar (``lint_common.STORE_PR_IDENTITY_RE``) reads every PR identity and every
+range, so identity and range extraction cannot disagree and a range written with a
+lowercase ``pr`` label protects its interior like any other. Register rows defer
+only on a complete, certain identity (``store_row_prs`` for retro rows,
+``store_history_prs`` for history rows, both carrying range interiors); an identity
+with a prose tail is evaluated. In the mirror, an unknown or ambiguous boundary, a
+header-shaped line the boundary grammar cannot read, and a fence or comment
+delimiter disable deferral for the rest of the file, so an example cannot hide a
+later marker and an unrecognized header is never swallowed into the deferred entry
+above it. Open-PR deferral also reaches entries below the own entry. A plain,
+unmarked header lookalike is indistinguishable from a real entry, including inside
+the own entry, where it can defer the lines below it. Likewise, an open PR's header
+carried onto a stacked branch that has not yet written its own entry reads offline
+as the own entry and declares, so that branch's own records can defer until it
+writes one. Both residues are loud, because every deferral prints its location,
+named PRs, reason and the declared own PR. Checks 1, 2, 4, 5 and 6 are not scoped:
+Checks 1 and 6 keep their existing windows without filtering.
+
 The `.working/` inputs and graceful degradation. Five of the six checks read
 maintainer-only working state (the validate-pr and improvement-log registers,
 the merge-bypass log, the detailed CHANGELOG mirror, the deep-assessment
@@ -172,7 +216,7 @@ import sys
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, dynamic_floor, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT, StoreScope, STORE_PR_IDENTITY_RE, changelog_entry_boundary, above_store_ceiling, store_deferral_note, store_history_prs, store_row_prs, dynamic_floor, resolve_working, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
 
 CHANGELOG_PATH = "CHANGELOG.md"
@@ -418,10 +462,12 @@ PR_RANGE_TOKEN = re.compile(r"#(\d+)(?!\d|\.\d)(?:\s*-\s*#(\d+)(?!\d|\.\d))?")
 # built, because it is `prs.update(range(...))` that materializes (the `range` itself is lazy), so
 # a mistyped bound would otherwise exhaust memory instead of producing a finding.
 MAX_HEADER_SPAN = 5000
-FENCED_BLOCK = re.compile(r"^```.*?^```", re.MULTILINE | re.DOTALL)
-# A commented-out header is not an entry either. Probed: an HTML-commented compact header
-# contributed its PRs to the audit universe before this.
-HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+# NO example strip anywhere in this gate (orchestrator decision 2026-09-30 14:51Z, superseding
+# the W5-era FENCED_BLOCK / HTML_COMMENT strip this gate used to apply to its audit universe and
+# its register records): every reader takes the text RAW. A fenced or commented header lookalike
+# now counts toward the audit universe, and a row lookalike counts as a row, which can only ADD
+# loud demands or findings (the safe direction); a mask, by contrast, was shown to HIDE real rows
+# (r4 QA: literal `<!--` / `-->` tokens in two rows' prose swallowed every row between them).
 
 
 def parse_changelog_prs(text: str) -> set[int]:
@@ -442,11 +488,13 @@ def parse_changelog_prs(text: str) -> set[int]:
     2026-09-28 for #1826-#2639: every number there with no merge commit is in KNOWN_SKIPPED_PRS;
     the older part of the window was not re-measured then.) The declared `(N PRs)` count, where a form carries one, is not relied on here; the
     weekly forms carry none.
+
+    RAW read, no example strip (orchestrator decision 2026-09-30 14:51Z, superseding the W5
+    strip): a fenced or HTML-commented header lookalike counts toward the universe like any
+    other header, so an example can only ADD loud row demands, never remove one; and because
+    the store-scope ceiling reads the SAME raw text with the same cell grammar,
+    ``max(changelog)`` still never exceeds the ceiling.
     """
-    # W5: a fenced example is documentation, not an entry. Before this, a header inside ``` in
-    # the CHANGELOG contributed its PRs to the audit universe, so illustrating the format could
-    # silently widen what the gate demands rows for. Strip fenced blocks before matching.
-    text = FENCED_BLOCK.sub("", HTML_COMMENT.sub("", text))
     prs: set[int] = set()
     for match in CHANGELOG_PR_HEADER.finditer(text):
         body = match.group("a") or match.group("b") or match.group("c") or ""
@@ -535,7 +583,7 @@ def parse_retro_prs(text: str) -> set[int]:
 # (``#2429 iteration``, ``1329 addendum``, ``#10, #11 addendum``), so a PR cell that merely
 # describes an addendum (``#10 (addendum detector fix)``) is not a companion.
 COMPANION_PR_CELL = re.compile(
-    r"^(?:PR\s+)?#?\d+(?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+)*\s+(?:iteration|addendum)\b", re.IGNORECASE
+    STORE_PR_IDENTITY_RE.pattern + r"\s+(?:iteration|addendum)\b", re.IGNORECASE
 )
 ROW_PENDING_CELL = re.compile(
     r"^\**\s*(?:IN[\s-]PROGRESS|DISPATCHED|RESULT\s+PENDING|PENDING)\b", re.IGNORECASE
@@ -548,20 +596,6 @@ ROW_PENDING_CELL = re.compile(
 # suppressed when RETURNED appears in any cell from c[4] on (not the Touched/Families cell c[3]) (a legacy row can carry RETURNED in Findings
 # and stale pending prose in Hot-fix, e.g. history.md:653). Residue: a pending-worded Hot-fix cell
 # on a row with no RETURNED anywhere reads pending; it only matters when the PR has another row.
-# The leading run of PR tokens at the START of a retro PR cell (``#10, #11 addendum (/retro)``);
-# later PR mentions in the cell are prose, not the row's identity.
-LEADING_PR_RUN = re.compile(
-    r"^(?:PR\s+)?#?(\d+)" + PR_NUM_BOUNDARY
-    + r"((?:\s*(?:[,&]|-(?=#))\s*(?:PR\s+)?#?\d+" + PR_NUM_BOUNDARY + r")*)"
-)
-RETRO_PR_CELL = re.compile(r"^(?:PR\s+)?#?\d")
-
-
-def _mask_examples(text: str) -> str:
-    """Blank fenced blocks and HTML comments, preserving line count (examples are not records)."""
-    def blank(m: "re.Match[str]") -> str:
-        return re.sub(r"[^\n]", " ", m.group(0))
-    return FENCED_BLOCK.sub(blank, HTML_COMMENT.sub(blank, text))
 
 
 def _disposition_candidates(c: list[str]) -> list[str]:
@@ -569,17 +603,29 @@ def _disposition_candidates(c: list[str]) -> list[str]:
 
 
 def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
-    """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row."""
+    """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row.
+
+    RAW read, no example masking (orchestrator decision 2026-09-30 14:51Z): a fenced or
+    commented row lookalike is a record like any other (a loud duplicate at worst), because the
+    old blanking pass was shown to do the opposite of documentation-hygiene: a literal ``<!--``
+    in one row's prose and a ``-->`` in a later row's swallowed every REAL row between them.
+
+    The keys stay this register's own PR tokens; they travel as a ``StorePRs`` carrying the
+    cell's complete identity, its certainty and its range interiors, so a combined or ranged
+    row that names the own PR or a merged PR (``#2660-#2662`` around own #2661) is evaluated,
+    never deferred on its endpoints alone.
+    """
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
+    for lineno, line in enumerate(text.splitlines(), 1):
         if not TABLE_ROW.match(line):
             continue
         c = cells(line)
         if len(c) < 5:
             continue
-        prs = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
-        if not prs:
+        keys = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
+        if not keys:
             continue
+        prs = store_history_prs(c[2], keys)
         if HANDOFF_FINDINGS.search(c[4]):
             kind = "handoff"
         elif is_subsumption_findings(c[4]):
@@ -593,29 +639,39 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
 
 
 def _retro_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
-    """Every retro data row whose PR cell starts with a PR token; the LEADING run of PR tokens is
-    the row's identity (a combined ``#10, #11`` cell names both; later mentions are prose)."""
+    """Every raw retro data row whose PR cell opens with a PR identity.
+
+    The complete leading identity is the row's key set (``#10, #11 addendum (/retro)``,
+    ``#2652 and #2650`` and ``#2650-2652`` name both PRs); later mentions in the cell are prose,
+    not the identity, and a prose tail makes the identity uncertain, so it cannot defer.
+    """
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(_mask_examples(text).splitlines(), 1):
+    for lineno, line in enumerate(text.splitlines(), 1):
         if not TABLE_ROW.match(line):
             continue
         c = cells(line)
-        if len(c) < 3 or not RETRO_PR_CELL.match(c[2]):
+        if len(c) < 3:
             continue
-        m = LEADING_PR_RUN.match(c[2])
-        if not m:
+        prs = store_row_prs(c[2])
+        if not prs:
             continue
-        prs = sorted({int(x) for x in re.findall(r"\d+", m.group(0))})
         out.append((lineno, prs, "", bool(COMPANION_PR_CELL.match(c[2])), False))
     return out
 
 
 def row_integrity_findings(
-    records: list[tuple[int, list[int], str, bool, bool]], register: str
+    records: list[tuple[int, list[int], str, bool, bool]], register: str, *, ceiling: int | StoreScope | None = None
 ) -> list[str]:
-    """One grouped finding per PR whose rows in ``register`` break the one-canonical-row rule."""
+    """One grouped finding per PR whose rows in ``register`` break the one-canonical-row rule.
+
+    With a ``ceiling`` (an integer or the shared ``StoreScope``), a row the shared decision
+    defers is set aside WHOLE, before grouping; a row naming any protected PR is kept whole and
+    counts under every key it names.
+    """
     by_pr: dict[int, list[tuple[int, str, bool, bool]]] = {}
     for lineno, prs, kind, companion, pending in records:
+        if above_store_ceiling(prs, ceiling):
+            continue
         for pr in prs:
             by_pr.setdefault(pr, []).append((lineno, kind, companion, pending))
     findings: list[str] = []
@@ -644,6 +700,20 @@ def row_integrity_findings(
         if reasons:
             findings.append(f"  [row-integrity] PR #{pr}: {register} lines {lines}: " + "; ".join(reasons) + ".")
     return findings
+
+
+def _deferred_prs(records: list[tuple[int, list[int], str, bool, bool]], ceiling: int | StoreScope | None) -> set[int]:
+    """PRs named by rows eligible for deferral under the shared scope."""
+    return {pr for _lineno, prs, *_rest in records if above_store_ceiling(prs, ceiling) for pr in prs}
+
+
+def _deferred_mirror_prs(detailed_text: str, ceiling: int | StoreScope | None) -> set[int]:
+    """PRs deferred by the same mirror flags as the provenance check."""
+    out: set[int] = set()
+    for deferred, prs in store_deferral_flags(detailed_text.split("\n"), ceiling):
+        if deferred:
+            out.update(prs)
+    return out
 
 
 BYPASS_ROW_PR = re.compile(r"^\|[^|]*\|\s*#(\d+)\s*\|")
@@ -941,7 +1011,7 @@ WORKER_PROVENANCE_RE = re.compile(
 INBOX_PATH_RE = re.compile(r"\binbox/[A-Za-z0-9._-]+/\S*")
 
 
-def worker_provenance_findings(detailed_text: str) -> list[str]:
+def worker_provenance_findings(detailed_text: str, *, ceiling: int | StoreScope | None = None) -> list[str]:
     """Check 3 (active): worker-delivered-diff provenance attestation.
 
     A PR that applies a scratch-inbox worker delivery marks its
@@ -960,9 +1030,21 @@ def worker_provenance_findings(detailed_text: str) -> list[str]:
     WORKER-ONBOARDING flow) and this marking convention both existed. See
     the "Bookkeeping-parity gate, pinned design" entry in
     the design-decisions record.
+
+    Store scope: a marker is skipped only inside an entry the shared ``store_deferral_flags``
+    defer (another open PR's in-flight entry, printed as a note by ``main``). Every other raw
+    marker is checked, including markers in the preamble, the own entry, merged entries, and
+    everything after an example delimiter or an unrecognized header.
     """
     findings: list[str] = []
-    for match in WORKER_PROVENANCE_RE.finditer(detailed_text):
+    lines = detailed_text.split("\n")
+    flags = store_deferral_flags(lines, ceiling)
+    for line, (deferred, _scope_prs) in zip(lines, flags):
+        match = WORKER_PROVENANCE_RE.match(line)
+        if match is None:
+            continue
+        if deferred:
+            continue
         value = match.group(1).strip()
         if not INBOX_PATH_RE.search(value):
             findings.append(
@@ -986,7 +1068,8 @@ def main() -> int:
     bypass_path = resolve_working("merge-bypass-log.md")
 
     try:
-        changelog = parse_changelog_prs(read(CHANGELOG_PATH)) - KNOWN_SKIPPED_PRS
+        changelog_text = read(CHANGELOG_PATH)
+        changelog = parse_changelog_prs(changelog_text) - KNOWN_SKIPPED_PRS
         todo_text = read(TODO_PATH)
         vp_text = vp_path.read_text(encoding="utf-8") if vp_path else None
         retro_text = retro_path.read_text(encoding="utf-8") if retro_path else None
@@ -1002,6 +1085,10 @@ def main() -> int:
 
     all_findings: list[str] = []
     skipped: list[str] = []
+    scope = store_scope(changelog_text)
+    ceiling = scope
+    if scope.note:
+        print(f"note: {scope.note}")
 
     # Check 1 needs BOTH registers. With either absent, that register's
     # effective floor collapses to INCEPTION and EVERY in-window PR is flagged
@@ -1013,9 +1100,17 @@ def main() -> int:
     if vp_text is None and retro_text is None:
         skipped.append("per-PR row integrity")
     if vp_text is not None:
-        all_findings.extend(row_integrity_findings(_history_row_records(vp_text), "validate-pr/history.md"))
+        vp_records = _history_row_records(vp_text)
+        for lineno, prs, *_ in vp_records:
+            if above_store_ceiling(prs, scope):
+                print(store_deferral_note(prs, scope, "validate-pr/history.md", lineno))
+        all_findings.extend(row_integrity_findings(vp_records, "validate-pr/history.md", ceiling=ceiling))
     if retro_text is not None:
-        all_findings.extend(row_integrity_findings(_retro_row_records(retro_text), "improvement-log.md"))
+        retro_records = _retro_row_records(retro_text)
+        for lineno, prs, *_ in retro_records:
+            if above_store_ceiling(prs, scope):
+                print(store_deferral_note(prs, scope, "improvement-log.md", lineno))
+        all_findings.extend(row_integrity_findings(retro_records, "improvement-log.md", ceiling=ceiling))
 
     if vp_text is None or retro_text is None:
         skipped.append(f"QA-cadence parity (from PR #{INCEPTION})")
@@ -1041,7 +1136,12 @@ def main() -> int:
     if detailed_text is None:
         skipped.append("worker-provenance attestation")
     else:
-        all_findings.extend(worker_provenance_findings(detailed_text))
+        lines = detailed_text.split("\n")
+        flags = store_deferral_flags(lines, scope)
+        for lineno, ((deferred, prs), line) in enumerate(zip(flags, lines), 1):
+            if deferred and changelog_entry_boundary(line):
+                print(store_deferral_note(prs, scope, "changelog-details/CHANGELOG-detailed.md", lineno))
+        all_findings.extend(worker_provenance_findings(detailed_text, ceiling=ceiling))
 
     if register_text is None:
         skipped.append("deep-assessment register row-order")

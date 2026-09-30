@@ -52,6 +52,7 @@ import subprocess
 import sys
 from collections.abc import Iterable, Iterator
 from pathlib import Path
+from typing import NamedTuple
 
 # Repository root: the parent of ``tools/``.
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
@@ -1320,6 +1321,437 @@ def dynamic_floor(present: Iterable[int], floor: int) -> int:
     """
     entries = list(present)
     return max(floor, min(entries)) if entries else floor
+
+
+# --- Store-scope ceiling (maintainer option B, 2026-09-30 17:07Z; simplified 21:03Z) ---
+# A declaration enables deferral: the single new singular root header whose PR is absent from
+# the merge-base root headers and from origin/main's root headers and merge subjects. No other
+# ref is consulted. Historical edits, roll-ups, a merged PR's header and example headers do not
+# declare an own PR. Read origin/main locally, without fetching or API calls. Readers retain
+# raw lines; uncertainty widens evaluation. The invariant: a missing or wrong record for a
+# merged PR or for the branch's own PR is never deferred, and ambiguity fails closed (no
+# deferral).
+#
+# ONE shared, case-insensitive PR-identity grammar reads every identity (root and mirror header
+# cells and register rows alike) and, from the same matched text, every range, so identity and
+# range extraction cannot disagree (round-7 R7-01: a lowercase `pr` range was a certain identity
+# with no range spans). `\w` is Unicode-aware, so a digit run running into a Unicode letter
+# (`1309\u00e9`) is no PR number; a hyphen continues an identity only into `#` or a digit:
+# `1309-REVERTED` is no identity, while `#10-#x` keeps `#10` with an uncertain tail. A `-`
+# connector between two numbers is a range.
+_STORE_PR_NUM = r"#?\d+(?!\w|\.\d|-(?!#|\d))"
+_STORE_PR_LABEL = r"(?:PRs?\s+)?"
+_STORE_PR_IDENTITY = (
+    _STORE_PR_LABEL + _STORE_PR_NUM
+    + r"(?:(?:\s*(?:[,&]|\band\b|-))+\s*" + _STORE_PR_LABEL + _STORE_PR_NUM + r")*"
+)
+STORE_PR_IDENTITY_RE = re.compile("^" + _STORE_PR_IDENTITY, re.IGNORECASE)
+# The same grammar, unanchored, for the over-read (ceiling and protection) side: every identity
+# run that opens on `#`.
+_STORE_PR_RUN_RE = re.compile(r"(?=#)" + _STORE_PR_IDENTITY, re.IGNORECASE)
+# In text the grammar matched, digits are only PR numbers and `-` is only a range connector.
+_STORE_PR_PART_RE = re.compile(r"\d+|-")
+# The three root and mirror header forms. Their dates and version cells are exact; their `PR`
+# labels are case-insensitive like the grammar; the PR cell itself is read by the grammar.
+# The legacy form has no closing delimiter, so its cell runs to the end of the line, and any PR
+# identity in the tail after the identity makes it ambiguous: a `#N` token, or a run of the
+# shared grammar, labelled or bare, in any case, or with its label glued on (`/ PR 2665`,
+# `pr 2665`, `PRs 2665`, `/ 2665`, `PR2665`; round-8 R8-01). A compact or weekly cell is
+# certain only when nothing but a `(N PRs)` count follows the identity.
+CHANGELOG_HEADER_PRS_RE = re.compile(
+    r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},[^\n]*?\b(?i:PRs?)[ \t]+(?P<a>#\d[^\n]*)"
+    r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| (?i:PRs?) (?P<b>#\d[^*\n]*)\*\*"
+    r"|\*\*Week of \d{4}-\d{2}-\d{2} \((?i:PRs?) (?P<c>#\d[^)\n]*)\)\*\*)"
+)
+_HEADER_PR_TOKEN_RE = re.compile(r"#(\d+)(?!\d|\.\d)")
+# The legacy tail probe: the shared grammar, unanchored, opening after no word character or
+# right after a glued `PR` or `PRs` label.
+_HEADER_TAIL_IDENTITY_RE = re.compile(
+    r"(?:(?<!\w)|(?<=PR)|(?<=PRs))" + _STORE_PR_IDENTITY, re.IGNORECASE
+)
+_HEADER_PR_COUNT_RE = re.compile(r"\(\d+ PRs?\)", re.IGNORECASE)
+STORE_SCOPE_BASE_REF = "origin/main"
+CHANGELOG_ENTRY_BOUNDARY_RE = re.compile(
+    r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},|\*\*\d{4}-\d{2}-\d{2} \| |\*\*Week of \d{4}-\d{2}-\d{2}\b)"
+)
+# A line shaped like an entry header that the boundary grammar does not read: a markdown
+# heading naming a date or a `#N` token, or a bold lead-in opening on a date, `Week`, `PR` or
+# `MILESTONE` (a compact header with other separators, `### 2026-09-30 PR #N`). Body
+# subsection headings (`### Added`) name neither and stay body lines.
+_HEADER_LIKE_RE = re.compile(
+    r"^[ \t]{0,3}(?:#{1,6}\s+[^\n]*?(?:\d{4}-\d{2}-\d{2}|#\d)"
+    r"|(?:\*\*|__)[ \t]*(?:\d{4}-\d{2}-\d{2}|Week\b|PRs?\b|MILESTONE\b))",
+    re.IGNORECASE,
+)
+# Fenced-block and HTML-comment delimiters. Nothing is masked by them: they only make the
+# surrounding structure uncertain, which disables deferral and declaration.
+STORE_EXAMPLE_DELIMITERS = (chr(96) * 3, "~~~", "<!--", "-->")
+# Merged-PR evidence in origin/main's commit subjects: the squash-merge `(#N)` suffix and the
+# merge-commit `Merge pull request #N` form. Over-reading only protects more PRs.
+_MERGED_SUBJECT_PR_RE = re.compile(r"\(#(\d+)\)|^Merge pull request #(\d+)\b", re.MULTILINE)
+
+
+class StorePRs(list):
+    """A parsed identity with optional inclusive ranges and uncertainty."""
+
+    def __init__(self, values: Iterable[int], *, certain: bool = True,
+                 spans: tuple[tuple[int, int], ...] = ()) -> None:
+        super().__init__(values)
+        self.certain = certain
+        self.spans = spans
+
+
+def _identity_parts(identity: str) -> tuple[list[int], tuple[tuple[int, int], ...]]:
+    """The PR numbers in order, and the inclusive ranges, of text the shared grammar matched."""
+    values: list[int] = []
+    spans: list[tuple[int, int]] = []
+    dash = False
+    for part in _STORE_PR_PART_RE.findall(identity):
+        if part == "-":
+            dash = True
+            continue
+        number = int(part)
+        if dash and values:
+            spans.append((min(values[-1], number), max(values[-1], number)))
+        values.append(number)
+        dash = False
+    return values, tuple(spans)
+
+
+def changelog_entry_boundary(line: str) -> bool:
+    """Recognize entry boundaries even when their PR cells cannot be parsed."""
+    return bool(CHANGELOG_ENTRY_BOUNDARY_RE.match(line))
+
+
+def changelog_header_like(line: str) -> bool:
+    """A recognized boundary, or a header-shaped line the boundary grammar cannot read."""
+    return changelog_entry_boundary(line) or bool(_HEADER_LIKE_RE.match(line))
+
+
+def store_example_delimiter(line: str) -> bool:
+    """True for a line carrying a fence or HTML-comment delimiter anywhere."""
+    return any(token in line for token in STORE_EXAMPLE_DELIMITERS)
+
+
+def _header_identity(line: str) -> tuple[str, StorePRs]:
+    """The raw PR cell of a recognized header form, and its identity under the shared grammar."""
+    match = CHANGELOG_HEADER_PRS_RE.match(line)
+    if not match:
+        return "", StorePRs([], certain=False)
+    cell = match.group("a") or match.group("b") or match.group("c") or ""
+    identity = STORE_PR_IDENTITY_RE.match(cell)
+    if identity is None:
+        return cell, StorePRs([], certain=False)
+    values, spans = _identity_parts(identity.group(0))
+    tail = cell[identity.end():]
+    if match.group("a") is not None:
+        certain = not (_HEADER_PR_TOKEN_RE.search(tail) or _HEADER_TAIL_IDENTITY_RE.search(tail))
+    else:
+        certain = not _HEADER_PR_COUNT_RE.sub("", tail).strip()
+    return cell, StorePRs(values, certain=certain, spans=spans)
+
+
+def changelog_header_prs(line: str) -> list[int]:
+    """Read complete identities; unknown or ambiguous cells remain evaluated.
+
+    Ranges return endpoints here. Deferral separately checks their interiors
+    against protected root/main ranges, without expanding large ranges.
+    """
+    _cell, prs = _header_identity(line)
+    return list(prs) if prs.certain else []
+
+
+def _header_over_read(line: str) -> tuple[list[int], tuple[tuple[int, int], ...]]:
+    """The ceiling and protection side: every grammar run in the cell, plus every `#N` token.
+
+    Over-reading only raises the ceiling and protects more PRs, so an ambiguous
+    or unparsed cell still counts everything it names.
+    """
+    cell, _prs = _header_identity(line)
+    values: list[int] = []
+    spans: list[tuple[int, int]] = []
+    for run in _STORE_PR_RUN_RE.finditer(cell):
+        run_values, run_spans = _identity_parts(run.group(0))
+        values.extend(run_values)
+        spans.extend(run_spans)
+    values.extend(int(n) for n in _HEADER_PR_TOKEN_RE.findall(cell))
+    return values, tuple(spans)
+
+
+def _ceiling_header_prs(line: str) -> list[int]:
+    """Over-read ambiguous headers only on the protection/ceiling side."""
+    return _header_over_read(line)[0]
+
+
+def _header_ranges(line: str) -> tuple[tuple[int, int], ...]:
+    """Inclusive PR coverage, represented as intervals to avoid expansion."""
+    values, spans = _header_over_read(line)
+    return tuple((n, n) for n in values) + spans
+
+
+def _changelog_ranges(text: str) -> tuple[tuple[int, int], ...]:
+    return tuple(span for line in text.splitlines() for span in _header_ranges(line))
+
+
+def _contains_pr(spans: Iterable[tuple[int, int]], pr: int) -> bool:
+    return any(lo <= pr <= hi for lo, hi in spans)
+
+
+def store_pr_ceiling(changelog_text: str | None) -> int | None:
+    """Highest raw header PR; example headers count and summary tails do not."""
+    prs = [pr for line in (changelog_text or "").splitlines()
+           for pr in _ceiling_header_prs(line)]
+    return max(prs) if prs else None
+
+
+def _store_git_text(args: list[str], repo_root: Path | str | None) -> str | None:
+    root = Path(repo_root) if repo_root is not None else REPO_ROOT
+    try:
+        result = subprocess.run(["git", "-C", str(root), *args],
+                                capture_output=True, text=True, check=True)
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    return result.stdout
+
+
+def merge_base_changelog(repo_root: Path | str | None = None) -> str | None:
+    """Fail closed if either the merge-base or its root changelog is unreadable."""
+    base = _store_git_text(["merge-base", "HEAD", STORE_SCOPE_BASE_REF], repo_root)
+    if not base or not base.strip():
+        return None
+    return _store_git_text(["show", f"{base.strip()}:CHANGELOG.md"], repo_root)
+
+
+def main_changelog(repo_root: Path | str | None = None) -> str | None:
+    """Offline merged-PR evidence from the remote-tracking ref's root file."""
+    return _store_git_text(["show", f"{STORE_SCOPE_BASE_REF}:CHANGELOG.md"], repo_root)
+
+
+def main_merged_prs(repo_root: Path | str | None = None) -> tuple[tuple[int, int], ...] | None:
+    """Offline merged-PR evidence from origin/main's commit subjects.
+
+    A merged PR need not have a root header (D1 accepts a `Changelog:` trailer),
+    so header absence alone never proves that a PR is open.
+    """
+    log = _store_git_text(["log", "--format=%s", STORE_SCOPE_BASE_REF, "--"], repo_root)
+    if log is None:
+        return None
+    prs = {int(a or b) for a, b in _MERGED_SUBJECT_PR_RE.findall(log)}
+    return tuple((pr, pr) for pr in sorted(prs))
+
+
+def own_pr_declaration(changelog_text: str, base_changelog_text: str,
+                       main_changelog_text: str = "",
+                       merged_prs: Iterable[tuple[int, int]] = ()) -> tuple[int | None, str]:
+    """The declared own PR, or None with the reason no PR is declared.
+
+    The declaration is the single new (against the merge-base) singular root
+    header naming a PR absent from the merge-base root headers, from
+    origin/main's root headers and from origin/main's merge subjects
+    (``merged_prs``), range interiors included. Historical corrections,
+    roll-ups and a merged PR's header (a squash-merged or merge-committed
+    parent's entry on a branch not yet rebased) therefore never declare. A new
+    header-shaped line that does not parse, a second new identity, a combined
+    identity, or a fence or comment delimiter at or above the candidate is
+    ambiguous and fails closed, so a fenced or commented example header can
+    never declare. No other ref is read: an open PR's header carried onto a
+    stacked branch that has no own entry yet is indistinguishable offline from
+    an own entry and declares; every deferral note names the declared PR.
+    """
+    base_lines = {line.strip() for line in base_changelog_text.splitlines()
+                  if changelog_header_like(line)}
+    known = (_changelog_ranges(base_changelog_text) + _changelog_ranges(main_changelog_text)
+             + tuple(merged_prs))
+    first_delimiter: int | None = None
+    candidates: list[tuple[int, list[int]]] = []
+    for lineno, line in enumerate(changelog_text.splitlines(), 1):
+        if first_delimiter is None and store_example_delimiter(line):
+            first_delimiter = lineno
+        if not changelog_header_like(line) or line.strip() in base_lines:
+            continue
+        prs = changelog_header_prs(line) if changelog_entry_boundary(line) else []
+        if not prs:
+            return None, f"new root header at line {lineno} has no parseable PR identity"
+        if all(_contains_pr(known, pr) for pr in prs):
+            continue
+        candidates.append((lineno, prs))
+    if not candidates:
+        return None, ("no new root header names a PR absent from the merge-base headers and "
+                      "from origin/main's headers and merge subjects")
+    if len(candidates) > 1:
+        lines = ", ".join(str(lineno) for lineno, _ in candidates)
+        return None, (f"new root headers at lines {lines} name PRs absent from the merge-base "
+                      "and origin/main, so one own PR cannot be identified")
+    lineno, prs = candidates[0]
+    if len(set(prs)) != 1:
+        return None, f"the new root header at line {lineno} names more than one PR"
+    if first_delimiter is not None and first_delimiter <= lineno:
+        return None, (f"a fence or comment delimiter at root line {first_delimiter} precedes "
+                      f"the candidate header at line {lineno}")
+    return prs[0], ""
+
+
+def declared_own_pr(changelog_text: str, base_changelog_text: str,
+                    main_changelog_text: str = "",
+                    merged_prs: Iterable[tuple[int, int]] = ()) -> int | None:
+    """The declared own PR (see own_pr_declaration), or None."""
+    return own_pr_declaration(changelog_text, base_changelog_text, main_changelog_text,
+                              merged_prs)[0]
+
+
+class StoreScope(NamedTuple):
+    """Declaration, numeric ceiling, and offline protected PR coverage.
+
+    ``store_scope`` declares an own PR only when the merge-base changelog and
+    both origin/main readers are readable, so a scope it builds has
+    ``open_rule`` true exactly when it has a declaration, and ``merged_prs``
+    holds that origin/main evidence, which is always protected. A scope built
+    without ``open_rule`` keeps only the ceiling rule.
+    """
+
+    root_max: int | None
+    own_pr: int | None
+    ceiling: int | None
+    note: str | None
+    branch_prs: tuple[tuple[int, int], ...] = ()
+    merged_prs: tuple[tuple[int, int], ...] = ()
+    open_rule: bool = False
+
+
+def store_scope(changelog_text: str | None, *, repo_root: Path | str | None = None) -> StoreScope:
+    text = changelog_text or ""
+    root_max = store_pr_ceiling(text)
+    branch_prs = _changelog_ranges(text)
+    base = merge_base_changelog(repo_root)
+    if base is None:
+        return StoreScope(root_max, None, None,
+                          "store scope fail-closed: the merge-base changelog with origin/main "
+                          "is unreadable; every store entry is evaluated.", branch_prs)
+    main = main_changelog(repo_root)
+    merged = main_merged_prs(repo_root)
+    if main is None or merged is None:
+        return StoreScope(root_max, None, None,
+                          "store scope fail-closed: origin/main evidence (CHANGELOG.md headers "
+                          "or merge subjects) is unreadable, so no own PR can be declared; every "
+                          "store entry is evaluated.", branch_prs)
+    own, why = own_pr_declaration(text, base, main, merged)
+    if own is None:
+        return StoreScope(root_max, None, None,
+                          f"store scope: no own-PR declaration ({why}); every store entry "
+                          "is evaluated.", branch_prs)
+    return StoreScope(root_max, own, max(own, root_max or own), None, branch_prs,
+                      _changelog_ranges(main) + merged, True)
+
+
+_STORE_ROW_TAIL_RE = re.compile(
+    r"\s*(?:(?:iteration|addendum)(?:\s+\(/retro\))?|\(/retro\))\s*", re.IGNORECASE
+)
+
+
+def store_row_prs(cell: str) -> StorePRs:
+    """Read a leading combined identity; uncertain tails cannot defer a row.
+
+    Prose PR mentions do not become row keys. They make deferral uncertain,
+    so an unfamiliar or truncated identity still reaches row-integrity checks.
+    Values and ranges come from the one grammar match, so they cannot disagree.
+    """
+    match = STORE_PR_IDENTITY_RE.match(cell)
+    if match is None:
+        return StorePRs([], certain=False)
+    tail = cell[match.end():]
+    certain = not tail.strip() or bool(_STORE_ROW_TAIL_RE.fullmatch(tail))
+    values, spans = _identity_parts(match.group(0))
+    return StorePRs(sorted(set(values)), certain=certain, spans=spans)
+
+
+def store_history_prs(cell: str, keys: Iterable[int]) -> StorePRs:
+    """History-row keys carrying the identity metadata deferral needs.
+
+    The register's own token reader supplies the keys. Deferral is certain
+    only when the complete leading identity names exactly those keys, and
+    its ranges protect their interiors, as for retro rows.
+    """
+    values = sorted(set(keys))
+    identity = store_row_prs(cell)
+    return StorePRs(values, certain=identity.certain and list(identity) == values,
+                    spans=identity.spans)
+
+
+def store_deferral_reason(prs: Iterable[int], ceiling: int | StoreScope | None) -> str | None:
+    """Explain a whole-entry deferral, or return None to require evaluation."""
+    if not getattr(prs, "certain", True):
+        return None
+    named = list(prs)
+    scope = ceiling if isinstance(ceiling, StoreScope) else None
+    limit = scope.ceiling if scope is not None else ceiling
+    if limit is None or not named:
+        return None
+    spans = tuple((n, n) for n in named) + getattr(prs, "spans", ())
+    if scope is not None:
+        protected = scope.branch_prs + scope.merged_prs
+        if scope.own_pr is not None:
+            protected += ((scope.own_pr, scope.own_pr),)
+        if any(a <= d and c <= b for a, b in spans for c, d in protected):
+            return None
+    if min(named) > limit:
+        return f"every named PR exceeds store-scope ceiling #{limit}"
+    if scope is not None and scope.open_rule:
+        return ("every named PR is another open PR, absent from branch and origin/main "
+                "root headers and from origin/main merge subjects")
+    return None
+
+
+def store_deferral_note(prs: Iterable[int], scope: StoreScope, source: str, lineno: int) -> str:
+    """One note per deferred entry, with its location, keys and reason."""
+    reason = store_deferral_reason(prs, scope)
+    keys = ", ".join(f"#{pr}" for pr in sorted(set(prs)))
+    return (f"note: {source}:{lineno}: deferred {keys}: {reason}; "
+            f"declared own PR #{scope.own_pr}, ceiling #{scope.ceiling}.")
+
+
+def store_deferral_flags(lines: Iterable[str], ceiling: int | StoreScope | None) -> list[tuple[bool, list[int]]]:
+    """Raw per-line flags; uncertainty and example delimiters add evaluation.
+
+    Ceiling deferral remains confined to the initial run of deferrable entries.
+    The open-PR rule also reaches entries below the own entry, including
+    entries whose PRs exceed the ceiling. An unknown boundary, a header-shaped
+    line the grammar cannot read, or a fence/comment delimiter disables
+    deferral for the remainder of the mirror, so an example cannot reopen it
+    or hide a later marker, and an unrecognized header is never swallowed
+    into the deferred entry above it. Nothing is stripped: example headers,
+    rows and markers are still audited. Literal delimiters can therefore
+    conservatively reduce deferral. Plain unmarked header lookalikes remain
+    indistinguishable from real entries, including inside the own entry.
+    """
+    flags: list[tuple[bool, list[int]]] = []
+    prs: list[int] = []
+    numeric_run = True
+    uncertain = False
+    deferred = False
+    for line in lines:
+        if store_example_delimiter(line):
+            uncertain = True
+        if changelog_header_like(line):
+            parsed = changelog_header_prs(line) if changelog_entry_boundary(line) else []
+            prs = StorePRs(parsed, spans=_header_ranges(line) if parsed else ())
+            if not parsed:
+                uncertain = True
+            reason = store_deferral_reason(prs, ceiling)
+            if reason is None:
+                numeric_run = False
+            limit = ceiling.ceiling if isinstance(ceiling, StoreScope) else ceiling
+            numeric = bool(parsed and limit is not None and min(parsed) > limit)
+            open_rule = isinstance(ceiling, StoreScope) and ceiling.open_rule
+            deferred = bool(reason and (numeric_run or not numeric or open_rule))
+        if uncertain:
+            deferred = False
+        flags.append((deferred, prs))
+    return flags
+
+
+def above_store_ceiling(prs: Iterable[int], ceiling: int | StoreScope | None) -> bool:
+    """Compatibility name for the shared ceiling-or-other-open-PR decision."""
+    return store_deferral_reason(prs, ceiling) is not None
 
 
 def split_row(line: str) -> list[str]:

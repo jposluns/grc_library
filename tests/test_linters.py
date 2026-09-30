@@ -10806,12 +10806,28 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(len(f), 1)
         self.assertIn("#11", f[0])
 
-    def test_row_integrity_fenced_and_commented_examples_ignored(self) -> None:
+    def test_row_integrity_reads_rows_raw_no_masking(self) -> None:
+        # codex r4 ERROR 2 / the 2026-09-30 no-masking ruling (replacing the fenced/commented
+        # examples-ignored expectation): records come from the RAW text. (a) literal inline
+        # `<!--` / `-->` tokens in two rows' prose must not swallow the rows between them (the
+        # masked read returned ZERO records for them); (b) a fenced row LOOKALIKE now counts as
+        # a real row, the loud direction: beside the real #10 row it is a duplicate finding,
+        # never a silent mask.
         mod = self._load_module()
-        body = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
-                "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
-                "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
-        self.assertEqual(self._hist(mod, body), [])
+        swallowed = ("| 2026-09-20 | #10 | c | see the `<!--` note | SHIP |\n"
+                     "| 2026-09-20 | #10 | c | T | IN PROGRESS |\n"
+                     "| 2026-09-20 | #11 | c | closes the `-->` note | SHIP |\n")
+        recs = mod._history_row_records(swallowed)
+        self.assertEqual([r[1] for r in recs], [[10], [10], [11]],
+                         "raw read: nothing between the literal delimiters is swallowed")
+        f = mod.row_integrity_findings(recs, "h")
+        self.assertEqual(len(f), 1, f)
+        self.assertIn("#10", f[0])
+        fenced = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
+                  "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
+                  "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
+        self.assertEqual(len(self._hist(mod, fenced)), 1,
+                         "fenced and commented row lookalikes are records: a loud duplicate")
 
     def test_row_integrity_legacy_tier_word_findings_keeps_exemption(self) -> None:
         # history.md:1107 shape: legacy Findings at c[4] begins with a tier word, c[5] is Hot-fix.
@@ -11069,21 +11085,24 @@ class BookkeepingParityTests(LinterTestCase):
                      "**Bold text #1234** but not an entry header\n"):
             self.assertEqual(mod.parse_changelog_prs(text), set(), text[:50])
 
-    def test_headers_in_fenced_blocks_comments_and_prose_tails_do_not_count(self) -> None:
-        """Three over-match contexts a verifier probed on the live parser.
+    def test_headers_read_raw_lookalikes_widen_the_audit_loudly(self) -> None:
+        """The 2026-09-30 no-masking ruling (r4; replacing the W5 fenced/commented strip).
 
-        A parser that reads free-form headers must not treat DOCUMENTATION of the format as an
-        entry: illustrating a header in a fence, or commenting one out, would otherwise widen the
-        set of PRs the gate demands bypass rows for. The legacy long form additionally captured to
-        end of line, so a prose tail contributed any PR it mentioned.
+        parse_changelog_prs reads the RAW text: a fenced or commented header lookalike counts
+        toward the audit universe like any real header, so an example can only ADD loud row
+        demands (a missing-row finding on a phantom PR), never remove one -- the safe direction,
+        and the mirror image of the store-scope ceiling, which reads the SAME raw text with the
+        same cell grammar, so ``max(changelog)`` still never exceeds the ceiling. The legacy
+        form's prose-tail precision is unchanged.
         """
         mod = self._load_module()
         self.assertEqual(
             mod.parse_changelog_prs("```\n**2026-01-01 | 1.0.0 | PRs #9000-#9005 (6 PRs)**\n```\n"),
-            set(), "a fenced example is documentation, not an entry")
+            {9000, 9001, 9002, 9003, 9004, 9005},
+            "a fenced lookalike is a real header: more demands, never fewer")
         self.assertEqual(
             mod.parse_changelog_prs("<!--\n**2026-01-01 | 1.0.0 | PR #9004** - x\n-->\n"),
-            set(), "a commented-out header is not an entry")
+            {9004}, "a commented-out header is a real header too")
         self.assertEqual(
             mod.parse_changelog_prs(
                 "## 2026-07-02, Library Version 2026.07.40, PR #552 - follow-up to PR #999\n"),
@@ -30440,3 +30459,1427 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertEqual(self.scan(text), [(None, section, "unresolved")], text)
         self.assertEqual(self.scan("PIPEDA s. 10.1 of the Act"),
                          [("PIPEDA s. 10.1", "10.1", "explicit")])
+
+
+class StoreScopeCeilingTests(LinterTestCase):
+    """lint_common's shared store scope and its use by gate 50 (row integrity, worker provenance)
+    and gate 59 (detailed-mirror header parity), maintainer ruling 2026-09-30 17:07Z (option B,
+    simplified 21:03Z).
+
+    The invariant every test here serves: a missing or wrong record for a merged PR or for the
+    branch's own PR is never deferred, and ambiguity fails closed (no deferral). A branch declares
+    its own PR through the single new singular root header naming a PR absent from the merge-base
+    root headers and from origin/main's root headers and merge subjects, all read offline; no
+    other ref is consulted, and historical edits, roll-ups, a merged PR's header and fenced or
+    commented example headers never declare. One shared case-insensitive grammar reads every PR
+    identity and range. Every reader is raw (no masking); mirror uncertainty (unknown or
+    unrecognized boundaries, fence or comment delimiters) disables further deferral. Each method
+    names the round-6 old test it restores or the finding it pins."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        from unittest.mock import patch
+        self.patch = patch
+        self.bp = load_linter_module("tools/lint-bookkeeping-parity.py", "_bp_scope")
+        self.mp = load_linter_module("tools/lint-changelog-mirror-header-parity.py", "_mp_scope")
+        import lint_common
+        self.lc = lint_common
+
+    # ---- fixtures ----
+
+    _BASE_ROOT = ("**2026-07-02 | 2026.07.9 | PR #521** - t\n\n"
+                  "**2026-07-01 | 2026.07.8 | PR #520** - t\n")
+    _OWN_522_ROOT = "**2026-07-03 | 2026.07.10 | PR #522** - own\n\n"
+    _HDR = "| Date | PR | Families | Tier | Disposition |\n|---|---|---|---|---|\n"
+    _LATER_PR_ROWS = ("| 2026-09-30 | #2652 | c | T | SHIP final |\n"
+                      "| 2026-09-30 | #2652 | c | T | IN PROGRESS: r1 dispatched |\n")
+    _OWN_PR_ROWS = ("| 2026-09-30 | #2650 | c | T | SHIP final |\n"
+                    "| 2026-09-30 | #2650 | c | T | IN PROGRESS: r1 dispatched |\n")
+    MARKER = "- **Worker provenance:** applied, path not recorded\n"
+
+    @staticmethod
+    def header(pr: int, version: int | None = None) -> str:
+        return f"**2026-09-30 | 2026.09.{version or pr} | PR #{pr}**\n"
+
+    @staticmethod
+    def pending_rows(pr: int) -> str:
+        return f"| 2026-09-30 | #{pr} | c | T | IN PROGRESS |\n" * 2
+
+    def scope(self, root: str, base: str | None, main: str | None,
+              merged: tuple[int, ...] | None = ()):
+        """store_scope with every offline git reader replaced by a fixture value."""
+        spans = None if merged is None else tuple((n, n) for n in merged)
+        with self.patch.object(self.lc, "merge_base_changelog", return_value=base), \
+                self.patch.object(self.lc, "main_changelog", return_value=main), \
+                self.patch.object(self.lc, "main_merged_prs", return_value=spans):
+            return self.lc.store_scope(root)
+
+    def capture(self, function, *args):
+        import contextlib
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = function(*args)
+        return rc, out.getvalue(), err.getvalue()
+
+    def mirror_gate(self, root: str, mirror: str, scope):
+        """Gate 59's main() in process, with a fixed scope and in-memory surfaces."""
+        with self.patch.object(self.mp, "resolve_working", return_value=Path("/mirror")), \
+                self.patch.object(self.mp, "read_text_safe",
+                                  side_effect=lambda p: mirror if str(p) == "/mirror" else root), \
+                self.patch.object(self.mp, "store_scope", return_value=scope):
+            return self.capture(self.mp.main, [])
+
+    def git(self, root: Path, *args: str) -> str:
+        return subprocess.run(
+            ["git", "-C", str(root), "-c", "user.name=t", "-c", "user.email=t@example.com", *args],
+            check=True, capture_output=True, text=True).stdout
+
+    def origin_main(self, root: Path, base_text: str, *subjects: str) -> None:
+        """Make ``root`` a repository whose origin/main holds ``base_text`` as CHANGELOG.md,
+        committed under ``subjects`` (the first commit adds the file)."""
+        self.git(root, "init", "-q", "-b", "main")
+        (root / "CHANGELOG.md").write_text(base_text, encoding="utf-8")
+        self.git(root, "add", "CHANGELOG.md")
+        for subject in subjects or ("base",):
+            self.git(root, "commit", "-q", "--allow-empty", "-m", subject)
+        self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+
+    def mirror_pair(self, root: Path, root_text: str, mirror_text: str, *,
+                    base_root_text: str | None = None, subjects: tuple[str, ...] = ()) -> None:
+        """Write the two gate-59 surfaces. With ``base_root_text`` the fixture is a git repository
+        whose origin/main holds that text; without it the fixture has no merge-base and the gate
+        must fail closed."""
+        if base_root_text is not None:
+            self.origin_main(root, base_root_text, *subjects)
+        (root / "CHANGELOG.md").write_text(root_text, encoding="utf-8")
+        d = root / ".working" / "changelog-details"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "CHANGELOG-detailed.md").write_text(mirror_text, encoding="utf-8")
+
+    def run_mirror_gate(self, root_text: str, mirror_text: str, **kwargs):
+        """Gate 59's real CLI under ``--root`` against a fixture repository."""
+        with tempfile.TemporaryDirectory() as tmp:
+            self.mirror_pair(Path(tmp), root_text, mirror_text, **kwargs)
+            return run_linter("tools/lint-changelog-mirror-header-parity.py", "--root", tmp)
+
+    def stacked_child(self, root: Path, *, own_entry: bool, parent: str) -> str:
+        """origin/main holds merged #2660; branch ``parent`` adds open #2653's entry; branch
+        ``child`` is stacked on it, is never rebased and, with ``own_entry``, adds its own #2662
+        entry. ``parent`` then stays ``at-stack-point``, is ``advanced`` (one more commit, still
+        open), is ``squash-merged`` (a ``(#2653)`` commit carrying its entry lands on origin/main
+        and the ref is deleted), or is ``merge-committed`` (advanced, merged by a ``Merge pull
+        request #2653`` commit, and deleted). Returns the child's root CHANGELOG text."""
+        base = self.header(2660)
+        entry = self.header(2653, 2661)
+        self.origin_main(root, base, "Lost-device table (#2660)")
+        self.git(root, "checkout", "-q", "-b", "parent")
+        (root / "CHANGELOG.md").write_text(entry + base, encoding="utf-8")
+        self.git(root, "commit", "-q", "-am", "parent work")
+        self.git(root, "checkout", "-q", "-b", "child")
+        text = (self.header(2662) if own_entry else "") + entry + base
+        (root / "CHANGELOG.md").write_text(text, encoding="utf-8")
+        (root / "README.md").write_text("child\n", encoding="utf-8")
+        self.git(root, "add", "CHANGELOG.md", "README.md")
+        self.git(root, "commit", "-q", "-m", "child work")
+        if parent in ("advanced", "merge-committed"):
+            self.git(root, "checkout", "-q", "parent")
+            self.git(root, "commit", "-q", "--allow-empty", "-m", "parent r2")
+        self.git(root, "checkout", "-q", "main")
+        if parent == "squash-merged":
+            (root / "CHANGELOG.md").write_text(entry + base, encoding="utf-8")
+            self.git(root, "commit", "-q", "-am", "Parent feature (#2653)")
+        elif parent == "merge-committed":
+            self.git(root, "merge", "-q", "--no-ff", "-m", "Merge pull request #2653 from a/parent",
+                     "parent")
+        self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+        self.git(root, "checkout", "-q", "child")
+        if parent in ("squash-merged", "merge-committed"):
+            self.git(root, "branch", "-q", "-D", "parent")
+        return text
+
+    # ---- the shared parser and ceiling (old tests 1-9) ----
+
+    def test_ceiling_reads_header_pr_cell_not_summary(self) -> None:
+        # Old 1. Kills: a greedy whole-line token read on an unambiguous compact header (the
+        # summary tail's #9999 would raise the ceiling).
+        text = ("**2026-09-29 | 2026.09.1353 | PR #2649** - routed from #9999\n\n"
+                "**2026-09-29 | 2026.09.1352 | PR #2648** - text\n")
+        self.assertEqual(self.lc.store_pr_ceiling(text), 2649)
+        self.assertEqual(self.lc.store_pr_ceiling(self.header(521).rstrip() + " - mentions #9999"), 521)
+
+    def test_ceiling_reads_legacy_and_rolled_up_forms(self) -> None:
+        # Old 2. Kills: dropping any of the three header alternates from CHANGELOG_HEADER_PRS_RE.
+        lc = self.lc
+        self.assertEqual(lc.store_pr_ceiling("## 2026-07-01, Library Version 2026.07.9, PR #521\n"), 521)
+        self.assertEqual(lc.store_pr_ceiling("**Week of 2026-09-21 (PRs #2426-#2639)** text\n"), 2639)
+        self.assertEqual(
+            lc.store_pr_ceiling("**2026-09-27 | 2026.09.1300 | PRs #2600-#2610 (11 PRs)**\n"), 2610)
+
+    def test_no_root_header_means_no_ceiling(self) -> None:
+        # Old 3. Kills: reading a bare-prose `PR #9999` token as a header.
+        for text in (None, "", "# Changelog\n\nprose naming PR #9999\n"):
+            self.assertIsNone(self.lc.store_pr_ceiling(text), repr(text))
+
+    def test_legacy_multi_pr_header_reads_every_pr_token(self) -> None:
+        # Old 4 (codex r1 finding 4): a repeated `PR` label after `,` or `&` must not end the cell.
+        # Kills: reverting the legacy capture to a `#[\d \t,#and-]` class, and dropping stacked
+        # connectors (the Oxford `, and` case).
+        cases = [
+            ("## 2026-09-29, Library Version 2026.09.1354, PR #2650, PR #2649", [2650, 2649]),
+            ("## 2026-07-01, Library Version 2026.07.9, PR #520 & PR #521", [520, 521]),
+            ("## 2026-09-30, Library Version 2026.09.1, PR #524, PR #525, and PR #521", [524, 525, 521]),
+        ]
+        for line, expected in cases:
+            with self.subTest(line=line):
+                self.assertEqual(self.lc.changelog_header_prs(line), expected)
+                self.assertEqual(self.lc.store_pr_ceiling(line + "\n"), max(expected))
+
+    def test_header_prs_reads_bare_range_endpoints(self) -> None:
+        # Old 5 (claude r2 ERROR 2): a range endpoint without `#` counts on every header form; the
+        # `(N PRs)` count and the version cell never read as PRs. Kills: extracting with the
+        # `#`-requiring token alone (yields the first endpoint only) and dropping `-` from the
+        # connector alternation.
+        cases = [
+            ("**2026-09-30 | 2026.09.1360 | PRs #2640-2645 (6 PRs)**", [2640, 2645]),
+            ("**Week of 2026-09-21 (PRs #2426-2639)**", [2426, 2639]),
+            ("## 2026-07-01, Library Version 2026.07.9, PRs #520-522", [520, 522]),
+            ("## 2026-07-01, Library Version 2026.07.9, PR #2650 & 2651", [2650, 2651]),
+        ]
+        for line, expected in cases:
+            with self.subTest(line=line):
+                self.assertEqual(self.lc.changelog_header_prs(line), expected)
+        self.assertEqual(
+            self.lc.store_pr_ceiling("**2026-09-30 | 2026.09.1360 | PRs #2655-2657 (3 PRs)**\n"), 2657)
+
+    def test_stacked_connectors_and_ambiguous_cells(self) -> None:
+        # Old 6 (codex r2 ERROR 1): Oxford connectors keep every key, so a mixed-scope entry is
+        # kept; a legacy header naming a further #N beyond the cell is AMBIGUOUS: the deferral side
+        # yields [] (kept) while the ceiling side reads the whole line. Kills: a single-connector
+        # run (drops #521 and defers at ceiling 521), and dropping the ambiguity probe.
+        lc = self.lc
+        oxford = "## 2026-07-04, Library Version 2026.07.11, PR #524, PR #525, and PR #521"
+        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(oxford), 521))
+        tail = "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)"
+        self.assertEqual(lc.changelog_header_prs(tail), [])
+        self.assertFalse(lc.above_store_ceiling(lc.changelog_header_prs(tail), 2657))
+        self.assertEqual(lc.store_pr_ceiling(tail + "\n"), 9999)
+        self.assertEqual(
+            lc.store_pr_ceiling("## 2026-09-30, Library Version 2026.09.1, PR #2650 (see PR #9999)\n"),
+            9999, "the ambiguous tail raises the ceiling (mutant M1 reads 2650)")
+
+    def test_ambiguous_cell_ceiling_reads_runs_and_line_tokens(self) -> None:
+        # Old 7 (codex r3 ERROR 1): the ceiling side unions the parsed runs (bare endpoint 530)
+        # with the whole-line tokens (tail #9999), and the protection side uses the same over-read.
+        # Kills: the ambiguous branch reading `#N` tokens alone (520), the runs alone (M1: 520 on
+        # the second fixture), and a protection side that ignores the ambiguous tail.
+        lc = self.lc
+        text = "## 2026-09-30, Library Version 2026.09.1, PRs #520-530 (follow-up to PR #500)"
+        self.assertEqual(lc.changelog_header_prs(text), [])
+        self.assertEqual(lc.store_pr_ceiling(text + "\n"), 530)
+        self.assertEqual(
+            lc.store_pr_ceiling("## 2026-07-01, Library Version 2026.07.9, PR #520 (see PR #9999)\n"), 9999)
+        base = self.header(2659) + "## 2026-09-29, Library Version 2026.09.1, PR #2600 (see PR #2655)\n"
+        scope = self.scope(self.header(2661) + base, base, base)
+        self.assertEqual(scope.own_pr, 2661)
+        self.assertFalse(lc.above_store_ceiling([2655], scope),
+                         "a PR named in an ambiguous root tail is protected, never another open PR")
+
+    def test_ceiling_reads_raw_text_examples_can_only_raise_it(self) -> None:
+        # Old 8. NO masking: a fenced or commented header lookalike raises the ceiling, which can
+        # only reduce deferral. Kills: reintroducing any example mask into store_pr_ceiling.
+        fenced = ("```\n**2026-10-01 | 2026.10.1 | PR #9999** - example\n```\n"
+                  "**2026-09-29 | 2026.09.1353 | PR #2649** - real\n")
+        self.assertEqual(self.lc.store_pr_ceiling(fenced), 9999)
+        commented = ("<!--\n**2026-09-29 | 2026.09.1354 | PR #2650**\n-->\n"
+                     "**2026-09-28 | 2026.09.1353 | PR #2640**\n")
+        self.assertEqual(self.lc.store_pr_ceiling(commented), 2650)
+
+    def test_above_store_ceiling_is_fail_closed(self) -> None:
+        # Old 9. Kills: `>` -> `>=` (defers the ceiling, the declared own PR), `min` -> `max` (the
+        # mixed entry), dropping the empty-token guard, and dropping the None-ceiling guard.
+        f = self.lc.above_store_ceiling
+        cases = [([2651], 2650, True), ([2650], 2649, True), ([2650], 2650, False),
+                 ([2648, 2651], 2649, False), ([], 2649, False), ([2651], None, False),
+                 ([11, 10], 10, False)]
+        for prs, ceiling, expected in cases:
+            with self.subTest(prs=prs, ceiling=ceiling):
+                self.assertEqual(f(prs, ceiling), expected)
+        self.assertFalse(f(self.lc.StorePRs([2651], certain=False), 2650),
+                         "an uncertain identity is never deferred")
+
+    # ---- mirror deferral flags (old tests 10, 27-30; round-5 ERROR 2; WARN 3; NOTE 1) ----
+
+    def test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run(self) -> None:
+        # Old 10, and the unreadable-origin/main half of old 21: without the open-PR rule, ceiling
+        # deferral ends at the first header naming a PR at or below the ceiling, so a lookalike
+        # below the own entry is EVALUATED. Kills (M3): dropping the positional latch (indices 5-6
+        # read deferred), ending the run on ANY boundary (indices 1-2 read kept), and deferring on
+        # a None ceiling. The same latch holds for a StoreScope built without the open-PR rule.
+        # Changed on purpose by round 8: a scope whose origin/main is unreadable declares nothing,
+        # so it defers nothing at all.
+        lines = ["preamble",
+                 "**2026-10-01 | 2026.10.2 | PR #2652** - later PR's entry",
+                 "its body",
+                 "**2026-09-30 | 2026.09.9 | PR #2650** - the branch's own entry",
+                 "its body",
+                 "**2026-10-01 | 2026.10.1 | PR #9999** - lookalike below the own entry",
+                 "an example body"]
+        expected = [False, True, True, False, False, False, False]
+        flags = self.lc.store_deferral_flags(lines, 2650)
+        self.assertEqual([d for d, _ in flags], expected)
+        self.assertEqual(flags[1][1], [2652], "the governing entry's keys ride on its body lines")
+        self.assertEqual(flags[5][1], [9999])
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, None)], [False] * 7)
+        ceiling_only = self.lc.StoreScope(2650, 2650, 2650, None)
+        self.assertFalse(ceiling_only.open_rule)
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, ceiling_only)], expected)
+        blind = self.scope(self.header(2650), "", None)
+        self.assertEqual((blind.own_pr, blind.ceiling, blind.open_rule), (None, None, False))
+        self.assertEqual([d for d, _ in self.lc.store_deferral_flags(lines, blind)], [False] * 7)
+
+    def test_worker_provenance_scoped_by_entry_header(self) -> None:
+        # Old 27 (claude r1 T1 / codex r1 finding 5): every marker is invalid and the own entry
+        # sits below the deferred one. Kills: a first-header latch (1 finding), a caller-local
+        # `>=` filter or `>` -> `>=` in the helper (defers own #2650: 2 findings).
+        text = ("preamble\n- **Worker provenance:** no path\n\n"
+                "**2026-10-01 | 2026.09.1356 | PR #2652** - later\n- **Worker provenance:** no path\n\n"
+                "**2026-09-30 | 2026.09.1355 | PR #2650** - own\n"
+                "- **Worker provenance:** no path either\n\n"
+                "**2026-09-29 | 2026.09.1354 | PR #2649** - merged\n"
+                "- **Worker provenance:** also no path\n")
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2650)), 3)
+        self.assertEqual(len(self.bp.worker_provenance_findings(text)), 4)
+        self.assertEqual(self.bp._deferred_mirror_prs(text, 2650), {2652})
+
+    def test_worker_provenance_no_pr_header_resets_scope(self) -> None:
+        # Old 28 (codex r1 finding 2): a marker DIRECTLY beneath a PR-less boundary must not inherit
+        # the deferral above it. Kills: the old `if header_prs:` latch (0 findings instead of 1).
+        text = ("**2026-10-01 | 2026.09.1356 | PR #2652** - later\n- **Worker provenance:** no path\n\n"
+                "## 2026-09-29, Library Version 2026.09.1354\n"
+                "- **Worker provenance:** no path here\n")
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2650)), 1)
+        self.assertEqual(len(self.bp.worker_provenance_findings(text)), 2)
+        self.assertEqual(self.bp._deferred_mirror_prs(text, 2650), {2652})
+
+    def test_worker_provenance_reads_raw_text(self) -> None:
+        # Old 29 (claude r2 ERROR 1): a marker BETWEEN a literal `<!--` and a later `-->` stays
+        # visible, with a ceiling and without. Kills (M8): scanning a comment-masked text, and any
+        # mask-then-scan order (0 findings).
+        text = ("## 2026-09-30, Library Version 2026.09.1360, PR #2657\n"
+                "- prose mentioning `<!--` comments\n"
+                "## 2026-09-30, Library Version 2026.09.1359, PR #2656\n"
+                "- **Worker provenance:** applied, path not recorded\n"
+                "## 2026-09-29, Library Version 2026.09.1358, PR #2655\n"
+                "- closes at `-->` here\n")
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2657)), 1)
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2600)), 1,
+                         "the literal delimiter ends deferral before the marker")
+        self.assertEqual(len(self.bp.worker_provenance_findings(text)), 1)
+
+    def test_lookalike_in_scope_entry_cannot_hide_its_marker(self) -> None:
+        # Old 30 (claude r4 ERROR 3): a fenced example header inside an in-scope entry cannot hide
+        # that entry's marker. Changed on purpose since round 5: a delimiter now ends deferral, so
+        # a fenced lookalike at the TOP no longer scopes anything (old: 2 findings and {9999};
+        # now: 3 findings and nothing deferred). Kills: the r4 purely numeric scoping, masking the
+        # scope read, a zone latch that never ends, and a delimiter that does not end deferral
+        # (fenced_top would defer #9999 and hide a marker).
+        text = ("**2026-09-29 | 2026.09.1354 | PR #2649** - real, in scope\n"
+                "- **Worker provenance:** no path\n"
+                "```\n"
+                "**2026-10-01 | 2026.10.1 | PR #9999** - example\n"
+                "```\n"
+                "- **Worker provenance:** no path either\n")
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2650)), 2)
+        self.assertEqual(self.bp._deferred_mirror_prs(text, 2650), set())
+        self.assertEqual(len(self.bp.worker_provenance_findings(text)), 2)
+        fenced_top = ("```\n**2026-10-01 | 2026.10.1 | PR #9999** - example\n```\n"
+                      "- **Worker provenance:** no path\n" + text)
+        self.assertEqual(len(self.bp.worker_provenance_findings(fenced_top, ceiling=2650)), 3)
+        self.assertEqual(self.bp._deferred_mirror_prs(fenced_top, 2650), set())
+        self.assertEqual(len(self.bp.worker_provenance_findings(fenced_top)), 3)
+
+    def test_claude_error_2_and_codex_error_1_unknown_header_ends_deferral(self) -> None:
+        # Round-5 ERROR 2 / codex ERROR 1, and NOTE 2 (pin the fix): an own header that does not
+        # parse makes the rest of the mirror uncertain. The integer-ceiling subcases are also held
+        # by the positional latch; the StoreScope subcase (origin/main readable, so the open-PR
+        # rule reaches below the own entry) is held ONLY by the uncertainty flag: removing
+        # `if not parsed: uncertain = True` (M16) lets open #2653 defer and hide the marker.
+        headers = [
+            "## 2026-09-30, Library Version 2026.09.1365, PR #2661 (follow-up to PR #2653)\n",
+            "**2026-09-30 | 2026.09.1365 | PR 2661**\n",
+            "**2026-09-30 | MILESTONE:** changed\n",
+        ]
+        root, base = self.header(2661) + self.header(2659), self.header(2659)
+        scope = self.scope(root, base, base)
+        self.assertTrue(scope.open_rule)
+        for header in headers:
+            for fenced in (False, True):
+                with self.subTest(header=header, fenced=fenced):
+                    fence = chr(96) * 3 + "\n" if fenced else ""
+                    text = header + fence + self.header(9999) + fence + self.MARKER
+                    self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2661)), 1)
+                    self.assertEqual(self.bp._deferred_mirror_prs(text, 2661), set())
+                    flags = self.lc.store_deferral_flags(text.splitlines(), 2661)
+                    for lineno, *_ in self.mp.pr_headers(text):
+                        self.assertFalse(flags[lineno - 1][0])
+            with self.subTest(header=header, scope="readable origin/main"):
+                text = self.header(2661) + header + self.header(2653) + self.MARKER
+                self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=scope)), 1)
+                self.assertEqual(self.bp._deferred_mirror_prs(text, scope), set())
+
+    def test_unrecognized_header_ends_deferral(self) -> None:
+        # WARN 3: a header-shaped line the boundary grammar cannot read (other separators, a
+        # markdown heading) must end deferral, never be swallowed into the deferred entry above
+        # it. Kills: recognizing only CHANGELOG_ENTRY_BOUNDARY_RE lines (0 findings), and a
+        # heading pattern that misses the non-breaking space gate 59's HEADER_RE accepts (that
+        # record would ride on the deferred entry's flag). A body subsection heading
+        # (`### Added`) names no date or PR and stays inside its entry.
+        root, base = self.header(2662) + self.header(2659), self.header(2659)
+        scope = self.scope(root, base, base)
+        for line in ("**2026-09-30 \u2014 2026.09.1365 \u2014 PR #2662**\n",
+                     "### 2026-09-30 PR #2662\n", "## PR #2662 (2026-09-30)\n",
+                     "**Week 40: PR #2662**\n",
+                     "##\u00a02026-09-30, Library Version 2026.09.1365, PR #2662\n"):
+            with self.subTest(line=line):
+                self.assertTrue(self.lc.changelog_header_like(line))
+                self.assertFalse(self.lc.changelog_entry_boundary(line))
+                self.assertEqual(self.lc.store_deferral_flags([self.header(2653), line], scope)[1][0], False)
+                text = self.header(2653) + line + self.MARKER + self.header(2654) + self.MARKER
+                self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=scope)), 2)
+                self.assertEqual(self.bp._deferred_mirror_prs(text, scope), {2653})
+        body = self.header(2653) + "### Added\n" + self.MARKER
+        self.assertFalse(self.lc.changelog_header_like("### Added"))
+        self.assertEqual(self.bp.worker_provenance_findings(body, ceiling=scope), [])
+
+    def test_open_rule_reaches_below_own_entry_and_lookalike_residue(self) -> None:
+        # NOTE 1 (confirmed; fixed by stating the residue) and old 21's readable half: with
+        # origin/main readable, an entry wholly of other open PRs defers even below the own entry,
+        # including one above the ceiling. An unmarked lookalike inside the own entry is therefore
+        # read as a real entry and can defer the lines below it; the note names it (loud). A scope
+        # without the open-PR rule evaluates the same text (the positional latch), and with
+        # origin/main unreadable nothing is declared (round 8), so it is evaluated too. Kills: an
+        # open-PR rule confined to the initial run (0 deferred here), an open-PR rule applied
+        # without it, and a declaration made without origin/main evidence.
+        root, base = self.header(2661) + self.header(2659), self.header(2659)
+        readable = self.scope(root, base, base)
+        ceiling_only = self.lc.StoreScope(2661, 2661, 2661, None, readable.branch_prs)
+        unreadable = self.scope(root, base, None)
+        self.assertIsNone(unreadable.own_pr)
+        for pr in (9999, 2653):
+            with self.subTest(pr=pr):
+                text = self.header(2661) + self.header(pr) + self.MARKER + self.header(2659)
+                self.assertEqual(self.bp.worker_provenance_findings(text, ceiling=readable), [])
+                self.assertEqual(self.bp._deferred_mirror_prs(text, readable), {pr})
+                for other in (ceiling_only, unreadable):
+                    self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=other)), 1)
+                    self.assertEqual(self.bp._deferred_mirror_prs(text, other), set())
+
+    # ---- the own-PR declaration (old tests 11-13; round-5 ERROR 1; ERROR 2; WARN 2; round-7 F1) ----
+
+    def test_declared_own_pr_is_the_single_new_root_header(self) -> None:
+        # Old 11. Kept: a new own header declares; an unchanged file and a PR-less new header do
+        # not. Changed on purpose: two new identities no longer resolve to the topmost (WARN 2:
+        # one of them may be a stacked parent's), so the old "topmost wins" and the M2 "maximum
+        # wins" mutants both fail here; an empty merge-base makes every header new and no longer
+        # declares; an edited historical header no longer declares (round-5 ERROR 1).
+        lc = self.lc
+        base = self._BASE_ROOT
+        work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
+        self.assertEqual(lc.declared_own_pr(work, base), 524)
+        self.assertEqual(lc.own_pr_declaration(work, base), (524, ""))
+        self.assertIsNone(lc.declared_own_pr(base, base))
+        self.assertIsNone(lc.declared_own_pr(work, ""))
+        two_new = ("**2026-07-05 | 2026.07.12 | PR #524** - own\n\n"
+                   "**2026-07-06 | 2026.07.13 | PR #526** - out-of-order insert\n\n" + base)
+        own, why = lc.own_pr_declaration(two_new, base)
+        self.assertIsNone(own)
+        self.assertIn("lines 1, 3", why)
+        self.assertIsNone(lc.declared_own_pr("## 2026-07-05, Library Version 2026.07.12\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr(base.replace(" - t", " - retitled", 1), base))
+
+    def test_claude_error_1_historical_edits_do_not_declare_own_pr(self) -> None:
+        # Round-5 ERROR 1: a roll-up or an edited header names only base PRs and declares nothing,
+        # so nothing defers. Kills: comparing header LINES instead of identities.
+        base = self.header(2659) + self.header(2641) + self.header(2640)
+        rollup = "**2026-09-30 | 2026.09.2641 | PRs #2640-#2641 (2 PRs)**\n"
+        variants = [
+            rollup + base,
+            base.replace("2026.09.2659", "2026.09.2660"),
+            base.replace("PR #2659**", "PR #2659** - corrected summary"),
+        ]
+        self.assertEqual(self.lc.declared_own_pr(rollup + self.header(2661) + base, base), 2661)
+        for text in variants:
+            with self.subTest(text=text):
+                self.assertIsNone(self.lc.declared_own_pr(text, base))
+                scope = self.scope(text, base, base)
+                self.assertIsNone(scope.ceiling)
+                self.assertIn("no own-PR declaration", scope.note)
+                records = self.bp._history_row_records(self.pending_rows(2661))
+                self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+                mirror = self.header(2661) + self.MARKER
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+
+    def test_declaration_checks_range_interiors_and_rejects_unknown_identity(self) -> None:
+        # Round-5 follow-up: a PR inside a base range is not new; a combined new identity, a
+        # PR-less new header and an unrecognized new header (WARN 3 at the declaration) all fail
+        # closed, the last even when a valid own header is also present.
+        lc = self.lc
+        base = "**Week of 2026-09-21 (PRs #2400-2659)**\n"
+        self.assertIsNone(lc.declared_own_pr(self.header(2500) + base, base))
+        self.assertEqual(lc.declared_own_pr(self.header(2661) + base, base), 2661)
+        self.assertIsNone(lc.declared_own_pr(
+            "**2026-09-30 | 2026.09.2661 | PRs #2660 and #2661**\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr("**2026-09-30 | MILESTONE:** changed\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr(base, base))
+        self.assertIsNone(lc.declared_own_pr(
+            "**2026-09-30 \u2014 2026.09.2661 \u2014 PR #2661**\n" + base, base))
+        self.assertIsNone(lc.declared_own_pr("### 2026-09-30 PR #2660\n" + self.header(2661) + base, base))
+
+    def test_fenced_or_commented_example_header_never_declares(self) -> None:
+        # ERROR 2: an example header in the root CHANGELOG, fenced or commented, never becomes the
+        # own-PR declaration; any delimiter at or above the candidate fails closed. Without the
+        # rule the fenced #9999 declares, the ceiling becomes 9999 and own #2662's rows and marker
+        # are deferred as another open PR (0 findings). A delimiter BELOW the candidate is not
+        # ambiguous about it.
+        base = self.header(2660) + self.header(2659)
+        example = "**2026-10-01 | 2026.10.1 | PR #9999** - example\n"
+        fence = chr(96) * 3 + "\n"
+        cases = [
+            fence + example + fence + base,
+            "~~~\n" + example + "~~~\n" + base,
+            "<!--\n" + example + "-->\n" + base,
+            "<!-- " + example.rstrip() + " -->\n" + base,
+            fence + example + fence + self.header(2662) + base,
+            "<!-- " + example.rstrip() + " -->\n" + self.header(2662) + base,
+        ]
+        for root in cases:
+            with self.subTest(root=root):
+                self.assertIsNone(self.lc.declared_own_pr(root, base))
+                scope = self.scope(root, base, base)
+                self.assertIsNone(scope.ceiling)
+                self.assertIn("no own-PR declaration", scope.note)
+                records = self.bp._history_row_records(self.pending_rows(2662))
+                self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+                mirror = self.header(2662) + self.MARKER + base
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+        own, why = self.lc.own_pr_declaration(fence + example + fence + base, base)
+        self.assertIn("delimiter at root line 1", why)
+        below = self.header(2662) + fence + self.header(2660) + fence + base
+        self.assertEqual(self.lc.declared_own_pr(below, base), 2662)
+
+    def test_declaration_refuses_prs_merged_on_origin_main(self) -> None:
+        # Round-7 F1 (claude), in memory, replacing the round-7 stacked-parent tests: a new header
+        # whose PR is covered by origin/main's root headers (range interiors included, lowercase
+        # labels too) or by its merge subjects never declares, and beside the own entry it is not
+        # a candidate. No other ref is read, so a still-open parent's header beside the own entry
+        # is a second new identity and fails closed. Kills: consulting the merge-base alone,
+        # dropping origin/main's headers, dropping its merge subjects, and range endpoints only.
+        lc = self.lc
+        base = self.header(2660)
+        parent = self.header(2653, 2661) + base
+        own = self.header(2662) + parent
+        evidence = [(parent, ()), (base, ((2653, 2653),)),
+                    ("**Week of 2026-09-21 (PRs #2650-2655)**\n" + base, ()),
+                    ("**Week of 2026-09-21 (prs #2650 - pr #2655)**\n" + base, ())]
+        for main, merged in evidence:
+            with self.subTest(main=main, merged=merged):
+                self.assertIsNone(lc.declared_own_pr(parent, base, main, merged))
+                self.assertEqual(lc.declared_own_pr(own, base, main, merged), 2662)
+        self.assertIn("origin/main", lc.own_pr_declaration(parent, base, parent)[1])
+        self.assertIsNone(lc.declared_own_pr(own, base, base))
+        self.assertIn("lines 1, 2", lc.own_pr_declaration(own, base, base)[1])
+        self.assertEqual(lc.declared_own_pr(parent, base, base), 2653, "the stated residue")
+        scope = self.scope(parent, base, base, merged=(2653,))
+        self.assertIsNone(scope.ceiling)
+        self.assertIn("no own-PR declaration", scope.note)
+        records = self.bp._history_row_records(self.pending_rows(2662))
+        self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+        declared = self.scope(own, base, parent)
+        self.assertEqual(declared.own_pr, 2662)
+        self.assertFalse(lc.above_store_ceiling([2653], declared), "merged #2653 is protected")
+
+    def test_moved_or_deleted_parent_header_does_not_declare(self) -> None:
+        # Round-7 F1 (claude) against real git, S1 and S2: the stacked parent's ref moved on, or
+        # the parent was merged and its ref deleted, and the child was never rebased. A merged
+        # parent's header is refused by origin/main's evidence (the squash `(#2653)` subject and
+        # root header, or the `Merge pull request #2653` commit); a moved, still-open parent's
+        # header beside the child's own entry is a second new identity. Either way the parent
+        # never declares, so the child's own #2662 is evaluated, never deferred. Kills: a
+        # declaration that ignores origin/main's root headers and merge subjects (round 7: #2653
+        # declared and own #2662 deferred), and resolving two new identities to either one.
+        cases = [("squash-merged", False, None), ("merge-committed", False, None),
+                 ("advanced", True, None), ("squash-merged", True, 2662),
+                 ("merge-committed", True, 2662)]
+        for parent, own_entry, expected in cases:
+            with self.subTest(parent=parent, own_entry=own_entry), \
+                    tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                text = self.stacked_child(root, own_entry=own_entry, parent=parent)
+                scope = self.lc.store_scope(text, repo_root=root)
+                self.assertEqual(scope.own_pr, expected, scope.note)
+                self.assertFalse(self.lc.above_store_ceiling([2662], scope), "own #2662")
+                if expected is None:
+                    self.assertIn("no own-PR declaration", scope.note)
+                    records = self.bp._history_row_records(self.pending_rows(2662))
+                    self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+                else:
+                    self.assertEqual((scope.open_rule, scope.note), (True, None))
+                    self.assertFalse(self.lc.above_store_ceiling([2653], scope), "merged #2653")
+
+    def test_open_parent_header_without_own_entry_is_the_stated_residue(self) -> None:
+        # The residue round 8 accepts by removing the stacked-parent concept: a child that has not
+        # yet written its own entry carries only its open parent's header, which offline is
+        # indistinguishable from an own entry, so it declares whether the parent's ref sits at the
+        # stack point or has moved on, and the child's own #2662 then defers. Pinned so that any
+        # change to it is deliberate; the note names the declared PR, so the misdeclaration is loud.
+        for parent in ("at-stack-point", "advanced"):
+            with self.subTest(parent=parent), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                text = self.stacked_child(root, own_entry=False, parent=parent)
+                scope = self.lc.store_scope(text, repo_root=root)
+                self.assertEqual((scope.own_pr, scope.ceiling), (2653, 2660))
+                self.assertTrue(self.lc.above_store_ceiling([2662], scope))
+                self.assertIn("declared own PR #2653",
+                              self.lc.store_deferral_note([2662], scope, "h", 1))
+
+    def test_store_scope_composes_ceiling_and_gates_deferral_on_the_declaration(self) -> None:
+        # Old 12, plus NOTE 4's M10. Kills: a no-declaration scope returning the root maximum as a
+        # ceiling or printing nothing; a headerless root turning None into 0; the fail-closed
+        # branches (merge-base, origin/main headers, origin/main subjects) keeping a ceiling or
+        # printing nothing; dropping the declaration from the tuple; and `ceiling = own` when an
+        # older own PR sits below a higher root header (M10: #2658 would read as exceeding ceiling
+        # #2655 instead of as another open PR, and #2661 would name the wrong ceiling).
+        base = self._BASE_ROOT
+        work = "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + base
+        s = self.scope(work, base, base, merged=(520, 521))
+        self.assertEqual((s.root_max, s.own_pr, s.ceiling, s.note, s.open_rule), (524, 524, 524, None, True))
+        self.assertTrue(self.lc._contains_pr(s.merged_prs, 521))
+        s2 = self.scope(base, base, base)
+        self.assertEqual((s2.own_pr, s2.ceiling), (None, None))
+        self.assertIn("no own-PR declaration", s2.note)
+        s4 = self.scope("# Changelog\n", "# Changelog\n", "# Changelog\n")
+        self.assertEqual((s4.root_max, s4.ceiling), (None, None))
+        s3 = self.scope(work, None, base)
+        self.assertIsNone(s3.ceiling)
+        self.assertIn("fail-closed", s3.note)
+        self.assertIn("merge-base", s3.note)
+        for main, merged in ((None, (520, 521)), (base, None)):
+            with self.subTest(main=main, merged=merged):
+                s5 = self.scope(work, base, main, merged=merged)
+                self.assertEqual((s5.own_pr, s5.ceiling, s5.open_rule), (None, None, False))
+                self.assertIn("fail-closed", s5.note)
+                self.assertIn("origin/main evidence", s5.note)
+        late = self.header(2660) + self.header(2659)
+        s6 = self.scope(self.header(2655) + late, late, late)
+        self.assertEqual((s6.own_pr, s6.ceiling), (2655, 2660))
+        reason = self.lc.store_deferral_reason
+        self.assertTrue(reason([2658], s6).startswith("every named PR is another open PR"))
+        self.assertEqual(reason([2661], s6), "every named PR exceeds store-scope ceiling #2660")
+        self.assertIsNone(reason([2659], s6))
+
+    def test_git_reads_are_offline_and_fail_closed(self) -> None:
+        # Round-6 replacement for old 13's mocked half. Every reader runs local git only, under
+        # the given root; every failure reads as None. Kills: a reader that fetches or calls an
+        # API, or lists any other ref (round 8 reads none; any unlisted command fails), and merge
+        # subjects read from bodies or bare prose `#N`.
+        import subprocess as sp
+        replies = [
+            (["merge-base", "HEAD", "origin/main"], "abc\n"),
+            (["show", "abc:CHANGELOG.md"], self.header(2659)),
+            (["show", "origin/main:CHANGELOG.md"], self.header(2662)),
+            (["log", "--format=%s", "origin/main", "--"],
+             "Fix (#2660)\nMerge pull request #2658 from a/b\nprose naming #9999\n"),
+        ]
+
+        def fake(args, **kwargs):
+            self.assertEqual(args[:3], ["git", "-C", "/fixture"])
+            for command, stdout in replies:
+                if args[3:] == command:
+                    return sp.CompletedProcess(args, 0, stdout, "")
+            self.fail(f"unexpected git command: {args}")
+        with self.patch.object(self.lc.subprocess, "run", side_effect=fake):
+            self.assertEqual(self.lc.merge_base_changelog("/fixture"), self.header(2659))
+            self.assertEqual(self.lc.main_changelog("/fixture"), self.header(2662))
+            self.assertEqual(self.lc.main_merged_prs("/fixture"), ((2658, 2658), (2660, 2660)))
+            scope = self.lc.store_scope(self.header(2661) + self.header(2659), repo_root="/fixture")
+            self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (2661, 2661, True))
+            self.assertFalse(self.lc.above_store_ceiling([2662], scope), "merged on origin/main")
+        for error in (OSError("git unavailable"), sp.CalledProcessError(1, ["git"])):
+            with self.subTest(error=error), \
+                    self.patch.object(self.lc.subprocess, "run", side_effect=error):
+                for reader in (self.lc.merge_base_changelog, self.lc.main_changelog,
+                               self.lc.main_merged_prs):
+                    self.assertIsNone(reader())
+                scope = self.lc.store_scope(self.header(2661))
+                self.assertIsNone(scope.ceiling)
+                self.assertIn("fail-closed", scope.note)
+        with self.patch.object(self.lc, "_store_git_text", side_effect=["abc\n", None]):
+            self.assertIsNone(self.lc.merge_base_changelog())
+
+    def test_git_readers_against_a_real_repository(self) -> None:
+        # Old 13, against real git. Kills: reading the working-tree CHANGELOG instead of
+        # `git show <merge-base>:` (the post-edit assertion), returning "" instead of None outside
+        # a repository or without origin/main, and merge subjects read from anything but
+        # origin/main. Changed on purpose since round 5: a CHANGELOG absent at the merge-base is
+        # unreadable (None, fail closed), no longer "" (which would declare every entry).
+        lc = self.lc
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for reader in (lc.merge_base_changelog, lc.main_changelog, lc.main_merged_prs):
+                self.assertIsNone(reader(root), f"{reader.__name__}: not a git work tree")
+            self.git(root, "init", "-q", "-b", "main")
+            (root / "CHANGELOG.md").write_text(self._BASE_ROOT, encoding="utf-8")
+            self.git(root, "add", "CHANGELOG.md")
+            self.git(root, "commit", "-q", "-m", "Base entries (#521)")
+            self.git(root, "commit", "-q", "--allow-empty", "-m", "Merge pull request #519 from a/b")
+            self.assertIsNone(lc.merge_base_changelog(root), "no origin/main: fail closed")
+            self.assertIsNone(lc.main_merged_prs(root))
+            self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+            self.git(root, "commit", "-q", "--allow-empty", "-m", "Local only (#530)")
+            self.assertEqual(lc.merge_base_changelog(root), self._BASE_ROOT)
+            self.assertEqual(lc.main_changelog(root), self._BASE_ROOT)
+            self.assertEqual(lc.main_merged_prs(root), ((519, 519), (521, 521)),
+                             "origin/main's subjects only; the local (#530) commit is not merged")
+            (root / "CHANGELOG.md").write_text(self._OWN_522_ROOT, encoding="utf-8")
+            self.assertEqual(lc.merge_base_changelog(root), self._BASE_ROOT,
+                             "the merge-base text, not the working tree's")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.git(root, "init", "-q", "-b", "main")
+            (root / "README.md").write_text("x\n", encoding="utf-8")
+            self.git(root, "add", "README.md")
+            self.git(root, "commit", "-q", "-m", "base")
+            self.git(root, "update-ref", "refs/remotes/origin/main", "HEAD")
+            self.assertIsNone(lc.merge_base_changelog(root))
+            self.assertIn("fail-closed", lc.store_scope(self._OWN_522_ROOT, repo_root=root).note)
+
+    # ---- protection of merged and own PRs (WARN 1; codex R6-01; round-6 regressions; round-7 R7-01) ----
+
+    def test_merged_pr_without_root_header_is_protected_by_merge_subject(self) -> None:
+        # WARN 1: a merged PR that took a D1 `Changelog:` trailer has no root header anywhere, so
+        # header absence alone would call it another open PR. Its origin/main `(#N)` subject
+        # protects it: rows, marker and mirror entry are all evaluated. Kills: dropping the merge
+        # subjects from the protected set (#2655 defers), and declaring (so deferring) when the
+        # subjects are unreadable.
+        root, base = self.header(2662) + self.header(2659), self.header(2659)
+        scope = self.scope(root, base, base, merged=(2659, 2655))
+        records = self.bp._history_row_records(self.pending_rows(2655))
+        self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+        self.assertEqual(self.bp._deferred_prs(records, scope), set())
+        mirror = self.header(2662) + self.header(2655) + self.MARKER + self.header(2659)
+        self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+        rc, out, err = self.mirror_gate(root, mirror, scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("MISSING from root", out)
+        self.assertIn("#2655", out)
+        self.assertNotIn("deferred #2655", out)
+        self.assertEqual(self.bp._deferred_prs(records, self.scope(root, base, base)), {2655},
+                         "header absence alone reads as another open PR")
+        blind = self.scope(root, base, base, merged=None)
+        self.assertFalse(blind.open_rule)
+        self.assertIn("merge subjects", blind.note)
+        self.assertEqual(self.bp._deferred_prs(records, blind), set())
+
+    def test_merged_entry_missing_root_line_still_fails(self) -> None:
+        # Round-6 regression: a PR merged on origin/main whose root line this branch lacks is
+        # protected, so its mirror entry fails as missing from root, even above the ceiling (the
+        # branch is behind main). Kills: protecting only this branch's root headers.
+        root = self.header(2661) + self.header(2658)
+        main = self.header(2662) + self.header(2659) + self.header(2658)
+        scope = self.scope(root, self.header(2658), main)
+        for pr in (2659, 2662):
+            with self.subTest(pr=pr):
+                self.assertFalse(self.lc.above_store_ceiling([pr], scope))
+                rc, out, err = self.mirror_gate(root, self.header(pr) + root, scope)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("MISSING from root", out)
+                self.assertIn(f"#{pr}", out)
+                self.assertNotIn(f"deferred #{pr}", out)
+
+    def test_own_and_branch_present_prs_are_never_deferred(self) -> None:
+        # Round-6 regression: the own PR and every branch-header PR (here #2653, which this branch
+        # still carries from its merge-base although origin/main no longer shows it) are
+        # protected, alone or in a combined identity with an unknown PR. Kills: a protection check
+        # on the first key only, and `any` -> `all` in the overlap test.
+        root = self.header(2661) + self.header(2653) + self.header(2659)
+        scope = self.scope(root, self.header(2653) + self.header(2659), self.header(2659))
+        self.assertEqual(scope.own_pr, 2661)
+        for pr in (2661, 2653, 2659):
+            with self.subTest(pr=pr):
+                self.assertFalse(self.lc.above_store_ceiling([pr], scope))
+                self.assertFalse(self.lc.above_store_ceiling([9999, pr], scope))
+                records = self.bp._history_row_records(self.pending_rows(pr))
+                self.assertTrue(self.bp.row_integrity_findings(records, "h", ceiling=scope))
+        self.assertTrue(self.lc.above_store_ceiling([2652, 2660], scope))
+
+    def test_origin_main_unreadable_declares_nothing_and_prints_note(self) -> None:
+        # Round-6 regression, changed on purpose by round 8: a declaration needs origin/main's
+        # root headers AND merge subjects, so with either unreadable nothing is declared, nothing
+        # defers (not even above the ceiling) and a note says so. Kills: declaring from the
+        # merge-base alone, a ceiling or open-PR rule without that evidence, and dropping the note.
+        root, base = self.header(2661) + self.header(2659), self.header(2659)
+        for main, merged in ((None, ()), (self.header(2665) + base, None)):
+            with self.subTest(main=main, merged=merged):
+                scope = self.scope(root, base, main, merged=merged)
+                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (None, None, False))
+                self.assertIn("fail-closed", scope.note)
+                for pr in (2653, 2662, 2666):
+                    self.assertFalse(self.lc.above_store_ceiling([pr], scope))
+                rc, out, err = self.mirror_gate(root, self.header(2662) + root + self.header(2653), scope)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn(scope.note, out)
+                self.assertIn("MISSING from root", out)
+                self.assertNotIn("deferred", out)
+
+    def test_range_interiors_protect_merged_and_own_prs(self) -> None:
+        # Round-6 regression: a PR inside an origin/main roll-up range is merged; a header or
+        # retro range enclosing the own PR is protected. Kills: protecting range endpoints only.
+        root = self.header(2661) + self.header(2659)
+        main = "**Week of 2026-09-21 (PRs #2400-2600)**\n" + self.header(2659)
+        scope = self.scope(root, main, main)
+        self.assertFalse(self.lc.above_store_ceiling([2500], scope))
+        line = "**2026-09-30 | 2026.09.3000 | PRs #2660-2662 (3 PRs)**"
+        self.assertFalse(self.lc.store_deferral_flags([line], scope)[0][0])
+        rows = self.bp._retro_row_records("| 2026-09-30 | #2660-2662 (/retro) | a | lesson |\n" * 2)
+        self.assertEqual(self.bp._deferred_prs(rows, scope), set())
+
+    def test_history_row_ranges_never_defer_own_or_merged_pr(self) -> None:
+        # Codex R6-01: history rows used to keep endpoint integers only, so `#2660-#2662` around
+        # own #2661 (and `#2658-#2660` around merged #2659) deferred on their open endpoints and
+        # the note named the endpoints alone. Both rows are now evaluated exactly as without
+        # scope, and an uncertain history identity (a prose tail) never defers. Kills: building
+        # history records without range spans or certainty.
+        own = self.header(2661) + self.header(2659)
+        scope = self.scope(own, self.header(2659), self.header(2659))
+        self.assertEqual(scope.own_pr, 2661)
+        for cell in ("#2660-#2662", "#2658-#2660", "PR #2658-#2660"):
+            with self.subTest(cell=cell):
+                rows = f"| 2026-09-30 | {cell} | c | T | IN PROGRESS |\n" * 2
+                records = self.bp._history_row_records(rows)
+                unscoped = self.bp.row_integrity_findings(records, "h")
+                self.assertEqual(len(unscoped), 2)
+                self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), unscoped)
+                self.assertEqual(self.bp._deferred_prs(records, scope), set())
+        for cell in ("#2653 (r2)", "#2653, see #2650"):
+            with self.subTest(cell=cell):
+                records = self.bp._history_row_records(f"| 2026-09-30 | {cell} | c | T | IN PROGRESS |\n" * 2)
+                self.assertFalse(records[0][1].certain)
+                self.assertEqual(self.bp._deferred_prs(records, scope), set())
+        plain = self.bp._history_row_records(self.pending_rows(2653))
+        self.assertTrue(plain[0][1].certain)
+        self.assertEqual(self.bp._deferred_prs(plain, scope), {2653}, "a certain open row still defers")
+
+    def test_lowercase_pr_range_protects_its_interior(self) -> None:
+        # Round-7 R7-01 (codex): identities were read case-insensitively but ranges were not, so a
+        # lowercase `pr` range was a CERTAIN identity with no range spans and a protected interior
+        # PR (own #2661, merged #2659) deferred on its open endpoints. One shared grammar now reads
+        # both, so each case reads as its uppercase twin and is evaluated exactly as without scope,
+        # in both registers; header cells and origin/main roll-ups read the same way. Kills: any
+        # case-sensitive identity, range or header-label reader.
+        lc = self.lc
+        root = self.header(2661) + self.header(2659)
+        scope = self.scope(root, self.header(2659), self.header(2659), merged=(2659,))
+        self.assertEqual(scope.own_pr, 2661)
+        for cell in ("#2660 - pr #2662", "#2658 - pr #2660", "pr #2658-#2660", "Pr 2660 - PR 2662"):
+            with self.subTest(cell=cell):
+                prs, upper = lc.store_row_prs(cell), lc.store_row_prs(cell.upper())
+                self.assertEqual((list(prs), prs.certain, prs.spans),
+                                 (list(upper), upper.certain, upper.spans))
+                self.assertEqual(len(prs.spans), 1)
+                history = self.bp._history_row_records(f"| 2026-09-30 | {cell} | c | T | IN PROGRESS |\n" * 2)
+                retro = self.bp._retro_row_records(f"| 2026-09-30 | {cell} (/retro) | a | lesson |\n" * 2)
+                for records in (history, retro):
+                    unscoped = self.bp.row_integrity_findings(records, "h")
+                    self.assertEqual(len(unscoped), 2)
+                    self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), unscoped)
+                    self.assertEqual(self.bp._deferred_prs(records, scope), set())
+        for line in ("**2026-09-30 | 2026.09.3000 | PRs #2660 - pr #2662**",
+                     "**2026-09-30 | 2026.09.3000 | prs #2660 - pr #2662**"):
+            with self.subTest(line=line):
+                self.assertEqual(lc.changelog_header_prs(line), [2660, 2662])
+                self.assertFalse(lc.store_deferral_flags([line], scope)[0][0])
+        main = "**Week of 2026-09-21 (PRs #2600 - pr #2650)**\n" + self.header(2659)
+        self.assertFalse(lc.above_store_ceiling([2620], self.scope(root, main, main)),
+                         "a merged roll-up's interior")
+
+    # ---- register rows (old tests 24-26; round-5 codex ERROR 2; NOTE 3; codex R6-03) ----
+
+    def test_row_integrity_defers_later_pr_rows(self) -> None:
+        # Old 24. #2652 is beyond ceiling 2650 (deferred, reported); #2650, the declared own PR and
+        # the ceiling itself, is always evaluated. Kills: `>` -> `>=` (0 findings at 2650), dropping
+        # the deferral (2 findings at 2649), and dropping _deferred_prs's reporting.
+        recs = self.bp._history_row_records(self._HDR + self._LATER_PR_ROWS + self._OWN_PR_ROWS)
+        f_2650 = self.bp.row_integrity_findings(recs, "h", ceiling=2650)
+        self.assertEqual(len(f_2650), 1, f_2650)
+        self.assertIn("#2650", f_2650[0])
+        self.assertEqual(len(self.bp.row_integrity_findings(recs, "h", ceiling=2652)), 2)
+        self.assertEqual(len(self.bp.row_integrity_findings(recs, "h", ceiling=2649)), 0)
+        self.assertEqual(len(self.bp.row_integrity_findings(recs, "h")), 2)
+        self.assertEqual(self.bp._deferred_prs(recs, 2650), {2652})
+        self.assertEqual(self.bp._deferred_prs(recs, 2649), {2650, 2652})
+        self.assertEqual(self.bp._deferred_prs(recs, 2652), set())
+
+    def test_combined_history_row_is_kept_whole(self) -> None:
+        # Old 25 (claude r1 T2): a combined `#10, #12` history row names an in-scope PR, so the row
+        # is kept whole and counts under both keys. Kills: a record-level `any(p > ceiling)` skip
+        # (#10's finding vanishes) and a per-key skip (#12 appears in _deferred_prs).
+        rows = ("| 2026-09-30 | #10, #12 | c | T | SHIP final |\n"
+                "| 2026-09-30 | #10, #12 | c | T | IN PROGRESS: r1 |\n")
+        recs = self.bp._history_row_records(self._HDR + rows)
+        self.assertEqual([list(r[1]) for r in recs], [[10, 12], [10, 12]])
+        findings = self.bp.row_integrity_findings(recs, "h", ceiling=10)
+        self.assertTrue(any("#10" in f for f in findings), findings)
+        self.assertTrue(any("#12" in f for f in findings), findings)
+        self.assertEqual(self.bp._deferred_prs(recs, 10), set())
+
+    def test_history_rows_read_raw_no_masking(self) -> None:
+        # Old 26 (codex r4 ERROR 2): literal `<!--` in one row and `-->` in a later row must not
+        # swallow the rows between them. Kills: any fence/comment blanking in the extractors.
+        text = (self._HDR
+                + "| 2026-09-30 | #2650 | c | prose with a literal `<!--` token | SHIP final |\n"
+                + "| 2026-09-30 | #2650 | c | T | IN PROGRESS: r1 dispatched |\n"
+                + "| 2026-09-30 | #2651 | c | closes the `-->` note | SHIP |\n")
+        recs = self.bp._history_row_records(text)
+        self.assertEqual([list(r[1]) for r in recs], [[2650], [2650], [2651]])
+        f = self.bp.row_integrity_findings(recs, "h", ceiling=2651)
+        self.assertEqual(len(f), 1, f)
+        self.assertIn("#2650", f[0])
+
+    def test_codex_error_2_combined_and_retro_rows_keep_own_pr(self) -> None:
+        # Round-5 codex ERROR 2: `#2652 and #2650 (/retro)` names both PRs, so own #2650's
+        # duplicate rows are evaluated and nothing defers. Kills: a leading-run reader without
+        # `and` (identity [2652], deferred above ceiling 2650).
+        text = "| 2026-09-30 | #2652 and #2650 (/retro) | a | lesson |\n" * 2
+        records = self.bp._retro_row_records(text)
+        self.assertEqual([list(r[1]) for r in records], [[2650, 2652], [2650, 2652]])
+        findings = self.bp.row_integrity_findings(records, "retro", ceiling=2650)
+        self.assertEqual(len(findings), 2)
+        self.assertTrue(any("#2650" in f for f in findings))
+        self.assertEqual(self.bp._deferred_prs(records, 2650), set())
+
+    def test_retro_connectors_companions_and_uncertain_tail(self) -> None:
+        # Round-6 regression plus NOTE 3 and codex R6-03 (both confirmed). Connector and range
+        # identities name both PRs; companions need the keyword right after the identity; a prose
+        # tail makes an identity uncertain (never deferred). NOTE 3: `#10-#x` keeps key [10] as the
+        # old LEADING_PR_RUN did, now uncertain, instead of dropping the row; the widened
+        # companion shapes are pinned. R6-03: a Unicode letter after the digits is no identity, as
+        # with the old `\w` boundary. Kills: an ASCII-only boundary (`1309\u00e9` reads 1309), and
+        # `-(?!#?\d)` (the `#10-#x` row disappears from row integrity).
+        for identity in ("#2652, and PR #2650", "#2652 & 2650", "#2650-#2652", "#2650-2652"):
+            with self.subTest(identity=identity):
+                records = self.bp._retro_row_records(f"| 2026-09-30 | {identity} (/retro) | a | lesson |\n" * 2)
+                self.assertEqual(list(records[0][1]), [2650, 2652])
+                self.assertTrue(self.bp.row_integrity_findings(records, "retro", ceiling=2650))
+        records = self.bp._retro_row_records(
+            "| 2026-09-30 | #2652 and #2650 (/retro) | a | lesson |\n"
+            "| 2026-09-30 | #2652 and #2650 addendum (/retro) | a | lesson |\n")
+        self.assertEqual(self.bp.row_integrity_findings(records, "retro", ceiling=2650), [])
+        for identity in ("#2652 / #2650", "#2652 or 2650", "#2652 plus 2650"):
+            with self.subTest(identity=identity):
+                uncertain = self.bp._retro_row_records(f"| 2026-09-30 | {identity} (/retro) | a | lesson |\n" * 2)
+                self.assertTrue(self.bp.row_integrity_findings(uncertain, "retro", ceiling=2650))
+                self.assertEqual(self.bp._deferred_prs(uncertain, 2650), set())
+        prose = self.bp._retro_row_records("| 2026-09-30 | #2652 fix mentions #2650 | a | lesson |\n")
+        self.assertEqual(list(prose[0][1]), [2652], "prose references are not row identities")
+        dangling = self.bp._retro_row_records("| 2026-09-30 | #10-#x | a | lesson |\n" * 2)
+        self.assertEqual([list(r[1]) for r in dangling], [[10], [10]])
+        self.assertFalse(dangling[0][1].certain)
+        self.assertEqual(len(self.bp.row_integrity_findings(dangling, "retro", ceiling=5)), 1)
+        for cell in ("#10 and #11 iteration", "#10, and #11 addendum", "PRs #10 iteration",
+                     "#10 - #11 addendum", "1329 addendum"):
+            self.assertTrue(self.bp.COMPANION_PR_CELL.match(cell), cell)
+        self.assertFalse(self.bp.COMPANION_PR_CELL.match("#10 (addendum detector fix)"))
+        for identity in ("1309-REVERTED", "3.245", "resume-0825b", "1309\u00e9", "1309\u00e9 fix"):
+            with self.subTest(identity=identity):
+                self.assertEqual(self.bp._retro_row_records(f"| 2026-09-30 | {identity} | a | lesson |\n"), [])
+
+    def test_earlier_open_mirror_header_and_qa_rows_are_deferred(self) -> None:
+        # Option B: an earlier open PR (#2653, absent from every root file and merge subject) is
+        # deferred below the own entry, in the mirror and in the registers, and the note says why.
+        # Kills: an open-PR rule that never fires (rc 1, #2653 MISSING from root).
+        root = self.header(2661) + self.header(2659)
+        scope = self.scope(root, self.header(2659), self.header(2659), merged=(2659,))
+        mirror = self.header(2661) + self.header(2653) + self.header(2659)
+        rc, out, err = self.mirror_gate(root, mirror, scope)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("deferred #2653", out)
+        self.assertIn("another open PR", out)
+        records = self.bp._history_row_records(self.pending_rows(2653))
+        self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), [])
+        self.assertEqual(self.bp._deferred_prs(records, scope), {2653})
+        self.assertEqual(len(self.bp.row_integrity_findings(records, "h")), 1)
+
+    def test_raw_examples_never_hide_rows_or_markers(self) -> None:
+        # Round-6 regression: fenced, commented or tilde-fenced examples in the mirror and the
+        # registers stay records; a delimiter ends deferral, so a later marker is evaluated. Kills:
+        # reintroducing any mask, and a delimiter that does not end deferral.
+        root, base = self.header(2661) + self.header(2659), self.header(2659)
+        scope = self.scope(root, base, base)
+        for opening, closing in [(chr(96) * 3, chr(96) * 3), ("<!--", "-->"), ("~~~~", "~~~~")]:
+            with self.subTest(opening=opening):
+                mirror = root + opening + "\n" + self.header(2653) + closing + "\n" + self.MARKER
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+                self.assertEqual(self.bp._deferred_mirror_prs(mirror, scope), set())
+                rc, out, err = self.mirror_gate(root, mirror, scope)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("MISSING from root", out)
+                rows = ("| 2026-09-30 | #2661 | c | T | SHIP |\n" + opening + "\n"
+                        "| 2026-09-30 | #2661 | c | T | IN PROGRESS |\n" + closing + "\n")
+                records = self.bp._history_row_records(rows)
+                self.assertEqual(len(records), 2)
+                self.assertEqual(len(self.bp.row_integrity_findings(records, "h", ceiling=scope)), 1)
+        rows = ("| 2026-09-30 | #2661 | c | literal <!-- | SHIP |\n"
+                "| 2026-09-30 | #2661 | c | T | IN PROGRESS |\n"
+                "| 2026-09-30 | #2660 | c | literal --> | SHIP |\n")
+        self.assertEqual(len(self.bp._history_row_records(rows)), 3)
+
+    def test_ceiling_compatibility_and_boundary_reset(self) -> None:
+        # Round-6 regression: an unknown boundary ends a deferred run for the rest of the file,
+        # so the #9999 entry after it is evaluated. Kills: resetting uncertainty at the next
+        # recognized boundary.
+        text = self.header(2662) + "- **Worker provenance:** no path\n"
+        text += "## 2026-09-30, Library Version 2026.09.1\n"
+        text += self.header(9999) + "- **Worker provenance:** no path\n"
+        self.assertEqual(len(self.bp.worker_provenance_findings(text, ceiling=2661)), 1)
+        self.assertEqual(self.bp._deferred_mirror_prs(text, 2661), {2662})
+        self.assertEqual(len(self.bp.worker_provenance_findings(text)), 2)
+
+    # ---- gate 59 CLI under --root against fixture repositories (old tests 14-23) ----
+
+    def test_mirror_gate_later_pr_header_is_deferred(self) -> None:
+        # Old 14. PR #523's store entry is visible on #522's branch (#522 declared, ceiling 522).
+        # Kills: dropping the deferral in main() (rc 1), and M7: resolving the scope against
+        # REPO_ROOT instead of the --root fixture (no declaration there, rc 1).
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n\n" + self._OWN_522_ROOT + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #523: every named PR exceeds store-scope ceiling #522", r.stdout)
+        self.assertIn("declared own PR #522", r.stdout)
+
+    def test_mirror_gate_own_pr_at_ceiling_is_evaluated(self) -> None:
+        # Old 15. The declared PR is the ceiling: its mirror record is compared, never deferred.
+        # Kills: `>` -> `>=` and any caller-local `>=` re-filter (rc 0, "deferred").
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            "**2026-07-03 | 2026.07.11 | PR #522** - own\n\n" + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("DIFFERENT Library Versions", r.stdout)
+        self.assertIn("#522", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_undeclared_own_pr_defers_nothing_and_notes(self) -> None:
+        # Old 16. Before the root entry lands nothing defers and a note says so; after it lands
+        # parity holds with no note. Kills: a root-maximum ceiling without a declaration, a
+        # silent no-declaration scope, and ignoring the declaration.
+        r = self.run_mirror_gate(self._BASE_ROOT, self._OWN_522_ROOT + self._BASE_ROOT,
+                                 base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from root", r.stdout)
+        self.assertIn("#522", r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+        r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
+                                 self._OWN_522_ROOT + self._BASE_ROOT, base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+        self.assertNotIn("note:", r.stdout)
+
+    def test_mirror_gate_no_merge_base_fails_closed(self) -> None:
+        # Old 17. No repository and no origin/main: nothing defers and the gate says so. Kills: a
+        # root-maximum fallback (rc 0) and a silent fail-closed.
+        r = self.run_mirror_gate(self._OWN_522_ROOT + self._BASE_ROOT,
+                                 "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n\n"
+                                 + self._OWN_522_ROOT + self._BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from root", r.stdout)
+        self.assertIn("#523", r.stdout)
+        self.assertIn("fail-closed", r.stdout)
+        self.assertIn("merge-base", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_multi_pr_entry_kept_when_any_named_pr_in_scope(self) -> None:
+        # Old 18. A legacy header naming in-scope #520 and later #524 is evaluated whole. Kills:
+        # deciding from the greedy record key [524] alone, and `min` -> `max`.
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            "## 2026-07-04, Library Version 2026.07.11, PR #520 and PR #524\n\n"
+            + self._OWN_522_ROOT + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("#524", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_record_key_and_deferral_share_one_pr_rule(self) -> None:
+        # Old 19 (claude r2 WARN 1): the greedy record key #2650 is outside the ambiguous cell, so
+        # the record is kept and the duplicate #2650 fails exactly as on main. Kills: the joint
+        # removal of the ambiguity probe and the caller's record-key membership test.
+        base = "**2026-09-28 | 2026.09.1353 | PR #2650** - t\n"
+        work = "**2026-09-30 | 2026.09.1360 | PR #2657** - t\n\n" + base
+        r = self.run_mirror_gate(
+            work,
+            "## 2026-09-30, Library Version 2026.09.1361, PR #9999 (follow-up to PR #2650)\n\n" + work,
+            base_root_text=base)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("more than once in the detailed mirror", r.stdout)
+        self.assertIn("#2650", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_deferred_multi_pr_header_reports_every_pr(self) -> None:
+        # Old 20 (gemini r2 finding 4). Kills (M4): a note naming only the greedy record key.
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            "## 2026-07-04, Library Version 2026.07.11, PR #523 and PR #524\n\n"
+            + self._OWN_522_ROOT + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #523, #524:", r.stdout)
+
+    def test_mirror_gate_lookalike_below_own_entry(self) -> None:
+        # Old 21, changed on purpose by option B (NOTE 1's stated residue): with readable
+        # origin/main evidence a plain, unmarked lookalike below the own entry reads as another
+        # open PR's entry and defers LOUDLY (the note names #9999). The unreadable-origin/main
+        # half, where it is evaluated, is pinned in process by
+        # test_store_deferral_flags_confine_ceiling_deferral_to_the_initial_run and
+        # test_open_rule_reaches_below_own_entry_and_lookalike_residue.
+        r = self.run_mirror_gate(
+            self._OWN_522_ROOT + self._BASE_ROOT,
+            self._OWN_522_ROOT + "**2026-10-01 | 2026.10.1 | PR #9999** - unmarked lookalike\n\n"
+            + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT)
+        self.assertEqual(r.returncode, 0, r.stdout)
+        self.assertIn("deferred #9999", r.stdout)
+
+    def test_mirror_gate_no_root_header_defers_nothing(self) -> None:
+        # Old 22. No parseable root header: no declaration, nothing deferred, the mirror-only
+        # #522 fails loudly. Kills: a None ceiling read as 0, and a silent no-deferral state.
+        r = self.run_mirror_gate("# Changelog\n", "**2026-07-03 | 2026.07.10 | PR #522** - t\n",
+                                 base_root_text="# Changelog\n")
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("#522", r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+        self.assertNotIn("fail-closed", r.stdout)
+
+    def test_mirror_gate_reads_raw_records_no_masking(self) -> None:
+        # Old 23 (claude r3 ERROR 1 / codex r3 ERROR 2) on the ROOT surface: literal `<!--` and
+        # `-->` in root prose span the real #522 root header, which must still be required in the
+        # mirror. Kills (M9): masking either surface read in main() (rc 0). The literal delimiter
+        # also makes the root ambiguous, so nothing is declared.
+        base = "**2026-07-02 | 2026.07.9 | PR #521** - t\n"
+        work = ("**2026-07-04 | 2026.07.11 | PR #523** - own\n"
+                "Notes: the gate reads `<!--` literally.\n"
+                "**2026-07-03 | 2026.07.10 | PR #522** - never mirrored\n"
+                "end of the `-->` note.\n" + base)
+        r = self.run_mirror_gate(work, "**2026-07-04 | 2026.07.11 | PR #523** - own\n\n" + base,
+                                 base_root_text=base)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from the detailed mirror", r.stdout)
+        self.assertIn("#522", r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+
+    def test_mirror_gate_merged_pr_without_root_header_fails(self) -> None:
+        # WARN 1 through the CLI: #523 merged on origin/main with a `Changelog:` trailer (a `(#523)`
+        # subject, no root header). Its mirror entry is evaluated and fails as on main. Kills:
+        # merged status from header absence alone (rc 0, #523 deferred as another open PR).
+        r = self.run_mirror_gate(
+            "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n" + self._BASE_ROOT,
+            "**2026-07-05 | 2026.07.12 | PR #524** - own\n\n"
+            "**2026-07-04 | 2026.07.11 | PR #523** - trailer-only merge\n\n" + self._BASE_ROOT,
+            base_root_text=self._BASE_ROOT,
+            subjects=("Base entries (#521)", "Trailer-only fix (#523)"))
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("MISSING from root", r.stdout)
+        self.assertIn("#523", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_deleted_parent_header_does_not_declare(self) -> None:
+        # Round-7 F1 S2 through the CLI: the parent was squash-merged and its ref deleted; the
+        # unrebased child has not written its own root entry yet, so its own #2662 mirror entry is
+        # evaluated (missing from root) with a no-declaration note. Kills: the merged parent's
+        # #2653 header declaring (ceiling 2660, #2662 deferred above it, rc 0).
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.stacked_child(root, own_entry=False, parent="squash-merged")
+            d = root / ".working" / "changelog-details"
+            d.mkdir(parents=True)
+            (d / "CHANGELOG-detailed.md").write_text(
+                self.header(2662) + self.header(2653, 2661) + self.header(2660), encoding="utf-8")
+            r = run_linter("tools/lint-changelog-mirror-header-parity.py", "--root", tmp)
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+        self.assertIn("MISSING from root", r.stdout)
+        self.assertIn("#2662", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_mirror_gate_fenced_example_header_does_not_declare(self) -> None:
+        # ERROR 2 through the CLI: a fenced example header above the root entries (the branch has
+        # not written its own entry) declares nothing, so own #2662's mirror entry is evaluated.
+        # Kills: fence-blind declaration (#9999 declared, #2662 deferred as another open PR, rc 0).
+        base = self.header(2660)
+        fence = chr(96) * 3 + "\n"
+        root_text = fence + "**2026-10-01 | 2026.10.1 | PR #9999** - example\n" + fence + base
+        r = self.run_mirror_gate(root_text, self.header(2662) + base, base_root_text=base,
+                                 subjects=("Lost-device table (#2660)",))
+        self.assertEqual(r.returncode, 1, r.stdout)
+        self.assertIn("no own-PR declaration", r.stdout)
+        self.assertIn("delimiter", r.stdout)
+        self.assertIn("#2662", r.stdout)
+        self.assertNotIn("deferred", r.stdout)
+
+    def test_gate_59_keeps_ambiguous_record_key_and_ordering_checks(self) -> None:
+        # Round-6 regression: scope never weakens the duplicate, version-agreement or ordering
+        # checks for evaluated records.
+        root, base = self.header(2661) + self.header(2659), self.header(2659)
+        scope = self.scope(root, base, base)
+        mirror = "## 2026-09-30, Library Version 2026.09.2662, PR #9999 (see PR #2659)\n" + root
+        rc, out, err = self.mirror_gate(root, mirror, scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertNotIn("deferred", out)
+        self.assertIn("appearing more than once", out)
+        rc, out, err = self.mirror_gate(root, self.header(2661, 2660) + self.header(2659), scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("DIFFERENT Library Versions", out)
+        rc, out, err = self.mirror_gate(root, self.header(2661, 2659) + self.header(2659, 2661), scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("ordering violated", out)
+
+    def test_store_snapshot_defers_only_open_entries(self) -> None:
+        # The live store at round 7 (2026-09-30): open #2653 defers; #2661 merged on origin/main
+        # (subject `(#2661)`) after this branch's merge-base, so its mirror entry is evaluated and
+        # fails until the branch is rebased; own #2662 and merged #2660 are evaluated and match.
+        root = self.header(2662, 1366) + self.header(2660, 1363) + self.header(2659, 1362)
+        base = self.header(2660, 1363) + self.header(2659, 1362)
+        main = self.header(2661, 1365) + base
+        scope = self.scope(root, base, main, merged=(2661, 2660, 2659))
+        mirror = (self.header(2653, 1367) + self.header(2662, 1366) + self.header(2661, 1365)
+                  + self.header(2660, 1363) + self.header(2659, 1362))
+        self.assertEqual(self.bp._deferred_mirror_prs(mirror, scope), {2653})
+        rc, out, err = self.mirror_gate(root, mirror, scope)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("deferred #2653", out)
+        self.assertIn("MISSING from root CHANGELOG.md (>= #2653): #2661", out)
+        for pr in (2662, 2661, 2660):
+            self.assertNotIn(f"deferred #{pr}", out)
+
+    # ---- gate 50 main() and CLI (old tests 31-32) ----
+
+    class _Stub:
+        def __init__(self, text: str) -> None:
+            self._text = text
+
+        def read_text(self, **kwargs) -> str:
+            return self._text
+
+    def _gate_50_main(self, files, working, scope):
+        with self.patch.object(self.bp, "read", side_effect=lambda rel: files[rel]), \
+                self.patch.object(self.bp, "resolve_working", side_effect=working.get), \
+                self.patch.object(self.bp, "discover_version_history_files", return_value=[]), \
+                self.patch.object(self.bp, "store_scope", return_value=scope):
+            return self.capture(self.bp.main)
+
+    def test_gate_50_main_wires_scope_note_and_deferrals(self) -> None:
+        # Old 31, plus NOTE 4's M15. Case A: a live scope defers later #2652's rows (history and
+        # retro) and later #2653's mirror entry, each with a note; own #2650 is evaluated. Cases B
+        # and C (M6): a fail-closed and an undeclared scope defer nothing and print their notes.
+        # Kills: passing `ceiling - 1`, dropping any note loop (history, retro, mirror), ignoring
+        # scope.note, and treating a None-ceiling scope as live.
+        files = dict([("CHANGELOG.md", "**2026-09-29 | 2026.09.1354 | PR #2649** - t\n"),
+                      ("TODO.md", "")])
+        retro = ("| 2026-09-30 | #2652 (/retro) | a | lesson |\n" * 2
+                 + "| 2026-09-30 | #2650 (/retro) | a | lesson |\n")
+        working = dict([
+            ("validate-pr/history.md", self._Stub(self._HDR + self._LATER_PR_ROWS + self._OWN_PR_ROWS)),
+            ("improvement-log.md", self._Stub(retro)),
+            ("changelog-details/CHANGELOG-detailed.md", self._Stub(
+                "**2026-10-01 | 2026.09.1357 | PR #2653** - later, mirror-only\n" + self.MARKER)),
+        ])
+        live = self.lc.StoreScope(2650, 2650, 2650, None)
+        rc, out, err = self._gate_50_main(files, working, live)
+        self.assertEqual(rc, 1, err)
+        self.assertIn("[row-integrity] PR #2650", err)
+        self.assertNotIn("PR #2652", err)
+        self.assertNotIn("worker-provenance", err)
+        self.assertIn("validate-pr/history.md:3: deferred #2652", out)
+        self.assertIn("improvement-log.md:1: deferred #2652", out)
+        self.assertIn("CHANGELOG-detailed.md:1: deferred #2653", out)
+        self.assertIn("declared own PR #2650, ceiling #2650", out)
+        for note in ("store scope fail-closed: the merge-base changelog with origin/main is "
+                     "unreadable; every store entry is evaluated.",
+                     "store scope: no own-PR declaration (test); every store entry is evaluated."):
+            with self.subTest(note=note):
+                rc, out, err = self._gate_50_main(files, working, self.lc.StoreScope(2649, None, None, note))
+                self.assertEqual(rc, 1, err)
+                self.assertIn(f"note: {note}", out)
+                self.assertNotIn("deferred", out)
+                self.assertIn("[row-integrity] PR #2652", err)
+                self.assertIn("worker-provenance marker", err)
+
+    def test_gate_50_main_reports_each_deferral_and_runs_all_checks(self) -> None:
+        # Round-6 regression: under a real scope every check still reports, each deferral prints
+        # once, and the module's `__main__` guard runs main() with these inputs.
+        root = self.header(2661) + self.header(2659) + self.header(2658)
+        base = self.header(2659) + self.header(2658)
+        scope = self.scope(root, base, base, merged=(2659, 2658))
+        working = dict([
+            ("validate-pr/history.md", self._Stub(
+                "| 2026-09-30 | #2661 | c | T | SHIP |\n" * 2
+                + self.pending_rows(2653)
+                + "| 2026-09-30 | #2658 | c | T | SHIP |\n")),
+            ("improvement-log.md", self._Stub("| 2026-09-30 | #2658 (/retro) | a | lesson |\n")),
+            ("changelog-details/CHANGELOG-detailed.md", self._Stub(
+                self.header(2661) + "- **Worker provenance:** no path\n"
+                + self.header(2660) + "- **Worker provenance:** no path\n")),
+            ("deep-assessment/register.md", self._Stub("| r2 | x |\n| r1 | x |\n")),
+            ("merge-bypass-log.md", self._Stub("| 2026-09-30 | #2658 | --admin |\n")),
+        ])
+        public = dict([("CHANGELOG.md", root), ("TODO.md", "- [x] shipped item\n")])
+        version_doc = "**Version:** 1.2.3\n\n## Version history\n\n| Version | Date |\n|---|---|\n| 1.2.2 | 2026-09-01 |\n"
+        with self.patch.object(self.bp, "read", side_effect=lambda key: public[key]), \
+                self.patch.object(self.bp, "resolve_working", side_effect=working.get), \
+                self.patch.object(self.bp, "discover_version_history_files",
+                                  return_value=[("doc.md", version_doc)]), \
+                self.patch.object(self.bp, "store_scope", return_value=scope):
+            rc, out, err = self.capture(self.bp.main)
+            self.assertEqual(rc, 1, out + err)
+            for tag in ("[row-integrity] PR #2661", "[qa-cadence] PR #2659",
+                        "[todo-rotation]", "[version-history-parity]",
+                        "worker-provenance marker", "[register-row-order]", "[bypass-log] PR #2659"):
+                self.assertIn(tag, err)
+            self.assertEqual(out.count("deferred #2653"), 2)
+            self.assertEqual(out.count("deferred #2660"), 1)
+            self.assertIn("another open PR", out)
+            self.assertNotIn("[row-integrity] PR #2653", err)
+            import ast
+            tree = ast.parse((REPO_ROOT / "tools/lint-bookkeeping-parity.py").read_text(encoding="utf-8"))
+            guard = tree.body[-1]
+            self.assertIsInstance(guard, ast.If)
+            namespace = dict(self.bp.__dict__, __name__="__main__")
+            with self.patch.object(sys, "argv", ["lint-bookkeeping-parity.py"]), \
+                    self.assertRaises(SystemExit) as caught:
+                self.capture(exec, compile(ast.Module(body=[guard], type_ignores=[]),
+                                           self.bp.__file__, "exec"), namespace)
+            self.assertEqual(caught.exception.code, 1)
+
+    def test_gate_50_cli_runs_every_check_against_fixture_store(self) -> None:
+        # Old 32 (r4, all three families): the REAL CLI in a fixture repository (REPO_ROOT comes
+        # from the file location, so every default input resolves to the fixture) with GRC_STORE
+        # pointing at a fixture operational store, so bootstrap, store resolution, the real git
+        # scope and every check run end to end. Each assertion names one check's finding tag, so
+        # a dead entry point or any check dropped from main() fails by name.
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            store = Path(tmp) / "store"
+            (repo / "tools").mkdir(parents=True)
+            for name in ("lint-bookkeeping-parity.py", "lint_common.py", "aiqt_bootstrap.py"):
+                (repo / "tools" / name).write_text(
+                    (REPO_ROOT / "tools" / name).read_text(encoding="utf-8"), encoding="utf-8")
+            self.origin_main(repo, self._BASE_ROOT, "Base entries (#520)", "Second entry (#521)")
+            (repo / "CHANGELOG.md").write_text(self._OWN_522_ROOT + self._BASE_ROOT, encoding="utf-8")
+            (repo / "TODO.md").write_text("- [x] shipped item left in TODO\n", encoding="utf-8")
+            (repo / "doc.md").write_text(
+                "**Version:** 1.2.3\n\n## Version history\n\n| Version | Date |\n|---|---|\n"
+                "| 1.2.2 | 2026-09-01 |\n", encoding="utf-8")
+            (store / "validate-pr").mkdir(parents=True)
+            (store / "validate-pr" / "history.md").write_text(
+                self._HDR
+                + "| 2026-09-30 | #523 | c | T | SHIP |\n"
+                + "| 2026-09-30 | #523 | c | T | IN PROGRESS |\n"
+                + "| 2026-09-30 | #522 | c | T | SHIP final |\n"
+                + "| 2026-09-30 | #522 | c | T | SHIP again |\n"
+                + "| 2026-07-01 | #520 | c | T | SHIP |\n", encoding="utf-8")
+            (store / "improvement-log.md").write_text(
+                "| 2026-09-30 | #522 (/retro) | a | lesson |\n"
+                "| 2026-07-01 | #520 (/retro) | a | lesson |\n", encoding="utf-8")
+            (store / "changelog-details").mkdir()
+            (store / "changelog-details" / "CHANGELOG-detailed.md").write_text(
+                "**2026-07-04 | 2026.07.11 | PR #523** - later PR\n"
+                "- **Worker provenance:** no path recorded\n\n"
+                "**2026-07-03 | 2026.07.10 | PR #522** - own\n"
+                "- **Worker provenance:** applied, path not recorded\n", encoding="utf-8")
+            (store / "deep-assessment").mkdir()
+            (store / "deep-assessment" / "register.md").write_text(
+                "| r1 | x |\n| r3 | x |\n| r2 | x |\n", encoding="utf-8")
+            (store / "merge-bypass-log.md").write_text(
+                "| 2026-07-01 | #520 | --admin |\n", encoding="utf-8")
+            r = subprocess.run(
+                [sys.executable, "-B", str(repo / "tools" / "lint-bookkeeping-parity.py")],
+                cwd=str(repo), capture_output=True, text=True,
+                env=dict(os.environ, GRC_STORE=str(store),
+                         AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt")),
+            )
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("validate-pr/history.md:3: deferred #523", r.stdout)
+        self.assertIn("CHANGELOG-detailed.md:1: deferred #523", r.stdout)
+        self.assertIn("declared own PR #522", r.stdout)
+        self.assertNotIn("PR #523", r.stderr)
+        self.assertIn("[row-integrity] PR #522", r.stderr)
+        self.assertIn("[qa-cadence] PR #521", r.stderr)
+        self.assertIn("[todo-rotation]", r.stderr)
+        self.assertIn("[version-history-parity] doc.md", r.stderr)
+        self.assertIn("worker-provenance marker does not name", r.stderr)
+        self.assertIn("[register-row-order]", r.stderr)
+        self.assertIn("[bypass-log] PR #521", r.stderr)
+        self.assertIn("FAIL:", r.stderr)
+
+    def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
+        # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was
+        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare
+        # number (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the
+        # shared case-insensitive grammar too, so any PR identity in it (labelled or bare, in any
+        # case, or with its label glued on) makes the header uncertain: evaluated, never
+        # deferred. A tail naming no PR stays certain, and a grammar connector still continues
+        # the identity itself. Kills: the `#N`-only tail probe, and a case-sensitive or
+        # label-only one.
+        lc = self.lc
+        prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
+        for tail in (" / PR 2665", " / pr 2665", " / PRs 2665", " / 2665", " / PR2665", " / #2665"):
+            with self.subTest(tail=tail):
+                self.assertEqual(lc.changelog_header_prs(prefix + tail), [])
+        self.assertEqual(lc.changelog_header_prs(prefix), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " (tooling)"), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " and PR 2665"), [2664, 2665])
+
+    def test_r8_01_ambiguous_legacy_root_header_never_declares(self) -> None:
+        # Round-8 R8-01 (codex), reproduced in memory: with merged #2663 as the base and
+        # origin/main evidence, the ambiguous root header `PR #2664 / PR 2665` declared #2664
+        # with no note, so two pending rows for the branch's own #2665 deferred (one finding
+        # unscoped, zero scoped). Each sibling spelling is now unparseable and declares nothing,
+        # so the rows are evaluated exactly as without scope. Kills: the `#N`-only legacy tail
+        # probe on the declaration side.
+        base = self.header(2663)
+        records = self.bp._history_row_records(self.pending_rows(2665))
+        unscoped = self.bp.row_integrity_findings(records, "h")
+        self.assertEqual(len(unscoped), 1)
+        for tail in ("PR 2665", "pr 2665", "PRs 2665"):
+            with self.subTest(tail=tail):
+                line = f"## 2026-09-30, Library Version 2026.09.2665, PR #2664 / {tail}"
+                root = line + "\n" + base
+                self.assertEqual(self.lc.changelog_header_prs(line), [])
+                self.assertEqual(self.lc.own_pr_declaration(root, base, base, ((2663, 2663),)),
+                                 (None, "new root header at line 1 has no parseable PR identity"))
+                scope = self.scope(root, base, base, merged=(2663,))
+                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (None, None, False))
+                self.assertIn("no own-PR declaration", scope.note)
+                self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), unscoped)
+                self.assertEqual(self.bp._deferred_prs(records, scope), set())
+
+    def test_r8_01_ambiguous_legacy_mirror_header_never_defers_its_marker(self) -> None:
+        # Round-8 R8-01 (codex), mirror half: with own #2665 correctly declared, a mirror header
+        # `PR #2664 / PR 2665` read as CERTAIN #2664, another open PR, and so hid the invalid
+        # provenance marker beneath it (one finding became zero); `/ PR 2663` hid it too,
+        # although #2663 is merged on origin/main. The header is now uncertain, so the marker is
+        # evaluated in every spelling. Kills: the `#N`-only legacy tail probe on the mirror side.
+        base = self.header(2663)
+        scope = self.scope(self.header(2665) + base, base, base, merged=(2663,))
+        self.assertEqual((scope.own_pr, scope.open_rule), (2665, True))
+        for tail in ("PR 2665", "pr 2665", "PRs 2665", "PR 2663"):
+            with self.subTest(tail=tail):
+                mirror = (self.header(2665)
+                          + f"## 2026-09-30, Library Version 2026.09.2665, PR #2664 / {tail}\n"
+                          + self.MARKER + base)
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror)), 1)
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+                self.assertEqual(self.bp._deferred_mirror_prs(mirror, scope), set())
