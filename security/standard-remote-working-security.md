@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.0.31\
-**Date:** 2026-09-23\
+**Version:** 1.1.0\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -198,9 +198,9 @@ The VPN Required column states requirements by data classification; Section 5.1 
 
 ### 9.2 Response actions
 
-9.2.1 Upon receipt of a device loss or theft report, IT Operations must initiate a remote wipe of an organization-issued managed device via the endpoint management platform within 1 hour of notification. For a personally-owned device, IT Operations must initiate the wipe within 1 hour of notification, limited to the BYOD Policy's route scope: corporate application data under MAM, the corporate container under a managed work profile, and a full-device wipe under MDM only with the owner's written, recorded consent, except where required by law.
+9.2.1 Upon receipt of a device loss or theft report, IT Operations must select the containment action (WIPE, LOCK-ONLY, or KEEP) per the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1, which decides by verified encryption status, the highest data class on the device, and legal hold or investigation status; a remote wipe is not the outcome in every case. Where that table selects WIPE, IT Operations must initiate the wipe within 1 hour of notification, or as that table's rules defer it with the interim lock they require: for an organization-issued managed device, via the endpoint management platform; for a personally-owned device, limited to the BYOD Policy's route scope: corporate application data under MAM, the corporate container under a managed work profile, and a full-device wipe under MDM only with the owner's written, recorded consent, except where required by law. Where the table selects LOCK-ONLY, IT Operations must initiate a remote lock, or for MAM the application-layer containment that table defines, within 1 hour, without destroying device contents other than through the MAM selective-wipe fallback, under the conditions that table sets. Where a legal hold or investigation applies to the device, its user, or the data on it, or the hold status cannot be confirmed within 1 hour of notification, any wipe is suspended in favour of that table: remote lock within 1 hour, the case treated as held until Legal Counsel confirms otherwise, a forensic image wherever the device is still reachable, and a wipe only after Legal Counsel formally releases or narrows the hold, as that table directs.
 
-9.2.2 Credential reset and session revocation via the enterprise identity provider will be initiated simultaneously with the remote wipe.
+9.2.2 Credential reset and session revocation via the enterprise identity provider will be initiated within 1 hour of notification, simultaneously with whichever wipe or lock action the decision table selects, and unconditionally even where the selected action is KEEP.
 
 9.2.3 The incident will be logged and managed in accordance with the Incident Response Procedure.
 

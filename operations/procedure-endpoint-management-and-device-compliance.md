@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.24\
-**Date:** 2026-09-24\
+**Version:** 1.4.1\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/policy-byod.md`](../security/policy-byod.md)\
@@ -242,7 +242,9 @@ Access to Restricted or Confidential data from a BYOD device is prohibited unles
 
 ### 8.3 Personal device separation
 
-Where a managed work profile is deployed to a BYOD device, corporate data is containerized and isolated from personal data. IT Operations may remotely wipe the managed work profile without affecting personal data. Managed-work-profile wipe must remain limited to the corporate container. Full-device wipe must not occur without the device owner's written consent, except where required by law; full-device MDM enrolment must record that consent.
+**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
+
+Where a managed work profile is deployed to a BYOD device, corporate data is containerized and isolated from personal data. Subject to the hold and investigation safeguard in §8.3, IT Operations may remotely wipe the managed work profile without affecting personal data. Managed-work-profile wipe must remain limited to the corporate container. Full-device wipe must not occur without the device owner's written consent, except where required by law; full-device MDM enrolment must record that consent.
 
 ---
 
@@ -250,18 +252,22 @@ Where a managed work profile is deployed to a BYOD device, corporate data is con
 
 ### 9.1 Decommissioning process
 
+**Hold and investigation safeguard for sanitization and disposal.** Before any sanitization, erasure or destruction under this document, including reuse, reassignment and disposal, IT Operations and the Data Owner must confirm whether a legal hold or investigation applies to the device or media, its user, or its data. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation treats the device or media, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, preserve the device or media and its contents in secure custody and defer sanitization, erasure, destruction and any transfer that would prevent evidence preservation. No destructive action may proceed until Legal Counsel formally releases the hold or narrows it in writing so that it no longer covers the affected contents. For an investigation without a legal hold, Legal Counsel must confirm in writing that the investigation no longer treats those contents as evidence, consistent with rule 8 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A backup, migration or forensic image does not itself authorize destruction. Record the check, deferral and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing retention, sanitization and disposal requirements continue to apply.
+
+Where preservation is required, defer management-platform removal and policy removal below if they would prevent containment or evidence acquisition; corporate access revocation must continue.
+
 When an endpoint or server is retired, the following steps must be completed before the device leaves IT custody:
 
 1. Confirm active data backup or migration of any data required for retention under the Records Retention and Destruction Standard.
 2. Revoke the device from the endpoint management platform and enterprise identity provider.
 3. Remove the device from any active policy-based access controls or policy assignments.
-4. Perform media sanitization per §9.2.
+4. Subject to the hold and investigation safeguard in §9.1, perform media sanitization per §9.2.
 5. Update the asset register to reflect decommissioned status with the date and method of disposal.
 6. Obtain a Certificate of Destruction where required by §9.3.
 
 ### 9.2 Media sanitization
 
-All storage media must be sanitized before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 guidelines:
+Subject to the hold and investigation safeguard in §9.1, all storage media must be sanitized before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 guidelines:
 
 | Media Type | Required Method |
 | --- | --- |

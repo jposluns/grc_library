@@ -2,8 +2,8 @@
 
 **Document Title:** Asset Inventory Register\
 **Document Type:** Register\
-**Version:** 1.0.10\
-**Date:** 2026-09-20\
+**Version:** 1.1.1\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-software-evaluation-acceptance-and-lifecycle.md`](../dev-security/standard-software-evaluation-acceptance-and-lifecycle.md), [`operations/procedure-patch-management.md`](procedure-patch-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md)\
@@ -109,7 +109,7 @@ Each asset record must contain the following fields:
 | **Registered** | Asset acquired or deployed | Add to inventory with all required fields |
 | **Active** | Asset in production use | Monitor, patch, and review per asset tier requirements |
 | **End-of-Support** | Vendor ends support | Risk assessment; migration or exception required |
-| **Decommissioning** | Asset replaced or retired | Secure data destruction; remove from inventory |
+| **Decommissioning** | Asset replaced or retired | Secure data destruction per the [Media Handling and Transport Procedure](procedure-media-handling-and-transport.md) §7, subject to its hold and investigation safeguard for sanitization and disposal and the two-part hold confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2; remove from inventory only once destruction is complete |
 | **Decommissioned** | Asset removed from service | Retain record for audit for minimum 3 years |
 
 ---

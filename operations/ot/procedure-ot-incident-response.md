@@ -2,8 +2,8 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.6\
-**Date:** 2026-09-24\
+**Version:** 1.1.1\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -196,10 +196,12 @@ Containment actions in OT carry production-impact risk that does not arise in IT
 
 8.1.2 Eradication actions must consider:
 
-- Whether compromised firmware on PLCs, controllers, or RTUs requires re-flashing from known-good images.
-- Whether configuration of engineering workstations, HMIs, and historians requires rebuild from baselines.
+- Whether compromised firmware on PLCs, controllers, or RTUs requires re-flashing from known-good images, subject to 8.1.3.
+- Whether configuration of engineering workstations, HMIs, and historians requires rebuild from baselines, subject to 8.1.3.
 - Whether credentials (operator, engineer, service-account, vendor) need rotation.
 - Whether network controls (firewall rules, segmentation policies) need tightening to prevent recurrence.
+
+8.1.3 Before re-flashing, rebuilding, reimaging or wiping a component, confirm that no legal hold or investigation applies to it, its user, or its data, using the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation treats the component, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, keep the original component and its storage unaltered in custody until Legal Counsel releases or narrows the hold in writing under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8. For an investigation without a legal hold, that release is Legal Counsel's written confirmation that the investigation no longer treats the component or its contents as evidence. A forensic image or controller state dump does not substitute for keeping the original. Restore service on replacement hardware, a spare controller, or a new instance loaded from known-good images; never re-flash, rebuild, reimage or wipe the held original in place. Evidence capture otherwise follows [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §5.4 and §8.1. This clause does not override the safety precedence in §2.3 and §3.1. Where safety requires restoring a held component, such as a controller, in place, the safety-management procedure governs, Legal Counsel is notified at once, and the decision is documented in the incident record.
 
 ### 8.2 Verification before recovery
 

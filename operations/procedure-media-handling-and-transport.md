@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.15\
-**Date:** 2026-09-23\
+**Version:** 1.4.1\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -28,7 +28,7 @@ To protect information held on physical and digital media from unauthorized disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law).
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law). All sanitization and wipes are subject to the hold and investigation safeguard in §7.
 4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
@@ -161,6 +161,8 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 ---
 
 ## 7. Media sanitization and destruction
+
+**Hold and investigation safeguard for sanitization and disposal.** Before any sanitization, erasure or destruction under this document, including reuse, reassignment and disposal, IT Operations and the Data Owner must confirm whether a legal hold or investigation applies to the device or media, its user, or its data. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation treats the device or media, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, preserve the device or media and its contents in secure custody and defer sanitization, erasure, destruction and any transfer that would prevent evidence preservation. No destructive action may proceed until Legal Counsel formally releases the hold or narrows it in writing so that it no longer covers the affected contents. For an investigation without a legal hold, Legal Counsel must confirm in writing that the investigation no longer treats those contents as evidence, consistent with rule 8 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A backup, migration or forensic image does not itself authorize destruction. Record the check, deferral and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing retention, sanitization and disposal requirements continue to apply.
 
 ### 7.1 Sanitization before reuse
 
