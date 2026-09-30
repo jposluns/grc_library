@@ -1134,7 +1134,7 @@ def find_recycled(
 ) -> list[tuple[str, list[int], list[int]]]:
     """Live ids that DONE.md also records as retired, minus exemptions."""
     findings = []
-    for item_id in sorted(set(live) & set(retired), key=lambda s: (_ordinal(s) or ("", 0))):
+    for item_id in sorted(set(live) & set(retired), key=lambda s: (_ordinal(s) or ("", 0), s)):
         done_lines = [
             ln for ln in retired[item_id]
             if not _exempt(item_id, done_lines_text.get(ln, ""))
