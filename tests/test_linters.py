@@ -3574,10 +3574,12 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
 
         Refuses a commit that stages CHANGELOG.md while tools/preflight-changelog.py --staged fails,
         however the commit was chained (a ';' join let a failing preflight through twice in one
-        session). --self-test runs decide(), the pinned diff configuration, and an end-to-end run
-        through the real installer, the real preflight, and real commits: a ';' join, `commit -a`, a
-        pathspec commit, hostile diff configuration, a linked worktree, the mirror-scan trigger
-        scoping, and the fail-open and fail-closed cases.
+        session). --self-test runs decide(), the override parse, the pinned diff configuration, and an
+        end-to-end run through the real installer, the real preflight, and real commits: a ';' join,
+        `commit -a`, a pathspec commit, hostile diff configuration (external diff drivers, textconv
+        and a -diff attribute included), an override of "0", a conflicted merge conclusion, a linked
+        worktree, the mirror-scan trigger scoping, the preflight's own exit 2 on a git error, and the
+        fail-open and fail-closed cases.
         """
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "check-changelog-preflight-commit.py"), "--self-test"]
@@ -3596,19 +3598,35 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         check = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(check)
         for code in (1, 2, -15, None):
-            rc, msg = check.decide(False, False, True, True, code)
+            rc, msg = check.decide(False, True, True, code)
             self.assertEqual(rc, 1, code)
             self.assertIn(check._OVERRIDE, msg)
-        self.assertEqual(check.decide(False, False, True, True, 0), (0, ""))
-        self.assertEqual(check.decide(False, False, True, False, None), (0, ""))
-        self.assertEqual(check.decide(False, True, True, False, None), (0, ""))
-        self.assertEqual(check.decide(False, False, False, False, None)[0], 1)
-        self.assertEqual(check.decide(True, False, True, True, 1)[0], 0)
+        self.assertEqual(check.decide(False, True, True, 0), (0, ""))
+        self.assertEqual(check.decide(False, True, False, None), (0, ""))
+        self.assertEqual(check.decide(False, False, False, None)[0], 1)
+        self.assertEqual(check.decide(True, True, True, 1)[0], 0)
         env = check.pinned_env({"GIT_CONFIG_PARAMETERS": "'diff.noprefix=true'", "GIT_INDEX_FILE": "/i"})
         params = env["GIT_CONFIG_PARAMETERS"]
         self.assertTrue(params.startswith("'diff.noprefix=true' "), params)
         self.assertGreater(params.index("'diff.noprefix=false'"), params.index("'diff.noprefix=true'"))
         self.assertEqual(env["GIT_INDEX_FILE"], "/i")
+
+    def test_changelog_preflight_commit_override_is_exactly_1(self) -> None:
+        """GRC_ALLOW_FAILING_CHANGELOG_COMMIT is honoured only when exactly "1", as GRC_ALLOW_BULK_ADD
+        and GRC_ALLOW_PR_ATTRIBUTION are (3b141 QA r1: "0" once skipped the check). Mutations killed:
+        `bool(os.environ.get(_OVERRIDE))`, which takes "0", "false" or " 1" as the override; and a
+        merge exemption put back into decide() (it no longer takes a sequencer argument)."""
+        import importlib.util
+        import inspect
+        spec = importlib.util.spec_from_file_location(
+            "_changelog_preflight_commit_override", REPO_ROOT / "tools" / "check-changelog-preflight-commit.py")
+        check = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(check)
+        self.assertTrue(check.override_set({check._OVERRIDE: "1"}))
+        for value in ("0", "", "false", "true", "yes", " 1", "1 ", "01"):
+            self.assertFalse(check.override_set({check._OVERRIDE: value}), repr(value))
+        self.assertFalse(check.override_set({}))
+        self.assertEqual(list(inspect.signature(check.decide).parameters), ["allow", "ok", "staged", "code"])
 
     def test_block_unstamped_turn_end_hook_self_test(self) -> None:
         """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
@@ -17219,6 +17237,118 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
         # the same over-long text in the detailed mirror is NOT length-gated (out of D7 scope)
         self.assertEqual(
             mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, long_line)]), [])
+
+
+class PreflightChangelogGitDiffTests(unittest.TestCase):
+    """tools/preflight-changelog.py reads its added lines from `git diff` (3b141 QA r1). Its command
+    line overrides every setting that reshapes that diff, so configuration cannot turn an added line
+    into 0 added lines and a pass; and a failed diff raises, so main() exits 2 instead of passing."""
+
+    ADDED = "an added entry \u2014 here"
+
+    def _load(self, unique):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            unique, REPO_ROOT / "tools/preflight-changelog.py")
+        assert spec is not None and spec.loader is not None
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    @staticmethod
+    def _env(td):
+        # No inherited GIT_* (a hook's GIT_INDEX_FILE above all), no global or system config, and no
+        # repository discovery above the fixture directory.
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_CEILING_DIRECTORIES=td)
+        return env
+
+    def _repo(self, td):
+        """A repository whose CHANGELOG.md carries ADDED, staged, after a committed heading."""
+        root = Path(td) / "r"
+        root.mkdir()
+        env = self._env(td)
+
+        def git(*args):
+            subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True, env=env)
+
+        git("init", "-q", "-b", "feature")
+        git("config", "user.email", "t@example.invalid")
+        git("config", "user.name", "t")
+        git("config", "commit.gpgsign", "false")
+        (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+        git("add", "CHANGELOG.md")
+        git("commit", "-q", "--no-verify", "-m", "init")
+        (root / "CHANGELOG.md").write_text("# Changelog\n" + self.ADDED + "\n", encoding="utf-8")
+        git("add", "CHANGELOG.md")
+        return root, git
+
+    def test_diff_configuration_cannot_hide_an_added_line(self):
+        # Each row alone left no `+++ b/` header or `+` line, so the aid reported 0 added lines and
+        # passed. Mutations killed: dropping --no-ext-diff (diff.external, GIT_EXTERNAL_DIFF, a
+        # diff=<driver> command), --no-textconv (a textconv filter), --text (a -diff attribute),
+        # --no-color (color.diff, color.ui), or --dst-prefix=b/ (diff.noprefix, diff.mnemonicPrefix,
+        # diff.dstPrefix), each in both the staged and the working-tree mode.
+        from unittest import mock
+        mod = self._load("_pcl_diff_config")
+        with tempfile.TemporaryDirectory() as td:
+            td = os.path.realpath(td)
+            root, git = self._repo(td)
+            attributes = root / ".git" / "info" / "attributes"
+            attributes.parent.mkdir(parents=True, exist_ok=True)
+            cases = (
+                ({"diff.external": "true"}, None, {}),
+                ({}, None, {"GIT_EXTERNAL_DIFF": "true"}),
+                ({"diff.drv.command": "true"}, "CHANGELOG.md diff=drv\n", {}),
+                ({"diff.drv.textconv": "true"}, "CHANGELOG.md diff=drv\n", {}),
+                ({}, "CHANGELOG.md -diff\n", {}),
+                ({"color.diff": "always"}, None, {}),
+                ({"color.ui": "always"}, None, {}),
+                ({"diff.noprefix": "true"}, None, {}),
+                ({"diff.mnemonicPrefix": "true"}, None, {}),
+                ({"diff.dstPrefix": "y/"}, None, {}),
+            )
+            for config, attrs, extra in cases:
+                for key, value in config.items():
+                    git("config", key, value)
+                if attrs:
+                    attributes.write_text(attrs, encoding="utf-8")
+                with mock.patch.dict(os.environ, {**self._env(td), **extra}, clear=True):
+                    for staged in (True, False):
+                        with self.subTest(config=config, attrs=attrs, env=extra, staged=staged):
+                            self.assertIn(("CHANGELOG.md", self.ADDED),
+                                          mod._added_lines_from_repo(root, ("CHANGELOG.md",), staged))
+                for key in config:
+                    git("config", "--unset", key)
+                if attrs:
+                    attributes.unlink()
+
+    def test_a_failed_git_diff_exits_2(self):
+        # Mutations killed: catching the git failure in _added_lines_from_repo and returning [] (the
+        # 3.190 fail-open, after which main() printed "OK: 0 added CHANGELOG line(s)" and exited 0),
+        # and main() no longer mapping CalledProcessError to exit 2. Outside a repository git falls
+        # back to `git diff --no-index`, which fails on these arguments (exit 1 or 129).
+        from unittest import mock
+        mod = self._load("_pcl_git_error")
+        with tempfile.TemporaryDirectory() as td:
+            td = os.path.realpath(td)
+            plain = Path(td) / "not-a-repo"
+            plain.mkdir()
+            with mock.patch.dict(os.environ, self._env(td), clear=True):
+                for staged in (True, False):
+                    with self.subTest(staged=staged):
+                        with self.assertRaises(subprocess.CalledProcessError) as caught:
+                            mod._added_lines_from_repo(plain, ("CHANGELOG.md",), staged)
+                        self.assertTrue(caught.exception.stderr.strip())
+                        with mock.patch.object(
+                                mod, "added_lines",
+                                lambda s: mod._added_lines_from_repo(plain, ("CHANGELOG.md",), s)), \
+                                mock.patch("sys.stderr", new_callable=io.StringIO) as err, \
+                                mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+                            argv = ["preflight-changelog.py"] + (["--staged"] if staged else [])
+                            self.assertEqual(mod.main(argv), 2)
+                        self.assertIn("ERROR: git diff failed", err.getvalue())
+                        self.assertNotIn("OK:", out.getvalue())
 
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
