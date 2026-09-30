@@ -167,8 +167,10 @@ def _is_item_like(line: str) -> bool:
 
 
 # Any CommonMark h3 spelling (``###\t``, one to three spaces of indentation -- four make it code), also behind
-# an optional BOM or blockquote ``>`` prefixes, where no ``### `` heading is ever counted (QA r10).
-_H3_RE = re.compile(r"^\ufeff?(?:(?:[ \t]*>)+[ \t]*| {0,3})###[ \t]+(?P<rest>.*)$")
+# an optional BOM or blockquote ``>`` prefixes with the same bounds: up to three spaces before each ``>``, one
+# optional space after the last, then up to three more before ``###``; a tab or a fourth space anywhere in
+# that run makes it code inside the quote, not a heading (QA r10). No ``### `` heading is ever counted.
+_H3_RE = re.compile(r"^\ufeff?(?:(?: {0,3}>)+ ?)? {0,3}###[ \t]+(?P<rest>.*)$")
 
 
 def _is_item_like_heading(line: str) -> bool:
@@ -1436,12 +1438,15 @@ def _self_test() -> int:
     check("r9-pr-ref-with-colon", uncounted_item_like("## Q\n- **#2477:** MERGED\n") == [])
     # QA r10 (3b126): shapes the net previously missed -- a BOM or blockquoted h3, single-tilde strikethrough,
     # strikethrough around a link, a task box with no space after it; four-or-more-space indentation stays code.
-    for net_line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading", ">\t### 3b7 tab quoted",
+    for net_line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading",
                      "- ~**3b7 fix**~", "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**", "- [x]**3b8 fix**"):
         check("r10-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
               == [net_line.strip()])
     check("r10-four-space-h3-is-code", uncounted_item_like("## Q\n    ### 3b7 indented code\n") == [])
     check("r10-tab-indented-h3-is-code", uncounted_item_like("## Q\n\t### 3b7 tab indent\n") == [])
+    check("r10-tab-after-quote-is-code", uncounted_item_like("## Q\n>\t### 3b7 tab quoted\n") == [])
+    check("r10-deep-indent-in-quote-is-code", uncounted_item_like("## Q\n>     ### 3b7\n") == [])
+    check("r10-indented-quote-is-code", uncounted_item_like("## Q\n    > ### 3b7\n") == [])
     bh = "## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n"
     check("r9-heading-after-bullet", [x[0] for x in parse_items(bh, "private", ref_bodies={})] == ["3b7", "9.9"])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",

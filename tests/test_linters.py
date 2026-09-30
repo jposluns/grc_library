@@ -18809,14 +18809,15 @@ class BacklogActionabilityTests(unittest.TestCase):
             self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
 
     def test_item_like_net_four_space_h3_stays_code(self):
-        # 3b126: the negative fixture for _H3_RE's ``{0,3}`` -- a ``###`` behind four spaces (or a tab) is
-        # indented code in CommonMark, so it is neither counted nor reported.
+        # 3b126: the negative fixtures for _H3_RE's CommonMark indentation bounds -- a ``###`` behind four
+        # spaces (or a tab) is indented code, and so is one inside a blockquote when a tab or four-plus
+        # spaces follow the ``>``, or four spaces precede it; none is counted or reported.
         mod = self._load()
-        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent"):
+        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent", ">\t### 3b7 tab quoted",
+                     ">     ### 3b7", "    > ### 3b7"):
             text = "## Q\n" + line + "\n"
             self.assertEqual(mod.uncounted_item_like(text), [], line)
             self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
-
 
 class HookToolItemCountParityTests(unittest.TestCase):
     """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)
