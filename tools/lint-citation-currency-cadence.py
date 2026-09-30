@@ -44,16 +44,20 @@ row with 0 to DUE_SOON_DAYS days left in its window is printed on a line that
 starts with ``DUE-SOON``. Rows are grouped into batches by (last verified, tier,
 window) and sorted by the date each batch goes stale. A row is stale or due
 soon, never both. ``tools/run_all_audits.sh`` echoes this gate's ``DUE-SOON``,
-``WARN`` and ``NOTE`` lines even when it passes (a per-gate allow-list), and the
-pre-commit hook is verbose, so the band and any stale row are seen at resume and
-at commit. The band never changes the exit code.
+``WARN`` and ``NOTE`` lines even when it passes, because the gate prints
+``RUNNER_ECHO_MARKER`` (a per-gate opt-in keyed on the gate's own output, not on
+its script path), and the pre-commit hook is verbose, so the band and any stale
+row are seen at resume and at commit. The band never changes the exit code.
 
 FUTURE-DATED ROWS (advisory WARN). A ``Last verified (UTC)`` date after today (UTC)
 is a data error, such as a typo or a local-time date a day ahead of UTC, not the
 freshest possible row: its age is negative, so it would pass every window. Such a
 row is listed as a WARN and is never counted as fresh, stale or due soon; the exit
-code stays 0. A row verified today is fresh. Every stale, future-dated and
-untiered-sub-table line starts with ``WARN`` or ``NOTE`` at column 0, so the runner
+code stays 0. A row verified today is fresh. Like a stale row, a future-dated row
+in the live register turns the live-register test red (it asserts no ``WARN:``),
+so a local date ahead of UTC blocks a push until UTC reaches that date or the
+date is corrected. Every stale, future-dated, untiered-sub-table and
+missing-register line starts with ``WARN`` or ``NOTE`` at column 0, so the runner
 can echo it.
 
 Exit codes: always 0 (advisory). Findings are printed to stdout.
@@ -89,6 +93,15 @@ DEFAULT_WINDOW_DAYS = 365
 # 2026-06-19), with slack for a stretch without egress, so at least one session
 # sees the band before a row goes stale. To change the band, edit the integer here.
 DUE_SOON_DAYS = 21
+
+# tools/run_all_audits.sh hides a passing gate's output, but shows this gate's
+# WARN and NOTE lines when the output has this exact line (run_gate holds the same
+# string). The gate declares it in its own output, so a rename, move or other
+# invocation path of this script cannot switch the echo off. The line holds no
+# WARN, NOTE or DUE-SOON, so no count or grep of those tags sees it.
+RUNNER_ECHO_MARKER = (
+    "runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
+)
 
 # Register sub-table heading (the "## <heading>" line) -> trust tier. Matched by
 # exact normalized heading text. An unmapped heading uses DEFAULT_WINDOW_DAYS and
@@ -187,9 +200,10 @@ def main() -> int:
         # No register: nothing to check. Adopter-portable no-op (the register is
         # an in-repo file, so this is only reached in a malformed checkout).
         print(
-            f"citation-currency-cadence: register not found at {CANONICAL_REGISTER}; "
+            f"NOTE: citation-currency-cadence: register not found at {CANONICAL_REGISTER}; "
             "nothing to check.",
         )
+        print(RUNNER_ECHO_MARKER)
         return 0
 
     text = CANONICAL_REGISTER.read_text(encoding="utf-8")
@@ -234,6 +248,7 @@ def main() -> int:
         f"citation-currency-cadence (gate 72, advisory): checked {checked} row(s), "
         f"skipped {skipped} without a parseable date, as of {today.isoformat()} UTC."
     )
+    print(RUNNER_ECHO_MARKER)
     if unmapped_headings:
         print(
             "NOTE: sub-table(s) with no explicit tier, using the "

@@ -16803,6 +16803,8 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("WARN:", out)
         self.assertIn("ISO/IEC STALE", out)
         self.assertIn("365-day", out)        # standards tier window in the message
+        # Kills `not stale and not future` -> `not future` (all-within beside a WARN).
+        self.assertNotIn("all dated sources are within their re-check windows", out)
 
     def test_both_date_formats_detected(self) -> None:
         # 'verified YYYY-MM-DD' and bare 'YYYY-MM-DD' both parse; both stale rows warn.
@@ -16881,8 +16883,9 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         # The runner echoes gate 72's lines that start with WARN, NOTE or DUE-SOON,
         # so every advisory line needs one of them at column 0. Real linter output
         # with stale, future-dated, untiered and due-soon rows; only the summary
-        # line is untagged. Kills an indented or untagged row, note or remedy line,
-        # which the runner would drop without a sound.
+        # and the runner-echo marker after it are untagged. Kills an indented or
+        # untagged row, note or remedy line, which the runner would drop without a
+        # sound, and a missing or moved marker line.
         mod = self._load("_cadence_prefix_all")
         reg = self._HEADER + (
             "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
@@ -16901,8 +16904,31 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("DUE-SOON  verified 2025-07-20", out)
         lines = out.splitlines()
         self.assertTrue(lines[0].startswith("citation-currency-cadence (gate 72"), lines[0])
-        for ln in lines[1:]:
+        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER)
+        for ln in lines[2:]:
             self.assertTrue(ln.startswith(("WARN", "NOTE", "DUE-SOON")), ln)
+
+    def test_missing_register_is_a_note_the_runner_echoes(self) -> None:
+        # No register: nothing is checked, so the one message is a NOTE and the
+        # marker follows it, and the runner shows the message on a pass. Kills an
+        # untagged message and a marker missing from this early return.
+        import io
+        import contextlib
+        mod = self._load("_cadence_no_register")
+        old_reg = mod.CANONICAL_REGISTER
+        buf = io.StringIO()
+        try:
+            mod.CANONICAL_REGISTER = REPO_ROOT / "governance" / "_absent-register.md"
+            with contextlib.redirect_stdout(buf):
+                rc = mod.main()
+        finally:
+            mod.CANONICAL_REGISTER = old_reg
+        self.assertEqual(rc, 0)
+        lines = buf.getvalue().splitlines()
+        self.assertEqual(len(lines), 2, lines)
+        self.assertTrue(lines[0].startswith("NOTE: citation-currency-cadence: register "
+                                            "not found at "), lines[0])
+        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER)
 
     # Due-soon band (DUE_SOON_DAYS = 21). Standards tier (365-day window), today
     # pinned to 2026-07-15. Each boundary fixture names the mutation it kills.
@@ -17089,17 +17115,21 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         for ln in band:
             self.assertTrue(ln.startswith("DUE-SOON"), ln)
 
-    def test_runner_echoes_due_soon_lines_of_a_passing_gate(self) -> None:
-        # tools/run_all_audits.sh hides a passing gate's output; for a gate off its
-        # allow-list, the OK branch echoes only lines that start with DUE-SOON. Runs
-        # the shipped run_gate body against stub gates, so the test tracks the real
-        # function. The mid-line DUE-SOON stub line kills an unanchored grep.
+    def _runner_script(self, body: str) -> str:
+        """The shipped run_gate body with the globals it needs, then ``body``."""
         src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
         start = src.index("run_gate() {")
         func = src[start:src.index("\n}\n", start) + 3]
-        script = (
-            "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func
-            + "run_gate \"Stub due\" printf "
+        return "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func + body
+
+    def test_runner_echoes_due_soon_lines_of_a_passing_gate(self) -> None:
+        # tools/run_all_audits.sh hides a passing gate's output; for a gate that
+        # does not print the runner-echo marker, the OK branch echoes only lines
+        # that start with DUE-SOON. Runs the shipped run_gate body against stub
+        # gates, so the test tracks the real function. The mid-line DUE-SOON stub
+        # line kills an unanchored grep.
+        script = self._runner_script(
+            "run_gate \"Stub due\" printf "
             + "'head\\nnote DUE-SOON mid\\nDUE-SOON: 1 batch\\nDUE-SOON  row x\\n'\n"
             + "run_gate \"Stub quiet\" printf 'all clean\\n'\n"
         )
@@ -17112,33 +17142,117 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("all clean", r.stdout)
         self.assertEqual(r.stdout.count("... OK"), 2)
 
-    def test_runner_echoes_warn_and_note_lines_of_gate_72_only(self) -> None:
-        # 3b137: the runner's allow-list echoes a passing gate 72's WARN and NOTE
+    def test_runner_echoes_warn_and_note_lines_of_a_marked_gate_only(self) -> None:
+        # 3b137: a passing gate whose output has the exact runner-echo marker line
+        # (gate 72; the marker is taken from its script) shows its WARN and NOTE
         # lines. Another passing gate keeps them hidden (gate 93 passes with
-        # hundreds of WARN lines) but still shows DUE-SOON. A python3 shell
-        # function stands in for both gates, so the shipped run_gate body keys on
-        # the real script paths. Kills a generic WARN echo, a dropped WARN or NOTE
-        # alternative, a mistyped allow-list path, a key on the wrong argument, and
-        # an unanchored pattern.
-        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
-        start = src.index("run_gate() {")
-        func = src[start:src.index("\n}\n", start) + 3]
-        script = (
-            "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func
-            + "python3() { printf '%s\\n' head 'x WARN mid' 'WARN: 1 src' "
-            + "'WARN  [T] row' 'NOTE: tier' 'DUE-SOON  row d'; }\n"
-            + "run_gate \"Stub 72\" python3 tools/lint-citation-currency-cadence.py\n"
-            + "run_gate \"Stub 93\" python3 tools/build-relationship-model.py --check\n"
+        # hundreds of WARN lines) but still shows DUE-SOON, and so does a gate
+        # whose marker line is indented or extended. Kills a generic WARN echo, a
+        # dropped WARN or NOTE alternative, an unanchored WARN or NOTE
+        # alternative, a substring match on the marker, and an echoed marker line.
+        import shlex
+        marker = self._load("_cadence_marker").RUNNER_ECHO_MARKER
+        lines = ["head", "x WARN mid", "x NOTE mid", "WARN: 1 src", "WARN  [T] row",
+                 "NOTE: tier", "DUE-SOON  row d"]
+
+        def gate(name: str, extra: list[str]) -> str:
+            return (f"run_gate {shlex.quote(name)} printf '%s\\n' "
+                    + " ".join(shlex.quote(x) for x in lines + extra) + "\n")
+
+        script = self._runner_script(
+            gate("Stub 72", [marker]) + gate("Stub 93", [])
+            + gate("Stub near", ["  " + marker, marker + " x"])
         )
         r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertEqual(r.stdout.count("... OK"), 2)
+        self.assertEqual(r.stdout.count("... OK"), 3)
         for line in ("WARN: 1 src", "WARN  [T] row", "NOTE: tier"):
             self.assertEqual(r.stdout.count("      " + line), 1, r.stdout)
             self.assertLess(r.stdout.index("      " + line), r.stdout.index("Stub 93"))
-        self.assertEqual(r.stdout.count("      DUE-SOON  row d"), 2)
-        self.assertNotIn("x WARN mid", r.stdout)
-        self.assertNotIn("head", r.stdout)
+        self.assertEqual(r.stdout.count("      DUE-SOON  row d"), 3)
+        for text in ("x WARN mid", "x NOTE mid", "head", "runner-echo"):
+            self.assertNotIn(text, r.stdout)
+
+    # The real gate under the shipped run_gate body. A python3 shell function
+    # runs the script it is given (or CADENCE_GATE, when set) with the real
+    # interpreter, and serves CADENCE_REGISTER in place of the live register's
+    # text, so no file is written and the dates hold under the real clock.
+    _REAL_GATE_BOOT = (
+        "import os, pathlib, runpy, sys\n"
+        "reg = pathlib.Path('governance/register-canonical-citations.md').resolve()\n"
+        "read = pathlib.Path.read_text\n"
+        "pathlib.Path.read_text = lambda p, *a, **k: (\n"
+        "    os.environ['CADENCE_REGISTER'] if p.resolve() == reg else read(p, *a, **k))\n"
+        "sys.argv = sys.argv[1:]\n"
+        "runpy.run_path(os.environ.get('CADENCE_GATE') or sys.argv[0], run_name='__main__')\n"
+    )
+
+    def _run_real_gate(self, body: str, env: dict[str, str]) -> str:
+        reg = self._HEADER + (
+            "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+            "| ISO/IEC AHEAD | 2019 | 2019-01 | y | - | http://y | verified 2999-12-31 |\n"
+            "\n" + self._section("Unmapped future table")
+            + "| NEW ROW | v1 | 2026 | x | - | http://n | - |\n"
+        )
+        script = self._runner_script(
+            "python3() { command python3 -c \"${CADENCE_BOOT}\" \"$@\"; }\n" + body)
+        r = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, cwd=REPO_ROOT,
+            env={**os.environ, **env, "CADENCE_BOOT": self._REAL_GATE_BOOT,
+                 "CADENCE_REGISTER": reg})
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return r.stdout
+
+    def _assert_real_gate_echoed(self, out: str, runs: int) -> None:
+        self.assertEqual(out.count("... OK"), runs, out)
+        for line in (
+            "WARN: 1 source(s) past their re-check window (advisory):",
+            "WARN  [ISO / IEC standards] ISO/IEC STALE: last verified 2020-01-01 (",
+            "WARN  Re-check each source's Upstream check location",
+            "WARN: 1 source(s) dated after today (",
+            "WARN  [ISO / IEC standards] ISO/IEC AHEAD: last verified 2999-12-31 is ",
+            "WARN  Correct each 'Last verified (UTC)'",
+            "NOTE: sub-table(s) with no explicit tier, using the 365-day default: "
+            "Unmapped future table",
+        ):
+            self.assertEqual(out.count("\n      " + line), runs, out)
+        self.assertNotIn("citation-currency-cadence (gate 72", out)
+        self.assertNotIn("runner-echo", out)
+
+    def test_runner_echoes_real_gate_72_through_its_own_gate_line(self) -> None:
+        # 3b137 round 2: the runner's own gate 72 line (read from
+        # tools/run_all_audits.sh, so it names whatever path the runner runs)
+        # runs the real script under the shipped run_gate body. Kills the rename
+        # mutation under a path-keyed allow-list (script and run_gate line renamed,
+        # key left on the old path: the renamed line's WARN and NOTE lines vanish),
+        # a run_gate that stops keying on the marker, a gate that stops printing
+        # the marker or prints text other than run_gate's, and a runner line that
+        # no longer runs this script (the fixture's WARN lines would be missing).
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        gate_line = next(ln for ln in src.splitlines()
+                         if ln.startswith('run_gate "Citation-currency-cadence audit" '))
+        out = self._run_real_gate(gate_line + "\n", {})
+        self.assertIn("Citation-currency-cadence audit", out)
+        self._assert_real_gate_echoed(out, 1)
+
+    def test_runner_echo_survives_rename_move_and_other_invocation_paths(self) -> None:
+        # The key is the gate's own marker line, not its script path. The python3
+        # function runs the real script (CADENCE_GATE) whatever path run_gate is
+        # given, so each run stands in for a renamed, moved, dot-relative,
+        # absolute or shebang invocation. Kills any path key on run_gate's
+        # arguments (a literal, a basename glob, or "${2:-}", which is empty for
+        # a script run through its shebang).
+        body = (
+            "gate72() { python3 tools/lint-citation-currency-cadence.py; }\n"
+            "run_gate Renamed python3 tools/lint-citation-cadence.py\n"
+            "run_gate Moved python3 tools/citation/lint-citation-currency-cadence.py\n"
+            "run_gate Dot python3 ./tools/lint-citation-currency-cadence.py\n"
+            "run_gate Absolute python3 \"${PWD}/tools/lint-citation-currency-cadence.py\"\n"
+            "run_gate Shebang gate72\n"
+        )
+        gate = str(REPO_ROOT / "tools/lint-citation-currency-cadence.py")
+        out = self._run_real_gate(body, {"CADENCE_GATE": gate})
+        self._assert_real_gate_echoed(out, 5)
 
 
 class AdoptPreflightGuardTests(unittest.TestCase):

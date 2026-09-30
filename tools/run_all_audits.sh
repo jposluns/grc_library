@@ -48,15 +48,19 @@ run_gate() {
         echo "OK"
         # A passing gate's output stays hidden, except advisory lines. Every gate
         # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
-        # lapse shows at resume. Gate 72 also shows lines that start with WARN or
-        # NOTE (stale, future-dated, untiered). The allow-list is per gate, keyed
-        # on the script path, not a generic WARN echo: gate 93 (relationship
-        # model) passes while it prints hundreds of advisory WARN lines (382 on
-        # 2026-09-30), which would bury gate 72's lines.
+        # lapse shows at resume. A gate whose output has the exact marker line
+        # below also shows lines that start with WARN or NOTE; only gate 72 prints
+        # it (RUNNER_ECHO_MARKER in its script), for its stale, future-dated and
+        # untiered lines. The key is a line the gate declares in its own output,
+        # not its script path, so a rename, move or other invocation path of the
+        # script cannot switch the echo off. It is opt-in per gate, not a generic
+        # WARN echo: gate 93 (relationship model) passes while it prints hundreds
+        # of advisory WARN lines (382 on 2026-09-30), which would bury gate 72's.
+        local marker="runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
         local advisory='^DUE-SOON'
-        case "${2:-}" in
-            tools/lint-citation-currency-cadence.py) advisory='^(DUE-SOON|WARN|NOTE)' ;;
-        esac
+        if printf '%s\n' "${output}" | grep -xF -- "${marker}" >/dev/null; then
+            advisory='^(DUE-SOON|WARN|NOTE)'
+        fi
         printf '%s\n' "${output}" | grep -E "${advisory}" | sed 's/^/      /' || true
     else
         echo "FAIL (rc=${rc})"
