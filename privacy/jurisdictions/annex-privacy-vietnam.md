@@ -2,8 +2,8 @@
 
 **Document Title:** Vietnam Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.3\
-**Date:** 2026-09-29\
+**Version:** 1.2.4\
+**Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -20,7 +20,7 @@
 
 This annex defines privacy requirements applicable to the processing of personal data in Vietnam under the Law on Personal Data Protection No. 91/2025/QH15 (PDPL) and Decree No. 356/2025/ND-CP, both in force from 2026-01-01, including the AI-related provisions those two instruments themselves contain. It supplements the Privacy and Data Governance Policy and the Privacy Impact and Cross-Border Transfer Procedure.
 
-**Sourcing rule for this annex.** Every statement below rests on the held English text of the PDPL or of Decree 356/2025. Where a proposition is not in those two texts, it is either omitted or explicitly marked as not held and not relied upon. <!-- ref-absence: Vietnam instruments beyond the held PDPL and Decree 356/2025 texts -->
+**Sourcing rule for this annex.** Every statement below rests on the held English text of the PDPL or of Decree 356/2025. Where a proposition is not in those two texts, it is either omitted or explicitly marked as not held and not relied upon.
 
 ---
 

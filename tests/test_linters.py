@@ -1263,8 +1263,18 @@ class RefAbsenceClaimsTests(LinterTestCase):
     test_possessive_collection_subject_still_flagged and
     test_possessive_collection_object_still_flagged; the
     lazy-continuation joiner by
-    test_lazy_continuation_blockquote_claim_flagged; and the
-    list-item fence opener by test_list_item_fence_toggles.
+    test_lazy_continuation_blockquote_claim_flagged; the
+    list-item fence opener by test_list_item_fence_toggles; the
+    lead-free next-line marker binding by
+    test_next_line_marker_with_leading_prose_does_not_shield; the
+    "yet"-adverb triggers by test_not_yet_held_paraphrase_flagged;
+    the widened held-text subject modifier by
+    test_held_text_subject_modifier_not_flagged with
+    test_possessive_held_text_subject_not_flagged; the
+    typographic-apostrophe normalization by
+    test_typographic_apostrophe_possessive_flagged; and the
+    list-container fence exit by
+    test_unclosed_list_fence_ends_with_list.
     """
 
     SCRIPT = "tools/lint-ref-absence-claims.py"
@@ -1658,6 +1668,90 @@ class RefAbsenceClaimsTests(LinterTestCase):
         )
         result = run_linter(self.SCRIPT, clean)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_next_line_marker_with_leading_prose_does_not_shield(self) -> None:
+        # r4 ERROR: a next-line marker preceded by prose annotates THAT
+        # prose (here an inverted bare claim the net cannot parse), so it
+        # must not bind upward: one marker never shields two claims.
+        fixture = self.make_fixture(
+            "annex-absence-lead-shield.md",
+            "# T\n\nThe act is not held in the reference base.\n"
+            "Nor is the implementing decree held. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+
+    def test_not_yet_held_paraphrase_flagged(self) -> None:
+        # r4 ERROR: "not yet held in the reference base" must not slip
+        # past both the canonical matcher and the near-miss net.
+        fixture = self.make_fixture(
+            "annex-absence-not-yet.md",
+            "# T\n\nThe implementing decree is not yet held in the "
+            "reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_held_text_subject_modifier_not_flagged(self) -> None:
+        # r4 ERROR: a held-text subject with a modifier or set-off
+        # punctuation between it and its verb is still a content claim;
+        # the possessed-collection subject stays flagged however long
+        # its own tail grows.
+        modifier = self.make_fixture(
+            "annex-absence-subject-modifier.md",
+            "# T\n\nThe held texts of Decree 13 do not include the annex "
+            "that the reference base catalogues separately.\n",
+        )
+        result = run_linter(self.SCRIPT, modifier)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        comma = self.make_fixture(
+            "annex-absence-subject-comma.md",
+            "# T\n\nThe held texts, as amended, do not include the annex "
+            "that the reference base catalogues separately.\n",
+        )
+        result = run_linter(self.SCRIPT, comma)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        possessed = self.make_fixture(
+            "annex-absence-possessed-long-tail.md",
+            "# T\n\nThe reference base's held texts as published "
+            "officially do not include the implementing decree.\n",
+        )
+        result = run_linter(self.SCRIPT, possessed)
+        self.assertLinterFails(result, "canonical")
+
+    def test_possessive_held_text_subject_not_flagged(self) -> None:
+        # r4 WARNING: a possessive held-text subject ("the held text's
+        # annex") is the same content claim as the bare subject form.
+        fixture = self.make_fixture(
+            "annex-absence-possessive-content.md",
+            "# T\n\nThe held text's annex does not include the signing "
+            "date that the reference base records elsewhere.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_typographic_apostrophe_possessive_flagged(self) -> None:
+        # r4 WARNING: a typographic apostrophe must not buy the
+        # content-claim exemption its ASCII twin is denied.
+        fixture = self.make_fixture(
+            "annex-absence-typographic.md",
+            "# T\n\nThe reference base\u2019s held texts do not include "
+            "the implementing decree.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "canonical")
+
+    def test_unclosed_list_fence_ends_with_list(self) -> None:
+        # r4 WARNING: a fence opened on a list-item line ends when its
+        # container does; the prose after the list is not code.
+        fixture = self.make_fixture(
+            "annex-absence-list-fence-unclosed.md",
+            "# T\n\n- ```\n  code sample\n\nThat statute is not held in "
+            "the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
 
     def test_exempt_meta_doc_ignored(self) -> None:
         # The audit-programme specification quotes the canonical sentence

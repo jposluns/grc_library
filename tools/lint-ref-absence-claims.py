@@ -37,10 +37,13 @@ marker-plus-committed-manifest design):
    continuing past it. Marker accounting is per CLAIM, not per line:
    each marker binds to at most ONE claim, in document order, so N
    claims whose sentences end on one physical line need N adjacent
-   markers; and a next-line marker binds ONLY when that line carries
-   no absence claim of its own, canonical OR paraphrase (a marker
-   annotating its own bare ``not held`` line is that line's, per rule
-   2), so one marker can never shield two claims.
+   markers; and a next-line marker binds ONLY when nothing but
+   earlier markers precedes it on its line AND that line carries no
+   detectable absence claim of its own, canonical or paraphrase (a
+   marker after any next-line prose annotates THAT prose, which may
+   word a claim the net cannot parse, such as ``nor is the decree
+   held``; a marker annotating its own bare ``not held`` line is that
+   line's, per rule 2), so one marker can never shield two claims.
    Authoring guidance: use the most stable identifier available (a
    document number such as ``SR 11-7`` beats an agency acronym) and
    keep each query
@@ -91,7 +94,8 @@ marker-plus-committed-manifest design):
 4. NEAR-MISS NET. A paraphrase fails with a use-the-canonical-phrasing
    message, converting a reworded claim into a style finding instead
    of a silent blind spot. The triggers: ``not held`` / ``not
-   <adverb>ly held`` / ``does not hold`` / ``do not hold`` within
+   <adverb>ly held`` / ``not yet held`` / ``does not hold`` / ``do
+   not hold`` within
    eight tokens of ``reference base`` / ``reference library`` /
    ``held text`` / ``grc_library_ref``; a rewording (``not included``
    / ``not present`` / ``not available`` / ``not indexed`` / ``not
@@ -112,9 +116,15 @@ marker-plus-committed-manifest design):
    vocabulary sits elsewhere in the window: both assert missing
    CONTENT of a held document, a different claim from a missing
    SOURCE, and rephrasing either canonically would change its
-   meaning. A held text POSSESSED by the collection ("absent from the
-   reference base's held texts", "the reference base's held texts do
-   not include") is the collection itself, so it stays IN the net.
+   meaning. The held-text subject may carry a possessive ("the held
+   text's annex"), set-off punctuation, and a modifier of up to six
+   non-collection tokens before its verb ("the held texts of Decree
+   13 do not include ..."). A held text POSSESSED by the collection
+   ("absent from the reference base's held texts", "the reference
+   base's held texts do not include") is the collection itself, so it
+   stays IN the net, however long its modifier; typographic
+   apostrophes are normalized to ASCII first, so ``the reference
+   base’s`` and ``the reference base's`` read the same.
    Stated residue: a
    bare ``not held`` with no reference-base vocabulary in the window is
    not auto-detected (most such lines are content claims); a holdings
@@ -124,8 +134,14 @@ marker-plus-committed-manifest design):
    on content claims: a rewording whose collection reference is
    anaphoric or beyond the eight-token window, a holding verb outside
    the enumerated set ("carries no copy of"), an inverted negative
-   subject ("nor is the decree held"), and a held-text subject more
-   than two tokens before its verb.
+   subject ("nor is the decree held"), and a held-text subject whose
+   modifier runs more than six tokens before its verb. And the
+   REVERSE residue: the rewording and negative-subject triggers read
+   a world-EXISTENCE claim ("no official English translation is
+   available") as a holdings claim when collection vocabulary falls
+   inside the eight-token window; the gate cannot tell existence from
+   holdings without semantics, so such a sentence is worded to keep
+   the collection vocabulary clear of the window or split in two.
 
 Meta-documents that quote the pattern as a rule (the CHANGELOG and the
 audit-programme specification) are exempt by name below, per the
@@ -144,7 +160,10 @@ fence still toggles, so a quoted absence sentence inside it stays
 code), and a fence opened inside a blockquote ends when the quote does
 (CommonMark), so quoted code cannot swallow the prose after it; a fence
 opened on a LIST-ITEM line toggles too, so its closing fence cannot
-masquerade as an opener and hide the prose after the list; and a
+masquerade as an opener and hide the prose after the list, and it ends
+when its list item does (CommonMark: a non-blank line left of the
+item's content column leaves the list), so an unclosed list fence
+cannot swallow the prose after the list either; and a
 backtick run whose info string itself contains a backtick is an inline
 code span, not an opening fence (CommonMark), so it cannot swallow the
 rest of the file.
@@ -210,16 +229,18 @@ CANONICAL_RE = re.compile(
 
 MARKER_RE = re.compile(r"<!--\s*ref-absence:(.*?)-->", re.DOTALL)
 
-# Paraphrase triggers: plain "not held", one optional -ly adverb ("not
-# independently held"), the "does/do not hold" verb form, and the
+# Paraphrase triggers: plain "not held", one optional adverb (an -ly
+# adverb, "not independently held", or bare "yet": "not yet held in the
+# reference base" must not slip past the gate as r4 let it),
+# the "does/do not hold" verb form, and the
 # plausible rewordings (not included / present / available / indexed /
 # stored; does not include / contain / carry; absent / missing /
 # excluded / omitted from). "not in the held text" (a content-absence
 # claim) does NOT match: "in"/"the" are not -ly adverbs.
 NEAR_MISS_TRIGGER_RE = re.compile(
-    r"\bnot\s+(?:\w+ly\s+)?(?:held|included|present|available|indexed|stored)\b"
+    r"\bnot\s+(?:(?:\w+ly|yet)\s+)?(?:held|included|present|available|indexed|stored)\b"
     r"|\b(?:absent|missing|excluded|omitted)\s+from\b"
-    r"|\b(?:does|do)\s+not\s+(?:\w+ly\s+)?(?:hold|include|contain|carry)\b",
+    r"|\b(?:does|do)\s+not\s+(?:(?:\w+ly|yet)\s+)?(?:hold|include|contain|carry)\b",
     re.IGNORECASE,
 )
 # A negative subject with a positive verb is the same absence claim
@@ -228,7 +249,7 @@ NEAR_MISS_TRIGGER_RE = re.compile(
 # Inverted forms ("nor is the decree held") are stated residue.
 NEGATIVE_SUBJECT_TRIGGER_RE = re.compile(
     r"\b(?:neither|none|no|nor)\b(?:\s+[\w'-]+){0,6}?\s+(?:is|are|was|were)\s+"
-    r"(?:\w+ly\s+)?(?:held|included|present|available|indexed|stored)\b",
+    r"(?:(?:\w+ly|yet)\s+)?(?:held|included|present|available|indexed|stored)\b",
     re.IGNORECASE,
 )
 # The collection as an active subject rewords the same claim ("the
@@ -282,17 +303,31 @@ HELD_TEXT_OBJECT_RE = re.compile(
 )
 # A rewording whose SUBJECT is the held text is the same content claim
 # ("the held text does not include a signing date"). Matched against
-# the text right before the trigger.
+# the text right before the trigger. The subject may carry a modifier
+# of up to six tokens between "held text(s)" and its verb ("the held
+# texts of Decree 13 do not include ..."), a possessive ("the held
+# text's annex"), and interior punctuation ("the held texts, as
+# amended, do not include ..."); the modifier tokens may NOT be
+# collection vocabulary, so "the held texts show that the reference
+# base does not include X" (whose subject is the collection) stays in
+# the net.
 HELD_TEXT_SUBJECT_RE = re.compile(
-    r"\bheld\s+texts?(?:\s+[\w'-]+){0,2}\s*$",
+    r"\bheld\s+texts?(?:'s?)?"
+    r"(?:[,;:]?\s+(?!(?:reference|grc_library_ref)\b)[\w'()-]+){0,6}"
+    r"[,;:]?\s*$",
     re.IGNORECASE,
 )
 # ... unless the held text is POSSESSED by the collection ("the
 # reference base's held texts do not include"): that subject is the
 # collection itself, so the claim stays in the net.
+# Its tail mirrors HELD_TEXT_SUBJECT_RE's widened modifier, so a
+# possessed-collection subject cannot slip out of the net by growing a
+# modifier the content-claim exemption tolerates. Typographic
+# apostrophes are normalized to ASCII before any of these run.
 COLLECTION_POSSESSED_SUBJECT_RE = re.compile(
     r"\b(?:reference\s+(?:base|library)|grc_library_ref)'s\s+"
-    r"(?:[\w'-]+\s+){0,2}?held\s+texts?(?:\s+[\w'-]+){0,2}\s*$",
+    r"(?:[\w'-]+\s+){0,2}?held\s+texts?(?:'s?)?"
+    r"(?:[,;:]?\s+[\w'()-]+){0,6}[,;:]?\s*$",
     re.IGNORECASE,
 )
 
@@ -370,13 +405,21 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
     list-item line; a backtick opener whose info string contains a
     backtick is an inline code span, not a fence (CommonMark)."""
     out: list[tuple[int, int, str]] = []
-    fence_char, fence_len, fence_depth = "", 0, 0
+    fence_char, fence_len, fence_depth, fence_item_indent = "", 0, 0, 0
     for lineno, line in enumerate(text.splitlines(), start=1):
         depth, content = _dequote(line)
         if fence_char and depth < fence_depth:
             # Leaving the blockquote closes the fence it opened.
-            fence_char, fence_len = "", 0
+            fence_char, fence_len, fence_item_indent = "", 0, 0
+        if (fence_char and fence_item_indent and content.strip()
+                and len(content) - len(content.lstrip()) < fence_item_indent):
+            # A fence opened on a list-item line ends when the item does
+            # (CommonMark): a non-blank line indented left of the item's
+            # content column leaves the list, so it is prose (or a fresh
+            # fence), not swallowed code.
+            fence_char, fence_len, fence_item_indent = "", 0, 0
         m = FENCE_RE.match(content.lstrip())
+        lm = None
         if not m and not fence_char:
             lm = LIST_PREFIX_RE.match(content)
             if lm:
@@ -386,11 +429,12 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
             if not fence_char:
                 if run[0] == "~" or "`" not in m.group(2):
                     fence_char, fence_len, fence_depth = run[0], len(run), depth
+                    fence_item_indent = lm.end() if lm else 0
                     continue
                 # A backtick run with a backtick in its info string is an
                 # inline code span, not an opening fence: fall through.
             elif run[0] == fence_char and len(run) >= fence_len and not m.group(2).strip():
-                fence_char, fence_len = "", 0
+                fence_char, fence_len, fence_item_indent = "", 0, 0
                 continue
             # A narrower or different-character fence inside an open fence
             # is literal code content, not a toggle.
@@ -487,7 +531,12 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
         for lineno, line in block:
             starts.append((pos, lineno))
             pos += len(line) + 1  # the joining space
+        # Typographic apostrophes are the same claim (and the same
+        # length, so the offset math is untouched): normalize them so
+        # "the reference base\u2019s held texts" cannot buy an exemption
+        # its ASCII twin is denied.
         joined = " ".join(line for _, line in block)
+        joined = joined.replace("\u2019", "'").replace("\u2018", "'")
 
         def line_at(offset: int) -> int:
             lineno = block[0][0]
@@ -528,8 +577,14 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
             for m in MARKER_RE.finditer(line):
                 queries = [q.strip() for q in m.group(1).split("|")]
                 markers.setdefault(lineno, []).append(queries)
+                # Prose before the marker on its own line (earlier
+                # markers do not count) disqualifies it from NEXT-LINE
+                # binding: that prose may itself word a claim the net
+                # cannot parse ("nor is the decree held"), and a marker
+                # after it annotates THAT line, not the claim above.
+                lead = bool(MARKER_RE.sub("", line[: m.start()]).strip())
                 slots.append(dict(off=line_start + m.start(), lineno=lineno,
-                                  block=block_id, used=False))
+                                  block=block_id, used=False, lead=lead))
 
     own_claim_lines = trigger_lines | set(canonical_counts)
 
@@ -548,6 +603,7 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
                 continue
             if slot["lineno"] <= claim["end_line"] or (
                 slot["lineno"] == claim["end_line"] + 1
+                and not slot["lead"]
                 and slot["lineno"] not in own_claim_lines
             ):
                 slot["used"] = True
@@ -563,7 +619,8 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
         if next_line in own_claim_lines:
             continue
         for slot in slots:
-            if (not slot["used"] and slot["lineno"] == next_line
+            if (not slot["used"] and not slot["lead"]
+                    and slot["lineno"] == next_line
                     and slot["block"] != claim["block"]):
                 slot["used"] = True
                 claim["covered"] = True
