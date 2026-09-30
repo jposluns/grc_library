@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.11\
-**Date:** 2026-09-20\
+**Version:** 1.0.12\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -58,7 +58,7 @@ The category determines the escrow design, the recovery authority, and the audit
 | Control area | Requirement |
 | --- | --- |
 | Storage | Secrets management service per the cryptographic key lifecycle framework |
-| Versioning | Multiple versions retained where rotation is mid-roll-out; for a data-encryption key, a superseded version is purged only after the data it protects has been re-encrypted under the new version or destroyed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6), not merely after the rotation window; a credential (service-account secret, API key) is purged once rotation completes and dependents no longer reference it |
+| Versioning | Multiple versions retained where rotation is mid-roll-out. A superseded data-encryption key version is purged only after the data it protects has been re-encrypted under the new version or destroyed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6), not merely after the rotation window. It is also kept while a legal hold or investigation covers data still encrypted under it, such as a backup or export ([Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1). A credential (service-account secret, API key) is purged once rotation completes and dependents no longer reference it |
 | Access | Secrets accessed by service identities at runtime; human access restricted to break-glass scenarios |
 | Backup | Per the platform's documented backup model; recovery tested |
 | Compromise handling | Compromised secret rotated immediately; not recovered |
@@ -119,7 +119,7 @@ A Category 3 ceremony follows these steps. The ceremony is video-recorded where 
 | 4 | Retrieve sealed key shares from their secured storage | Custodians |
 | 5 | Reconstitute the key per the M-of-N scheme | Custodians under witness observation |
 | 6 | Perform the authorized operation (e.g. issue a new subordinate, re-sign, rotate) | Custodians |
-| 7 | Destroy or re-seal shares per the documented protocol | Custodians under witness observation |
+| 7 | Destroy or re-seal shares per the documented protocol; where a legal hold or investigation covers data the key protects, directly or through a key it wraps, re-seal the shares instead of destroying them ([Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1) | Custodians under witness observation |
 | 8 | Document the ceremony record: participants, actions taken, outputs, evidence references | Witness |
 | 9 | Sign the ceremony record | All participants |
 | 10 | File the ceremony record in the cryptographic operations register | Witness |
