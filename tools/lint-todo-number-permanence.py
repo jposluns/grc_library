@@ -1200,7 +1200,7 @@ def find_cross_list_collisions(
     item into P-TODO.md instead of MOVING it, leaving a stale duplicate. The two
     single-source checks (recycle, counter) each assumed exactly one live source,
     so this is the only check that catches it."""
-    return sorted(set(todo_live) & set(ptodo_live), key=lambda s: (_ordinal(s) or ("", 0)))
+    return sorted(set(todo_live) & set(ptodo_live), key=lambda s: (_ordinal(s) or ("", 0), s))
 
 
 def main(argv: list[str]) -> int:
