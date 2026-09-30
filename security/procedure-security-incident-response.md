@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.37\
-**Date:** 2026-09-29\
+**Version:** 1.4.3\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -44,7 +44,7 @@ This procedure applies to:
 
 | Role | Responsibilities |
 | --- | --- |
-| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications other than regulatory notifications, which route per section 6. No system must be isolated or reimaged without the Incident Commander's direction. |
+| **Incident Commander** | Assumes overall command and decision-making authority for P1 and P2 incidents. Approves containment actions, isolation decisions, and external communications other than regulatory notifications, which route per section 6. No system must be isolated or reimaged without the Incident Commander's direction. Notifies Legal Counsel at once when an investigation under this procedure treats a device, its user, or its data as evidence, and again when it no longer does, so the designation is known to the hold check in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. |
 | **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. Authorizes IR partner engagement. Coordinates with the DPO on regulatory notification. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers and partners; regulatory notifications route through the DPO with Legal Counsel content approval per the notification steps in this procedure. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under Incident Commander direction. Maintains timestamped logs of all IR actions. |
@@ -135,7 +135,7 @@ Upon receipt of an alert or report, the SOC analyst must:
 
 ### 5.1 Containment principles
 
-- **Do not isolate or reimage systems without direction from the Incident Commander.** Premature isolation may destroy volatile evidence or alert the threat actor.
+- **Do not isolate or reimage systems without direction from the Incident Commander.** Premature isolation may destroy volatile evidence or alert the threat actor. Before rebuilding, reimaging, re-flashing or wiping a device or storage volume, confirm that no legal hold or investigation covers the device, its user, or its data, using the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation under this procedure treats the device, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation covers the device, or that status cannot be confirmed, keep the original device or storage volume unaltered in custody until Legal Counsel releases or narrows the hold in writing under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8. For an investigation without a legal hold, that release is Legal Counsel's written confirmation that the investigation no longer treats the device or its contents as evidence. A forensic image does not substitute for keeping the original. Recover service on replacement hardware, a new instance, or restored copies; never rebuild, reimage, re-flash or wipe the held original in place.
 - **Evidence preservation takes priority over service recovery in the first hour.** Capture memory dumps, running process lists, active network connections, and relevant log exports before any containment action that could alter system state.
 - All containment actions must be logged with the UTC timestamp, the identity of the person taking the action, and the Incident Commander's authorization.
 
@@ -149,7 +149,9 @@ Upon receipt of an alert or report, the SOC analyst must:
 
 ### 5.3 Eradication
 
-Once the scope of compromise is confirmed, the SOC and IT Operations must:
+Before any eradication or cleanup that would alter an original device or storage volume, apply the hold and investigation safeguard in §5.1, including its check and release requirements. Where preservation is required, keep the original unaltered and perform eradication or cleanup on replacement infrastructure.
+
+Once the scope of compromise is confirmed, the SOC and IT Operations must, subject to that safeguard:
 
 1. Remove all identified malware, persistence mechanisms, backdoors, and unauthorized accounts.
 2. Revoke and rotate all credentials that were or may have been exposed, including service accounts, API keys, and certificates.
@@ -158,7 +160,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must:
 
 ### 5.4 Recovery
 
-1. Restore affected systems from known-good backups or clean-rebuilt images, verified against integrity hashes.
+1. Restore affected systems from known-good backups or clean-rebuilt images, verified against integrity hashes, subject to the following safeguard. Before rebuilding, reimaging, re-flashing or wiping a device or storage volume, confirm that no legal hold or investigation covers the device, its user, or its data, using the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation under this procedure treats the device, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation covers the device, or that status cannot be confirmed, keep the original device or storage volume unaltered in custody until Legal Counsel releases or narrows the hold in writing under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8. For an investigation without a legal hold, that release is Legal Counsel's written confirmation that the investigation no longer treats the device or its contents as evidence. A forensic image does not substitute for keeping the original. Recover service on replacement hardware, a new instance, or restored copies; never rebuild, reimage, re-flash or wipe the held original in place.
 2. Verify that all SIEM alert categories and monitoring rules are operational before returning systems to production.
 3. Monitor restored systems with enhanced logging and alerting for a minimum of 14 days post-recovery.
 4. Obtain formal sign-off from the Incident Commander and the relevant System Owner before resuming normal operations.
@@ -299,7 +301,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 **By 24 hours: recover, engage notification, track closure**
 
 - Validate eradication with a follow-on scan or forensic review before recovery (§5.3).
-- Recover: restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
+- Recover: before rebuilding, reimaging, re-flashing or wiping a device or storage volume, confirm that no legal hold or investigation covers the device, its user, or its data, using the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. The GRC platform and Records Register check alone does not complete it. Where a legal hold or investigation covers the device, or that status cannot be confirmed, keep the original unaltered in custody until Legal Counsel's written release or narrowing under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8; a forensic image does not substitute. Recover service on replacement hardware, a new instance, or restored copies, never on the held original in place. Restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
 - Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR without undue delay and, where feasible, within 72 hours of awareness); Legal Counsel approves the content and the DPO submits (§6).
 - Document the return-to-service date and the basis for confirming eradication (§5.4).
 - Initiate the post-incident review track, mandatory for P1 and P2, due within 5 business days of closure (§7.1).

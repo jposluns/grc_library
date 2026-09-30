@@ -2,7 +2,7 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
+**Version:** 1.1.6\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -165,12 +165,14 @@ For every recovery the procedure produces a request record with:
 
 | Class | Required response |
 | --- | --- |
-| Category 1 lost | Self-service rekey where possible; otherwise device reimage |
+| Category 1 lost | Self-service rekey where possible; otherwise, subject to the hold and investigation safeguard below, device reimage |
 | Category 1 compromised (exposed escrow) | Treat as a personal-data exposure if Confidential or Restricted content was encrypted with the key; per the privacy breach response procedure |
 | Category 2 lost | Rotate; affected service downtime accepted as the cost of the rotation |
 | Category 2 compromised | P2 or P3 incident; rotate and investigate; cascade to dependent secrets |
 | Category 3 lost | P1 incident; recovery ceremony from backup if available; full audit; consider trust-chain rotation if recovery integrity is uncertain |
 | Category 3 compromised | P1 incident; immediate ceremony to rotate; full trust chain re-issued; customer and regulator notification per applicable rules |
+
+**Hold and investigation safeguard for device reimage, key destruction and system rebuild.** Before any key zeroization, purge of a superseded key version (Section 2) or destruction of key shares after a ceremony (Section 5) under this procedure, the Key Custodian must complete the single key destruction check in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1. Defer that step where a hold or investigation applies, or either part of that check is incomplete, under that section's retention and release requirements. A device reimage destroys the device contents, as a full wipe does, and a system rebuild overwrites the original storage. Before any reimage or system rebuild under this procedure, the role performing it must confirm whether a legal hold or investigation applies to the device or system, its user, or its data. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device or system, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device or system, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, keep the device or original storage volume unaltered in secure custody, with its encrypted contents. Defer the reimage or rebuild and any reassignment or disposal that would prevent evidence preservation. Neither action may proceed until Legal Counsel, in writing, formally releases the hold or narrows it so that it no longer covers the device contents. For an investigation without a legal hold, neither action may proceed until Legal Counsel confirms in writing that the investigation no longer treats those contents as evidence, consistent with rule 8 of the same decision table. A backup or forensic image does not substitute for keeping the original and does not itself authorize the action. Service recovery proceeds on replacement hardware, a new instance, or restored copies, never by reimaging or rebuilding the held original in place. Record the check, deferral and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the action proceeds as this procedure describes. Zeroizing a key makes the data it protects unrecoverable. The contents of a device or system held under this safeguard are data under a hold or investigation, so the section 7.1 check retains any escrowed key needed to decrypt them.
 
 ---
 
@@ -199,7 +201,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 ## Operating expectations
 
 1. The escrow service is treated as a tier-1 production service with the corresponding resilience, monitoring, and access posture.
-2. Recovery is rare and intentional; the procedure favours rotation, key zeroization, or system rebuild over recovery where they meet the business need.
+2. Recovery is rare and intentional; the procedure favours rotation, key zeroization, or system rebuild over recovery where they meet the business need, subject to the hold and investigation safeguard for device reimage, key destruction and system rebuild in Section 8.
 3. Ceremony participants are trained on the ceremony script; ceremonies are not conducted ad hoc.
 4. Loss of key escrow integrity is treated with the same seriousness as loss of the key material itself.
 

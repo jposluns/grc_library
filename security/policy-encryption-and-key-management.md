@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.37\
+**Version:** 1.3.41\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -78,7 +78,7 @@ Encryption keys rotated at least every 90 days for Restricted data and annually 
 
 ### 5.5 Key destruction
 
-Retired or expired keys destroyed by zeroization (the recommended key sanitization technique per NIST SP 800-88 Rev. 2), except that a data-encryption key is retained until the data it protects has been re-encrypted under a new key or destroyed, and a key-wrapping key is retained while any key it protects is still needed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6). A key that protects data under a legal hold or investigation, directly or through a key it wraps, is also retained until Legal Counsel, in writing, releases the hold or confirms that the investigation no longer requires the key. The [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md) section 7 sets out the check and release. Destruction events logged in the Key Lifecycle Register and retained for seven years.
+Retired or expired keys are destroyed by zeroization, the recommended key sanitization technique per NIST SP 800-88 Rev. 2, subject to the following retention requirements. Retain a data-encryption key until the data it protects has been re-encrypted under a new key or destroyed. Retain a key-wrapping key while any key it protects is still needed (NIST SP 800-57 Part 1 Rev. 5, section 5.3.6). Before destruction, confirm whether a legal hold or investigation covers data the key protects, directly or through a key it wraps. The check follows rule 2's two-part confirmation, as set out in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1. Recorded hold status alone does not complete the check. Legal Counsel or the Incident Commander confirms whether an investigation under the [Security Incident Response Procedure](procedure-security-incident-response.md) treats that data or the key as evidence. Only Legal Counsel confirms whether an investigation by an external authority does so, and whether a hold is required but not yet recorded. Retain the key if a hold or investigation applies, or either part of the check is incomplete. The key stays retained until Legal Counsel, in writing, releases the hold or narrows it so that it no longer covers that data. For an investigation without a legal hold, it stays retained until Legal Counsel confirms in writing that the investigation no longer treats that data or the key as evidence. Destruction events are logged in the Key Lifecycle Register and retained for seven years.
 
 ---
 

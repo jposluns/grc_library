@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.0.13\
-**Date:** 2026-09-24\
+**Version:** 1.1.4\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-remote-working-security.md`](standard-remote-working-security.md), [`security/procedure-vulnerability-management.md`](procedure-vulnerability-management.md), [`security/framework-zero-trust-architecture.md`](framework-zero-trust-architecture.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md), [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md)\
@@ -132,7 +132,7 @@ Devices used to administer production environments meet a stricter baseline.
 | Application restriction | Minimal application set; administrative tooling only |
 | Per-session credentials | Credentials retrieved from the PAM vault per session; no standing credentials |
 | Session recording | Administrative sessions recorded where the action class warrants it |
-| Rotation | Hardware refreshed on the standard PAW lifecycle; the prior device wiped and recycled per the disposal standard |
+| Rotation | Hardware refreshed on the standard PAW lifecycle; the prior device wiped and recycled per the disposal standard, subject to the hold and investigation safeguard in §14 |
 
 ---
 
@@ -155,7 +155,7 @@ Devices used to administer production environments meet a stricter baseline.
 | Control area | Requirement |
 | --- | --- |
 | Posture floor | Per the BYOD policy; conditional access enforces minimum posture before access |
-| Application containerization | Where supported, organization data accessed within a managed app or browser profile that the organization can selectively wipe |
+| Application containerization | Where supported, organization data accessed within a managed app or browser profile that the organization can selectively wipe, subject to the hold and investigation safeguard in §14 |
 | No persistent local data | Organization data does not persist on the unmanaged device; cache cleared on session end |
 | Personal-account separation | Personal and organizational accounts on the same device do not share data |
 | Compromise indicators | Where the unmanaged device shows indicators (jailbreak, root, untrusted certificate), access is blocked |
@@ -171,7 +171,7 @@ Devices used to administer production environments meet a stricter baseline.
 | OS version | Within the vendor-supported and patched version |
 | Passcode | Per the authentication standard |
 | Biometrics | Platform biometric permitted; secure-enclave-backed |
-| Wipe capability | Wipe capability must be available and tested: corporate applications for MAM, the corporate container for managed work profiles, and consented full-device wipe for BYOD MDM; corporate-device wipe remains applicable |
+| Wipe capability | Wipe capability must be available and tested: corporate applications for MAM, the corporate container for managed work profiles, and consented full-device wipe for BYOD MDM; corporate-device wipe remains applicable. Any destructive test or operational wipe is subject to the hold and investigation safeguard in §14 |
 | Containerization | Work profile or work container used where the platform supports it |
 | Camera and microphone | Controlled per role and per facility policy |
 | Public-Wi-Fi posture | Per the remote working standard; VPN engaged on untrusted networks |
@@ -193,15 +193,17 @@ Devices used to administer production environments meet a stricter baseline.
 
 ## 14. Lifecycle and disposal
 
+**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device, its user, or the data on it as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
+
 | Stage | Required action |
 | --- | --- |
 | Procurement | Per the supplier programme; hardware certified to meet the standard's hardware-feature expectations |
 | Provisioning | Image or zero-touch provisioning enrols the device with the baseline applied |
 | In service | Posture monitored continuously; non-compliance triggers conditional access enforcement |
 | Refresh | Within the documented lifecycle; refresh not exceeding the OS-supported window |
-| Reassignment | Wiped and re-enrolled before reassignment |
-| Disposal | Per the media handling standard with verified data sanitization |
-| Loss or theft | Loss or theft must be reported immediately and corporate access must be revoked. IT Operations must initiate a remote wipe within 1 hour of notification, appropriate to ownership and BYOD route: organization-issued device wipe; corporate application data only for MAM; corporate container only for a managed work profile; full-device wipe under BYOD MDM only with the owner's written, recorded consent expressly authorizing it, except where required by law. Wipe scope, outcome and any consent reference or applicable legal requirement must be recorded. |
+| Reassignment | Wiped and re-enrolled before reassignment, subject to the hold and investigation safeguard in §14 |
+| Disposal | Per the media handling standard with verified data sanitization, subject to the hold and investigation safeguard in §14 |
+| Loss or theft | Loss or theft must be reported immediately and corporate access must be revoked within 1 hour whichever containment action applies. The decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 governs every loss or theft case: it selects WIPE, LOCK-ONLY, or KEEP by verified encryption status, the highest data class on the device, and legal hold or investigation status, and does not select a wipe in every case. Where that table selects WIPE, IT Operations must initiate the remote wipe within 1 hour of notification, or as that table's rules defer it with the interim lock they require, appropriate to ownership and BYOD route: organization-issued device wipe; corporate application data only for MAM; corporate container only for a managed work profile; full-device wipe under BYOD MDM only with the owner's written, recorded consent expressly authorizing it, except where required by law. Where the table selects LOCK-ONLY, IT Operations must initiate a remote lock, or for MAM the application-layer containment that table defines, within 1 hour, and must not destroy device contents other than through the MAM selective-wipe fallback, under the conditions that table sets. If a legal hold or investigation applies to the device, its user, or its data, suspend the wipe and initiate remote lock within 1 hour of notification. On a MAM-only device, which has no device lock, use the application-layer containment that table defines instead. Apply the same actions if hold status cannot be confirmed within 1 hour of notification. Treat the case as held until both parts of the hold check in that table's rule 2 are complete. Capture a forensic image wherever the device is still reachable. On a personally-owned device, the image covers only the route's corporate scope, as that table's rule 3 defines it, unless the owner consents in writing to wider acquisition or a legal obligation provides for it. If both parts confirm no hold or investigation applies, follow the table's selected action. Otherwise, wipe only after Legal Counsel's written release, narrowing or confirmation under rule 8 of that table. The action selected, wipe scope, outcome and any consent reference or applicable legal requirement must be recorded. |
 
 ---
 

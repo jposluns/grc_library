@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.15\
-**Date:** 2026-09-23\
+**Version:** 1.4.4\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -28,7 +28,7 @@ To protect information held on physical and digital media from unauthorized disc
 
 1. Applies to all physical media including removable storage (USB drives, portable hard drives, optical media, magnetic tapes), printed documents, and decommissioned hardware containing storage.
 2. Applies to all digital media transfers including file transfer, email attachment, cloud sharing, and direct network transfer.
-3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law).
+3. Applies to organization-issued and personally-owned devices (BYOD) where they are used to handle organizational data. On a personally-owned device, sanitization is limited to corporate application data (MAM route) or the corporate work profile (managed-work-profile route); a full-device wipe follows the BYOD Policy (the owner's written consent, except where required by law). All sanitization and wipes are subject to the hold and investigation safeguard in §7.
 4. Covers all employees, contractors, and third parties who handle organizational media in any classification.
 5. Applies globally across all office locations, data centre sites, field operations, and logistics environments including BASC-certified trade and customs operations.
 
@@ -162,6 +162,8 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 
 ## 7. Media sanitization and destruction
 
+**Hold and investigation safeguard for sanitization and disposal.** Before any sanitization, erasure or destruction under this document, including reuse, reassignment and disposal, IT Operations and the Data Owner must confirm whether a legal hold or investigation applies to the device or media, its user, or its data. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander confirms whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the device or media, its user, or its data as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device or media, its user, or its data as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or that status cannot be confirmed, preserve the device or media and its contents in secure custody and defer sanitization, erasure, destruction and any transfer that would prevent evidence preservation. No destructive action may proceed until Legal Counsel, in writing, formally releases the hold or narrows it so that it no longer covers the affected contents. For an investigation without a legal hold, no destructive action may proceed until Legal Counsel confirms in writing that the investigation no longer treats those contents as evidence, consistent with rule 8 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A backup, migration or forensic image does not itself authorize destruction. Record the check, deferral and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing retention, sanitization and disposal requirements continue to apply.
+
 ### 7.1 Sanitization before reuse
 
 Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization-technique categories of IEEE 2883 (NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard):
@@ -189,10 +191,10 @@ Paper and physical records containing Confidential or Restricted data must be de
 
 Media disposal initiated by expiry of the Records Retention Schedule is coordinated between IT Operations and the relevant Data Owner. Prior to disposal, the Data Owner confirms that:
 
-1. No active retention hold (litigation freeze or regulatory hold) is in effect.
+1. No legal hold or investigation applies to the media, its user, or its data, as confirmed through both parts of the hold check in the hold and investigation safeguard at the start of §7. A check of recorded holds alone does not complete it.
 2. The retention period for all data on the media has expired.
 
-Media subject to an active retention hold must not be destroyed until Legal Counsel formally lifts the hold, per the Records Retention and Destruction Standard §7.
+Media to which a legal hold or investigation applies, or whose status cannot be confirmed, must not be destroyed until Legal Counsel formally releases or narrows the hold, or confirms in writing that an investigation without a legal hold no longer treats its contents as evidence, as that safeguard and the Records Retention and Destruction Standard §7 require.
 
 ---
 
@@ -237,7 +239,7 @@ Certificates of Destruction are retained for a minimum of 7 years, consistent wi
 Surplus hardware declared for disposal by IT Operations must be processed through the following workflow before leaving IT custody:
 
 1. The asset is flagged for disposal in the asset register by the IT Operations lead.
-2. The Data Owner for any data stored on the device confirms retention obligations are met and no hold is in effect.
+2. The Data Owner for any data stored on the device confirms retention obligations are met, and the hold check in the hold and investigation safeguard at the start of §7 confirms that no legal hold or investigation applies.
 3. Media sanitization or destruction is performed per §7 and recorded.
 4. A Certificate of Destruction is obtained per §8.
 5. The asset register is updated to "disposed" with the disposal date, method, and Certificate of Destruction reference.
