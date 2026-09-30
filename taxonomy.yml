@@ -5948,7 +5948,7 @@ documents:
   domain: "governance"
   type: "Standard"
   title: "Records Retention and Destruction Standard"
-  version: "1.4.31"
+  version: "1.4.32"
   date: "2026-09-30"
   owner: "Chief Information Officer"
   approving_authority: "Governance Library Maintainer"
