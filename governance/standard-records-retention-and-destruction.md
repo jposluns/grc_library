@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.28\
+**Version:** 1.4.29\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ## 8. Secure destruction
 
-Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction, and repeated if destruction does not follow promptly or a hold or investigation may have arisen since. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
+Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
 
 1. The Compliance Manager checks both the retention hold status in the Records Register (section 7) and the legal hold status in the GRC platform (the Legal holds section of [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)). A check of only one of those two records does not complete this part.
 2. Those records show only holds that have been recorded, so they cannot complete the check on their own. Legal Counsel must confirm in writing that no legal hold or retention hold is required but not yet recorded, and that no investigation by an external authority treats the records as evidence. Legal Counsel or the Incident Commander must confirm whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the records as evidence.
@@ -170,7 +170,7 @@ Quarterly reviews confirm:
 
 - Timely destruction of records whose retention period has expired.
 - No records deleted while subject to an active hold.
-- No records destroyed without a completed hold check and Legal Counsel's written confirmation.
+- No records destroyed without a hold check completed immediately before destruction (or before release to a disposal service) and Legal Counsel's written confirmation.
 - Compliance with privacy and AI recordkeeping standards.
 
 Non-compliance identified during reviews triggers investigation under the Corrective and Preventive Action (CAPA) Procedure.
