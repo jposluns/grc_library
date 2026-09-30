@@ -121,10 +121,6 @@ Adopter experience and future work: capability and guidance for organizations ad
 
 Non-urgent follow-ups deliberately DEFERRED to a future date, then re-evaluated: a suggested revisit of something already shipped, where acting now would be premature (not enough real-world signal yet). This is NOT the normal forward backlog (those are the priority bands); an item here is date-gated, not ready-now, and will mostly track "revisit this suggested follow-up after date X". Each entry carries a **Not-before** date (UTC), what to EVALUATE, and the originating PR. `/orch` reads this section and surfaces any entry whose Not-before date has passed. When a follow-up is acted on (or decided against), rotate it to `grc_library_private/.working/DONE.md` like any other closed item. (The `TF-` counter is in the `## Number allocation` block.)
 
-| ID | Item | Tags |
-| --- | --- | --- |
-| TF-4 | Not-before 2026-09-30 (UTC): drop the UK "(ICO until 30 September 2026)" transition wording once S.I. 2026/1015 has commenced (origin #2586) | `[content]` `[public]` |
-
 ---
 
 ## Standing conventions

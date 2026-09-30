@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.34\
-**Date:** 2026-09-29\
+**Version:** 1.6.35\
+**Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -262,7 +262,7 @@ The fee schedule should be documented as an internal cost-recovery policy review
 
 | Regime | Equivalent provision | Notable variations |
 |---|---|---|
-| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6. Under UK GDPR Article 12A (inserted by the DUAA 2025, in force from 5 February 2026; see the [UK annex](jurisdictions/annex-privacy-united-kingdom.md)), the one-month period runs from the latest of receipt of the request, receipt of any identity information requested under Article 12(6), and payment of any Article 12(5) fee. Confirm the current right-of-access guidance directly with the Information Commission (ICO until 30 September 2026) |
+| **UK GDPR** (UK) | Article 12(5) (same as EU GDPR) | Apply the administrative-cost and evidence requirements in sections 7.2.4 to 7.2.6. Under UK GDPR Article 12A (inserted by the DUAA 2025, in force from 5 February 2026; see the [UK annex](jurisdictions/annex-privacy-united-kingdom.md)), the one-month period runs from the latest of receipt of the request, receipt of any identity information requested under Article 12(6), and payment of any Article 12(5) fee. Confirm the current right-of-access guidance directly with the Information Commission |
 | **LGPD** (Brazil, Article 18) | Free of charge by default; ANPD may establish exceptions in regulation | No explicit "manifestly unfounded or excessive" exception in primary law |
 | **PIPL** (China, Article 50) | Requires a convenient mechanism to receive and handle individuals' rights requests; reasons must be given for rejection, and the individual may bring proceedings in a people's court | Article 50 prescribes no fee rule or repeated-request fee exception; do not cite it as authority for charging |
 | **PIPEDA** (Canada) | OPC guidance: minimal or no cost; where a cost applies, the organization notifies the individual of the approximate cost before proceeding | Subject must have option to abandon request after fee notice |
@@ -276,7 +276,7 @@ When the joint controllers or processors operate across multiple regimes, the st
 1. The Data Protection Officer documents the proposed grounds for denial with reference to the specific legal provision.
 2. Legal Counsel reviews the denial rationale and provides written concurrence confirming the legal basis. A denial cannot proceed without this concurrence: the Legal Counsel concurrence is the independent review of record, so no denial rests on a single officer's judgement.
 3. The DPO signs off on the denial in writing before notification is sent to the data subject.
-4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (the Information Commission (the ICO until 30 September 2026); OPC; CAI; or other applicable authority).
+4. The data subject is notified in writing of the denial, the specific grounds, and their right to lodge a complaint with the relevant supervisory authority (the Information Commission; OPC; CAI; or other applicable authority).
 5. The denial, its grounds, the Legal Counsel concurrence, and the DPO sign-off are recorded in the DSR register.
 
 All denials must be justified in writing, carry the Legal Counsel written concurrence, and be reviewed by the DPO before being communicated to the data subject, consistent with [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md) §4.8.
