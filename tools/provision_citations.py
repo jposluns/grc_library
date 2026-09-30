@@ -22,7 +22,7 @@ Extraction model (stdlib ``re``, fenced code skipped via
      and parenthesised subdivisions (including digit-letter and roman ones,
      ``(6a)``, ``(II)``), lists (including slashed lists, ``Art 5/6/12``)
      and ranges: ``s. 10.1(2) and (6)``, ``Arts. 33 to 34``,
-     ``Arts. 44–49``, ``ss. 7 to 9, 11``. A bare parenthesised continuation
+     ``Arts. 44\u201349``, ``ss. 7 to 9, 11``. A bare parenthesised continuation
      (``and (6)``) attaches to the preceding section, replacing the deepest
      subdivision(s) of the preceding pinpoint, so ``Article 53(1)(a) and
      (b)`` reads as 53(1)(a) and 53(1)(b), not 53(b). A hyphenated pair
@@ -82,12 +82,12 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  alias's OWN generic noun (``SELF_NOUNS``: ``PIPEDA s. 10.1
                  of the Act``, ``the GDPR Article 83 of the Regulation``,
                  ``HIPAA §164.502(b) of the Privacy Rule``) re-names it and
-                 does not refuse it — unless the noun is continued like
+                 does not refuse it, unless the noun is continued like
                  another instrument's long title (``of the Act respecting
                  the protection of personal information in the private
                  sector``, ``of the Regulation laying down harmonised
                  rules``, matched case-insensitively: ``of the Act
-                 Respecting ...`` refuses too), which refuses — and neither
+                 Respecting ...`` refuses too), which refuses, and neither
                  does ``Code of Conduct``
                  (``GDPR Art. 40 Code of Conduct``). A postfix alias that
                  modifies a subordinate instrument (``Article 12 of the DORA
@@ -172,7 +172,7 @@ Extraction model (stdlib ``re``, fenced code skipped via
      ``JURISDICTION_WINDOW`` characters before the alias (a jurisdiction
      word inside another alias mention, the ``EU`` of ``EU GDPR``, does
      not count), then by a jurisdiction token in the document path, else
-     to ``<alias> (jurisdiction unresolved)`` — a key that can carry only
+     to ``<alias> (jurisdiction unresolved)``, a key that can carry only
      INFERRED-tier citations (rule 3 refuses it at the explicit tier, and a
      conjoined member of that kind is dropped, so ``AI Act / EU AI Act
      Art. 50`` keys only the EU AI Act), so its rows always print as
@@ -387,7 +387,7 @@ _JURISDICTION_RE = re.compile(
 _SUB = r"\((?:[0-9]{1,3}[a-z]{0,2}|[a-z]{1,4}|[A-Z]|[IVX]{2,5})\)"
 _NUM = r"\d{1,4}(?:-?[A-Z]{1,2}(?![a-z])|[a-z]{1,2}(?![a-z]))?(?:\.\d{1,4}[A-Z]{0,2})*(?![0-9])"
 _ITEM = _NUM + "(?:" + _SUB + ")*"
-_SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*[-–]\s*|\s*[&/]\s*)"
+_SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*[-\u2013]\s*|\s*[&/]\s*)"
 # The decimal alternative stops _NUM backtracking out of "1.5" to absorb the
 # "1" of "and 1.5 days" as a section once the unit rejects the full number.
 # A capitalized month name makes the number a day of the month ("Art. 113 and
@@ -398,7 +398,7 @@ _MONTHS = (
     r"Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept|Sep|Oct|Nov|Dec"
 )
 _UNIT = (
-    r"(?!(?:\.\d+)?[\s–-]*(?:(?:further|more|additional|extra|calendar|business|working|clear|"
+    r"(?!(?:\.\d+)?[\s\u2013-]*(?:(?:further|more|additional|extra|calendar|business|working|clear|"
     r"consecutive)\s+)?(?:hours?|hrs?|h|days?|weeks?|wks?|months?|years?|yrs?|minutes?|mins?|"
     r"millions?|billions?|thousands?|%|per\s?cent|percent|" + _MONTHS + r")(?![A-Za-z]))"
 )
@@ -419,7 +419,7 @@ CITE_RE = re.compile(
 )
 _BODY_TOKEN_RE = re.compile(
     "(?P<item>" + _NUM + ")(?P<subs>(?:" + _SUB + ")*)"
-    "|(?P<bare>(?:" + _SUB + r")+)|(?P<range>\bto\b|\bthrough\b|[-–])"
+    "|(?P<bare>(?:" + _SUB + r")+)|(?P<range>\bto\b|\bthrough\b|[-\u2013])"
 )
 _SUB_SPLIT_RE = re.compile(r"\([^()]*\)")
 _EXPLICIT_ONLY_MARKERS = frozenset(("Sections", "Section", "sections", "section", "§§", "§"))
@@ -672,7 +672,7 @@ def expand_body(body: str) -> list[tuple[str, str, bool, bool]]:
     for tok in _BODY_TOKEN_RE.finditer(body):
         if tok.group("range"):
             pending_range = base is not None
-            hyphen_range = tok.group("range") in ("-", "–")
+            hyphen_range = tok.group("range") in ("-", "\u2013")
             continue
         if tok.group("bare"):
             if base is not None:
@@ -904,7 +904,7 @@ def scan_text(rel: str, text: str) -> list[Citation]:
             family = _marker_family(marker)
             if attributions and MARKER_STYLE.get(attributions[-1][0]) != family:
                 # Marker-family guard: an Art-marker citation cannot belong to an
-                # s.-style statute (or the reverse) — the resolved instrument is the
+                # s.-style statute (or the reverse), the resolved instrument is the
                 # wrong one ("CCPA Article 10" is an 11 CCR regulation article), so
                 # refuse rather than misattribute, at every tier.
                 attributions = []
@@ -1050,8 +1050,8 @@ def split_rows(rows, trusted=("explicit",)) -> "tuple[list[Citation], list[Citat
     """Partition ``rows`` into (trusted rows, unverified candidate rows).
 
     A row whose tier is in ``trusted`` is a sibling a reviewer can act on;
-    every other row — an inferred-instrument tier outside ``trusted`` or an
-    uncited-phrase hit — is a candidate to print under ``CANDIDATE_LABEL``.
+    every other row, an inferred-instrument tier outside ``trusted`` or an
+    uncited-phrase hit, is a candidate to print under ``CANDIDATE_LABEL``.
     """
     return ([c for c in rows if c.tier in trusted],
             [c for c in rows if c.tier not in trusted])

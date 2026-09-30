@@ -15,7 +15,7 @@ continuation shows its full form, ``53(1)(b)``) and the resolution tier
 seed table (tier ``phrase``). In the text report each key's explicit-tier
 rows are listed first; every inferred-tier row, and every phrase row, is
 listed after them under the label ``unverified candidates (inferred
-instrument)`` — four QA rounds found misattribution families that are,
+instrument)``, four QA rounds found misattribution families that are,
 after the round-3 and round-4 explicit-tier fixes, confined to the inferred
 tiers, so those rows are candidates a reviewer confirms, not verified
 surfaces (in the JSON, each record's ``tier`` field carries the same
@@ -114,7 +114,7 @@ RESIDUE (stated, not hidden):
     both, so the sibling is real either way). Every other conjoined member
     (``the LGPD and GDPR Article 20``) is keyed at the line tier, as a
     candidate. The line, heading, section and document tiers are INFERENCES
-    — hence the ``unverified candidates (inferred instrument)`` label — and
+   , hence the ``unverified candidates (inferred instrument)`` label, and
     three shapes systematically defeat them: a CROSSWALK document about an
     instrument OUTSIDE the alias table (the eIDAS annex) attributes that
     instrument's articles at the line and heading tiers to whatever aliased
@@ -140,7 +140,7 @@ RESIDUE (stated, not hidden):
     marker means the 11 CCR CCPA Regulations), a citation adjacent to an
     ambiguous alias whose jurisdiction contradicts its table row or never
     resolves (``CPPA Section 63(3)`` with no Canada context is REFUSED even
-    though Bill C-27 is meant — recall ceded to keep the California agency
+    though Bill C-27 is meant, recall ceded to keep the California agency
     shape out of the explicit tier; with a ``Section``/``§`` marker the
     refusal drops the record entirely, per the explicit-only rule), a
     citation whose line earlier names two different instruments (a comma

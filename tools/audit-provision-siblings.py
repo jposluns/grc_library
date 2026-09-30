@@ -9,8 +9,8 @@ cites, the other surfaces that cite it too, so a QA brief can ask of each
 one "does this restatement still match the corrected text?".
 
 WHAT. Every provision key cited (or matched by a seeded uncited phrase) in
-each --docs file — at ANY tier; the audited document's own citations are
-never tier-filtered — is looked up in the corpus index built by
+each --docs file, at ANY tier; the audited document's own citations are
+never tier-filtered, is looked up in the corpus index built by
 ``tools/provision_citations.py``. A row is listed as a TRUSTED sibling only
 when BOTH sides are trusted. The other surface's citation must resolve at
 the trusted tier(s): by default only ``explicit``, the tier whose
@@ -20,9 +20,9 @@ tier, at the ``heading`` tier (which the extractor assigns only from a
 heading naming exactly one instrument: the #2649 annex cites ``(s. 10.1)``
 under ``## Operational requirements (PIPEDA)``), or at a tier ``--min-tier``
 adds; an own citation at the ``line``, ``section`` or ``document`` tier, or
-a seeded phrase alone, is unverified. Every other row — an other-surface
+a seeded phrase alone, is unverified. Every other row, an other-surface
 citation at a weaker, inferred tier (a heading-tier one included), an
-uncited-phrase hit, or ANY row of a key whose own citation is unverified —
+uncited-phrase hit, or ANY row of a key whose own citation is unverified,
 is listed after the siblings under the label ``unverified candidates
 (inferred instrument)``. Four QA rounds found misattribution families
 confined to the inferred tiers (the crosswalk, passing-prose-mention and
@@ -35,7 +35,7 @@ candidates whatever their own tier. A key with no trusted own citation is
 marked ``own citation unverified`` with its own tiers named (in the JSON,
 ``own_tiers`` and ``own_trusted`` carry the same information). A reviewer
 can act on the sibling list directly but must confirm a candidate row's
-instrument — and, for an own-unverified key, the document's own citation —
+instrument, and, for an own-unverified key, the document's own citation,
 first. ``--min-tier`` widens the trusted set on both sides (``--min-tier
 document`` trusts every citation tier, restoring the pre-split single list,
 except that phrase rows always stay candidates, and a key cited here only
@@ -67,7 +67,7 @@ RESIDUE: the extractor's residue applies unchanged (see
 ``tools/build-provision-index.py``; the inferred-tier misattribution shapes
 stated there are why those rows print as unverified candidates here, and
 why a key the audited document cites only at the line, section or document
-tier keeps no trusted siblings at all — at the default ``--min-tier
+tier keeps no trusted siblings at all, at the default ``--min-tier
 explicit`` a document that cites a provision neither explicitly nor under a
 single-instrument heading gets ONLY candidate rows and must be read
 accordingly). Trusting the audited document's own heading-tier citations
