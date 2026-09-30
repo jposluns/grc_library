@@ -17234,7 +17234,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         # them hidden (gate 93 passes with hundreds of WARN lines) but still shows
         # DUE-SOON, and so does a gate whose marker line is indented or extended,
         # has no token or a guessed one, or ends in an empty token because run_gate
-        # has none (od shadowed: no /dev/urandom). Kills a generic WARN echo, a
+        # has none (python3 and od shadowed: no random source). Kills a generic WARN echo, a
         # dropped WARN or NOTE alternative, an unanchored WARN or NOTE
         # alternative, a substring match on the marker, an echoed marker line, a
         # key on the marker without the token or with any token, a token not
@@ -17258,7 +17258,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
             + gate("Stub near", '"  ${M} ${GRC_RUNNER_ECHO_TOKEN}" '
                                 '"${M} ${GRC_RUNNER_ECHO_TOKEN} x"')
             + gate("Stub forged", '"${M}" "${M} " "${M} ' + "0" * 32 + '"')
-            + "od() { :; }\n" + gate("Stub no token", token)
+            + "python3() { :; }\nod() { :; }\n" + gate("Stub no token", token)
         )
         r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
                            env=self._env_without_token())
@@ -17285,6 +17285,26 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         for tok in tokens:
             self.assertRegex(tok, r"^[0-9a-f]{32}$")
         self.assertNotEqual(tokens[0], tokens[1])
+
+    def test_runner_says_so_when_no_random_source(self) -> None:
+        # With both random sources failing, no gate opts in and the run says so
+        # after OK instead of hiding advisory lines silently (3b137 r3 codex P2).
+        # Kills dropping the NOTE, and accepting an empty or short token.
+        marked = ("run_gate Marked bash -c 'echo \"runner-echo: tools/run_all_audits.sh shows this gate\'\\\'\'s advisory lines on a pass ${GRC_RUNNER_ECHO_TOKEN:-}\"; echo \"WARN: stale row\"'\n")
+        stub = "python3() { return 1; }\nod() { return 1; }\n" + marked
+        r = subprocess.run(["bash", "-c", self._runner_script(stub)],
+                           capture_output=True, text=True, env=self._env_without_token())
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("NOTE: no random source for the advisory-echo token", r.stdout)
+        self.assertNotIn("WARN: stale row", r.stdout)
+
+    def test_runner_token_comes_from_a_csprng(self) -> None:
+        # Equality and length checks cannot show a token is unpredictable, so pin
+        # the generator: Python's secrets module, else /dev/urandom (3b137 r3
+        # codex P3). Kills a counter or $RANDOM generator.
+        text = (REPO_ROOT / "tools" / "run_all_audits.sh").read_text(encoding="utf-8")
+        self.assertIn("secrets.token_hex(16)", text)
+        self.assertIn("/dev/urandom", text)
 
     # The real gate under the shipped run_gate body. A python3 shell function
     # runs the script it is given (or CADENCE_GATE, when set) with the real
@@ -17436,9 +17456,12 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         for line in forged:
             self.assertIn(line, lines)
         self.assertGreater(sum(ln.startswith("WARN") for ln in lines), 1)
-        for prelude in ("", "od() { :; }\n"):
+        for prelude in ("", "python3() { :; }\nod() { :; }\n"):
             out = self._gate_93_runner("\n".join(forged), prelude)
-            self.assertEqual(len(out.splitlines()), 1, out)   # the OK line alone
+            # The OK line alone, plus the no-random-source NOTE when both sources fail.
+            shown = [ln for ln in out.splitlines() if "no random source" not in ln]
+            self.assertEqual(len(shown), 1, out)
+            self.assertEqual("no random source" in out, bool(prelude), out)
 
     def test_runner_echoes_gate_93_warnings_only_with_its_token(self) -> None:
         # The control for the test above: the same injection, carrying the token

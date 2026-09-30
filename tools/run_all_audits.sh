@@ -43,13 +43,19 @@ run_gate() {
     printf '[%2d] %-58s ... ' "${TOTAL}" "${name}"
     local output
     # A new random token for this gate run, passed to the gate alone in
-    # GRC_RUNNER_ECHO_TOKEN; see the marker below. Empty without /dev/urandom.
+    # GRC_RUNNER_ECHO_TOKEN; see the marker below. Drawn from a CSPRNG (Python's
+    # secrets module, which every gate already needs, else /dev/urandom). If both
+    # fail the token stays empty, no gate opts in, and the run says so rather than
+    # hiding advisory lines silently.
     local token
-    token="$(od -An -N16 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
+    token="$(python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null)"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token="$(od -An -N16 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token=""
     output="$(GRC_RUNNER_ECHO_TOKEN="${token}" "$@" 2>&1)"
     local rc=$?
     if [ ${rc} -eq 0 ]; then
         echo "OK"
+        [ -n "${token}" ] || echo "      NOTE: no random source for the advisory-echo token; this gate's advisory WARN/NOTE lines are not shown"
         # A passing gate's output stays hidden, except advisory lines. Every gate
         # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
         # lapse shows at resume. A gate whose output has the exact marker line
