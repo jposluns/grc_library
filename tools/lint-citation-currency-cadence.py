@@ -238,8 +238,8 @@ def main() -> int:
     if due_soon:
         rows = sum(len(ids) for ids in due_soon.values())
         print(
-            f"DUE-SOON: {rows} source(s) in {len(due_soon)} batch(es) reach their "
-            f"re-check window within {DUE_SOON_DAYS} days (advisory):"
+            f"DUE-SOON: {rows} source(s) in {len(due_soon)} batch(es) have "
+            f"{DUE_SOON_DAYS} or fewer days left in their re-check window (advisory):"
         )
         for (stale_from, label, window, last), ids in sorted(due_soon.items()):
             print(
