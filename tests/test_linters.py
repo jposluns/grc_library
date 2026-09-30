@@ -17298,6 +17298,78 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("NOTE: no random source for the advisory-echo token", r.stdout)
         self.assertNotIn("WARN: stale row", r.stdout)
 
+    def _run_token_sources(self, python3: str | bool | None,
+                           od: str | None) -> tuple[str, list[str]]:
+        """Run a marked stub gate under the shipped run_gate body, with python3 and
+        od shadowed by shell functions that print the given text (None: fail;
+        True: the real command). Return the runner's stdout and the tokens the
+        gate was passed."""
+        import shlex
+        marker = self._load("_cadence_marker").RUNNER_ECHO_MARKER
+
+        def source(name: str, out: str | bool | None) -> str:
+            if out is True:
+                return ""
+            if out is None:
+                return f"{name}() {{ return 1; }}\n"
+            return f"{name}() {{ printf '%s\\n' {shlex.quote(out)}; }}\n"
+
+        gate = "run_gate Src bash -c " + shlex.quote(
+            'printf "%s\\n" "${M} ${GRC_RUNNER_ECHO_TOKEN:-}" "WARN: stale row" '
+            '"DUE-SOON tok=${GRC_RUNNER_ECHO_TOKEN:-}"') + "\n"
+        script = self._runner_script(f"export M={shlex.quote(marker)}\n"
+                                     + source("python3", python3) + source("od", od) + gate)
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                           env=self._env_without_token())
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.count("... OK"), 1, r.stdout)
+        return r.stdout, re.findall(r"^      DUE-SOON tok=(.*)$", r.stdout, re.M)
+
+    def test_runner_rejects_a_malformed_token_from_either_source(self) -> None:
+        # Both sources print something other than 32 lower-case hex digits: short,
+        # non-hex, upper-case or long. The gate gets an empty token, so it does not
+        # opt in, and the run prints the NOTE (3b137 r4 codex P3). Kills deleting
+        # the final 32-hex check on the token, and an unanchored final check.
+        cases = [("ab", " ab"), ("g" * 32, " zz" * 16),
+                 ("A" * 32, " AB" * 16), ("0" * 33, " 00" * 17)]
+        for py_out, od_out in cases:
+            with self.subTest(python3=py_out, od=od_out):
+                out, tokens = self._run_token_sources(py_out, od_out)
+                self.assertEqual(tokens, [""], out)
+                self.assertIn("NOTE: no random source for the advisory-echo token", out)
+                self.assertNotIn("WARN: stale row", out)
+
+    def test_runner_falls_back_to_od_when_python_fails(self) -> None:
+        # With python3 failing, or printing a malformed token, the token comes from
+        # od's hex dump of 16 bytes of /dev/urandom with spaces and newline removed,
+        # and the gate opts in (3b137 r4 gemini). Kills dropping the od fallback,
+        # the tr that joins the dump, or the first 32-hex check that triggers it
+        # (deleted, or weakened to a non-empty test).
+        dump = " 00 11 22 33 44 55 66 77 88 99 aa bb cc dd ee ff"
+        for py_out in (None, "ab"):
+            with self.subTest(python3=py_out):
+                out, tokens = self._run_token_sources(py_out, dump)
+                self.assertEqual(tokens, ["00112233445566778899aabbccddeeff"], out)
+                self.assertIn("      WARN: stale row", out)
+                self.assertNotIn("NOTE: no random source", out)
+
+    def test_runner_takes_the_token_from_python_first(self) -> None:
+        # With od failing, the gate gets exactly the token python3 printed, so the
+        # primary source runs and its token is used; and the real python3 command
+        # line gives a 32-hex token on its own (3b137 r4 gemini). Kills skipping
+        # the python3 call or always using od, and a broken python3 command line
+        # (bad module, short token_hex), which the od fallback hides from
+        # test_runner_passes_each_gate_a_new_random_token.
+        tok = "f0e1d2c3b4a5968778695a4b3c2d1e0f"
+        out, tokens = self._run_token_sources(tok, None)
+        self.assertEqual(tokens, [tok], out)
+        self.assertIn("      WARN: stale row", out)
+        self.assertNotIn("NOTE: no random source", out)
+        out, tokens = self._run_token_sources(True, None)
+        self.assertEqual(len(tokens), 1, out)
+        self.assertRegex(tokens[0], r"^[0-9a-f]{32}$")
+        self.assertIn("      WARN: stale row", out)
+
     def test_runner_token_comes_from_a_csprng(self) -> None:
         # Equality and length checks cannot show a token is unpredictable, so pin
         # the generator: Python's secrets module, else /dev/urandom (3b137 r3
