@@ -16965,6 +16965,12 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("checked 4 row(s)", out)
         self.assertIn("WARN: 1 source(s) past their re-check window", out)
+        # The whole stale row line, from column 0 with its WARN prefix, heading,
+        # age and tier window: kills that row printed as "NOTE  [...]", indented,
+        # or with "[heading] " or the window clause dropped.
+        self.assertIn("\nWARN  [ISO / IEC standards] ISO/IEC STALE: last verified "
+                      "2020-01-01 (2387 days ago) exceeds the 365-day standards "
+                      "window.\n", "\n" + out)
         self.assertIn("WARN: 1 source(s) dated after today", out)
         # The whole future-dated row line, from column 0 with its WARN prefix and
         # heading: kills that row printed as "NOTE  [...]" or with "[heading] "
@@ -17532,19 +17538,40 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         # but not the token. A gate 93 record ID holding the bare marker, the marker
         # and a space, and the marker with a guessed token puts each on a line of
         # its own in gate 93's passing output, and the runner shows none of gate
-        # 93's lines, with a token and with none (od shadowed). Kills a key on the
-        # bare marker (the round-2 runner, which echoed all 382 WARN lines), a key
-        # on the marker with any token after it, and a dropped empty-token guard.
+        # 93's WARN lines, with a token and with none. In the no-token arm both
+        # token sources fail (python3 -c and od) while every other python3 call
+        # still runs gate 93 through the boot, and a DUE-SOON probe line in the
+        # same record ID, which the runner shows for every gate, proves in each
+        # arm that gate 93 ran on the injected data and its output reached
+        # run_gate. Kills a key on the bare marker (the round-2 runner, which
+        # echoed all 382 WARN lines), a key on the marker with any token after
+        # it, and a dropped empty-token guard (with no token the key becomes the
+        # marker and a space, which the data holds, so the no-token arm shows
+        # gate 93's WARN lines).
         marker = self._load("_cadence_marker_93").RUNNER_ECHO_MARKER
         forged = [marker, marker + " ", marker + " " + "0" * 32]
-        lines = self._gate_93_direct("\n".join(forged))
+        probe = "DUE-SOON gate-93-ran"
+        inject = "\n".join(forged + [probe])
+        lines = self._gate_93_direct(inject)
         for line in forged:
             self.assertIn(line, lines)
+        runs = lines.count(probe)
+        self.assertGreaterEqual(runs, 1, lines)
+        self.assertTrue(any(ln.startswith("OK: ") for ln in lines), lines)
         self.assertGreater(sum(ln.startswith("WARN") for ln in lines), 1)
-        for prelude in ("", "python3() { :; }\nod() { :; }\n"):
-            out = self._gate_93_runner("\n".join(forged), prelude)
-            # The OK line alone, plus the no-random-source NOTE when both sources fail.
-            shown = [ln for ln in out.splitlines() if "no random source" not in ln]
+        # Fails only the token command (python3 -c ...); the gate line's python3
+        # still runs the real interpreter with the boot. A no-op python3 would
+        # stop gate 93 from running at all, which the probe count below catches.
+        no_token = ('python3() { [ "${1:-}" = -c ] && return 1; '
+                    'command python3 -c "${GATE93_BOOT}" "$@"; }\nod() { :; }\n')
+        for prelude in ("", no_token):
+            out = self._gate_93_runner(inject, prelude)
+            self.assertRegex(out, r"(?m)^\[ ?\d+\] Relationship model in sync +\.\.\. OK$")
+            self.assertEqual(out.splitlines().count("      " + probe), runs, out)
+            # The OK line and the probe alone, plus the no-random-source NOTE
+            # when both sources fail.
+            shown = [ln for ln in out.splitlines()
+                     if "no random source" not in ln and ln != "      " + probe]
             self.assertEqual(len(shown), 1, out)
             self.assertEqual("no random source" in out, bool(prelude), out)
 
