@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.18\
+**Version:** 1.0.19\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -38,7 +38,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
 | **Rotation** | Periodically replace active keys to reduce risk of compromise. | Rotate symmetric keys every 90 days; asymmetric every 12 months. These are key-type baselines; where a key also carries a data-classification cadence (see the Encryption and Key Management Policy), apply the shorter applicable interval. NIST SP 800-57 Part 1 (section 5.3.6) sets a key's cryptoperiod from its type, usage environment, and data characteristics together, as rough guidance rather than a fixed one-to-one mapping. |
 | **Revocation** | Immediately invalidate compromised or expired keys. | Update CRL or OCSP; remove from all dependent systems. |
-| **Destruction** | Securely destroy obsolete or retired keys. | Confirm with Legal Counsel that no legal hold or investigation covers data the key protects, and retain the key until Legal Counsel releases any hold (Cryptographic Key Operations Procedure, section 7); perform zeroization (the key sanitization technique per NIST SP 800-88 Rev. 2); document certificate of destruction. |
+| **Destruction** | Securely destroy obsolete or retired keys. | Confirm with Legal Counsel that no legal hold or investigation covers data the key protects, directly or through a key it wraps. Retain a covered key until Legal Counsel, in writing, releases the hold or confirms that the investigation no longer requires the key (Cryptographic Key Operations Procedure, section 7). Perform zeroization (the key sanitization technique per NIST SP 800-88 Rev. 2); document certificate of destruction. |
 
 ---
 
