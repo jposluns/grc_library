@@ -3579,8 +3579,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         `commit -a`, a pathspec commit, hostile diff configuration (external diff drivers, textconv
         and a -diff attribute included), an override of "0", a conflicted merge conclusion, a linked
         worktree, a mirror in a separate repository judged by that repository's own index, the
-        mirror-scan trigger scoping, the preflight's own exit 2 on a git error, and the fail-open and
-        fail-closed cases.
+        mirror-scan trigger scoping, the preflight's own exit 2 on a git error, an unborn initial commit
+        that does not stage CHANGELOG.md, and the fail-open and fail-closed cases.
         """
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "check-changelog-preflight-commit.py"), "--self-test"]

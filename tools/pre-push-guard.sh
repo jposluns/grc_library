@@ -31,11 +31,15 @@
 # a delta gate flipped CI red after the fact (improvement-log #438).
 #
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
-# runners plus the conditional `.web/build.py --check`). The commit-time hygiene gate, `preflight-changelog.py`, runs
-# on COMMITS from the installed pre-commit hook
-# (tools/check-changelog-preflight-commit.py) on each `git commit` that stages CHANGELOG.md, because it inspects newly-added working-tree lines that
-# are already committed by push time. The two helpers are complementary,
-# not redundant.
+# runners plus the conditional `.web/build.py --check`). The commit-time
+# hygiene gate, `preflight-changelog.py`, gates COMMITS, because it judges
+# newly-added lines that are already committed by push time. In a clone
+# where tools/install-git-hooks.sh has installed the pre-commit hook,
+# tools/check-changelog-preflight-commit.py runs it with --staged, judging
+# the staged (index) lines, on each `git commit` that stages CHANGELOG.md;
+# in a clone without the installer, the `&&` chain
+# (`python3 tools/preflight-changelog.py && git commit`) remains the
+# commit-time gate. The two helpers are complementary, not redundant.
 #
 # Usage:
 #   tools/pre-push-guard.sh && git push -u origin <branch>

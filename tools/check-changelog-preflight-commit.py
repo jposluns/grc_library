@@ -36,8 +36,9 @@ override the same settings.
 
 Allowed without checking: the override GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1, honoured only when the
 value is exactly "1" (as the GRC_ALLOW_BULK_ADD and GRC_ALLOW_PR_ATTRIBUTION hooks read theirs), so
-"0", "false" or an empty value is not the override (3b141 QA r1). A checkout without
-tools/preflight-changelog.py (older branch) is allowed (fail OPEN, stated). A commit that concludes a
+"0", "false" or an empty value is not the override (3b141 QA r1). A commit that does not stage
+CHANGELOG.md is not judged, an initial commit on an unborn HEAD included: there the staged state is
+read against the empty tree, as there is no HEAD to diff against (3b141 QA r4). A commit that concludes a
 conflicted merge, cherry-pick, or revert is checked like any other (3b141 QA r1), whether `git commit`
 or `git merge|cherry-pick|revert --continue` makes it (each runs pre-commit; a rebase does not, see
 the residue below): CHANGELOG.md is the file most likely to conflict (every PR adds an entry in the
@@ -48,8 +49,11 @@ these commits because a Version bump belongs to a PR, which a merge does not hav
 a line, which it does. It REFUSES, naming the override (ignorance refuses, as in
 check-version-bump-commit.py): a git error while reading the staged state; a staged CHANGELOG.md on
 an unborn HEAD (the preflight diffs against HEAD, so it has nothing to check against and exits 2);
-and a preflight that cannot be started or exits other than 0 (its 1 is a finding or a crash, its 2 a
-git error).
+a staged CHANGELOG.md in a checkout without tools/preflight-changelog.py (3b141 QA r4: this once
+failed open, silently, for an "older branch", but no older branch reaches this check: the tracked
+shim runs it only in a tree that carries it, and the preflight predates it, so only a working tree
+that has deleted or renamed the preflight gets here); and a preflight that cannot be started or
+exits other than 0 (its 1 is a finding or a crash, its 2 a git error).
 
 Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
 in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
@@ -131,22 +135,40 @@ def _git(root, *args):
                           env=pinned_env(os.environ)).stdout
 
 
+def head_born(root):
+    """Thin observer: True when HEAD names a commit, False when HEAD is unborn (a branch with no commit
+    yet, as at an initial commit). A HEAD that is neither (a detached HEAD naming no commit) raises."""
+    cp = subprocess.run(["git", "-C", str(root), "rev-parse", "--verify", "-q", "HEAD^{commit}"],
+                        capture_output=True, text=True, env=pinned_env(os.environ))
+    if cp.returncode == 0:
+        return True
+    _git(root, "symbolic-ref", "-q", "HEAD")
+    return False
+
+
 def changelog_staged(root):
     """Thin observer: does the index being committed carry a non-deleted CHANGELOG.md change? It reads
-    the index named in GIT_INDEX_FILE; a git error raises (ignorance refuses), and so does a staged
-    CHANGELOG.md on an unborn HEAD, which the preflight (diffing against HEAD) cannot check.
-    --no-ext-diff and --no-textconv are passed although --name-only output uses neither today."""
+    the index named in GIT_INDEX_FILE against HEAD, or against the empty tree when HEAD is unborn, so an
+    initial commit that does not stage CHANGELOG.md is not judged (3b141 QA r4). A git error raises
+    (ignorance refuses), and so does a staged CHANGELOG.md on an unborn HEAD, which the preflight
+    (diffing against HEAD) cannot check. --no-ext-diff and --no-textconv are passed although
+    --name-only output uses neither today."""
+    born = head_born(root)
+    base = "HEAD" if born else _git(root, "hash-object", "-t", "tree", os.devnull).strip()
     names = _git(root, "diff", "--cached", "--name-only", "--no-ext-diff", "--no-textconv", "--no-renames",
-                 "--diff-filter=d", "-z", "--", _CHANGELOG).split("\0")
+                 "--diff-filter=d", "-z", base, "--", _CHANGELOG).split("\0")
     if _CHANGELOG not in names:
         return False
-    _git(root, "rev-parse", "--verify", "-q", "HEAD^{commit}")
+    if not born:
+        raise RuntimeError("HEAD is unborn, so the preflight has no diff to check")
     return True
 
 
 def run_preflight(root):
     """(exit_code, report) of the ACTIVE checkout's preflight on the staged diff; (None, reason) when it
-    could not be started."""
+    could not be started, as in a checkout without it (3b141 QA r4: that once failed open, silently)."""
+    if not (root / _PREFLIGHT).is_file():
+        return None, f"check-changelog-preflight-commit: {_PREFLIGHT.as_posix()} is not in this checkout."
     try:
         cp = subprocess.run([sys.executable, str(root / _PREFLIGHT), "--staged"], cwd=root,
                             capture_output=True, text=True, env=pinned_env(os.environ))
@@ -163,8 +185,6 @@ def _pre_commit():
         top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
                              check=True).stdout.strip()
         root = Path(top)
-        if not (root / _PREFLIGHT).is_file():
-            return 0
         if not allow:  # the override skips the preflight run, not only its verdict
             staged = changelog_staged(root)
             if staged:
@@ -239,6 +259,15 @@ def _integration_self_test():
         must(["git", "config", "commit.gpgsign", "false"])
         cp = run(["sh", "tools/install-git-hooks.sh"])
         expect(cp.returncode == 0, f"the installer failed: {cp.stderr.strip()}")
+        # An initial commit on an unborn HEAD that does not stage CHANGELOG.md is not judged (3b141 QA
+        # r4: reading the staged state against HEAD, which an unborn branch lacks, would refuse it). It
+        # is made on another branch, so that feature stays unborn for the case after it.
+        must(["git", "symbolic-ref", "HEAD", "refs/heads/first"])
+        must(["git", "add", "tools"])
+        cp = run(["git", "commit", "-q", "-m", "first"])
+        expect(cp.returncode == 0 and "check-changelog" not in cp.stderr,
+               f"an unborn initial commit not staging CHANGELOG.md was refused or not silent: {cp.stderr.strip()}")
+        must(["git", "symbolic-ref", "HEAD", "refs/heads/feature"])
         changelog.write_text("# Changelog\n\n", encoding="utf-8")
         must(["git", "add", "tools", _CHANGELOG])
         cp = run(["git", "commit", "-q", "-m", "init"])
@@ -390,7 +419,8 @@ def _integration_self_test():
         expect(cp.returncode == 0 and "check-changelog" not in cp.stderr,
                f"a clean staged store-mirror entry was refused or not silent: {cp.stderr.strip()}")
         shutil.rmtree(store)
-        # A preflight that does not complete refuses; one that is absent (an older checkout) fails OPEN.
+        # A preflight that does not complete refuses, and so does one that is absent (3b141 QA r4: that
+        # once failed open, silently).
         preflight = repo / _PREFLIGHT
         real = preflight.read_text(encoding="utf-8")
         preflight.write_text("import sys\nsys.exit(2)\n", encoding="utf-8")
@@ -400,7 +430,8 @@ def _integration_self_test():
         expect(refused(cp, "did not complete (exit 2)"), "a preflight exiting 2 did not refuse the commit")
         preflight.unlink()
         cp = run(["git", "commit", "-q", "-m", "no preflight"])
-        expect(cp.returncode == 0, f"a checkout without the preflight did not fail open: {cp.stderr.strip()}")
+        expect(refused(cp, "could not be started") and "is not in this checkout" in cp.stderr,
+               f"a checkout without the preflight did not refuse a staged CHANGELOG.md: {cp.stderr.strip()}")
         preflight.write_text(real, encoding="utf-8")
         # The tracked shim fails OPEN for a tree without this check (the other hooks' fixtures copy the
         # shim without it), and a commit-on-main refusal still stops the commit before this check runs.
