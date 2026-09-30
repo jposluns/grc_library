@@ -43,9 +43,18 @@ blocks every push until the row is re-checked. To show the lapse first, a dated
 row with 0 to DUE_SOON_DAYS days left in its window is printed on a line that
 starts with ``DUE-SOON``. Rows are grouped into batches by (last verified, tier,
 window) and sorted by the date each batch goes stale. A row is stale or due
-soon, never both. ``tools/run_all_audits.sh`` echoes ``DUE-SOON`` lines even
-when a gate passes, and the pre-commit hook is verbose, so the band is seen at
-resume and at commit. The band never changes the exit code.
+soon, never both. ``tools/run_all_audits.sh`` echoes this gate's ``DUE-SOON``,
+``WARN`` and ``NOTE`` lines even when it passes (a per-gate allow-list), and the
+pre-commit hook is verbose, so the band and any stale row are seen at resume and
+at commit. The band never changes the exit code.
+
+FUTURE-DATED ROWS (advisory WARN). A ``Last verified (UTC)`` date after today (UTC)
+is a data error, such as a typo or a local-time date a day ahead of UTC, not the
+freshest possible row: its age is negative, so it would pass every window. Such a
+row is listed as a WARN and is never counted as fresh, stale or due soon; the exit
+code stays 0. A row verified today is fresh. Every stale, future-dated and
+untiered-sub-table line starts with ``WARN`` or ``NOTE`` at column 0, so the runner
+can echo it.
 
 Exit codes: always 0 (advisory). Findings are printed to stdout.
 """
@@ -189,6 +198,8 @@ def main() -> int:
     checked = 0
     skipped = 0
     stale: list[str] = []
+    # Rows whose last-verified date is after today: a data error, never fresh.
+    future: list[str] = []
     # (stale-from date, tier label, window, last verified) -> source ids.
     due_soon: dict[tuple[_dt.date, str, int, _dt.date], list[str]] = {}
     unmapped_headings: set[str] = set()
@@ -203,9 +214,14 @@ def main() -> int:
             continue
         checked += 1
         age = (today - last).days
-        if age > window:
+        if age < 0:
+            future.append(
+                f"WARN  [{heading}] {source_id}: last verified {last.isoformat()} "
+                f"is {-age} day(s) after today."
+            )
+        elif age > window:
             stale.append(
-                f"  [{heading}] {source_id}: last verified {last.isoformat()} "
+                f"WARN  [{heading}] {source_id}: last verified {last.isoformat()} "
                 f"({age} days ago) exceeds the {window}-day "
                 f"{tier or 'default'} window."
             )
@@ -220,7 +236,7 @@ def main() -> int:
     )
     if unmapped_headings:
         print(
-            "  note: sub-table(s) with no explicit tier, using the "
+            "NOTE: sub-table(s) with no explicit tier, using the "
             f"{DEFAULT_WINDOW_DAYS}-day default: "
             + ", ".join(sorted(unmapped_headings))
         )
@@ -229,11 +245,22 @@ def main() -> int:
         for line in stale:
             print(line)
         print(
-            "  Re-check each source's Upstream check location, update its "
+            "WARN  Re-check each source's Upstream check location, update its "
             "'Last verified (UTC)' (and version columns if upstream moved) under QA. "
             "This gate is advisory (exit 0); it never blocks a merge."
         )
-    else:
+    if future:
+        print(
+            f"WARN: {len(future)} source(s) dated after today ({today.isoformat()} UTC), "
+            "a data error, not a fresh row (advisory):"
+        )
+        for line in future:
+            print(line)
+        print(
+            "WARN  Correct each 'Last verified (UTC)' to the UTC date of its last "
+            "upstream re-check under QA. This gate is advisory (exit 0)."
+        )
+    if not stale and not future:
         print("  all dated sources are within their re-check windows.")
     if due_soon:
         rows = sum(len(ids) for ids in due_soon.values())

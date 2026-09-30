@@ -46,9 +46,18 @@ run_gate() {
     local rc=$?
     if [ ${rc} -eq 0 ]; then
         echo "OK"
-        # A passing gate's output stays hidden, except advisory lines that start
-        # with DUE-SOON (gate 72's due-soon band), so a lapse shows at resume.
-        printf '%s\n' "${output}" | grep '^DUE-SOON' | sed 's/^/      /' || true
+        # A passing gate's output stays hidden, except advisory lines. Every gate
+        # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
+        # lapse shows at resume. Gate 72 also shows lines that start with WARN or
+        # NOTE (stale, future-dated, untiered). The allow-list is per gate, keyed
+        # on the script path, not a generic WARN echo: gate 93 (relationship
+        # model) passes while it prints hundreds of advisory WARN lines (382 on
+        # 2026-09-30), which would bury gate 72's lines.
+        local advisory='^DUE-SOON'
+        case "${2:-}" in
+            tools/lint-citation-currency-cadence.py) advisory='^(DUE-SOON|WARN|NOTE)' ;;
+        esac
+        printf '%s\n' "${output}" | grep -E "${advisory}" | sed 's/^/      /' || true
     else
         echo "FAIL (rc=${rc})"
         echo "${output}" | sed 's/^/      /'

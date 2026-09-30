@@ -16851,6 +16851,59 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("WARN:", out)
         self.assertNotIn("using the", out)  # no unmapped-heading default note
 
+    # Future-dated rows (3b137): a last-verified date after today is a data error,
+    # never fresh. Standards tier (365-day window), today pinned to 2026-07-15.
+
+    def test_future_dated_row_warns_not_fresh(self) -> None:
+        # One day ahead, the smallest future date. Kills a dropped future branch (the
+        # row passes as fresh), `age < 0` -> `age < -1`, a sign slip in the day
+        # count, a future row folded into the stale list, a non-zero exit, and the
+        # all-within line printed beside a future row.
+        rc, out = self._band("_cadence_future_1", "2026-07-16")
+        self.assertEqual(rc, 0)              # advisory: never blocks
+        self.assertIn("checked 1 row(s)", out)
+        self.assertIn("WARN: 1 source(s) dated after today (2026-07-15 UTC)", out)
+        self.assertIn("WARN  [ISO / IEC standards] ISO/IEC BAND: last verified "
+                      "2026-07-16 is 1 day(s) after today.", out)
+        self.assertNotIn("all dated sources are within their re-check windows", out)
+        self.assertNotIn("past their re-check window", out)
+        self.assertNotIn("DUE-SOON", out)
+
+    def test_row_verified_today_is_fresh(self) -> None:
+        # Age 0: a row verified today (UTC) is fresh, not future. Kills
+        # `age < 0` -> `age <= 0`.
+        rc, out = self._band("_cadence_future_0", "2026-07-15")
+        self.assertEqual(rc, 0)
+        self.assertNotIn("WARN", out)
+        self.assertIn("all dated sources are within their re-check windows", out)
+
+    def test_advisory_lines_start_with_runner_prefix(self) -> None:
+        # The runner echoes gate 72's lines that start with WARN, NOTE or DUE-SOON,
+        # so every advisory line needs one of them at column 0. Real linter output
+        # with stale, future-dated, untiered and due-soon rows; only the summary
+        # line is untagged. Kills an indented or untagged row, note or remedy line,
+        # which the runner would drop without a sound.
+        mod = self._load("_cadence_prefix_all")
+        reg = self._HEADER + (
+            "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+            "| ISO/IEC AHEAD | 2019 | 2019-01 | y | - | http://y | verified 2027-01-01 |\n"
+            "| ISO/IEC A | 2019 | 2019-01 | y | - | http://y | verified 2025-07-20 |\n"
+            "\n" + self._section("Unmapped future table")
+            + "| NEW ROW | v1 | 2026 | x | - | http://n | verified 2026-07-01 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("checked 4 row(s)", out)
+        self.assertIn("WARN: 1 source(s) past their re-check window", out)
+        self.assertIn("WARN: 1 source(s) dated after today", out)
+        self.assertIn("ISO/IEC AHEAD: last verified 2027-01-01 is 170 day(s) after today", out)
+        self.assertIn("NOTE: sub-table(s) with no explicit tier", out)
+        self.assertIn("DUE-SOON  verified 2025-07-20", out)
+        lines = out.splitlines()
+        self.assertTrue(lines[0].startswith("citation-currency-cadence (gate 72"), lines[0])
+        for ln in lines[1:]:
+            self.assertTrue(ln.startswith(("WARN", "NOTE", "DUE-SOON")), ln)
+
     # Due-soon band (DUE_SOON_DAYS = 21). Standards tier (365-day window), today
     # pinned to 2026-07-15. Each boundary fixture names the mutation it kills.
 
@@ -17013,7 +17066,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertEqual(out.count("DUE-SOON  verified "), 2)
 
     def test_due_soon_band_lines_start_with_prefix(self) -> None:
-        # The runner echoes only lines that start with DUE-SOON, so every band line
+        # The runner echoes lines that start with DUE-SOON, so every band line
         # needs the prefix at column 0. Real linter output with every branch present
         # (WARN, unmapped-heading note, three batches, one of them default-tier).
         # Kills an indented or re-worded band line and a band line without the
@@ -17037,10 +17090,10 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
             self.assertTrue(ln.startswith("DUE-SOON"), ln)
 
     def test_runner_echoes_due_soon_lines_of_a_passing_gate(self) -> None:
-        # tools/run_all_audits.sh hides a passing gate's output; its OK branch echoes
-        # only lines that start with DUE-SOON. Runs the shipped run_gate body against
-        # stub gates, so the test tracks the real function. The mid-line DUE-SOON
-        # stub line kills an unanchored grep.
+        # tools/run_all_audits.sh hides a passing gate's output; for a gate off its
+        # allow-list, the OK branch echoes only lines that start with DUE-SOON. Runs
+        # the shipped run_gate body against stub gates, so the test tracks the real
+        # function. The mid-line DUE-SOON stub line kills an unanchored grep.
         src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
         start = src.index("run_gate() {")
         func = src[start:src.index("\n}\n", start) + 3]
@@ -17058,6 +17111,34 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("DUE-SOON mid", r.stdout)   # "note DUE-SOON mid": not echoed
         self.assertNotIn("all clean", r.stdout)
         self.assertEqual(r.stdout.count("... OK"), 2)
+
+    def test_runner_echoes_warn_and_note_lines_of_gate_72_only(self) -> None:
+        # 3b137: the runner's allow-list echoes a passing gate 72's WARN and NOTE
+        # lines. Another passing gate keeps them hidden (gate 93 passes with
+        # hundreds of WARN lines) but still shows DUE-SOON. A python3 shell
+        # function stands in for both gates, so the shipped run_gate body keys on
+        # the real script paths. Kills a generic WARN echo, a dropped WARN or NOTE
+        # alternative, a mistyped allow-list path, a key on the wrong argument, and
+        # an unanchored pattern.
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        start = src.index("run_gate() {")
+        func = src[start:src.index("\n}\n", start) + 3]
+        script = (
+            "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func
+            + "python3() { printf '%s\\n' head 'x WARN mid' 'WARN: 1 src' "
+            + "'WARN  [T] row' 'NOTE: tier' 'DUE-SOON  row d'; }\n"
+            + "run_gate \"Stub 72\" python3 tools/lint-citation-currency-cadence.py\n"
+            + "run_gate \"Stub 93\" python3 tools/build-relationship-model.py --check\n"
+        )
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.count("... OK"), 2)
+        for line in ("WARN: 1 src", "WARN  [T] row", "NOTE: tier"):
+            self.assertEqual(r.stdout.count("      " + line), 1, r.stdout)
+            self.assertLess(r.stdout.index("      " + line), r.stdout.index("Stub 93"))
+        self.assertEqual(r.stdout.count("      DUE-SOON  row d"), 2)
+        self.assertNotIn("x WARN mid", r.stdout)
+        self.assertNotIn("head", r.stdout)
 
 
 class AdoptPreflightGuardTests(unittest.TestCase):
