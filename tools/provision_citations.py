@@ -70,7 +70,9 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  keys the outer citation to MiCA). A prefix alias does not
                  count when the text after the citation, past any point
                  designation or structural qualifier (``of Chapter III``,
-                 ``of Part 2``, which names no instrument), names an
+                 ``of Part 2``, which names no instrument; a Schedule or
+                 Annex numbers its OWN clauses, so ``of Schedule 1`` is
+                 never skipped and refuses instead), names an
                  instrument (``Unlike the GDPR, Article 12 of the Data
                  Act``, ``GDPR Article 5 of the Directive``, ``GDPR, Article
                  12 Regulation (EU) 2023/2854``, ``of that Regulation``):
@@ -79,7 +81,11 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  alias's OWN generic noun (``SELF_NOUNS``: ``PIPEDA s. 10.1
                  of the Act``, ``the GDPR Article 83 of the Regulation``,
                  ``HIPAA §164.502(b) of the Privacy Rule``) re-names it and
-                 does not refuse it, and neither does ``Code of Conduct``
+                 does not refuse it — unless the noun is continued like
+                 another instrument's long title (``of the Act respecting
+                 the protection of personal information in the private
+                 sector``, ``of the Regulation laying down harmonised
+                 rules``), which refuses — and neither does ``Code of Conduct``
                  (``GDPR Art. 40 Code of Conduct``). A postfix alias that
                  modifies a subordinate instrument (``Article 12 of the DORA
                  RTS``, ``s. 7012 CCPA Regulations`` or ``regulations``,
@@ -438,6 +444,10 @@ _CONJ_RE = re.compile(r"\s*(?:[/&]|\band\b|\bor\b)\s*")
 # structural qualifier ("of Chapter III", "of Part 2") names a division, not an
 # instrument, and is skipped the same way ("Article 12 of Chapter III of the
 # GDPR" is the GDPR's; "GDPR Article 12 of Chapter III" keeps its prefix alias).
+# A Schedule or Annex is NOT one: it numbers its own clauses ("s. 4.3 of
+# Schedule 1" is clause 4.3 of PIPEDA's Schedule 1, the CSA Model Code, not the
+# Act's s. 4.3), so its tail refuses the citation rather than keying the Act's
+# section.
 # It is matched possessively, so its "of Chapter" is never re-read as "of <Name>".
 _POINT = (
     r"(?:(?:,?\s*(?:(?:first|second|third|fourth|fifth|sixth)\s+subparagraph|points?\s+"
@@ -445,7 +455,7 @@ _POINT = (
 )
 _STRUCT = (
     r"(?:\s*,?\s*of\s+(?:the\s+)?(?:[Cc]hapter|[Tt]itle|[Pp]art|[Ss]ection|[Ss]ubsection|[Ss]ubpart|"
-    r"[Ss]ubchapter|[Dd]ivision|[Ss]chedule|[Aa]nnex)\s+(?:[IVXLC]+|\d+)[A-Za-z]?(?!\w|\.\d))*+"
+    r"[Ss]ubchapter|[Dd]ivision)\s+(?:[IVXLC]+|\d+)[A-Za-z]?(?!\w|\.\d))*+"
 )
 _TAIL_LEAD = r"\s*" + _POINT + _STRUCT + r"\s*,?\s*of\s+"
 _POSTFIX_LEAD_RE = re.compile(r"\s*(?:" + _POINT + _STRUCT + r"\s*,?\s*of\s+(?:the\s+)?|(?P<paren>\(\s*))?")
@@ -455,10 +465,19 @@ _OF_THIS_RE = re.compile(_TAIL_LEAD + r"(?:this|that|such|said)\s+[A-Z]?[a-z]+")
 _OF_OTHER_RE = re.compile(_TAIL_LEAD + r"(?:the\s+)?[A-Z]")
 # "of the <noun>" naming the prefix alias's own instrument (SELF_NOUNS), with
 # nothing after the noun that makes it another instrument's title ("of the
-# Regulation (EU) 2023/2854", "of the Act on ...", "of the Law No. 5").
+# Regulation (EU) 2023/2854", "of the Act on ...", "of the Law No. 5", or a
+# long title continued by a _TITLE_CONTINUATION word: "of the Act
+# respecting ...", "of the Regulation laying down ...", "of the Act to
+# promote ..."). The continuation words are a fixed list, so a noun continued
+# by a word outside it still reads as the bare noun (stated residue in the
+# build tool's docstring).
+_TITLE_CONTINUATION = (
+    r"on|of|for|to|respecting|concerning|regarding|relating|governing|establishing|laying|"
+    r"implementing|amending|supplementing|setting"
+)
 _SELF_NOUN_RE: dict[str, "re.Pattern[str]"] = dict(
     (canon, re.compile(_TAIL_LEAD + r"the\s+(?:" + noun + r")(?![\w-])"
-                       r"(?!\s*\(|\s+(?:No\.?\s*)?\d|\s+(?:on|of|for)\b)"))
+                       r"(?!\s*\(|\s+(?:No\.?\s*)?\d|\s+(?:" + _TITLE_CONTINUATION + r")\b)"))
     for canon, noun in SELF_NOUNS.items()
 )
 # "Code of Conduct" / "Code of Practice" after a citation is the provision's

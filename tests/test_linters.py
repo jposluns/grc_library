@@ -30051,3 +30051,46 @@ class ProvisionIndexTests(LinterTestCase):
         result = run_linter(self.SIBLINGS, "--docs", a.parent, "--scan", a.parent)
         self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
         self.assertIn("not a Markdown file", result.stderr)
+
+    def test_schedule_or_annex_tail_refuses(self) -> None:
+        # Round-6 QA (claude R6-01): "Schedule" and "Annex" sat in the structural
+        # qualifier list, but a schedule or annex numbers its OWN clauses ("s. 4.3
+        # of Schedule 1" is clause 4.3 of PIPEDA's Schedule 1 — the CSA Model
+        # Code — not the Act's s. 4.3), so skipping the tail keyed the parent
+        # instrument's section, explicitly (and at the heading tier under a
+        # PIPEDA heading). The tail now refuses. Kills restoring "[Ss]chedule" to
+        # _STRUCT (the PIPEDA cases) and "[Aa]nnex" (the UK GDPR case); the
+        # explicit-only section marker drops its refused record.
+        self.assertEqual(self.scan("PIPEDA s. 4.3 of Schedule 1"), [(None, "4.3", "unresolved")])
+        self.assertEqual(self.scan("section 2 of Schedule 1 of PIPEDA"), [])
+        self.assertEqual(self.scan("UK GDPR Art. 9 of Annex 1"), [(None, "9", "unresolved")])
+        self.assertEqual(self.scan("## Canada (PIPEDA)\n\n- Consent (s. 4.3 of Schedule 1).\n"),
+                         [(None, "4.3", "unresolved")])
+        # A division qualifier still names no instrument and keeps the alias.
+        self.assertEqual(self.scan("GDPR Article 12 of Chapter III"),
+                         [("GDPR Art. 12", "12", "explicit")])
+
+    def test_self_noun_continued_title_refused(self) -> None:
+        # Round-6 QA (claude R6-02, codex R6-01): the self-noun guard's
+        # title-continuation lookahead knew only "on", "of" and "for", so "of the
+        # Act respecting ..." (Quebec's P-39.1) and "of the Regulation laying
+        # down harmonised rules ..." (the AI Act) re-named the prefix alias and
+        # were trusted explicitly. Kills narrowing _TITLE_CONTINUATION back: one
+        # case per reported word ("respecting", "laying", "implementing") plus
+        # the Canadian "Act to promote ..." long-title form; the bare noun and
+        # the prose recall pins stay explicit.
+        for text, section in (
+                ("PIPEDA s. 7 of the Act respecting the protection of personal "
+                 "information in the private sector", "7"),
+                ("Unlike PIPEDA, s. 3 of the Act respecting the protection of "
+                 "personal information in the private sector", "3"),
+                ("GDPR Article 5 of the Regulation laying down harmonised rules "
+                 "on artificial intelligence", "5"),
+                ("GDPR Article 2 of the Regulation implementing that framework", "2"),
+                ("PIPEDA s. 5 of the Act to promote the efficiency and adaptability "
+                 "of the Canadian economy", "5")):
+            self.assertEqual(self.scan(text), [(None, section, "unresolved")], text)
+        for text, key in (("PIPEDA s. 10.1 of the Act", "PIPEDA s. 10.1"),
+                          ("the GDPR Article 83 of the Regulation", "GDPR Art. 83")):
+            self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
+

@@ -45,7 +45,10 @@ RESIDUE (stated, not hidden):
     document naming no instrument all land in the unresolved bucket
     (``--show-unresolved``), not under a key; ``Section`` / ``§`` citations
     count only with the instrument adjacent; Recitals, Schedules, Annexes and
-    ``Principle 4.3`` forms are not parsed; a range indexes its endpoints
+    ``Principle 4.3`` forms are not parsed, and a citation continued by ``of
+    Schedule 1`` or ``of Annex III`` is refused outright rather than keyed
+    (a schedule or annex numbers its own clauses, so the parent Act's
+    section numbering does not cover them); a range indexes its endpoints
     only when it is wider than MAX_RANGE_SPAN, starts at a decimal section
     (``PIPEDA ss. 10.1 to 10.3`` keys s. 10.1 and s. 10.3, not s. 10.2;
     ``HIPAA §164.400 to 414`` keys neither 164.402 nor the other real
@@ -63,9 +66,12 @@ RESIDUE (stated, not hidden):
     where the name is that instrument's full title (``PIPEDA s. 10.1 of the
     Personal Information Protection and Electronic Documents Act``) or its
     generic noun continued like a title (``of the Act (PIPEDA)``, ``of the
-    Regulation on ...``), since only a structural qualifier (``of Chapter
-    III``) and the bare generic noun in SELF_NOUNS (``of the Act``) are
-    known not to name another instrument; without an adjacent alias, ``of
+    Regulation on ...``, ``of the Act respecting ...``, ``of the Regulation
+    laying down ...``), since only a structural qualifier (``of Chapter
+    III``; never ``of Schedule 1`` or ``of Annex I``, whose clauses the
+    Act does not number) and the bare generic noun in SELF_NOUNS (``of the
+    Act``) are known not to name another instrument; without an adjacent
+    alias, ``of
     the Regulation`` still refuses inference; and a lowercase verb outside
     the subordinate-instrument stop list before a lowercase descriptor
     (``Article 5 of the GDPR harmonises regulations``) refuses a correct
@@ -95,7 +101,12 @@ RESIDUE (stated, not hidden):
     too common in prose to count) is still keyed to the alias; the
     SELF_NOUNS exemption trusts ``of the Regulation`` after a GDPR prefix
     even where the prose means another regulation it named earlier (the
-    adjacency residue above, in another form); and a conjoined prefix of two
+    adjacency residue above, in another form), and its title-continuation
+    stop list is fixed (on, of, for, to, respecting, concerning, regarding,
+    relating, governing, establishing, laying, implementing, amending,
+    supplementing, setting), so a noun continued by a word outside it
+    (``of the Act against unfair practices``) is still keyed to the alias;
+    and a conjoined prefix of two
     instruments that share article numbering (``GDPR / UK GDPR Article
     21``, the only such pair in
     SHARED_NUMBERING) indexes the citation under BOTH, explicitly, even
