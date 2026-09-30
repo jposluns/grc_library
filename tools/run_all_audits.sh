@@ -42,13 +42,42 @@ run_gate() {
     TOTAL=$((TOTAL + 1))
     printf '[%2d] %-58s ... ' "${TOTAL}" "${name}"
     local output
-    output="$("$@" 2>&1)"
+    # A new random token for this gate run, passed to the gate alone in
+    # GRC_RUNNER_ECHO_TOKEN; see the marker below. Drawn from a CSPRNG (Python's
+    # secrets module, which every gate already needs, else /dev/urandom). If both
+    # fail the token stays empty, no gate opts in, and the run says so rather than
+    # hiding advisory lines silently.
+    local token
+    token="$(python3 -c 'import secrets; print(secrets.token_hex(16))' 2>/dev/null)"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token="$(od -An -N16 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
+    [[ "${token}" =~ ^[0-9a-f]{32}$ ]] || token=""
+    output="$(GRC_RUNNER_ECHO_TOKEN="${token}" "$@" 2>&1)"
     local rc=$?
     if [ ${rc} -eq 0 ]; then
         echo "OK"
-        # A passing gate's output stays hidden, except advisory lines that start
-        # with DUE-SOON (gate 72's due-soon band), so a lapse shows at resume.
-        printf '%s\n' "${output}" | grep '^DUE-SOON' | sed 's/^/      /' || true
+        [ -n "${token}" ] || echo "      NOTE: no random source for the advisory-echo token; this gate's advisory WARN/NOTE lines are not shown"
+        # A passing gate's output stays hidden, except advisory lines. Every gate
+        # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
+        # lapse shows at resume. A gate whose output has the exact marker line
+        # below, followed by a space and this run's token, also shows lines that
+        # start with WARN or NOTE; only gate 72 prints it (RUNNER_ECHO_MARKER in
+        # its script, printed only when GRC_RUNNER_ECHO_TOKEN is set), for its
+        # stale, future-dated and untiered lines. The key is a line the gate
+        # declares in its own output, not its script path, so a rename, move or
+        # other invocation path of the script cannot switch the echo off. The
+        # token is the part data cannot forge: the marker text is public, and gate
+        # 93 puts record IDs into its WARN lines unescaped, so a record ID holding
+        # the marker alone would switch the echo on. With no token, no gate opts
+        # in. It is opt-in per gate, not a generic WARN echo: gate 93 (relationship
+        # model) passes while it prints hundreds of advisory WARN lines (382 on
+        # 2026-09-30), which would bury gate 72's.
+        local marker="runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
+        local advisory='^DUE-SOON'
+        if [ -n "${token}" ] \
+            && printf '%s\n' "${output}" | grep -xF -- "${marker} ${token}" >/dev/null; then
+            advisory='^(DUE-SOON|WARN|NOTE)'
+        fi
+        printf '%s\n' "${output}" | grep -E "${advisory}" | sed 's/^/      /' || true
     else
         echo "FAIL (rc=${rc})"
         echo "${output}" | sed 's/^/      /'
