@@ -20,12 +20,15 @@ mechanical backstop (built in PR #1173).
 Four checks, spanning ``TODO.md``, the private ``P-TODO.md``,
 ``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
 
-  A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md`` (an
-     index row, a ``### <id>`` heading, or, since 3b120, a top-level bold
-     bullet in the audit tool's closed grammar, read by that tool's own
-     parser; the two lists are unioned into the live set) whose number is
-     also recorded as retired in a ``.working/DONE.md`` heading. Such a
-     number denotes two items, which is exactly what the rule forbids.
+  A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md``
+     whose number is also recorded as retired in a ``.working/DONE.md``
+     heading. Such a number denotes two items, which is exactly what the
+     rule forbids. A live id is an item the audit tool counts, read the
+     same way in both lists (design note 5): an index row or a ``### <id>``
+     heading, read through the shared ``tools/todo_index_rows.py`` grammar
+     (P-TODO 3b121), or, since 3b120, a top-level bold bullet in the audit
+     tool's closed grammar, read by that tool's own parser. The two lists
+     are unioned into the live set.
 
   B. COUNTER. A ``**Next item number: X.**`` counter pointing at a number
      already used in its section, live in ``TODO.md`` or ``P-TODO.md``,
@@ -164,15 +167,14 @@ false-negative cost:
      integer as the ordinal. The reference-base ids (``SR-1``, ``RB-R6``,
      ``Group ...``, ``Reference-base ...``) have NO counter and no
      retirement convention in ``DONE.md``, so they are skipped for checks
-     A and B rather than half-checked. Since 3b120 a TAGGED coded bullet
-     (``- **RB-6 [private] ...**``) is in the live set, so check C does see
-     a coded id live as a bullet in both lists, and since P-TODO 3b121 a
-     coded id written as a ``### RB-6`` heading is live too (LIVE_HEADING_RE
-     reads it, as the audit tool counts it). A coded id has no ordinal, so it
-     takes part in check C only; a ``TF-`` token that is not ``TF-<digits>``
-     (``### TF-2A``) is read as a coded id and is unordered too. Headings are
-     read in P-TODO.md only: public TODO.md items are read as index rows and
-     bullets. Stated so a later reader does not mistake the silence for a
+     A and B rather than half-checked. A coded id is still live wherever
+     the audit tool counts it as an item: as a TAGGED coded bullet
+     (``- **RB-6 [private] ...**``, since 3b120) or as a ``### RB-6``
+     heading (since P-TODO 3b121, in either list; design note 5), so check
+     C does see a coded id live in both lists. A coded id has no ordinal,
+     so it takes part in check C only; a ``TF-`` token that is not
+     ``TF-<digits>`` (``### TF-2A``) is read as a coded id and is unordered
+     too. Stated so a later reader does not mistake the silence for a
      clean result.
 
   4. EXEMPTIONS. A ``DONE.md`` entry that records a PARTIAL close against
@@ -185,6 +187,37 @@ false-negative cost:
      unrelated PR shifted both entries by 4 lines and both exemptions
      lapsed, which would make the gate re-fire on ordinary edits. A
      substring survives line drift while still binding to one entry.
+
+  5. LIVE-ITEM GRAMMAR (P-TODO 3b121). This gate, the audit tool and the
+     decision-log hook read the same items with the same ids, so a number
+     the stop guard counts is a number this gate checks. Index rows and
+     ``### <id>`` headings are read through ``tools/todo_index_rows.py``
+     (``index_rows``, ``item_headings``), in ``TODO.md`` and ``P-TODO.md``
+     alike, and bullets through the audit tool's parser. Before 3b121 this
+     gate read rows through ``lint_common.parse_todo_index`` and headings
+     through its own regex, in ``P-TODO.md`` only. What that changes:
+
+     - Rows are read only under a ``| ID | Item | Tags |`` header, as the
+       tool and the hook read them; a header-less ``| 3.1 | ... |`` row is
+       not live. RESIDUE: deleting a list's header hides every row of that
+       list from all three readers, and no gate reports that today.
+     - A row indented by one to three spaces is read (Markdown renders it
+       as a table row); four spaces or a tab make it code, and it is not.
+     - An UNREADABLE row (``| 3.50 | two cells |``, or one without its
+       closing pipe) fails closed: its id is live, so a recycled or
+       duplicated number there is caught and a counter at or below that
+       number is stale, and the gate prints a NOTE naming the row. The
+       audit tool counts it ACTIONABLE, and gate 90 reports it as
+       malformed when it sits inside the index table.
+     - A heading id ends at a word boundary: ``### RB-6. title`` is
+       ``RB-6``, ``### 3.92.a child`` is ``3.92`` and ``### 1.2.3.4`` is
+       ``1.2.3``. Headings are read in ``TODO.md`` too.
+     - A heading outside the shared grammar is not live here, as in the
+       tool and the hook: a ``§`` marker (``### §3.109``), or a tab or a
+       second space after ``###``. The old regex took these, though
+       neither list used them (the live lists held none at 3b121); the
+       audit tool lists such a heading among its ITEM-LIKE lines when its
+       lead word looks like an id.
 
 Exit codes:
 
@@ -212,7 +245,9 @@ import re
 import sys
 from pathlib import Path
 
-from lint_common import resolve_working, resolve_sibling, parse_todo_index, require_dir
+from lint_common import resolve_working, resolve_sibling, require_dir
+# P-TODO 3b121: the one index-row and item-heading grammar the audit tool and the decision-log hook read.
+from todo_index_rows import index_rows, item_headings
 
 REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 
@@ -222,16 +257,10 @@ DONE_REL = ".working/DONE.md"
 # in-repo fallback, unlike .working/); absent for public CI / adopter clones.
 PTODO_REL = "P-TODO.md"
 
-# A live backlog heading: '### 3.109 <title>' or '### 2.25.1 <title>' or
-# '### 1.19.10a <title>', '### TF-2 <title>', or '### P-1.1 <title>' (the private
-# P-TODO.md list), or a coded id ('### RB-6 <title>', '### GR-GAP-1: <title>'), the
-# coded branch of the audit tool's ITEM_HEADING_RE (P-TODO 3b121; design note 3).
-# A leading section marker is tolerated ('### §3.109 ...') though TODO does not
-# currently use one.
-LIVE_HEADING_RE = re.compile(
-    r"^###\s+(?:§\s*)?((?:P-\d+(?:\.\d+){1,2}[a-z]?)|(?:\d+(?:\.\d+)+[a-z]?)|TF-\d+"
-    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+))(?=[\s:]|$)"
-)
+# Live index rows and '### <id>' headings are read through tools/todo_index_rows.py (index_rows, item_headings),
+# the grammar the audit tool and the decision-log hook count with (P-TODO 3b121; design note 5). The gate's own
+# heading regex (LIVE_HEADING_RE) and its lint_common.parse_todo_index rows are gone: they read an unreadable row,
+# a header-less row and a '### RB-6. title' heading differently from the tool.
 
 # A retired id inside a DONE.md heading, always section-marked. Rejects a
 # '-R<n>' sub-bullet suffix (see design note 1).
@@ -952,26 +981,25 @@ def _ordinal(item_id: str) -> tuple[str, int] | None:
 
 
 def parse_live_index(text: str) -> dict[str, list[int]]:
-    """Live item ids in a NEW-format TODO.md (index rows) -> their line numbers.
+    """Live index-row ids in one backlog file -> their line numbers.
 
-    TODO.md is now an index of ``| <id> | <title> | <tags> |`` rows; the ids
-    are in cell 1. During the 2026-08 migration P-TODO.md also moves to this
-    index-row shape; the caller unions this with ``parse_live`` so BOTH the
-    legacy ``### <id>`` layout and the new index layout are covered.
+    Rows are read through ``todo_index_rows.index_rows`` (P-TODO 3b121, design
+    note 5): only under a ``| ID | Item | Tags |`` header, and an UNREADABLE
+    ``| <id> |`` row (no title or tags cell, or no closing pipe) is live too,
+    failing closed as it does in the audit tool.
     """
     live: dict[str, list[int]] = {}
-    for it in parse_todo_index(text):
-        live.setdefault(it["id"], []).append(it["line"])
+    for row in index_rows(text):
+        live.setdefault(row.item_id, []).append(row.line)
     return live
 
 
 def parse_live(text: str) -> dict[str, list[int]]:
-    """Live item ids in TODO.md -> the line numbers declaring them."""
+    """Live ``### <id>`` heading ids in one backlog file -> their line numbers, read through
+    ``todo_index_rows.item_headings``, the heading grammar the audit tool counts (P-TODO 3b121, design note 5)."""
     live: dict[str, list[int]] = {}
-    for lineno, line in enumerate(text.splitlines(), start=1):
-        m = LIVE_HEADING_RE.match(line)
-        if m:
-            live.setdefault(m.group(1), []).append(lineno)
+    for heading in item_headings(text):
+        live.setdefault(heading.item_id, []).append(heading.line)
     return live
 
 
@@ -1004,6 +1032,20 @@ def parse_live_bullets(text: str) -> dict[str, list[int]]:
         m = tool.TOP_BULLET_ITEM_RE.match(lines[n - 1])
         if m:
             live.setdefault(m.group("id"), []).append(n)
+    return live
+
+
+def parse_live_list(text: str) -> dict[str, list[int]]:
+    """One backlog file's live ids -> their line numbers, in order: its index rows and ``### <id>`` headings
+    (tools/todo_index_rows.py) and its bullet items (the audit tool's parser). These are the items the audit tool
+    counts, read the same way in ``TODO.md`` and ``P-TODO.md`` (P-TODO 3b121, design note 5); before 3b121 this
+    gate read ``TODO.md`` for rows and bullets only, so a public ``### RB-6`` heading was not live."""
+    live: dict[str, list[int]] = {}
+    for part in (parse_live_index(text), parse_live(text), parse_live_bullets(text)):
+        for item_id, lines in part.items():
+            live.setdefault(item_id, []).extend(lines)
+    for lines in live.values():
+        lines.sort()
     return live
 
 
@@ -1238,20 +1280,11 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: cannot read a required file: {exc}", file=sys.stderr)
         return 2
 
-    todo_live = parse_live_index(todo_text)
-    # Bullet-form items (3b120), in both lists, from the audit tool's own parser.
-    for _bid, _blines in parse_live_bullets(todo_text).items():
-        todo_live.setdefault(_bid, []).extend(_blines)
-    # Transitional (2026-08 migration): P-TODO.md is moving from the legacy
-    # ``### <id>`` block shape to the index-row shape (its detail splits into
-    # P-TODO-REFERENCE.md). Union both parsers so gate 78 sees every live
-    # P-TODO id in EITHER layout; a backlog file is one format at a time, so
-    # the two id sets do not overlap in practice.
-    ptodo_live = parse_live(ptodo_text)
-    for _pid, _plines in parse_live_index(ptodo_text).items():
-        ptodo_live.setdefault(_pid, []).extend(_plines)
-    for _bid, _blines in parse_live_bullets(ptodo_text).items():
-        ptodo_live.setdefault(_bid, []).extend(_blines)
+    # Each list is read for all three item forms the audit tool counts (design note 5, P-TODO 3b121): index rows
+    # and '### <id>' headings through tools/todo_index_rows.py, bullets (3b120) through the tool's own parser. A
+    # half-converted list therefore keeps every item, whichever form it is written in.
+    todo_live = parse_live_list(todo_text)
+    ptodo_live = parse_live_list(ptodo_text)
     live = {**todo_live, **ptodo_live}   # union of ids across both lists
     retired = parse_retired(done_text)
     counters = parse_counters(todo_text)
@@ -1263,6 +1296,12 @@ def main(argv: list[str]) -> int:
     # Design note 1c: an unclosed fence or comment hides later bullets from the live set.
     unclosed = [(name, n, msg) for name, txt in (("TODO.md", todo_text), ("P-TODO.md", ptodo_text))
                 for n, msg in _audit_tool().unclosed_blocks(txt)]
+    # Design note 5: an unreadable index row fails closed (its id is live above); the gate names it for a rewrite.
+    unreadable = [(name, row.line) for name, txt in (("TODO.md", todo_text), ("P-TODO.md", ptodo_text))
+                  for row in index_rows(txt) if not row.readable]
+    for name, n in unreadable:
+        print(f"NOTE: {name}:{n}: unreadable index row, read as live (fail closed); "
+              f"rewrite it as `| <id> | <title> | <tags> |`.")
 
     if not recycled and not stale and not cross and not unclosed:
         print(

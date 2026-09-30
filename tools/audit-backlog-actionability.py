@@ -72,7 +72,9 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 from lint_common import resolve_working, _store_dir, InaccessiblePath
-from todo_index_rows import index_rows  # P-TODO 3b121: the row grammar and header gate the decision-log hook shares
+# P-TODO 3b121: the index-row grammar, index-header gate and item-heading grammar the decision-log hook and
+# gate 78 (lint-todo-number-permanence.py) read too.
+from todo_index_rows import index_rows, ITEM_HEADING_RE
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -84,13 +86,10 @@ PTODO_PATH = REPO_ROOT.parent / "grc_library_private" / "P-TODO.md"
 
 # An open backlog item heading: ``### <id> <title>`` where <id> is a section
 # number (``N.M`` / ``N.M.K``, optional trailing letter), a private ``P-n.m`` id,
-# or a coded id (``SR-1`` / ``RB-R6`` / ``GR-GAP-1``). ``## `` section headers are
-# NOT items.
-ITEM_HEADING_RE = re.compile(
-    r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?"
-    r"|\d+(?:\.\d+){1,2}[a-z]?"
-    r"|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b[ \t]*(?P<title>.*)$"
-)
+# or a coded id (``SR-1`` / ``RB-R6`` / ``GR-GAP-1``), ending at a word boundary.
+# ``## `` section headers are NOT items. The grammar is ITEM_HEADING_RE, imported
+# above from tools/todo_index_rows.py since P-TODO 3b121, so the decision-log hook
+# and gate 78 read the same headings with the same ids.
 
 # An open backlog item written as a top-level bold bullet (3b119), a CLOSED grammar: the line starts
 # ``- **<id>`` at column 0, and <id> is a ``3bNN`` queue id or a private ``P-n.m`` id, or a coded id
@@ -438,9 +437,9 @@ PROSE_SIGNAL_TOKENS: list[tuple[re.Pattern[str], str]] = [
 
 _REF_ID_RE = re.compile(r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s")
 # Index rows are read through tools/todo_index_rows.py (P-TODO 3b121), the one row grammar and index-header
-# gate the decision-log hook also counts with. An unreadable ``| <id> |`` row is an item here too and fails
-# closed (counted ACTIONABLE, never BLOCKED), so the hook's count and this tool's agree. This is the title
-# parse_items gives such a row; its block heading carries no text from the row, so no grant can apply.
+# gate the decision-log hook counts with and gate 78 reads. An unreadable ``| <id> |`` row is an item here too
+# and fails closed (counted ACTIONABLE, never BLOCKED), so the hook's count and this tool's agree. This is the
+# title parse_items gives such a row; its block heading carries no text from the row, so no grant can apply.
 UNREADABLE_ROW_TITLE = "(unreadable index row)"
 
 
@@ -513,9 +512,9 @@ def parse_items(text: str, source: str,
                 _heads: "list[int] | None" = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
     ``TODO.md`` items are parsed as INDEX ROWS (``todo_index_rows.index_rows``, shared with the decision-log
-    hook; an unreadable ``| <id> |`` row is an ACTIONABLE item that no ``[BLOCKED:]`` grant can hold, P-TODO
-    3b121), their bodies joined from ``TODO-REFERENCE.md``; only private / legacy items use the ``### ``
-    heading-block grammar below.
+    hook and gate 78; an unreadable ``| <id> |`` row is an ACTIONABLE item that no ``[BLOCKED:]`` grant can
+    hold, P-TODO 3b121), their bodies joined from ``TODO-REFERENCE.md``; only private / legacy items use the
+    ``### `` heading-block grammar below (``ITEM_HEADING_RE``, shared the same way).
 
     A block runs from its item heading to the next item heading, the next ``## ``
     section header, or end of file, so a signal is detected only within the item's
@@ -1441,6 +1440,15 @@ def _self_test() -> int:
               and not is_blocked(ix[0][2], ix[0][0]) and is_blocked(ix[1][2], ix[1][0]))
     finally:
         set_approvals(saved_3b121)
+    # P-TODO 3b121 QA r1: the heading grammar is the shared one, and its id ends at a word boundary; a row
+    # indented by up to three spaces is a row, and by four it is code.
+    import todo_index_rows as _rows
+    check("3b121-heading-grammar-shared", ITEM_HEADING_RE is _rows.ITEM_HEADING_RE)
+    check("3b121-heading-id-word-boundary", [x[0] for x in parse_items("## Q\n### RB-6. coded\n### \u00a73.1 marked\n",
+                                                                       "private", ref_bodies={})] == ["RB-6"])
+    check("3b121-indented-row", [x[0] for x in parse_items(hdr + "   | 1.4 | d | `[public]` |\n"
+                                                           "    | 1.5 | code | `[public]` |\n", "public",
+                                                           ref_bodies={})] == ["1.4"])
 
     if failures:
         for f in failures:

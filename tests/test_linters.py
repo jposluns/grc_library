@@ -18563,11 +18563,12 @@ class HookToolItemCountParityTests(unittest.TestCase):
 
 
 class TodoIndexRowGrammarParityTests(unittest.TestCase):
-    """P-TODO 3b121: one fixture per divergence between the backlog item counters. The decision-log hook
-    (block-unjustified-decision.py) and the audit tool (audit-backlog-actionability.py, which feeds the stop
-    guard through nmw-actionable) read index rows through one grammar and header gate,
-    tools/todo_index_rows.py, and gate 78 (lint-todo-number-permanence.py) reads the coded-id heading the tool
-    counts. Each divergence fixture fails on the code before 3b121."""
+    """P-TODO 3b121: one fixture per divergence between the backlog item readers. The decision-log hook
+    (block-unjustified-decision.py), the audit tool (audit-backlog-actionability.py, which feeds the stop
+    guard through nmw-actionable) and gate 78 (lint-todo-number-permanence.py) read index rows and
+    ``### <id>`` headings through one grammar and header gate, tools/todo_index_rows.py. Each divergence
+    fixture fails on the code before 3b121, and each fixture named for a round-1 QA finding fails on the
+    first 3b121 commit (65128cc3)."""
 
     HDR = "| ID | Item | Tags |\n| --- | --- | --- |\n"
 
@@ -18591,6 +18592,16 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
                 (priv / "P-TODO.md").write_text(private_text, encoding="utf-8")
             return hook._todo_item_count(str(root))
 
+    def _gate78(self, todo, ptodo, done="# DONE\n"):
+        """Gate 78 run on a synthetic --root holding TODO.md, P-TODO.md and .working/DONE.md."""
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / ".working").mkdir()
+            (root / "TODO.md").write_text(todo, encoding="utf-8")
+            (root / "P-TODO.md").write_text(ptodo, encoding="utf-8")
+            (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
+            return run_linter("tools/lint-todo-number-permanence.py", "--root", str(root))
+
     def test_shared_grammar(self):
         import lint_common
         rows = self._load("_3b121_rows", "tools/todo_index_rows.py")
@@ -18599,22 +18610,42 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
             self.assertTrue(lint_common.TODO_ID_RE.fullmatch(tok), tok)
             self.assertEqual(rows.match_row(f"| {tok} | t | `[x]` |", 1), rows.IndexRow(1, tok, "t", "`[x]`", True))
         for line in ("| RB-6 | t | x |", "| 3b7 | t | x |", "| ID | Item | Tags |", "| --- | --- | --- |",
-                     " | 1.1 | t | x |", "1.1 | t | x |"):
+                     "    | 1.1 | t | x |", "\t| 1.1 | t | x |", "1.1 | t | x |"):
             self.assertIsNone(rows.match_row(line), line)
+        # QA r1 (claude F2): one to three spaces of indentation still make a table row, so the row is read.
+        for pad in (" ", "   "):
+            self.assertEqual(rows.match_row(pad + "| 1.1 | t | x |", 2), rows.IndexRow(2, "1.1", "t", "x", True))
+        self.assertEqual(rows.match_row("  | 1.1 | t |", 3), rows.IndexRow(3, "1.1", "", "", False))
         # An id-led row with no title and tags cells, or with no closing pipe, is an unreadable candidate.
         self.assertEqual(rows.match_row("| 1.1 | t |", 4), rows.IndexRow(4, "1.1", "", "", False))
         self.assertEqual(rows.match_row("| 1.1 | t | x", 5), rows.IndexRow(5, "1.1", "", "", False))
         self.assertEqual(rows.index_rows("| 1.1 | t | x |\n"), [])
         self.assertEqual([(r.line, r.readable) for r in rows.index_rows(self.HDR + "| 1.1 | t | x |\n| 1.2 | t |\n")],
                          [(3, True), (4, False)])
+        # QA r1 (codex F3): the heading id ends at a word boundary; no header gate; other spellings are not headings.
+        text = ("### RB-6. punctuated\n### GR-GAP-1: gap\n### 3.92.a child\n### 1.2.3.4 four parts\n### P-1.5 p\n"
+                "### TF-2 tf\n### \u00a73.7 marked\n###\t3.8 tab\n###  3.9 two spaces\n### PR #1 follow-ups\n"
+                "### rb-6 lower\n")
+        self.assertEqual([(h.line, h.item_id) for h in rows.item_headings(text)],
+                         [(1, "RB-6"), (2, "GR-GAP-1"), (3, "3.92"), (4, "1.2.3"), (5, "P-1.5"), (6, "TF-2")])
+        self.assertEqual(rows.match_heading("### RB-6. punctuated", 7), rows.ItemHeading(7, "RB-6", ". punctuated"))
 
-    def test_hook_and_tool_read_rows_through_the_shared_module(self):
+    def test_hook_tool_and_gate78_read_through_the_shared_module(self):
         hook = self._load("_3b121_hook_mod", ".claude/hooks/block-unjustified-decision.py")
         tool = self._load("_3b121_tool_mod", "tools/audit-backlog-actionability.py")
+        g = self._load("_3b121_gate78_mod", "tools/lint-todo-number-permanence.py")
+        shared = sys.modules["todo_index_rows"]
         self.assertEqual(hook._index_rows.__module__, "todo_index_rows")
+        self.assertEqual(hook._match_heading.__module__, "todo_index_rows")
         self.assertEqual(tool.index_rows.__module__, "todo_index_rows")
-        self.assertFalse(hasattr(hook, "TODO_ROW_RE"))
-        self.assertFalse(hasattr(tool, "_ROW_RE"))
+        self.assertIs(tool.ITEM_HEADING_RE, shared.ITEM_HEADING_RE)
+        # QA r1 (claude F1, codex F1, gemini): gate 78 read rows through lint_common.parse_todo_index and headings
+        # through its own LIVE_HEADING_RE; it now reads both through the shared module.
+        self.assertEqual(g.index_rows.__module__, "todo_index_rows")
+        self.assertEqual(g.item_headings.__module__, "todo_index_rows")
+        for mod, gone in ((hook, "TODO_ROW_RE"), (hook, "ITEM_HEADING_RE"), (hook, "_BULLET_ITEM_HEADING_RE"),
+                          (tool, "_ROW_RE"), (g, "parse_todo_index"), (g, "LIVE_HEADING_RE")):
+            self.assertFalse(hasattr(mod, gone), gone)
 
     def test_unreadable_row_counts_in_hook_and_tool_and_is_never_blocked(self):
         # Divergence 1 (row grammar): the hook counted any `| <id> |` row and the tool only `| id | title | tags |`
@@ -18640,15 +18671,21 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
 
     def test_headerless_public_rows_count_in_neither(self):
         # Divergence 2 (header gate): the hook counted public TODO.md rows without the index header and the tool
-        # did not, so these two rows counted 2 in the hook and 0 in the tool. Now neither counts them without the
-        # header, and both count them under it.
+        # did not, so these two rows counted 2 in the hook and 0 in the tool. Now none of the three readers reads
+        # them without the header (QA r1, codex F1: gate 78 read header-less rows as live, so such a row beside a
+        # P-TODO.md item of the same id was a false duplicate), and all three read them under it.
         hook = self._load("_3b121_hook_d2", ".claude/hooks/block-unjustified-decision.py")
         tool = self._load("_3b121_tool_d2", "tools/audit-backlog-actionability.py")
+        g = self._load("_3b121_gate78_d2", "tools/lint-todo-number-permanence.py")
         text = "# TODO\n| 1.1 | a | `[public]` |\n| 2.3 | b | `[public]` |\n"
         self.assertEqual(tool.parse_items(text, "public", ref_bodies={}), [])
         self.assertEqual(self._hook_count(hook, text, ""), 0)
+        self.assertEqual(g.parse_live_list(text), {})
         self.assertEqual(len(tool.parse_items(self.HDR + text, "public", ref_bodies={})), 2)
         self.assertEqual(self._hook_count(hook, self.HDR + text, ""), 2)
+        self.assertEqual(g.parse_live_list(self.HDR + text), {"1.1": [4], "2.3": [5]})
+        r = self._gate78(text, "## Q\n### 1.1 the item, moved into the private list\n")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
     def test_stop_guard_producer_lists_the_unreadable_row(self):
         # Divergence 1 at the stop guard: the tool reports the unreadable row before its ACTIONABLE list, and
@@ -18709,6 +18746,105 @@ class TodoIndexRowGrammarParityTests(unittest.TestCase):
         self.assertIn("RB-6: TODO.md:2 AND P-TODO.md:2", r.stdout)
         self.assertIn("FAIL: 1 item-number permanence finding(s)", r.stdout)
         self.assertNotIn("Traceback", r.stderr)
+
+    def test_gate78_live_items_equal_the_tool_and_hook_items(self):
+        # QA r1 (all three reviewers): one fixture holding every row and heading shape the readers differed on. In
+        # either list, gate 78's live ids (one entry per declaring line) are the audit tool's items, and their number
+        # is the hook's count.
+        hook = self._load("_3b121_hook_all", ".claude/hooks/block-unjustified-decision.py")
+        g = self._load("_3b121_gate78_all", "tools/lint-todo-number-permanence.py")
+        tool = g._audit_tool()
+        text = (self.HDR
+                + "| 1.1 | readable | `[public]` |\n"
+                + "   | 1.2 | indented three spaces | `[public]` |\n"
+                + "    | 1.3 | indented four spaces: code, not a row | `[public]` |\n"
+                + "| 1.4 | two cells |\n"
+                + "| 1.5 | no closing pipe | `[public]`\n"
+                + "## Q\n"
+                + "- **3b7 [private] bullet** x\n"
+                + "- **RB-9 [public] coded bullet** y\n"
+                + "## R\n"
+                + "### RB-6. punctuated coded heading\n"
+                + "### 3.92.a lettered child\n"
+                + "### 1.2.3.4 four parts\n"
+                + "### \u00a73.7 section marker\n"
+                + "###\t3.8 tab\n"
+                + "### TF-2A odd token\n"
+                + "```\n### 9.9 fenced heading\n```\n")
+        want = ["1.1", "1.2", "1.4", "1.5", "3b7", "RB-9", "RB-6", "3.92", "1.2.3", "TF-2A", "9.9"]
+        live = g.parse_live_list(text)
+        self.assertEqual(sorted(live), sorted(want))
+        self.assertEqual(live["RB-6"], [12])
+        for source in ("public", "private"):
+            items = tool.parse_items(text, source, ref_bodies={})
+            self.assertEqual(sorted(i for i, lines in live.items() for _ in lines), sorted(it[0] for it in items),
+                             source)
+        self.assertEqual(self._hook_count(hook, text, ""), len(want))
+        self.assertEqual(self._hook_count(hook, "", text), len(want))
+
+    def test_gate78_unreadable_rows_fail_closed_end_to_end(self):
+        # QA r1 (claude F1): gate 78 dropped an unreadable row that the tool and the hook count, so a recycled number
+        # in one passed, and so did a counter at or below it. Its id is live now, and the gate names the row.
+        todo = (self.HDR + "| 3.1 | fine | `[public]` |\n| 3.50 | two cells |\n| 3.51 | no close | `[public]`\n"
+                "**Next item number: 3.52.**\n")
+        r = self._gate78(todo, "", "# DONE\n### \u00a73.50: retired\n### \u00a73.51: retired\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("\u00a73.50: live at TODO.md:4", r.stdout)
+        self.assertIn("\u00a73.51: live at TODO.md:5", r.stdout)
+        self.assertIn("NOTE: TODO.md:4: unreadable index row", r.stdout)
+        self.assertIn("NOTE: TODO.md:5: unreadable index row", r.stdout)
+        self.assertIn("FAIL: 2 item-number permanence finding(s)", r.stdout)
+        r = self._gate78(self.HDR + "| 3.1 | fine | `[public]` |\n| 3.90 | two cells |\n**Next item number: 3.52.**\n",
+                         "")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("section 3 counter is '3.52'", r.stdout)
+        self.assertIn("\u00a73.90", r.stdout)
+
+    def test_gate78_unreadable_row_cross_list_duplicate_end_to_end(self):
+        # QA r1 (codex F1): under the index header an unreadable ``| 1.1 | title |`` row counts in the hook and the
+        # tool but was not live in gate 78, so the same id live in P-TODO.md too was a duplicate the gate passed.
+        r = self._gate78(self.HDR + "| 1.1 | title |\n", "## Q\n### 1.1 the same item, copied\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("\u00a71.1: TODO.md:3 AND P-TODO.md:2", r.stdout)
+
+    def test_indented_row_counts_in_all_three(self):
+        # QA r1 (claude F2): a row indented by one to three spaces renders as a table row, but the shared grammar
+        # anchored rows at column 0, so the tool and the hook dropped it without a report while gate 78 read it.
+        hook = self._load("_3b121_hook_ind", ".claude/hooks/block-unjustified-decision.py")
+        g = self._load("_3b121_gate78_ind", "tools/lint-todo-number-permanence.py")
+        tool = g._audit_tool()
+        text = self.HDR + " | 3.1 | fine | `[public]` |\n"
+        self.assertEqual([it[0] for it in tool.parse_items(text, "public", ref_bodies={})], ["3.1"])
+        self.assertEqual(self._hook_count(hook, text, ""), 1)
+        self.assertEqual(g.parse_live_list(text), {"3.1": [3]})
+        with tempfile.TemporaryDirectory() as d:
+            pub, priv, appr = Path(d) / "TODO.md", Path(d) / "P-TODO.md", Path(d) / "approvals.md"
+            pub.write_text(text, encoding="utf-8")
+            priv.write_text("", encoding="utf-8")
+            appr.write_text("", encoding="utf-8")
+            r = run_linter("tools/audit-backlog-actionability.py", "--todo", str(pub), "--ptodo", str(priv),
+                           "--approvals", str(appr), "--private-root", d, "--actionable-only")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("1 open item(s) across both lists; 0 BLOCKED", r.stdout)
+        r = self._gate78(text, "## Q\n- **3.1 [private] copied** x\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("\u00a73.1: TODO.md:3 AND P-TODO.md:2", r.stdout)
+
+    def test_gate78_public_heading_cross_list_duplicate_end_to_end(self):
+        # QA r1 (codex F2): the tool counts a ``### <id>`` heading in TODO.md, but gate 78 read TODO.md for rows and
+        # bullets only, so a public ``### RB-6`` heading beside a private RB-6 bullet was a duplicate the gate passed.
+        r = self._gate78("# TODO\n### RB-6 public heading\n", "## Q\n- **RB-6 [private] private bullet** x\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("RB-6: TODO.md:2 AND P-TODO.md:2", r.stdout)
+
+    def test_gate78_punctuated_coded_heading_cross_list_duplicate_end_to_end(self):
+        # QA r1 (codex F3): gate 78's heading regex ended an id only at whitespace or a colon, while the tool and the
+        # hook end it at a word boundary, so ``### RB-6. private`` counted as RB-6 there and was not live here; with a
+        # public RB-6 bullet the gate exited 0 on a cross-list duplicate.
+        r = self._gate78("# TODO\n- **RB-6 [public] public bullet** x\n", "## Q\n### RB-6. private\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("RB-6: TODO.md:2 AND P-TODO.md:2", r.stdout)
+        self.assertIn("FAIL: 1 item-number permanence finding(s)", r.stdout)
 
 
 class OrchestratorAdvisoryToolTests(unittest.TestCase):
@@ -20912,12 +21048,20 @@ class TodoNumberPermanenceTests(LinterTestCase):
         # TODO.md is index-format now (PR-1 rework): render each abstract
         # ``### <id> <title>`` fixture line as an index row so the gate (which
         # reads rows) sees the declared items. Counters/headers pass through.
+        # P-TODO 3b121: gate 78 reads rows only under the ``| ID | Item | Tags |``
+        # header, as the audit tool and the hook do, so the header goes before
+        # the first rendered row (a fixture with no row keeps its line numbers).
         import re as _re
-        _todo = "\n".join(
-            (f"| {_m.group(1)} | {_m.group(2).replace(chr(124), chr(92)+chr(124))} | `[public]` |"
-             if (_m := _re.match(r"^### (\S+)\s+(.*)$", _ln)) else _ln)
-            for _ln in todo.splitlines()
-        ) + "\n"
+        _out: list[str] = []
+        for _ln in todo.splitlines():
+            _m = _re.match(r"^### (\S+)\s+(.*)$", _ln)
+            if _m is None:
+                _out.append(_ln)
+                continue
+            if "| ID | Item | Tags |" not in _out:
+                _out += ["| ID | Item | Tags |", "| --- | --- | --- |"]
+            _out.append(f"| {_m.group(1)} | {_m.group(2).replace(chr(124), chr(92)+chr(124))} | `[public]` |")
+        _todo = "\n".join(_out) + "\n"
         (root / "TODO.md").write_text(_todo, encoding="utf-8")
         if done is not None:
             (root / ".working" / "DONE.md").write_text(done, encoding="utf-8")
@@ -21465,6 +21609,7 @@ class TodoNumberPermanenceTests(LinterTestCase):
         self.assertEqual(want, sorted(["3b7", "P-1.5", "RB-9", "4.6", "3b10"]))
         # A repeated bullet id keeps every declaring line.
         self.assertEqual(g.parse_live_bullets("## Q\n- **3b7 a** x\n\n- **3b7 b** y\n"), {"3b7": [2, 4]})
+
 
 class TodoNumberAllocationRobustnessTests(unittest.TestCase):
     """Gate 91 frozen-allocation invariants beyond the existing --self-test."""
