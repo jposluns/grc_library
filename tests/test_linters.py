@@ -10806,12 +10806,28 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(len(f), 1)
         self.assertIn("#11", f[0])
 
-    def test_row_integrity_fenced_and_commented_examples_ignored(self) -> None:
+    def test_row_integrity_reads_rows_raw_no_masking(self) -> None:
+        # codex r4 ERROR 2 / the 2026-09-30 no-masking ruling (replacing the fenced/commented
+        # examples-ignored expectation): records come from the RAW text. (a) literal inline
+        # `<!--` / `-->` tokens in two rows' prose must not swallow the rows between them (the
+        # masked read returned ZERO records for them); (b) a fenced row LOOKALIKE now counts as
+        # a real row, the loud direction: beside the real #10 row it is a duplicate finding,
+        # never a silent mask.
         mod = self._load_module()
-        body = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
-                "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
-                "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
-        self.assertEqual(self._hist(mod, body), [])
+        swallowed = ("| 2026-09-20 | #10 | c | see the `<!--` note | SHIP |\n"
+                     "| 2026-09-20 | #10 | c | T | IN PROGRESS |\n"
+                     "| 2026-09-20 | #11 | c | closes the `-->` note | SHIP |\n")
+        recs = mod._history_row_records(swallowed)
+        self.assertEqual([r[1] for r in recs], [[10], [10], [11]],
+                         "raw read: nothing between the literal delimiters is swallowed")
+        f = mod.row_integrity_findings(recs, "h")
+        self.assertEqual(len(f), 1, f)
+        self.assertIn("#10", f[0])
+        fenced = ("| 2026-09-20 | #10 | c | T | SHIP |\n"
+                  "```\n| 2026-09-20 | #10 | c | T | SHIP example |\n```\n"
+                  "<!-- | 2026-09-20 | #10 | c | T | SHIP commented | -->\n")
+        self.assertEqual(len(self._hist(mod, fenced)), 1,
+                         "fenced and commented row lookalikes are records: a loud duplicate")
 
     def test_row_integrity_legacy_tier_word_findings_keeps_exemption(self) -> None:
         # history.md:1107 shape: legacy Findings at c[4] begins with a tier word, c[5] is Hot-fix.
@@ -11069,21 +11085,24 @@ class BookkeepingParityTests(LinterTestCase):
                      "**Bold text #1234** but not an entry header\n"):
             self.assertEqual(mod.parse_changelog_prs(text), set(), text[:50])
 
-    def test_headers_in_fenced_blocks_comments_and_prose_tails_do_not_count(self) -> None:
-        """Three over-match contexts a verifier probed on the live parser.
+    def test_headers_read_raw_lookalikes_widen_the_audit_loudly(self) -> None:
+        """The 2026-09-30 no-masking ruling (r4; replacing the W5 fenced/commented strip).
 
-        A parser that reads free-form headers must not treat DOCUMENTATION of the format as an
-        entry: illustrating a header in a fence, or commenting one out, would otherwise widen the
-        set of PRs the gate demands bypass rows for. The legacy long form additionally captured to
-        end of line, so a prose tail contributed any PR it mentioned.
+        parse_changelog_prs reads the RAW text: a fenced or commented header lookalike counts
+        toward the audit universe like any real header, so an example can only ADD loud row
+        demands (a missing-row finding on a phantom PR), never remove one -- the safe direction,
+        and the mirror image of the store-scope ceiling, which reads the SAME raw text with the
+        same cell grammar, so ``max(changelog)`` still never exceeds the ceiling. The legacy
+        form's prose-tail precision is unchanged.
         """
         mod = self._load_module()
         self.assertEqual(
             mod.parse_changelog_prs("```\n**2026-01-01 | 1.0.0 | PRs #9000-#9005 (6 PRs)**\n```\n"),
-            set(), "a fenced example is documentation, not an entry")
+            {9000, 9001, 9002, 9003, 9004, 9005},
+            "a fenced lookalike is a real header: more demands, never fewer")
         self.assertEqual(
             mod.parse_changelog_prs("<!--\n**2026-01-01 | 1.0.0 | PR #9004** - x\n-->\n"),
-            set(), "a commented-out header is not an entry")
+            {9004}, "a commented-out header is a real header too")
         self.assertEqual(
             mod.parse_changelog_prs(
                 "## 2026-07-02, Library Version 2026.07.40, PR #552 - follow-up to PR #999\n"),
