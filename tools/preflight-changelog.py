@@ -41,10 +41,11 @@ This is a developer AID, not a new audit gate. The authoritative gates
 (D3, gate 51, the link-coverage gate) remain and run in CI and
 ``run_all_audits.sh`` / ``run-pr-time-checks.sh``; this aid only moves their
 diagnosis earlier, to before the first commit, closing the recurring
-commit-then-amend loop (improvement-log #341/#347/#349/#355). Because no
-pre-commit git hook fires on commits in this environment, a standalone
-helper invoked in an ``&&`` chain is the form that actually gates the
-commit; a pre-commit hook would not run.
+commit-then-amend loop (improvement-log #341/#347/#349/#355). Run it in an
+``&&`` chain: a ``;`` join commits whatever its exit status. Where
+``tools/install-git-hooks.sh`` has installed the git-native pre-commit
+hook, ``check-changelog-preflight-commit.py`` also runs it (``--staged``)
+inside every commit that stages ``CHANGELOG.md`` and refuses on failure.
 
 The check is scoped to the lines a PR ADDS (``git diff`` against HEAD), so
 historical entries that predate the conventions never false-alarm. Dash
@@ -69,12 +70,15 @@ Usage:
 Exit codes:
     0   no dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
-    2   git invocation error
+    2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
+        a repository, an operational store or private sibling holding the mirror included) exits 2
+        instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1)
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -323,25 +327,49 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
     return findings
 
 
+def _foreign_repo_env() -> dict[str, str]:
+    """This process's environment for a ``git diff`` in ANOTHER repository (the operational store or
+    the private sibling holding the mirror): every variable that ``git rev-parse --local-env-vars``
+    names as local to one repository is dropped (GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE,
+    GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_COMMON_DIR, GIT_CONFIG_PARAMETERS
+    and the rest; git drops the same list before it enters a submodule), and every other variable
+    is kept. A pre-commit hook inherits them for the PUBLIC repository (``git commit -a`` names its
+    temporary index in GIT_INDEX_FILE), and the mirror's ``git diff --cached`` read that index
+    through them: it found no staged mirror addition, so a commit the standalone aid refuses passed
+    (3b141 QA r2). A failure to list them raises ``CalledProcessError``, and ``main()`` exits 2."""
+    local = set(subprocess.run(["git", "rev-parse", "--local-env-vars"], capture_output=True,
+                               text=True, check=True).stdout.split())
+    return {k: v for k, v in os.environ.items() if k not in local}
+
+
 def _added_lines_from_repo(
-    repo: Path, paths: tuple[str, ...], staged: bool
+    repo: Path, paths: tuple[str, ...], staged: bool, env: dict[str, str] | None = None
 ) -> list[tuple[str, str]]:
-    """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff."""
-    cmd = ["git", "diff", "--unified=0"]
+    """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff, run with ``env``:
+    None inherits this process's environment, right for the public repository, where a pre-commit
+    hook's GIT_INDEX_FILE names the index being committed; a mirror in another repository passes
+    :func:`_foreign_repo_env`.
+
+    The flags override every setting that would reshape what the parser below reads (3b141 QA
+    r1): an external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
+    ``diff=<driver>`` attribute), a ``textconv`` filter, a ``-diff`` or ``binary`` attribute (it
+    prints "Binary files ... differ"), colour (``color.diff``, ``color.ui``), and the ``+++ b/``
+    prefix (``diff.noprefix``, ``diff.mnemonicPrefix``, ``diff.dstPrefix``). Each leaves no
+    ``+++ b/`` header or ``+`` line, so the aid reported 0 added lines and passed. Not pinned: the
+    source prefix (only the ``---`` line carries it, and the parser skips that line), and
+    ``diff.relative`` (it changes a path, never whether a ``+`` line is read).
+
+    A git failure raises ``CalledProcessError`` carrying git's ``stderr``, and ``main()`` exits 2:
+    an unread diff is not zero added lines. This replaces the 3.190 fail-open, which returned []
+    for any git failure (a sibling that is not a git repository included), so a failed diff
+    printed "OK: 0 added CHANGELOG line(s)" and exited 0."""
+    cmd = ["git", "diff", "--no-ext-diff", "--no-textconv", "--text", "--no-color",
+           "--dst-prefix=b/", "--unified=0"]
     if staged:
         cmd.append("--cached")
     cmd += ["HEAD", "--", *paths]
-    try:
-        out = subprocess.check_output(cmd, text=True, cwd=str(repo),
-                                      stderr=subprocess.DEVNULL)
-    except (subprocess.CalledProcessError, OSError):
-        # A private sibling that exists but is NOT a git repo (or any git failure): degrade to
-        # the empty added-line set, exactly as the both-absent path does, rather than raise an
-        # uncaught CalledProcessError (3.190). Unreachable for the maintainer's real layout (the
-        # private sibling is always a git repo); a robustness edge, so it fails OPEN (no findings
-        # from an unreadable sibling is safe: this aid never blocks a commit on its own inability
-        # to read a sibling).
-        return []
+    out = subprocess.run(cmd, cwd=str(repo), capture_output=True, text=True,
+                         check=True, env=env).stdout
     results: list[tuple[str, str]] = []
     current: str | None = None
     for line in out.splitlines():
@@ -360,8 +388,10 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
     mirror) come from this repo's diff; a private-sibling mirror gets its OWN
     repository-local ``git diff`` so private additions still receive the dash and
-    unlinked-path checks. The ``staged`` choice is applied separately in each
-    repository, preserving staged-only versus full-working-tree semantics."""
+    unlinked-path checks. That diff runs without this repository's local git
+    variables (:func:`_foreign_repo_env`), so ``--staged`` reads THAT repository's
+    index. The ``staged`` choice is applied separately in each repository,
+    preserving staged-only versus full-working-tree semantics."""
     public_paths = ["CHANGELOG.md"]
     if (root / DETAILED_MIRROR_REL).is_file():
         public_paths.append(DETAILED_MIRROR_REL)
@@ -384,7 +414,8 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
         stripped_rel = DETAILED_MIRROR_REL[len(".working/"):]
         private_root = mirror.parents[stripped_rel.count("/")]
         results.extend(
-            _added_lines_from_repo(private_root, (stripped_rel,), staged)
+            _added_lines_from_repo(private_root, (stripped_rel,), staged,
+                                   env=_foreign_repo_env())
         )
     return results
 
@@ -400,14 +431,20 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "--staged",
         action="store_true",
-        help="Check only the staged diff (default: full working tree vs HEAD).",
+        help=("Check only the staged diff's added lines (default: full working tree vs HEAD); "
+              "link targets and the full-mirror scan still read the working tree."),
     )
     args = parser.parse_args(argv[1:])
 
     try:
         lines = added_lines(args.staged)
     except subprocess.CalledProcessError as exc:
-        print(f"ERROR: git diff failed: {exc}", file=sys.stderr)
+        # Fail closed (3b141 QA r1): a failed diff is not zero added lines.
+        detail = (exc.stderr or "").strip()
+        print(f"ERROR: git diff failed: {exc}" + (f"\n{detail}" if detail else ""), file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"ERROR: the CHANGELOG diff could not be read: {exc}", file=sys.stderr)
         return 2
 
     findings: list[tuple[str, str, str]] = []

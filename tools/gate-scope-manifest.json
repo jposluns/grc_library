@@ -68,6 +68,7 @@
       "check-changelog-dash-on-pr.py",
       "check-changelog-length-on-pr.py",
       "check-changelog-on-pr.py",
+      "check-changelog-preflight-commit.py",
       "check-class-attestation-on-pr.py",
       "check-claude-md-size.py",
       "check-commit-on-main.py",

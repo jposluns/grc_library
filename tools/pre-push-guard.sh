@@ -22,20 +22,24 @@
 # Together those two runners cover every gate the CI workflow runs, so a
 # green guard means the push will not flip CI red on a gate failure.
 #
-# Why a standalone &&-gated guard rather than a git pre-push hook: git
-# hooks do not fire in this execution environment (the same reason
-# `preflight-changelog.py` is run as `python3 ... && git commit` rather
-# than from a pre-commit hook). An &&-chained helper is therefore what
-# actually enforces the discipline here. The guard closes the
+# Why a standalone &&-gated guard rather than a git pre-push hook: it was
+# written when git hooks did not fire in this execution environment. The
+# per-clone commit-time hooks installed by tools/install-git-hooks.sh do
+# fire now, but this guard stays an explicit &&-chained step so a push is
+# gated even in a clone that never ran the installer. The guard closes the
 # momentum-bypass gap where an "intermediate" push skipped the runner and
 # a delta gate flipped CI red after the fact (improvement-log #438).
 #
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
-# runners plus the conditional `.web/build.py --check`). The commit-time hygiene gate, `preflight-changelog.py`, stays
-# the `&&`-gate on COMMITS (`python3 tools/preflight-changelog.py && git
-# commit ...`), because it inspects newly-added working-tree lines that
-# are already committed by push time. The two helpers are complementary,
-# not redundant.
+# runners plus the conditional `.web/build.py --check`). The commit-time
+# hygiene gate, `preflight-changelog.py`, gates COMMITS, because it judges
+# newly-added lines that are already committed by push time. In a clone
+# where tools/install-git-hooks.sh has installed the pre-commit hook,
+# tools/check-changelog-preflight-commit.py runs it with --staged, judging
+# the staged (index) lines, on each `git commit` that stages CHANGELOG.md;
+# in a clone without the installer, the `&&` chain
+# (`python3 tools/preflight-changelog.py && git commit`) remains the
+# commit-time gate. The two helpers are complementary, not redundant.
 #
 # Usage:
 #   tools/pre-push-guard.sh && git push -u origin <branch>

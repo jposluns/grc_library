@@ -1,7 +1,14 @@
 #!/bin/sh
-# git-native pre-commit hook: refuse a commit on a grc_library main/master checkout (P-TODO 3b17).
+# git-native pre-commit hook: refuse a commit on a grc_library main/master checkout (P-TODO 3b17),
+# then a commit that stages CHANGELOG.md while tools/preflight-changelog.py --staged fails.
 #
 # A persistent shim installed by tools/install-git-hooks.sh in the shared hooks dir resolves the
 # active checkout and execs THIS tracked file at commit time, which delegates to the tested Python
-# implementation in tools/check-commit-on-main.py. NOT a pre-commit-framework hook.
-exec python3 "$(git rev-parse --show-toplevel)/tools/check-commit-on-main.py" --pre-commit
+# implementations in tools/check-commit-on-main.py and tools/check-changelog-preflight-commit.py.
+# NOT a pre-commit-framework hook.
+root="$(git rev-parse --show-toplevel)"
+python3 "$root/tools/check-commit-on-main.py" --pre-commit || exit $?
+# FAILS OPEN for a tree that carries this shim without the CHANGELOG check (the commit-on-main and
+# Version-bump self-test fixtures copy the shim without it).
+[ -f "$root/tools/check-changelog-preflight-commit.py" ] || exit 0
+exec python3 "$root/tools/check-changelog-preflight-commit.py" --pre-commit
