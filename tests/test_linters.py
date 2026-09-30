@@ -28929,6 +28929,30 @@ class ProvisionIndexTests(LinterTestCase):
     test_parse_key_accepts_printed_keys, test_build_accepts_printed_key and
     test_every_printed_corpus_key_round_trips; the sorted unresolved bucket
     by test_build_unresolved_listing_is_sorted.
+
+    Round 5 (each killing test was run against its mutant in memory): the
+    contiguity filter on range interiors and the unresolved-interior skip
+    by test_range_interior_only_for_contiguous_numbering; restoring a
+    decimal range's interior (the round-4 interior list and its zero
+    padding, now removed), flagged as interior or not, by
+    test_abbreviated_decimal_range_endpoint; a misspelt canonical name in
+    CONTIGUOUS_NUMBERING or SELF_NOUNS by
+    test_numbering_and_self_noun_tables_name_known_instruments; the
+    structural qualifier in the tail lead, its possessive match, the
+    SELF_NOUNS exemption, its title-continuation guard and the Code of
+    Conduct lookahead by
+    test_structural_or_self_noun_tail_keeps_prefix_alias; the lowercase
+    subordinate descriptors, their lowercase intervening words, the
+    clause-word stop and the verb stop by
+    test_lowercase_subordinate_instrument_refused; the bound-postfix
+    conflict refusal and its same-instrument exception by
+    test_bound_postfix_alias_conflicting_heading_refuses; the body-name
+    trim, its whole-body keep and the Data Protection spelling by
+    test_body_name_drops_only_its_29; the point designation in the
+    "of this <Word>" refusal by test_point_designation_before_of_this_refuses
+    and the branch fold's certainty by test_branch_fold_keeps_endpoint_doubt
+    (the two round-5 survivors); parse_key's bare-key rule by
+    test_parse_key_canonical_branch_needs_bare_key.
     """
 
     BUILD = "tools/build-provision-index.py"
@@ -29492,24 +29516,25 @@ class ProvisionIndexTests(LinterTestCase):
     def test_abbreviated_decimal_range_endpoint(self) -> None:
         # Round-4 QA (claude 1, codex 1): compliance/healthcare/annex-healthcare-sector-
         # requirements.md:237, "HIPAA §164.400 to 414", keyed a false EXPLICIT
-        # "HIPAA (45 CFR) s. 414" and never indexed 164.401 to 164.413. Kills reverting
-        # expand_body's decimal-range branch (the endpoint keeps its shorthand form),
-        # dropping the interior list, and dropping its zero padding.
-        got = self.scan("HIPAA §164.400 to 414")
-        self.assertEqual([k for k, _p, _t in got],
-                         ["HIPAA (45 CFR) s. 164.%03d" % n for n in range(400, 415)])
-        self.assertEqual(got[1], ("HIPAA (45 CFR) s. 164.401", "164.400 to 164.414", "explicit"))
-        self.assertEqual(got[-1], ("HIPAA (45 CFR) s. 164.414", "164.414", "explicit"))
+        # "HIPAA (45 CFR) s. 414". Kills reverting expand_body's decimal-range branch
+        # (the endpoint keeps its shorthand form). Round-5 QA (claude F1): the interior
+        # it then listed (164.401 ... 164.413) keyed seven sections 45 CFR does not have
+        # (Part 164 Subpart D numbers only the even ones), so a range from a decimal
+        # section indexes its endpoints only. Kills restoring the interior list,
+        # flagged as interior (the PIPEDA case: PIPEDA is in CONTIGUOUS_NUMBERING) or
+        # not (the HIPAA cases).
+        self.assertEqual(self.scan("HIPAA §164.400 to 414"),
+                         [("HIPAA (45 CFR) s. 164.400", "164.400", "explicit"),
+                          ("HIPAA (45 CFR) s. 164.414", "164.414", "explicit")])
         self.assertEqual([k for k, _p, _t in self.scan("HIPAA §§ 160.001 to 003")],
-                         ["HIPAA (45 CFR) s. 160.001", "HIPAA (45 CFR) s. 160.002",
-                          "HIPAA (45 CFR) s. 160.003"])
+                         ["HIPAA (45 CFR) s. 160.001", "HIPAA (45 CFR) s. 160.003"])
         # A whole-section endpoint (it ascends from s. 10 within MAX_RANGE_SPAN and
         # lacks the start's sub-number width) stays whole, and a same-section
-        # decimal endpoint is kept as written, with its interior expanded.
+        # decimal endpoint is kept as written; neither range lists an interior.
         self.assertEqual([k for k, _p, _t in self.scan("PIPEDA ss. 10.1 to 12")],
                          ["PIPEDA s. 10.1", "PIPEDA s. 12"])
         self.assertEqual([k for k, _p, _t in self.scan("PIPEDA ss. 10.1 to 10.3")],
-                         ["PIPEDA s. 10.1", "PIPEDA s. 10.2", "PIPEDA s. 10.3"])
+                         ["PIPEDA s. 10.1", "PIPEDA s. 10.3"])
 
     def test_doubtful_decimal_range_endpoint_unresolved(self) -> None:
         # Kills resolving a doubtful endpoint either way (the "abbreviated ==
@@ -29673,7 +29698,7 @@ class ProvisionIndexTests(LinterTestCase):
 
     def test_every_printed_corpus_key_round_trips(self) -> None:
         # Every key the index prints over the real corpus parses back to itself
-        # (at b03d3775, 120 of the 699 did not).
+        # (at b03d3775, 120 of the 689 did not).
         pc = self.pc
         index = pc.group_by_key(pc.scan_files(pc.corpus_files(list(pc.DEFAULT_SCAN_ROOTS))))
         self.assertGreater(len(index), 100)
@@ -29698,6 +29723,131 @@ class ProvisionIndexTests(LinterTestCase):
             self.assertEqual(build.main(["build", "--show-unresolved", "--json"]), 0)
         rows = json.loads(out.getvalue())["unresolved"]
         self.assertEqual([(r["path"], r["line"]) for r in rows], [("a.md", 1), ("a.md", 2), ("b.md", 1)])
+
+    def test_range_interior_only_for_contiguous_numbering(self) -> None:
+        # Round-5 QA (claude F1): a range's interior is a list of numbers the text never
+        # names, and it is a list of PROVISIONS only where the instrument numbers
+        # without gaps (SOX numbers by title; 45 CFR Part 164 Subpart D has only even
+        # sections). The interior is keyed only under CONTIGUOUS_NUMBERING, and an
+        # unresolved range records its endpoints only. Kills dropping the contiguity
+        # filter (SOX gains s. 303 to s. 305) and keeping unresolved interiors (the
+        # Ley range gains an unresolved Art. 4).
+        self.assertEqual([k for k, _p, _t in self.scan("SOX Sections 302 to 306")],
+                         ["SOX s. 302", "SOX s. 306"])
+        self.assertEqual(self.scan("Ley Arts 3 to 5"), [(None, "3", "unresolved"), (None, "5", "unresolved")])
+        # An instrument in the set still expands, at an inferred tier too and for
+        # each conjoined member.
+        self.assertEqual(self.scan("## PIPEDA\n\n- Duties (ss. 5 to 7).\n"),
+                         [("PIPEDA s. 5", "5", "heading"), ("PIPEDA s. 6", "5 to 7", "heading"),
+                          ("PIPEDA s. 7", "7", "heading")])
+        self.assertEqual([k for k, _p, _t in self.scan("GDPR / UK GDPR Arts. 12 to 14")],
+                         ["GDPR Art. 12", "UK GDPR Art. 12", "GDPR Art. 13", "UK GDPR Art. 13",
+                          "GDPR Art. 14", "UK GDPR Art. 14"])
+
+    def test_numbering_and_self_noun_tables_name_known_instruments(self) -> None:
+        # CONTIGUOUS_NUMBERING and SELF_NOUNS are keyed by canonical instrument name, so
+        # a misspelt name would silently disable its row; the sparse instruments stay
+        # out of the contiguity set.
+        known = set(self.pc.MARKER_STYLE)
+        self.assertEqual(sorted(set(self.pc.CONTIGUOUS_NUMBERING) - known), [])
+        self.assertEqual(sorted(set(self.pc.SELF_NOUNS) - known), [])
+        for sparse in ("SOX", "HIPAA (45 CFR)", "Cal. Civ. Code"):
+            self.assertNotIn(sparse, self.pc.CONTIGUOUS_NUMBERING)
+
+    def test_structural_or_self_noun_tail_keeps_prefix_alias(self) -> None:
+        # Round-5 QA (claude F2, codex R5-02): the round-5 tail refusal read any "of +
+        # capitalized word" or trailing instrument word as another instrument, so
+        # correct prefix citations became unresolved (the "§" one was dropped outright).
+        # A structural qualifier names a division, and the alias's own generic noun
+        # (SELF_NOUNS) re-names the alias. Kills dropping _STRUCT from the tail lead
+        # or matching it non-possessively (first case), dropping the SELF_NOUNS
+        # exemption (second to fourth) and dropping the Code of Conduct lookahead
+        # (fifth).
+        for text, key in (("GDPR Article 12 of Chapter III", "GDPR Art. 12"),
+                          ("PIPEDA s. 10.1 of the Act", "PIPEDA s. 10.1"),
+                          ("the GDPR Article 83 of the Regulation", "GDPR Art. 83"),
+                          ("HIPAA §164.502(b) of the Privacy Rule", "HIPAA (45 CFR) s. 164.502"),
+                          ("GDPR Art. 40 Code of Conduct approval", "GDPR Art. 40")):
+            self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
+        self.assertEqual([k for k, _p, _t in self.scan("DORA Articles 28 to 30 of Chapter V")],
+                         ["DORA Art. 28", "DORA Art. 29", "DORA Art. 30"])
+        # A structural qualifier also leads to a postfix alias, and alone it does not
+        # refuse inference.
+        self.assertEqual(self.scan("Article 12 of Chapter III of the GDPR"), [("GDPR Art. 12", "12", "explicit")])
+        self.assertEqual(self.scan("## GDPR\n\nArticle 12 of Chapter III applies.\n"),
+                         [("GDPR Art. 12", "12", "heading")])
+        # Still refused: another instrument past the qualifier, another instrument's
+        # generic noun, the own noun continued like a title (kills dropping that
+        # guard) and "this <Word>".
+        for text in ("Unlike the GDPR, Article 12 of Chapter III of the Data Act applies",
+                     "GDPR Article 12 of the Directive",
+                     "GDPR, Article 12 of the Regulation (EU) 2023/2854",
+                     "GDPR Article 12 of this Regulation"):
+            self.assertEqual(self.scan(text), [(None, "12", "unresolved")], text)
+
+    def test_lowercase_subordinate_instrument_refused(self) -> None:
+        # Round-5 QA (codex R5-01): the subordinate-instrument refusal matched only
+        # capitalized descriptors, so lowercase wording keyed the parent statute
+        # explicitly. Kills dropping the lowercase branch (first two cases) and
+        # limiting its intervening words to capitalized ones (third; the Section
+        # marker is explicit-only, so the refused citation is dropped).
+        self.assertEqual(self.scan("s. 7012 CCPA regulations"), [(None, "7012", "unresolved")])
+        self.assertEqual(self.scan("Article 12 of the NIS2 implementing regulation"),
+                         [(None, "12", "unresolved")])
+        self.assertEqual(self.scan("section 3 of the PIPEDA breach of security safeguards regulations"), [])
+        # Parent-instrument postfixes are kept: a clause word or a listed verb ends the
+        # descriptor phrase (kills dropping the clause-word stop, and the verb stop),
+        # a possessive admits only capitalized descriptors, and lowercase "rules" is
+        # not a descriptor.
+        for text, key in (("Article 5 of the GDPR and national regulations", "GDPR Art. 5"),
+                          ("Article 9 of the GDPR overrides sectoral regulations", "GDPR Art. 9"),
+                          ("Article 5 of the GDPR's guidelines on consent", "GDPR Art. 5"),
+                          ("Article 5 of the GDPR sets rules on consent", "GDPR Art. 5"),
+                          ("Article 21 of the NIS2 Directive", "NIS2 Art. 21")):
+            self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
+
+    def test_bound_postfix_alias_conflicting_heading_refuses(self) -> None:
+        # Round-5 QA (claude N1): a bare citation whose only earlier alias is bound to an
+        # earlier postfix citation fell to the heading chain, which can name a different
+        # instrument ("## NIS2 reporting" keyed the GDPR's Article 34 as NIS2 Art. 34).
+        # That conflict is refused; a heading naming the same instrument still resolves
+        # it. Kills removing the refusal (first case) and refusing whenever an alias is
+        # bound (second).
+        text = "## NIS2 reporting\n\nArticle 33 of the GDPR applies; Article 34 covers data subjects.\n"
+        self.assertEqual(self.scan(text), [("GDPR Art. 33", "33", "explicit"), (None, "34", "unresolved")])
+        text = "## GDPR breach duties\n\nArticle 33 of the GDPR applies; Article 34 covers data subjects.\n"
+        self.assertEqual(self.scan(text), [("GDPR Art. 33", "33", "explicit"), ("GDPR Art. 34", "34", "heading")])
+
+    def test_body_name_drops_only_its_29(self) -> None:
+        # Round-5 QA (claude N2): the body-name skip dropped the WHOLE citation before
+        # "WP" / "Working Party", whatever it cited; only the trailing "29" names the
+        # body. Kills skipping the whole body again (first two cases) and dropping the
+        # "Data Protection" spelling (third).
+        self.assertEqual(self.scan("GDPR Arts. 28 and 29 WP guidance"), [("GDPR Art. 28", "28", "explicit")])
+        self.assertEqual(self.scan("GDPR Article 35 WP 248 criteria"), [("GDPR Art. 35", "35", "explicit")])
+        self.assertEqual(self.scan("## GDPR\n\nThe Article 29 Data Protection Working Party opinion.\n"), [])
+
+    def test_point_designation_before_of_this_refuses(self) -> None:
+        # Round-5 QA (claude N3): kills removing _POINT from the tail lead of the "of this
+        # <Word>" refusal (the mutant survived round 5); without it the table row keys
+        # DORA Art. 5 at the line tier.
+        self.assertEqual(self.scan("| DORA | Article 5, point (a), of this Regulation |"),
+                         [(None, "5", "unresolved")])
+
+    def test_branch_fold_keeps_endpoint_doubt(self) -> None:
+        # Round-5 QA (claude N3): kills setting the branch fold's certainty to True (the
+        # mutant survived round 5): a branch-numbered fold of a doubtful decimal-range
+        # endpoint stays doubtful, so "5-2" is never keyed.
+        self.assertEqual(self.scan("PIPEDA ss. 3.1 to 5-2"),
+                         [("PIPEDA s. 3.1", "3.1", "explicit"), (None, "5-2", "unresolved")])
+
+    def test_parse_key_canonical_branch_needs_bare_key(self) -> None:
+        # Round-5 QA (claude N4): the canonical-name branch fired on any text starting
+        # with a canonical name, so parse_key skipped the scanner's explicit-tier
+        # refusals. It now takes a bare key only. Kills dropping the end-of-text test.
+        self.assertEqual(self.pc.parse_key("GDPR Art. 33 of the DORA"), "DORA Art. 33")
+        self.assertIsNone(self.pc.parse_key("GDPR Article 12 of the Data Act"))
+        self.assertEqual(self.pc.parse_key("GDPR Art. 33"), "GDPR Art. 33")
 
     def _pair(self) -> tuple:
         a = self.make_fixture("breach-a.md", "# A\n\nNotify the OPC (PIPEDA s. 10.1(1)).\n")

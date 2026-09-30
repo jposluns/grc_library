@@ -27,14 +27,19 @@ Extraction model (stdlib ``re``, fenced code skipped via
      subdivision(s) of the preceding pinpoint, so ``Article 53(1)(a) and
      (b)`` reads as 53(1)(a) and 53(1)(b), not 53(b). A hyphenated pair
      that does not ascend is ONE branch-numbered section (``PIPA
-     Art. 24-2``, ``s. 6-1-1306``), not a range. A numeric range spanning
-     at most ``MAX_RANGE_SPAN`` sections is expanded; each interior
-     section carries the range as its pinpoint (``25 to 39``), while the
+     Art. 24-2``, ``s. 6-1-1306``), not a range. A whole-number range
+     spanning at most ``MAX_RANGE_SPAN`` sections is expanded when the
+     citation resolves to an instrument whose numbering is known to run
+     without gaps (``CONTIGUOUS_NUMBERING``); each interior section
+     carries the range as its pinpoint (``25 to 39``), while the
      endpoints keep the pinpoints they are cited with (``25``, ``39(2)``).
-     A range from a decimal section reads an integer endpoint as
-     ABBREVIATED when it has the start's sub-number width and ascends
-     (``HIPAA §164.400 to 414`` is 164.400 to 164.414, interior sections
-     included) or as a WHOLE section when it ascends from the start's
+     Every other range (under an instrument outside that set, in an
+     unresolved citation, or from a decimal section) indexes its
+     ENDPOINTS only: the text never names the interior, and ``HIPAA
+     §164.400 to 414`` has no 164.401. A range from a decimal section
+     reads an integer endpoint as ABBREVIATED when it has the start's
+     sub-number width and ascends (``HIPAA §164.400 to 414`` ends at
+     164.414) or as a WHOLE section when it ascends from the start's
      section within ``MAX_RANGE_SPAN`` (``s. 10.1 to 12``); an endpoint
      that reads both ways or neither (``ss. 3.1 to 5``) is recorded
      unresolved, never keyed. A continuation number DIRECTLY followed by a
@@ -47,7 +52,9 @@ Extraction model (stdlib ``re``, fenced code skipped via
      later (``or 2 more calendar months``) is still absorbed, and a
      non-canonical shorthand (``and 30h``) is too (both stated, not
      hidden; no corpus hit today). A citation-shaped body name
-     (``Article 29 Working Party``, ``Art. 29 WP``) is not a citation.
+     (``Article 29 Working Party``, ``Art. 29 WP``) is not a citation:
+     its trailing ``29`` is dropped and the rest of the body is kept
+     (``Arts. 28 and 29 WP`` is Art. 28; ``Article 35 WP 248`` is Art. 35).
   2. The KEY is section-level: ``PIPEDA s. 10.1(3)`` and ``PIPEDA s. 10.1(6)``
      both key to ``PIPEDA s. 10.1``; the pinpoint is kept for display.
   3. The INSTRUMENT is resolved in this order, and the tier is recorded:
@@ -61,15 +68,24 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  (PDPL)``, counts only when the bracket closes right after
                  the alias, so ``section 3.9 (MiCA Article 35(1))`` never
                  keys the outer citation to MiCA). A prefix alias does not
-                 count when the text after the citation names an instrument
-                 (``Unlike the GDPR, Article 12 of the Data Act``, ``GDPR,
-                 Article 12 Regulation (EU) 2023/2854``, ``of that
-                 Regulation``): the citation is then resolved by that tail
-                 (``the GDPR, Article 12 of PIPL`` is PIPL Art. 12) or
-                 refused. A postfix alias that modifies a subordinate
-                 instrument (``Article 12 of the DORA RTS``, ``s. 7012 CCPA
-                 Regulations``, ``Article 4 of the NIS2 Implementing
-                 Regulation``) does not count either: the citation is
+                 count when the text after the citation, past any point
+                 designation or structural qualifier (``of Chapter III``,
+                 ``of Part 2``, which names no instrument), names an
+                 instrument (``Unlike the GDPR, Article 12 of the Data
+                 Act``, ``GDPR Article 5 of the Directive``, ``GDPR, Article
+                 12 Regulation (EU) 2023/2854``, ``of that Regulation``):
+                 the citation is then resolved by that tail (``the GDPR,
+                 Article 12 of PIPL`` is PIPL Art. 12) or refused. The
+                 alias's OWN generic noun (``SELF_NOUNS``: ``PIPEDA s. 10.1
+                 of the Act``, ``the GDPR Article 83 of the Regulation``,
+                 ``HIPAA §164.502(b) of the Privacy Rule``) re-names it and
+                 does not refuse it, and neither does ``Code of Conduct``
+                 (``GDPR Art. 40 Code of Conduct``). A postfix alias that
+                 modifies a subordinate instrument (``Article 12 of the DORA
+                 RTS``, ``s. 7012 CCPA Regulations`` or ``regulations``,
+                 ``Article 4 of the NIS2 implementing regulation``,
+                 ``section 3 of the PIPEDA breach of security safeguards
+                 regulations``) does not count either: the citation is
                  refused. Aliases conjoined directly before the marker by
                  ``/``, ``&``, ``and`` or ``or`` (``GDPR / UK GDPR Article
                  21``) cite the provision under EACH conjoined instrument
@@ -102,7 +118,12 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  is not reused (in the EU AI annex, ``... Article 35 GDPR ...
                  Article 27(4)`` is the AI Act's, and is no longer keyed as
                  GDPR Art. 27); a prefix alias is reused (``GDPR Art. 33;
-                 notify (Art. 34)``);
+                 notify (Art. 34)``). A bare citation whose only earlier
+                 aliases are bound that way falls to the heading chain
+                 only where the heading names the SAME instrument as each
+                 bound alias; a different one is refused (``## NIS2
+                 reporting`` over ``Article 33 of the GDPR ...; Article
+                 34 ...`` leaves Article 34 unresolved);
        heading   the nearest enclosing heading that names exactly one
                  instrument (for a citation ON a heading line, the
                  enclosing parent headings);
@@ -132,7 +153,8 @@ Extraction model (stdlib ``re``, fenced code skipped via
      reference to another instrument (``its Articles 46 and 48``,
      ``whose Article 11``), or the citation is followed by ``of this Law``,
      ``of that Regulation`` or ``of <Name>`` (through a point designation
-     too: ``Article 2, point (9), of Regulation (EU) 2017/1131``), or
+     or a structural qualifier too: ``Article 2, point (9), of Regulation
+     (EU) 2017/1131``; ``of Chapter III`` alone names nothing), or
      directly by an instrument word (``Article 29(7) Regulation (EU)
      2018/1725``): inference there would attach the citation to whichever
      aliased instrument happened to be mentioned nearby.
@@ -280,6 +302,44 @@ SIGNATURE_PHRASE_ROWS: tuple[tuple[str, str, str], ...] = (
 # inference (line tier), not explicit.
 SHARED_NUMBERING: tuple[frozenset[str], ...] = (frozenset(("GDPR", "UK GDPR")),)
 
+# Instruments whose whole-number article or section numbering is known to run
+# without gaps, so every interior number of an integer range ("GDPR Arts. 12 to
+# 22") is a provision (a repealed or omitted one keeps its number). A range under
+# any other instrument indexes its endpoints only: SOX numbers its sections by
+# title (s. 308 is followed by s. 401), 45 CFR numbers sections within a part and
+# Part 164 Subpart D uses only the even ones (164.400, 164.402 ... 164.414), and
+# the Cal. Civ. Code s. 1798 sections are sparse (1798.100, 1798.105, 1798.106,
+# 1798.110 ...); an unresolved citation's numbering is unknown. No instrument is
+# known to number its DECIMAL sub-sections contiguously, so a range from a
+# decimal section never lists its interior.
+CONTIGUOUS_NUMBERING: frozenset[str] = frozenset((
+    "GDPR", "UK GDPR", "EU AI Act", "MiCA", "DORA", "NIS2", "LGPD", "PIPL", "APPI", "FADP",
+    "LFPDPPP", "UU PDP", "KVKK", "PIPEDA", "PPCDA", "AIDA", "Quebec Law 25", "BC PIPA",
+    "Alberta PIPA", "POPIA", "PAIA", "DPDPA", "PDPA (Singapore)", "PDPA (Thailand)",
+    "PDPA (Malaysia)", "PDPL (Saudi Arabia)", "PDPL (UAE)", "PDPL (Vietnam)", "CPPA (Canada)",
+    "PIPA (South Korea)",
+))
+
+# (generic noun pattern, instruments): the noun each instrument calls itself.
+# After a prefix alias, "of the <noun>" re-names the SAME instrument ("PIPEDA
+# s. 10.1 of the Act", "the GDPR Article 83 of the Regulation", "HIPAA
+# §164.502(b) of the Privacy Rule"), so it does not refuse the alias; another
+# noun ("GDPR Article 5 of the Directive") names another instrument and does.
+SELF_NOUN_ROWS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (r"Regulation", ("GDPR", "UK GDPR", "MiCA", "DORA")),
+    (r"Regulation|Act", ("EU AI Act",)),
+    (r"Directive", ("NIS2",)),
+    (r"Law", ("LGPD", "PIPL", "LFPDPPP", "UU PDP", "KVKK", "PDPL (Saudi Arabia)", "PDPL (UAE)",
+              "PDPL (Vietnam)")),
+    (r"Act|Law", ("Quebec Law 25",)),
+    (r"Act", ("APPI", "FADP", "PIPEDA", "PPCDA", "AIDA", "BC PIPA", "Alberta PIPA", "POPIA", "PAIA",
+              "DPDPA", "SOX", "PDPA (Singapore)", "PDPA (Thailand)", "PDPA (Malaysia)",
+              "CPPA (Canada)", "PIPA (South Korea)")),
+    (r"Code|Act", ("Cal. Civ. Code",)),
+    (r"(?:(?:Privacy|Security|Breach\s+Notification|Enforcement)\s+)?Rules?", ("HIPAA (45 CFR)",)),
+)
+SELF_NOUNS: dict[str, str] = dict((canon, noun) for noun, canons in SELF_NOUN_ROWS for canon in canons)
+
 MAX_RANGE_SPAN = 30
 TIERS: tuple[str, ...] = ("explicit", "line", "heading", "section", "document")
 UNRESOLVED = "unresolved"
@@ -356,8 +416,12 @@ _SUB_SPLIT_RE = re.compile(r"\([^()]*\)")
 _EXPLICIT_ONLY_MARKERS = frozenset(("Sections", "Section", "sections", "section", "§§", "§"))
 _DECIMAL_RE = re.compile(r"(\d+)\.(\d+)")
 # A citation-shaped token that names a BODY, not a provision ("Article 29
-# Working Party", "Art. 29 WP"): it is skipped, never indexed.
-_BODY_NAME_RE = re.compile(r"\s+(?:Working\s+Party|WP)\b")
+# Working Party", "Art. 29 WP"): its trailing "29" is dropped, never indexed,
+# and any number cited before it is kept ("Arts. 28 and 29 WP" is Art. 28); a
+# body that does not end in "29" ("Article 35 WP 248": a WP document number)
+# is kept whole.
+_BODY_NAME_RE = re.compile(r"\s+(?:Data\s+Protection\s+)?(?:Working\s+Party|WP)\b")
+_BODY_NAME_29_RE = re.compile("(?:^|" + _SEP + ")29$")
 
 # Explicit adjacency: "GDPR Art.", "PIPEDA (s.", "the GDPR's Article", "Article 33 of the GDPR",
 # "Art 26 (PDPL)". A bracket-lead postfix alias counts only when the bracket closes right after
@@ -370,18 +434,38 @@ _PREFIX_TAIL_RE = re.compile(r"(?:'s)?\s*[,:]?\s*\(?\s*")
 _CONJ_RE = re.compile(r"\s*(?:[/&]|\band\b|\bor\b)\s*")
 # A point or subparagraph designation between a citation and "of <instrument>"
 # ("Article 9(2), point (g), of the GDPR") belongs to the pinpoint's wording: it
-# neither blocks postfix resolution nor hides an "of <Name>" refusal.
+# neither blocks postfix resolution nor hides an "of <Name>" refusal. A
+# structural qualifier ("of Chapter III", "of Part 2") names a division, not an
+# instrument, and is skipped the same way ("Article 12 of Chapter III of the
+# GDPR" is the GDPR's; "GDPR Article 12 of Chapter III" keeps its prefix alias).
+# It is matched possessively, so its "of Chapter" is never re-read as "of <Name>".
 _POINT = (
     r"(?:(?:,?\s*(?:(?:first|second|third|fourth|fifth|sixth)\s+subparagraph|points?\s+"
     r"\([a-z0-9]{1,4}\)(?:\s*(?:,|and|or|to)\s*\([a-z0-9]{1,4}\))*)){1,3}\s*,?\s+(?=of\b))?"
 )
-_POSTFIX_LEAD_RE = re.compile(r"\s*(?:" + _POINT + r"of\s+(?:the\s+)?|(?P<paren>\(\s*))?")
+_STRUCT = (
+    r"(?:\s*,?\s*of\s+(?:the\s+)?(?:[Cc]hapter|[Tt]itle|[Pp]art|[Ss]ection|[Ss]ubsection|[Ss]ubpart|"
+    r"[Ss]ubchapter|[Dd]ivision|[Ss]chedule|[Aa]nnex)\s+(?:[IVXLC]+|\d+)[A-Za-z]?(?!\w|\.\d))*+"
+)
+_TAIL_LEAD = r"\s*" + _POINT + _STRUCT + r"\s*,?\s*of\s+"
+_POSTFIX_LEAD_RE = re.compile(r"\s*(?:" + _POINT + _STRUCT + r"\s*,?\s*of\s+(?:the\s+)?|(?P<paren>\(\s*))?")
 _POSTFIX_CLOSE_RE = re.compile(r"\s*\)")
 _ANAPHOR_RE = re.compile(r"\b(?:its|whose|their)\s+$")
-_OF_THIS_RE = re.compile(r"\s*" + _POINT + r"of\s+(?:this|that|such|said)\s+[A-Z]?[a-z]+")
-_OF_OTHER_RE = re.compile(r"\s*" + _POINT + r"of\s+(?:the\s+)?[A-Z]")
+_OF_THIS_RE = re.compile(_TAIL_LEAD + r"(?:this|that|such|said)\s+[A-Z]?[a-z]+")
+_OF_OTHER_RE = re.compile(_TAIL_LEAD + r"(?:the\s+)?[A-Z]")
+# "of the <noun>" naming the prefix alias's own instrument (SELF_NOUNS), with
+# nothing after the noun that makes it another instrument's title ("of the
+# Regulation (EU) 2023/2854", "of the Act on ...", "of the Law No. 5").
+_SELF_NOUN_RE: dict[str, "re.Pattern[str]"] = dict(
+    (canon, re.compile(_TAIL_LEAD + r"the\s+(?:" + noun + r")(?![\w-])"
+                       r"(?!\s*\(|\s+(?:No\.?\s*)?\d|\s+(?:on|of|for)\b)"))
+    for canon, noun in SELF_NOUNS.items()
+)
+# "Code of Conduct" / "Code of Practice" after a citation is the provision's
+# subject ("GDPR Art. 40 Code of Conduct approval"), not an instrument's name.
 _POST_INSTRUMENT_RE = re.compile(
-    r"\s+(?:Regulation|Directive|Decision|Decree|Act|Law|Code|Statute|Convention|Ordinance)\b"
+    r"\s+(?:Regulation|Directive|Decision|Decree|Act|Law|Code(?!\s+of\s+(?:Conduct|Practice))|Statute|"
+    r"Convention|Ordinance)\b"
 )
 # Inference refusal, three branches, each anchored at the marker. (1) An
 # unaliased acronym or letter/slash-bearing identifier directly before the
@@ -408,10 +492,30 @@ _FOREIGN_PREFIX_RE = re.compile(
 # Security Safeguards Regulations") names that instrument, not the alias's, so
 # the citation is refused. A singular "Regulation", "Directive", "Act" or
 # "Rule" after the alias is the aliased instrument itself ("the NIS2
-# Directive"; the "HIPAA Security Rule" is 45 CFR Part 164) and is not.
+# Directive"; the "HIPAA Security Rule" is 45 CFR Part 164) and is not. A
+# capitalized descriptor may follow title words and "of"; a lowercase one
+# ("CCPA regulations", "the NIS2 implementing regulation", "the PIPEDA breach of
+# security safeguards regulations") may follow lowercase words too, but never
+# across a clause word or a listed verb ("Article 5 of the GDPR and national
+# regulations", "Article 9 of the GDPR overrides sectoral regulations" keep the
+# GDPR) and never after a possessive ("the GDPR's guidelines"). Lowercase
+# "rules", "order", "decree" and "ordinance" are too common in prose to count.
+_SUBORDINATE_CAP = (
+    r"RTS|ITS|Regulations|Rules|Implementing|Delegated|Guidelines|Technical\s+Standards|Decree|"
+    r"Ordinance|Order"
+)
+_SUBORDINATE_LOWER = r"regulations|implementing|delegated|guidelines|technical\s+standards"
+_CLAUSE_WORD = (
+    r"(?:and|or|but|nor|to|that|which|who|whose|where|when|while|if|is|are|was|were|be|been|has|"
+    r"have|had|do|does|did|may|must|shall|should|will|would|can|could|not|also|under|with|without|"
+    r"by|as|in|on|at|for|from|than|into|via|per|its|their|this|these|those|such|each|any|all|"
+    r"other|sets|lays|establishes|contains|imposes|requires|provides|grants|creates|defines|"
+    r"overrides|supersedes|replaces|mirrors|follows|applies|governs|allows|permits|prohibits|"
+    r"mandates|specifies|prescribes|introduces|extends|amends|complements|supplements)\b"
+)
 _SUBORDINATE_RE = re.compile(
-    r"(?:'s)?(?:\s+(?:[A-Z][\w&-]*|of)){0,5}?\s+(?:RTS|ITS|Regulations|Rules|Implementing|Delegated|"
-    r"Guidelines|Technical\s+Standards|Decree|Ordinance|Order)\b"
+    r"(?:'s)?(?:\s+(?:[A-Z][\w&-]*|of)){0,5}?\s+(?:" + _SUBORDINATE_CAP + r")\b"
+    r"|(?:\s+(?!" + _CLAUSE_WORD + r")[A-Za-z][\w&-]*){0,5}?\s+(?:" + _SUBORDINATE_LOWER + r")\b"
 )
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 TITLE_RE = re.compile(r"^\*\*Document Title:\*\*\s*(.+?)\s*\\?$", re.M)
@@ -495,53 +599,41 @@ def _single(instruments: list[str]) -> "str | None":
     return instruments[0] if len(set(instruments)) == 1 else None
 
 
-def _decimal_end(base: str, num: str) -> "tuple[str | None, list[str]]":
-    """Endpoint and interior sections of a range that STARTS at a decimal section.
+def _decimal_end(base: str, num: str) -> "str | None":
+    """Endpoint of a range that STARTS at a decimal section.
 
     ``HIPAA §164.400 to 414`` abbreviates ``164.414``. An integer endpoint
     reads as ABBREVIATED when it has the start's sub-number width and
     ascends from it, and as a WHOLE section (``s. 10.1 to 12``) when it
     ascends from the start's section by at most ``MAX_RANGE_SPAN``. Exactly
     one reading must hold; otherwise (``ss. 3.1 to 5``: s. 3.5, or s. 5?)
-    the endpoint is doubtful and returned as None. A decimal endpoint is
-    kept as written. Interior sections are listed only for a same-section
-    range of one sub-number width spanning at most ``MAX_RANGE_SPAN`` steps
-    (``164.401`` ... ``164.413``).
+    the endpoint is doubtful and returned as None. Any other endpoint is
+    kept as written. The range's interior is never listed (see
+    ``CONTIGUOUS_NUMBERING``): 45 CFR has no s. 164.401.
     """
     whole, sub = _DECIMAL_RE.fullmatch(base).groups()
-    full = _DECIMAL_RE.fullmatch(num)
-    if full:
-        if full.group(1) != whole or len(full.group(2)) != len(sub):
-            return num, []
-        end_sub = full.group(2)
-    elif num.isdigit():
-        abbreviated = len(num) == len(sub) and int(num) > int(sub)
-        whole_end = 0 < int(num) - int(whole) <= MAX_RANGE_SPAN
-        if abbreviated == whole_end:
-            return None, []
-        if whole_end:
-            return num, []
-        end_sub = num
-    else:
-        return num, []
-    end = whole + "." + end_sub
-    lo, hi = int(sub), int(end_sub)
-    if not 0 < hi - lo <= MAX_RANGE_SPAN:
-        return end, []
-    return end, [whole + "." + str(n).zfill(len(sub)) for n in range(lo + 1, hi)]
+    if not num.isdigit():
+        return num
+    abbreviated = len(num) == len(sub) and int(num) > int(sub)
+    whole_end = 0 < int(num) - int(whole) <= MAX_RANGE_SPAN
+    if abbreviated == whole_end:
+        return None
+    return num if whole_end else whole + "." + num
 
 
-def expand_body(body: str) -> list[tuple[str, str, bool]]:
-    """``(section, pinpoint, certain)`` triples for a citation body such as ``10.1(2) and (6)``.
+def expand_body(body: str) -> list[tuple[str, str, bool, bool]]:
+    """``(section, pinpoint, certain, interior)`` for a citation body such as ``10.1(2) and (6)``.
 
     ``certain`` is False only for a doubtful range endpoint (see
     ``_decimal_end``) and a bare continuation of one: the caller records
-    those as unresolved rather than keying a guessed section. A range's
-    endpoints carry their own pinpoints as cited (``25``, ``39(2)``); only
-    the interior sections, which the text never names, carry the range
-    (``25 to 39``).
+    those as unresolved rather than keying a guessed section. ``interior``
+    marks a section inside a whole-number range, which the text never
+    names: the caller keys it only under an instrument in
+    ``CONTIGUOUS_NUMBERING``. A range's endpoints carry their own pinpoints
+    as cited (``25``, ``39(2)``); only the interior sections carry the
+    range (``25 to 39``). A range from a decimal section lists no interior.
     """
-    out: list[tuple[str, str, bool]] = []
+    out: list[tuple[str, str, bool, bool]] = []
     base: "str | None" = None
     base_subs: list[str] = []
     base_certain = True
@@ -560,7 +652,7 @@ def expand_body(body: str) -> list[tuple[str, str, bool]]:
                 subs = _SUB_SPLIT_RE.findall(tok.group("bare"))
                 kept = base_subs[: -len(subs)] if len(subs) < len(base_subs) else []
                 base_subs = kept + subs
-                out.append((base, base + "".join(base_subs), base_certain))
+                out.append((base, base + "".join(base_subs), base_certain, False))
             pending_range = False
             continue
         num, subs = tok.group("item"), tok.group("subs") or ""
@@ -572,7 +664,7 @@ def expand_body(body: str) -> list[tuple[str, str, bool]]:
                 # the preceding number (chained folds keep folding).
                 out.pop()
                 num = base + "-" + num
-                out.append((num, num + subs, base_certain))
+                out.append((num, num + subs, base_certain, False))
                 base = num
                 base_subs = _SUB_SPLIT_RE.findall(subs)
                 branch = True
@@ -581,15 +673,14 @@ def expand_body(body: str) -> list[tuple[str, str, bool]]:
             if base.isdigit() and num.isdigit():
                 lo, hi = int(base), int(num)
                 if 0 < hi - lo <= MAX_RANGE_SPAN:
-                    out.extend((str(n), base + " to " + num, True) for n in range(lo + 1, hi))
+                    out.extend((str(n), base + " to " + num, True, True) for n in range(lo + 1, hi))
             elif base_certain and _DECIMAL_RE.fullmatch(base):
-                end, interior = _decimal_end(base, num)
+                end = _decimal_end(base, num)
                 if end is None:
                     certain = False
                 else:
-                    out.extend((s, base + " to " + end, True) for s in interior)
                     num = end
-        out.append((num, num + subs, certain))
+        out.append((num, num + subs, certain, False))
         base = num
         base_subs = _SUB_SPLIT_RE.findall(subs)
         base_certain = certain
@@ -660,15 +751,22 @@ def _resolve_citation(
     """
     pre, post = line[:m.start()], line[m.end():]
     # A tail naming an instrument ("of the Data Act", "of that Regulation",
-    # "Regulation (EU) 2023/2854") says whose provision this is, so an alias
-    # BEFORE the citation, however adjacent, is not trusted as its instrument.
-    other_tail = bool(_OF_THIS_RE.match(post) or _OF_OTHER_RE.match(post)
+    # "Regulation (EU) 2023/2854"), past any point designation or structural
+    # qualifier ("of Chapter III"), says whose provision this is, so an alias
+    # BEFORE the citation, however adjacent, is not trusted as its instrument,
+    # unless the tail is that alias's own generic noun ("PIPEDA s. 10.1 of the
+    # Act"), which re-names it.
+    named_tail = bool(_OF_THIS_RE.match(post) or _OF_OTHER_RE.match(post)
                       or _POST_INSTRUMENT_RE.match(post))
     excluded = set(claimed)
     pre_alias = None
     for a in ALIAS_RE.finditer(pre):
         if _PREFIX_TAIL_RE.fullmatch(pre, a.end()):
             pre_alias = a
+    other_tail = named_tail
+    if pre_alias and named_tail:
+        self_noun = _SELF_NOUN_RE.get(resolve_alias(pre_alias.group(0), line, pre_alias.start(), rel))
+        other_tail = not (self_noun and self_noun.match(post))
     if pre_alias and not other_tail:
         close = post.find(")")
         gloss = "(" in pre[pre_alias.end():] and bool(
@@ -713,7 +811,7 @@ def _resolve_citation(
             return [], UNRESOLVED, False, None
         return [(instrument, "explicit")], "explicit", False, m.end() + post_alias.start()
     foreign = bool(_FOREIGN_PREFIX_RE.search(pre))
-    if foreign or _ANAPHOR_RE.search(pre) or other_tail:
+    if foreign or _ANAPHOR_RE.search(pre) or named_tail:
         return [], UNRESOLVED, foreign, None
     if poisoned:
         return [], UNRESOLVED, False, None
@@ -745,9 +843,15 @@ def scan_text(rel: str, text: str) -> list[Citation]:
         poisoned = False
         claimed: set[int] = set()
         for m in CITE_RE.finditer(line):
+            body = m.group("body")
             if _BODY_NAME_RE.match(line, m.end()):
-                # "Article 29 Working Party" names a body, not a provision.
-                continue
+                # "Article 29 Working Party" names a body, not a provision: its
+                # "29" is dropped, and anything cited before it is kept.
+                body_29 = _BODY_NAME_29_RE.search(body)
+                if body_29 is not None:
+                    if not body_29.start():
+                        continue
+                    body = body[:body_29.start()]
             attributions, tier, foreign, claim = _resolve_citation(m, line, rel, poisoned, claimed)
             poisoned = poisoned or foreign
             if claim is not None:
@@ -759,6 +863,14 @@ def scan_text(rel: str, text: str) -> list[Citation]:
                 attributions = [(i, t) for i, t in attributions if t == "explicit"]
             if tier == _NEEDS_CONTEXT:
                 instrument, tier = _context(stack[:-1] if heading else stack, doc_instrument)
+                bound = set(resolve_alias(a.group(0), line, a.start(), rel)
+                            for a in ALIAS_RE.finditer(line, 0, m.start()) if a.start() in claimed)
+                if instrument is not None and bound - set((instrument,)):
+                    # An earlier alias on the line is bound to an earlier postfix
+                    # citation ("Article 33 of the GDPR ...; Article 34 ...") and the
+                    # context names a DIFFERENT instrument: either could be meant, so
+                    # the conflict is refused rather than guessed.
+                    instrument, tier = None, UNRESOLVED
                 attributions = [(instrument, tier)] if instrument is not None else []
             family = _marker_family(marker)
             if attributions and MARKER_STYLE.get(attributions[-1][0]) != family:
@@ -774,8 +886,16 @@ def scan_text(rel: str, text: str) -> list[Citation]:
                 attributions = [(i, t) for i, t in attributions if MARKER_STYLE.get(i) == family]
             resolved_here = resolved_here or bool(attributions)
             snippet = _snippet(line, m.start(), m.end())
-            for section, pinpoint, certain in expand_body(m.group("body")):
-                for instrument, record_tier in (attributions if certain else []) or [(None, UNRESOLVED)]:
+            for section, pinpoint, certain, interior in expand_body(body):
+                records = attributions if certain else []
+                if interior:
+                    # A range's interior is keyed only under an instrument that
+                    # numbers without gaps; elsewhere, and when unresolved, only the
+                    # endpoints the text names are indexed.
+                    records = [(i, t) for i, t in records if i in CONTIGUOUS_NUMBERING]
+                    if not records:
+                        continue
+                for instrument, record_tier in records or [(None, UNRESOLVED)]:
                     out.append(Citation(rel, lineno, m.start(), instrument, section, pinpoint,
                                         record_tier, snippet))
         if not heading and not resolved_here:
@@ -845,15 +965,19 @@ def parse_key(spec: str) -> "str | None":
 
     Accepts a key exactly as the tools print it (``PDPA (Singapore) s. 26D``,
     ``HIPAA (45 CFR) s. 164.308``: a canonical instrument name, then a
-    citation of that instrument's marker family) or an explicit citation
-    (``PIPEDA s.10.1(3)``, ``Singapore PDPA s. 26D``).
+    citation of that instrument's marker family, and nothing after it) or
+    an explicit citation (``PIPEDA s.10.1(3)``, ``Singapore PDPA s. 26D``),
+    which the scanner reads with every explicit-tier refusal (``GDPR Art.
+    33 of the DORA`` is DORA Art. 33; ``GDPR Article 12 of the Data Act``
+    names no key).
     """
     text = spec.strip()
     for canon in _CANONICAL_BY_LENGTH:
         if text.startswith(canon + " "):
             cite = CITE_RE.match(text, len(canon) + 1)
-            if cite and _marker_family(cite.group("marker")) == MARKER_STYLE[canon]:
-                sections = [s for s, _p, certain in expand_body(cite.group("body")) if certain]
+            if (cite and cite.end() == len(text)
+                    and _marker_family(cite.group("marker")) == MARKER_STYLE[canon]):
+                sections = [s for s, _p, certain, _interior in expand_body(cite.group("body")) if certain]
                 if sections:
                     return provision_key(canon, sections[0])
     for c in scan_text("<key>", spec):

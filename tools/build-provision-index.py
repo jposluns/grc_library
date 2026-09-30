@@ -45,13 +45,31 @@ RESIDUE (stated, not hidden):
     document naming no instrument all land in the unresolved bucket
     (``--show-unresolved``), not under a key; ``Section`` / ``§`` citations
     count only with the instrument adjacent; Recitals, Schedules, Annexes and
-    ``Principle 4.3`` forms are not parsed; ranges wider than MAX_RANGE_SPAN
-    index their endpoints only; a decimal range whose integer endpoint reads
-    two ways or neither (``ss. 3.1 to 5``: s. 3.5 or s. 5?) records that
-    endpoint unresolved; and the line tier never reuses an alias an earlier
-    citation on the line took as its postfix instrument, so a bare citation
-    that DOES continue that instrument (``Article 33 of the GDPR ... (Art.
-    34)``) falls to the heading chain or stays unresolved.
+    ``Principle 4.3`` forms are not parsed; a range indexes its endpoints
+    only when it is wider than MAX_RANGE_SPAN, starts at a decimal section
+    (``PIPEDA ss. 10.1 to 10.3`` keys s. 10.1 and s. 10.3, not s. 10.2;
+    ``HIPAA §164.400 to 414`` keys neither 164.402 nor the other real
+    even-numbered sections inside it), is unresolved, or resolves to an
+    instrument outside CONTIGUOUS_NUMBERING (SOX, 45 CFR, Cal. Civ. Code:
+    ``SOX ss. 302 to 306`` keys s. 302 and s. 306 only), since only there
+    is every interior number known to be a provision; a decimal range
+    whose integer endpoint reads two ways or neither (``ss. 3.1 to 5``:
+    s. 3.5 or s. 5?) records that endpoint unresolved; the line tier never
+    reuses an alias an earlier citation on the line took as its postfix
+    instrument, so a bare citation that DOES continue that instrument
+    (``Article 33 of the GDPR ... (Art. 34)``) falls to the heading chain
+    when the heading names the same instrument, and stays unresolved
+    otherwise; a prefix alias followed by ``of the <Name>`` is refused even
+    where the name is that instrument's full title (``PIPEDA s. 10.1 of the
+    Personal Information Protection and Electronic Documents Act``) or its
+    generic noun continued like a title (``of the Act (PIPEDA)``, ``of the
+    Regulation on ...``), since only a structural qualifier (``of Chapter
+    III``) and the bare generic noun in SELF_NOUNS (``of the Act``) are
+    known not to name another instrument; without an adjacent alias, ``of
+    the Regulation`` still refuses inference; and a lowercase verb outside
+    the subordinate-instrument stop list before a lowercase descriptor
+    (``Article 5 of the GDPR harmonises regulations``) refuses a correct
+    postfix alias.
   - False positives: the explicit tier requires a KNOWN adjacent alias
     whose marker family matches the citation's marker; an unaliased token,
     an ambiguous alias whose jurisdiction contradicts or never resolves
@@ -70,10 +88,16 @@ RESIDUE (stated, not hidden):
     GDPR, Article 12 applies`` in a Data Act paragraph), is still an
     EXPLICIT record of that alias; the subordinate-instrument words are a
     fixed list (RTS, ITS, Regulations, Rules, Implementing, Delegated,
-    Guidelines, Technical Standards, Decree, Ordinance, Order), so another
-    subordinate form (``Article 5 of the GDPR Code of Conduct``) is still
-    keyed to the alias; and a conjoined prefix of two instruments that share
-    article numbering (``GDPR / UK GDPR Article 21``, the only such pair in
+    Guidelines, Technical Standards, Decree, Ordinance, Order, and the
+    lowercase regulations, implementing, delegated, guidelines and technical
+    standards), so another subordinate form (``Article 5 of the GDPR Code of
+    Conduct``; ``s. 7012 of the CCPA rules``, since lowercase ``rules`` is
+    too common in prose to count) is still keyed to the alias; the
+    SELF_NOUNS exemption trusts ``of the Regulation`` after a GDPR prefix
+    even where the prose means another regulation it named earlier (the
+    adjacency residue above, in another form); and a conjoined prefix of two
+    instruments that share article numbering (``GDPR / UK GDPR Article
+    21``, the only such pair in
     SHARED_NUMBERING) indexes the citation under BOTH, explicitly, even
     where the prose meant to qualify one (the provision is the same text in
     both, so the sibling is real either way). Every other conjoined member
@@ -91,8 +115,13 @@ RESIDUE (stated, not hidden):
     the line tier never sees a table's header row, so a cell whose
     instrument is named only in the header is attributed to the last
     instrument an earlier cell of the SAME row names (or, with none, to the
-    heading chain). A seeded phrase can restate a different regime whose
-    wording matches; keys are section-level, so s. 10.1(1) and s. 10.1(6)
+    heading chain). An alias-led bracket gloss sends its citation to the
+    heading chain without the lead, so a heading naming another instrument
+    takes it (``## DORA mapping`` over ``GDPR (Art. 6(1)(f), balanced
+    against the GDPR Art. 21 objection)`` is heading-tier DORA Art. 6; the
+    same rule resolves the MiCA annex's Art 68(7) to MiCA, correctly). A
+    seeded phrase can restate a different regime whose wording matches;
+    keys are section-level, so s. 10.1(1) and s. 10.1(6)
     are siblings even when a change touched only one of them.
   - Refused rather than guessed (in the unresolved bucket): a citation whose
     marker family disagrees with the resolved instrument's marker style
@@ -106,10 +135,14 @@ RESIDUE (stated, not hidden):
     citation whose line earlier names two different instruments (a comma
     chain, ``UK GDPR, LGPD Art 37``, never extends prefix adjacency: it is
     a framework enumeration, and only LGPD is keyed), a non-explicit
-    citation after a foreign-prefix refusal on the same line, and a bare
+    citation after a foreign-prefix refusal on the same line, a bare
     citation whose innermost section body and an enclosing heading name
-    different instruments. A citation-shaped body name (``Article 29
-    Working Party``) is skipped, not recorded at all.
+    different instruments, and a bare citation whose earlier aliases on the
+    line are bound to earlier postfix citations of an instrument the
+    heading chain contradicts (``## NIS2 reporting`` over ``Article 33 of
+    the GDPR ...; Article 34 ...``). The ``29`` of a citation-shaped body
+    name (``Article 29 Working Party``) is skipped, not recorded at all;
+    only that ``29`` is (``Arts. 28 and 29 WP`` keeps Art. 28).
   Filter with --min-tier explicit for the highest-precision subset.
 
 Stdlib-only Python 3.11.
