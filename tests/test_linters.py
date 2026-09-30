@@ -16731,6 +16731,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertEqual(rc, 0)
         self.assertIn("all dated sources are within their re-check windows", out)
         self.assertNotIn("WARN:", out)
+        self.assertNotIn("DUE-SOON", out)   # 360 days left: outside the band
 
     def test_past_window_row_warns_but_exit_0(self) -> None:
         mod = self._load("_cadence_stale")
@@ -16789,6 +16790,214 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("all dated sources are within their re-check windows", out)
         self.assertNotIn("WARN:", out)
         self.assertNotIn("using the", out)  # no unmapped-heading default note
+
+    # Due-soon band (DUE_SOON_DAYS = 21). Standards tier (365-day window), today
+    # pinned to 2026-07-15. Each boundary fixture names the mutation it kills.
+
+    def _band(self, unique: str, verified: str):
+        mod = self._load(unique)
+        reg = self._HEADER + (
+            f"| ISO/IEC BAND | 2019 | 2019-01 | y | - | http://y | verified {verified} |\n"
+        )
+        return self._run(mod, reg, today=(2026, 7, 15))
+
+    def _section(self, heading: str) -> str:
+        """_HEADER's table under another '## <heading>' (so another tier)."""
+        return self._HEADER.replace("ISO / IEC standards", heading, 1)
+
+    def test_due_soon_row_listed_not_warned(self) -> None:
+        rc, out = self._band("_cadence_band_5", "2025-07-20")   # age 360, 5 days left
+        self.assertEqual(rc, 0)
+        self.assertIn("DUE-SOON: 1 source(s) in 1 batch(es) have 21 or fewer days left in their "
+                      "re-check window (advisory):", out)
+        self.assertIn("ISO/IEC BAND", out)
+        self.assertIn("[standards, 365-day]", out)
+        self.assertIn("stale from 2026-07-21 (in 6 day(s))", out)
+        # The live test's three output assertions still hold while a row is due soon.
+        self.assertIn("all dated sources are within their re-check windows", out)
+        self.assertNotIn("WARN:", out)
+        self.assertNotIn("using the", out)
+
+    def test_due_soon_age_equal_to_window_is_listed(self) -> None:
+        # age 365 = window, 0 days left: the last clean day. Kills `>` -> `>=` in the
+        # stale test and a band that starts at 1 day left.
+        rc, out = self._band("_cadence_band_0", "2025-07-15")
+        self.assertIn("DUE-SOON  verified 2025-07-15", out)
+        self.assertIn("stale from 2026-07-16 (in 1 day(s))", out)
+        self.assertNotIn("WARN:", out)
+
+    def test_due_soon_band_edge_inclusive(self) -> None:
+        # age 344, 21 days left = DUE_SOON_DAYS: listed. Kills `<=` -> `<`. The
+        # stale-from date is the day after the window ends (365 + 1 days after the
+        # verified date). Kills an off-by-one in stale_from or in the days left.
+        rc, out = self._band("_cadence_band_21", "2025-08-05")
+        self.assertIn("DUE-SOON  verified 2025-08-05", out)
+        self.assertIn("stale from 2026-08-06 (in 22 day(s)): ISO/IEC BAND", out)
+
+    def test_due_soon_band_edge_plus_one_not_listed(self) -> None:
+        # age 343, 22 days left: outside the band. Kills an off-by-one that widens it.
+        rc, out = self._band("_cadence_band_22", "2025-08-06")
+        self.assertNotIn("DUE-SOON", out)
+        self.assertIn("all dated sources are within their re-check windows", out)
+
+    def test_stale_row_is_not_also_due_soon(self) -> None:
+        # age 366: stale (WARN), never double-listed. Kills `elif` -> `if`.
+        rc, out = self._band("_cadence_band_stale", "2025-07-14")
+        self.assertEqual(rc, 0)
+        self.assertIn("WARN:", out)
+        self.assertNotIn("DUE-SOON", out)
+
+    def test_due_soon_dataset_tier_utc_rollover(self) -> None:
+        # The incident shape: a 90-day dataset row verified 2026-06-30 is due soon on
+        # 2026-09-28 (0 days left) and stale on 2026-09-29, the next UTC day.
+        mod = self._load("_cadence_band_dataset")
+        reg = (
+            "## AI safety evaluation programmes\n\n"
+            "| Standard ID | Current version | Publication date | Topic | "
+            "Superseded versions | Upstream check location | Last verified (UTC) |\n"
+            "| --- | --- | --- | --- | --- | --- | --- |\n"
+            "| DS ROW | v1 | 2026 | x | - | http://ds | verified 2026-06-30 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 9, 28))
+        self.assertIn("[dataset, 90-day]", out)
+        self.assertIn("stale from 2026-09-29 (in 1 day(s)): DS ROW", out)
+        self.assertNotIn("WARN:", out)
+        rc, out = self._run(mod, reg, today=(2026, 9, 29))
+        self.assertIn("WARN:", out)
+        self.assertIn("90-day", out)
+        self.assertNotIn("DUE-SOON", out)
+
+    def test_due_soon_rows_batched_and_sorted(self) -> None:
+        # Two rows on one date form one batch; batches sort by stale-from date,
+        # not register order.
+        mod = self._load("_cadence_band_batch")
+        reg = self._HEADER + (
+            "| ISO/IEC LATER | 2019 | 2019-01 | y | - | http://y | verified 2025-07-25 |\n"
+            "| ISO/IEC A | 2019 | 2019-01 | y | - | http://y | verified 2025-07-20 |\n"
+            "| ISO/IEC B | 2019 | 2019-01 | y | - | http://y | 2025-07-20 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertIn("DUE-SOON: 3 source(s) in 2 batch(es)", out)
+        self.assertIn(
+            "2 row(s), stale from 2026-07-21 (in 6 day(s)): ISO/IEC A, ISO/IEC B", out)
+        self.assertIn("1 row(s), stale from 2026-07-26 (in 11 day(s)): ISO/IEC LATER", out)
+        self.assertLess(out.index("verified 2025-07-20"), out.index("verified 2025-07-25"))
+
+    def test_due_soon_batches_sort_across_tiers_by_stale_from(self) -> None:
+        # A 90-day dataset row verified later (2026-07-10) goes stale sooner
+        # (2026-10-09) than a 365-day standards row verified earlier (2025-10-20,
+        # stale 2026-10-21), and the standards table comes first in the register.
+        # Kills a sort on last-verified date, a reversed sort, and a dropped sort
+        # (register order).
+        mod = self._load("_cadence_band_cross_tier")
+        reg = self._HEADER + (
+            "| ISO/IEC EARLY | 2019 | 2019-01 | y | - | http://y | verified 2025-10-20 |\n"
+            "\n" + self._section("AI safety evaluation programmes")
+            + "| DS ROW | v1 | 2026 | x | - | http://ds | verified 2026-07-10 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 10, 1))
+        self.assertEqual(rc, 0)
+        self.assertIn("DUE-SOON: 2 source(s) in 2 batch(es)", out)
+        ds = ("DUE-SOON  verified 2026-07-10 [dataset, 90-day]: "
+              "1 row(s), stale from 2026-10-09 (in 8 day(s)): DS ROW")
+        std = ("DUE-SOON  verified 2025-10-20 [standards, 365-day]: "
+               "1 row(s), stale from 2026-10-21 (in 20 day(s)): ISO/IEC EARLY")
+        self.assertIn(ds, out)
+        self.assertIn(std, out)
+        self.assertLess(out.index(ds), out.index(std))
+        self.assertNotIn("WARN:", out)
+
+    def test_due_soon_cross_tier_sort_ignores_tier_and_window(self) -> None:
+        # Stale-from order disagrees with tier-label order and with window order:
+        # a 365-day standards row verified 2025-10-05 goes stale 2026-10-06, before
+        # a 90-day dataset row verified 2026-07-10 (stale 2026-10-09), but "dataset"
+        # sorts before "standards" and 90 before 365. The dataset table comes first
+        # in the register. Kills a sort on (tier, stale-from), a sort on (window,
+        # stale-from), and a dropped sort (register order).
+        mod = self._load("_cadence_band_tier_window")
+        reg = self._section("AI safety evaluation programmes") + (
+            "| DS ROW | v1 | 2026 | x | - | http://ds | verified 2026-07-10 |\n"
+            "\n" + self._HEADER
+            + "| ISO/IEC SOON | 2019 | 2019-01 | y | - | http://y | verified 2025-10-05 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 10, 1))
+        self.assertEqual(rc, 0)
+        self.assertIn("DUE-SOON: 2 source(s) in 2 batch(es)", out)
+        std = ("DUE-SOON  verified 2025-10-05 [standards, 365-day]: "
+               "1 row(s), stale from 2026-10-06 (in 5 day(s)): ISO/IEC SOON")
+        ds = ("DUE-SOON  verified 2026-07-10 [dataset, 90-day]: "
+              "1 row(s), stale from 2026-10-09 (in 8 day(s)): DS ROW")
+        self.assertIn(std, out)
+        self.assertIn(ds, out)
+        self.assertLess(out.index(std), out.index(ds))
+        self.assertNotIn("WARN:", out)
+
+    def test_due_soon_same_date_two_tiers_are_separate_batches(self) -> None:
+        # A standards row and a framework row share a last-verified date and a
+        # 365-day window, so they share a stale-from date too. The tier is part of
+        # the batch key: two batches, each with its own label. Kills a key without
+        # the tier (one merged 2-row batch under one label).
+        mod = self._load("_cadence_band_two_tier")
+        reg = self._HEADER + (
+            "| ISO/IEC STD | 2019 | 2019-01 | y | - | http://y | verified 2025-07-20 |\n"
+            "\n" + self._section("CSA frameworks")
+            + "| CSA FW | v4 | 2021 | x | - | http://fw | verified 2025-07-20 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("DUE-SOON: 2 source(s) in 2 batch(es)", out)
+        self.assertIn("DUE-SOON  verified 2025-07-20 [standards, 365-day]: "
+                      "1 row(s), stale from 2026-07-21 (in 6 day(s)): ISO/IEC STD", out)
+        self.assertIn("DUE-SOON  verified 2025-07-20 [framework, 365-day]: "
+                      "1 row(s), stale from 2026-07-21 (in 6 day(s)): CSA FW", out)
+        self.assertEqual(out.count("DUE-SOON  verified "), 2)
+
+    def test_due_soon_band_lines_start_with_prefix(self) -> None:
+        # The runner echoes only lines that start with DUE-SOON, so every band line
+        # needs the prefix at column 0. Real linter output with every branch present
+        # (WARN, unmapped-heading note, three batches, one of them default-tier).
+        # Kills an indented or re-worded band line and a band line without the
+        # prefix; the runner would drop any of them without a sound.
+        mod = self._load("_cadence_band_prefix")
+        reg = self._HEADER + (
+            "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+            "| ISO/IEC A | 2019 | 2019-01 | y | - | http://y | verified 2025-07-20 |\n"
+            "| ISO/IEC LATER | 2019 | 2019-01 | y | - | http://y | verified 2025-07-25 |\n"
+            "\n" + self._section("Unmapped future table")
+            + "| NEW ROW | v1 | 2026 | x | - | http://n | verified 2025-07-22 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        self.assertEqual(rc, 0)
+        self.assertIn("WARN: 1 source(s)", out)
+        self.assertIn("using the 365-day default: Unmapped future table", out)
+        self.assertIn("[default, 365-day]", out)
+        band = [ln for ln in out.splitlines() if "DUE-SOON" in ln]
+        self.assertEqual(len(band), 5, out)   # summary + 3 batches + closing advice
+        for ln in band:
+            self.assertTrue(ln.startswith("DUE-SOON"), ln)
+
+    def test_runner_echoes_due_soon_lines_of_a_passing_gate(self) -> None:
+        # tools/run_all_audits.sh hides a passing gate's output; its OK branch echoes
+        # only lines that start with DUE-SOON. Runs the shipped run_gate body against
+        # stub gates, so the test tracks the real function. The mid-line DUE-SOON
+        # stub line kills an unanchored grep.
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        start = src.index("run_gate() {")
+        func = src[start:src.index("\n}\n", start) + 3]
+        script = (
+            "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func
+            + "run_gate \"Stub due\" printf "
+            + "'head\\nnote DUE-SOON mid\\nDUE-SOON: 1 batch\\nDUE-SOON  row x\\n'\n"
+            + "run_gate \"Stub quiet\" printf 'all clean\\n'\n"
+        )
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("      DUE-SOON: 1 batch", r.stdout)
+        self.assertIn("      DUE-SOON  row x", r.stdout)
+        self.assertNotIn("head", r.stdout)
+        self.assertNotIn("DUE-SOON mid", r.stdout)   # "note DUE-SOON mid": not echoed
+        self.assertNotIn("all clean", r.stdout)
+        self.assertEqual(r.stdout.count("... OK"), 2)
 
 
 class AdoptPreflightGuardTests(unittest.TestCase):
