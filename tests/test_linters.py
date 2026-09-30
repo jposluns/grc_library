@@ -16826,9 +16826,12 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("WARN:", out)
 
     def test_due_soon_band_edge_inclusive(self) -> None:
-        # age 344, 21 days left = DUE_SOON_DAYS: listed. Kills `<=` -> `<`.
+        # age 344, 21 days left = DUE_SOON_DAYS: listed. Kills `<=` -> `<`. The
+        # stale-from date is the day after the window ends (365 + 1 days after the
+        # verified date). Kills an off-by-one in stale_from or in the days left.
         rc, out = self._band("_cadence_band_21", "2025-08-05")
         self.assertIn("DUE-SOON  verified 2025-08-05", out)
+        self.assertIn("stale from 2026-08-06 (in 22 day(s)): ISO/IEC BAND", out)
 
     def test_due_soon_band_edge_plus_one_not_listed(self) -> None:
         # age 343, 22 days left: outside the band. Kills an off-by-one that widens it.
@@ -16901,6 +16904,31 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn(ds, out)
         self.assertIn(std, out)
         self.assertLess(out.index(ds), out.index(std))
+        self.assertNotIn("WARN:", out)
+
+    def test_due_soon_cross_tier_sort_ignores_tier_and_window(self) -> None:
+        # Stale-from order disagrees with tier-label order and with window order:
+        # a 365-day standards row verified 2025-10-05 goes stale 2026-10-06, before
+        # a 90-day dataset row verified 2026-07-10 (stale 2026-10-09), but "dataset"
+        # sorts before "standards" and 90 before 365. The dataset table comes first
+        # in the register. Kills a sort on (tier, stale-from), a sort on (window,
+        # stale-from), and a dropped sort (register order).
+        mod = self._load("_cadence_band_tier_window")
+        reg = self._section("AI safety evaluation programmes") + (
+            "| DS ROW | v1 | 2026 | x | - | http://ds | verified 2026-07-10 |\n"
+            "\n" + self._HEADER
+            + "| ISO/IEC SOON | 2019 | 2019-01 | y | - | http://y | verified 2025-10-05 |\n"
+        )
+        rc, out = self._run(mod, reg, today=(2026, 10, 1))
+        self.assertEqual(rc, 0)
+        self.assertIn("DUE-SOON: 2 source(s) in 2 batch(es)", out)
+        std = ("DUE-SOON  verified 2025-10-05 [standards, 365-day]: "
+               "1 row(s), stale from 2026-10-06 (in 5 day(s)): ISO/IEC SOON")
+        ds = ("DUE-SOON  verified 2026-07-10 [dataset, 90-day]: "
+              "1 row(s), stale from 2026-10-09 (in 8 day(s)): DS ROW")
+        self.assertIn(std, out)
+        self.assertIn(ds, out)
+        self.assertLess(out.index(std), out.index(ds))
         self.assertNotIn("WARN:", out)
 
     def test_due_soon_same_date_two_tiers_are_separate_batches(self) -> None:
