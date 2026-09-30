@@ -33,7 +33,7 @@
 # Scope boundary: this guard gates PUSHES (the two post-commit / pre-push
 # runners plus the conditional `.web/build.py --check`). The commit-time hygiene gate, `preflight-changelog.py`, runs
 # on COMMITS from the installed pre-commit hook
-# (tools/check-changelog-preflight-commit.py) whenever CHANGELOG.md is staged, because it inspects newly-added working-tree lines that
+# (tools/check-changelog-preflight-commit.py) on each `git commit` that stages CHANGELOG.md, because it inspects newly-added working-tree lines that
 # are already committed by push time. The two helpers are complementary,
 # not redundant.
 #

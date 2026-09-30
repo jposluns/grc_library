@@ -26,7 +26,7 @@ drive end-to-end on the maintainer's behalf:
    The guard runs as an `&&`-chained step, not from a git pre-push hook, because it was
    written when git hooks did not fire in this environment. The per-clone hooks that
    `tools/install-git-hooks.sh` installs do fire now (its pre-commit hook runs
-   `preflight-changelog.py --staged` in every commit that stages `CHANGELOG.md`), but the
+   `preflight-changelog.py --staged` in each `git commit` that stages `CHANGELOG.md`), but the
    guard stays an explicit `&&` step so a push is gated even in a clone that never ran the
    installer.
 2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin

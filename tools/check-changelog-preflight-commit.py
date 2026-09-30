@@ -61,8 +61,8 @@ commits are outside this hook); `git commit --amend` checks only what the amend 
 preflight does; a merge that git commits itself (a clean `git merge` runs pre-merge-commit, not
 pre-commit) is not checked; nor is a commit that git's sequencer makes itself, for which git runs no
 pre-commit hook (3b141 QA r2): every `git rebase` pick, including one concluded by
-`git rebase --continue` after a CHANGELOG.md conflict, and a cherry-pick or revert that applies
-cleanly. No hook can refuse those commits (post-rewrite runs after they exist). A conflict resolved at
+`git rebase --continue` after a CHANGELOG.md conflict, a cherry-pick or revert that applies
+cleanly, and a `git am` commit (git am runs pre-applypatch, not pre-commit). No hook can refuse those commits (post-rewrite runs after they exist). A conflict resolved at
 a rebase stop IS checked when `git commit` concludes it before `git rebase --continue`, and a root
 CHANGELOG.md dash that a rebase carries still meets the D3 delta gate (tools/run-pr-time-checks.sh,
 which the pre-push guard runs, and CI). `--no-verify` skips the hook; and it guards nothing until
