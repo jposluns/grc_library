@@ -46,6 +46,9 @@ run_gate() {
     local rc=$?
     if [ ${rc} -eq 0 ]; then
         echo "OK"
+        # A passing gate's output stays hidden, except advisory lines that start
+        # with DUE-SOON (gate 72's due-soon band), so a lapse shows at resume.
+        printf '%s\n' "${output}" | grep '^DUE-SOON' | sed 's/^/      /' || true
     else
         echo "FAIL (rc=${rc})"
         echo "${output}" | sed 's/^/      /'

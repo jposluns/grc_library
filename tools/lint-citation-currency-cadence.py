@@ -37,6 +37,16 @@ addition, so no row is near any window >= 90 days; the windows only begin to
 matter as rows age, by which point the maintainer will have confirmed or adjusted
 them. Adjusting a window is editing one integer here.
 
+DUE-SOON BAND (advisory, never a WARN). The live-register test asserts no WARN, so
+a row that crosses its window turns that test red at the next UTC rollover and
+blocks every push until the row is re-checked. To show the lapse first, a dated
+row with 0 to DUE_SOON_DAYS days left in its window is printed on a line that
+starts with ``DUE-SOON``. Rows are grouped into batches by (last verified, tier,
+window) and sorted by the date each batch goes stale. A row is stale or due
+soon, never both. ``tools/run_all_audits.sh`` echoes ``DUE-SOON`` lines even
+when a gate passes, and the pre-commit hook is verbose, so the band is seen at
+resume and at commit. The band never changes the exit code.
+
 Exit codes: always 0 (advisory). Findings are printed to stdout.
 """
 
@@ -63,6 +73,13 @@ TIER_WINDOW_DAYS = {
 # last_checked, so a new table is covered conservatively rather than silently
 # dropped.
 DEFAULT_WINDOW_DAYS = 365
+
+# Due-soon band, in days: a dated row with 0 to DUE_SOON_DAYS days left in its
+# window is listed as DUE-SOON (advisory). 21 is longer than the longest gap
+# between commit days on main since 2026-06-01 (16 days, 2026-06-03 to
+# 2026-06-19), with slack for a stretch without egress, so at least one session
+# sees the band before a row goes stale. To change the band, edit the integer here.
+DUE_SOON_DAYS = 21
 
 # Register sub-table heading (the "## <heading>" line) -> trust tier. Matched by
 # exact normalized heading text. An unmapped heading uses DEFAULT_WINDOW_DAYS and
@@ -172,6 +189,8 @@ def main() -> int:
     checked = 0
     skipped = 0
     stale: list[str] = []
+    # (stale-from date, tier label, window, last verified) -> source ids.
+    due_soon: dict[tuple[_dt.date, str, int, _dt.date], list[str]] = {}
     unmapped_headings: set[str] = set()
 
     for heading, source_id, last_cell in _iter_rows(text):
@@ -190,6 +209,10 @@ def main() -> int:
                 f"({age} days ago) exceeds the {window}-day "
                 f"{tier or 'default'} window."
             )
+        elif window - age <= DUE_SOON_DAYS:
+            stale_from = last + _dt.timedelta(days=window + 1)
+            key = (stale_from, tier or "default", window, last)
+            due_soon.setdefault(key, []).append(source_id)
 
     print(
         f"citation-currency-cadence (gate 72, advisory): checked {checked} row(s), "
@@ -212,6 +235,23 @@ def main() -> int:
         )
     else:
         print("  all dated sources are within their re-check windows.")
+    if due_soon:
+        rows = sum(len(ids) for ids in due_soon.values())
+        print(
+            f"DUE-SOON: {rows} source(s) in {len(due_soon)} batch(es) reach their "
+            f"re-check window within {DUE_SOON_DAYS} days (advisory):"
+        )
+        for (stale_from, label, window, last), ids in sorted(due_soon.items()):
+            print(
+                f"DUE-SOON  verified {last.isoformat()} [{label}, {window}-day]: "
+                f"{len(ids)} row(s), stale from {stale_from.isoformat()} "
+                f"(in {(stale_from - today).days} day(s)): " + ", ".join(ids)
+            )
+        print(
+            "DUE-SOON  Re-check these batches in one upstream sweep before the first "
+            "stale-from date, and update each 'Last verified (UTC)' under QA. "
+            "Advisory (exit 0)."
+        )
     return 0
 
 
