@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.19\
+**Version:** 1.5.20\
 **Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -180,7 +180,7 @@ Privacy considerations must be incorporated into any new system, process, or dat
 
 | Jurisdiction | Instrument | Key Obligations |
 |---|---|---|
-| **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, breach notification (real risk of significant harm), accountability. |
+| **Canada (Federal)** | PIPEDA: Personal Information Protection and Electronic Documents Act | Consent, purpose limitation, accountability. Breach of security safeguards (s. 10.1): report to the Privacy Commissioner of Canada where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to an individual. Unless otherwise prohibited by law, also notify each affected individual for whom that belief holds. See [`privacy/jurisdictions/annex-privacy-canada.md`](jurisdictions/annex-privacy-canada.md) for timing, content, and record-keeping. |
 | **Quebec (Provincial)** | Law 25 (S.Q. 2021, c. 25), amending the Act respecting the protection of personal information in the private sector (CQLR c. P-39.1) | Person in charge of the protection of personal information mandatory (s. 3.1); privacy impact assessments; prompt breach notification to the Commission d'accès à l'information (CAI); data subject rights. |
 | **United States** | Applicable state breach notification and sector-specific laws | Breach notification timelines vary by state. Refer to the Global Regulatory Applicability Register for current state-level obligations. |
 | **United Kingdom** | UK GDPR / Data Protection Act 2018 | Lawful basis for processing; data subject rights; breach notification to the Information Commission without undue delay and, where feasible, within 72 hours of becoming aware; international transfer mechanisms. |
