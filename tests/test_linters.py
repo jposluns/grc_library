@@ -31823,3 +31823,63 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("[register-row-order]", r.stderr)
         self.assertIn("[bypass-log] PR #521", r.stderr)
         self.assertIn("FAIL:", r.stderr)
+
+    def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
+        # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was
+        # probed for `#N` alone, so an unsupported continuation naming a PR by label or bare
+        # number (`/ PR 2665`) left the parsed prefix CERTAIN. The tail is now probed with the
+        # shared case-insensitive grammar too, so any PR identity in it (labelled or bare, in any
+        # case, or with its label glued on) makes the header uncertain: evaluated, never
+        # deferred. A tail naming no PR stays certain, and a grammar connector still continues
+        # the identity itself. Kills: the `#N`-only tail probe, and a case-sensitive or
+        # label-only one.
+        lc = self.lc
+        prefix = "## 2026-09-30, Library Version 2026.09.2665, PR #2664"
+        for tail in (" / PR 2665", " / pr 2665", " / PRs 2665", " / 2665", " / PR2665", " / #2665"):
+            with self.subTest(tail=tail):
+                self.assertEqual(lc.changelog_header_prs(prefix + tail), [])
+        self.assertEqual(lc.changelog_header_prs(prefix), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " (tooling)"), [2664])
+        self.assertEqual(lc.changelog_header_prs(prefix + " and PR 2665"), [2664, 2665])
+
+    def test_r8_01_ambiguous_legacy_root_header_never_declares(self) -> None:
+        # Round-8 R8-01 (codex), reproduced in memory: with merged #2663 as the base and
+        # origin/main evidence, the ambiguous root header `PR #2664 / PR 2665` declared #2664
+        # with no note, so two pending rows for the branch's own #2665 deferred (one finding
+        # unscoped, zero scoped). Each sibling spelling is now unparseable and declares nothing,
+        # so the rows are evaluated exactly as without scope. Kills: the `#N`-only legacy tail
+        # probe on the declaration side.
+        base = self.header(2663)
+        records = self.bp._history_row_records(self.pending_rows(2665))
+        unscoped = self.bp.row_integrity_findings(records, "h")
+        self.assertEqual(len(unscoped), 1)
+        for tail in ("PR 2665", "pr 2665", "PRs 2665"):
+            with self.subTest(tail=tail):
+                line = f"## 2026-09-30, Library Version 2026.09.2665, PR #2664 / {tail}"
+                root = line + "\n" + base
+                self.assertEqual(self.lc.changelog_header_prs(line), [])
+                self.assertEqual(self.lc.own_pr_declaration(root, base, base, ((2663, 2663),)),
+                                 (None, "new root header at line 1 has no parseable PR identity"))
+                scope = self.scope(root, base, base, merged=(2663,))
+                self.assertEqual((scope.own_pr, scope.ceiling, scope.open_rule), (None, None, False))
+                self.assertIn("no own-PR declaration", scope.note)
+                self.assertEqual(self.bp.row_integrity_findings(records, "h", ceiling=scope), unscoped)
+                self.assertEqual(self.bp._deferred_prs(records, scope), set())
+
+    def test_r8_01_ambiguous_legacy_mirror_header_never_defers_its_marker(self) -> None:
+        # Round-8 R8-01 (codex), mirror half: with own #2665 correctly declared, a mirror header
+        # `PR #2664 / PR 2665` read as CERTAIN #2664, another open PR, and so hid the invalid
+        # provenance marker beneath it (one finding became zero); `/ PR 2663` hid it too,
+        # although #2663 is merged on origin/main. The header is now uncertain, so the marker is
+        # evaluated in every spelling. Kills: the `#N`-only legacy tail probe on the mirror side.
+        base = self.header(2663)
+        scope = self.scope(self.header(2665) + base, base, base, merged=(2663,))
+        self.assertEqual((scope.own_pr, scope.open_rule), (2665, True))
+        for tail in ("PR 2665", "pr 2665", "PRs 2665", "PR 2663"):
+            with self.subTest(tail=tail):
+                mirror = (self.header(2665)
+                          + f"## 2026-09-30, Library Version 2026.09.2665, PR #2664 / {tail}\n"
+                          + self.MARKER + base)
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror)), 1)
+                self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
+                self.assertEqual(self.bp._deferred_mirror_prs(mirror, scope), set())

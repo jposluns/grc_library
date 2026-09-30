@@ -1353,15 +1353,22 @@ _STORE_PR_RUN_RE = re.compile(r"(?=#)" + _STORE_PR_IDENTITY, re.IGNORECASE)
 _STORE_PR_PART_RE = re.compile(r"\d+|-")
 # The three root and mirror header forms. Their dates and version cells are exact; their `PR`
 # labels are case-insensitive like the grammar; the PR cell itself is read by the grammar.
-# The legacy form has no closing delimiter, so its cell runs to the end of the line and a
-# further `#N` after the identity makes it ambiguous. A compact or weekly cell is certain only
-# when nothing but a `(N PRs)` count follows the identity.
+# The legacy form has no closing delimiter, so its cell runs to the end of the line, and any PR
+# identity in the tail after the identity makes it ambiguous: a `#N` token, or a run of the
+# shared grammar, labelled or bare, in any case, or with its label glued on (`/ PR 2665`,
+# `pr 2665`, `PRs 2665`, `/ 2665`, `PR2665`; round-8 R8-01). A compact or weekly cell is
+# certain only when nothing but a `(N PRs)` count follows the identity.
 CHANGELOG_HEADER_PRS_RE = re.compile(
     r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},[^\n]*?\b(?i:PRs?)[ \t]+(?P<a>#\d[^\n]*)"
     r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| (?i:PRs?) (?P<b>#\d[^*\n]*)\*\*"
     r"|\*\*Week of \d{4}-\d{2}-\d{2} \((?i:PRs?) (?P<c>#\d[^)\n]*)\)\*\*)"
 )
 _HEADER_PR_TOKEN_RE = re.compile(r"#(\d+)(?!\d|\.\d)")
+# The legacy tail probe: the shared grammar, unanchored, opening after no word character or
+# right after a glued `PR` or `PRs` label.
+_HEADER_TAIL_IDENTITY_RE = re.compile(
+    r"(?:(?<!\w)|(?<=PR)|(?<=PRs))" + _STORE_PR_IDENTITY, re.IGNORECASE
+)
 _HEADER_PR_COUNT_RE = re.compile(r"\(\d+ PRs?\)", re.IGNORECASE)
 STORE_SCOPE_BASE_REF = "origin/main"
 CHANGELOG_ENTRY_BOUNDARY_RE = re.compile(
@@ -1438,7 +1445,7 @@ def _header_identity(line: str) -> tuple[str, StorePRs]:
     values, spans = _identity_parts(identity.group(0))
     tail = cell[identity.end():]
     if match.group("a") is not None:
-        certain = not _HEADER_PR_TOKEN_RE.search(tail)
+        certain = not (_HEADER_PR_TOKEN_RE.search(tail) or _HEADER_TAIL_IDENTITY_RE.search(tail))
     else:
         certain = not _HEADER_PR_COUNT_RE.sub("", tail).strip()
     return cell, StorePRs(values, certain=certain, spans=spans)
