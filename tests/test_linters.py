@@ -30094,3 +30094,37 @@ class ProvisionIndexTests(LinterTestCase):
                           ("the GDPR Article 83 of the Regulation", "GDPR Art. 83")):
             self.assertEqual([(k, t) for k, _p, t in self.scan(text)], [(key, "explicit")], text)
 
+    def test_lowercase_schedule_or_annex_tail_refuses(self) -> None:
+        # Round-7 QA (codex R7-01, claude F2): _OF_OTHER_RE's bare [A-Z] test
+        # refused only CAPITALIZED schedule/annex tails, so "of schedule 1" and
+        # "of annex II" re-keyed the attachment's clause to the parent
+        # instrument's own section, explicitly (and at the heading tier under a
+        # PIPEDA heading). The word now refuses in any capitalization
+        # ("appendix" too: its capitalized form already refused via [A-Z]).
+        # Kills narrowing the scoped (?i:...) alternative back to [A-Z]; the
+        # last case kills dropping its \b ("of scheduled ..." is prose, not an
+        # attachment tail, and keeps the prefix alias).
+        self.assertEqual(self.scan("PIPEDA s. 4.3 of schedule 1"), [(None, "4.3", "unresolved")])
+        self.assertEqual(self.scan("UK GDPR Art. 9 of annex II"), [(None, "9", "unresolved")])
+        self.assertEqual(self.scan("GDPR Article 5 of appendix 2"), [(None, "5", "unresolved")])
+        self.assertEqual(self.scan("## Canada (PIPEDA)\n\n- Consent (s. 4.3 of the schedule).\n"),
+                         [(None, "4.3", "unresolved")])
+        self.assertEqual(self.scan("GDPR Art. 30 of scheduled importance"),
+                         [("GDPR Art. 30", "30", "explicit")])
+
+    def test_title_case_continued_title_refused(self) -> None:
+        # Round-7 QA (claude F1): the _TITLE_CONTINUATION lookahead inside
+        # _SELF_NOUN_RE was case-sensitive, so a TITLE-CASE long title ("of the
+        # Act Respecting ...", "of the Regulation Laying Down ..."), the form
+        # secondary sources often use, re-named the prefix alias and was
+        # trusted explicitly while the lowercase form refused. The continuation
+        # words now match case-insensitively. Kills scoping the (?i:...) group
+        # back to (?:...); the bare self-noun stays explicit.
+        for text, section in (
+                ("PIPEDA s. 7 of the Act Respecting the Protection of Personal "
+                 "Information in the Private Sector", "7"),
+                ("GDPR Article 5 of the Regulation Laying Down Harmonised Rules "
+                 "on Artificial Intelligence", "5")):
+            self.assertEqual(self.scan(text), [(None, section, "unresolved")], text)
+        self.assertEqual(self.scan("PIPEDA s. 10.1 of the Act"),
+                         [("PIPEDA s. 10.1", "10.1", "explicit")])

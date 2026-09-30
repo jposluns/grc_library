@@ -71,8 +71,9 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  count when the text after the citation, past any point
                  designation or structural qualifier (``of Chapter III``,
                  ``of Part 2``, which names no instrument; a Schedule or
-                 Annex numbers its OWN clauses, so ``of Schedule 1`` is
-                 never skipped and refuses instead), names an
+                 Annex numbers its OWN clauses in any capitalization, so
+                 ``of Schedule 1`` and ``of schedule 1`` are never skipped
+                 and refuse instead), names an
                  instrument (``Unlike the GDPR, Article 12 of the Data
                  Act``, ``GDPR Article 5 of the Directive``, ``GDPR, Article
                  12 Regulation (EU) 2023/2854``, ``of that Regulation``):
@@ -85,7 +86,9 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  another instrument's long title (``of the Act respecting
                  the protection of personal information in the private
                  sector``, ``of the Regulation laying down harmonised
-                 rules``), which refuses — and neither does ``Code of Conduct``
+                 rules``, matched case-insensitively: ``of the Act
+                 Respecting ...`` refuses too), which refuses — and neither
+                 does ``Code of Conduct``
                  (``GDPR Art. 40 Code of Conduct``). A postfix alias that
                  modifies a subordinate instrument (``Article 12 of the DORA
                  RTS``, ``s. 7012 CCPA Regulations`` or ``regulations``,
@@ -462,7 +465,13 @@ _POSTFIX_LEAD_RE = re.compile(r"\s*(?:" + _POINT + _STRUCT + r"\s*,?\s*of\s+(?:t
 _POSTFIX_CLOSE_RE = re.compile(r"\s*\)")
 _ANAPHOR_RE = re.compile(r"\b(?:its|whose|their)\s+$")
 _OF_THIS_RE = re.compile(_TAIL_LEAD + r"(?:this|that|such|said)\s+[A-Z]?[a-z]+")
-_OF_OTHER_RE = re.compile(_TAIL_LEAD + r"(?:the\s+)?[A-Z]")
+# A capitalized word after "of" names another instrument; a schedule, annex
+# or appendix tail refuses in ANY capitalization (round-7 QA: "of schedule 1"
+# and "of annex II" slipped past the [A-Z] test and re-keyed the attachment's
+# clause to the parent instrument's own section).
+_OF_OTHER_RE = re.compile(
+    _TAIL_LEAD + r"(?:the\s+)?(?:[A-Z]|(?i:schedule|annex|appendix)\b)"
+)
 # "of the <noun>" naming the prefix alias's own instrument (SELF_NOUNS), with
 # nothing after the noun that makes it another instrument's title ("of the
 # Regulation (EU) 2023/2854", "of the Act on ...", "of the Law No. 5", or a
@@ -470,14 +479,15 @@ _OF_OTHER_RE = re.compile(_TAIL_LEAD + r"(?:the\s+)?[A-Z]")
 # respecting ...", "of the Regulation laying down ...", "of the Act to
 # promote ..."). The continuation words are a fixed list, so a noun continued
 # by a word outside it still reads as the bare noun (stated residue in the
-# build tool's docstring).
+# build tool's docstring). They match case-insensitively (round-7 QA:
+# secondary sources title-case long titles, "of the Act Respecting ...").
 _TITLE_CONTINUATION = (
     r"on|of|for|to|respecting|concerning|regarding|relating|governing|establishing|laying|"
     r"implementing|amending|supplementing|setting"
 )
 _SELF_NOUN_RE: dict[str, "re.Pattern[str]"] = dict(
     (canon, re.compile(_TAIL_LEAD + r"the\s+(?:" + noun + r")(?![\w-])"
-                       r"(?!\s*\(|\s+(?:No\.?\s*)?\d|\s+(?:" + _TITLE_CONTINUATION + r")\b)"))
+                       r"(?!\s*\(|\s+(?:No\.?\s*)?\d|\s+(?i:" + _TITLE_CONTINUATION + r")\b)"))
     for canon, noun in SELF_NOUNS.items()
 )
 # "Code of Conduct" / "Code of Practice" after a citation is the provision's
