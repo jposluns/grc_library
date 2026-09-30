@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.2\
+**Version:** 1.4.3\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -149,7 +149,9 @@ Upon receipt of an alert or report, the SOC analyst must:
 
 ### 5.3 Eradication
 
-Once the scope of compromise is confirmed, the SOC and IT Operations must:
+Before any eradication or cleanup that would alter an original device or storage volume, apply the hold and investigation safeguard in §5.1, including its check and release requirements. Where preservation is required, keep the original unaltered and perform eradication or cleanup on replacement infrastructure.
+
+Once the scope of compromise is confirmed, the SOC and IT Operations must, subject to that safeguard:
 
 1. Remove all identified malware, persistence mechanisms, backdoors, and unauthorized accounts.
 2. Revoke and rotate all credentials that were or may have been exposed, including service accounts, API keys, and certificates.

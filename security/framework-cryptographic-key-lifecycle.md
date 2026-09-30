@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.22\
+**Version:** 1.0.23\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -38,7 +38,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
 | **Rotation** | Periodically replace active keys to reduce risk of compromise. | Rotate symmetric keys every 90 days; asymmetric every 12 months. These are key-type baselines; where a key also carries a data-classification cadence (see the Encryption and Key Management Policy), apply the shorter applicable interval. NIST SP 800-57 Part 1 (section 5.3.6) sets a key's cryptoperiod from its type, usage environment, and data characteristics together, as rough guidance rather than a fixed one-to-one mapping. |
 | **Revocation** | Immediately invalidate compromised or expired keys. | Update CRL or OCSP; remove from all dependent systems. |
-| **Destruction** | Securely destroy obsolete or retired keys. | Destroy a data-encryption key only after the data it protects is re-encrypted or destroyed, and retain a key-wrapping key while any key it protects is still needed (Encryption and Key Management Policy, section 5.5). Confirm, through the key destruction check in Cryptographic Key Operations Procedure section 7.1, that no legal hold or investigation covers data the key protects, directly or through a key it wraps. Retain a covered key until Legal Counsel, in writing, releases or narrows the hold or confirms that the investigation no longer treats that data or the key as evidence (Cryptographic Key Operations Procedure, section 7). Perform zeroization (the key sanitization technique per NIST SP 800-88 Rev. 2); document certificate of destruction. |
+| **Destruction** | Securely destroy obsolete or retired keys. | Destroy a data-encryption key only after the data it protects is re-encrypted or destroyed, and retain a key-wrapping key while any key it protects is still needed (Encryption and Key Management Policy, section 5.5). Before destruction, confirm whether a legal hold or investigation covers data the key protects, directly or through a key it wraps. The check follows rule 2's two-part confirmation, as set out in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), section 7.1. Recorded hold status alone does not complete the check. Legal Counsel or the Incident Commander confirms whether an investigation under the [Security Incident Response Procedure](procedure-security-incident-response.md) treats that data or the key as evidence. Only Legal Counsel confirms whether an investigation by an external authority does so, and whether a hold is required but not yet recorded. Retain the key if a hold or investigation applies, or either part of the check is incomplete. Legal Counsel must release the hold in writing or narrow it so that it no longer covers that data. For an investigation without a legal hold, Legal Counsel must confirm in writing that the investigation no longer treats that data or the key as evidence. Perform zeroization (the key sanitization technique per NIST SP 800-88 Rev. 2); document certificate of destruction. |
 
 ---
 
