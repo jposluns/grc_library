@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.44\
-**Date:** 2026-09-29\
+**Version:** 1.0.45\
+**Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -144,7 +144,7 @@ When litigation, regulatory investigation, or audit is anticipated or underway:
 1. The Legal Counsel or Compliance Officer issues a Legal Hold Notice.
 2. All retention schedule timers for affected records are suspended.
 3. Affected records are preserved and clearly labelled as subject to legal hold.
-4. Destruction of held records is prohibited until the Legal Counsel formally releases the hold.
+4. Destruction of held records is prohibited until Legal Counsel, in writing, formally releases the hold or narrows it so that it no longer covers those records.
 5. Legal hold status is tracked in the GRC platform.
 
 ---
