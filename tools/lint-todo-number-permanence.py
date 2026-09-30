@@ -210,8 +210,8 @@ false-negative cost:
        audit tool counts it ACTIONABLE, and gate 90 reports it as
        malformed when it sits inside the index table.
      - A heading id ends at a word boundary: ``### RB-6. title`` is
-       ``RB-6``, ``### 3.92.a child`` is ``3.92`` and ``### 1.2.3.4`` is
-       ``1.2.3``. Headings are read in ``TODO.md`` too.
+       ``RB-6``, ``### 3.92.a child`` is ``3.92``, and a four-part numeric
+       heading keeps only its first three parts. Headings are read in ``TODO.md`` too.
      - A heading outside the shared grammar is not live here, as in the
        tool and the hook: a ``§`` marker (``### §3.109``), or a tab or a
        second space after ``###``. The old regex took these, though
