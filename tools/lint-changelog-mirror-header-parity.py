@@ -96,11 +96,50 @@ non-decreasing pairs in either file's history sit in the 2026-06-21
 PR #170-#175 window, far below the cutoff, so the scoped assertion is
 false-positive-free by construction with no second baseline constant.
 
+Store scope (maintainer ruling 2026-09-30 17:07Z, option B, simplified 21:03Z;
+shared with gate 50 through ``lint_common.store_scope``). The detailed mirror lives
+in the operational store every open branch shares, so another open PR's in-flight
+mirror entry would otherwise read as MISSING from this branch's root. A mirror
+record defers only when all of these hold: this branch declares its own PR (the
+single new singular root header naming a PR absent from the merge-base root
+headers, from origin/main's root headers and from origin/main's ``(#N)`` and
+``Merge pull request #N`` commit subjects; no other ref is consulted, and
+historical edits, roll-ups, a merged PR's header, a second new identity, a
+combined identity, an unparseable or unrecognized new header, and a fence or
+comment delimiter at or above the candidate declare nothing); the record's key
+belongs to its complete, unambiguous raw header identity; and the shared flags
+permit deferral, because every named PR exceeds ``max(declared own PR, highest
+root header PR)`` or every named PR is another open PR absent from this branch's
+root headers and from all of that origin/main evidence. One shared,
+case-insensitive grammar reads every PR identity and range, and header ranges
+protect their interiors. The own PR and every PR covered by that evidence remain
+evaluated, so a merged PR's mirror entry missing its branch root line still fails.
+D1 can accept a ``Changelog: <one-line-reason>`` trailer instead of a root entry,
+so it does not guarantee a declaration before merge. No declaration, or an
+unreadable merge-base changelog, origin/main changelog or origin/main log,
+disables all deferral and prints a note. origin/main is read offline from the
+local remote-tracking ref, so a PR merged after the last fetch reads as open; its
+deferral is printed like every other. Every deferred header prints its location,
+named PRs and reason.
+
+Both surfaces are read raw, without fence or comment masking, and the comparison
+floor is computed from the whole raw mirror before deferral. An unknown or
+ambiguous boundary, a header-shaped line the boundary grammar cannot read, or a
+fence or comment delimiter disables further mirror deferral, so example records
+and later entries stay evaluated and an unrecognized header is never swallowed
+into the deferred entry above it. Open-PR deferral also reaches entries below the
+own entry. A plain, unmarked header lookalike is indistinguishable from a real
+entry, including inside the own entry, and so is an open PR's header carried onto
+a stacked branch that has not yet written its own entry, which declares; both
+residues are loud, because every deferral note names the entry and the declared
+own PR.
+
 Exit codes:
     0   the per-PR header multisets match at or above the cutoff and
         each file's cutoff-scoped Library Versions strictly decrease
     1   one or more headers are missing, extra, or duplicated, or a
         Library Version is out of order (equal or increasing top-down)
+    2   an explicit --root is not a directory holding both inputs
 """
 
 from __future__ import annotations
@@ -113,7 +152,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import REPO_ROOT, dynamic_floor, require_dir, resolve_working  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, dynamic_floor, require_dir, resolve_working, store_deferral_note, store_deferral_flags, store_scope  # noqa: E402  # grc-config/store, stays local
 
 # Paths of the two surfaces, relative to the repository root.
 ROOT_CHANGELOG_REL = "CHANGELOG.md"
@@ -310,6 +349,7 @@ def main(argv: list[str]) -> int:
             print(f"ERROR: --root {args.root}: required input(s) missing: {', '.join(missing)}",
                   file=sys.stderr)
             return 2
+        scope_root = root
     else:
         root_changelog = REPO_ROOT / ROOT_CHANGELOG_REL
         resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
@@ -326,11 +366,35 @@ def main(argv: list[str]) -> int:
             )
             return 0
         detailed_mirror = resolved
+        scope_root = REPO_ROOT
 
+    # Both surfaces are read RAW (the 2026-09-30 ruling: no example masking anywhere in the store
+    # scope), exactly as the pre-store-scope gate read them, so no record can be removed from
+    # evaluation by a mask. The floor stays computed over the WHOLE mirror: a sweep is a
+    # store-wide fact, not one PR's entry, and a floor computed after the ceiling filter would
+    # fall back to CUTOFF_PR.
     mirror_text = read_text_safe(detailed_mirror) or ""
+    root_text = read_text_safe(root_changelog) or ""
     cutoff = effective_cutoff(mirror_text)
-    root_records = pr_headers(read_text_safe(root_changelog) or "", cutoff=cutoff)
-    mirror_records = pr_headers(mirror_text, cutoff=cutoff)
+    root_records = pr_headers(root_text, cutoff=cutoff)
+    scope = store_scope(root_text, repo_root=scope_root)
+    if scope.note:
+        print(f"note: {scope.note}")
+    mirror_lines = mirror_text.splitlines()
+    flags = store_deferral_flags(mirror_lines, scope)
+    mirror_records: list[tuple[int, int, tuple[int, int, int] | None, str]] = []
+    for record in pr_headers(mirror_text, cutoff=cutoff):
+        # Deferral is decided from EVERY PR the header line names (the shared parser), never from
+        # this gate's single-PR record, and only when that record's own key is AMONG them (one
+        # PR-key rule for the record and the deferral decision; a greedy-parsed key outside the
+        # PR cell, or a line the shared parser cannot read, is ambiguous and kept, fail closed).
+        # record[0] is the 1-based line number pr_headers assigned over the same splitlines()
+        # view; a deferred header defers every PR it names, and the note reports them all.
+        line_deferred, line_prs = flags[record[0] - 1]
+        if line_deferred and record[1] in line_prs:
+            print(store_deferral_note(line_prs, scope, str(detailed_mirror), record[0]))
+        else:
+            mirror_records.append(record)
     root_counts = Counter(pr for _, pr, _, _ in root_records)
     mirror_counts = Counter(pr for _, pr, _, _ in mirror_records)
 
