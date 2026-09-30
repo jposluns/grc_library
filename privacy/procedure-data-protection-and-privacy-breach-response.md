@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.5\
+**Version:** 1.5.6\
 **Date:** 2026-09-30\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -132,7 +132,7 @@ Where the breach involves an AI system, an AI-supported workflow, or AI-related 
 
 Containment actions for personal data breaches follow the containment framework in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §5. The following privacy-specific principles additionally apply:
 
-- **Do not destroy evidence.** No system, log, backup, or data record relevant to the breach may be deleted, overwritten, or modified pending the privacy impact assessment and regulatory notification determination. For a lost or stolen device, the decision table in §5.2.1 reconciles this principle with the §5.2 remote wipe: a wipe is permitted only where the duplicate-copy check in §5.2.1 (rule 7) confirms at decision time that the device holds a duplicate endpoint copy while the server-side records the assessment relies on are preserved, and where a legal hold or investigation applies the table selects a non-destructive action, with a forensic image first wherever the device is still reachable and a wipe only after Legal Counsel formally releases or narrows the hold (rule 8).
+- **Do not destroy evidence.** No system, log, backup, or data record relevant to the breach may be deleted, overwritten, or modified pending the privacy impact assessment and regulatory notification determination. For a lost or stolen device, the decision table in §5.2.1 reconciles this principle with the §5.2 remote wipe: a wipe is permitted only where the duplicate-copy check in §5.2.1 (rule 7) confirms at decision time that the device holds a duplicate endpoint copy while the server-side records the assessment relies on are preserved, and where a legal hold or investigation applies the table selects a non-destructive action, with a forensic image first wherever the device is still reachable and a wipe only after Legal Counsel, in writing, formally releases or narrows the hold (rule 8).
 - **Scope isolation, not deletion.** Containment focuses on restricting further access to or exposure of personal data; premature deletion of breach-related data is prohibited unless specifically directed by Legal Counsel to meet a legal obligation.
 - **Notify processors promptly.** If personal data held by a third-party processor is affected, the processor is notified immediately and directed to preserve evidence and assist with the impact assessment.
 

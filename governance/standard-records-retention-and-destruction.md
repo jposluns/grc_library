@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.25\
-**Date:** 2026-09-25\
+**Version:** 1.4.26\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -111,7 +111,7 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ## 8. Secure destruction
 
-Upon expiration of the applicable retention period and confirmation that no active hold exists, records must be securely destroyed using an approved method.
+Upon expiration of the applicable retention period, records must be securely destroyed using an approved method once the hold check is complete. The Records Register and the GRC platform show only holds that have been recorded, so a check of them cannot complete the hold check on its own. Destruction may not proceed until Legal Counsel also confirms in writing that no unrecorded legal hold or external investigation covers the records, consistent with rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md).
 
 ### 8.1 Acceptable destruction methods
 
