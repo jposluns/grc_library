@@ -2,8 +2,8 @@
 
 **Document Title:** United Kingdom Pro-Innovation AI Regulation Framework (CP 815 and CP 1019)\
 **Document Type:** Annex\
-**Version:** 0.0.6\
-**Date:** 2026-09-25\
+**Version:** 0.0.7\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`ai/jurisdictions/annex-ai-singapore.md`](annex-ai-singapore.md), [`privacy/jurisdictions/annex-privacy-united-kingdom.md`](../../privacy/jurisdictions/annex-privacy-united-kingdom.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md)\
@@ -45,7 +45,7 @@ Each principle below restates every clause of the white paper's "Definition and 
 
 ## Adopter-role framing
 
-An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the Information Commission (the ICO until 30 September 2026), competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
+An adopter does not comply with the principles directly. It complies with the existing law and regulatory expectations of the regulator for each sector it operates in (for example data protection with the Information Commission, competition and consumer law with the CMA, financial services with the FCA), and it uses the five principles as the common frame those regulators are applying. Mapping each principle to its existing AI-governance controls prepares the adopter for regulator guidance issued under the framework and for any later statutory duty or targeted requirement.
 
 ## Relationship to corpus AI-governance content
 
