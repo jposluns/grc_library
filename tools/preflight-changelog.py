@@ -78,6 +78,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import subprocess
 import sys
@@ -326,10 +327,28 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
     return findings
 
 
+def _foreign_repo_env() -> dict[str, str]:
+    """This process's environment for a ``git diff`` in ANOTHER repository (the operational store or
+    the private sibling holding the mirror): every variable that ``git rev-parse --local-env-vars``
+    names as local to one repository is dropped (GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE,
+    GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_COMMON_DIR, GIT_CONFIG_PARAMETERS
+    and the rest; git drops the same list before it enters a submodule), and every other variable
+    is kept. A pre-commit hook inherits them for the PUBLIC repository (``git commit -a`` names its
+    temporary index in GIT_INDEX_FILE), and the mirror's ``git diff --cached`` read that index
+    through them: it found no staged mirror addition, so a commit the standalone aid refuses passed
+    (3b141 QA r2). A failure to list them raises ``CalledProcessError``, and ``main()`` exits 2."""
+    local = set(subprocess.run(["git", "rev-parse", "--local-env-vars"], capture_output=True,
+                               text=True, check=True).stdout.split())
+    return {k: v for k, v in os.environ.items() if k not in local}
+
+
 def _added_lines_from_repo(
-    repo: Path, paths: tuple[str, ...], staged: bool
+    repo: Path, paths: tuple[str, ...], staged: bool, env: dict[str, str] | None = None
 ) -> list[tuple[str, str]]:
-    """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff.
+    """(file, added-line-text) for every added CHANGELOG line in ONE repo's diff, run with ``env``:
+    None inherits this process's environment, right for the public repository, where a pre-commit
+    hook's GIT_INDEX_FILE names the index being committed; a mirror in another repository passes
+    :func:`_foreign_repo_env`.
 
     The flags override every setting that would reshape what the parser below reads (3b141 QA
     r1): an external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
@@ -350,7 +369,7 @@ def _added_lines_from_repo(
         cmd.append("--cached")
     cmd += ["HEAD", "--", *paths]
     out = subprocess.run(cmd, cwd=str(repo), capture_output=True, text=True,
-                         check=True).stdout
+                         check=True, env=env).stdout
     results: list[tuple[str, str]] = []
     current: str | None = None
     for line in out.splitlines():
@@ -369,8 +388,10 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
     mirror) come from this repo's diff; a private-sibling mirror gets its OWN
     repository-local ``git diff`` so private additions still receive the dash and
-    unlinked-path checks. The ``staged`` choice is applied separately in each
-    repository, preserving staged-only versus full-working-tree semantics."""
+    unlinked-path checks. That diff runs without this repository's local git
+    variables (:func:`_foreign_repo_env`), so ``--staged`` reads THAT repository's
+    index. The ``staged`` choice is applied separately in each repository,
+    preserving staged-only versus full-working-tree semantics."""
     public_paths = ["CHANGELOG.md"]
     if (root / DETAILED_MIRROR_REL).is_file():
         public_paths.append(DETAILED_MIRROR_REL)
@@ -393,7 +414,8 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
         stripped_rel = DETAILED_MIRROR_REL[len(".working/"):]
         private_root = mirror.parents[stripped_rel.count("/")]
         results.extend(
-            _added_lines_from_repo(private_root, (stripped_rel,), staged)
+            _added_lines_from_repo(private_root, (stripped_rel,), staged,
+                                   env=_foreign_repo_env())
         )
     return results
 

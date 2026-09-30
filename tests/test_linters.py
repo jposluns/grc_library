@@ -3578,8 +3578,9 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         end-to-end run through the real installer, the real preflight, and real commits: a ';' join,
         `commit -a`, a pathspec commit, hostile diff configuration (external diff drivers, textconv
         and a -diff attribute included), an override of "0", a conflicted merge conclusion, a linked
-        worktree, the mirror-scan trigger scoping, the preflight's own exit 2 on a git error, and the
-        fail-open and fail-closed cases.
+        worktree, a mirror in a separate repository judged by that repository's own index, the
+        mirror-scan trigger scoping, the preflight's own exit 2 on a git error, and the fail-open and
+        fail-closed cases.
         """
         result = self._run_selftest(
             [sys.executable, str(REPO_ROOT / "tools" / "check-changelog-preflight-commit.py"), "--self-test"]
@@ -17349,6 +17350,44 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                             self.assertEqual(mod.main(argv), 2)
                         self.assertIn("ERROR: git diff failed", err.getvalue())
                         self.assertNotIn("OK:", out.getvalue())
+
+    def test_a_mirror_in_another_repository_is_diffed_with_its_own_index(self):
+        # 3b141 QA r2: a pre-commit hook inherits the public repository's GIT_INDEX_FILE (and, where
+        # git exported it, GIT_DIR), and the mirror's `git diff --cached` in the operational store
+        # read that index, found no staged mirror addition, and passed. Mutations killed: the store
+        # diff inheriting the environment (no env=), and a store environment keeping GIT_INDEX_FILE
+        # or GIT_DIR.
+        from unittest import mock
+        mod = self._load("_pcl_store_index")
+        with tempfile.TemporaryDirectory() as td:
+            td = os.path.realpath(td)
+            root, _ = self._repo(td)
+            store = Path(td) / "private"
+            mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+            mirror.parent.mkdir(parents=True)
+            mirror.write_text("# Detailed\n", encoding="utf-8")
+            env = self._env(td)
+
+            def store_git(*args):
+                subprocess.run(["git", "-C", str(store), "-c", "user.name=t", "-c",
+                                "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                               check=True, capture_output=True, env=env)
+
+            store_git("init", "-q", "-b", "store")
+            store_git("add", "-A")
+            store_git("commit", "-q", "-m", "store")
+            mirror.write_text("# Detailed\n" + self.ADDED + "\n", encoding="utf-8")
+            store_git("add", "-A")
+            hook = dict(env, GRC_STORE=str(store), GIT_DIR=str(root / ".git"),
+                        GIT_INDEX_FILE=str(root / ".git" / "index"))
+            with mock.patch.dict(os.environ, hook, clear=True):
+                lines = mod.added_lines(True, root=root)
+                foreign = mod._foreign_repo_env()
+            self.assertIn(("CHANGELOG.md", self.ADDED), lines)
+            self.assertIn(("changelog-details/CHANGELOG-detailed.md", self.ADDED), lines)
+            for name in ("GIT_INDEX_FILE", "GIT_DIR"):
+                self.assertNotIn(name, foreign)
+            self.assertEqual(foreign.get("GRC_STORE"), str(store))
 
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):

@@ -18,41 +18,55 @@ What it checks. When the index being committed carries a non-deleted root CHANGE
 runs the ACTIVE checkout's tools/preflight-changelog.py --staged (the preflight itself, not a copy of
 its rules) and refuses unless it exits 0, relaying the preflight's report; a pass prints nothing. The
 preflight inherits the hook's environment, so it diffs the index git named in GIT_INDEX_FILE (the one
-`git commit -a` or `git commit <path>` is about to commit). The preflight's own `git diff` overrides
+`git commit -a` or `git commit <path>` is about to commit). Its diff of a mirror kept in ANOTHER
+repository (the operational store or the private sibling) runs without the variables that
+`git rev-parse --local-env-vars` names as local to one repository (GIT_INDEX_FILE and GIT_DIR among
+them), so it reads that repository's own index (3b141 QA r2: under `git commit -a` it read this
+repository's temporary index there, found no staged mirror addition, and let a failing commit
+through). The preflight's own `git diff` overrides
 every setting that would reshape what it parses (an external diff driver, textconv, a -diff or binary
 attribute, colour, the `+++ b/` prefix) and exits 2 when that diff fails, rather than finding no added
 line and passing (3b141 QA r1). This check's own `git diff` passes --no-ext-diff and --no-textconv too
 (its --name-only output uses neither today). Diff presentation settings are also pinned for both,
 appended last to GIT_CONFIG_PARAMETERS (the channel `git -c` uses; the last value wins):
 diff.noprefix, diff.mnemonicPrefix, diff.srcPrefix/dstPrefix and color.diff=always each reshape the
-`+++ b/` headers or `+` lines the preflight parses.
+`+++ b/` headers or `+` lines the preflight parses. GIT_CONFIG_PARAMETERS is local to one repository
+too, so the pins do not reach the mirror diff in another repository; there the preflight's own flags
+override the same settings.
 
 Allowed without checking: the override GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1, honoured only when the
 value is exactly "1" (as the GRC_ALLOW_BULK_ADD and GRC_ALLOW_PR_ATTRIBUTION hooks read theirs), so
 "0", "false" or an empty value is not the override (3b141 QA r1). A checkout without
 tools/preflight-changelog.py (older branch) is allowed (fail OPEN, stated). A commit that concludes a
-merge, cherry-pick, or revert is checked like any other (3b141 QA r1): CHANGELOG.md is the file most
-likely to conflict (every PR adds an entry in the same place), so the resolution is a hand edit of
-exactly the kind this check exists for. The other side's added lines, when they come from main, have
-already passed the D3, D7 and link-coverage gates, so they rarely refuse, and the override covers the
-rest. check-version-bump-commit.py exempts these commits because a Version bump belongs to a PR,
-which a merge does not have; a dash belongs to a line, which it does. It REFUSES, naming the override
-(ignorance refuses, as in check-version-bump-commit.py): a git error while reading the staged state;
-a staged CHANGELOG.md on an unborn HEAD (the preflight diffs against HEAD, so it has nothing to check
-against and exits 2); and a preflight that cannot be started or exits other than 0 (its 1 is a
-finding or a crash, its 2 a git error).
+conflicted merge, cherry-pick, or revert is checked like any other (3b141 QA r1), whether `git commit`
+or `git merge|cherry-pick|revert --continue` makes it (each runs pre-commit; a rebase does not, see
+the residue below): CHANGELOG.md is the file most likely to conflict (every PR adds an entry in the
+same place), so the resolution is a hand edit of exactly the kind this check exists for. The other
+side's added lines, when they come from main, have already passed the D3, D7 and link-coverage
+gates, so they rarely refuse, and the override covers the rest. check-version-bump-commit.py exempts
+these commits because a Version bump belongs to a PR, which a merge does not have; a dash belongs to
+a line, which it does. It REFUSES, naming the override (ignorance refuses, as in
+check-version-bump-commit.py): a git error while reading the staged state; a staged CHANGELOG.md on
+an unborn HEAD (the preflight diffs against HEAD, so it has nothing to check against and exits 2);
+and a preflight that cannot be started or exits other than 0 (its 1 is a finding or a crash, its 2 a
+git error).
 
 Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
 in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
 the link or use the override); the preflight resolves link targets, and runs that scan, in the WORKING
 TREE, not the index, so a staged link to a file that exists only unstaged passes here and a target
-deleted only in the working tree refuses; the preflight's added-line diff of a mirror kept in ANOTHER
-repository (the operational store or the private sibling) inherits this commit's git environment
-(GIT_INDEX_FILE, and GIT_DIR where git exported it) and so may read the wrong index or repository
-(that repository's own commits are outside this hook); `git commit --amend` checks only what the amend
-adds to HEAD, as the preflight does; a merge that git commits itself (a clean `git merge` runs
-pre-merge-commit, not pre-commit) is not checked; `--no-verify` skips the hook; and it guards nothing
-until tools/install-git-hooks.sh has installed the pre-commit shim in the clone.
+deleted only in the working tree refuses; a mirror kept in ANOTHER repository is judged by what is
+staged in that repository's own index, whatever this commit's `-a` or pathspec (that repository's own
+commits are outside this hook); `git commit --amend` checks only what the amend adds to HEAD, as the
+preflight does; a merge that git commits itself (a clean `git merge` runs pre-merge-commit, not
+pre-commit) is not checked; nor is a commit that git's sequencer makes itself, for which git runs no
+pre-commit hook (3b141 QA r2): every `git rebase` pick, including one concluded by
+`git rebase --continue` after a CHANGELOG.md conflict, and a cherry-pick or revert that applies
+cleanly. No hook can refuse those commits (post-rewrite runs after they exist). A conflict resolved at
+a rebase stop IS checked when `git commit` concludes it before `git rebase --continue`, and a root
+CHANGELOG.md dash that a rebase carries still meets the D3 delta gate (tools/run-pr-time-checks.sh,
+which the pre-push guard runs, and CI). `--no-verify` skips the hook; and it guards nothing until
+tools/install-git-hooks.sh has installed the pre-commit shim in the clone.
 """
 import os
 import subprocess
@@ -207,8 +221,12 @@ def _integration_self_test():
                 failures.append(f"fixture step failed: {' '.join(map(str, args))}: {cp.stderr.strip()}")
             return cp
 
-        def refused(cp):
-            return cp.returncode != 0 and "check-changelog-preflight-commit: REFUSING" in cp.stderr
+        def refused(cp, reason="--staged failed on the staged"):
+            """The check refused for REASON: by default the preflight's finding (its exit 1), so a case
+            expecting that finding fails when the check refused for another reason instead, a git error
+            reading the staged state or a preflight that did not complete (3b141 QA r2)."""
+            return (cp.returncode != 0 and "check-changelog-preflight-commit: REFUSING" in cp.stderr
+                    and reason in cp.stderr)
 
         changelog = repo / _CHANGELOG
         clean, dashed = "a clean entry\n", "a dashed entry \u2014 here\n"
@@ -224,7 +242,8 @@ def _integration_self_test():
         changelog.write_text("# Changelog\n\n", encoding="utf-8")
         must(["git", "add", "tools", _CHANGELOG])
         cp = run(["git", "commit", "-q", "-m", "init"])
-        expect(refused(cp) and _OVERRIDE in cp.stderr, "a staged CHANGELOG.md on an unborn HEAD was not refused")
+        expect(refused(cp, "could not be read") and _OVERRIDE in cp.stderr,
+               "a staged CHANGELOG.md on an unborn HEAD was not refused")
         # The preflight itself fails closed on a git error (3b141 QA r1): `git diff HEAD` on an unborn
         # HEAD fails, which it once reported as 0 added lines and a pass (exit 0).
         for args in ([], ["--staged"]):
@@ -297,6 +316,11 @@ def _integration_self_test():
         must(["git", "add", "other.txt"])
         cp = run(["git", "commit", "-q", "-m", "no changelog"])
         expect(cp.returncode == 0, f"a commit not staging CHANGELOG.md was judged: {cp.stderr.strip()}")
+        # The pins, appended to a caller's `git -c` values, parse in a real git (3b141 QA r2).
+        (repo / "other.txt").write_text("1b\n", encoding="utf-8")
+        must(["git", "add", "other.txt"])
+        cp = run(["git", "-c", "diff.noprefix=true", "commit", "-q", "-m", "git -c, no changelog"])
+        expect(cp.returncode == 0, f"`git -c` refused a commit not staging CHANGELOG.md: {cp.stderr.strip()}")
         append(clean)
         must(["git", "add", _CHANGELOG])
         cp = run(["git", "commit", "-q", "-m", "mirror"])
@@ -331,6 +355,41 @@ def _integration_self_test():
         must(["git", "-C", str(linked), "add", _CHANGELOG])
         cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree"], cwd=base)
         expect(refused(cp), "a CHANGELOG dash committed with git -C in a linked worktree was not refused")
+        # A mirror kept in a SEPARATE repository (the operational store, <repo-parent>/private) is
+        # judged by that repository's own index (3b141 QA r2): the hook's GIT_INDEX_FILE, which
+        # `commit -a` and a pathspec commit point at this repository's temporary index, once reached
+        # the mirror's diff, so a staged mirror dash that the standalone preflight refuses passed.
+        store = repo.parent / "private"
+        store_mirror = store / "changelog-details" / "CHANGELOG-detailed.md"
+        store_mirror.parent.mkdir(parents=True)
+        store_mirror.write_text("# Detailed\n\n", encoding="utf-8")
+        must(["git", "init", "-q", "-b", "store"], cwd=store)
+        must(["git", "config", "commit.gpgsign", "false"], cwd=store)
+        must(["git", "add", "-A"], cwd=store)
+        must(["git", "commit", "-q", "-m", "store"], cwd=store)
+        append("a store entry \u2014 staged\n", store_mirror)
+        must(["git", "add", "-A"], cwd=store)
+        append(clean)
+        cp = run([sys.executable, _PREFLIGHT, "--staged"])
+        expect(cp.returncode == 1 and "em/en dash in prose" in cp.stderr,
+               f"the standalone preflight did not report a staged store-mirror dash: exit {cp.returncode}")
+        for how, args in (("commit -a", ["-a"]), ("commit -- CHANGELOG.md", ["--", _CHANGELOG]),
+                          ("commit", None)):
+            if args is None:
+                must(["git", "add", _CHANGELOG])
+            cp = run(["git", "commit", "-q", "-m", how, *(args or [])])
+            expect(refused(cp) and "em/en dash in prose" in cp.stderr,
+                   f"`git {how}` passed a dash staged in the store's mirror: {cp.stderr.strip()}")
+        # A clean staged store entry passes beside an unstaged store dash: that repository's index,
+        # not its working tree, is judged, and its diff runs cleanly under the hook.
+        must(["git", "checkout", "-q", "HEAD", "--", "."], cwd=store)
+        append("a clean store entry\n", store_mirror)
+        must(["git", "add", "-A"], cwd=store)
+        append("an unstaged store entry \u2014 here\n", store_mirror)
+        cp = run(["git", "commit", "-q", "-m", "store clean"])
+        expect(cp.returncode == 0 and "check-changelog" not in cp.stderr,
+               f"a clean staged store-mirror entry was refused or not silent: {cp.stderr.strip()}")
+        shutil.rmtree(store)
         # A preflight that does not complete refuses; one that is absent (an older checkout) fails OPEN.
         preflight = repo / _PREFLIGHT
         real = preflight.read_text(encoding="utf-8")
@@ -338,7 +397,7 @@ def _integration_self_test():
         append(clean)
         must(["git", "add", _CHANGELOG])
         cp = run(["git", "commit", "-q", "-m", "exit 2"])
-        expect(refused(cp) and "exit 2" in cp.stderr, "a preflight exiting 2 did not refuse the commit")
+        expect(refused(cp, "did not complete (exit 2)"), "a preflight exiting 2 did not refuse the commit")
         preflight.unlink()
         cp = run(["git", "commit", "-q", "-m", "no preflight"])
         expect(cp.returncode == 0, f"a checkout without the preflight did not fail open: {cp.stderr.strip()}")
