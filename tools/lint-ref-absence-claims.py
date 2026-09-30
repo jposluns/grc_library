@@ -387,7 +387,7 @@ def _comment_open(text: str, opened: bool = False) -> bool:
 
 
 def _normalize(text: str) -> str:
-    text = text.translate(str.maketrans("‘’“”‐‑‒–—−", "''\"\"------"))
+    text = text.translate(str.maketrans("\u2018\u2019\u201c\u201d\u2010\u2011\u2012\u2013\u2014\u2212", "''\"\"------"))
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
