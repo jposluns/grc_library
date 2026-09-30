@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.12\
+**Version:** 1.0.13\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -137,7 +137,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ## 7. Key destruction
 
-7.1 Keys are destroyed when: revoked and no longer needed, at end of planned lifecycle, or upon system decommission. A data-encryption key is destroyed only after the data it protects has been re-encrypted under a new key or destroyed ([Encryption and Key Management Policy](policy-encryption-and-key-management.md), section 5.5). Before a key is destroyed or zeroized, the Key Custodian confirms with Legal Counsel that no legal hold or investigation covers data the key protects, directly or through a key it wraps. Legal Counsel's confirmation takes account of the retention hold recorded in the Records Register ([Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md), section 7, Retention hold and litigation freeze) and the legal hold status tracked in the GRC platform ([Data Retention Schedule](../governance/register-data-retention-schedule.md), Legal holds); those records alone do not complete the check, because an investigation may not be recorded in either. If a hold or investigation applies, the key is retained under Key Custodian custody and is not destroyed or zeroized until Legal Counsel, in writing, releases the hold or confirms that the investigation no longer requires the key.
+7.1 Keys are destroyed when: revoked and no longer needed, at end of planned lifecycle, or upon system decommission. A data-encryption key is destroyed only after the data it protects has been re-encrypted under a new key or destroyed, and a key-wrapping key is retained while any key it protects is still needed ([Encryption and Key Management Policy](policy-encryption-and-key-management.md), section 5.5). Before a key is destroyed or zeroized, the Key Custodian confirms with Legal Counsel that no legal hold or investigation covers data the key protects, directly or through a key it wraps. Legal Counsel's confirmation takes account of the retention hold recorded in the Records Register ([Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md), section 7, Retention hold and litigation freeze) and the legal hold status tracked in the GRC platform ([Data Retention Schedule](../governance/register-data-retention-schedule.md), Legal holds); those records alone do not complete the check, because an investigation may not be recorded in either. If a hold or investigation applies, the key is retained under Key Custodian custody and is not destroyed or zeroized until Legal Counsel, in writing, releases the hold or confirms that the investigation no longer requires the key.
 
 7.2 Destruction procedure:
 1. Key Custodian submits a destruction request approved by CISO, with the Legal Counsel confirmation required by 7.1 attached.
