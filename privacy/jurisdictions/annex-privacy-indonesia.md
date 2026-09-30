@@ -2,8 +2,8 @@
 
 **Document Title:** Indonesia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.11\
-**Date:** 2026-09-28\
+**Version:** 1.0.12\
+**Date:** 2026-10-01\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted 17 October 2022, with a two-year period for controllers, processors and other parties involved in processing to conform (Article 74), which ended in October 2024. Indonesia's first dedicated and comprehensive personal data protection law. An implementing Government Regulation (reported as No. 33 of 2026, enacted July 2026 and effective from January 2027) is not held in the reference base, so an adopter confirms its text and effective dates directly.
+- **Personal Data Protection Law (UU PDP) No. 27 of 2022**: Enacted 17 October 2022, with a two-year period for controllers, processors and other parties involved in processing to conform (Article 74), which ended in October 2024. Indonesia's first dedicated and comprehensive personal data protection law. An implementing Government Regulation (reported as No. 33 of 2026, enacted July 2026 and effective from January 2027) is not held in the reference base, so an adopter confirms its text and effective dates directly. <!-- ref-absence: Government Regulation No. 33 of 2026 | GR 33/2026 -->
 - Data Controller and Processor framework aligned with GDPR concepts.
 - Rights: information about the identity, legal basis, purpose of the request and use of the data, and accountability of the party requesting personal data (Article 5); correction (Article 6); access and a copy (Article 7); ending processing, erasure and destruction (Article 8); withdrawal of consent (Article 9); objection to solely automated decisions (Article 10); delay or restriction of processing (Article 11); suing and receiving compensation for a processing violation (Article 12); and portability (Article 13).
 - Response deadlines: the controller corrects or updates data (Article 30(1)), gives access with the processing record (Article 32(2)), stops processing after consent is withdrawn (Article 40(2)), and delays or restricts processing (Article 41(1)), each within 3 x 24 hours of receiving the request.

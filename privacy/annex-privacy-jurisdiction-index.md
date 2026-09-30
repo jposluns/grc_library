@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.52\
-**Date:** 2026-09-28\
+**Version:** 1.0.54\
+**Date:** 2026-10-01\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -114,7 +114,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Latin America | Various (see jurisdiction file) | Varies by jurisdiction | Varies by jurisdiction | Varies by jurisdiction |
 | Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
-| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
+| Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) <!-- ref-absence: PPC AI guidance | PPC guidance on AI --> | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
 | South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
 | New Zealand | Privacy Act 2020 | IPP principles; mandatory breach notification | IPP 12 disclosure conditions; prescribed binding schemes / prescribed countries (ss. 213-214) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated-decision objection right (Art 18) | Bureau-approved legislated jurisdictions, or a UAE bilateral/multilateral agreement (Art 22); the six Art 23(1)(a)-(f) cases (contract/consent/judicial cooperation/rights/public interest) | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
@@ -144,7 +144,7 @@ The following material regulatory developments occurred or were anticipated betw
 - **Australia Privacy Act:** Privacy and Other Legislation Amendment Act 2024 reforms took effect; statutory tort for serious invasions of privacy became actionable.
 - **Global CBPR:** Additional economies joined the Global CBPR Forum; interoperability with GDPR SCCs was under active negotiation.
 - **India DPDPA:** the Act was brought into force by notification G.S.R. 843(E) of 13 November 2025 on a three-tranche schedule under s. 1(2): the definitions and the establishment of the Data Protection Board took effect on that date, the consent-manager registration duty commences around November 2026, and the core substantive regime and the Board's principal inquiry-and-penalty functions commence around 13 May 2027. The Digital Personal Data Protection Rules 2025 (G.S.R. 846(E)), notified the same day, commence on their own matching rule 1(2) to (4) schedule.
-- **Southeast Asia expansion:** Indonesia's implementing Government Regulation under UU PDP was reported enacted in 2026 (not held in the reference base); Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023.
+- **Southeast Asia expansion:** Indonesia's implementing Government Regulation under UU PDP was reported enacted in 2026 (not held in the reference base); Malaysia's 2024 PDPA amendments entered into force; Vietnam enacted the PDPL (Law 91/2025) and Decree 356/2025 (in force 2026-01-01), repealing Decree 13/2023. <!-- ref-absence: Government Regulation No. 33 of 2026 | GR 33/2026 -->
 - **South Korea PIPA:** 2023 amendments operationalized, including automated decision explanation rights and enhanced penalty framework.
 - **Nigeria NDPA:** The Nigeria Data Protection Commission established as an independent body and commenced regulatory activity.
 - **Saudi Arabia:** SDAIA issued sector-specific AI governance guidelines for financial services and healthcare; data localization requirements clarified.

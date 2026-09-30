@@ -2,8 +2,8 @@
 
 **Document Title:** Canada Public Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.18\
-**Date:** 2026-09-25\
+**Version:** 0.0.21\
+**Date:** 2026-10-01\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/public-sector/README.md`](README.md), [`compliance/public-sector/annex-public-sector-requirements.md`](annex-public-sector-requirements.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`ai/jurisdictions/annex-ai-canada.md`](../../ai/jurisdictions/annex-ai-canada.md)\
@@ -546,7 +546,7 @@ Health-information rows remain source-gated until the exact official title, iden
 5. **Current-source acquisition and reconfirmation workflow** for publisher sites that block automated retrieval.
 6. **Source-specific control mappings** for each fit authority, with no inference of implementation or compliance.
 7. **Canadian authority coverage register** retaining no-fit, duplicate, draft, historical, superseded, and source-gated evidence.
-8. **British Columbia FOIPPA subordinate instruments** (the regulations prescribing fees, the manner of consent and of privacy breach notification, and conditions for disclosure outside Canada, and the minister's directions on privacy management programs and privacy impact assessments), which the British Columbia baseline refers to but which are not held.
+8. **British Columbia FOIPPA subordinate instruments** (the regulations prescribing fees, the manner of consent and of privacy breach notification, and conditions for disclosure outside Canada, and the minister's directions on privacy management programs and privacy impact assessments), which the British Columbia baseline refers to but which are not held. <!-- ref-absence: Freedom of Information and Protection of Privacy Regulation | B.C. Reg. 155/2012 | FOIPPA subordinate instrument | Privacy Management Program Direction | Privacy Impact Assessment Direction -->
 
 ---
 

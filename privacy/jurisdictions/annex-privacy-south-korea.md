@@ -2,8 +2,8 @@
 
 **Document Title:** South Korea Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.1\
-**Date:** 2026-09-15\
+**Version:** 1.1.2\
+**Date:** 2026-10-01\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -57,8 +57,8 @@ The Personal Information Protection Act (PIPA) imposes the following core obliga
 
 - **Right to explanation:** Data subjects may request an explanation of any decision made solely through automated means that significantly affects their rights or interests. The data controller must explain the criteria and logic applied and provide human review upon request.
 - **Purpose limitation and data minimization:** Apply to AI training on personal data. Consent must be specific to the AI processing purpose.
-- **High-risk processing:** PIPC guidance addresses higher-risk processing such as CCTV, biometric, and credit-assessment systems (proportionality and human oversight); that guidance is not held in the reference base, so an adopter confirms the current PIPC requirements directly.
-- **Employment and profiling:** PIPC guidance is reported to address AI use in employment screening and credit decisions (proportionality and human oversight); that guidance is not held in the reference base, so an adopter confirms the current PIPC position directly.
+- **High-risk processing:** PIPC guidance addresses higher-risk processing such as CCTV, biometric, and credit-assessment systems (proportionality and human oversight); that guidance is not held in the reference base, so an adopter confirms the current PIPC requirements directly. <!-- ref-absence: PIPC high-risk processing guidance | PIPC CCTV -->
+- **Employment and profiling:** PIPC guidance is reported to address AI use in employment screening and credit decisions (proportionality and human oversight); that guidance is not held in the reference base, so an adopter confirms the current PIPC position directly. <!-- ref-absence: PIPC employment screening guidance | PIPC profiling -->
 
 ---
 

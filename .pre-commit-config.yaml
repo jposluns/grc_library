@@ -708,3 +708,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-ref-absence-claims
+        name: Reference-absence claim audit
+        entry: python3 tools/lint-ref-absence-claims.py
+        language: system
+        pass_filenames: false
+        always_run: true

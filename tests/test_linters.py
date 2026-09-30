@@ -1228,6 +1228,513 @@ class ShallNearUncertaintyTests(LinterTestCase):
             f"skipped.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
 
+class RefAbsenceClaimsTests(LinterTestCase):
+    """Gate 104: line-bound marker binding, claim detection and marker checks.
+
+    Under the maintainer ruling of 2026-09-30 18:34Z a canonical claim is
+    satisfied only by a marker opening on one of the lines the claim spans,
+    and under the 20:47Z ruling detection fails closed. The escape
+    reproductions of review rounds 10 to 13 are regression rows: each
+    blocks, or passes only because a marker is on the claim's lines. The
+    round-13 mutation survivors are killed here: the min claim end by
+    test_shorter_reading_bounds_the_claim, the matching order and the
+    reading union by test_reading_union_and_matching_order, and the fence
+    prefix break by the bullet-fence row of the fenced-code test.
+    """
+    SCRIPT = 'tools/lint-ref-absence-claims.py'
+    CLAIM = 'X is not held in the reference base.'
+    MARKER = '<!-- ref-absence: NONESUCH-99999 -->'
+    OTHER_MARKER = '<!-- ref-absence: NONESUCH-99998 -->'
+    NONESUCH_ROWS = [(1, 'nonesuch-99999', '| NONESUCH-99999 |')]
+    _module = None
+
+    def scan(self, body, rows=()):
+        if RefAbsenceClaimsTests._module is None:
+            RefAbsenceClaimsTests._module = load_linter_module(self.SCRIPT, '_ref_absence_line_bound')
+        return RefAbsenceClaimsTests._module.scan_text('t.md', body, list(rows))
+
+    def blocking(self, body, rows=()):
+        return [f for f in self.scan(body, rows) if not f.startswith('ADVISORY: ')]
+
+    def claim_findings(self, body):
+        return [f for f in self.scan(body) if ': canonical reference-absence claim (' in f]
+
+    def assertClaimBlocks(self, body, first, last=None):
+        span = f'line {first}' if last in (None, first) else f'lines {first}-{last}'
+        prefix = f't.md:{first}: canonical reference-absence claim ({span}) has no'
+        findings = self.scan(body)
+        self.assertTrue(any(f.startswith(prefix) for f in findings), (body, findings))
+
+    def assertClean(self, body, rows=()):
+        self.assertEqual(self.scan(body, rows), [], body)
+
+    def assertOrphan(self, body, line):
+        findings = self.scan(body)
+        self.assertIn(f't.md:{line}: orphan ref-absence marker: no reference-absence claim spans this line', findings)
+
+    def assertAdvisory(self, result) -> None:
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('ADVISORY:', result.stdout)
+        self.assertIn('non-canonical reference-absence phrasing', result.stdout)
+
+    def assertLinterFails(self, result, needle=None) -> None:
+        super().assertLinterFails(result, needle)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
+    def test_marker_on_first_middle_or_last_claim_line_passes(self):
+        lines = ['Context before.', 'The decree is not', 'held in the', 'reference base, so confirm it.', 'Context after.']
+        self.assertClaimBlocks('\n'.join(lines) + '\n', 2, 4)
+        for index in (1, 2, 3):
+            with self.subTest(line=index + 1):
+                body = list(lines)
+                body[index] += ' ' + self.MARKER
+                self.assertClean('\n'.join(body) + '\n')
+        for body in (self.MARKER + ' ' + self.CLAIM, 'X is not held ' + self.MARKER + ' in the reference base.', 'X is not held in the reference base, so an adopter confirms it. ' + self.MARKER):
+            with self.subTest(body=body):
+                self.assertClean(body + '\n')
+
+    def test_marker_one_line_before_or_after_fails(self):
+        for claim in (['X is not held in the reference base.'], ['X is not', 'held in the reference base.'], ['X is not', 'held in the', 'reference base.']):
+            n = len(claim)
+            for marker_line in (self.MARKER, 'Context ' + self.MARKER):
+                with self.subTest(lines=n, marker_line=marker_line):
+                    before = '\n'.join([marker_line] + claim) + '\n'
+                    self.assertClaimBlocks(before, 2, n + 1)
+                    self.assertOrphan(before, 1)
+                    after = '\n'.join(claim + [marker_line]) + '\n'
+                    self.assertClaimBlocks(after, 1, n)
+                    self.assertOrphan(after, n + 1)
+                    self.assertClaimBlocks('\n'.join(claim + ['', marker_line]) + '\n', 1, n)
+
+    def test_line_range_runs_from_first_to_last_word_line(self):
+        marker = self.MARKER
+        self.assertClaimBlocks('Context ' + marker + '\nnot held in the reference base.\n', 2)
+        self.assertClean('Context\n' + marker + ' X is not held in the reference base.\n')
+        self.assertClaimBlocks('X is not held in the reference\nbase.\n' + marker + '\n', 1, 2)
+        self.assertClean('X is not held in the reference\nbase. ' + marker + '\n')
+        self.assertClean('X is not held in the\n' + marker + ' reference base.\n')
+        self.assertClaimBlocks('Context ' + marker + '\nX is not held in the reference base', 2)
+        self.assertClaimBlocks('Intro.\n\nX is not\nheld in the\nreference base.\n', 3, 5)
+        self.assertClaimBlocks('**X is not\nheld in the reference base**\n', 1, 2)
+        # No paragraph model: a blank line does not end a wrapped claim.
+        self.assertClaimBlocks('X is not held\n\nin the reference base.\n', 1, 3)
+        self.assertClean('X is not held\n\nin the reference base. ' + marker + '\n')
+
+    def test_each_claim_needs_its_own_marker_on_its_lines(self):
+        two = 'The act is not held in the reference base. The decree is not held in the reference base.'
+        findings = self.blocking(two + ' ' + self.MARKER + '\n')
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn('(1 marker(s) on those lines already cover other claims', findings[0])
+        self.assertClean(two + ' ' + self.MARKER + ' ' + self.OTHER_MARKER + '\n')
+        wrapped = 'A is not held in the{}\nreference base. B is not held in the reference base.{}\n'
+        self.assertClean(wrapped.format(' ' + self.MARKER, ' ' + self.OTHER_MARKER))
+        self.assertClean(wrapped.format('', ' ' + self.MARKER + ' ' + self.OTHER_MARKER))
+        self.assertClaimBlocks(wrapped.format(' ' + self.MARKER + ' ' + self.OTHER_MARKER, ''), 2)
+        self.assertClaimBlocks(wrapped.format(' ' + self.MARKER, ''), 2)
+        late = 'A is not held in the reference base. B is not held in the{}\nreference base.{}\n'
+        self.assertClean(late.format(' ' + self.MARKER, ' ' + self.OTHER_MARKER))
+        self.assertClaimBlocks(late.format(' ' + self.MARKER, ''), 1, 2)
+
+    def test_structure_never_changes_binding(self):
+        for lead, tail in (('# ', ''), ('## ', ' ##'), ('- ', ''), ('1. ', ''), ('2019. ', ''), ('> ', ''), ('> > ', ''), ('| X | ', ' |'), ('<div>', '</div>'), ('<abbr>ICO</abbr> says ', ''), ('    ', ''), ('Source | ', '')):
+            claim = lead + self.CLAIM + tail
+            with self.subTest(lead=lead):
+                self.assertClean(claim + ' ' + self.MARKER + '\n')
+                self.assertClaimBlocks(claim + '\n' + self.MARKER + '\n', 1)
+                self.assertClaimBlocks(self.MARKER + '\n' + claim + '\n', 2)
+                self.assertClaimBlocks(claim + '\n' + lead + 'Context ' + self.MARKER + tail + '\n', 1)
+        mod = load_linter_module(self.SCRIPT, '_ref_absence_no_block_model')
+        for name in ('iter_prose_blocks', 'iter_prose_lines', '_html_block_start', '_is_table_delimiter', '_list_can_interrupt'):
+            self.assertFalse(hasattr(mod, name), name)
+
+    def test_wrapped_claims_detected_through_markup(self):
+        variants = (
+            'X is not held in the reference base.',
+            'X is not held in the **reference base**.',
+            'X is *not held* in the reference base.',
+            'X is not held in the `reference base`.',
+            'X is not held in the [reference base](../x.md).',
+            'X is not [held](../a(b).md "t (x)") in the reference base.',
+            "X is [not](<../a(b).md> 'title') held in the reference base.",
+            'X is [not](a\\(b.md) held in the reference base.',
+            'X is [not](a.md "t(") held in the reference base.',
+            'X is [not][label] held in the reference base.',
+            'X is [not] [held](x) in the reference base.',
+            'X is not <em>held</em> in the reference base.',
+            'X is not <span class="x">held</span> in the reference base.',
+            'X is not held in the reference&nbsp;base.',
+            'X is ~~not~~ held in the _reference_ base.',
+            'X is not currently held in our reference library.',
+            'X IS NOT HELD IN THE REFERENCE BASE.',
+            'X is not he**ld** in the reference base.',
+            'X is not h`eld` in the reference base.',
+            'X is not [he](x)ld in the reference base.',
+            '_X is not held in the reference base_.',
+            'X is _not_ held in the reference base.',
+            'X is not held in the reference _base_.',
+            '__not held in the reference base__',
+        )
+        for text in variants:
+            words = text.split(' ')
+            first = next(i for i, w in enumerate(words) if 'not' in w.lower())
+            last = next(i for i, w in enumerate(words) if i > first and ('base' in w.lower() or 'library' in w.lower()))
+            for cut in range(len(words) + 1):
+                first_line, last_line = 1 + (first >= cut), 1 + (last >= cut)
+                lines = [' '.join(words[:cut]), ' '.join(words[cut:])]
+                with self.subTest(text=text, cut=cut):
+                    self.assertClaimBlocks('\n'.join(lines) + '\n', first_line, last_line)
+                    lines[last_line - 1] += ' ' + self.MARKER
+                    self.assertClean('\n'.join(lines) + '\n')
+        for body, first, last in (
+            ('X is not [held](\n<x>) in the reference base.', 1, 2),
+            ('X is not [held](\n<x>\n) in the reference base.', 1, 3),
+            ('X is not held in the reference\\\nbase.', 1, 2),
+            ('> X is not\n> held in the reference base.', 1, 2),
+            ('> X is not held\n2. in the reference base.', 1, 2),
+            ('- X is not held\n  in the reference base.', 1, 2),
+            ('| X is not held\n| in the reference base |', 1, 2),
+            ('X is not\n<abbr>held</abbr> in the reference base.', 1, 2),
+            ('<!-- a --> X is not held in the reference\nbase.', 1, 2),
+            ('X is not held in the reference\n<!-- note --> base.', 1, 2),
+            ('X is not he**ld**\nin the reference base.', 1, 2),
+            ('_X is not\nheld in the reference base_.', 1, 2),
+        ):
+            with self.subTest(body=body):
+                self.assertClaimBlocks(body + '\n', first, last)
+                self.assertClean(body + ' ' + self.MARKER + '\n')
+
+    M = '<!-- ref-absence: NONESUCH-99999 -->'
+    C = 'X is not held in the reference base.'
+    ESCAPES = (
+        ('r10-claude-heading-before', '## The decree is not held in the reference base\nIntro prose. ' + M, 1, 1),
+        ('r10-claude-heading-marker', '## Decree ' + M + '\n' + C, 2, 2),
+        ('r10-claude-quoted-heading', '> # ' + C + '\nprose ' + M, 1, 1),
+        ('r10-claude-quote-comment', '> ' + C + '\n' + M, 1, 1),
+        ('r10-claude-ordered-lookalike', 'X is not held in the reference base as amended in\n2019. ' + M, 1, 1),
+        ('r10-claude-pipe-line', 'X is not held in the reference base as amended\n| see note ' + M, 1, 1),
+        ('r10-claude-pipeless-table', 'a | b\n--- | ---\n' + C + ' | x\nnext | ' + M, 3, 3),
+        ('r10-claude-emphasis', 'X is not held in the *reference base*.', 1, 1),
+        ('r10-claude-link', 'X is not held in the [reference base](../x.md).', 1, 1),
+        ('r10-codex-comment-line', C + '\n' + M, 1, 1),
+        ('r10-codex-div-comment', C + '\n<div>\n' + M, 1, 1),
+        ('r10-codex-heading-after', '# Context ' + M + '\n' + C, 2, 2),
+        ('r10-codex-bare-hash', C + '\n#\nSee the portal. ' + M, 1, 1),
+        ('r10-codex-table-rows', 'Source | Status\n--- | ---\nX | ' + C + '\nY | Context ' + M, 3, 3),
+        ('r10-codex-ordered-two', C + '\n2. Confirm current guidance. ' + M, 1, 1),
+        ('r10-gemini-pipe-wrap', 'X is not held in the reference base when\n| to combine flags. ' + M, 1, 1),
+        ('r10-gemini-split-emphasis', 'X is not held in the *reference* base.', 1, 1),
+        ('r11-claude-type7-heading', '<abbr>ICO</abbr> guidance: ' + C + '\n## Next section ' + M, 1, 1),
+        ('r11-claude-type7-list', '<abbr>ICO</abbr> guidance: ' + C + '\n- item ' + M, 1, 1),
+        ('r11-claude-type7-quote', '<abbr>ICO</abbr> guidance: ' + C + '\n> quoted ' + M, 1, 1),
+        ('r11-claude-type7-row', '<abbr>ICO</abbr> guidance: ' + C + '\n| a | b ' + M + ' |', 1, 1),
+        ('r11-claude-type7-break', '<abbr>ICO</abbr> guidance: ' + C + '\n***\nContext ' + M, 1, 1),
+        ('r11-claude-autolink', '<https://ico.org.uk> says ' + C + '\n## Next section ' + M, 1, 1),
+        ('r11-claude-code-span-comment', 'Write `<!--` to open a comment.\n\n' + C + '\n\n## Heading\n\nOther para ' + M, 3, 3),
+        ('r11-claude-draft-comment', 'Note <!-- draft\n' + C + '\n\nOther para. ' + M, 2, 2),
+        ('r11-claude-rows-after-table', '| a | b |\n|---|---|\n| x | y |\n' + C + '\nmore ' + M, 4, 4),
+        ('r11-claude-quote-depth', '> ' + C + '\n> > more ' + M, 1, 1),
+        ('r11-claude-heading-bound', C + '\n## Heading ' + M, 1, 1),
+        ('r11-claude-header-row', C + '\nA ' + M + ' | B\n--- | ---', 1, 1),
+        ('r11-claude-marker-above', M + '\n' + C, 2, 2),
+        ('r11-claude-adjacent-html', M + '\n<div>' + C + '</div>', 2, 2),
+        ('r11-codex-comment-blank', C + ' <!-- note\n\n--> Context ' + M, 1, 1),
+        ('r11-codex-comment-heading', C + ' <!-- note\n# Context --> ' + M, 1, 1),
+        ('r11-codex-pipeless-rows', 'Source | Status\n--- | ---\n' + C + '\nContext ' + M, 3, 3),
+        ('r11-codex-inner-link', 'X is not [held](../README.md) in the reference base.', 1, 1),
+        ('r11-gemini-lazy-ordered', '> X is not held\n2. in the reference base.', 1, 2),
+        ('r12-claude-tag-row', 'Source | Status\n--- | ---\n<abbr>ICO</abbr> guidance | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('r12-claude-autolink-row', 'Source | Status\n--- | ---\n<https://ico.org.uk> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('r12-claude-close-tag-row', '| Source | Status |\n| --- | --- |\n</span> | x\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('r12-claude-br-row', 'Source | Status\n--- | ---\n<br> | pending\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('r12-claude-widget-row', 'Source | Status\n--- | ---\n<widget>\nDecree | ' + C + '\nPortal | Context ' + M, 4, 4),
+        ('r12-claude-setext-row-1', 'Source | Status\n--- | ---\nRow | a\n=\n' + C + '\nContext ' + M, 5, 5),
+        ('r12-claude-setext-row-2', 'Source | Status\n--- | ---\nRow | a\n==\n' + C + '\nContext ' + M, 5, 5),
+        ('r12-claude-setext-row-3', 'Source | Status\n--- | ---\nRow | a\n===\n' + C + '\nContext ' + M, 5, 5),
+        ('r12-claude-setext-row-dash', 'Source | Status\n--- | ---\nRow | a\n--\n' + C + '\nContext ' + M, 5, 5),
+        ('r12-claude-angle-destination', 'X is [not](<a(b.md>) held in the reference base.', 1, 1),
+        ('r12-claude-title-paren', 'X is [not](a.md "t(") held in the reference base.', 1, 1),
+        ('r12-claude-escaped-paren', 'X is [not](a\\(b.md) held in the reference base.', 1, 1),
+        ('r12-claude-type6-blank', '<div>\n' + C + '\n\nContext ' + M, 2, 2),
+        ('r12-claude-type7-link-wrap', '<abbr>ICO</abbr> says X is [not](x)\nheld in the reference base.', 1, 2),
+        ('r12-claude-wide-list-marker', '- ' + C + '\n-     code ' + M, 1, 1),
+        ('r12-claude-wide-list-first', '-     code ' + M + '\n' + C, 2, 2),
+        ('r12-claude-em-tag', 'X is not <em>held</em> in the reference base.', 1, 1),
+        ('r12-claude-entity', 'X is not held in the reference&nbsp;base.', 1, 1),
+        ('r12-claude-hard-break', 'X is not held in the reference\\\nbase.', 1, 2),
+        ('r12-claude-comment-line-text', '<!-- a --> X is not held in the reference\nbase.', 1, 2),
+        ('r12-codex-table-setext', 'A | B\n--- | ---\nrow\n===\n' + C + '\nContext ' + M, 5, 5),
+        ('r12-codex-destination-newline', 'X is not [held](\n<x>) in the reference base.', 1, 2),
+        ('r12-codex-destination-lines', 'X is not [held](\n<x>\n) in the reference base.', 1, 3),
+        ('r12-codex-neighbour-link', 'X is [not] [held](x) in the reference base.\n\n[not]: y', 1, 1),
+        ('r12-gemini-inline-tag-line', C + '\n<a href="link">link</a> ' + M, 1, 1),
+        ('r12-gemini-tag-wrap', 'X is not\n<abbr>held</abbr> in the reference base.', 1, 2),
+        ('r13-codex-comment-link-opener', '<!-- [x]( -->\nX is not [held](x) in the reference base.\n)', 2, 2),
+        ('r13-codex-codespan-link-opener', '`[x](` X is not [held](x) in the reference base. )', 1, 1),
+        ('r13-codex-strong-in-word', 'X is not he**ld** in the reference base.', 1, 1),
+        ('r13-codex-codespan-in-word', 'X is not h`eld` in the reference base.', 1, 1),
+        ('r13-codex-link-in-word', 'X is not [he](x)ld in the reference base.', 1, 1),
+        ('r13-codex-strong-in-word-wrap', 'X is not he**ld**\nin the reference base.', 1, 2),
+        ('r13-claude-underscore-claim', '_X is not held in the reference base_.', 1, 1),
+        ('r13-claude-underscore-not', 'X is _not_ held in the reference base.', 1, 1),
+        ('r13-claude-underscore-base', 'X is not held in the reference _base_.', 1, 1),
+        ('r13-claude-strong-underscore', '__not held in the reference base__', 1, 1),
+        ('r13-claude-underscore-wrap', '_X is not\nheld in the reference base_.', 1, 2),
+        ('r13-claude-comment-fences', '<!--\n```\n-->\n' + C + '\n<!--\n```\n-->', 4, 4),
+        ('r13-claude-literal-labels', 'X is [not held in the][reference base]', 1, 1),
+        ('r13-claude-inline-gap', 'X is not <em>held</em> in the ][reference base', 1, 1),
+        ('r13-claude-comment-loose', '<!-- X is not [held](x in the reference base -->', 1, 1),
+    )
+    del M, C
+
+    def test_review_round_escapes_block_or_bind_on_claim_lines(self):
+        for label, body, first, last in self.ESCAPES:
+            with self.subTest(label=label):
+                self.assertClaimBlocks(body + '\n', first, last)
+                lines = body.split('\n')
+                lines[last - 1] += ' ' + self.OTHER_MARKER
+                repaired = '\n'.join(lines) + '\n'
+                self.assertEqual([f for f in self.claim_findings(repaired) if f.startswith(f't.md:{first}:')], [], repaired)
+
+    def test_unreadable_constructs_fail_closed(self):
+        for body, first, last in (
+            ('X is **not held\nin the reference base.', 1, 2),
+            ('X is [not held\nin the reference base.', 1, 2),
+            ('X is not [held](x\nin the reference base.', 1, 2),
+            ('X is not <span\nheld in the reference base.', 1, 2),
+            ('[a](\n\nX is [not](z) held in the reference base.\n)', 3, 3),
+            ('Note <!-- draft\nX is not held in the reference base.', 2, 2),
+            ('<!-- X is not held in the reference base. -->', 1, 1),
+            ('<!--\nX is not held in the reference base.\n-->', 2, 2),
+        ):
+            with self.subTest(body=body):
+                self.assertClaimBlocks(body + '\n', first, last)
+                lines = body.split('\n')
+                lines[last - 1] += ' ' + self.MARKER
+                self.assertClean('\n'.join(lines) + '\n')
+        for lead, marker, problem in (
+            ('', '<!-- ref-absence: NONESUCH-99999', 'the comment is never closed'),
+            ('', '<!-- ref-absence: NONESUCH-99999\n\n-->', 'not closed before a blank line'),
+            ('', '<!-- ref-absence:\n\n27002\n-->', 'not closed before a blank line'),
+            ('', '<!--\n\nref-absence: NONESUCH-99999 -->', 'not closed before a blank line'),
+            ('', '`x ' + self.MARKER, 'unpaired backtick run'),
+            ('', self.MARKER + ' `x', 'unpaired backtick run'),
+            ('A stray `\n', self.MARKER, 'unpaired backtick run'),
+            ('X is `not held\nin the reference base.\n', self.MARKER, 'unpaired backtick run'),
+        ):
+            body = lead + self.CLAIM + ' ' + marker + '\n'
+            line = 1 + lead.count('\n')
+            with self.subTest(body=body):
+                findings = self.scan(body)
+                self.assertTrue(any(f.startswith(f't.md:{line}: malformed ref-absence marker: ') and problem in f and 'satisfies no claim' in f for f in findings), findings)
+                self.assertClaimBlocks(body, line)
+        nested = self.CLAIM + ' <!-- ref-absence: NONESUCH-99998 ' + self.MARKER + '\n'
+        self.assertTrue(any('another comment opener' in f for f in self.scan(nested)), self.scan(nested))
+        example = self.CLAIM + ' Write `' + self.MARKER + '` after it.\n'
+        findings = self.scan(example, self.NONESUCH_ROWS)
+        self.assertEqual(len(findings), 1, findings)
+        self.assertClaimBlocks(example, 1)
+        self.assertClean('Write `' + self.MARKER + '` after a claim.\n', self.NONESUCH_ROWS)
+        self.assertClean('A stray ` here.\n\n' + self.CLAIM + ' ' + self.MARKER + '\n')
+        self.assertClean(self.CLAIM + ' ' + self.MARKER + '\n\nA stray ` here.\n')
+        self.assertClean('X is not held in the `reference\nbase` ' + self.MARKER + ' so confirm it.\n')
+
+    def test_fenced_code_is_skipped_only_when_closed(self):
+        rows = [(1, 'iso/iec 27002:2022', '| ISO/IEC 27002:2022 |')]
+        claim = self.CLAIM
+        sep = chr(0x2028)  # U+2028: not a Markdown line break (r13 F2).
+        for body in (
+            '```\n' + claim + '\n```\n',
+            '~~~~\n' + claim + '\n~~~~\n',
+            '````\n```\n' + claim + '\n```\n````\n',
+            '> ```\n> ' + claim + '\n> ```\n',
+            '- ```\n  ' + claim + '\n  ```\n',
+            '- > ```\n  > ' + claim + '\n  > ```\n',
+            '> - ```\n>   ' + claim + '\n>   ```\n',
+            '1000. > - ```\n      >   ' + claim + '\n      >   ```\n',
+            '2. ```\n   ' + claim + '\n   ```\n',
+            '- Example:\n\n  ```\n  ' + claim + '\n\n  ```\n',
+            '  ```\n  ' + claim + '\n```\n',
+            '```\n<!-- ref-absence:\n27002\n-->\n```\n',
+        ):
+            with self.subTest(body=body):
+                self.assertClean(body, rows)
+        for body, line in (
+            ('```\n' + claim + '\n', 2),
+            ('  ```\n' + claim + '\n```\n', 2),
+            ('- ```\n  code sample\n\n' + claim + '\n', 4),
+            ('> ```\n' + claim + '\n> ```\n', 2),
+            ('> ```\n\n> ' + claim + '\n> ```\n', 3),
+            ('- > ```\n  ' + claim + '\n', 2),
+            ('> - ```\n> ' + claim + '\n', 2),
+            ('- Example:\n\n  ```\n  code\n\n' + claim + '\n\n```\nlater\n```\n', 6),
+            ('- ```\n  ~~~\n' + claim + '\n~~~\n', 3),
+            ('    ```\n    ' + claim + '\n    ```\n', 2),
+            ('-     ```\n      ' + claim + '\n      ```\n', 2),
+            ('``` a`b\n' + claim + '\n```\n', 2),
+            ('- ```\n  code\n' + claim + '\n  ```\n', 3),
+            ('Text\n2. ```\n   ' + claim + '\n   ```\n', 3),
+            ('<!--\n```\n-->\n' + claim + '\n```\n', 4),
+            ('Intro' + sep + '```\n' + claim + '\nEnd' + sep + '```\n', 2),
+        ):
+            with self.subTest(body=body):
+                self.assertClaimBlocks(body, line)
+        findings = self.scan('    X is not held in the reference base.\n    <!-- ref-absence: 27002 -->\n', rows)
+        self.assertTrue(any(f.startswith('t.md:1: canonical') for f in findings), findings)
+        self.assertTrue(any(f.startswith('t.md:2: orphan') for f in findings), findings)
+        self.assertTrue(any(f.startswith('t.md:2: STALE') for f in findings), findings)
+
+    def test_lines_split_on_newlines_only(self):
+        # str.splitlines separators such as U+2028 are not Markdown line
+        # breaks: they stay inside their physical line, so a marker after
+        # one stays on the claim's line and line numbers count newlines
+        # only (r13 F2).
+        sep = chr(0x2028)
+        self.assertClean(self.CLAIM + sep + 'See the note. ' + self.MARKER + '\n')
+        self.assertClaimBlocks('A' + sep + 'B\n' + self.CLAIM + '\n', 2)
+
+    def test_shorter_reading_bounds_the_claim(self):
+        # Readings may end the same claim on different lines: [base] below
+        # is a literal label in one reading and a dropped reference label
+        # in another. The claim keeps the SHORTEST span, so a marker on
+        # line 2 satisfies neither reading and the min->max mutant of
+        # canonical_claims is killed by the first assertion (r13 WARN).
+        body = 'X is not held in the [reference][base]\nbase. ' + self.MARKER + '\n'
+        self.assertClaimBlocks(body, 1, 1)
+        self.assertOrphan(body, 2)
+        marked = 'X is not held in the [reference][base] ' + self.MARKER + '\nbase.\n'
+        self.assertClean(marked)
+        findings = self.scan(marked, self.NONESUCH_ROWS)
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn('STALE', findings[0])
+
+    def test_reading_union_and_matching_order(self):
+        # Overlapping claims from different readings match distinct markers
+        # in last-line order; the (first, last) sort-key mutant false-blocks
+        # on this shape (r13 mutation witness).
+        self.assertClean('A is not <!--\nB is not held in the reference base. --> '
+                         + self.MARKER + '\nheld in the reference base. ' + self.OTHER_MARKER + '\n')
+        for body in (
+            'X is [not held in the][reference base]',
+            'X is not <em>held</em> in the ][reference base',
+            '<!-- X is not [held](x in the reference base -->',
+        ):
+            with self.subTest(body=body):
+                self.assertClaimBlocks(body + '\n', 1)
+                self.assertClean(body + ' ' + self.MARKER + '\n')
+
+    def test_marker_checks_orphan_empty_and_stale(self):
+        claim, rows = self.CLAIM, self.NONESUCH_ROWS
+        for marker in (self.MARKER, '<!-- ref-absence: nonesuch-99999 -->', '<!-- ref-absence:  NONESUCH-99999  -->', '<!-- ref-absence: NONESUCH-99998 | NONESUCH-99999 -->', '<!-- ref-absence:\nNONESUCH-99999\n-->', '<!--\nref-absence:\nNONESUCH-99999\n-->'):
+            with self.subTest(marker=marker):
+                body = claim + ' ' + marker + '\n'
+                self.assertClean(body)
+                findings = self.scan(body, rows)
+                self.assertEqual(len(findings), 1, findings)
+                self.assertTrue(findings[0].startswith('t.md:1: STALE reference-absence claim'), findings)
+        for marker, needle in (('<!-- ref-absence: -->', 'no query'), ('<!-- ref-absence: | -->', 'no query'), ('<!-- ref-absence: NONESUCH-99999 | -->', 'empty alternative')):
+            with self.subTest(marker=marker):
+                findings = self.scan(claim + ' ' + marker + '\n')
+                self.assertEqual(len(findings), 1, findings)
+                self.assertIn('t.md:1: malformed ref-absence marker: ' + needle, findings[0])
+        self.assertOrphan('Nothing is claimed on this line. ' + self.MARKER + '\n', 1)
+        self.assertOrphan('<!-- ref-absence:\nNONESUCH-99999\n-->\n', 1)
+        self.assertClaimBlocks(claim + '\n<!-- ref-absence:\nNONESUCH-99999 -->\n', 1)
+        self.assertClean(claim + ' <!-- ref-absence: guidance not held in the reference base -->\n')
+
+    def test_paraphrase_markers_bind_to_their_own_lines(self):
+        for claim in ('The reference base carries no copy of X.', 'Nor is X held in the reference base.', 'Nor is the implementing decree held.', 'The decree is not held.', 'The decree is absent from it.', 'The decree is not included among the many other sources that have already been acquired for the reference base.', 'The held texts of the decree as officially published last year do not include X.', 'Neither decree is held in the reference base.', 'The reference base lacks X.', 'Nor is [the decree](a.md) held.'):
+            with self.subTest(claim=claim):
+                self.assertEqual(self.blocking(claim + ' ' + self.MARKER + '\n'), [])
+                self.assertOrphan(claim + '\n' + self.MARKER + '\n', 2)
+        self.assertEqual(self.blocking('Nor is the U.S. guidance\nheld. ' + self.MARKER + '\n'), [])
+        self.assertOrphan('X is absent from the reference base, so an adopter\nchecks the issuing authority\nbefore relying on it. ' + self.MARKER + '\n', 3)
+        self.assertOrphan('## Translation not available\n' + self.MARKER + '\n', 2)
+        for prose in ('The reference base carries a copy of X.', 'X is held in the reference base.', 'Consult the reference base.'):
+            with self.subTest(prose=prose):
+                self.assertOrphan(prose + ' ' + self.MARKER + '\n', 1)
+
+    def test_manual_nor_abbreviations_and_section_numbers(self):
+        for subject in ('the U.S. guidance', 'the U.K. guidance', 'the Sec. 3.2 guidance', "Dr. Smith's guidance"):
+            with self.subTest(subject=subject):
+                body = f'Nor is {subject} held. {self.MARKER}\n'
+                self.assertClean(body)
+                findings = self.scan(body, self.NONESUCH_ROWS)
+                self.assertEqual(len(findings), 1, findings)
+                self.assertIn('STALE', findings[0])
+        self.assertOrphan('Nor is this relevant. A copy is held. ' + self.MARKER + '\n', 1)
+
+    def test_near_misses_are_advisory_only(self):
+        for body in (
+            "The recommendations are not held in this library's reference base.",
+            'That decree is absent from the reference base.',
+            'That statute is not included in the reference base.',
+            'Neither instrument is held in the reference base, and no successor decree is included in the reference library.',
+            "That decree is absent from the reference base's held texts.",
+            "The reference base's held texts do not include the implementing decree.",
+            'The reference base lacks the implementing decree.',
+            'The implementing decree is not yet held in the reference base.',
+            "The reference base's held texts as published officially do not include the implementing decree.",
+            'The reference base\u2019s held texts do not include the implementing decree.',
+        ):
+            with self.subTest(body=body):
+                findings = self.scan(body + '\n')
+                self.assertTrue(findings, body)
+                self.assertTrue(all(f.startswith('ADVISORY: t.md:1: non-canonical reference-absence phrasing') for f in findings), findings)
+        for body in (
+            'Searches of both held texts return no such duty, and a signing date is not in the held text.',
+            'A signing date is absent from the held text.',
+            'The reference base holds the consolidated act, but a signing date is absent from the held text.',
+            'The reference base holds the decree, but no signing date is present in the held text.',
+            'The reference base holds the consolidated act, but the held text does not include a signing date.',
+            'The held texts of Decree 13 do not include the annex that the reference base catalogues separately.',
+            'The held texts, as amended, do not include the annex that the reference base catalogues separately.',
+            "The held text's annex does not include the signing date that the reference base records elsewhere.",
+        ):
+            with self.subTest(body=body):
+                self.assertClean(body + '\n')
+
+    def test_cli_exit_codes_and_line_bound_messages(self):
+        clean = self.make_fixture('annex-absence-clean.md', '# T\n\nThat guidance is not held in the reference base, so an adopter confirms it directly. <!-- ref-absence: NONESUCH-GUIDANCE-99999 -->\n')
+        result = run_linter(self.SCRIPT, clean)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('OK: no blocking reference-absence findings across 1 files.', result.stdout)
+        wrapped = self.make_fixture('annex-absence-next-line.md', '# T\n\nThat guidance is not\nheld in the reference base.\n<!-- ref-absence: NONESUCH-GUIDANCE-99999 -->\n')
+        result = run_linter(self.SCRIPT, wrapped)
+        self.assertLinterFails(result, ':3: canonical reference-absence claim (lines 3-4) has no <!-- ref-absence: query1 | query2 --> marker on its own lines')
+        self.assertIn(':5: orphan ref-absence marker', result.stdout)
+        self.assertIn('2 blocking reference-absence finding(s).', result.stdout)
+        advisory = self.make_fixture('annex-absence-advisory.md', '# T\n\nThat statute is not included in the reference base.\n')
+        self.assertAdvisory(run_linter(self.SCRIPT, advisory))
+        missing = run_linter(self.SCRIPT, 'tests/tmp/no-such-ref-absence-fixture.md')
+        self.assertEqual(missing.returncode, 2, missing.stdout + missing.stderr)
+        exempt = run_linter(self.SCRIPT, 'governance/specification-audit-programme.md')
+        self.assertEqual(exempt.returncode, 0, exempt.stdout + exempt.stderr)
+
+    def test_committed_manifest_staleness(self):
+        for body in ('ISO/IEC 27002:2022 is not held in the reference base. <!-- ref-absence: 27002 -->', 'The control set is not held in the reference base. <!-- ref-absence: iso/iec  27002:2022 -->', 'The control set is not held in the reference base. <!-- ref-absence: NONESUCH-99999 | 27002 -->', 'The control set is not held. <!-- ref-absence: 27002 -->'):
+            with self.subTest(body=body):
+                fixture = self.make_fixture('annex-absence-stale.md', '# T\n\n' + body + '\n')
+                self.assertLinterFails(run_linter(self.SCRIPT, fixture), 'STALE')
+        for query in ('Children\u2019s Online Privacy', 'Children\u2018s Online Privacy', 'NIST AI 100' + chr(0x2013) + '4', 'NIST AI 100\u20114'):
+            with self.subTest(query=query):
+                fixture = self.make_fixture('annex-typographic-query.md', f'X is not held in the reference base. <!-- ref-absence: {query} -->\n')
+                self.assertLinterFails(run_linter(self.SCRIPT, fixture), 'STALE')
+
+    def test_advisory_does_not_suppress_blocking_findings(self):
+        for marker, expected in (('27002', 'STALE'), ('', 'malformed'), ('NONESUCH-99999 |', 'empty alternative')):
+            with self.subTest(marker=marker):
+                fixture = self.make_fixture('annex-absence-advisory-blocking.md', f'The decree is absent from the reference base. <!-- ref-absence: {marker} -->\n')
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, expected)
+                self.assertIn('ADVISORY:', result.stdout)
+
+    def test_provenance_tools_are_examples(self) -> None:
+        text = (REPO_ROOT / 'ai/guideline-ai-synthetic-content-provenance.md').read_text(encoding='utf-8')
+        self.assertIn('other tools it names include', text)
+        self.assertIn('The primary texts of C2PA and these examples', text)
+        self.assertNotIn('the other tools it names (', text)
+
+
 class PlaceholderLeakageTests(LinterTestCase):
     """tools/lint-placeholder-leakage.py"""
 
@@ -22688,6 +23195,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         "lint-bare-normative-shall.py": "iter_markdown_files",
         "lint-todo-marked-done.py": "iter_markdown_files",
         "lint-positional-backlog-tokens.py": "iter_markdown_files",
+        "lint-ref-absence-claims.py": "iter_markdown_files",
     }
     WALKERS = {
         "lint-placeholder-leakage.py": "iter_targets",
