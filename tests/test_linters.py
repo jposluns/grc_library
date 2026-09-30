@@ -1288,6 +1288,97 @@ class RefAbsenceClaimsTests(LinterTestCase):
         super().assertLinterFails(result, needle)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
+    def test_multiline_markers_are_checked(self) -> None:
+        claim = "X is not held in the reference base.\n"
+        for body, expected in (
+            (claim + "<!-- ref-absence:\n27002\n-->\n", "STALE"),
+            ("<!-- ref-absence:\nNONESUCH-99999\n-->\n", "orphan"),
+            (claim + "<!-- ref-absence:\n\n-->\n", "no query"),
+            (claim + "<!-- ref-absence:\nNONESUCH-99999 |\n-->\n",
+             "empty alternative"),
+            (claim + "<!--\nref-absence:\n27002\n-->\n", "STALE"),
+            (claim + "<!-- ref-absence:\n\n27002\n-->\n", "STALE"),
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("annex-multiline-marker.md", body)
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, expected)
+                if body.startswith(claim):
+                    self.assertNotIn("no adjacent", result.stdout)
+                    self.assertNotIn("orphan", result.stdout)
+
+    def test_multiline_marker_binding_and_code(self) -> None:
+        for body in (
+            "X is not held in the reference base.\n"
+            "<!-- ref-absence:\nNONESUCH-99999\n-->\n",
+            "X is not held in the reference base "
+            "<!-- ref-absence:\nNONESUCH-99999\n--> so confirm it.\n",
+            "```\n<!-- ref-absence:\n27002\n-->\n```\n",
+            "    <!-- ref-absence:\n    27002\n    -->\n",
+        ):
+            with self.subTest(body=body):
+                fixture = self.make_fixture("annex-multiline-clean.md", body)
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+
+    def test_indented_code_cannot_open_fence(self) -> None:
+        for indent in ("    ", "        ", "\t"):
+            with self.subTest(indent=indent):
+                fixture = self.make_fixture(
+                    "annex-indented-code.md",
+                    indent + "```\n"
+                    + indent + "X is not held in the reference base.\n"
+                    + indent + "<!-- ref-absence: 27002 -->\n\n"
+                    + "Y is not held in the reference base.\n",
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, "no adjacent")
+                self.assertIn(":5:", result.stdout)
+                self.assertNotIn(":2:", result.stdout)
+                self.assertNotIn("STALE", result.stdout)
+
+    def test_indented_paragraph_continuation_is_prose(self) -> None:
+        fixture = self.make_fixture(
+            "annex-indented-continuation.md",
+            "Some prose\n    ```\n"
+            "X is not held in the reference base.\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+        fixture = self.make_fixture(
+            "annex-indented-wrapped.md",
+            "X is not held\n    in the reference base.\n",
+        )
+        self.assertLinterFails(run_linter(self.SCRIPT, fixture), "no adjacent")
+
+    def test_wide_list_fence_and_indented_code(self) -> None:
+        for prefix in ("1000. ", "123456789. "):
+            indent = " " * len(prefix)
+            for code in ("```\n" + indent + "X is not held in the reference base.\n"
+                         + indent + "```\n",
+                         "Example:\n\n" + indent + "    ```\n"
+                         + indent + "    X is not held in the reference base.\n"):
+                with self.subTest(prefix=prefix, code=code):
+                    fixture = self.make_fixture(
+                        "annex-wide-list.md", prefix + code
+                        + "\nY is not held in the reference base.\n",
+                    )
+                    result = run_linter(self.SCRIPT, fixture)
+                    self.assertLinterFails(result, "no adjacent")
+                    self.assertIn("1 blocking", result.stdout)
+
+    def test_typographic_marker_queries_are_stale(self) -> None:
+        for query in ("Children’s Online Privacy", "Children‘s Online Privacy",
+                      "NIST AI 100–4", "NIST AI 100‑4"):
+            with self.subTest(query=query):
+                fixture = self.make_fixture(
+                    "annex-typographic-query.md",
+                    "X is not held in the reference base. "
+                    f"<!-- ref-absence: {query} -->\n",
+                )
+                self.assertLinterFails(run_linter(self.SCRIPT, fixture), "STALE")
+
     def test_canonical_with_marker_and_no_match_passes(self) -> None:
         fixture = self.make_fixture(
             "annex-absence-clean.md",

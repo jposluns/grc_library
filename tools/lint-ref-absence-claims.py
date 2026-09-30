@@ -349,12 +349,12 @@ SENTENCE_END_RE = re.compile(r"[.!?][\"')\]]*(?=\s|$)")
 # must match the OPENING fence's character, be at least as wide, and carry
 # no info string (CommonMark), so a four-backtick example fence keeps its
 # enclosed three-backtick lines as code instead of re-exposing them.
-FENCE_RE = re.compile(r"^(`{3,}|~{3,})(.*)$")
+FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
 # A list-item prefix: a fence may OPEN on a list-item line (CommonMark),
 # and missing that opener would let its closing fence masquerade as an
 # opener and swallow the prose after the list.
-LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d{1,3}[.)])\s+")
+LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d{1,9}[.)])\s+")
 
 # A line that STARTS a new Markdown block: heading, table row, or list
 # item. A wrapped sentence never continues INTO one of these, so they
@@ -362,10 +362,10 @@ LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d{1,3}[.)])\s+")
 # markers are stripped BEFORE this test (a quoted wrapped sentence joins
 # like any other prose); a change of blockquote depth bounds the block
 # in iter_prose_blocks instead.
-BLOCK_START_RE = re.compile(r"^\s*(?:#{1,6}\s|\||[-*+]\s|\d{1,3}[.)]\s)")
+BLOCK_START_RE = re.compile(r"^\s*(?:#{1,6}\s|\||[-*+]\s|\d{1,9}[.)]\s)")
 
 # One or more leading blockquote markers, each with its optional space.
-QUOTE_PREFIX_RE = re.compile(r"^\s*((?:>\s?)+)")
+QUOTE_PREFIX_RE = re.compile(r"^ {0,3}((?:> ?)+)")
 
 
 def _dequote(line: str) -> "tuple[int, str]":
@@ -376,7 +376,18 @@ def _dequote(line: str) -> "tuple[int, str]":
     return m.group(1).count(">"), line[m.end():]
 
 
+def _comment_open(text: str, opened: bool = False) -> bool:
+    """Track HTML comments without interpreting Markdown inside them."""
+    for token in re.finditer(r"<!--|-->", text):
+        if token.group() == "<!--" and not opened:
+            opened = True
+        elif token.group() == "-->" and opened:
+            opened = False
+    return opened
+
+
 def _normalize(text: str) -> str:
+    text = text.translate(str.maketrans("‘’“”‐‑‒–—−", "''\"\"------"))
     return re.sub(r"\s+", " ", text).strip().lower()
 
 
@@ -412,8 +423,13 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
     out: list[tuple[int, int, str]] = []
     fence_char, fence_len, fence_depth, fence_item_indent = "", 0, 0, 0
     list_items: list[tuple[int, int]] = []  # (quote depth, content column)
+    comment_open = paragraph = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        depth, content = _dequote(line)
+        depth, content = _dequote(line.expandtabs(4))
+        if comment_open:
+            out.append((lineno, depth, content))
+            comment_open = _comment_open(content, True)
+            continue
         if fence_char and depth < fence_depth:
             # Leaving the blockquote closes the fence it opened.
             fence_char, fence_len, fence_item_indent = "", 0, 0
@@ -430,18 +446,28 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
             while list_items and (depth != list_items[-1][0]
                                   or indent < list_items[-1][1]):
                 list_items.pop()
-            lm = LIST_PREFIX_RE.match(content)
+            base = list_items[-1][1] if list_items else 0
+            if indent - base <= 3:
+                lm = LIST_PREFIX_RE.match(content)
             if lm:
                 list_items.append((depth, lm.end()))
-        m = FENCE_RE.match(content.lstrip())
+        base = fence_item_indent if fence_char else (
+            list_items[-1][1] if list_items else 0)
+        relative = content[base:]
+        # Four spaces relative to the container are code only when no
+        # paragraph is being continued; they can never open a fence.
+        if (not fence_char and not lm and relative.startswith("    ")
+                and not paragraph):
+            continue
+        m = FENCE_RE.match(relative)
         if not m and not fence_char:
-            lm = LIST_PREFIX_RE.match(content)
             if lm:
                 m = FENCE_RE.match(content[lm.end():])
         if m:
             run = m.group(1)
             if not fence_char:
                 if run[0] == "~" or "`" not in m.group(2):
+                    paragraph = False
                     fence_char, fence_len, fence_depth = run[0], len(run), depth
                     fence_item_indent = list_items[-1][1] if list_items else 0
                     continue
@@ -455,6 +481,8 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
         if fence_char:
             continue
         out.append((lineno, depth, content))
+        comment_open = _comment_open(content)
+        paragraph = bool(content.strip()) and not re.match(r"^ {0,3}(?:#|\|)", content)
     return out
 
 
@@ -469,7 +497,14 @@ def iter_prose_blocks(text: str) -> "list[list[tuple[int, str]]]":
     blocks: list[list[tuple[int, str]]] = []
     block: list[tuple[int, str]] = []
     prev_line, prev_depth = None, 0
+    comment_open = False
     for lineno, depth, line in iter_prose_lines(text):
+        inside_comment = comment_open
+        comment_open = _comment_open(line, comment_open)
+        if inside_comment:
+            block.append((lineno, line))
+            prev_line = lineno
+            continue
         if not line.strip():
             if block:
                 blocks.append(block)
@@ -550,6 +585,10 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
         # "the reference base\u2019s held texts" cannot buy an exemption
         # its ASCII twin is denied.
         joined = " ".join(line for _, line in block)
+        marker_matches = list(MARKER_RE.finditer(joined))
+        # Comments are metadata, not claims or sentence terminators. Keep
+        # their offsets and physical line mapping intact for binding.
+        joined = MARKER_RE.sub(lambda m: " " * len(m.group()), joined)
         joined = joined.replace("\u2019", "'").replace("\u2018", "'")
 
         def line_at(offset: int) -> int:
@@ -590,18 +629,16 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
                 f"base' sentence with an adjacent <!-- ref-absence: ... --> "
                 f"marker so the claim is machine-checkable"
             )
-        for (line_start, lineno), (_, line) in zip(starts, block):
-            for m in MARKER_RE.finditer(line):
-                queries = [q.strip() for q in m.group(1).split("|")]
-                markers.setdefault(lineno, []).append(queries)
-                # Prose before the marker on its own line (earlier
-                # markers do not count) disqualifies it from NEXT-LINE
-                # binding: that prose may itself word a claim the net
-                # cannot parse ("nor is the decree held"), and a marker
-                # after it annotates THAT line, not the claim above.
-                lead = bool(MARKER_RE.sub("", line[: m.start()]).strip())
-                slots.append(dict(off=line_start + m.start(), lineno=lineno,
-                                  block=block_id, used=False, lead=lead))
+        for m in marker_matches:
+            lineno = line_at(m.start())
+            line_start = next(start for start, number in starts if number == lineno)
+            queries = [q.strip() for q in m.group(1).split("|")]
+            markers.setdefault(lineno, []).append(queries)
+            # Earlier markers are already masked; only prose before the
+            # opener disqualifies next-line binding.
+            lead = bool(joined[line_start:m.start()].strip())
+            slots.append(dict(off=m.start(), lineno=lineno,
+                              block=block_id, used=False, lead=lead))
 
     own_claim_lines = trigger_lines | set(canonical_counts)
 
