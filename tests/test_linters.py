@@ -1288,6 +1288,94 @@ class RefAbsenceClaimsTests(LinterTestCase):
         super().assertLinterFails(result, needle)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
 
+    def test_nested_container_fences(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_ref_nested_fences")
+        claim = "X is not held in the reference base.\n"
+        for opener, continuation in (
+            ("- > ", "  > "), ("> - ", ">   "),
+            ("- > - > ", "  >   > "), ("> > - ", "> >   "),
+            ("1000. > - ", "      >   "),
+        ):
+            for fence in ("```", "~~~~"):
+                for close in ("", continuation + fence + "\n"):
+                    with self.subTest(opener=opener, fence=fence, close=close):
+                        body = (opener + fence + "\n" + continuation + claim
+                                + close + "\n" + claim)
+                        findings = mod.scan_text("t.md", body, [])
+                        self.assertEqual(len(findings), 1, findings)
+                        self.assertIn(f"t.md:{len(body.splitlines())}:", findings[0])
+                        self.assertIn("no adjacent", findings[0])
+
+        body = ("- paragraph\n> " + chr(96) * 3 + "\n> " + claim
+                + "> " + chr(96) * 3 + "\n" + claim)
+        findings = mod.scan_text("t.md", body, [])
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("t.md:5:", findings[0])
+        for opener, continuation in (("- > ", "  "), ("> - ", "> ")):
+            body = opener + chr(96) * 3 + "\n" + continuation + claim
+            findings = mod.scan_text("t.md", body, [])
+            self.assertEqual(len(findings), 1, findings)
+            self.assertIn("t.md:2:", findings[0])
+
+    def test_container_headings_before_indented_code(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_ref_container_headings")
+        for opener, continuation in (
+            ("- ", "  "), ("- > ", "  > "), ("> - ", ">   "),
+            ("- > - > ", "  >   > "),
+        ):
+            for heading in ("#", "# Heading", "###### Heading"):
+                with self.subTest(opener=opener, heading=heading):
+                    body = (opener + heading + "\n" + continuation
+                            + "    X is not held in the reference base.\n")
+                    self.assertEqual(mod.scan_text("t.md", body, []), [])
+            body = (opener + "#tag paragraph\n" + continuation
+                    + "    X is not held in the reference base.\n")
+            self.assertTrue(any("no adjacent" in f
+                                for f in mod.scan_text("t.md", body, [])))
+
+    def test_manual_nor_abbreviations_and_section_numbers(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_ref_nor_abbreviations")
+        rows = [(1, "nonesuch", "| NONESUCH |")]
+        for subject in ("the U.S. guidance", "the U.K. guidance",
+                        "the Sec. 3.2 guidance", "Dr. Smith's guidance"):
+            for separator in (" ", "\n"):
+                with self.subTest(subject=subject, separator=separator):
+                    body = (f"Nor is {subject} held." + separator
+                            + "<!-- ref-absence: NONESUCH -->\n")
+                    self.assertEqual(mod.scan_text("t.md", body, []), [])
+                    findings = mod.scan_text("t.md", body, rows)
+                    self.assertEqual(len(findings), 1, findings)
+                    self.assertIn("STALE", findings[0])
+        body = ("Nor is this relevant. A copy is held.\n"
+                "<!-- ref-absence: NONESUCH -->\n")
+        self.assertTrue(any("orphan" in f for f in mod.scan_text("t.md", body, [])))
+
+    def test_lazy_list_continuation_preserves_later_paragraph(self) -> None:
+        mod = load_linter_module(self.SCRIPT, "_ref_lazy_list")
+        for opener, lazy, continuation in (
+            ("- ", "", "    "), ("> - ", "> ", ">     "),
+            ("- > - ", "  > ", "  >     "),
+        ):
+            with self.subTest(opener=opener):
+                body = (opener + "item text\n" + lazy + "lazy continuation\n"
+                        + lazy.rstrip() + "\n" + continuation
+                        + "The decree is not held in the reference base.\n")
+                findings = mod.scan_text("t.md", body, [])
+                self.assertEqual(len(findings), 1, findings)
+                self.assertIn("t.md:4:", findings[0])
+                self.assertIn("no adjacent", findings[0])
+        for opener in ("- > ", "> - "):
+            body = opener + "X is not held\nin the reference base.\n"
+            self.assertTrue(any("no adjacent" in f
+                                for f in mod.scan_text("t.md", body, [])))
+
+    def test_provenance_tools_are_examples(self) -> None:
+        text = (REPO_ROOT / "ai/guideline-ai-synthetic-content-provenance.md").read_text(
+            encoding="utf-8")
+        self.assertIn("other tools it names include", text)
+        self.assertIn("The primary texts of C2PA and these examples", text)
+        self.assertNotIn("the other tools it names (", text)
+
     def test_manual_absence_annotations_are_not_orphans(self) -> None:
         claims = (
             "The reference base carries no copy of X.",

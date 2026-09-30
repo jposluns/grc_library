@@ -1390,7 +1390,7 @@ documents:
   domain: "ai"
   type: "Guideline"
   title: "AI Synthetic-Content Provenance Guideline"
-  version: "0.0.7"
+  version: "0.0.8"
   date: "2026-09-30"
   owner: "AI Security Maintainer"
   approving_authority: "Governance Library Maintainer"

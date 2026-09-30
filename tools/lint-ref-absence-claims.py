@@ -23,7 +23,7 @@ marker-plus-committed-manifest design):
    The marker renders invisible. Detection is per prose BLOCK, not per
    physical line: consecutive prose lines are joined (source line numbers
    preserved; blank lines, fences, headings, table rows and list items
-   bound a block, and blockquote markers are stripped first: an INCREASE
+   bound a block, and container markers are stripped first: an INCREASE
    of blockquote depth bounds a block, a DECREASE is CommonMark lazy
    continuation and joins, so a quoted wrapped sentence stays in the
    gate's sight even when its continuation line drops the ``>``), so
@@ -157,21 +157,20 @@ longer exempt.
 Scan scope: ``README.md``, ``NOTICE.md``, the audited domain directories
 (splatted from ``lint_common.AUDITED_DOMAIN_DIRS``; the scan-scope
 parity gate forbids hardcoding the run), and the ``guardrails/`` pack.
-Fenced code is skipped with a width- and character-matching fence parser
-(a four-backtick example fence may legitimately enclose three-backtick
-lines, which stay code; the shared toggle-only iterator would re-expose
-them). The fence parser reads THROUGH blockquote markers (a quoted
-fence still toggles, so a quoted absence sentence inside it stays
-code), and a fence opened inside a blockquote ends when the quote does
-(CommonMark), so quoted code cannot swallow the prose after it; a fence
-opened on a LIST-ITEM line or its indented continuation toggles too, so its closing fence cannot
-masquerade as an opener and hide the prose after the list, and it ends
-when its list item does (CommonMark: a non-blank line left of the
-item's content column leaves the list), so an unclosed list fence
-cannot swallow the prose after the list either; and a
-backtick run whose info string itself contains a backtick is an inline
-code span, not an opening fence (CommonMark), so it cannot swallow the
-rest of the file.
+Markdown containers use one ordered stack: list prefixes and quote levels
+are removed repeatedly, including alternating nesting, before classifying
+fences, ATX headings, indented code and paragraph continuations. List
+continuations consume their content-column indentation; lazy prose retains
+the stack across a following blank line. Fences require their containers on
+every nonblank line and matching character/width closers; backtick info
+strings cannot contain backticks. Indented code requires four spaces AFTER
+container removal and cannot interrupt a paragraph.
+Modelled subset: space/tab indentation, bullet and 1-9 digit ordered lists,
+nested blockquotes, ATX headings, paragraphs, comments and fenced/indented
+code. Residue: this is not a full CommonMark parser (notably HTML blocks,
+setext headings, thematic breaks and unusual list padding). Ambiguous
+container continuation is scanned as prose, retaining possible list ancestry
+rather than hiding claims as code; this can produce false positives.
 
 Usage:
     python3 tools/lint-ref-absence-claims.py
@@ -273,9 +272,13 @@ TRIGGER_RES = (
 )
 # Manual annotations cover documented residue without widening the advisory
 # net. Require an absence wording; collection vocabulary alone is not a claim.
+# Keep dotted initialisms, common abbreviated titles and section numbers
+# inside the inverted subject, without crossing an ordinary sentence end.
 MANUAL_ABSENCE_RE = re.compile(
     r"\b(?:carries|carry)\s+no\s+copy\s+of\b"
-    r"|\bnor\s+(?:is|are|was|were)\b[^.!?]*?\b"
+    r"|\bnor\s+(?:is|are|was|were)\b"
+    r"(?:(?:\b(?:[A-Za-z]\.){2,}|\b(?:Mr|Mrs|Ms|Dr|Prof|St|No|Sec|Art)\."
+    r"|\b\d+(?:\.\d+)+)|[^.!?])*?\b"
     r"(?:held|included|present|available|indexed|stored)\b",
     re.IGNORECASE,
 )
@@ -362,7 +365,8 @@ FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 # A list-item prefix: a fence may OPEN on a list-item line (CommonMark),
 # and missing that opener would let its closing fence masquerade as an
 # opener and swallow the prose after the list.
-LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d{1,9}[.)])\s+")
+LIST_PREFIX_RE = re.compile(r"^ {0,3}(?:[-*+]|\d{1,9}[.)])(?: {1,4}(?! )|(?= *$))")
+ATX_HEADING_RE = re.compile(r"^ {0,3}#{1,6}(?: |$)")
 
 # A line that STARTS a new Markdown block: heading, table row, or list
 # item. A wrapped sentence never continues INTO one of these, so they
@@ -372,16 +376,8 @@ LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d{1,9}[.)])\s+")
 # in iter_prose_blocks instead.
 BLOCK_START_RE = re.compile(r"^\s*(?:#{1,6}\s|\||[-*+]\s|\d{1,9}[.)]\s)")
 
-# One or more leading blockquote markers, each with its optional space.
-QUOTE_PREFIX_RE = re.compile(r"^ {0,3}((?:> ?)+)")
-
-
-def _dequote(line: str) -> "tuple[int, str]":
-    """(blockquote depth, the line with its blockquote markers stripped)."""
-    m = QUOTE_PREFIX_RE.match(line)
-    if not m:
-        return 0, line
-    return m.group(1).count(">"), line[m.end():]
+# Consume one level at a time so quotes and lists share an ordered stack.
+QUOTE_PREFIX_RE = re.compile(r"^ {0,3}> ?")
 
 
 def _comment_open(text: str, opened: bool = False) -> bool:
@@ -420,77 +416,78 @@ def load_manifest_rows(repo_root: Path) -> "list[tuple[int, str, str]] | None":
     return rows
 
 
-def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
-    """(lineno, blockquote depth, dequoted line) for each line outside
-    fenced code, fence-width-aware. Fences are matched on the DEQUOTED
-    text, so a fence inside a blockquote still toggles; a fence opened
-    inside a blockquote ends when the quote does (CommonMark), so quoted
-    code cannot swallow the prose after the quote. A fence may OPEN on a
-    list-item line or its indented continuation; a backtick opener whose info string contains a
-    backtick is an inline code span, not a fence (CommonMark)."""
-    out: list[tuple[int, int, str]] = []
-    fence_char, fence_len, fence_depth, fence_item_indent = "", 0, 0, 0
-    list_items: list[tuple[int, int]] = []  # (quote depth, content column)
+def iter_prose_lines(text: str) -> "list[tuple[int, int, str, bool]]":
+    """(line number, quote depth, container-stripped text, new item).
+    See the module docstring for the modelled subset and prose-first residue.
+    Each stack entry is a quote or a list's relative content-column width.
+    """
+    out: list[tuple[int, int, str, bool]] = []
+    containers: list[tuple[str, int]] = []
+    fence_char, fence_len = "", 0
     comment_open = paragraph = False
     for lineno, line in enumerate(text.splitlines(), start=1):
-        depth, content = _dequote(line.expandtabs(4))
+        content = line.expandtabs(4)
+        matched = 0
+        for kind, width in containers:
+            if kind == "list" and (content.startswith(" " * width)
+                                   or not content.strip()):
+                content = content[width:]
+            elif kind == "quote" and (qm := QUOTE_PREFIX_RE.match(content)):
+                content = content[qm.end():]
+            else:
+                break
+            matched += 1
+        missing = matched < len(containers)
+        # Lazy prose keeps its ancestry, but never extends a code fence.
+        # Treat uncertain continuation as prose rather than indented code.
+        lazy = (missing and paragraph and bool(content.strip())
+                and not LIST_PREFIX_RE.match(content)
+                and not QUOTE_PREFIX_RE.match(content)
+                and not ATX_HEADING_RE.match(content)
+                and not FENCE_RE.match(content))
+        if missing and not lazy:
+            containers = containers[:matched]
+            fence_char, fence_len = "", 0
+            paragraph = False
+        new_item = False
+        if not fence_char and not comment_open and not lazy:
+            while True:
+                lm = LIST_PREFIX_RE.match(content)
+                if lm:
+                    containers.append(("list", lm.end()))
+                    content = content[lm.end():]
+                    new_item = True
+                    paragraph = False
+                qm = QUOTE_PREFIX_RE.match(content)
+                if qm:
+                    containers.append(("quote", 0))
+                    content = content[qm.end():]
+                    paragraph = False
+                if not lm and not qm:
+                    break
+        depth = sum(kind == "quote" for kind, _ in containers)
         if comment_open:
-            out.append((lineno, depth, content))
+            out.append((lineno, depth, content, new_item))
             comment_open = _comment_open(content, True)
             continue
-        if fence_char and depth < fence_depth:
-            # Leaving the blockquote closes the fence it opened.
-            fence_char, fence_len, fence_item_indent = "", 0, 0
-        if (fence_char and fence_item_indent and content.strip()
-                and len(content) - len(content.lstrip()) < fence_item_indent):
-            # A fence opened on a list-item line ends when the item does
-            # (CommonMark): a non-blank line indented left of the item's
-            # content column leaves the list, so it is prose (or a fresh
-            # fence), not swallowed code.
-            fence_char, fence_len, fence_item_indent = "", 0, 0
-        lm = None
-        if not fence_char and content.strip():
-            indent = len(content) - len(content.lstrip())
-            while list_items and (depth != list_items[-1][0]
-                                  or indent < list_items[-1][1]):
-                list_items.pop()
-            base = list_items[-1][1] if list_items else 0
-            if indent - base <= 3:
-                lm = LIST_PREFIX_RE.match(content)
-            if lm:
-                list_items.append((depth, lm.end()))
-        base = fence_item_indent if fence_char else (
-            list_items[-1][1] if list_items else 0)
-        relative = content[base:]
-        # Four spaces relative to the container are code only when no
-        # paragraph is being continued; they can never open a fence.
-        if (not fence_char and not lm and relative.startswith("    ")
-                and not paragraph):
+        if content.startswith("    ") and not paragraph and not fence_char:
             continue
-        m = FENCE_RE.match(relative)
-        if not m and not fence_char:
-            if lm:
-                m = FENCE_RE.match(content[lm.end():])
+        m = FENCE_RE.match(content)
         if m:
             run = m.group(1)
             if not fence_char:
                 if run[0] == "~" or "`" not in m.group(2):
                     paragraph = False
-                    fence_char, fence_len, fence_depth = run[0], len(run), depth
-                    fence_item_indent = list_items[-1][1] if list_items else 0
+                    fence_char, fence_len = run[0], len(run)
                     continue
-                # A backtick run with a backtick in its info string is an
-                # inline code span, not an opening fence: fall through.
             elif run[0] == fence_char and len(run) >= fence_len and not m.group(2).strip():
-                fence_char, fence_len, fence_item_indent = "", 0, 0
+                fence_char, fence_len = "", 0
                 continue
-            # A narrower or different-character fence inside an open fence
-            # is literal code content, not a toggle.
         if fence_char:
             continue
-        out.append((lineno, depth, content))
+        out.append((lineno, depth, content, new_item))
         comment_open = _comment_open(content)
-        paragraph = bool(content.strip()) and not re.match(r"^ {0,3}#{1,6}(?: |$)", content)
+        paragraph = bool(content.strip()) and not ATX_HEADING_RE.match(content)
     return out
 
 
@@ -506,7 +503,7 @@ def iter_prose_blocks(text: str) -> "list[list[tuple[int, str]]]":
     block: list[tuple[int, str]] = []
     prev_line, prev_depth = None, 0
     comment_open = False
-    for lineno, depth, line in iter_prose_lines(text):
+    for lineno, depth, line, new_item in iter_prose_lines(text):
         inside_comment = comment_open
         comment_open = _comment_open(line, comment_open)
         if inside_comment:
@@ -520,9 +517,9 @@ def iter_prose_blocks(text: str) -> "list[list[tuple[int, str]]]":
             prev_line = None
             continue
         lazy = (bool(block) and lineno == prev_line + 1 and depth < prev_depth
-                and not BLOCK_START_RE.match(line))
+                and not new_item and not BLOCK_START_RE.match(line))
         if block and not lazy and (lineno != prev_line + 1 or depth != prev_depth
-                                   or BLOCK_START_RE.match(line)):
+                                   or new_item or BLOCK_START_RE.match(line)):
             blocks.append(block)
             block = []
         block.append((lineno, line))
