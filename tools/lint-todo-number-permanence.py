@@ -166,10 +166,14 @@ false-negative cost:
      retirement convention in ``DONE.md``, so they are skipped for checks
      A and B rather than half-checked. Since 3b120 a TAGGED coded bullet
      (``- **RB-6 [private] ...**``) is in the live set, so check C does see
-     a coded id live as a bullet in both lists; a coded id written as a
-     ``### RB-6`` heading is not read by LIVE_HEADING_RE (a parity gap with
-     the audit tool, which counts it; routed with P-TODO 3b121). Stated so a
-     later reader does not mistake the silence for a clean result.
+     a coded id live as a bullet in both lists, and since P-TODO 3b121 a
+     coded id written as a ``### RB-6`` heading is live too (LIVE_HEADING_RE
+     reads it, as the audit tool counts it). A coded id has no ordinal, so it
+     takes part in check C only; a ``TF-`` token that is not ``TF-<digits>``
+     (``### TF-2A``) is read as a coded id and is unordered too. Headings are
+     read in P-TODO.md only: public TODO.md items are read as index rows and
+     bullets. Stated so a later reader does not mistake the silence for a
+     clean result.
 
   4. EXEMPTIONS. A ``DONE.md`` entry that records a PARTIAL close against
      a still-open umbrella item legitimately names a live number (for
@@ -220,10 +224,13 @@ PTODO_REL = "P-TODO.md"
 
 # A live backlog heading: '### 3.109 <title>' or '### 2.25.1 <title>' or
 # '### 1.19.10a <title>', '### TF-2 <title>', or '### P-1.1 <title>' (the private
-# P-TODO.md list). A leading section marker is
-# tolerated ('### §3.109 ...') though TODO does not currently use one.
+# P-TODO.md list), or a coded id ('### RB-6 <title>', '### GR-GAP-1: <title>'), the
+# coded branch of the audit tool's ITEM_HEADING_RE (P-TODO 3b121; design note 3).
+# A leading section marker is tolerated ('### §3.109 ...') though TODO does not
+# currently use one.
 LIVE_HEADING_RE = re.compile(
-    r"^###\s+(?:§\s*)?((?:P-\d+(?:\.\d+){1,2}[a-z]?)|(?:\d+(?:\.\d+)+[a-z]?)|TF-\d+)(?=[\s:]|$)"
+    r"^###\s+(?:§\s*)?((?:P-\d+(?:\.\d+){1,2}[a-z]?)|(?:\d+(?:\.\d+)+[a-z]?)|TF-\d+"
+    r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+))(?=[\s:]|$)"
 )
 
 # A retired id inside a DONE.md heading, always section-marked. Rejects a
@@ -929,10 +936,12 @@ def _ordinal(item_id: str) -> tuple[str, int] | None:
 
     '3.109' -> ('3', 109); '2.25.1' -> ('2', 25) (a series child occupies
     its parent's ordinal); 'TF-2' -> ('TF', 2). Returns None for an id this
-    gate does not order.
+    gate does not order, including a coded id ('RB-6') and a TF- token that is
+    not 'TF-<digits>' ('TF-2A', read as a coded id since P-TODO 3b121).
     """
     if item_id.startswith("TF-"):
-        return ("TF", int(item_id.split("-", 1)[1]))
+        m = re.fullmatch(r"TF-(\d+)", item_id)
+        return ("TF", int(m.group(1))) if m else None
     parts = item_id.split(".")
     if len(parts) < 2:
         return None

@@ -53,13 +53,15 @@ matches anywhere in the submission. It requires an ``AUDIT_TOKEN_RE`` match anyw
 uses only the first match. Its integer must equal ``todo_count`` when that count is not
 None. These checks do not prove that an audit occurred or was fresh or complete.
 
-The count sums all ``TODO_ROW_RE`` matches in public ``root/TODO.md`` and all
-``ITEM_HEADING_RE`` matches in sibling ``root.parent/grc_library_private/P-TODO.md``,
-plus private ``TODO_ROW_RE`` matches when ``_has_todo_index_header`` is true, plus the
-bold-bullet items ``_bullet_item_count`` finds in both files (3b119). A missing
-private file contributes zero. A public path that is not a file, or any Exception caught
-during counting, yields None and skips only audit-count equality. These are syntax counts,
-not independent verification of open-item status.
+The count sums, in public ``root/TODO.md`` and sibling
+``root.parent/grc_library_private/P-TODO.md`` alike, the index rows that
+``tools/todo_index_rows.py`` returns (none in a file without an ``| ID | Item | Tags |``
+header; an unreadable ``| <id> |`` row still counts, as in the audit tool, P-TODO 3b121),
+every ``ITEM_HEADING_RE`` match, and the bold-bullet items ``_bullet_item_count`` finds
+(3b119). A missing private file contributes zero. A public path that is not a file, a failed
+import of the shared row grammar, or any Exception caught during counting yields None and
+skips only audit-count equality. These are syntax counts, not independent verification of
+open-item status.
 
 During normal hook execution, return 0 allows the tool call; return 2 blocks it after
 printing the reason to stderr. ``main`` returns 0 on Exceptions caught while loading JSON
@@ -77,38 +79,20 @@ import re
 import sys
 from pathlib import Path
 
-# F1793-12: gate private P-TODO index-row counting on has_todo_index_header,
-# as tools/audit-backlog-actionability.py parse_items gates its index parser.
-# Without a recognized header, private body-table rows are not counted.
-# If importing the canonical classifier raises Exception, use the inline replica
-# and continue validation. Other module-initialization operations are not protected.
+# P-TODO 3b121: index rows, in the public and the private file alike, are read through
+# tools/todo_index_rows.py, the one row grammar and index-header gate the audit tool also
+# reads (F1793-12 gated only the private file; before 3b121 this hook kept its own row regex,
+# counted any `| <id> |` row, and counted public rows without the header gate). If that import
+# raises Exception, _file_item_count raises and _todo_item_count returns None, which skips only
+# audit-count equality: a second inline copy of the grammar here is how the two counts drifted.
+# Other module-initialization operations are not protected.
 _TOOLS_DIR = str(Path(__file__).resolve().parents[2] / "tools")
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 try:
-    from lint_common import has_todo_index_header as _has_todo_index_header
-except Exception:  # pragma: no cover - use inline classifier on import trouble
-    def _has_todo_index_header(text: str) -> bool:  # noqa: D103
-        in_fence = False
-        for line in text.splitlines():
-            st = line.lstrip()
-            if st.startswith("```") or st.startswith("~~~"):
-                in_fence = not in_fence
-                continue
-            if in_fence or not st.startswith("|"):
-                continue
-            # Replicate lint_common.split_row EXACTLY (codex #1811): drop exactly ONE
-            # bounding pipe each side, not every leading pipe. A `.strip("|")` would
-            # misclassify `|| ID | Item | Tags |` as an index header (canonical: not one).
-            parts = line.split("|")
-            if parts and parts[0].strip() == "":
-                parts = parts[1:]
-            if parts and parts[-1].strip() == "":
-                parts = parts[:-1]
-            cells = [c.strip() for c in parts]
-            if tuple(cells[:3]) == ("ID", "Item", "Tags"):
-                return True
-        return False
+    from todo_index_rows import index_rows as _index_rows
+except Exception:  # pragma: no cover - counting then yields None
+    _index_rows = None
 
 LOG_BASENAME = "autonomous-decisions-log.md"
 
@@ -173,29 +157,21 @@ SET_COMPLETENESS_RE = re.compile(
 # only the first match; token presence and count equality do not prove an audit.
 AUDIT_TOKEN_RE = re.compile(r"backlog-audit:\s*(\d+)\s+items?\s+enumerated", re.IGNORECASE)
 
-# Heading-prefix regex _todo_item_count counts in private P-TODO.md (bullet counting uses its own
+# Heading-prefix regex _todo_item_count counts in both backlog files (bullet counting uses its own
 # _BULLET_ITEM_HEADING_RE for item blocks in both files).
 # Matches include numeric prefixes such as 1.19.10a and coded prefixes such as
 # SR-1, RB-R6, and GR-GAP-1; P-1.15 matches through its P-1 prefix.
 # This does not validate the complete item ID or establish open-item status.
 # `## Priority N` headers and table rows do not match this heading regex;
-# rows are counted separately with TODO_ROW_RE under the rules below.
-# The companion audit tool has its own heading and row parsers.
+# index rows are counted separately through _index_rows (tools/todo_index_rows.py).
+# The companion audit tool has its own heading parser and reads index rows through
+# the same tools/todo_index_rows.py grammar (P-TODO 3b121).
 # tests/test_linters.py compares the combined hook and tool counts on the live
 # public and private files; that check does not prove parity for every input.
 ITEM_HEADING_RE = re.compile(
     r"^### (?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+){1,2}[a-z]?|[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+)\b",  # P- as the tool's (3b119 QA r10)
     re.MULTILINE
 )
-# _todo_item_count counts every match of this row regex in public TODO.md.
-# In private P-TODO.md it counts these matches only if _has_todo_index_header
-# is true, and adds heading matches independently. Counting does not deduplicate
-# IDs or filter matching rows by status, section, or Markdown fence.
-TODO_ROW_RE = re.compile(
-    r"^\|\s*(?:P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|",
-    re.MULTILINE,
-)
-
 # A top-level bold-bullet backlog item (3b119), the audit tool's closed TOP_BULLET_ITEM_RE grammar: ``- **<id>``
 # at column 0 with a ``3bNN`` or ``P-n.m`` id, or a coded id (``RB-6``) or section number followed by a
 # `` [private]`` / `` [public]`` tag; the id ends at a space, tab, ``*`` or ``:``. It counts only outside a
@@ -273,14 +249,15 @@ def _bullet_item_count(text: str) -> int:
     return n
 
 
-def _file_item_count(text: str, gate_rows: bool) -> int:
-    """One backlog file's count: index rows (for the private file only under an index header, F1793-12;
-    row-regex matches anywhere once the header is found, fenced text included), every ITEM_HEADING_RE heading,
-    and the bold-bullet items. Matches are not deduplicated. The public file now counts headings as the tool
-    does (3b119 QA r10); its rows are still counted without the header gate the tool applies, a known
-    divergence open as P-TODO 3b121 (one row grammar and gate for hook and tool)."""
-    rows = len(TODO_ROW_RE.findall(text)) if (not gate_rows or _has_todo_index_header(text)) else 0
-    return rows + _heading_item_count(text) + _bullet_item_count(text)
+def _file_item_count(text: str) -> int:
+    """One backlog file's count: the index rows _index_rows returns (P-TODO 3b121: none without an index
+    header, in the public file as in the private one; once the header is found, rows anywhere, fenced text
+    included; an unreadable ``| <id> |`` row counts, as in the audit tool), every ITEM_HEADING_RE heading,
+    and the bold-bullet items. Matches are not deduplicated. Raises RuntimeError when the shared row
+    grammar did not import, so _todo_item_count yields None."""
+    if _index_rows is None:
+        raise RuntimeError("tools/todo_index_rows.py did not import; the index-row count is unknown")
+    return len(_index_rows(text)) + _heading_item_count(text) + _bullet_item_count(text)
 
 
 def _todo_item_count(project_dir: str | None) -> int | None:
@@ -289,12 +266,13 @@ def _todo_item_count(project_dir: str | None) -> int | None:
     Resolve a truthy ``project_dir`` as root; otherwise use this script's repository
     root. Count ``root/TODO.md`` and sibling ``root.parent/grc_library_private/P-TODO.md``
     with _file_item_count: all ``ITEM_HEADING_RE`` headings (the public file too since
-    3b119 QA r10), ``TODO_ROW_RE`` matches (in the private file only if
-    ``_has_todo_index_header`` is true), and the bold-bullet items ``_bullet_item_count`` finds.
+    3b119 QA r10), the index rows of tools/todo_index_rows.py (in either file only under
+    an index header, since P-TODO 3b121), and the bold-bullet items ``_bullet_item_count`` finds.
     The sum does not deduplicate IDs or independently verify open-item status.
 
     Return None if public TODO.md is not a file or any operation in the try block
-    raises Exception, including private-file reading or header classification.
+    raises Exception, including private-file reading, header classification, or a
+    shared row grammar that did not import.
     A private path that is not a file contributes zero unless checking it raises.
     In ``decide``, None skips audit-count equality, not token presence when the
     audit-token guard applies.
@@ -304,10 +282,10 @@ def _todo_item_count(project_dir: str | None) -> int | None:
         todo = root / "TODO.md"
         if not todo.is_file():
             return None
-        count = _file_item_count(todo.read_text(encoding="utf-8"), gate_rows=False)
+        count = _file_item_count(todo.read_text(encoding="utf-8"))
         ptodo = root.parent / "grc_library_private" / "P-TODO.md"
         if ptodo.is_file():
-            count += _file_item_count(ptodo.read_text(encoding="utf-8"), gate_rows=True)
+            count += _file_item_count(ptodo.read_text(encoding="utf-8"))
         return count
     except Exception:
         return None
@@ -576,6 +554,17 @@ def _self_test() -> int:
                 "- **Classification:** ASK: which blocked item to escalate first?\n"
                 "- every remaining item needs a maintainer call",
                 todo_count=92)[0])
+
+        def test_index_rows_need_the_header_in_either_file(self):
+            # P-TODO 3b121: a header-less row is not an index row, in the public file as in the private one.
+            self.assertEqual(_file_item_count("| 1.1 | a | `[public]` |\n"), 0)
+            self.assertEqual(_file_item_count(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n| 1.1 | a | `[public]` |\n"), 1)
+
+        def test_unreadable_index_row_counts(self):
+            # P-TODO 3b121: an id-led row with no title and tags cells fails closed and counts, as in the tool.
+            self.assertEqual(_file_item_count(
+                "| ID | Item | Tags |\n| --- | --- | --- |\n| 1.1 | a | `[public]` |\n| 1.2 | b |\n"), 2)
 
         def test_added_text_reads_new_string(self):
             p = {"tool_input": {"file_path": "/x/autonomous-decisions-log.md",

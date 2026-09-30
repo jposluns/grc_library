@@ -71,7 +71,8 @@ from pathlib import Path
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working, has_todo_index_header, _store_dir, InaccessiblePath
+from lint_common import resolve_working, _store_dir, InaccessiblePath
+from todo_index_rows import index_rows  # P-TODO 3b121: the row grammar and header gate the decision-log hook shares
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"
@@ -436,7 +437,11 @@ PROSE_SIGNAL_TOKENS: list[tuple[re.Pattern[str], str]] = [
 
 
 _REF_ID_RE = re.compile(r"^### (?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s")
-_ROW_RE = re.compile(r"^\|\s*(?P<id>P-\d+(?:\.\d+){1,2}[a-z]?|\d+(?:\.\d+)+(?:\.[a-z]|[a-z])?|TF-\d+)\s*\|(?P<title>[^|]*)\|(?P<tags>[^|]*)\|")
+# Index rows are read through tools/todo_index_rows.py (P-TODO 3b121), the one row grammar and index-header
+# gate the decision-log hook also counts with. An unreadable ``| <id> |`` row is an item here too and fails
+# closed (counted ACTIONABLE, never BLOCKED), so the hook's count and this tool's agree. This is the title
+# parse_items gives such a row; its block heading carries no text from the row, so no grant can apply.
+UNREADABLE_ROW_TITLE = "(unreadable index row)"
 
 
 _PRIVATE_DIR = REPO_ROOT.parent / "grc_library_private"
@@ -507,9 +512,10 @@ def parse_items(text: str, source: str,
                 private_dir: "Path | None" = None,
                 _heads: "list[int] | None" = None) -> list[tuple[str, str, str, str, str]]:
     """Return ``(id, title, block_text, source, umbrella)`` for every open item. PUBLIC
-    ``TODO.md`` items are parsed as INDEX ROWS (the local ``_ROW_RE``), their bodies joined
-    from ``TODO-REFERENCE.md``; only private / legacy items use the ``### `` heading-block
-    grammar below.
+    ``TODO.md`` items are parsed as INDEX ROWS (``todo_index_rows.index_rows``, shared with the decision-log
+    hook; an unreadable ``| <id> |`` row is an ACTIONABLE item that no ``[BLOCKED:]`` grant can hold, P-TODO
+    3b121), their bodies joined from ``TODO-REFERENCE.md``; only private / legacy items use the ``### ``
+    heading-block grammar below.
 
     A block runs from its item heading to the next item heading, the next ``## ``
     section header, or end of file, so a signal is detected only within the item's
@@ -529,24 +535,29 @@ def parse_items(text: str, source: str,
     # the gate-78 / hook union counts). gate 90's index-detail-leak check fails
     # loud on such a mixed state; this keeps the enumeration honest meanwhile.
     idx_items: list[tuple[str, str, str, str, str]] = []
-    if has_todo_index_header(text):   # F1793-7: the header, not any parseable row,
-        # is the reliable index-form signal (a legacy item body table must not
-        # flip this branch and inject false items).
+    # F1793-7: the index header, not any parseable row, is the index-form signal (a legacy item body table
+    # must not inject false items); index_rows applies that gate itself, to both lists (P-TODO 3b121).
+    idx_rows = index_rows(text)
+    if idx_rows:
         if ref_bodies is None:
             ref_bodies = _load_ref_bodies(source, private_dir)
         band = ""
+        band_at: list[str] = []
         for ln in lines:
             if ln.startswith("## "):
                 band = ln[3:].strip()
-                continue
-            m = _ROW_RE.match(ln)
-            if m:
-                iid = m.group("id")
-                title = m.group("title").strip()
-                tags = m.group("tags").strip()
-                body = ref_bodies.get(iid, "")
-                block = f"{iid} {title} {tags}\n{body}"
-                idx_items.append((iid, title, block, source, band))
+            band_at.append(band)
+        for row in idx_rows:
+            body = ref_bodies.get(row.item_id, "")
+            if row.readable:
+                title = row.title
+                block = f"{row.item_id} {row.title} {row.tags}\n{body}"
+            else:
+                # Fails closed (3b121): the row still counts, and its block heading holds no text from the
+                # row, so a [BLOCKED:] tag written in an unreadable row can never make it BLOCKED.
+                title = f"{UNREADABLE_ROW_TITLE} line {row.line}: {lines[row.line - 1].strip()}"
+                block = f"{row.item_id} {UNREADABLE_ROW_TITLE}\n{body}"
+            idx_items.append((row.item_id, title, block, source, band_at[row.line - 1]))
 
     legacy_items: list[tuple[str, str, str, str, str]] = []
     cur: tuple[str, str] | None = None
@@ -1418,6 +1429,18 @@ def _self_test() -> int:
     check("r9-heading-after-bullet", [x[0] for x in parse_items(bh, "private", ref_bodies={})] == ["3b7", "9.9"])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
                                                      ref_bodies={}) == [])
+    # P-TODO 3b121: index rows need the header in either list, and an unreadable ``| <id> |`` row fails closed.
+    hdr = "| ID | Item | Tags |\n| --- | --- | --- |\n"
+    check("3b121-headerless-rows-not-items", parse_items("| 1.1 | a | `[public]` |\n", "public", ref_bodies={}) == [])
+    saved_3b121 = _APPROVALS
+    try:
+        set_approvals({"1.2", "1.3"})
+        ix = parse_items(hdr + "| 1.2 | b [BLOCKED:source]\n| 1.3 | c | `[public]` [BLOCKED:source] |\n", "public",
+                         ref_bodies={})
+        check("3b121-unreadable-row-counted-never-blocked", [x[0] for x in ix] == ["1.2", "1.3"]
+              and not is_blocked(ix[0][2], ix[0][0]) and is_blocked(ix[1][2], ix[1][0]))
+    finally:
+        set_approvals(saved_3b121)
 
     if failures:
         for f in failures:
@@ -1576,6 +1599,8 @@ def main(argv: list[str]) -> int:
     approvals_note = _load_default_approvals(args.approvals)  # every mode, including --pipeline (QA r1)
     item_like = [(src, n, ln) for src, txt in (("public", public_text), ("private", private_text)) if txt is not None
                  for n, ln in uncounted_item_like(txt)]
+    unreadable = [(src, row.line) for src, txt in (("public", public_text), ("private", private_text)) if txt is not None
+                  for row in index_rows(txt) if not row.readable]
 
     def print_item_like(out) -> None:
         if item_like:
@@ -1585,9 +1610,18 @@ def main(argv: list[str]) -> int:
             for src, n, ln in item_like:
                 print(f"  - {src}:{n}: {ln.strip()[:87] + '...' if len(ln.strip()) > 90 else ln.strip()}", file=out)
 
+    def print_unreadable(out) -> None:
+        # P-TODO 3b121: printed before the ACTIONABLE list, which nmw-actionable parses to the end of output.
+        if unreadable:
+            print(f"\nUNREADABLE INDEX ROW ({len(unreadable)}) -- counted ACTIONABLE, and no [BLOCKED:] grant "
+                  f"applies to it; rewrite it as `| <id> | <title> | <tags> |`:", file=out)
+            for src, n in unreadable:
+                print(f"  - {src}:{n}", file=out)
+
     if args.pipeline:
         print(approvals_note, file=sys.stderr)  # the refusal reason stays visible in --pipeline mode (QA r7)
         print_item_like(sys.stderr)  # the counted-or-reported invariant holds in every mode (3b119 QA r7)
+        print_unreadable(sys.stderr)
         done = resolve_working("DONE.md")
         done_text = done.read_text(encoding="utf-8", errors="replace") if done and done.is_file() else None
         print(render_pipeline(public_text, private_text, done_text, args.umbrella,
@@ -1616,6 +1650,7 @@ def main(argv: list[str]) -> int:
 
     print(approvals_note)
     print_item_like(sys.stdout)
+    print_unreadable(sys.stdout)
     items_all = parse_items(public_text, "public", private_dir=private_dir) + (
         parse_items(private_text, "private", private_dir=private_dir) if private_text is not None else [])
     unapproved = [(i, t) for i, t, blk, _s, _u in items_all
