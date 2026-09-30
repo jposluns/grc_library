@@ -4301,17 +4301,28 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         """P-TODO 3b125: the run-shell-stubbed self-test passes on a loaded host whose reaper is slow. The run's
         killed children are adopted by a parent that never reaps them (PR_SET_CHILD_SUBREAPER), so each stays a
         zombie in /proc for the whole self-test; the background-child-killed and job-control-child-killed checks
-        read the session straight after run() returned and counted such a zombie as a live survivor."""
+        read the session straight after run() returned and counted such a zombie as a live survivor. Where the
+        subreaper cannot be set (a non-Linux host, or a container that blocks prctl) the reproduction cannot be
+        built, so the test is skipped with the reason, never failed (3b125 QA r1)."""
         wrapper = (
-            "import ctypes, subprocess, sys\n"
-            "if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:\n"
-            "    sys.exit('prctl(PR_SET_CHILD_SUBREAPER) failed')\n"
+            "import ctypes, os, subprocess, sys\n"
+            "try:\n"
+            "    adopted = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0\n"
+            "    reason = '' if adopted else 'prctl(PR_SET_CHILD_SUBREAPER) failed: ' + os.strerror(ctypes.get_errno())\n"
+            "except (AttributeError, OSError, TypeError) as exc:\n"
+            "    adopted, reason = False, 'prctl(PR_SET_CHILD_SUBREAPER) unavailable: ' + repr(exc)\n"
+            "if not adopted:\n"
+            "    sys.stderr.write('SKIP: ' + reason + '\\n')\n"
+            "    sys.exit(77)\n"
             "r = subprocess.run([sys.executable, sys.argv[1], '--self-test'], capture_output=True, text=True,\n"
             "                   timeout=600)\n"
             "sys.stdout.write(r.stdout); sys.stderr.write(r.stderr); sys.exit(r.returncode)\n"
         )
         result = self._run_selftest([sys.executable, "-c", wrapper,
                                      str(REPO_ROOT / "tools" / "run-shell-stubbed.py")])
+        if result.returncode == 77 and result.stderr.startswith("SKIP: "):
+            self.skipTest("the slow-reaper reproduction needs a child subreaper, which this host does not allow: "
+                          + result.stderr[len("SKIP: "):].strip())
         self.assertEqual(result.returncode, 0,
                          f"--self-test failed behind a non-reaping parent.\nstdout:\n{result.stdout}\n"
                          f"stderr:\n{result.stderr}")

@@ -191,15 +191,15 @@ def _live(members) -> "list[int]":
 
 
 def _session_survivors(sid: int, timeout: float = 5.0) -> "list[int]":
-    """Live members of a finished run's session, read once the session is empty or timeout has passed (a test
-    helper). A killed process stays in /proc as a zombie until its reaper collects it, and a loaded host delays
-    that; a zombie is dead, so it is not a survivor (3b125)."""
+    """Live members of a finished run's session, read once none is left or timeout has passed (a test helper).
+    A killed process stays in /proc as a zombie until its reaper collects it, and a loaded host delays that; a
+    zombie is dead, so it is not a survivor and the wait does not stay for it (3b125, QA r1)."""
     deadline = time.monotonic() + timeout
-    members = _session_members(sid)
-    while members and time.monotonic() < deadline:
+    live = _live(_session_members(sid))
+    while live and time.monotonic() < deadline:
         time.sleep(0.02)
-        members = _session_members(sid)
-    return _live(members)
+        live = _live(_session_members(sid))
+    return live
 
 
 def _kill_session(sid: int) -> bool:
@@ -385,19 +385,30 @@ def main(argv=None) -> int:
 
 # The loaded-host reproduction for 3b125: the probe adopts the run's orphans (PR_SET_CHILD_SUBREAPER, 36) and
 # never reaps them, so a killed child stays a zombie for as long as the check looks, as behind a slow reaper.
+# Where the subreaper cannot be set (a non-Linux host, or a container that blocks prctl), the probe says so and
+# why, and runs nothing (3b125 QA r1).
 SLOW_REAPER_PROBE = """
-import ctypes, json, runpy, sys
+import ctypes, json, os, runpy, sys, time
+try:
+    adopted = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+    reason = "" if adopted else "prctl(PR_SET_CHILD_SUBREAPER) failed: " + os.strerror(ctypes.get_errno())
+except (AttributeError, OSError, TypeError) as exc:
+    adopted, reason = False, "prctl(PR_SET_CHILD_SUBREAPER) unavailable: " + repr(exc)
+if not adopted:
+    print(json.dumps(dict(adopted=False, reason=reason)))
+    sys.exit(0)
 tool = runpy.run_path(sys.argv[1], run_name="run_shell_stubbed_probe")
-adopted = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
 r = tool["run"]("sleep 30 & echo started", shells=("bash",), timeout=10)[0]
-print(json.dumps(dict(adopted=adopted, contained=r["contained"],
-                      zombies=[pid for pid, state in tool["_session_members"](r["session"]) if state == "Z"],
-                      survivors=tool["_session_survivors"](r["session"], timeout=0.5))))
+zombies = [pid for pid, state in tool["_session_members"](r["session"]) if state == "Z"]
+start = time.monotonic()
+survivors = tool["_session_survivors"](r["session"], timeout=5.0)
+print(json.dumps(dict(adopted=True, contained=r["contained"], zombies=zombies, survivors=survivors,
+                      waited=time.monotonic() - start)))
 """
 
 
 def _self_test() -> int:
-    checks = []
+    checks, skipped = [], []
     before = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
     for r in run("gh pr 'merge' 1; sh -c 'gh \"pr\" merge 2'; bash -c \"git push\"; bash -e -c 'gh pr create'"):
         checks.append((f"{r['shell']}-nested-shells-hit-stubs", r["calls"] ==
@@ -479,7 +490,7 @@ def _self_test() -> int:
         os.environ.pop("BASH_FUNC_gh%%", None) if saved is None else os.environ.__setitem__("BASH_FUNC_gh%%", saved)
     # Nothing in the run's session survives it, in the background or under job control (QA r7: the session is
     # observed directly after the run returns). A killed child its reaper has not yet collected is still listed,
-    # as a zombie, so the session is awaited (bounded) and only a live member fails the check (3b125).
+    # as a zombie, so only a live member fails the check, awaited (bounded) in case one is still dying (3b125).
     for label, cmd in (("background", "sleep 30 & echo started"), ("job-control", "set -m; sleep 30 & echo started")):
         r = run(cmd, shells=("bash",), timeout=10)[0]
         survivors = _session_survivors(r["session"])
@@ -487,15 +498,22 @@ def _self_test() -> int:
         if survivors:
             _kill_session(r["session"])
     # Behind a reaper that never collects (the loaded-host case, made certain), the killed child is a zombie and is
-    # not a survivor. The check fails unless the probe adopted the orphan and the zombie was really there (3b125).
+    # not a survivor, and the wait ends at once rather than at its bound (half of it is the limit here). The check
+    # fails unless the probe adopted the orphan and the zombie was really there (3b125). A probe that could not
+    # set the subreaper is a skip, named in the result line with its reason; one that crashed or printed nothing
+    # still fails (3b125 QA r1).
     probe = subprocess.run([sys.executable, "-I", "-B", "-c", SLOW_REAPER_PROBE, os.path.abspath(__file__)],
                            capture_output=True, text=True, timeout=60)
     try:
         seen = json.loads(probe.stdout.splitlines()[-1])
     except (IndexError, ValueError):
         seen = {}
-    checks.append(("slow-reaper-zombie-not-a-survivor", seen.get("adopted") is True and seen.get("contained") is True
-                   and bool(seen.get("zombies")) and seen.get("survivors") == []))
+    if seen.get("adopted") is False and seen.get("reason"):
+        skipped.append(f"slow-reaper-zombie-not-a-survivor ({seen['reason']})")
+    else:
+        checks.append(("slow-reaper-zombie-not-a-survivor", seen.get("adopted") is True
+                       and seen.get("contained") is True and bool(seen.get("zombies")) and seen.get("survivors") == []
+                       and isinstance(seen.get("waited"), float) and seen["waited"] < 2.5))
     # A backgrounded call is recorded, not killed before it runs (QA r8).
     r = run("(sleep 0.3; gh pr merge 11) & echo started", shells=("bash",))[0]
     checks.append(("background-call-recorded", r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0))
@@ -571,7 +589,8 @@ def _self_test() -> int:
     left = [d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-") and d not in before]
     checks.append(("temp-dirs-removed", not left))
     failed = [n for n, ok in checks if not ok]
-    print(f"run-shell-stubbed self-test: {'OK' if not failed else 'FAIL ' + str(failed)} ({len(checks)} checks)")
+    note = f"; skipped: {skipped}" if skipped else ""
+    print(f"run-shell-stubbed self-test: {'OK' if not failed else 'FAIL ' + str(failed)} ({len(checks)} checks{note})")
     return 1 if failed else 0
 
 
