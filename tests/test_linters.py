@@ -18796,6 +18796,27 @@ class BacklogActionabilityTests(unittest.TestCase):
         self.assertIs(mod.is_blocked(by["P-3.5"][2]), True)
         self.assertIn("egress", mod.prose_signals(by["P-1.1"][2]))
 
+    def test_item_like_net_bom_blockquote_strike_and_tight_task_box(self):
+        # 3b126 (3b119 QA r10): each of these looks like an item but is taken by no counted grammar, so the
+        # counted-or-reported invariant requires the ITEM-LIKE net to list it: a BOM before ``### 3b7``, an h3
+        # inside a blockquote, single-tilde strikethrough, strikethrough around a link, and a task box with no
+        # space after it. Each must appear in the report and never in the counted grammar.
+        mod = self._load()
+        for line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading", "- ~**3b7 fix**~",
+                     "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual([ln for _n, ln in mod.uncounted_item_like(text)], [line.strip()], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
+
+    def test_item_like_net_four_space_h3_stays_code(self):
+        # 3b126: the negative fixture for _H3_RE's ``{0,3}`` -- a ``###`` behind four spaces (or a tab) is
+        # indented code in CommonMark, so it is neither counted nor reported.
+        mod = self._load()
+        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual(mod.uncounted_item_like(text), [], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
+
 
 class HookToolItemCountParityTests(unittest.TestCase):
     """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)

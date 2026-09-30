@@ -105,7 +105,7 @@ TOP_BULLET_ITEM_RE = re.compile(
     r"|(?:[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+|\d+(?:\.\d+){1,2}[a-z]?)(?=(?:\*\*)? \[(?:private|public)\]))"
     r"(?=[ \t*:])(?P<title>.*)$"
 )
-# The REPORT net (QA r3-r8). Two anchors, either one reports a line:
+# The REPORT net (QA r3-r10). Two anchors, either one reports a line:
 # 1. The TAG: the backlog's own rule is that every item carries a ``[private]`` / ``[public]`` tag, so any list
 #    line with ``private`` or ``public`` as an element of a bracketed tag list (``[ops, private]``, ``[ private ]``)
 #    is item-like wherever the tag sits (QA r8).
@@ -114,8 +114,10 @@ TOP_BULLET_ITEM_RE = re.compile(
 #    (a bare ``#123`` PR reference excepted), starts with ``P-`` in any case, or begins with an uppercase coded id
 #    (``ORCH-CI-STATUS``, the shape ITEM_HEADING_RE counts).
 # A list line is: optional BOM, blockquote ``>`` prefixes, any marker ``-*+`` or ``1.``/``1)``, any indentation,
-# an optional ``[ ]``/``[x]`` task box. ``### `` headings the heading grammar does not take are tested the same
-# way. Every counted form meets one of these, so the counted-or-reported invariant holds by construction.
+# an optional ``[ ]``/``[x]`` task box, with or without a space after the box (QA r10). The emphasis may sit
+# behind ``~``/``~~`` strikethrough and a ``[`` link opener, nested either way (QA r9-r10). ``### `` headings
+# the heading grammar does not take are tested the same way, behind an optional BOM or blockquote prefixes too
+# (QA r10). Every counted form meets one of these, so the counted-or-reported invariant holds by construction.
 # DECLARED RESIDUE: a digit-free id in lowercase or mixed case (``orch-ci-status``) is not an id any counted
 # grammar takes and cannot be told from a hyphenated prose word; an id behind an emoji or HTML markup is not
 # read; both need their [private]/[public] tag to be reported. The net reads one physical line, so a tag that a
@@ -123,6 +125,7 @@ TOP_BULLET_ITEM_RE = re.compile(
 _ITEM_LIKE_LEAD_RE = re.compile(
     r"^\ufeff?(?:[ \t]*>)*[ \t]*(?:[-*+]|\d+[.)])[ \t]+(?:\[[ xX]\][ \t]+)?(?P<rest>.*)$"
 )
+_TASK_BOX_RE = re.compile(r"^\[[ xX]\][ \t]*")  # a task box the lead regex left in ``rest``: no space after it (QA r10)
 _LEAD_TAG_RE = re.compile(r"^\[[^\]\n]*\][ \t]*")
 _TAG_RE = re.compile(r"\[[^\]\[\n]*?(?<![\w-])(?:private|public)(?![\w-])[^\]\[\n]*\]", re.IGNORECASE)
 _CODED_WORD_RE = re.compile(r"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+(?![a-z])")  # a digit-free coded id, as ITEM_HEADING_RE takes
@@ -154,16 +157,23 @@ def _is_item_like(line: str) -> bool:
     rest = m.group("rest")
     if _TAG_RE.search(rest):
         return True
-    em = rest[1:].lstrip(" \t") if rest.startswith("[") else rest  # ``[ **3b7 fix**](url)`` (QA r9)
-    em = em[2:] if em.startswith("~~") else em  # ``~~**3b7 fix**~~`` strikethrough (QA r9)
+    em = _TASK_BOX_RE.sub("", rest, count=1)  # ``[ ]**3b7 fix**``: a task box with no space after it (QA r10)
+    for _ in range(2):  # ``~``/``~~`` strikethrough and a ``[`` link opener unwrap in either nesting (QA r9-r10)
+        if em[:1] == "~":
+            em = em[2:] if em[1:2] == "~" else em[1:]  # GFM strikethrough is one or two tildes
+        if em[:1] == "[":
+            em = em[1:].lstrip(" \t")  # ``[ **3b7 fix**](url)`` (QA r9)
     return em.startswith(("*", "_")) and _lead_word_is_id(em)
 
 
-_H3_RE = re.compile(r"^ {0,3}###[ \t]+(?P<rest>.*)$")  # any CommonMark h3 spelling (``###\t``, one to three spaces)
+# Any CommonMark h3 spelling (``###\t``, one to three spaces of indentation -- four make it code), also behind
+# an optional BOM or blockquote ``>`` prefixes, where no ``### `` heading is ever counted (QA r10).
+_H3_RE = re.compile(r"^\ufeff?(?:(?:[ \t]*>)+[ \t]*| {0,3})###[ \t]+(?P<rest>.*)$")
 
 
 def _is_item_like_heading(line: str) -> bool:
-    """A ``### `` heading the heading grammar does not count, whose lead word or tag marks it an item (QA r8)."""
+    """A ``### `` heading the heading grammar does not count (behind a BOM or blockquote prefix too, QA r10),
+    whose lead word or tag marks it an item (QA r8)."""
     h = _H3_RE.match(line)
     if not h or ITEM_HEADING_RE.match(line):
         return False
@@ -1424,6 +1434,14 @@ def _self_test() -> int:
         check("r9-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
               == [net_line.strip()])
     check("r9-pr-ref-with-colon", uncounted_item_like("## Q\n- **#2477:** MERGED\n") == [])
+    # QA r10 (3b126): shapes the net previously missed -- a BOM or blockquoted h3, single-tilde strikethrough,
+    # strikethrough around a link, a task box with no space after it; four-or-more-space indentation stays code.
+    for net_line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading", ">\t### 3b7 tab quoted",
+                     "- ~**3b7 fix**~", "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**", "- [x]**3b8 fix**"):
+        check("r10-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
+              == [net_line.strip()])
+    check("r10-four-space-h3-is-code", uncounted_item_like("## Q\n    ### 3b7 indented code\n") == [])
+    check("r10-tab-indented-h3-is-code", uncounted_item_like("## Q\n\t### 3b7 tab indent\n") == [])
     bh = "## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n"
     check("r9-heading-after-bullet", [x[0] for x in parse_items(bh, "private", ref_bodies={})] == ["3b7", "9.9"])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
