@@ -28824,14 +28824,28 @@ class ProvisionIndexTests(LinterTestCase):
     longest-alias-first by test_longest_alias_wins (both cases);
     prefix-over-postfix order by
     test_prefix_alias_wins_over_bracketed_postfix; the possessive prefix
-    tail by test_possessive_prefix_alias_is_explicit; the postfix alias by
+    tail by test_possessive_prefix_alias_is_explicit and its colon by
+    test_colon_prefix_tail_is_explicit; the conjoined-prefix chain by
+    test_conjoined_prefix_aliases_cite_each_instrument (with the
+    other-family drop) and its comma exclusion by
+    test_comma_chain_does_not_extend_adjacency; the bracket-gloss
+    downgrade by test_alias_led_bracket_gloss_downgrades; the explicit
+    known-instrument rule by test_ambiguous_alias_unresolved_jurisdiction
+    and test_agency_acronym_postfix_never_explicit; the
+    jurisdiction-contradiction refusal by
+    test_contradicted_jurisdiction_refuses_mention, the alias-span
+    exclusion by test_jurisdiction_word_inside_alias_is_not_context, and
+    the last-word rule and window bound by
+    test_last_jurisdiction_word_wins_within_window; the postfix alias by
     test_postfix_alias, its bracket-close rule by
     test_postfix_bracket_alias_must_close and its jurisdiction window by
     test_postfix_alias_jurisdiction_from_full_line; range expansion and the
     unit guard by test_range_expansion_and_unit_guard,
     test_percent_and_hyphenated_unit_not_absorbed,
     test_duration_units_not_absorbed (the day unit and the decimal
-    backtrack), test_range_span_bound and
+    backtrack), test_unit_shorthand_and_magnitude_not_absorbed (the 24h
+    shorthand and the magnitude words),
+    test_thousands_separator_not_a_list, test_range_span_bound and
     test_lettered_endpoints_not_expanded; the branch-number fold by
     test_hyphenated_branch_article_not_split and
     test_inner_paragraph_marker_not_a_new_section; the year guard by
@@ -28853,9 +28867,12 @@ class ProvisionIndexTests(LinterTestCase):
     heading-over-body precedence by test_heading_beats_earlier_body_mention;
     the inference refusals by test_foreign_prefix_refuses_inference,
     test_law_word_with_number_refuses_inference,
+    test_law_word_eu_qualifier_refuses_inference,
     test_year_prefix_does_not_refuse_inference,
     test_acronym_year_statute_refuses_inference,
-    test_comma_after_foreign_identifier_refuses,
+    test_comma_after_foreign_identifier_refuses (its second,
+    bare-identifier case; the first is doubly refused and documents the
+    corpus shape),
     test_of_that_instrument_refuses_inference,
     test_of_such_instrument_refuses_inference,
     test_of_other_instrument_refuses_inference,
@@ -28868,12 +28885,20 @@ class ProvisionIndexTests(LinterTestCase):
     test_parse_key_requires_explicit_adjacency; the jurisdiction resolution
     by test_ambiguous_alias_*; the adjectival-compound guard by
     test_adjectival_compound_is_not_a_mention (both cases); the phrase
-    channel by the test_phrase_* cases,
+    channel by the test_phrase_* cases (the after-alias fallback by
+    test_phrase_needs_the_instrument_context's last case),
     test_phrase_not_matched_on_heading_line,
     test_phrase_context_excludes_section_body and its suppression flag by
-    test_unresolved_citation_does_not_suppress_phrase; the explicit/
-    candidate split in the tools by the test_build_* and test_siblings_*
-    fixture cases.
+    test_unresolved_citation_does_not_suppress_phrase; the unique_rows
+    tier term by test_unique_rows_keeps_distinct_tiers; EXCLUDED_FILES by
+    test_excluded_generated_artefacts_not_scanned; the explicit/candidate
+    split in the tools by the test_build_* and test_siblings_* fixture
+    cases, and the audit tool's both-sides-trusted rule by
+    test_siblings_own_heading_citation_is_trusted (the own-side heading
+    trust, and the sibling side held to --min-tier),
+    test_siblings_own_line_or_section_citation_keeps_candidates (the
+    own-side line and section distrust, and the own_trusted gate) and
+    test_siblings_own_phrase_only_citation_stays_unverified.
     """
 
     BUILD = "tools/build-provision-index.py"
@@ -28994,7 +29019,16 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.scan("PDPA s. 26D", rel)[0][0], "PDPA (Thailand) s. 26D")
 
     def test_ambiguous_alias_unresolved_jurisdiction(self) -> None:
-        self.assertEqual(self.scan("PDPA s. 26D")[0][0], "PDPA (jurisdiction unresolved) s. 26D")
+        # Kills removing _known from the explicit prefix and postfix branches: an
+        # ambiguous alias whose jurisdiction never resolves is not a known instrument
+        # (round-3 QA: "the section 1798.155 CPPA administrative fine" is the
+        # California AGENCY, and its explicit record collided with Canadian Bill C-27
+        # rows under the shared "CPPA (jurisdiction unresolved)" key), so adjacency
+        # to it is unresolved, never explicit — while a line-tier mention still
+        # surfaces the "(jurisdiction unresolved)" key as an unverified candidate.
+        self.assertEqual(self.scan("PDPA s. 26D"), [(None, "26D", "unresolved")])
+        self.assertEqual(self.scan("| PDPA | porting duty (s. 26D) |"),
+                         [("PDPA (jurisdiction unresolved) s. 26D", "26D", "line")])
 
     def test_adjectival_compound_is_not_a_mention(self) -> None:
         got = self.scan("the LFPDPPP has no GDPR-style basis (Articles 21 to 22)")
@@ -29065,6 +29099,11 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(self.scan("## Breach\n\nA real risk of significant harm.\n"), [])
         self.assertEqual(self.scan("## Canada (PIPEDA)\n\nA real risk of significant harm.\n"),
                          [("PIPEDA s. 10.1", "(uncited)", "phrase")])
+        # Kills disabling the first-alias-after-the-phrase fallback (round-3 QA: no
+        # test reached it; the phrase here starts the line, so only "after" can name
+        # the instrument).
+        self.assertEqual(self.scan("A real risk of significant harm triggers PIPEDA reporting."),
+                         [("PIPEDA s. 10.1", "(uncited)", "phrase")])
 
     def test_parse_key(self) -> None:
         self.assertEqual(self.pc.parse_key("PIPEDA s.10.1(3)"), "PIPEDA s. 10.1")
@@ -29129,9 +29168,12 @@ class ProvisionIndexTests(LinterTestCase):
         # (crypto/standard-crypto-asset-reserve-and-prudential-requirements.md:73).
         got = self.scan("calculated per the fixed-overheads method of section 3.9 (MiCA Article 35(1)).")
         self.assertEqual(got, [("MiCA Art. 35", "35(1)", "explicit")])
-        # Kills removing the bracket lead itself (privacy/annex-privacy-jurisdiction-index.md:120).
-        self.assertEqual(self.scan("Cabinet decision under Art 26 (PDPL)")[0],
-                         ("PDPL (jurisdiction unresolved) Art. 26", "26", "explicit"))
+        # Kills removing the bracket lead itself (the shape at privacy/
+        # annex-privacy-jurisdiction-index.md:120; a jurisdiction word supplies the
+        # context, since an unresolved-jurisdiction alias no longer keys an explicit
+        # record).
+        self.assertEqual(self.scan("UAE Cabinet decision under Art 26 (PDPL)")[0],
+                         ("PDPL (UAE) Art. 26", "26", "explicit"))
 
     def test_postfix_alias_jurisdiction_from_full_line(self) -> None:
         # Kills resolving a postfix alias against the post-citation substring only, which
@@ -29173,13 +29215,18 @@ class ProvisionIndexTests(LinterTestCase):
                          [(None, "80", "unresolved")])
 
     def test_comma_after_foreign_identifier_refuses(self) -> None:
-        # Kills dropping the comma-identifier branch: "Regulation (EU) 2025/1140,
-        # Article 4" names the delegated regulation, and the comma bypassed the
-        # whitespace-only refusal (crypto/standard-digital-asset-custody.md:41 became
-        # MiCA Art. 4 from an earlier MiCA mention).
+        # "Regulation (EU) 2025/1140, Article 4" names the delegated regulation, and
+        # the comma bypassed the whitespace-only refusal (crypto/
+        # standard-digital-asset-custody.md:41 became MiCA Art. 4 from an earlier
+        # MiCA mention). That corpus shape is ALSO refused by the law-word branch
+        # ("Regulation (EU) 2025/1140" through the comma tail), so it kills nothing
+        # alone (round-3 QA); the bare-identifier case ("125(I)/2018, Article 15",
+        # no law word) is what kills dropping the comma-identifier branch.
         got = self.scan("MiCA custody rules; Commission Delegated Regulation (EU) 2025/1140, "
                         "Article 4 applies.")
         self.assertEqual(got, [(None, "4", "unresolved")])
+        self.assertEqual(self.scan("under GDPR standards; 125(I)/2018, Article 15 applies"),
+                         [(None, "15", "unresolved")])
 
     def test_of_that_instrument_refuses_inference(self) -> None:
         # Kills narrowing _OF_THIS_RE back to "this" (crypto/standard-crypto-asset-reserve-
@@ -29194,8 +29241,11 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertEqual(got, [("GDPR Art. 6", "6", "explicit"), (None, "12", "unresolved")])
 
     def test_of_other_instrument_refuses_inference(self) -> None:
-        # Kills removing the _OF_OTHER_RE refusal ("of the Charter" names the instrument).
-        self.assertEqual(self.scan("## PIPEDA\n\nArticle 5 of the Charter applies.\n"),
+        # Kills removing the _OF_OTHER_RE refusal ("of the Charter" names the
+        # instrument). The heading must be an Art.-family instrument: under an
+        # s.-style one (## PIPEDA) the marker-family guard refuses "Article 5"
+        # anyway and masks the mutation (round-3 QA).
+        self.assertEqual(self.scan("## GDPR\n\nArticle 5 of the Charter applies.\n"),
                          [(None, "5", "unresolved")])
 
     def test_trailing_instrument_word_refuses_inference(self) -> None:
@@ -29255,6 +29305,137 @@ class ProvisionIndexTests(LinterTestCase):
         # Kills removing body=False from the phrase-channel context lookup.
         self.assertEqual(self.scan("## Breach\n\nPIPEDA applies.\n\nA real risk of significant harm.\n"), [])
 
+    def test_conjoined_prefix_aliases_cite_each_instrument(self) -> None:
+        # Kills removing the _CONJ_RE chain walk (round-3 QA: "GDPR / UK GDPR
+        # Article 21" keyed only to UK GDPR, so the GDPR key missed the surface
+        # entirely; privacy/template-employee-monitoring-notice.md:110 and
+        # supply-chain/register-subprocessor-template.md:31).
+        self.assertEqual(self.scan("GDPR / UK GDPR Article 21(4)"),
+                         [("GDPR Art. 21", "21(4)", "explicit"),
+                          ("UK GDPR Art. 21", "21(4)", "explicit")])
+        self.assertEqual([k for k, _p, _t in self.scan("Under GDPR and UK GDPR Article 28, terms apply")],
+                         ["GDPR Art. 28", "UK GDPR Art. 28"])
+        # Kills widening the family drop to the whole chain (a conjoined member of
+        # the OTHER marker family is an enumeration entry, not a co-citation, and
+        # must not refuse the adjacent alias's record).
+        self.assertEqual(self.scan("SOX and GDPR Articles 5(2) and 24 set accountability"),
+                         [("GDPR Art. 5", "5(2)", "explicit"), ("GDPR Art. 24", "24", "explicit")])
+
+    def test_comma_chain_does_not_extend_adjacency(self) -> None:
+        # Kills adding a comma to _CONJ_RE: "UK GDPR, LGPD Art 37" enumerates
+        # frameworks (governance/register-document-index-and-classification.md:151),
+        # and chaining it would misattribute LGPD's article to UK GDPR.
+        self.assertEqual(self.scan("GDPR Art 30, UK GDPR, LGPD Art 37 apply"),
+                         [("GDPR Art. 30", "30", "explicit"), ("LGPD Art. 37", "37", "explicit")])
+
+    def test_alias_led_bracket_gloss_downgrades(self) -> None:
+        # Kills removing the gloss check on a bracket-lead prefix (round-3 QA:
+        # compliance/financial-services/annex-mica-implementation.md:122, where
+        # "DORA (Art 68(7), citing DORA Arts 11-12)" made MiCA's Art 68(7) an
+        # EXPLICIT DORA record; the re-named alias inside the bracket shows the
+        # lead is a gloss, so the citation falls to the line tier — an unverified
+        # candidate — while the inner "DORA Arts 11-12" stays explicit).
+        got = self.scan("| ICT continuity per DORA (Art 68(7), citing DORA Arts 11-12) | annex |")
+        self.assertEqual(got, [("DORA Art. 68", "68(7)", "line"),
+                               ("DORA Art. 11", "11", "explicit"),
+                               ("DORA Art. 12", "12", "explicit")])
+        # A bracket-lead prefix whose bracket re-names nothing stays explicit.
+        self.assertEqual(self.scan("under PIPEDA (s. 10.1(2) and (6)), and promptly")[0][2], "explicit")
+
+    def test_agency_acronym_postfix_never_explicit(self) -> None:
+        # Round-3 QA corpus regression (privacy/annex-privacy-jurisdiction-index.md:107):
+        # "the section 1798.155 CPPA administrative fine" read the California agency
+        # as an instrument and keyed an explicit "CPPA (jurisdiction unresolved)"
+        # record. The Section marker is explicit-only, so the refused citation is
+        # dropped, not misattributed; a jurisdiction word still resolves the alias.
+        self.assertEqual(self.scan("escalating the section 1798.155 CPPA administrative fine tier",
+                                   "privacy/annex-privacy-jurisdiction-index.md"), [])
+        self.assertEqual(self.scan("Canada's CPPA Section 63(3) sets administrative penalties"),
+                         [("CPPA (Canada) s. 63", "63(3)", "explicit")])
+
+    def test_contradicted_jurisdiction_refuses_mention(self) -> None:
+        # Kills reverting resolve_alias to "an unmapped jurisdiction falls through
+        # to the next candidate": near "California" (or on a California path), CPPA
+        # is the state agency, not Canada's Bill C-27, so the MENTION names no
+        # instrument at all — the section-body and line contexts it would otherwise
+        # seed stay empty and the bare citations refuse (an ADJACENT contradicted
+        # alias is already refused by the explicit known-instrument rule;
+        # ai/jurisdictions/annex-ai-us-california.md, round-3 QA).
+        text = ("## Enforcement\n\nThe California CPPA enforces the rules.\n\n"
+                "Penalties (s. 7150) apply.\n")
+        self.assertEqual(self.scan(text), [(None, "7150", "unresolved")])
+        self.assertEqual(self.scan("| CPPA | fines (s. 7150) |",
+                                   "ai/jurisdictions/annex-ai-us-california.md"),
+                         [(None, "7150", "unresolved")])
+
+    def test_jurisdiction_word_inside_alias_is_not_context(self) -> None:
+        # Kills removing the alias-span exclusion in resolve_alias: the "EU" of
+        # "EU GDPR" describes GDPR, not a later ambiguous alias, so it neither
+        # resolves nor contradicts it (privacy/register-automated-decision-making.md:25
+        # mentions CPPA within the window of "EU GDPR").
+        text = "## Breach\n\nUnder the EU GDPR and the CPPA, breach duties apply.\n\nReports (s. 63(3)) follow.\n"
+        self.assertEqual(self.scan(text), [("CPPA (jurisdiction unresolved) s. 63", "63(3)", "section")])
+
+    def test_last_jurisdiction_word_wins_within_window(self) -> None:
+        # Kills replacing words[-1] with words[0] in resolve_alias (the NEAREST
+        # jurisdiction word governs) and kills unbounding JURISDICTION_WINDOW (a
+        # jurisdiction word further back than the window is not context, so the
+        # unresolved-jurisdiction alias refuses the explicit record).
+        self.assertEqual(self.scan("transfers from Singapore may rely on Thailand PDPA s. 26")[0][0],
+                         "PDPA (Thailand) s. 26")
+        padding = "the transfer impact assessment framework in this annex covers onward transfers generally"
+        self.assertEqual(self.scan("Singapore " + padding + " PDPA s. 26D"),
+                         [(None, "26D", "unresolved")])
+
+    def test_colon_prefix_tail_is_explicit(self) -> None:
+        # Kills removing the ":" from _PREFIX_TAIL_RE (round-3 QA: no test reached
+        # it; "GDPR: Article 33" would silently fall to the line tier).
+        self.assertEqual(self.scan("GDPR: Article 33 notice duty"),
+                         [("GDPR Art. 33", "33", "explicit")])
+
+    def test_law_word_eu_qualifier_refuses_inference(self) -> None:
+        # Kills dropping the "(EU)"-style qualifier from _FOREIGN_PREFIX_RE's
+        # law-word branch (round-3 QA: no test reached it; with a slashless number
+        # neither the identifier nor the comma branch fires, so without the
+        # qualifier the citation would fall to the line tier as GDPR).
+        self.assertEqual(self.scan("GDPR applies; Regulation (EU) 1024 Article 4 differs"),
+                         [(None, "4", "unresolved")])
+
+    def test_unit_shorthand_and_magnitude_not_absorbed(self) -> None:
+        # Kills removing _NOT_SHORTHAND ("and 24h" gained Art. 24h) and kills
+        # dropping the magnitude words from _UNIT ("and 20 million" gained Art. 20);
+        # both latent shapes from the round-3 QA, no corpus hit today.
+        self.assertEqual(self.scan("GDPR Art. 33 and 24h"), [("GDPR Art. 33", "33", "explicit")])
+        self.assertEqual(self.scan("GDPR Art. 33 and 72 h"), [("GDPR Art. 33", "33", "explicit")])
+        self.assertEqual(self.scan("GDPR Art. 83 and 20 million euro"),
+                         [("GDPR Art. 83", "83", "explicit")])
+
+    def test_thousands_separator_not_a_list(self) -> None:
+        # Kills removing _NOT_THOUSANDS ("and 1,000 users" gained Art. 1 and
+        # Art. 000; round-3 QA latent shape). A spaced list is untouched.
+        self.assertEqual(self.scan("GDPR Art. 6 and 1,000 users"), [("GDPR Art. 6", "6", "explicit")])
+        self.assertEqual([k for k, _p, _t in self.scan("GDPR Arts. 33, 34")],
+                         ["GDPR Art. 33", "GDPR Art. 34"])
+
+    def test_unique_rows_keeps_distinct_tiers(self) -> None:
+        # Kills dropping c.tier from the unique_rows identity (round-3 QA: no test
+        # reached it): the same pinpoint on one line can resolve at two tiers, and
+        # the trusted/candidate split must see both rows.
+        rows = self.pc.unique_rows(self.pc.scan_text("x.md", "GDPR Art. 33; notify (Art. 33)"))
+        self.assertEqual([c.tier for c in rows], ["explicit", "line"])
+
+    def test_excluded_generated_artefacts_not_scanned(self) -> None:
+        # Kills removing entries from EXCLUDED_FILES (round-3 QA: no test reached
+        # it): generated artefacts derive from sources already in scope, so a hit
+        # there is not a sibling. The names are spelled here, not read from the
+        # constant, so shrinking the constant cannot shrink the check.
+        paths = [self.pc.display_path(f) for f in self.pc.corpus_files(["docs"])]
+        self.assertTrue(any(p.startswith("docs/") for p in paths))
+        for excluded in ("docs/portal.md", "docs/maturity-scorecard.md",
+                         "docs/reference-acquisition-manifest.md"):
+            self.assertTrue((self.pc.REPO_ROOT / excluded).is_file())
+            self.assertNotIn(excluded, paths)
+
     def _pair(self) -> tuple:
         a = self.make_fixture("breach-a.md", "# A\n\nNotify the OPC (PIPEDA s. 10.1(1)).\n")
         b = self.make_fixture("breach-b.md", "# B\n\n## Canada (PIPEDA)\n\n- Report (s. 10.1(3)).\n")
@@ -29311,6 +29492,97 @@ class ProvisionIndexTests(LinterTestCase):
         self.assertIn(b.name + ":5", result.stdout)
         self.assertNotIn(self.CANDIDATE_LABEL, result.stdout)
 
+    def test_siblings_own_heading_citation_is_trusted(self) -> None:
+        # #2649 recall pin (round-4 regression): privacy/jurisdictions/
+        # annex-privacy-canada.md cites "(s. 10.1)" only under "## Operational
+        # requirements (PIPEDA)", a heading naming exactly one instrument, so its
+        # own citation is heading-tier and TRUSTED: the explicit restatements
+        # elsewhere are siblings, while the charter's line-tier row and another
+        # surface's heading-tier row stay candidates (the sibling side is still
+        # held to --min-tier). Kills reverting OWN_TRUSTED_TIERS to ("explicit",)
+        # (the round-4 audit printed "own citation unverified: heading" and 0
+        # trusted siblings for the annex), and kills splitting the sibling rows by
+        # the own-side tiers (the heading-tier row would become a sibling).
+        annex = self.make_fixture(
+            "annex-canada.md",
+            "# Canada annex\n\n## Operational requirements (PIPEDA)\n\n"
+            "- **Breach of security safeguards (s. 10.1):** report to the OPC where the "
+            "breach creates a real risk of significant harm.\n")
+        self.make_fixture("procedure.md", "# P\n\n| Canada | notify (PIPEDA s. 10.1(1)) |\n")
+        self.make_fixture("standard.md", "# S\n\nPromptly under PIPEDA (s. 10.1(2) and (6)).\n")
+        self.make_fixture(
+            "charter.md",
+            "# C\n\n| **Canada (Federal)** | PIPEDA: Personal Information Protection and "
+            "Electronic Documents Act | Breach of security safeguards (s. 10.1): report |\n")
+        self.make_fixture("heading-row.md", "# H\n\n## Canada (PIPEDA)\n\n- Report (s. 10.1(3)).\n")
+        result = run_linter(self.SIBLINGS, "--docs", annex, "--scan", annex.parent,
+                            "--provision", "PIPEDA s. 10.1")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("1 provision(s) cited, 1 restated elsewhere at the trusted tier(s), "
+                      "0 with unverified candidates only", result.stdout)
+        self.assertIn("PIPEDA s. 10.1  (cited here on L5; 2 trusted sibling surface(s); "
+                      "2 unverified candidate surface(s))", result.stdout)
+        self.assertNotIn("own citation unverified", result.stdout)
+        label = result.stdout.index("    " + self.CANDIDATE_LABEL + ":")
+        for row in ("procedure.md:3  10.1(1)  [explicit]", "standard.md:3  10.1(2)  [explicit]",
+                    "standard.md:3  10.1(6)  [explicit]"):
+            self.assertLess(result.stdout.index(row), label, row)
+        for row in ("charter.md:3  10.1  [line]", "heading-row.md:5  10.1(3)  [heading]"):
+            self.assertGreater(result.stdout.index(row), label, row)
+
+    def test_siblings_own_line_or_section_citation_keeps_candidates(self) -> None:
+        # The own-side trust covers the explicit and heading tiers only: a key the
+        # audited document cites only at the line tier (a table row naming the
+        # instrument in an earlier cell) or only at the section tier (a body
+        # mention) keeps EVERY other-surface row as a candidate, the explicit one
+        # included; the key line is marked and the key is not counted as restated.
+        # Kills adding "line" to OWN_TRUSTED_TIERS (first case), adding "section"
+        # (second case), and dropping the own_trusted gate in audit() (both).
+        # --min-tier still widens the trusted set on BOTH sides, restoring the
+        # sibling.
+        a, _b = self._pair()
+        line_doc = self.make_fixture(
+            "breach-line.md", "# L\n\n| PIPEDA | Breach of security safeguards (s. 10.1): report |\n")
+        section_doc = self.make_fixture(
+            "breach-section.md", "# S\n\n## Breach\n\nPIPEDA applies.\n\nReport (s. 10.1(2)).\n")
+        label = "    " + self.CANDIDATE_LABEL + ":"
+        row = a.name + ":3  10.1(1)  [explicit]"
+        for doc, tier, line in ((line_doc, "line", 3), (section_doc, "section", 7)):
+            with self.subTest(tier=tier):
+                result = run_linter(self.SIBLINGS, "--docs", doc, "--scan", a.parent)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("1 provision(s) cited, 0 restated elsewhere at the trusted tier(s), "
+                              "1 with unverified candidates only", result.stdout)
+                self.assertIn(f"PIPEDA s. 10.1  (cited here on L{line} [own citation unverified: "
+                              f"{tier}]; 0 trusted sibling surface(s); 3 unverified candidate "
+                              f"surface(s))", result.stdout)
+                self.assertLess(result.stdout.index(label), result.stdout.index(row))
+        result = run_linter(self.SIBLINGS, "--docs", line_doc, "--scan", a.parent, "--min-tier", "line")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("1 restated elsewhere at the trusted tier(s)", result.stdout)
+        self.assertIn("PIPEDA s. 10.1  (cited here on L3; 1 trusted sibling surface(s); "
+                      "2 unverified candidate surface(s))", result.stdout)
+        self.assertNotIn("own citation unverified", result.stdout)
+
+    def test_siblings_own_phrase_only_citation_stays_unverified(self) -> None:
+        # A document that restates the provision only through a seeded phrase has
+        # no citation tier at all: its key is own-unverified even at --min-tier
+        # document, and the JSON carries the phrase tier.
+        import json
+
+        a, _b = self._pair()
+        d = self.make_fixture("breach-d.md",
+                              "# D\n\n| PIPEDA | breach duty (real risk of significant harm) |\n")
+        result = run_linter(self.SIBLINGS, "--docs", d, "--scan", a.parent,
+                            "--min-tier", "document", "--json")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        provision = json.loads(result.stdout)[0]["provisions"][0]
+        self.assertEqual(provision["own_tiers"], ["phrase"])
+        self.assertFalse(provision["own_trusted"])
+        self.assertEqual(provision["siblings"], [])
+        self.assertEqual([r["tier"] for r in provision["unverified_candidates"]],
+                         ["explicit", "heading"])
+
     def test_siblings_phrase_row_is_candidate(self) -> None:
         # An uncited-phrase hit on another surface stays visible, as a candidate (the
         # #2649 charter-phrase recall); --no-phrases omits it.
@@ -29335,6 +29607,10 @@ class ProvisionIndexTests(LinterTestCase):
         provision = payload[0]["provisions"][0]
         self.assertEqual(provision["key"], "PIPEDA s. 10.1")
         self.assertEqual(provision["cited_on_lines"], [3])
+        # The audited document's own tier is part of the record (round-3 QA: an
+        # own citation that is itself an inference must be visible).
+        self.assertEqual(provision["own_tiers"], ["explicit"])
+        self.assertTrue(provision["own_trusted"])
         # Explicit-tier c is a sibling; heading-tier b is an unverified candidate.
         self.assertEqual([Path(p).name for p in provision["other_surfaces"]], [c.name])
         self.assertEqual([r["tier"] for r in provision["siblings"]], ["explicit"])

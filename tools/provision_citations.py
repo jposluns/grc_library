@@ -30,11 +30,15 @@ Extraction model (stdlib ``re``, fenced code skipped via
      Art. 24-2``, ``s. 6-1-1306``), not a range. A numeric range spanning
      at most ``MAX_RANGE_SPAN`` sections is expanded; each interior
      section carries the range as its pinpoint (``25 to 39``). A
-     continuation number DIRECTLY followed by a unit (``and 72 hours``,
-     ``and 72-hour``, ``and 1.5 days``, ``and 20%``) or shaped as a year is
-     not absorbed; the unit guard sees only the token straight after the
-     number, so a unit one word later (``or 2 further months``) is still
-     absorbed (stated, not hidden; no corpus hit today).
+     continuation number DIRECTLY followed by a unit or magnitude word
+     (``and 72 hours``, ``and 72-hour``, ``and 1.5 days``, ``and 20%``,
+     ``and 20 million``), shaped as a year or as a canonical duration
+     shorthand (``and 24h``, ``and 48h``, ``and 72h``), or opening a
+     thousands-separated quantity (``and 1,000 users``) is not absorbed;
+     the unit guard sees only the token straight after the number, so a
+     unit one word later (``or 2 further months``) is still absorbed, and
+     a non-canonical shorthand (``and 36h``) is too (both stated, not
+     hidden; no corpus hit today).
   2. The KEY is section-level: ``PIPEDA s. 10.1(3)`` and ``PIPEDA s. 10.1(6)``
      both key to ``PIPEDA s. 10.1``; the pinpoint is kept for display.
   3. The INSTRUMENT is resolved in this order, and the tier is recorded:
@@ -44,7 +48,21 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  the GDPR``; a bracketed alias, ``Art 26 (PDPL)``, counts
                  only when the bracket closes right after the alias, so
                  ``section 3.9 (MiCA Article 35(1))`` never keys the outer
-                 citation to MiCA);
+                 citation to MiCA). Aliases conjoined directly before the
+                 marker by ``/``, ``&``, ``and`` or ``or`` (``GDPR / UK
+                 GDPR Article 21``) cite the provision under EACH conjoined
+                 instrument whose marker family matches; a comma chain
+                 (``UK GDPR, LGPD Art 37``) is a framework enumeration and
+                 never extends the adjacency. An alias-led bracket whose
+                 body names another alias before it closes (``DORA (Art
+                 68(7), citing DORA Arts 11-12)``) is a gloss over a mixed
+                 parenthetical, so the lead does NOT count as explicit and
+                 the citation falls to the inferred tiers. An adjacent
+                 ambiguous alias counts only when its jurisdiction resolves
+                 (rule 4): one refused by its context, or one whose
+                 jurisdiction never resolves (``the section 1798.155 CPPA
+                 administrative fine``: the California agency, not Canada's
+                 Bill C-27), makes the citation unresolved, never explicit;
        line      the nearest alias earlier on the same line (a table row),
                  only when every alias earlier on the line names ONE
                  instrument and no foreign-prefix refusal precedes the
@@ -86,10 +104,18 @@ Extraction model (stdlib ``re``, fenced code skipped via
      be mentioned nearby.
   4. Ambiguous short names (``PDPA``, ``PDPL``, ``CPPA``, ``PIPA``,
      ``AI Act``) resolve by the last jurisdiction word within
-     ``JURISDICTION_WINDOW`` characters before the alias, then by a
-     jurisdiction token in the document path, else to
-     ``<alias> (jurisdiction unresolved)``. An alias used as an adjectival
-     compound (``GDPR-style``, ``GDPR-Article-26-style``) is not a mention.
+     ``JURISDICTION_WINDOW`` characters before the alias (a jurisdiction
+     word inside another alias mention, the ``EU`` of ``EU GDPR``, does
+     not count), then by a jurisdiction token in the document path, else
+     to ``<alias> (jurisdiction unresolved)`` — a key that can carry only
+     INFERRED-tier citations (rule 3 refuses it at the explicit tier), so
+     its rows always print as unverified candidates. A jurisdiction context the
+     alias's table row does not list REFUSES the mention outright: near
+     ``California``, ``CPPA`` is the California Privacy Protection Agency
+     (an authority, not Canada's Bill C-27 statute), so the token names no
+     instrument and a citation adjacent to it is unresolved. An alias used
+     as an adjectival compound (``GDPR-style``, ``GDPR-Article-26-style``)
+     is not a mention.
   5. SIGNATURE PHRASES: a small seed table of phrases that restate a
      provision WITHOUT citing it (before #2649 most PIPEDA s. 10.1 surfaces
      carried no section number at all). A hit is reported with tier
@@ -247,13 +273,24 @@ _ITEM = _NUM + "(?:" + _SUB + ")*"
 _SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*[-–]\s*|\s*[&/]\s*)"
 # The decimal alternative stops _NUM backtracking out of "1.5" to absorb the
 # "1" of "and 1.5 days" as a section once the unit rejects the full number.
-_UNIT = r"(?!(?:\.\d+)?[\s–-]*(?:hours?|days?|weeks?|months?|years?|minutes?|%|per\s?cent|percent)(?![A-Za-z]))"
+_UNIT = (
+    r"(?!(?:\.\d+)?[\s–-]*(?:hours?|hrs?|h|days?|weeks?|wks?|months?|years?|yrs?|"
+    r"minutes?|mins?|millions?|billions?|thousands?|%|per\s?cent|percent)(?![A-Za-z]))"
+)
+# A comma directly binding two digit groups whose right group is exactly three
+# digits is a thousands separator ("1,000 users"), not a list; and the bare
+# canonical duration shorthands 24h/48h/72h are quantities, not sections (a
+# letter-suffixed article such as "Art. 5h" stays parseable; a non-canonical
+# shorthand, "36h", is stated residue).
+_NOT_THOUSANDS = r"(?!,\d{3}(?![0-9]))"
+_NOT_SHORTHAND = r"(?!(?:24|48|72)h(?![A-Za-z0-9]))"
 _NOT_YEAR = r"(?!(?:19|20)\d\d(?![.\d]))"
 CITE_RE = re.compile(
     r"(?<![A-Za-z0-9])"
     r"(?P<marker>Articles|Article|Arts\.|Arts|Art\.|Art|ss\.|s\.|Sections|Section|sections|section|§§|§)"
-    r"\s?(?P<body>" + _ITEM + _UNIT
-    + "(?:" + _SEP + _NOT_YEAR + "(?:" + _ITEM + "|(?:" + _SUB + ")+)" + _UNIT + ")*)"
+    r"\s?(?P<body>" + _ITEM + _NOT_THOUSANDS + _UNIT
+    + "(?:" + _SEP + _NOT_YEAR + _NOT_SHORTHAND
+    + "(?:" + _ITEM + "|(?:" + _SUB + ")+)" + _NOT_THOUSANDS + _UNIT + ")*)"
 )
 _BODY_TOKEN_RE = re.compile(
     "(?P<item>" + _NUM + ")(?P<subs>(?:" + _SUB + ")*)"
@@ -266,6 +303,11 @@ _EXPLICIT_ONLY_MARKERS = frozenset(("Sections", "Section", "sections", "section"
 # "Art 26 (PDPL)". A bracket-lead postfix alias counts only when the bracket closes right after
 # the alias: in "section 3.9 (MiCA Article 35(1))" the bracket opens a SEPARATE citation.
 _PREFIX_TAIL_RE = re.compile(r"(?:'s)?\s*[,:]?\s*\(?\s*")
+# Conjunctions that extend an explicit prefix to every conjoined alias
+# ("GDPR / UK GDPR Article 21", "GDPR and UK GDPR Article 28"). A comma is
+# NOT one: "UK GDPR, LGPD Art 37" enumerates frameworks, and chaining it
+# would misattribute LGPD's article to UK GDPR.
+_CONJ_RE = re.compile(r"\s*(?:[/&]|\band\b|\bor\b)\s*")
 _POSTFIX_LEAD_RE = re.compile(r"\s*(?:of\s+(?:the\s+)?|(?P<paren>\(\s*))?")
 _POSTFIX_CLOSE_RE = re.compile(r"\s*\)")
 _ANAPHOR_RE = re.compile(r"\b(?:its|whose|their)\s+$")
@@ -335,21 +377,39 @@ def _path_jurisdiction(rel: str) -> "str | None":
     return None
 
 
-def resolve_alias(alias: str, line: str, pos: int, rel: str) -> str:
-    """Canonical instrument for the alias occurrence at ``pos`` on ``line``."""
+def resolve_alias(alias: str, line: str, pos: int, rel: str) -> "str | None":
+    """Canonical instrument for the alias occurrence at ``pos`` on ``line``.
+
+    None where the jurisdiction context contradicts the alias's table row
+    (near ``California``, ``CPPA`` is the state agency, not Canada's Bill
+    C-27): the mention then names no instrument at all. A jurisdiction word
+    inside another alias mention (the ``EU`` of ``EU GDPR``) describes that
+    alias, not this one, and is not context.
+    """
     if alias in _ALIAS_TO_CANON:
         return _ALIAS_TO_CANON[alias]
     by_jurisdiction = _AMBIGUOUS[alias]
-    words = _JURISDICTION_RE.findall(line[max(0, pos - JURISDICTION_WINDOW):pos])
+    lo = max(0, pos - JURISDICTION_WINDOW)
+    spans = [a.span() for a in ALIAS_RE.finditer(line)]
+    words = [
+        w.group(1) for w in _JURISDICTION_RE.finditer(line[lo:pos])
+        if not any(s <= lo + w.start() and lo + w.end() <= e for s, e in spans)
+    ]
     nearby = JURISDICTION_WORDS[words[-1].lower()] if words else None
     for jurisdiction in (nearby, _path_jurisdiction(rel)):
-        if jurisdiction in by_jurisdiction:
-            return by_jurisdiction[jurisdiction]
+        if jurisdiction is None:
+            continue
+        return by_jurisdiction.get(jurisdiction)
     return alias + UNRESOLVED_JURISDICTION
 
 
 def aliases_in(line: str, rel: str, start: int = 0, end: "int | None" = None) -> list[str]:
-    """Resolved instruments mentioned in ``line[start:end]``, in order."""
+    """Resolved instruments mentioned in ``line[start:end]``, in order.
+
+    A refused mention (an ambiguous alias contradicted by its jurisdiction
+    context) appears as None, so ``_single`` and the line tier treat it as
+    a second, unknown instrument rather than skipping it.
+    """
     stop = len(line) if end is None else end
     return [resolve_alias(m.group(0), line, m.start(), rel) for m in ALIAS_RE.finditer(line, start, stop)]
 
@@ -435,13 +495,27 @@ def _context(stack: list, doc_instrument: "str | None", *, body: bool = True) ->
     return None, UNRESOLVED
 
 
+def _known(instrument: "str | None") -> bool:
+    """True for a fully resolved instrument: the EXPLICIT tier requires one.
+
+    A refused mention (None) or an ambiguous alias whose jurisdiction never
+    resolved (``PDPA (jurisdiction unresolved)``) is not a known instrument,
+    so adjacency to it cannot be trusted; such keys still surface at the
+    inferred tiers, as unverified candidates.
+    """
+    return instrument is not None and UNRESOLVED_JURISDICTION not in instrument
+
+
 def _resolve_citation(
     m: "re.Match[str]", line: str, rel: str, poisoned: bool = False
-) -> "tuple[str | None, str, bool]":
-    """Explicit or line-tier resolution: ``(instrument, tier, foreign prefix?)``.
+) -> "tuple[list[str], str, bool]":
+    """Explicit or line-tier resolution: ``(instruments, tier, foreign prefix?)``.
 
-    ``_NEEDS_CONTEXT`` defers to the heading chain. ``poisoned`` (a refused
-    foreign-prefix citation earlier on the line) blocks the inferred tiers.
+    ``instruments`` usually holds one instrument; a conjoined explicit prefix
+    (``GDPR / UK GDPR Article 21``) holds one per conjoined alias, and an
+    empty list is a refusal. ``_NEEDS_CONTEXT`` defers to the heading chain.
+    ``poisoned`` (a refused foreign-prefix citation earlier on the line)
+    blocks the inferred tiers.
     """
     pre, post = line[:m.start()], line[m.end():]
     pre_alias = None
@@ -449,23 +523,56 @@ def _resolve_citation(
         if _PREFIX_TAIL_RE.fullmatch(pre, a.end()):
             pre_alias = a
     if pre_alias:
-        return resolve_alias(pre_alias.group(0), line, pre_alias.start(), rel), "explicit", False
+        close = post.find(")")
+        gloss = "(" in pre[pre_alias.end():] and bool(
+            ALIAS_RE.search(post if close < 0 else post[:close]))
+        # An alias-led bracket that re-names an instrument before it closes
+        # ("DORA (Art 68(7), citing DORA Arts 11-12)") is a gloss over a
+        # mixed parenthetical, not a citation adjacency: fall through to the
+        # inferred tiers instead of trusting it as explicit.
+        if not gloss:
+            chain = [pre_alias]
+            while True:
+                prev = None
+                for a in ALIAS_RE.finditer(pre, 0, chain[0].start()):
+                    if _CONJ_RE.fullmatch(pre, a.end(), chain[0].start()):
+                        prev = a
+                if prev is None:
+                    break
+                chain.insert(0, prev)
+            resolved = [resolve_alias(a.group(0), line, a.start(), rel) for a in chain]
+            if not _known(resolved[-1]):
+                # The adjacent token pattern-matches an alias but names no
+                # single known instrument: its jurisdiction context contradicts
+                # the table, or never resolves at all (the California CPPA
+                # agency next to "s. 1798.155" reads exactly like a statute
+                # citation). The record is unresolved, never explicit.
+                return [], UNRESOLVED, False
+            instruments: list[str] = []
+            for r in resolved:
+                if _known(r) and r not in instruments:
+                    instruments.append(r)
+            return instruments, "explicit", False
     lead = _POSTFIX_LEAD_RE.match(post)
     post_alias = ALIAS_RE.match(post, lead.end())
     if post_alias and (not lead.group("paren") or _POSTFIX_CLOSE_RE.match(post, post_alias.end())):
-        return resolve_alias(post_alias.group(0), line, m.end() + post_alias.start(), rel), "explicit", False
+        instrument = resolve_alias(post_alias.group(0), line, m.end() + post_alias.start(), rel)
+        if not _known(instrument):
+            return [], UNRESOLVED, False
+        return [instrument], "explicit", False
     foreign = bool(_FOREIGN_PREFIX_RE.search(pre))
     if foreign or _ANAPHOR_RE.search(pre) or _OF_THIS_RE.match(post) or _OF_OTHER_RE.match(post) \
             or _POST_INSTRUMENT_RE.match(post):
-        return None, UNRESOLVED, foreign
+        return [], UNRESOLVED, foreign
     if poisoned:
-        return None, UNRESOLVED, False
+        return [], UNRESOLVED, False
     earlier = aliases_in(line, rel, 0, m.start())
     if earlier:
-        if _single(earlier) is None:
-            return None, UNRESOLVED, False
-        return earlier[-1], "line", False
-    return None, _NEEDS_CONTEXT, False
+        single = _single(earlier)
+        if single is None:
+            return [], UNRESOLVED, False
+        return [single], "line", False
+    return [], _NEEDS_CONTEXT, False
 
 
 def scan_text(rel: str, text: str) -> list[Citation]:
@@ -485,22 +592,30 @@ def scan_text(rel: str, text: str) -> list[Citation]:
         resolved_here = False
         poisoned = False
         for m in CITE_RE.finditer(line):
-            instrument, tier, foreign = _resolve_citation(m, line, rel, poisoned)
+            instruments, tier, foreign = _resolve_citation(m, line, rel, poisoned)
             poisoned = poisoned or foreign
             if tier != "explicit" and m.group("marker") in _EXPLICIT_ONLY_MARKERS:
                 continue
             if tier == _NEEDS_CONTEXT:
                 instrument, tier = _context(stack[:-1] if heading else stack, doc_instrument)
-            if instrument is not None and MARKER_STYLE.get(instrument) != _marker_family(m.group("marker")):
+                instruments = [instrument] if instrument is not None else []
+            family = _marker_family(m.group("marker"))
+            if instruments and MARKER_STYLE.get(instruments[-1]) != family:
                 # Marker-family guard: an Art-marker citation cannot belong to an
                 # s.-style statute (or the reverse) — the resolved instrument is the
                 # wrong one ("CCPA Article 10" is an 11 CCR regulation article), so
                 # refuse rather than misattribute, at every tier.
-                instrument, tier = None, UNRESOLVED
-            resolved_here = resolved_here or instrument is not None
+                instruments, tier = [], UNRESOLVED
+            elif len(instruments) > 1:
+                # A conjoined prefix member of the other marker family ("SOX and
+                # GDPR Articles 5(2)") is an enumeration entry alongside the
+                # citation, not a co-citation of this provision: drop it.
+                instruments = [i for i in instruments if MARKER_STYLE.get(i) == family]
+            resolved_here = resolved_here or bool(instruments)
             snippet = _snippet(line, m.start(), m.end())
             for section, pinpoint in expand_body(m.group("body")):
-                out.append(Citation(rel, lineno, m.start(), instrument, section, pinpoint, tier, snippet))
+                for instrument in instruments or [None]:
+                    out.append(Citation(rel, lineno, m.start(), instrument, section, pinpoint, tier, snippet))
         if not heading and not resolved_here:
             for instrument, section, pattern in SIGNATURE_PHRASE_ROWS:
                 hit = re.search(pattern, line, re.IGNORECASE)
@@ -579,16 +694,12 @@ def parse_key_args(specs) -> list[str]:
         if key is None:
             print(
                 f"ERROR: {spec!r}: name the instrument and the section, for example "
-                f"'PIPEDA s. 10.1' or 'GDPR Art. 33' (a bare 'Article 12(5)' names no instrument).",
+                f"'PIPEDA s. 10.1' or 'GDPR Art. 33' (a bare 'Article 12(5)' names no "
+                f"instrument, and an ambiguous short name needs its jurisdiction: "
+                f"'Singapore PDPA s. 26D', not 'PDPA s. 26D').",
                 file=sys.stderr,
             )
             raise SystemExit(2)
-        if UNRESOLVED_JURISDICTION in key:
-            print(
-                f"NOTE: {spec!r} reads as {key!r}; prefix the jurisdiction "
-                f"(for example 'Singapore PDPA s. 26D') to match resolved citations.",
-                file=sys.stderr,
-            )
         keys.append(key)
     return keys
 

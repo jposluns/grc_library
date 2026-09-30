@@ -15,10 +15,11 @@ continuation shows its full form, ``53(1)(b)``) and the resolution tier
 seed table (tier ``phrase``). In the text report each key's explicit-tier
 rows are listed first; every inferred-tier row, and every phrase row, is
 listed after them under the label ``unverified candidates (inferred
-instrument)`` — two QA rounds found misattribution families confined to the
-inferred tiers, so those rows are candidates a reviewer confirms, not
-verified surfaces (in the JSON, each record's ``tier`` field carries the
-same information). The report goes to stdout. Nothing is written and no
+instrument)`` — three QA rounds found misattribution families that are,
+after the round-3 explicit-tier fixes, confined to the inferred tiers, so
+those rows are candidates a reviewer confirms, not verified surfaces (in
+the JSON, each record's ``tier`` field carries the same information). The
+report goes to stdout. Nothing is written and no
 artefact is committed, so there is no ``--check`` drift gate; the tool is
 advisory and is not wired into the gate surfaces.
 
@@ -44,10 +45,20 @@ RESIDUE (stated, not hidden):
     count only with the instrument adjacent; Recitals, Schedules, Annexes and
     ``Principle 4.3`` forms are not parsed; ranges wider than MAX_RANGE_SPAN
     index their endpoints only.
-  - False positives: the explicit tier is syntactic adjacency, so a bare
-    ``Art 68(7)`` beside ``DORA (`` is an EXPLICIT DORA record even where
-    the surrounding prose means MiCA, and --min-tier explicit does NOT
-    remove that shape. The line, heading, section and document tiers are
+  - False positives: the explicit tier requires a KNOWN adjacent alias
+    whose marker family matches the citation's marker; an unaliased token,
+    an ambiguous alias whose jurisdiction contradicts or never resolves
+    (the California agency in ``the section 1798.155 CPPA administrative
+    fine``), and an alias-led bracket that re-names an instrument before
+    closing (``DORA (Art 68(7), citing DORA Arts 11-12)``, whose Art 68(7)
+    is MiCA's) never key an explicit record: the first two leave the
+    record unresolved, the bracket gloss falls to the line tier and prints
+    as an unverified candidate. Adjacency is still syntactic: a bare
+    citation right after a resolved alias the prose does not mean is still
+    an EXPLICIT record of that alias, and a conjoined prefix (``GDPR / UK
+    GDPR Article 21``) indexes the citation under EVERY conjoined
+    same-family instrument, including any the prose meant to qualify.
+    The line, heading, section and document tiers are
     INFERENCES — hence the ``unverified candidates (inferred instrument)``
     label — and two shapes systematically defeat them: a CROSSWALK document
     about an instrument OUTSIDE the alias table (the eIDAS annex) attributes
@@ -66,11 +77,18 @@ RESIDUE (stated, not hidden):
   - Refused rather than guessed (in the unresolved bucket): a citation whose
     marker family disagrees with the resolved instrument's marker style
     (``CCPA Article 10``: Cal. Civ. Code is an ``s.`` statute, so the ``Art``
-    marker means the 11 CCR CCPA Regulations), a citation whose line earlier
-    names two different instruments, a non-explicit citation after a
-    foreign-prefix refusal on the same line, and a bare citation whose
-    innermost section body and an enclosing heading name different
-    instruments.
+    marker means the 11 CCR CCPA Regulations), a citation adjacent to an
+    ambiguous alias whose jurisdiction contradicts its table row or never
+    resolves (``CPPA Section 63(3)`` with no Canada context is REFUSED even
+    though Bill C-27 is meant — recall ceded to keep the California agency
+    shape out of the explicit tier; with a ``Section``/``§`` marker the
+    refusal drops the record entirely, per the explicit-only rule), a
+    citation whose line earlier names two different instruments (a comma
+    chain, ``UK GDPR, LGPD Art 37``, never extends prefix adjacency: it is
+    a framework enumeration, and only LGPD is keyed), a non-explicit
+    citation after a foreign-prefix refusal on the same line, and a bare
+    citation whose innermost section body and an enclosing heading name
+    different instruments.
   Filter with --min-tier explicit for the highest-precision subset.
 
 Stdlib-only Python 3.11.
