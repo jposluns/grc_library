@@ -16808,7 +16808,8 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
     def test_due_soon_row_listed_not_warned(self) -> None:
         rc, out = self._band("_cadence_band_5", "2025-07-20")   # age 360, 5 days left
         self.assertEqual(rc, 0)
-        self.assertIn("DUE-SOON: 1 source(s) in 1 batch(es)", out)
+        self.assertIn("DUE-SOON: 1 source(s) in 1 batch(es) have 21 or fewer days left in their "
+                      "re-check window (advisory):", out)
         self.assertIn("ISO/IEC BAND", out)
         self.assertIn("[standards, 365-day]", out)
         self.assertIn("stale from 2026-07-21 (in 6 day(s))", out)
