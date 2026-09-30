@@ -24,11 +24,12 @@ a seeded phrase alone, is unverified. Every other row — an other-surface
 citation at a weaker, inferred tier (a heading-tier one included), an
 uncited-phrase hit, or ANY row of a key whose own citation is unverified —
 is listed after the siblings under the label ``unverified candidates
-(inferred instrument)``. Three QA rounds found misattribution families
-confined to the inferred tiers (the crosswalk and point-designation
-shapes; see the residue list in ``tools/build-provision-index.py``), and a
-document whose own citation is a line- or section-tier inference may not
-cite the provision at all (round-3 QA: the Indonesia annex's UU PDP
+(inferred instrument)``. Four QA rounds found misattribution families
+confined to the inferred tiers (the crosswalk, passing-prose-mention and
+table-header-row shapes; see the residue list in
+``tools/build-provision-index.py``), and a document whose own citation is
+a line- or section-tier inference may not cite the provision at all
+(round-3 QA: the Indonesia annex's UU PDP
 articles, keyed to GDPR at the section tier), so its "siblings" are
 candidates whatever their own tier. A key with no trusted own citation is
 marked ``own citation unverified`` with its own tiers named (in the JSON,
@@ -52,7 +53,9 @@ Usage:
         | xargs -r python3 tools/audit-provision-siblings.py --docs
 
 ``--scan PATH...`` replaces the default corpus roots (the regression tests
-point it at a fixture tree).
+point it at a fixture tree). ``--provision`` takes a provision as typed
+(``PIPEDA s.10.1(3)``) or any key exactly as the tools print it (``PDPA
+(Singapore) s. 26D``, ``HIPAA (45 CFR) s. 164.308``).
 
 Exit codes:
     0   report produced (advisory: sibling hits never fail the run)

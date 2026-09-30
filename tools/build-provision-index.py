@@ -15,13 +15,15 @@ continuation shows its full form, ``53(1)(b)``) and the resolution tier
 seed table (tier ``phrase``). In the text report each key's explicit-tier
 rows are listed first; every inferred-tier row, and every phrase row, is
 listed after them under the label ``unverified candidates (inferred
-instrument)`` — three QA rounds found misattribution families that are,
-after the round-3 explicit-tier fixes, confined to the inferred tiers, so
-those rows are candidates a reviewer confirms, not verified surfaces (in
-the JSON, each record's ``tier`` field carries the same information). The
-report goes to stdout. Nothing is written and no
-artefact is committed, so there is no ``--check`` drift gate; the tool is
-advisory and is not wired into the gate surfaces.
+instrument)`` — four QA rounds found misattribution families that are,
+after the round-3 and round-4 explicit-tier fixes, confined to the inferred
+tiers, so those rows are candidates a reviewer confirms, not verified
+surfaces (in the JSON, each record's ``tier`` field carries the same
+information). ``--key`` takes a provision as typed (``PIPEDA s.10.1(3)``)
+or any key exactly as this report prints it (``PDPA (Singapore) s. 26D``).
+The report goes to stdout, every listing in path and line order. Nothing is
+written and no artefact is committed, so there is no ``--check`` drift gate;
+the tool is advisory and is not wired into the gate surfaces.
 
 Usage:
     python3 tools/build-provision-index.py
@@ -44,36 +46,54 @@ RESIDUE (stated, not hidden):
     (``--show-unresolved``), not under a key; ``Section`` / ``§`` citations
     count only with the instrument adjacent; Recitals, Schedules, Annexes and
     ``Principle 4.3`` forms are not parsed; ranges wider than MAX_RANGE_SPAN
-    index their endpoints only.
+    index their endpoints only; a decimal range whose integer endpoint reads
+    two ways or neither (``ss. 3.1 to 5``: s. 3.5 or s. 5?) records that
+    endpoint unresolved; and the line tier never reuses an alias an earlier
+    citation on the line took as its postfix instrument, so a bare citation
+    that DOES continue that instrument (``Article 33 of the GDPR ... (Art.
+    34)``) falls to the heading chain or stays unresolved.
   - False positives: the explicit tier requires a KNOWN adjacent alias
     whose marker family matches the citation's marker; an unaliased token,
     an ambiguous alias whose jurisdiction contradicts or never resolves
     (the California agency in ``the section 1798.155 CPPA administrative
-    fine``), and an alias-led bracket that re-names an instrument before
-    closing (``DORA (Art 68(7), citing DORA Arts 11-12)``, whose Art 68(7)
-    is MiCA's) never key an explicit record: the first two leave the
-    record unresolved, the bracket gloss falls to the line tier and prints
-    as an unverified candidate. Adjacency is still syntactic: a bare
-    citation right after a resolved alias the prose does not mean is still
-    an EXPLICIT record of that alias, and a conjoined prefix (``GDPR / UK
-    GDPR Article 21``) indexes the citation under EVERY conjoined
-    same-family instrument, including any the prose meant to qualify.
-    The line, heading, section and document tiers are
-    INFERENCES — hence the ``unverified candidates (inferred instrument)``
-    label — and two shapes systematically defeat them: a CROSSWALK document
-    about an instrument OUTSIDE the alias table (the eIDAS annex) attributes
-    that instrument's articles at the line and heading tiers to whatever
-    aliased instrument the same line or heading compares it with (``## DORA
-    and sector-specific lex specialis (Article 4)`` in the NIS2 annex is
-    keyed as DORA Art. 4 and collides with the real DORA key); and a POINT
-    DESIGNATION between the citation and its instrument (``Article 9(2),
-    point (g), of the GDPR``) defeats postfix resolution and refusal, so the
-    line tier attributes the citation to an earlier alias. A table cell
-    whose instrument is named only in the header row is still attributed to
-    the last instrument named in an earlier cell of the same row; a seeded
-    phrase can restate a different regime whose wording matches; keys are
-    section-level, so s. 10.1(1) and s. 10.1(6) are siblings even when a
-    change touched only one of them.
+    fine``), a prefix alias followed, after the citation, by the name of
+    another instrument (``Unlike the GDPR, Article 12 of the Data Act``),
+    a postfix alias modifying a subordinate instrument (``Article 12 of the
+    DORA RTS``, ``s. 7012 CCPA Regulations``), and an alias-led bracket that
+    names an alias before closing (``DORA (Art 68(7), citing DORA Arts
+    11-12)``, whose Art 68(7) is MiCA's) never key an explicit record: the
+    first four leave the record unresolved (or resolve it from the naming
+    tail), the bracket gloss falls to the inferred tiers without its lead
+    and prints as an unverified candidate. Adjacency is still syntactic: a
+    bare citation right after a resolved alias the prose does not mean,
+    with nothing after the citation naming another instrument (``Unlike the
+    GDPR, Article 12 applies`` in a Data Act paragraph), is still an
+    EXPLICIT record of that alias; the subordinate-instrument words are a
+    fixed list (RTS, ITS, Regulations, Rules, Implementing, Delegated,
+    Guidelines, Technical Standards, Decree, Ordinance, Order), so another
+    subordinate form (``Article 5 of the GDPR Code of Conduct``) is still
+    keyed to the alias; and a conjoined prefix of two instruments that share
+    article numbering (``GDPR / UK GDPR Article 21``, the only such pair in
+    SHARED_NUMBERING) indexes the citation under BOTH, explicitly, even
+    where the prose meant to qualify one (the provision is the same text in
+    both, so the sibling is real either way). Every other conjoined member
+    (``the LGPD and GDPR Article 20``) is keyed at the line tier, as a
+    candidate. The line, heading, section and document tiers are INFERENCES
+    — hence the ``unverified candidates (inferred instrument)`` label — and
+    three shapes systematically defeat them: a CROSSWALK document about an
+    instrument OUTSIDE the alias table (the eIDAS annex) attributes that
+    instrument's articles at the line and heading tiers to whatever aliased
+    instrument the same line or heading compares it with (``## DORA and
+    sector-specific lex specialis (Article 4)`` in the NIS2 annex is keyed
+    as DORA Art. 4 and collides with the real DORA key); a PROSE line that
+    names an instrument in passing (not as a citation's postfix) before a
+    bare citation of another attributes that citation to the named one; and
+    the line tier never sees a table's header row, so a cell whose
+    instrument is named only in the header is attributed to the last
+    instrument an earlier cell of the SAME row names (or, with none, to the
+    heading chain). A seeded phrase can restate a different regime whose
+    wording matches; keys are section-level, so s. 10.1(1) and s. 10.1(6)
+    are siblings even when a change touched only one of them.
   - Refused rather than guessed (in the unresolved bucket): a citation whose
     marker family disagrees with the resolved instrument's marker style
     (``CCPA Article 10``: Cal. Civ. Code is an ``s.`` statute, so the ``Art``
@@ -88,7 +108,8 @@ RESIDUE (stated, not hidden):
     a framework enumeration, and only LGPD is keyed), a non-explicit
     citation after a foreign-prefix refusal on the same line, and a bare
     citation whose innermost section body and an enclosing heading name
-    different instruments.
+    different instruments. A citation-shaped body name (``Article 29
+    Working Party``) is skipped, not recorded at all.
   Filter with --min-tier explicit for the highest-precision subset.
 
 Stdlib-only Python 3.11.
@@ -145,7 +166,10 @@ def main(argv: "list[str]") -> int:
         order = keys
     else:
         order = sorted(grouped, key=lambda k: (-len(set(c.path for c in grouped[k])), k))
-    unresolved = [c for c in citations if c.tier == UNRESOLVED]
+    # Sorted like every other listing, so the unresolved bucket's order never
+    # depends on the order the scan roots were walked in.
+    unresolved = sorted((c for c in citations if c.tier == UNRESOLVED),
+                        key=lambda c: (c.path, c.line, c.col))
     tier_counts = Counter(c.tier for c in citations)
 
     if args.as_json:
