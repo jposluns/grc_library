@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.30\
+**Version:** 1.4.31\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ## 8. Secure destruction
 
-Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction as soon as the change is known. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
+Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction as soon as the Compliance Manager learns of the change. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
 
 1. The Compliance Manager checks both the retention hold status in the Records Register (section 7) and the legal hold status in the GRC platform (the Legal holds section of [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)). A check of only one of those two records does not complete this part.
 2. Those records show only holds that have been recorded, so they cannot complete the check on their own. Legal Counsel must confirm in writing that no legal hold or retention hold is required but not yet recorded, and that no investigation by an external authority treats the records as evidence. Legal Counsel or the Incident Commander must confirm whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the records as evidence.
@@ -135,7 +135,7 @@ All destruction actions must be logged in the Destruction Register. Each entry m
 - Date of destruction.
 - Role of responsible person.
 - Hold check outcome and date, who gave each part 2 confirmation, and a reference to Legal Counsel's written confirmation (section 8).
-- Date released for destruction (where queued, scheduled or contracted), and any stop or recall.
+- Date released for destruction (where queued, scheduled or contracted), and any stop or recall, with the date the hold or investigation became known and the date of the stop or recall.
 - Witness signature (required for physical destruction).
 
 Certificates of Destruction must be retained for a minimum of 7 years.
@@ -171,7 +171,7 @@ Quarterly reviews confirm:
 
 - Timely destruction of records whose retention period has expired.
 - No records deleted while subject to an active hold.
-- Destruction stopped or recalled where a hold or investigation arose after release.
+- Destruction stopped or recalled, as soon as the change was known, where a hold or investigation came to apply before destruction was complete.
 - No records destroyed without a hold check completed immediately before destruction, or immediately before release for queued, scheduled or contracted destruction, and Legal Counsel's written confirmation.
 - Compliance with privacy and AI recordkeeping standards.
 
