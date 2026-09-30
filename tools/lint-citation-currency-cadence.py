@@ -44,10 +44,11 @@ row with 0 to DUE_SOON_DAYS days left in its window is printed on a line that
 starts with ``DUE-SOON``. Rows are grouped into batches by (last verified, tier,
 window) and sorted by the date each batch goes stale. A row is stale or due
 soon, never both. ``tools/run_all_audits.sh`` echoes this gate's ``DUE-SOON``,
-``WARN`` and ``NOTE`` lines even when it passes, because the gate prints
-``RUNNER_ECHO_MARKER`` (a per-gate opt-in keyed on the gate's own output, not on
-its script path), and the pre-commit hook is verbose, so the band and any stale
-row are seen at resume and at commit. The band never changes the exit code.
+``WARN`` and ``NOTE`` lines even when it passes, because under the runner the gate
+prints ``RUNNER_ECHO_MARKER`` with the runner's token (a per-gate opt-in keyed on
+the gate's own output, not on its script path, that data cannot forge), and the
+pre-commit hook is verbose, so the band and any stale row are seen at resume and
+at commit. The band never changes the exit code.
 
 FUTURE-DATED ROWS (advisory WARN). A ``Last verified (UTC)`` date after today (UTC)
 is a data error, such as a typo or a local-time date a day ahead of UTC, not the
@@ -66,6 +67,7 @@ Exit codes: always 0 (advisory). Findings are printed to stdout.
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import re
 from pathlib import Path
 
@@ -95,13 +97,18 @@ DEFAULT_WINDOW_DAYS = 365
 DUE_SOON_DAYS = 21
 
 # tools/run_all_audits.sh hides a passing gate's output, but shows this gate's
-# WARN and NOTE lines when the output has this exact line (run_gate holds the same
+# WARN and NOTE lines when the output has this exact line followed by a space and
+# the token run_gate passed in RUNNER_ECHO_TOKEN_ENV (run_gate holds the same
 # string). The gate declares it in its own output, so a rename, move or other
-# invocation path of this script cannot switch the echo off. The line holds no
-# WARN, NOTE or DUE-SOON, so no count or grep of those tags sees it.
+# invocation path of this script cannot switch the echo off. The token is random
+# per gate run, so no data a gate prints can forge the line, as a record ID that
+# holds the marker text could in gate 93's WARN lines. With the variable unset or
+# empty (a direct run, the pre-commit hook, CI) the line is not printed. The line
+# holds no WARN, NOTE or DUE-SOON, so no count or grep of those tags sees it.
 RUNNER_ECHO_MARKER = (
     "runner-echo: tools/run_all_audits.sh shows this gate's advisory lines on a pass"
 )
+RUNNER_ECHO_TOKEN_ENV = "GRC_RUNNER_ECHO_TOKEN"
 
 # Register sub-table heading (the "## <heading>" line) -> trust tier. Matched by
 # exact normalized heading text. An unmapped heading uses DEFAULT_WINDOW_DAYS and
@@ -139,6 +146,12 @@ _DATE_RE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
 
 def _today_utc() -> _dt.date:
     return _dt.datetime.now(_dt.timezone.utc).date()
+
+
+def _print_runner_echo_marker() -> None:
+    token = os.environ.get(RUNNER_ECHO_TOKEN_ENV, "")
+    if token:
+        print(RUNNER_ECHO_MARKER + " " + token)
 
 
 def _parse_last_checked(cell: str):
@@ -203,7 +216,7 @@ def main() -> int:
             f"NOTE: citation-currency-cadence: register not found at {CANONICAL_REGISTER}; "
             "nothing to check.",
         )
-        print(RUNNER_ECHO_MARKER)
+        _print_runner_echo_marker()
         return 0
 
     text = CANONICAL_REGISTER.read_text(encoding="utf-8")
@@ -248,7 +261,7 @@ def main() -> int:
         f"citation-currency-cadence (gate 72, advisory): checked {checked} row(s), "
         f"skipped {skipped} without a parseable date, as of {today.isoformat()} UTC."
     )
-    print(RUNNER_ECHO_MARKER)
+    _print_runner_echo_marker()
     if unmapped_headings:
         print(
             "NOTE: sub-table(s) with no explicit tier, using the "

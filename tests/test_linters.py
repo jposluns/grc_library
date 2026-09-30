@@ -16743,7 +16743,8 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
     canonical-citations register's `Last verified (UTC)` per row and WARNS (advisory,
     always exit 0) when a source is past its per-trust-tier re-check window. Egress-free
     date arithmetic. The tests monkeypatch CANONICAL_REGISTER (a temp register) and
-    _today_utc (a fixed date, for determinism), saving + restoring both."""
+    _today_utc (a fixed date, for determinism), saving + restoring both, and set
+    GRC_RUNNER_ECHO_TOKEN themselves (see _env_without_token)."""
 
     def _load(self, unique: str):
         import importlib.util
@@ -16754,8 +16755,9 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         spec.loader.exec_module(mod)
         return mod
 
-    def _run(self, mod, register_text: str, today):
-        """Write a temp register, pin today, run main(), return (rc, stdout)."""
+    def _run(self, mod, register_text: str, today, token=None):
+        """Write a temp register, pin today (None: leave the real _today_utc), set
+        GRC_RUNNER_ECHO_TOKEN to token (None: unset), run main(), return (rc, stdout)."""
         import io
         import contextlib
         import datetime as _dt
@@ -16767,13 +16769,30 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
             buf = io.StringIO()
             try:
                 mod.CANONICAL_REGISTER = reg
-                mod._today_utc = lambda: _dt.date(*today)
-                with contextlib.redirect_stdout(buf):
+                if today is not None:
+                    mod._today_utc = lambda: _dt.date(*today)
+                with self._token_env(token), contextlib.redirect_stdout(buf):
                     rc = mod.main()
                 return rc, buf.getvalue()
             finally:
                 mod.CANONICAL_REGISTER = old_reg
                 mod._today_utc = old_today
+
+    @staticmethod
+    def _env_without_token() -> dict[str, str]:
+        """os.environ without GRC_RUNNER_ECHO_TOKEN. tools/run_all_audits.sh sets it
+        for gate 36, which runs this suite, so a test sets it itself or drops it."""
+        env = dict(os.environ)
+        env.pop("GRC_RUNNER_ECHO_TOKEN", None)
+        return env
+
+    def _token_env(self, token):
+        """Patch os.environ so GRC_RUNNER_ECHO_TOKEN is token, or unset when None."""
+        from unittest import mock
+        env = self._env_without_token()
+        if token is not None:
+            env["GRC_RUNNER_ECHO_TOKEN"] = token
+        return mock.patch.dict(os.environ, env, clear=True)
 
     _HEADER = (
         "## ISO / IEC standards\n\n"
@@ -16879,13 +16898,61 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertNotIn("WARN", out)
         self.assertIn("all dated sources are within their re-check windows", out)
 
+    def test_today_is_the_utc_date_in_a_zone_behind_utc(self) -> None:
+        # 3b137 round 2 F1: the clock is frozen at 22:30 on 2026-09-29 in a UTC-4
+        # zone (EDT), which is 02:30 on 2026-09-30 UTC. Only the clock is faked:
+        # every clock call reads that one instant, in UTC-4 when it asks for local
+        # time. The real _today_utc must return the UTC date, and a row verified
+        # on that UTC date is fresh, not one day after today. Kills
+        # _dt.date.today(), _dt.datetime.now().date() and
+        # _dt.datetime.today().date(), each the local date (2026-09-29).
+        import datetime as _dt
+        import types
+        instant = _dt.datetime(2026, 9, 30, 2, 30, tzinfo=_dt.timezone.utc)
+        local = _dt.timezone(_dt.timedelta(hours=-4), "EDT")
+
+        class FrozenDateTime(_dt.datetime):
+            @classmethod
+            def now(cls, tz=None):
+                if tz is None:
+                    return instant.astimezone(local).replace(tzinfo=None)
+                return instant.astimezone(tz)
+
+            @classmethod
+            def today(cls):
+                return cls.now()
+
+            @classmethod
+            def utcnow(cls):
+                return instant.replace(tzinfo=None)
+
+        class FrozenDate(_dt.date):
+            @classmethod
+            def today(cls):
+                return FrozenDateTime.now().date()
+
+        mod = self._load("_cadence_utc_today")
+        mod._dt = types.SimpleNamespace(datetime=FrozenDateTime, date=FrozenDate,
+                                        timezone=_dt.timezone, timedelta=_dt.timedelta)
+        self.assertEqual(FrozenDate.today(), _dt.date(2026, 9, 29))   # local date
+        self.assertEqual(mod._today_utc(), _dt.date(2026, 9, 30))
+        reg = self._HEADER + (
+            "| ISO/IEC TODAY | 2022 | 2022-10 | x | - | http://x | verified 2026-09-30 |\n"
+        )
+        rc, out = self._run(mod, reg, today=None)   # the real _today_utc
+        self.assertEqual(rc, 0)
+        self.assertIn("as of 2026-09-30 UTC", out)
+        self.assertNotIn("WARN", out)
+        self.assertIn("all dated sources are within their re-check windows", out)
+
     def test_advisory_lines_start_with_runner_prefix(self) -> None:
         # The runner echoes gate 72's lines that start with WARN, NOTE or DUE-SOON,
         # so every advisory line needs one of them at column 0. Real linter output
         # with stale, future-dated, untiered and due-soon rows; only the summary
-        # and the runner-echo marker after it are untagged. Kills an indented or
-        # untagged row, note or remedy line, which the runner would drop without a
-        # sound, and a missing or moved marker line.
+        # and the runner-echo marker after it (with the runner's token) are
+        # untagged. Kills an indented or untagged row, note or remedy line, which
+        # the runner would drop without a sound, and a missing or moved marker
+        # line or one without the token.
         mod = self._load("_cadence_prefix_all")
         reg = self._HEADER + (
             "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
@@ -16894,7 +16961,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
             "\n" + self._section("Unmapped future table")
             + "| NEW ROW | v1 | 2026 | x | - | http://n | verified 2026-07-01 |\n"
         )
-        rc, out = self._run(mod, reg, today=(2026, 7, 15))
+        rc, out = self._run(mod, reg, today=(2026, 7, 15), token="0f1e2d3c")
         self.assertEqual(rc, 0)
         self.assertIn("checked 4 row(s)", out)
         self.assertIn("WARN: 1 source(s) past their re-check window", out)
@@ -16904,14 +16971,15 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertIn("DUE-SOON  verified 2025-07-20", out)
         lines = out.splitlines()
         self.assertTrue(lines[0].startswith("citation-currency-cadence (gate 72"), lines[0])
-        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER)
+        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER + " 0f1e2d3c")
         for ln in lines[2:]:
             self.assertTrue(ln.startswith(("WARN", "NOTE", "DUE-SOON")), ln)
 
     def test_missing_register_is_a_note_the_runner_echoes(self) -> None:
         # No register: nothing is checked, so the one message is a NOTE and the
-        # marker follows it, and the runner shows the message on a pass. Kills an
-        # untagged message and a marker missing from this early return.
+        # marker (with the runner's token) follows it, and the runner shows the
+        # message on a pass. Kills an untagged message and a marker missing from
+        # this early return.
         import io
         import contextlib
         mod = self._load("_cadence_no_register")
@@ -16919,7 +16987,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         buf = io.StringIO()
         try:
             mod.CANONICAL_REGISTER = REPO_ROOT / "governance" / "_absent-register.md"
-            with contextlib.redirect_stdout(buf):
+            with self._token_env("0f1e2d3c"), contextlib.redirect_stdout(buf):
                 rc = mod.main()
         finally:
             mod.CANONICAL_REGISTER = old_reg
@@ -16928,7 +16996,24 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertEqual(len(lines), 2, lines)
         self.assertTrue(lines[0].startswith("NOTE: citation-currency-cadence: register "
                                             "not found at "), lines[0])
-        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER)
+        self.assertEqual(lines[1], mod.RUNNER_ECHO_MARKER + " 0f1e2d3c")
+
+    def test_no_marker_line_without_the_runner_token(self) -> None:
+        # With GRC_RUNNER_ECHO_TOKEN unset (a direct run, the pre-commit hook, CI)
+        # or empty, the gate prints no runner-echo line, and its other lines are
+        # unchanged. Kills a marker printed without the token, and one printed
+        # when the variable is empty (the bare marker and a space).
+        mod = self._load("_cadence_no_token")
+        reg = self._HEADER + (
+            "| ISO/IEC STALE | 2019 | 2019-01 | y | - | http://y | verified 2020-01-01 |\n"
+        )
+        for token in (None, ""):
+            rc, out = self._run(mod, reg, today=(2026, 7, 15), token=token)
+            self.assertEqual(rc, 0)
+            self.assertNotIn("runner-echo", out)
+            lines = out.splitlines()
+            self.assertTrue(lines[0].startswith("citation-currency-cadence (gate 72"), lines[0])
+            self.assertEqual(lines[1], "WARN: 1 source(s) past their re-check window (advisory):")
 
     # Due-soon band (DUE_SOON_DAYS = 21). Standards tier (365-day window), today
     # pinned to 2026-07-15. Each boundary fixture names the mutation it kills.
@@ -17143,35 +17228,63 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         self.assertEqual(r.stdout.count("... OK"), 2)
 
     def test_runner_echoes_warn_and_note_lines_of_a_marked_gate_only(self) -> None:
-        # 3b137: a passing gate whose output has the exact runner-echo marker line
-        # (gate 72; the marker is taken from its script) shows its WARN and NOTE
-        # lines. Another passing gate keeps them hidden (gate 93 passes with
-        # hundreds of WARN lines) but still shows DUE-SOON, and so does a gate
-        # whose marker line is indented or extended. Kills a generic WARN echo, a
+        # 3b137: a passing gate whose output has the exact runner-echo marker line,
+        # ending in the token run_gate passed it (gate 72; the marker is taken from
+        # its script), shows its WARN and NOTE lines. Another passing gate keeps
+        # them hidden (gate 93 passes with hundreds of WARN lines) but still shows
+        # DUE-SOON, and so does a gate whose marker line is indented or extended,
+        # has no token or a guessed one, or ends in an empty token because run_gate
+        # has none (od shadowed: no /dev/urandom). Kills a generic WARN echo, a
         # dropped WARN or NOTE alternative, an unanchored WARN or NOTE
-        # alternative, a substring match on the marker, and an echoed marker line.
+        # alternative, a substring match on the marker, an echoed marker line, a
+        # key on the marker without the token or with any token, a token not
+        # passed to the gate, and a dropped empty-token guard.
         import shlex
         marker = self._load("_cadence_marker").RUNNER_ECHO_MARKER
         lines = ["head", "x WARN mid", "x NOTE mid", "WARN: 1 src", "WARN  [T] row",
                  "NOTE: tier", "DUE-SOON  row d"]
 
-        def gate(name: str, extra: list[str]) -> str:
-            return (f"run_gate {shlex.quote(name)} printf '%s\\n' "
-                    + " ".join(shlex.quote(x) for x in lines + extra) + "\n")
+        def gate(name: str, extra: str = "") -> str:
+            # The stub prints lines, then extra, which bash expands in the stub,
+            # so ${GRC_RUNNER_ECHO_TOKEN} there is the token run_gate passed it.
+            return (f"run_gate {shlex.quote(name)} bash -c "
+                    + shlex.quote(f"printf '%s\\n' \"$@\" {extra}") + " stub "
+                    + " ".join(shlex.quote(x) for x in lines) + "\n")
 
+        token = '"${M} ${GRC_RUNNER_ECHO_TOKEN}"'
         script = self._runner_script(
-            gate("Stub 72", [marker]) + gate("Stub 93", [])
-            + gate("Stub near", ["  " + marker, marker + " x"])
+            f"export M={shlex.quote(marker)}\n"
+            + gate("Stub 72", token) + gate("Stub 93")
+            + gate("Stub near", '"  ${M} ${GRC_RUNNER_ECHO_TOKEN}" '
+                                '"${M} ${GRC_RUNNER_ECHO_TOKEN} x"')
+            + gate("Stub forged", '"${M}" "${M} " "${M} ' + "0" * 32 + '"')
+            + "od() { :; }\n" + gate("Stub no token", token)
         )
-        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True)
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                           env=self._env_without_token())
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertEqual(r.stdout.count("... OK"), 3)
+        self.assertEqual(r.stdout.count("... OK"), 5)
         for line in ("WARN: 1 src", "WARN  [T] row", "NOTE: tier"):
             self.assertEqual(r.stdout.count("      " + line), 1, r.stdout)
             self.assertLess(r.stdout.index("      " + line), r.stdout.index("Stub 93"))
-        self.assertEqual(r.stdout.count("      DUE-SOON  row d"), 3)
+        self.assertEqual(r.stdout.count("      DUE-SOON  row d"), 5)
         for text in ("x WARN mid", "x NOTE mid", "head", "runner-echo"):
             self.assertNotIn(text, r.stdout)
+
+    def test_runner_passes_each_gate_a_new_random_token(self) -> None:
+        # Each run_gate call passes its gate a new 128-bit token, in hex, in
+        # GRC_RUNNER_ECHO_TOKEN. The stub prints it on a DUE-SOON line, which the
+        # runner shows on every pass. Kills a fixed or reused token, a short one
+        # (such as $RANDOM), and a token not passed to the gate.
+        stub = "run_gate Tok bash -c 'echo \"DUE-SOON tok=${GRC_RUNNER_ECHO_TOKEN:-}\"'\n"
+        r = subprocess.run(["bash", "-c", self._runner_script(stub * 2)],
+                           capture_output=True, text=True, env=self._env_without_token())
+        self.assertEqual(r.returncode, 0, r.stderr)
+        tokens = re.findall(r"^      DUE-SOON tok=(.*)$", r.stdout, re.M)
+        self.assertEqual(len(tokens), 2, r.stdout)
+        for tok in tokens:
+            self.assertRegex(tok, r"^[0-9a-f]{32}$")
+        self.assertNotEqual(tokens[0], tokens[1])
 
     # The real gate under the shipped run_gate body. A python3 shell function
     # runs the script it is given (or CADENCE_GATE, when set) with the real
@@ -17198,7 +17311,7 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
             "python3() { command python3 -c \"${CADENCE_BOOT}\" \"$@\"; }\n" + body)
         r = subprocess.run(
             ["bash", "-c", script], capture_output=True, text=True, cwd=REPO_ROOT,
-            env={**os.environ, **env, "CADENCE_BOOT": self._REAL_GATE_BOOT,
+            env={**self._env_without_token(), **env, "CADENCE_BOOT": self._REAL_GATE_BOOT,
                  "CADENCE_REGISTER": reg})
         self.assertEqual(r.returncode, 0, r.stderr)
         return r.stdout
@@ -17253,6 +17366,94 @@ class CitationCurrencyCadenceTests(unittest.TestCase):
         gate = str(REPO_ROOT / "tools/lint-citation-currency-cadence.py")
         out = self._run_real_gate(body, {"CADENCE_GATE": gate})
         self._assert_real_gate_echoed(out, 5)
+
+    # Real gate 93 (relationship model) on real data. The boot serves gate 93's
+    # source from memory with INJECT appended, on lines of its own, to the ID of
+    # the first record that draws a warning, and serves a generated model rebuilt
+    # from that source, so --check passes. Gate 93 puts record IDs into its WARN
+    # lines unescaped, so each INJECT line is an output line. "@TOKEN@" in INJECT
+    # stands for the token the gate was passed, which real data cannot know. It
+    # needs one record that draws a warning (382 do on 2026-09-30). No file is
+    # written.
+    _GATE93_BOOT = (
+        "import importlib.util, json, os, pathlib, runpy, sys\n"
+        "spec = importlib.util.spec_from_file_location(\n"
+        "    '_gate93', 'tools/build-relationship-model.py')\n"
+        "g = importlib.util.module_from_spec(spec)\n"
+        "spec.loader.exec_module(g)\n"
+        "payload = json.loads(g.SOURCE.read_text(encoding='utf-8'))\n"
+        "nodes, records, _ = g.load_source(payload)\n"
+        "rec = next(r for i, r in enumerate(records) if g.validate_record(r, i)[1])\n"
+        "rec['id'] += '\\n' + os.environ['INJECT'].replace(\n"
+        "    '@TOKEN@', os.environ.get('GRC_RUNNER_ECHO_TOKEN', '')) + '\\ncontinued'\n"
+        "served = dict([(g.SOURCE.resolve(), json.dumps(payload)),\n"
+        "               (g.GENERATED.resolve(), g.build(nodes, records))])\n"
+        "read = pathlib.Path.read_text\n"
+        "pathlib.Path.read_text = lambda p, *a, **k: (\n"
+        "    served[p.resolve()] if p.resolve() in served else read(p, *a, **k))\n"
+        "sys.argv = sys.argv[1:]\n"
+        "runpy.run_path(sys.argv[0], run_name='__main__')\n"
+    )
+
+    def _gate_93_direct(self, inject: str) -> list[str]:
+        """Gate 93's output lines (stdout and stderr) with INJECT and token 0f1e2d3c."""
+        r = subprocess.run(
+            [sys.executable, "-c", self._GATE93_BOOT, "tools/build-relationship-model.py",
+             "--check"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            cwd=REPO_ROOT, env=dict(self._env_without_token(), INJECT=inject,
+                                    GRC_RUNNER_ECHO_TOKEN="0f1e2d3c"))
+        self.assertEqual(r.returncode, 0, r.stdout)
+        return r.stdout.splitlines()
+
+    def _gate_93_runner(self, inject: str, prelude: str = "") -> str:
+        """The runner's own gate 93 line under the shipped run_gate body, with INJECT."""
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        gate_line = next(ln for ln in src.splitlines()
+                         if ln.startswith('run_gate "Relationship model in sync" '))
+        script = self._runner_script(
+            'python3() { command python3 -c "${GATE93_BOOT}" "$@"; }\n'
+            + prelude + gate_line + "\n")
+        r = subprocess.run(
+            ["bash", "-c", script], capture_output=True, text=True, cwd=REPO_ROOT,
+            env=dict(self._env_without_token(), GATE93_BOOT=self._GATE93_BOOT,
+                     INJECT=inject))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.count("Relationship model in sync"), 1, r.stdout)
+        self.assertEqual(r.stdout.count("... OK"), 1, r.stdout)
+        return r.stdout
+
+    def test_runner_hides_gate_93_warnings_whose_data_holds_the_marker(self) -> None:
+        # 3b137 round 2 (codex P2): the marker text is public, so data can hold it,
+        # but not the token. A gate 93 record ID holding the bare marker, the marker
+        # and a space, and the marker with a guessed token puts each on a line of
+        # its own in gate 93's passing output, and the runner shows none of gate
+        # 93's lines, with a token and with none (od shadowed). Kills a key on the
+        # bare marker (the round-2 runner, which echoed all 382 WARN lines), a key
+        # on the marker with any token after it, and a dropped empty-token guard.
+        marker = self._load("_cadence_marker_93").RUNNER_ECHO_MARKER
+        forged = [marker, marker + " ", marker + " " + "0" * 32]
+        lines = self._gate_93_direct("\n".join(forged))
+        for line in forged:
+            self.assertIn(line, lines)
+        self.assertGreater(sum(ln.startswith("WARN") for ln in lines), 1)
+        for prelude in ("", "od() { :; }\n"):
+            out = self._gate_93_runner("\n".join(forged), prelude)
+            self.assertEqual(len(out.splitlines()), 1, out)   # the OK line alone
+
+    def test_runner_echoes_gate_93_warnings_only_with_its_token(self) -> None:
+        # The control for the test above: the same injection, carrying the token
+        # run_gate passed gate 93 (which real data cannot know), opts gate 93 in,
+        # and the runner shows exactly gate 93's WARN and NOTE lines. So the
+        # injection reaches the runner as a line of its own and the test above is
+        # not vacuous. Kills a token not passed to the gate.
+        marker = self._load("_cadence_marker_93_token").RUNNER_ECHO_MARKER
+        lines = self._gate_93_direct(marker + " @TOKEN@")
+        self.assertIn(marker + " 0f1e2d3c", lines)
+        advisory = [ln for ln in lines if re.match(r"(DUE-SOON|WARN|NOTE)", ln)]
+        self.assertGreater(len(advisory), 1)
+        out = self._gate_93_runner(marker + " @TOKEN@")
+        self.assertEqual([ln[6:] for ln in out.splitlines()[1:]], advisory)
+        self.assertNotIn("runner-echo", out)
 
 
 class AdoptPreflightGuardTests(unittest.TestCase):
