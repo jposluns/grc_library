@@ -1279,6 +1279,15 @@ class RefAbsenceClaimsTests(LinterTestCase):
 
     SCRIPT = "tools/lint-ref-absence-claims.py"
 
+    def assertAdvisory(self, result) -> None:
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("ADVISORY:", result.stdout)
+        self.assertIn("non-canonical reference-absence phrasing", result.stdout)
+
+    def assertLinterFails(self, result, needle=None) -> None:
+        super().assertLinterFails(result, needle)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+
     def test_canonical_with_marker_and_no_match_passes(self) -> None:
         fixture = self.make_fixture(
             "annex-absence-clean.md",
@@ -1359,14 +1368,14 @@ class RefAbsenceClaimsTests(LinterTestCase):
 
     def test_near_miss_paraphrase_flagged(self) -> None:
         # A paraphrase within the token window of the reference-base
-        # vocabulary must fail with the canonical-phrasing message.
+        # vocabulary must print advice without failing the gate.
         fixture = self.make_fixture(
             "annex-absence-near-miss.md",
             "# T\n\nThe recommendations are not held in this library's "
             "reference base.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_content_absence_claim_not_flagged(self) -> None:
         # A claim about the CONTENT of held texts is not a holdings claim
@@ -1450,7 +1459,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "# T\n\nThat decree is absent from the reference base.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_marker_on_bare_not_held_line_accepted_and_checked(self) -> None:
         # A bare "not held" holdings claim below the near-miss net's radar
@@ -1545,7 +1554,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "# T\n\nThat statute is not included in the reference base.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_next_line_marker_on_bare_claim_line_does_not_shield(self) -> None:
         # r3 ERROR: a next-line marker that annotates its OWN bare "not
@@ -1583,7 +1592,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "no successor decree is included in the reference library.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_negative_subject_content_claim_not_flagged(self) -> None:
         # The negative-subject net keeps the content-vs-holdings split:
@@ -1618,7 +1627,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "texts.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_possessive_collection_subject_still_flagged(self) -> None:
         fixture = self.make_fixture(
@@ -1627,7 +1636,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "implementing decree.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_collection_lacks_reworded_flagged(self) -> None:
         # r3 WARNING: an active-voice rewording with the collection as
@@ -1637,7 +1646,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "# T\n\nThe reference base lacks the implementing decree.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_lazy_continuation_blockquote_claim_flagged(self) -> None:
         # r3 WARNING: a lazy-continuation line (the quoted paragraph
@@ -1691,7 +1700,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "reference base.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_held_text_subject_modifier_not_flagged(self) -> None:
         # r4 ERROR: a held-text subject with a modifier or set-off
@@ -1718,7 +1727,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "officially do not include the implementing decree.\n",
         )
         result = run_linter(self.SCRIPT, possessed)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_possessive_held_text_subject_not_flagged(self) -> None:
         # r4 WARNING: a possessive held-text subject ("the held text's
@@ -1740,7 +1749,7 @@ class RefAbsenceClaimsTests(LinterTestCase):
             "the implementing decree.\n",
         )
         result = run_linter(self.SCRIPT, fixture)
-        self.assertLinterFails(result, "canonical")
+        self.assertAdvisory(result)
 
     def test_unclosed_list_fence_ends_with_list(self) -> None:
         # r4 WARNING: a fence opened on a list-item line ends when its
@@ -1752,6 +1761,70 @@ class RefAbsenceClaimsTests(LinterTestCase):
         )
         result = run_linter(self.SCRIPT, fixture)
         self.assertLinterFails(result, "no adjacent")
+
+    def test_same_line_later_claim_marker_does_not_shield(self) -> None:
+        # Two canonical claims ending on ONE physical line: the trailing
+        # marker binds to the second claim only (after its phrase, and no
+        # further claim follows), never back over it to the first.
+        fixture = self.make_fixture(
+            "annex-absence-same-line-shield.md",
+            "ISO/IEC 27002:2022 is not held in the reference base. "
+            "The decree is not held in the reference base. "
+            "<!-- ref-absence: NONESUCH-99999 -->\n",
+        )
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertLinterFails(result, "no adjacent")
+        self.assertIn("only 1 adjacent marker(s)", result.stdout)
+
+    def test_single_claim_end_of_line_marker_binds(self) -> None:
+        # A physical line carrying exactly ONE canonical claim binds a
+        # marker anywhere later on it, even when further sentences (a
+        # content sentence, or a bare paraphrase below the net's radar)
+        # sit between the claim's sentence end and the marker.
+        for later in (
+            "Fair lending laws apply to AI-driven credit decisions.",
+            "Nor is the implementing decree held.",
+        ):
+            with self.subTest(later=later):
+                fixture = self.make_fixture(
+                    "annex-absence-single-claim-tail.md",
+                    "# T\n\nThe implementing decree is not held in the "
+                    "reference base. " + later
+                    + " <!-- ref-absence: NONESUCH-99999 -->\n",
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 0,
+                                 result.stdout + result.stderr)
+
+    def test_continuation_fence_ends_with_list(self) -> None:
+        for prefix, indent in (("- ", "  "), ("1. ", "   ")):
+            with self.subTest(prefix=prefix):
+                fixture = self.make_fixture(
+                    "annex-absence-continuation-fence.md",
+                    prefix + "Example:\n\n" + indent + "```\n"
+                    + indent + "X is not held in the reference base.\n\n"
+                    + "That statute is not held in the reference base.\n",
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, "no adjacent")
+                self.assertIn(":6:", result.stdout)
+                self.assertNotIn(":4:", result.stdout)
+
+    def test_advisory_does_not_suppress_blocking_findings(self) -> None:
+        for marker, expected in (
+            ("27002", "STALE"),
+            ("", "malformed"),
+            ("NONESUCH-99999 |", "empty alternative"),
+        ):
+            with self.subTest(marker=marker):
+                fixture = self.make_fixture(
+                    "annex-absence-advisory-blocking.md",
+                    "The decree is absent from the reference base. "
+                    f"<!-- ref-absence: {marker} -->\n",
+                )
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertLinterFails(result, expected)
+                self.assertIn("ADVISORY:", result.stdout)
 
     def test_exempt_meta_doc_ignored(self) -> None:
         # The audit-programme specification quotes the canonical sentence

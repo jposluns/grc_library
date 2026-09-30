@@ -31,13 +31,16 @@ marker-plus-committed-manifest design):
    out of the gate's sight. A claim occupies its whole SENTENCE, not
    just the canonical phrase: a marker is adjacent when it sits after
    the phrase, anywhere up to the end of the line the claim's sentence
-   ENDS on, or on the next line, so the example above (phrase, a
+   ENDS on (when that line carries exactly ONE canonical claim,
+   further sentences may sit between the claim and its marker), or on
+   the next line, so the example above (phrase, a
    wrapped continuation, then the marker) is correctly annotated, and
    so is a marker placed right after the phrase with the sentence
    continuing past it. Marker accounting is per CLAIM, not per line:
    each marker binds to at most ONE claim, in document order, so N
    claims whose sentences end on one physical line need N adjacent
-   markers; and a next-line marker binds ONLY when nothing but
+   markers, each placed after its own claim and BEFORE the next
+   claim's canonical phrase; and a next-line marker binds ONLY when nothing but
    earlier markers precedes it on its line AND that line carries no
    detectable absence claim of its own, canonical or paraphrase (a
    marker after any next-line prose annotates THAT prose, which may
@@ -91,9 +94,11 @@ marker-plus-committed-manifest design):
    regenerated manifest is committed; the earliest this gate can flip
    the claim red is its first run on that manifest-regeneration PR.
 
-4. NEAR-MISS NET. A paraphrase fails with a use-the-canonical-phrasing
-   message, converting a reworded claim into a style finding instead
-   of a silent blind spot. The triggers: ``not held`` / ``not
+4. ADVISORY NEAR-MISS NET (maintainer ruling 2026-09-30). A paraphrase
+   prints an ADVISORY use-the-canonical-phrasing message but NEVER
+   affects the exit code. Rules 1-3 remain BLOCKING. The heuristic
+   can miss holdings claims and flag content claims; its suggestions
+   require human judgement before rewording. The triggers: ``not held`` / ``not
    <adverb>ly held`` / ``not yet held`` / ``does not hold`` / ``do
    not hold`` within
    eight tokens of ``reference base`` / ``reference library`` /
@@ -140,8 +145,8 @@ marker-plus-committed-manifest design):
    a world-EXISTENCE claim ("no official English translation is
    available") as a holdings claim when collection vocabulary falls
    inside the eight-token window; the gate cannot tell existence from
-   holdings without semantics, so such a sentence is worded to keep
-   the collection vocabulary clear of the window or split in two.
+   holdings without semantics. These false positives and missed forms
+   are advisory limitations, not reasons to rewrite accurate content.
 
 Meta-documents that quote the pattern as a rule (the CHANGELOG and the
 audit-programme specification) are exempt by name below, per the
@@ -159,7 +164,7 @@ them). The fence parser reads THROUGH blockquote markers (a quoted
 fence still toggles, so a quoted absence sentence inside it stays
 code), and a fence opened inside a blockquote ends when the quote does
 (CommonMark), so quoted code cannot swallow the prose after it; a fence
-opened on a LIST-ITEM line toggles too, so its closing fence cannot
+opened on a LIST-ITEM line or its indented continuation toggles too, so its closing fence cannot
 masquerade as an opener and hide the prose after the list, and it ends
 when its list item does (CommonMark: a non-blank line left of the
 item's content column leaves the list), so an unclosed list fence
@@ -173,8 +178,8 @@ Usage:
     python3 tools/lint-ref-absence-claims.py path1.md dir2 ...
 
 Exit codes:
-    0   no findings
-    1   one or more findings
+    0   no blocking findings (ADVISORY findings may be printed)
+    1   one or more blocking marker or staleness findings
     2   the committed manifest is missing or has no data rows, or an
         explicit path argument is refused
 
@@ -402,10 +407,11 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
     text, so a fence inside a blockquote still toggles; a fence opened
     inside a blockquote ends when the quote does (CommonMark), so quoted
     code cannot swallow the prose after the quote. A fence may OPEN on a
-    list-item line; a backtick opener whose info string contains a
+    list-item line or its indented continuation; a backtick opener whose info string contains a
     backtick is an inline code span, not a fence (CommonMark)."""
     out: list[tuple[int, int, str]] = []
     fence_char, fence_len, fence_depth, fence_item_indent = "", 0, 0, 0
+    list_items: list[tuple[int, int]] = []  # (quote depth, content column)
     for lineno, line in enumerate(text.splitlines(), start=1):
         depth, content = _dequote(line)
         if fence_char and depth < fence_depth:
@@ -418,8 +424,16 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
             # content column leaves the list, so it is prose (or a fresh
             # fence), not swallowed code.
             fence_char, fence_len, fence_item_indent = "", 0, 0
-        m = FENCE_RE.match(content.lstrip())
         lm = None
+        if not fence_char and content.strip():
+            indent = len(content) - len(content.lstrip())
+            while list_items and (depth != list_items[-1][0]
+                                  or indent < list_items[-1][1]):
+                list_items.pop()
+            lm = LIST_PREFIX_RE.match(content)
+            if lm:
+                list_items.append((depth, lm.end()))
+        m = FENCE_RE.match(content.lstrip())
         if not m and not fence_char:
             lm = LIST_PREFIX_RE.match(content)
             if lm:
@@ -429,7 +443,7 @@ def iter_prose_lines(text: str) -> "list[tuple[int, int, str]]":
             if not fence_char:
                 if run[0] == "~" or "`" not in m.group(2):
                     fence_char, fence_len, fence_depth = run[0], len(run), depth
-                    fence_item_indent = lm.end() if lm else 0
+                    fence_item_indent = list_items[-1][1] if list_items else 0
                     continue
                 # A backtick run with a backtick in its info string is an
                 # inline code span, not an opening fence: fall through.
@@ -547,7 +561,7 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
             return lineno
 
         spans = [(m.start(), m.end()) for m in CANONICAL_RE.finditer(joined)]
-        for start, end in spans:
+        for span_idx, (start, end) in enumerate(spans):
             # The claim runs to the end of its SENTENCE, not its phrase,
             # so a marker after a wrapped continuation stays adjacent.
             sentence = SENTENCE_END_RE.search(joined, end)
@@ -555,7 +569,10 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
             end_line = line_at(sent_end - 1)
             canonical_counts[end_line] = canonical_counts.get(end_line, 0) + 1
             claim_lines.update(range(line_at(start), end_line + 1))
-            claims.append(dict(phrase_end=end, end_line=end_line,
+            next_start = (spans[span_idx + 1][0] if span_idx + 1 < len(spans)
+                          else len(joined) + 1)
+            claims.append(dict(phrase_end=end, next_start=next_start,
+                               end_line=end_line,
                                block=block_id, covered=False))
         for trigger_re in TRIGGER_RES:
             for m in trigger_re.finditer(joined):
@@ -568,7 +585,7 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
                     trigger_lines.add(line_at(edge))
         for offset, snippet in near_miss_hits(joined, spans):
             findings.append(
-                f"{rel}:{line_at(offset)}: non-canonical reference-absence phrasing "
+                f"ADVISORY: {rel}:{line_at(offset)}: non-canonical reference-absence phrasing "
                 f"({snippet!r}): use the canonical 'not held in the reference "
                 f"base' sentence with an adjacent <!-- ref-absence: ... --> "
                 f"marker so the claim is machine-checkable"
@@ -601,7 +618,14 @@ def scan_text(rel: str, text: str, manifest_rows) -> "list[str]":
         for slot in slots_by_block.get(claim["block"], []):
             if slot["used"] or slot["off"] < claim["phrase_end"]:
                 continue
-            if slot["lineno"] <= claim["end_line"] or (
+            # Same-line binding: a line carrying exactly ONE canonical
+            # claim binds a marker anywhere later on it (further
+            # sentences may intervene); a line carrying several binds
+            # each claim's marker only BEFORE the next claim's phrase,
+            # so one marker can never shield two.
+            if (slot["lineno"] <= claim["end_line"]
+                    and (canonical_counts[claim["end_line"]] == 1
+                         or slot["off"] < claim["next_start"])) or (
                 slot["lineno"] == claim["end_line"] + 1
                 and not slot["lead"]
                 and slot["lineno"] not in own_claim_lines
@@ -725,10 +749,11 @@ def main(argv: "list[str]") -> int:
         findings.extend(scan_file(f, manifest_rows))
     for finding in findings:
         print(finding)
-    if findings:
-        print(f"\n{len(findings)} reference-absence finding(s).")
+    blocking = sum(not finding.startswith("ADVISORY: ") for finding in findings)
+    if blocking:
+        print(f"\n{blocking} blocking reference-absence finding(s).")
         return 1
-    print(f"OK: reference-absence claims consistent across {len(files)} files.")
+    print(f"OK: no blocking reference-absence findings across {len(files)} files.")
     return 0
 
 
