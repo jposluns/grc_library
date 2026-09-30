@@ -28811,3 +28811,186 @@ class SelfTestTempdirTests(unittest.TestCase):
                                      env=env, capture_output=True, text=True, timeout=600)
                 self.assertEqual(run.returncode, 0, run.stdout[-400:] + run.stderr[-400:])
                 self.assertEqual(sorted(os.listdir(tmp)), [])
+
+
+class ProvisionIndexTests(LinterTestCase):
+    """tools/provision_citations.py, tools/build-provision-index.py and
+    tools/audit-provision-siblings.py (advisory; P-TODO from the #2649 retro).
+
+    Mutation map, one killing test per extractor branch: the subsection
+    continuation by test_continuation_subsection_attaches; longest-alias-first
+    by test_longest_alias_wins; the postfix alias by test_postfix_alias; range
+    expansion and the unit guard by test_range_expansion_and_unit_guard; the
+    line / heading / section / document tiers by their test_*_tier cases; the
+    heading-over-body precedence by test_heading_beats_earlier_body_mention;
+    the inference refusal by test_foreign_prefix_refuses_inference; the
+    explicit-only Section/§ rule by test_internal_section_refs_ignored; the
+    jurisdiction resolution by test_ambiguous_alias_*; the adjectival-compound
+    guard by test_adjectival_compound_is_not_a_mention; the phrase channel by
+    the test_phrase_* cases.
+    """
+
+    BUILD = "tools/build-provision-index.py"
+    SIBLINGS = "tools/audit-provision-siblings.py"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        # provision_citations defines dataclasses, which need their module in sys.modules, so it is
+        # imported by name (tools/ is on sys.path) rather than through load_linter_module.
+        import importlib
+        if str(REPO_ROOT / "tools") not in sys.path:
+            sys.path.insert(0, str(REPO_ROOT / "tools"))
+        cls.pc = importlib.import_module("provision_citations")
+
+    def scan(self, text: str, rel: str = "x.md") -> list:
+        return [(c.key, c.pinpoint, c.tier) for c in self.pc.scan_text(rel, text)]
+
+    def test_explicit_prefix_keys_at_section_level(self) -> None:
+        self.assertEqual(self.scan("PIPEDA s. 10.1(3)"), [("PIPEDA s. 10.1", "10.1(3)", "explicit")])
+
+    def test_continuation_subsection_attaches(self) -> None:
+        got = self.scan("under PIPEDA (s. 10.1(2) and (6)), and promptly")
+        self.assertEqual([p for _k, p, _t in got], ["10.1(2)", "10.1(6)"])
+        self.assertEqual(set(k for k, _p, _t in got), set(("PIPEDA s. 10.1",)))
+
+    def test_longest_alias_wins(self) -> None:
+        self.assertEqual(self.scan("UK GDPR Art. 33(1)")[0][0], "UK GDPR Art. 33")
+
+    def test_postfix_alias(self) -> None:
+        self.assertEqual(self.scan("Article 33 of the GDPR")[0][:2], ("GDPR Art. 33", "33"))
+
+    def test_range_expansion_and_unit_guard(self) -> None:
+        self.assertEqual([k for k, _p, _t in self.scan("GDPR Arts. 33 to 35")],
+                         ["GDPR Art. 33", "GDPR Art. 34", "GDPR Art. 35"])
+        self.assertEqual(self.scan("GDPR Arts. 25 to 39")[8], ("GDPR Art. 33", "25 to 39", "explicit"))
+        self.assertEqual(len(self.scan("GDPR Art. 33 and 72 hours")), 1)
+
+    def test_line_tier(self) -> None:
+        self.assertEqual(self.scan("| **GDPR (EU)** | unless no risk (Art. 33(1)) |")[0][2], "line")
+
+    def test_heading_tier(self) -> None:
+        text = "## Operational requirements (PIPEDA)\n\n- **Breach (s. 10.1):** report.\n"
+        self.assertEqual(self.scan(text), [("PIPEDA s. 10.1", "10.1", "heading")])
+
+    def test_heading_line_citation_uses_parent_heading(self) -> None:
+        text = "# MiCA Implementation Annex\n\n## Title II offers (Arts 4-5)\n"
+        self.assertEqual(self.scan(text)[0], ("MiCA Art. 4", "4", "heading"))
+
+    def test_heading_beats_earlier_body_mention(self) -> None:
+        text = "## Bill C-36 (PPCDA)\n\nUntil enacted, PIPEDA governs.\n\n- Duties (s. 7).\n"
+        self.assertEqual(self.scan(text)[0][0], "PPCDA s. 7")
+
+    def test_section_tier(self) -> None:
+        text = "## Breach\n\nThe GDPR applies.\n\nArticle 33 governs.\n"
+        self.assertEqual(self.scan(text)[0], ("GDPR Art. 33", "33", "section"))
+
+    def test_document_tier(self) -> None:
+        text = "**Document Title:** DPA Template (GDPR Article 28)\\\n\n## Terms\n\nArticle 33 help.\n"
+        self.assertEqual(self.scan(text)[1], ("GDPR Art. 33", "33", "document"))
+
+    def test_foreign_prefix_refuses_inference(self) -> None:
+        text = "## Under PIPEDA\n\nSee [Ley Art 33.3], CCR s. 7001 and Article 5 of this Law.\n"
+        self.assertEqual(set(t for _k, _p, t in self.scan(text)), set(("unresolved",)))
+
+    def test_year_and_domain_acronym_do_not_refuse_inference(self) -> None:
+        text = "# MiCA Implementation Annex\n\nIn force on 29 June 2023 (Art 149(1)); an EMI (Art 48(1)).\n"
+        self.assertEqual([k for k, _p, _t in self.scan(text)], ["MiCA Art. 149", "MiCA Art. 48"])
+
+    def test_internal_section_refs_ignored(self) -> None:
+        self.assertEqual(self.scan("## PIPEDA\n\nSee Section 4.2 and §6.3.\n"), [])
+
+    def test_fenced_code_ignored(self) -> None:
+        self.assertEqual(self.scan("## PIPEDA\n\n```\nPIPEDA s. 10.1\n```\n"), [])
+
+    def test_ambiguous_alias_prose_jurisdiction(self) -> None:
+        self.assertEqual(self.scan("Singapore PDPA s. 26D(2)")[0][0], "PDPA (Singapore) s. 26D")
+
+    def test_ambiguous_alias_path_jurisdiction(self) -> None:
+        rel = "privacy/jurisdictions/annex-privacy-thailand.md"
+        self.assertEqual(self.scan("PDPA s. 26D", rel)[0][0], "PDPA (Thailand) s. 26D")
+
+    def test_ambiguous_alias_unresolved_jurisdiction(self) -> None:
+        self.assertEqual(self.scan("PDPA s. 26D")[0][0], "PDPA (jurisdiction unresolved) s. 26D")
+
+    def test_adjectival_compound_is_not_a_mention(self) -> None:
+        got = self.scan("the LFPDPPP has no GDPR-style basis (Articles 21 to 22)")
+        self.assertEqual([k for k, _p, _t in got], ["LFPDPPP Art. 21", "LFPDPPP Art. 22"])
+
+    def test_phrase_candidate_on_uncited_line(self) -> None:
+        got = self.scan("| PIPEDA | breach notification (real risk of significant harm) |")
+        self.assertEqual(got, [("PIPEDA s. 10.1", "(uncited)", "phrase")])
+
+    def test_phrase_suppressed_on_cited_line(self) -> None:
+        got = self.scan("| PIPEDA | real risk of significant harm (PIPEDA s. 10.1(1)) |")
+        self.assertEqual(got, [("PIPEDA s. 10.1", "10.1(1)", "explicit")])
+
+    def test_phrase_needs_the_instrument_context(self) -> None:
+        self.assertEqual(self.scan("| PPCDA | a real risk of significant harm |"), [])
+        self.assertEqual(self.scan("## Breach\n\nA real risk of significant harm.\n"), [])
+        self.assertEqual(self.scan("## Canada (PIPEDA)\n\nA real risk of significant harm.\n"),
+                         [("PIPEDA s. 10.1", "(uncited)", "phrase")])
+
+    def test_parse_key(self) -> None:
+        self.assertEqual(self.pc.parse_key("PIPEDA s.10.1(3)"), "PIPEDA s. 10.1")
+        self.assertEqual(self.pc.parse_key("GDPR art 33"), None)
+        self.assertEqual(self.pc.parse_key("GDPR Art 33"), "GDPR Art. 33")
+        self.assertIsNone(self.pc.parse_key("Article 12(5)"))
+
+    def _pair(self) -> tuple:
+        a = self.make_fixture("breach-a.md", "# A\n\nNotify the OPC (PIPEDA s. 10.1(1)).\n")
+        b = self.make_fixture("breach-b.md", "# B\n\n## Canada (PIPEDA)\n\n- Report (s. 10.1(3)).\n")
+        return a, b
+
+    def test_build_reports_every_surface_for_key(self) -> None:
+        a, b = self._pair()
+        result = run_linter(self.BUILD, a.parent, "--key", "PIPEDA s. 10.1")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("## PIPEDA s. 10.1  (2 citation(s), 0 uncited-phrase candidate(s), 2 surface(s))",
+                      result.stdout)
+        self.assertIn(a.name + ":3  10.1(1)  [explicit]", result.stdout)
+        self.assertIn(b.name + ":5  10.1(3)  [heading]", result.stdout)
+
+    def test_build_min_tier_filters_inferred_rows(self) -> None:
+        a, b = self._pair()
+        result = run_linter(self.BUILD, a.parent, "--key", "PIPEDA s. 10.1", "--min-tier", "explicit")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(a.name, result.stdout)
+        self.assertNotIn(b.name, result.stdout)
+
+    def test_build_key_without_instrument_is_usage_error(self) -> None:
+        a, _b = self._pair()
+        result = run_linter(self.BUILD, a.parent, "--key", "Article 12(5)")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("names no instrument", result.stderr)
+
+    def test_siblings_lists_other_surface_only(self) -> None:
+        a, b = self._pair()
+        result = run_linter(self.SIBLINGS, "--docs", a, "--scan", a.parent)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("PIPEDA s. 10.1  (cited here on L3; 1 other surface(s))", result.stdout)
+        self.assertIn(b.name + ":5", result.stdout)
+        self.assertNotIn(a.name + ":3", result.stdout)
+
+    def test_siblings_json(self) -> None:
+        import json
+
+        a, b = self._pair()
+        result = run_linter(self.SIBLINGS, "--docs", a, "--scan", a.parent, "--json")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        payload = json.loads(result.stdout)
+        provision = payload[0]["provisions"][0]
+        self.assertEqual(provision["key"], "PIPEDA s. 10.1")
+        self.assertEqual(provision["cited_on_lines"], [3])
+        self.assertEqual([Path(p).name for p in provision["other_surfaces"]], [b.name])
+
+    def test_siblings_missing_doc_is_usage_error(self) -> None:
+        a, _b = self._pair()
+        result = run_linter(self.SIBLINGS, "--docs", a.parent / "absent.md", "--scan", a.parent)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("does not exist", result.stderr)
+
+    def test_siblings_non_markdown_doc_is_usage_error(self) -> None:
+        a, _b = self._pair()
+        result = run_linter(self.SIBLINGS, "--docs", a.parent, "--scan", a.parent)
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("not a Markdown file", result.stderr)
