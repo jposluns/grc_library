@@ -3569,6 +3569,47 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_check_changelog_preflight_commit_hook_self_test(self) -> None:
+        """The git-native pre-commit CHANGELOG preflight check's --self-test, wired at introduction.
+
+        Refuses a commit that stages CHANGELOG.md while tools/preflight-changelog.py --staged fails,
+        however the commit was chained (a ';' join let a failing preflight through twice in one
+        session). --self-test runs decide(), the pinned diff configuration, and an end-to-end run
+        through the real installer, the real preflight, and real commits: a ';' join, `commit -a`, a
+        pathspec commit, hostile diff configuration, a linked worktree, the mirror-scan trigger
+        scoping, and the fail-open and fail-closed cases.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "check-changelog-preflight-commit.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
+    def test_changelog_preflight_commit_refuses_every_nonzero_exit_and_pins_last(self) -> None:
+        """The CHANGELOG preflight commit check refuses on EVERY non-zero preflight exit (its 2 is a git
+        error; a crash or a signal is not a pass), and appends its diff pins AFTER the caller's `git -c`
+        values (the last value wins), keeping GIT_INDEX_FILE, the index `git commit -a` commits."""
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_changelog_preflight_commit", REPO_ROOT / "tools" / "check-changelog-preflight-commit.py")
+        check = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(check)
+        for code in (1, 2, -15, None):
+            rc, msg = check.decide(False, False, True, True, code)
+            self.assertEqual(rc, 1, code)
+            self.assertIn(check._OVERRIDE, msg)
+        self.assertEqual(check.decide(False, False, True, True, 0), (0, ""))
+        self.assertEqual(check.decide(False, False, True, False, None), (0, ""))
+        self.assertEqual(check.decide(False, True, True, False, None), (0, ""))
+        self.assertEqual(check.decide(False, False, False, False, None)[0], 1)
+        self.assertEqual(check.decide(True, False, True, True, 1)[0], 0)
+        env = check.pinned_env({"GIT_CONFIG_PARAMETERS": "'diff.noprefix=true'", "GIT_INDEX_FILE": "/i"})
+        params = env["GIT_CONFIG_PARAMETERS"]
+        self.assertTrue(params.startswith("'diff.noprefix=true' "), params)
+        self.assertGreater(params.index("'diff.noprefix=false'"), params.index("'diff.noprefix=true'"))
+        self.assertEqual(env["GIT_INDEX_FILE"], "/i")
+
     def test_block_unstamped_turn_end_hook_self_test(self) -> None:
         """The block-unstamped-turn-end.py self-test, wired at introduction (PR: timestamp/duration console rule)."""
         result = self._run_selftest(
@@ -23489,6 +23530,8 @@ class HookParserStrictnessTests(LinterTestCase):
             ("tools/check-pr-attribution.py", "--text-file", "--self-test"),
             ("tools/check-version-bump-commit.py", "--commit-msg", "--stray"),
             ("tools/check-version-bump-commit.py", "--self-test", "--stray"),
+            ("tools/check-changelog-preflight-commit.py", "--pre-commit", "--stray"),
+            ("tools/check-changelog-preflight-commit.py", "--self-test", "--stray"),
             ("tools/check-commit-on-main.py", "--pre-commit", "--stray"),
             ("tools/check-dirty-tree-push.py", "--stray"),
             ("tools/check-dirty-tree-push.py", "--pre-push", "origin", "url", "extra"),
@@ -23516,6 +23559,7 @@ class HookParserStrictnessTests(LinterTestCase):
         for script, *args in (
             ("tools/check-pr-attribution.py", "--text-file", str(text)),
             ("tools/check-version-bump-commit.py", "--self-test"),
+            ("tools/check-changelog-preflight-commit.py", "--self-test"),
             ("tools/check-commit-on-main.py", "--self-test"),
             ("tools/check-dirty-tree-push.py", "--self-test"),
             ("tools/tension-scan.py", "HEAD", "HEAD"),

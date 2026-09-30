@@ -2,7 +2,9 @@
 # Install the git-native hooks the pre-commit framework does not manage.
 #
 # Currently: a pre-push dirty-tracked-tree backstop (tools/git-hooks/pre-push), a pre-commit
-# refusal of commits on a main/master checkout (tools/git-hooks/pre-commit, P-TODO 3b17), and a
+# refusal of commits on a main/master checkout (tools/git-hooks/pre-commit, P-TODO 3b17) and of a
+# commit that stages CHANGELOG.md while tools/preflight-changelog.py --staged fails (the same
+# tracked file, via tools/check-changelog-preflight-commit.py), and a
 # commit-msg per-commit Version-bump check (tools/git-hooks/commit-msg, P-TODO 3b25), which also runs
 # a local unmanaged hook kept as commit-msg-local.
 # Run once per clone, alongside `pre-commit install`. Idempotent; refuses rather
@@ -52,6 +54,9 @@ HOOK
 
 # The pre-commit dispatcher FAILS OPEN when the active checkout has no tracked
 # pre-commit file (a branch older than the hook), so it never breaks a commit there.
+# The tracked file runs each pre-commit check in turn (commit-on-main, then the CHANGELOG
+# preflight), so a new check is wired there, never here: an installed dispatcher is compared byte
+# for byte with this text, and any edit to it would make every existing installation foreign.
 emit_pre_commit() {
   cat <<'HOOK'
 #!/bin/sh

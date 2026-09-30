@@ -41,10 +41,11 @@ This is a developer AID, not a new audit gate. The authoritative gates
 (D3, gate 51, the link-coverage gate) remain and run in CI and
 ``run_all_audits.sh`` / ``run-pr-time-checks.sh``; this aid only moves their
 diagnosis earlier, to before the first commit, closing the recurring
-commit-then-amend loop (improvement-log #341/#347/#349/#355). Because no
-pre-commit git hook fires on commits in this environment, a standalone
-helper invoked in an ``&&`` chain is the form that actually gates the
-commit; a pre-commit hook would not run.
+commit-then-amend loop (improvement-log #341/#347/#349/#355). Run it in an
+``&&`` chain: a ``;`` join commits whatever its exit status. Where
+``tools/install-git-hooks.sh`` has installed the git-native pre-commit
+hook, ``check-changelog-preflight-commit.py`` also runs it (``--staged``)
+inside every commit that stages ``CHANGELOG.md`` and refuses on failure.
 
 The check is scoped to the lines a PR ADDS (``git diff`` against HEAD), so
 historical entries that predate the conventions never false-alarm. Dash

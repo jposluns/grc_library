@@ -1,0 +1,350 @@
+#!/usr/bin/env python3
+"""Git-native pre-commit check: refuse a commit that stages CHANGELOG.md while
+tools/preflight-changelog.py --staged fails (2026-09-30).
+
+Why a git hook. The preflight gates a commit only when it is chained as
+`python3 tools/preflight-changelog.py && git commit`. Twice in one session the chain was
+written with ';', which runs the commit whatever the preflight's exit status, so a failing preflight
+did not stop the commit. git runs pre-commit inside every commit, in the committing worktree, with
+the index being committed, however the command was spelled.
+
+Why pre-commit and not commit-msg. check-version-bump-commit.py is a commit-msg hook because its
+opt-out is a line in the commit MESSAGE; this check has no message opt-out, so it runs before the
+message is written, from the tracked tools/git-hooks/pre-commit after check-commit-on-main.py. The
+dispatcher that tools/install-git-hooks.sh installs execs that tracked file, so a clone that has run
+the installer gets this check with no re-install.
+
+What it checks. When the index being committed carries a non-deleted root CHANGELOG.md change, it
+runs the ACTIVE checkout's tools/preflight-changelog.py --staged (the preflight itself, not a copy of
+its rules) and refuses unless it exits 0, relaying the preflight's report; a pass prints nothing. The
+preflight inherits the hook's environment, so it diffs the index git named in GIT_INDEX_FILE (the one
+`git commit -a` or `git commit <path>` is about to commit). Diff presentation settings are pinned for
+it, appended last to GIT_CONFIG_PARAMETERS (the channel `git -c` uses; the last value wins):
+diff.noprefix, diff.mnemonicPrefix, diff.srcPrefix/dstPrefix and color.diff=always each reshape the
+`+++ b/` headers or `+` lines the preflight parses, which would then find no added line and pass.
+
+Allowed without checking: a commit that concludes a merge, cherry-pick, or revert (the staged diff
+then carries other commits' changes); the override GRC_ALLOW_FAILING_CHANGELOG_COMMIT=1. A checkout
+without tools/preflight-changelog.py (older branch) is allowed (fail OPEN, stated). It REFUSES,
+naming the override (ignorance refuses, as in check-version-bump-commit.py): a git error while
+reading the staged state; a staged CHANGELOG.md on an unborn HEAD (the preflight diffs against HEAD,
+and its git-error path returns no lines, so it would pass unchecked); and a preflight that cannot be
+started or exits other than 0 (its 1 is a finding or a crash, its 2 a git error).
+
+Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
+in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
+the link or use the override); the preflight's added-line diff of a mirror kept in ANOTHER repository
+(the operational store or the private sibling) inherits this commit's GIT_INDEX_FILE and so may read
+the wrong index (that repository's own commits are outside this hook); diff.external is not pinned;
+`git commit --amend` checks only what the amend adds to HEAD, as the preflight does; `--no-verify`
+skips the hook; and it guards nothing until tools/install-git-hooks.sh has installed the pre-commit
+shim in the clone.
+"""
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+_OVERRIDE = "GRC_ALLOW_FAILING_CHANGELOG_COMMIT"
+_CHANGELOG = "CHANGELOG.md"
+_PREFLIGHT = Path("tools") / "preflight-changelog.py"
+_SEQUENCER = ("MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD")
+# Each overrides the repository, global, and earlier `git -c` value of its key (the last value wins).
+_PINNED = ("diff.noprefix=false", "diff.mnemonicPrefix=false", "diff.srcPrefix=a/", "diff.dstPrefix=b/",
+           "color.diff=never")
+
+
+def decide(allow, sequencer, ok, staged, code):
+    """PURE. Returns (exit_code, stderr_message).
+
+    allow: override set; sequencer: concluding a merge/cherry-pick/revert; ok: the staged state was
+    read; staged: the index carries a non-deleted CHANGELOG.md change (meaningful only when ok); code:
+    the preflight's exit code, or None when it could not be started (meaningful only when staged)."""
+    if allow:
+        return 0, (f"check-changelog-preflight-commit: NOTE: {_OVERRIDE} is set; skipping the CHANGELOG "
+                   "preflight check.")
+    if sequencer:
+        return 0, ""
+    if not ok:
+        return 1, ("check-changelog-preflight-commit: REFUSING the commit: the staged state could not be "
+                   "read (or HEAD is unborn, so the preflight has no diff to check), so it is unknown "
+                   f"whether the staged {_CHANGELOG} passes tools/preflight-changelog.py. "
+                   f"Deliberate override: {_OVERRIDE}=1.")
+    if not staged or code == 0:
+        return 0, ""
+    if code == 1:
+        return 1, ("check-changelog-preflight-commit: REFUSING the commit: tools/preflight-changelog.py "
+                   f"--staged failed on the staged {_CHANGELOG} (exit 1; its report is above). Fix the "
+                   f"reported lines, `git add {_CHANGELOG}`, and commit again. "
+                   f"Deliberate override: {_OVERRIDE}=1.")
+    how = "it could not be started" if code is None else f"exit {code}"
+    return 1, ("check-changelog-preflight-commit: REFUSING the commit: tools/preflight-changelog.py "
+               f"--staged did not complete ({how}), so it is unknown whether the staged {_CHANGELOG} "
+               f"passes it. Deliberate override: {_OVERRIDE}=1.")
+
+
+def pinned_env(environ):
+    """PURE. The environment for the git commands this check and the preflight run: _PINNED appended
+    LAST to GIT_CONFIG_PARAMETERS, every other variable (GIT_INDEX_FILE above all) kept as git gave it."""
+    env = dict(environ)
+    pins = " ".join(f"'{kv}'" for kv in _PINNED)
+    prior = env.get("GIT_CONFIG_PARAMETERS")
+    env["GIT_CONFIG_PARAMETERS"] = f"{prior} {pins}" if prior else pins
+    return env
+
+
+def _git(root, *args):
+    return subprocess.run(["git", "-C", str(root), *args], capture_output=True, text=True, check=True,
+                          env=pinned_env(os.environ)).stdout
+
+
+def changelog_staged(root):
+    """Thin observer: does the index being committed carry a non-deleted CHANGELOG.md change? It reads
+    the index named in GIT_INDEX_FILE; a git error raises (ignorance refuses), and so does a staged
+    CHANGELOG.md on an unborn HEAD, which the preflight (diffing against HEAD) cannot check."""
+    names = _git(root, "diff", "--cached", "--name-only", "--no-renames", "--diff-filter=d", "-z",
+                 "--", _CHANGELOG).split("\0")
+    if _CHANGELOG not in names:
+        return False
+    _git(root, "rev-parse", "--verify", "-q", "HEAD^{commit}")
+    return True
+
+
+def run_preflight(root):
+    """(exit_code, report) of the ACTIVE checkout's preflight on the staged diff; (None, reason) when it
+    could not be started."""
+    try:
+        cp = subprocess.run([sys.executable, str(root / _PREFLIGHT), "--staged"], cwd=root,
+                            capture_output=True, text=True, env=pinned_env(os.environ))
+    except OSError as exc:
+        return None, str(exc)
+    return cp.returncode, (cp.stdout + cp.stderr).strip()
+
+
+def _in_sequencer(root):
+    for name in _SEQUENCER:
+        cp = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-path", name],
+                            capture_output=True, text=True)
+        p = Path(cp.stdout.strip())
+        if cp.returncode == 0 and (p if p.is_absolute() else root / p).exists():
+            return True
+    return False
+
+
+def _pre_commit():
+    allow = bool(os.environ.get(_OVERRIDE))
+    sequencer = staged = False
+    code, report = None, ""
+    try:
+        top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
+                             check=True).stdout.strip()
+        root = Path(top)
+        if not (root / _PREFLIGHT).is_file():
+            return 0
+        if not allow:  # the override skips the preflight run, not only its verdict
+            sequencer = _in_sequencer(root)
+            staged = not sequencer and changelog_staged(root)
+            if staged:
+                code, report = run_preflight(root)
+        ok = True
+    except Exception:
+        ok = False
+    rc, msg = decide(allow, sequencer, ok, staged, code)
+    if rc and report:
+        print(report, file=sys.stderr)
+    if msg:
+        print(msg, file=sys.stderr)
+    return rc
+
+
+def _integration_self_test():
+    """End to end: a real repository under a spaced path, the real installer, the real preflight, and
+    real commits. Returns (failures, number of checks)."""
+    import shutil
+    import tempfile
+    src = Path(__file__).resolve().parents[1]
+    failures, checks = [], []
+
+    def expect(cond, message):
+        checks.append(message)
+        if not cond:
+            failures.append(message)
+
+    with tempfile.TemporaryDirectory() as base:
+        repo = Path(base) / "clone with space" / "r"
+        for rel in ("tools/check-changelog-preflight-commit.py", "tools/check-commit-on-main.py",
+                    "tools/install-git-hooks.sh", "tools/git-hooks/pre-commit", str(_PREFLIGHT),
+                    "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                    "tools/aiqt_bootstrap.py"):
+            (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src / rel, repo / rel)
+        # Isolated from the caller: no inherited GIT_* (GIT_INDEX_FILE above all), no global or system
+        # config, and no GRC_STORE (it would point the preflight's mirror scan at the real mirror). The
+        # fixture does not carry the vendored AIQT pack the preflight imports, so it is named here.
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
+               and k not in (_OVERRIDE, "GRC_ALLOW_MAIN_COMMIT", "GRC_STORE")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0",
+                   GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
+                   GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid",
+                   AIQT_PACK_ROOT=str(src / "vendor" / "aiqt"))
+
+        def run(args, cwd=repo, extra=None):
+            return subprocess.run([str(a) for a in args], cwd=cwd, capture_output=True, text=True,
+                                  env={**env, **(extra or {})})
+
+        def must(args, cwd=repo):
+            cp = run(args, cwd=cwd)
+            if cp.returncode != 0:
+                failures.append(f"fixture step failed: {' '.join(map(str, args))}: {cp.stderr.strip()}")
+            return cp
+
+        def refused(cp):
+            return cp.returncode != 0 and "check-changelog-preflight-commit: REFUSING" in cp.stderr
+
+        changelog = repo / _CHANGELOG
+        clean, dashed = "a clean entry\n", "a dashed entry \u2014 here\n"
+
+        def append(line, path=changelog):
+            with open(path, "a", encoding="utf-8") as fh:
+                fh.write(line)
+
+        must(["git", "init", "-q", "-b", "feature"])
+        must(["git", "config", "commit.gpgsign", "false"])
+        cp = run(["sh", "tools/install-git-hooks.sh"])
+        expect(cp.returncode == 0, f"the installer failed: {cp.stderr.strip()}")
+        changelog.write_text("# Changelog\n\n", encoding="utf-8")
+        must(["git", "add", "tools", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "init"])
+        expect(refused(cp) and _OVERRIDE in cp.stderr, "a staged CHANGELOG.md on an unborn HEAD was not refused")
+        cp = run(["git", "commit", "-q", "-m", "init"], extra={_OVERRIDE: "1"})
+        expect(cp.returncode == 0 and "NOTE" in cp.stderr,
+               f"the override did not allow the commit: {cp.stderr.strip()}")
+        # The motivating shape: a ';' join runs the commit whatever the preflight's exit status.
+        append(dashed)
+        must(["git", "add", _CHANGELOG])
+        cp = run(["sh", "-c", "python3 tools/preflight-changelog.py --staged; git commit -q -m dashed"])
+        expect(refused(cp), "a ';'-joined commit after a failing preflight was not refused")
+        cp = run(["git", "commit", "-q", "-m", "dashed"])
+        expect(refused(cp) and "em/en dash in prose" in cp.stderr and _OVERRIDE in cp.stderr,
+               "a staged CHANGELOG dash was not refused with the preflight's report and the override")
+        # Only the staged diff is judged: an unstaged dash is not this commit's, and a pass is silent.
+        changelog.write_text("# Changelog\n\n" + clean, encoding="utf-8")
+        must(["git", "add", _CHANGELOG])
+        append(dashed)
+        cp = run(["git", "commit", "-q", "-m", "clean"])
+        expect(cp.returncode == 0 and "OK:" not in cp.stderr and "check-changelog" not in cp.stderr,
+               f"a clean staged entry was refused or not silent beside an unstaged dash: {cp.stderr.strip()}")
+        # GIT_INDEX_FILE: `commit -a` and a pathspec commit commit an index other than .git/index.
+        cp = run(["git", "commit", "-q", "-a", "-m", "all"])
+        expect(refused(cp), "`git commit -a` carrying a CHANGELOG dash was not refused")
+        cp = run(["git", "commit", "-q", "-m", "only", "--", _CHANGELOG])
+        expect(refused(cp), "`git commit -- CHANGELOG.md` carrying a CHANGELOG dash was not refused")
+        # Presentation settings that reshape the preflight's diff cannot hide the dash.
+        must(["git", "add", _CHANGELOG])
+        for key, value in (("diff.noprefix", "true"), ("diff.mnemonicPrefix", "true"),
+                           ("diff.dstPrefix", "x/"), ("color.diff", "always")):
+            must(["git", "config", key, value])
+            cp = run(["git", "commit", "-q", "-m", key])
+            expect(refused(cp), f"{key}={value} hid a staged CHANGELOG dash from the preflight")
+            must(["git", "config", "--unset", key])
+        cp = run(["git", "-c", "diff.noprefix=true", "commit", "-q", "-m", "git -c"])
+        expect(refused(cp), "`git -c diff.noprefix=true commit` hid a staged CHANGELOG dash from the preflight")
+        must(["git", "restore", "--staged", _CHANGELOG])
+        must(["git", "checkout", "--", _CHANGELOG])
+        # The trigger is a staged CHANGELOG.md: the preflight's full-mirror scan fails on this dangling
+        # link, which refuses a CHANGELOG commit and leaves every other commit alone.
+        mirror = repo / ".working" / "changelog-details" / "CHANGELOG-detailed.md"
+        mirror.parent.mkdir(parents=True)
+        mirror.write_text("[gone](no-such-file.md)\n", encoding="utf-8")
+        (repo / "other.txt").write_text("1\n", encoding="utf-8")
+        must(["git", "add", "other.txt"])
+        cp = run(["git", "commit", "-q", "-m", "no changelog"])
+        expect(cp.returncode == 0, f"a commit not staging CHANGELOG.md was judged: {cp.stderr.strip()}")
+        append(clean)
+        must(["git", "add", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "mirror"])
+        expect(refused(cp) and "dangling markdown-link target" in cp.stderr,
+               "the preflight's full-mirror finding did not refuse a CHANGELOG commit")
+        shutil.rmtree(repo / ".working")
+        must(["git", "commit", "-q", "-m", "clean again"])
+        # The crux: a commit made with `git -C` in a LINKED worktree is checked too.
+        linked = Path(base) / "wt"
+        must(["git", "worktree", "add", "-q", "-b", "other", str(linked)])
+        append(dashed, linked / _CHANGELOG)
+        must(["git", "-C", str(linked), "add", _CHANGELOG])
+        cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree"], cwd=base)
+        expect(refused(cp), "a CHANGELOG dash committed with git -C in a linked worktree was not refused")
+        # A preflight that does not complete refuses; one that is absent (an older checkout) fails OPEN.
+        preflight = repo / _PREFLIGHT
+        real = preflight.read_text(encoding="utf-8")
+        preflight.write_text("import sys\nsys.exit(2)\n", encoding="utf-8")
+        append(clean)
+        must(["git", "add", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "exit 2"])
+        expect(refused(cp) and "exit 2" in cp.stderr, "a preflight exiting 2 did not refuse the commit")
+        preflight.unlink()
+        cp = run(["git", "commit", "-q", "-m", "no preflight"])
+        expect(cp.returncode == 0, f"a checkout without the preflight did not fail open: {cp.stderr.strip()}")
+        preflight.write_text(real, encoding="utf-8")
+        # The tracked shim fails OPEN for a tree without this check (the other hooks' fixtures copy the
+        # shim without it), and a commit-on-main refusal still stops the commit before this check runs.
+        check = repo / "tools" / "check-changelog-preflight-commit.py"
+        check.rename(repo / "moved-check.py")
+        append(dashed)
+        must(["git", "add", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "no check"])
+        expect(cp.returncode == 0, f"the shim did not fail open without this check: {cp.stderr.strip()}")
+        (repo / "moved-check.py").rename(check)
+        must(["git", "switch", "-q", "-c", "main"])
+        (repo / "other.txt").write_text("2\n", encoding="utf-8")
+        must(["git", "add", "other.txt"])
+        cp = run(["git", "commit", "-q", "-m", "on main"])
+        expect(cp.returncode != 0 and "check-commit-on-main: REFUSING" in cp.stderr,
+               "the shim ran on past a commit-on-main refusal")
+    return failures, len(checks)
+
+
+def _self_test():
+    pins = pinned_env({"GIT_CONFIG_PARAMETERS": "'diff.noprefix=true'", "GIT_INDEX_FILE": "/i"})
+    cases = [
+        ("override allows a failing preflight", decide(True, False, True, True, 1)[0], 0),
+        ("override allows an unreadable state", decide(True, False, False, False, None)[0], 0),
+        ("sequencer state allows", decide(False, True, True, False, None)[0], 0),
+        ("unreadable state refuses", decide(False, False, False, False, None)[0], 1),
+        ("no staged CHANGELOG.md allows", decide(False, False, True, False, None)[0], 0),
+        ("a passing preflight allows", decide(False, False, True, True, 0)[0], 0),
+        ("a failing preflight refuses", decide(False, False, True, True, 1)[0], 1),
+        ("a preflight git error (exit 2) refuses", decide(False, False, True, True, 2)[0], 1),
+        ("a preflight killed by a signal refuses", decide(False, False, True, True, -15)[0], 1),
+        ("a preflight that could not start refuses", decide(False, False, True, True, None)[0], 1),
+        ("every refusal names the override",
+         all(_OVERRIDE in decide(False, False, *a)[1]
+             for a in ((False, False, None), (True, True, 1), (True, True, 2))), True),
+        ("the pins follow the caller's `git -c` values",
+         pins["GIT_CONFIG_PARAMETERS"].startswith("'diff.noprefix=true' 'diff.noprefix=false'"), True),
+        ("the pins stand alone without caller values",
+         pinned_env({})["GIT_CONFIG_PARAMETERS"].startswith("'diff.noprefix=false'"), True),
+        ("GIT_INDEX_FILE is kept for the preflight", pins.get("GIT_INDEX_FILE"), "/i"),
+    ]
+    failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
+    integ, checks = _integration_self_test()
+    failures += integ
+    total = len(cases) + checks
+    for f in failures:
+        print(f"  FAIL: {f}")
+    print(f"self-test: {total - len(failures)}/{total} passed" if not failures
+          else f"self-test: FAILED ({len(failures)} of {total})")
+    return 1 if failures else 0
+
+
+def main(argv):
+    if argv[1:] == ["--self-test"]:  # 3b50b2f: only the documented forms are accepted; anything else is a usage error (exit 2)
+        return _self_test()
+    if argv[1:] == ["--pre-commit"]:
+        return _pre_commit()
+    print("usage: check-changelog-preflight-commit.py --pre-commit | --self-test", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
