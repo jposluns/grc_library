@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.4\
+**Version:** 1.4.5\
 **Date:** 2026-09-30\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -194,7 +194,7 @@ Media disposal initiated by expiry of the Records Retention Schedule is coordina
 1. No legal hold or investigation applies to the media, its user, or its data, as confirmed through both parts of the hold check in the hold and investigation safeguard at the start of §7. A check of recorded holds alone does not complete it.
 2. The retention period for all data on the media has expired.
 
-Media to which a legal hold or investigation applies, or whose status cannot be confirmed, must not be destroyed until Legal Counsel formally releases or narrows the hold, or confirms in writing that an investigation without a legal hold no longer treats its contents as evidence, as that safeguard and the Records Retention and Destruction Standard §7 require.
+Media to which a legal hold or investigation applies, or whose status cannot be confirmed, must not be destroyed until Legal Counsel, in writing, formally releases or narrows the hold, or confirms in writing that an investigation without a legal hold no longer treats its contents as evidence, as that safeguard and the Records Retention and Destruction Standard §7 require.
 
 ---
 

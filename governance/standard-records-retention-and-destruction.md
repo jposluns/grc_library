@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.25\
-**Date:** 2026-09-25\
+**Version:** 1.4.33\
+**Date:** 2026-09-30\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -37,9 +37,10 @@ This standard establishes controls, retention schedules, destruction methods, an
 |---|---|
 | **Chief Information Officer (CIO)** | Provides executive oversight of information lifecycle management and ensures that resources for compliance are provided. |
 | **Chief Information Security Officer (CISO)** | Enforces technical and security controls for data retention, backup, and secure destruction. |
-| **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS) register operationally, tracks retention obligations, and coordinates audits. The RRS register ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)) is owned (accountable) by the Data Protection Officer and approved by the CIO per its metadata; this operational-maintenance role sits under that ownership. |
+| **Compliance Manager / Records Officer** | Maintains the Records Retention Schedule (RRS) register operationally, tracks retention obligations, coordinates audits, and performs part 1 of the section 8 hold check. The RRS register ([`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)) is owned (accountable) by the Data Protection Officer and approved by the CIO per its metadata; this operational-maintenance role sits under that ownership. |
 | **Department Heads / Data Owners** | Classify and manage records according to business and regulatory requirements. |
-| **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. |
+| **Legal Counsel** | Validates retention periods based on jurisdictional and contractual obligations. Releases or narrows holds in writing (section 7) and gives the written hold-check confirmation before destruction (section 8). Notifies the Compliance Manager without delay of a hold or investigation covering records released or scheduled for destruction (section 8). |
+| **Incident Commander** | Confirms, as part 2 of the section 8 hold check, whether an investigation under the Security Incident Response Procedure treats records as evidence (Legal Counsel may also give this confirmation). Notifies the Compliance Manager without delay of an investigation covering records released or scheduled for destruction (section 8). |
 | **AI Governance Council (AIGC)** | Defines retention and destruction controls for AI datasets, model versions, and audit logs. |
 
 Sector-conditional roles (for example, a BASC Regional Compliance Officer where the organization participates in BASC) apply retention controls per the relevant sector annex; see [`compliance/`](../compliance/).
@@ -104,14 +105,19 @@ Records must be stored in secure, access-controlled systems with encryption appl
 When a record is subject to audit, investigation, or litigation, a retention hold must be applied immediately. The following controls apply:
 
 1. The Compliance Manager documents the hold in the Records Register and notifies the relevant Data Owner.
-2. Records under hold cannot be altered or deleted until Legal Counsel formally lifts the restriction.
+2. Records under hold cannot be altered or deleted until Legal Counsel, in writing, formally lifts the restriction or narrows it so that it no longer covers the records.
 3. The hold status is tracked in the Records Register until closure.
 
 ---
 
 ## 8. Secure destruction
 
-Upon expiration of the applicable retention period and confirmation that no active hold exists, records must be securely destroyed using an approved method.
+Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction as soon as the Compliance Manager learns of the change. Legal Counsel or the Incident Commander, on applying or learning of a hold or investigation that covers records released or scheduled for destruction, must notify the Compliance Manager without delay. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
+
+1. The Compliance Manager checks both the retention hold status in the Records Register (section 7) and the legal hold status in the GRC platform (the Legal holds section of [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)). A check of only one of those two records does not complete this part.
+2. Those records show only holds that have been recorded, so they cannot complete the check on their own. Legal Counsel must confirm in writing that no legal hold or retention hold is required but not yet recorded, and that no investigation by an external authority treats the records as evidence. Legal Counsel or the Incident Commander must confirm whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the records as evidence.
+
+The steps of rule 2 that apply only to devices, such as the remote lock within 1 hour, do not apply to records.
 
 ### 8.1 Acceptable destruction methods
 
@@ -126,8 +132,10 @@ All destruction actions must be logged in the Destruction Register. Each entry m
 
 - Record identifier and classification level.
 - Destruction method applied.
-- Date of destruction.
+- Date of destruction (if completed).
 - Role of responsible person.
+- Hold check outcome and date, who gave each part 2 confirmation, and a reference to Legal Counsel's written confirmation (section 8).
+- Date released for destruction (where queued, scheduled or contracted), and any stop or recall, with the date the hold or investigation became known to the Compliance Manager and the date of the stop or recall.
 - Witness signature (required for physical destruction).
 
 Certificates of Destruction must be retained for a minimum of 7 years.
@@ -163,6 +171,8 @@ Quarterly reviews confirm:
 
 - Timely destruction of records whose retention period has expired.
 - No records deleted while subject to an active hold.
+- Destruction stopped or recalled, as soon as the Compliance Manager learned of the change, where a hold or investigation came to apply before destruction was complete, and the Compliance Manager was notified without delay.
+- No records destroyed without a hold check completed immediately before destruction, or immediately before release for queued, scheduled or contracted destruction, and Legal Counsel's written confirmation.
 - Compliance with privacy and AI recordkeeping standards.
 
 Non-compliance identified during reviews triggers investigation under the Corrective and Preventive Action (CAPA) Procedure.
