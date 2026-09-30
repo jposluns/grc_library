@@ -8,12 +8,19 @@ PIPEDA s. 10.1). This index groups every surface by provision key, so the
 question "where else is PIPEDA s. 10.1 restated?" has a mechanical answer.
 
 WHAT. For every normalized key (``PIPEDA s. 10.1``, ``GDPR Art. 33``), each
-surface and line citing it, with the pinpoint as written (``10.1(3)``) and the
-resolution tier (explicit, line, heading, section, document; see
+surface and line citing it, with the pinpoint as cited (``10.1(3)``; a bare
+continuation shows its full form, ``53(1)(b)``) and the resolution tier
+(explicit, line, heading, section, document; see
 ``tools/provision_citations.py``), plus uncited-phrase candidates from the
-seed table (tier ``phrase``). The report goes to stdout. Nothing is written
-and no artefact is committed, so there is no ``--check`` drift gate; the tool
-is advisory and is not wired into the gate surfaces.
+seed table (tier ``phrase``). In the text report each key's explicit-tier
+rows are listed first; every inferred-tier row, and every phrase row, is
+listed after them under the label ``unverified candidates (inferred
+instrument)`` — two QA rounds found misattribution families confined to the
+inferred tiers, so those rows are candidates a reviewer confirms, not
+verified surfaces (in the JSON, each record's ``tier`` field carries the
+same information). The report goes to stdout. Nothing is written and no
+artefact is committed, so there is no ``--check`` drift gate; the tool is
+advisory and is not wired into the gate surfaces.
 
 Usage:
     python3 tools/build-provision-index.py
@@ -40,16 +47,29 @@ RESIDUE (stated, not hidden):
   - False positives: the explicit tier is syntactic adjacency, so a bare
     ``Art 68(7)`` beside ``DORA (`` is an EXPLICIT DORA record even where
     the surrounding prose means MiCA, and --min-tier explicit does NOT
-    remove that shape; the line, heading, section and document tiers are
-    inferences, and a table cell whose instrument is named only in the
-    header row is still attributed to the last instrument named in an
-    earlier cell of the same row; a seeded phrase can restate a different
-    regime whose wording matches; keys are section-level, so s. 10.1(1) and
-    s. 10.1(6) are siblings even when a change touched only one of them.
+    remove that shape. The line, heading, section and document tiers are
+    INFERENCES — hence the ``unverified candidates (inferred instrument)``
+    label — and two shapes systematically defeat them: a CROSSWALK document
+    about an instrument OUTSIDE the alias table (the eIDAS annex) attributes
+    that instrument's articles at the line and heading tiers to whatever
+    aliased instrument the same line or heading compares it with (``## DORA
+    and sector-specific lex specialis (Article 4)`` in the NIS2 annex is
+    keyed as DORA Art. 4 and collides with the real DORA key); and a POINT
+    DESIGNATION between the citation and its instrument (``Article 9(2),
+    point (g), of the GDPR``) defeats postfix resolution and refusal, so the
+    line tier attributes the citation to an earlier alias. A table cell
+    whose instrument is named only in the header row is still attributed to
+    the last instrument named in an earlier cell of the same row; a seeded
+    phrase can restate a different regime whose wording matches; keys are
+    section-level, so s. 10.1(1) and s. 10.1(6) are siblings even when a
+    change touched only one of them.
   - Refused rather than guessed (in the unresolved bucket): a citation whose
-    line earlier names two different instruments, a non-explicit citation
-    after a foreign-prefix refusal on the same line, and a bare citation
-    whose innermost section body and an enclosing heading name different
+    marker family disagrees with the resolved instrument's marker style
+    (``CCPA Article 10``: Cal. Civ. Code is an ``s.`` statute, so the ``Art``
+    marker means the 11 CCR CCPA Regulations), a citation whose line earlier
+    names two different instruments, a non-explicit citation after a
+    foreign-prefix refusal on the same line, and a bare citation whose
+    innermost section body and an enclosing heading name different
     instruments.
   Filter with --min-tier explicit for the highest-precision subset.
 
@@ -66,6 +86,7 @@ from dataclasses import asdict
 
 from lint_common import REPO_ROOT, guard_explicit_paths
 from provision_citations import (
+    CANDIDATE_LABEL,
     DEFAULT_SCAN_ROOTS,
     PHRASE,
     TIERS,
@@ -76,6 +97,7 @@ from provision_citations import (
     key_header,
     parse_key_args,
     scan_files,
+    split_rows,
     tiers_up_to,
     unique_rows,
 )
@@ -125,12 +147,17 @@ def main(argv: "list[str]") -> int:
     print("Tiers: " + ", ".join(f"{t}={tier_counts.get(t, 0)}" for t in (*TIERS, PHRASE, UNRESOLVED)))
     for key in order:
         rows = unique_rows(grouped[key])
+        confirmed, candidates = split_rows(rows)
         print()
         print(key_header(key, rows))
         if not rows:
             print("    (no surface cites this provision at the selected tiers)")
-        for c in rows:
+        for c in confirmed:
             print(format_row(c))
+        if candidates:
+            print(f"    {CANDIDATE_LABEL}:")
+            for c in candidates:
+                print(format_row(c))
     print()
     if args.show_unresolved:
         print(f"Unresolved citation records ({len(unresolved)}): instrument not in the alias "

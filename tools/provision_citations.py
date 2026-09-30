@@ -19,14 +19,22 @@ Extraction model (stdlib ``re``, fenced code skipped via
   1. A CITATION is a section marker (``Art.``, ``Arts.``, ``Article(s)``,
      ``s.``, ``ss.``, ``Section(s)``, ``section(s)``, ``§``, ``§§``) followed
      by one or more numbers with optional letter suffixes (``55-A``, ``4a``)
-     and parenthesised subdivisions, lists (including slashed lists,
-     ``Art 5/6/12``) and ranges: ``s. 10.1(2) and (6)``, ``Arts. 33 to 34``,
+     and parenthesised subdivisions (including digit-letter and roman ones,
+     ``(6a)``, ``(II)``), lists (including slashed lists, ``Art 5/6/12``)
+     and ranges: ``s. 10.1(2) and (6)``, ``Arts. 33 to 34``,
      ``Arts. 44–49``, ``ss. 7 to 9, 11``. A bare parenthesised continuation
-     (``and (6)``) attaches to the preceding section. A numeric range
-     spanning at most ``MAX_RANGE_SPAN`` sections is expanded; each interior
-     section carries the range as its pinpoint (``25 to 39``). A continuation
-     number followed by a unit (``and 72 hours``, ``and 72-hour``,
-     ``and 20%``) or shaped as a year is not absorbed.
+     (``and (6)``) attaches to the preceding section, replacing the deepest
+     subdivision(s) of the preceding pinpoint, so ``Article 53(1)(a) and
+     (b)`` reads as 53(1)(a) and 53(1)(b), not 53(b). A hyphenated pair
+     that does not ascend is ONE branch-numbered section (``PIPA
+     Art. 24-2``, ``s. 6-1-1306``), not a range. A numeric range spanning
+     at most ``MAX_RANGE_SPAN`` sections is expanded; each interior
+     section carries the range as its pinpoint (``25 to 39``). A
+     continuation number DIRECTLY followed by a unit (``and 72 hours``,
+     ``and 72-hour``, ``and 1.5 days``, ``and 20%``) or shaped as a year is
+     not absorbed; the unit guard sees only the token straight after the
+     number, so a unit one word later (``or 2 further months``) is still
+     absorbed (stated, not hidden; no corpus hit today).
   2. The KEY is section-level: ``PIPEDA s. 10.1(3)`` and ``PIPEDA s. 10.1(6)``
      both key to ``PIPEDA s. 10.1``; the pinpoint is kept for display.
   3. The INSTRUMENT is resolved in this order, and the tier is recorded:
@@ -51,14 +59,26 @@ Extraction model (stdlib ``re``, fenced code skipped via
                  section so far, only where no enclosing heading names a
                  DIFFERENT instrument (that conflict is refused);
        document  the single instrument named in the Document Title.
+     At EVERY tier the resolution is then checked against the MARKER
+     FAMILY: an ``Art``-family citation resolving to an ``s.``-style
+     instrument (or the reverse) is refused, because the mismatch signals
+     that a DIFFERENT instrument is being cited (``CCPA Article 10`` is an
+     article of the 11 CCR CCPA Regulations, outside the alias table, not
+     Cal. Civ. Code s. 10; Thailand's ``s. 24`` under a GDPR mention is
+     the Thai PDPA's, not GDPR Art. 24).
      ``Section`` and ``§`` citations are indexed only at the explicit tier:
      a bare ``Section 4.2`` or ``§6.3`` is this corpus's internal
      cross-reference form, not a statute citation. Inference is REFUSED,
      and the citation left unresolved, where the marker directly follows an
-     unaliased acronym or identifier (``CCR s. 7001``, ``RTS 2025/1140
-     Arts 2``), a law word optionally followed by a number (``Ley Art 33``,
-     ``the Privacy Act (s. 3)``, ``Decree 356 Art. 20``) or a possessive or
-     relative reference to another instrument (``its Articles 46 and 48``,
+     unaliased acronym or identifier, including one followed by a year and
+     a slash- or dot-bearing one separated by a comma (``CCR s. 7001``,
+     ``RTS 2025/1140 Arts 2``, ``DUAA 2025 s.80``, ``Regulation (EU)
+     2025/1140, Article 4``; a closing bracket or a sentence period blocks
+     the comma shape, so ``the EU AI Act (Regulation (EU) 2024/1689),
+     Article 50`` still resolves), a law word optionally followed by an
+     ``(EU)``-style qualifier and a number (``Ley Art 33``, ``the Privacy
+     Act (s. 3)``, ``Decree 356 Art. 20``) or a possessive or relative
+     reference to another instrument (``its Articles 46 and 48``,
      ``whose Article 11``), or the citation is followed by ``of this Law``,
      ``of that Regulation`` or ``of <Name>``, or directly by an instrument
      word (``Article 29(7) Regulation (EU) 2018/1725``): inference there
@@ -80,7 +100,10 @@ Extraction model (stdlib ``re``, fenced code skipped via
      chain, else the Document Title (the weaker section-body tier is not
      used for phrases).
 
-Residue is stated in the two tools' docstrings.
+The explicit tier is trusted; every other citation tier is an INFERENCE,
+and the two tools list inferred-tier rows under ``CANDIDATE_LABEL``,
+separated from the explicit rows. Residue is stated in the two tools'
+docstrings.
 
 Stdlib-only Python 3.11.
 """
@@ -191,6 +214,9 @@ TIERS: tuple[str, ...] = ("explicit", "line", "heading", "section", "document")
 UNRESOLVED = "unresolved"
 PHRASE = "phrase"
 UNRESOLVED_JURISDICTION = " (jurisdiction unresolved)"
+# The label both tools print above inferred-tier and uncited-phrase rows: those
+# rows are candidates whose instrument a reviewer must confirm, not siblings.
+CANDIDATE_LABEL = "unverified candidates (inferred instrument)"
 _NEEDS_CONTEXT = "context"
 
 MARKER_STYLE: dict[str, str] = {canon: style for canon, style, _aliases in INSTRUMENT_ROWS}
@@ -215,11 +241,13 @@ _JURISDICTION_RE = re.compile(
 )
 
 # Citation grammar: marker, then ITEM (SEP ITEM-or-bare-subdivision)*.
-_SUB = r"\((?:[0-9]{1,3}|[a-z]{1,4}|[A-Z])\)"
+_SUB = r"\((?:[0-9]{1,3}[a-z]{0,2}|[a-z]{1,4}|[A-Z]|[IVX]{2,5})\)"
 _NUM = r"\d{1,4}(?:-?[A-Z]{1,2}(?![a-z])|[a-z]{1,2}(?![a-z]))?(?:\.\d{1,4}[A-Z]{0,2})*(?![0-9])"
 _ITEM = _NUM + "(?:" + _SUB + ")*"
 _SEP = r"(?:\s*,\s*(?:and\s+|or\s+)?|\s+(?:and|or|to|through)\s+|\s*[-–]\s*|\s*[&/]\s*)"
-_UNIT = r"(?![\s–-]*(?:hours?|days?|weeks?|months?|years?|minutes?|%|per\s?cent|percent)(?![A-Za-z]))"
+# The decimal alternative stops _NUM backtracking out of "1.5" to absorb the
+# "1" of "and 1.5 days" as a section once the unit rejects the full number.
+_UNIT = r"(?!(?:\.\d+)?[\s–-]*(?:hours?|days?|weeks?|months?|years?|minutes?|%|per\s?cent|percent)(?![A-Za-z]))"
 _NOT_YEAR = r"(?!(?:19|20)\d\d(?![.\d]))"
 CITE_RE = re.compile(
     r"(?<![A-Za-z0-9])"
@@ -231,6 +259,7 @@ _BODY_TOKEN_RE = re.compile(
     "(?P<item>" + _NUM + ")(?P<subs>(?:" + _SUB + ")*)"
     "|(?P<bare>(?:" + _SUB + r")+)|(?P<range>\bto\b|\bthrough\b|[-–])"
 )
+_SUB_SPLIT_RE = re.compile(r"\([^()]*\)")
 _EXPLICIT_ONLY_MARKERS = frozenset(("Sections", "Section", "sections", "section", "§§", "§"))
 
 # Explicit adjacency: "GDPR Art.", "PIPEDA (s.", "the GDPR's Article", "Article 33 of the GDPR",
@@ -245,16 +274,25 @@ _OF_OTHER_RE = re.compile(r"\s*of\s+(?:the\s+)?[A-Z]")
 _POST_INSTRUMENT_RE = re.compile(
     r"\s+(?:Regulation|Directive|Decision|Decree|Act|Law|Code|Statute|Convention|Ordinance)\b"
 )
-# Inference refusal: an unaliased acronym or letter/slash-bearing identifier
-# DIRECTLY before the marker, or a law word (optionally followed by a number,
-# and optionally through "(") before it. A hit POISONS the rest of the line:
-# an unaliased instrument is being cited here, so the line's later inferred
-# tiers would misattribute. _ANAPHOR_RE refuses per-citation only.
+# Inference refusal, three branches, each anchored at the marker. (1) An
+# unaliased acronym or letter/slash-bearing identifier directly before the
+# marker, optionally with a year between them ("DUAA 2025 s.80"). (2) A slash-
+# or dot-bearing numeric identifier separated from the marker by a comma
+# ("2025/1140, Article 4"; balanced parens are part of the identifier,
+# "125(I)/2018,", but a bare closing bracket or a sentence period ends it, so
+# "(Regulation (EU) 2024/1689), Article 50" is NOT refused when the bracketed
+# name is an alias resolving by line context). (3) A law word, optionally with
+# an "(EU)"-style qualifier and a number, through ",", ":" or "(". A hit
+# POISONS the rest of the line: an unaliased instrument is being cited here,
+# so the line's later inferred tiers would misattribute. _ANAPHOR_RE refuses
+# per-citation only.
 _FOREIGN_PREFIX_RE = re.compile(
-    r"(?:\b(?:[A-Z][A-Za-z]*[A-Z][\w./-]*|(?=[\w./-]*[A-Za-z/])[\w./-]*\d[\w./-]*)\s+"
+    r"(?:\b(?:[A-Z][A-Za-z]*[A-Z][\w./-]*|(?=[\w./-]*[A-Za-z/])[\w./-]*\d[\w./-]*)"
+    r"(?:\s+(?:19|20)\d\d)?\s+"
+    r"|\b(?=[\w./()-]*[/.])(?=[\w./()-]*\d)[\w./-]+(?:\([A-Za-z0-9]+\)[\w./-]*)*\s*,\s*"
     r"|\b(?:Ley|Code|Act|Law|Stat\.|Regulations?|Directive|Rules?|Decree|Norm|Standard|"
     r"Specification|Policy|Procedure|Guidelines?|Convention|Constitution|Ordinance|Regs?\.)"
-    r"(?:\s+(?:No\.?\s*)?\d[\w./()-]*)?\s*[,:]?\s*\(?\s*)$"
+    r"(?:\s+\([A-Z]{2,3}\))?(?:\s+(?:No\.?\s*)?\d[\w./-]*)?\s*[,:]?\s*\(?\s*)$"
 )
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.*)$")
 TITLE_RE = re.compile(r"^\*\*Document Title:\*\*\s*(.+?)\s*\\?$", re.M)
@@ -283,6 +321,11 @@ class Citation:
 def provision_key(instrument: str, section: str) -> str:
     """Display key, e.g. ``PIPEDA s. 10.1`` or ``GDPR Art. 33``."""
     return " ".join((instrument, MARKER_STYLE.get(instrument, "s."), section))
+
+
+def _marker_family(marker: str) -> str:
+    """``Art.`` for the Article-marker family, ``s.`` for s./ss./Section/section/§."""
+    return "Art." if marker.startswith("Art") else "s."
 
 
 def _path_jurisdiction(rel: str) -> "str | None":
@@ -319,23 +362,47 @@ def expand_body(body: str) -> list[tuple[str, str]]:
     """``(section, pinpoint)`` pairs for a citation body such as ``10.1(2) and (6)``."""
     out: list[tuple[str, str]] = []
     base: "str | None" = None
+    base_subs: list[str] = []
     pending_range = False
+    hyphen_range = False
+    branch = False
     for tok in _BODY_TOKEN_RE.finditer(body):
         if tok.group("range"):
             pending_range = base is not None
+            hyphen_range = tok.group("range") in ("-", "–")
             continue
         if tok.group("bare"):
             if base is not None:
-                out.append((base, base + tok.group("bare")))
+                # "53(1)(a) and (b)" means 53(1)(b): the continuation replaces the
+                # deepest subdivision(s) of the previous pinpoint, keeping the parent.
+                subs = _SUB_SPLIT_RE.findall(tok.group("bare"))
+                kept = base_subs[: -len(subs)] if len(subs) < len(base_subs) else []
+                base_subs = kept + subs
+                out.append((base, base + "".join(base_subs)))
             pending_range = False
             continue
         num, subs = tok.group("item"), tok.group("subs") or ""
-        if pending_range and base is not None and base.isdigit() and num.isdigit():
-            lo, hi = int(base), int(num)
-            if 0 < hi - lo <= MAX_RANGE_SPAN:
-                out.extend((str(n), base + " to " + num) for n in range(lo + 1, hi))
+        if pending_range and base is not None and num.isdigit():
+            if hyphen_range and (branch or (base.isdigit() and int(num) <= int(base))):
+                # A hyphen pair that does not ascend is a branch-numbered section
+                # (PIPA Art. 24-2, Colorado s. 6-1-1306), not a range: fold it into
+                # the preceding number (chained folds keep folding).
+                out.pop()
+                num = base + "-" + num
+                out.append((num, num + subs))
+                base = num
+                base_subs = _SUB_SPLIT_RE.findall(subs)
+                branch = True
+                pending_range = False
+                continue
+            if base.isdigit():
+                lo, hi = int(base), int(num)
+                if 0 < hi - lo <= MAX_RANGE_SPAN:
+                    out.extend((str(n), base + " to " + num) for n in range(lo + 1, hi))
         out.append((num, num + subs))
         base = num
+        base_subs = _SUB_SPLIT_RE.findall(subs)
+        branch = False
         pending_range = False
     return out
 
@@ -424,6 +491,12 @@ def scan_text(rel: str, text: str) -> list[Citation]:
                 continue
             if tier == _NEEDS_CONTEXT:
                 instrument, tier = _context(stack[:-1] if heading else stack, doc_instrument)
+            if instrument is not None and MARKER_STYLE.get(instrument) != _marker_family(m.group("marker")):
+                # Marker-family guard: an Art-marker citation cannot belong to an
+                # s.-style statute (or the reverse) — the resolved instrument is the
+                # wrong one ("CCPA Article 10" is an 11 CCR regulation article), so
+                # refuse rather than misattribute, at every tier.
+                instrument, tier = None, UNRESOLVED
             resolved_here = resolved_here or instrument is not None
             snippet = _snippet(line, m.start(), m.end())
             for section, pinpoint in expand_body(m.group("body")):
@@ -530,6 +603,17 @@ def unique_rows(citations) -> list[Citation]:
             seen.add(ident)
             rows.append(c)
     return rows
+
+
+def split_rows(rows, trusted=("explicit",)) -> "tuple[list[Citation], list[Citation]]":
+    """Partition ``rows`` into (trusted rows, unverified candidate rows).
+
+    A row whose tier is in ``trusted`` is a sibling a reviewer can act on;
+    every other row — an inferred-instrument tier outside ``trusted`` or an
+    uncited-phrase hit — is a candidate to print under ``CANDIDATE_LABEL``.
+    """
+    return ([c for c in rows if c.tier in trusted],
+            [c for c in rows if c.tier not in trusted])
 
 
 def key_header(key: str, rows: list[Citation]) -> str:
