@@ -18796,6 +18796,45 @@ class BacklogActionabilityTests(unittest.TestCase):
         self.assertIs(mod.is_blocked(by["P-3.5"][2]), True)
         self.assertIn("egress", mod.prose_signals(by["P-1.1"][2]))
 
+    def test_item_like_net_bom_blockquote_strike_and_tight_task_box(self):
+        # 3b126 (3b119 QA r10): each of these looks like an item but is taken by no counted grammar, so the
+        # counted-or-reported invariant requires the ITEM-LIKE net to list it: a BOM before ``### 3b7``, an h3
+        # inside a blockquote, single-tilde strikethrough, strikethrough around a link, and a task box with no
+        # space after it. Each must appear in the report and never in the counted grammar.
+        mod = self._load()
+        for line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading", "- ~**3b7 fix**~",
+                     "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual([ln for _n, ln in mod.uncounted_item_like(text)], [line.strip()], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
+
+    def test_item_like_net_four_space_h3_stays_code(self):
+        # 3b126 round 2: the negative fixtures for the _h3_rest CommonMark indentation bounds, each one
+        # column past a boundary the positive test pins -- a ``###`` behind four spaces (or a tab) is
+        # indented code, and so is one inside a blockquote when four-plus COLUMNS separate the marker from
+        # ``###`` (a tab plus two spaces, or three spaces plus a tab), four spaces precede the first ``>``,
+        # or five columns separate nested markers; none is counted or reported.
+        mod = self._load()
+        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent", ">\t  ### 3b7", ">   \t### 3b7",
+                     ">     ### 3b7", "    > ### 3b7", "> >     ### 3b7", ">     > ### 3b7"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual(mod.uncounted_item_like(text), [], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
+
+    def test_item_like_net_quoted_h3_column_boundaries(self):
+        # 3b126 round 2 (each fixture CommonMark-confirmed with markdown-it): a blockquoted ``###`` stays a
+        # heading up to each COLUMN boundary, so the net must report it. A single tab after ``>`` always
+        # leaves 0-3 columns (the tab expands to the next multiple of four; the quote marker's optional
+        # space takes one of those columns); up to three spaces may precede the first ``>``; after a
+        # marker's space, up to three more columns may precede ``###`` or a nested ``>`` (so four spaces
+        # between nested markers). Every such line is reported by the net and never counted.
+        mod = self._load()
+        for line in (">\t### 3b7 tab quoted", " >\t### 3b7", "   >\t### 3b7", ">\t ### 3b7", "> \t### 3b7",
+                     ">  \t### 3b7", "> >\t### 3b7", ">    ### 3b7", "   > ### 3b7", "   ### 3b7",
+                     "> >    ### 3b7", ">    > ### 3b7", ">\t> ### 3b7", ">### 3b7"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual([ln for _n, ln in mod.uncounted_item_like(text)], [line.strip()], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
 
 class HookToolItemCountParityTests(unittest.TestCase):
     """The decision-log hook's TODO item-count regex (block-unjustified-decision.py)
