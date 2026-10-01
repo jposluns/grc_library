@@ -308,6 +308,14 @@ _APPROVAL_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
 _APPROVAL_ITEM_RE = re.compile(r"[A-Za-z0-9](?:[A-Za-z0-9.\-]*[A-Za-z0-9])?")
 # Characters Python's splitlines treats as line breaks but Markdown does not (QA r5).
 _NON_MARKDOWN_BREAKS = "\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029"
+# KEPT BROAD BY MAINTAINER RULING (2026-10-01, 3b83 round-3 QA): the ONE deliberate exception in this
+# tool to the 3b83 rule that a fence line is read at zero to three columns of indent (_FENCE_OPEN_RE
+# above). This is a REFUSAL screen, not a fence model: a fence-like line at ANY indentation (even where
+# CommonMark reads indented code or list content, not a fence) refuses the whole register, and refusing
+# fails closed here, because a refused register grants nothing: no [BLOCKED:] tag counts and every item
+# stays ACTIONABLE (the asymmetric-skepticism rule: a missing or refused register must not widen what
+# is blocked). Do not narrow this to the shared aiqt_corpus.is_fence_line predicate; a regression test
+# pins that an indented backtick line still refuses the register.
 _FENCE_LINE_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})")
 # A line allowed before the header: a heading, or a prose line that cannot open a list, blockquote, code
 # block, setext underline, thematic break or table (QA r6: lazy continuation and pipe-less tables).

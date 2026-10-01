@@ -54,14 +54,18 @@ def configure(ref) -> None:
 
 # Marker-aware fence parser: a fenced block closes only on a line using the SAME
 # marker char and a run length >= the opener, with no info string. It is a local
-# approximation of CommonMark, not a full parser (any leading indentation is
-# accepted, a backtick info string may contain a backtick, and container blocks are
-# not modelled); a file that ends inside an open fence is reported (3b54b), so the
-# residue that remains silent is a fence boundary or extent the model gets wrong while
-# its scan still closes before the end of the file: a line mis-recognized as an opener
-# followed by a later closer, or a fence that CommonMark ends at the edge of its list
-# or blockquote container but this model carries on to a later fence line.
-_FENCE_RE = re.compile(r"^\s*(`{3,}|~{3,})(.*)$")
+# approximation of CommonMark, not a full parser (a backtick info string may contain
+# a backtick, and container blocks are not modelled); an opener or closer is eligible
+# only at zero to three spaces of indent, the CommonMark limit the shared
+# aiqt_corpus.is_fence_line applies (3b83; this regex states the same rule, since the
+# marker-aware model also needs the run and info string the shared boolean predicate
+# does not expose), so a marker indented four or more columns is content. A file that
+# ends inside an open fence is reported (3b54b), so the residue that remains silent is
+# a fence boundary or extent the model gets wrong while its scan still closes before
+# the end of the file: a line mis-recognized as an opener followed by a later closer,
+# or a fence that CommonMark ends at the edge of its list or blockquote container but
+# this model carries on to a later fence line.
+_FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 
 
 def _fence_marker(line: str) -> tuple[str, int, str] | None:

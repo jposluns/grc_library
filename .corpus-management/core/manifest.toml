@@ -7,7 +7,7 @@ schema_version = 1
 
 [pack]
 id = "corpus-management"
-version = "0.6.81"
+version = "0.6.86"
 state = "active"
 source_root = "."
 

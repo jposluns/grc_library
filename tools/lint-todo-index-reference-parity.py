@@ -42,7 +42,7 @@ if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import split_row, is_separator_row  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from aiqt_corpus import split_row, is_separator_row, is_fence_line  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT, TODO_ID_RE, require_dir, resolve_sibling, has_todo_index_header  # noqa: E402  # grc-config/store, stays local
 
 TODO_REL = "TODO.md"
@@ -60,11 +60,14 @@ REF_HEADING_RE = re.compile(
 
 def _non_fence_lines(text: str):
     """Yield ``(line)`` skipping fenced-code-block INTERIORS, so a ``### id`` or
-    ``| id |`` example inside a ``` fence is not mistaken for a real item."""
+    ``| id |`` example inside a ``` fence is not mistaken for a real item.
+    Fence lines are what the shared ``aiqt_corpus.is_fence_line`` recognizes (a
+    marker after at most three spaces of indent, the toggle model gate 66
+    certifies; 3b83), so a marker indented four or more columns is content and
+    cannot hide the rows after it from this gate."""
     in_fence = False
     for line in text.splitlines():
-        st = line.lstrip()
-        if st.startswith("```") or st.startswith("~~~"):
+        if is_fence_line(line):
             in_fence = not in_fence
             continue
         if not in_fence:

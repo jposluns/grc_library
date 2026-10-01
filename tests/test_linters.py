@@ -8673,6 +8673,22 @@ class MetadataLineBreaksTests(LinterTestCase):
         result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_indented_backtick_pair_does_not_hide_metadata_lines(self) -> None:
+        # 3b83: a backtick line indented four or more spaces is not a fence (it is
+        # CommonMark indented code or a paragraph continuation), so a pair of them
+        # must not hide the metadata lines between them. Before 3b83 the pair
+        # toggled the shared iterator and the missing break after Version went
+        # unreported. vendor/aiqt has carried the guardrails PR #324 core since the
+        # 3b83 re-pin to a3ff734c.
+        fixture = self.make_fixture(
+            "fake-indented-fence-pair.md",
+            "# Fake Document\n\n**Document Title:** Test\\\n**Document Type:** Standard\n"
+            "    ```\n**Version:** 1.0.0\n**Date:** 2026-09-30\n    ```\n"
+            "**Owner:** Someone\n\nBody.\n",
+        )
+        result = run_linter("tools/lint-metadata-line-breaks.py", fixture)
+        self.assertLinterFails(result, "missing-hard-break")
+
     def test_code_fence_metadata_not_flagged(self) -> None:
         # Same metadata block, but inside a fenced code region: must NOT
         # be flagged (templates demonstrating proper format do not need
@@ -8895,6 +8911,15 @@ class LintCommonHelperTests(unittest.TestCase):
         self.assertFalse(h("### P-1.1 legacy\n| 2.7 | a | b |\n"), "legacy body id-table is not a header")
         self.assertFalse(h("```\n| ID | Item | Tags |\n```\n"), "fenced example is skipped")
         self.assertFalse(h("The row is `| ID | Item | Tags |`.\n"), "prose mention is not a header")
+        # 3b83: the fence skip is the shared is_fence_line, so a marker indented
+        # four or more columns is content. A lone indented marker above the header
+        # cannot misclassify an index file as legacy (the silent-green escape this
+        # helper's own comment names), and an indented marker inside a real fence
+        # is not a closer, so a fenced example stays skipped.
+        self.assertTrue(h("    ```\n| ID | Item | Tags |\n"), "indented marker is not a fence")
+        self.assertTrue(h("    ```\n| ID | Item | Tags |\n    ```\n"), "indented pair hides nothing")
+        self.assertFalse(h("```\n    ```\n| ID | Item | Tags |\n```\n"),
+                         "an indented marker does not close the fence around the example")
 
     def test_adopter_extra_exempt_dirs_floor(self):
         """3.183: adopter-config.json extra_exempt_dirs are matched TOP-LEVEL-ANCHORED
@@ -9076,17 +9101,70 @@ class LintCommonHelperTests(unittest.TestCase):
         # PR #937: the shared fence predicate the corpus linters route their
         # in-code-block skip loops through. It recognizes both backtick and
         # tilde fences (closing the GR-4 tilde-blindness in the six formerly
-        # private copies) and tolerates leading indentation, but does not match
-        # inline code, a two-tilde strikethrough, or prose.
-        # `4-space indent` is deliberately still a fence here (the predicate is
-        # more permissive than CommonMark's 3-space max, matching
-        # iter_non_code_lines); the 2-char negatives are tested symmetrically on
-        # both fence characters.
+        # private copies) after zero to three spaces of indent, but does not
+        # match inline code, a two-tilde strikethrough, or prose.
+        # 3b83: four or more leading spaces, or a tab (which advances to column
+        # four), is CommonMark indented code, not a fence, and a non-breaking
+        # space is not indentation at all; all of these were fences before. The
+        # 2-char negatives are tested symmetrically on both fence characters.
         lc = self._lint_common()
-        for fence in ("```", "```python", "~~~", "~~~text", "   ```", "  ~~~", "    ```"):
+        for fence in ("```", "```python", "~~~", "~~~text", " ```", "  ~~~", "   ```", "   ~~~"):
             self.assertTrue(lc.is_fence_line(fence), f"{fence!r} should be a fence")
-        for prose in ("prose", "`inline`", "``bold``", "~~strike~~", "", "  text ```"):
+        for prose in ("prose", "`inline`", "``bold``", "~~strike~~", "", "  text ```",
+                      "    ```", "    ~~~", "        ```python", "\t```", "   \t~~~",
+                      "\u00a0```"):
             self.assertFalse(lc.is_fence_line(prose), f"{prose!r} should not be a fence")
+
+    def test_indented_backtick_pair_does_not_hide_lines(self) -> None:
+        # 3b83: a backtick or tilde line indented four or more columns is
+        # CommonMark indented code (or a paragraph continuation), so a pair of
+        # them must not hide the lines between them from a fence-aware gate.
+        lc = self._lint_common()
+        for marker in ("```", "~~~"):
+            for indent in ("    ", "\t"):
+                with self.subTest(marker=marker, indent=repr(indent)):
+                    text = "a\n" + indent + marker + "\nb\n" + indent + marker + "\nc\n"
+                    self.assertEqual(
+                        list(lc.iter_non_code_lines(text)),
+                        [(1, "a"), (2, indent + marker), (3, "b"), (4, indent + marker), (5, "c")],
+                    )
+
+    def test_indented_marker_neither_closes_nor_opens(self) -> None:
+        # 3b83: inside a real fence, a marker indented four spaces is fenced
+        # content, so the block stays open until an eligible closer; outside a
+        # fence, a stray indented marker cannot open a block that would swallow
+        # the rest of the file.
+        lc = self._lint_common()
+        text = "a\n```\nhidden\n    ```\nstill hidden\n   ```\nb\n    ~~~\nc\n"
+        self.assertEqual(
+            [line for _, line in lc.iter_non_code_lines(text)],
+            ["a", "b", "    ~~~", "c"],
+        )
+
+    def test_is_fence_line_matches_vendored_core(self) -> None:
+        # 3b83: lint_common.is_fence_line and the vendored AIQT core's
+        # aiqt_corpus.is_fence_line (which the pack engines and re-pointed tools
+        # read) must agree, so no consumer of the shared toggle predicate
+        # disagrees on what a fence is (round-4 QA: the deliberately broad
+        # refusal screens and loose-opener detectors do not consume it and stay
+        # broader by design, e.g. the approvals-register refusal pinned by
+        # test_indented_fence_line_still_refuses_register and the
+        # citation-publishers loose opener pinned by
+        # test_deeply_indented_loose_opener_is_still_counted). vendor/aiqt has
+        # carried the guardrails PR #324 core since the 3b83 re-pin to a3ff734c.
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "aiqt_corpus_fence_parity", REPO_ROOT / "vendor" / "aiqt" / "tools" / "aiqt_corpus.py"
+        )
+        core = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(core)
+        lc = self._lint_common()
+        for prefix in ("", " ", "  ", "   ", "    ", "     ", "\t", " \t", "\u00a0"):
+            for body in ("```", "```python", "~~~", "~~~text", "``", "~~", "`inline`", "prose", ""):
+                line = prefix + body
+                with self.subTest(line=repr(line)):
+                    self.assertEqual(lc.is_fence_line(line), core.is_fence_line(line))
 
 
 class DocumentDateStalenessTests(LinterTestCase):
@@ -10947,6 +11025,41 @@ class MatrixControlCodeTests(LinterTestCase):
                 mutate(L)
                 rules = [f.rule for f in wrapper.canonical_structure_findings("\n".join(L))]
                 self.assertIn("matrix-structure", rules)
+
+    def test_structure_guard_fence_half_honours_the_indent_limit(self) -> None:
+        # 3b83: the fence half of the structure guard is the shared is_fence_line (a marker
+        # after at most three spaces of indent). A marker indented four or more columns, or
+        # behind a tab, is read like any other line: blank-line padded above a header it is
+        # not a finding, and directly after a table it is refused as a trailing line, not as
+        # a fence. The HTML half still refuses an opener at any indentation.
+        wrapper = self._wrapper()
+        live = (REPO_ROOT / "compliance" / "matrix-grc-compliance-alignment.md").read_text(encoding="utf-8")
+        lines = live.split("\n")
+        h = next(i for i, l in enumerate(lines) if l.startswith("| Domain | Document Title |"))
+        end = next(i for i in range(h, len(lines)) if not lines[i].startswith("|"))
+
+        def problems(at, added):
+            L = list(lines)
+            L[at:at] = added
+            return [f.message for f in wrapper.canonical_structure_findings("\n".join(L))]
+
+        fence = "a code fence or an HTML block"
+        trailing = "a non-blank line directly after a table"
+        for marker in ("```", "~~~", "```text"):
+            for indent in ("", " ", "   "):
+                with self.subTest(fence=indent + marker):
+                    got = problems(h - 1, ["", indent + marker])
+                    self.assertTrue(any(m.startswith(fence) for m in got), got)
+            for indent in ("    ", "        ", "\t", "  \t"):
+                with self.subTest(not_a_fence=indent + marker):
+                    self.assertEqual(problems(h - 1, ["", indent + marker]), [])
+                    got = problems(end, [indent + marker])
+                    self.assertTrue(any(m.startswith(trailing) for m in got), got)
+                    self.assertFalse(any(m.startswith(fence) for m in got), got)
+        for indent in ("", "    ", "\t"):
+            with self.subTest(html=indent + "<div>"):
+                got = problems(h - 1, ["", indent + "<div>"])
+                self.assertTrue(any(m.startswith(fence) for m in got), got)
 
 class CcmProviderMemberInRangeTests(LinterTestCase):
     """tools/lint-ccm-provider-member-in-range.py"""
@@ -14784,6 +14897,40 @@ class UnbalancedFenceTests(LinterTestCase):
         result = run_linter(self.SCRIPT, f)
         self.assertLinterFails(result, "unbalanced fence")
 
+    def test_engine_uses_the_shared_fence_predicate(self) -> None:
+        # 3b83: the engine counts fence lines with aiqt_corpus.is_fence_line
+        # itself, not a private copy, so the gate cannot drift from the
+        # iterator's toggle model when the core's predicate changes.
+        load_linter_module("tools/aiqt_bootstrap.py", "aiqt_bootstrap_3b83")
+        import aiqt_corpus
+
+        engine = load_linter_module(
+            ".corpus-management/tools/gate_lint_unbalanced_fences.py", "gate_unbalanced_fences_3b83"
+        )
+        self.assertIs(engine.is_fence_line, aiqt_corpus.is_fence_line)
+        text = "a\n```\nb\n    ```\n  ~~~\n\t```\n\u00a0~~~\n"
+        self.assertEqual(
+            engine.fence_lines(text),
+            [n for n, line in enumerate(text.splitlines(), start=1) if aiqt_corpus.is_fence_line(line)],
+        )
+
+    def test_indented_marker_is_not_a_fence_line(self) -> None:
+        # 3b83: a backtick line indented four or more columns is indented code,
+        # not a fence. A lone one is no unclosed fence, and one under a real
+        # fence does not close it, so the gate reports what the iterator does.
+        # vendor/aiqt has carried the guardrails PR #324 core since the 3b83 re-pin
+        # to a3ff734c.
+        ok = self.make_fixture(
+            "fences-indented-ok.md", "# T\n\nProse.\n\n    ```\n\nMore prose.\n"
+        )
+        result = run_linter(self.SCRIPT, ok)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        bad = self.make_fixture(
+            "fences-indented-close.md", "# T\n\n```\ncode\n    ```\n\nProse.\n"
+        )
+        result = run_linter(self.SCRIPT, bad)
+        self.assertLinterFails(result, "unbalanced fence")
+
 
 class CrossFileSectionNamesTests(LinterTestCase):
     """tools/lint-cross-file-section-names.py (gate 65, the names phase)
@@ -15365,6 +15512,20 @@ class PositionalBacklogTokenLinterTests(LinterTestCase):
                 mod.REPO_ROOT = old_root
         self.assertIn(bad, targets, "guardrails must be in the default scan roots")
         self.assertEqual(findings, [(3, "TODO §4.10")])
+
+
+class BuildTaxonomySectionOutlineTests(unittest.TestCase):
+    """tools/build-taxonomy.py extract_sections: the section outline skips fenced
+    blocks with the SHARED fence predicate (3b83). The private copy it replaced
+    was backtick-only and indent-permissive, so a tilde fence did not toggle (its
+    headings leaked into the outline) and an indented backtick marker silently
+    hid every later ``## `` heading."""
+
+    def test_extract_sections_uses_the_shared_fence_model(self):
+        bt = load_linter_module("tools/build-taxonomy.py", "build_taxonomy_3b83")
+        text = ("# T\n\n## One\n\n    ```\n## Two\n    ```\n\n"
+                "~~~\n## Fenced away\n~~~\n\n```\n## Also fenced\n```\n\n## Three\n")
+        self.assertEqual(bt.extract_sections(text), ["One", "Two", "Three"])
 
 
 class GeneratorSortKeyParityTests(unittest.TestCase):
@@ -19185,6 +19346,23 @@ class BacklogActionabilityTests(unittest.TestCase):
             self.assertIn("P-9.1.1", pipe.stdout)
             self.assertIn("P-9.1.2", pipe.stdout)
 
+    def test_indented_fence_line_still_refuses_register(self):
+        # 3b83 round-3 QA (QA-R3-01), maintainer ruling 2026-10-01: _FENCE_LINE_RE stays BROAD, the
+        # one deliberate exception in the tool to the CommonMark 0-3 fence-indent rule. A fence-like
+        # line at ANY indentation (four or eight spaces, or a tab, where CommonMark reads indented
+        # code, not a fence) still refuses the WHOLE register, and the refusal fails closed: a
+        # refused register grants nothing, so no [BLOCKED:] tag counts and every item stays
+        # ACTIONABLE. Pins the ruling against a future "alignment" onto the shared is_fence_line.
+        mod = self._load()
+        valid = ("| Item | Reason | Granted | Evidence |\n| --- | --- | --- | --- |\n"
+                 "| 3b83 | fence-indent QA | 2026-09-18 | #2664 |\n")
+        self.assertIsNone(mod.register_refusal(valid))
+        self.assertEqual(mod.load_approvals(valid), {"3b83"})
+        for marker in ("    ```", "        ```", "\t```", "    ~~~"):
+            refused = valid + "\n" + marker + "\n"
+            self.assertEqual(mod.register_refusal(refused), "it contains a code fence", marker)
+            self.assertEqual(mod.load_approvals(refused), set(), marker)
+
     def test_no_tag_means_all_actionable(self):
         # No [BLOCKED:] tag anywhere -> every item ACTIONABLE, even those whose prose
         # carries a keyword signal (the strongest anti-false-completeness stance).
@@ -20433,6 +20611,24 @@ class AllowlistSpecParityTests(unittest.TestCase):
         for name, block in shapes.items():
             with self.subTest(name), self.floor(), self.assertRaises(self.mod.InputError):
                 self.mod.spec_domains(self.spec([], block=block))
+
+    def test_deeply_indented_loose_opener_is_still_counted(self) -> None:
+        # 3b83 round-4 QA: LOOSE_OPEN_RE stays BROAD on purpose, one of the deliberately broad
+        # fence screens in the pack README's 3b83 entry, beside the approvals-register refusal (see
+        # test_indented_fence_line_still_refuses_register). A citation-publishers opener indented
+        # four or eight spaces, or by a tab (where CommonMark reads indented code, not a fence),
+        # is still COUNTED: beside the canonical block it fails loud as a duplicate ("found 2",
+        # the assertion a detector narrowed to 0-3 would fail by parsing the duplicate silently),
+        # and standing alone it still raises InputError rather than parsing anything.
+        good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
+        canonical = "```json citation-publishers\n" + good + "\n```\n"
+        for indent in ("    ", "        ", "\t"):
+            dup = canonical + indent + "```json citation-publishers\n" + good + "\n" + indent + "```\n"
+            with self.subTest(indent=repr(indent)), self.floor(), self.assertRaisesRegex(self.mod.InputError, "found 2"):
+                self.mod.spec_domains(self.spec([], block=dup))
+            lone = indent + "```json citation-publishers\n" + good + "\n```\n"
+            with self.subTest(indent=repr(indent), lone=True), self.floor(), self.assertRaises(self.mod.InputError):
+                self.mod.spec_domains(self.spec([], block=lone))
 
     def test_line_endings_and_longer_closing_fence_are_accepted(self) -> None:
         good = '[{"publisher": "ISO", "domains": ["iso.org"], "covers": "x"}]'
@@ -23087,6 +23283,19 @@ class TodoIndexReferenceParityTests(LinterTestCase):
             import shutil
             shutil.rmtree(root, ignore_errors=True); shutil.rmtree(priv, ignore_errors=True)
 
+    def test_indented_marker_does_not_hide_index_rows(self):
+        # 3b83 (codex QA-01 repro): a lone backtick marker indented four or more
+        # columns is content under the shared is_fence_line, not a fence, so the
+        # index rows after it stay scanned. Before 3b83 this gate's private
+        # _non_fence_lines treated the marker as a toggle and swallowed every
+        # later row, so the unmatched 1.3 passed silently while gate 66 (which
+        # certifies only the shared toggle model) saw no fence at all.
+        idx = self.IDX + "    ```\n| 1.3 | gamma (L) | `[public]` |\n"
+        r, root = self._run("bij-indented-marker", idx, self.REF)
+        try:
+            self.assertLinterFails(r, "MISSING")
+        finally:
+            import shutil; shutil.rmtree(root, ignore_errors=True)
 
 class TagGateTests(LinterTestCase):
     """tools/lint-todo-list-tag.py (gate 81): every open TODO.md / P-TODO.md
@@ -24486,7 +24695,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.6.81", "3b88 bumps the pack version to 0.6.81 (3b81 set 0.6.80)")
+        self.assertEqual(man["pack"]["version"], "0.6.86", "3b83 round-6 QA wording bumps the pack version to 0.6.86 (round-5 close set 0.6.85)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

@@ -414,20 +414,19 @@ def strip_code_spans(line: str) -> str:
 def is_fence_line(line: str) -> bool:
     """True if ``line`` is a fenced-code-block delimiter.
 
-    A fence is a line whose left-stripped form starts with three backticks
-    (``` ``` ```) OR three tildes (``~~~``). Leading whitespace is tolerated
-    (CommonMark permits up to a 3-space indent; this is more permissive, which
-    does not matter in practice). Both fence characters count so that a stray
-    CommonMark-valid ``~~~`` fence cannot silently suppress scanning of
-    everything after it.
+    A fence starts with three backticks (``` ``` ```) OR three tildes
+    (``~~~``), preceded by zero to three ASCII spaces. Four or more leading
+    spaces are not a fence. Tabs advance indentation to a multiple of four
+    columns, so a tab before the marker also makes the line ineligible.
+    Both fence characters count so that a stray eligible ``~~~`` fence cannot
+    silently suppress scanning of everything after it.
 
     This is the SHARED fence predicate for in-code-block skip loops, so a fence
     toggle is recognized consistently. A toggle is a toggle: this predicate does
     not pair fences by character or match fence widths, consistent with
     :func:`iter_non_code_lines`.
     """
-    stripped = line.lstrip()
-    return stripped.startswith("```") or stripped.startswith("~~~")
+    return re.match(r" {0,3}(?:`{3}|~{3})", line) is not None
 
 
 def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
@@ -437,11 +436,11 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
 
     Fence detection (deliberately simple):
 
-      - A fence is a line whose stripped form starts with three backticks
-        (``` ``` ```) OR three tildes (``~~~``). Both fence characters toggle so
+      - A fence is a line starting with zero to three ASCII spaces followed
+        by three backticks (``` ``` ```) OR three tildes (``~~~``). Both toggle so
         a stray CommonMark-valid ``~~~`` fence cannot silently suppress scanning
         of everything after it.
-      - Indentation before the fence is tolerated.
+      - Four or more indentation columns, including a tab, are not a fence.
       - Fence parsing is a state toggle: every fence line flips ``in_code``.
         Backtick and tilde fences are tracked with ONE toggle, not paired by
         character (a toggle is a toggle; mixed-character fence pairs are not a

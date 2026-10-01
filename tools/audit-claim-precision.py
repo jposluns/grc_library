@@ -64,6 +64,12 @@ import sys
 import hashlib
 from pathlib import Path
 
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+
+from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Directories and files never scanned: working state, assistant config,
@@ -194,12 +200,12 @@ def extract_claims(text):
     out = []
     in_fence = False
     for i, line in enumerate(text.splitlines(), 1):
-        # Fence-awareness (P-1.83 N7, corpus-scan-integrity convention): a line whose
-        # stripped form opens with three backticks or three tildes toggles fenced-code
-        # state; claims INSIDE a code fence are examples, not corpus attributions, so
-        # skip extraction there (both the Tier-A patterns and the cross-cell table row).
-        _fchk = line.lstrip()
-        if _fchk.startswith("```") or _fchk.startswith("~~~"):
+        # Fence-awareness (P-1.83 N7, corpus-scan-integrity convention): a fence line
+        # (the shared ``is_fence_line``: a marker after at most three spaces of indent,
+        # 3b83) toggles fenced-code state; claims INSIDE a code fence are examples, not
+        # corpus attributions, so skip extraction there (both the Tier-A patterns and
+        # the cross-cell table row). A marker indented four or more columns is content.
+        if is_fence_line(line):
             in_fence = not in_fence
             continue
         if in_fence:
@@ -857,6 +863,16 @@ def self_test():
             got = extract_claims(mixed)
             self.assertEqual(len(got), 1, "only the post-fence claim is extracted")
             self.assertEqual(got[0][1], 4, "extracted claim is on line 4 (after the fence)")
+            # 3b83: a marker indented four or more columns is content under the
+            # shared is_fence_line (0-3 space indent), so it neither opens a
+            # phantom block around a real claim nor closes a genuine fence.
+            indented = "    ```\n" + claim + "\n    ```"
+            got = extract_claims(indented)
+            self.assertEqual(len(got), 1, "an indented marker pair must not hide the claim")
+            self.assertEqual(got[0][1], 2, "the claim between indented markers is on line 2")
+            not_closed = "```\n" + claim + "\n    ```\n" + claim
+            self.assertEqual(extract_claims(not_closed), [],
+                             "an indented marker does not close the fence; both claims stay fenced")
 
         def test_two_distinct_claims_on_one_line_both_extracted(self):
             # P-1.83 N7 (part 1): a line attributing DIFFERENT values to DIFFERENT

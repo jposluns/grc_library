@@ -36,8 +36,9 @@ Scope notes:
   accept ``Iterable[str]`` for ``exempt_files`` so callers can pass a
   ``set``, ``frozenset``, or ``list`` interchangeably.
 - ``iter_non_code_lines`` yields ``(lineno, line)`` skipping any line
-  inside a fenced code block (lines bounded by lines beginning with
-  ``` ``` ```). The fence-start and fence-end lines are also skipped.
+  inside a fenced code block (lines bounded by fence lines: ``` ``` ```
+  or ``~~~`` after at most three spaces of indent). The fence-start and
+  fence-end lines are also skipped.
 """
 
 from __future__ import annotations
@@ -1801,12 +1802,21 @@ def strip_code_spans(line: str) -> str:
 def is_fence_line(line: str) -> bool:
     """True if ``line`` is a fenced-code-block delimiter.
 
-    A fence is a line whose left-stripped form starts with three backticks
-    (``` ``` ```) OR three tildes (``~~~``). Leading whitespace is tolerated
-    (CommonMark permits up to a 3-space indent; this is more permissive, which
-    does not matter for the current corpus). Both fence characters count so that
-    a stray CommonMark-valid ``~~~`` fence cannot silently suppress scanning of
-    everything after it (the GR-4 tilde-blindness class).
+    A fence starts with three backticks (``` ``` ```) OR three tildes
+    (``~~~``), preceded by zero to three ASCII spaces (the CommonMark fence
+    indent limit). Four or more leading spaces are not a fence: under
+    CommonMark such a line is indented code, or a paragraph continuation, so
+    it neither opens nor closes a block (3b83). Tabs advance indentation to a
+    multiple of four columns, so a tab before the marker also makes the line
+    ineligible. This is the same rule as the AIQT generic core's
+    ``aiqt_corpus.is_fence_line`` (guardrails PR #324). Container blocks are
+    not modelled: a fence nested in a list item four or more columns in,
+    after a block-quote ``>``, or opened on the list-marker line itself
+    (``- `` then a marker) is not recognized, and a fence CommonMark closes
+    where its container ends stays open to this model until the next
+    recognized fence line. Both fence characters
+    count so that a stray CommonMark-valid ``~~~`` fence cannot silently
+    suppress scanning of everything after it (the GR-4 tilde-blindness class).
 
     This is the SHARED fence predicate the corpus linters use for their
     in-code-block skip loops, so a fence toggle is recognized consistently
@@ -1815,8 +1825,7 @@ def is_fence_line(line: str) -> bool:
     (3.10 (closing PR #937)). A toggle is a toggle: this predicate does not pair fences by
     character or match fence widths, consistent with :func:`iter_non_code_lines`.
     """
-    stripped = line.lstrip()
-    return stripped.startswith("```") or stripped.startswith("~~~")
+    return re.match(r" {0,3}(?:`{3}|~{3})", line) is not None
 
 
 def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
@@ -1826,17 +1835,19 @@ def iter_non_code_lines(text: str) -> Iterator[tuple[int, str]]:
 
     Fence detection (deliberately simple):
 
-      - A fence is a line whose stripped form starts with three
-        backticks (``` ``` ```) OR three tildes (``~~~``). The library
+      - A fence is a line starting with zero to three ASCII spaces
+        followed by three backticks (``` ``` ```) OR three tildes
+        (``~~~``), as :func:`is_fence_line` decides. The library
         convention is backtick fences and no document currently uses
         tilde fences, but a stray CommonMark-valid ``~~~`` fence would
         otherwise silently suppress scanning of everything after it,
         so both fence characters toggle (added with the guardrail
         review's GR-4).
-      - Indentation before the fence is tolerated (``line.strip()``
-        is used). Per CommonMark, fences are valid up to a 3-space
-        indent; this function is more permissive but the difference
-        does not matter for the current corpus.
+      - Up to three spaces of indentation before the fence are
+        tolerated, the CommonMark limit. Four or more indentation
+        columns, including a tab, are not a fence and do not toggle,
+        so an indented backtick pair cannot hide the lines between
+        it from a fence-aware gate (3b83).
       - Fence parsing is a state toggle per fence character: every
         fence line flips ``in_code``. A line containing ``\\`\\`\\``
         inside an inline code block on its own (which is unusual but
@@ -2065,8 +2076,7 @@ def has_todo_index_header(text: str) -> bool:
     """
     in_fence = False
     for line in text.splitlines():
-        st = line.lstrip()
-        if st.startswith("```") or st.startswith("~~~"):
+        if is_fence_line(line):   # 3b83: the shared predicate, not a private copy of it
             in_fence = not in_fence   # F1793-11: skip fenced example tables
             continue
         if in_fence:

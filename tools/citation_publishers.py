@@ -26,8 +26,20 @@ BEGIN = "<!-- BEGIN-GENERATED citation-publishers -->"
 END = "<!-- END-GENERATED citation-publishers -->"
 KEYS = ("publisher", "domains", "covers")
 HOST_RE = re.compile(r"[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+")
-# Any fence-like line naming the block, in ANY fence style (indentation, tildes, longer runs,
-# trailing space), is counted, so a second or non-canonical block cannot be silently ignored.
+# KEPT BROAD ON PURPOSE (3b83 round-4 QA): a fence-like line naming the block, in ANY fence style
+# (indentation, tildes, longer runs, trailing space), is counted, so a second or non-canonical
+# block cannot be silently ignored. This is a fail-closed DETECTOR, not a fence model: under the
+# 3b83 rule a fence TOGGLES only after zero to three spaces of indent (CommonMark; _fence_scan and
+# CLOSE_RE below keep that model), but a detector narrowed to that rule would silently IGNORE a
+# block indented four or more columns, the exact silent miss this regex exists to refuse. Every
+# counted line fails loud: a count other than one raises InputError (opener_line), and a single
+# counted opener must then be the exact canonical unindented opener (block_lines). It is one of
+# the deliberately broad fence screens listed in the pack README's 3b83 entry (another is the
+# approvals-register refusal, _FENCE_LINE_RE in tools/audit-backlog-actionability.py); each
+# matches a fence-shaped line at any indentation (this detector only a line naming the block),
+# and none decides which lines are fenced code (the standards-currency screen, _simple_fences,
+# pairs column-1 fences only to decide whether to refuse the sanction). A regression test pins
+# that a loose opener indented four or more columns, or by a tab, is still counted.
 LOOSE_OPEN_RE = re.compile(r"^[ \t]*(`{3,}|~{3,})[ \t]*json[ \t]+citation-publishers\b.*$")
 CANONICAL_OPEN = "```" + BLOCK_INFO
 CLOSE_RE = re.compile(r"^ {0,3}`{3,}[ \t]*$")

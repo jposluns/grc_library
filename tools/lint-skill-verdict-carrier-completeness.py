@@ -69,10 +69,15 @@ import re
 import sys
 from pathlib import Path
 
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+
+from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MANIFEST = REPO_ROOT / "tools" / "skill-verdict-fields.json"
 
-_FENCE = re.compile(r"^\s*(```|~~~)")
 _HEADING = re.compile(r"^\s{0,3}#")
 _UNIT_MARKER = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
 
@@ -82,8 +87,11 @@ def segment_units(text):
 
     A unit is a list item (with wrapped continuations), a table row, a heading line,
     or a paragraph (a run of lines between blanks). Fenced code and YAML frontmatter
-    are excluded. The unit text joins its lines with single spaces so a multi-line
-    carrier sentence is matched as one string.
+    are excluded; fence lines are what the shared ``lint_common.is_fence_line``
+    recognizes (a marker after at most three spaces of indent, 3b83), so a marker
+    indented four or more columns cannot hide the units after it. The unit text joins
+    its lines with single spaces so a multi-line carrier sentence is matched as one
+    string.
     """
     lines = text.splitlines()
     # strip a leading YAML frontmatter block
@@ -111,7 +119,7 @@ def segment_units(text):
 
     for idx, line in enumerate(lines):
         lineno = idx + 1 + offset
-        if _FENCE.match(line):
+        if is_fence_line(line):
             in_fence = not in_fence
             flush()
             continue
@@ -383,6 +391,11 @@ def _self_test():
     check("exception-contradiction fails",
           {"s.md": "## H\n\n- Every verdict cites the held source `path:line`; a verdict "
                    "without it is rejected.\n"},
+          man([FIELD_WITH_EXC]), 1)
+    # 2b. 3b83: a fence marker indented four or more columns is content under the
+    #     shared is_fence_line, so it cannot hide the defective carrier after it.
+    check("indented marker does not hide a failing carrier",
+          {"s.md": "## H\n\n    ```\n\n- Every verdict cites the quoted passage.\n"},
           man([FIELD_WITH_EXC]), 1)
     # 3. legitimate carrier stating the primary AND its exception passes
     check("carrier with primary and exception passes",

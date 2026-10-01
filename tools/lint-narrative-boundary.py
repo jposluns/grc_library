@@ -281,6 +281,15 @@ def _self_test() -> int:
         mixedfence = root / "mixed-fence.md"
         mixedfence.write_text("# D\n\nExample:\n\n~~~\n```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n~~~\n\nProse.\n")
         expect("outside-mixed-fence-noescape", scan_outside_file(mixedfence, "docs/mixed-fence.md"), None)
+        # 3b83: a marker indented four or more columns is content (the shared 0-3
+        # space indent rule), so it cannot open a block that would hide a later
+        # leak, and inside an open fence it is not a closer.
+        indentleak = root / "indent-leak.md"
+        indentleak.write_text("# D\n\n    ```\n**Document Type:** Executive Narrative\\\n**Audience:** x\\\n\nProse.\n")
+        expect("outside-indented-marker-not-an-opener", scan_outside_file(indentleak, "docs/indent-leak.md"), "outside executive/")
+        indentclose = root / "indent-close.md"
+        indentclose.write_text("# D\n\n```\n    ```\n**Document Type:** Executive Narrative\\\n```\n\nProse.\n")
+        expect("outside-indented-marker-not-a-closer", scan_outside_file(indentclose, "docs/indent-close.md"), None)
         # 3b54b: a file ending inside an open fence fails loud (the remainder, here a
         # real leak, would otherwise go unscanned); a 4-backtick opener is not closed by
         # a 3-backtick line.

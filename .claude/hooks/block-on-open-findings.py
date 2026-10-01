@@ -142,12 +142,22 @@ def _opens_scanned_section(heading_lower: str, section_prefixes: tuple) -> bool:
     return False
 
 
-def _fence_run(stripped: str):
+# A fence-ELIGIBLE line sits at 0-3 spaces of indent (the CommonMark limit, the same rule as the
+# repo's shared fence predicate, grc 3b83): a marker indented four or more columns, or behind a
+# tab, is content, so it neither opens a fence nor closes one. Callers test the RAW line with this
+# before reading the stripped line's run.
+_FENCE_ELIGIBLE_RE = re.compile(r" {0,3}[`~]")
+
+
+def _fence_run(line: str, stripped: str):
     """PURE. If the line begins a code fence, return (char, length) where char is `` ` `` or `~` and
-    length is the run of that char (>= 3); else None. CommonMark-aware fence tracking (codex QA
-    #1996): the OPENER records its char and length, and a line CLOSES it only when it is the same
-    char, at least as long, and bare (no info string). This keeps a `~~~` line inside a ``` fence
-    from closing it, AND a three-backtick line inside a four-backtick fence from closing it."""
+    length is the run of that char (>= 3); else None (also None for a line that is not fence-ELIGIBLE:
+    indented four or more columns, or behind a tab, per `_FENCE_ELIGIBLE_RE`; grc 3b83). CommonMark-aware
+    fence tracking (codex QA #1996): the OPENER records its char and length, and a line CLOSES it only
+    when it is the same char, at least as long, and bare (no info string). This keeps a `~~~` line inside
+    a ``` fence from closing it, AND a three-backtick line inside a four-backtick fence from closing it."""
+    if not _FENCE_ELIGIBLE_RE.match(line):
+        return None
     for ch in ("`", "~"):
         if stripped.startswith(ch * 3):
             return (ch, len(stripped) - len(stripped.lstrip(ch)))
@@ -158,8 +168,9 @@ def _fence_closes(run, fence, stripped: str) -> bool:
     """PURE. Does this fence-run line CLOSE the open `fence` (char, length)? Same char, length >=
     opener, AND BARE, meaning the run spans the whole stripped line so there is no info string
     (codex/gemini QA #1996: ``` ```python ``` closes nothing; a CommonMark closing fence carries no
-    info string). RESIDUE (accepted): four-space-indented and backtick-in-info-string openers are not
-    modelled (callers pass ``line.strip()``); the operational ledger uses column-0 bare fences."""
+    info string). An indented (4+ columns) marker yields run=None (grc 3b83) and so never closes.
+    RESIDUE (accepted): backtick-in-info-string openers and container blocks are not modelled; the
+    operational ledger uses column-0 bare fences."""
     return (fence is not None and run is not None and run[0] == fence[0]
             and run[1] >= fence[1] and run[1] == len(stripped))
 
@@ -183,7 +194,7 @@ def _parse_rows_full(text: str, section_prefixes: tuple) -> list:
     fence = None
     for line in text.splitlines():
         stripped = line.strip()
-        run = _fence_run(stripped)
+        run = _fence_run(line, stripped)
         if fence is not None:
             if _fence_closes(run, fence, stripped):
                 fence = None
@@ -256,7 +267,7 @@ def misfiled_finding_rows(text: str, section_prefixes: tuple = ("## open", "## c
     current = None
     for i, line in enumerate(text.splitlines(), start=1):
         stripped = line.strip()
-        run = _fence_run(stripped)
+        run = _fence_run(line, stripped)
         if fence is not None:
             if _fence_closes(run, fence, stripped):
                 fence = None
@@ -1103,6 +1114,28 @@ def self_test() -> int:
        any("after an info-string line inside a fence" in x for x in mf_if), False)
     ck("part-2b iter3: the row after the true (bare) fence close IS flagged",
        any("after the true fence close" in x for x in mf_if), True)
+
+    # --- grc 3b83: a marker indented four or more columns is content, not a fence. ---
+    mf_indent = (
+        "## Disposition values\n"
+        "    ```\n"
+        "| 2026-09-03 | error | a preamble row after an indented marker | probe | FIXED #1 |\n"
+        "```\n"
+        "| 2026-09-03 | error | a fenced row under a real opener | probe | FIXED #2 |\n"
+        "    ```\n"
+        "| 2026-09-03 | error | a row after an indented non-closer | probe | FIXED #3 |\n"
+        "```\n"
+        "## Open\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+    )
+    mf_in = [ln for (_l, _s, ln) in misfiled_finding_rows(mf_indent)]
+    ck("3b83: an indented (4-space) marker does NOT open a fence (the row after it IS flagged)",
+       any("after an indented marker" in x for x in mf_in), True)
+    ck("3b83: a row under the real opener stays fenced (not flagged)",
+       any("a fenced row under a real opener" in x for x in mf_in), False)
+    ck("3b83: an indented marker does NOT close the open fence (the row after it stays fenced)",
+       any("after an indented non-closer" in x for x in mf_in), False)
 
     # P-1.70 (#2094): regression-test the BLOCKING branches of decide_exit directly, not just
     # the misfiled DETECTOR (codex #2094 vpr F2). Clean ledger allows (0); an undispositioned

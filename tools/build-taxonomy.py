@@ -23,6 +23,12 @@ import re
 import sys
 from pathlib import Path
 
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+
+from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TAXONOMY = REPO_ROOT / "taxonomy.yml"
 
@@ -235,11 +241,14 @@ def extract_purpose(text: str) -> str:
 
 def extract_sections(text: str) -> list[str]:
     """Return the ordered ``## `` section headings (the outline that proves the
-    document's depth without dumping its body). Skips fenced code blocks."""
+    document's depth without dumping its body). Skips fenced code blocks via the
+    shared ``is_fence_line`` toggle (3b83: the private copy here was backtick-only
+    and accepted any indentation; the shared predicate also toggles on tilde
+    fences and ignores a marker indented four or more columns)."""
     out: list[str] = []
     in_fence = False
     for ln in text.splitlines():
-        if ln.lstrip().startswith("```"):
+        if is_fence_line(ln):
             in_fence = not in_fence
             continue
         if in_fence:

@@ -3,15 +3,28 @@
 
 [source]
 repo = "jposluns/guardrails"
-commit = "29d61c055b5a606617693241d36b5df3f6bb77cc"   # pack #202: ship aiqt_corpus generic core
-pack_version = "1.0.0"   # main VERSION; aiqt_corpus is bound for 1.1.0 (interim pin, see note below)
+commit = "a3ff734ca855e4363f340eca52fbd87272c51854"   # merge of pack #370; carries 0f020c6 (is_fence_line honours the 0-3 space indent, grc 3b83)
+pack_version = "1.0.5"   # main VERSION at the pinned commit (its CHANGELOG release entry is 1.0.5, 2026-09-15); no release tag contains the pinned commit
 
 [module]
 path = "tools/aiqt_corpus.py"
-sha256 = "09353ed2bd671d243130a1f5cf158be30e9027ddc08af88c3ba1ea38b2728d34"
-bytes = 19503
+sha256 = "d263897ff93e84e73c509b373e59669a07767e5795618475a1628ea4657e2a47"
+bytes = 19517
 
-# INTERIM PIN. aiqt_corpus.py landed on the pack main AFTER the 1.0.0 release and is not yet in a
-# released, ROOT-digest-published manifest (it is bound for 1.1.0). This pin is to the pack COMMIT
-# plus the .aiqt/manifest.toml sha256 verified at source 2026-09-05. Re-pin to the 1.1.0 published
-# root-digest manifest (posluns.dev) when 1.1.0 releases; guardrails will ship aiqt_corpus in it.
+# INTERIM PIN to the pack COMMIT: the PINNED BYTES of aiqt_corpus.py (the sha256 above) are in no
+# tagged, root-digest-published guardrails release. The pack's 1.0.5 release manifest (commit
+# c5d77b08, release-version = "1.0.5") lists an EARLIER aiqt_corpus.py
+# (sha256 09353ed2bd671d243130a1f5cf158be30e9027ddc08af88c3ba1ea38b2728d34, 19503 bytes), which
+# predates the 0f020c6 fence fix this pin carries. The release is identified by the COMMIT
+# c5d77b08 (its subject ends "skill+pack 1.0.5"; untagged), NOT by the version string: later
+# untagged main commits, including the pinned a3ff734c, also declare release-version = "1.0.5" in
+# their .aiqt/manifest.toml (a3ff734c's manifest lists the pinned bytes above), so the version
+# string alone does not identify the release. (This supersedes the 2026-09-05 note that bound
+# the module to a 1.1.0 release; nothing at the pinned commit ties it to a 1.1.x version, its
+# ROADMAP says only "1.1.0, in development".)
+# 2026-10-01 (grc 3b83, maintainer ruling 01:03Z): re-pinned 29d61c05 to a3ff734c for 0f020c6.
+# Verified 2026-10-01 against a local clone of jposluns/guardrails at a3ff734c: the vendored module
+# is byte-identical to that commit's tools/aiqt_corpus.py, the sha256 and byte count above match
+# that commit's .aiqt/manifest.toml entry, and VERSION there is 1.0.5. guardrails will cut its
+# first tagged release after its OPF restructure and notify grc; re-pin to that release's published
+# root-digest manifest (posluns.dev) then.
