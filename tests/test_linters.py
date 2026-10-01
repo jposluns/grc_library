@@ -2216,6 +2216,389 @@ class VersionBumpRecencyTests(LinterTestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def _recency_bom_repo(self, commits: list[dict[str, str]]) -> Path:
+        """A throwaway git repo with one commit per mapping of relative path to text (3b89)."""
+        import shutil
+        import subprocess as sp
+        import tempfile
+
+        tmp = Path(tempfile.mkdtemp(prefix="lint-recency-bom-"))
+        self.addCleanup(shutil.rmtree, tmp, True)
+        sp.run(["git", "init", "-q", "-b", "main", str(tmp)], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.email", "test@test"], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "user.name", "Test"], check=True)
+        for n, files in enumerate(commits):
+            for rel, text in files.items():
+                # 3b89 round 2: fixtures now sit under .claude/, references/, node_modules/.
+                (tmp / rel).parent.mkdir(parents=True, exist_ok=True)
+                (tmp / rel).write_text(text, encoding="utf-8")
+            sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
+            sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", f"commit {n}"], check=True)
+        return tmp
+
+    def _run_recency_bom(self, root: Path, *paths: str):
+        import subprocess as sp
+
+        return sp.run(
+            [sys.executable, str(REPO_ROOT / "tools/lint-version-bump-recency.py"),
+             "--root", str(root), *paths],
+            capture_output=True, text=True, cwd=str(root),
+        )
+
+    def test_bom_prefixed_version_on_line_1_refused_not_skipped(self) -> None:
+        # P-TODO 3b89: a UTF-8 BOM before a line-1 **Version:** made head_version return None,
+        # so the document left scope silently and a body change without a bump passed (exit 0).
+        bom = "\ufeff"
+        meta = "**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n# Doc\n\n"
+        root = self._recency_bom_repo([
+            {
+                "doc.md": bom + meta + "Original body.\n",
+                "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+            },
+            {"doc.md": bom + meta + "Modified body without a Version bump.\n"},
+        ])
+        result = self._run_recency_bom(root)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        fails = [line for line in result.stdout.splitlines() if line.startswith("FAIL ")]
+        self.assertEqual(len(fails), 1, result.stdout)
+        self.assertTrue(fails[0].startswith("FAIL doc.md: "), fails)
+        self.assertIn("byte-order mark", fails[0])
+        self.assertIn("1 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr)
+
+    def test_bom_refusal_covers_exempt_and_unversioned_files_but_not_mid_text_feff(self) -> None:
+        # 3b89: the refusal precedes the recency exemptions and the Version filter (a BOM hides
+        # the Version itself), applies to explicit paths too, and only a LEADING U+FEFF is a BOM.
+        bom = "\ufeff"
+        root = self._recency_bom_repo([{
+            "CHANGELOG.md": bom + "# Changelog\n",
+            "notes.md": bom + "# Notes\n\nNo metadata here.\n",
+            "mid.md": "# Mid\n\n**Version:** 1.0.0\\\n\nA zero-width" + bom + "no-break space.\n",
+        }])
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
+        refused = sorted(
+            line.split(":", 1)[0] for line in walk.stdout.splitlines() if line.startswith("FAIL ")
+        )
+        self.assertEqual(refused, ["FAIL CHANGELOG.md", "FAIL notes.md"], walk.stdout)
+        explicit = self._run_recency_bom(root, str(root / "notes.md"))
+        self.assertEqual(explicit.returncode, 1, explicit.stdout + explicit.stderr)
+        self.assertIn("FAIL notes.md: ", explicit.stdout)
+        mid = self._run_recency_bom(root, str(root / "mid.md"))
+        self.assertEqual(mid.returncode, 0, mid.stdout + mid.stderr)
+        self.assertIn("OK: 1 versioned document(s) scanned", mid.stdout)
+
+    def test_bom_refusal_covers_recency_exempt_directories(self) -> None:
+        # 3b89 round 2 (r1 codex F1 / claude F1): the walk applied the recency-only
+        # DEFAULT_EXEMPT_DIRS skip before the BOM check, so a BOM file under .claude/ or
+        # references/, trees the push-time checks D2 and D4 DO read, was never refused.
+        # Round 3 (r2 codex F2 / claude F1): the BOM scope covers the D2/D4 markdown scope
+        # and is a superset of it. It applies only the directory exclusions those gates
+        # share (.corpus-management/, .git/, node_modules/, __pycache__/, each at the
+        # repository root), not their per-file EXEMPT_FILES, so a BOM CHANGELOG.md is
+        # refused too (test_bom_refusal_covers_exempt_and_unversioned_files_...).
+        bom = "\ufeff"
+        root = self._recency_bom_repo([{
+            ".claude/skills/x/SKILL.md": bom + "**Version:** 1.0.0\\\n\n# Skill\n\nBody.\n",
+            "references/ops.md": bom + "# Ops\n\nNo metadata here.\n",
+            "node_modules/pkg/README.md": bom + "# Pkg\n",
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
+        refused = sorted(
+            line.split(":", 1)[0] for line in walk.stdout.splitlines() if line.startswith("FAIL ")
+        )
+        self.assertEqual(
+            refused, ["FAIL .claude/skills/x/SKILL.md", "FAIL references/ops.md"], walk.stdout,
+        )
+        self.assertIn("2 markdown file(s) begin with a UTF-8 byte-order mark", walk.stderr)
+
+    def test_bom_walk_and_explicit_path_modes_agree(self) -> None:
+        # 3b89 round 2: quick-guard.sh passes changed files explicitly while CI walks, so
+        # both modes classify through the same function and must give any path the same
+        # verdict: a BOM file under a recency-exempt tree is refused in both, one under a
+        # shared D2/D4 exclusion is out of scope in both, and a non-BOM file under a
+        # recency-exempt tree is a recency target in neither (its stale body is not a
+        # finding on either surface).
+        bom = "\ufeff"
+        meta = "**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n# Doc\n\n"
+        root = self._recency_bom_repo([
+            {
+                ".claude/CLAUDE.md": bom + "# Config\n",
+                "node_modules/pkg/README.md": bom + "# Pkg\n",
+                "references/versioned.md": meta + "Original body.\n",
+            },
+            {"references/versioned.md": meta + "Modified body without a Version bump.\n"},
+        ])
+        walk = self._run_recency_bom(root)
+        explicit = self._run_recency_bom(
+            root,
+            str(root / ".claude/CLAUDE.md"),
+            str(root / "node_modules/pkg/README.md"),
+            str(root / "references/versioned.md"),
+        )
+        for mode, result in (("walk", walk), ("explicit", explicit)):
+            self.assertEqual(result.returncode, 1, mode + ": " + result.stdout + result.stderr)
+            fails = [line.split(":", 1)[0] for line in result.stdout.splitlines()
+                     if line.startswith("FAIL ")]
+            self.assertEqual(fails, ["FAIL .claude/CLAUDE.md"], mode + ": " + result.stdout)
+            self.assertIn(
+                "1 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr, mode,
+            )
+
+    def test_bom_symlink_gets_the_same_verdict_in_both_modes(self) -> None:
+        # 3b89 round 3 (r2 codex F1): explicit mode resolved a symlink before classifying
+        # it while the walk classified the link's own path, so a BOM link.md pointing into
+        # node_modules/ failed the walk (exit 1) and passed an explicit run (exit 0). Both
+        # modes now take the stricter reading: a link is refused when EITHER its own path
+        # or its target lies in the BOM scope, and is reported under its own name. The
+        # links are left untracked: the BOM check reads the filesystem, not the index.
+        bom = "\ufeff"
+        root = self._recency_bom_repo([{
+            "node_modules/pkg/payload.md": bom + "# Payload\n",
+            "target.md": bom + "# Target\n",
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        (root / "link.md").symlink_to("node_modules/pkg/payload.md")
+        (root / "node_modules/back.md").symlink_to("../target.md")
+        walk = self._run_recency_bom(root)
+        explicit = self._run_recency_bom(root, *(
+            str(root / rel) for rel in
+            ("link.md", "node_modules/back.md", "target.md", "node_modules/pkg/payload.md")
+        ))
+        for mode, result in (("walk", walk), ("explicit", explicit)):
+            self.assertEqual(result.returncode, 1, mode + ": " + result.stdout + result.stderr)
+            fails = sorted(line.split(":", 1)[0] for line in result.stdout.splitlines()
+                           if line.startswith("FAIL "))
+            self.assertEqual(
+                fails, ["FAIL link.md", "FAIL node_modules/back.md", "FAIL target.md"],
+                mode + ": " + result.stdout,
+            )
+            self.assertIn(
+                "3 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr, mode,
+            )
+        # The link alone, given relative to the cwd as quick-guard.sh passes a changed file:
+        # refused under its own name, where it used to pass.
+        alone = self._run_recency_bom(root, "link.md")
+        self.assertEqual(alone.returncode, 1, alone.stdout + alone.stderr)
+        self.assertIn("FAIL link.md: ", alone.stdout)
+
+    def test_bom_scope_exclusions_are_root_anchored_in_both_modes(self) -> None:
+        # 3b89 round 3 (r2 claude F2): the shared D2/D4 directory exclusions are anchored
+        # at the repository root, as the gates' path.startswith(prefix) is. A pin, not a
+        # fix: the pre-round-3 code anchored them the same way, so this test passes
+        # before and after round 3 and exists to catch a future de-anchoring (r3 claude
+        # N3). D2 and D4 read a nested docs/node_modules/ file, so a BOM file there is
+        # refused in both modes; a BOM file under the root .corpus-management/ is out of
+        # scope in both modes.
+        bom = "\ufeff"
+        root = self._recency_bom_repo([{
+            "docs/node_modules/x.md": bom + "# Nested\n",
+            ".corpus-management/x.md": bom + "# Store\n",
+        }])
+        walk = self._run_recency_bom(root)
+        explicit = self._run_recency_bom(
+            root, str(root / "docs/node_modules/x.md"), str(root / ".corpus-management/x.md"),
+        )
+        for mode, result in (("walk", walk), ("explicit", explicit)):
+            self.assertEqual(result.returncode, 1, mode + ": " + result.stdout + result.stderr)
+            fails = [line.split(":", 1)[0] for line in result.stdout.splitlines()
+                     if line.startswith("FAIL ")]
+            self.assertEqual(fails, ["FAIL docs/node_modules/x.md"], mode + ": " + result.stdout)
+            self.assertIn(
+                "1 markdown file(s) begin with a UTF-8 byte-order mark", result.stderr, mode,
+            )
+
+    def test_dangling_symlink_walk_skips_but_explicit_mode_refuses(self) -> None:
+        # 3b89 round 3 (r3 claude N2 / codex F1): a pinned, documented divergence, not a
+        # fix. The walk's classify_markdown skips a dangling link (is_file is False), so
+        # a tree holding one still walks clean; explicit mode never reaches
+        # classification, because guard_explicit_paths_cwd refuses the missing resolved
+        # target with exit 2. The guard's refusal predates round 3 and fails closed, so
+        # it stays; this test passes before and after round 3 and pins both sides.
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        (root / "l_dang.md").symlink_to("nope.md")
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 0, walk.stdout + walk.stderr)
+        self.assertIn("OK: 1 versioned document(s) scanned", walk.stdout)
+        explicit = self._run_recency_bom(root, "l_dang.md")
+        self.assertEqual(explicit.returncode, 2, explicit.stdout + explicit.stderr)
+        self.assertIn("does not exist", explicit.stderr)
+        self.assertNotIn("FAIL", explicit.stdout)
+
+    def test_link_to_bom_file_outside_root_walk_fails_explicit_mode_refuses(self) -> None:
+        # 3b89 round 3 (r3 claude N2 / codex F1): the other divergent symlink class,
+        # pinned, not fixed. An in-root link to a BOM file OUTSIDE --root is in the BOM
+        # scope under its own name, so the walk refuses it (FAIL l_out.md, exit 1);
+        # explicit mode exits 2 first, guard_explicit_paths_cwd refusing the resolved
+        # outside target. Both verdicts are refusals; explicit mode's is the stricter,
+        # fail-closed one, and it predates round 3 and stays.
+        import shutil
+        import tempfile
+
+        bom = "\ufeff"
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        outside = Path(tempfile.mkdtemp(prefix="lint-recency-bom-outside-"))
+        self.addCleanup(shutil.rmtree, outside, True)
+        (outside / "ext.md").write_text(bom + "# Outside\n", encoding="utf-8")
+        (root / "l_out.md").symlink_to(outside / "ext.md")
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
+        fails = [line.split(":", 1)[0] for line in walk.stdout.splitlines()
+                 if line.startswith("FAIL ")]
+        self.assertEqual(fails, ["FAIL l_out.md"], walk.stdout)
+        self.assertIn("1 markdown file(s) begin with a UTF-8 byte-order mark", walk.stderr)
+        explicit = self._run_recency_bom(root, "l_out.md")
+        self.assertEqual(explicit.returncode, 2, explicit.stdout + explicit.stderr)
+        self.assertIn("outside this linter's tree", explicit.stderr)
+        self.assertNotIn("FAIL", explicit.stdout)
+
+    def test_explicit_symlink_is_recency_queried_under_its_own_name(self) -> None:
+        # 3b89 round 3 (r3 claude N1): classifying an explicit symlink as named also
+        # changes which recency history it queries. Pre-round-3 explicit mode resolved
+        # the link first, so a link argument to a stale versioned document reported
+        # FAIL under the TARGET's name (exit 1 here). Now the link is recency-queried
+        # under its own name, exactly as the walk queries it: the untracked link
+        # docs/l_v2.md has no history of its own and is skipped, and .claude/l_v.md is
+        # skipped by the recency-exempt parts check on its own spelling, so the
+        # explicit run exits 0. The stale target itself is still caught whenever it is
+        # walked or named directly. Fails on the pre-round-3 code (exit 1, not 0).
+        meta = "**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\n# Doc\n\n"
+        root = self._recency_bom_repo([
+            {"docs/v.md": meta + "Original body.\n"},
+            {"docs/v.md": meta + "Modified body without a Version bump.\n"},
+        ])
+        (root / "docs/l_v2.md").symlink_to("v.md")
+        (root / ".claude").mkdir()
+        (root / ".claude/l_v.md").symlink_to("../docs/v.md")
+        explicit = self._run_recency_bom(root, "docs/l_v2.md", ".claude/l_v.md")
+        self.assertEqual(explicit.returncode, 0, explicit.stdout + explicit.stderr)
+        self.assertNotIn("FAIL", explicit.stdout)
+        self.assertIn("OK: 1 versioned document(s) scanned", explicit.stdout)
+        direct = self._run_recency_bom(root, "docs/v.md")
+        self.assertEqual(direct.returncode, 1, direct.stdout + direct.stderr)
+        self.assertIn("FAIL docs/v.md: ", direct.stdout)
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
+        # The walk's COMPLETE failure set, exactly (3b89 round 5, r4 codex F3): a walk
+        # that resolved the links before querying would report the stale target's
+        # history under docs/l_v2.md too, and an assertIn would still pass.
+        walk_fails = [line.split(":", 1)[0] for line in walk.stdout.splitlines()
+                      if line.startswith("FAIL ")]
+        self.assertEqual(walk_fails, ["FAIL docs/v.md"], walk.stdout)
+
+    def test_symlink_loop_is_a_finding_never_a_crash_or_skip(self) -> None:
+        # 3b89 round 5 (r4 gemini): node_modules/loop.md -> loop.md is out of the BOM
+        # scope by its own path, so classify_markdown resolved it; non-strict resolve()
+        # raises on a loop through Python 3.12 (CI runs 3.11), crashing the walk, and
+        # on 3.13+ returns the loop unresolved, where is_file() is False and the walk
+        # skipped it silently. The gate now detects a loop by its stat errno (ELOOP,
+        # version-independent) and refuses it as a finding: never a crash, never a skip.
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        (root / "node_modules").mkdir()
+        (root / "node_modules/loop.md").symlink_to("loop.md")
+        (root / "l_loop.md").symlink_to("node_modules/loop.md")
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 1, walk.stdout + walk.stderr)
+        self.assertNotIn("Traceback", walk.stderr)
+        fails = sorted(line.split(":", 1)[0] for line in walk.stdout.splitlines()
+                       if line.startswith("FAIL "))
+        self.assertEqual(fails, ["FAIL l_loop.md", "FAIL node_modules/loop.md"], walk.stdout)
+        self.assertIn("2 markdown path(s) are symlink loops", walk.stderr)
+        # An explicit loop argument never reaches classification: the guard cannot
+        # resolve it to an existing path inside --root and the run exits 2 (fail
+        # closed; the message is version-dependent, so only the channel is pinned).
+        explicit = self._run_recency_bom(root, "node_modules/loop.md")
+        self.assertEqual(explicit.returncode, 2, explicit.stdout + explicit.stderr)
+        self.assertNotIn("FAIL", explicit.stdout)
+        self.assertNotIn("Traceback", explicit.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_unreadable_directory_fails_the_walk_closed(self) -> None:
+        # 3b89 round 5 (r4 gemini): Path.rglob suppresses the traversal error on an
+        # existing-but-unlistable directory, so a BOM file inside one passed unseen
+        # (fail open; main behaved the same). The walk now uses os.walk with a raising
+        # onerror, the guardrails tools/_walk.py pattern, and exits 2 naming the
+        # directory instead of reporting OK over a subtree it never read. Round 6:
+        # the message says "path", not "directory" (r5 claude F2: the same handler
+        # fires for an unreadable regular file, so the old wording called a file a
+        # directory).
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+            "docs/hidden/doc.md": "\ufeff# Hidden\n",
+        }])
+        (root / "docs/hidden").chmod(0o000)
+        self.addCleanup((root / "docs/hidden").chmod, 0o755)
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 2, walk.stdout + walk.stderr)
+        self.assertIn("cannot read a path", walk.stderr)
+        self.assertIn("docs/hidden", walk.stderr)
+        self.assertNotIn("OK:", walk.stdout)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores directory permission bits")
+    def test_unsearchable_directory_child_fails_closed_in_both_modes(self) -> None:
+        # 3b89 round 6 (r5 claude F1 / codex F1): a directory with read but not
+        # execute permission (mode 0444) is listable, so os.walk's raising onerror
+        # never fires; stat on each child then fails with EACCES, which is_file()
+        # swallowed, so a BOM file inside classified as a skip and the walk
+        # reported OK over it (fail open). classify_markdown's fail-closed stat
+        # now raises on any stat error other than ENOENT and the walk exits 2
+        # naming the child. Explicit mode fails closed too: the guard cannot stat
+        # the argument, so it refuses it with exit 2 (the guard's message is
+        # version-dependent, exists() raising through Python 3.12 and returning
+        # False on 3.13+, so only the exit code, the absence of a verdict and the
+        # absence of a traceback are pinned on that side).
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+            "docs/hidden/doc.md": "\ufeff# Hidden\n",
+        }])
+        (root / "docs/hidden").chmod(0o444)
+        self.addCleanup((root / "docs/hidden").chmod, 0o755)
+        walk = self._run_recency_bom(root)
+        self.assertEqual(walk.returncode, 2, walk.stdout + walk.stderr)
+        self.assertIn("cannot read a path", walk.stderr)
+        self.assertIn("docs/hidden/doc.md", walk.stderr)
+        self.assertNotIn("OK:", walk.stdout)
+        self.assertNotIn("Traceback", walk.stderr)
+        explicit = self._run_recency_bom(root, "docs/hidden/doc.md")
+        self.assertEqual(explicit.returncode, 2, explicit.stdout + explicit.stderr)
+        self.assertNotIn("FAIL", explicit.stdout)
+        self.assertNotIn("OK:", explicit.stdout)
+        self.assertNotIn("Traceback", explicit.stderr)
+
+    @unittest.skipIf(os.geteuid() == 0, "root ignores file permission bits")
+    def test_unreadable_regular_file_fails_closed_in_both_modes(self) -> None:
+        # 3b89 round 6 (r5 claude F2): a regular file at mode 000 passes the stat
+        # (stat needs only search permission on the parents) and fails at read.
+        # The walk already exited 2, but through a message that called the file a
+        # directory; explicit mode let the PermissionError escape as a traceback
+        # with exit 1, the findings code. Both modes now exit 2 through the one
+        # "cannot read a path" handler, with no traceback.
+        root = self._recency_bom_repo([{
+            "clean.md": "# Clean\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+            "sealed.md": "# Sealed\n\n**Version:** 1.0.0\\\n**Date:** 2026-06-20\\\n\nBody.\n",
+        }])
+        (root / "sealed.md").chmod(0o000)
+        self.addCleanup((root / "sealed.md").chmod, 0o644)
+        for mode, result in (
+            ("walk", self._run_recency_bom(root)),
+            ("explicit", self._run_recency_bom(root, "sealed.md")),
+        ):
+            self.assertEqual(result.returncode, 2, mode + ": " + result.stdout + result.stderr)
+            self.assertIn("cannot read a path", result.stderr, mode)
+            self.assertIn("sealed.md", result.stderr, mode)
+            self.assertNotIn("Traceback", result.stderr, mode)
+            self.assertNotIn("FAIL", result.stdout, mode)
+            self.assertNotIn("OK:", result.stdout, mode)
+
 
 class DateCobumpOnPrTests(LinterTestCase):
     """tools/check-date-cobump-on-pr.py (delta gate D4).
@@ -23384,6 +23767,56 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         self.stack.enter_context(patch.object(Path, "read_text", read))
         self.stack.enter_context(patch.object(Path, "open", open_file))
 
+        # 3b89 rounds 5-6: lint-version-bump-recency's walk moved from
+        # Path.rglob (virtualized above) to os.walk with a raising onerror
+        # (round 5), and its classifier now stats every markdown path through
+        # Path.stat, failing closed on any stat error other than ENOENT
+        # (round 6). The virtual tree must answer both, or the production
+        # selector under test sees only the real, empty filesystem: os.walk
+        # yields the virtual directories for a virtual top (a readable tree,
+        # so the raising onerror stays unused, as on a real readable tree),
+        # and Path.stat returns a synthetic regular-file or directory result
+        # for a virtual path, with ENOENT for one that is neither.
+        import errno as errno_module
+        import stat as stat_module
+
+        original_walk = os.walk
+
+        def walk(top, *args, **kwargs):
+            top_path = Path(top)
+            if not virtual(top_path):
+                return original_walk(top, *args, **kwargs)
+
+            def virtual_walk():
+                for d in sorted(self.dirs, key=lambda q: q.as_posix()):
+                    if d != top_path and top_path not in d.parents:
+                        continue
+                    yield (
+                        str(d),
+                        sorted(c.name for c in self.dirs if c.parent == d and c != d),
+                        sorted(f.name for f in self.data if f.parent == d),
+                    )
+
+            return virtual_walk()
+
+        self.stack.enter_context(patch.object(os, "walk", walk))
+        original_stat = Path.stat
+
+        def stat_virtual(p, *a, _old=original_stat, **kw):
+            if not virtual(p):
+                return _old(p, *a, **kw)
+            if p in self.data:
+                mode = stat_module.S_IFREG | 0o644
+            elif p in self.dirs:
+                mode = stat_module.S_IFDIR | 0o755
+            else:
+                raise FileNotFoundError(
+                    errno_module.ENOENT, "No such file or directory", str(p))
+            return os.stat_result(
+                (mode, 0, 0, 1, 0, 0, len(self.data.get(p, "")), 0, 0, 0))
+
+        self.stack.enter_context(patch.object(Path, "stat", stat_virtual))
+
     def load(self, name):
         import types
 
@@ -23419,6 +23852,16 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
             if hasattr(m, "EXCLUDE_DIRS"):
                 stack.enter_context(self.patch.object(
                     m, "EXCLUDE_DIRS", m.EXCLUDE_DIRS - {self.PACK.rstrip("/")},
+                ))
+            # 3b89: lint-version-bump-recency's BOM scope shares the D2/D4 pack
+            # exclusion through its own root-anchored set, and its classifier
+            # skips an out-of-scope path before the recency filters, so the
+            # baseline must lift the pack entry here exactly as it lifts
+            # EXEMPT_PREFIXES and EXCLUDE_DIRS for the other selectors.
+            if hasattr(m, "BOM_SCOPE_EXEMPT_DIRS"):
+                stack.enter_context(self.patch.object(
+                    m, "BOM_SCOPE_EXEMPT_DIRS",
+                    m.BOM_SCOPE_EXEMPT_DIRS - {self.PACK.rstrip("/")},
                 ))
         return stack
 
