@@ -142,7 +142,50 @@ highest PR, because after the synchronous cutover its QA rows are written pre-me
 own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
 permits a plain merge is recorded honestly rather than forced to keep reading
-`--admin`. An empty or absent log no-ops rather than flagging the whole history.
+`--admin`. An empty or absent log no-ops rather than flagging the whole history. One
+exemption (3b145, VERIFY ONLINE / FAIL CLOSED, maintainer ruling 2026-10-01 12:49Z): the
+branch's DECLARED OWN PR (the store-scope declaration below) is skipped even when it is
+not the highest number, because a rebased branch carries the headers of PRs that merged
+after its own was opened, so its own unmerged PR falls below ``max_pr`` while its bypass
+row records a post-merge fact the branch cannot have yet. Exactly that one PR, and only
+when ALL of the following hold: the offline declaration is certain; its declaring root
+header is the SINGULAR form (``own_pr_singular_header``: the compact
+``**date | version | PR #N**`` or legacy ``## date, Library Version X, PR #N`` shape; a
+weekly roll-up or a range that happens to parse to one PR never qualifies); the origin
+remote parses as a github.com remote (the one host this repository's gh is configured
+for), with gh pointed at that host THREE ways (round-3 codex R3-01 / claude F1: a
+hostless ``--repo owner/repo`` resolves against gh's DEFAULT host, which ``GH_HOST``
+can repoint at an enterprise server carrying a same-named repository, and no identity
+field below names a host): the explicit host-carrying ``--repo
+github.com/<owner>/<repo>`` (gh's HOST/OWNER/REPO form), ``GH_HOST=github.com`` pinned
+in the gh subprocess environment over a copy of this process's environment, and the
+answer's ``url`` required to begin ``https://github.com/<owner>/<repo>/pull/<N>`` (the
+one returned field that names a host); and ``gh pr view <N> --repo
+github.com/<owner>/<repo> --json
+state,headRefName,isCrossRepository,headRepositoryOwner,headRepository,url``
+(``verify_own_pr_open``, bounded by a short timeout) reports the PR OPEN, with its head
+branch equal to the current branch, AND with the origin repository itself as its head
+repository (``isCrossRepository`` exactly false, ``headRepositoryOwner.login`` and
+``headRepository.name`` equal to origin's owner and name): a branch name alone
+identifies no repository, so a fork PR with the same branch name keeps the demand
+(round-2 codex R2-01 / claude F1). Anything else -- no declaration, a roll-up or range
+header, a non-github.com or unparsable origin (round-2 codex R2-02 / claude F2), no gh,
+a network or API error, a timeout, unparsable output, duplicate or conflicting JSON keys
+(refused by a duplicate-raising ``object_pairs_hook``, round-2 codex R2-03), a CLOSED or
+MERGED state, a cross-repository flag, a head-repository mismatch, a PR url under any
+other host, repository or number (round-3 codex R3-01), a head-branch mismatch, an
+exception raised by the check itself (converted to a printed refusal, never a crash;
+round-3 claude F4), any other uncertainty -- keeps the demand and prints why. The online
+call is lazy (it runs only when the exemption would actually bite: the own PR is
+in-window with no row) and injectable (``_gh_runner``): the in-process tests replace
+that seam, the corpus smoke test substitutes it inside its own subprocess before
+calling ``main`` (round-3 claude F2), and the remaining live-CLI fixture keeps its
+declared own PR at the window ceiling, excluded before the lazy call, so tests never
+touch the network. Gate 50
+itself DOES run in public CI; it is Check 6, and with it any online call, that never
+runs there, because this check reads the maintainer-only merge-bypass log, which public
+CI and adopter clones do not have, so they skip the whole check. That store-local
+design is deliberate and unchanged.
 
 **Store scope (rows and Check 3; maintainer ruling 2026-09-30 17:07Z, option B,
 simplified 21:03Z).** The operational store is shared by every open branch, so the
@@ -185,8 +228,13 @@ the own entry, where it can defer the lines below it. Likewise, an open PR's hea
 carried onto a stacked branch that has not yet written its own entry reads offline
 as the own entry and declares, so that branch's own records can defer until it
 writes one. Both residues are loud, because every deferral prints its location,
-named PRs, reason and the declared own PR. Checks 1, 2, 4, 5 and 6 are not scoped:
-Checks 1 and 6 keep their existing windows without filtering.
+named PRs, reason and the declared own PR. Checks 1, 2, 4 and 5 are not scoped and
+keep their existing windows without filtering. Check 6 keeps its window and filters
+nothing from it either; its one scope input is the declared own PR itself, exempted
+from the row demand only when the declaration is certain, its declaring header is the
+singular form, and the online check verifies the PR OPEN on this branch with the
+github.com origin repository itself as its head repository (3b145, ruling 2026-10-01
+12:49Z; see ``bypass_log_findings`` and ``check6_own_pr_exemption``), never any other PR.
 
 The `.working/` inputs and graceful degradation. Five of the six checks read
 maintainer-only working state (the validate-pr and improvement-log registers,
@@ -211,8 +259,12 @@ Exit codes:
 
 from __future__ import annotations
 
+import json
+import os
 import re
+import subprocess
 import sys
+from collections.abc import Callable
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import SIMPLE_CODE_SPAN_RE, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
@@ -731,11 +783,247 @@ def parse_bypass_prs(text: str) -> set[int]:
 
 
 
+# --- 3b145 online own-PR verification (maintainer ruling 2026-10-01 12:49Z) ---------------
+# VERIFY ONLINE, FAIL CLOSED. The Check 6 own-PR exemption is the one place this gate drops a
+# row demand, and offline evidence can prove a declaration NEW but never that the PR is still
+# UNMERGED: a stale origin/main lets an already-merged PR declare (round-1 codex R1 / claude
+# F1), which is the 2026-08-10 failure shape again. So the exemption is granted only after
+# `gh pr view` confirms, live, that the declared PR is OPEN and that its head branch is THIS
+# branch. The project has no shared gh helper (detect-env.py, audit-validation-coverage.py and
+# check-clean-language-upstream.py each carry a tool-local subprocess seam), so this follows
+# the same per-tool pattern with one injectable runner, `_gh_runner`.
+GH_PR_VIEW_TIMEOUT = 10  # seconds; the ruling's "short bounded timeout"
+
+# Host AND owner/repo from the origin remote URL (round-2 codex R2-02 / claude F2: the old
+# last-two-segments parse, the audit-validation-coverage.py `owner_repo` pattern, dropped
+# the host, so a GHE, GitLab or local-path origin mapped to the SAME-NAMED github.com
+# repository and gh verified the wrong repository's PR). Only a github.com remote
+# qualifies -- the one host this repository's gh is configured for -- in the two shapes
+# git uses for it: a scheme URL (https/ssh/git, optional userinfo, NO port: a port names
+# a different endpoint) and the scp-like `[user@]github.com:owner/repo`. `.git` is
+# tolerated. Anything else (another host, a port, a path or file: remote, an unparsable
+# URL) fails closed: the demand is kept and the reason printed.
+_ORIGIN_GITHUB_RE = re.compile(
+    r"^(?:(?:https|ssh|git)://(?:[^/@\s]+@)?github\.com/"
+    r"|(?:[^@/\s:]+@)?github\.com:)"
+    r"(?P<owner>[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)/"
+    r"(?P<repo>[A-Za-z0-9._-]+?)(?:\.git)?/?$",
+    re.IGNORECASE,
+)
+
+
+class _DuplicateJSONKey(ValueError):
+    """A gh JSON document carried the same key twice (round-2 codex R2-03): plain
+    ``json.loads`` silently keeps the LAST value, so a document saying both MERGED and
+    OPEN reads OPEN. Under the ruling's any-uncertainty contract a conflicting document
+    is refused, keeping the demand."""
+
+
+def _refuse_duplicate_json_keys(pairs):
+    """``object_pairs_hook`` building each JSON object while refusing duplicate keys,
+    at every nesting depth (round-2 codex R2-03)."""
+    obj = {}
+    for key, value in pairs:
+        if key in obj:
+            raise _DuplicateJSONKey(f"duplicate JSON key {key!r}")
+        obj[key] = value
+    return obj
+
+# The SINGULAR root header forms (round-1 codex R2): the compact `**date | version | PR #N**`
+# cell and the legacy `## date, Library Version X, PR #N` line, each labelled singular `PR`
+# (never `PRs`) and naming exactly one number with nothing else in the cell. A weekly roll-up
+# (`**Week of ... (PRs #N)**`) or a range (`PRs #N-#N (1 PRs)`) can parse to a single PR, and
+# `own_pr_declaration` accepts either, but neither is the singular form the declaration
+# contract states, so neither ever carries the Check 6 exemption. The legacy alternative is
+# strict to end-of-line (any tail fails closed); the live declaring form is the compact one.
+SINGULAR_OWN_HEADER_RE = re.compile(
+    r"^(?:##[ \t]+\d{4}-\d{2}-\d{2},\s+Library Version\s+[0-9.]+,\s+(?i:PR)[ \t]+#(?P<a>\d+)\s*$"
+    r"|\*\*\d{4}-\d{2}-\d{2} \| [0-9.]+ \| (?i:PR) #(?P<b>\d+)\*\*)"
+)
+
+
+def own_pr_singular_header(changelog_text: str, own_pr: int) -> bool:
+    """True when ``own_pr``'s root header uses a SINGULAR form (codex R2, fail closed).
+
+    When a declaration exists, exactly one root header names the own PR (a second new header
+    naming it would have made the declaration ambiguous, and a merge-base or origin/main
+    header naming it would have blocked it), so finding any singular header naming ``own_pr``
+    tests exactly the declaring line.
+    """
+    for line in changelog_text.splitlines():
+        match = SINGULAR_OWN_HEADER_RE.match(line)
+        if match and int(match.group("a") or match.group("b")) == own_pr:
+            return True
+    return False
+
+
+def _gh_runner(argv: list[str], *, timeout: float, env: dict[str, str] | None = None):
+    """The injectable process seam for the online verification and its two local git reads.
+
+    Tests replace this module attribute (or pass ``runner=``) with a scripted stand-in, so
+    they never run git or gh and never touch the network; the live gate uses the real
+    subprocess. Resolved at call time, so a patched module attribute takes effect. ``env``
+    is handed to the subprocess unchanged (``None`` inherits); the gh call passes a copy
+    of this process's environment with ``GH_HOST`` pinned to github.com (round-3 codex
+    R3-01 / claude F1).
+    """
+    return subprocess.run(argv, capture_output=True, text=True, timeout=timeout, env=env)
+
+
+def verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
+    """(True, "") only when gh confirms ``own_pr`` OPEN, headed by THIS branch of THIS repo.
+
+    The ruling's online check: ``gh pr view <N> --repo github.com/<owner>/<repo> --json
+    state,headRefName,isCrossRepository,headRepositoryOwner,headRepository,url``, bounded
+    by ``GH_PR_VIEW_TIMEOUT`` and pointed at the github.com origin repository THREE ways
+    (round-3 codex R3-01 / claude F1: a hostless ``--repo owner/repo`` resolves against
+    gh's DEFAULT host, which ``GH_HOST`` can repoint at an enterprise server carrying a
+    same-named repository, and none of the identity fields names a host): the ``--repo``
+    argument carries the host explicitly (gh's HOST/OWNER/REPO form), the gh subprocess
+    runs with ``GH_HOST=github.com`` set over a copy of this process's environment, and
+    the answer's ``url`` must begin ``https://github.com/<owner>/<repo>/pull/<N>``, the
+    one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
+    current branch, a detached HEAD, an unreadable origin URL, an origin that is not a
+    parsable github.com remote (round-2 codex R2-02 / claude F2), a missing gh binary, a
+    gh non-zero exit (auth, network, API, unknown PR), a timeout, unparsable or
+    incomplete JSON, duplicate or conflicting JSON keys (round-2 codex R2-03), a state
+    other than OPEN, a cross-repository (fork) PR or a head repository other than the
+    origin repository itself (round-2 codex R2-01 / claude F1: ``headRefName`` is a bare
+    branch name naming no repository, so a fork PR with the same branch name must keep
+    the demand), a PR url under any other host, repository or number (round-3 codex
+    R3-01), and a head branch other than the current branch each return ``(False, why)``,
+    and the caller keeps the row demand and prints why. So does ANY exception the checks
+    raise (round-3 claude F4: a RecursionError from hostile JSON nesting, a
+    UnicodeDecodeError or ValueError from the runner): the backstop here converts it to
+    the same printed refusal instead of a crash. Nothing is cached: the answer is only as
+    good as the moment it was given, which is why the caller runs this lazily, at the
+    moment the exemption would bite.
+    """
+    try:
+        return _verify_own_pr_open(own_pr, runner=runner)
+    except Exception as exc:  # the any-uncertainty contract: a crash never answers
+        detail = " ".join(str(exc).split())[:160]
+        return False, (f"the online check raised {exc.__class__.__name__}"
+                       + (f" ({detail})" if detail else "")
+                       + "; an exception is uncertainty, so it is refused like any "
+                         "other online failure (round-3 claude F4)")
+
+
+def _verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
+    """The checks behind ``verify_own_pr_open``, whose backstop turns any exception
+    raised here into a kept demand with a printed reason (round-3 claude F4)."""
+    if runner is None:
+        runner = _gh_runner
+    try:
+        branch_proc = runner(["git", "-C", str(REPO_ROOT), "rev-parse", "--abbrev-ref", "HEAD"],
+                             timeout=GH_PR_VIEW_TIMEOUT)
+        url_proc = runner(["git", "-C", str(REPO_ROOT), "remote", "get-url", "origin"],
+                          timeout=GH_PR_VIEW_TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return False, "a local git read (current branch / origin URL) did not answer in time"
+    except OSError as exc:
+        return False, f"a local git read could not run ({exc.__class__.__name__})"
+    if branch_proc.returncode != 0:
+        return False, "the current branch could not be read (git rev-parse failed)"
+    branch = branch_proc.stdout.strip()
+    if not branch or branch == "HEAD":
+        return False, "HEAD is detached, so no current branch can match the PR's head branch"
+    if url_proc.returncode != 0:
+        return False, "the origin remote URL could not be read (git remote get-url failed)"
+    url = url_proc.stdout.strip()
+    match = _ORIGIN_GITHUB_RE.match(url)
+    if not match:
+        return False, (f"the origin remote URL {url!r} is not a parsable github.com "
+                       f"<owner>/<repo> remote, the only host gh is configured for here; "
+                       f"any other or unparsable host fails closed")
+    owner, repo_name = match.group("owner"), match.group("repo")
+    repo = f"{owner}/{repo_name}"
+    # Round-3 codex R3-01 / claude F1: the destination host is pinned in the --repo
+    # argument AND in the subprocess environment, because a hostless --repo falls back
+    # to gh's default host and GH_HOST can repoint that default at another server
+    # carrying a same-named repository, whose same-numbered OPEN PR would then pass
+    # every identity check below (none of those fields names a host).
+    gh_env = dict(os.environ)
+    gh_env["GH_HOST"] = "github.com"
+    try:
+        gh_proc = runner(["gh", "pr", "view", str(own_pr), "--repo",
+                          f"github.com/{repo}", "--json",
+                          "state,headRefName,isCrossRepository,headRepositoryOwner,"
+                          "headRepository,url"], timeout=GH_PR_VIEW_TIMEOUT, env=gh_env)
+    except FileNotFoundError:
+        return False, "gh is not available (not installed or not on PATH)"
+    except subprocess.TimeoutExpired:
+        return False, f"gh pr view #{own_pr} did not answer within {GH_PR_VIEW_TIMEOUT}s"
+    except OSError as exc:
+        return False, f"gh pr view #{own_pr} could not run ({exc.__class__.__name__})"
+    if gh_proc.returncode != 0:
+        detail = " ".join((gh_proc.stderr or "").split())[:160] or "no detail"
+        return False, f"gh pr view #{own_pr} failed (exit {gh_proc.returncode}: {detail})"
+    try:
+        data = json.loads(gh_proc.stdout, object_pairs_hook=_refuse_duplicate_json_keys)
+    except _DuplicateJSONKey as exc:
+        return False, (f"gh pr view #{own_pr} returned JSON carrying a {exc} "
+                       f"(conflicting answers are refused, round-2 codex R2-03)")
+    except json.JSONDecodeError:
+        return False, f"gh pr view #{own_pr} returned unparsable output"
+    try:
+        state, head = data["state"], data["headRefName"]
+        cross = data["isCrossRepository"]
+        head_owner, head_repo = data["headRepositoryOwner"], data["headRepository"]
+        pr_url = data["url"]
+    except (KeyError, TypeError):
+        return False, f"gh pr view #{own_pr} returned unparsable output"
+    if not isinstance(state, str) or not isinstance(head, str) or not isinstance(pr_url, str):
+        return False, f"gh pr view #{own_pr} returned unparsable output"
+    if state != "OPEN":
+        return False, f"gh reports PR #{own_pr} state {state}, not OPEN"
+    if cross is not False:
+        return False, (f"gh does not certainly deny that PR #{own_pr} is a cross-repository "
+                       f"(fork) PR (isCrossRepository must be exactly false); a fork's branch "
+                       f"can share this branch's name, so it never carries the exemption")
+    login = head_owner.get("login") if isinstance(head_owner, dict) else None
+    name = head_repo.get("name") if isinstance(head_repo, dict) else None
+    if not isinstance(login, str) or not isinstance(name, str):
+        return False, f"gh pr view #{own_pr} returned unparsable output"
+    # GitHub owner and repository names are case-insensitive identifiers, so the fold
+    # tolerates a differently-cased clone URL without admitting any other repository.
+    if login.lower() != owner.lower() or name.lower() != repo_name.lower():
+        return False, (f"gh reports PR #{own_pr} head repository {login}/{name}, not the "
+                       f"origin repository {repo} itself; a same-name fork branch never "
+                       f"carries the exemption")
+    # The one returned field that names a HOST (round-3 codex R3-01): the identity
+    # fields above pin owner, name and branch, but would match a same-named repository
+    # on whichever server gh answered from. The case fold mirrors the identity fold;
+    # the digit boundary stops a PR number sharing these digits as a prefix (#26510
+    # for #2651) from matching.
+    expected = f"https://github.com/{repo}/pull/{own_pr}"
+    if (not pr_url.lower().startswith(expected.lower())
+            or pr_url[len(expected):len(expected) + 1].isdigit()):
+        return False, (f"gh reports PR #{own_pr} url {pr_url!r}, not {expected} on "
+                       f"github.com itself; an answer about any other host, repository "
+                       f"or PR never carries the exemption (round-3 codex R3-01)")
+    if head != branch:
+        return False, f"gh reports PR #{own_pr} head branch {head!r}, not this branch {branch!r}"
+    return True, ""
+
+
+def check6_own_pr_exemption(changelog_text: str, own_pr: int, *, runner=None) -> tuple[bool, str]:
+    """The complete 3b145 exemption test: singular header form first (offline, codex R2),
+    then the online OPEN-on-this-branch-of-this-repo verification. ``main`` passes this
+    to ``bypass_log_findings`` as ``verify``; any ``(False, why)`` keeps the row demand."""
+    if not own_pr_singular_header(changelog_text, own_pr):
+        return False, ("its declaring root header is not the SINGULAR form (a weekly roll-up "
+                       "or a range header can parse to one PR but never carries the exemption)")
+    return verify_own_pr_open(own_pr, runner=runner)
+
+
 def bypass_log_findings(
     changelog_prs: set[int],
     bypass_prs: set[int],
     *,
     inception: int = INCEPTION,
+    own_pr: int | None = None,
+    verify: Callable[[int], tuple[bool, str]] | None = None,
 ) -> list[str]:
     """Check 6: every in-window merged PR has a merge-bypass-log row.
 
@@ -755,6 +1043,29 @@ def bypass_log_findings(
     floor is the register's own oldest row, so a log that starts partway through history is not
     retroactively in breach.
 
+    The same post-merge-fact logic exempts the branch's DECLARED OWN PR (``own_pr``) even when it
+    is NOT the highest number (3b145): a rebased branch carries the headers of PRs that merged
+    after its own was opened, so its own unmerged PR falls below ``max_pr`` and this check would
+    demand a row its own text forbids writing before the merge is observed (PR #2653 under merged
+    #2654-#2665, superseded by #2666 just to get past this gate). The caller passes ``own_pr``
+    ONLY when ``lint_common.own_pr_declaration`` is certain; and since the VERIFY ONLINE / FAIL
+    CLOSED ruling (2026-10-01 12:49Z) the demand is dropped only after ``verify`` -- the complete
+    3b145 exemption test, ``check6_own_pr_exemption`` in ``main`` -- returns ``(True, "")`` for
+    that PR: the declaring root header is the SINGULAR form (never a roll-up or range, codex R2)
+    and ``gh pr view`` reports the PR OPEN with THIS branch as its head and the github.com
+    origin repository itself as its head repository, never a fork (round-2 codex R2-01 /
+    claude F1). ``verify`` runs lazily,
+    exactly when the exemption would bite (the own PR is in-window with no row), so a run that
+    needs no exemption makes no online call; any ``(False, why)`` keeps the demand and prints
+    why. ``verify=None`` means the caller attests the verification already happened (the
+    direct-call test seam); ``main`` always passes the real verifier. Exactly one PR is ever
+    exemptable, and both the skip and a refusal print a note, so the residue is LOUD, never
+    silent. That is deliberately NOT a claim that the 2026-08-10 failure class (an
+    origin/main-keyed guard whose stale offline evidence silently deleted the row demand for
+    eight recently-merged PRs, removed for it) is impossible here, only that it is now bounded
+    and visible: one PR at most, verified against the live PR state, and demanded again the
+    moment the online check cannot positively confirm it OPEN on this branch.
+
     A row is satisfied by its PRESENCE, whatever its Mechanism cell says. That is deliberate: if a
     future protection change makes a plain merge succeed, the honest record is a row saying so, and
     this check must not force the mechanism to keep reading `--admin` to stay green.
@@ -771,25 +1082,44 @@ def bypass_log_findings(
         return findings
     max_pr = max(changelog_prs)
     floor = effective_floor(bypass_prs, floor=inception)
-    # KNOWN LIMITATION, stated rather than half-fixed, and scoped precisely because an earlier
-    # wording overstated where it bites. A PR below max_pr is ASSUMED merged, and PRs do not merge
-    # in number order. On `main` this is inert: an unmerged PR has no CHANGELOG entry there, so it
-    # never enters this universe. It bites on the PR's OWN BRANCH, where its entry does exist: when
-    # #1472 merged while the lower-numbered #1471 was open, #1471's branch carried both entries, so
-    # #1471 fell below max_pr and its own pre-push guard demanded a bypass row that this check's
-    # text forbids writing before the merge is observed. A guard keyed on `origin/main` was built for this and
-    # REMOVED on 2026-08-10: a stale remote-tracking ref passed every precondition it could check
-    # locally, and silently deleted the row demand for eight recently-merged PRs. Dropping a demand
-    # is the exact failure this check exists to catch, so a loud false positive on an out-of-order
-    # PR is the better trade until an input that can prove CURRENCY, not merely depth, is available.
+    # The out-of-order residue, scoped to what the own-PR exemption cannot cover. A PR below
+    # max_pr is ASSUMED merged, and PRs do not merge in number order. On `main` this is inert: an
+    # unmerged PR has no CHANGELOG entry there, so it never enters this universe. It bites on a
+    # PR's OWN BRANCH, where its entry does exist (#1471 under merged #1472; #2653 under merged
+    # #2654-#2665): the branch's own declared PR is exempted below, but ONLY once `verify`
+    # confirms the exemption (3b145, ruling 2026-10-01 12:49Z). Any OTHER unmerged PR's entry
+    # carried here (a stacked branch's second open entry, a never-merged number inside an
+    # unbroken weekly range that KNOWN_SKIPPED_PRS has not recorded) still false-positives
+    # LOUDLY, deliberately: a guard keyed on `origin/main` was built for this and REMOVED on
+    # 2026-08-10, because a stale remote-tracking ref passed every precondition it could check
+    # locally and silently deleted the row demand for eight recently-merged PRs. Dropping a
+    # demand is the exact failure this check exists to catch, so beyond the one ONLINE-VERIFIED
+    # PR the branch itself declares, the loud false positive stays the better trade.
     for pr in sorted(p for p in changelog_prs if floor <= p < max_pr):
-        if pr not in bypass_prs:
-            findings.append(
-                f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
-                f"[{floor}, {max_pr}) needs one, because protection requires an approval a "
-                f"solo-authored PR never gets, so the merge went through the always-on `--admin` "
-                f"bypass and the row is the only record that it did. Add the row from the OBSERVED "
-                f"pre-merge CI state, never in anticipation of a merge.")
+        if pr in bypass_prs:
+            continue
+        if pr == own_pr:
+            ok, why = (True, "") if verify is None else verify(pr)
+            if ok:
+                print(
+                    f"note: [bypass-log] PR #{pr} is this branch's declared own PR, below the "
+                    f"window ceiling #{max_pr} because later-merged PRs' headers sit above it; "
+                    f"its row records a post-merge fact, so the demand is exempt here (3b145"
+                    + (", verified OPEN on this branch via gh" if verify is not None else "")
+                    + ") and falls due the moment the merge is observed."
+                )
+                continue
+            print(
+                f"note: [bypass-log] PR #{pr} is this branch's declared own PR, but the 3b145 "
+                f"exemption is withheld: {why}. Fail closed (VERIFY ONLINE ruling 2026-10-01 "
+                f"12:49Z): the row demand stands and the finding below is deliberate."
+            )
+        findings.append(
+            f"  [bypass-log] PR #{pr}: no row in {BYPASS_LOG_REL}. Every merged PR in "
+            f"[{floor}, {max_pr}) needs one, because protection requires an approval a "
+            f"solo-authored PR never gets, so the merge went through the always-on `--admin` "
+            f"bypass and the row is the only record that it did. Add the row from the OBSERVED "
+            f"pre-merge CI state, never in anticipation of a merge.")
     return findings
 
 
@@ -1151,7 +1481,20 @@ def main() -> int:
     if bypass_text is None:
         skipped.append("merge-bypass-log parity")
     else:
-        all_findings.extend(bypass_log_findings(changelog, parse_bypass_prs(bypass_text)))
+        # Check 6's one scope input (3b145; VERIFY ONLINE / FAIL CLOSED ruling 2026-10-01
+        # 12:49Z): the declared own PR, passed only under the explicit open_rule guard.
+        # store_scope sets own_pr only together with open_rule, so that guard is redundant by
+        # construction; it stays explicit because the 2026-08-10 precedent (a stale input
+        # silently deleting row demands) is exactly the failure an uncertain input reopens.
+        # The demand is then dropped only after check6_own_pr_exemption passes for that PR:
+        # the declaring root header is the SINGULAR form and gh verifies the PR OPEN on this
+        # branch with the github.com origin repository itself as its head (never a fork),
+        # called lazily at the moment the exemption would bite. Every failure keeps the
+        # demand and prints why.
+        all_findings.extend(bypass_log_findings(
+            changelog, parse_bypass_prs(bypass_text),
+            own_pr=scope.own_pr if scope.open_rule else None,
+            verify=lambda pr: check6_own_pr_exemption(changelog_text, pr)))
 
     if skipped:
         print(
