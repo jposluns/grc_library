@@ -74,11 +74,16 @@ attempt acquisition, then named options on failure. The project instantiation:
    run the ref gate), then continue against the now-held source. The `grc_library_ref` write is a
    cross-repo PR (writes to the sibling `grc_library_ref` repo go through its own PR, not a direct push).
    **The reference-manifest regeneration PR follows immediately** (maintainer ruling 2026-09-29):
-   once the ingest PR merges, run `python3 tools/build-reference-manifest.py`, then `--check`, here
-   and ship the regenerated `docs/reference-acquisition-manifest.md` as the next `grc_library` PR,
-   so gate 104's staleness window stays one PR wide (a "not held" claim the ingest made stale stays
-   green until that PR lands, and that PR is where the gate flips it red). An ingest outside the
-   four trusted buckets leaves the manifest unchanged; the `--check` run is then the whole step.
+   once the ingest PR merges, fast-forward the `grc_library_ref` checkout to its merged `main` (the
+   generator reads that working tree, not the remote), run `python3 tools/build-reference-manifest.py`
+   here, confirm with `--check` that the file you will commit matches, and ship the regenerated
+   `docs/reference-acquisition-manifest.md` as the next `grc_library` PR, so gate 104's staleness
+   window stays one PR wide. Gate 104 reads the manifest in the working tree, so a "not held" claim
+   the ingest made stale fails it as soon as the regenerated manifest is in place (at commit, in the
+   pre-push guard and in CI); in that same PR, reword or retire each absence claim and
+   `ref-absence` marker the gate now reports as stale. An ingest outside the four trusted buckets
+   leaves the manifest unchanged, so the `--check` run is then the whole step; if it reports drift
+   anyway (from an earlier change never regenerated), regenerate and ship the PR as above.
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
    defer-and-skip via the roughly-5-minute graceful-degradation timer, recording the deferral in
    `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the
