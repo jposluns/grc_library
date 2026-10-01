@@ -51,7 +51,7 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
   into `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored
   layout and `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the
   index docs), then ship the `grc_library` reference-manifest regeneration PR, which immediately
-  follows every ingest PR (see the missing-reference SOP below).
+  follows every ingest PR that changes the manifest (see the missing-reference SOP below).
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or egress is
   blocked), **pause and ask the maintainer.** On no response, apply the graceful-degradation
   default: defer the current item and move on to the next independent item (record it in
@@ -74,16 +74,23 @@ attempt acquisition, then named options on failure. The project instantiation:
    run the ref gate), then continue against the now-held source. The `grc_library_ref` write is a
    cross-repo PR (writes to the sibling `grc_library_ref` repo go through its own PR, not a direct push).
    **The reference-manifest regeneration PR follows immediately** (maintainer ruling 2026-09-29):
-   once the ingest PR merges, fast-forward the `grc_library_ref` checkout to its merged `main` (the
-   generator reads that working tree, not the remote), run `python3 tools/build-reference-manifest.py`
-   here, confirm with `--check` that the file you will commit matches, and ship the regenerated
-   `docs/reference-acquisition-manifest.md` as the next `grc_library` PR, so gate 104's staleness
-   window stays one PR wide. Gate 104 reads the manifest in the working tree, so a "not held" claim
-   the ingest made stale fails it as soon as the regenerated manifest is in place (at commit, in the
-   pre-push guard and in CI); in that same PR, reword or retire each absence claim and
-   `ref-absence` marker the gate now reports as stale. An ingest outside the four trusted buckets
-   leaves the manifest unchanged, so the `--check` run is then the whole step; if it reports drift
-   anyway (from an earlier change never regenerated), regenerate and ship the PR as above.
+   once the ingest PR merges, fast-forward the `grc_library_ref` directory beside this checkout to
+   its merged `main` (the generator reads that working tree, not the remote), run
+   `python3 tools/build-reference-manifest.py` here, and confirm that `--check` prints OK for the
+   file you will commit (a "grc_library_ref not present; no-op" line confirms nothing). Ship the
+   regenerated `docs/reference-acquisition-manifest.md` as the next `grc_library` PR, so gate 104's
+   staleness window stays one PR wide. Gate 104 reads the manifest file on disk, so a marked claim
+   whose marker query now matches a regenerated manifest row fails on the gate's next run against
+   it: the commit hook where installed (which sees the staged file), the pre-push guard and CI. In
+   that same PR, and in the same commit as the manifest or an earlier one, reword or retire each
+   claim the gate reports as stale. The gate sees only exact marker-query matches inside its scan
+   scope, so also search for absence claims and `ref-absence` markers naming the ingested source
+   under other titles or identifiers, reword or retire them, and rename any marker query that no
+   longer matches. An ingest outside the four trusted buckets leaves the manifest unchanged, so the
+   `--check` run is then the whole manifest step; gate 104 never checks claims about publications or
+   books, so search for and reword any absence claim naming such a source by hand. If `--check`
+   reports drift anyway (from an earlier change never regenerated), regenerate and ship the PR as
+   above.
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
    defer-and-skip via the roughly-5-minute graceful-degradation timer, recording the deferral in
    `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the

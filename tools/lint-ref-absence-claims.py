@@ -46,8 +46,9 @@ are read as prose. Raw HTML blocks are not modelled, so fence lines
 inside them still pair as fences.
 
 The manifest covers four trusted acquisition buckets, not publications
-or books. Staleness is observable only after a regenerated manifest is
-committed; the sibling reference repository is never read. The advisory
+or books. Staleness is observable only once the manifest is regenerated;
+the gate reads the manifest file on disk (working tree or staged copy),
+and the sibling reference repository is never read. The advisory
 heuristics cannot reliably infer semantics; missing-content wordings are
 distinguished from missing-source wordings only by the documented token
 windows. The audit specification records those residues.
