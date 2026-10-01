@@ -84,7 +84,8 @@ attempt acquisition, then named options on failure. The project instantiation:
    it: the commit hook where installed (which sees the staged file), the pre-push guard and CI. In
    that same PR, and in the same commit as the manifest or an earlier one, reword or retire each
    claim the gate reports as stale. Within its scan scope the gate reports a marker as stale only when a
-   manifest data row contains one of its queries (normalized as gate 104's audit-programme entry
+   manifest data row contains one of its queries (normalized as the gate 104 paragraph of
+   [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md)
    describes), so also search for absence claims and `ref-absence` markers
    naming the ingested source under other titles or identifiers, and reword or retire them. An
    ingest outside the four trusted buckets leaves the manifest unchanged, so the `--check` run is
