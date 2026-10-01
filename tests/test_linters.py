@@ -11282,8 +11282,13 @@ class BookkeepingParityTests(LinterTestCase):
         the disabled seam refused the online check (the printed withheld note names
         the seam's AssertionError). Anything else -- any other finding, any other
         withheld reason, more than one finding, exit 2, a traceback -- is a real
-        corpus or tool problem and stays fatal, so nothing this test caught before
-        is tolerated.
+        corpus or tool problem and stays fatal. One offline blind spot remains
+        INSIDE the tolerated shape (round-5 claude F1): a declared own PR already
+        squash-merged under a stale origin/main, its bypass row not yet written,
+        prints the same single withheld demand, so offline this acceptance cannot
+        tell it from the valid open-PR case; the live gate-50 run in
+        run_all_audits.sh still decides it, because there the real gh call reports
+        MERGED, or fails closed, and the demand stays.
         """
         if result.returncode == 0:
             return None
@@ -33097,17 +33102,25 @@ class StoreScopeCeilingTests(LinterTestCase):
         # traversal to another repository or PR, a `2651x` tail, a newline tail, a
         # query, a fragment, a trailing slash and an extra segment all granted the
         # exemption, and the blanket case fold accepted an uppercase scheme and host):
-        # another host, another repository, another PR number, a number sharing these
-        # digits as a prefix, each of those suffix forms, credentials, a port, another
-        # scheme, an uppercase scheme or host, a leading-zero number, a missing url and
-        # a non-string url each keep the #2651 demand and print why. Kills: the prefix
-        # match (with or without its digit boundary), a parser that strips whitespace
-        # before matching (urlsplit drops tabs and newlines), and dropping the
-        # number-equality, query, fragment or host comparison.
+        # another host, another repository, the SAME owner with another repository
+        # name (round-5 claude F2: the one shape only the url NAME comparison
+        # refuses, since the identity fields still name the origin repository), a
+        # dot-segment repository name `.` or `..` (round-5 codex R5-01: refused by
+        # _PR_URL_RE's lookahead before any equality), another PR number, a number
+        # sharing these digits as a prefix, each of those suffix forms, credentials,
+        # a port, another scheme, an uppercase scheme or host, a leading-zero number,
+        # a missing url and a non-string url each keep the #2651 demand and print
+        # why. Kills: the prefix match (with or without its digit boundary), a parser
+        # that strips whitespace before matching (urlsplit drops tabs and newlines),
+        # and dropping the number-equality, name-equality, query, fragment or host
+        # comparison.
         own = "https://github.com/jposluns/grc_library/pull/2651"
         cases = [
             ("ghe-url", self._own_pr_json(url="https://ghe.example.com/jposluns/grc_library/pull/2651"), "github.com itself"),
             ("other-repo-url", self._own_pr_json(url="https://github.com/mallory/grc_library/pull/2651"), "github.com itself"),
+            ("same-owner-other-name-url", self._own_pr_json(url="https://github.com/jposluns/other/pull/2651"), "github.com itself"),
+            ("dot-name-url", self._own_pr_json(url="https://github.com/jposluns/./pull/2651"), "github.com itself"),
+            ("dot-dot-name-url", self._own_pr_json(url="https://github.com/jposluns/../pull/2651"), "github.com itself"),
             ("other-number-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/9999"), "github.com itself"),
             ("number-prefix-url", self._own_pr_json(url=own + "0"), "github.com itself"),
             ("traversal-foreign-url", self._own_pr_json(url=own + "/../../../../mallory/foreign/pull/9999"), "github.com itself"),
@@ -33137,6 +33150,77 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertIn("[bypass-log] PR #2651", err)
                 self.assertIn("exemption is withheld", out)
                 self.assertIn(why, out)
+
+    def test_gate_50_main_check6_refuses_a_dot_segment_or_non_ascii_origin(self) -> None:
+        # Round-5 codex R5-01, through main(): the origin repo class admits dots, so
+        # `https://github.com/jposluns/..` parsed to repository `..`, and a scripted
+        # gh answer echoing that malformed identity passed every equality check and
+        # dropped the demand (the url `https://github.com/jposluns/../pull/2651`
+        # normalizes to `https://github.com/jposluns/pull/2651`, not the declared
+        # PR's repository address; `.` behaves the same). Both dot segments, the
+        # `.git`-stripped spelling that captures a dot segment, and (round-5 claude
+        # informational) a non-ASCII case-folding lookalike origin (the Kelvin sign
+        # U+212A lowercases to ASCII `k`, so under full-Unicode IGNORECASE a
+        # confusable owner equaled gh's ASCII owner) are each refused BEFORE any gh
+        # call: the demand stays and the reason prints. Kills: the dot-admitting
+        # origin parse, and dropping re.ASCII from _ORIGIN_GITHUB_RE.
+        cases = [
+            ("dot-dot-repo", "https://github.com/jposluns/..",
+             self._own_pr_json(name=".."), "dot-segment"),
+            ("dot-repo", "https://github.com/jposluns/.",
+             self._own_pr_json(name="."), "dot-segment"),
+            ("dot-repo-via-git-suffix", "git@github.com:jposluns/...git",
+             self._own_pr_json(name="."), "dot-segment"),
+            ("kelvin-owner", "git@github.com:jposlun\u212a/grc_library.git",
+             self._own_pr_json(owner="jposlunk"), "github.com"),
+        ]
+        for name, origin, payload, why in cases:
+            with self.subTest(case=name):
+                runner = self._GhRunner(url=origin, gh=(0, payload, ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+                self.assertNotIn("gh", [argv[0] for argv in runner.calls])
+
+    def test_gate_50_main_check6_accepts_ordinary_dot_carrying_repo_names(self) -> None:
+        # Round-5 codex R5-01's precision boundary: refusing `.` and `..` must not
+        # refuse the legitimate dot-CARRYING names GitHub does allow. A `.github`
+        # repository (with the tolerated `.git` suffix) and a `repo.name` spelling
+        # (without it) each verify end to end and the exemption is granted; the
+        # ordinary-name control is the main exempt test above. Kills: a dot-anywhere
+        # refusal (rejecting any name that starts with or contains a dot).
+        for name, origin, repo_name in (
+                (".github", "https://github.com/jposluns/.github.git", ".github"),
+                ("repo.name", "git@github.com:jposluns/repo.name", "repo.name")):
+            with self.subTest(case=name):
+                runner = self._GhRunner(url=origin, gh=(0, self._own_pr_json(name=repo_name), ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 0, out + err)
+                self.assertIn("verified OPEN on this branch via gh", out)
+
+    def test_gate_50_pr_url_re_refuses_dot_segment_names_structurally(self) -> None:
+        # Round-5 codex R5-01, at the pattern itself: the url-side dot-segment
+        # refusal must hold INDEPENDENTLY of the origin-side refusal, because with a
+        # dot-segment origin both owner/name equalities pass vacuously (exactly the
+        # round-5 reproduction), so no equality can be the backstop. `.` and `..`
+        # never fullmatch; an ordinary name, `.github` and `repo.name` still do.
+        # Kills: reverting _PR_URL_RE's lookahead while keeping the origin-side
+        # check (the origin test above pins the converse).
+        refuse = ("https://github.com/jposluns/./pull/2651",
+                  "https://github.com/jposluns/../pull/2651")
+        accept = ("https://github.com/jposluns/grc_library/pull/2651",
+                  "https://github.com/jposluns/.github/pull/2651",
+                  "https://github.com/jposluns/repo.name/pull/2651")
+        for url in refuse:
+            with self.subTest(url=url):
+                self.assertIsNone(self.bp._PR_URL_RE.fullmatch(url))
+        for url in accept:
+            with self.subTest(url=url):
+                match = self.bp._PR_URL_RE.fullmatch(url)
+                self.assertIsNotNone(match)
+                self.assertEqual(match.group("n"), "2651")
 
     def test_gate_50_main_check6_refuses_uncertain_identity_field_types(self) -> None:
         # Round-3 claude F3 mutation probes, through main(): the three surviving
@@ -33362,6 +33446,43 @@ class StoreScopeCeilingTests(LinterTestCase):
         problem = BookkeepingParityTests.gate50_corpus_smoke_problem(r)
         self.assertIsNotNone(problem)
         self.assertIn("beyond the declared own PR", problem)
+
+    def test_gate_50_corpus_smoke_acceptance_rejects_a_non_seam_withheld_reason(self) -> None:
+        # Round-5 claude F3: of the two fixture runs above, one is fully acceptable
+        # and the other is rejected through the FAIL count, so neither exercises the
+        # acceptance's withheld-REASON check: without it, a single own-PR demand
+        # withheld for any other printed reason (a range-header refusal, a MERGED
+        # answer, a different exception) would be tolerated. Fabricated results in
+        # the gate's exact output shape -- the seam control below validates the
+        # fabrication against the real acceptance path, so a drifting note format
+        # fails here first -- pin that only the disabled-seam reason is tolerated.
+        # Kills: dropping the reason text from the acceptance's withheld-note regex,
+        # and loosening its AssertionError match to any raised exception.
+        import types as _types
+
+        def result(reason: str):
+            note = (f"note: [bypass-log] PR #522 is this branch's declared own PR, but "
+                    f"the 3b145 exemption is withheld: {reason}. Fail closed (VERIFY "
+                    f"ONLINE ruling 2026-10-01 12:49Z): the row demand stands and the "
+                    f"finding below is deliberate.\n")
+            err = ("=== bookkeeping-parity audit ===\n"
+                   "  [bypass-log] PR #522: no row in merge-bypass-log.md. (fixture)\n\n"
+                   "FAIL: 1 bookkeeping-parity finding(s). (fixture)\n")
+            return _types.SimpleNamespace(returncode=1, stdout=note, stderr=err)
+
+        seam = ("the online check raised AssertionError (tests never touch the network: "
+                "online seam disabled); an exception is uncertainty, so it is refused "
+                "like any other online failure (round-3 claude F4)")
+        self.assertIsNone(BookkeepingParityTests.gate50_corpus_smoke_problem(result(seam)))
+        for reason in (
+                "its declaring root header is not the SINGULAR form (a weekly roll-up "
+                "or a range header can parse to one PR but never carries the exemption)",
+                "gh reports PR #522 state MERGED, not OPEN",
+                "the online check raised OSError (connection reset)"):
+            with self.subTest(reason=reason):
+                problem = BookkeepingParityTests.gate50_corpus_smoke_problem(result(reason))
+                self.assertIsNotNone(problem)
+                self.assertIn("withheld by the disabled online seam", problem)
 
     def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
         # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was

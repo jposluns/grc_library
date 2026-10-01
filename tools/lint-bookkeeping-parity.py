@@ -153,15 +153,20 @@ header is the SINGULAR form (``own_pr_singular_header``: the compact
 ``**date | version | PR #N**`` or legacy ``## date, Library Version X, PR #N`` shape; a
 weekly roll-up or a range that happens to parse to one PR never qualifies); the origin
 remote parses as a github.com remote (the one host this repository's gh is configured
-for), with gh pointed at that host THREE ways (round-3 codex R3-01 / claude F1: a
+for), in ASCII, with neither owner nor repository the dot segment ``.`` or ``..`` (two
+names GitHub itself never allows, which URL resolution folds away; round-5 codex R5-01),
+with the destination host pinned TWO ways and the answer verified against it by a third
+(round-3 codex R3-01 / claude F1: a
 hostless ``--repo owner/repo`` resolves against gh's DEFAULT host, which ``GH_HOST``
 can repoint at an enterprise server carrying a same-named repository, and no identity
 field below names a host): the explicit host-carrying ``--repo
-github.com/<owner>/<repo>`` (gh's HOST/OWNER/REPO form), ``GH_HOST=github.com`` pinned
-in the gh subprocess environment over a copy of this process's environment, and the
+github.com/<owner>/<repo>`` (gh's HOST/OWNER/REPO form) and ``GH_HOST=github.com`` pinned
+in the gh subprocess environment over a copy of this process's environment set the
+destination, and the
 answer's ``url`` required to BE exactly ``https://github.com/<owner>/<repo>/pull/<N>``,
-owner and name case-insensitively, nothing before or after (the one returned field that
-names a host; a prefix check accepted traversal and other suffixes, round-4 codex
+owner and name case-insensitively, neither a dot segment, nothing before or after (the
+one returned field that names a host, verifying the answer rather than setting the
+destination; a prefix check accepted traversal and other suffixes, round-4 codex
 R4-01); and ``gh pr view <N> --repo
 github.com/<owner>/<repo> --json
 state,headRefName,isCrossRepository,headRepositoryOwner,headRepository,url``
@@ -171,13 +176,16 @@ repository (``isCrossRepository`` exactly false, ``headRepositoryOwner.login`` a
 ``headRepository.name`` equal to origin's owner and name): a branch name alone
 identifies no repository, so a fork PR with the same branch name keeps the demand
 (round-2 codex R2-01 / claude F1). Anything else -- no declaration, a roll-up or range
-header, a non-github.com or unparsable origin (round-2 codex R2-02 / claude F2), no gh,
+header, a non-github.com, non-ASCII or unparsable origin (round-2 codex R2-02 / claude
+F2), an origin owner or repository equal to the dot segment ``.`` or ``..`` (round-5
+codex R5-01), no gh,
 a network or API error, a timeout, unparsable output, duplicate or conflicting JSON keys
 (refused by a duplicate-raising ``object_pairs_hook``, round-2 codex R2-03), a CLOSED or
 MERGED state, a cross-repository flag, a head-repository mismatch, a PR url that is
-anything but exactly that canonical address (another host, repository or number,
-credentials, a port, a query, a fragment, a trailing or traversal segment; round-3
-codex R3-01 / round-4 codex R4-01), a head-branch mismatch, an exception raised
+anything but exactly that canonical address (another host, repository or number, a
+dot-segment owner or repository name, credentials, a port, a query, a fragment, a
+trailing or traversal segment; round-3
+codex R3-01 / round-4 codex R4-01 / round-5 codex R5-01), a head-branch mismatch, an exception raised
 anywhere in the check, the offline singular-header scan included (converted to a
 printed refusal, never a crash; round-3 claude F4 / round-4 claude F3), any other
 uncertainty -- keeps the demand and prints why. The online
@@ -807,13 +815,20 @@ GH_PR_VIEW_TIMEOUT = 10  # seconds; the ruling's "short bounded timeout"
 # git uses for it: a scheme URL (https/ssh/git, optional userinfo, NO port: a port names
 # a different endpoint) and the scp-like `[user@]github.com:owner/repo`. `.git` is
 # tolerated. Anything else (another host, a port, a path or file: remote, an unparsable
-# URL) fails closed: the demand is kept and the reason printed.
+# URL) fails closed: the demand is kept and the reason printed. ASCII-only (round-5
+# claude informational): under full-Unicode IGNORECASE the letter classes also match
+# case-folding lookalikes (the Kelvin sign U+212A folds to `k`), which `str.lower()`
+# then folds to ASCII, so a confusable non-ASCII origin owner could equal a gh answer's
+# ASCII owner; `re.ASCII` keeps the fold to the ASCII alphabets GitHub names use. The
+# caller additionally refuses an owner or repo captured as `.` or `..` (round-5 codex
+# R5-01): the repo class admits dots, and those two segments are names GitHub never
+# allows and URL resolution folds away.
 _ORIGIN_GITHUB_RE = re.compile(
     r"^(?:(?:https|ssh|git)://(?:[^/@\s]+@)?github\.com/"
     r"|(?:[^@/\s:]+@)?github\.com:)"
     r"(?P<owner>[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?)/"
     r"(?P<repo>[A-Za-z0-9._-]+?)(?:\.git)?/?$",
-    re.IGNORECASE,
+    re.IGNORECASE | re.ASCII,
 )
 
 # The canonical PR address, matched WHOLE via fullmatch (round-4 codex R4-01: the old
@@ -826,9 +841,14 @@ _ORIGIN_GITHUB_RE = re.compile(
 # scheme and host are literal and lowercase: gh emits them canonically, and any other
 # case fails closed. The owner/name classes are GitHub's identifier alphabets; equality
 # with origin's owner/name (case-insensitive) and with the declared PR number (digit
-# for digit) is the caller's check.
+# for digit) is the caller's check. The name class admits dots, so `.` and `..` -- the
+# two dot segments URL resolution folds away (`https://github.com/<owner>/../pull/<N>`
+# is not that PR's address) and names GitHub itself never allows -- would otherwise
+# fullmatch; the `(?!\.{1,2}/)` lookahead refuses exactly those two components while
+# `.github` and `repo.name` still match (round-5 codex R5-01). The owner class carries
+# no dot, so no owner dot segment can match.
 _PR_URL_RE = re.compile(
-    r"https://github\.com/(?P<owner>[A-Za-z0-9-]+)/(?P<name>[A-Za-z0-9._-]+)"
+    r"https://github\.com/(?P<owner>[A-Za-z0-9-]+)/(?!\.{1,2}/)(?P<name>[A-Za-z0-9._-]+)"
     r"/pull/(?P<n>[0-9]+)"
 )
 
@@ -903,18 +923,22 @@ def verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
     argument carries the host explicitly (gh's HOST/OWNER/REPO form), the gh subprocess
     runs with ``GH_HOST=github.com`` set over a copy of this process's environment, and
     the answer's ``url`` must BE ``https://github.com/<owner>/<repo>/pull/<N>`` exactly
-    (owner and name case-insensitively; round-4 codex R4-01: a prefix match accepted
-    traversal and other suffixes), the one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
+    (owner and name case-insensitively, neither a dot segment; round-4 codex R4-01: a
+    prefix match accepted traversal and other suffixes; round-5 codex R5-01: ``.`` and
+    ``..`` parsed as names), the one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
     current branch, a detached HEAD, an unreadable origin URL, an origin that is not a
-    parsable github.com remote (round-2 codex R2-02 / claude F2), a missing gh binary, a
+    parsable ASCII github.com remote (round-2 codex R2-02 / claude F2), an origin owner
+    or repository equal to the dot segment ``.`` or ``..`` (round-5 codex R5-01: both
+    pass every identity equality below while naming no real repository), a missing gh binary, a
     gh non-zero exit (auth, network, API, unknown PR), a timeout, unparsable or
     incomplete JSON, duplicate or conflicting JSON keys (round-2 codex R2-03), a state
     other than OPEN, a cross-repository (fork) PR or a head repository other than the
     origin repository itself (round-2 codex R2-01 / claude F1: ``headRefName`` is a bare
     branch name naming no repository, so a fork PR with the same branch name must keep
     the demand), a PR url that is anything but exactly the canonical github.com address
-    (another host, repository or number, credentials, a port, a query, a fragment, a
-    trailing or traversal segment; round-3 codex R3-01 / round-4 codex R4-01), and a
+    (another host, repository or number, a dot-segment owner or repository name,
+    credentials, a port, a query, a fragment, a trailing or traversal segment; round-3
+    codex R3-01 / round-4 codex R4-01 / round-5 codex R5-01), and a
     head branch other than the current branch each return ``(False, why)``,
     and the caller keeps the row demand and prints why. So does ANY exception the checks
     raise (round-3 claude F4: a RecursionError from hostile JSON nesting, a
@@ -961,6 +985,17 @@ def _verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
                        f"<owner>/<repo> remote, the only host gh is configured for here; "
                        f"any other or unparsable host fails closed")
     owner, repo_name = match.group("owner"), match.group("repo")
+    # Round-5 codex R5-01: the repo class admits dots, so `.` and `..` parsed as
+    # repository names, and a matching malformed gh answer then passed every identity
+    # check below while naming no real repository (URL resolution folds the segment
+    # away; GitHub itself never allows either name). The owner class cannot produce
+    # them (it must start and end alphanumeric); it is checked anyway so the refusal
+    # never depends on that class's shape.
+    if owner in (".", "..") or repo_name in (".", ".."):
+        return False, (f"the origin remote URL {url!r} parses to owner/repository "
+                       f"{owner}/{repo_name}, a dot-segment name GitHub never allows "
+                       f"and URL resolution folds away; it fails closed like any other "
+                       f"unparsable origin (round-5 codex R5-01)")
     repo = f"{owner}/{repo_name}"
     # Round-3 codex R3-01 / claude F1: the destination host is pinned in the --repo
     # argument AND in the subprocess environment, because a hostless --repo falls back
@@ -1023,7 +1058,10 @@ def _verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
     # tail and a newline tail all granted the exemption): _PR_URL_RE fullmatches the
     # whole string, then owner and name must equal origin's (case-insensitively, the
     # identity fold above) and the number must equal the declared PR digit for digit
-    # (so a prefix number like #26510 for #2651, and a leading zero, both fail).
+    # (so a prefix number like #26510 for #2651, and a leading zero, both fail). A
+    # dot-segment owner or name never fullmatches (_PR_URL_RE's lookahead, round-5
+    # codex R5-01), so a url built on `.` or `..` is refused here even if a matching
+    # malformed origin were ever accepted above.
     url_match = _PR_URL_RE.fullmatch(pr_url)
     expected = f"https://github.com/{repo}/pull/{own_pr}"
     if (url_match is None
