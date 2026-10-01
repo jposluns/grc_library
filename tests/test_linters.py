@@ -11282,13 +11282,20 @@ class BookkeepingParityTests(LinterTestCase):
         the disabled seam refused the online check (the printed withheld note names
         the seam's AssertionError). Anything else -- any other finding, any other
         withheld reason, more than one finding, exit 2, a traceback -- is a real
-        corpus or tool problem and stays fatal. One offline blind spot remains
-        INSIDE the tolerated shape (round-5 claude F1): a declared own PR already
-        squash-merged under a stale origin/main, its bypass row not yet written,
-        prints the same single withheld demand, so offline this acceptance cannot
-        tell it from the valid open-PR case; the live gate-50 run in
-        run_all_audits.sh still decides it, because there the real gh call reports
-        MERGED, or fails closed, and the demand stays.
+        corpus or tool problem and stays fatal. The offline blind spot INSIDE the
+        tolerated shape (round-5 claude F1; round-6 claude WARN-1 scoped it fully)
+        is every refusal only the online check could make: the smoke stub raises
+        on the check's FIRST process call (the git branch read), so offline no
+        process-dependent refusal ever runs, and every shape the live check would
+        refuse -- a declared own PR already squash-merged under a stale
+        origin/main, a CLOSED or superseded PR, a declared number belonging to
+        another branch's open PR, a fork PR, a detached HEAD, or an origin the
+        parse refuses (non-github.com, unparsable, a dot-segment or non-ASCII
+        owner or repository) -- prints the same single withheld demand as the
+        valid open-PR case, so offline this acceptance cannot tell them apart;
+        the live gate-50 run in run_all_audits.sh still decides every one of
+        them, because there the real git and gh calls answer, and anything but
+        gh's exact OPEN answer for this branch's own PR keeps the demand.
         """
         if result.returncode == 0:
             return None
@@ -33151,14 +33158,16 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertIn("exemption is withheld", out)
                 self.assertIn(why, out)
 
-    def test_gate_50_main_check6_refuses_a_dot_segment_or_non_ascii_origin(self) -> None:
+    def test_gate_50_main_check6_refuses_a_dot_segment_or_non_ascii_owner_origin(self) -> None:
         # Round-5 codex R5-01, through main(): the origin repo class admits dots, so
         # `https://github.com/jposluns/..` parsed to repository `..`, and a scripted
         # gh answer echoing that malformed identity passed every equality check and
-        # dropped the demand (the url `https://github.com/jposluns/../pull/2651`
-        # normalizes to `https://github.com/jposluns/pull/2651`, not the declared
-        # PR's repository address; `.` behaves the same). Both dot segments, the
-        # `.git`-stripped spelling that captures a dot segment, and (round-5 claude
+        # dropped the demand (URL resolution folds the segment away: the url
+        # `https://github.com/jposluns/../pull/2651` normalizes to
+        # `https://github.com/pull/2651`, and `https://github.com/jposluns/./pull/2651`
+        # to `https://github.com/jposluns/pull/2651` -- neither is the declared
+        # PR's repository address). Both dot segments, the `.git`-stripped
+        # spelling `..git` that captures `.`, and (round-5 claude
         # informational) a non-ASCII case-folding lookalike origin (the Kelvin sign
         # U+212A lowercases to ASCII `k`, so under full-Unicode IGNORECASE a
         # confusable owner equaled gh's ASCII owner) are each refused BEFORE any gh
@@ -33169,7 +33178,7 @@ class StoreScopeCeilingTests(LinterTestCase):
              self._own_pr_json(name=".."), "dot-segment"),
             ("dot-repo", "https://github.com/jposluns/.",
              self._own_pr_json(name="."), "dot-segment"),
-            ("dot-repo-via-git-suffix", "git@github.com:jposluns/...git",
+            ("dot-repo-via-git-suffix", "git@github.com:jposluns/..git",
              self._own_pr_json(name="."), "dot-segment"),
             ("kelvin-owner", "git@github.com:jposlun\u212a/grc_library.git",
              self._own_pr_json(owner="jposlunk"), "github.com"),
@@ -33457,7 +33466,11 @@ class StoreScopeCeilingTests(LinterTestCase):
         # fabrication against the real acceptance path, so a drifting note format
         # fails here first -- pin that only the disabled-seam reason is tolerated.
         # Kills: dropping the reason text from the acceptance's withheld-note regex,
-        # and loosening its AssertionError match to any raised exception.
+        # and loosening its whole "raised AssertionError (...)" tail to accept any
+        # raised exception (the OSError case then matches). NOT killed here (round-6
+        # codex): loosening the exception NAME alone while keeping the seam
+        # parenthetical, because every rejected reason below also changes the
+        # parenthetical.
         import types as _types
 
         def result(reason: str):

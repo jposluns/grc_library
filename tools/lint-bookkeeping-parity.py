@@ -153,7 +153,9 @@ header is the SINGULAR form (``own_pr_singular_header``: the compact
 ``**date | version | PR #N**`` or legacy ``## date, Library Version X, PR #N`` shape; a
 weekly roll-up or a range that happens to parse to one PR never qualifies); the origin
 remote parses as a github.com remote (the one host this repository's gh is configured
-for), in ASCII, with neither owner nor repository the dot segment ``.`` or ``..`` (two
+for), its owner and repository in ASCII (the optional userinfo is discarded, never
+compared and not constrained to ASCII), with neither owner nor repository the dot
+segment ``.`` or ``..`` (two
 names GitHub itself never allows, which URL resolution folds away; round-5 codex R5-01),
 with the destination host pinned TWO ways and the answer verified against it by a third
 (round-3 codex R3-01 / claude F1: a
@@ -176,8 +178,8 @@ repository (``isCrossRepository`` exactly false, ``headRepositoryOwner.login`` a
 ``headRepository.name`` equal to origin's owner and name): a branch name alone
 identifies no repository, so a fork PR with the same branch name keeps the demand
 (round-2 codex R2-01 / claude F1). Anything else -- no declaration, a roll-up or range
-header, a non-github.com, non-ASCII or unparsable origin (round-2 codex R2-02 / claude
-F2), an origin owner or repository equal to the dot segment ``.`` or ``..`` (round-5
+header, a non-github.com or unparsable origin, an origin owner or repository that is
+not ASCII (round-2 codex R2-02 / claude F2), an origin owner or repository equal to the dot segment ``.`` or ``..`` (round-5
 codex R5-01), no gh,
 a network or API error, a timeout, unparsable output, duplicate or conflicting JSON keys
 (refused by a duplicate-raising ``object_pairs_hook``, round-2 codex R2-03), a CLOSED or
@@ -815,11 +817,17 @@ GH_PR_VIEW_TIMEOUT = 10  # seconds; the ruling's "short bounded timeout"
 # git uses for it: a scheme URL (https/ssh/git, optional userinfo, NO port: a port names
 # a different endpoint) and the scp-like `[user@]github.com:owner/repo`. `.git` is
 # tolerated. Anything else (another host, a port, a path or file: remote, an unparsable
-# URL) fails closed: the demand is kept and the reason printed. ASCII-only (round-5
-# claude informational): under full-Unicode IGNORECASE the letter classes also match
-# case-folding lookalikes (the Kelvin sign U+212A folds to `k`), which `str.lower()`
-# then folds to ASCII, so a confusable non-ASCII origin owner could equal a gh answer's
-# ASCII owner; `re.ASCII` keeps the fold to the ASCII alphabets GitHub names use. The
+# URL) fails closed: the demand is kept and the reason printed. ASCII owner and
+# repository (round-5 claude informational): under full-Unicode IGNORECASE the letter
+# classes also match case-folding lookalikes (the Kelvin sign U+212A folds to `k`),
+# which `str.lower()` then folds to ASCII, so a confusable non-ASCII origin owner could
+# equal a gh answer's ASCII owner; `re.ASCII` keeps the fold to the ASCII alphabets
+# GitHub names use. That flag constrains only what the pattern itself spells in ASCII:
+# the optional userinfo is captured by nothing, discarded and never compared, so it is
+# NOT ASCII-only, and under `re.ASCII` the `\s` in its negated classes covers ASCII
+# whitespace only, so a userinfo carrying non-ASCII characters -- non-ASCII whitespace
+# included, which the same pattern without `re.ASCII` refused -- parses (round-6
+# claude). The
 # caller additionally refuses an owner or repo captured as `.` or `..` (round-5 codex
 # R5-01): the repo class admits dots, and those two segments are names GitHub never
 # allows and URL resolution folds away.
@@ -926,10 +934,17 @@ def verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
     (owner and name case-insensitively, neither a dot segment; round-4 codex R4-01: a
     prefix match accepted traversal and other suffixes; round-5 codex R5-01: ``.`` and
     ``..`` parsed as names), the one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
-    current branch, a detached HEAD, an unreadable origin URL, an origin that is not a
-    parsable ASCII github.com remote (round-2 codex R2-02 / claude F2), an origin owner
+    current branch, a detached HEAD, an unreadable origin URL, an origin that does not
+    parse as a github.com remote with ASCII owner and repository (round-2 codex R2-02 /
+    claude F2; the optional userinfo is discarded, never compared and not constrained
+    to ASCII), an origin owner
     or repository equal to the dot segment ``.`` or ``..`` (round-5 codex R5-01: both
-    pass every identity equality below while naming no real repository), a missing gh binary, a
+    pass every identity equality below while naming no real repository; a known
+    acceptance, round-6 claude informational: a captured name that merely CARRIES dots,
+    such as ``.git``, ``..git`` or ``...``, is not a dot segment -- URL resolution folds
+    only ``.`` and ``..``, and ``%`` is outside both the owner and repository classes,
+    so no encoded form can be spelled -- and parses and is compared like any other
+    name), a missing gh binary, a
     gh non-zero exit (auth, network, API, unknown PR), a timeout, unparsable or
     incomplete JSON, duplicate or conflicting JSON keys (round-2 codex R2-03), a state
     other than OPEN, a cross-repository (fork) PR or a head repository other than the
