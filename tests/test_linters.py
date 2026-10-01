@@ -18809,14 +18809,31 @@ class BacklogActionabilityTests(unittest.TestCase):
             self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
 
     def test_item_like_net_four_space_h3_stays_code(self):
-        # 3b126: the negative fixtures for _H3_RE's CommonMark indentation bounds -- a ``###`` behind four
-        # spaces (or a tab) is indented code, and so is one inside a blockquote when a tab or four-plus
-        # spaces follow the ``>``, or four spaces precede it; none is counted or reported.
+        # 3b126 round 2: the negative fixtures for the _h3_rest CommonMark indentation bounds, each one
+        # column past a boundary the positive test pins -- a ``###`` behind four spaces (or a tab) is
+        # indented code, and so is one inside a blockquote when four-plus COLUMNS separate the marker from
+        # ``###`` (a tab plus two spaces, or three spaces plus a tab), four spaces precede the first ``>``,
+        # or five columns separate nested markers; none is counted or reported.
         mod = self._load()
-        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent", ">\t### 3b7 tab quoted",
-                     ">     ### 3b7", "    > ### 3b7"):
+        for line in ("    ### 3b7 indented code", "\t### 3b7 tab indent", ">\t  ### 3b7", ">   \t### 3b7",
+                     ">     ### 3b7", "    > ### 3b7", "> >     ### 3b7", ">     > ### 3b7"):
             text = "## Q\n" + line + "\n"
             self.assertEqual(mod.uncounted_item_like(text), [], line)
+            self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
+
+    def test_item_like_net_quoted_h3_column_boundaries(self):
+        # 3b126 round 2 (each fixture CommonMark-confirmed with markdown-it): a blockquoted ``###`` stays a
+        # heading up to each COLUMN boundary, so the net must report it. A single tab after ``>`` always
+        # leaves 0-3 columns (the tab expands to the next multiple of four; the quote marker's optional
+        # space takes one of those columns); up to three spaces may precede the first ``>``; after a
+        # marker's space, up to three more columns may precede ``###`` or a nested ``>`` (so four spaces
+        # between nested markers). Every such line is reported by the net and never counted.
+        mod = self._load()
+        for line in (">\t### 3b7 tab quoted", " >\t### 3b7", "   >\t### 3b7", ">\t ### 3b7", "> \t### 3b7",
+                     ">  \t### 3b7", "> >\t### 3b7", ">    ### 3b7", "   > ### 3b7", "   ### 3b7",
+                     "> >    ### 3b7", ">    > ### 3b7", ">\t> ### 3b7", ">### 3b7"):
+            text = "## Q\n" + line + "\n"
+            self.assertEqual([ln for _n, ln in mod.uncounted_item_like(text)], [line.strip()], line)
             self.assertEqual(mod.parse_items(text, "private", ref_bodies={}), [], line)
 
 class HookToolItemCountParityTests(unittest.TestCase):

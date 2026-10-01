@@ -166,20 +166,43 @@ def _is_item_like(line: str) -> bool:
     return em.startswith(("*", "_")) and _lead_word_is_id(em)
 
 
-# Any CommonMark h3 spelling (``###\t``, one to three spaces of indentation -- four make it code), also behind
-# an optional BOM or blockquote ``>`` prefixes with the same bounds: up to three spaces before each ``>``, one
-# optional space after the last, then up to three more before ``###``; a tab or a fourth space anywhere in
-# that run makes it code inside the quote, not a heading (QA r10). No ``### `` heading is ever counted.
-_H3_RE = re.compile(r"^\ufeff?(?:(?: {0,3}>)+ ?)? {0,3}###[ \t]+(?P<rest>.*)$")
+# Any CommonMark h3 spelling (``###\t``, up to three columns of indentation -- four make it code), also behind
+# an optional BOM or blockquote ``>`` prefixes. The bounds are COLUMNS, not characters (QA r10 round 2): a tab
+# advances to the next multiple of four from its own column; each ``>`` may follow up to three columns of
+# indentation inside its container and consumes one optional following column of whitespace (a space, or ONE
+# column of a tab, whose remaining columns stay indentation); after the last marker up to three more columns
+# may precede ``###``. So ``>\t### x`` and ``>    > ### x`` are headings, while ``>\t  ### x`` and
+# ``>     > ### x`` are code inside the quote, not headings. No ``### `` heading is ever counted.
+def _h3_rest(line: str) -> "str | None":
+    """The text after a CommonMark ``###`` h3 opener (and its required space or tab), behind an optional BOM
+    and any blockquote ``>`` markers, or None when the line is no h3 (four-plus columns of indentation
+    anywhere in the run make it indented code inside its container; see the column bounds above)."""
+    if line[:1] == "\ufeff":
+        line = line[1:]
+    i = col = start = 0  # start = the column the current container's content begins at
+    while True:
+        while i < len(line) and line[i] in " \t":
+            col += 1 if line[i] == " " else 4 - col % 4
+            i += 1
+        if col - start > 3:
+            return None
+        if line[i:i + 1] != ">":
+            break
+        i += 1
+        col += 1
+        start = col + 1 if line[i:i + 1] in (" ", "\t") else col  # the marker's one optional following column
+    tail = line[i + 3:]
+    if line[i:i + 3] == "###" and tail[:1] in (" ", "\t"):
+        return tail.lstrip(" \t")
+    return None
 
 
 def _is_item_like_heading(line: str) -> bool:
     """A ``### `` heading the heading grammar does not count (behind a BOM or blockquote prefix too, QA r10),
     whose lead word or tag marks it an item (QA r8)."""
-    h = _H3_RE.match(line)
-    if not h or ITEM_HEADING_RE.match(line):
+    rest = _h3_rest(line)
+    if rest is None or ITEM_HEADING_RE.match(line):
         return False
-    rest = h.group("rest")
     return bool(_TAG_RE.search(rest)) or _lead_word_is_id(rest)
 
 
@@ -1437,16 +1460,25 @@ def _self_test() -> int:
               == [net_line.strip()])
     check("r9-pr-ref-with-colon", uncounted_item_like("## Q\n- **#2477:** MERGED\n") == [])
     # QA r10 (3b126): shapes the net previously missed -- a BOM or blockquoted h3, single-tilde strikethrough,
-    # strikethrough around a link, a task box with no space after it; four-or-more-space indentation stays code.
+    # strikethrough around a link, a task box with no space after it. Round 2: the quoted-h3 bounds are
+    # COLUMN-accurate (CommonMark-confirmed) -- a single tab after ``>`` always leaves 0-3 columns, so every
+    # such spelling is a heading; three spaces may precede the first ``>`` and, after a marker's optional
+    # space, three more columns may precede ``###`` or a nested ``>`` (four spaces between markers).
     for net_line in ("\ufeff### 3b7 bom heading", "> ### 3b7 quoted heading",
-                     "- ~**3b7 fix**~", "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**", "- [x]**3b8 fix**"):
+                     "- ~**3b7 fix**~", "- ~~[**3b7 fix**](u)~~", "- [ ]**3b7 fix**", "- [x]**3b8 fix**",
+                     ">\t### 3b7 tab quoted", " >\t### 3b7", "   >\t### 3b7", ">\t ### 3b7", "> \t### 3b7",
+                     ">  \t### 3b7", "> >\t### 3b7", ">    ### 3b7", "   > ### 3b7", "   ### 3b7",
+                     "> >    ### 3b7", ">    > ### 3b7", ">\t> ### 3b7", ">### 3b7"):
         check("r10-net-" + net_line[:16], [ln for _n, ln in uncounted_item_like("## Q\n" + net_line + "\n")]
               == [net_line.strip()])
     check("r10-four-space-h3-is-code", uncounted_item_like("## Q\n    ### 3b7 indented code\n") == [])
     check("r10-tab-indented-h3-is-code", uncounted_item_like("## Q\n\t### 3b7 tab indent\n") == [])
-    check("r10-tab-after-quote-is-code", uncounted_item_like("## Q\n>\t### 3b7 tab quoted\n") == [])
+    check("r10-tab-plus-two-spaces-in-quote-is-code", uncounted_item_like("## Q\n>\t  ### 3b7\n") == [])
+    check("r10-three-spaces-plus-tab-in-quote-is-code", uncounted_item_like("## Q\n>   \t### 3b7\n") == [])
     check("r10-deep-indent-in-quote-is-code", uncounted_item_like("## Q\n>     ### 3b7\n") == [])
+    check("r10-deep-indent-in-nested-quote-is-code", uncounted_item_like("## Q\n> >     ### 3b7\n") == [])
     check("r10-indented-quote-is-code", uncounted_item_like("## Q\n    > ### 3b7\n") == [])
+    check("r10-indented-nested-quote-is-code", uncounted_item_like("## Q\n>     > ### 3b7\n") == [])
     bh = "## Q\n- **3b7 x** y\n### 9.9 item\n- **3b8 body** z\n"
     check("r9-heading-after-bullet", [x[0] for x in parse_items(bh, "private", ref_bodies={})] == ["3b7", "9.9"])
     check("r4-three-space-fence-masks", parse_items("## Q\n   ```\n- **3b50 example**\n   ```\n", "private",
