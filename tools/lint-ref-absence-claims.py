@@ -47,7 +47,8 @@ inside them still pair as fences.
 
 The manifest covers four trusted acquisition buckets, not publications
 or books. Staleness is observable only once the manifest is regenerated;
-the gate reads the working-tree file (under the pre-commit hook, the staged content),
+the gate reads the working-tree file (under a `git commit` pre-commit run,
+the staged content of tracked files),
 and the sibling reference repository is never read. The advisory
 heuristics cannot reliably infer semantics; missing-content wordings are
 distinguished from missing-source wordings only by the documented token
