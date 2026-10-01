@@ -2,8 +2,8 @@
 
 **Document Title:** AI Synthetic-Content Provenance Guideline\
 **Document Type:** Guideline\
-**Version:** 0.0.4\
-**Date:** 2026-08-04\
+**Version:** 0.0.8\
+**Date:** 2026-10-01\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-model-documentation-and-transparency.md`](framework-ai-model-documentation-and-transparency.md), [`ai/template-ai-vendor-security-questionnaire.md`](template-ai-vendor-security-questionnaire.md), [`ai/procedure-foundation-model-lifecycle.md`](procedure-foundation-model-lifecycle.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/jurisdictions/annex-ai-european-union.md`](jurisdictions/annex-ai-european-union.md), [`ai/procedure-training-data-governance.md`](procedure-training-data-governance.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md)\
@@ -62,7 +62,7 @@ The labelling mechanism selected here is documented in the relevant system card 
 
 NIST AI 100-4 reports several provenance specifications the implementer may adopt. The Coalition for Content Provenance and Authenticity (C2PA) publishes a freely available specification for provenance data tracking that stores and signs metadata (assertions about origins, edit history, and a chain of provenance) for image, audio, and video, using hash functions, digital signatures, certificates with public-private key pairs, and trust lists of certificate authorities, in both embedded and external forms. NIST AI 100-4 also references file-signature and broadcast approaches beyond C2PA.
 
-These specifications are described here as NIST AI 100-4 reports them; the C2PA specification text and the other named tools are not independently held in the organization's reference base, so no normative requirement in this guideline rests on their primary text. An implementer adopting one confirms its current specification at the source.
+These specifications are described here as NIST AI 100-4 reports them; other tools it names include the SEAL and S/MIME 3.2 (RFC 5751) file-signature specifications and the ATSC A/334, A/335, and A/336 broadcast watermarking standards. The primary texts of C2PA and these examples are not held in the reference base, so no normative requirement in this guideline rests on their primary text. An implementer adopting one confirms its current specification at the source. <!-- ref-absence: C2PA | Secure Evidence Attribution Label | RFC 5751 | ATSC A/334 | ATSC A/335 | ATSC A/336 -->
 
 ## Testing and evaluating transparency techniques
 

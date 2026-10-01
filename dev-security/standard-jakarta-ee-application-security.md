@@ -2,8 +2,8 @@
 
 **Document Title:** Jakarta EE Application Security Standard\
 **Document Type:** Standard\
-**Version:** 0.0.4\
-**Date:** 2026-09-25\
+**Version:** 0.0.6\
+**Date:** 2026-10-01\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/policy-secure-development-and-engineering.md`](policy-secure-development-and-engineering.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-api-security.md`](standard-api-security.md), [`dev-security/standard-software-composition-analysis.md`](standard-software-composition-analysis.md), [`dev-security/standard-container-and-image-security.md`](standard-container-and-image-security.md), [`dev-security/procedure-secure-code-review.md`](procedure-secure-code-review.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/policy-identity-and-access-management.md`](../security/policy-identity-and-access-management.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-patch-management.md`](../operations/procedure-patch-management.md)\
@@ -272,7 +272,7 @@ Applies where the application uses the Jakarta Security OpenID Connect mechanism
 
 ## 19. Limitations
 
-This standard is a CC BY-SA 4.0 baseline. Application servers differ in how they expose platform features (cookie attributes, uncovered-method defaults, canonicalization options, identity-store blocking), so the standard states requirements rather than vendor-specific settings. Adopting organizations map each requirement to their server's configuration, and confirm the current platform and vendor guidance at each release. The injection, output-encoding, and anti-forgery requirements rest on OWASP ASVS 5.0.0 and CWE rather than on the Jakarta Persistence, Expression Language, Faces, and CDI specifications, which the reference base does not hold; javadoc-level details (password-hash parameters, cookie-attribute APIs, multipart limits) are likewise stated as outcomes rather than API settings.
+This standard is a CC BY-SA 4.0 baseline. Application servers differ in how they expose platform features (cookie attributes, uncovered-method defaults, canonicalization options, identity-store blocking), so the standard states requirements rather than vendor-specific settings. Adopting organizations map each requirement to their server's configuration, and confirm the current platform and vendor guidance at each release. The injection, output-encoding, and anti-forgery requirements rest on OWASP ASVS 5.0.0 and CWE rather than on the Jakarta Persistence, Expression Language, Faces, and CDI specifications, which are not held in the reference base; javadoc-level details (password-hash parameters, cookie-attribute APIs, multipart limits) are likewise stated as outcomes rather than API settings. <!-- ref-absence: Jakarta Persistence | Jakarta Expression Language | Jakarta Faces | Jakarta Contexts and Dependency Injection -->
 
 ---
 
