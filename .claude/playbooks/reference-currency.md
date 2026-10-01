@@ -83,9 +83,9 @@ attempt acquisition, then named options on failure. The project instantiation:
    whose marker query now matches a regenerated manifest row fails on the gate's next run against
    it: the commit hook where installed (which sees the staged file), the pre-push guard and CI. In
    that same PR, and in the same commit as the manifest or an earlier one, reword or retire each
-   claim the gate reports as stale. Within its scan scope the gate flags a marker only when a
-   manifest data row contains the marker's query text (ignoring case, runs of whitespace, and
-   curly-quote and dash variants), so also search for absence claims and `ref-absence` markers
+   claim the gate reports as stale. Within its scan scope the gate reports a marker as stale only when a
+   manifest data row contains one of its queries (normalized as gate 104's audit-programme entry
+   describes), so also search for absence claims and `ref-absence` markers
    naming the ingested source under other titles or identifiers, and reword or retire them. An
    ingest outside the four trusted buckets leaves the manifest unchanged, so the `--check` run is
    then the whole manifest step; the manifest has no rows for publications or books, so gate 104
