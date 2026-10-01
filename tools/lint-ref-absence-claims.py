@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reference-absence claim audit, using the committed acquisition manifest.
+"""Reference-absence claim audit, using the tracked acquisition manifest.
 
 Binding is line-bound under the maintainer ruling of 2026-09-30
 18:34Z, and detection fails closed under the ruling of 20:47Z. A
@@ -47,7 +47,7 @@ inside them still pair as fences.
 
 The manifest covers four trusted acquisition buckets, not publications
 or books. Staleness is observable only once the manifest is regenerated;
-the gate reads the manifest file on disk (working tree or staged copy),
+the gate reads the working-tree file (under the pre-commit hook, the staged content),
 and the sibling reference repository is never read. The advisory
 heuristics cannot reliably infer semantics; missing-content wordings are
 distinguished from missing-source wordings only by the documented token
@@ -851,7 +851,7 @@ def main(argv: "list[str]") -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Reference-absence claims carry ref-absence markers whose queries "
-            "stay absent from the committed reference-acquisition manifest."
+            "stay absent from the tracked reference-acquisition manifest."
         ),
     )
     parser.add_argument("paths", nargs="*", default=None, help="Paths to scan.")
@@ -860,7 +860,7 @@ def main(argv: "list[str]") -> int:
     if manifest_rows is None or not manifest_rows:
         print(
             f"ERROR: cannot read any data rows from {MANIFEST_PATH}; the "
-            f"committed manifest is this gate's staleness source "
+            f"tracked manifest is this gate's staleness source "
             f"(regenerate with tools/build-reference-manifest.py).",
             file=sys.stderr,
         )

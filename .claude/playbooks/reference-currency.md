@@ -83,12 +83,10 @@ attempt acquisition, then named options on failure. The project instantiation:
    whose marker query now matches a regenerated manifest row fails on the gate's next run against
    it: the commit hook where installed (which sees the staged file), the pre-push guard and CI. In
    that same PR, and in the same commit as the manifest or an earlier one, reword or retire each
-   claim the gate reports as stale. The gate sees only exact marker-query matches inside its scan
+   claim the gate reports as stale. The gate sees only rows that contain a marker query's text (case and whitespace aside) inside its scan
    scope, so also search for absence claims and `ref-absence` markers naming the ingested source
-   under other titles or identifiers, reword or retire them, and rename any marker query that no
-   longer matches. An ingest outside the four trusted buckets leaves the manifest unchanged, so the
-   `--check` run is then the whole manifest step; gate 104 never checks claims about publications or
-   books, so search for and reword any absence claim naming such a source by hand. If `--check`
+   under other titles or identifiers, reword or retire them; for claims that stay true, rename any marker query whose guessed title no longer fits how the manifest names the source. An ingest outside the four trusted buckets leaves the manifest unchanged, so the
+   `--check` run is then the whole manifest step; gate 104 never flags a claim about a publication or book as stale, so search for and reword any absence claim naming such a source by hand. If `--check`
    reports drift anyway (from an earlier change never regenerated), regenerate and ship the PR as
    above.
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
