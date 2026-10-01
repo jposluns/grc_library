@@ -50,7 +50,8 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
   version into `grc_library_ref`; keep the old but move its files, extracted text plus original,
   into `grc_library_ref`'s retained-version store `grc_library_ref/.superseded/` (bucket-mirrored
   layout and `REGISTER.md` per `grc_library_ref` `CONTRIBUTING.md`); update `catalogue.yml` and the
-  index docs).
+  index docs), then ship the `grc_library` reference-manifest regeneration PR, which immediately
+  follows every ingest PR (see the missing-reference SOP below).
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or egress is
   blocked), **pause and ask the maintainer.** On no response, apply the graceful-degradation
   default: defer the current item and move on to the next independent item (record it in
@@ -72,6 +73,12 @@ attempt acquisition, then named options on failure. The project instantiation:
    right bucket, extract to `--full-text.md`, catalogue in `catalogue.yml`, regenerate the indexes,
    run the ref gate), then continue against the now-held source. The `grc_library_ref` write is a
    cross-repo PR (writes to the sibling `grc_library_ref` repo go through its own PR, not a direct push).
+   **The reference-manifest regeneration PR follows immediately** (maintainer ruling 2026-09-29):
+   once the ingest PR merges, run `python3 tools/build-reference-manifest.py`, then `--check`, here
+   and ship the regenerated `docs/reference-acquisition-manifest.md` as the next `grc_library` PR,
+   so gate 104's staleness window stays one PR wide (a "not held" claim the ingest made stale stays
+   green until that PR lands, and that PR is where the gate flips it red). An ingest outside the
+   four trusted buckets leaves the manifest unchanged; the `--check` run is then the whole step.
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
    defer-and-skip via the roughly-5-minute graceful-degradation timer, recording the deferral in
    `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the
