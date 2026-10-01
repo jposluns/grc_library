@@ -159,8 +159,10 @@ can repoint at an enterprise server carrying a same-named repository, and no ide
 field below names a host): the explicit host-carrying ``--repo
 github.com/<owner>/<repo>`` (gh's HOST/OWNER/REPO form), ``GH_HOST=github.com`` pinned
 in the gh subprocess environment over a copy of this process's environment, and the
-answer's ``url`` required to begin ``https://github.com/<owner>/<repo>/pull/<N>`` (the
-one returned field that names a host); and ``gh pr view <N> --repo
+answer's ``url`` required to BE exactly ``https://github.com/<owner>/<repo>/pull/<N>``,
+owner and name case-insensitively, nothing before or after (the one returned field that
+names a host; a prefix check accepted traversal and other suffixes, round-4 codex
+R4-01); and ``gh pr view <N> --repo
 github.com/<owner>/<repo> --json
 state,headRefName,isCrossRepository,headRepositoryOwner,headRepository,url``
 (``verify_own_pr_open``, bounded by a short timeout) reports the PR OPEN, with its head
@@ -172,10 +174,13 @@ identifies no repository, so a fork PR with the same branch name keeps the deman
 header, a non-github.com or unparsable origin (round-2 codex R2-02 / claude F2), no gh,
 a network or API error, a timeout, unparsable output, duplicate or conflicting JSON keys
 (refused by a duplicate-raising ``object_pairs_hook``, round-2 codex R2-03), a CLOSED or
-MERGED state, a cross-repository flag, a head-repository mismatch, a PR url under any
-other host, repository or number (round-3 codex R3-01), a head-branch mismatch, an
-exception raised by the check itself (converted to a printed refusal, never a crash;
-round-3 claude F4), any other uncertainty -- keeps the demand and prints why. The online
+MERGED state, a cross-repository flag, a head-repository mismatch, a PR url that is
+anything but exactly that canonical address (another host, repository or number,
+credentials, a port, a query, a fragment, a trailing or traversal segment; round-3
+codex R3-01 / round-4 codex R4-01), a head-branch mismatch, an exception raised
+anywhere in the check, the offline singular-header scan included (converted to a
+printed refusal, never a crash; round-3 claude F4 / round-4 claude F3), any other
+uncertainty -- keeps the demand and prints why. The online
 call is lazy (it runs only when the exemption would actually bite: the own PR is
 in-window with no row) and injectable (``_gh_runner``): the in-process tests replace
 that seam, the corpus smoke test substitutes it inside its own subprocess before
@@ -811,6 +816,22 @@ _ORIGIN_GITHUB_RE = re.compile(
     re.IGNORECASE,
 )
 
+# The canonical PR address, matched WHOLE via fullmatch (round-4 codex R4-01: the old
+# prefix check accepted arbitrary non-digit suffixes, so a `/../` traversal to another
+# repository or PR, a tail like `2651x` and a newline tail all granted the exemption).
+# Nothing may precede or follow the match: no credentials, port, query, fragment,
+# trailing slash, extra segment or whitespace (a trailing newline fails because neither
+# `[0-9]` nor fullmatch's end consumes it; do NOT swap in urlsplit, which strips tabs
+# and newlines before parsing). `[0-9]`, not `\d`, so no non-ASCII digit matches. The
+# scheme and host are literal and lowercase: gh emits them canonically, and any other
+# case fails closed. The owner/name classes are GitHub's identifier alphabets; equality
+# with origin's owner/name (case-insensitive) and with the declared PR number (digit
+# for digit) is the caller's check.
+_PR_URL_RE = re.compile(
+    r"https://github\.com/(?P<owner>[A-Za-z0-9-]+)/(?P<name>[A-Za-z0-9._-]+)"
+    r"/pull/(?P<n>[0-9]+)"
+)
+
 
 class _DuplicateJSONKey(ValueError):
     """A gh JSON document carried the same key twice (round-2 codex R2-03): plain
@@ -881,8 +902,9 @@ def verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
     same-named repository, and none of the identity fields names a host): the ``--repo``
     argument carries the host explicitly (gh's HOST/OWNER/REPO form), the gh subprocess
     runs with ``GH_HOST=github.com`` set over a copy of this process's environment, and
-    the answer's ``url`` must begin ``https://github.com/<owner>/<repo>/pull/<N>``, the
-    one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
+    the answer's ``url`` must BE ``https://github.com/<owner>/<repo>/pull/<N>`` exactly
+    (owner and name case-insensitively; round-4 codex R4-01: a prefix match accepted
+    traversal and other suffixes), the one returned field that names a host. FAIL CLOSED, exhaustively: an unreadable
     current branch, a detached HEAD, an unreadable origin URL, an origin that is not a
     parsable github.com remote (round-2 codex R2-02 / claude F2), a missing gh binary, a
     gh non-zero exit (auth, network, API, unknown PR), a timeout, unparsable or
@@ -890,8 +912,10 @@ def verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
     other than OPEN, a cross-repository (fork) PR or a head repository other than the
     origin repository itself (round-2 codex R2-01 / claude F1: ``headRefName`` is a bare
     branch name naming no repository, so a fork PR with the same branch name must keep
-    the demand), a PR url under any other host, repository or number (round-3 codex
-    R3-01), and a head branch other than the current branch each return ``(False, why)``,
+    the demand), a PR url that is anything but exactly the canonical github.com address
+    (another host, repository or number, credentials, a port, a query, a fragment, a
+    trailing or traversal segment; round-3 codex R3-01 / round-4 codex R4-01), and a
+    head branch other than the current branch each return ``(False, why)``,
     and the caller keeps the row demand and prints why. So does ANY exception the checks
     raise (round-3 claude F4: a RecursionError from hostile JSON nesting, a
     UnicodeDecodeError or ValueError from the runner): the backstop here converts it to
@@ -993,15 +1017,23 @@ def _verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
                        f"carries the exemption")
     # The one returned field that names a HOST (round-3 codex R3-01): the identity
     # fields above pin owner, name and branch, but would match a same-named repository
-    # on whichever server gh answered from. The case fold mirrors the identity fold;
-    # the digit boundary stops a PR number sharing these digits as a prefix (#26510
-    # for #2651) from matching.
+    # on whichever server gh answered from. The url must BE the canonical address, not
+    # merely begin with it (round-4 codex R4-01: the prefix check accepted arbitrary
+    # non-digit suffixes, so a `/../` traversal to another repository or PR, a `2651x`
+    # tail and a newline tail all granted the exemption): _PR_URL_RE fullmatches the
+    # whole string, then owner and name must equal origin's (case-insensitively, the
+    # identity fold above) and the number must equal the declared PR digit for digit
+    # (so a prefix number like #26510 for #2651, and a leading zero, both fail).
+    url_match = _PR_URL_RE.fullmatch(pr_url)
     expected = f"https://github.com/{repo}/pull/{own_pr}"
-    if (not pr_url.lower().startswith(expected.lower())
-            or pr_url[len(expected):len(expected) + 1].isdigit()):
-        return False, (f"gh reports PR #{own_pr} url {pr_url!r}, not {expected} on "
-                       f"github.com itself; an answer about any other host, repository "
-                       f"or PR never carries the exemption (round-3 codex R3-01)")
+    if (url_match is None
+            or url_match.group("owner").lower() != owner.lower()
+            or url_match.group("name").lower() != repo_name.lower()
+            or url_match.group("n") != str(own_pr)):
+        return False, (f"gh reports PR #{own_pr} url {pr_url!r}, not exactly {expected} "
+                       f"on github.com itself; an answer about any other host, repository "
+                       f"or PR never carries the exemption (round-3 codex R3-01, round-4 "
+                       f"codex R4-01)")
     if head != branch:
         return False, f"gh reports PR #{own_pr} head branch {head!r}, not this branch {branch!r}"
     return True, ""
@@ -1010,8 +1042,22 @@ def _verify_own_pr_open(own_pr: int, *, runner=None) -> tuple[bool, str]:
 def check6_own_pr_exemption(changelog_text: str, own_pr: int, *, runner=None) -> tuple[bool, str]:
     """The complete 3b145 exemption test: singular header form first (offline, codex R2),
     then the online OPEN-on-this-branch-of-this-repo verification. ``main`` passes this
-    to ``bypass_log_findings`` as ``verify``; any ``(False, why)`` keeps the row demand."""
-    if not own_pr_singular_header(changelog_text, own_pr):
+    to ``bypass_log_findings`` as ``verify``; any ``(False, why)`` keeps the row demand.
+
+    The offline scan runs under the same exception backstop as the online check (round-4
+    claude F3: it used to run OUTSIDE ``verify_own_pr_open``'s backstop, where a
+    singular-shaped header whose PR number exceeds CPython's integer string-conversion
+    digit limit made ``int`` raise ValueError and crash the gate), so EVERY exception
+    this test raises keeps the demand with a printed reason, never a crash."""
+    try:
+        singular = own_pr_singular_header(changelog_text, own_pr)
+    except Exception as exc:  # the any-uncertainty contract: a crash never answers
+        detail = " ".join(str(exc).split())[:160]
+        return False, (f"the offline singular-header check raised {exc.__class__.__name__}"
+                       + (f" ({detail})" if detail else "")
+                       + "; an exception is uncertainty, so it is refused like any "
+                         "other failure (round-4 claude F3)")
+    if not singular:
         return False, ("its declaring root header is not the SINGULAR form (a weekly roll-up "
                        "or a range header can parse to one PR but never carries the exemption)")
     return verify_own_pr_open(own_pr, runner=runner)

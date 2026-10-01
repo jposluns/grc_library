@@ -11263,6 +11263,52 @@ class BookkeepingParityTests(LinterTestCase):
         spec.loader.exec_module(mod)
         return mod
 
+    GATE50_SEAM_REFUSAL = "tests never touch the network: online seam disabled"
+
+    @staticmethod
+    def gate50_corpus_smoke_problem(result) -> str | None:
+        """None when a seam-disabled gate-50 run is acceptable OFFLINE, else why not.
+
+        Round-4 codex R4-02: the corpus smoke test replaces ``_gh_runner`` with a
+        raising stub (tests never touch the network), so on a branch in EXACTLY the
+        valid 3b145 shape (a certain own-PR declaration below later-merged PRs'
+        headers, no bypass row yet, store present) the gate CORRECTLY keeps the own
+        PR's row demand (VERIFY ONLINE, FAIL CLOSED: an offline run can never
+        positively confirm the PR OPEN) and exits 1. Requiring exit 0 made this test,
+        and through gate 36 the whole audit, block the one workflow the exemption
+        exists for; only the live gate-50 run, whose real gh call can verify the PR
+        OPEN, may drop that demand. So the acceptable outcomes are exit 0, or exit 1
+        whose ONLY finding is the declared own PR's [bypass-log] demand kept because
+        the disabled seam refused the online check (the printed withheld note names
+        the seam's AssertionError). Anything else -- any other finding, any other
+        withheld reason, more than one finding, exit 2, a traceback -- is a real
+        corpus or tool problem and stays fatal, so nothing this test caught before
+        is tolerated.
+        """
+        if result.returncode == 0:
+            return None
+        if result.returncode != 1:
+            return f"exit {result.returncode} (neither clean nor the one tolerated failing shape)"
+        if "Traceback" in result.stderr:
+            return "a traceback escaped to stderr"
+        withheld = re.findall(
+            r"note: \[bypass-log\] PR #(\d+) is this branch's declared own PR, but the "
+            r"3b145 exemption is withheld: the online check raised AssertionError "
+            r"\(tests never touch the network: online seam disabled\)",
+            result.stdout)
+        if len(withheld) != 1:
+            return ("exit 1 without exactly one own-PR note withheld by the disabled "
+                    "online seam")
+        own = withheld[0]
+        count = re.search(r"^FAIL: (\d+) bookkeeping-parity finding\(s\)",
+                          result.stderr, re.MULTILINE)
+        own_demands = [line for line in result.stderr.splitlines()
+                       if line.startswith(f"  [bypass-log] PR #{own}: no row")]
+        if count is None or count.group(1) != "1" or len(own_demands) != 1:
+            return (f"findings beyond the declared own PR #{own}'s offline-withheld "
+                    f"bypass-log demand")
+        return None
+
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test: the live bookkeeping records satisfy parity at HEAD. Run in a
         # subprocess like the other corpus smoke tests, but through a loader that
@@ -11271,7 +11317,11 @@ class BookkeepingParityTests(LinterTestCase):
         # declared own PR is in-window with no bypass row would otherwise reach the
         # REAL gh, and the result would depend on network and auth. With the seam
         # replaced, that path is a deterministic offline refusal (fail closed, reason
-        # printed), so no test touches the network.
+        # printed), so no test touches the network. Because that refusal is the gate's
+        # CORRECT offline answer on a valid 3b145-shaped branch (round-4 codex R4-02),
+        # this test accepts exactly that one failing shape too (see
+        # gate50_corpus_smoke_problem) instead of demanding exit 0 and blocking the
+        # workflow the exemption exists to unblock; every other finding stays fatal.
         loader = (
             "import importlib.util, sys\n"
             f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
@@ -11280,7 +11330,7 @@ class BookkeepingParityTests(LinterTestCase):
             "mod = importlib.util.module_from_spec(spec)\n"
             "spec.loader.exec_module(mod)\n"
             "def _no_process(argv, *, timeout, env=None):\n"
-            "    raise AssertionError('tests never touch the network: online seam disabled')\n"
+            f"    raise AssertionError({BookkeepingParityTests.GATE50_SEAM_REFUSAL!r})\n"
             "mod._gh_runner = _no_process\n"
             "sys.exit(mod.main())\n"
         )
@@ -11288,11 +11338,13 @@ class BookkeepingParityTests(LinterTestCase):
             [sys.executable, "-c", loader],
             cwd=str(REPO_ROOT), capture_output=True, text=True,
         )
-        self.assertEqual(
-            result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD; the live "
-            f"validate-pr / improvement-log / TODO records should be in "
-            f"parity.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        problem = self.gate50_corpus_smoke_problem(result)
+        self.assertIsNone(
+            problem,
+            f"linter run is not offline-acceptable on HEAD ({problem}); the live "
+            f"validate-pr / improvement-log / TODO records should be in parity, with "
+            f"at most the declared own PR's bypass row withheld offline (round-4 "
+            f"codex R4-02).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
@@ -33035,20 +33087,42 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertEqual(runner.gh_env.get("GH_HOST"), "github.com")
 
     def test_gate_50_main_check6_keeps_the_demand_on_a_foreign_pr_url(self) -> None:
-        # Round-3 codex R3-01, through main(): none of the round-2 identity fields names
-        # a HOST, so a same-named, same-branched OPEN PR on another server (reached
-        # through a surviving GH_HOST or gh configuration path) would pass every offline
-        # and identity check. The answer's url is the one returned field naming the
-        # host, so it must sit under https://github.com/<owner>/<repo>/pull/<N> exactly:
+        # Round-3 codex R3-01 and round-4 codex R4-01, through main(): none of the
+        # round-2 identity fields names a HOST, so a same-named, same-branched OPEN PR
+        # on another server (reached through a surviving GH_HOST or gh configuration
+        # path) would pass every offline and identity check. The answer's url is the
+        # one returned field naming the host, so it must BE
+        # https://github.com/<owner>/<repo>/pull/<N> exactly, not merely begin with it
+        # (R4-01: the prefix check accepted arbitrary non-digit suffixes, so a `/../`
+        # traversal to another repository or PR, a `2651x` tail, a newline tail, a
+        # query, a fragment, a trailing slash and an extra segment all granted the
+        # exemption, and the blanket case fold accepted an uppercase scheme and host):
         # another host, another repository, another PR number, a number sharing these
-        # digits as a prefix, a missing url and a non-string url each keep the #2651
-        # demand and print why. Kills: dropping the url check, requesting url without
-        # checking it, and a boundary-less startswith (#26510 reading as #2651).
+        # digits as a prefix, each of those suffix forms, credentials, a port, another
+        # scheme, an uppercase scheme or host, a leading-zero number, a missing url and
+        # a non-string url each keep the #2651 demand and print why. Kills: the prefix
+        # match (with or without its digit boundary), a parser that strips whitespace
+        # before matching (urlsplit drops tabs and newlines), and dropping the
+        # number-equality, query, fragment or host comparison.
+        own = "https://github.com/jposluns/grc_library/pull/2651"
         cases = [
             ("ghe-url", self._own_pr_json(url="https://ghe.example.com/jposluns/grc_library/pull/2651"), "github.com itself"),
             ("other-repo-url", self._own_pr_json(url="https://github.com/mallory/grc_library/pull/2651"), "github.com itself"),
             ("other-number-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/9999"), "github.com itself"),
-            ("number-prefix-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/26510"), "github.com itself"),
+            ("number-prefix-url", self._own_pr_json(url=own + "0"), "github.com itself"),
+            ("traversal-foreign-url", self._own_pr_json(url=own + "/../../../../mallory/foreign/pull/9999"), "github.com itself"),
+            ("traversal-same-repo-url", self._own_pr_json(url=own + "/../../pull/9999"), "github.com itself"),
+            ("non-digit-tail-url", self._own_pr_json(url=own + "x"), "github.com itself"),
+            ("newline-tail-url", self._own_pr_json(url=own + "\\n"), "github.com itself"),
+            ("query-url", self._own_pr_json(url=own + "?x=1"), "github.com itself"),
+            ("fragment-url", self._own_pr_json(url=own + "#issue-link"), "github.com itself"),
+            ("trailing-slash-url", self._own_pr_json(url=own + "/"), "github.com itself"),
+            ("extra-segment-url", self._own_pr_json(url=own + "/files"), "github.com itself"),
+            ("uppercase-scheme-host-url", self._own_pr_json(url="HTTPS://GitHub.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("credentials-url", self._own_pr_json(url="https://jposluns@github.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("port-url", self._own_pr_json(url="https://github.com:443/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("http-scheme-url", self._own_pr_json(url="http://github.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("leading-zero-number-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/02651"), "github.com itself"),
             ("missing-url", self._own_pr_json(url=False), "unparsable"),
             ("non-string-url", '{"state": "OPEN", "headRefName": "tooling/own", '
                                '"isCrossRepository": false, '
@@ -33109,6 +33183,32 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertIn("[bypass-log] PR #2651", err)
                 self.assertIn("SINGULAR", out)
                 self.assertEqual(runner.calls, [])
+
+    def test_gate_50_check6_offline_header_exception_keeps_the_demand(self) -> None:
+        # Round-4 claude F3: `own_pr_singular_header` ran OUTSIDE the exception backstop
+        # (which wrapped only the online part of the check), so an exception from the
+        # offline scan crashed `check6_own_pr_exemption` instead of refusing: a
+        # singular-shaped compact header whose PR number exceeds CPython's integer
+        # string-conversion digit limit makes its `int()` raise ValueError. (Through
+        # main() the same text already fails closed earlier, because
+        # `parse_changelog_prs` hits the same limit, so the function seam `main` hands
+        # to `bypass_log_findings` is the surface to pin.) The offline scan now runs
+        # under the same backstop: the exemption is refused with a printed reason
+        # naming the exception, the demand is kept, and no git or gh process ever
+        # runs. Kills: hoisting the header scan back out of the backstop.
+        runner = self._GhRunner(gh=(0, self._own_pr_json(), ""))
+        text = ("**2026-09-30 | 2026.09.2651 | PR #" + "9" * 5000 + "**\n"
+                + self.header(2651))
+        limit = sys.get_int_max_str_digits()
+        sys.set_int_max_str_digits(4300)
+        try:
+            ok, why = self.bp.check6_own_pr_exemption(text, 2651, runner=runner)
+        finally:
+            sys.set_int_max_str_digits(limit)
+        self.assertFalse(ok)
+        self.assertIn("ValueError", why)
+        self.assertIn("refused", why)
+        self.assertEqual(runner.calls, [])
 
     def test_gate_50_main_check6_ignores_an_uncertain_scope_own_pr(self) -> None:
         # claude F2 case 2, through main(): a scope carrying own_pr WITHOUT open_rule (an
@@ -33185,16 +33285,11 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("[bypass-log] PR #521", r.stderr)
         self.assertIn("FAIL:", r.stderr)
 
-    def test_gate_50_smoke_seam_refuses_offline_when_the_exemption_bites(self) -> None:
-        # Round-3 network boundary (codex) / claude F2, end to end: the corpus smoke
-        # test now runs the gate in a subprocess through a loader that replaces
-        # `_gh_runner` before main(), so this pins what that pathway does in EXACTLY
-        # the 3b145 shape (declared own #522 below merged #523's header, no bypass row,
-        # store present): the online check becomes a deterministic offline refusal --
-        # the seam's exception is converted to a printed reason and the demand stays --
-        # never a real git/gh process, a network answer or a crash. Fails on the
-        # pre-fix tool, which let the seam's exception escape as a traceback with no
-        # refusal printed.
+    def _run_seam_smoke(self, bypass_rows: str):
+        """The corpus-smoke pathway against a fixture repository in the 3b145 shape
+        (declared own #522 below merged #523's header, store present, ``bypass_rows``
+        as the merge-bypass log): the gate in a subprocess through a loader that
+        replaces `_gh_runner` with the corpus smoke test's raising stub before main()."""
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp) / "repo"
             store = Path(tmp) / "store"
@@ -33208,8 +33303,7 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.header(523) + self._OWN_522_ROOT + self._BASE_ROOT, encoding="utf-8")
             (repo / "TODO.md").write_text("- open item\n", encoding="utf-8")
             store.mkdir()
-            (store / "merge-bypass-log.md").write_text(
-                "| 2026-09-30 | #521 | --admin |\n", encoding="utf-8")
+            (store / "merge-bypass-log.md").write_text(bypass_rows, encoding="utf-8")
             loader = (
                 "import importlib.util, sys\n"
                 f"sys.path.insert(0, {str(repo / 'tools')!r})\n"
@@ -33218,22 +33312,56 @@ class StoreScopeCeilingTests(LinterTestCase):
                 "mod = importlib.util.module_from_spec(spec)\n"
                 "spec.loader.exec_module(mod)\n"
                 "def _no_process(argv, *, timeout, env=None):\n"
-                "    raise AssertionError('tests never touch the network: online seam disabled')\n"
+                f"    raise AssertionError({BookkeepingParityTests.GATE50_SEAM_REFUSAL!r})\n"
                 "mod._gh_runner = _no_process\n"
                 "sys.exit(mod.main())\n"
             )
-            r = subprocess.run(
+            return subprocess.run(
                 [sys.executable, "-B", "-c", loader], cwd=str(repo),
                 capture_output=True, text=True,
                 env=dict(os.environ, GRC_STORE=str(store),
                          AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt")),
             )
+
+    def test_gate_50_smoke_seam_refuses_offline_when_the_exemption_bites(self) -> None:
+        # Round-3 network boundary (codex) / claude F2, end to end: the corpus smoke
+        # test runs the gate in a subprocess through a loader that replaces
+        # `_gh_runner` before main(), so this pins what that pathway does in EXACTLY
+        # the 3b145 shape (declared own #522 below merged #523's header, no bypass row,
+        # store present): the online check becomes a deterministic offline refusal --
+        # the seam's exception is converted to a printed reason and the demand stays --
+        # never a real git/gh process, a network answer or a crash. Fails on the
+        # pre-round-3 tool, which let the seam's exception escape as a traceback with
+        # no refusal printed. And round-4 codex R4-02: this one failing shape is the
+        # gate's CORRECT offline answer on the valid branch the exemption exists for,
+        # so the corpus smoke acceptance must tolerate exactly it; the pre-round-5
+        # acceptance (exit 0 required) rejected it, blocking that branch's whole audit
+        # through gate 36.
+        r = self._run_seam_smoke("| 2026-09-30 | #521 | --admin |\n")
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertIn("PR #522 is this branch's declared own PR", r.stdout)
         self.assertIn("exemption is withheld", r.stdout)
         self.assertIn("AssertionError", r.stdout)
         self.assertIn("[bypass-log] PR #522", r.stderr)
         self.assertNotIn("Traceback", r.stderr)
+        self.assertIsNone(BookkeepingParityTests.gate50_corpus_smoke_problem(r))
+
+    def test_gate_50_corpus_smoke_acceptance_rejects_any_other_finding(self) -> None:
+        # Round-4 codex R4-02's boundary: the corpus smoke acceptance tolerates ONLY
+        # the declared own PR's offline-withheld bypass-log demand. The same fixture
+        # whose bypass log anchors its floor at #520 without #521's row exits 1 with
+        # TWO findings (merged #521's genuinely missing row, plus withheld own #522),
+        # and the acceptance must name the excess, keeping the corpus test fatal for
+        # every real parity breach. Kills: an acceptance keyed on the exit code or the
+        # withheld note alone, one that tolerates any [bypass-log] finding, and one
+        # that ignores the FAIL count.
+        r = self._run_seam_smoke("| 2026-07-01 | #520 | --admin |\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("[bypass-log] PR #521", r.stderr)
+        self.assertIn("[bypass-log] PR #522", r.stderr)
+        problem = BookkeepingParityTests.gate50_corpus_smoke_problem(r)
+        self.assertIsNotNone(problem)
+        self.assertIn("beyond the declared own PR", problem)
 
     def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
         # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was
