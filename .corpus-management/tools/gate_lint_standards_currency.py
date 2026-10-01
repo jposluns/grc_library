@@ -807,11 +807,16 @@ _FENCE_LINE = re.compile(r"\s*(?:```|~~~)")
 
 
 def _simple_fences(lines):
-    """True when every fence-shaped line (what the toggle line model reads as a fence) is one a
-    Markdown renderer reads the same way: at column 1, a run of exactly three, an opener whose
-    backtick info string carries no backtick, and a closer of the opener's character with nothing
-    after it, with no block left open (3b75 QA r6, claude: a 4-backtick fence around a 3-backtick
-    line is one code block to a renderer and two toggles to the line model)."""
+    """True when every fence-shaped line is one a Markdown renderer reads the same way as the
+    toggle line model: at column 1, a run of exactly three, an opener whose backtick info string
+    carries no backtick, and a closer of the opener's character with nothing after it, with no
+    block left open (3b75 QA r6, claude: a 4-backtick fence around a 3-backtick line is one code
+    block to a renderer and two toggles to the line model). The screen (``_FENCE_LINE``) is
+    DELIBERATELY broader than the shared ``aiqt_corpus.is_fence_line`` (3b83): a marker behind
+    ANY leading whitespace is screened, including one indented four or more columns, which the
+    toggle model no longer reads as a fence but which a renderer could still read as a fence
+    inside a container block this check does not model; every screened line that is not a
+    column-1 exact-three fence refuses the sanction (fail closed) rather than being modelled."""
     open_char = None
     for line in lines:
         text = line.rstrip("\r\n")

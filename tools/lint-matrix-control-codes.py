@@ -36,7 +36,7 @@ from ccm_aicm_reference import is_aicm_only, is_ccm_v41  # noqa: E402  # grc ref
 from iso_27001_reference import check_iso_token  # noqa: E402  # shared with gate 58
 from nist_csf_reference import is_valid_category, relocation_note  # noqa: E402  # shared with gate 54
 from tsc_reference import is_tsc_group_heading, is_valid_tsc_criterion  # noqa: E402  # grc reference catalogue (3.57)
-from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, is_fence_line  # noqa: E402  # grc-config/store, fence predicate (3b83); stay local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
@@ -107,7 +107,13 @@ TABLE_LINE_ALLOWED = frozenset(chr(c) for c in range(0x20, 0x7F)) - {"<", "\\"} 
 # Characters Python's str.splitlines treats as line breaks but CommonMark does not: refused
 # anywhere in the file, since the checker and a renderer would disagree about the lines.
 NON_COMMONMARK_BREAKS = frozenset("\x0b\x0c\x1c\x1d\x1e\x85\u2028\u2029")
-FENCE_OR_HTML_RE = re.compile(r"^\s*(?:```|~~~|<[A-Za-z/!?])")
+# An HTML block opener at any indentation. The fence half of the same refusal is the shared
+# is_fence_line (3b83): a marker after at most three spaces of indent. A marker indented four or
+# more columns, or behind a tab, is read like any other line (after a blank line it is not a
+# finding; directly after a table it is refused as a trailing line): at top level it is indented
+# code or paragraph text, and a fence it opens inside a list item ends with that item, so it
+# cannot hide a table, every line of which must start at column 1.
+HTML_BLOCK_RE = re.compile(r"^\s*<[A-Za-z/!?]")
 DELIM_CELL_RE = re.compile(r"^:?-+:?$")
 
 
@@ -141,9 +147,9 @@ def canonical_structure_findings(text: str) -> list:
             continue
         # The canonical matrix carries no code fences and no HTML: a table inside either
         # does not render as a table, and inline or container-prefixed HTML (a blockquoted
-        # tag, an unclosed <div hidden>) can hide the tables after it, so a fence opener and
-        # any "<" anywhere in the file are refused outright.
-        if FENCE_OR_HTML_RE.match(line) or "<" in line:
+        # tag, an unclosed <div hidden>) can hide the tables after it, so a fence line (the
+        # shared is_fence_line, 3b83) and any "<" anywhere in the file are refused outright.
+        if is_fence_line(line) or HTML_BLOCK_RE.match(line) or "<" in line:
             refuse(lineno, "a code fence or an HTML block (a table inside one does not render)")
             width, expect_sep = None, False
             continue

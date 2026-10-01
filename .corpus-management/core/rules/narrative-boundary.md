@@ -13,9 +13,11 @@ start, not a prose mention of a field name) and fence-aware (a fenced example bl
 scanned; a marker-aware scan tracks the opening fence's character and run length, so a
 mismatched fence inside it is content, not a toggle). A file that ends inside an open
 fence is a fail-loud finding naming the opening line, never a silent skip of the remainder.
-The fence model is a local marker-aware approximation, not a full CommonMark parser (any
-leading indentation is accepted, a backtick info string may contain a backtick, and
-container blocks are not modelled), so the residue that stays silent is a fence
+The fence model is a local marker-aware approximation, not a full CommonMark parser (an
+opener or closer is eligible only after at most three spaces of indent, the CommonMark
+limit the shared fence predicate applies, so a marker indented four or more columns is
+content; a backtick info string may contain a backtick, and container blocks, list items
+and block quotes, are not modelled), so the residue that stays silent is a fence
 boundary or extent the model gets wrong while its scan still closes before the end of
 the file: a line it mis-recognizes as an opener followed by a later closer, or a fence
 that CommonMark ends at the edge of its list or blockquote container but this model

@@ -2,15 +2,15 @@
 """Unbalanced-fence audit (grc gate 66): pack-owned engine (source of record).
 
 No scanned markdown file may end inside an open fenced code block. The shared
-fence-aware iterator (``aiqt_corpus.iter_non_code_lines``) treats every line
-whose stripped form starts with three backticks or three tildes as a state
-TOGGLE, so an UNBALANCED fence (an odd number of fence lines) leaves the
-iterator "inside a code block" for the remainder of the file, silently
-suppressing every downstream fence-aware check's scanning of everything after
-it. Detection here mirrors the iterator's semantics EXACTLY (one shared toggle
-for both fence characters, ``line.strip()`` prefix match), so "this gate passes"
-and "the iterator scans the whole file" are the same statement; the fence syntax
-is therefore deliberately NOT configurable.
+fence-aware iterator (``aiqt_corpus.iter_non_code_lines``) treats every fence
+line (``aiqt_corpus.is_fence_line``: three backticks or three tildes after at
+most three spaces of indent, the CommonMark limit) as a state TOGGLE, so an
+UNBALANCED fence (an odd number of fence lines) leaves the iterator "inside a
+code block" for the remainder of the file, silently suppressing every
+downstream fence-aware check's scanning of everything after it. Detection here
+calls that same predicate rather than a private copy of it (3b83), so "this
+gate passes" and "the iterator scans the whole file" are the same statement by
+construction; the fence syntax is therefore deliberately NOT configurable.
 
 Engine/wrapper split (compile PR-6): this engine carries the pure check
 (``fence_lines`` + ``run``); the project wrapper
@@ -27,7 +27,7 @@ from __future__ import annotations
 from pathlib import Path
 
 try:
-    from aiqt_corpus import read_text_safe
+    from aiqt_corpus import is_fence_line, read_text_safe
 except ImportError as exc:  # fail loud: broken setup, never silently worked around
     raise ImportError(
         "the aiqt_corpus module is unavailable: run through the project wrapper "
@@ -38,11 +38,10 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 def fence_lines(text: str) -> list[int]:
     """Return the 1-indexed line numbers of every fence-toggle line,
-    using the same test as ``aiqt_corpus.iter_non_code_lines``."""
+    using the predicate ``aiqt_corpus.iter_non_code_lines`` toggles on."""
     hits: list[int] = []
     for lineno, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if stripped.startswith("```") or stripped.startswith("~~~"):
+        if is_fence_line(line):
             hits.append(lineno)
     return hits
 

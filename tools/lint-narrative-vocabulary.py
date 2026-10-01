@@ -130,6 +130,11 @@ def _self_test() -> int:
     # F3: a mismatched fence marker inside a fenced block must not toggle out, so
     # prose after the block is still scanned.
     expect("absolute-mixed-fence-noescape", "~~~\n```\nexample\n~~~\nThe control guarantees success.\n", ["absolute"])
+    # 3b83: a marker indented four or more columns is content (the shared 0-3 space
+    # indent rule), so a pair of them cannot hide the absolute between them, and an
+    # indented marker inside an open fence is not a closer.
+    expect("absolute-indented-marker-no-hide", "    ```\nThe control guarantees success.\n    ```\n", ["absolute"])
+    expect("absolute-indented-marker-not-a-closer", "```\n    ```\nguarantees\n```\nProse after.\n", [])
 
     # F2: a fenced block physically BETWEEN a blockquoted 'shall' and a later
     # citation must NOT collapse into false adjacency, so the shall is UNqualified.

@@ -17,7 +17,7 @@ import re
 from pathlib import Path  # noqa: F401  # used in check_file's annotation (get_type_hints fidelity)
 
 try:
-    from aiqt_corpus import CODE_SPAN_RE, read_text_safe
+    from aiqt_corpus import CODE_SPAN_RE, is_fence_line, read_text_safe
 except ImportError as exc:  # fail loud: broken setup, never silently worked around
     raise SystemExit(
         "gate_lint_narrative_vocabulary: cannot import the AIQT generic core "
@@ -95,6 +95,12 @@ def _noncode_lines(text: str) -> list[tuple[int, str | None]]:
     """Non-code (lineno, raw) lines, fence-MARKER-aware: a fenced block opened by
     ``` closes only on ```, and one opened by ~~~ only on ~~~, so a mismatched
     marker inside a block (``` inside a ~~~ fence) is content, not a toggle.
+    A line is ELIGIBLE as a marker only where the shared ``aiqt_corpus.is_fence_line``
+    accepts it (a marker after at most three spaces of indent, the CommonMark limit;
+    3b83), so a marker indented four or more columns is content: it neither opens a
+    block that would hide the lines after it nor closes an open one. The marker
+    PAIRING stays this engine's own model, which gate 66's toggle certificate does
+    not cover.
 
     Each elided fenced block is represented by a single sentinel ``(lineno, None)``
     at its opening line, so an adjacency walk STOPS at the fence boundary instead
@@ -103,8 +109,7 @@ def _noncode_lines(text: str) -> list[tuple[int, str | None]]:
     out: list[tuple[int, str | None]] = []
     fence: str | None = None  # the 3-char marker (``` or ~~~) that opened the block
     for lineno, raw in enumerate(text.splitlines(), 1):
-        stripped = raw.lstrip()
-        marker = stripped[:3] if (stripped.startswith("```") or stripped.startswith("~~~")) else None
+        marker = raw.lstrip()[:3] if is_fence_line(raw) else None
         if fence is None:
             if marker is not None:
                 fence = marker

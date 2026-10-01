@@ -19,8 +19,10 @@ linters themselves are written as Unicode escapes, so they are not literal glyph
 match.
 
 Engine/wrapper split (compile PR-8): this engine carries the PURE check (``DASH``,
-``INLINE_CODE`` = the shared ``aiqt_corpus.CODE_SPAN_RE``, ``FENCE``, ``strip_code``,
-``scan_text``, ``scan_file``), the ``pure_self_test_checks`` that exercise that check, and a
+``INLINE_CODE`` = the shared ``aiqt_corpus.CODE_SPAN_RE``, the shared fence predicate
+``aiqt_corpus.is_fence_line`` (3b83: it replaced the private ``FENCE`` regex, so a marker
+indented four or more columns is content here exactly as it is to the shared iterator),
+``strip_code``, ``scan_text``, ``scan_file``), the ``pure_self_test_checks`` that exercise that check, and a
 ``run`` that iterates the given files and reports. The project wrapper
 (``tools/lint-ungated-dashes.py``) supplies the grc operational scan SCOPE and the AIQT
 bootstrap; ``run`` takes the target list and the repo root from the wrapper and holds no
@@ -35,7 +37,7 @@ import re
 from pathlib import Path
 
 try:
-    from aiqt_corpus import CODE_SPAN_RE  # generic core (behaviour-identical to lint_common)
+    from aiqt_corpus import CODE_SPAN_RE, is_fence_line  # generic core (behaviour-identical to lint_common)
 except ImportError as exc:  # fail loud: broken setup, never silently worked around
     raise ImportError(
         "the aiqt_corpus module is unavailable: run through the project wrapper "
@@ -46,7 +48,9 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 DASH = re.compile("[\u2014\u2013]")
 # Inline-code span: a run of N backticks, shortest content, closing run of N backticks.
 INLINE_CODE = CODE_SPAN_RE
-FENCE = re.compile(r"^\s*(`{3,}|~{3,})")
+# Fence toggling is the shared predicate (3b83): three backticks or tildes after at most
+# three spaces of indent, exactly what aiqt_corpus.iter_non_code_lines toggles on, so this
+# gate and the shared iterator agree on which lines a fence hides.
 
 
 def strip_code(line: str) -> str:
@@ -64,7 +68,7 @@ def scan_text(text: str, is_md: bool):
     functional dash literals are Unicode-escaped and so are not literal glyphs."""
     in_fence = False
     for lineno, raw in enumerate(text.splitlines(), 1):
-        if is_md and FENCE.match(raw):
+        if is_md and is_fence_line(raw):
             in_fence = not in_fence
             continue
         if in_fence:
@@ -96,6 +100,8 @@ def pure_self_test_checks():
     c("md-inline-code-exempt", list(scan_text("Em-dashes (`\u2014`) are forbidden.\n", True)) == [])
     c("md-en-dash-flagged", list(scan_text("range 1\u20132\n", True)) == [(1, "range 1\u20132")])
     c("md-fence-exempt", list(scan_text("```\nx \u2014 y\n```\n", True)) == [])
+    c("md-indented-marker-not-a-fence",
+      list(scan_text("    ```\nx \u2014 y\n    ```\n", True)) == [(2, "x \u2014 y")])
     c("md-clean", list(scan_text("no dashes here, just commas.\n", True)) == [])
     c("py-comment-dash-flagged", list(scan_text("# a \u2014 b\n", False)) == [(1, "# a \u2014 b")])
     c("py-escaped-literal-clean", list(scan_text('P = "[\\\\u2014\\\\u2013]"\n', False)) == [])
