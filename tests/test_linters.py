@@ -11263,14 +11263,100 @@ class BookkeepingParityTests(LinterTestCase):
         spec.loader.exec_module(mod)
         return mod
 
+    GATE50_SEAM_REFUSAL = "tests never touch the network: online seam disabled"
+
+    @staticmethod
+    def gate50_corpus_smoke_problem(result) -> str | None:
+        """None when a seam-disabled gate-50 run is acceptable OFFLINE, else why not.
+
+        Round-4 codex R4-02: the corpus smoke test replaces ``_gh_runner`` with a
+        raising stub (tests never touch the network), so on a branch in EXACTLY the
+        valid 3b145 shape (a certain own-PR declaration below later-merged PRs'
+        headers, no bypass row yet, store present) the gate CORRECTLY keeps the own
+        PR's row demand (VERIFY ONLINE, FAIL CLOSED: an offline run can never
+        positively confirm the PR OPEN) and exits 1. Requiring exit 0 made this test,
+        and through gate 36 the whole audit, block the one workflow the exemption
+        exists for; only the live gate-50 run, whose real gh call can verify the PR
+        OPEN, may drop that demand. So the acceptable outcomes are exit 0, or exit 1
+        whose ONLY finding is the declared own PR's [bypass-log] demand kept because
+        the disabled seam refused the online check (the printed withheld note names
+        the seam's AssertionError). Anything else -- any other finding, any other
+        withheld reason, more than one finding, exit 2, a traceback -- is a real
+        corpus or tool problem and stays fatal. The offline blind spot INSIDE the
+        tolerated shape (round-5 claude F1; round-6 claude WARN-1 scoped it fully)
+        is every refusal only the online check could make: the smoke stub raises
+        on the check's FIRST process call (the git branch read), so offline no
+        process-dependent refusal ever runs, and every shape the live check would
+        refuse -- a declared own PR already squash-merged under a stale
+        origin/main, a CLOSED or superseded PR, a declared number belonging to
+        another branch's open PR, a fork PR, a detached HEAD, or an origin the
+        parse refuses (non-github.com, unparsable, a dot-segment or non-ASCII
+        owner or repository) -- prints the same single withheld demand as the
+        valid open-PR case, so offline this acceptance cannot tell them apart;
+        the live gate-50 run in run_all_audits.sh still decides every one of
+        them, because there the real git and gh calls answer, and anything but
+        gh's exact OPEN answer for this branch's own PR keeps the demand.
+        """
+        if result.returncode == 0:
+            return None
+        if result.returncode != 1:
+            return f"exit {result.returncode} (neither clean nor the one tolerated failing shape)"
+        if "Traceback" in result.stderr:
+            return "a traceback escaped to stderr"
+        withheld = re.findall(
+            r"note: \[bypass-log\] PR #(\d+) is this branch's declared own PR, but the "
+            r"3b145 exemption is withheld: the online check raised AssertionError "
+            r"\(tests never touch the network: online seam disabled\)",
+            result.stdout)
+        if len(withheld) != 1:
+            return ("exit 1 without exactly one own-PR note withheld by the disabled "
+                    "online seam")
+        own = withheld[0]
+        count = re.search(r"^FAIL: (\d+) bookkeeping-parity finding\(s\)",
+                          result.stderr, re.MULTILINE)
+        own_demands = [line for line in result.stderr.splitlines()
+                       if line.startswith(f"  [bypass-log] PR #{own}: no row")]
+        if count is None or count.group(1) != "1" or len(own_demands) != 1:
+            return (f"findings beyond the declared own PR #{own}'s offline-withheld "
+                    f"bypass-log demand")
+        return None
+
     def test_runs_clean_on_corpus_at_head(self) -> None:
-        # Smoke test: the live bookkeeping records satisfy parity at HEAD.
-        result = run_linter("tools/lint-bookkeeping-parity.py")
-        self.assertEqual(
-            result.returncode, 0,
-            f"linter exited {result.returncode} on HEAD; the live "
-            f"validate-pr / improvement-log / TODO records should be in "
-            f"parity.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        # Smoke test: the live bookkeeping records satisfy parity at HEAD. Run in a
+        # subprocess like the other corpus smoke tests, but through a loader that
+        # replaces the module's `_gh_runner` seam before main() (round-3 codex network
+        # boundary / claude F2): with the operational store present, a branch whose
+        # declared own PR is in-window with no bypass row would otherwise reach the
+        # REAL gh, and the result would depend on network and auth. With the seam
+        # replaced, that path is a deterministic offline refusal (fail closed, reason
+        # printed), so no test touches the network. Because that refusal is the gate's
+        # CORRECT offline answer on a valid 3b145-shaped branch (round-4 codex R4-02),
+        # this test accepts exactly that one failing shape too (see
+        # gate50_corpus_smoke_problem) instead of demanding exit 0 and blocking the
+        # workflow the exemption exists to unblock; every other finding stays fatal.
+        loader = (
+            "import importlib.util, sys\n"
+            f"sys.path.insert(0, {str(REPO_ROOT / 'tools')!r})\n"
+            "spec = importlib.util.spec_from_file_location(\n"
+            f"    '_bp_corpus_smoke', {str(REPO_ROOT / 'tools' / 'lint-bookkeeping-parity.py')!r})\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "def _no_process(argv, *, timeout, env=None):\n"
+            f"    raise AssertionError({BookkeepingParityTests.GATE50_SEAM_REFUSAL!r})\n"
+            "mod._gh_runner = _no_process\n"
+            "sys.exit(mod.main())\n"
+        )
+        result = subprocess.run(
+            [sys.executable, "-c", loader],
+            cwd=str(REPO_ROOT), capture_output=True, text=True,
+        )
+        problem = self.gate50_corpus_smoke_problem(result)
+        self.assertIsNone(
+            problem,
+            f"linter run is not offline-acceptable on HEAD ({problem}); the live "
+            f"validate-pr / improvement-log / TODO records should be in parity, with "
+            f"at most the declared own PR's bypass row withheld offline (round-4 "
+            f"codex R4-02).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
@@ -12116,6 +12202,51 @@ class BookkeepingParityTests(LinterTestCase):
             "| --- | --- | --- | --- | --- | --- |\n"
         )
         self.assertEqual(mod.parse_bypass_prs(text), {1174})
+
+    def test_bypass_log_declared_own_pr_below_merged_prs_is_exempt(self) -> None:
+        # Check 6 / 3b145: the #2653 class. A rebased branch carried merged #2654-#2665 above
+        # its own unmerged #2653, so #2653 fell below max_pr and its own pre-push guard demanded
+        # a bypass row that may only record an OBSERVED merge. With the declared own PR passed,
+        # exactly that PR is exempt and the window stays green.
+        mod = self._load_module()
+        self.assertEqual(
+            mod.bypass_log_findings({2600, 2653, 2654, 2665}, {2600, 2654}, own_pr=2653), [],
+            "the branch's declared own PR must be exempt even below later-merged PRs",
+        )
+
+    def test_bypass_log_no_declaration_keeps_the_loud_false_positive(self) -> None:
+        # Check 6 / 3b145 guard: with no certain declaration (own_pr=None, the default), the
+        # out-of-order PR still flags. Fail-closed, per the 2026-08-10 precedent: a demand is
+        # only ever dropped on a certain own-PR declaration, never on an absent or uncertain one.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({2600, 2653, 2654, 2665}, {2600, 2654})
+        self.assertTrue(findings, "without a declaration the out-of-order PR must still flag")
+        self.assertIn("#2653", findings[0])
+
+    def test_bypass_log_own_pr_exemption_never_reaches_any_other_pr(self) -> None:
+        # Check 6 / 3b145 guard: merged PRs with no row, both BELOW (#2650) and ABOVE (#2660)
+        # the declared own PR, still fail; only the one declared PR is exempt.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({2600, 2650, 2653, 2660, 2665}, {2600}, own_pr=2653)
+        self.assertEqual(len(findings), 2, findings)
+        self.assertTrue(any("#2650" in f for f in findings),
+                        "a merged PR below the own PR with no row must still flag")
+        self.assertTrue(any("#2660" in f for f in findings),
+                        "a merged PR above the own PR with no row must still flag")
+        self.assertFalse(any("#2653" in f for f in findings),
+                         "the declared own PR must never be flagged")
+
+    def test_bypass_log_own_pr_not_in_window_is_inert(self) -> None:
+        # Check 6 / 3b145: an own_pr that matches nothing in the window exempts nothing
+        # (the exemption is an identity match, never a widening), and an own PR that
+        # already has a row changes nothing.
+        mod = self._load_module()
+        findings = mod.bypass_log_findings({2600, 2653, 2665}, {2600}, own_pr=9999)
+        self.assertEqual(len(findings), 1, findings)
+        self.assertIn("#2653", findings[0])
+        self.assertEqual(
+            mod.bypass_log_findings({2600, 2653, 2665}, {2600, 2653}, own_pr=2653), [],
+        )
 
     def test_register_row_order_ascending_passes(self) -> None:
         # Check 5: a run-table in strictly ascending run-number order: no flag.
@@ -32784,6 +32915,408 @@ class StoreScopeCeilingTests(LinterTestCase):
                                            self.bp.__file__, "exec"), namespace)
             self.assertEqual(caught.exception.code, 1)
 
+    # ---- gate 50 Check 6 online own-PR verification (3b145 ruling 2026-10-01 12:49Z) ----
+
+    class _GhRunner:
+        """Scripted stand-in for the gate's ``_gh_runner`` seam: it answers the two local
+        git reads and the one gh call from fixture values, records every argv and the gh
+        call's environment (round-3 codex R3-01 / claude F1: the GH_HOST pin), and never
+        starts a process, so these tests cannot touch git, gh or the network."""
+
+        def __init__(self, branch="tooling/own", gh=None, gh_exc=None,
+                     url="git@github.com:jposluns/grc_library.git", branch_rc=0, url_rc=0):
+            self.branch, self.url, self.gh, self.gh_exc = branch, url, gh, gh_exc
+            self.branch_rc, self.url_rc = branch_rc, url_rc
+            self.calls: list[list[str]] = []
+            self.gh_env: dict[str, str] | None = None
+
+        def __call__(self, argv, *, timeout, env=None):
+            self.calls.append(list(argv))
+            if argv[0] == "git" and "rev-parse" in argv:
+                return subprocess.CompletedProcess(argv, self.branch_rc, self.branch + "\n", "")
+            if argv[0] == "git" and "remote" in argv:
+                return subprocess.CompletedProcess(argv, self.url_rc, self.url + "\n", "")
+            assert argv[0] == "gh", argv
+            self.gh_env = env
+            if self.gh_exc is not None:
+                raise self.gh_exc
+            rc, stdout, stderr = self.gh
+            return subprocess.CompletedProcess(argv, rc, stdout, stderr)
+
+    def _check6_main(self, runner, *, own_header=None, scope=None):
+        """Gate 50's main() with merged #2665/#2654/#2600 above own #2651 (not #2653, which
+        KNOWN_SKIPPED_PRS would subtract) and bypass rows for #2654 and #2600 only, so the
+        floor is #2600 and the one in-window missing row is the declared own PR's."""
+        root = (self.header(2665) + self.header(2654)
+                + (own_header if own_header is not None else self.header(2651))
+                + self.header(2600))
+        files = dict([("CHANGELOG.md", root), ("TODO.md", "")])
+        working = dict([("merge-bypass-log.md", self._Stub(
+            "| 2026-09-30 | #2654 | --admin |\n| 2026-07-01 | #2600 | --admin |\n"))])
+        if scope is None:
+            scope = self.lc.StoreScope(2665, 2651, 2665, None, (), (), True)
+        with self.patch.object(self.bp, "_gh_runner", runner):
+            return self._gate_50_main(files, working, scope)
+
+    @staticmethod
+    @staticmethod
+    def _own_pr_json(state="OPEN", head="tooling/own", cross=False,
+                     owner="jposluns", name="grc_library", number=2651, url=None):
+        """The full gh answer the hardened verifier demands: state, head branch, the
+        round-2 head-repository identity fields (codex R2-01 / claude F1) and the
+        round-3 host-naming url (codex R3-01). ``cross`` takes a bool or a raw JSON
+        token (so a subcase can model null or a quoted string); ``url`` defaults to
+        the PR's canonical github.com address, takes any replacement string, or is
+        omitted entirely with ``url=False``."""
+        if cross is True or cross is False:
+            cross = "true" if cross else "false"
+        if url is None:
+            url = f"https://github.com/{owner}/{name}/pull/{number}"
+        url_field = "" if url is False else f', "url": "{url}"'
+        return (f'{{"state": "{state}", "headRefName": "{head}", '
+                f'"isCrossRepository": {cross}, '
+                f'"headRepositoryOwner": {{"login": "{owner}"}}, '
+                f'"headRepository": {{"name": "{name}"}}{url_field}}}')
+
+    def test_gate_50_main_check6_exempts_only_the_gh_verified_open_own_pr(self) -> None:
+        # Ruling 2026-10-01 12:49Z (VERIFY ONLINE, FAIL CLOSED) + claude F2 case 1, through
+        # main(): a certain SINGULAR declaration for #2651, verified OPEN on this branch of
+        # the origin repository itself by the injected runner, drops exactly that demand,
+        # prints the verified note, and the exact online argv is pinned (owner/repo parsed
+        # from the github.com origin URL and prefixed with the HOST -- gh's HOST/OWNER/REPO
+        # --repo form, with GH_HOST pinned over a copy of the gate's environment, round-3
+        # codex R3-01 / claude F1; state, head branch, the round-2 head-repository identity
+        # fields and the round-3 url requested). Kills: dropping the main() handoff, passing
+        # own_pr without the verifier, any drift in the gh command shape, and an environment
+        # built fresh instead of copied (PATH must survive, or gh itself would stop
+        # resolving).
+        runner = self._GhRunner(gh=(0, self._own_pr_json(), ""))
+        rc, out, err = self._check6_main(runner)
+        self.assertEqual(rc, 0, out + err)
+        self.assertNotIn("[bypass-log]", err)
+        self.assertIn("PR #2651 is this branch's declared own PR", out)
+        self.assertIn("verified OPEN on this branch via gh", out)
+        self.assertIn(["gh", "pr", "view", "2651", "--repo", "github.com/jposluns/grc_library",
+                       "--json", "state,headRefName,isCrossRepository,headRepositoryOwner,"
+                                 "headRepository,url"], runner.calls)
+        self.assertEqual(runner.gh_env.get("GH_HOST"), "github.com")
+        self.assertEqual(runner.gh_env.get("PATH"), os.environ.get("PATH"))
+
+    def test_gate_50_main_check6_keeps_the_demand_on_every_online_failure(self) -> None:
+        # Ruling 2026-10-01 12:49Z fail-closed matrix, through main(): a MERGED or CLOSED
+        # state, a head-branch mismatch, a gh error exit, a missing gh binary, a timeout,
+        # unparsable or key-less JSON, an unreadable branch, a detached HEAD and an
+        # unparsable origin URL each keep the #2651 demand and print why; so does any
+        # EXCEPTION the online check raises (round-3 claude F4: hostile JSON nesting's
+        # RecursionError, the runner's UnicodeDecodeError on undecodable gh output, its
+        # ValueError on an unrunnable argv), each converted to a printed refusal naming
+        # the exception, never a crash. Kills: mapping any online failure to the
+        # exemption, a silent (note-less) refusal, and the uncaught-exception crash.
+        own_head = self._own_pr_json()
+        cases = [
+            ("merged", self._GhRunner(gh=(0, self._own_pr_json(state="MERGED"), "")), "MERGED"),
+            ("closed", self._GhRunner(gh=(0, self._own_pr_json(state="CLOSED"), "")), "CLOSED"),
+            ("head-mismatch", self._GhRunner(gh=(0, self._own_pr_json(head="someone-elses-branch"), "")), "head branch"),
+            ("gh-error", self._GhRunner(gh=(1, "", "HTTP 502 from api.github.com")), "exit 1"),
+            ("gh-missing", self._GhRunner(gh_exc=FileNotFoundError("gh")), "not available"),
+            ("timeout", self._GhRunner(gh_exc=subprocess.TimeoutExpired(cmd=["gh"], timeout=10)), "did not answer"),
+            ("unparsable", self._GhRunner(gh=(0, "::not json::", "")), "unparsable"),
+            ("missing-key", self._GhRunner(gh=(0, '{"state": "OPEN"}', "")), "unparsable"),
+            ("branch-unreadable", self._GhRunner(branch_rc=128, gh=(0, own_head, "")), "current branch"),
+            ("detached-head", self._GhRunner(branch="HEAD", gh=(0, own_head, "")), "detached"),
+            ("bad-origin-url", self._GhRunner(url="not a remote url", gh=(0, own_head, "")), "origin"),
+            ("hostile-json-nesting", self._GhRunner(gh=(0, "[" * 100000, "")), "RecursionError"),
+            ("undecodable-output", self._GhRunner(gh_exc=UnicodeDecodeError(
+                "utf-8", b"\xff", 0, 1, "invalid start byte")), "UnicodeDecodeError"),
+            ("unrunnable-argv", self._GhRunner(gh_exc=ValueError("embedded null byte")), "ValueError"),
+        ]
+        for name, runner, why in cases:
+            with self.subTest(case=name):
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+
+    def test_gate_50_main_check6_keeps_the_demand_on_wrong_pr_identity(self) -> None:
+        # Round-2 ruling additions, through main(): the exemption verifies the PR's head
+        # REPOSITORY as well as its head branch (codex R2-01 / claude F1: headRefName is a
+        # bare branch name, so a fork PR with the same name must keep the demand), the
+        # ORIGIN HOST as well as its owner/name (codex R2-02 / claude F2: a last-two-
+        # segments parse maps a GHE, GitLab or local-path origin onto the same-named
+        # github.com repo), and gh's JSON must be conflict-free (codex R2-03: plain
+        # json.loads keeps the LAST duplicate, so MERGED-then-OPEN reads OPEN). Each case
+        # keeps the #2651 demand and prints why; a non-github.com origin is refused before
+        # any gh call. Kills: name-only head identity, a hostless --repo, plain json.loads.
+        dup = ('{"state": "MERGED", "state": "OPEN", "headRefName": "tooling/own", '
+               '"isCrossRepository": false, "headRepositoryOwner": {"login": "jposluns"}, '
+               '"headRepository": {"name": "grc_library"}}')
+        cases = [
+            ("fork-same-branch", self._GhRunner(gh=(0, self._own_pr_json(cross=True, owner="mallory"), "")), "cross-repository", False),
+            ("cross-repo-flag", self._GhRunner(gh=(0, self._own_pr_json(cross=True), "")), "cross-repository", False),
+            ("foreign-head-owner", self._GhRunner(gh=(0, self._own_pr_json(owner="mallory"), "")), "head repository", False),
+            ("foreign-head-name", self._GhRunner(gh=(0, self._own_pr_json(name="grc_library_fork"), "")), "head repository", False),
+            ("ghe-host", self._GhRunner(url="git@ghe.example.com:jposluns/grc_library.git", gh=(0, self._own_pr_json(), "")), "github.com", True),
+            ("gitlab-host", self._GhRunner(url="https://gitlab.com/jposluns/grc_library.git", gh=(0, self._own_pr_json(), "")), "github.com", True),
+            ("path-origin", self._GhRunner(url="/srv/jposluns/grc_library.git", gh=(0, self._own_pr_json(), "")), "github.com", True),
+            ("duplicate-keys", self._GhRunner(gh=(0, dup, "")), "duplicate JSON key", False),
+        ]
+        for name, runner, why, refused_before_gh in cases:
+            with self.subTest(case=name):
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+                if refused_before_gh:
+                    self.assertNotIn("gh", [argv[0] for argv in runner.calls])
+
+    def test_gate_50_main_check6_pins_the_gh_host_against_a_conflicting_gh_host(self) -> None:
+        # Round-3 codex R3-01 / claude F1, through main(): a hostless --repo resolves
+        # against gh's DEFAULT host, which GH_HOST can repoint at an enterprise server
+        # carrying a same-named repository, so a github.com origin alone does not pin
+        # gh's destination. With GH_HOST pointing at such a server, the gate still names
+        # github.com in the --repo argument AND overrides GH_HOST in the gh subprocess's
+        # environment, and the exemption is granted from the github.com answer. The
+        # mixed-case subcase accepts a differently-cased clone URL (GitHub owner/repo
+        # names are case-insensitive identifiers) against gh's canonical-case answer.
+        # Kills: the hostless --repo, an inherited GH_HOST, and dropping the identity
+        # and url case folds (which would refuse a valid mixed-case origin).
+        for name, origin, repo_arg in (
+                ("conflicting-gh-host", "git@github.com:jposluns/grc_library.git",
+                 "github.com/jposluns/grc_library"),
+                ("mixed-case-origin", "https://github.com/JPosluns/GRC_Library.git",
+                 "github.com/JPosluns/GRC_Library")):
+            with self.subTest(case=name):
+                runner = self._GhRunner(url=origin, gh=(0, self._own_pr_json(), ""))
+                with self.patch.dict(os.environ, {"GH_HOST": "ghe.example.com"}):
+                    rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 0, out + err)
+                self.assertIn("verified OPEN on this branch via gh", out)
+                gh_calls = [argv for argv in runner.calls if argv[0] == "gh"]
+                self.assertEqual([argv[argv.index("--repo") + 1] for argv in gh_calls],
+                                 [repo_arg])
+                self.assertEqual(runner.gh_env.get("GH_HOST"), "github.com")
+
+    def test_gate_50_main_check6_keeps_the_demand_on_a_foreign_pr_url(self) -> None:
+        # Round-3 codex R3-01 and round-4 codex R4-01, through main(): none of the
+        # round-2 identity fields names a HOST, so a same-named, same-branched OPEN PR
+        # on another server (reached through a surviving GH_HOST or gh configuration
+        # path) would pass every offline and identity check. The answer's url is the
+        # one returned field naming the host, so it must BE
+        # https://github.com/<owner>/<repo>/pull/<N> exactly, not merely begin with it
+        # (R4-01: the prefix check accepted arbitrary non-digit suffixes, so a `/../`
+        # traversal to another repository or PR, a `2651x` tail, a newline tail, a
+        # query, a fragment, a trailing slash and an extra segment all granted the
+        # exemption, and the blanket case fold accepted an uppercase scheme and host):
+        # another host, another repository, the SAME owner with another repository
+        # name (round-5 claude F2: the one shape only the url NAME comparison
+        # refuses, since the identity fields still name the origin repository), a
+        # dot-segment repository name `.` or `..` (round-5 codex R5-01: refused by
+        # _PR_URL_RE's lookahead before any equality), another PR number, a number
+        # sharing these digits as a prefix, each of those suffix forms, credentials,
+        # a port, another scheme, an uppercase scheme or host, a leading-zero number,
+        # a missing url and a non-string url each keep the #2651 demand and print
+        # why. Kills: the prefix match (with or without its digit boundary), a parser
+        # that strips whitespace before matching (urlsplit drops tabs and newlines),
+        # and dropping the number-equality, name-equality, query, fragment or host
+        # comparison.
+        own = "https://github.com/jposluns/grc_library/pull/2651"
+        cases = [
+            ("ghe-url", self._own_pr_json(url="https://ghe.example.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("other-repo-url", self._own_pr_json(url="https://github.com/mallory/grc_library/pull/2651"), "github.com itself"),
+            ("same-owner-other-name-url", self._own_pr_json(url="https://github.com/jposluns/other/pull/2651"), "github.com itself"),
+            ("dot-name-url", self._own_pr_json(url="https://github.com/jposluns/./pull/2651"), "github.com itself"),
+            ("dot-dot-name-url", self._own_pr_json(url="https://github.com/jposluns/../pull/2651"), "github.com itself"),
+            ("other-number-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/9999"), "github.com itself"),
+            ("number-prefix-url", self._own_pr_json(url=own + "0"), "github.com itself"),
+            ("traversal-foreign-url", self._own_pr_json(url=own + "/../../../../mallory/foreign/pull/9999"), "github.com itself"),
+            ("traversal-same-repo-url", self._own_pr_json(url=own + "/../../pull/9999"), "github.com itself"),
+            ("non-digit-tail-url", self._own_pr_json(url=own + "x"), "github.com itself"),
+            ("newline-tail-url", self._own_pr_json(url=own + "\\n"), "github.com itself"),
+            ("query-url", self._own_pr_json(url=own + "?x=1"), "github.com itself"),
+            ("fragment-url", self._own_pr_json(url=own + "#issue-link"), "github.com itself"),
+            ("trailing-slash-url", self._own_pr_json(url=own + "/"), "github.com itself"),
+            ("extra-segment-url", self._own_pr_json(url=own + "/files"), "github.com itself"),
+            ("uppercase-scheme-host-url", self._own_pr_json(url="HTTPS://GitHub.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("credentials-url", self._own_pr_json(url="https://jposluns@github.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("port-url", self._own_pr_json(url="https://github.com:443/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("http-scheme-url", self._own_pr_json(url="http://github.com/jposluns/grc_library/pull/2651"), "github.com itself"),
+            ("leading-zero-number-url", self._own_pr_json(url="https://github.com/jposluns/grc_library/pull/02651"), "github.com itself"),
+            ("missing-url", self._own_pr_json(url=False), "unparsable"),
+            ("non-string-url", '{"state": "OPEN", "headRefName": "tooling/own", '
+                               '"isCrossRepository": false, '
+                               '"headRepositoryOwner": {"login": "jposluns"}, '
+                               '"headRepository": {"name": "grc_library"}, "url": 2651}', "unparsable"),
+        ]
+        for name, payload, why in cases:
+            with self.subTest(case=name):
+                runner = self._GhRunner(gh=(0, payload, ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+
+    def test_gate_50_main_check6_refuses_a_dot_segment_or_non_ascii_owner_origin(self) -> None:
+        # Round-5 codex R5-01, through main(): the origin repo class admits dots, so
+        # `https://github.com/jposluns/..` parsed to repository `..`, and a scripted
+        # gh answer echoing that malformed identity passed every equality check and
+        # dropped the demand (URL resolution folds the segment away: the url
+        # `https://github.com/jposluns/../pull/2651` normalizes to
+        # `https://github.com/pull/2651`, and `https://github.com/jposluns/./pull/2651`
+        # to `https://github.com/jposluns/pull/2651` -- neither is the declared
+        # PR's repository address). Both dot segments, the `.git`-stripped
+        # spelling `..git` that captures `.`, and (round-5 claude
+        # informational) a non-ASCII case-folding lookalike origin (the Kelvin sign
+        # U+212A lowercases to ASCII `k`, so under full-Unicode IGNORECASE a
+        # confusable owner equaled gh's ASCII owner) are each refused BEFORE any gh
+        # call: the demand stays and the reason prints. Kills: the dot-admitting
+        # origin parse, and dropping re.ASCII from _ORIGIN_GITHUB_RE.
+        cases = [
+            ("dot-dot-repo", "https://github.com/jposluns/..",
+             self._own_pr_json(name=".."), "dot-segment"),
+            ("dot-repo", "https://github.com/jposluns/.",
+             self._own_pr_json(name="."), "dot-segment"),
+            ("dot-repo-via-git-suffix", "git@github.com:jposluns/..git",
+             self._own_pr_json(name="."), "dot-segment"),
+            ("kelvin-owner", "git@github.com:jposlun\u212a/grc_library.git",
+             self._own_pr_json(owner="jposlunk"), "github.com"),
+        ]
+        for name, origin, payload, why in cases:
+            with self.subTest(case=name):
+                runner = self._GhRunner(url=origin, gh=(0, payload, ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+                self.assertNotIn("gh", [argv[0] for argv in runner.calls])
+
+    def test_gate_50_main_check6_accepts_ordinary_dot_carrying_repo_names(self) -> None:
+        # Round-5 codex R5-01's precision boundary: refusing `.` and `..` must not
+        # refuse the legitimate dot-CARRYING names GitHub does allow. A `.github`
+        # repository (with the tolerated `.git` suffix) and a `repo.name` spelling
+        # (without it) each verify end to end and the exemption is granted; the
+        # ordinary-name control is the main exempt test above. Kills: a dot-anywhere
+        # refusal (rejecting any name that starts with or contains a dot).
+        for name, origin, repo_name in (
+                (".github", "https://github.com/jposluns/.github.git", ".github"),
+                ("repo.name", "git@github.com:jposluns/repo.name", "repo.name")):
+            with self.subTest(case=name):
+                runner = self._GhRunner(url=origin, gh=(0, self._own_pr_json(name=repo_name), ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 0, out + err)
+                self.assertIn("verified OPEN on this branch via gh", out)
+
+    def test_gate_50_pr_url_re_refuses_dot_segment_names_structurally(self) -> None:
+        # Round-5 codex R5-01, at the pattern itself: the url-side dot-segment
+        # refusal must hold INDEPENDENTLY of the origin-side refusal, because with a
+        # dot-segment origin both owner/name equalities pass vacuously (exactly the
+        # round-5 reproduction), so no equality can be the backstop. `.` and `..`
+        # never fullmatch; an ordinary name, `.github` and `repo.name` still do.
+        # Kills: reverting _PR_URL_RE's lookahead while keeping the origin-side
+        # check (the origin test above pins the converse).
+        refuse = ("https://github.com/jposluns/./pull/2651",
+                  "https://github.com/jposluns/../pull/2651")
+        accept = ("https://github.com/jposluns/grc_library/pull/2651",
+                  "https://github.com/jposluns/.github/pull/2651",
+                  "https://github.com/jposluns/repo.name/pull/2651")
+        for url in refuse:
+            with self.subTest(url=url):
+                self.assertIsNone(self.bp._PR_URL_RE.fullmatch(url))
+        for url in accept:
+            with self.subTest(url=url):
+                match = self.bp._PR_URL_RE.fullmatch(url)
+                self.assertIsNotNone(match)
+                self.assertEqual(match.group("n"), "2651")
+
+    def test_gate_50_main_check6_refuses_uncertain_identity_field_types(self) -> None:
+        # Round-3 claude F3 mutation probes, through main(): the three surviving
+        # mutations of the round-2 checks each die here or in the host-pinning test
+        # above. `isCrossRepository` null or the STRING "false" is not the certain
+        # boolean false the ruling demands (`cross is not False` refuses both; the
+        # mutant `cross is True` would accept them); a null `headRepositoryOwner` must
+        # be the quiet unparsable refusal, never an AttributeError routed through the
+        # exception backstop (killing a dropped isinstance guard); the mixed-case
+        # acceptance killing a dropped case fold is the host-pinning test's second
+        # subcase. Each case here keeps the #2651 demand and prints why.
+        null_owner = ('{"state": "OPEN", "headRefName": "tooling/own", '
+                      '"isCrossRepository": false, "headRepositoryOwner": null, '
+                      '"headRepository": {"name": "grc_library"}, '
+                      '"url": "https://github.com/jposluns/grc_library/pull/2651"}')
+        cases = [
+            ("cross-null", self._own_pr_json(cross="null"), "cross-repository"),
+            ("cross-string-false", self._own_pr_json(cross='"false"'), "cross-repository"),
+            ("owner-null", null_owner, "unparsable"),
+        ]
+        for name, payload, why in cases:
+            with self.subTest(case=name):
+                runner = self._GhRunner(gh=(0, payload, ""))
+                rc, out, err = self._check6_main(runner)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("exemption is withheld", out)
+                self.assertIn(why, out)
+                self.assertNotIn("AttributeError", out)
+
+    def test_gate_50_main_check6_rollup_or_range_declaration_never_exempts(self) -> None:
+        # codex round-1 R2, through main(): a weekly roll-up or a same-endpoint range header
+        # parses to one PR and (today) declares, but is not the SINGULAR root header form,
+        # so the exemption is withheld OFFLINE: the demand stays and no git or gh process is
+        # ever asked for. Kills: granting the exemption on parsed-number count instead of
+        # header form, and running the online call for a form that can never qualify.
+        for name, own_header in (
+                ("weekly-rollup", "**Week of 2026-09-28 (PRs #2651)**\n"),
+                ("single-endpoint-range", "**2026-09-30 | 2026.09.2651 | PRs #2651-#2651 (1 PRs)**\n")):
+            with self.subTest(case=name):
+                runner = self._GhRunner(gh=(0, '{"state": "OPEN", "headRefName": "tooling/own"}', ""))
+                rc, out, err = self._check6_main(runner, own_header=own_header)
+                self.assertEqual(rc, 1, out + err)
+                self.assertIn("[bypass-log] PR #2651", err)
+                self.assertIn("SINGULAR", out)
+                self.assertEqual(runner.calls, [])
+
+    def test_gate_50_check6_offline_header_exception_keeps_the_demand(self) -> None:
+        # Round-4 claude F3: `own_pr_singular_header` ran OUTSIDE the exception backstop
+        # (which wrapped only the online part of the check), so an exception from the
+        # offline scan crashed `check6_own_pr_exemption` instead of refusing: a
+        # singular-shaped compact header whose PR number exceeds CPython's integer
+        # string-conversion digit limit makes its `int()` raise ValueError. (Through
+        # main() the same text already fails closed earlier, because
+        # `parse_changelog_prs` hits the same limit, so the function seam `main` hands
+        # to `bypass_log_findings` is the surface to pin.) The offline scan now runs
+        # under the same backstop: the exemption is refused with a printed reason
+        # naming the exception, the demand is kept, and no git or gh process ever
+        # runs. Kills: hoisting the header scan back out of the backstop.
+        runner = self._GhRunner(gh=(0, self._own_pr_json(), ""))
+        text = ("**2026-09-30 | 2026.09.2651 | PR #" + "9" * 5000 + "**\n"
+                + self.header(2651))
+        limit = sys.get_int_max_str_digits()
+        sys.set_int_max_str_digits(4300)
+        try:
+            ok, why = self.bp.check6_own_pr_exemption(text, 2651, runner=runner)
+        finally:
+            sys.set_int_max_str_digits(limit)
+        self.assertFalse(ok)
+        self.assertIn("ValueError", why)
+        self.assertIn("refused", why)
+        self.assertEqual(runner.calls, [])
+
+    def test_gate_50_main_check6_ignores_an_uncertain_scope_own_pr(self) -> None:
+        # claude F2 case 2, through main(): a scope carrying own_pr WITHOUT open_rule (an
+        # uncertain declaration, impossible from store_scope but exactly what the 2026-08-10
+        # precedent warns about) must never reach the exemption: the demand stays, no note
+        # names a declared own PR, and no git or gh process runs. Kills: passing
+        # scope.own_pr without the open_rule guard.
+        runner = self._GhRunner(gh=(0, '{"state": "OPEN", "headRefName": "tooling/own"}', ""))
+        rc, out, err = self._check6_main(
+            runner, scope=self.lc.StoreScope(2665, 2651, 2665, None, (), (), False))
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("[bypass-log] PR #2651", err)
+        self.assertEqual(runner.calls, [])
+        self.assertNotIn("declared own PR", out)
+
     def test_gate_50_cli_runs_every_check_against_fixture_store(self) -> None:
         # Old 32 (r4, all three families): the REAL CLI in a fixture repository (REPO_ROOT comes
         # from the file location, so every default input resolves to the fixture) with GRC_STORE
@@ -32844,6 +33377,125 @@ class StoreScopeCeilingTests(LinterTestCase):
         self.assertIn("[register-row-order]", r.stderr)
         self.assertIn("[bypass-log] PR #521", r.stderr)
         self.assertIn("FAIL:", r.stderr)
+
+    def _run_seam_smoke(self, bypass_rows: str):
+        """The corpus-smoke pathway against a fixture repository in the 3b145 shape
+        (declared own #522 below merged #523's header, store present, ``bypass_rows``
+        as the merge-bypass log): the gate in a subprocess through a loader that
+        replaces `_gh_runner` with the corpus smoke test's raising stub before main()."""
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp) / "repo"
+            store = Path(tmp) / "store"
+            (repo / "tools").mkdir(parents=True)
+            for name in ("lint-bookkeeping-parity.py", "lint_common.py", "aiqt_bootstrap.py"):
+                (repo / "tools" / name).write_text(
+                    (REPO_ROOT / "tools" / name).read_text(encoding="utf-8"), encoding="utf-8")
+            self.origin_main(repo, self.header(523) + self._BASE_ROOT,
+                             "Base entries (#520)", "Second entry (#521)", "Later work (#523)")
+            (repo / "CHANGELOG.md").write_text(
+                self.header(523) + self._OWN_522_ROOT + self._BASE_ROOT, encoding="utf-8")
+            (repo / "TODO.md").write_text("- open item\n", encoding="utf-8")
+            store.mkdir()
+            (store / "merge-bypass-log.md").write_text(bypass_rows, encoding="utf-8")
+            loader = (
+                "import importlib.util, sys\n"
+                f"sys.path.insert(0, {str(repo / 'tools')!r})\n"
+                "spec = importlib.util.spec_from_file_location(\n"
+                f"    '_bp_seam_smoke', {str(repo / 'tools' / 'lint-bookkeeping-parity.py')!r})\n"
+                "mod = importlib.util.module_from_spec(spec)\n"
+                "spec.loader.exec_module(mod)\n"
+                "def _no_process(argv, *, timeout, env=None):\n"
+                f"    raise AssertionError({BookkeepingParityTests.GATE50_SEAM_REFUSAL!r})\n"
+                "mod._gh_runner = _no_process\n"
+                "sys.exit(mod.main())\n"
+            )
+            return subprocess.run(
+                [sys.executable, "-B", "-c", loader], cwd=str(repo),
+                capture_output=True, text=True,
+                env=dict(os.environ, GRC_STORE=str(store),
+                         AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt")),
+            )
+
+    def test_gate_50_smoke_seam_refuses_offline_when_the_exemption_bites(self) -> None:
+        # Round-3 network boundary (codex) / claude F2, end to end: the corpus smoke
+        # test runs the gate in a subprocess through a loader that replaces
+        # `_gh_runner` before main(), so this pins what that pathway does in EXACTLY
+        # the 3b145 shape (declared own #522 below merged #523's header, no bypass row,
+        # store present): the online check becomes a deterministic offline refusal --
+        # the seam's exception is converted to a printed reason and the demand stays --
+        # never a real git/gh process, a network answer or a crash. Fails on the
+        # pre-round-3 tool, which let the seam's exception escape as a traceback with
+        # no refusal printed. And round-4 codex R4-02: this one failing shape is the
+        # gate's CORRECT offline answer on the valid branch the exemption exists for,
+        # so the corpus smoke acceptance must tolerate exactly it; the pre-round-5
+        # acceptance (exit 0 required) rejected it, blocking that branch's whole audit
+        # through gate 36.
+        r = self._run_seam_smoke("| 2026-09-30 | #521 | --admin |\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("PR #522 is this branch's declared own PR", r.stdout)
+        self.assertIn("exemption is withheld", r.stdout)
+        self.assertIn("AssertionError", r.stdout)
+        self.assertIn("[bypass-log] PR #522", r.stderr)
+        self.assertNotIn("Traceback", r.stderr)
+        self.assertIsNone(BookkeepingParityTests.gate50_corpus_smoke_problem(r))
+
+    def test_gate_50_corpus_smoke_acceptance_rejects_any_other_finding(self) -> None:
+        # Round-4 codex R4-02's boundary: the corpus smoke acceptance tolerates ONLY
+        # the declared own PR's offline-withheld bypass-log demand. The same fixture
+        # whose bypass log anchors its floor at #520 without #521's row exits 1 with
+        # TWO findings (merged #521's genuinely missing row, plus withheld own #522),
+        # and the acceptance must name the excess, keeping the corpus test fatal for
+        # every real parity breach. Kills: an acceptance keyed on the exit code or the
+        # withheld note alone, one that tolerates any [bypass-log] finding, and one
+        # that ignores the FAIL count.
+        r = self._run_seam_smoke("| 2026-07-01 | #520 | --admin |\n")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("[bypass-log] PR #521", r.stderr)
+        self.assertIn("[bypass-log] PR #522", r.stderr)
+        problem = BookkeepingParityTests.gate50_corpus_smoke_problem(r)
+        self.assertIsNotNone(problem)
+        self.assertIn("beyond the declared own PR", problem)
+
+    def test_gate_50_corpus_smoke_acceptance_rejects_a_non_seam_withheld_reason(self) -> None:
+        # Round-5 claude F3: of the two fixture runs above, one is fully acceptable
+        # and the other is rejected through the FAIL count, so neither exercises the
+        # acceptance's withheld-REASON check: without it, a single own-PR demand
+        # withheld for any other printed reason (a range-header refusal, a MERGED
+        # answer, a different exception) would be tolerated. Fabricated results in
+        # the gate's exact output shape -- the seam control below validates the
+        # fabrication against the real acceptance path, so a drifting note format
+        # fails here first -- pin that only the disabled-seam reason is tolerated.
+        # Kills: dropping the reason text from the acceptance's withheld-note regex,
+        # and loosening its whole "raised AssertionError (...)" tail to accept any
+        # raised exception (the OSError case then matches). NOT killed here (round-6
+        # codex): loosening the exception NAME alone while keeping the seam
+        # parenthetical, because every rejected reason below also changes the
+        # parenthetical.
+        import types as _types
+
+        def result(reason: str):
+            note = (f"note: [bypass-log] PR #522 is this branch's declared own PR, but "
+                    f"the 3b145 exemption is withheld: {reason}. Fail closed (VERIFY "
+                    f"ONLINE ruling 2026-10-01 12:49Z): the row demand stands and the "
+                    f"finding below is deliberate.\n")
+            err = ("=== bookkeeping-parity audit ===\n"
+                   "  [bypass-log] PR #522: no row in merge-bypass-log.md. (fixture)\n\n"
+                   "FAIL: 1 bookkeeping-parity finding(s). (fixture)\n")
+            return _types.SimpleNamespace(returncode=1, stdout=note, stderr=err)
+
+        seam = ("the online check raised AssertionError (tests never touch the network: "
+                "online seam disabled); an exception is uncertainty, so it is refused "
+                "like any other online failure (round-3 claude F4)")
+        self.assertIsNone(BookkeepingParityTests.gate50_corpus_smoke_problem(result(seam)))
+        for reason in (
+                "its declaring root header is not the SINGULAR form (a weekly roll-up "
+                "or a range header can parse to one PR but never carries the exemption)",
+                "gh reports PR #522 state MERGED, not OPEN",
+                "the online check raised OSError (connection reset)"):
+            with self.subTest(reason=reason):
+                problem = BookkeepingParityTests.gate50_corpus_smoke_problem(result(reason))
+                self.assertIsNotNone(problem)
+                self.assertIn("withheld by the disabled online seam", problem)
 
     def test_r8_01_legacy_tail_naming_a_pr_is_uncertain(self) -> None:
         # Round-8 R8-01 (codex): the legacy cell runs to the end of the line and its tail was
