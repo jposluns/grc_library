@@ -88,6 +88,7 @@
     - "checked on a 60-second cadence"
     - "never leave a wait unbounded or silent"
     - "never schedule a long-interval self check-in"
+    - "Actively probe any background wait past its typical duration"
   relocated_anchors:
     - "actions/runs?head_sha="
     - "Background-task check SOP"

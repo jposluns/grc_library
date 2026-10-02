@@ -337,6 +337,7 @@ history row; findings are fixed in-window or routed.
 - `/deep-assessment` ([skill](../guardrails/skills/deep-assessment/SKILL.md)): rare, multi-session, on the maintainer's EXPLICIT invocation only, never self-invoked; terminates on the QA-activity completion standard with no separate sign-off (maintainer-directed 2026-07-27).
 - `/reference-audit` ([skill](../guardrails/skills/reference-audit/SKILL.md)): held-vs-used breadth; FULL as a `/deep-assessment` member, PER-TOUCH (`--docs`) on every substantive corpus-document PR, new-ingest (`--ref-since`/`--ref-items`) after reference-base changes.
 - `/screen-publications` ([skill](../guardrails/skills/publication-screening/SKILL.md)): the untrusted-`publications/` screen; a `pending` publication never informs corpus work; `screened` never upgrades trust (corroborate at use time); verdicts live in `publications/SCREENING.md` (reference-base gate enforced).
+- Run `/screen-publications` on every new `publications/` ingest, the pending backlog, and ad-hoc before reliance, especially when doubtful.
 
 ## Reference-version currency and missing references
 
@@ -472,6 +473,7 @@ caught-and-fixed issue is NORMAL OPERATION, not a stop: finish the unit in hand,
 
 **When a wind-down IS evidence-triggered (the surfaced decision).**
 - Surface it via `AskUserQuestion`, never silently, with: the justification quoted in objective signals; a per-PR likelihood-of-success read over the pending next-five (a sequencing aid, never itself a trigger); and named options A (handoff, recommended), B (the assistant's recommended continue order), C (an alternative order at slightly higher risk), D ("do more than we should": if the maintainer picks D, the assistant reminds the maintainer not to be stupid and hands off immediately, a Ulysses pact).
+- Assess the next-five PRs by partitionability vs single-session work, incremental edits vs fresh-context work, bookkeeping touchpoint count, unresolved authorial decisions, and references in hand; use this to sequence and verify, never as a stop trigger.
 - The roughly-5-minute timer (the attended-autonomous §3 graceful-degradation shape): an answer is acted on; no answer means **option A (handoff)**, never B, C, or D; in an overnight run the overnight conflict rules govern instead.
 - Choosing B or C relaxes no discipline: each additional PR still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR boundary.
 - **Turning overnight mode OFF is never a no-answer default**: it requires an explicit maintainer signal; on a no-answer timeout MAINTAIN overnight mode and re-ask on the maintainer's next message.
@@ -567,9 +569,10 @@ Every formal QA pass in this project, `/validate-pr`, the corpus-wide `/validate
 
 Every CI or background wait is BOUNDED and FAIL-LOUD, checked on a 60-second cadence until
 it settles; never leave a wait unbounded or silent, and never schedule a long-interval self check-in.
+Actively probe any background wait past its typical duration; a stalled task looks identical to a running one.
 Full mechanics (the subscription + paired 60-second fallback-timer shape, the no-MCP
-timeout-bounded fail-loud read of the GitHub Actions runs for the PR head SHA (fine-grained
-PATs cannot read GitHub Checks, so `gh pr checks` does not work in this project), the
+timeout-bounded fail-loud read of the GitHub Actions runs for the PR head SHA (the project
+avoids `gh pr checks` per the sourced token limitation in that reference), the
 `tools/merge-when-green.py <N> --dry-run` FINAL confirmed-green check, the Background-task
 check SOP, active probing past typical duration) live in
 [`references/ci-wait.md`](../references/ci-wait.md), read at every wait like a skill

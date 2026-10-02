@@ -25,10 +25,10 @@ subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-compl
 **No-MCP (gh-CLI) sessions: read the GitHub Actions runs for the PR head SHA, bounded and
 fail-loud, and DO NOT idle on it.** When the session has no GitHub MCP (`mcp__github__*`
 absent from the tool list, so the PR mechanism is the `gh` CLI), there is no
-`subscribe_pr_activity`. The `gh pr checks` subcommand (including its watch flag) does NOT
-work in this project and is never prescribed or run: the project's fine-grained PAT cannot
-read the GitHub Checks API, so every `gh pr checks` invocation fails regardless of PR
-state. The readable surface is the Actions RUNS list for the PR's head SHA
+`subscribe_pr_activity`. The `/orch` resume protocol and lab_infra's 2026-10-02
+12:33Z note report that the project's fine-grained token cannot read the Checks API;
+the project therefore does not use `gh pr checks` (including its watch flag).
+Read the Actions RUNS list for the PR's head SHA
 (`actions/runs?head_sha=<SHA>`). Two failure modes are
 FORBIDDEN: (a) bare `sleep 60 && echo "check status"` fallback timers, which pair with a
 subscription that does not exist and self-check nothing, so they sprawl into overlapping
@@ -39,14 +39,21 @@ Replace `<SHA>` with the PR head SHA; execute the complete subshell as one comma
 
 ```bash
 (
-  if timeout --kill-after=1 1199 bash <<'WAIT'
+  if python3 - <<'WAIT'
+import os
+import signal
+import subprocess
+import sys
+
+command = r"""
 while :; do
   echo "Reading Actions runs; previous snapshot (if any) may be stale."
   snapshot=$(gh api --paginate --slurp \
     "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100" --jq '
       [.[].workflow_runs[]] as $runs |
       ["Repository quality checks", "PR attribution"] as $required |
-      [$runs[] | select(.name as $name | $required | index($name))] as $relevant |
+      [$runs[] | select(.name as $name | $required | index($name))] |
+      group_by(.name) | map(max_by([.run_number, .run_attempt, .id])) as $relevant |
       ($required[] as $name |
         [$relevant[] | select(.name == $name)] as $matches |
         if ($matches | length) == 0 then "\($name): missing"
@@ -66,6 +73,18 @@ while :; do
     *) echo "Invalid wait state; current state unknown."; exit 9 ;;
   esac
 done
+"""
+task = subprocess.Popen(["bash"], stdin=subprocess.PIPE, text=True, start_new_session=True)
+try:
+    task.communicate(command, timeout=1200)
+except subprocess.TimeoutExpired:
+    try:
+        os.killpg(task.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    task.communicate()
+    sys.exit(124)
+sys.exit(task.returncode if task.returncode >= 0 else 128 - task.returncode)
 WAIT
   then rc=0; else rc=$?; fi
   printf 'runs-wait exited rc=%s; last snapshot may be stale or absent.\n' "$rc"
@@ -73,31 +92,35 @@ WAIT
 )
 ```
 
-The loop matches each REQUIRED workflow BY NAME across every API page and requires
-ALL its listed runs to be completed, including pending reruns beside older successes.
+The loop matches each REQUIRED workflow BY NAME across every API page and judges only
+its LATEST run (highest `run_number`, then `run_attempt`, then `id`). An older failed
+or pending run is superseded; a newer pending run or attempt still blocks completion.
 The required workflows are "Repository quality checks" and "PR attribution", carrying
 the required checks "Lint markdown corpus" and "PR attribution (title and body)".
 Keep the names in step with `REQUIRED_CHECKS`/`REQUIRED_WORKFLOWS` in
 `tools/merge-when-green.py`. Runs REGISTER GRADUALLY: a missing required name keeps
 waiting; unrelated workflows cannot substitute for it.
 
-Every snapshot prints missing names and each required run's status/conclusion.
-Any completed required run with a non-success conclusion exits 1; API/query errors
-exit 9 and report their original status. The deadline is 1199 seconds plus at most
-one second of forced-stop grace (1200 seconds total); timeout exits 124, or 137 if
-forced termination is needed. The enclosing subshell prints and returns the captured
+Every snapshot prints missing names and each latest required run's status/conclusion.
+Any latest completed required run with a non-success conclusion exits 1; API/query errors
+exit 9 and report their original status. The supervisor creates a separate session
+and process group (`start_new_session=True` calls `setsid`); at 1200 seconds it sends
+KILL to that whole group, including descendants that ignore TERM, and exits 124.
+The enclosing subshell prints and returns the captured
 status even under `set -e`. ALL API calls, including pagination, are inside the
 deadline; there is no final diagnostic API read to hang or overwrite a failure.
 On API error or timeout the last printed snapshot may be stale or absent, so current
-CI state is unknown. rc 0 requires every listed required run to succeed; still use
+CI state is unknown. rc 0 requires each latest required run to succeed; still use
 `tools/merge-when-green.py <N> --repo jposluns/grc_library --dry-run` as the FINAL
 confirmed-green check before merge (it reads the PR's current `statusCheckRollup`
-and refuses pending, missing, or non-successful checks).
+and falls back to Actions runs when the rollup is unreadable for repositories configured
+in `ACTIONS_FALLBACK`; it refuses pending, missing, or non-successful checks).
 
 Run exactly one such task. **Do NOT idle-block on the notification:** per the
 **Background-task check SOP** below, check on the 60-second cadence and ACTIVELY PROBE
-once past typical duration (about 1-2 minutes here). Bound any separate probe too:
-`timeout --kill-after=1 59 gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"`,
+once past typical duration (about 1-2 minutes here). Bound any separate probe with
+the same supervisor, setting `timeout=60` and `command` to
+`gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"`,
 un-piped, preserving its exit status. Never hand-roll a wait on unverified flags or
 leave it unbounded or silent. A foreground-only worker executes the same bounded
 command synchronously; the background-task machinery applies only where permitted.
