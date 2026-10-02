@@ -904,6 +904,44 @@ class LinksLinterTests(LinterTestCase):
         self.assertIn(".claude/rules", mod.DEFAULT_SCAN_ROOTS,
                       "gate 3 must keep .claude/rules in its default scan roots (3.182)")
 
+    def test_default_scan_rejects_broken_links_in_moved_bodies(self) -> None:
+        import contextlib
+        from unittest.mock import patch
+
+        mod = load_linter_module("tools/lint-links.py", "_links_moved_bodies")
+        relative = Path(".claude/references/corpus-management")
+        sources = sorted((REPO_ROOT / relative).glob("*.md"))
+        self.assertEqual(len(sources), 52)
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+            root = Path(directory)
+            bodies = root / relative
+            bodies.mkdir(parents=True)
+            for source in sources:
+                shutil.copy2(source, bodies / source.name)
+
+            def run_default():
+                output = io.StringIO()
+                with patch.object(mod, "REPO_ROOT", root), contextlib.redirect_stdout(output):
+                    status = mod.main(["lint-links.py"])
+                return status, output.getvalue()
+
+            # No explicit paths: exercise the production default selector and engine.
+            self.assertEqual(run_default()[0], 0)
+            for source in sources:
+                with self.subTest(body=source.name):
+                    body = bodies / source.name
+                    original = body.read_bytes()
+                    try:
+                        body.write_bytes(original + b"\n[broken](missing-moved-body-target.md)\n")
+                        status, output = run_default()
+                        self.assertEqual(status, 1, output)
+                        self.assertIn((relative / source.name).as_posix(), output)
+                        self.assertIn("missing-moved-body-target.md", output)
+                        self.assertIn("target does not exist", output)
+                    finally:
+                        body.write_bytes(original)
+            self.assertEqual(run_default()[0], 0)
+
 
 class CitationsLinterTests(LinterTestCase):
     """tools/lint-citations.py"""
@@ -24912,7 +24950,10 @@ class CorpusManagementCompilerTests(LinterTestCase):
         self.assertEqual(rows, ["- alpha|Alpha|alpha.py|alpha.md",
                                 "- zeta|Zeta|zeta.py|zeta.md"])
         self.assertIn("Gates enforce these mechanically", original.decode())
-        self.assertIn("before editing a file that its gate scans or when a gate fails", original.decode())
+        for trigger in ("before creating or editing a file that its gate scans",
+                        "before reviewing or auditing such files",
+                        "when answering a question about that rule", "when its gate fails"):
+            self.assertIn(trigger, original.decode())
         pack = root / ".corpus-management"
         for rid in ("alpha", "zeta"):
             body = (root / f".claude/references/corpus-management/{rid}.md").read_bytes()

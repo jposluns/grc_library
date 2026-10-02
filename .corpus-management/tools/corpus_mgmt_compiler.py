@@ -851,7 +851,9 @@ def _prepare_index(root, rules, clauses, gates, ruleset_rel, gates_rel, problems
     index.source_texts = [
         "Gates enforce these mechanically (tools in `tools/`; bodies in "
         f"`{CM_REFERENCES}/`).\n"
-        "Read a rule's body before editing a file that its gate scans or when a gate fails. "
+        "Read a rule's body before creating or editing a file that its gate scans, "
+        "before reviewing or auditing such files, when answering a question about that rule, "
+        "and when its gate fails. "
         "Columns: id|purpose|tool|body.\n\n" + "".join(rows)
     ]
     if len(_file_render(index).encode("utf-8")) > 6000:

@@ -42,7 +42,8 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
 # surface, the pack mirror plus third-party overlays, whose relative Markdown targets must
 # resolve; it is in DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
 # catches dead links (never-vendored companions, mirror path rot) before they ship in the
-# guardrails pack.
+# guardrails pack. The deferred rule bodies under `.claude/references` need the same
+# coverage after the corpus-management index split.
 DEFAULT_SCAN_ROOTS: list[str] = [
     "README.md",
     "NOTICE.md",
@@ -53,6 +54,7 @@ DEFAULT_SCAN_ROOTS: list[str] = [
     "tools",
     "docs",
     ".claude/rules",
+    ".claude/references",
     "guardrails",
     "executive",  # narrative layer: IN link-integrity scope (P-1.25 scan-root split)
 ]
