@@ -1,5 +1,9 @@
 # Repository tooling
 
+The Corpus-Management compiler (`build-corpus-management.py`) generates two full always-loaded
+prose rules, a compact index, and on-demand bodies outside `.claude/rules/`; see
+[pack tooling](../.corpus-management/tools/README.md) for the generation and validation contract.
+
 This directory contains repository quality tooling. The scripts are intentionally minimal: they run with the standard Python 3 interpreter, take no third-party dependencies, and are designed to be invoked locally, by pre-commit, or by CI.
 
 ## Scripts

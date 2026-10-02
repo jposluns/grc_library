@@ -17,17 +17,17 @@ target = ".claude/rules/corpus-management/language-convention.md"
 [[owned_targets]]
 rule = "authoring-conventions"
 kind = "file"
-target = ".claude/rules/corpus-management/authoring-conventions.md"
+target = ".claude/references/corpus-management/authoring-conventions.md"
 
 [[owned_targets]]
 rule = "corpus-scan-integrity"
 kind = "file"
-target = ".claude/rules/corpus-management/corpus-scan-integrity.md"
+target = ".claude/references/corpus-management/corpus-scan-integrity.md"
 
 [[owned_targets]]
 rule = "markdown-link-integrity"
 kind = "file"
-target = ".claude/rules/corpus-management/markdown-link-integrity.md"
+target = ".claude/references/corpus-management/markdown-link-integrity.md"
 
 [[owned_targets]]
 rule = "normative-wording"
@@ -37,244 +37,249 @@ target = ".claude/rules/corpus-management/normative-wording.md"
 [[owned_targets]]
 rule = "markdown-link-resolution"
 kind = "file"
-target = ".claude/rules/corpus-management/markdown-link-resolution.md"
+target = ".claude/references/corpus-management/markdown-link-resolution.md"
 
 [[owned_targets]]
 rule = "required-sections"
 kind = "file"
-target = ".claude/rules/corpus-management/required-sections.md"
+target = ".claude/references/corpus-management/required-sections.md"
 
 [[owned_targets]]
 rule = "citation-denylist"
 kind = "file"
-target = ".claude/rules/corpus-management/citation-denylist.md"
+target = ".claude/references/corpus-management/citation-denylist.md"
 
 [[owned_targets]]
 rule = "section-placement"
 kind = "file"
-target = ".claude/rules/corpus-management/section-placement.md"
+target = ".claude/references/corpus-management/section-placement.md"
 
 [[owned_targets]]
 rule = "shall-near-uncertainty"
 kind = "file"
-target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
+target = ".claude/references/corpus-management/shall-near-uncertainty.md"
 
 [[owned_targets]]
 rule = "todo-forward-only"
 kind = "file"
-target = ".claude/rules/corpus-management/todo-forward-only.md"
+target = ".claude/references/corpus-management/todo-forward-only.md"
 
 [[owned_targets]]
 rule = "positional-backlog-token"
 kind = "file"
-target = ".claude/rules/corpus-management/positional-backlog-token.md"
+target = ".claude/references/corpus-management/positional-backlog-token.md"
 
 [[owned_targets]]
 rule = "no-stub-documents"
 kind = "file"
-target = ".claude/rules/corpus-management/no-stub-documents.md"
+target = ".claude/references/corpus-management/no-stub-documents.md"
 
 [[owned_targets]]
 rule = "filename-title-alignment"
 kind = "file"
-target = ".claude/rules/corpus-management/filename-title-alignment.md"
+target = ".claude/references/corpus-management/filename-title-alignment.md"
 
 [[owned_targets]]
 rule = "standards-currency"
 kind = "file"
-target = ".claude/rules/corpus-management/standards-currency.md"
+target = ".claude/references/corpus-management/standards-currency.md"
 
 [[owned_targets]]
 rule = "directional-dependency"
 kind = "file"
-target = ".claude/rules/corpus-management/directional-dependency.md"
+target = ".claude/references/corpus-management/directional-dependency.md"
 
 [[owned_targets]]
 rule = "role-authority"
 kind = "file"
-target = ".claude/rules/corpus-management/role-authority.md"
+target = ".claude/references/corpus-management/role-authority.md"
 
 [[owned_targets]]
 rule = "placeholder-leakage"
 kind = "file"
-target = ".claude/rules/corpus-management/placeholder-leakage.md"
+target = ".claude/references/corpus-management/placeholder-leakage.md"
 
 [[owned_targets]]
 rule = "gate-count-consistency"
 kind = "file"
-target = ".claude/rules/corpus-management/gate-count-consistency.md"
+target = ".claude/references/corpus-management/gate-count-consistency.md"
 
 [[owned_targets]]
 rule = "date-format"
 kind = "file"
-target = ".claude/rules/corpus-management/date-format.md"
+target = ".claude/references/corpus-management/date-format.md"
 
 [[owned_targets]]
 rule = "license-consistency"
 kind = "file"
-target = ".claude/rules/corpus-management/license-consistency.md"
+target = ".claude/references/corpus-management/license-consistency.md"
 
 [[owned_targets]]
 rule = "section-anchor-resolution"
 kind = "file"
-target = ".claude/rules/corpus-management/section-anchor-resolution.md"
+target = ".claude/references/corpus-management/section-anchor-resolution.md"
 
 [[owned_targets]]
 rule = "intra-doc-section-refs"
 kind = "file"
-target = ".claude/rules/corpus-management/intra-doc-section-refs.md"
+target = ".claude/references/corpus-management/intra-doc-section-refs.md"
 
 [[owned_targets]]
 rule = "secret-content"
 kind = "file"
-target = ".claude/rules/corpus-management/secret-content.md"
+target = ".claude/references/corpus-management/secret-content.md"
 
 [[owned_targets]]
 rule = "pii-content"
 kind = "file"
-target = ".claude/rules/corpus-management/pii-content.md"
+target = ".claude/references/corpus-management/pii-content.md"
 
 [[owned_targets]]
 rule = "internal-reference"
 kind = "file"
-target = ".claude/rules/corpus-management/internal-reference.md"
+target = ".claude/references/corpus-management/internal-reference.md"
 
 [[owned_targets]]
 rule = "external-link-domain"
 kind = "file"
-target = ".claude/rules/corpus-management/external-link-domain.md"
+target = ".claude/references/corpus-management/external-link-domain.md"
 
 [[owned_targets]]
 rule = "acronym-consistency"
 kind = "file"
-target = ".claude/rules/corpus-management/acronym-consistency.md"
+target = ".claude/references/corpus-management/acronym-consistency.md"
 
 [[owned_targets]]
 rule = "cross-doc-numbers"
 kind = "file"
-target = ".claude/rules/corpus-management/cross-doc-numbers.md"
+target = ".claude/references/corpus-management/cross-doc-numbers.md"
 
 [[owned_targets]]
 rule = "cobit-iso31000-citations"
 kind = "file"
-target = ".claude/rules/corpus-management/cobit-iso31000-citations.md"
+target = ".claude/references/corpus-management/cobit-iso31000-citations.md"
 
 [[owned_targets]]
 rule = "metadata-line-breaks"
 kind = "file"
-target = ".claude/rules/corpus-management/metadata-line-breaks.md"
+target = ".claude/references/corpus-management/metadata-line-breaks.md"
 
 [[owned_targets]]
 rule = "orphan-documents"
 kind = "file"
-target = ".claude/rules/corpus-management/orphan-documents.md"
+target = ".claude/references/corpus-management/orphan-documents.md"
 
 [[owned_targets]]
 rule = "cross-file-section-refs"
 kind = "file"
-target = ".claude/rules/corpus-management/cross-file-section-refs.md"
+target = ".claude/references/corpus-management/cross-file-section-refs.md"
 
 [[owned_targets]]
 rule = "cross-file-section-names"
 kind = "file"
-target = ".claude/rules/corpus-management/cross-file-section-names.md"
+target = ".claude/references/corpus-management/cross-file-section-names.md"
 
 [[owned_targets]]
 rule = "document-date-staleness"
 kind = "file"
-target = ".claude/rules/corpus-management/document-date-staleness.md"
+target = ".claude/references/corpus-management/document-date-staleness.md"
 
 [[owned_targets]]
 rule = "structural-index-integrity"
 kind = "file"
-target = ".claude/rules/corpus-management/structural-index-integrity.md"
+target = ".claude/references/corpus-management/structural-index-integrity.md"
 
 [[owned_targets]]
 rule = "document-metadata"
 kind = "file"
-target = ".claude/rules/corpus-management/document-metadata.md"
+target = ".claude/references/corpus-management/document-metadata.md"
 
 [[owned_targets]]
 rule = "retention-consistency"
 kind = "file"
-target = ".claude/rules/corpus-management/retention-consistency.md"
+target = ".claude/references/corpus-management/retention-consistency.md"
 
 [[owned_targets]]
 rule = "document-control-codes"
 kind = "file"
-target = ".claude/rules/corpus-management/document-control-codes.md"
+target = ".claude/references/corpus-management/document-control-codes.md"
 
 [[owned_targets]]
 rule = "document-iso-annex-a"
 kind = "file"
-target = ".claude/rules/corpus-management/document-iso-annex-a.md"
+target = ".claude/references/corpus-management/document-iso-annex-a.md"
 
 [[owned_targets]]
 rule = "ccm-aicm-citations"
 kind = "file"
-target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
+target = ".claude/references/corpus-management/ccm-aicm-citations.md"
 
 [[owned_targets]]
 rule = "matrix-control-codes"
 kind = "file"
-target = ".claude/rules/corpus-management/matrix-control-codes.md"
+target = ".claude/references/corpus-management/matrix-control-codes.md"
 
 [[owned_targets]]
 rule = "ccm-provider-member-range"
 kind = "file"
-target = ".claude/rules/corpus-management/ccm-provider-member-range.md"
+target = ".claude/references/corpus-management/ccm-provider-member-range.md"
 
 [[owned_targets]]
 rule = "alignment-citation-existence"
 kind = "file"
-target = ".claude/rules/corpus-management/alignment-citation-existence.md"
+target = ".claude/references/corpus-management/alignment-citation-existence.md"
 
 [[owned_targets]]
 rule = "cobit-title-text"
 kind = "file"
-target = ".claude/rules/corpus-management/cobit-title-text.md"
+target = ".claude/references/corpus-management/cobit-title-text.md"
 
 [[owned_targets]]
 rule = "ssdf-control-ids"
 kind = "file"
-target = ".claude/rules/corpus-management/ssdf-control-ids.md"
+target = ".claude/references/corpus-management/ssdf-control-ids.md"
 
 [[owned_targets]]
 rule = "listing-surface-completeness"
 kind = "file"
-target = ".claude/rules/corpus-management/listing-surface-completeness.md"
+target = ".claude/references/corpus-management/listing-surface-completeness.md"
 
 [[owned_targets]]
 rule = "narrative-disclaimer"
 kind = "file"
-target = ".claude/rules/corpus-management/narrative-disclaimer.md"
+target = ".claude/references/corpus-management/narrative-disclaimer.md"
 
 [[owned_targets]]
 rule = "narrative-vocabulary"
 kind = "file"
-target = ".claude/rules/corpus-management/narrative-vocabulary.md"
+target = ".claude/references/corpus-management/narrative-vocabulary.md"
 
 [[owned_targets]]
 rule = "narrative-authority-boundary"
 kind = "file"
-target = ".claude/rules/corpus-management/narrative-authority-boundary.md"
+target = ".claude/references/corpus-management/narrative-authority-boundary.md"
 
 [[owned_targets]]
 rule = "narrative-boundary"
 kind = "file"
-target = ".claude/rules/corpus-management/narrative-boundary.md"
+target = ".claude/references/corpus-management/narrative-boundary.md"
 
 [[owned_targets]]
 rule = "narrative-metadata"
 kind = "file"
-target = ".claude/rules/corpus-management/narrative-metadata.md"
+target = ".claude/references/corpus-management/narrative-metadata.md"
 
 [[owned_targets]]
 rule = "index-header-parity"
 kind = "file"
-target = ".claude/rules/corpus-management/index-header-parity.md"
+target = ".claude/references/corpus-management/index-header-parity.md"
 
 [[owned_targets]]
 rule = "doctype-parity"
 kind = "file"
-target = ".claude/rules/corpus-management/doctype-parity.md"
+target = ".claude/references/corpus-management/doctype-parity.md"
+
+[[owned_targets]]
+rule = "rule-index"
+kind = "index"
+target = ".claude/rules/corpus-management/INDEX.md"

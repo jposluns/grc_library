@@ -237,3 +237,9 @@ id = "gate-count-consistency"
 event = "created"
 date = 2026-09-14
 note = "compile PR-23: new pack-internal clause (a prose reference to a governed collection's size (gates/rules/skills) matches its canonical count; anchored digit + word-form idioms only, so pervasive small-number prose is not matched; Markdown ## Version history skipped (fences not separately skipped - the anchoring keeps code false-positive-safe); canonical-count sources + scanned suffixes + exempt sets are wrapper config). Generated AI-facing rule (compile PR-23) like placeholder-leakage."
+
+[[events]]
+id = "rule-index"
+event = "created"
+date = 2026-10-02
+note = "3b177-b: compact always-loaded index for on-demand rule bodies; prose conventions remain always loaded"

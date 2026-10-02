@@ -24,23 +24,24 @@ regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "authoring-conventions"
+gates = ["lint-language", "lint-citations", "lint-standards-currency"]
 kind = "file"
 sources = ["core/rules/authoring-conventions.md"]
-target = ".claude/rules/corpus-management/authoring-conventions.md"
+target = ".claude/references/corpus-management/authoring-conventions.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "corpus-scan-integrity"
 kind = "file"
 sources = ["core/rules/corpus-scan-integrity.md"]
-target = ".claude/rules/corpus-management/corpus-scan-integrity.md"
+target = ".claude/references/corpus-management/corpus-scan-integrity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "markdown-link-integrity"
 kind = "file"
 sources = ["core/rules/markdown-link-integrity.md"]
-target = ".claude/rules/corpus-management/markdown-link-integrity.md"
+target = ".claude/references/corpus-management/markdown-link-integrity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
@@ -54,341 +55,347 @@ regenerate = ["python3", "tools/build-corpus-management.py"]
 id = "markdown-link-resolution"
 kind = "file"
 sources = ["core/rules/markdown-link-resolution.md"]
-target = ".claude/rules/corpus-management/markdown-link-resolution.md"
+target = ".claude/references/corpus-management/markdown-link-resolution.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "required-sections"
 kind = "file"
 sources = ["core/rules/required-sections.md"]
-target = ".claude/rules/corpus-management/required-sections.md"
+target = ".claude/references/corpus-management/required-sections.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "citation-denylist"
 kind = "file"
 sources = ["core/rules/citation-denylist.md"]
-target = ".claude/rules/corpus-management/citation-denylist.md"
+target = ".claude/references/corpus-management/citation-denylist.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "section-placement"
 kind = "file"
 sources = ["core/rules/section-placement.md"]
-target = ".claude/rules/corpus-management/section-placement.md"
+target = ".claude/references/corpus-management/section-placement.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "shall-near-uncertainty"
 kind = "file"
 sources = ["core/rules/shall-near-uncertainty.md"]
-target = ".claude/rules/corpus-management/shall-near-uncertainty.md"
+target = ".claude/references/corpus-management/shall-near-uncertainty.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "todo-forward-only"
 kind = "file"
 sources = ["core/rules/todo-forward-only.md"]
-target = ".claude/rules/corpus-management/todo-forward-only.md"
+target = ".claude/references/corpus-management/todo-forward-only.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "positional-backlog-token"
 kind = "file"
 sources = ["core/rules/positional-backlog-token.md"]
-target = ".claude/rules/corpus-management/positional-backlog-token.md"
+target = ".claude/references/corpus-management/positional-backlog-token.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "no-stub-documents"
 kind = "file"
 sources = ["core/rules/no-stub-documents.md"]
-target = ".claude/rules/corpus-management/no-stub-documents.md"
+target = ".claude/references/corpus-management/no-stub-documents.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "filename-title-alignment"
 kind = "file"
 sources = ["core/rules/filename-title-alignment.md"]
-target = ".claude/rules/corpus-management/filename-title-alignment.md"
+target = ".claude/references/corpus-management/filename-title-alignment.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "standards-currency"
 kind = "file"
 sources = ["core/rules/standards-currency.md"]
-target = ".claude/rules/corpus-management/standards-currency.md"
+target = ".claude/references/corpus-management/standards-currency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "directional-dependency"
 kind = "file"
 sources = ["core/rules/directional-dependency.md"]
-target = ".claude/rules/corpus-management/directional-dependency.md"
+target = ".claude/references/corpus-management/directional-dependency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "role-authority"
 kind = "file"
 sources = ["core/rules/role-authority.md"]
-target = ".claude/rules/corpus-management/role-authority.md"
+target = ".claude/references/corpus-management/role-authority.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "placeholder-leakage"
 kind = "file"
 sources = ["core/rules/placeholder-leakage.md"]
-target = ".claude/rules/corpus-management/placeholder-leakage.md"
+target = ".claude/references/corpus-management/placeholder-leakage.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "gate-count-consistency"
 kind = "file"
 sources = ["core/rules/gate-count-consistency.md"]
-target = ".claude/rules/corpus-management/gate-count-consistency.md"
+target = ".claude/references/corpus-management/gate-count-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "date-format"
 kind = "file"
 sources = ["core/rules/date-format.md"]
-target = ".claude/rules/corpus-management/date-format.md"
+target = ".claude/references/corpus-management/date-format.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "license-consistency"
 kind = "file"
 sources = ["core/rules/license-consistency.md"]
-target = ".claude/rules/corpus-management/license-consistency.md"
+target = ".claude/references/corpus-management/license-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "section-anchor-resolution"
 kind = "file"
 sources = ["core/rules/section-anchor-resolution.md"]
-target = ".claude/rules/corpus-management/section-anchor-resolution.md"
+target = ".claude/references/corpus-management/section-anchor-resolution.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "intra-doc-section-refs"
 kind = "file"
 sources = ["core/rules/intra-doc-section-refs.md"]
-target = ".claude/rules/corpus-management/intra-doc-section-refs.md"
+target = ".claude/references/corpus-management/intra-doc-section-refs.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "secret-content"
 kind = "file"
 sources = ["core/rules/secret-content.md"]
-target = ".claude/rules/corpus-management/secret-content.md"
+target = ".claude/references/corpus-management/secret-content.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "pii-content"
 kind = "file"
 sources = ["core/rules/pii-content.md"]
-target = ".claude/rules/corpus-management/pii-content.md"
+target = ".claude/references/corpus-management/pii-content.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "internal-reference"
 kind = "file"
 sources = ["core/rules/internal-reference.md"]
-target = ".claude/rules/corpus-management/internal-reference.md"
+target = ".claude/references/corpus-management/internal-reference.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "external-link-domain"
 kind = "file"
 sources = ["core/rules/external-link-domain.md"]
-target = ".claude/rules/corpus-management/external-link-domain.md"
+target = ".claude/references/corpus-management/external-link-domain.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "acronym-consistency"
 kind = "file"
 sources = ["core/rules/acronym-consistency.md"]
-target = ".claude/rules/corpus-management/acronym-consistency.md"
+target = ".claude/references/corpus-management/acronym-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "cross-doc-numbers"
 kind = "file"
 sources = ["core/rules/cross-doc-numbers.md"]
-target = ".claude/rules/corpus-management/cross-doc-numbers.md"
+target = ".claude/references/corpus-management/cross-doc-numbers.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "cobit-iso31000-citations"
 kind = "file"
 sources = ["core/rules/cobit-iso31000-citations.md"]
-target = ".claude/rules/corpus-management/cobit-iso31000-citations.md"
+target = ".claude/references/corpus-management/cobit-iso31000-citations.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "metadata-line-breaks"
 kind = "file"
 sources = ["core/rules/metadata-line-breaks.md"]
-target = ".claude/rules/corpus-management/metadata-line-breaks.md"
+target = ".claude/references/corpus-management/metadata-line-breaks.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "orphan-documents"
 kind = "file"
 sources = ["core/rules/orphan-documents.md"]
-target = ".claude/rules/corpus-management/orphan-documents.md"
+target = ".claude/references/corpus-management/orphan-documents.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "cross-file-section-refs"
 kind = "file"
 sources = ["core/rules/cross-file-section-refs.md"]
-target = ".claude/rules/corpus-management/cross-file-section-refs.md"
+target = ".claude/references/corpus-management/cross-file-section-refs.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "cross-file-section-names"
 kind = "file"
 sources = ["core/rules/cross-file-section-names.md"]
-target = ".claude/rules/corpus-management/cross-file-section-names.md"
+target = ".claude/references/corpus-management/cross-file-section-names.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "document-date-staleness"
 kind = "file"
 sources = ["core/rules/document-date-staleness.md"]
-target = ".claude/rules/corpus-management/document-date-staleness.md"
+target = ".claude/references/corpus-management/document-date-staleness.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "structural-index-integrity"
 kind = "file"
 sources = ["core/rules/structural-index-integrity.md"]
-target = ".claude/rules/corpus-management/structural-index-integrity.md"
+target = ".claude/references/corpus-management/structural-index-integrity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "document-metadata"
 kind = "file"
 sources = ["core/rules/document-metadata.md"]
-target = ".claude/rules/corpus-management/document-metadata.md"
+target = ".claude/references/corpus-management/document-metadata.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "retention-consistency"
 kind = "file"
 sources = ["core/rules/retention-consistency.md"]
-target = ".claude/rules/corpus-management/retention-consistency.md"
+target = ".claude/references/corpus-management/retention-consistency.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "document-control-codes"
 kind = "file"
 sources = ["core/rules/document-control-codes.md"]
-target = ".claude/rules/corpus-management/document-control-codes.md"
+target = ".claude/references/corpus-management/document-control-codes.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "document-iso-annex-a"
 kind = "file"
 sources = ["core/rules/document-iso-annex-a.md"]
-target = ".claude/rules/corpus-management/document-iso-annex-a.md"
+target = ".claude/references/corpus-management/document-iso-annex-a.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "ccm-aicm-citations"
 kind = "file"
 sources = ["core/rules/ccm-aicm-citations.md"]
-target = ".claude/rules/corpus-management/ccm-aicm-citations.md"
+target = ".claude/references/corpus-management/ccm-aicm-citations.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "matrix-control-codes"
 kind = "file"
 sources = ["core/rules/matrix-control-codes.md"]
-target = ".claude/rules/corpus-management/matrix-control-codes.md"
+target = ".claude/references/corpus-management/matrix-control-codes.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "ccm-provider-member-range"
 kind = "file"
 sources = ["core/rules/ccm-provider-member-range.md"]
-target = ".claude/rules/corpus-management/ccm-provider-member-range.md"
+target = ".claude/references/corpus-management/ccm-provider-member-range.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "alignment-citation-existence"
 kind = "file"
 sources = ["core/rules/alignment-citation-existence.md"]
-target = ".claude/rules/corpus-management/alignment-citation-existence.md"
+target = ".claude/references/corpus-management/alignment-citation-existence.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "cobit-title-text"
 kind = "file"
 sources = ["core/rules/cobit-title-text.md"]
-target = ".claude/rules/corpus-management/cobit-title-text.md"
+target = ".claude/references/corpus-management/cobit-title-text.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "ssdf-control-ids"
 kind = "file"
 sources = ["core/rules/ssdf-control-ids.md"]
-target = ".claude/rules/corpus-management/ssdf-control-ids.md"
+target = ".claude/references/corpus-management/ssdf-control-ids.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "listing-surface-completeness"
 kind = "file"
 sources = ["core/rules/listing-surface-completeness.md"]
-target = ".claude/rules/corpus-management/listing-surface-completeness.md"
+target = ".claude/references/corpus-management/listing-surface-completeness.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "narrative-disclaimer"
 kind = "file"
 sources = ["core/rules/narrative-disclaimer.md"]
-target = ".claude/rules/corpus-management/narrative-disclaimer.md"
+target = ".claude/references/corpus-management/narrative-disclaimer.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "narrative-vocabulary"
 kind = "file"
 sources = ["core/rules/narrative-vocabulary.md"]
-target = ".claude/rules/corpus-management/narrative-vocabulary.md"
+target = ".claude/references/corpus-management/narrative-vocabulary.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "narrative-authority-boundary"
 kind = "file"
 sources = ["core/rules/narrative-authority-boundary.md"]
-target = ".claude/rules/corpus-management/narrative-authority-boundary.md"
+target = ".claude/references/corpus-management/narrative-authority-boundary.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "narrative-boundary"
 kind = "file"
 sources = ["core/rules/narrative-boundary.md"]
-target = ".claude/rules/corpus-management/narrative-boundary.md"
+target = ".claude/references/corpus-management/narrative-boundary.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "narrative-metadata"
 kind = "file"
 sources = ["core/rules/narrative-metadata.md"]
-target = ".claude/rules/corpus-management/narrative-metadata.md"
+target = ".claude/references/corpus-management/narrative-metadata.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "index-header-parity"
 kind = "file"
 sources = ["core/rules/index-header-parity.md"]
-target = ".claude/rules/corpus-management/index-header-parity.md"
+target = ".claude/references/corpus-management/index-header-parity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
 
 [[rules]]
 id = "doctype-parity"
 kind = "file"
 sources = ["core/rules/doctype-parity.md"]
-target = ".claude/rules/corpus-management/doctype-parity.md"
+target = ".claude/references/corpus-management/doctype-parity.md"
 regenerate = ["python3", "tools/build-corpus-management.py"]
+
+[[rules]]
+id = "rule-index"
+kind = "index"
+sources = ["gensrc.toml", "core/gates.toml"]
+target = ".claude/rules/corpus-management/INDEX.md"
