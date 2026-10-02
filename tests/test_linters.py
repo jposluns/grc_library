@@ -943,6 +943,259 @@ class LinksLinterTests(LinterTestCase):
             self.assertEqual(run_default()[0], 0)
 
 
+    def test_default_scan_covers_activity_and_project_skill_links(self) -> None:
+        import contextlib
+        from unittest.mock import patch
+
+        mod = load_linter_module("tools/lint-links.py", "_links_activity_scope")
+        paths = (".claude/playbooks/nested/procedure.md", "references/nested/wait.md",
+                 ".claude/skills/local-skill/SKILL.md",
+                 ".claude/skills/local-skill/references/detail.md")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+            root = Path(directory)
+            for rel in paths:
+                body = root / rel
+                body.parent.mkdir(parents=True, exist_ok=True)
+                body.write_text("[self](./" + body.name + ")\n", encoding="utf-8")
+
+            def run_default():
+                output = io.StringIO()
+                with patch.object(mod, "REPO_ROOT", root), contextlib.redirect_stdout(output):
+                    status = mod.main(["lint-links.py"])
+                return status, output.getvalue()
+
+            self.assertEqual(run_default()[0], 0)
+            for rel in paths:
+                with self.subTest(path=rel):
+                    body = root / rel
+                    original = body.read_bytes()
+                    try:
+                        body.write_bytes(original + b"\n[broken](missing-activity-target.md)\n")
+                        status, output = run_default()
+                        self.assertEqual(status, 1, output)
+                        self.assertIn(rel, output)
+                        self.assertIn("target does not exist", output)
+                    finally:
+                        body.write_bytes(original)
+            self.assertEqual(run_default()[0], 0)
+
+
+class CIWaitPrescriptionTests(LinterTestCase):
+    """Execute the documented selection/supervisor; stub only gh's transport."""
+
+    def setUp(self):
+        super().setUp()
+        if os.name != "posix" or not shutil.which("bash"):
+            self.skipTest("documented Bash wrapper and POSIX process groups are required")
+
+    GH_FIXTURE = """
+import json, os, pathlib, signal, sys, time
+# gh api --help documents --paginate --slurp as raw pages. gh 2.101.0
+# rejects --slurp with --jq/-q or --template/-t; pin the entire argv.
+assert sys.argv[1:] == [
+    "api", "--paginate", "--slurp",
+    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
+], "unsupported gh api argv"
+root = pathlib.Path(os.environ["CI_FIXTURE"])
+counter = root / "calls"
+n = int(counter.read_text()) if counter.exists() else 0
+counter.write_text(str(n + 1))
+states = json.loads((root / "states.json").read_text())
+state = states[min(n, len(states) - 1)]
+if state == "api-error":
+    print("fixture API failure", file=sys.stderr)
+    sys.exit(7)
+if state == "term-resistant":
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    (root / "descendant.pid").write_text(str(os.getpid()))
+    time.sleep(2)
+    print("survived-deadline", flush=True)
+    sys.exit(8)
+if state == "stalled":
+    time.sleep(5)
+    sys.exit(8)
+if state == "malformed":
+    print("not JSON")
+else:
+    print(json.dumps(state))
+"""
+
+    @staticmethod
+    def run_record(name, status="completed", conclusion="success", *,
+                   run_number=1, run_attempt=1):
+        return {"name": name, "status": status, "conclusion": conclusion,
+                "run_number": run_number, "run_attempt": run_attempt, "id": run_number * 10}
+
+    def wait_fixture(self, states, expected, calls=None):
+        import json
+        import time
+
+        text = (REPO_ROOT / "references/ci-wait.md").read_text(encoding="utf-8")
+        command = text.split("```bash\n", 1)[1].split("\n```", 1)[0]
+        # Execute production selection and supervision under errexit; shorten timers.
+        deadline = "0.8" if expected == 124 else "5"
+        command = command.replace("timeout=1200", "timeout=" + deadline).replace("time.sleep(30)", "time.sleep(0.01)")
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+            root = Path(directory)
+            (root / "states.json").write_text(json.dumps(states), encoding="utf-8")
+            (root / "gh.py").write_text(self.GH_FIXTURE, encoding="utf-8")
+            # Replace only the gh executable with the stdlib transport fixture.
+            self.assertEqual(command.count('"gh", "api"'), 1)
+            command = command.replace('"gh", "api"',
+                                      'sys.executable, os.environ["CI_FIXTURE"] + "/gh.py", "api"')
+            command = command.replace("import json\n", "import json, os\n", 1)
+            env = dict(os.environ, CI_FIXTURE=directory)
+            started = time.monotonic()
+            result = subprocess.run(
+                ["bash", "-c", "set -e\n" + command],
+                env=env, capture_output=True, text=True, timeout=7,
+            )
+            elapsed = time.monotonic() - started
+            count = int((root / "calls").read_text())
+            pid_file = root / "descendant.pid"
+            if pid_file.exists():
+                stat = Path("/proc") / pid_file.read_text() / "stat"
+                reaped_by = time.monotonic() + 0.2
+                while stat.exists():
+                    try:
+                        state = stat.read_text().rsplit(") ", 1)[1].split()[0]
+                    except FileNotFoundError:
+                        break
+                    if state in ("Z", "X"):
+                        break
+                    self.assertLess(time.monotonic(), reaped_by,
+                                    "descendant still running after deadline")
+                    time.sleep(0.01)
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, expected, output)
+        self.assertIn(f"runs-wait exited rc={expected}", output)
+        self.assertLess(elapsed, 1.8 if expected == 124 else 6, output)
+        if calls is not None:
+            self.assertEqual(count, calls, output)  # No trailing diagnostic API request.
+        print(f"CI fixture {self._testMethodName}: rc={result.returncode}, calls={count}, "
+              f"elapsed={elapsed:.2f}s")
+        return output
+
+    def test_late_required_run(self):
+        quality = self.run_record("Repository quality checks")
+        attribution = self.run_record("PR attribution")
+        output = self.wait_fixture(
+            [[{"workflow_runs": [quality]}], [{"workflow_runs": [quality, attribution]}]],
+            0, 2)
+        self.assertIn("PR attribution: missing", output)
+
+    def test_pending_required_rerun_on_later_page(self):
+        quality = self.run_record("Repository quality checks")
+        attribution = self.run_record("PR attribution")
+        pending = self.run_record("PR attribution", "in_progress", None, run_number=2)
+        output = self.wait_fixture(
+            [[{"workflow_runs": [quality, attribution]}, {"workflow_runs": [pending]}],
+             [{"workflow_runs": [quality, attribution,
+                                  self.run_record("PR attribution", run_number=2)]}]], 0, 2)
+        self.assertIn("PR attribution: in_progress/pending", output)
+
+    def test_failed_required_run(self):
+        output = self.wait_fixture([[{"workflow_runs": [
+            self.run_record("Repository quality checks", conclusion="failure"),
+            self.run_record("PR attribution")]}]], 1, 1)
+        self.assertIn("Repository quality checks: completed/failure", output)
+
+    def test_api_error_preserves_status_without_reread(self):
+        output = self.wait_fixture(["api-error"], 9, 1)
+        self.assertIn("Actions API/query failed rc=7", output)
+        self.assertIn("current state unknown", output)
+
+    def test_fixture_rejects_incompatible_output_flags(self):
+        for flag in ("--jq", "-q", "--template", "-t"):
+            with self.subTest(flag=flag):
+                result = subprocess.run([
+                    sys.executable, "-c", self.GH_FIXTURE,
+                    "api", "--paginate", "--slurp",
+                    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
+                    flag, ".",
+                ], capture_output=True, text=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("unsupported gh api argv", result.stderr)
+
+    def test_invalid_page_shape_fails_loud(self):
+        for pages in ([{}], [{"workflow_runs": None}], {"workflow_runs": []}):
+            with self.subTest(pages=pages):
+                output = self.wait_fixture([pages], 9, 1)
+                self.assertIn("Invalid Actions response", output)
+                self.assertIn("current state unknown", output)
+
+    def test_malformed_response_fails_loud(self):
+        output = self.wait_fixture(["malformed"], 9, 1)
+        self.assertIn("Invalid Actions response", output)
+        self.assertIn("current state unknown", output)
+
+    def test_non_success_conclusions(self):
+        for conclusion in ("skipped", "neutral", "cancelled", None):
+            with self.subTest(conclusion=conclusion):
+                self.wait_fixture([[{"workflow_runs": [
+                    self.run_record("Repository quality checks"),
+                    self.run_record("PR attribution", conclusion=conclusion)]}]], 1, 1)
+
+    def test_id_breaks_run_and_attempt_tie(self):
+        older = self.run_record("PR attribution", conclusion="failure")
+        newer = dict(self.run_record("PR attribution"), id=older["id"] + 1)
+        self.wait_fixture([[{"workflow_runs": [newer, older,
+                           self.run_record("Repository quality checks")]}]], 0, 1)
+
+    def test_timeout_missing_name_despite_unrelated_success(self):
+        output = self.wait_fixture([[{"workflow_runs": [
+            self.run_record("Repository quality checks"), self.run_record("Unrelated")]}]],
+            124)
+        self.assertIn("PR attribution: missing", output)
+
+    def test_timeout_pending_required_rerun(self):
+        output = self.wait_fixture([[{"workflow_runs": [
+            self.run_record("Repository quality checks"), self.run_record("PR attribution"),
+            self.run_record("PR attribution", "queued", None, run_number=2)]}]], 124)
+        self.assertIn("PR attribution: queued/pending", output)
+
+    def test_timeout_during_api_call(self):
+        self.wait_fixture(["stalled"], 124, 1)
+
+    def test_corrected_title_body_supersedes_failed_run(self):
+        quality = self.run_record("Repository quality checks")
+        failed = self.run_record("PR attribution", conclusion="failure")
+        corrected = self.run_record("PR attribution", run_number=2)
+        # Newest first, older failure on a later page: API order must not decide.
+        output = self.wait_fixture(
+            [[{"workflow_runs": [corrected, quality]}, {"workflow_runs": [failed]}]], 0, 1)
+        self.assertNotIn("completed/failure", output)
+
+    def test_latest_failure_supersedes_success(self):
+        output = self.wait_fixture([[{"workflow_runs": [
+            self.run_record("Repository quality checks"),
+            self.run_record("PR attribution", conclusion="failure", run_number=2),
+            self.run_record("PR attribution")]}]], 1, 1)
+        self.assertIn("PR attribution: completed/failure", output)
+
+    def test_old_pending_run_is_superseded(self):
+        output = self.wait_fixture([[{"workflow_runs": [
+            self.run_record("Repository quality checks"),
+            self.run_record("PR attribution", run_number=2),
+            self.run_record("PR attribution", "queued", None)]}]], 0, 1)
+        self.assertNotIn("queued/pending", output)
+
+    def test_latest_attempt_of_same_run(self):
+        quality = self.run_record("Repository quality checks")
+        old = self.run_record("PR attribution", conclusion="failure")
+        pending = self.run_record("PR attribution", "queued", None, run_attempt=2)
+        passed = self.run_record("PR attribution", run_attempt=2)
+        output = self.wait_fixture(
+            [[{"workflow_runs": [quality, pending]}, {"workflow_runs": [old]}],
+             [{"workflow_runs": [quality, passed, old]}]], 0, 2)
+        self.assertIn("PR attribution: queued/pending", output)
+        self.assertNotIn("completed/failure", output)
+
+    def test_timeout_kills_term_resistant_descendant(self):
+        output = self.wait_fixture(["term-resistant"], 124, 1)
+        self.assertNotIn("survived-deadline", output)
+
+
 class OverlayRelocationCoverageTests(LinterTestCase):
     """Default content gates retain every relocated overlay prose file."""
 

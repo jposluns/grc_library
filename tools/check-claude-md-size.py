@@ -61,7 +61,8 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # 3b177-c relocates the addyosmani overlay from .claude/rules/external/ to five
 # .claude/skills/addyosmani-<name>/ skill directories and condenses the external-overlay
 # paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
-CEILING = 1021
+# 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
+CEILING = 781
 
 
 def line_count(path: Path) -> int:

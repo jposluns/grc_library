@@ -1,11 +1,17 @@
 # PR lifecycle and close-out (reference)
 
-**Read this at the PR-close-out boundary, like a skill.** `.claude/CLAUDE.md` carries the
-lean checklist (each item names its enforcing gate/hook); this file carries the full detail
-and rationale. Relocated from CLAUDE.md by TODO 3.139.1 / PR #1249 (roadmap C phase 1) to right-size the
-every-turn load; the disciplines are unchanged. Project-only operational machinery (not pack
-material). The un-gated grep-disciplines keep a terse reminder in CLAUDE.md as their live
-control until the roadmap-C phase-2 delta gate (D9, #1250) lands.
+**Read this before authoring any change, before and after every commit, and before
+push/PR creation, merge, or wind-down, like a skill (the `pr-close-out` skill is its trigger).**
+`.claude/CLAUDE.md` keeps only the obligations that must fire before you would open this file
+(feature branch only, the unpiped pre-push guard, no attribution, merge only through
+`tools/merge-when-green.py`, this PR's own `/validate-pr` and `/retro` rows); this file carries
+the full PR workflow, the close-out checklist including the un-gated grep disciplines, the
+change-impact surface map and the version-bump enforcement detail. Relocated from CLAUDE.md by
+TODO 3.139.1 / PR #1249 and by 3b177-d; the disciplines are unchanged. Project-only operational
+machinery (not pack material). D9 (`tools/check-retired-section-orphan-on-pr.py`, #1250) gates
+the anchored section-orphan key-forms (`§N.M`, `PN.M`, `TODO §N.M`) on operational surfaces;
+bare tokens, `§A-§B` ranges, `item N` and corpus `.md` surfaces remain manual (the grep
+reminders in the checklist below).
 
 ---
 
@@ -35,15 +41,15 @@ drive end-to-end on the maintainer's behalf:
    STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
    other pipe or truncating sink): a pipe masks the exit code so the dependent action
    proceeds past a failure. When long output must be tamed, use the fail-loud wrapper
-   [`tools/tail-safe.sh`](../tools/tail-safe.sh) (preserves the exit code) or redirect to
+   [`tools/tail-safe.sh`](../../tools/tail-safe.sh) (preserves the exit code) or redirect to
    a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
-   [`.claude/hooks/block-verification-pipes.py`](../.claude/hooks/block-verification-pipes.py)
+   [`.claude/hooks/block-verification-pipes.py`](../../.claude/hooks/block-verification-pipes.py)
    refuses the named verification commands piped to truncating sinks (defence in depth,
    not a substitute for the habit). Read the verification's own terminal
    PASS/FAIL line before relying on any chain. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
-   `## PR activity subscription discipline` in `.claude/CLAUDE.md`; on failure, fix and re-push.
+   `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
 4. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
    touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
@@ -82,7 +88,7 @@ drive end-to-end on the maintainer's behalf:
    checklist` item 3.)
 5. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
    retrospective per the
-   [`pr-retrospective`](../guardrails/skills/pr-retrospective/SKILL.md)
+   [`pr-retrospective`](../../guardrails/skills/pr-retrospective/SKILL.md)
    skill: append one row to `grc_library_private/.working/improvement-log.md`.
    Pattern and Proposed-improvement entries (if any) surface in chat. The register row lands
    in THIS PR (recording this PR's own number), committed before the PR is finalized; the
@@ -130,11 +136,11 @@ drive end-to-end on the maintainer's behalf:
    private `P-TODO.md` (the single ordered work queue across
    both backlogs, `TODO.md` and `P-TODO.md`; it replaced the retired `next-prs.txt`) and list the
    upcoming next five planned PRs in the chat. If new items surfaced during the just-finished work,
-   add them to the appropriate backlog (an index row in [`TODO.md`](../TODO.md) plus a detail block
+   add them to the appropriate backlog (an index row in [`TODO.md`](../../TODO.md) plus a detail block
    in the private `grc_library_private/TODO-REFERENCE.md`, or a private `P-TODO.md` item) and into the
    `## Up next` order BEFORE the list is published (the list comes from the queue, not from memory).
    This is the project-specific instantiation of the PR finalization protocol in
-   [`.claude/rules/governance/change-tracking.md`](../.claude/rules/governance/change-tracking.md).
+   [`.claude/rules/governance/change-tracking.md`](../../.claude/rules/governance/change-tracking.md).
    **THIS PR ALSO REFRESHES the `## Up next` queue as part of its own diff (not a post-merge
    step): drop the item just closed, insert any new work in position order, keeping
    the ordered "what's next" current.** (This after-merge listing reads the queue's top; `/orch`
@@ -144,7 +150,7 @@ drive end-to-end on the maintainer's behalf:
    signal that a PR closed work without refreshing the queue. (The console `next:` statusline
    that formerly displayed the top items was removed 2026-08-15, PR #1565.)
 10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item's index row is
-   deleted from [`TODO.md`](../TODO.md) AND its detail block from
+   deleted from [`TODO.md`](../../TODO.md) AND its detail block from
    the private `grc_library_private/TODO-REFERENCE.md` (cross-repo), and an entry is added to
    `grc_library_private/.working/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
@@ -181,10 +187,12 @@ is external. Two mechanisms:
    the snapshot against live files, and continues from the queue. Prefer starting a fresh
    session at batch boundaries over running a long one.
 
-2. **PR close-out checklist.** Before pushing any PR, confirm every paired bookkeeping
-   surface is in the diff (the recurring degradation failure is a correct substantive
-   change with a *paired* surface dropped):
-   - THIS PR's OWN `/validate-pr` history row AND its `/retro` row are both
+2. **PR close-out checklist.** Apply authoring and commit-time items at those boundaries;
+   before every push or PR creation, confirm all then-applicable paired surfaces.
+   The initial guarded push/PR creation precedes finalizing QA (workflow steps 3-5).
+   Before the FINAL push and merge, confirm every paired bookkeeping surface is in the
+   diff (the recurring failure is a substantive change with a *paired* surface dropped):
+   - THIS PR's OWN RETURNED `/validate-pr` history row AND its `/retro` row are both
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
    - Every TODO item this PR closes has its index row deleted from `TODO.md` AND its
      detail block deleted from the private `grc_library_private/TODO-REFERENCE.md`, and is added to
@@ -233,6 +241,13 @@ is external. Two mechanisms:
      when a verifier or the orchestrator hunts evidence AGAINST a claim, the hunt runs at
      bare-token width too, because a phrasing-specific refutation grep can fail to refute
      a claim that is false in a differently-worded carrier.
+   - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full
+     file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string);
+     scope the completion CLAIM to the SLOT, not the string. The
+     [`check-class-completeness.py`](../../tools/check-class-completeness.py) aid (P-1.5) runs
+     this proactively: give it the distinctive string you fixed and it prints every corpus
+     occurrence, so each is fixed or routed in the SAME PR (the reactive dual-family catch
+     of #1296/#1297 made permanent).
    - If the PR makes a **corpus-wide completion claim** (a token harmonization, rename, or
      reconcile asserted complete across the corpus), the completion-verification grep was run
      over the **full corpus file set, not the change's own input set**: an input-set grep
@@ -310,7 +325,7 @@ is external. Two mechanisms:
      renumbers, or changes the detection logic of an audit gate, every parallel surface is
      updated in the same PR. The four runtime surfaces gate 35 checks (the workflow, the
      runner, the pre-commit config, and the
-     [`governance/specification-audit-programme.md`](../governance/specification-audit-programme.md)
+     [`governance/specification-audit-programme.md`](../../governance/specification-audit-programme.md)
      §6 inventory table) are the gated half; the recurring misses are the FREE-PROSE
      surfaces the parity gates do not check for accuracy: the §5 grouped-list, the per-gate
      §6 narrative when the detection logic changes, the module docstring, and the regression
@@ -323,10 +338,10 @@ is external. Two mechanisms:
      built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
      #308 and #309). A per-PR delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
-     surface map` in `.claude/CLAUDE.md`; see it for the B/C/D change types and the website surface.
+     surface map` below in this playbook; see it for the B/C/D change types and the website surface.
    - **Change-impact completeness across all surfaces** (originated in the change-impact-map work, PR #1104; the generalization of
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
-     count change in the PR, run the `## Change-impact surface map` in `.claude/CLAUDE.md` for that change type
+     count change in the PR, run the `## Change-impact surface map` below in this playbook for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
      is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/` and `.web/templates-v2/`) prose
      to update EARLY and apply it in the SAME PR. A rule or skill is linked TWICE in
@@ -420,7 +435,7 @@ is external. Two mechanisms:
      staged-but-uncommitted bump it still reports the old failure; run it after the commit to
      confirm, or accept that a clean run before the commit means the PREVIOUS commit was clean.
      **MECHANICAL BACKSTOP, maintainer-directed after the fifth catch:**
-     [`block-unbumped-version-commit.py`](../.claude/hooks/block-unbumped-version-commit.py), a PreToolUse hook
+     [`block-unbumped-version-commit.py`](../../.claude/hooks/block-unbumped-version-commit.py), a PreToolUse hook
      that refuses a `git commit` whose staged diff changes a versioned document's BODY without
      staging its `Version`. It reads the staged diff, so its input can answer the question, and it
      fails OPEN on any error. It also WARNS, without blocking, when a corpus `Version` moved and no
@@ -459,7 +474,7 @@ is external. Two mechanisms:
      refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
-   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
+   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-period-model section is the authoritative description): the
      detailed mirror (the operational store's `changelog-details/CHANGELOG-detailed.md`,
@@ -476,7 +491,7 @@ is external. Two mechanisms:
      shape as the `/validate-pr` sweep and the `audit-register-currency.py` advisory
      tool, and the sweep removes tree content only (this
      repo's git history and the grc_library_private archive both retain the full trail, and the `.working/
-     export-ignore` in [`.gitattributes`](../.gitattributes) keeps release tarballs fork-clean
+     export-ignore` in [`.gitattributes`](../../.gitattributes) keeps release tarballs fork-clean
      regardless). Gate 59's mirror-header-parity cutoff is the dynamic floor `max(CUTOFF_PR,
      oldest mirror PR)`, so a swept (archive-only) entry is out of parity scope, not
      flagged missing. The write path is unchanged (new entries still prepend to the
@@ -576,3 +591,42 @@ is external. Two mechanisms:
    of the two exemptions Check 1 already detects mechanically, one by exactly this kind of
    Findings-cell marker.) This convention is now the defence-in-depth PARTNER of a live gate,
    not the sole control, which is the stronger half of the pair.
+
+## Change-impact surface map (when you change X, update all of these)
+
+(Map origin: the change-impact-surface-map item closed in PR #1109 on 2026-07-24; the map below is now a permanent close-out
+discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
+gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
+rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
+shipped without the change-tracking discipline prose). This map is the "when you change X,
+update ALL of these" reference the close-out checklist's change-impact bullet points at. It
+CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
+re-implement them, per the change-impact-map decision Q3=C); it adds the free-prose and website columns those
+gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
+`.web/templates/` and `.web/templates-v2/` sources) is a FIRST-CLASS paired surface: its updates are identified early
+and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
+land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
+iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the change-impact-map PR-2).
+
+| Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
+| --- | --- | --- | --- |
+| **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
+| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (the change-impact-map PR-2 (#1107) gates this as gate 74); CLAUDE.md rule-index and count prose; and, on a rule-BODY change, the rule's EXECUTABLE command (`.claude/commands/<name>.md`) and skill (`guardrails/skills/<name>/SKILL.md`), whose procedure and family-count prose can silently lag the rule body (gate 44 checks paired-skill STEP-parity, not the semantic content, the #1615 dual-to-triple gap) | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
+| **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the four it checks for rules); pack README `Version` bump on a body change (D2 + gate 40); paired-skill step-parity (gate 44, when a paired command exists); verdict-carrier-completeness for a verdict-bearing skill (gate 97, when the skill is enrolled in `tools/skill-verdict-fields.json`) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
+| **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |
+| **E. repo-root relocation (the checkout moves on disk)** | NONE (no gate reads an absolute host path, which is exactly why this row exists) | the WIRING, not just the narrative: every `PreToolUse` hook's project-root fallback (use `str(Path(__file__).resolve().parents[2])`, never a hardcoded root, so the value follows the move); the `statusLine` command's `${dir:-<root>}` fallbacks in [`settings.json`](../settings.json); [`tools/repo-guard.sh`](../../tools/repo-guard.sh)'s header; and `.claude/CLAUDE.md`'s cross-repo command prescriptions (the absolute-tool-path and `git -C` forms in `## Boundaries` and `## Self-verification`). Frozen `.working/` records are narrative and stay as written | NONE |
+
+The single most error-prone website detail: each rule and skill is linked TWICE in `pack.html`
+(the Rules/Skills sidenav AND a body `<li>` entry), so a change that updates one and misses the
+other is the likely drift; the close-out bullet says "two places" explicitly. The gated column
+names the authority gate for each surface so this map never silently duplicates or contradicts
+a gate; when a gate's coverage changes, its row here is updated in the same PR.
+
+## Version-bump discipline (enforcement detail)
+
+**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
+`run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
+`run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
+the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:
+did this commit change a versioned document's body (bump its Version AND Date), and is this
+the last commit before push (bump library CalVer and the README Version field)?
