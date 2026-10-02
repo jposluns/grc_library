@@ -981,10 +981,15 @@ class LinksLinterTests(LinterTestCase):
 
 
 class CIWaitPrescriptionTests(LinterTestCase):
-    """Execute the documented shell, including its jq filter and exit handling."""
+    """Execute the documented selection/supervisor; stub only gh's transport."""
+
+    def setUp(self):
+        super().setUp()
+        if os.name != "posix" or not shutil.which("bash"):
+            self.skipTest("documented Bash wrapper and POSIX process groups are required")
 
     GH_FIXTURE = """
-import json, os, pathlib, signal, subprocess, sys, time
+import json, os, pathlib, signal, sys, time
 root = pathlib.Path(os.environ["CI_FIXTURE"])
 counter = root / "calls"
 n = int(counter.read_text()) if counter.exists() else 0
@@ -1006,7 +1011,14 @@ if state == "stalled":
     time.sleep(5)
     sys.exit(8)
 query = sys.argv[sys.argv.index("--jq") + 1]
-sys.exit(subprocess.run(["jq", "-r", query], input=json.dumps(state), text=True).returncode)
+assert query == "[.[].workflow_runs[]]", "fixture only models gh page flattening"
+if state == "query-error":
+    print("fixture query failure", file=sys.stderr)
+    sys.exit(5)
+if state == "malformed":
+    print("not JSON")
+else:
+    print(json.dumps([run for page in state for run in page["workflow_runs"]]))
 """
 
     @staticmethod
@@ -1021,18 +1033,22 @@ sys.exit(subprocess.run(["jq", "-r", query], input=json.dumps(state), text=True)
 
         text = (REPO_ROOT / "references/ci-wait.md").read_text(encoding="utf-8")
         command = text.split("```bash\n", 1)[1].split("\n```", 1)[0]
-        # Only timing changes: execute the production shell/filter, under errexit too.
+        # Execute production selection and supervision under errexit; shorten timers.
         deadline = "0.8" if expected == 124 else "5"
-        command = command.replace("timeout=1200", "timeout=" + deadline).replace("sleep 30", "sleep 0.01")
+        command = command.replace("timeout=1200", "timeout=" + deadline).replace("time.sleep(30)", "time.sleep(0.01)")
         with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
             root = Path(directory)
             (root / "states.json").write_text(json.dumps(states), encoding="utf-8")
             (root / "gh.py").write_text(self.GH_FIXTURE, encoding="utf-8")
+            # Replace only the gh executable with the stdlib transport fixture.
+            self.assertEqual(command.count('"gh", "api"'), 1)
+            command = command.replace('"gh", "api"',
+                                      'sys.executable, os.environ["CI_FIXTURE"] + "/gh.py", "api"')
+            command = command.replace("import json\n", "import json, os\n", 1)
             env = dict(os.environ, CI_FIXTURE=directory)
             started = time.monotonic()
             result = subprocess.run(
-                ["bash", "-c", 'set -e\ngh() { python3 "$CI_FIXTURE/gh.py" "$@"; }\n'
-                 'export -f gh\n' + command],
+                ["bash", "-c", "set -e\n" + command],
                 env=env, capture_output=True, text=True, timeout=7,
             )
             elapsed = time.monotonic() - started
@@ -1089,6 +1105,28 @@ sys.exit(subprocess.run(["jq", "-r", query], input=json.dumps(state), text=True)
         output = self.wait_fixture(["api-error"], 9, 1)
         self.assertIn("Actions API/query failed rc=7", output)
         self.assertIn("current state unknown", output)
+
+    def test_query_error_preserves_status_without_reread(self):
+        output = self.wait_fixture(["query-error"], 9, 1)
+        self.assertIn("Actions API/query failed rc=5", output)
+
+    def test_malformed_response_fails_loud(self):
+        output = self.wait_fixture(["malformed"], 9, 1)
+        self.assertIn("Invalid Actions response", output)
+        self.assertIn("current state unknown", output)
+
+    def test_non_success_conclusions(self):
+        for conclusion in ("skipped", "neutral", "cancelled", None):
+            with self.subTest(conclusion=conclusion):
+                self.wait_fixture([[{"workflow_runs": [
+                    self.run_record("Repository quality checks"),
+                    self.run_record("PR attribution", conclusion=conclusion)]}]], 1, 1)
+
+    def test_id_breaks_run_and_attempt_tie(self):
+        older = self.run_record("PR attribution", conclusion="failure")
+        newer = dict(self.run_record("PR attribution"), id=older["id"] + 1)
+        self.wait_fixture([[{"workflow_runs": [newer, older,
+                           self.run_record("Repository quality checks")]}]], 0, 1)
 
     def test_timeout_missing_name_despite_unrelated_success(self):
         output = self.wait_fixture([[{"workflow_runs": [

@@ -46,37 +46,52 @@ import subprocess
 import sys
 
 command = r"""
-while :; do
-  echo "Reading Actions runs; previous snapshot (if any) may be stale."
-  snapshot=$(gh api --paginate --slurp \
-    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100" --jq '
-      [.[].workflow_runs[]] as $runs |
-      ["Repository quality checks", "PR attribution"] as $required |
-      [$runs[] | select(.name as $name | $required | index($name))] |
-      group_by(.name) | map(max_by([.run_number, .run_attempt, .id])) as $relevant |
-      ($required[] as $name |
-        [$relevant[] | select(.name == $name)] as $matches |
-        if ($matches | length) == 0 then "\($name): missing"
-        else $matches[] | "\(.name): \(.status)/\(.conclusion // "pending")" end),
-      (if any($relevant[]; .status == "completed" and .conclusion != "success")
-       then "failed"
-       elif all($required[]; . as $name | any($relevant[]; .name == $name))
-         and all($relevant[]; .status == "completed")
-       then "completed"
-       else "pending" end)
-    ') || { api_rc=$?; echo "Actions API/query failed rc=$api_rc; current state unknown."; exit 9; }
-  printf '%s\n' "$snapshot"
-  case "${snapshot##*$'\n'}" in
-    completed) exit 0 ;;
-    failed) exit 1 ;;
-    pending) sleep 30 ;;
-    *) echo "Invalid wait state; current state unknown."; exit 9 ;;
-  esac
-done
+import json
+import subprocess
+import sys
+import time
+
+required = ("Repository quality checks", "PR attribution")
+while True:
+    print("Reading Actions runs; previous snapshot (if any) may be stale.", flush=True)
+    response = subprocess.run([
+        "gh", "api", "--paginate", "--slurp",
+        "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
+        "--jq", "[.[].workflow_runs[]]",
+    ], stdout=subprocess.PIPE, text=True)
+    if response.returncode:
+        print(f"Actions API/query failed rc={response.returncode}; current state unknown.", flush=True)
+        sys.exit(9)
+    try:
+        latest = {}
+        for run in json.loads(response.stdout):
+            name = run["name"]
+            if name not in required:
+                continue
+            key = lambda item: (item["run_number"], item["run_attempt"], item["id"])
+            if name not in latest or key(run) > key(latest[name]):
+                latest[name] = run
+        for name in required:
+            run = latest.get(name)
+            print(f"{name}: {run['status']}/{run['conclusion'] or 'pending'}"
+                  if run else f"{name}: missing", flush=True)
+        failed = any(run["status"] == "completed" and run["conclusion"] != "success"
+                     for run in latest.values())
+        completed = len(latest) == len(required) and all(
+            run["status"] == "completed" for run in latest.values())
+    except (ValueError, KeyError, TypeError) as error:
+        print(f"Invalid Actions response: {error}; current state unknown.", flush=True)
+        sys.exit(9)
+    print("failed" if failed else "completed" if completed else "pending", flush=True)
+    if failed:
+        sys.exit(1)
+    if completed:
+        sys.exit(0)
+    time.sleep(30)
 """
-task = subprocess.Popen(["bash"], stdin=subprocess.PIPE, text=True, start_new_session=True)
+task = subprocess.Popen([sys.executable, "-c", command], start_new_session=True)
 try:
-    task.communicate(command, timeout=1200)
+    task.communicate(timeout=1200)
 except subprocess.TimeoutExpired:
     try:
         os.killpg(task.pid, signal.SIGKILL)
@@ -91,6 +106,10 @@ WAIT
   exit "$rc"
 )
 ```
+
+The snippet needs Bash, Python 3 (stdlib only), and the GitHub CLI. Page flattening
+uses the GitHub CLI's built-in `--jq`; no standalone `jq` is needed. Python selects
+and evaluates the latest runs, so regression fixtures exercise that same logic.
 
 The loop matches each REQUIRED workflow BY NAME across every API page and judges only
 its LATEST run (highest `run_number`, then `run_attempt`, then `id`). An older failed
@@ -120,7 +139,7 @@ Run exactly one such task. **Do NOT idle-block on the notification:** per the
 **Background-task check SOP** below, check on the 60-second cadence and ACTIVELY PROBE
 once past typical duration (about 1-2 minutes here). Bound any separate probe with
 the same supervisor, setting `timeout=60` and `command` to
-`gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"`,
+`'import subprocess, sys; sys.exit(subprocess.call(["gh", "api", "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"]))'`,
 un-piped, preserving its exit status. Never hand-roll a wait on unverified flags or
 leave it unbounded or silent. A foreground-only worker executes the same bounded
 command synchronously; the background-task machinery applies only where permitted.
