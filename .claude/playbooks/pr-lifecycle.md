@@ -43,7 +43,7 @@ drive end-to-end on the maintainer's behalf:
    PASS/FAIL line before relying on any chain. On a green guard, open the PR via
    `mcp__github__create_pull_request`.
 3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
-   `## PR activity subscription discipline` in `.claude/CLAUDE.md`; on failure, fix and re-push.
+   `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
 4. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
    touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
@@ -233,6 +233,13 @@ is external. Two mechanisms:
      when a verifier or the orchestrator hunts evidence AGAINST a claim, the hunt runs at
      bare-token width too, because a phrasing-specific refutation grep can fail to refute
      a claim that is false in a differently-worded carrier.
+   - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full
+     file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string);
+     scope the completion CLAIM to the SLOT, not the string. The
+     [`check-class-completeness.py`](../tools/check-class-completeness.py) aid (P-1.5) runs
+     this proactively: give it the distinctive string you fixed and it prints every corpus
+     occurrence, so each is fixed or routed in the SAME PR (the reactive dual-family catch
+     of #1296/#1297 made permanent).
    - If the PR makes a **corpus-wide completion claim** (a token harmonization, rename, or
      reconcile asserted complete across the corpus), the completion-verification grep was run
      over the **full corpus file set, not the change's own input set**: an input-set grep
@@ -323,10 +330,10 @@ is external. Two mechanisms:
      built to close; Sweep 38 found gate 48's §6 narrative stale after its logic changed in
      #308 and #309). A per-PR delta check Dn also needs its step name added to
      `WORKFLOW_DELTA_GATE_STEPS`. This bullet is the type-A row of the `## Change-impact
-     surface map` in `.claude/CLAUDE.md`; see it for the B/C/D change types and the website surface.
+     surface map` below in this playbook; see it for the B/C/D change types and the website surface.
    - **Change-impact completeness across all surfaces** (originated in the change-impact-map work, PR #1104; the generalization of
      the audit-gate bullet above to every change type): for EVERY gate, pack-rule, skill, or
-     count change in the PR, run the `## Change-impact surface map` in `.claude/CLAUDE.md` for that change type
+     count change in the PR, run the `## Change-impact surface map` below in this playbook for that change type
      and confirm each surface, gated AND free-prose AND website, is in the diff. The WEBSITE
      is a first-class paired surface: identify the `grclibrary.ai` (`.web/templates/` and `.web/templates-v2/`) prose
      to update EARLY and apply it in the SAME PR. A rule or skill is linked TWICE in
@@ -576,3 +583,42 @@ is external. Two mechanisms:
    of the two exemptions Check 1 already detects mechanically, one by exactly this kind of
    Findings-cell marker.) This convention is now the defence-in-depth PARTNER of a live gate,
    not the sole control, which is the stronger half of the pair.
+
+## Change-impact surface map (when you change X, update all of these)
+
+(Map origin: the change-impact-surface-map item closed in PR #1109 on 2026-07-24; the map below is now a permanent close-out
+discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
+gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
+rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
+shipped without the change-tracking discipline prose). This map is the "when you change X,
+update ALL of these" reference the close-out checklist's change-impact bullet points at. It
+CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
+re-implement them, per the change-impact-map decision Q3=C); it adds the free-prose and website columns those
+gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
+`.web/templates/` and `.web/templates-v2/` sources) is a FIRST-CLASS paired surface: its updates are identified early
+and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
+land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
+iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the change-impact-map PR-2).
+
+| Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
+| --- | --- | --- | --- |
+| **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
+| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (the change-impact-map PR-2 (#1107) gates this as gate 74); CLAUDE.md rule-index and count prose; and, on a rule-BODY change, the rule's EXECUTABLE command (`.claude/commands/<name>.md`) and skill (`guardrails/skills/<name>/SKILL.md`), whose procedure and family-count prose can silently lag the rule body (gate 44 checks paired-skill STEP-parity, not the semantic content, the #1615 dual-to-triple gap) | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
+| **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the four it checks for rules); pack README `Version` bump on a body change (D2 + gate 40); paired-skill step-parity (gate 44, when a paired command exists); verdict-carrier-completeness for a verdict-bearing skill (gate 97, when the skill is enrolled in `tools/skill-verdict-fields.json`) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
+| **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |
+| **E. repo-root relocation (the checkout moves on disk)** | NONE (no gate reads an absolute host path, which is exactly why this row exists) | the WIRING, not just the narrative: every `PreToolUse` hook's project-root fallback (use `str(Path(__file__).resolve().parents[2])`, never a hardcoded root, so the value follows the move); the `statusLine` command's `${dir:-<root>}` fallbacks in [`settings.json`](settings.json); [`tools/repo-guard.sh`](../tools/repo-guard.sh)'s header; and `.claude/CLAUDE.md`'s cross-repo command prescriptions (the absolute-tool-path and `git -C` forms in `## Boundaries` and `## Self-verification`). Frozen `.working/` records are narrative and stay as written | NONE |
+
+The single most error-prone website detail: each rule and skill is linked TWICE in `pack.html`
+(the Rules/Skills sidenav AND a body `<li>` entry), so a change that updates one and misses the
+other is the likely drift; the close-out bullet says "two places" explicitly. The gated column
+names the authority gate for each surface so this map never silently duplicates or contradicts
+a gate; when a gate's coverage changes, its row here is updated in the same PR.
+
+## Version-bump discipline (enforcement detail)
+
+**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
+`run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
+`run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
+the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:
+did this commit change a versioned document's body (bump its Version AND Date), and is this
+the last commit before push (bump library CalVer and the README Version field)?

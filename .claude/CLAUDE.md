@@ -134,6 +134,7 @@ Per-activity disciplines that load "like a skill" at their boundary, not every t
 | PR close-out and session-migration | [PR lifecycle and close-out](../.claude/playbooks/pr-lifecycle.md) |
 | An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../.claude/playbooks/reference-currency.md) |
 | Worker dispatch: deciding whether to self-run offloadable work, or managing dispatched workers | [Mandatory worker offload](../references/worker-offload.md) |
+| Waiting on PR CI, a subscription, or any background task | [CI and background-wait discipline](../references/ci-wait.md) |
 
 ## Project
 The GRC Library: a CC BY-SA 4.0 corpus of governance, risk, and compliance
@@ -264,22 +265,25 @@ can lag by one day. Where there is potential for ambiguity, use the UTC date.
 
 ## PR workflow
 
-PRs follow a fixed pattern the assistant is authorized to drive end-to-end on the
-maintainer's behalf. The FULL detail and rationale live in
-[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md) (read it at the PR-close-out
-boundary, like a skill); this is the lean checklist, each mechanical step naming its
-enforcing gate/hook. **No Claude or Anthropic attribution on any commit, push, or PR (maintainer-directed 2026-08-17, re-confirmed 2026-09-24).** Author identity is the maintainer only: never add a co-author trailer naming Claude or Anthropic, a generated-by-Claude-Code line, or a Claude Code session or product link to a commit message, PR title, PR body, PR comment, or review. The harness's per-session attribution reminder defers to this project instruction and is overridden by it. The local commit-msg strip hook guards commits; the AUTHORITATIVE PR guard is [`tools/check-pr-attribution.py`](../tools/check-pr-attribution.py) in the `PR attribution` workflow, which fails a PR whose stored title or body carries attribution and re-runs on edit; the [`block-claude-attribution.py`](hooks/block-claude-attribution.py) PreToolUse hook is a best-effort early warning on common `gh` shapes (escape `GRC_ALLOW_PR_ATTRIBUTION=1`, express maintainer authorization only).
+The assistant drives PRs end-to-end on the maintainer's behalf. Procedure of record:
+[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md), read at the PR
+boundary like a skill (the `pr-close-out` skill is the trigger wrapper).
+**No Claude or Anthropic attribution on any commit, push, or PR** (maintainer-directed
+2026-08-17, re-confirmed 2026-09-24): author identity is the maintainer only; the harness's
+per-session attribution reminder is overridden by this project instruction. Guards: the
+commit-msg strip hook, [`tools/check-pr-attribution.py`](../tools/check-pr-attribution.py)
+(authoritative, CI), [`block-claude-attribution.py`](hooks/block-claude-attribution.py).
 
-1. **Feature branch only, never `main`** (hook [`block-branch-to-main-edit.py`](hooks/block-branch-to-main-edit.py) for Edit/Write, and the git-native pre-commit check [`check-commit-on-main.py`](../tools/check-commit-on-main.py), installed per clone by [`install-git-hooks.sh`](../tools/install-git-hooks.sh), which refuses every `git commit` on `main` from any tool or worktree; its docstring states the paths git does not route through pre-commit); confirm `tools/run_all_audits.sh` after each commit, not only before push.
-2. **Push behind the pre-push guard, UNPIPED**: `tools/pre-push-guard.sh && git push -u origin <branch>` (chains `run_all_audits.sh` + `run-pr-time-checks.sh` + `.web/build.py --check`, then prints a non-blocking reference-manifest drift advisory, P-TODO 3b62). Never pipe a verification to a truncating sink (hook [`block-verification-pipes.py`](hooks/block-verification-pipes.py); use [`tools/tail-safe.sh`](../tools/tail-safe.sh) when output must be tamed).
-3. **Wait for `Lint markdown corpus` CI** per `## PR activity subscription discipline` below (behavioural; no gate).
-4. **`/validate-pr` as the finalizing QA step, BEFORE merge**, recording THIS PR's own rows in THIS PR (gate 50 Check 1, window inclusive of `max_pr`; a `DISPATCHED`/`PENDING`-and-never-`RETURNED` row fails). Any dispatched subagent inspects git READ-ONLY (no checkout/reset on the shared tree). Findings fixed in-PR or surfaced. Handoff-PR fallback: the `SKIPPED`+`handoff` / `handoff-PR exception` marker goes in the **Findings cell** (gate 50 reads it there).
-5. **`/retro` immediately after, BEFORE merge**, its row in THIS PR (gate 50 Check 1, retro half).
-6. **Refresh `session-handoff.md`** (paste `python3 tools/handoff-snapshot.py`'s verified block; the handoff refresh is behavioural/un-gated, gate 63 guards the SEPARATE `session-state.md` lease shape). At a session-closing PR also refresh `## Asserted expectations`, the green-at-`<sha>` line, and `session-metrics`.
-7. **On green CI, merge** (through `tools/merge-when-green.py`, which runs `gh pr merge --squash` pinned to the evaluated head; a plain merge fails `REVIEW_REQUIRED`, so the maintainer's `--admin` bypass is the working path). **Every `--admin` merge is LOGGED** to `grc_library_private/.working/merge-bypass-log.md` from the OBSERVED CI state (gate 50 Check 6 gates the row's PRESENCE, not its content). **Gate the merge on confirmed-green** with [`tools/merge-when-green.py`](../tools/merge-when-green.py) `<N> --repo jposluns/grc_library --admin` (P-1.6): it reads the PR's `statusCheckRollup` and REFUSES unless every check is terminal-success with zero pending and the corpus-lint and PR-attribution checks are present and SUCCESS (never skipped or neutral, 3b104), and it pins the merge to the head commit it evaluated (3b106), so merge-on-pending (the #1297 slip) cannot recur. Run the CI watch first; this is the final merge gate, fail-closed.
-8. **After merge**: sync `main`, delete the feature branch, confirm the remote branch is gone (behavioural).
-9. **After merge, list the next five planned PRs** from the `## Up next` queue at the top of the private `P-TODO.md` (the single ordered work queue across both backlogs, `TODO.md` and `P-TODO.md`) in chat, and REFRESH that queue in THIS PR: drop the just-closed item and insert any new work in position order. This after-merge listing reads the top of that queue, which replaced the retired `next-prs.txt` (the console `next:` statusline was removed 2026-08-15 to recover a status row; `/orch` itself continues from the handoff's Next-actions, not this queue). Behavioural.
-10. **TODO/DONE rotation** (convention-guarded: D5 requires `TODO.md` touched on a CHANGELOG closure claim and gate 78 checks number permanence, but NEITHER verifies the specific item's deletion or the DONE entry): a closed item's `TODO.md` index row is deleted in the same PR, while its detail block in the private `grc_library_private/TODO-REFERENCE.md` (or its private `P-TODO.md` item) and its `grc_library_private/.working/DONE.md` entry rotate cross-repo in the private sibling, keyed by PR number; the completion summary is surfaced in chat. Backlog-item-keyed, not FR/§-keyed.
+1. **Feature branch only, never `main`** (hook `block-branch-to-main-edit.py`; git-native `check-commit-on-main.py` in every worktree).
+2. **Push UNPIPED behind the guard**: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (hook `block-verification-pipes.py`; `tools/tail-safe.sh` when output must be tamed).
+3. **Wait for `Lint markdown corpus` CI** per `## PR activity subscription discipline` below.
+4. **`/validate-pr` BEFORE merge**, THIS PR's row in THIS PR (gate 50 Check 1; handoff-fallback marker `SKIPPED`+`handoff` goes in the Findings cell).
+5. **`/retro` immediately after, BEFORE merge**, row in THIS PR (gate 50 Check 1).
+6. **Refresh `session-handoff.md`** from `python3 tools/handoff-snapshot.py` output.
+7. **Merge only through [`tools/merge-when-green.py`](../tools/merge-when-green.py)** `<N> --repo jposluns/grc_library --admin` (fail-closed confirmed-green, head-pinned); every `--admin` merge LOGGED to the merge-bypass log (gate 50 Check 6).
+8. **After merge**: sync `main`, delete the branch, confirm the remote branch is gone.
+9. **After merge, list the next five planned PRs** from the private `P-TODO.md` `## Up next` queue in chat, and REFRESH that queue in THIS PR.
+10. **TODO/DONE rotation**: the closed item's `TODO.md` index row deleted in the same PR; detail block + DONE entry rotate in the private sibling, keyed by PR number.
 
 Actions outside this routine (merging a PR the maintainer did not author, force-pushing a
 protected branch, deleting a branch the assistant did not create) require explicit
@@ -287,88 +291,27 @@ confirmation under the confirm-before-destructive-action discipline.
 
 ## Change-impact surface map (when you change X, update all of these)
 
-(Map origin: the change-impact-surface-map item closed in PR #1109 on 2026-07-24; the map below is now a permanent close-out
-discipline.) A gate/rule/skill/count change touches more surfaces than the mechanical parity
-gates cover, and the FREE-PROSE and WEBSITE surfaces drift silently (this session: the 14th
-rule shipped without its pack-README rule-scope-table row, ungated by gate 41; #1017's D8
-shipped without the change-tracking discipline prose). This map is the "when you change X,
-update ALL of these" reference the close-out checklist's change-impact bullet points at. It
-CROSS-REFERENCES the existing gates as the authorities for the gated column (it does not
-re-implement them, per the change-impact-map decision Q3=C); it adds the free-prose and website columns those
-gates do not cover, which is where drift happens. The website (`grclibrary.ai`, the
-`.web/templates/` and `.web/templates-v2/` sources) is a FIRST-CLASS paired surface: its updates are identified early
-and applied in the SAME PR as the change (the site must reflect the corpus/repo as changes
-land, the gap flagged 2026-07-23). FP-safe mechanization of an ungated surface is added
-iteratively (decision Q1); the first, the pack-README rule-scope table, shipped as gate 74 in #1107 (the change-impact-map PR-2).
-
-| Change type | Gated (covering gate) | Free-prose (drift-prone, ungated) | Website (`grclibrary.ai`) |
-| --- | --- | --- | --- |
-| **A. new/changed gate** | four tooling surfaces (gate 35); spec §6 detailed-prose presence (gate 64); gate-count idioms on add/remove (gate 39) | the spec §5 grouped-list; the per-gate §6 narrative when detection logic changes; the module docstring; the regression fixture; a `Dn` step name in `WORKFLOW_DELTA_GATE_STEPS`; CLAUDE.md gate-count prose | NONE (no template shows a gate count or gate list) |
-| **B. new/changed pack rule** | both trees byte-identical above the PROJECT-OVERLAY (gate 37); the four enumeration surfaces (gate 41: README tree, pack CLAUDE.md, project CLAUDE.md, `rule-provenance.md` register); pack README `Version` bump on a body change (D2 + gate 40) | the pack README "Rule files and their scope" table (the change-impact-map PR-2 (#1107) gates this as gate 74); CLAUDE.md rule-index and count prose; and, on a rule-BODY change, the rule's EXECUTABLE command (`.claude/commands/<name>.md`) and skill (`guardrails/skills/<name>/SKILL.md`), whose procedure and family-count prose can silently lag the rule body (gate 44 checks paired-skill STEP-parity, not the semantic content, the #1615 dual-to-triple gap) | `pack.html` Rules sidenav AND the rule's body `<li>` entry (TWO places); on a rule-COUNT change the three count surfaces (`pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA); on a RENAME, `for-ai.html` named-rule prose when it names that rule |
-| **C. new/changed skill** | the pack-README skills enumeration (gate 41 checks ONE surface for skills, the README skills tree, unlike the four it checks for rules); pack README `Version` bump on a body change (D2 + gate 40); paired-skill step-parity (gate 44, when a paired command exists); verdict-carrier-completeness for a verdict-bearing skill (gate 97, when the skill is enrolled in `tools/skill-verdict-fields.json`) | any skills-scope prose; CLAUDE.md skill cadence and count prose | `pack.html` Skills sidenav AND the skill's body `<li>` entry (TWO places); on a skill-COUNT change the three count surfaces |
-| **D. count change (rules or skills)** | the count idioms (gate 39); the enumeration surfaces carrying the count (gate 41) | any CLAUDE.md "N rules / M skills" summary line | the three website count surfaces: `pack.html` meta-description, `pack.html` body count, `landing.html` pack CTA |
-| **E. repo-root relocation (the checkout moves on disk)** | NONE (no gate reads an absolute host path, which is exactly why this row exists) | the WIRING, not just the narrative: every `PreToolUse` hook's project-root fallback (use `str(Path(__file__).resolve().parents[2])`, never a hardcoded root, so the value follows the move); the `statusLine` command's `${dir:-<root>}` fallbacks in [`settings.json`](settings.json); [`tools/repo-guard.sh`](../tools/repo-guard.sh)'s header; and THIS file's cross-repo command prescriptions (the absolute-tool-path and `git -C` forms in `## Boundaries` and `## Self-verification`). Frozen `.working/` records are narrative and stay as written | NONE |
-
-The single most error-prone website detail: each rule and skill is linked TWICE in `pack.html`
-(the Rules/Skills sidenav AND a body `<li>` entry), so a change that updates one and misses the
-other is the likely drift; the close-out bullet says "two places" explicitly. The gated column
-names the authority gate for each surface so this map never silently duplicates or contradicts
-a gate; when a gate's coverage changes, its row here is updated in the same PR.
+A gate/rule/skill/count change touches FREE-PROSE and WEBSITE surfaces the parity gates do
+not cover, and those drift silently (a rule or skill is linked TWICE in `pack.html`; a count
+change touches three website surfaces; the website is a FIRST-CLASS paired surface updated in
+the SAME PR). On every such change, run the full map, now in
+[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md)
+(`## Change-impact surface map`), for that change type in the SAME PR.
 
 ## Session migration and PR close-out checklist
 
-Long sessions degrade (context dilution, lossy compaction, state drift, error compounding)
-and the assistant has no reliable internal gauge, so the defence is external. The FULL
-detail and rationale for everything below live in
-[`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md); this is the lean checklist.
-
-1. **Session handoff.** `grc_library_private/.working/session-handoff.md` is the single resume
-   point (branch, versions, counts, last-merged, next-actions, open decisions, green-at-`<sha>`,
-   and at close the asserted-expectations). Refreshed at every close-out, in the same PR. Resume
-   with `/orch`.
-
-2. **PR close-out checklist.** Before pushing, confirm every paired bookkeeping surface is in
-   the diff. The MECHANICAL items each have a gate/hook backstop (named); the GREP-DISCIPLINE
-   items are mostly NOT gated (D9, from #1250, gates only the §N-orphan anchored-refs-on-operational-surfaces sub-case), so their terse reminder here is
-   the live control, do not drop it.
-
-   **Backstopped (gate/hook named; detail in `.claude/playbooks/pr-lifecycle.md`):**
-   - THIS PR's own `/validate-pr` + `/retro` rows present (gate 50 Check 1); every closed TODO item deleted from TODO (the public index row in the same PR; the detail block + DONE entry rotate cross-repo in the private sibling) (convention; D5 + gate 78 cover only parts, see step 10 of `## PR workflow`).
-   - New pack prose (SKILL/rule/command/pack-README/CLAUDE.md prose) run through `lint-language.py` AND `lint-unbalanced-fences.py` on EXPLICIT paths before the first commit (both default to corpus paths, so `.claude/`/pack prose needs explicit paths; both also run in CI).
-   - `preflight-changelog.py` before the first commit (`&& git commit`): an AID mirroring the D3 dash check + link-coverage; the D1 changelog-presence check is the separate `check-changelog-on-pr.py`.
-   - Pack-README `Version` bumped on a body change: D2 + gate 40 (the `## Version history` section and its D6 gate were retired 2026-08-03, maintainer-directed).
-   - In a gate-39-SCANNED surface (`.md`/`.py`/`.sh`, NOT `.claude/` or `references/`), gate-cited prose phrased `gates N and M` (P7 trap): gate 39.
-   - Audit-gate add/renumber/logic-change updates all parallel surfaces: gates 35/64/39 (gated half; the §5 grouped-list and per-gate narrative are free-prose, see the grep reminders).
-   - `Version` and `Date` co-bumped in the SAME edit (watch UTC rollover): D2/D4 + hook [`block-unbumped-version-commit.py`](hooks/block-unbumped-version-commit.py) (same checkout) + the git-native commit-msg check [`check-version-bump-commit.py`](../tools/check-version-bump-commit.py) (every worktree) + gate 40. Run `python3 tools/lint-version-bump-recency.py` before each commit.
-   - After any per-document `Version` bump, regenerate `taxonomy.yml` FIRST then the portal/scorecard: gates 33/34. An `executive/` page bump regenerates `narrative.yml` instead: gate 85.
-   - Detailed-mirror current-week sweep (advisory, cross-repo, NOT gated); gate 59 checks mirror-header parity. Daily roll-up when D8 prints `DAILY SUMMARY DUE`: D8 (advisory). The ROOT `CHANGELOG.md` is summarized-in-place, NEVER removed.
-   - CHANGELOG (root + detailed) and version bumps present; pre-push guard green.
-
-   **Grep-discipline reminders (mostly UN-gated, the live control; D9 (#1250) now backstops only the §N-orphan-on-operational-surfaces sub-case, the rest stay convention):**
-   - Enumerated-collection prose counts re-checked for staleness (computed AFTER the verifier loop, never mid-draft).
-   - On a convention/count/term/gate-wiring change: grep the OLD phrasing across the full file AND every sibling surface, at BARE-TOKEN width (not a phrasing-specific string); scope the completion CLAIM to the SLOT, not the string. The [`check-class-completeness.py`](../tools/check-class-completeness.py) aid (P-1.5) runs this proactively: give it the distinctive string you fixed and it prints every corpus occurrence, so each is fixed or routed in the SAME PR (the reactive dual-family catch of #1296/#1297 made permanent).
-   - Corpus-wide completion claim: grep the FULL corpus file set, not the change's own input set.
-   - Full-file-grep + parallel-case re-verification for prose corrections, across four axes: pattern-width, scope-width, SEPARATOR tolerance (proximity form, both orders), FILE-TYPE width (`.py`/`.yml`/`.sh`/`.json`/`.claude/`, not `.md` alone).
-   - Section-close cross-FILE §N-orphan cleanup: the anchored key-forms (`§N.M`/`PN.M`/`TODO §N.M`) surviving on OPERATIONAL surfaces are now GATED by D9 (`check-retired-section-orphan-on-pr.py`); the manual grep still covers the residue D9 excludes by design: bare tokens, RANGE `§A-§B`, `item N`, and corpus `.md` surfaces.
-   - Grep-claim fidelity: any clause characterizing a grep result is written FROM the pasted output, not memory.
-   - Meta-prose state-claim measurement: any clause characterizing an artefact's own state is MEASURED at authoring time (recount enumerations; never transcribe a subagent figure unrecounted).
-   - CHANGELOG count-reflex: a figure that drifts mid-PR is bare-token-grepped across the whole entry, both files.
-   - Summary/description-lag: when a summary/status surface is marked resolved, update (or grep-confirm) the paired detail surface, same commit.
-   - Paired-surface completeness: a control-code migration re-reads the paired description cell for OLD-code echoes.
-   - Change-impact completeness across ALL surfaces (run `## Change-impact surface map` per change type): the free-prose + WEBSITE halves (a rule/skill is linked TWICE in `pack.html`; a count change touches three website surfaces) the gates do not enforce.
-   - Accepted-unverified tracker: anything accepted unverified gets a TODO tracking item in the diff.
-   - Per-touch reference-breadth: a corpus-body change runs `audit-reference-breadth.py --docs <paths>` + refreshes doc-state.
-   - First-PR-of-a-resumed-session: the handoff was PRUNED (current + 1 prior) per its refresh discipline.
-   - Read-only-git subagent brief: every dispatched subagent inspects history read-only (no checkout/reset on the shared tree).
-
-3. **Closing-handoff-PR discipline (a session's last act is a green merge).** The session-closing
-   PR lands working-state on `main` green so `/orch` rebuilds from `main`. It runs its own
-   `/validate-pr` + `/retro` like any PR (sync model, rows in-PR); the loop-termination FALLBACK
-   (skip the trailing QA) records `SKIPPED`+`handoff` in the Findings cell. **A session must NOT
-   close with a large unvalidated PR**: every merged PR (the handoff included unless its narrow fallback skip was taken) has a `/validate-pr`
-   that RETURNED (a `DISPATCHED`/`PENDING` row does not satisfy this, now GATED by gate 50 Check
-   1); an undelivered `/validate-pr` BLOCKS and is re-issued to a second worker, first delivery
-   authoritative. Keep the last substantive PR SMALL. Detail in `.claude/playbooks/pr-lifecycle.md`.
+Long sessions degrade (context dilution, lossy compaction, state drift) and the assistant
+has no reliable internal gauge, so the defence is external. At EVERY PR close-out, execute
+the full checklist in [`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md)
+(`## Session migration and PR close-out checklist`; trigger wrapper: the `pr-close-out`
+skill): the gate/hook-backstopped bookkeeping items AND the un-gated grep-discipline
+reminders, which are the live control and are never skipped or abbreviated.
+`grc_library_private/.working/session-handoff.md` is the single resume point, refreshed at
+every close-out in the same PR; resume with `/orch`.
+**A session must NOT close with a large unvalidated PR**: the session's last act is a green
+session-closing merge to `main`, every merged PR carrying a RETURNED `/validate-pr`
+(gate 50 Check 1; an undelivered run BLOCKS and is re-issued, first delivery authoritative).
+Keep the last substantive PR SMALL.
 
 ## Multi-session orchestration
 
@@ -381,25 +324,15 @@ single-session. The project-agnostic form is the partitionable-work SOP in the
 [`ai-assistant-workflow-disciplines`](rules/governance/ai-assistant-workflow-disciplines.md)
 pack rule (its §2).
 
-## Compliance-matrix semantic-fit cadence (`/matrix-fit`)
+## QA cadences (each skill holds its When-to-Use, procedure, and routing)
 
-Control-code citations in the compliance matrix ([`compliance/matrix-grc-compliance-alignment.md`](../compliance/matrix-grc-compliance-alignment.md)) and per-document framework-alignment tables can be VALID yet the WRONG control (exists and in-catalogue but mis-fits the row's document); the existence gates 48/49/54/58/61 cannot see this. `/matrix-fit` (skill [`matrix-fit`](../guardrails/skills/matrix-fit/SKILL.md)) is the cadenced semantic-fit audit that judges each cited code against the source control TITLE, scoped by [`tools/audit-matrix-semantic-fit.py`](../tools/audit-matrix-semantic-fit.py). Run it after each FR-167 matrix-expansion batch (the primary cadence; first real firing FR-167 batch 10, ai), once at matrix completion, and ad-hoc when a citation is in doubt. NOT a gate and NOT a substitute for the existence gates (a row must pass them first); findings fixed in-window or routed, a zero-finding run still gets a history row. The skill's Project wiring, When-to-Use, and Process carry the full procedure.
-
-## Normative-attribution claim-precision cadence (`/claim-fit`)
-
-Corpus documents attribute specific values (a retention period, a clock, a threshold) to named normative sources; the citation gates confirm the source exists and is well-formed, not that it PRESCRIBES the value (the "attributed value, silent source" class, the FR-120 shape: a fixed 180-day baseline attributed to NIST SP 800-53 CA-6 and ISO/IEC 27001 Clause 9.2, neither of which prescribes a fixed interval). `/claim-fit` (skill [`claim-fit`](../guardrails/skills/claim-fit/SKILL.md)) is the cadenced precision audit that judges each worklisted claim (via [`tools/audit-claim-precision.py`](../tools/audit-claim-precision.py)) against the held source TEXT, with four verdicts (`prescribed` / `informed-not-prescribed` / `mis-attributed` / `source-not-held`). Run the one-time full Tier-A pass at adoption (#630 baseline), after any batch adding normative-value claims (a P2 content batch, a jurisdiction annex, a KPI/SLA table), and ad-hoc. NOT a gate and NOT a substitute for the citation gates (a claim passes the existence + currency gates first); an `informed-not-prescribed` is fixed by the attribution PHRASING never the value, a `source-not-held` routes to the maintainer's source-acquisition queue. The skill carries the full procedure and per-verdict routing.
-
-## Whole-project deep assessment (`/deep-assessment`)
-
-The rare, maintainer-invoked, multi-session whole-project pass that runs the existing instruments formally AND probes what they cannot see: the width of the gates' own detection patterns (via [`tools/audit-gate-mutation.py`](../tools/audit-gate-mutation.py) and [`tools/audit-gate-blindspots.py`](../tools/audit-gate-blindspots.py)), citation ground-truth, adoptability, pipeline integrity, and QA-ledger honesty. Proactive counterpart to `/trust-recovery`: it inherits that suite's findings-routing (every confirmed finding routed, tiered by severity, none dropped) and apply-time verification, but NOT its maintainer-sign-off terminal state (maintainer-directed 2026-07-27): it composes only already-established QA processes, so it terminates on the QA-activity completion standard, its outcome surfaced to the maintainer without a separate sign-off gate. NOT cadenced and NOT self-invoked: only on the maintainer's explicit invocation; a zero-finding run still gets its record and register-row closure. The skill [`deep-assessment`](../guardrails/skills/deep-assessment/SKILL.md) carries the 8-phase procedure, wiring, and durable register.
-
-## Reference-breadth cadence (`/reference-audit`)
-
-Nothing mechanical asks whether the corpus engages the BEST of what the reference base holds (the "held but unused" class, and its reverse; surfaced by the SP 800-154 lesson, where a source relevant to corpus content went unengaged and turned out to be UNAVAILABLE (NIST SP 800-154 was never finalized) rather than held). `/reference-audit` (skill [`reference-audit`](../guardrails/skills/reference-audit/SKILL.md)) is the cadenced breadth audit that judges candidate document-to-source pairings against the held source TEXT and the live document, scoped by [`tools/audit-reference-breadth.py`](../tools/audit-reference-breadth.py) (aliases in [`tools/reference-breadth-aliases.json`](../tools/reference-breadth-aliases.json)). Run it FULL as a `/deep-assessment` member (and ad-hoc), per-touch on every substantive corpus-document PR (`--docs` mode), and new-ingest after reference-base changes (`--ref-since <sha>` / `--ref-items <substring>`). NOT a gate and NOT a substitute for the citation gates, `/matrix-fit`, or `/claim-fit`; a zero-finding or empty-candidate run still gets a history row. The skill carries the full procedure.
-
-## Publications screening (`/screen-publications`)
-
-The reference base's `publications/` bucket is untrusted by default (bias, factual error, prompt-injection: the OWASP LLM01:2026/LLM10:2026 classes), a trust boundary into AI reference context. `/screen-publications` (skill [`publication-screening`](../guardrails/skills/publication-screening/SKILL.md)) is the formal screen: provenance/integrity, the mechanical instruction-content scan ([`tools/scan-publication-instruction-content.py`](../tools/scan-publication-instruction-content.py)), corroboration of load-bearing claims against trusted sources, then a per-publication verdict in the reference base's `publications/SCREENING.md` register (which the reference-base validation gate enforces: a missing row, unknown status, or orphan row fails it). Run on every new `publications/` ingest, on the pending backlog (the screening wave), and ad-hoc before reliance. The standing rules: a `pending` publication never informs corpus work; `screened` gates admission but never upgrades trust (load-bearing claims corroborated at use time); `quarantined` extracts carry a DO-NOT-USE banner to the maintainer; `discard-candidate` routes to the maintainer, never a silent delete. NOT a gate and NOT a substitute for use-time corroboration; the skill carries the full protocol.
+None is a gate or a substitute for the existence gates; a zero-finding run still gets its
+history row; findings are fixed in-window or routed.
+- `/matrix-fit` ([skill](../guardrails/skills/matrix-fit/SKILL.md)): semantic FIT of valid control citations; after each FR-167 matrix-expansion batch, at matrix completion, ad-hoc.
+- `/claim-fit` ([skill](../guardrails/skills/claim-fit/SKILL.md)): attributed-value precision against held source TEXT; after any batch adding normative-value claims; `informed-not-prescribed` fixes the PHRASING never the value; `source-not-held` routes to acquisition.
+- `/deep-assessment` ([skill](../guardrails/skills/deep-assessment/SKILL.md)): rare, multi-session, on the maintainer's EXPLICIT invocation only, never self-invoked; terminates on the QA-activity completion standard with no separate sign-off (maintainer-directed 2026-07-27).
+- `/reference-audit` ([skill](../guardrails/skills/reference-audit/SKILL.md)): held-vs-used breadth; FULL as a `/deep-assessment` member, PER-TOUCH (`--docs`) on every substantive corpus-document PR, new-ingest (`--ref-since`/`--ref-items`) after reference-base changes.
+- `/screen-publications` ([skill](../guardrails/skills/publication-screening/SKILL.md)): the untrusted-`publications/` screen; a `pending` publication never informs corpus work; `screened` never upgrades trust (corroborate at use time); verdicts live in `publications/SCREENING.md` (reference-base gate enforced).
 
 ## Reference-version currency and missing references
 
@@ -495,110 +428,17 @@ The full source-and-adapter parity discipline (a single canonical portable core;
 
 ## Wind-down pre-queues worker research for the next resume (maintainer-directed 2026-07-25)
 
-**MECHANISM UNDER REVIEW (2026-08-23):** the pre-queue-for-the-next-session mechanism below assumed the async exec-dispatch / delivery-tray model, now RETIRED for synchronous `orch-verify` (which runs a worker to completion in-session and has no cross-session order/result queue). The maintainer's INTENT (use idle worker capacity between sessions) stands; redesigning the concrete pre-queue mechanism for the `orch-verify` era is a tracked follow-up. Read the specifics below as pending that redesign, not as the current live mechanism.
-
-**Every wind-down queues worker orders the NEXT session's `/orch` will consume** (worker
-capacity is ELASTIC, the orchestrator is the scarce singleton, so the hours between sessions are
-the only stretch where worker time is free and orchestrator time costs nothing; a wind-down that
-queues nothing wastes that window). Discipline: the pack rule
-[`session-lifecycle`](rules/governance/session-lifecycle.md) `## Wind-down pre-queues delegated
-work for the next session`. **Project overlay, queue IN THIS ORDER:** (1) the mandatory next-resume corpus-wide `/validate` for the closing window (a fresh-context drift-catch in its own right, and the compensating control where the handoff fallback skip was taken), pinned to the closing SHA; (2) research / draft candidates for the next-five queue in
-the private `P-TODO.md` `## Up next` queue; (3) any defect-hunt whose target the closing session
-touched. **Pin every order to the closing MERGE SHA** (never a branch head, which vanishes on
-squash-merge) and to a SHA that CONTAINS what the order references; fill the available concurrent worker capacity (not
-an unbounded backlog that goes stale unserved); name the pre-queued order ids in the handoff
-record; and a pre-queued order is NOT a claim its work is done (the receiving session consumes,
-re-verifies every positive finding at source, and routes findings normally).
-
-## Wind-down decision framework (surface the handoff choice, do not take it silently)
-
-**The default is to continue, not to hand off.** Full discipline: the pack rule
-[`session-lifecycle`](rules/governance/session-lifecycle.md) §4 (evidence-gated wind-down;
-continue is the default; session length, context "heaviness", and "a large / substantial /
-fresh-context-best series remaining" are NOT valid triggers by themselves; the ONLY valid trigger
-is a NAMED, externally-observable signal; surfaced never silent). **Project overlay.** **(SUPERSEDED 2026-08-28 by `## No manufactured wind-down` below: session depth and work shape are NEVER a wind-down trigger at any point, and case (ii)'s fresh-context need is a DISPATCH trigger there, not a stop; that section governs. The two OFFER cases below are retired.)** Session
-depth is a legitimate CONTRIBUTING factor to OFFERING a handoff (the maintainer's choice, never an
-auto-handoff) in two cases only: (i) a very-long-run of expected chained large PRs ahead where the
-project's OWN historical metrics show a measured quality decline on comparable prior runs (a named
-signal, not "I feel degraded"); (ii) excessively-sensitive work needing fresh context with no
-accumulated session history (the canonical case being the first `/deep-assessment` run, which must
-open on a fresh session so prior findings and framing do not bias it). Depth ALONE is never a
-trigger.
-
-**The compaction-gate on pacing and continue-vs-fresh questions (maintainer-directed
-2026-07-24).** **(SUPERSEDED IN PART 2026-08-28 by `## No manufactured wind-down` below: the two contributing-factor OFFER cases this paragraph references are RETIRED, and compaction count is a minimum FLOOR, never a pacing gate or a stop trigger. The retained core, do not manufacture a "what now / continue-vs-fresh" question absent a named degradation signal, still holds and composes with that section.)** Absent evidence of degradation, the assistant does NOT ask the maintainer
-"what should I do now" or "should we do this fresh / hand off", and does NOT surface a
-continue-vs-fresh, checkpoint, or sequencing choice, UNLESS both hold: (a) there is a
-justifiable reason, AND (b) the session has passed its SECOND conversation compaction.
-Before the second compaction, with no degradation evidence, "what now" is already answered
-by the GO'd queue and the standing priority ordering, so the assistant proceeds on the
-highest-priority authorized item without asking. This gate sits ON TOP OF the offer-regime
-and its two contributing-factor OFFER cases below (a very-long-run-ahead; sensitive
-work benefiting from fresh context): those OFFERS are themselves suppressed until the
-second-compaction-plus-justifiable-reason threshold is met when no degradation signal is
-present. A named, externally-observable degradation signal remains an always-valid trigger
-regardless of the compaction count. (The compaction count is the observed count the
-assistant increments as each session-continuation summary arrives; see the `_private`
-per-session compaction tally in the wind-down/handoff discipline.)
-
-**The trigger and the surfaced decision.** When the assistant concludes a handoff IS
-evidence-triggered, it surfaces it (via `AskUserQuestion`), never silently, with three things:
-(1) its justification in objective signals (actual drift, hallucination, or QA-missed mistakes;
-an un-instrumented internal state and the size/shape of remaining work are INVALID, the trigger
-must be a NAMED, externally-observable signal that can be quoted); (2) a per-PR
-likelihood-of-success assessment for the pending next-five PRs (from [`TODO.md`](../TODO.md)),
-anchored to tractability factors (partitionable vs single-session; incremental-edit vs
-fresh-context-class; count of cross-surface bookkeeping touchpoints; unresolved authorial
-decisions; whether references are in hand), used to SEQUENCE and verify, never itself a
-trigger; and (3) named options (the `clarify-before-acting` shape, recommended option first):
-
-   - **A. Handoff** (the conservative resolution of this already-evidence-triggered
-     decision; NOT the session-level default, which is to continue per the intro above).
-   - **B. The assistant's recommended order of additional PRs with high likelihood of
-     success** (small, partitionable, low-risk items where objective signals support
-     continuing).
-   - **C. An alternative order at slightly higher risk.**
-   - **D. "Do more than we should."** A deliberate impulse-check for the case where a
-     handoff has ALREADY been evidence-triggered and the temptation is to override it and
-     push on anyway (this is NOT the ordinary case of continuing a large series, which is
-     the correct default): if the maintainer picks D, the assistant reminds the maintainer
-     not to be stupid and hands off immediately (a Ulysses pact).
-
-**The timeout (graceful degradation).** This decision uses the same roughly-5-minute
-background-`sleep` timer as the attended-autonomous mechanism (§3). If the maintainer answers
-before it fires, act on the answer. If it fires with no answer, **proceed with option A
-(handoff)**: the conservative, reversible, no-regret resolution of an already-triggered wind-down.
-A no-answer timeout NEVER auto-selects B, C, or D. The one carve-out: in an overnight run the
-overnight conflict rules govern instead. Choosing B or C relaxes no discipline: each additional PR
-still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR
-boundary, so "do N more" is really "do one more, re-assess, repeat" and self-terminates early if
-quality signals turn.
-
-**Turning overnight mode OFF is never a no-answer default.** Do NOT end
-overnight mode unless the maintainer explicitly says so; if unsure, pause and ask. If the
-roughly-5-minute window fires with no answer, **MAINTAIN overnight mode** and re-ask the
-next time the maintainer messages. A session-closing handoff silently ends an overnight
-run, so the overnight-OFF decision is carved out of the wind-down no-answer-to-handoff
-default above: it requires an explicit maintainer signal, never a timeout.
+The maintainer's INTENT stands: use elastic worker capacity between sessions. The concrete
+async pre-queue mechanism assumed the retired exec-dispatch/delivery-tray transport and is
+UNDER REVIEW (2026-08-23); redesigning it for synchronous `orch-verify` is a tracked
+follow-up. Until then: queue nothing cross-session; the next-resume corpus-wide `/validate`
+for the closing window is dispatched at the next resume, pinned to the closing MERGE SHA.
 
 ## No manufactured wind-down: depth and work shape are never stop triggers (interim, adopted 2026-08-28)
 
-Adopted from the fleet share (fleet-directed 2026-08-28), interim pending the canonical
-guardrails/AIQT pack, which this reconciles to when it ships. Where it conflicts with the `## Wind-down
-decision framework` above and the pack rule [`session-lifecycle`](rules/governance/session-lifecycle.md)
-(its §1 "prefer a fresh session" preference, its §4 "session depth is a legitimate CONTRIBUTING factor"
-clause with the very-long-run and fresh-context sub-cases, and its "winding down on felt degradation or
-work shape" anti-pattern), THIS section GOVERNS and those passages are SUPERSEDED. The pack rule bodies
-are NOT edited here (guardrails owns them; they reconcile at the canonical ship); this is a CLAUDE.md
-interim overlay plus a supersession note in the local
-[`session-lifecycle`](rules/governance/session-lifecycle.md) PROJECT-OVERLAY block.
+Adopted from the fleet share (fleet-directed 2026-08-28), interim pending the canonical guardrails/AIQT pack, which this reconciles to when it ships. Where it conflicts with the pack rule [`session-lifecycle`](rules/governance/session-lifecycle.md) (its §1 fresh-session preference, its §4 depth-as-contributing-factor clause with the very-long-run and fresh-context sub-cases, and its felt-degradation anti-pattern), THIS section GOVERNS and those passages are SUPERSEDED (the pack bodies are not edited here; a supersession note sits in the local rule's PROJECT-OVERLAY block).
 
-**The failure it forecloses: the MANUFACTURED stop.** An orchestrator that, with authorized work still
-open and every gate green, talks itself into winding down on a reason that only sounds like prudence:
-"a long session", "a heavy session", "done a lot", "a complete milestone", "this deep into the run",
-"best done fresh later", "a large series is next", or "this audit needs fresh context". None of these
-is a signal; each is felt state or the mere SHAPE of the work dressed as a considered call, and acting
-on it stops productive work that no observable problem asked to stop.
+**The failure it forecloses: the MANUFACTURED stop.** With authorized work open and every gate green, winding down on a reason that only sounds like prudence ("a long session", "a heavy session", "done a lot", "a complete milestone", "this deep into the run", "best done fresh later", "a large series is next") stops productive work no observable problem asked to stop: each is felt state or the mere SHAPE of the work dressed as a considered call.
 
 **The ONLY valid triggers** for proposing or taking a wind-down are NAMED and EXTERNALLY-OBSERVABLE: an
 UNRESOLVED failing check, gate, or audit that BLOCKS and cannot be fixed in place (an ordinary
@@ -620,24 +460,18 @@ remaining work (a large series, migration, or audit ahead). Large work is done u
 independent verification sustaining quality; its size is a reason to keep going, never to stop. A
 caught-and-fixed issue is NORMAL OPERATION, not a stop: finish the unit in hand, fix, then continue.
 
-**The two-compaction floor.** The fleet minimum is that a run continues to at least two compaction
-events before ANY discretionary wind-down is even proposed. That floor is a minimum-effort expectation,
-never a point past which depth becomes a valid consideration and never a ceiling that authorizes a stop:
-depth is never a valid consideration at any compaction count. A named externally-observable degradation
-signal remains an always-valid trigger regardless of count. This supersedes the weaker
-"second-compaction-plus-justifiable-reason" reading in the compaction-gate above.
+**The two-compaction floor.** The fleet minimum: a run continues to at least two compaction events before ANY discretionary wind-down is even proposed; a minimum-effort expectation, never a point past which depth becomes a valid consideration and never a ceiling that authorizes a stop. A named externally-observable degradation signal remains an always-valid trigger regardless of count.
 
-**"Needs fresh context" is a DISPATCH trigger, never a stop.** A task that genuinely benefits from fresh
-context, the canonical case being a whole-project audit or assessment, is a reason to DISPATCH A WORKER
-(fresh context by construction) while the orchestrator keeps advancing the queue, not to wind the
-orchestrator down. This supersedes the "excessively-sensitive work needing fresh context" OFFER
-sub-case above and its `/deep-assessment`-on-fresh-session framing: the freshness is met by the
-dispatched worker.
+**"Needs fresh context" is a DISPATCH trigger, never a stop.** A task that genuinely benefits from fresh context (the canonical case: a whole-project audit or assessment such as `/deep-assessment`) is a reason to DISPATCH A WORKER (fresh context by construction) while the orchestrator keeps advancing the queue, never to wind the orchestrator down.
 
-**Mechanization.** The fleet infrastructure orchestrator pairs the rule with an unattended Stop hook binding a stop to the
-tool-verified whole-set-exhaustion check. This project ADOPTED it (2026-09-03, fleet-directed) as
-[`stop-guard-unattended.py`](hooks/stop-guard-unattended.py): in an unattended mode (or attended-autonomous, which it treats as unattended) it BLOCKS a turn-end yield while the backlog tool ([`nmw-actionable`](hooks/nmw-actionable) over `audit-backlog-actionability.py`) reports actionable items; it honours the `stop_hook_active` loop-guard, the `.allow-idle-stop` declared-wait escape, and FAILS OPEN. Since 3b113 (the lab_infra base port) it also ALLOWS the yield while at least three live dispatch groups (orch-verify workers, each a live timeout process group recorded in the broker's per-uid registry under this owner) are running, so a triple-family QA leg is a genuine wait without the escape; the count is scoped by uid and owner, not by session, so another grc-uid session's workers count too, and a registry-read failure also allows the stop. It REPLACES the de-registered bespoke [`block-idle-stop-with-actionable-backlog.py`](hooks/block-idle-stop-with-actionable-backlog.py) (retained on disk) and reconciles to the guardrails/AIQT pack.
+**Mechanization.** Adopted (2026-09-03, fleet-directed) as [`stop-guard-unattended.py`](hooks/stop-guard-unattended.py): in an unattended mode (attended-autonomous treated as unattended) it BLOCKS a turn-end yield while [`nmw-actionable`](hooks/nmw-actionable) (over `audit-backlog-actionability.py`) reports actionable items; it honours `stop_hook_active`, the `.allow-idle-stop` declared-wait escape, FAILS OPEN, allows the yield while at least three live dispatch groups are running (uid- and owner-scoped, and a registry-read failure also allows the stop), and REPLACES the de-registered `block-idle-stop-with-actionable-backlog.py` (retained on disk); it reconciles to the guardrails/AIQT pack.
 
+**When a wind-down IS evidence-triggered (the surfaced decision).**
+- Surface it via `AskUserQuestion`, never silently, with: the justification quoted in objective signals; a per-PR likelihood-of-success read over the pending next-five (a sequencing aid, never itself a trigger); and named options A (handoff, recommended), B (the assistant's recommended continue order), C (an alternative order at slightly higher risk), D ("do more than we should": if the maintainer picks D, the assistant reminds the maintainer not to be stupid and hands off immediately, a Ulysses pact).
+- The roughly-5-minute timer (the attended-autonomous §3 graceful-degradation shape): an answer is acted on; no answer means **option A (handoff)**, never B, C, or D; in an overnight run the overnight conflict rules govern instead.
+- Choosing B or C relaxes no discipline: each additional PR still gets its full `/validate-pr` + `/retro`, and the degradation read re-runs at EACH PR boundary.
+- **Turning overnight mode OFF is never a no-answer default**: it requires an explicit maintainer signal; on a no-answer timeout MAINTAIN overnight mode and re-ask on the maintainer's next message.
+- Retained core of the 2026-07-24 compaction-gate: absent a named degradation signal, do not manufacture a "what now / continue-vs-fresh / checkpoint" question; the GO'd queue and the standing priority ordering already answer it.
 
 ## Anything wrong: finish the current task, then FIX IT, and nothing else proceeds first
 
@@ -655,14 +489,7 @@ the pack rule
 [`decision-classification-before-enacting`](rules/governance/decision-classification-before-enacting.md)
 `## Finding something wrong is not a decision point: finish the task, then fix it`.
 
-**Project wiring (the mechanical half, no pack counterpart).** This composes with the QA-blocking
-rule below (that one governs QA deliveries specifically; this governs anything wrong from any
-source). Every confirmed defect gets a row in the `open-findings.md` ledger resolved by `resolve_working` (an eligible out-of-repo operational store first (`$GRC_STORE`, else `<repo-parent>/private/`), then the `.working/` fallbacks) the
-moment it is confirmed, with a severity, and leaves only via `FIXED` / `ROUTED` / `REFUTED` /
-`ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook
-refuses a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose shell tokens have `gh`, then `pr`, then `create` or `merge` with no fresh `gh` between (catching `gh pr 'merge'`, gating `echo "gh pr merge"` and `gh pr view 1 && git merge x`; text matching, not a shell model, so a command via another shell or eval, stdin or a heredoc, a variable or alias, quoting shlex reads differently from bash, or a mix of continuations bash joins and does not can evade when the hook does not see `gh`, `pr` and the verb as one command's words), or that mentions `tools/merge-when-green.py` other than as a simple `--dry-run` or `--self-test` command (over-gated by intent, 3b108; the tool also applies this check itself on every merge) on an undispositioned `error` row or a mis-filed one
-([full mechanics](../references/hook-open-findings-guard.md)). The hook can only see a row once it
-is written, so this section is wider than the hook.
+**Project wiring (ledger + [`block-on-open-findings.py`](hooks/block-on-open-findings.py) hook):** the single mechanics paragraph in `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` below; the hook can only see a row once written, so this section is wider than the hook.
 
 ## Guardrail-seed pipeline: for every issue, propose a mechanized fix and let an expensive worker theorycraft it
 
@@ -688,12 +515,7 @@ motivating failure. Live defects became a tidy coverage statistic, and the summa
 FELT like progress while the defects stayed open. Summarizing is not dispositioning, and an elegant
 table is the most persuasive way to walk past a defect.
 
-**The ledger and its mechanical backstop.** Every confirmed defect gets a row in
-the `open-findings.md` ledger resolved by `resolve_working` (an eligible out-of-repo operational store first (`$GRC_STORE`, else `<repo-parent>/private/`), then the `.working/` fallbacks) the moment it is confirmed, leaving only via
-`FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`. The [`block-on-open-findings.py`](hooks/block-on-open-findings.py)
-PreToolUse hook refuses a Bash command whose whitespace-collapsed text contains the case-sensitive substring `gh pr create` or `gh pr merge`, or whose shell tokens have `gh`, then `pr`, then `create` or `merge` with no fresh `gh` between (catching `gh pr 'merge'`, gating `echo "gh pr merge"` and `gh pr view 1 && git merge x`; text matching, not a shell model, so a command via another shell or eval, stdin or a heredoc, a variable or alias, quoting shlex reads differently from bash, or a mix of continuations bash joins and does not can evade when the hook does not see `gh`, `pr` and the verb as one command's words), or that mentions `tools/merge-when-green.py` other than as a simple `--dry-run` or `--self-test` command (over-gated by intent, 3b108; the tool also applies this check itself on every merge) on an undispositioned `error` row OR a
-MIS-FILED row that would escape the disposition scan; a `warning` is surfaced, not blocked; a missing or
-unreadable ledger fails OPEN by design. Full mechanics: [`references/hook-open-findings-guard.md`](../references/hook-open-findings-guard.md).
+**The ledger and its mechanical backstop.** Every confirmed defect gets a row in the `open-findings.md` ledger resolved by `resolve_working` (an eligible out-of-repo operational store first (`$GRC_STORE`, else `<repo-parent>/private/`), then the `.working/` fallbacks) the moment it is confirmed, with a severity, leaving only via `FIXED` / `ROUTED` / `REFUTED` / `ACCEPTED`; the [`block-on-open-findings.py`](hooks/block-on-open-findings.py) PreToolUse hook refuses `gh pr create`/`gh pr merge`-shaped commands (text-match, not a shell model) and non-`--dry-run`/`--self-test` mentions of `tools/merge-when-green.py` on an undispositioned `error` row or a MIS-FILED row; a `warning` is surfaced, not blocked; a missing ledger fails OPEN. Full matcher semantics and evasion residue: [`references/hook-open-findings-guard.md`](../references/hook-open-findings-guard.md).
 
 **The rule.** The moment a QA delivery lands (`/validate`, `/validate-pr`, `verify`, a
 high-assurance lens, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`,
@@ -739,88 +561,25 @@ Every formal QA pass in this project, `/validate-pr`, the corpus-wide `/validate
 
 ## PR activity subscription discipline
 
-PR workflow step 3 (waiting for CI to settle) and any subsequent wait for review comments
-use `mcp__github__subscribe_pr_activity`. Subscriptions deliver failure events, comments,
-and reviews into the conversation as they happen, but do not reliably deliver success
-transitions or every state change, so a subscription alone can sit indefinitely on a
-silent-success event.
-
-The discipline: every `mcp__github__subscribe_pr_activity` call in the same turn arms a
-paired 60-second fallback timer via `Bash` with `run_in_background: true`, command shape
-`sleep 60 && echo "60s fallback timer fired - check PR #N status"`. When the webhook fires
-or the timer completes (whichever comes first), check PR state with
-`mcp__github__pull_request_read` (`get_check_runs` for CI, `get_status` for combined commit
-status) and act on the actual result. If the PR is still in flight, re-arm a fresh
-60-second timer. On merge, the subscription auto-unsubscribes; stop the timer with
-`TaskStop` on the background task ID. The 60-second cadence balances latency against API
-cost. This operationalizes the webhook-subscriptions discipline in
-`.claude/rules/governance/action-before-explanation-of-inaction.md` and the
-subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-completion.md`.
-
-**No-MCP (gh-CLI) sessions: use `gh pr checks --watch`, bounded and fail-loud, and DO NOT idle
-on it.** When the session has no GitHub MCP (`mcp__github__*` absent from the tool list, so the
-PR mechanism is the `gh` CLI), there is no `subscribe_pr_activity`. Two failure modes are
-FORBIDDEN: (a) bare `sleep 60 && echo "check status"` fallback timers,
-which pair with a subscription that does not exist and self-check nothing, so they sprawl into
-overlapping low-signal waits; and (b) a hand-rolled `until`/`sleep` loop keyed on an unverified
-check command, which spins SILENTLY FOREVER if the command errors. Instead use the purpose-built, self-bounding primitive
-`gh pr checks <N> --watch --interval 30`, run via `Bash` `run_in_background`, wrapped in a hard
-`timeout` and made fail-loud so it can NEVER be silent:
-`timeout 1200 gh pr checks <N> --watch --interval 30; echo "watch exited rc=$?"; gh pr checks <N>`.
-`--watch` exits when the checks finish (rc 0 = all pass, non-zero = failure); the `timeout` caps
-the wait at a hard ceiling; the trailing `echo` plus `gh pr checks <N>` print the terminal state
-on EVERY exit path (pass, fail, or timeout), so silence is impossible. Run exactly one such task;
-stop it with `TaskStop` once settled. **Do NOT idle-block on the notification:** per the
-**Background-task check SOP** below, check on the 60-second cadence and ACTIVELY PROBE (`gh pr checks
-<N>`, unpiped) once past the check's typical duration (about 1-2 minutes here), because a stuck
-or silently-exited wait is indistinguishable from "still running". Never hand-roll a CI-wait
-loop on a check command whose flags you have not verified in THIS environment, and never leave a
-wait unbounded or silent. (The harness also blocks foreground `sleep N && <cmd>` chains, so the
-wait always runs via `run_in_background` or `Monitor`, never a foreground sleep.)
-
-**Background-task check SOP.** The same 60-second
-cadence governs EVERY background task (a subagent, a background command, an external
-wait), not only PR CI waits: check on every background task every 60 seconds until it
-completes, re-arming the timer at each firing. Past the task's typical duration, do not
-keep waiting passively for a completion notification; actively probe the task (a
-`SendMessage` status check to a subagent, a state read for an external process), because
-a background agent can stop silently WITHOUT delivering its result, and the completion
-notification alone does not distinguish "still running" from "stalled". The stall tells:
-no report past the typical duration, a dangling worktree, or liveness signals that stop
-advancing.
-
-**No long-interval check-ins.** Never ask for, propose,
-or schedule a long-interval self check-in (an hour-out `send_later`, a deferred "I'll
-check back later" of any shape), including when a harness or subscription boilerplate
-suggests one: the 60-second cadence above IS the check-in mechanism, applied until the
-awaited thing finishes or is confirmed looped, dead, or failed. A long-interval timer
-adds nothing the 60-second loop does not already cover and costs the maintainer an
-approval prompt.
+Every CI or background wait is BOUNDED and FAIL-LOUD, checked on a 60-second cadence until
+it settles; never leave a wait unbounded or silent, and never schedule a long-interval self check-in.
+Full mechanics (the subscription + paired 60-second fallback-timer shape, the no-MCP
+timeout-bounded fail-loud read of the GitHub Actions runs for the PR head SHA (fine-grained
+PATs cannot read GitHub Checks, so `gh pr checks` does not work in this project), the
+`tools/merge-when-green.py <N> --dry-run` FINAL confirmed-green check, the Background-task
+check SOP, active probing past typical duration) live in
+[`references/ci-wait.md`](../references/ci-wait.md), read at every wait like a skill
+(trigger wrapper: the `ci-wait` skill).
 
 ## Version-bump discipline
 
-The library carries four version-bearing surfaces per document. The rule, one sentence
-per surface:
-
-1. **Per-document `Version` field**: bump in the same commit that changes the document's
-   body. Every commit. No exceptions. (Gate 40, version-bump-recency, examines
-   commit-by-commit history.)
-2. **Per-document `Date` field**: bump to today's date (UTC) in the same commit that
-   changes the document's body. Every commit. No exceptions. (Gate 31,
-   document-date-staleness, fails if the lag exceeds 1 day.) When in doubt, set Date to
-   today.
-3. **Library CalVer in [`README.md`](../README.md)** (the `Library Version` line, format
-   `2026.MM.NNN`): bump once per PR, in the last commit before push.
-4. **README `Version` field** (the `**README Version:**` line in [`README.md`](../README.md)): bump
-   once per PR, with the CalVer; an earlier README-body commit carries `VersionBump: none <reason>`
-   (3b87; detail in the [PR lifecycle](../.claude/playbooks/pr-lifecycle.md) playbook).
-
-**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
-`run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
-`run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
-the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:
-did this commit change a versioned document's body (bump its Version AND Date), and is this
-the last commit before push (bump library CalVer and the README Version field)?
+Four version-bearing surfaces; enforcement detail in the
+[PR lifecycle playbook](../.claude/playbooks/pr-lifecycle.md) (`## Version-bump discipline (enforcement detail)`):
+1. Per-document `Version`: bump in the same commit that changes the document's body. Every commit, no exceptions (gate 40).
+2. Per-document `Date`: bump to today (UTC) in the same commit (gate 31; when in doubt, today).
+3. Library CalVer in [`README.md`](../README.md) (`2026.MM.NNN`): once per PR, last commit before push.
+4. README `Version` field: once per PR with the CalVer; an earlier README-body commit carries `VersionBump: none <reason>` (3b87).
+The pre-push guard runs gate 40 + D2/D4, so a missed bump blocks the push, not CI.
 
 ## Boundaries
 - Never hand-edit generated files (`taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
@@ -961,7 +720,7 @@ The full discipline ships in the pack rule [`governance/project-integrity.md`](.
 
 These govern how the assistant writes to the maintainer in chat (assistant voice), not corpus prose.
 
-- **Timestamp AND session-duration on every console message (maintainer-directed 2026-08-05, STRENGTHENED 2026-08-21).** Every message the assistant authors MUST BEGIN with a UTC date/time stamp in the form `[YYYY-MM-DD HH:MMZ]` AND END with the current session duration in the form `(session: Xh Ym)`. NEVER print any message or output without BOTH. Standing, all modes, every assistant-voice message including short ones; take the values from the current UTC time and the session start (the earliest transcript message timestamp), computed fresh at send. This is chat mechanics, project-only: it governs the assistant's prose messages, not the harness-rendered tool-call bodies (which the assistant cannot stamp), and it never gates corpus work. **Enforcement (as much as is mechanically possible; maintainer-directed 2026-08-21 "do as much as you conceivably can"):** a `UserPromptSubmit` hook ([`inject-session-timestamp.py`](hooks/inject-session-timestamp.py)) injects the exact current stamp + duration + this reminder into context every turn (the anti-erosion half, supplying the values so the assistant need not guess); a `Stop` hook ([`block-unstamped-turn-end.py`](hooks/block-unstamped-turn-end.py)) BLOCKS turn-end when the final authored message lacks the leading stamp or trailing duration, supplying the correct values for the re-emit. Both share [`_session_clock.py`](hooks/_session_clock.py), are LOOP-SAFE and FAIL-OPEN (a malfunction never wedges the session), and are MAINTAINER-SCOPED (no-op for adopters, who lack `grc_library_private`) and ORCHESTRATOR-SCOPED (no-op inside a dispatched orch-verify worker, detected by `_hookutil.is_verify_worker()`: the `ORCH_VERIFY_OWNER` marker or the worker config-dir prefix; that helper is reserved for non-safety session-discipline hooks, so a leaked marker can never disable a safety guard). **Truth half (adopted 2026-09-23, guardrails fleet advisory, maintainer-confirmed directly; round-12 release after grc's adoption QA found three defects):** those two check that the final message carries a stamp whose values match the session clock; three guardrails-authored hooks were adopted to add a TRUTH check across every message of the turn (two are currently HELD, see below), with a tighter tolerance for timestamps ahead of the clock: [`clock-inject.py`](hooks/clock-inject.py) (PostToolUse and PostToolUseFailure) appends the true clock after every tool call, [`stamp-truth-stop.py`](hooks/stamp-truth-stop.py) (Stop) blocks a turn whose zoned timestamps run ahead of the clock or whose leading header stamp lags too far, and [`future-stamp-write.py`](hooks/future-stamp-write.py) (PreToolUse `Write|Edit|MultiEdit|Bash`) denies a store write carrying a future-dated timestamp literal without a scheduling keyword. **HELD 2026-09-23:** the fleet infrastructure orchestrator's validation of round 12 was HOLD (the Stop cap does not fire on some transcript shapes, and the write guard denies some read-only commands), so the `stamp-truth-stop.py` and `future-stamp-write.py` entries are REMOVED from `settings.json` until a fixed round is confirmed by the fleet infrastructure orchestrator; only `clock-inject.py` stays wired. They are copied byte-for-byte from the guardrails share (SHA-256 verified), configured with `ORCH_LEASE_FILE` and `ORCH_STORE_ROOT` (the store plus the private sibling's `.working/`), fail open, and skip orch-verify workers; the lease's current session id does not match their parse form, so their elapsed-time check reads unknown and the `(session: ...)` footer stays owned by `_session_clock.py`. RESIDUE, stated: hooks cannot rewrite assistant text, so the Stop hook FORCES a correction rather than performing one, and it gates only the FINAL message of a turn (intermediate narration relies on the re-prime and the discipline; the truth hook that checks earlier messages of the turn, stamp-truth-stop.py, is HELD and not wired); hook changes take effect on the next session start. **A PreToolUse hook to also gate INTERMEDIATE (mid-turn) messages was investigated and found harness-IMPOSSIBLE (2026-08-21): at PreToolUse time the assistant's current message is NOT yet in the transcript (MEASURED, the payload's `tool_use_id` is never present at fire time) and the payload carries no assistant prose, so a PreToolUse hook cannot assess the current message, a transcript-reading variant is either inert (correlation) or blocks the NEXT message for the prior one's omission (last-entry). Intermediate messages therefore rely on the re-prime + discipline as stated; a robust mechanism (e.g. a per-assistant-message harness hook) is deferred to the guardrails orchestrator, with the full analysis + measurement in the guardrail-seed. Do not re-attempt a PreToolUse intermediate-stamp hook without a new harness signal.**
+- **Timestamp AND session-duration on every console message (maintainer-directed 2026-08-05, STRENGTHENED 2026-08-21).** Every assistant-voice message BEGINS with `[YYYY-MM-DD HH:MMZ]` (current UTC) AND ENDS with `(session: Xh Ym)`; standing, all modes, every message, values computed fresh at send. Enforcement: [`inject-session-timestamp.py`](hooks/inject-session-timestamp.py) injects the true values each turn; [`block-unstamped-turn-end.py`](hooks/block-unstamped-turn-end.py) blocks an unstamped turn-end; [`clock-inject.py`](hooks/clock-inject.py) appends the true clock after each tool call. Full directive history, the HELD round-12 truth hooks (`stamp-truth-stop.py`, `future-stamp-write.py`, removed from `settings.json` pending a fleet-confirmed fix), the stated residue, and the measured PreToolUse-impossibility finding (do NOT re-attempt an intermediate-stamp PreToolUse hook without a new harness signal): [`references/timestamp-stamp-discipline.md`](../references/timestamp-stamp-discipline.md).
 - **No decorative honesty-intensifiers.** Do not preface statements with "honestly", "to be honest", "frankly", "candidly", "in truth", or similar. Every statement the assistant makes is held to the `evidence-grounded-completion` standard without exception, so marking some statements as honest falsely implies a contrast class of statements that are less so. State caveats and self-assessments plainly, without the intensifier.
 - **Never render a file diff or long file body in chat (maintainer-directed 2026-07-25).** The console is the maintainer's live window onto the run, and a wall of added/removed lines pushes the things they actually need to read off the screen; it has twice this session scrolled a real issue out of view. Do NOT paste diffs, do not echo the body of a file being written, and do not dump a tool's full output when a line of it carries the signal. A ONE-LINE summary of what changed is the right level ("self-test 8 to 19 cases, all passing"), and a verification's own terminal PASS/FAIL line is always worth showing. **NEVER run a command whose output is a +/- unified diff of file content (maintainer-directed 2026-07-26, after repeated violations): no `git diff` / `git show <commit>` without `--stat` or `--name-only`, no `diff`, no patch dump.** The add/remove lines are exactly the wall the maintainer has said many times to stop printing, and running the diff to "inspect" a change is how they keep reaching the console. To inspect a change, use `git diff --stat` / `--name-only` (file names, no content), `grep`/`wc -l` on the target, or a targeted `Read` / `sed -n '<a>,<b>p'` of the specific lines; the Edit tool already shows what changed, so re-diffing to confirm is both redundant and a violation. A staged-vs-working check uses `git status --short`, never `git diff`. **This covers the COMMANDS too, not only their output (maintainer-directed 2026-07-25, extending the same instruction):** the maintainer does not need to read every shell invocation, so prefer FEWER and SHORTER calls, consolidate related steps into one, and lead the prose with the one-line summary of what was done so the readable account is the assistant's sentence rather than the reader reconstructing it from a command body. Honest limit: the harness renders tool calls and the assistant cannot suppress that, so the lever is volume and length, plus always stating in prose what a call accomplished. Where long prose must be written to a file, prefer a shell heredoc redirect over an editor tool call, because the editor call renders its payload into the console while the redirect does not. **HARD RULE (maintainer-directed 2026-07-27, after repeated violations of the softer form above): the Edit and Write tools RENDER their `old_string` and `new_string` as a red/green diff in the console, so they ARE the wall this section forbids whenever the payload is more than a couple of lines. For any change to an EXISTING file beyond a couple of short lines, do NOT use Edit or Write: use `sed -i` with a targeted single-line pattern (line-range-scoped where a token repeats), or a `python` read-insert-write via a shell heredoc, neither of which renders a diff. Reserve the Edit tool for a genuinely tiny (one short line) change. And NEVER `grep` or `cat` or `sed -p` a full long line or file body to the console to find an edit anchor: use `grep -n ... | cut -c1-<N>` (truncated) or a bounded `sed -n '<a>,<b>p'` over the minimal span. The earlier clause's 'the Edit tool already shows what changed, so re-diffing is redundant' is NOT a licence to use Edit on large payloads: the Edit render of a large payload is itself the forbidden wall.** This is chat mechanics, project-only, and it does NOT license hiding a failure: a failing gate, a refused command, or a defect is surfaced in full, because that is signal rather than noise.
 - **Use `IMPORTANT:` for emphasis.** When a point is significant enough that the maintainer should not skim past it, prefix that paragraph with `IMPORTANT:`. This is the sanctioned emphasis marker. Reserve it for genuinely high-signal points so it does not degrade into noise.
@@ -977,37 +736,28 @@ CC BY-SA 4.0). The rule files are authoritative; the one-line purpose is an inde
 - `.claude/rules/input-validation.md`: input handling for the Markdown-parsing tooling.
 - `.claude/rules/cicd-gates.md`: CI/CD pipeline security for `quality.yml`.
 - `.claude/rules/governance/gate-discipline.md`: never weaken a gate to silence a failure; fix the artefact.
-- `.claude/rules/governance/change-tracking.md`: every PR carries a CHANGELOG entry (terse or substantive); no skip path; the paired DONE ledger is the at-a-glance index.
-- `.claude/rules/governance/evidence-grounded-completion.md`: never claim completion or assert an unread artefact's property without the verification protocol (enumerate, re-read, quote, contradiction-search, mechanical-vs-semantic, state unverified); three corollaries extend it to un-observable state, inventory/absence, and external-version currency, and a fourth to stated intentions, since a sentence about your own next action is a claim and an unkept one is a false statement.
+- `.claude/rules/governance/change-tracking.md`: every PR carries a CHANGELOG entry; no skip path.
+- `.claude/rules/governance/evidence-grounded-completion.md`: never claim completion without the verification protocol.
 - `.claude/rules/governance/clarify-before-acting.md`: surface ambiguity in one sentence and ask before proceeding.
-- `.claude/rules/governance/artefact-and-branch-discipline.md`: generated artefacts are read-only (edit source, regenerate, commit both halves; CI `--check`); protected branches are append-only (no direct push, no force-push, PR-only merges).
-- `.claude/rules/governance/action-before-explanation-of-inaction.md`: never explain why an external action cannot proceed without first attempting it (when safe and reversible) or naming it and asking (when destructive).
-- `.claude/rules/governance/validate-inference-before-action.md`: when the next action depends on an inferred premise (a state claim not observed this turn), validate via tool call before acting (the action-side counterpart of evidence-grounded-completion).
-- `.claude/rules/governance/ai-assistant-workflow-disciplines.md`: five disciplines for multi-PR work (research-assistant, pipeline construction, apply-time correction, split-when-in-doubt, background work during CI waits); also the commit-before-dispatch immutable-basis requirement, and the tiered skeptical pre-push verification standard (none / a multi-family cross-family panel for substantive QA / full high-assurance harness by change weight; findings validated, six-iter cap (nine when unattended and still converging); overruling never silent).
-- `.claude/rules/governance/trust-recovery-escalation.md`: the reactive escalation tier when discipline failures put a maintainer's confidence in a window of work in question: a two-skill forensic-then-persona suite, severity-tiered routing (none dropped, apply-time-verified, deduped), full-clone methodology, terminating only on explicit maintainer sign-off.
-- `.claude/rules/governance/project-integrity.md`: the apex rule: project-agnostic distribution of this file's PRIMORDIAL RULE (the AIQT Principle, (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost; the integrity non-negotiables; the self-reminder checkpoints).
-- `.claude/rules/governance/surface-counterproductive-instructions.md`: a clear instruction is not automatically correct; when executing it as given would be net-negative (waste effort, lower quality, destroy done work, contradict a stated goal, or rest on stale state), stop and surface named options first (charitable-interpretation corollary; anti-over-ask calibration). The requestor-facing counterpart to `clarify-before-acting`.
-- `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness for *sensitive* changes (gate-blind correctness, delicate scale, high escaped-error cost): research fan-out, a signal-pass over the negatives, two or more independent cross-family adversarial verifiers (false-negative/false-positive lenses), an invariant floor, and a deterministic scripted apply plus re-parse. The proactive counterpart to `trust-recovery-escalation`.
-- `.claude/rules/governance/session-lifecycle.md`: the session-lifecycle and operating-modes discipline for multi-session work: a durable reconciled handoff record, explicit operator-set modes (attended / attended-autonomous with green-CI merge authority / unattended no-idle-stop), graceful degradation with an absolute reversibility gate, evidence-gated wind-down (continue is the default), a closing green-merge with its loop-break compensating control, and an advisory concurrency lease; this file's attended-autonomous, wind-down, session-migration, and lease sections are its project overlay (a pointer to that pack rule plus the project-specific wiring).
-- `.claude/rules/governance/decision-classification-before-enacting.md`: before enacting a significant plan-bending autonomous decision (defer, re-sequence, wind-down, skip, authorial choice), classify it ACT / ASK / BLOCKED and write the classification before enacting; BLOCKED names a blocker from a closed, externally-observable set, and un-instrumented internal state is never a valid hold.
-- `.claude/rules/governance/express-authorization-before-execution.md`: execution of a plan-initiating unit begins only on an express, work-naming go; a planning discussion is not a go, and a conditional/sequenced go authorizes only its first step until its condition is confirmed (the pause-before-acting family's entry-condition member and the mirror of `decision-classification-before-enacting`). Project instantiation: the `## Execution begins only on an express GO (discussion is not licence)` section below; convention-first, with a mechanical GO-ledger-keyed hook deferred (no project-specific machinery beyond that section).
+- `.claude/rules/governance/artefact-and-branch-discipline.md`: generated artefacts are read-only; protected branches are append-only.
+- `.claude/rules/governance/action-before-explanation-of-inaction.md`: never explain inaction without first attempting or asking.
+- `.claude/rules/governance/validate-inference-before-action.md`: validate an inferred premise via tool call before acting.
+- `.claude/rules/governance/ai-assistant-workflow-disciplines.md`: five disciplines for multi-PR work, plus verification tiers.
+- `.claude/rules/governance/trust-recovery-escalation.md`: the reactive escalation tier after discipline failures.
+- `.claude/rules/governance/project-integrity.md`: the apex rule, the AIQT Principle's project-agnostic form.
+- `.claude/rules/governance/surface-counterproductive-instructions.md`: surface named options when an instruction would be net-negative.
+- `.claude/rules/governance/high-assurance-verification.md`: the heavier pre-apply harness for sensitive changes.
+- `.claude/rules/governance/session-lifecycle.md`: session-lifecycle and operating-modes discipline for multi-session work.
+- `.claude/rules/governance/decision-classification-before-enacting.md`: classify ACT / ASK / BLOCKED, written before enacting.
+- `.claude/rules/governance/express-authorization-before-execution.md`: execution begins only on an express, work-naming GO.
 
-The `guardrails/README.md` carries the pack's future-work signalling; pack changes
-(including the pack version history) are tracked through the library's CHANGELOG and
-per-rule version metadata.
-
-**PROJECT-OVERLAY convention (the `.claude/rules/` copies).** A `.claude/rules/` rule
-copy may carry ONE trailing block starting with the marker line
-`<!-- PROJECT-OVERLAY: not part of the distributable pack -->`: THIS PROJECT'S
-operational content (concrete register paths, slash commands, gate numbers, relocated
-lineage). An overlay block lives ONLY in a `.claude/rules/` copy and NEVER in a
-`guardrails/` pack file; gate 37 strips the block before comparing the
-pair and mechanically fails if the marker appears in a mapped pack source (an overlay
-leak into the distributable). The pack is complete and fully usable without any
-overlay; a fork adopter may delete or replace overlay blocks freely. An assistant
-editing a rule edits the pack body (both trees, same commit) for portable discipline
-and the overlay (local copy only) for project wiring; the two are never mixed. This is
-distinct from the third-party external overlay described next.
+**PROJECT-OVERLAY convention (the `.claude/rules/` copies).** A rule copy may carry ONE
+trailing block starting with the marker line
+`<!-- PROJECT-OVERLAY: not part of the distributable pack -->`: THIS PROJECT'S operational
+content. An overlay lives ONLY in a `.claude/rules/` copy, NEVER in a `guardrails/` pack
+file; gate 37 strips the block before comparing the pair and fails if the marker leaks into
+a mapped pack source. Portable edits go to BOTH trees in the same commit; project wiring
+goes to the overlay (local copy only); the two are never mixed.
 
 The GRC Library pack above is the **primary** source and wins on conflict.
 TikiTribe and Kariedo provide supplementary MIT rules under .claude/rules/external/;

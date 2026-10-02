@@ -32,9 +32,16 @@
   retained_anchors:
     - "Feature branch only, never"
     - "Never pipe a verification to a truncating sink"
+    - "No Claude or Anthropic attribution on any commit, push, or PR"
+    - "A session must NOT close with a large unvalidated PR"
+    - "tools/merge-when-green.py"
+    - "bump in the same commit that changes the document's body"
+    - "Change-impact surface map (when you change X"
   relocated_anchors:
     - "A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE"
     - "CORRECTED 2026-07-25"
+    - "linked TWICE in `pack.html`"
+    - "VersionBump: none"
 
 - playbook: ".claude/playbooks/reference-currency.md"
   activity: "An externally-versioned reference (standard, framework, dataset) becomes load-bearing for a task"
@@ -65,3 +72,14 @@
     - "Every QA pass gets one worker per available family"
     - "WORKERS ARE ELASTIC"
     - "design of record and the orchestrator-side operating discipline"
+
+- playbook: "references/ci-wait.md"
+  activity: "Waiting on PR CI, a GitHub subscription, or any background task"
+  index_label: "CI and background-wait discipline"
+  retained_anchors:
+    - "checked on a 60-second cadence"
+    - "never leave a wait unbounded or silent"
+    - "never schedule a long-interval self check-in"
+  relocated_anchors:
+    - "actions/runs?head_sha="
+    - "Background-task check SOP"

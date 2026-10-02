@@ -24,7 +24,9 @@ rollup at all, so the rollup query fails with exactly the GraphQL permission err
 again without the rollup and decided the same way; any other gh failure, and any unlisted repository,
 still stops (3b132 QA r1).
 
-It does NOT replace the CI WAIT (use ``gh pr checks <N> --watch`` first, per the PR-activity
+It does NOT replace the CI WAIT (run the bounded Actions-runs wait loop in
+``references/ci-wait.md`` first, requiring each required check BY NAME; ``gh pr checks``
+does not work here, the fine-grained PAT cannot read Checks, per the PR-activity
 discipline); it is the final GATE on the merge itself. ``--dry-run`` reports the verdict without
 merging.
 
