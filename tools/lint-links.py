@@ -25,13 +25,22 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from external_overlay import ADDYOSMANI_SKILLS, RULE_PROVENANCE_PATHS
 from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
 def iter_markdown_files(paths: list[str]) -> list[Path]:
-    return iter_scan_roots_markdown(paths, repo_root=REPO_ROOT)
+    files = set(iter_scan_roots_markdown(paths, repo_root=REPO_ROOT))
+    roots = [REPO_ROOT / p for p in paths]
+    # The renamed provenance still contains Markdown links. Include it for
+    # both directory scans and explicit-file scans, without adding arbitrary txt.
+    for rel in RULE_PROVENANCE_PATHS:
+        path = REPO_ROOT / rel
+        if path.is_file() and any(p == path or p in path.parents for p in roots):
+            files.add(path)
+    return sorted(files)
 
 
 # Default scan roots when no paths are given. Exposed as a module-level constant so a
@@ -43,7 +52,8 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
 # resolve; it is in DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
 # catches dead links (never-vendored companions, mirror path rot) before they ship in the
 # guardrails pack. The deferred rule bodies under `.claude/references` need the same
-# coverage after the corpus-management index split.
+# coverage after the corpus-management index split, and registered external skill
+# directories retain it after relocation (SKILL.md and companion PROVENANCE.md).
 DEFAULT_SCAN_ROOTS: list[str] = [
     "README.md",
     "NOTICE.md",
@@ -55,6 +65,7 @@ DEFAULT_SCAN_ROOTS: list[str] = [
     "docs",
     ".claude/rules",
     ".claude/references",
+    *(f".claude/skills/{name}" for name in ADDYOSMANI_SKILLS),
     "guardrails",
     "executive",  # narrative layer: IN link-integrity scope (P-1.25 scan-root split)
 ]

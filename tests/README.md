@@ -29,6 +29,23 @@ not 1, when the register is missing). The audit programme itself
 provides additional implicit negative coverage by running every
 linter against the clean corpus on every commit and expecting exit 0.
 
+## External overlay skill bytes
+
+`ExternalOverlayLicenseTests` writes raw byte fixtures for all five registered
+skills. The gate rejects CR (including CRLF), invalid UTF-8, NUL and the reserved
+interpolation sentinels U+FFFE/U+FFFF before scanning the body. The restricted
+frontmatter rule also rejects an initial UTF-8 BOM; embedded U+FEFF retains its
+JavaScript whitespace meaning. A newline mutation moves tokens from metadata
+into the runtime body and must produce a finding.
+
+The optional [installed-parser probe](probe_overlay_parser.py) runs with
+`python3 tests/probe_overlay_parser.py`. On 2026-10-02 it executed the extracted
+`jw`, `jk` and `Ms` body-boundary statements from `/usr/bin/claude` 2.1.287 under
+Node v22.22.1, plus the complete `jTe` function with empty arguments. It does not
+execute YAML metadata parsing. CR-only and mixed headers left the header tokens
+in the body; CRLF still recognized frontmatter. `jTe` rewrote U+FFFE/U+FFFF.
+The probe prints the binary SHA-256 and the result for each byte fixture.
+
 ## Running
 
 ```

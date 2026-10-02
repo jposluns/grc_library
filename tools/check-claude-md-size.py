@@ -58,7 +58,10 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # #2365 relocates the block-on-open-findings mechanics to references/hook-open-findings-guard.md
 # (batch-3 CLAUDE.md-D10 decision) and adds the guard's mis-filed second condition; net ratchet
 # 1023 -> 1022. Downward-ratchet convention resumes.
-CEILING = 1022
+# 3b177-c relocates the addyosmani overlay from .claude/rules/external/ to five
+# .claude/skills/addyosmani-<name>/ skill directories and condenses the external-overlay
+# paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
+CEILING = 1021
 
 
 def line_count(path: Path) -> int:

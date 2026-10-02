@@ -1,46 +1,30 @@
 #!/usr/bin/env python3
-"""External-overlay license-consistency audit.
+"""External-overlay licence audit for rules and registered addyosmani skills.
 
-The project ships an "external overlay" of third-party rules under
-``.claude/rules/external/``. Each subdirectory corresponds to a source
-project (TikiTribe, Kariedo, addyosmani, etc.) and carries the source
-project's own LICENSE file. The corpus linters (gate 15 in particular)
-skip the external overlay because those files are not the project's
-own content; they retain the source project's licence.
-
-This audit enforces three invariants on the external overlay:
-
-1. Every subdirectory of ``.claude/rules/external/`` MUST appear in
-   the ``EXPECTED_LICENSE`` map below. Adding a new external source
-   without declaring its expected licence is a configuration error.
-
-2. Each subdirectory MUST contain a LICENSE file at its root, and the
-   LICENSE's first non-empty line MUST match the expected source
-   licence. Catches the failure mode of a LICENSE file being deleted
-   or replaced with the wrong licence.
-
-3. No markdown file under ``.claude/rules/external/`` MAY contain
-   ``**License:** CC BY-SA 4.0`` (or any other claim to the project's
-   own licence) in its metadata. External files retain their source
-   project's licence; claiming the project's licence is incorrect.
-
-Together with gate 15 (which enforces the project's own licence
-discipline on the corpus), these three checks close the
-licence-consistency loop: every file in the repository (project
-content or external overlay) has its licence validated against the
-appropriate expectation.
-
-Exit codes: 0 pass, 1 findings, 2 internal error.
+Rules live under .claude/rules/external/<source>/; addyosmani skills live
+under .claude/skills/addyosmani-<name>/. Every declared location must exist
+and carry its expected LICENSE. Unknown rule sources and unknown addyosmani
+skill directories fail. All markdown in those locations is checked for the
+project licence claim, as is rule-source PROVENANCE.txt (required beside LICENSE).
+Skill locations also require SKILL.md and PROVENANCE.md.
+Registered skills require name/description-only frontmatter and bodies free of
+active Claude interpolation tokens, using JavaScript whitespace boundaries.
+Skill bytes must be strict UTF-8 without CR, NUL or interpolation sentinels.
+Unrelated skills are outside this gate. Exit codes: 0 pass, 1 findings, 2 error.
 """
 
 from __future__ import annotations
 
+import re
+import stat
 import sys
 from typing import NamedTuple
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
-from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
 from lint_common import REPO_ROOT  # noqa: E402  # grc-config/store, stays local
+from external_overlay import (  # noqa: E402
+    ADDYOSMANI_SKILLS, InputError, directory_entries, path_stat, read_utf8, walk_files,
+)
 
 
 EXTERNAL_OVERLAY_DIR = REPO_ROOT / ".claude" / "rules" / "external"
@@ -50,12 +34,11 @@ EXTERNAL_OVERLAY_DIR = REPO_ROOT / ".claude" / "rules" / "external"
 # non-empty line, case-insensitive prefix match. Adding a new external
 # source requires adding an entry here.
 EXPECTED_LICENSE: dict[str, str] = {
-    "addyosmani": "MIT",
     "kariedo": "MIT",
     "tikitribe": "MIT",
 }
 
-# Project licence claim that external markdown files MUST NOT contain
+# Project licence claim that external markdown and rule provenance MUST NOT contain
 # in their metadata block.
 PROJECT_LICENCE_CLAIM = "**License:** CC BY-SA 4.0"
 
@@ -95,25 +78,30 @@ def identify_license(text: str) -> str | None:
     return None
 
 
-def check() -> list[Finding]:
+def check_tree(root, expected_licenses, prefix="") -> list[Finding]:
     findings: list[Finding] = []
+    relative_root = root.relative_to(REPO_ROOT).as_posix()
 
-    if not EXTERNAL_OVERLAY_DIR.is_dir():
-        # No external overlay present; nothing to check. (Not a finding.)
-        return findings
-
-    declared_sources = set(EXPECTED_LICENSE.keys())
+    declared_sources = set(expected_licenses.keys())
     present_sources: set[str] = set()
-    for entry in EXTERNAL_OVERLAY_DIR.iterdir():
-        if entry.is_dir() and not entry.name.startswith("."):
-            present_sources.add(entry.name)
+    try:
+        info = path_stat(root, missing_ok=True)
+        if info is not None and stat.S_ISDIR(info.st_mode):
+            for entry in directory_entries(root):
+                if entry.name.startswith(".") or not entry.name.startswith(prefix):
+                    continue
+                if stat.S_ISDIR(path_stat(entry).st_mode):
+                    present_sources.add(entry.name)
+    except InputError as exc:
+        return [Finding("inaccessible-overlay", exc.path.relative_to(REPO_ROOT).as_posix(),
+                        str(exc))]
 
     # Check 1: every present source declares an expected licence.
     for source in sorted(present_sources - declared_sources):
         findings.append(
             Finding(
                 kind="undeclared-source",
-                location=f".claude/rules/external/{source}/",
+                location=f"{relative_root}/{source}/",
                 detail=(
                     f"present in the external overlay but no expected licence "
                     f"declared in EXPECTED_LICENSE. Add the source to the "
@@ -127,7 +115,7 @@ def check() -> list[Finding]:
         findings.append(
             Finding(
                 kind="stale-declaration",
-                location=f".claude/rules/external/{source}/",
+                location=f"{relative_root}/{source}/",
                 detail=(
                     f"declared in EXPECTED_LICENSE but no directory present. "
                     f"Remove the source from the map in "
@@ -138,13 +126,31 @@ def check() -> list[Finding]:
 
     # Check 2: each present, declared source has a LICENSE file matching expected.
     for source in sorted(present_sources & declared_sources):
-        expected = EXPECTED_LICENSE[source]
-        license_path = EXTERNAL_OVERLAY_DIR / source / "LICENSE"
-        if not license_path.is_file():
+        if not prefix:
+            provenance = root / source / "PROVENANCE.txt"
+            try:
+                info = path_stat(provenance, missing_ok=True)
+                if info is None or not stat.S_ISREG(info.st_mode):
+                    findings.append(Finding(
+                        "missing-rule-provenance", provenance.relative_to(REPO_ROOT).as_posix(),
+                        "Declared external rule source requires PROVENANCE.txt beside LICENSE.",
+                    ))
+            except InputError as exc:
+                findings.append(Finding("inaccessible-overlay",
+                                        provenance.relative_to(REPO_ROOT).as_posix(), str(exc)))
+        expected = expected_licenses[source]
+        license_path = root / source / "LICENSE"
+        try:
+            info = path_stat(license_path, missing_ok=True)
+        except InputError as exc:
+            findings.append(Finding("unreadable-license-file",
+                                    license_path.relative_to(REPO_ROOT).as_posix(), str(exc)))
+            continue
+        if info is None or not stat.S_ISREG(info.st_mode):
             findings.append(
                 Finding(
                     kind="missing-license-file",
-                    location=f".claude/rules/external/{source}/LICENSE",
+                    location=f"{relative_root}/{source}/LICENSE",
                     detail=(
                         f"expected to exist (source's licence is {expected}) "
                         f"but the file is absent or unreadable."
@@ -152,13 +158,14 @@ def check() -> list[Finding]:
                 )
             )
             continue
-        text = read_text_safe(license_path)
-        if text is None:
+        try:
+            text = read_utf8(license_path)
+        except InputError as exc:
             findings.append(
                 Finding(
                     kind="unreadable-license-file",
-                    location=f".claude/rules/external/{source}/LICENSE",
-                    detail="LICENSE file is not readable as UTF-8 text.",
+                    location=f"{relative_root}/{source}/LICENSE",
+                    detail=f"LICENSE file is not readable as UTF-8 text: {exc}",
                 )
             )
             continue
@@ -167,7 +174,7 @@ def check() -> list[Finding]:
             findings.append(
                 Finding(
                     kind="unrecognized-license",
-                    location=f".claude/rules/external/{source}/LICENSE",
+                    location=f"{relative_root}/{source}/LICENSE",
                     detail=(
                         f"LICENSE first non-empty line did not match any known "
                         f"prefix in LICENSE_PREFIX_TO_IDENT. Expected: {expected}. "
@@ -181,7 +188,7 @@ def check() -> list[Finding]:
             findings.append(
                 Finding(
                     kind="license-mismatch",
-                    location=f".claude/rules/external/{source}/LICENSE",
+                    location=f"{relative_root}/{source}/LICENSE",
                     detail=(
                         f"LICENSE file identifies as {actual}, but EXPECTED_LICENSE "
                         f"declares {expected}. Either the LICENSE was changed "
@@ -190,28 +197,145 @@ def check() -> list[Finding]:
                 )
             )
 
-    # Check 3: no markdown file in the external overlay may claim the project licence.
+    # Check 3: audit markdown and non-rule provenance for the project licence claim.
     for source in sorted(present_sources):
-        for md_file in (EXTERNAL_OVERLAY_DIR / source).rglob("*.md"):
-            text = read_text_safe(md_file)
-            if text is None:
-                continue
-            if PROJECT_LICENCE_CLAIM in text:
+        try:
+            for md_file in walk_files(root / source):
+                if not (md_file.name.endswith(".md") or md_file.name == "PROVENANCE.txt"):
+                    continue
                 rel = md_file.relative_to(REPO_ROOT).as_posix()
-                findings.append(
-                    Finding(
-                        kind="external-file-claims-project-licence",
-                        location=rel,
-                        detail=(
-                            f"contains the literal string '{PROJECT_LICENCE_CLAIM}' "
-                            f"but is an external file. External files retain their "
-                            f"source project's licence (per the overlay's "
-                            f"directory-level LICENSE file)."
-                        ),
+                try:
+                    text = read_utf8(md_file)
+                except InputError as exc:
+                    kind = ("unreadable-skill" if prefix == "addyosmani-"
+                            and source in declared_sources
+                            and md_file == root / source / "SKILL.md"
+                            else "unreadable-provenance-file" if md_file.name == "PROVENANCE.txt"
+                            else "unreadable-markdown-file")
+                    findings.append(Finding(kind, rel, str(exc)))
+                    continue
+                if PROJECT_LICENCE_CLAIM in text:
+                    findings.append(
+                        Finding(
+                            kind="external-file-claims-project-licence",
+                            location=rel,
+                            detail=(
+                                f"contains the literal string '{PROJECT_LICENCE_CLAIM}' "
+                                f"but is an external file. External files retain their "
+                                f"source project's licence (per the overlay's "
+                                f"directory-level LICENSE file)."
+                            ),
+                        )
                     )
-                )
+        except InputError as exc:
+            findings.append(Finding("inaccessible-overlay",
+                                    exc.path.relative_to(REPO_ROOT).as_posix(), str(exc)))
 
     return findings
+
+
+# Claude Code 2.1.287, /usr/bin/claude: jTe, CDt, Vne, _4n and Y1n.
+# Keep the current name/description-only header: an `arguments` declaration
+# enables arbitrary named $tokens and needs a fresh interpolation audit.
+SKILL_HEADER_RE = re.compile(
+    r"\A---\nname: [^\n]+\ndescription: [^\n]+\n---(?:\n|\Z)"
+)
+ARGUMENT_ESCAPE_RE = re.compile(r"(?<!\\)\\\$(?=[0-9]|ARGUMENTS)")
+# ECMAScript WhiteSpace + LineTerminator (RegExp \s), not Python's \s:
+# includes U+FEFF; excludes U+001C..U+001F and U+0085.
+JS_WHITESPACE = (
+    r"\u0009-\u000d\u0020\u00a0\u1680\u2000-\u200a"
+    r"\u2028\u2029\u202f\u205f\u3000\ufeff"
+)
+# Claude Code 2.1.287: ZVo calls Ms, whose jk regex is
+# /^---\s*\n([\s\S]*?)---\s*\n?/. The first closing triple dash wins,
+# even inside a header value; trailing JS whitespace is consumed as well.
+# The strict header above already excludes the leading BOM that Ms strips.
+CLAUDE_FRONTMATTER_RE = re.compile(
+    rf"\A---[{JS_WHITESPACE}]*\n([\s\S]*?)---[{JS_WHITESPACE}]*\n?"
+)
+SKILL_TOKEN_RE = re.compile(
+    r"\$ARGUMENTS(?:\[[0-9]+\])?|\$[0-9]+(?![A-Za-z0-9_])"
+    r"|\$\{CLAUDE_(?:SKILL_DIR|PROJECT_DIR|SESSION_ID|EFFORT|PLUGIN_ROOT|PLUGIN_DATA)\}"
+    r"|\$\{user_config\.[^}]+\}"
+    # Conservatively refuse command markers, including incomplete commands.
+    rf"|```!|(?<![^{JS_WHITESPACE}])!`"
+)
+
+
+def check_skill_body(path) -> list[Finding]:
+    location = path.relative_to(REPO_ROOT).as_posix()
+    # Claude reads the original UTF-8 bytes. Universal-newline translation can
+    # invent frontmatter and hide live tokens, so never use read_text_safe here.
+    try:
+        text = read_utf8(path)
+    except InputError as exc:
+        return [Finding(
+            "unreadable-skill", location,
+            str(exc),
+        )]
+    # Fail before parsing or masking, even when the file contains no tokens.
+    # jTe in Claude Code 2.1.287 replaces literal U+FFFE/U+FFFF with U+FFFD;
+    # refuse these reserved interpolation sentinels rather than model a rewrite.
+    for character, label in (("\r", "CR (including CRLF)"), ("\0", "NUL"),
+                             ("\ufffe", "U+FFFE"), ("\uffff", "U+FFFF")):
+        if character in text:
+            return [Finding(
+                "unsupported-skill-bytes", location,
+                f"Cannot audit skill body containing {label}; use UTF-8 text "
+                "with LF line endings and no NUL or interpolation sentinels.",
+            )]
+    header = SKILL_HEADER_RE.match(text)
+    if header is None:
+        return [Finding(
+            "unsupported-skill-frontmatter", location,
+            "Expected the name/description-only overlay header; changes require "
+            "an interpolation audit, including named arguments.",
+        )]
+    runtime_header = CLAUDE_FRONTMATTER_RE.match(text)
+    assert runtime_header is not None  # Guaranteed by SKILL_HEADER_RE above.
+    body_start = runtime_header.end()
+    # A single backslash not preceded by another backslash protects argument
+    # placeholders. This masking does not exempt ${CLAUDE_*} or command markers.
+    body = ARGUMENT_ESCAPE_RE.sub("\uffff", text[body_start:])
+    findings = []
+    first_line = text[:body_start].count("\n") + 1
+    for token in SKILL_TOKEN_RE.finditer(body):
+        lineno = first_line + body.count("\n", 0, token.start())
+        findings.append(Finding(
+            "skill-interpolation-token", f"{location}:{lineno}",
+            f"{token.group()!r} may interpolate at invocation; escape an argument "
+            "placeholder or rewrite the example and record the divergence.",
+        ))
+    return findings
+
+
+def check() -> list[Finding]:
+    skills_root = REPO_ROOT / ".claude" / "skills"
+    findings = check_tree(EXTERNAL_OVERLAY_DIR, EXPECTED_LICENSE)
+    findings.extend(check_tree(
+        skills_root,
+        dict.fromkeys(ADDYOSMANI_SKILLS, "MIT"),
+        "addyosmani-",
+    ))
+    for name in ADDYOSMANI_SKILLS:
+        for filename in ("SKILL.md", "PROVENANCE.md"):
+            path = skills_root / name / filename
+            location = path.relative_to(REPO_ROOT).as_posix()
+            try:
+                info = path_stat(path, missing_ok=True)
+            except InputError as exc:
+                findings.append(Finding("inaccessible-overlay", location, str(exc)))
+                continue
+            if info is None or not stat.S_ISREG(info.st_mode):
+                findings.append(Finding(
+                    "missing-skill-companion", location,
+                    "Declared external skill requires SKILL.md and PROVENANCE.md.",
+                ))
+            elif filename == "SKILL.md":
+                findings.extend(check_skill_body(path))
+    # Licence and body checks can encounter the same unreadable SKILL.md.
+    return list(dict.fromkeys(findings))
 
 
 def main(argv: list[str]) -> int:
@@ -219,9 +343,10 @@ def main(argv: list[str]) -> int:
     if not findings:
         print(
             f"OK: external overlay licence consistency confirmed "
-            f"({len(EXPECTED_LICENSE)} declared source(s); all LICENSE files "
-            f"present and matching expected; no external markdown file claims "
-            f"the project licence)."
+            f"({len(EXPECTED_LICENSE) + len(ADDYOSMANI_SKILLS)} declared "
+            f"location(s); all LICENSE files "
+            f"present and matching expected; rule provenance present; no audited file claims "
+            f"the project licence; skill bodies have no active interpolation)."
         )
         return 0
 
@@ -231,7 +356,7 @@ def main(argv: list[str]) -> int:
     print(
         f"\nFAIL: {len(findings)} external-overlay licence finding(s). "
         f"Resolve by updating EXPECTED_LICENSE, restoring the LICENSE file, "
-        f"or removing the incorrect project-licence claim from the external file.",
+        f"removing the incorrect project-licence claim, or fixing skill interpolation.",
         file=sys.stderr,
     )
     return 1

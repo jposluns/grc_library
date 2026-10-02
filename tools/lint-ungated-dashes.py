@@ -21,10 +21,14 @@ style on the CORPUS (``.md`` domain docs) and generator-source prose, but does n
 operational surfaces; PR #1314 swept them clean and this gate prevents re-drift.
 
 Exemptions (each principled, not a drive-by allow-list):
-  - ``.claude/rules/external/`` : the THIRD-PARTY overlay (addyosmani / kariedo / tikitribe,
-    each under its own MIT licence and PROVENANCE.md). It is refreshed FROM SOURCE, never
+  - ``.claude/rules/external/`` : the THIRD-PARTY rules overlay (kariedo / tikitribe, each
+    under its own MIT licence and PROVENANCE.txt). It is refreshed FROM SOURCE, never
     hand-edited to conform to this project's house style, so its Unicode dashes are legitimate
     external content.
+  - The five REGISTERED addyosmani skill directories (``.claude/skills/addyosmani-<name>/``,
+    enumerated in ``tools/external_overlay.py``): the same third-party exception, relocated
+    with the skills. Any OTHER ``.claude/skills/`` directory (first-party or unregistered)
+    remains scanned.
   - A glyph inside a markdown inline-code backtick span or a fenced code block: the deliberate
     illustration / functional form (handled by the engine's PURE check).
   - The standard exempt dirs (``.git``, ``__pycache__``, ``node_modules``) and non-text
@@ -46,6 +50,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 PACK_TOOLS = REPO_ROOT / ".corpus-management" / "tools"
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
+from external_overlay import (  # noqa: E402
+    ADDYOSMANI_SKILLS, InputError, directory_entries, path_stat, read_utf8, walk_files,
+)
 
 EXEMPT_DIR_PARTS = {".git", "__pycache__", "node_modules"}
 # The third-party overlay, exempt as external-licensed content (see docstring).
@@ -67,23 +74,25 @@ def _targets():
     out = []
     # tools/ operational SCRIPTS (.py and .sh) carry prose comments/docstrings; the tool config
     # data files (.json) are not prose and are not scanned here.
-    for pat in ("*.py", "*.sh"):
-        for f in sorted((REPO_ROOT / "tools").glob(pat)):
-            out.append(f)
+    tools = REPO_ROOT / "tools"
+    info = path_stat(tools, missing_ok=True)
+    if info is not None:
+        out.extend(f for f in directory_entries(tools) if f.name.endswith((".py", ".sh")))
+    external_skills = {REPO_ROOT / ".claude" / "skills" / name
+                       for name in ADDYOSMANI_SKILLS}
+
+    def excluded(path):
+        return (path.name in EXEMPT_DIR_PARTS or path == EXTERNAL_OVERLAY
+                or path in external_skills)
+
     for base in (".claude", "references", ".corpus-management"):
         root = REPO_ROOT / base
-        if not root.is_dir():
+        info = path_stat(root, missing_ok=True)
+        if info is None:
             continue
-        for f in sorted(root.rglob("*")):
-            if not f.is_file():
-                continue
-            if any(part in EXEMPT_DIR_PARTS for part in f.parts):
-                continue
-            if EXTERNAL_OVERLAY in f.parents:
-                continue
-            if f.suffix.lower() not in TEXT_SUFFIXES:
-                continue
-            out.append(f)
+        for f in walk_files(root, exclude=excluded):
+            if f.suffix.lower() in TEXT_SUFFIXES:
+                out.append(f)
     return out
 
 
@@ -101,6 +110,15 @@ def _self_test() -> int:
     c("targets-includes-py", any(t.name == "lint-ungated-dashes.py" for t in tgt))
     c("targets-excludes-external", not any("rules" in t.parts and "external" in t.parts for t in tgt))
     c("targets-includes-corpus-management", any(".corpus-management" in t.parts for t in tgt))
+    c("targets-excludes-addyosmani-skills", not any(
+        (REPO_ROOT / ".claude" / "skills" / name) in target.parents
+        for name in ADDYOSMANI_SKILLS
+        for target in tgt
+    ))
+    c(
+        "targets-includes-clean-language",
+        REPO_ROOT / ".claude/skills/clean-language/SKILL.md" in tgt,
+    )
     bad = [n for n, ok in checks if not ok]
     if bad:
         print(f"lint-ungated-dashes self-test: FAIL {bad}")
@@ -110,10 +128,18 @@ def _self_test() -> int:
 
 
 def main(argv) -> int:
-    if "--self-test" in argv:
-        return _self_test()
-    engine = _engine()
-    return engine.run(_targets(), repo_root=REPO_ROOT)
+    try:
+        if "--self-test" in argv:
+            return _self_test()
+        engine = _engine()
+
+        def scan(path):
+            return engine.scan_text(read_utf8(path), path.suffix.lower() == ".md")
+
+        return engine.run(_targets(), repo_root=REPO_ROOT, scan=scan)
+    except InputError as exc:
+        print(f"FAIL: inaccessible-input: {exc.path.relative_to(REPO_ROOT)}: {exc}")
+        return 1
 
 
 if __name__ == "__main__":
