@@ -12,7 +12,7 @@ The library's audit programme is a set of linters, build-and-check generators, a
 
 To see the current gate set in one place, run [`tools/run_all_audits.sh`](run_all_audits.sh) or read the §6 table.
 
-Each individual linter is self-documenting via its module docstring (`python3 tools/<script>.py --help` where supported, or read the docstring directly). The shared helper module is [`tools/lint_common.py`](lint_common.py); the regression test suite is at [`tools/run-linter-regression.py`](run-linter-regression.py) with fixtures under [`tests/test_linters.py`](../tests/test_linters.py).
+Each individual linter is self-documenting via its module docstring (`python3 tools/<script>.py --help` where supported, or read the docstring directly). The shared helper module is [`tools/lint_common.py`](lint_common.py); the regression test suite is at [`tools/run-linter-regression.py`](run-linter-regression.py) with fixtures under [`tests/test_linters.py`](../tests/test_linters.py). [`tools/external_overlay.py`](external_overlay.py) declares the third-party skill directories shared by the external-overlay licence and ungated-surface dash audits.
 
 ## Running
 

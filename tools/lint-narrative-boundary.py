@@ -28,7 +28,8 @@ Scope notes:
   - The outside scan walks the whole repository (every ``.md`` outside the
     root ``executive/`` tree, minus the vendored/non-content dirs), so corpus
     domains, ``docs/``, ``guardrails/``, ``.project-governance/``, root
-    files, ``tests/``, and every README are covered.
+    files, ``tests/``, and every README are covered. The two renamed external
+    rule provenance files retain this check even with their ``.txt`` suffix.
   - Detection is FENCE-AWARE: the authoring specification's example
     metadata block (a fenced illustration carrying the narrative type and
     all 8 extension fields) is documentation, not a leak, so lines inside
@@ -66,6 +67,7 @@ import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path (engine imports aiqt_corpus)
+from external_overlay import RULE_PROVENANCE_PATHS
 from lint_common import REPO_ROOT, require_dir  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
@@ -159,7 +161,9 @@ def discover(root: Path) -> tuple[list[tuple[Path, str]], list[tuple[Path, str]]
     nor a narrative page)."""
     outside: list[tuple[Path, str]] = []
     inside: list[tuple[Path, str]] = []
-    for p in sorted(root.rglob("*.md")):
+    candidates = set(root.rglob("*.md"))
+    candidates.update(root / rel for rel in RULE_PROVENANCE_PATHS)
+    for p in sorted(candidates):
         if not p.is_file():
             continue
         rel_parts = p.relative_to(root).parts

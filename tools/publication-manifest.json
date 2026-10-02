@@ -148,7 +148,7 @@
     "guidance-claude-md-optimization.md": {
       "bucket": "CORE",
       "disclosure": "SANITIZE",
-      "rationale": "Portable keep-and-condense method for any always-loaded rules file; remove the `external/addyosmani/context-engineering.md` overlay path, the parent's 881-to-634-line worked example, and the hallucination-metrics cadence reference."
+      "rationale": "Portable keep-and-condense method for any always-loaded rules file; remove the `.claude/skills/addyosmani-context-engineering/SKILL.md` skill path, the parent's 881-to-634-line worked example, and the hallucination-metrics cadence reference."
     },
     "languages/capacitor-ionic.md": {
       "bucket": "CORE",

@@ -109,10 +109,12 @@ def pure_self_test_checks():
     return checks
 
 
-def run(files: list[Path], *, repo_root: Path) -> int:
+def run(files: list[Path], *, repo_root: Path, scan=None) -> int:
+    """Allow wrappers to supply a strict reader for their declared text scope."""
+    scan = scan or scan_file
     findings = []
     for path in files:
-        for lineno, line in scan_file(path):
+        for lineno, line in scan(path):
             try:
                 rel = path.relative_to(repo_root).as_posix()
             except ValueError:  # explicit path outside repo_root

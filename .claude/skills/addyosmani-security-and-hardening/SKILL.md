@@ -1,9 +1,9 @@
 ---
-name: security-and-hardening
+name: addyosmani-security-and-hardening
 description: Hardens code against vulnerabilities. Use when handling user input, authentication, data storage, or external integrations. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services.
 ---
 
-<!-- External overlay (supplementary, MIT). Source: https://github.com/addyosmani/agent-skills/blob/13e43f2310224d5770a7fb0a8c24c02b73da69e9/skills/security-and-hardening/SKILL.md; Fetched: 2026-06-19; SHA-256(original fetched bytes): 8fed058a520281384ed1bbfddbfb3d2b12479459231c67ae0d1f0d765bb52f95. This provenance line added by adopter; the original SKILL.md content below is unmodified. -->
+<!-- External overlay (supplementary, MIT). Source: https://github.com/addyosmani/agent-skills/blob/13e43f2310224d5770a7fb0a8c24c02b73da69e9/skills/security-and-hardening/SKILL.md; Fetched: 2026-06-19; SHA-256(original fetched bytes): 8fed058a520281384ed1bbfddbfb3d2b12479459231c67ae0d1f0d765bb52f95. This provenance line added by adopter; the local SQL escape is recorded in PROVENANCE.md. -->
 
 # Security and Hardening
 
@@ -85,7 +85,7 @@ These are prevention patterns, not a ranking. For the 2021 ordering, see the qui
 const query = `SELECT * FROM users WHERE id = '${userId}'`;
 
 // GOOD: Parameterized query
-const user = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+const user = await db.query('SELECT * FROM users WHERE id = \$1', [userId]);
 
 // GOOD: ORM with parameterized input
 const user = await prisma.user.findUnique({ where: { id: userId } });

@@ -943,6 +943,104 @@ class LinksLinterTests(LinterTestCase):
             self.assertEqual(run_default()[0], 0)
 
 
+class OverlayRelocationCoverageTests(LinterTestCase):
+    """Default content gates retain every relocated overlay prose file."""
+
+    # Independent of the production registry: dropping a registered skill must
+    # break these default-scope mutations, even if the shipped tree is clean.
+    PATHS = tuple(
+        f".claude/skills/addyosmani-{name}/{filename}"
+        for name in (
+            "ci-cd-and-automation", "code-review-and-quality", "context-engineering",
+            "security-and-hardening", "using-agent-skills",
+        )
+        for filename in ("SKILL.md", "PROVENANCE.md")
+    ) + (
+        ".claude/rules/external/kariedo/PROVENANCE.txt",
+        ".claude/rules/external/tikitribe/PROVENANCE.txt",
+    )
+
+    def setUp(self):
+        super().setUp()
+        self.scratch = tempfile.TemporaryDirectory()
+        self.addCleanup(self.scratch.cleanup)
+        self.root = Path(self.scratch.name)
+        subprocess.run(["git", "init", "-q", str(self.root)], check=True)
+        for rel in self.PATHS:
+            path = self.root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("Clean prose.\n", encoding="utf-8")
+
+    def assert_default_mutations(self, script, mutation, finding, args=()):
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+
+        mod = load_linter_module(script, "_overlay_coverage_" + Path(script).stem)
+
+        def run():
+            output = io.StringIO()
+            with patch.object(mod, "REPO_ROOT", self.root), \
+                    redirect_stdout(output), redirect_stderr(output):
+                rc = mod.main([script, *args])
+            return rc, output.getvalue()
+
+        self.assertEqual(run()[0], 0)
+        for rel in self.PATHS:
+            with self.subTest(script=script, path=rel):
+                path = self.root / rel
+                original = path.read_bytes()
+                try:
+                    path.write_text(mutation, encoding="utf-8")
+                    rc, output = run()
+                    self.assertEqual(rc, 1, output)
+                    self.assertIn(rel, output)
+                    self.assertIn(finding, output)
+                finally:
+                    path.write_bytes(original)
+        self.assertEqual(run()[0], 0)
+
+    def test_default_links_detect_each_relocated_file(self):
+        self.assert_default_mutations(
+            "tools/lint-links.py", "[broken](./__qa_missing__.md)\n",
+            "target does not exist",
+        )
+
+    def test_links_explicit_provenance_and_overlapping_roots(self):
+        from unittest.mock import patch
+
+        mod = load_linter_module("tools/lint-links.py", "_overlay_links_selection")
+        with patch.object(mod, "REPO_ROOT", self.root):
+            selected = mod.iter_markdown_files([str(self.root), ".claude/rules"])
+            self.assertEqual(selected, sorted(self.root / p for p in self.PATHS))
+            for rel in self.PATHS[-2:]:
+                self.assertEqual(mod.iter_markdown_files([rel]), [self.root / rel])
+            note = self.root / ".claude/rules/external/kariedo/notes.txt"
+            note.write_text("[broken](./__qa_missing__.md)\n", encoding="utf-8")
+            self.assertNotIn(note, mod.iter_markdown_files([str(self.root)]))
+
+    def test_default_bom_screen_detects_each_relocated_file(self):
+        self.assert_default_mutations(
+            "tools/lint-version-bump-recency.py", "\ufeffClean prose.\n", "BOM",
+            ("--root", str(self.root)),
+        )
+
+    def test_explicit_bom_screen_detects_renamed_provenance(self):
+        for rel in self.PATHS[-2:]:
+            with self.subTest(path=rel):
+                path = self.root / rel
+                path.write_text("\ufeffClean prose.\n", encoding="utf-8")
+                result = run_linter(
+                    "tools/lint-version-bump-recency.py", "--root", self.root, path,
+                )
+                self.assertLinterFails(result, "BOM")
+
+    def test_default_narrative_boundary_detects_each_relocated_file(self):
+        self.assert_default_mutations(
+            "tools/lint-narrative-boundary.py", "**Narrative Type:** Scenario\n",
+            "narrative-extension field",
+        )
+
+
 class CitationsLinterTests(LinterTestCase):
     """tools/lint-citations.py"""
 
@@ -5913,7 +6011,17 @@ class PrePushGuardTests(unittest.TestCase):
 
 
 class ExternalOverlayLicenseTests(LinterTestCase):
-    """tools/lint-external-overlay-license.py"""
+    """tools/lint-external-overlay-license.py (gate 42): the two-layout audit over the
+    rule-source directories and the five registered addyosmani skill directories."""
+
+    MIT_TEXT = "MIT License\n\nCopyright (c) test\n"
+    SKILLS = (
+        "addyosmani-ci-cd-and-automation",
+        "addyosmani-code-review-and-quality",
+        "addyosmani-context-engineering",
+        "addyosmani-security-and-hardening",
+        "addyosmani-using-agent-skills",
+    )
 
     def test_runs_clean_on_corpus_at_head(self) -> None:
         # Smoke test: external overlay licence consistency holds at HEAD.
@@ -5924,6 +6032,696 @@ class ExternalOverlayLicenseTests(LinterTestCase):
             f"external overlay licence consistency should hold.\n"
             f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    # -- fixture plumbing: a synthetic repo root holding the clean two-rule /
+    # five-skill layout, mutated per test, checked in-process with the gate
+    # module's globals pointed at the fixture root.
+
+    def _fixture_root(self) -> Path:
+        root = Path(tempfile.mkdtemp(prefix="ext-overlay-lic-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
+        return root
+
+    def _build_layout(self, root: Path) -> None:
+        for source in ("kariedo", "tikitribe"):
+            d = root / ".claude" / "rules" / "external" / source
+            d.mkdir(parents=True)
+            (d / "LICENSE").write_text(self.MIT_TEXT, encoding="utf-8")
+            (d / "PROVENANCE.txt").write_text("# Overlay provenance\n", encoding="utf-8")
+            (d / "rule.md").write_text("# external rule\n", encoding="utf-8")
+        for name in self.SKILLS:
+            d = root / ".claude" / "skills" / name
+            d.mkdir(parents=True)
+            (d / "LICENSE").write_text(self.MIT_TEXT, encoding="utf-8")
+            (d / "SKILL.md").write_text(
+                f"---\nname: {name}\ndescription: fixture\n---\n\nbody\n",
+                encoding="utf-8",
+            )
+            (d / "PROVENANCE.md").write_text("# Overlay provenance\n", encoding="utf-8")
+        # An unrelated first-party skill must stay outside the gate.
+        d = root / ".claude" / "skills" / "clean-language"
+        d.mkdir(parents=True)
+        (d / "SKILL.md").write_text(
+            "---\nname: clean-language\n---\n\n**License:** CC BY-SA 4.0\n",
+            encoding="utf-8",
+        )
+
+    def _findings(self, mutate=None):
+        root = self._fixture_root()
+        self._build_layout(root)
+        if mutate is not None:
+            mutate(root)
+        mod = load_linter_module(
+            "tools/lint-external-overlay-license.py",
+            f"_ext_overlay_lic_{self._testMethodName}",
+        )
+        mod.REPO_ROOT = root
+        mod.EXTERNAL_OVERLAY_DIR = root / ".claude" / "rules" / "external"
+        return mod.check()
+
+    def test_clean_two_rule_five_skill_layout_passes(self) -> None:
+        # The project-licence claim planted in the unrelated clean-language
+        # skill proves unrelated skills are not enrolled.
+        self.assertEqual(self._findings(), [])
+
+    def test_rule_provenance_text_is_required_and_licence_audited(self) -> None:
+        for source in ("kariedo", "tikitribe"):
+            relative = f".claude/rules/external/{source}/PROVENANCE.txt"
+            with self.subTest(source=source):
+                findings = self._findings(lambda root: (root / relative).unlink())
+                self.assertEqual([f.kind for f in findings], ["missing-rule-provenance"])
+                self.assertEqual(findings[0].location, relative)
+                findings = self._findings(lambda root: (root / relative).write_text(
+                    "**License:** CC BY-SA 4.0\n", encoding="utf-8"))
+                self.assertEqual([f.kind for f in findings],
+                                 ["external-file-claims-project-licence"])
+                self.assertEqual(findings[0].location, relative)
+
+    def test_missing_license_in_skill_dir_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: (r / ".claude" / "skills" / self.SKILLS[0] / "LICENSE").unlink()
+        )
+        self.assertEqual([f.kind for f in findings], ["missing-license-file"])
+        self.assertIn(self.SKILLS[0], findings[0].location)
+
+    def test_wrong_recognized_license_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: (r / ".claude" / "skills" / self.SKILLS[1] / "LICENSE").write_text(
+                "Apache License\nVersion 2.0\n", encoding="utf-8"
+            )
+        )
+        self.assertEqual([f.kind for f in findings], ["license-mismatch"])
+
+    def test_unrecognized_license_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: (r / ".claude" / "rules" / "external" / "kariedo" / "LICENSE").write_text(
+                "Totally Custom Licence v7\n", encoding="utf-8"
+            )
+        )
+        self.assertEqual([f.kind for f in findings], ["unrecognized-license"])
+
+    def test_project_licence_claim_in_skill_markdown_flagged(self) -> None:
+        def mutate(r: Path) -> None:
+            path = r / ".claude" / "skills" / self.SKILLS[2] / "SKILL.md"
+            path.write_text(
+                path.read_text(encoding="utf-8") + "\n**License:** CC BY-SA 4.0\n",
+                encoding="utf-8",
+            )
+        findings = self._findings(mutate)
+        self.assertEqual(
+            [f.kind for f in findings], ["external-file-claims-project-licence"]
+        )
+        self.assertIn(self.SKILLS[2], findings[0].location)
+
+    def test_missing_skill_md_companion_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: (r / ".claude" / "skills" / self.SKILLS[3] / "SKILL.md").unlink()
+        )
+        self.assertEqual([f.kind for f in findings], ["missing-skill-companion"])
+        self.assertTrue(findings[0].location.endswith("SKILL.md"))
+
+    def test_missing_provenance_companion_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: (r / ".claude" / "skills" / self.SKILLS[4] / "PROVENANCE.md").unlink()
+        )
+        self.assertEqual([f.kind for f in findings], ["missing-skill-companion"])
+        self.assertTrue(findings[0].location.endswith("PROVENANCE.md"))
+
+    def test_unknown_rule_source_flagged(self) -> None:
+        def mutate(r: Path) -> None:
+            d = r / ".claude" / "rules" / "external" / "unknown-source"
+            d.mkdir()
+            (d / "rule.md").write_text("# rule\n", encoding="utf-8")
+        findings = self._findings(mutate)
+        self.assertEqual([f.kind for f in findings], ["undeclared-source"])
+        self.assertIn("unknown-source", findings[0].location)
+
+    def test_unknown_addyosmani_skill_dir_flagged(self) -> None:
+        def mutate(r: Path) -> None:
+            d = r / ".claude" / "skills" / "addyosmani-unregistered"
+            d.mkdir()
+            (d / "SKILL.md").write_text("---\nname: x\n---\n", encoding="utf-8")
+        findings = self._findings(mutate)
+        self.assertEqual([f.kind for f in findings], ["undeclared-source"])
+        self.assertIn("addyosmani-unregistered", findings[0].location)
+
+    def test_missing_registered_skill_directory_flagged(self) -> None:
+        findings = self._findings(
+            lambda r: shutil.rmtree(r / ".claude" / "skills" / self.SKILLS[0])
+        )
+        kinds = sorted(f.kind for f in findings)
+        self.assertEqual(
+            kinds,
+            ["missing-skill-companion", "missing-skill-companion", "stale-declaration"],
+        )
+
+    def test_missing_external_rules_tree_still_fails_stale(self) -> None:
+        findings = self._findings(
+            lambda r: shutil.rmtree(r / ".claude" / "rules" / "external")
+        )
+        self.assertEqual([f.kind for f in findings], ["stale-declaration"] * 2)
+        locations = "".join(f.location for f in findings)
+        self.assertIn("kariedo", locations)
+        self.assertIn("tikitribe", locations)
+
+    def _body_findings(self, body, header=None):
+        def mutate(root):
+            for name in self.SKILLS:
+                path = root / ".claude" / "skills" / name / "SKILL.md"
+                prefix = header or f"---\nname: {name}\ndescription: fixture\n---\n"
+                path.write_text(prefix + body, encoding="utf-8")
+        return self._findings(mutate)
+
+    def _raw_skill_findings(self, content: bytes):
+        def mutate(root):
+            for name in self.SKILLS:
+                (root / ".claude" / "skills" / name / "SKILL.md").write_bytes(content)
+        return self._findings(mutate)
+
+    def test_raw_skill_bytes_fail_closed_in_every_registered_skill(self) -> None:
+        clean = b"---\nname: fixture\ndescription: fixture\n---\nbody\n"
+        self.assertEqual(self._raw_skill_findings(clean), [])
+        fixtures = {
+            "cr-only": (clean.replace(b"\n", b"\r"), "CR"),
+            "crlf": (clean.replace(b"\n", b"\r\n"), "CR"),
+            "mixed": (clean.replace(b"\n", b"\r", 1), "CR"),
+            "body-cr": (clean + b"\r", "CR"),
+            "nul-header": (clean.replace(b"fixture", b"fix\0ture"), "NUL"),
+            "nul-body": (clean + b"\0", "NUL"),
+            "fffe": (clean + b"\xef\xbf\xbe", "U+FFFE"),
+            "ffff": (clean + b"\xef\xbf\xbf", "U+FFFF"),
+        }
+        for label, (raw, detail) in fixtures.items():
+            with self.subTest(form=label):
+                findings = self._raw_skill_findings(raw)
+                self.assertEqual([f.kind for f in findings],
+                                 ["unsupported-skill-bytes"] * len(self.SKILLS))
+                for name, finding in zip(self.SKILLS, findings):
+                    self.assertEqual(finding.location, f".claude/skills/{name}/SKILL.md")
+                    self.assertIn(detail, finding.detail)
+        for invalid in (b"\xff", b"\xc0\xaf", b"\xe2\x82", b"\xed\xa0\x80"):
+            for raw in (invalid + clean, clean + invalid):
+                with self.subTest(invalid=raw):
+                    findings = self._raw_skill_findings(raw)
+                    self.assertEqual([f.kind for f in findings],
+                                     ["unreadable-skill"] * len(self.SKILLS))
+        # Claude strips an initial BOM before frontmatter parsing. Our restricted
+        # header refuses it; embedded FEFF still follows the JS whitespace rules.
+        findings = self._raw_skill_findings(b"\xef\xbb\xbf" + clean)
+        self.assertEqual([f.kind for f in findings],
+                         ["unsupported-skill-frontmatter"] * len(self.SKILLS))
+
+    def test_raw_newline_mutation_cannot_hide_live_header_tokens(self) -> None:
+        clean = b"---\nname: fixture\ndescription: $1 !`echo example`\n---\nbody\n"
+        self.assertEqual(self._raw_skill_findings(clean), [])
+        # A lone CR after the opening delimiter makes the entire file the body;
+        # a universal-newline reader hides these tokens. CRLF is also refused by
+        # the byte contract, even though Claude recognizes its frontmatter.
+        for raw in (clean.replace(b"\n", b"\r"),
+                    clean.replace(b"\n", b"\r", 1),
+                    clean.replace(b"\n", b"\r\n")):
+            with self.subTest(raw=raw):
+                findings = self._raw_skill_findings(raw)
+                self.assertEqual([f.kind for f in findings],
+                                 ["unsupported-skill-bytes"] * len(self.SKILLS))
+
+    def test_skill_read_error_is_a_finding(self) -> None:
+        from unittest.mock import patch
+        mod = load_linter_module(
+            "tools/lint-external-overlay-license.py", "_ext_overlay_read_error",
+        )
+        path = REPO_ROOT / ".claude" / "skills" / self.SKILLS[0] / "SKILL.md"
+        with patch.object(Path, "read_bytes", side_effect=OSError("fixture read failure")):
+            findings = mod.check_skill_body(path)
+        self.assertEqual([f.kind for f in findings], ["unreadable-skill"])
+        self.assertIn("fixture read failure", findings[0].detail)
+
+    def _access_failure(self, relative, operation="read_bytes", *, invalid=False):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        root = self._fixture_root()
+        self._build_layout(root)
+        target = root / relative
+        mod = load_linter_module("tools/lint-external-overlay-license.py",
+                                 f"_overlay_access_{self._testMethodName}")
+        mod.REPO_ROOT = root
+        mod.EXTERNAL_OVERLAY_DIR = root / ".claude/rules/external"
+        original = getattr(Path, operation)
+
+        def fail(path, *args, **kwargs):
+            if path == target:
+                if invalid:
+                    return b"MIT License\n# apparently clean\n\xff"
+                raise PermissionError("injected access failure")
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, operation, fail):
+            findings = mod.check()
+            output = io.StringIO()
+            with redirect_stdout(output), redirect_stderr(output):
+                self.assertEqual(mod.main([]), 1)
+        self.assertTrue(any(f.location == relative for f in findings), findings)
+        self.assertIn(relative, output.getvalue())
+        self.assertNotIn("OK:", output.getvalue())
+
+    def test_fail_open_reader_mutation_is_detected(self) -> None:
+        from unittest.mock import patch
+        load_linter_module("tools/lint-external-overlay-license.py", "_overlay_mutation")
+        import external_overlay
+        original = external_overlay.read_utf8
+
+        def ignore_failure(path):
+            try:
+                return original(path)
+            except external_overlay.InputError:
+                return ""
+
+        with patch.object(external_overlay, "read_utf8", ignore_failure):
+            with self.assertRaisesRegex(AssertionError, "0 != 1"):
+                self._access_failure(".claude/rules/external/kariedo/rule.md")
+
+    def test_unreadable_rule_file_is_a_finding(self) -> None:
+        self._access_failure(".claude/rules/external/kariedo/rule.md")
+
+    def test_unreadable_provenance_is_a_finding(self) -> None:
+        for source, filename in (("rules/external/kariedo", "PROVENANCE.txt"),
+                                 (f"skills/{self.SKILLS[0]}", "PROVENANCE.md")):
+            with self.subTest(source=source):
+                self._access_failure(f".claude/{source}/{filename}")
+
+    def test_unreadable_license_is_a_finding(self) -> None:
+        for source in ("rules/external/kariedo", f"skills/{self.SKILLS[0]}"):
+            with self.subTest(source=source):
+                self._access_failure(f".claude/{source}/LICENSE")
+
+    def test_unreadable_skill_in_full_gate_is_a_finding(self) -> None:
+        self._access_failure(f".claude/skills/{self.SKILLS[0]}/SKILL.md")
+
+    def test_unlistable_directory_is_a_finding(self) -> None:
+        for relative in (".claude/rules/external", ".claude/rules/external/kariedo",
+                         ".claude/skills", f".claude/skills/{self.SKILLS[0]}"):
+            with self.subTest(path=relative):
+                self._access_failure(relative, "iterdir")
+
+    def test_stat_failure_is_a_finding(self) -> None:
+        paths = (".claude/rules/external", ".claude/rules/external/kariedo",
+                 ".claude/rules/external/kariedo/rule.md",
+                 ".claude/rules/external/kariedo/PROVENANCE.txt",
+                 ".claude/rules/external/kariedo/LICENSE", ".claude/skills",
+                 f".claude/skills/{self.SKILLS[0]}",
+                 f".claude/skills/{self.SKILLS[0]}/SKILL.md",
+                 f".claude/skills/{self.SKILLS[0]}/PROVENANCE.md",
+                 f".claude/skills/{self.SKILLS[0]}/LICENSE")
+        for relative in paths:
+            with self.subTest(path=relative):
+                self._access_failure(relative, "stat")
+
+    def test_invalid_utf8_in_every_overlay_file_is_a_finding(self) -> None:
+        for source, filenames in (
+            ("rules/external/kariedo", ("rule.md", "PROVENANCE.txt", "LICENSE")),
+            (f"skills/{self.SKILLS[0]}", ("SKILL.md", "PROVENANCE.md", "LICENSE")),
+        ):
+            for filename in filenames:
+                with self.subTest(source=source, filename=filename):
+                    self._access_failure(f".claude/{source}/{filename}", invalid=True)
+
+    def test_nested_listing_failure_is_a_finding(self) -> None:
+        from unittest.mock import patch
+        original = Path.iterdir
+
+        def fail(path):
+            yield from original(path)
+            if path.name == "nested":
+                raise PermissionError("late listing failure")
+
+        def mutate(root):
+            directory = root / ".claude/rules/external/kariedo/nested"
+            directory.mkdir()
+            (directory / "rule.md").write_text("clean\n", encoding="utf-8")
+
+        with patch.object(Path, "iterdir", fail):
+            findings = self._findings(mutate)
+        self.assertTrue(any(f.location.endswith("/nested") for f in findings), findings)
+
+    def test_dangling_markdown_and_directory_cycle_are_findings(self) -> None:
+        for name, target in (("broken.md", "absent.md"), ("cycle", ".")):
+            def mutate(root):
+                directory = root / ".claude/rules/external/kariedo"
+                (directory / name).symlink_to(target)
+            with self.subTest(name=name):
+                findings = self._findings(mutate)
+                self.assertTrue(any(f.location.endswith("/" + name) for f in findings),
+                                findings)
+                self.assertTrue(all(f.kind == "inaccessible-overlay" for f in findings))
+
+    def test_active_interpolation_tokens_in_every_registered_body(self) -> None:
+        tokens = (
+            "$ARGUMENTS", "$ARGUMENTS[0]", "$ARGUMENTS[12]", "$ARGUMENTSsuffix",
+            "$ARGUMENTS[x]", "$0", "$1", "$01", "$99", "$1é", "$$1",
+            r"\\$1", r"\\\$1", r"\\$ARGUMENTS[1]",
+            "${CLAUDE_SKILL_DIR}", "${CLAUDE_PROJECT_DIR}",
+            "${CLAUDE_SESSION_ID}", "${CLAUDE_EFFORT}",
+            "${CLAUDE_PLUGIN_ROOT}", "${CLAUDE_PLUGIN_DATA}", "${user_config.option}",
+            "${user_config.\noption}",
+            r"\${CLAUDE_SESSION_ID}", "!`echo example`", "```!\necho example\n```",
+        )
+        for token in tokens:
+            with self.subTest(token=token):
+                findings = self._body_findings(f"```text\n{token}\n```\n")
+                self.assertEqual(len(findings), len(self.SKILLS))
+                self.assertEqual({f.kind for f in findings}, {"skill-interpolation-token"})
+                for name, finding in zip(self.SKILLS, findings):
+                    self.assertIn(f"/{name}/SKILL.md:6", finding.location)
+
+    # ECMAScript WhiteSpace + LineTerminator, enumerated independently of the
+    # gate's regex ranges. FEFF is JS-only; 001C..001F and 0085 are Python-only.
+    JS_WHITESPACE_CODEPOINTS = (
+        0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x0020, 0x00A0, 0x1680,
+        0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007,
+        0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F, 0x3000,
+        0xFEFF,
+    )
+
+    def test_js_whitespace_for_every_token_form(self) -> None:
+        tokens = (
+            "$ARGUMENTS", "$ARGUMENTS[0]", "$0", "$12",
+            "${CLAUDE_SKILL_DIR}", "${CLAUDE_PROJECT_DIR}",
+            "${CLAUDE_SESSION_ID}", "${CLAUDE_EFFORT}",
+            "${CLAUDE_PLUGIN_ROOT}", "${CLAUDE_PLUGIN_DATA}",
+            "${user_config.option}", "!`echo example`", "!`",
+            "```!\necho example\n```",
+        )
+        for cp in self.JS_WHITESPACE_CODEPOINTS:
+            space = chr(cp)
+            with self.subTest(codepoint=f"U+{cp:04X}"):
+                body = "\n".join(f"prefix{space}{token}{space}suffix" for token in tokens)
+                findings = self._body_findings(body)
+                if cp == 0x000D:
+                    self.assertEqual([f.kind for f in findings],
+                                     ["unsupported-skill-bytes"] * len(self.SKILLS))
+                    continue
+                self.assertEqual(len(findings), len(tokens) * len(self.SKILLS))
+                self.assertEqual({f.kind for f in findings}, {"skill-interpolation-token"})
+                escaped = space.join((r"\$0", r"\$12", r"\$ARGUMENTS", r"\$ARGUMENTS[0]"))
+                self.assertEqual(self._body_findings(escaped), [])
+
+    def test_inline_command_boundary_matches_exact_js_whitespace(self) -> None:
+        mod = load_linter_module(
+            "tools/lint-external-overlay-license.py", "_ext_overlay_js_space",
+        )
+        # Check the full Unicode range, including Python-only whitespace and
+        # retired/nearby space characters. No dependency on an installed JS runtime.
+        actual = {
+            cp for cp in range(0x110000)
+            if mod.SKILL_TOKEN_RE.search(chr(cp) + "!`")
+        }
+        self.assertEqual(actual, set(self.JS_WHITESPACE_CODEPOINTS))
+        self.assertIsNotNone(mod.SKILL_TOKEN_RE.match("!`"))
+        self.assertEqual(self._body_findings("\x1c!`\x1d!`\x1e!`\x1f!`\x85!`"), [])
+
+    def test_feff_command_mutation_is_rejected(self) -> None:
+        # Turn a literal embedded marker into an active command with JS-only
+        # whitespace; check() must refuse every registered skill.
+        body = "prefixX!`echo example`\n"
+        self.assertEqual(self._body_findings(body), [])
+        findings = self._body_findings(body.replace("X", "\ufeff"))
+        self.assertEqual([f.kind for f in findings], ["skill-interpolation-token"] * 5)
+        self.assertTrue(all(f.location.endswith("SKILL.md:5") for f in findings))
+
+    def test_literal_examples_and_argument_escapes_pass(self) -> None:
+        body = r'''
+```js
+const query = `SELECT * FROM users WHERE id = '${userId}'`;
+const user = await db.query('SELECT * FROM users WHERE id = \$1', [userId]);
+```
+${{ secrets.CI_DB_PASSWORD }} ${userQuestion} ${ARGUMENTS} ${1}
+$PATH $1suffix $1_ $１２ $arguments ${CLAUDE_UNKNOWN}
+\$0 \$99 \$ARGUMENTS \$ARGUMENTS[1] \$ARGUMENTSsuffix
+'''
+        self.assertEqual(self._body_findings(body), [])
+
+    def test_embedded_frontmatter_boundary_scans_both_header_values(self) -> None:
+        for field, line in (("name", 2), ("description", 3)):
+            for before in ("", " ", "\t"):
+                for after in ("", " ", "\t", " \t "):
+                    with self.subTest(field=field, before=before, after=after):
+                        values = dict(name="fixture", description="fixture")
+                        values[field] = f"example{before}---{after}$1 !`echo example`"
+                        header = (f"---\nname: {values['name']}\n"
+                                  f"description: {values['description']}\n---\n")
+                        findings = self._body_findings("body\n", header)
+                        self.assertEqual(len(findings), 2 * len(self.SKILLS))
+                        self.assertEqual({f.kind for f in findings},
+                                         {"skill-interpolation-token"})
+                        self.assertTrue(all(f.location.endswith(f"SKILL.md:{line}")
+                                            for f in findings))
+                        self.assertEqual([f.detail.split(" may ")[0] for f in findings],
+                                         [repr("$1"), repr("!`")] * len(self.SKILLS))
+
+    def test_runtime_boundary_command_start_quotes_and_escapes(self) -> None:
+        for value in ("example---!`echo example`", '"example --- !`echo example`"'):
+            with self.subTest(value=value):
+                header = f"---\nname: fixture\ndescription: {value}\n---\n"
+                findings = self._body_findings("body\n", header)
+                self.assertEqual([f.kind for f in findings],
+                                 ["skill-interpolation-token"] * len(self.SKILLS))
+                self.assertTrue(all(f.location.endswith("SKILL.md:3") for f in findings))
+        # Tokens before the runtime boundary remain metadata; argument escapes
+        # after it still work, and a token-free early boundary is permitted.
+        for value in ("$1 !`echo example` -- literal", r"$1 --- \$1", "example --- text"):
+            with self.subTest(value=value):
+                header = f"---\nname: fixture\ndescription: {value}\n---\n"
+                self.assertEqual(self._body_findings("body\n", header), [])
+
+    def test_runtime_boundary_consumes_only_js_whitespace(self) -> None:
+        findings = self._body_findings("\n \t\ufeff\n!`echo example`\n$1\n")
+        self.assertEqual([f.kind for f in findings],
+                         ["skill-interpolation-token"] * (2 * len(self.SKILLS)))
+        self.assertEqual([f.location.rsplit(":", 1)[1] for f in findings],
+                         ["7", "8"] * len(self.SKILLS))
+        for cp in (0x001C, 0x001D, 0x001E, 0x001F, 0x0085):
+            with self.subTest(codepoint=cp):
+                self.assertEqual(self._body_findings(chr(cp) + "!`echo example`"), [])
+
+    def test_embedded_frontmatter_delimiter_mutation_is_rejected(self) -> None:
+        header = "---\nname: fixture\ndescription: example -- $1 !`echo example`\n---\n"
+        self.assertEqual(self._body_findings("body\n", header), [])
+        findings = self._body_findings("body\n", header.replace("example --", "example ---"))
+        self.assertEqual([f.kind for f in findings],
+                         ["skill-interpolation-token"] * (2 * len(self.SKILLS)))
+        self.assertTrue(all(f.location.endswith("SKILL.md:3") for f in findings))
+
+    def test_named_argument_header_requires_audit(self) -> None:
+        for declaration in ('arguments: target', '"arguments": [target]',
+                            'arguments:\n  - target'):
+            with self.subTest(declaration=declaration):
+                header = f"---\nname: fixture\ndescription: fixture\n{declaration}\n---\n"
+                findings = self._body_findings("$target\n", header)
+                self.assertEqual(
+                    [f.kind for f in findings], ["unsupported-skill-frontmatter"] * 5
+                )
+
+    def test_interpolation_scope_excludes_metadata_companions_and_other_skills(self) -> None:
+        def mutate(root):
+            for name in self.SKILLS:
+                path = root / ".claude" / "skills" / name
+                (path / "PROVENANCE.md").write_text("upstream $1\n", encoding="utf-8")
+                skill = path / "SKILL.md"
+                skill.write_text(skill.read_text().replace("description: fixture",
+                                                          "description: $1"))
+            for relative in (".claude/skills/clean-language/SKILL.md",
+                             ".claude/rules/external/kariedo/rule.md"):
+                (root / relative).write_text("$1\n", encoding="utf-8")
+        self.assertEqual(self._findings(mutate), [])
+
+    def test_sql_escape_mutation_is_rejected(self) -> None:
+        skill = REPO_ROOT / ".claude" / "skills" / self.SKILLS[3] / "SKILL.md"
+        text = skill.read_text(encoding="utf-8")
+        self.assertEqual(text.count(r"id = \$1"), 1)
+        body = text.split("---\n", 2)[2]
+        self.assertEqual(self._body_findings(body), [])
+        findings = self._body_findings(body.replace(r"id = \$1", "id = $1"))
+        self.assertEqual([f.kind for f in findings], ["skill-interpolation-token"] * 5)
+
+    def test_unreadable_skill_body_fails_closed(self) -> None:
+        findings = self._findings(
+            lambda root: (root / ".claude" / "skills" / self.SKILLS[0] / "SKILL.md")
+            .write_bytes(b"\xff")
+        )
+        self.assertEqual([f.kind for f in findings], ["unreadable-skill"])
+
+
+class UngatedDashesScopeTests(LinterTestCase):
+    """tools/lint-ungated-dashes.py (gate 82) scan scope: the five REGISTERED
+    addyosmani skill directories are exempt as third-party content; every other
+    skill directory (first-party or unregistered) stays scanned."""
+
+    def _load(self):
+        return load_linter_module(
+            "tools/lint-ungated-dashes.py",
+            f"_ungated_dashes_scope_{self._testMethodName}",
+        )
+
+    def test_live_scope_excludes_registered_skills_includes_clean_language(self) -> None:
+        mod = self._load()
+        targets = mod._targets()
+        for name in mod.ADDYOSMANI_SKILLS:
+            d = REPO_ROOT / ".claude" / "skills" / name
+            self.assertTrue((d / "SKILL.md").is_file(), f"relocated skill missing: {d}")
+            self.assertFalse(
+                any(d in t.parents for t in targets),
+                f"registered skill dir must be exempt: {d}",
+            )
+        self.assertFalse(
+            any("rules" in t.parts and "external" in t.parts for t in targets),
+            "the rules overlay must stay excluded",
+        )
+        self.assertIn(
+            REPO_ROOT / ".claude" / "skills" / "clean-language" / "SKILL.md",
+            targets,
+            "first-party skills must remain scanned",
+        )
+
+    def test_synthetic_scope_fixture(self) -> None:
+        root = Path(tempfile.mkdtemp(prefix="ungated-scope-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
+        registered = root / ".claude" / "skills" / "addyosmani-context-engineering"
+        unregistered = root / ".claude" / "skills" / "addyosmani-unregistered"
+        first_party = root / ".claude" / "skills" / "synthetic-first-party"
+        overlay = root / ".claude" / "rules" / "external" / "kariedo"
+        for d in (registered, unregistered, first_party):
+            d.mkdir(parents=True)
+            (d / "SKILL.md").write_text("x\n", encoding="utf-8")
+        overlay.mkdir(parents=True)
+        (overlay / "rule.md").write_text("x\n", encoding="utf-8")
+        mod = self._load()
+        mod.REPO_ROOT = root
+        mod.EXTERNAL_OVERLAY = root / ".claude" / "rules" / "external"
+        targets = mod._targets()
+        self.assertNotIn(registered / "SKILL.md", targets)
+        self.assertIn(unregistered / "SKILL.md", targets)
+        self.assertIn(first_party / "SKILL.md", targets)
+        self.assertNotIn(overlay / "rule.md", targets)
+
+    def test_inaccessible_scanned_paths_fail_closed(self) -> None:
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        root = Path(tempfile.mkdtemp(prefix="ungated-access-", dir=FIXTURE_DIR))
+        self.addCleanup(_force_rmtree, root)
+        skill = root / ".claude/skills/first-party/SKILL.md"
+        skill.parent.mkdir(parents=True)
+        skill.write_text("clean\n", encoding="utf-8")
+        mod = self._load()
+        mod.REPO_ROOT = root
+        mod.EXTERNAL_OVERLAY = root / ".claude/rules/external"
+        cases = [(skill, "read_bytes"), (skill, "stat")]
+        for directory in (root / ".claude", skill.parent.parent, skill.parent):
+            cases.extend((directory, operation) for operation in ("iterdir", "stat"))
+        for target, operation in cases:
+            original = getattr(Path, operation)
+
+            def fail(path, *args, **kwargs):
+                if path == target:
+                    raise PermissionError("injected access failure")
+                return original(path, *args, **kwargs)
+
+            with self.subTest(path=target, operation=operation):
+                output = io.StringIO()
+                with patch.object(Path, operation, fail), redirect_stdout(output):
+                    self.assertEqual(mod.main([]), 1)
+                self.assertIn(str(target.relative_to(root)), output.getvalue())
+                self.assertNotIn("OK:", output.getvalue())
+        skill.write_bytes(b"clean\n\xff")
+        with redirect_stdout(io.StringIO()):
+            self.assertEqual(mod.main([]), 1)
+
+    def test_exempt_overlay_directories_are_not_accessed(self) -> None:
+        from unittest.mock import patch
+        mod = self._load()
+        original = Path.stat
+        exempt = {mod.EXTERNAL_OVERLAY, *(REPO_ROOT / ".claude/skills" / name
+                                          for name in mod.ADDYOSMANI_SKILLS)}
+
+        def fail(path, *args, **kwargs):
+            if path in exempt or any(parent in exempt for parent in path.parents):
+                raise PermissionError("exempt overlay must not be accessed")
+            return original(path, *args, **kwargs)
+
+        with patch.object(Path, "stat", fail):
+            self.assertIn(REPO_ROOT / ".claude/skills/clean-language/SKILL.md",
+                          mod._targets())
+
+
+class AddyosmaniSkillMigrationTests(LinterTestCase):
+    """3b177-c migration invariants for the five addyosmani skills relocated
+    from .claude/rules/external/addyosmani/ to .claude/skills/addyosmani-<name>/."""
+
+    SKILLS = ExternalOverlayLicenseTests.SKILLS
+
+    def test_frontmatter_names_match_destination_directories(self) -> None:
+        for name in self.SKILLS:
+            lines = (
+                (REPO_ROOT / ".claude" / "skills" / name / "SKILL.md")
+                .read_text(encoding="utf-8")
+                .splitlines()
+            )
+            self.assertEqual(lines[0], "---", name)
+            self.assertEqual(lines[1], f"name: {name}")
+            self.assertTrue(
+                lines[2].startswith("description: ") and len(lines[2]) > 13,
+                f"{name}: upstream description must be retained",
+            )
+
+    def test_license_copies_byte_identical_and_mit(self) -> None:
+        reference = (
+            REPO_ROOT / ".claude" / "skills" / self.SKILLS[0] / "LICENSE"
+        ).read_bytes()
+        self.assertTrue(reference.lstrip().startswith(b"MIT License"))
+        for name in self.SKILLS[1:]:
+            self.assertEqual(
+                (REPO_ROOT / ".claude" / "skills" / name / "LICENSE").read_bytes(),
+                reference,
+                f"{name}: LICENSE copy diverged",
+            )
+
+    def test_provenance_copies_identical_and_pack_link_resolves(self) -> None:
+        reference = (
+            REPO_ROOT / ".claude" / "skills" / self.SKILLS[0] / "PROVENANCE.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("(../../../guardrails/)", reference)
+        self.assertIn("## Local installation", reference)
+        link_target = (
+            REPO_ROOT / ".claude" / "skills" / self.SKILLS[0] / ".." / ".." / ".." / "guardrails"
+        ).resolve()
+        self.assertTrue(link_target.is_dir(), "provenance pack link must resolve")
+        for name in self.SKILLS[1:]:
+            self.assertEqual(
+                (
+                    REPO_ROOT / ".claude" / "skills" / name / "PROVENANCE.md"
+                ).read_text(encoding="utf-8"),
+                reference,
+                f"{name}: PROVENANCE copy diverged",
+            )
+
+    def test_old_overlay_directory_gone(self) -> None:
+        self.assertFalse(
+            (REPO_ROOT / ".claude" / "rules" / "external" / "addyosmani").exists()
+        )
+
+    def test_rule_provenance_is_preserved_outside_rule_discovery(self) -> None:
+        for source in ("kariedo", "tikitribe"):
+            directory = REPO_ROOT / ".claude/rules/external" / source
+            with self.subTest(source=source):
+                self.assertFalse((directory / "PROVENANCE.md").exists())
+                provenance = directory / "PROVENANCE.txt"
+                text = provenance.read_text(encoding="utf-8")
+                self.assertTrue(text.startswith("# Overlay provenance and precedence\n"))
+                self.assertNotIn("paths:", text)
+                self.assertTrue((directory / "LICENSE").is_file())
+                self.assertNotIn(provenance, directory.rglob("*.md"))
+                self.assertIn(f"`{source}`", text)
+                if source == "tikitribe":
+                    self.assertIn("## Known divergence", text)
 
 
 class FollowupAgeingTests(LinterTestCase):
@@ -24733,7 +25531,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.7.0", "index ownership and gate bindings require MINOR")
+        self.assertEqual(man["pack"]["version"], "0.8.0", "3b177-c adds the dash engine's optional scan reader on top of the 3b177-b index (MINOR, 0.7.0 to 0.8.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

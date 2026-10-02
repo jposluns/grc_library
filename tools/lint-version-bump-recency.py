@@ -39,7 +39,9 @@ those files deliberately, though D2 and D4 never read them (3b89
 round 3). The recency-only DEFAULT_EXEMPT_DIRS trees, such as
 ``.claude/`` and ``references/``, ARE BOM-checked (3b89 round 2: the
 walk previously applied DEFAULT_EXEMPT_DIRS before the BOM check,
-leaving trees D2 and D4 read unprotected).
+leaving trees D2 and D4 read unprotected). The two registered external-rule
+PROVENANCE.txt files retain the BOM screen after their rename from .md;
+this does not bring them into the version-recency target set.
 
 One rule per mode, stated once (3b89 round 5 replaced the per-case
 parity prose that grew in rounds 2-4). The walk classifies every
@@ -120,6 +122,7 @@ from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import head_version, read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
+from external_overlay import RULE_PROVENANCE_PATHS
 from lint_common import guard_explicit_paths_cwd, is_default_exempt_root, DEFAULT_EXEMPT_DIRS, REPO_ROOT  # noqa: E402  # grc-config/store, stays local
 
 # Thread-pool width for the per-file git queries. The queries are
@@ -326,6 +329,15 @@ def classify_markdown(path: Path, root: Path) -> str:
     return "target"
 
 
+def is_markdown_input(path: Path, root: Path) -> bool:
+    """Include renamed overlay provenance in the BOM screen; it is still prose.
+
+    The .claude recency exemption still applies after the BOM check.
+    """
+    return (path.name.endswith(".md")
+            or path.relative_to(root).as_posix() in RULE_PROVENANCE_PATHS)
+
+
 def iter_targets(root: Path) -> tuple[list[Path], list[Path], list[Path]]:
     """Walk the repository root. Return ``(targets, bom_prefixed, loops)``:
     the markdown files with a metadata-block Version field minus the exempt
@@ -350,9 +362,9 @@ def iter_targets(root: Path) -> tuple[list[Path], list[Path], list[Path]]:
     loops: list[Path] = []
     for dirpath, _dirnames, filenames in os.walk(root, onerror=_raise):
         for name in filenames:
-            if not name.endswith(".md"):
-                continue
             path = Path(dirpath) / name
+            if not is_markdown_input(path, root):
+                continue
             verdict = classify_markdown(path, root)
             if verdict == "bom":
                 bom_prefixed.append(path)
@@ -471,7 +483,7 @@ def main(argv: list[str]) -> int:
                 path = as_named(Path(p))
                 if root not in path.parents:
                     path = Path(resolved)
-                if not path.name.endswith(".md"):
+                if not is_markdown_input(path, root):
                     continue
                 verdict = classify_markdown(path, root)
                 if verdict == "bom":

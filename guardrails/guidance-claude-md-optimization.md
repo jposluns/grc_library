@@ -6,7 +6,7 @@ on the context budget. As a project accumulates conventions, the file grows, and
 is mostly rationale, war-stories, and provenance accreting around a smaller core of
 actionable rules. Past a certain size the file starts to work against itself: the assistant
 that must hold all of it loses focus on the rules that actually govern behaviour (the
-context-flooding failure mode the `external/addyosmani/context-engineering.md` overlay
+context-flooding failure mode the `.claude/skills/addyosmani-context-engineering/SKILL.md` skill
 names).
 
 This guidance describes how to condense such a file without losing a rule, and how to make

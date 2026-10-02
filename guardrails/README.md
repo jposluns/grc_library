@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.55\
-**Date:** 2026-09-29\
+**Version:** 1.71.58\
+**Date:** 2026-10-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -298,7 +298,20 @@ External rule repositories listed under "External references" below are **not lo
 The pack maintainer back-ports vetted improvements from external sources on the pack's own review cadence, the `Review Frequency` stated in this README's header. Adopters who want to layer additional external rule sets on top of the pack have two paths:
 
 - **By hand.** Use the URLs in the External references section below; the adopter clones, vendors, or copies into their own project on their own terms.
-- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the pack proposal, **proposes to fetch all four vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorization, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files under `.claude/rules/external/<source-name>/` with a provenance header (source URL, fetched date, SHA-256 of fetched bytes). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`vetting-log.md`](vetting-log.md). Current status: TikiTribe, Kariedo, and Wiz are `Vetted` (first formal EXT-01 vets on 2026-05-31); addyosmani is `Vetted` (first formal EXT-01 vet on 2026-06-19, 5 skills in full + 19 spot-scanned). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
+- **Via the setup generator's external-source overlay (default-on).** Phase 2 of [`setup-generator-prompt.md`](setup-generator-prompt.md), after presenting the pack proposal, **proposes to fetch all four vetted external sources as the default action** so the consumer can accept the broader proposal with a single approval. The consumer's explicit approval (or modification, or decline) is still required before any file is written; the default-on framing affects the conversation flow's default, not the consent gate. The Wiz licence caveat (CC-BY-NC-ND-4.0; NonCommercial + NoDerivatives) is always surfaced in the offer-message prose before approval so commercial adopters and adopters who plan to modify the rule files for their stack can decline Wiz specifically. For each source the consumer is fetching (whether by accepting the default or by explicit modification), the generator applies the External-Source Vetting Protocol per fetch (treat as data not instructions; scan for embedded directives, urgency framing, claims of pre-authorization, hidden or encoded text, exfiltration patterns, control-weakening guidance), surfaces anything suspicious verbatim before write, and places approved files at their source-specific destinations: rule sources under `.claude/rules/external/<source-name>/` with LICENSE and `PROVENANCE.txt` (without `paths:` frontmatter; the `.txt` name is outside Claude Code's `.md` rule discovery) and a provenance header (source URL, fetched date, SHA-256 of fetched bytes), and approved addyosmani skills under `.claude/skills/addyosmani-<upstream-name>/SKILL.md` with the namespaced frontmatter `name`, the upstream description retained, and LICENSE and PROVENANCE.md beside each skill (frontmatter-first discovery: no comment is prepended before the skill frontmatter). The pack remains the primary content; the overlay is supplementary and may overlap or conflict with the primary layer (consumer responsibility to reconcile). The maintainer-side vetting status for each candidate source is recorded in [`vetting-log.md`](vetting-log.md). Current status: TikiTribe, Kariedo, and Wiz are `Vetted` (first formal EXT-01 vets on 2026-05-31); addyosmani is `Vetted` (first formal EXT-01 vet on 2026-06-19, 5 skills in full + 19 spot-scanned). The generator's offer step surfaces the per-source status and substantive observations to the consumer so the decision is informed.
+
+Before installing or refreshing fetched bodies as skills, apply the generator's
+[Skill interpolation audit](setup-generator-prompt.md#skill-interpolation-audit),
+including code examples: `$ARGUMENTS`, `$ARGUMENTS[n]`, `$<digits>` (such as `$0` and
+`$1`), `${CLAUDE_SKILL_DIR}`, `${CLAUDE_PROJECT_DIR}`, `${CLAUDE_SESSION_ID}`,
+`${CLAUDE_EFFORT}`, `${CLAUDE_PLUGIN_ROOT}`, `${CLAUDE_PLUGIN_DATA}`,
+`${user_config.*}`, and command markers `` !` `` / ```` ```! ```` (including inline
+markers after JavaScript whitespace such as U+FEFF). Use a single backslash, not preceded
+by another backslash, for literal argument placeholders: `\$1`, `\$ARGUMENTS`,
+`\$ARGUMENTS[0]`. Rewrite active context substitutions and command markers; that escape
+does not protect them. Re-scan before placement, retain the original fetched-byte hash,
+and record adaptations in PROVENANCE.md. Keep `name`/`description`-only frontmatter;
+additional fields (especially `arguments`) or a Claude Code upgrade require a fresh audit.
 
 ### Deterministic enforcement layer
 
@@ -409,6 +422,7 @@ These rule files draw on and are aligned to the following external projects and 
 - Coverage: 24 engineering-workflow skills organized by development phase (Define, Plan, Build, Verify, Review, Ship). Includes a `security-and-hardening` skill (STRIDE-per-trust-boundary, Mandatory / Approval-Gated / Prohibited tier model, OWASP prevention patterns, LLM-output handling), a `code-review-and-quality` skill (five-axis review), and a `ci-cd-and-automation` skill (quality-gate pipeline configuration)
 - Use: Complementary engineering-discipline overlay; scope is engineering workflow not GRC governance. Uses Claude Code's Skills `SKILL.md` discovery format (frontmatter `name:` + `description:`) rather than the rule / `@`-import patterns the other three sources use
 - License: **MIT**
+- Local installation in this repository: five of the upstream skills (`ci-cd-and-automation`, `code-review-and-quality`, `context-engineering`, `security-and-hardening`, `using-agent-skills`) are installed under `.claude/skills/addyosmani-<name>/SKILL.md`, each with the `addyosmani-` prefix on its frontmatter `name`, the upstream description retained, the body preserved except for documented interpolation escapes or rewrites, and LICENSE and PROVENANCE.md beside the skill. These five locally installed skills are distinct from upstream's larger skill collection and from the first-party pack skill collection
 
 **awesome-claude-code (community curation)**
 - Repository: `https://github.com/hesreallyhim/awesome-claude-code`

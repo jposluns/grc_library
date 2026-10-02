@@ -1009,14 +1009,13 @@ editing a rule edits the pack body (both trees, same commit) for portable discip
 and the overlay (local copy only) for project wiring; the two are never mixed. This is
 distinct from the third-party external overlay described next.
 
-The GRC Library pack above is the **primary** source. `.claude/rules/external/` holds a
-**supplementary** overlay from third-party sources (TikiTribe, Kariedo, addyosmani, all
-MIT, see each dir's LICENSE), provenance-stamped. Overlay rules may overlap or conflict
-with the primary layer; the primary GRC pack wins on conflict. The overlay IS discovered at runtime (Claude Code recursively reads the `.md` rule files under `.claude/rules/`, so the `external/` overlay is part of the runtime rule set even though `.claude/settings.json` does not explicitly import it and it is not enumerated in the CLAUDE.md rule index): the unscoped overlay rules load at launch and the path-scoped ones (five carry a `paths:` frontmatter) load conditionally when a matching file is accessed. This is why the primary-wins-on-conflict rule above is stated: it governs a genuine runtime overlap. The overlay is also a dogfood artefact of the setup generator's output, demonstrating what the generator ships to adopters. The overlay can be pruned
-or refreshed independently: the pruning stance is that the overlay is reviewed at each
-periodic pack review, a near-duplicate wrapper the primary pack already covers is a prune
-candidate, and a stale upstream file is refreshed from source or dropped rather than left
-to diverge. Each overlay directory carries a `PROVENANCE.md` recording this precedence and
-pruning stance beside its `LICENSE`. addyosmani's content is engineering-workflow skills (TDD, code
-review, CI/CD, security-and-hardening, etc.) in Claude Code's `SKILL.md` discovery format;
-scope is engineering practice rather than additional GRC governance.
+The GRC Library pack above is the **primary** source and wins on conflict.
+TikiTribe and Kariedo provide supplementary MIT rules under .claude/rules/external/;
+their rules are path-scoped; PROVENANCE.txt beside LICENSE is not a rule. Five MIT skills
+from addyosmani live under .claude/skills/addyosmani-<name>/: ci-cd-and-automation,
+code-review-and-quality, context-engineering, security-and-hardening, and using-agent-skills.
+Their discovery metadata is available at startup; their bodies load on invocation.
+Each skill has LICENSE and PROVENANCE.md. Read the adjacent provenance when using
+external guidance, including known divergences and missing upstream references.
+The setup generator uses this layout. Review both layers at each periodic pack review;
+prune near-duplicates and refresh or drop stale content independently of the primary pack.
