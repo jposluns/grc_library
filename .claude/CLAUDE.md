@@ -232,14 +232,14 @@ this discipline guarantees a claim about its CONTENT rests on a real read.
 
 ## Conventions
 Transferred to the Corpus-Management pack (compile PR-4): the corpus authoring conventions
-load as the compiler-generated rule file `.claude/rules/corpus-management/authoring-conventions.md`
+are read on demand in `.claude/references/corpus-management/authoring-conventions.md`
 (source of record `.corpus-management/core/rules/authoring-conventions.md`; edit the source
 and regenerate via `python3 tools/build-corpus-management.py`, never the output; gate 99
 owns its bytes).
 
 ## Language convention
 Transferred to the Corpus-Management pack (compile PR-3): the convention loads as the
-compiler-generated rule file `.claude/rules/corpus-management/language-convention.md`
+always-loaded rule file `.claude/rules/corpus-management/language-convention.md` (alongside `normative-wording.md`)
 (source of record `.corpus-management/core/rules/language-convention.md`; edit the source
 and regenerate via `python3 tools/build-corpus-management.py`, never the output; gate 99
 owns its bytes).

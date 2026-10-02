@@ -49,7 +49,7 @@ silent.
 
 Compiler-owned recognition (compile PR-2): the Corpus-Management pack's
 compiler (``tools/build-corpus-management.py``; gate 99) may generate
-rule files under ``.claude/rules/corpus-management/``. The completeness
+rule files (including the index) under ``.claude/rules/corpus-management/``. The completeness
 check recognizes those files through the pack's validated ownership
 register (``.corpus-management/core/ownership.toml``): a local rule file
 covered by a valid register entry (an exact file target, or inside a
@@ -202,10 +202,10 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
             )
         kind = entry["kind"]
         target = entry["target"]
-        if kind not in ("block", "file", "tree"):
+        if kind not in ("block", "file", "tree", "index"):
             raise OwnershipRegisterError(
                 f"{OWNERSHIP_REGISTER_REL}: owned_targets[{i}] has unknown kind "
-                f"{kind!r} (must be block, file, or tree)"
+                f"{kind!r} (must be block, file, tree, or index)"
             )
         if "\x00" in target or PurePosixPath(target).is_absolute() or ".." in PurePosixPath(target).parts:
             raise OwnershipRegisterError(
@@ -238,7 +238,7 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
                 f"block-kind ownership entry {entry['rule']!r} targets "
                 f"{target} under {LOCAL_RULES_DIR_REL}/: a compiler-owned "
                 f"block inside a mirrored rule body would put two owners "
-                f"on one file; only file or tree kinds may own rule files."
+                f"on one file; only file, tree, or index kinds may own rule files."
             )
             continue
         if not (tposix == cm_rules or cm_rules in tposix.parents):
@@ -248,9 +248,12 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
                 f"{CM_RULES_SUBDIR}/ subdirectory."
             )
             continue
+        if kind == "index" and target != f"{CM_RULES_SUBDIR}/INDEX.md":
+            findings.append(f"index ownership must target {CM_RULES_SUBDIR}/INDEX.md")
+            continue
         if kind == "tree":
             owned_trees.add(target)
-        elif kind == "file":
+        elif kind in ("file", "index"):
             owned_files.add(target)
         else:
             findings.append(
