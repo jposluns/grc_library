@@ -1,12 +1,17 @@
 # PR lifecycle and close-out (reference)
 
 **Read this before authoring any change, before and after every commit, and before
-push/PR creation, merge, or wind-down, like a skill.** `.claude/CLAUDE.md` carries the
-lean checklist (each item names its enforcing gate/hook); this file carries the full detail
-and rationale. Relocated from CLAUDE.md by TODO 3.139.1 / PR #1249 (roadmap C phase 1) to right-size the
-every-turn load; the disciplines are unchanged. Project-only operational machinery (not pack
-material). The un-gated grep-disciplines keep a terse reminder in CLAUDE.md as their live
-control until the roadmap-C phase-2 delta gate (D9, #1250) lands.
+push/PR creation, merge, or wind-down, like a skill (the `pr-close-out` skill is its trigger).**
+`.claude/CLAUDE.md` keeps only the obligations that must fire before you would open this file
+(feature branch only, the unpiped pre-push guard, no attribution, merge only through
+`tools/merge-when-green.py`, this PR's own `/validate-pr` and `/retro` rows); this file carries
+the full PR workflow, the close-out checklist including the un-gated grep disciplines, the
+change-impact surface map and the version-bump enforcement detail. Relocated from CLAUDE.md by
+TODO 3.139.1 / PR #1249 and by 3b177-d; the disciplines are unchanged. Project-only operational
+machinery (not pack material). D9 (`tools/check-retired-section-orphan-on-pr.py`, #1250) gates
+the anchored section-orphan key-forms (`§N.M`, `PN.M`, `TODO §N.M`) on operational surfaces;
+bare tokens, `§A-§B` ranges, `item N` and corpus `.md` surfaces remain manual (the grep
+reminders in the checklist below).
 
 ---
 

@@ -990,12 +990,16 @@ class CIWaitPrescriptionTests(LinterTestCase):
 
     GH_FIXTURE = """
 import json, os, pathlib, signal, sys, time
+# gh api --help documents --paginate --slurp as raw pages. gh 2.101.0
+# rejects --slurp with --jq/-q or --template/-t; pin the entire argv.
+assert sys.argv[1:] == [
+    "api", "--paginate", "--slurp",
+    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
+], "unsupported gh api argv"
 root = pathlib.Path(os.environ["CI_FIXTURE"])
 counter = root / "calls"
 n = int(counter.read_text()) if counter.exists() else 0
 counter.write_text(str(n + 1))
-assert "--paginate" in sys.argv and "--slurp" in sys.argv
-assert "per_page=100" in " ".join(sys.argv)
 states = json.loads((root / "states.json").read_text())
 state = states[min(n, len(states) - 1)]
 if state == "api-error":
@@ -1010,15 +1014,10 @@ if state == "term-resistant":
 if state == "stalled":
     time.sleep(5)
     sys.exit(8)
-query = sys.argv[sys.argv.index("--jq") + 1]
-assert query == "[.[].workflow_runs[]]", "fixture only models gh page flattening"
-if state == "query-error":
-    print("fixture query failure", file=sys.stderr)
-    sys.exit(5)
 if state == "malformed":
     print("not JSON")
 else:
-    print(json.dumps([run for page in state for run in page["workflow_runs"]]))
+    print(json.dumps(state))
 """
 
     @staticmethod
@@ -1106,9 +1105,24 @@ else:
         self.assertIn("Actions API/query failed rc=7", output)
         self.assertIn("current state unknown", output)
 
-    def test_query_error_preserves_status_without_reread(self):
-        output = self.wait_fixture(["query-error"], 9, 1)
-        self.assertIn("Actions API/query failed rc=5", output)
+    def test_fixture_rejects_incompatible_output_flags(self):
+        for flag in ("--jq", "-q", "--template", "-t"):
+            with self.subTest(flag=flag):
+                result = subprocess.run([
+                    sys.executable, "-c", self.GH_FIXTURE,
+                    "api", "--paginate", "--slurp",
+                    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
+                    flag, ".",
+                ], capture_output=True, text=True, timeout=5)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("unsupported gh api argv", result.stderr)
+
+    def test_invalid_page_shape_fails_loud(self):
+        for pages in ([{}], [{"workflow_runs": None}], {"workflow_runs": []}):
+            with self.subTest(pages=pages):
+                output = self.wait_fixture([pages], 9, 1)
+                self.assertIn("Invalid Actions response", output)
+                self.assertIn("current state unknown", output)
 
     def test_malformed_response_fails_loud(self):
         output = self.wait_fixture(["malformed"], 9, 1)

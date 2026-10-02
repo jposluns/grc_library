@@ -57,14 +57,14 @@ while True:
     response = subprocess.run([
         "gh", "api", "--paginate", "--slurp",
         "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
-        "--jq", "[.[].workflow_runs[]]",
     ], stdout=subprocess.PIPE, text=True)
     if response.returncode:
         print(f"Actions API/query failed rc={response.returncode}; current state unknown.", flush=True)
         sys.exit(9)
     try:
         latest = {}
-        for run in json.loads(response.stdout):
+        pages = json.loads(response.stdout)
+        for run in (run for page in pages for run in page["workflow_runs"]):
             name = run["name"]
             if name not in required:
                 continue
@@ -107,9 +107,11 @@ WAIT
 )
 ```
 
-The snippet needs Bash, Python 3 (stdlib only), and the GitHub CLI. Page flattening
-uses the GitHub CLI's built-in `--jq`; no standalone `jq` is needed. Python selects
-and evaluates the latest runs, so regression fixtures exercise that same logic.
+The snippet needs Bash, Python 3 (stdlib only), and the GitHub CLI. `--paginate`
+with `--slurp` returns raw page objects; Python flattens their `workflow_runs` arrays
+and selects and evaluates the latest runs. Do not combine `--slurp` with `--jq` or
+`--template`: gh rejects those combinations. Regression fixtures enforce the exact
+supported arguments and return raw pages, exercising the production flattening.
 
 The loop matches each REQUIRED workflow BY NAME across every API page and judges only
 its LATEST run (highest `run_number`, then `run_attempt`, then `id`). An older failed
