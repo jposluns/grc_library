@@ -27,7 +27,7 @@
 # playbook. Stage 2+ appends one entry per relocated section below.
 
 - playbook: ".claude/playbooks/pr-lifecycle.md"
-  activity: "PR close-out and session-migration boundary"
+  activity: "Before authoring, every commit, push/PR creation, merge, and session-migration"
   index_label: "PR lifecycle and close-out"
   retained_anchors:
     - "Feature branch only, never"
@@ -37,6 +37,14 @@
     - "tools/merge-when-green.py"
     - "bump in the same commit that changes the document's body"
     - "Change-impact surface map (when you change X"
+    - "before authoring ANY change, before and after EVERY commit"
+    - "Before the first commit, run language/fence checks"
+    - "Before EACH commit, run `lint-version-bump-recency.py`"
+    - "after EACH commit, run `tools/run_all_audits.sh` standalone"
+    - "Before push/PR creation, finish the applicable checklist"
+    - "before the final push, include THIS PR's returned QA/retro rows"
+    - "At authoring time, measure claims from current output"
+    - "never remove root CHANGELOG history"
   relocated_anchors:
     - "A DISPATCHED ORDER IS WORK ORDERED, NEVER WORK DONE"
     - "CORRECTED 2026-07-25"

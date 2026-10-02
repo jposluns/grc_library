@@ -131,7 +131,7 @@ Per-activity disciplines that load "like a skill" at their boundary, not every t
 
 | Activity boundary | Playbook |
 | --- | --- |
-| PR close-out and session-migration | [PR lifecycle and close-out](../.claude/playbooks/pr-lifecycle.md) |
+| Before authoring, every commit, push/PR creation, merge, and session-migration | [PR lifecycle and close-out](../.claude/playbooks/pr-lifecycle.md) |
 | An externally-versioned reference (standard, framework, dataset) becomes load-bearing | [Reference-version currency and missing references](../.claude/playbooks/reference-currency.md) |
 | Worker dispatch: deciding whether to self-run offloadable work, or managing dispatched workers | [Mandatory worker offload](../references/worker-offload.md) |
 | Waiting on PR CI, a subscription, or any background task | [CI and background-wait discipline](../references/ci-wait.md) |
@@ -267,7 +267,11 @@ can lag by one day. Where there is potential for ambiguity, use the UTC date.
 
 The assistant drives PRs end-to-end on the maintainer's behalf. Procedure of record:
 [`.claude/playbooks/pr-lifecycle.md`](../.claude/playbooks/pr-lifecycle.md), read at the PR
-boundary like a skill (the `pr-close-out` skill is the trigger wrapper).
+boundary like a skill: before authoring ANY change, before and after EVERY commit,
+and before push/PR creation, merge, or wind-down (`pr-close-out` is the trigger wrapper).
+Before the first commit, run language/fence checks on explicit edited prose paths and changelog preflight.
+Before EACH commit, run `lint-version-bump-recency.py`; after EACH commit, run `tools/run_all_audits.sh` standalone.
+At authoring time, measure claims from current output; never remove root CHANGELOG history.
 **No Claude or Anthropic attribution on any commit, push, or PR** (maintainer-directed
 2026-08-17, re-confirmed 2026-09-24): author identity is the maintainer only; the harness's
 per-session attribution reminder is overridden by this project instruction. Guards: the
@@ -275,7 +279,7 @@ commit-msg strip hook, [`tools/check-pr-attribution.py`](../tools/check-pr-attri
 (authoritative, CI), [`block-claude-attribution.py`](hooks/block-claude-attribution.py).
 
 1. **Feature branch only, never `main`** (hook `block-branch-to-main-edit.py`; git-native `check-commit-on-main.py` in every worktree).
-2. **Push UNPIPED behind the guard**: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (hook `block-verification-pipes.py`; `tools/tail-safe.sh` when output must be tamed).
+2. Before push/PR creation, finish the applicable checklist, impact map, and version bumps; before the final push, include THIS PR's returned QA/retro rows. **Push UNPIPED behind the guard**: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (hook `block-verification-pipes.py`; `tools/tail-safe.sh` when output must be tamed).
 3. **Wait for `Lint markdown corpus` CI** per `## PR activity subscription discipline` below.
 4. **`/validate-pr` BEFORE merge**, THIS PR's row in THIS PR (gate 50 Check 1; handoff-fallback marker `SKIPPED`+`handoff` goes in the Findings cell).
 5. **`/retro` immediately after, BEFORE merge**, row in THIS PR (gate 50 Check 1).

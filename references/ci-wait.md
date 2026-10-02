@@ -29,39 +29,80 @@ absent from the tool list, so the PR mechanism is the `gh` CLI), there is no
 work in this project and is never prescribed or run: the project's fine-grained PAT cannot
 read the GitHub Checks API, so every `gh pr checks` invocation fails regardless of PR
 state. The readable surface is the Actions RUNS list for the PR's head SHA
-(`gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"`). Two failure modes are
+(`actions/runs?head_sha=<SHA>`). Two failure modes are
 FORBIDDEN: (a) bare `sleep 60 && echo "check status"` fallback timers, which pair with a
 subscription that does not exist and self-check nothing, so they sprawl into overlapping
 low-signal waits; and (b) a hand-rolled wait that can spin or exit SILENTLY (an unbounded
 loop, or one that swallows an API error as "still pending"). Instead run ONE
-timeout-bounded, fail-loud loop via `Bash` `run_in_background` that prints the terminal
-state on EVERY exit path, shaped:
-`timeout 1200 bash -c 'while :; do n=$(gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>" --jq "[.workflow_runs[] | select(.status == \"completed\") | .name] | unique | map(select(. == \"Repository quality checks\" or . == \"PR attribution\")) | length") || exit 9; [ "$n" -eq 2 ] && exit 0; sleep 30; done'; echo "runs-wait exited rc=$?"; gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>" --jq '.workflow_runs[] | .name + ": " + .status + "/" + (.conclusion // "pending")'`.
-The loop exits 0 ONLY when each REQUIRED check is LISTED for the SHA, BY NAME, with
-status `completed`: the required workflow runs are "Repository quality checks" and
-"PR attribution" (the workflows carrying the required checks "Lint markdown corpus" and
-"PR attribution (title and body)"; keep the loop's name list in step with
-`REQUIRED_CHECKS`/`REQUIRED_WORKFLOWS` in `tools/merge-when-green.py`). Runs REGISTER
-GRADUALLY after a push, so "every listed run is completed" is a KNOWN FALSE-DONE and is
-never an exit condition: a required run that has not yet appeared keeps the loop waiting.
-An API error exits 9 (loud, never a silent spin); the `timeout` caps the wait
-at a hard ceiling (rc 124 on expiry); and the trailing `echo` plus the final per-run read
-print the terminal state on EVERY exit path (pass, fail, API error, or timeout), so
-silence is impossible. rc 0 means COMPLETED, not green: read the printed per-run
-conclusions, and treat `tools/merge-when-green.py <N> --repo jposluns/grc_library
---dry-run` as the FINAL confirmed-green check before relying on a green reading (it reads
-the PR's `statusCheckRollup`, which the PAT can read, and refuses on anything pending,
-missing, or non-successful). Run exactly one such task; stop it with `TaskStop` once
-settled. **Do NOT idle-block on the notification:** per the **Background-task check SOP**
-below, check on the 60-second cadence and ACTIVELY PROBE (the same
-`actions/runs?head_sha=<SHA>` read, unpiped) once past the check's typical duration (about
-1-2 minutes here), because a stuck or silently-exited wait is indistinguishable from
-"still running". Never hand-roll a CI-wait loop on a check command whose flags you have
-not verified in THIS environment, and never leave a wait unbounded or silent. (The harness
-also blocks foreground `sleep N && <cmd>` chains, so the wait always runs via
-`run_in_background` or `Monitor`, never a foreground sleep.) lab_infra's fleet
-`ci-status.sh --wait` will REPLACE this loop when it ships; until then the loop above is
-the prescribed form (grc has no `ci-status.sh`).
+timeout-bounded, fail-loud loop via `Bash` `run_in_background` where permitted.
+Replace `<SHA>` with the PR head SHA; execute the complete subshell as one command:
+
+```bash
+(
+  if timeout --kill-after=1 1199 bash <<'WAIT'
+while :; do
+  echo "Reading Actions runs; previous snapshot (if any) may be stale."
+  snapshot=$(gh api --paginate --slurp \
+    "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100" --jq '
+      [.[].workflow_runs[]] as $runs |
+      ["Repository quality checks", "PR attribution"] as $required |
+      [$runs[] | select(.name as $name | $required | index($name))] as $relevant |
+      ($required[] as $name |
+        [$relevant[] | select(.name == $name)] as $matches |
+        if ($matches | length) == 0 then "\($name): missing"
+        else $matches[] | "\(.name): \(.status)/\(.conclusion // "pending")" end),
+      (if any($relevant[]; .status == "completed" and .conclusion != "success")
+       then "failed"
+       elif all($required[]; . as $name | any($relevant[]; .name == $name))
+         and all($relevant[]; .status == "completed")
+       then "completed"
+       else "pending" end)
+    ') || { api_rc=$?; echo "Actions API/query failed rc=$api_rc; current state unknown."; exit 9; }
+  printf '%s\n' "$snapshot"
+  case "${snapshot##*$'\n'}" in
+    completed) exit 0 ;;
+    failed) exit 1 ;;
+    pending) sleep 30 ;;
+    *) echo "Invalid wait state; current state unknown."; exit 9 ;;
+  esac
+done
+WAIT
+  then rc=0; else rc=$?; fi
+  printf 'runs-wait exited rc=%s; last snapshot may be stale or absent.\n' "$rc"
+  exit "$rc"
+)
+```
+
+The loop matches each REQUIRED workflow BY NAME across every API page and requires
+ALL its listed runs to be completed, including pending reruns beside older successes.
+The required workflows are "Repository quality checks" and "PR attribution", carrying
+the required checks "Lint markdown corpus" and "PR attribution (title and body)".
+Keep the names in step with `REQUIRED_CHECKS`/`REQUIRED_WORKFLOWS` in
+`tools/merge-when-green.py`. Runs REGISTER GRADUALLY: a missing required name keeps
+waiting; unrelated workflows cannot substitute for it.
+
+Every snapshot prints missing names and each required run's status/conclusion.
+Any completed required run with a non-success conclusion exits 1; API/query errors
+exit 9 and report their original status. The deadline is 1199 seconds plus at most
+one second of forced-stop grace (1200 seconds total); timeout exits 124, or 137 if
+forced termination is needed. The enclosing subshell prints and returns the captured
+status even under `set -e`. ALL API calls, including pagination, are inside the
+deadline; there is no final diagnostic API read to hang or overwrite a failure.
+On API error or timeout the last printed snapshot may be stale or absent, so current
+CI state is unknown. rc 0 requires every listed required run to succeed; still use
+`tools/merge-when-green.py <N> --repo jposluns/grc_library --dry-run` as the FINAL
+confirmed-green check before merge (it reads the PR's current `statusCheckRollup`
+and refuses pending, missing, or non-successful checks).
+
+Run exactly one such task. **Do NOT idle-block on the notification:** per the
+**Background-task check SOP** below, check on the 60-second cadence and ACTIVELY PROBE
+once past typical duration (about 1-2 minutes here). Bound any separate probe too:
+`timeout --kill-after=1 59 gh api "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>"`,
+un-piped, preserving its exit status. Never hand-roll a wait on unverified flags or
+leave it unbounded or silent. A foreground-only worker executes the same bounded
+command synchronously; the background-task machinery applies only where permitted.
+lab_infra's fleet `ci-status.sh --wait` will REPLACE this loop when it ships; until
+then the loop above is the prescribed form (grc has no `ci-status.sh`).
 
 **Background-task check SOP.** The same 60-second
 cadence governs EVERY background task (a subagent, a background command, an external

@@ -1,7 +1,7 @@
 # Reference-version currency and missing references (reference)
 
 **Read this when an externally-versioned reference (a standard, framework, or dataset) becomes
-load-bearing for a task, like a skill.** [`.claude/CLAUDE.md`](../.claude/CLAUDE.md) carries the
+load-bearing for a task, like a skill.** [`.claude/CLAUDE.md`](../CLAUDE.md) carries the
 lean always-on core (the `_ref`-required fail-loud principle, the "consult the index, verify
 upstream this turn, act only after both" gist, the superseded-version prohibition, and the
 acquire-or-pause rule for a not-held reference); this file carries the full detail and rationale.
@@ -28,9 +28,9 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
 ## The check order, whenever an externally-versioned reference (a standard, framework, or dataset such as MITRE ATT&CK / ATLAS, ISO, CSA, NIST) is load-bearing for a task
 
 1. **Find what `grc_library_ref` holds, via its index, not a guess.** Consult the `grc_library_ref`
-   reference index ([`grc_library_ref/INDEX.md`](../../grc_library_ref/INDEX.md),
-   `grc_library_ref/catalogue.yml`, `grc_library_ref/SECTION-INDEX.md`,
-   `grc_library_ref/COVERAGE-MAP.md`) to find the held artefact and its recorded version. (MITRE
+   reference index (`../../../grc_library_ref/INDEX.md` from this playbook's directory),
+   and the sibling files `grc_library_ref/catalogue.yml`, `grc_library_ref/SECTION-INDEX.md`,
+   and `grc_library_ref/COVERAGE-MAP.md` to find the held artefact and its recorded version. (MITRE
    lives under `grc_library_ref/frameworks/`, not `grc_library_ref/standards/`.) **A held /
    not-held claim is EXECUTED, not narrated:** run `python3 tools/ref-holds.py <query>` and quote
    its output (HELD with the path, or NOT-FOUND-IN-INDEX), never a partial filename grep. A `grep`
@@ -65,7 +65,7 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
 When a task needs a load-bearing reference (a standard, regulation, RTS/ITS, framework, or dataset a
 citation or attributed value depends on) that `grc_library_ref` does not hold, follow the pack's
 missing-load-bearing-reference corollary in
-[`evidence-grounded-completion`](../.claude/rules/governance/evidence-grounded-completion.md) (its
+[`evidence-grounded-completion`](../rules/governance/evidence-grounded-completion.md) (its
 `## Un-observable state, inventory, and external-version currency` section; PR #832): PAUSE,
 attempt acquisition, then named options on failure. The project instantiation:
 
