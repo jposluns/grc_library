@@ -31512,271 +31512,518 @@ class WorkerIdAnonymityTests(unittest.TestCase):
 
 
 class ClausePreservationTests(unittest.TestCase):
-    """Real git fixtures: BASE and HEAD differ; ledger expectations are independent."""
+    """Synthetic committed fixtures; no repository writes or inherited Git config."""
 
     BASE = (
-        "# Operating rules\n"
-        "We MUST verify é.\n"
-        "Never skip review.\n"
-        "Always retain evidence.\n"
-        "Approval is required.\n"
-        "Maintainer directive (2026-10-03): retain cadence.\n"
-        "Run gate D10.\n"
-        "Use the PreToolUse hook.\n"
-        "Invoke tools/lint-links.py.\n"
-        "Plain background prose.\n"
-        "Recheck after compaction\n"
-        "---\n"
-        "We MUST verify é.\n"
-        "Use check-size.py.\n"
+        "# Rules\n\n"
+        "We MUST retain\nall review evidence.\n\n"
+        "- Never push\n  without review.\n"
+        "- Repeat.\n- Repeat.\n\n"
+        "Plain background prose.\n\n"
+        "## Release\n"
     )
-    SELECTED = (1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14)
-    REPLACEMENT = "Retain evidence after each check."
 
     def setUp(self):
         import json
-        tmp = tempfile.TemporaryDirectory(dir=FIXTURE_DIR)
+        self.json = json
+        tmp = tempfile.TemporaryDirectory(prefix="clause-preservation-")
         self.addCleanup(tmp.cleanup)
         self.root = Path(tmp.name)
-        self.env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-        self.env.update(
-            GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
-            GIT_AUTHOR_NAME="Fixture", GIT_AUTHOR_EMAIL="fixture@example.invalid",
-            GIT_COMMITTER_NAME="Fixture", GIT_COMMITTER_EMAIL="fixture@example.invalid",
-        )
-        self.git("init", "-q")
-        self.write("instructions.md", self.BASE)
-        self.save()
-        self.base = self.git("rev-parse", "HEAD").stdout.strip()
-        lines = self.BASE.splitlines()
-        self.rows = [
-            dict(base_line=n, base_quote=lines[n - 1], state="K",
-                 quote=lines[n - 1], destination="instructions.md")
-            for n in self.SELECTED
-        ]
-        self.row(3).update(state="M", destination="moved.md")
-        self.row(4).update(state="S", quote=self.REPLACEMENT, destination="moved.md")
-        self.write("instructions.md", self.BASE.replace(lines[2] + "\n", "")
-                   .replace(lines[3] + "\n", ""))
-        self.write("moved.md", lines[2] + "\n" + self.REPLACEMENT + "\n")
-        self.save()
-        self.ledger = dict(base_revision=self.base, base_path="instructions.md",
-                           clauses=self.rows)
-        self.json = json
+        self.tool = REPO_ROOT / "tools/check-clause-preservation.py"
+        self.source = self.tool.read_text(encoding="utf-8")
+        self.git_bin = shutil.which("git")
+        self.assertIsNotNone(self.git_bin)
+        self.env = {
+            "PATH": str(Path(self.git_bin).parent) + os.pathsep + os.defpath,
+            "HOME": str(self.root), "XDG_CONFIG_HOME": str(self.root),
+            "TMPDIR": str(self.root), "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
+            "TZ": "UTC", "PYTHONHASHSEED": "0", "PYTHONNOUSERSITE": "1",
+            "PYTHONDONTWRITEBYTECODE": "1", "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull, "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0", "GIT_ALLOW_PROTOCOL": "",
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_AUTHOR_NAME": "Fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid",
+            "GIT_COMMITTER_NAME": "Fixture",
+            "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
+            "GIT_AUTHOR_DATE": "2000-01-01T00:00:00+0000",
+            "GIT_COMMITTER_DATE": "2000-01-01T00:00:00+0000",
+        }
+        self.git("init", "-q", "--template=", "--initial-branch=main")
+        self.new_base(self.BASE)
 
     def git(self, *args):
         return subprocess.run(
-            ["git", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgSign=false",
+            [self.git_bin, "-c", "core.hooksPath=/dev/null",
+             "-c", "commit.gpgSign=false", "-c", "core.autocrlf=false",
              "-C", str(self.root), *args],
             env=self.env, text=True, capture_output=True, check=True,
         )
 
     def write(self, path, text):
-        (self.root / path).write_text(text, encoding="utf-8")
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(text.encode("utf-8") if isinstance(text, str) else text)
 
     def save(self):
-        self.git("add", ".")
-        self.git("commit", "-q", "-m", "fixture")
+        self.git("add", "-A")
+        self.git("commit", "-q", "--allow-empty", "-m", "fixture")
 
-    def row(self, number):
-        return next(row for row in self.rows if row["base_line"] == number)
+    def new_base(self, text, path="instructions.md"):
+        self.path = path
+        self.write(path, text)
+        self.save()
+        self.base = self.git("rev-parse", "HEAD").stdout.strip()
+        result = self.invoke("--extract")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.ledger = self.json.loads(result.stdout)
+        self.rows = self.ledger["clauses"]
 
-    def invoke(self, *args):
+    def row(self, line):
+        return next(row for row in self.rows if row["base_line"] == line)
+
+    def invoke(self, *args, tool=None):
         return subprocess.run(
-            [sys.executable, str(REPO_ROOT / "tools/check-clause-preservation.py"),
-             "--repo", str(self.root), "--base", self.base,
-             "--path", "instructions.md", *args],
-            env=self.env, text=True, capture_output=True,
+            [sys.executable, "-B", str(tool or self.tool),
+             "--repo", str(self.root), "--base", self.base, "--path", self.path, *args],
+            env=self.env, cwd=self.root, text=True, capture_output=True,
         )
 
-    def check(self, code, message=""):
+    def check(self, code, message="OK:", tool=None):
         self.write("ledger.json", self.json.dumps(self.ledger, ensure_ascii=False))
-        result = self.invoke("--ledger", str(self.root / "ledger.json"))
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=tool)
         output = result.stdout + result.stderr
         self.assertEqual(result.returncode, code, output)
         self.assertIn(message, output)
-        return output
+        return result
 
-    def test_extract_exact_lines_and_quotes(self):
-        result = self.invoke("--extract")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        data = self.json.loads(result.stdout)
-        self.assertEqual(data["base_revision"], self.base)
-        self.assertEqual(data["base_path"], "instructions.md")
-        self.assertEqual([row["base_line"] for row in data["clauses"]], list(self.SELECTED))
-        for row in data["clauses"]:
-            self.assertEqual(row["quote"], self.BASE.splitlines()[row["base_line"] - 1])
-            self.assertEqual(row["base_quote"], row["quote"])
-            self.assertEqual(row["state"], "K")
+    def raw(self, content, code, message, tool=None):
+        self.write("ledger.json", content)
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=tool)
+        self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+        self.assertIn(message, result.stderr)
+        self.assertIn(str(self.root / "ledger.json"), result.stderr)
+        self.assertIn(self.base, result.stderr)
+        self.assertIn(self.path, result.stderr)
+        return result
 
-    def test_kept_moved_and_superseded_pass(self):
-        self.check(0, "1 S rows require semantic review")
-
-    def test_deliberate_flip_removing_kept_clause_fails(self):
-        self.check(0)
-        text = (self.root / "instructions.md").read_text(encoding="utf-8")
-        self.write("instructions.md", text.replace("Approval is required.\n", ""))
-        self.save()
-        self.check(1, "instructions.md:5: K quote not found verbatim")
-
-    def test_missing_move_and_supersession_fail(self):
-        for line, state in ((3, "M"), (4, "S")):
-            with self.subTest(state=state):
-                quote = self.row(line)["quote"]
-                original = (self.root / "moved.md").read_text(encoding="utf-8")
-                self.write("moved.md", original.replace(quote, "Removed."))
-                self.save()
-                self.check(1, f"{state} quote not found verbatim")
-                self.write("moved.md", original)
-                self.save()
-
-    def test_missing_rows_including_repeated_base_line_fail(self):
-        self.rows.remove(self.row(13))
-        self.check(1, "instructions.md:13: missing ledger row")
-        self.ledger["clauses"] = []
-        self.check(1, "missing ledger row")
-
-    def test_duplicate_and_extra_rows_fail(self):
-        self.rows.append(dict(self.row(2)))
-        self.check(1, "duplicate ledger row")
-        self.rows.pop()
-        extra = dict(self.row(2), base_line=10, base_quote="Plain background prose.")
-        self.rows.append(extra)
-        self.check(1, "not an extracted base clause")
-
-    def test_compression_cannot_claim_k_or_m(self):
-        for line in (2, 3):
-            with self.subTest(line=line):
-                row = self.row(line)
-                original = row["quote"]
-                row["quote"] = original.split()[0]
-                self.check(1, "requires complete verbatim base quote")
-                row["quote"] = original
-
-    def test_state_destination_meanings(self):
-        self.row(3)["state"] = "K"
-        self.check(1, "K must stay")
-        self.row(3)["state"] = "M"
-        self.row(2)["state"] = "M"
-        self.check(1, "M must name a different destination")
-
-    def test_stale_base_identity_and_quote(self):
-        self.ledger["base_revision"] = "0" * 40
-        self.check(2, "matching resolved base_revision")
-        self.ledger["base_revision"] = self.base
-        self.ledger["base_path"] = "elsewhere.md"
-        self.check(2, "matching resolved base_revision")
-        self.ledger["base_path"] = "instructions.md"
-        self.row(2)["base_quote"] = "Invented base wording."
-        self.check(1, "base_quote differs from BASE")
-
-    def test_schema_rejects_empty_s_quotes_and_bad_types(self):
-        row = self.row(4)
-        for key, bad in (("quote", ""), ("quote", " \n"), ("state", "X"),
-                         ("state", []), ("base_line", True), ("base_line", 0),
-                         ("quote", 42), ("base_quote", None)):
-            with self.subTest(key=key, bad=bad):
-                saved = row[key]
-                row[key] = bad
-                self.check(2)
-                row[key] = saved
-        del row["quote"]
-        self.check(2, "row must have exactly")
-
-    def test_bad_json_and_duplicate_keys(self):
-        for text in ("{", '{"clauses": [], "clauses": []}'):
-            with self.subTest(text=text):
-                self.write("bad.json", text)
-                result = self.invoke("--ledger", str(self.root / "bad.json"))
-                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
-                self.assertNotIn("Traceback", result.stderr)
-
-    def test_head_ignores_worktree_and_index_repairs(self):
-        original = (self.root / "instructions.md").read_text(encoding="utf-8")
-        self.write("instructions.md", original.replace("Approval is required.\n", ""))
-        self.save()
-        self.write("instructions.md", original)
-        self.check(1, "instructions.md:5: K quote not found verbatim")
-        self.git("add", "instructions.md")
-        self.check(1, "instructions.md:5: K quote not found verbatim")
-
-    def test_quote_must_be_in_named_file_and_case_exact(self):
-        self.row(3)["destination"] = "instructions.md"
-        self.check(1, "M quote not found verbatim")
-        self.row(3)["destination"] = "missing.md"
-        self.check(1, "quote not found verbatim at HEAD:missing.md")
-        self.row(3)["destination"] = "moved.md"
-        self.row(4)["quote"] = self.REPLACEMENT.lower()
-        self.check(1, "S quote not found verbatim")
-
-    def test_bad_paths_and_revision_fail_closed(self):
-        for path in ("../outside.md", "/etc/passwd", ".git/config", "a/../b", "./a"):
-            with self.subTest(path=path):
-                self.row(3)["destination"] = path
-                self.check(2, "repository-relative path")
-        result = self.invoke("--base", "missing-revision", "--extract")
-        self.assertEqual(result.returncode, 2, result.stderr)
-
-    def test_symlink_and_non_utf8_destination_rejected(self):
-        (self.root / "link.md").symlink_to("moved.md")
-        self.save()
-        self.row(3)["destination"] = "link.md"
-        self.check(2, "no symlinks")
-        (self.root / "bad.md").write_bytes(b"\xff")
-        self.save()
-        self.row(3)["destination"] = "bad.md"
-        self.check(2, "ERROR: clause preservation")
+    def mutant(self, old, new):
+        self.assertIn(old, self.source)
+        target = self.root / "mutant.py"
+        target.write_text(self.source.replace(old, new), encoding="utf-8")
+        return target
 
     @staticmethod
     def load_tool(name):
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("clause_fixture", REPO_ROOT / "tools" / name)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        import types
+        path = REPO_ROOT / "tools" / name
+        module = types.ModuleType("clause_fixture")
+        module.__file__ = str(path)
+        exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), module.__dict__)
         return module
 
-    def test_extraction_boundaries_and_conservative_triggers(self):
-        mod = self.load_tool("check-clause-preservation.py")
-        self.assertEqual(mod.clauses("mustard nevermore alwayson unrequired\n"), {})
-        for text in ("MUST retain.\n", "2026-10-03: retain.\n",
-                     "Maintainer: retain.\n", "Run D10.\n", "PreToolUse\n",
-                     "Run pre-push.\n", "# Self-reminder cadence\n", "Title\n===\n",
-                     "Run lint-links.py.\n", "named-hook\n", "named-gate\n",
-                     "named-lint\n"):
-            with self.subTest(text=text):
-                self.assertIn(1, mod.clauses(text))
-        self.assertEqual(mod.clauses("must retain  \r\n"), {1: "must retain  \r"})
+    def test_extract_complete_inventory(self):
+        self.assertEqual(self.ledger["base_revision"], self.base)
+        self.assertEqual(self.ledger["base_path"], self.path)
+        expected = [(1, 1, "heading"), (3, 4, "paragraph"), (6, 7, "list_item"),
+                    (8, 8, "list_item"), (9, 9, "list_item"),
+                    (11, 11, "paragraph"), (13, 13, "heading")]
+        self.assertEqual([(r["base_line"], r["end_line"], r["kind"]) for r in self.rows],
+                         expected)
+        lines = self.BASE.splitlines()
+        for row in self.rows:
+            self.assertEqual(row["base_quote"],
+                             "\n".join(lines[row["base_line"] - 1:row["end_line"]]))
+            self.assertEqual((row["state"], row["destination"], row["reason"]),
+                             ("KEPT", self.path, ""))
+        self.assertEqual(self.ledger["excluded_lines"],
+                         [{"line": n, "category": "BLANK"} for n in (2, 5, 10, 12)])
+        self.check(0)
 
-    def test_empty_extraction_and_missing_base_fail_closed(self):
-        self.write("plain.md", "Background prose.\n")
+    def test_markdown_units_and_line_accounting(self):
+        text = ("Title\n===\n\n| A | B |\n| --- | --- |\n| x | y |\n\n"
+                "~~~python\n# literal\n\n- literal\n~~~\n\n"
+                "1. First\n   wrapped\n   - Nested\n     wrapped\n\n"
+                "---\n\n> Unknown markup\n> retained\n")
+        self.new_base(text)
+        spans = [(1, 2, "heading"), (4, 4, "table_row"), (5, 5, "table_row"),
+                 (6, 6, "table_row"), (8, 12, "fence"), (14, 15, "list_item"),
+                 (16, 17, "list_item"), (19, 19, "thematic_break"),
+                 (21, 22, "paragraph")]
+        self.assertEqual([(r["base_line"], r["end_line"], r["kind"]) for r in self.rows],
+                         spans)
+        covered = [n for r in self.rows for n in range(r["base_line"], r["end_line"] + 1)]
+        covered += [r["line"] for r in self.ledger["excluded_lines"]]
+        self.assertEqual(sorted(covered), list(range(1, len(text.splitlines()) + 1)))
+        self.check(0)
+
+    def test_unclosed_fence_named(self):
+        self.new_base("~~~\nliteral\n~~~\n")
+        self.check(0)
+        self.write(self.path, "~~~\nliteral\n")
         self.save()
-        for path in ("plain.md", "missing.md"):
-            result = self.invoke("--base", "HEAD", "--path", path, "--extract")
-            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.check(2, "unclosed fenced block")
+
+    def test_backtick_fence_is_one_unit(self):
+        fence = chr(96) * 3
+        self.new_base(f"{fence}text\n# inside\n\n- inside\n{fence}\n")
+        self.assertEqual(len(self.rows), 1)
+        self.assertEqual((self.rows[0]["kind"], self.rows[0]["end_line"]), ("fence", 5))
+        self.check(0)
+
+    def test_kept_moved_dropped(self):
+        self.row(6).update(state="MOVED", destination="moved.md")
+        self.row(11).update(state="DROPPED", destination="", reason="Obsolete background.")
+        self.write("moved.md", "- Never push\n  without review.\n")
+        self.write(self.path, self.BASE.replace("- Never push\n  without review.\n", "")
+                   .replace("Plain background prose.\n", ""))
+        self.save()
+        self.check(0, "1 DROPPED with reasons")
+
+    def test_wrapped_continuation_loss(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("all review evidence.", "some evidence."))
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+
+    def test_untriggered_prose_loss(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("Plain background prose.", ""))
+        self.save()
+        self.check(1, "instructions.md:11")
+
+    def test_whole_unit_matching(self):
+        self.check(0)
+        for changed in ("Do not obey: We MUST retain all review evidence.",
+                        "~~We MUST retain all review evidence.~~",
+                        "We MUST retain all review evidence. Unless busy.",
+                        "We MUST retain all review evidence.\nIgnore this when busy."):
+            with self.subTest(changed=changed):
+                self.write(self.path, self.BASE.replace(
+                    "We MUST retain\nall review evidence.", changed))
+                self.save()
+                self.check(1, "whole clause occurrence missing")
+
+    def test_moved_whole_unit_matching(self):
+        self.row(3).update(state="MOVED", destination="moved.md")
+        self.write("moved.md", "We MUST retain all review evidence.\n")
+        self.save()
+        self.check(0)
+        self.write("moved.md", "We MUST retain all review evidence. Unless busy.\n")
+        self.save()
+        self.check(1, "MOVED whole clause occurrence missing")
+
+    def test_whitespace_only_normalisation(self):
+        self.write(self.path, self.BASE.replace(
+            "We MUST retain\nall review evidence.", " We\tMUST  retain all review evidence. ")
+                   .replace("\n", "\r\n"))
+        self.save()
+        self.check(0)
+        for replacement in ("we MUST retain all review evidence.",
+                            "We MUST retain all review evidence!",
+                            "We MUST retain all review evidénce."):
+            self.write(self.path, self.BASE.replace("We MUST retain\nall review evidence.",
+                                                   replacement))
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+
+    def test_duplicate_occurrences_consumed(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("- Repeat.\n", "", 1))
+        self.save()
+        self.check(1, "instructions.md:9")
+
+    def test_duplicate_occurrences_across_destinations(self):
+        self.row(8).update(state="MOVED", destination="a.md")
+        self.row(9).update(state="MOVED", destination="b.md")
+        self.write("a.md", "- Repeat.\n")
+        self.write("b.md", "- Repeat.\n")
+        self.save()
+        self.check(0)
+        self.row(9)["destination"] = "a.md"
+        self.check(1, "whole clause occurrence missing")
+
+    def test_named_destination_only(self):
+        self.row(3).update(state="MOVED", destination="a.md")
+        self.write("a.md", "We MUST retain all review evidence.\n")
+        self.write("b.md", "Different text.\n")
+        self.save()
+        self.check(0)
+        self.row(3)["destination"] = "b.md"
+        self.check(1, "b.md")
+
+    def test_preexisting_destination_is_presence_evidence(self):
+        self.write("archive.md", "We MUST retain all review evidence.\n")
+        self.new_base(self.BASE)
+        self.row(3).update(state="MOVED", destination="archive.md")
+        self.write(self.path, self.BASE.replace("We MUST retain\nall review evidence.\n", ""))
+        self.save()
+        self.check(0)
+
+    def test_drop_requires_reason(self):
+        row = self.row(3)
+        row.update(state="DROPPED", destination="", reason="Replaced by approved policy.")
+        self.check(0)
+        for reason in ("", " \n\t"):
+            row["reason"] = reason
+            self.check(2, "DROPPED requires nonblank reason")
+        row.update(reason="Approved removal.", destination=self.path)
+        self.check(2, "empty destination")
+
+    def test_unknown_codes(self):
+        self.check(0)
+        for state in ("K", "M", "S", "D", "UNKNOWN"):
+            self.row(3)["state"] = state
+            self.check(2, "unknown state")
+
+    def test_state_destination_meanings(self):
+        self.check(0)
+        self.row(3)["destination"] = "other.md"
+        self.check(2, "KEPT must use base path")
+        self.row(3).update(state="MOVED", destination=self.path)
+        self.check(2, "MOVED must use a different path")
+
+    def test_identity_bound_to_base_and_path(self):
+        self.check(0)
+        for key, bad in (("base_revision", "0" * 40), ("base_path", "other.md")):
+            original = self.ledger[key]
+            self.ledger[key] = bad
+            self.check(2, "base_revision/base_path mismatch")
+            self.ledger[key] = original
+        self.check(0)
+        result = self.invoke("--base", self.base[:12], "--ledger", str(self.root / "ledger.json"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_metadata_cannot_weaken_clause(self):
+        self.check(0)
+        for key, bad in (("base_quote", "We MUST retain"), ("end_line", 3),
+                         ("kind", "heading")):
+            original = self.row(3)[key]
+            self.row(3)[key] = bad
+            self.check(1, "clause metadata differs from BASE")
+            self.row(3)[key] = original
+
+    def test_missing_row(self):
+        self.check(0)
+        self.rows.remove(self.row(9))
+        self.check(1, "missing ledger row")
+
+    def test_duplicate_row(self):
+        self.check(0)
+        self.rows.append(dict(self.row(3)))
+        self.check(1, "duplicate ledger row")
+
+    def test_extra_row(self):
+        self.check(0)
+        self.rows.append(dict(self.row(3), base_line=100))
+        self.check(1, "not an extracted base clause")
+
+    def test_empty_ledger_rows(self):
+        self.check(0)
+        self.ledger["clauses"] = []
+        self.check(2, "clauses must be a nonempty list")
+
+    def test_exclusion_inventory_cannot_hide_text(self):
+        self.check(0)
+        self.ledger["excluded_lines"].append({"line": 3, "category": "BLANK"})
+        self.check(2, "excluded_lines differs")
+
+    def test_schema_types_and_keys(self):
+        self.check(0)
+        self.ledger["extra"] = 1
+        self.check(2, "ledger must have exactly")
+        del self.ledger["extra"]
+        row = self.row(3)
+        row["extra"] = 1
+        self.check(2, "row 2: row must have exactly")
+        del row["extra"]
+        for key, bad, message in (
+            ("base_line", True, "positive integer"), ("end_line", 0, "positive integer"),
+            ("base_quote", None, "text without NUL"), ("base_quote", "", "nonblank"),
+            ("base_quote", "text\0", "text without NUL"), ("state", [], "text without NUL"),
+            ("reason", 1, "text without NUL"), ("destination", 1, "text without NUL"),
+        ):
+            original = row[key]
+            row[key] = bad
+            self.check(2, message)
+            row[key] = original
+
+    def test_duplicate_json_keys_discriminate(self):
+        good = self.json.dumps(self.ledger)
+        bad = good[:-1] + ', "base_path": ' + self.json.dumps(self.path) + "}"
+        self.raw(bad, 2, "duplicate JSON key: base_path")
+        mutant = self.mutant("object_pairs_hook=unique_keys", "object_pairs_hook=dict")
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=mutant)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        row_bad = good.replace('"state": "KEPT"', '"state": "KEPT", "state": "KEPT"', 1)
+        self.raw(row_bad, 2, "duplicate JSON key: state")
+
+    def test_malformed_json_named(self):
+        self.check(0)
+        for text in ("", "{", self.json.dumps(self.ledger) + "{}"):
+            self.raw(text, 2, "ERROR: clause preservation:")
+
+    def test_nonstandard_json_constant_named(self):
+        text = self.json.dumps(self.ledger).replace('"reason": ""', '"reason": NaN', 1)
+        self.raw(text, 2, "invalid JSON constant: NaN")
+
+    def test_deep_json_named(self):
+        self.raw("[" * 20000, 2, "ERROR: clause preservation:")
+        mutant = self.mutant("def load_ledger(path: Path):",
+                             'def load_ledger(path: Path):\n    raise RecursionError("depth limit")')
+        self.raw("{}", 2, "depth limit", tool=mutant)
+
+    def test_named_handler_has_traceback_flip(self):
+        result = self.raw("{", 2, "ERROR: clause preservation:")
+        self.assertNotIn("Traceback", result.stderr)
+        mutant = self.mutant("except INPUT_ERRORS as exc:", "except () as exc:")
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=mutant)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("Traceback", result.stderr)
+
+    def test_missing_ledger_named(self):
+        result = self.invoke("--ledger", str(self.root / "absent.json"))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        for value in ("absent.json", self.base, self.path, "ERROR:"):
+            self.assertIn(value, result.stderr)
+
+    def test_unreadable_ledger_named(self):
+        result = self.invoke("--ledger", str(self.root))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        for value in (str(self.root), self.base, self.path, "ERROR:"):
+            self.assertIn(value, result.stderr)
+
+    def test_undecodable_ledger_named(self):
+        self.raw(b"\xff", 2, "utf-8")
+
+    def test_destination_must_be_tracked_at_head(self):
+        self.row(3).update(state="MOVED", destination="moved.md")
+        self.write("moved.md", "We MUST retain all review evidence.\n")
+        self.check(2, "missing tracked regular file")
+        self.git("add", "moved.md")
+        self.check(2, "missing tracked regular file")
+        self.save()
+        self.check(0)
+
+    def test_head_ignores_worktree_and_index_repairs(self):
+        self.write(self.path, self.BASE.replace("Plain background prose.", ""))
+        self.save()
+        self.write(self.path, self.BASE)
+        self.check(1, "whole clause occurrence missing")
+        self.git("add", self.path)
+        self.check(1, "whole clause occurrence missing")
+        self.save()
+        self.check(0)
+
+    def test_destination_cannot_be_ledger_or_alias(self):
+        self.row(3).update(state="MOVED", destination="ledger.json")
+        self.check(2, "ledger cannot supply evidence")
+        self.save()
+        self.check(2, "ledger cannot supply evidence")
+        alias = self.root / "alias.json"
+        alias.symlink_to("ledger.json")
+        result = self.invoke("--ledger", str(alias))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("ledger cannot supply evidence", result.stderr)
+
+    def test_bad_destination_paths(self):
+        self.row(3)["state"] = "MOVED"
+        for path in ("../outside.md", "/etc/passwd", "a/../b", "./a", ".git/config",
+                     "a//b", "C:/x", "a\\b"):
+            self.row(3)["destination"] = path
+            self.check(2, "repository-relative path")
+
+    def test_literal_pathspec(self):
+        self.write("rules*.md", "We MUST retain all review evidence.\n")
+        self.write("rules-other.md", "We MUST retain all review evidence.\n")
+        self.save()
+        self.row(3).update(state="MOVED", destination="rules*.md")
+        self.check(0)
+        from unittest.mock import patch
+        mod = self.load_tool("check-clause-preservation.py")
+        with patch.object(mod.subprocess, "run", return_value=subprocess.CompletedProcess(
+                [], 0, b"", b"")) as run:
+            mod.git(self.root, "ls-tree", "HEAD", "--", "rules*.md")
+        self.assertEqual(run.call_args.args[0][:2], ["git", "--literal-pathspecs"])
+
+    def test_tree_entry_must_have_exact_name(self):
+        from unittest.mock import patch
+        mod = self.load_tool("check-clause-preservation.py")
+        record = b"100644 blob " + b"0" * 40 + b"\twrong.md\0"
+        with patch.object(mod, "git", return_value=record):
+            with self.assertRaisesRegex(ValueError, "expected exact regular file"):
+                mod.read_blob(self.root, self.base, "requested.md")
+
+    def test_nonregular_destinations(self):
+        self.write("folder/file.md", "text")
+        (self.root / "link.md").symlink_to(self.path)
+        self.save()
+        for path in ("folder", "link.md"):
+            self.row(3).update(state="MOVED", destination=path)
+            self.check(2, "expected exact regular file")
+
+    def test_destination_decode_and_nul_errors_named(self):
+        self.row(3).update(state="MOVED", destination="bad.md")
+        for content, message in ((b"\xff", "utf-8"), (b"text\0", "NUL in text")):
+            self.write("bad.md", content)
+            self.save()
+            result = self.check(2, message)
+            self.assertIn("bad.md", result.stderr)
+            self.assertIn(self.git("rev-parse", "HEAD").stdout.strip(), result.stderr)
+
+    def test_base_read_errors_named(self):
+        for content, message in ((b"\xff", "utf-8"), (b"text\0", "NUL in text"),
+                                 (b" \n", "no base clauses")):
+            self.write("bad.md", content)
+            self.save()
+            result = self.invoke("--base", "HEAD", "--path", "bad.md", "--extract")
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn(message, result.stderr)
+            self.assertIn("bad.md", result.stderr)
+            self.assertIn(self.git("rev-parse", "HEAD").stdout.strip(), result.stderr)
+
+    def test_missing_base_and_revision_named(self):
+        for args, message in ((("--path", "absent.md"), "absent.md"),
+                              (("--base", "--invalid-revision"), "--invalid-revision")):
+            # Use equals syntax so argparse passes an option-looking revision to Git.
+            if args[0] == "--base":
+                args = ("--base=--invalid-revision",)
+            result = self.invoke(*args, "--extract")
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn(message, result.stderr)
+            self.assertIn("ERROR: clause preservation:", result.stderr)
 
     def test_d10_warning_boundaries_preserve_exit_codes(self):
         import contextlib
         from unittest.mock import patch
-        mod = self.load_tool("check-claude-md-size.py")
-        with patch.object(mod, "CLAUDE_MD", self.root / "instructions.md"):
-            for headroom, line_code in ((250, 0), (249, 0), (0, 0), (-1, 0), (5, 1)):
-                with self.subTest(headroom=headroom, line_code=line_code):
-                    totals = {"startup": {
-                        "characters": mod.STARTUP_CHARACTER_CEILING - headroom}}
-                    out = io.StringIO()
-                    with patch.object(mod, "census", return_value=totals), \
-                            patch.object(mod, "line_count", return_value=1), \
-                            patch.object(mod, "evaluate", return_value=(line_code, "fixture")), \
-                            contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
-                        code = mod.run()
-                    self.assertEqual(code, 1 if headroom < 0 else line_code)
-                    self.assertEqual("WARNING:" in out.getvalue(), headroom < 250)
-            with patch.object(mod, "census", side_effect=ValueError("broken")), \
-                    contextlib.redirect_stderr(io.StringIO()):
-                self.assertEqual(mod.run(), 2)
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
+        def run(mod, headroom, line_code):
+            totals = {"startup": {
+                "characters": mod.STARTUP_CHARACTER_CEILING - headroom}}
+            out = io.StringIO()
+            with patch.object(mod, "CLAUDE_MD", self.root / self.path), \
+                    patch.object(mod, "census", return_value=totals), \
+                    patch.object(mod, "line_count", return_value=1), \
+                    patch.object(mod, "evaluate", return_value=(line_code, "fixture")), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                code = mod.run()
+            return code, out.getvalue()
+
+        mod = self.load_tool("check-claude-md-size.py")
+        for headroom, line_code in ((250, 0), (249, 0), (0, 0), (-1, 0), (5, 1)):
+            code, output = run(mod, headroom, line_code)
+            self.assertEqual(code, 1 if headroom < 0 else line_code)
+            self.assertEqual("WARNING:" in output, headroom < 250)
+        source = Path(mod.__file__).read_text(encoding="utf-8")
+        self.assertIn("if headroom < 250:", source)
+        exec(compile(source.replace("if headroom < 250:", "if headroom <= 250:"),
+                     mod.__file__, "exec"), mod.__dict__)
+        code, output = run(mod, 250, 0)
+        self.assertEqual(code, 0)
+        self.assertIn("WARNING:", output)
+        with patch.object(mod, "CLAUDE_MD", self.root / self.path), \
+                patch.object(mod, "census", side_effect=ValueError("broken")), \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(mod.run(), 2)
 
 
 class RepoRelativeDefaultPathTests(unittest.TestCase):

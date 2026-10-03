@@ -1,61 +1,105 @@
 #!/usr/bin/env python3
 """On-demand instruction-cut ledger check; stdlib-only Python 3.11.
 
-Usage:
-    python3 tools/check-clause-preservation.py --base REV --path FILE --extract
-    python3 tools/check-clause-preservation.py --base REV --path FILE --ledger LEDGER
+--extract prints a ledger bound to resolved BASE and --path, initially KEPT.
+Review every row. KEPT requires the same path at committed HEAD; MOVED requires
+another tracked text file; DROPPED requires a nonblank reason. A move asserts
+presence, not that the destination gained the text since BASE.
 
---extract prints a JSON ledger template, initially all K. Review every row.
-A clause is a complete physical BASE line, excluding its LF terminator.
-Selection includes keywords, dates, maintainer mentions, hook/gate/lint
-references, tool filenames and Markdown headings (including setext titles).
-Fences and quotations are included. Untagged wrapped continuations are not:
-this is a lexical inventory, not proof of semantic or whole-file preservation.
+Units are ATX/setext headings, individual list items with adjacent wrapped
+continuations, pipe-containing table rows, fenced blocks, thematic breaks,
+and paragraphs. Nested list items start separate units. Blank lines separate
+paragraphs/items. Unknown Markdown is retained as paragraph text. This is a
+conservative lexical partition, not a CommonMark renderer or semantic proof.
+All physical lines belong to a unit or an explicit BLANK exclusion. Fenced
+blocks include internal blank lines; an unclosed fence is an input error.
 
-Ledger keys: base_revision (resolved commit ID), base_path, clauses.
-Row keys: base_line (1-based), base_quote, state, quote, destination.
-K = unchanged in the base path; M = unchanged elsewhere; S = superseded or
-compressed, requiring human equivalence review. All states need a nonempty
-quote verbatim in a regular UTF-8 file at committed HEAD. K/M require the
-complete base quote. Whitespace/case matter; repeated lines need separate rows.
-HEAD is resolved once. Dirty/index/untracked content cannot satisfy a row.
+Only runs of whitespace are normalised for matching. Whole destination units
+are consumed once per file, including repeated clauses. Ledger base quotes and
+line spans must exactly match the extracted inventory. Ledger files cannot
+supply evidence. Worktree/index/untracked content cannot satisfy a row.
 
-Exit 0: complete lexical evidence; 1: preservation findings; 2: input/git error.
+Flags are unchanged (including --repo). The new ledger schema deliberately
+rejects old K/M/S ledgers; regenerate with --extract. No files are written.
+Exit 0: accounted inventory; 1: preservation findings; 2: input/git error.
 """
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
+import os
+from pathlib import Path
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-TRIGGER = re.compile(
-    r"\b(?:must|never|always|required|maintainer|hooks?|gates?|lints?)\b"
-    r"|\b\d{4}-\d{2}-\d{2}\b"
-    r"|\b(?:lint|check|block)-[\w.-]+|\bD\d+\b"
-    r"|\b(?:PreToolUse|PostToolUse|UserPromptSubmit|SessionStart|SessionEnd|"
-    r"PreCompact|SubagentStart|SubagentStop|Stop|Notification)\b"
-    r"|\b(?:pre-commit|pre-push|commit-msg|post-checkout)\b",
-    re.IGNORECASE,
-)
+INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
 ATX = re.compile(r"^ {0,3}#{1,6}(?:\s|$)")
-SETEXT = re.compile(r"^ {0,3}(?:=+|-+)[ \t\r]*$")
-ROW_KEYS = {"base_line", "base_quote", "state", "quote", "destination"}
+SETEXT = re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$")
+LIST = re.compile(r"^[ \t]*(?:[-+*]|[0-9]{1,9}[.)])[ \t]+")
+FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
+RULE = re.compile(r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$")
+TOP_KEYS = {"base_revision", "base_path", "clauses", "excluded_lines"}
+UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
+ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
 
 
-def clauses(text: str) -> dict[int, str]:
-    """Preserve physical lines; include headings to retain cadence/context."""
-    lines = text.split("\n")
-    selected = {}
-    for index, line in enumerate(lines):
-        title = (line.strip() and index + 1 < len(lines)
-                 and SETEXT.fullmatch(lines[index + 1]))
-        if TRIGGER.search(line) or ATX.match(line) or title:
-            selected[index + 1] = line
-    return selected
+def normalise(text: str) -> str:
+    return " ".join(text.split())
+
+
+def clauses(text: str) -> tuple[list[dict], list[dict]]:
+    """Partition every physical line; retain raw spelling for ledger review."""
+    lines = text.splitlines()
+    units, excluded = [], []
+
+    def kind(line):
+        if FENCE.match(line):
+            return "fence"
+        if ATX.match(line):
+            return "heading"
+        if RULE.fullmatch(line):
+            return "thematic_break"
+        if LIST.match(line):
+            return "list_item"
+        if "|" in line:
+            return "table_row"
+        return "paragraph"
+
+    i = 0
+    while i < len(lines):
+        if not lines[i].strip():
+            excluded.append({"line": i + 1, "category": "BLANK"})
+            i += 1
+            continue
+        start, category = i, kind(lines[i])
+        if category == "fence":
+            marker = FENCE.match(lines[i]).group(1)
+            close = re.compile(r"^[ \t]*" + re.escape(marker[0])
+                               + "{" + str(len(marker)) + r",}[ \t]*$")
+            i += 1
+            while i < len(lines) and not close.fullmatch(lines[i]):
+                i += 1
+            if i == len(lines):
+                raise ValueError(f"line {start + 1}: unclosed fenced block")
+            i += 1
+        elif category in {"heading", "thematic_break", "table_row"}:
+            i += 1
+        else:
+            i += 1
+            while i < len(lines) and lines[i].strip():
+                if category == "paragraph" and SETEXT.fullmatch(lines[i]):
+                    category = "heading"
+                    i += 1
+                    break
+                if kind(lines[i]) != "paragraph":
+                    break
+                i += 1
+        units.append(dict(base_line=start + 1, end_line=i, kind=category,
+                          base_quote="\n".join(lines[start:i])))
+    return units, excluded
 
 
 def repo_path(value: str) -> str:
@@ -82,22 +126,32 @@ def commit(root: Path, revision: str) -> str:
 
 
 def read_blob(root: Path, revision: str, path: str) -> str:
-    records = git(root, "ls-tree", "-z", revision, "--", repo_path(path))
-    entries = [entry for entry in records.split(b"\0") if entry]
-    if len(entries) != 1:
-        raise FileNotFoundError(f"{revision}:{path}: missing regular file")
-    metadata, name = entries[0].split(b"\t", 1)
-    mode, kind, oid = metadata.split()
-    if (name.decode("utf-8") != path or kind != b"blob"
-            or mode not in {b"100644", b"100755"}):
-        raise ValueError(f"{revision}:{path}: expected regular file (no symlinks)")
-    text = git(root, "cat-file", "blob", oid.decode("ascii")).decode("utf-8")
-    if "\0" in text:
-        raise ValueError(f"{revision}:{path}: NUL in text")
-    return text
+    try:
+        records = git(root, "ls-tree", "-z", revision, "--", repo_path(path))
+        entries = [entry for entry in records.split(b"\0") if entry]
+        if len(entries) != 1:
+            raise ValueError("missing tracked regular file")
+        metadata, name = entries[0].split(b"\t", 1)
+        mode, kind, oid = metadata.split()
+        if (name.decode("utf-8") != path or kind != b"blob"
+                or mode not in {b"100644", b"100755"}):
+            raise ValueError("expected exact regular file (no directories or symlinks)")
+        text = git(root, "cat-file", "blob", oid.decode("ascii")).decode("utf-8")
+        if "\0" in text:
+            raise ValueError("NUL in text")
+        return text
+    except INPUT_ERRORS as exc:
+        raise ValueError(f"{revision}:{path}: {exc}") from exc
 
 
-def unique_keys(pairs: list[tuple[str, object]]) -> dict:
+def inventory(root: Path, revision: str, path: str):
+    try:
+        return clauses(read_blob(root, revision, path))
+    except INPUT_ERRORS as exc:
+        raise ValueError(f"inventory {revision}:{path}: {exc}") from exc
+
+
+def unique_keys(pairs):
     result = {}
     for key, value in pairs:
         if key in result:
@@ -106,58 +160,98 @@ def unique_keys(pairs: list[tuple[str, object]]) -> dict:
     return result
 
 
-def validate_ledger(data: object, base: str, path: str) -> list[dict]:
-    if (not isinstance(data, dict)
-            or set(data) != {"base_revision", "base_path", "clauses"}
-            or data["base_revision"] != base or data["base_path"] != path
-            or not isinstance(data["clauses"], list)):
-        raise ValueError("ledger needs matching resolved base_revision, base_path and clauses")
-    for row in data["clauses"]:
-        if not isinstance(row, dict) or set(row) != ROW_KEYS:
-            raise ValueError(f"row must have exactly {sorted(ROW_KEYS)}")
-        if type(row["base_line"]) is not int or row["base_line"] < 1:
-            raise ValueError("base_line must be a positive integer")
-        if not isinstance(row["state"], str) or row["state"] not in {"K", "M", "S"}:
-            raise ValueError("state must be K, M or S")
-        for key in ("base_quote", "quote"):
-            if (not isinstance(row[key], str) or not row[key].strip()
-                    or "\0" in row[key]):
-                raise ValueError(f"{key} must be nonempty text without NUL")
-        repo_path(row["destination"])
-    return data["clauses"]
+def invalid_constant(value):
+    raise ValueError(f"invalid JSON constant: {value}")
 
 
-def check(root: Path, head: str, path: str, expected: dict[int, str],
-          rows: list[dict]) -> list[str]:
+def load_ledger(path: Path):
+    return json.loads(path.read_text(encoding="utf-8"),
+                      object_pairs_hook=unique_keys, parse_constant=invalid_constant)
+
+
+def validate_ledger(data, base, path, excluded):
+    if not isinstance(data, dict) or set(data) != TOP_KEYS:
+        raise ValueError(f"ledger must have exactly {sorted(TOP_KEYS)}")
+    if data["base_revision"] != base or data["base_path"] != path:
+        raise ValueError("ledger base_revision/base_path mismatch")
+    if data["excluded_lines"] != excluded:
+        raise ValueError("excluded_lines differs from BASE blank-line inventory")
+    rows = data["clauses"]
+    if not isinstance(rows, list) or not rows:
+        raise ValueError("clauses must be a nonempty list")
+    for index, row in enumerate(rows, 1):
+        try:
+            if not isinstance(row, dict) or set(row) != ROW_KEYS:
+                raise ValueError(f"row must have exactly {sorted(ROW_KEYS)}")
+            for key in ("base_line", "end_line"):
+                if type(row[key]) is not int or row[key] < 1:
+                    raise ValueError(f"{key} must be a positive integer")
+            for key in ("base_quote", "kind", "state", "destination", "reason"):
+                if not isinstance(row[key], str) or "\0" in row[key]:
+                    raise ValueError(f"{key} must be text without NUL")
+            if not row["base_quote"].strip():
+                raise ValueError("base_quote must be nonblank")
+            state = row["state"]
+            if state not in {"KEPT", "MOVED", "DROPPED"}:
+                raise ValueError("unknown state; expected KEPT, MOVED or DROPPED")
+            if state == "DROPPED":
+                if not row["reason"].strip() or row["destination"] != "":
+                    raise ValueError("DROPPED requires nonblank reason and empty destination")
+            else:
+                repo_path(row["destination"])
+                if row["reason"] != "":
+                    raise ValueError("KEPT/MOVED require empty reason")
+                if state == "KEPT" and row["destination"] != path:
+                    raise ValueError("KEPT must use base path")
+                if state == "MOVED" and row["destination"] == path:
+                    raise ValueError("MOVED must use a different path")
+        except ValueError as exc:
+            raise ValueError(f"row {index}: {exc}") from exc
+    return rows
+
+
+def is_ledger(root: Path, destination: str, ledger: Path) -> bool:
+    candidate = root / destination
+    if candidate.absolute() == ledger.absolute() or candidate.resolve() == ledger.resolve():
+        return True
+    if candidate.exists() and ledger.exists():
+        return os.path.samefile(candidate, ledger)
+    return False
+
+
+def check(root, base, head, path, expected, rows, ledger):
     findings, seen, destinations = [], set(), {}
+    by_line = {unit["base_line"]: unit for unit in expected}
     for row in rows:
         line = row["base_line"]
-        label = f"{path}:{line}"
+        label = f"BASE {base}:{path}:{line}"
         if line in seen:
             findings.append(f"{label}: duplicate ledger row")
+            continue
         seen.add(line)
-        if line not in expected:
+        if line not in by_line:
             findings.append(f"{label}: not an extracted base clause")
             continue
-        if row["base_quote"] != expected[line]:
-            findings.append(f"{label}: base_quote differs from BASE")
-        state, destination, quote = row["state"], row["destination"], row["quote"]
-        if state in {"K", "M"} and quote != expected[line]:
-            findings.append(f"{label}: {state} requires complete verbatim base quote; use S")
-        if state == "K" and destination != path:
-            findings.append(f"{label}: K must stay in {path}; use M")
-        if state == "M" and destination == path:
-            findings.append(f"{label}: M must name a different destination; use K")
+        if any(row[key] != by_line[line][key] for key in UNIT_KEYS):
+            findings.append(f"{label}: clause metadata differs from BASE")
+            continue
+        if row["state"] == "DROPPED":
+            continue
+        destination = row["destination"]
+        if is_ledger(root, destination, ledger):
+            raise ValueError(f"HEAD {head}:{destination}: ledger cannot supply evidence")
         if destination not in destinations:
-            try:
-                destinations[destination] = read_blob(root, head, destination)
-            except FileNotFoundError:
-                destinations[destination] = None
-        surviving = destinations[destination]
-        if surviving is None or quote not in surviving:
-            findings.append(f"{label}: {state} quote not found verbatim at HEAD:{destination}")
-    for line in sorted(expected.keys() - seen):
-        findings.append(f"{path}:{line}: missing ledger row")
+            units, _ = inventory(root, head, destination)
+            destinations[destination] = Counter(normalise(unit["base_quote"]) for unit in units)
+        quote = normalise(by_line[line]["base_quote"])
+        available = destinations[destination]
+        if available[quote] < 1:
+            findings.append(f"{label}: {row['state']} whole clause occurrence missing "
+                            f"at HEAD {head}:{destination}")
+        else:
+            available[quote] -= 1
+    for line in sorted(by_line.keys() - seen):
+        findings.append(f"BASE {base}:{path}:{line}: missing ledger row")
     return findings
 
 
@@ -170,31 +264,31 @@ def main(argv: list[str]) -> int:
     mode.add_argument("--extract", action="store_true", help="print JSON ledger template")
     mode.add_argument("--ledger", type=Path, help="JSON file; relative to current directory")
     args = parser.parse_args(argv)
+    base, head = args.base, "HEAD (unresolved)"
     try:
-        root = Path(git(args.repo, "rev-parse", "--show-toplevel").decode().strip())
+        root = Path(git(args.repo, "rev-parse", "--show-toplevel").decode("utf-8").strip())
         path = repo_path(args.path)
         base = commit(root, args.base)
-        expected = clauses(read_blob(root, base, path))
+        expected, excluded = inventory(root, base, path)
         if not expected:
-            raise ValueError("no base clauses extracted; check input and review manually")
+            raise ValueError("no base clauses; empty inventory cannot prove preservation")
         if args.extract:
-            rows = [dict(base_line=line, base_quote=quote, state="K", quote=quote,
-                         destination=path) for line, quote in expected.items()]
-            print(json.dumps(dict(base_revision=base, base_path=path, clauses=rows),
-                             indent=2, ensure_ascii=False))
+            rows = [dict(unit, state="KEPT", destination=path, reason="") for unit in expected]
+            print(json.dumps(dict(base_revision=base, base_path=path, clauses=rows,
+                                  excluded_lines=excluded), indent=2, ensure_ascii=False))
             return 0
         head = commit(root, "HEAD")
-        data = json.loads(args.ledger.read_text(encoding="utf-8"), object_pairs_hook=unique_keys)
-        rows = validate_ledger(data, base, path)
-        findings = check(root, head, path, expected, rows)
-    except (OSError, UnicodeError, ValueError) as exc:
-        print(f"ERROR: clause preservation: {exc}", file=sys.stderr)
+        rows = validate_ledger(load_ledger(args.ledger), base, path, excluded)
+        findings = check(root, base, head, path, expected, rows, args.ledger)
+    except INPUT_ERRORS as exc:
+        print(f"ERROR: clause preservation: BASE {base}:{args.path}; HEAD {head}; "
+              f"ledger {args.ledger}: {exc}", file=sys.stderr)
         return 2
     for finding in findings:
-        print(f"FAIL: {finding}")
-    superseded = sum(row["state"] == "S" for row in rows)
+        print(f"FAIL: ledger {args.ledger}: {finding}")
+    dropped = sum(row["state"] == "DROPPED" for row in rows)
     print(f"{'FAIL' if findings else 'OK'}: {len(expected)} clauses; "
-          f"{superseded} S rows require semantic review; BASE {base}; HEAD {head}")
+          f"{dropped} DROPPED with reasons; BASE {base}:{path}; HEAD {head}")
     return 1 if findings else 0
 
 
