@@ -2,7 +2,7 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.10\
+**Version:** 1.0.11\
 **Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -62,7 +62,7 @@ Under every transfer route, where a transfer would seriously harm Turkey's inter
 
 Provisions of other laws governing transfers of personal data abroad remain applicable (Article 9(10)).
 
-The procedures and principles for applying Article 9 are set by regulation (Article 9(11)); the 2024 transfer regulation is not held in the reference base. <!-- ref-absence: Yurt Dışına Aktarılmasına | Turkey transfer regulation -->
+The procedures and principles for applying Article 9 are set by regulation (Article 9(11)); that regulation is not held in the reference base. <!-- ref-absence: Yurt Dışına Aktarılmasına | Turkey transfer regulation -->
 
 ---
 

@@ -9791,7 +9791,7 @@ documents:
   domain: "privacy"
   type: "Annex"
   title: "Turkey Privacy Regulatory Requirements"
-  version: "1.0.10"
+  version: "1.0.11"
   date: "2026-10-03"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
