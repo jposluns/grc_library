@@ -14,8 +14,8 @@ session-depth/fresh-session triggers. The local attended-to-unattended timeout
 exception remains; ending unattended mode requires the operator.
 AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
 AIQT verifier-diversity does not reduce GRC's triple-family standard. A family is
-unavailable only when no account can dispatch; a single-family floor runs two
-differently-primed passes. Gate failures have no local exception-register bypass.
+unavailable only if no account can dispatch; a lone family runs two passes on
+different models (versions count). Gate failures have no exception-register bypass.
 
 1. Gate work/failure/suppression or exception proposal: apply gate-discipline.md and its diagnose skill. Never weaken,
    bypass, suppress, or regenerate in CI to manufacture a pass. Fix or descope.
