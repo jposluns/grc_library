@@ -31628,7 +31628,7 @@ class ClausePreservationTests(unittest.TestCase):
             "HOME": str(self.root), "XDG_CONFIG_HOME": str(self.root),
             "TMPDIR": str(self.root), "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
             "TZ": "UTC", "PYTHONHASHSEED": "0", "PYTHONNOUSERSITE": "1",
-            "PYTHONDONTWRITEBYTECODE": "1", "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": os.devnull, "GIT_ATTR_NOSYSTEM": "1",
             "GIT_TERMINAL_PROMPT": "0", "GIT_ALLOW_PROTOCOL": "",
             "GIT_NO_REPLACE_OBJECTS": "1",
@@ -31673,7 +31673,7 @@ class ClausePreservationTests(unittest.TestCase):
 
     def invoke(self, *args, tool=None):
         return subprocess.run(
-            [sys.executable, "-B", str(tool or self.tool),
+            [sys.executable, str(tool or self.tool),
              "--repo", str(self.root), "--base", self.base, "--path", self.path, *args],
             env=self.env, cwd=self.root, text=True, capture_output=True,
         )
@@ -32308,8 +32308,8 @@ class ClausePreservationTests(unittest.TestCase):
                 self.save()
                 self.check(0)
                 self.check(1, "whole clause occurrence missing", tool=self.mutant(
-                    'base_quote=resolve_links(unit["base_quote"], path)',
-                    'base_quote=unit["base_quote"]'))
+                    'def resolve_links(text: str, path: str) -> str:',
+                    'def resolve_links(text: str, path: str) -> str:\n    return text'))
                 for bad in ("../.claude/hooks/y.py#run", "../.claude/hooks/x.py#other",
                             "../.claude/hooks/x.py?mode=new#run"):
                     self.write("references/worker-offload.md", form.format(bad) + "\n")
@@ -32324,7 +32324,7 @@ class ClausePreservationTests(unittest.TestCase):
             ("https://example.invalid/a", "https://example.invalid/b"),
             ("//example.invalid/a", "//example.invalid/b"),
             ("mailto:a@example.invalid", "mailto:b@example.invalid"),
-            ("/a", "/b"), ("#run", "#other"),
+            ("/a", "/b"),
             ("https://example.invalid/a%20b", "https://example.invalid/a b"),
         ):
             with self.subTest(good=good):
@@ -32439,6 +32439,104 @@ class ClausePreservationTests(unittest.TestCase):
         self.new_base("[x](hooks/x.py)\n", self.path)
         self.rows[0].update(state="DROPPED", destination="", reason="Approved removal.")
         self.check(0)
+
+
+    R1_CASES = {
+        "autolink": ("<https://example.invalid/[x](hooks/x.py)>",
+                     "<https://example.invalid/[x](../.claude/hooks/x.py)>"),
+        "semicolon": ("[x](hooks/a&copy.py)", "[x](../.claude/hooks/a©.py)"),
+        "escaped_entity": (r"[x](hooks/a\&amp;b.py)", "[x](../.claude/hooks/a&b.py)"),
+        "separator": ("[x](hooks/a%2Fb.py)", "[x](../.claude/hooks/a/b.py)"),
+        "table": ("| A | B | C |\n| --- | --- | --- |\n| [x](hooks/a|b.py) | c |",
+                  "| A | B | C |\n| --- | --- | --- |\n| [x](../.claude/hooks/a%7Cb.py) | c |"),
+        "indent": ("    [x](hooks/x.py)", "    [x](../.claude/hooks/x.py)"),
+        "title": ("[x](hooks/x.py (unescaped(title))",
+                  "[x](../.claude/hooks/x.py (unescaped(title))"),
+        "tilde": ("~~~\n[x](hooks/x.py)\n~~~", "~~~\n[x](../.claude/hooks/x.py)\n~~~"),
+        "html": ('<a title="[x](hooks/x.py)">', '<a title="[x](../.claude/hooks/x.py)">'),
+        "escaped_pipe": ("| [x](a|b) | c |", r"| [x](../.claude/a\|b) | c |"),
+        "slash": ("[x](docs/)", "[x](../.claude/docs)"),
+        "empty_segment": ("[x](a//b)", "[x](../.claude/a/b)"),
+        "paragraph_definition": ("Paragraph\n[r]: hooks/x.py", "Paragraph\n[r]: ../.claude/hooks/x.py"),
+    }
+
+    def r1_case(self, name):
+        before, after = self.R1_CASES[name]
+        self.new_base(before + "\n", ".claude/CLAUDE.md")
+        for row in self.rows:
+            row.update(state="MOVED", destination="references/moved.md")
+        self.write("references/moved.md", after + "\n")
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+
+    def test_r1_autolink(self):
+        self.r1_case("autolink")
+
+    def test_r1_semicolon(self):
+        self.r1_case("semicolon")
+
+    def test_r1_escaped_entity(self):
+        self.r1_case("escaped_entity")
+
+    def test_r1_separator(self):
+        self.r1_case("separator")
+
+    def test_r1_table(self):
+        self.r1_case("table")
+
+    def test_r1_indent(self):
+        self.r1_case("indent")
+
+    def test_r1_title(self):
+        self.r1_case("title")
+
+    def test_r1_tilde(self):
+        self.r1_case("tilde")
+        self.check(0, tool=self.mutant('if unit["kind"] != "fence":', 'if True:'))
+
+    def test_r1_html(self):
+        self.r1_case("html")
+
+    def test_r1_escaped_pipe(self):
+        self.r1_case("escaped_pipe")
+
+    def test_r1_slash(self):
+        self.r1_case("slash")
+
+    def test_r1_empty_segment(self):
+        self.r1_case("empty_segment")
+
+    def test_r1_paragraph_definition(self):
+        self.r1_case("paragraph_definition")
+
+    def test_r1_anchor(self):
+        self.new_base("[p](#purpose)\n", ".claude/CLAUDE.md")
+        self.rows[0].update(state="MOVED", destination="references/moved.md")
+        self.write("references/moved.md", "[p](#purpose)\n")
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+        self.write("references/moved.md", "[p](../.claude/CLAUDE.md#purpose)\n")
+        self.save()
+        self.check(0)
+
+    def test_r1_error_context(self):
+        self.new_base("[x](hooks/x.py)\n", ".claude/CLAUDE.md")
+        self.rows[0].update(state="MOVED", destination="references/moved.md")
+        self.write("references/moved.md", "[x](../../outside)\n")
+        self.save()
+        result = self.check(2, "outside repository")
+        self.assertIn("references/moved.md", result.stderr)
+        self.assertIn("../../outside", result.stderr)
+
+    def test_r1_reserved(self):
+        mod = self.load_tool("check-clause-preservation.py")
+        for encoded, literal in (("%2F", "/"), ("%3F", "?"), ("%23", "#"),
+                                 ("%7C", "|"), ("%25", "%"), ("%3A", ":")):
+            with self.subTest(encoded=encoded):
+                self.assertNotEqual(mod.target_key("hooks/a" + encoded + "b", ".claude/CLAUDE.md"),
+                                    mod.target_key("../.claude/hooks/a" + literal + "b", "references/moved.md"))
+        self.assertEqual(mod.decoded_target(r"a\&amp;b&amp;c")[0], "a&amp;b&c")
+        self.assertEqual(mod.decoded_target("&amp;copy;")[0], "&copy;")
 
 
 if __name__ == "__main__":

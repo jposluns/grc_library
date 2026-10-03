@@ -20,21 +20,26 @@ wrapped CR/LF breaks within a unit are normalized. Destination units are
 consumed once per file. Ledger quotes and spans must match BASE exactly.
 Ledger files cannot supply evidence; only committed tracked files can.
 
-Before structural comparison, inline Markdown link/image destinations and
+After table-cell splitting, inline Markdown link/image destinations and
 reference-definition destinations are resolved lexically against each unit's
 own repository file directory. Relative paths normalize dot segments,
-Markdown punctuation escapes, HTML entities and UTF-8 percent escapes; query
-and fragment spelling stays exact. Empty destinations refer to the source
-file. Schemed URLs, network-path URLs, absolute paths and anchor-only targets
-stay byte-exact. A relative target escaping the repository is an input error,
+Markdown punctuation escapes and semicolon-terminated entities in one pass,
+and percent-encoded ASCII unreserved bytes only. Reserved/other percent escapes
+and empty path segments remain distinct; query and fragment spelling stays
+exact. Empty, query-only and anchor-only destinations refer to the source file.
+Schemed URLs, network-path URLs and absolute paths stay byte-exact. A relative target escaping the repository is an input error,
 even in a dropped base unit or an unused unit of a named destination file.
 No filesystem/symlink resolution, existence checks or network access occurs.
 Link labels, titles and delimiters retain the existing normalization rules.
-Fences and inline code remain literal; link-like text inside them is untouched.
+Fences, indented code lines, inline code, autolinks and raw HTML tokens remain
+literal. Definition syntax cannot interrupt ordinary paragraph text. Invalid
+parenthesized titles are not resolved. Ambiguous container/HTML block context
+still requires manual review; this is deliberately a conservative lexer.
 
 Disclosed residual: this lexical partition is not a CommonMark renderer or
-semantic proof. HTML comments/blocks, indented code, and blockquote/list
-container context are not modeled. Wrapping a paragraph in a multiline HTML
+semantic proof. HTML block boundaries and blockquote/list container context are not fully
+modeled. Indented text retains the old whitespace comparison, but its targets
+are not resolved. Wrapping a paragraph in a multiline HTML
 comment, or indenting it as code, can still satisfy KEPT. List indentation
 is lexical, not relative to a parsed parent. Equal-depth re-parenting,
 section moves and ordering are unchecked. Escaped backticks, HTML/CSS hiding,
@@ -59,7 +64,6 @@ from pathlib import Path
 import re
 import subprocess
 import sys
-from urllib.parse import unquote
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
@@ -100,7 +104,7 @@ def normalize(text: str) -> str:
                    for literal, part in inline_parts(text)).strip(" ")
 
 
-def table_cells(text: str) -> tuple[str, ...]:
+def table_cells(text: str, normalize_cells: bool = True) -> tuple[str, ...]:
     """Keep unescaped pipe boundaries outside exact backtick spans."""
     cells = [""]
     for literal, part in inline_parts(text):
@@ -114,7 +118,7 @@ def table_cells(text: str) -> tuple[str, ...]:
             else:
                 cells[-1] += char
             slashes = slashes + 1 if char == "\\" else 0
-    return tuple(normalize(cell) for cell in cells)
+    return tuple(normalize(cell) if normalize_cells else cell for cell in cells)
 
 
 def match_key(unit: dict) -> tuple:
@@ -140,26 +144,25 @@ def match_key(unit: dict) -> tuple:
 
 
 PUNCT_ESCAPE = re.compile(r"\\([!\"#$%&'()*+,\-./:;<=>?@\[\\\]^_\x60{|}~])")
-ENTITY = re.compile(r"&(?:#[xX][0-9A-Fa-f]+;?|#[0-9]+;?|[A-Za-z][A-Za-z0-9]*;?)")
 
 
 def decoded_target(raw: str):
-    """Decode Markdown spelling while mapping delimiters back to raw offsets."""
-    text, offsets = raw, list(range(len(raw)))
-    for pattern, decode in ((PUNCT_ESCAPE, lambda m: m[1]),
-                            (ENTITY, lambda m: html.unescape(m[0]))):
-        pieces, mapped, end = [], [], 0
-        for match in pattern.finditer(text):
-            pieces.append(text[end:match.start()])
-            mapped.extend(offsets[end:match.start()])
-            value = decode(match)
-            pieces.append(value)
-            mapped.extend([offsets[match.start()]] * len(value))
-            end = match.end()
-        pieces.append(text[end:])
-        mapped.extend(offsets[end:])
-        text, offsets = "".join(pieces), mapped
-    return text, offsets
+    """Decode escapes/entities once, retaining offsets into the original target."""
+    pieces, offsets = [], []
+    i = 0
+    while i < len(raw):
+        escape = PUNCT_ESCAPE.match(raw, i)
+        entity = re.match(r"&(?:#[xX][0-9A-Fa-f]{1,6};|#[0-9]{1,7};|[A-Za-z][A-Za-z0-9]*;)", raw[i:])
+        if escape:
+            value, end = escape[1], escape.end()
+        elif entity and (entity[0].startswith("&#") or entity[0][1:] in html.entities.html5):
+            value, end = html.unescape(entity[0]), i + entity.end()
+        else:
+            value, end = raw[i], i + 1
+        pieces.append(value)
+        offsets.extend([i] * len(value))
+        i = end
+    return "".join(pieces), offsets
 
 
 SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
@@ -169,21 +172,24 @@ DEFINITION = re.compile(
 
 
 def target_key(raw: str, path: str) -> str:
-    """Use NUL-delimited typed tokens, impossible in validated input text."""
+    """Resolve lexical paths; only percent-encoded ASCII unreserved bytes fold."""
     decoded, offsets = decoded_target(raw)
-    if decoded.startswith(("/", "#")) or SCHEME.match(decoded):
+    if decoded.startswith("/") or SCHEME.match(decoded):
         value = ("external", raw)
     else:
         delimiter = re.search(r"[?#]", decoded)
         split = delimiter.start() if delimiter else len(decoded)
         plain = decoded[:split]
         suffix = raw[offsets[split]:] if delimiter else ""
-        plain = unquote(plain, encoding="utf-8", errors="strict")
+        plain = re.sub(r"%([0-9A-Fa-f]{2})", lambda m:
+                       chr(int(m[1], 16)) if chr(int(m[1], 16)) in
+                       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
+                       else m[0], plain)
         if "\0" in plain or "\\" in plain or plain.startswith("/"):
             raise ValueError(f"{path}: invalid relative Markdown target {raw!r}")
         parts = path.split("/")[:-1] if plain else path.split("/")
-        for part in plain.split("/"):
-            if part in {"", "."}:
+        for part in plain.split("/") if plain else ():
+            if part == ".":
                 continue
             if part == "..":
                 if not parts:
@@ -230,6 +236,7 @@ def destination(text: str, start: int):
 
 
 def title_end(text: str, start: int):
+    """Parenthesized titles cannot contain unescaped opening parentheses."""
     if start == len(text) or text[start] not in "\"'(":
         return None
     closing = ")" if text[start] == "(" else text[start]
@@ -238,6 +245,8 @@ def title_end(text: str, start: int):
         if text[i] == "\\" and i + 1 < len(text):
             i += 2
             continue
+        if closing == ")" and text[i] == "(":
+            return None
         if text[i] == closing:
             return i + 1
         i += 1
@@ -289,10 +298,18 @@ def resolve_links(text: str, path: str) -> str:
     """Rewrite destination spans only; leave labels, titles and code untouched."""
     masked = "".join(" " * len(part) if literal else part
                      for literal, part in inline_parts(text))
+    # Treat autolinks, raw HTML and indented lines as opaque, like code spans.
+    # Over-masking unusual angle syntax is conservative: it cannot approve a move.
+    opaque = re.compile(r"<!--[\s\S]*?(?:-->|$)|<\?[\s\S]*?(?:\?>|$)|"
+                        r"<!\[CDATA\[[\s\S]*?(?:\]\]>|$)|"
+                        r"<(?:\"[^\"]*\"|'[^']*'|[^'\">])*>|"
+                        r"(?m:^[ ]{0,3}\t[^\n]*|^[ ]{4}[^\n]*)")
+    masked = opaque.sub(lambda m: " " * len(m[0]), masked)
     spans, definitions = {}, {}
     stop = 0
-    for match in DEFINITION.finditer(masked):
-        if match.start() < stop:
+    for match in DEFINITION.finditer(text):
+        if (match.start() < stop or text[stop:match.start()].strip()
+                or not masked[match.start():match.end()].strip()):
             continue
         found = destination(text, match.end())
         if found is not None:
@@ -339,6 +356,14 @@ def resolve_links(text: str, path: str) -> str:
 
 
 def file_key(unit: dict, path: str) -> tuple:
+    """Split table structure before resolving any destination inside a cell."""
+    text = unit["base_quote"]
+    if re.match(r"^(?: {4}| {0,3}\t)", text):
+        return match_key(unit)
+    if unit["kind"] == "table_row":
+        unit = dict(unit, base_quote="|".join(resolve_links(cell, path)
+                    for cell in table_cells(text, normalize_cells=False)))
+        return match_key(unit)
     if unit["kind"] != "fence":
         unit = dict(unit, base_quote=resolve_links(unit["base_quote"], path))
     return match_key(unit)
