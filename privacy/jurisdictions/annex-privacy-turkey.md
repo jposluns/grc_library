@@ -2,7 +2,7 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.8\
+**Version:** 1.0.9\
 **Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -25,7 +25,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 ## Applicable laws and regulatory authorities
 
 - **Law on the Protection of Personal Data (KVKK) No. 6698**: Effective April 2016; substantially amended by Law No. 7499 (enacted March 2024, in force June 2024), harmonizing the KVKK with GDPR in several respects.
-- **Key 2024 amendments:** Law No. 7499 revised the processing conditions for special-category personal data (Article 6) and the cross-border transfer regime (Article 9). It amended the administrative-fine provisions in Article 18, including new Article 18(1)(d) for failure to notify a standard contract under Article 9(5). Under Provisional Article 3, the former Article 9(1) continued to apply alongside amended Article 9 until 1 September 2024. Under the same provision, applications pending before criminal judgeships of peace as of 1 June 2024 must continue to be heard by those judgeships.
+- **Key 2024 amendments:** Law No. 7499 revised the processing conditions for special-category personal data (Article 6) and the cross-border transfer regime (Article 9). It amended the administrative-fine provisions in Article 18, including new Article 18(1)(d) for failure to notify a standard contract under Article 9(5). Under Provisional Article 3, the former Article 9(1) continued to apply alongside amended Article 9 until 1 September 2024. New Article 18(3), added by Article 35 of Law No. 7499, allows challenges to administrative fines imposed by the Board to be brought before administrative courts. Provisional Article 3(2) preserves the transitional exception: applications pending before criminal judgeships of peace as of 1 June 2024 must continue to be heard by those judgeships.
 - **Regulatory authority:** Personal Data Protection Authority (KVKK Board / Kişisel Verileri Koruma Kurumu).
 
 ---
@@ -58,19 +58,30 @@ Article 9(7) excludes Article 9(6)(a), (b) and (c) from public-law activities of
 
 Controllers and processors must ensure that the safeguards under Law No. 6698 and the requirements of Article 9 also apply to onward transfers and transfers to international organizations (Article 9(8)).
 
-Under every transfer route, where a transfer would seriously harm Turkey's interests or the data subject's interests, the transfer must receive Board permission after the Board obtains the opinion of the relevant public institution or organization, subject to the provisions of international agreements (Article 9(9)).
+Under every transfer route, where a transfer would seriously harm Turkey's interests or the data subject's interests, the transfer must receive Board permission after the Board obtains the opinion of the relevant public institution or organization, subject to the provisions of international conventions (Article 9(9)).
 
 Provisions of other laws governing transfers of personal data abroad remain applicable (Article 9(10)).
+
+The procedures and principles for applying Article 9 are set by regulation (Article 9(11)); the 2024 transfer regulation is not held in the reference base. <!-- ref-absence: Yurt Dışına Aktarılmasına | Turkey transfer regulation -->
 
 ---
 
 ## Enforcement and fines
 
-Administrative fines are recalibrated annually for inflation. As of 2025:
+Article 18 of Law No. 6698, as amended by Article 35 of Law No. 7499, provides the following administrative-fine categories, with the KVKK's revalued ranges applicable for 2026 from 1 January 2026:
 
-- Up to approximately TRY 7.9 million for failure to implement adequate security measures.
-- Up to approximately TRY 22.7 million for unlawful international transfer.
-- Amounts are published annually by the KVKK Board.
+- **Article 18(1)(a):** Failure to fulfil the obligation to inform under Article 10: TRY 85,437 to 1,709,200.
+- **Article 18(1)(b):** Failure to fulfil the data-security obligations under Article 12: TRY 256,357 to 17,092,242.
+- **Article 18(1)(c):** Failure to comply with Board decisions under Article 15: TRY 427,263 to 17,092,242.
+- **Article 18(1)(ç):** Failure to comply with registration and notification obligations for the Data Controllers' Registry under Article 16: TRY 341,809 to 17,092,242.
+- **Article 18(1)(d):** Failure to notify a standard contract under Article 9(5): TRY 90,308 to 1,806,177.
+
+Administrative fines are increased at the start of each calendar year by the revaluation rate determined and announced under Article 298 bis of Tax Procedure Law No. 213; fractions of one Turkish lira are disregarded (Misdemeanours Law, Article 17(7)).
+
+Under Article 18(2), fines under Article 18(1)(a), (b), (c) and (ç) apply to controllers, and the fine under Article 18(1)(d) applies to controllers or processors, in each case natural persons or private-law legal persons.
+
+Under Article 18(4), where the acts listed in Article 18(1) are committed within public institutions and organizations or professional organizations with public institution status, disciplinary action must be taken, upon notification by the Board, against the relevant civil servants and other public officials or personnel of those professional organizations, and the outcome must be reported to the Board.
+
 - Criminal penalties: imprisonment from 1 to 4.5 years for unlawful processing of special categories of personal data.
 
 ---
