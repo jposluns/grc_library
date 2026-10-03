@@ -2,8 +2,8 @@
 
 **Document Title:** BASC IT Compliance Monitoring and KPIs\
 **Document Type:** Register\
-**Version:** 1.2.7\
-**Date:** 2026-09-18\
+**Version:** 1.2.8\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/policy-basc-information-security.md`](policy-basc-information-security.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/policy-compliance-and-audit-management.md`](../policy-compliance-and-audit-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../../operations/procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/standard-authentication-and-password-management.md`](../../security/standard-authentication-and-password-management.md), [`security/standard-privileged-access-management.md`](../../security/standard-privileged-access-management.md)\
@@ -35,7 +35,7 @@ This register defines the key performance indicators (KPIs) used to monitor IT a
 | Security incident volume | Number of confirmed P1/P2 security incidents per quarter | Trend tracking; no absolute target | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
 | Mean time to respond (alert to containment) | Average time from alert to containment for P1/P2 incidents | P1: < 1 hour; P2: < 4 hours | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
 | Exception register currency | Percentage of open exceptions with current owner and target date | 100% | Quarterly | Chief Information Security Officer (CISO) | Enterprise Risk Committee | Enterprise Risk Committee |
-| Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within 14 days | 90% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
+| Vulnerability remediation (High) | Percentage of High severity vulnerabilities remediated within the High SLA of 14 days, using the clock and Emergency classification and reclassification rules in [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2 | 95% | Monthly | IT Operations | Chief Information Security Officer | Chief Information Security Officer |
 
 ---
 
@@ -68,6 +68,7 @@ The CISO consolidates IT and cybersecurity KPI results monthly. Quarterly result
 | 1.2.0 | 2026-06-21 | Sweep 13 close-out: added Escalation Owner and Remediation Sign-off columns to align with FR-92 design principle established in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md) (PR #153); backfilled history-table rows for 1.1.0 and 1.1.1. |
 | 1.2.1 - 1.2.6 | 2026-06 to 2026-09 | Incremental revisions recorded in the frontmatter and the root CHANGELOG; not individually logged in this table. |
 | 1.2.7 | 2026-09-18 | Aligned the Critical patch deployment KPI to the governing tiered risk-based SLA (24 hours actively-exploited; 72 hours with a proof-of-concept; 7 days otherwise) in [`procedure-patch-management.md`](../../operations/procedure-patch-management.md) Section 1, replacing a flat 7-day ceiling (PR #2336). |
+| 1.2.8 | 2026-10-03 | Aligned the High vulnerability remediation KPI to the governing clock in [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md) section 2, including its Emergency classification and reclassification rules, and raised its target from 90% to 95% to match the High vulnerability patch compliance KPI in [`operations/register-it-operations-kpis.md`](../../operations/register-it-operations-kpis.md). |
 
 
 

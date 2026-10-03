@@ -2,7 +2,7 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register\
 **Document Type:** Register\
-**Version:** 1.1.8\
+**Version:** 1.1.9\
 **Date:** 2026-10-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -92,10 +92,12 @@ This register applies to all IT services, infrastructure, cloud environments, an
 
 ## Section 5: patch and vulnerability management
 
+The SLA windows in this section are the remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2, including its clock and Emergency classification and reclassification rules and retention of any earlier deadline; all patch compliance measurements below use the resulting deadline.
+
 | KPI | Measurement Rule | Target | Frequency | Owner Role | Evidence Class | Escalation Owner | Remediation Sign-off | Notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Critical vulnerability patch compliance | Percentage of internet-facing and internal systems patched or mitigated within the applicable risk-based SLA window defined in [`procedure-patch-management.md`](procedure-patch-management.md) Section 1 (24 hours for actively-exploited vulnerabilities; 72 hours for publicly-disclosed Criticals with a proof-of-concept; 7 calendar days for Criticals with no known exploitation). | 100% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | Chief Information Security Officer | Chief Information Security Officer | Critical severity is defined by CVSS base score ≥ 9.0 or vendor critical rating. |
-| High vulnerability patch compliance | Percentage of systems patched or mitigated within 14 calendar days of a High-severity patch release. | 95% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | Chief Information Security Officer | Chief Information Security Officer | High severity is CVSS base score 7.0 to 8.9. |
+| Critical vulnerability patch compliance | Percentage of internet-facing and internal systems patched or mitigated within the applicable risk-based SLA window defined in [`procedure-patch-management.md`](procedure-patch-management.md) Section 1 (24 hours for actively-exploited vulnerabilities; 72 hours for publicly-disclosed Criticals with a proof-of-concept; 7 calendar days for Criticals with no known exploitation or public proof-of-concept). | 100% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | Chief Information Security Officer | Chief Information Security Officer | Critical severity is defined by CVSS base score ≥ 9.0 or vendor critical rating. |
+| High vulnerability patch compliance | Percentage of systems patched or mitigated within the High SLA of 14 calendar days, using the clock and Emergency classification and reclassification rules in [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) section 2. | 95% | Monthly | IT Operations Manager | Vulnerability scan, patch deployment record | Chief Information Security Officer | Chief Information Security Officer | High severity is CVSS base score 7.0 to 8.9. |
 | Vulnerability scan coverage | Percentage of in-scope systems scanned by the authorized vulnerability management tool within the last 7 days. | 100% | Weekly | IT Operations Manager | Vulnerability scan record | Chief Information Security Officer | Chief Information Security Officer | Coverage gaps must be tracked as exceptions. |
 | Unmitigated critical and high vulnerability age | Count of open Critical and High vulnerabilities exceeding the patching timeline without a formal exception and compensating control. | 0 | Monthly | IT Operations Manager | Vulnerability register, exception register | Chief Information Security Officer | Chief Information Security Officer | Any non-zero value triggers a mandatory risk review. |
 | Endpoint detection and response (EDR) coverage | Percentage of managed endpoints with a deployed and active endpoint detection and response agent. | 100% | Monthly | IT Security Manager | Endpoint management platform report | Chief Information Security Officer | Chief Information Security Officer | Exclusions require formal exception with compensating control. |

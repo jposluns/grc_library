@@ -2,8 +2,8 @@
 
 **Document Title:** Patch Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.25\
-**Date:** 2026-09-24\
+**Version:** 1.0.26\
+**Date:** 2026-10-03\
 **Owner:** IT Operations Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`operations/procedure-change-management-and-configuration-control.md`](procedure-change-management-and-configuration-control.md), [`security/policy-information-security.md`](../security/policy-information-security.md)\
@@ -52,8 +52,8 @@ Every patch or update is classified on receipt to determine the required deploym
 | Classification | Trigger Condition | Deployment Timeline | Authorization |
 | --- | --- | --- | --- |
 | **Emergency** | Actively exploited vulnerability (CISA KEV listed or credible equivalent intelligence) | Deploy within 24 hours | CIO or equivalent authorization (Emergency change) and CISO approval; CAB post-notification |
-| **Standard Critical** | CVSS ≥ 9.0; publicly disclosed with a proof-of-concept available, not yet actively exploited | Deploy within 72 hours after testing | CAB approval via Normal change |
-| **Standard Critical** | CVSS ≥ 9.0; no known active exploitation or public proof-of-concept | Deploy within 7 days after testing | CAB approval via Normal change |
+| **Standard Critical** | CVSS ≥ 9.0; publicly disclosed with a proof-of-concept available, not yet actively exploited | Deploy within 72 hours | CAB approval via Normal change |
+| **Standard Critical** | CVSS ≥ 9.0; no known active exploitation or public proof-of-concept | Deploy within 7 days | CAB approval via Normal change |
 | **Standard High** | CVSS 7.0 to 8.9 | Deploy within 14 days | CAB approval via Normal change |
 | **Standard Medium** | CVSS 4.0 to 6.9 | Deploy within 30 days | Standard change (approved template) in a scheduled maintenance window; otherwise Normal change |
 | **Standard Low** | CVSS < 4.0 | Deploy within 90 days | Standard change (approved template) in a scheduled maintenance window; otherwise Normal change |
@@ -61,7 +61,11 @@ Every patch or update is classified on receipt to determine the required deploym
 
 The Deployment Timeline column operationalizes the severity-based remediation SLAs in [`../security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md) section 2 (the single source of truth); that procedure governs on any discrepancy, and the Trigger Condition and Authorization columns add the operational detail this procedure owns.
 
-IT Operations reviews newly published CISA KEV entries daily. A KEV listing for a vulnerability affecting in-scope assets triggers immediate reclassification to Emergency regardless of previously assigned CVSS score.
+Each Deployment Timeline uses the clock and Emergency classification and reclassification rules in [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) section 2, including retention of any earlier deadline. The pre-deployment staging and regression testing required for Standard classifications by this procedure's section 2 is completed within the Deployment Timeline; it does not start or restart the clock. Emergency retrospective staging validation follows this procedure's section 2.2 and is completed within 72 hours of production deployment.
+
+IT Operations reviews newly published CISA KEV entries daily and acts immediately on receipt of a KEV listing or credible equivalent intelligence establishing active exploitation of an in-scope vulnerability. Record receipt and classify or reclassify to Emergency under [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) section 2 regardless of CVSS score; a scheduled review does not postpone the governing clock.
+
+The internal Emergency tier and its clock, including initial classification and reclassification, are governed by [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) section 2. These internal tiers do not establish equivalence to, or stricter deadlines than, CISA BOD 26-04. That directive binds US Federal Civilian Executive Branch agencies and sets its own remediation timelines and clock start: the earlier of KEV listing or agency enumeration or identification of the vulnerability on an asset together with the required CDM dashboard update. Federal adopters subject to the directive follow it wherever it is stricter, for both KEV and non-KEV vulnerabilities; internal confirmation and assignment do not postpone the directive's clock.
 
 ---
 
@@ -181,9 +185,9 @@ The SIEM generates an alert if a Critical or High patch has not been deployed wi
 
 | Metric | Target |
 | --- | --- |
-| Emergency patch deployment within 24 hours | 100% |
-| Critical patch deployment within classification SLA | ≥ 95% |
-| High patch deployment within 14 days | ≥ 90% |
+| Emergency patch deployment by the deadline defined in [Vulnerability Management Procedure](../security/procedure-vulnerability-management.md) section 2, including its initial classification and reclassification rules | 100% |
+| Critical patch deployment within classification SLA | 100% |
+| High patch deployment within 14 days | ≥ 95% |
 | Medium patch deployment within 30 days | ≥ 90% |
 | EOL assets in production without approved exception | 0 |
 | Open Critical/High exceptions beyond maximum deferral | 0 |
