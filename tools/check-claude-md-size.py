@@ -172,8 +172,13 @@ def census(root: Path) -> dict:
             p.stat()  # do not let a disappearing or inaccessible entry silently vanish
             if p.is_symlink():
                 raise ValueError(f"symlink in rule tree: {p}")
-            if name in files and not scoped(p.read_text(encoding="utf-8")):
-                paths.append(p)
+            if name in files:
+                try:
+                    unscoped = not scoped(p.read_text(encoding="utf-8"))
+                except (OSError, UnicodeError, ValueError) as exc:
+                    raise ValueError(f"{p.relative_to(root).as_posix()}: {exc}") from exc
+                if unscoped:
+                    paths.append(p)
     def count(selected):
         data = [p.read_bytes() for p in selected]
         return dict(files=len(data), bytes=sum(map(len, data)),
@@ -214,7 +219,7 @@ def run() -> int:
         count = line_count(CLAUDE_MD)
         totals = census(REPO_ROOT)
     except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as exc:
-        print(f"ERROR: D10 cannot read CLAUDE.md or a rule file: {exc}", file=sys.stderr)
+        print(f"ERROR: D10 census failed: {exc}", file=sys.stderr)
         return 2
     code, msg = evaluate(count, CEILING)
     print(msg, file=sys.stderr if code else sys.stdout)
