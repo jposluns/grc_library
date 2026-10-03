@@ -32,7 +32,8 @@ def render(b, scopes):
     if not b.startswith(b"---\n") or b"\npaths:" in b:
         raise ValueError("upstream frontmatter is not eligible for paths insertion")
     header = "paths:\n" + "".join("  - " + json.dumps(g) + "\n" for g in scopes)
-    return b"---\n" + header.encode() + b[4:] if scopes else b
+    notice = "# Modified by GRC: paths added\n"
+    return b"---\n" + (notice + header).encode() + b[4:] if scopes else b
 
 def compatibility(root, legacy):
     parts = []

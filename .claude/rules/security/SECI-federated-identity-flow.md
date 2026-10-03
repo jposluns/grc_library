@@ -1,4 +1,5 @@
 ---
+# Modified by GRC: paths added
 paths:
   - "**/*.py"
   - "**/*.sh"

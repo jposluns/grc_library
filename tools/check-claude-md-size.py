@@ -214,7 +214,7 @@ def run() -> int:
         count = line_count(CLAUDE_MD)
         totals = census(REPO_ROOT)
     except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as exc:
-        print(f"ERROR: cannot read {CLAUDE_MD}: {exc}", file=sys.stderr)
+        print(f"ERROR: D10 cannot read CLAUDE.md or a rule file: {exc}", file=sys.stderr)
         return 2
     code, msg = evaluate(count, CEILING)
     print(msg, file=sys.stderr if code else sys.stdout)

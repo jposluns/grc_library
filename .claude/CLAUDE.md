@@ -764,7 +764,7 @@ Maintainer D1-D3 (2026-10-02): the snapshot is upstream-owned; no legacy procedu
 - `.claude/references/governance/trust-recovery-escalation.md`
 - `.claude/references/governance/validate-inference-before-action.md`
 <!-- LEGACY-GOVERNANCE-END -->
-The legacy detail copies retain one trailing PROJECT-OVERLAY each where present; gate 37 compares their portable bodies with guardrails/governance/. AIQT local copies preserve all upstream metadata and bytes except their declared paths insertion. Local compatibility is generated from its reference source and the retained overlays. GRC's explicit compatibility requirements govern local policy conflicts.
+Legacy detail copies keep one trailing PROJECT-OVERLAY where present; gate 37 checks their portable bodies against guardrails/governance/. AIQT local copies keep upstream bytes except declared paths plus a modification notice (Apache-2.0 4(b)). Generated compatibility governs local policy conflicts.
 
 AIQT plus explicit GRC compatibility is the **primary** baseline and wins over external overlays on conflict.
 TikiTribe and Kariedo provide supplementary MIT rules under .claude/rules/external/;
@@ -774,5 +774,5 @@ code-review-and-quality, context-engineering, security-and-hardening, and using-
 Their discovery metadata is available at startup; their bodies load on invocation.
 Each skill has LICENSE and PROVENANCE.md. Read the adjacent provenance when using
 external guidance, including known divergences and missing upstream references.
-The setup generator uses this layout. Review both layers at each periodic pack review;
+Review both layers at each periodic pack review;
 prune near-duplicates and refresh or drop stale content independently of the primary pack.

@@ -2,8 +2,8 @@
 
 **Document Title:** Notice: External Reference Materials and Licence Boundaries\
 **Document Type:** Policy\
-**Version:** 1.4.8\
-**Date:** 2026-10-02\
+**Version:** 1.4.9\
+**Date:** 2026-10-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`governance/specification-citation-verification.md`](governance/specification-citation-verification.md), [`governance/register-canonical-citations.md`](governance/register-canonical-citations.md)\
@@ -116,8 +116,6 @@ Roles must be generic, such as Chief Information Officer, Chief Information Secu
 Adopters using the library may choose to incorporate external content (rule sets, frameworks, tools) from other sources into their own projects on top of the library. When they do so, they are responsible for verifying that the external content's licence is compatible with their use, and for complying with any attribution, share-alike, non-commercial, or no-derivatives restrictions those external sources impose. The library's CC BY-SA 4.0 covers the library content only; it does not relicense anything an adopter brings in from elsewhere.
 
 The setup generator at [`guardrails/setup-generator-prompt.md`](guardrails/setup-generator-prompt.md) surfaces the licence of each external rule source it offers (TikiTribe, Kariedo, addyosmani, Wiz) so the adopter can make an informed decision.
-
-GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z.
 
 ---
 

@@ -13,8 +13,9 @@ no-manufactured-winddown policy and AIQT continue-by-default supersede the old
 session-depth/fresh-session triggers. The local attended-to-unattended timeout
 exception remains; ending unattended mode requires the operator.
 AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
-AIQT verifier-diversity does not reduce GRC's triple-family standard or authorize
-a new fallback. Gate failures have no local exception-register bypass.
+AIQT verifier-diversity does not reduce GRC's triple-family standard. A family is
+unavailable only when no account can dispatch; a single-family floor runs two
+differently-primed passes. Gate failures have no local exception-register bypass.
 
 1. Gate work/failure/suppression or exception proposal: apply gate-discipline.md and its diagnose skill. Never weaken,
    bypass, suppress, or regenerate in CI to manufacture a pass. Fix or descope.
@@ -24,7 +25,7 @@ a new fallback. Gate failures have no local exception-register bypass.
    summaries, coupled archive/roll-up, DONE by permanent original ID, forward-only
    TODO, next-N from the private Up-next queue, and the overnight Status lifecycle.
    Preserve coupled Version/Date bumps and monotonic version history.
-3. Claim/reference/link, external wait, or turn-end guard work: apply evidence-grounded-completion.md.
+3. Claim/reference/link, user-reported issue, external wait, or turn-end guard work: apply evidence-grounded-completion.md.
    Enumerate, read, quote, contradict, distinguish mechanical from semantic
    coverage, and disclose gaps. Use the authoritative index for inventories and
    current upstream authority for currency claims. Attempt acquisition of a
@@ -52,7 +53,7 @@ a new fallback. Gate failures have no local exception-register bypass.
    and negative controls, prove baseline behavior, and mark non-semantic mutations
    INVALID. After two same-class failures, write the error, mechanism, fix and
    byte-level difference before another attempt. Use absolute execution targets.
-8. Worker/QA/PR/apply/publication work or a request to ask a set of questions: apply ai-assistant-workflow-disciplines.md.
+8. Worker/QA/PR/apply/publication work, a shared-tree race, or a request to ask a set of questions: apply ai-assistant-workflow-disciplines.md.
    Workers research; the orchestrator verifies every surviving claim at apply time
    and authors the result. Log corrections and update/version the worker brief.
    Verify disjoint partitions and reserve shared surfaces; research in parallel,
