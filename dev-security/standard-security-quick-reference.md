@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.26\
-**Date:** 2026-09-25\
+**Version:** 1.1.27\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -162,7 +162,8 @@ This table restates, for quick lookup, the authoritative remediation SLAs owned 
 
 | Severity | SLA |
 | --- | --- |
-| Critical (CVSS 9.0 to 10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed; 7 days otherwise |
+| Emergency (any CVSS; CISA KEV listed or credible equivalent intelligence establishing active exploitation) | Takes precedence over CVSS tiers: 24 elapsed hours from first confirmation and assignment if already applicable then; later reclassification uses section 2's clock and retains any earlier deadline |
+| Critical (CVSS 9.0 to 10.0) | 24 hours if actively exploited; 72 hours if publicly disclosed with a proof-of-concept available and not actively exploited; 7 days otherwise |
 | High (CVSS 7.0 to 8.9) | 14 days |
 | Medium (CVSS 4.0 to 6.9) | 30 days |
 | Low (CVSS 0.1 to 3.9) | 90 days or next maintenance window |

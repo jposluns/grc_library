@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Policy\
 **Document Type:** Policy\
-**Version:** 1.3.32\
-**Date:** 2026-09-25\
+**Version:** 1.3.33\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-identity-and-access-management.md`](policy-identity-and-access-management.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -99,7 +99,7 @@ Where the organization participates in a sector-specific security programme (for
 ### 4.6 Vulnerability and patch management
 
 4.6.1 Vulnerability scans must occur at least monthly for all systems and after any major change.
-4.6.2 Critical vulnerabilities must be remediated within seven days; high within fourteen days.
+4.6.2 Critical vulnerabilities must be remediated within 24 hours if actively exploited, within 72 hours if publicly disclosed with a proof-of-concept available and not actively exploited, and within seven days otherwise; High vulnerabilities must be remediated within fourteen days, per the tiers and clock in the [Vulnerability Management Procedure](procedure-vulnerability-management.md) section 2. Its Emergency tier takes precedence regardless of CVSS score: findings already CISA KEV listed or supported by credible equivalent intelligence of active exploitation when first confirmed and assigned are due within 24 elapsed hours from that date; subsequent reclassification follows section 2 and retains any earlier deadline.
 4.6.3 Patch deployment must be automated where possible and tracked for compliance metrics.
 
 ### 4.7 Information handling and data protection

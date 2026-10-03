@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.5\
-**Date:** 2026-09-30\
+**Version:** 1.4.6\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/policy-byod.md`](../security/policy-byod.md)\
@@ -302,8 +302,8 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 | --- | --- |
 | Endpoint protection coverage (all asset classes) | 100% |
 | Configuration compliance rate (compliant / total enrolled) | ≥ 98% |
-| Patch SLA adherence: Critical | ≥ 95% |
-| Patch SLA adherence: High | ≥ 90% |
+| Patch SLA adherence: Critical | 100% |
+| Patch SLA adherence: High | ≥ 95% |
 | Asset register reconciliation pass rate | 100% quarterly |
 | Non-compliant devices blocked by policy-based access controls (count) | Reviewed; zero tolerance for unresolved > 24 hours |
 | Devices with EOL OS in production (count) | Zero; any exception reported to CISO immediately |
