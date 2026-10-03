@@ -88,6 +88,13 @@ def evaluate(tree: set, entries: dict) -> dict:
         "bad_bucket": sorted(p for p, v in object_entries.items() if v.get("bucket") not in BUCKETS),
         "bad_disclosure": sorted(p for p, v in object_entries.items() if v.get("disclosure") not in DISCLOSURES),
         "bad_combo": bad_combo,
+        # The whole upstream namespace is withheld, including LICENSE/NOTICE
+        # and future additions. GRC-ONLY would also falsely claim local ownership.
+        "upstream_ownership": sorted(
+            p for p, v in object_entries.items()
+            if p.startswith("aiqt-rules/")
+            and (v.get("bucket"), v.get("disclosure")) != ("EXCLUDED", "WITHHELD")
+        ),
         "empty_rationale": sorted(
             p for p, v in object_entries.items()
             if not (isinstance(v.get("rationale"), str) and v["rationale"].strip())
@@ -139,6 +146,7 @@ def main(argv: list) -> int:
         "bad_bucket": ("BAD BUCKET", f"value not in {sorted(BUCKETS)}", "{}"),
         "bad_disclosure": ("BAD DISCLOSURE", f"value not in {sorted(DISCLOSURES)}", "{}"),
         "bad_combo": ("BAD COMBINATION", "bucket and disclosure contradict (published-vs-withheld)", "{}"),
+        "upstream_ownership": ("UPSTREAM OWNERSHIP", "pinned AIQT must be EXCLUDED/WITHHELD", "{}"),
         "empty_rationale": ("EMPTY RATIONALE", "entry has no non-empty rationale", "{}"),
     }
     findings = 0

@@ -28,3 +28,6 @@ bytes = 19517
 # that commit's .aiqt/manifest.toml entry, and VERSION there is 1.0.5. guardrails will cut its
 # first tagged release after its OPF restructure and notify grc; re-pin to that release's published
 # root-digest manifest (posluns.dev) then.
+
+# RULES.json inventories the separately Apache-2.0 upstream rule snapshot at this exact
+# commit, its hashes and local paths insertions. Module bytes and hash above are unchanged.

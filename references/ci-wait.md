@@ -19,8 +19,8 @@ status) and act on the actual result. If the PR is still in flight, re-arm a fre
 60-second timer. On merge, the subscription auto-unsubscribes; stop the timer with
 `TaskStop` on the background task ID. The 60-second cadence balances latency against API
 cost. This operationalizes the webhook-subscriptions discipline in
-`.claude/rules/governance/action-before-explanation-of-inaction.md` and the
-subscribe-over-poll pattern in `.claude/rules/governance/evidence-grounded-completion.md`.
+`.claude/references/governance/action-before-explanation-of-inaction.md` and the
+subscribe-over-poll pattern in `.claude/references/governance/evidence-grounded-completion.md`.
 
 **No-MCP (gh-CLI) sessions: read the GitHub Actions runs for the PR head SHA, bounded and
 fail-loud, and DO NOT idle on it.** When the session has no GitHub MCP (`mcp__github__*`

@@ -149,7 +149,7 @@ def resolve_path(target: Path, raw: str) -> Path:
 def apply_action(target: Path, action: dict) -> str:
     kind = action["type"]
     path = resolve_path(target, action["path"])
-    text = action["text"]
+    text = action.get("text", "")
     if kind == "append_file":
         if not path.is_file():
             raise RuntimeError(f"append target missing: {path}")
@@ -158,6 +158,13 @@ def apply_action(target: Path, action: dict) -> str:
     elif kind == "create_file":
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(text + "\n", encoding="utf-8")
+    elif kind == "replace_text":
+        before = path.read_text(encoding="utf-8")
+        if before.count(action["old"]) != 1:
+            raise RuntimeError("replacement must have exactly one match")
+        path.write_text(before.replace(action["old"], action["new"]), encoding="utf-8")
+    elif kind == "delete_file":
+        path.unlink()
     else:
         raise RuntimeError(f"unknown action type: {kind}")
     return str(path.relative_to(target.resolve()))

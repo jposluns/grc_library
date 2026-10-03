@@ -22,7 +22,10 @@ large addition until it is trimmed or relocated is exactly the desired behaviour
 Reads the working-tree file by explicit path (the `.claude/` exempt-dir walk does
 not apply to an explicit-path read), so like D8 it needs no merge base.
 
-PROXY NOTE (dual-family verify, #1250): the gate measures LINE COUNT, a proxy for
+The startup census also enforces Unicode characters, independently of line count.
+It includes unscoped non-Markdown provenance and reports all CLAUDE files separately.
+
+PROXY NOTE (dual-family verify, #1250): LINE COUNT remains a proxy for
 the every-turn TOKEN load. Content packed into fewer, longer lines could evade the
 ratchet while preserving token load; in practice added prose adds lines, so the
 proxy tracks the load well enough. The ceiling itself is a CONVENTION the maintainer
@@ -35,6 +38,10 @@ Exit: 0 = at or under ceiling; 1 = over ceiling; 2 = file missing / error.
 from __future__ import annotations
 
 import argparse
+import json
+import os
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -63,6 +70,125 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
 # 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
 CEILING = 781
+STARTUP_CHARACTER_CEILING = 288490  # 3b177-a; final backlog goal remains 150000
+
+
+
+# Accepted frontmatter is deliberately a small, explicit YAML subset. Unknown
+# keys or syntax fail closed: they cannot make a large rule disappear from D10.
+SCALAR_METADATA = {"corpus-id", "origin", "family", "facet", "slug"}
+LIST_METADATA = {"secondary"} | {
+    f"map-{framework}-{strength}"
+    for framework in (
+        "atlas", "csa-aicm", "csa-ccm", "cwe", "iso-23894", "iso-42001",
+        "nist-80053", "nist-airmf", "nist-ssdf", "owasp-api", "owasp-asi",
+        "owasp-asvs", "owasp-cheatsheet", "owasp-llm", "owasp-mcp",
+        "owasp-proactive", "owasp-web",
+    )
+    for strength in ("tight", "broad")
+}
+
+
+def string_scalar(value: str, *, path: bool = False) -> str:
+    """Read an explicit string or a conservative, unambiguous plain scalar."""
+    if value.startswith('"'):
+        parsed = json.loads(value)
+    elif value.startswith("'"):
+        if not re.fullmatch(r"'(?:[^']|'')*'", value):
+            raise ValueError("invalid quoted string")
+        parsed = value[1:-1].replace("''", "'")
+    else:
+        pattern = r"[A-Za-z_./][A-Za-z0-9_./*?-]*" if path else r"[A-Za-z0-9_][A-Za-z0-9_./&() -]*"
+        if (not re.fullmatch(pattern, value)
+                or value.lower() in {"true", "false", "null", "yes", "no", "on", "off", ".nan", ".inf"}
+                or (path and re.fullmatch(r"[+-]?[0-9.]+", value))):
+            raise ValueError("unsupported or non-string scalar")
+        parsed = value
+    if not isinstance(parsed, str) or not parsed.strip():
+        raise ValueError("empty or non-string scalar")
+    return parsed
+
+
+def scoped(text: str) -> bool:
+    """Accept only recognized scope metadata; reject everything ambiguous."""
+    lines = text.splitlines()
+    if not lines or lines[0] != "---":
+        return False
+    try:
+        end = lines.index("---", 1)
+    except ValueError as exc:
+        raise ValueError("unterminated frontmatter") from exc
+    keys = set()
+    paths = None
+    block_paths = False
+    for line in lines[1:end]:
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if line.startswith((" ", "\t")):
+            m = re.fullmatch(r"  - (.+)", line)
+            if not block_paths or not m:
+                raise ValueError("unsupported frontmatter continuation")
+            paths.append(string_scalar(m[1], path=True))
+            continue
+        m = re.fullmatch(r"([\w-]+):(?: +(.*))?", line)
+        if not m or m[1] in keys:
+            raise ValueError("invalid or duplicate frontmatter key")
+        key, value = m[1], m[2] or ""
+        keys.add(key)
+        block_paths = key == "paths" and not value
+        if key == "paths":
+            paths = json.loads(value) if value else []
+            if not isinstance(paths, list) or any(not isinstance(x, str) or not x.strip() for x in paths):
+                raise ValueError("paths must be a string list")
+        elif key in SCALAR_METADATA:
+            string_scalar(value)
+        elif key in LIST_METADATA:
+            if not value.startswith("[") or not value.endswith("]"):
+                raise ValueError("metadata must be a flat flow list")
+            if value != "[]":
+                for item in value[1:-1].split(","):
+                    string_scalar(item.strip())
+        elif key == "apex" and value in {"true", "false"}:
+            pass
+        elif key == "tier" and value in {"10", "20", "30", "40"}:
+            pass
+        else:
+            raise ValueError("unrecognized frontmatter metadata: " + key)
+    if paths == []:
+        raise ValueError("empty paths is ambiguous")
+    return paths is not None
+
+
+def census(root: Path) -> dict:
+    paths = [root / ".claude/CLAUDE.md"]
+    rule_dir = root / ".claude/rules"
+    if not rule_dir.is_dir():
+        raise ValueError("missing rules directory")
+    def unreadable(exc):
+        raise exc
+    for directory, dirs, files in os.walk(rule_dir, onerror=unreadable):
+        for name in sorted(dirs + files):
+            p = Path(directory) / name
+            p.stat()  # do not let a disappearing or inaccessible entry silently vanish
+            if p.is_symlink():
+                raise ValueError(f"symlink in rule tree: {p}")
+            if name in files:
+                try:
+                    unscoped = not scoped(p.read_text(encoding="utf-8"))
+                except (OSError, UnicodeError, ValueError) as exc:
+                    exc.add_note(p.relative_to(root).as_posix())
+                    raise
+                if unscoped:
+                    paths.append(p)
+    def count(selected):
+        data = [p.read_bytes() for p in selected]
+        return dict(files=len(data), bytes=sum(map(len, data)),
+                    characters=sum(len(b.decode("utf-8")) for b in data))
+    tracked = subprocess.check_output(["git", "-C", str(root), "ls-files", "-z"]).decode().split("\0")
+    claudes = [root / p for p in tracked if p and Path(p).name == "CLAUDE.md"]
+    return dict(startup=count(paths), all_claude=count(claudes),
+                startup_plus_other_claude=count(paths + [p for p in claudes if p not in paths]),
+                startup_paths=[p.relative_to(root).as_posix() for p in paths])
 
 
 def line_count(path: Path) -> int:
@@ -92,11 +218,16 @@ def run() -> int:
         return 2
     try:
         count = line_count(CLAUDE_MD)
-    except OSError as exc:
-        print(f"ERROR: cannot read {CLAUDE_MD}: {exc}", file=sys.stderr)
+        totals = census(REPO_ROOT)
+    except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as exc:
+        print(f"ERROR: D10 census failed: {exc} {getattr(exc, '__notes__', [])}", file=sys.stderr)
         return 2
     code, msg = evaluate(count, CEILING)
     print(msg, file=sys.stderr if code else sys.stdout)
+    print(json.dumps(totals, sort_keys=True))
+    if totals["startup"]["characters"] > STARTUP_CHARACTER_CEILING:
+        print(f"FAIL: startup character ceiling {STARTUP_CHARACTER_CEILING} exceeded")
+        code = 1
     return code
 
 

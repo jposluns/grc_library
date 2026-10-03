@@ -10535,6 +10535,7 @@ class ClaudeRulesSyncTests(LinterTestCase):
         )
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
+        mod.validate_snapshot = lambda root: set()  # isolate legacy mirror unit fixtures
         return mod
 
     def _make_synthetic(self, local_body: str, source_body: str, extra_local: str | None = None):
@@ -24948,7 +24949,7 @@ class PublicationManifestTest(unittest.TestCase):
         r = self.mod.evaluate(tree, entries)
         self.assertEqual(r, {"unclassified": [], "orphans": [], "bad_bucket": [],
                              "bad_entry": [], "bad_disclosure": [],
-                             "bad_combo": [], "empty_rationale": []})
+                             "bad_combo": [], "empty_rationale": [], "upstream_ownership": []})
 
     def test_unclassified_file_flagged(self):
         r = self.mod.evaluate({"a.md", "new.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"}})
@@ -35032,3 +35033,305 @@ class StoreScopeCeilingTests(LinterTestCase):
                 self.assertEqual(len(self.bp.worker_provenance_findings(mirror)), 1)
                 self.assertEqual(len(self.bp.worker_provenance_findings(mirror, ceiling=scope)), 1)
                 self.assertEqual(self.bp._deferred_mirror_prs(mirror, scope), set())
+
+
+class AIQTCutoverTests(unittest.TestCase):
+    """Mutation controls for pinned bytes, scope, enumeration, and startup accounting."""
+
+    @staticmethod
+    def load(name):
+        import importlib.util
+        sys.path.insert(0, str(REPO_ROOT / 'tools'))
+        spec = importlib.util.spec_from_file_location(name.replace('-', '_'), REPO_ROOT / 'tools' / name)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(dir=FIXTURE_DIR)
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        for directory in ('guardrails/aiqt-rules', 'guardrails/governance',
+                          '.claude/references/governance', '.claude/rules/aiqt',
+                          '.claude/rules/security', 'vendor/aiqt'):
+            shutil.copytree(REPO_ROOT / directory, self.root / directory)
+        for name in ('.claude/references/governance-compatibility.md',
+                     '.claude/rules/governance-compatibility.md'):
+            (self.root / name).write_bytes((REPO_ROOT / name).read_bytes())
+        self.aiqt = self.load('aiqt_rules.py')
+
+    def test_clean_snapshot(self):
+        self.assertEqual(len(self.aiqt.validate(self.root)), 133)
+
+    def test_pinned_input_and_local_mutations_fail(self):
+        import json
+        data = json.loads((self.root / self.aiqt.MANIFEST).read_text())
+        rule = next(r for r in data['rules'] if r['paths'])
+        mutations = [
+            (rule['source'], lambda b: b + b'changed\n'),
+            (rule['target'], lambda b: b + b'changed\n'),
+            (rule['target'], lambda b: re.sub(rb'corpus-id:.*\n', b'', b)),
+            (rule['target'], lambda b: b.replace(b'paths:', b'pathz:', 1)),
+            (rule['target'], lambda b: b.replace(b'**/*.py', b'**/*.go', 1)),
+            (rule['target'], lambda b: b'---\npaths: ["**"]\n---\n' + b),
+            (rule['target'], lambda b: b.replace(b'---\n', b'---\nextra: true\n', 1)),
+            (self.aiqt.TARGET, lambda b: b + b'lost overlay parity\n'),
+            (data['legacy_details'][0], lambda b: b + b'changed overlay\n'),
+            ('vendor/aiqt/PIN.toml', lambda b: b.replace(self.aiqt.PIN.encode(), b'0' * 40)),
+            (self.aiqt.MANIFEST, lambda b: b'{'),
+            (self.aiqt.MANIFEST, lambda b: b.replace(rule['sha256'].encode(), b'0' * 64)),
+        ]
+        for path, mutation in mutations:
+            with self.subTest(path=path, mutation=mutation):
+                p = self.root / path
+                old = p.read_bytes()
+                try:
+                    p.write_bytes(mutation(old))
+                    with self.assertRaises((ValueError, KeyError, OSError)):
+                        self.aiqt.validate(self.root)
+                finally:
+                    p.write_bytes(old)
+        for path in (rule['source'], rule['target'], self.aiqt.TARGET, self.aiqt.MANIFEST):
+            p = self.root / path
+            old = p.read_bytes()
+            try:
+                p.unlink()
+                with self.assertRaises((ValueError, KeyError, OSError)):
+                    self.aiqt.validate(self.root)
+            finally:
+                p.write_bytes(old)
+        p = self.root / 'guardrails/aiqt-rules/extra.md'
+        p.write_text('extra')
+        with self.assertRaises(ValueError):
+            self.aiqt.validate(self.root)
+
+    def test_full_gate_rejects_unknown_local_and_competing_owner(self):
+        import contextlib
+        mod = self.load('lint-claude-rules-sync.py')
+        # Complete the four ordinary mirrors needed by the real entry point.
+        for local, source in mod.MIRROR_MAP.items():
+            for path in (local, source):
+                p = self.root / path
+                if not p.exists():
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    p.write_bytes((REPO_ROOT / path).read_bytes())
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(mod.main(['--root', str(self.root)]), 0)
+            extra = self.root / '.claude/rules/aiqt/unknown.md'
+            extra.write_text('# Unknown\n')
+            self.assertEqual(mod.main(['--root', str(self.root)]), 1)
+            extra.unlink()
+            reg = self.root / mod.OWNERSHIP_REGISTER_REL
+            reg.parent.mkdir(parents=True)
+            reg.write_text('schema_version = 1\n[[owned_targets]]\nrule = "collision"\n'
+                           'kind = "file"\ntarget = ".claude/rules/governance-compatibility.md"\n')
+            self.assertEqual(mod.main(['--root', str(self.root)]), 1)
+
+    def test_all_eight_enumerations_reject_missing_extra_duplicate_and_marker_loss(self):
+        mod = self.load('lint-collection-enumeration-consistency.py')
+        for collection in mod.COLLECTIONS[2:]:
+            canonical = mod.list_source(collection)
+            for location in collection.enumerations:
+                original = (REPO_ROOT / location.file).read_text()
+                regex = re.compile(location.item_regex, re.M)
+                begin = re.search(location.section_start_regex, original, re.M).end()
+                match = regex.search(original, begin)
+                self.assertIsNotNone(match)
+                for kind in ('missing', 'extra', 'duplicate', 'marker'):
+                    with self.subTest(family=collection.name, file=location.file, kind=kind):
+                        if kind == 'missing':
+                            text = original[:match.start()] + original[match.end():]
+                        elif kind == 'extra':
+                            text = original[:match.start(1)] + 'unknown-rule' + original[match.end(1):]
+                        elif kind == 'duplicate':
+                            start = original.rfind('\n', 0, match.start()) + 1
+                            end = original.index('\n', match.end())
+                            text = original[:end] + '\n' + original[start:end] + original[end:]
+                        else:
+                            text = original[:begin].replace('-BEGIN -->', '-BROKEN -->') + original[begin:]
+                        p = self.root / location.file
+                        p.parent.mkdir(parents=True, exist_ok=True)
+                        p.write_text(text)
+                        saved = mod.REPO_ROOT
+                        try:
+                            mod.REPO_ROOT = self.root
+                            try:
+                                parsed = mod.parse_enumeration(location)
+                            except RuntimeError:
+                                pass
+                            else:
+                                self.assertNotEqual(parsed, canonical)
+                        finally:
+                            mod.REPO_ROOT = saved
+
+    def test_nested_scope_inventory_excludes_readme(self):
+        mod = self.load('lint-rule-scope-table.py')
+        root = self.root / 'guardrails'
+        (root / 'aiqt-rules/aiqt/README.md').write_text('not a rule')
+        rules = mod.on_disk_rules(root)
+        self.assertNotIn('aiqt-rules/aiqt/README.md', rules)
+        self.assertIn('aiqt-rules/aiqt/00-project-integrity.md', rules)
+        rows = mod.scope_rows((REPO_ROOT / 'guardrails/README.md').read_text())
+        rows.remove('aiqt-rules/aiqt/00-project-integrity.md')
+        self.assertTrue(rules - rows)
+
+    def test_startup_unicode_metadata_and_non_md_files(self):
+        mod = self.load('check-claude-md-size.py')
+        root = self.root / 'census'
+        (root / '.claude/rules').mkdir(parents=True)
+        (root / '.claude/CLAUDE.md').write_text('é\n')
+        (root / '.claude/rules/README.md').write_text('---\ncorpus-id: fixture\n---\né\n')
+        (root / '.claude/rules/PROVENANCE.txt').write_text('é')
+        subprocess.run(['git', 'init', '-q', str(root)], check=True)
+        subprocess.run(['git', '-C', str(root), 'add', '.'], check=True)
+        result = mod.census(root)['startup']
+        self.assertEqual(result['files'], 3)
+        self.assertEqual(result['bytes'] - result['characters'], 3)
+        for bad in ('---\npaths: [', '---\npaths: []\n---\n',
+                    '---\npaths: nope\n---\n', '---\ncorpus-id: [broken\n---\n',
+                    '---\ncorpus-id: one\ncorpus-id: two\n---\n'):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                mod.scoped(bad)
+        p = root / '.claude/rules/README.md'
+        p.write_bytes(b'\xff')
+        with self.assertRaises(UnicodeError) as caught:
+            mod.census(root)
+        self.assertIn('.claude/rules/README.md', getattr(caught.exception, '__notes__', []))
+
+    def test_website_entries_resolve_and_preserve_counts(self):
+        import json
+        records = json.loads((REPO_ROOT / 'vendor/aiqt/RULES.json').read_text())['rules']
+        for variant in ('templates', 'templates-v2', 'templates-v3'):
+            text = (REPO_ROOT / '.web' / variant / 'pack.html').read_text()
+            self.assertIn('132 pinned AIQT rules', text)
+            self.assertIn('83 AIQT principles + 49 security rules', text)
+            self.assertIn('15 retained GRC compatibility procedures', text)
+            for r in records:
+                self.assertTrue((REPO_ROOT / r['source']).is_file())
+                self.assertIn('/blob/main/' + r['source'], text)
+                ident = 'aiqt-' + r['source'].removeprefix('guardrails/aiqt-rules/')[:-3].replace('/', '-')
+                self.assertEqual(text.count('id="' + ident + '"'), 1)
+                if variant != 'templates-v3':
+                    self.assertEqual(text.count('href="#' + ident + '"'), 1)
+
+    def test_mutation_actions_have_effect_and_fail_on_wrong_premise(self):
+        mod = self.load('audit-gate-mutation.py')
+        p = self.root / 'example.md'
+        p.write_text('old value')
+        mod.apply_action(self.root, dict(type='replace_text', path='example.md', old='old', new='new'))
+        self.assertEqual(p.read_text(), 'new value')
+        with self.assertRaises(RuntimeError):
+            mod.apply_action(self.root, dict(type='replace_text', path='example.md', old='old', new='new'))
+        mod.apply_action(self.root, dict(type='delete_file', path='example.md'))
+        self.assertFalse(p.exists())
+        with self.assertRaises(FileNotFoundError):
+            mod.apply_action(self.root, dict(type='delete_file', path='example.md'))
+
+
+class AIQTRoundTwoTests(unittest.TestCase):
+    """Boundary regressions, including real entry points and negative controls."""
+
+    load = staticmethod(AIQTCutoverTests.load)
+
+    def test_stub_exemption_is_root_anchored_and_project_stubs_still_fail(self):
+        from unittest.mock import patch
+        import contextlib
+        mod = self.load('lint-stub-documents.py')
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            root = Path(tmp)
+            paths = [root / p for p in (
+                'guardrails/aiqt-rules/security/short.md',
+                'guardrails/governance/short.md',
+                'guardrails/aiqt-rules-local/short.md',
+                'other/guardrails/aiqt-rules/short.md',
+            )]
+            for p in paths:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text('# Short\n\nTiny.\n')
+            with patch.object(mod, 'REPO_ROOT', root):
+                self.assertEqual(set(mod.iter_targets([str(root)])), set(paths[1:]))
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(mod.main(['lint-stub-documents.py', str(paths[0])]), 0)
+                    for p in paths[1:]:
+                        self.assertEqual(mod.main(['lint-stub-documents.py', str(p)]), 1)
+
+    def test_uncertainty_gate_keeps_project_requirements_in_scope(self):
+        source = REPO_ROOT / 'guardrails/rule-provenance.md'
+        result = run_linter('tools/lint-shall-near-uncertainty.py', source)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            p = Path(tmp) / 'standard-uncertain.md'
+            p.write_text('# Requirement\n\nThe service MUST encrypt data. TODO: confirm.\n')
+            result = run_linter('tools/lint-shall-near-uncertainty.py', p)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_d10_entry_point_rejects_malformed_and_unknown_scope_metadata(self):
+        from unittest.mock import patch
+        import contextlib
+        mod = self.load('check-claude-md-size.py')
+        bad = [
+            'paths:\n  - [broken', 'paths:\n  - [one, two]',
+            'paths:\n  - {key: value}', 'paths:\n  - true',
+            'paths:\n  - null', 'paths:\n  - 123',
+            'paths:\n  - *alias', 'paths:\n  - &anchor value',
+            'paths:\n  - !tag value', "paths:\n  - 'x' junk'",
+            'paths:\n  - "x" trailing', 'paths:\n  - x: y',
+            'paths: ["**"]\n  - extra', 'paths: ["**"]\npathz: ["other"]',
+            'paths: ["**"]\nunknown: true', 'paths: ["**"]\ncorpus-id: [broken',
+            'paths: ["**"]\ncorpus-id:\n  invalid: [',
+            'paths: ["**"]\nsecondary: [broken',
+            'paths: ["**"]\nsecondary: ["x" trailing]',
+            'paths: ["**"]\npaths: ["other"]', 'paths: []',
+            'paths: [true]', 'paths: {"a": "b"}',
+            'paths:\n  - .nan', 'paths:\n  - .Inf',
+        ]
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            root = Path(tmp)
+            (root / '.claude/rules').mkdir(parents=True)
+            claude = root / '.claude/CLAUDE.md'
+            claude.write_text('# Test\n')
+            rule = root / '.claude/rules/rule.md'
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            with patch.object(mod, 'REPO_ROOT', root), patch.object(mod, 'CLAUDE_MD', claude):
+                for header in bad:
+                    with self.subTest(header=header):
+                        rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
+                        err = io.StringIO()
+                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                            self.assertEqual(mod.run(), 2)
+                        self.assertIn('.claude/rules/rule.md', err.getvalue())
+                for header in ('paths: ["**/*.py"]', 'paths:\n  - "**/*.py"',
+                               "paths:\n  - 'src/**/*.py'", 'paths:\n  - src/file.py'):
+                    rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(mod.run(), 0)
+                rule.write_text('---\ncorpus-id: fixture\n---\n' + 'x' * 400000)
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(mod.run(), 1)
+
+    def test_publication_boundary_rejects_all_other_classifications(self):
+        from unittest.mock import patch
+        import contextlib
+        import itertools
+        import json
+        mod = self.load('lint-publication-manifest.py')
+        entries = json.loads((REPO_ROOT / 'tools/publication-manifest.json').read_text())['files']
+        upstream = [p for p in entries if p.startswith('aiqt-rules/')]
+        self.assertEqual(len(upstream), 135)
+        for p, bucket, disclosure in itertools.product(upstream, mod.BUCKETS, mod.DISCLOSURES):
+            row = dict(bucket=bucket, disclosure=disclosure, rationale='test')
+            result = mod.evaluate({p}, {p: row})
+            self.assertEqual(result['upstream_ownership'],
+                             [] if (bucket, disclosure) == ('EXCLUDED', 'WITHHELD') else [p])
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            manifest = Path(tmp) / 'publication-manifest.json'
+            with patch.object(mod, 'MANIFEST', str(manifest)), contextlib.redirect_stdout(io.StringIO()):
+                for bucket, disclosure in (('CORE', 'PUBLIC'), ('ADAPTER-INPUT', 'SANITIZE'),
+                                           ('GRC-ONLY', 'WITHHELD'), ('EXCLUDED', 'PUBLIC')):
+                    entries[upstream[0]].update(bucket=bucket, disclosure=disclosure)
+                    manifest.write_text(json.dumps({'files': entries}))
+                    self.assertEqual(mod.main(['lint-publication-manifest.py']), 1)
+                entries[upstream[0]].update(bucket='EXCLUDED', disclosure='WITHHELD')
+                manifest.write_text(json.dumps({'files': entries}))
+                self.assertEqual(mod.main(['lint-publication-manifest.py']), 0)

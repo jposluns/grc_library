@@ -280,7 +280,7 @@ repos:
         entry: python3 tools/lint-claude-rules-sync.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: lint-section-placement
         name: Section placement audit
@@ -308,7 +308,7 @@ repos:
         entry: python3 tools/lint-collection-enumeration-consistency.py
         language: system
         pass_filenames: false
-        types: [markdown]
+        always_run: true
 
       - id: lint-external-overlay-license
         name: External-overlay license consistency audit

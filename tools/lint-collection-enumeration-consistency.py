@@ -25,9 +25,9 @@ agree on what counts as a collection item (see its
 ``# mirror gate 41's collection sources`` comment). An editor who changes
 the collection sources here should keep gate 39's mirrored list in step.
 
-Phase 1 (this iteration): two hard-coded collections (the pack's
-governance rules and its skills), each with one or more enumeration
-locations. The external overlay sources noted above are enumerated
+Four collections: retained governance procedures, skills, pinned AIQT principles
+and pinned security rules. Both pinned families have independent README, pack
+CLAUDE, project CLAUDE and provenance enumerations. The external overlay sources noted above are enumerated
 similarly but are not yet wired into this linter. The companion detector tool
 (``tools/detect-collection-candidates.py``, separate PR) finds
 additional candidate collections by heuristic scan; the maintainer
@@ -120,9 +120,9 @@ COLLECTIONS: tuple[Collection, ...] = (
             ),
             EnumerationLocation(
                 file=".claude/CLAUDE.md",
-                section_start_regex=r"^- `\.claude/rules/governance/",
-                section_end_regex=r"^The `guardrails/` pack|^---|^## ",
-                item_regex=r"^- `\.claude/rules/governance/([\w-]+)\.md`",
+                section_start_regex=r"^<!-- LEGACY-GOVERNANCE-BEGIN -->$",
+                section_end_regex=r"^<!-- LEGACY-GOVERNANCE-END -->$",
+                item_regex=r"^- `\.claude/references/governance/([\w-]+)\.md`",
             ),
             # Provenance register (3.56a (closing PR #1135) guard 3): every governance rule must
             # have a `### `<rule-name>`` entry under the register's
@@ -154,6 +154,21 @@ COLLECTIONS: tuple[Collection, ...] = (
 )
 
 
+
+# Each imported family has four independently checked enumeration surfaces.
+for family in ("aiqt", "security"):
+    locations = [EnumerationLocation(
+        "guardrails/README.md", rf"^<!-- AIQT-TREE-{family}-BEGIN -->$",
+        rf"^<!-- AIQT-TREE-{family}-END -->$", r"[├└]── ([\w-]+)\.md")]
+    for file in ("guardrails/CLAUDE.md", ".claude/CLAUDE.md"):
+        locations.append(EnumerationLocation(file, r"^<!-- AIQT-RULES-BEGIN -->$",
+            r"^<!-- AIQT-RULES-END -->$", rf"\[`(?:aiqt-rules/)?{family}/([\w-]+)\.md`\]"))
+    locations.append(EnumerationLocation("guardrails/rule-provenance.md",
+        rf"^<!-- AIQT-PROVENANCE-{family}-BEGIN -->$",
+        rf"^<!-- AIQT-PROVENANCE-{family}-END -->$", r"^### `([\w-]+)`"))
+    COLLECTIONS += (Collection("pinned-" + family, "guardrails/aiqt-rules/" + family,
+                              "*.md", "strip_md", tuple(locations)),)
+
 class Finding(NamedTuple):
     collection: str
     location: str
@@ -179,6 +194,17 @@ def list_source(collection: Collection) -> set[str]:
         else:
             # Generic glob (``*``): include directories and files.
             items.add(norm(entry.name))
+    if collection.name.startswith("pinned-"):
+        from aiqt_rules import inventory
+        try:
+            manifest = inventory(REPO_ROOT)
+            prefix = collection.source_dir + "/"
+            declared = {normalise_strip_md(r["path"].removeprefix(prefix))
+                        for r in manifest["files"] if r["path"].startswith(prefix)}
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            raise RuntimeError(f"invalid AIQT manifest: {exc}") from exc
+        if items != declared:
+            raise RuntimeError(f"AIQT manifest/directory disagreement: {collection.name}")
     return items
 
 
@@ -193,22 +219,24 @@ def parse_enumeration(location: EnumerationLocation) -> set[str]:
     item_re = re.compile(location.item_regex)
     items: set[str] = set()
     in_section = False
+    ended = False
     for line in text.splitlines():
         if not in_section:
-            if start_re.search(line):
-                in_section = True
-                # The start line itself MAY contain an item if the
-                # pattern allows. Try item_regex on this line too.
-                m = item_re.search(line)
-                if m:
-                    items.add(m.group(1))
-            continue
-        # In section: check for end first
-        if end_re is not None and end_re.search(line):
+            if not start_re.search(line):
+                continue
+            in_section = True
+        elif end_re is not None and end_re.search(line):
+            ended = True
             break
-        m = item_re.search(line)
-        if m:
-            items.add(m.group(1))
+        for match in item_re.finditer(line):
+            item = match.group(1)
+            if item in items:
+                raise RuntimeError(f"duplicate enumeration {item}: {location.file}")
+            items.add(item)
+    if not in_section or not items:
+        raise RuntimeError(f"missing or empty enumeration: {location.file}")
+    if location.section_start_regex.startswith("^<!--") and not ended:
+        raise RuntimeError(f"missing enumeration end marker: {location.file}")
     return items
 
 

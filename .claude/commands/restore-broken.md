@@ -25,7 +25,7 @@ back to the routine effort only after the handoff is clean.
 
 The assessment phase is **strictly read-only**. No edit, commit, push, merge, lease write, order
 dispatch until the maintainer gives an express, work-naming GO on a named phase. This
-is [`express-authorization-before-execution`](../rules/governance/express-authorization-before-execution.md)
+is [`express-authorization-before-execution`](../references/governance/express-authorization-before-execution.md)
 applied to recovery: an interrupted state is exactly where a confident wrong action does the most
 damage. Reading, listing, and read-only `git` / `gh` / API calls are the only actions in Phase A.
 
@@ -76,7 +76,7 @@ Report, scannable, no diffs dumped to chat:
 ## Phase C: recover (only after GO)
 
 1. **Verify the interrupted unit by observation, not inheritance.** Inherited work is a HYPOTHESIS
-   ([`evidence-grounded-completion`](../rules/governance/evidence-grounded-completion.md)): run the
+   ([`evidence-grounded-completion`](../references/governance/evidence-grounded-completion.md)): run the
    full audit suite and PR-time checks standalone; independently re-read the diff; for any recovered
    or reconstructed data (a repaired ledger, a restored record), confirm each piece traces to a real
    prior git revision (`git show <sha>:<path>`, pickaxe `-S`), never accepting "restored" on trust.
@@ -97,7 +97,7 @@ Report, scannable, no diffs dumped to chat:
 ## Phase D: wind down to a clean green `main`
 
 Land the recovered working state as a **session-closing handoff PR** (a green, merged PR), per the
-[`session-lifecycle`](../rules/governance/session-lifecycle.md) closing-handoff discipline: refresh
+[`session-lifecycle`](../references/governance/session-lifecycle.md) closing-handoff discipline: refresh
 the handoff (state snapshot, next-actions and deferred queue, **asserted expectations** scoped to what
 recovery touched, green-at-`<sha>`), RELEASE the lease. The closing PR normally runs its own trailing `/validate-pr` + `/retro` in-PR like any PR; ONLY where that QA cannot be made self-contained at the session boundary does it take the documented fallback skip (recorded with the gate-50 marker), compensated by the next `/orch`'s corpus-wide `/validate`. **Do
 not close over a large UNVALIDATED substantive PR**: the interrupted unit gets its verification (Phase

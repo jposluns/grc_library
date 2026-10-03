@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Stop hook: refuse a turn-end while the session is holding outstanding work.
+"""Retained GRC procedure: .claude/references/governance/evidence-grounded-completion.md;
+AIQT baseline: .claude/rules/aiqt/10-ACCUR-evidence-grounded-completion.md.
+
+Stop hook: refuse a turn-end while the session is holding outstanding work.
 
 Shipped 2026-08-07 after the orchestrator ended a turn on a stated intention ("continuing with X",
 "next I will do X") EIGHT times in one session, each after an explicit maintainer correction, one

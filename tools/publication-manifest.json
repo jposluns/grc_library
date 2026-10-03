@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "about": "AIQT Guardrails publication manifest: per-file classification for the one-way publication of the portable core.",
+    "about": "AIQT Guardrails publication manifest: per-file classification for the one-way publication of the portable core. The separately licensed upstream AIQT input is withheld from GRC outbound publication.",
     "origin": "publication classification closed in PR #1374; dual-family (Opus-5 + Codex) classification reconciled + Fable-confirmed, maintainer GO 2026-08-03",
     "buckets": {
       "CORE": "publishes to the guardrails public core",
@@ -399,6 +399,681 @@
       "bucket": "CORE",
       "disclosure": "PUBLIC",
       "rationale": "The canonical cross-family review brief the lanes render (PR #1465)."
+    },
+    "aiqt-rules/LICENSE": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/NOTICE": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/README.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/00-project-integrity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-citation-from-opened-file.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-claims-rest-on-observation.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-corroborate-external-claims.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-count-carries-its-predicate.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-disclose-guard-residuals.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-evidence-grounded-completion.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-guard-input-soundness.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-no-fabrication.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-read-before-characterizing.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-reference-capture.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-reproduce-before-fix.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-timestamp-from-clock.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-validate-inference-before-action.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-ACCUR-verify-fix-in-commit.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-anything-wrong-fixed-first.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-attestation-is-harness-owned.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-branch-and-merge-on-green.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-branch-rooted-on-live-main.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-commit-identity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-gate-discipline.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-generated-artefact-source-only.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-licence-compatibility.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-no-concealed-failure.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-preserve-uncommitted-work.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-protected-branch-integrity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-required-step-remains-required.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-safe-retries.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-separate-task-changes.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-stage-then-promote-on-green.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-track-launched-work.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-validation-gates-apply.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-INTEG-workers-produce-inert-data.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-absolute-paths.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-change-carries-check.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-compatibility-or-migration.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-confirm-execution-target.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-defence-in-depth-default.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-high-assurance-verification.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-lightweight-verifier-workers.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-match-surrounding-code.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-minimize-dependencies.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-self-guardrail-from-error.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-smallest-correct-change.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-surface-counterproductive-instructions.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-test-hermeticity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-verifier-delivery-completeness.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-QUALI-verifier-diversity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-ai-toolchain-register.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-assess-advise-discussion-only.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-atomic-claim-from-pool.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-change-record.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-change-tracking-ext.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-clarify-before-acting.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-concurrency-lease.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-continue-by-default.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-express-authorization-before-execution.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-no-console-diff-dumps.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-orchestrator-mistakes-register.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-reconcile-record-against-reality.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-records-first.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-session-close-on-green.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-session-resume-from-handoff.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-standing-constraints-persist.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-trust-recovery-escalation.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/10-TRUST-trust-recovery-ext.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/20-PROGR-decision-classification-before-enacting.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/30-SPEED-background-work-during-ci-waits.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/aiqt/40-COST-cost-tier.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECA-resource-bounds.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECA-verified-restore-path.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-data-boundary.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-egress-destinations.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-keep-secrets-out.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-least-privilege-retrieval.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-no-cross-context-bleed.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-no-hidden-context-disclosure.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECC-rotate-leaked-secret.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-authentication.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-authorization.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-config-is-executable-trust-gate.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-cryptography.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-dependency-provenance.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-fail-closed.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-federated-identity-flow.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-file-upload-handling.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-guardrail-config-integrity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-human-authorization.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-input-validation.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-inter-agent-trust.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-key-management.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-least-privilege-tools.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-log-redaction.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-operator-deception.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-output-encoding.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-output-handling.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-pin-referenced-instructions.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-poisoning-resistance.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-prefer-removing-a-path.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-preview-has-no-side-effects.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-prompt-trust-hierarchy.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-protect-audit-records.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-reject-vulnerable-versions.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-release-integrity.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-safe-deserialization.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-secure-configuration.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-security-logging.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-session-token-management.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-ssrf-prevention.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-symlink-resolution.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-threat-model-boundaries.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-tool-argument-validation.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-untrusted-content.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECI-verify-dependency-exists.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECP-data-minimization.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECP-data-residency-retention.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECP-purpose-limitation.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
+    },
+    "aiqt-rules/security/SECP-synthetic-fixture-data.md": {
+      "bucket": "EXCLUDED",
+      "disclosure": "WITHHELD",
+      "rationale": "Upstream-owned pinned input; excluded from GRC outbound publication."
     }
   }
 }
