@@ -35195,8 +35195,9 @@ class AIQTCutoverTests(unittest.TestCase):
                 mod.scoped(bad)
         p = root / '.claude/rules/README.md'
         p.write_bytes(b'\xff')
-        with self.assertRaises(UnicodeError):
+        with self.assertRaises(UnicodeError) as caught:
             mod.census(root)
+        self.assertIn('.claude/rules/README.md', getattr(caught.exception, '__notes__', []))
 
     def test_website_entries_resolve_and_preserve_counts(self):
         import json
