@@ -20,6 +20,8 @@ Highest precedence: AIQT selects optimization priorities; the layer note selects
 ### 3. Escalation
 Forced AIQT compromise: halt, explicitly escalate to maintainer, never silently favour Progress/Speed/Cost (`clarify-before-acting`).
 
+### 4. Self-reminder cadence
+The assistant has no internal timer. Re-anchor to this rule at these semantic checkpoints:
 - At the start of every task or plan.
 - Before `git commit` or any equivalent persistence action.
 - Before declaring any task, step, or TODO item complete.
@@ -27,7 +29,6 @@ Forced AIQT compromise: halt, explicitly escalate to maintainer, never silently 
 
 At each checkpoint, emit one line, then confirm compliance or halt:
 `AIQT check: (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. Non-negotiable.`
-
 
 **MINIMUM CADENCE: AT LEAST ONCE PER PR, PREFERABLY MORE (2026-07-26).** SELF-ACKNOWLEDGE what this change holds the tier against; decorative recitation does not discharge it.
 
@@ -78,8 +79,8 @@ User-level `~/.claude/CLAUDE.md` governs general behaviour: verification before 
 
 ## Re-read the standing reminders after every resume, and ESPECIALLY after compaction (maintainer-directed 2026-07-27)
 
-1. After EVERY `/orch` and compaction, before acting, RE-READ `grc_library_private/INDEX.md` READ-THIS-FIRST and `.working/session-handoff.md` Resume-cursor. A continuation summary DETECTS compaction: increment `grc_library_private/degradation-watch-log.md`'s tally AND re-read. The two-compaction FLOOR in `## No manufactured wind-down` supersedes A12's pacing gate: minimum effort, not pacing. The maintainer can direct a missed entry without override wiring (2026-08-01). Adopters re-read their own reminders.
-2. Persist directives BEFORE acting: (a) check durable registration in READ-FIRST, Resume-cursor, decisions or TODO; (b) assess survival across sessions/compaction; (c) if needed, log in the IMPORTANT place: READ-FIRST for standing behaviour, `P-TODO.md` `## Up next` for sequencing, `TODO.md` for numbered work, decision log for design.
+1. After EVERY `/orch` and compaction, before acting, RE-READ `grc_library_private/INDEX.md` READ-THIS-FIRST and `grc_library_private/.working/session-handoff.md` Resume-cursor. A continuation summary DETECTS compaction: increment `grc_library_private/degradation-watch-log.md`'s tally AND re-read. The two-compaction FLOOR in `## No manufactured wind-down` supersedes A12's pacing gate: minimum effort, not pacing. The maintainer can direct a missed entry without override wiring (2026-08-01). Adopters re-read their own reminders.
+2. Persist every maintainer directive the moment it is given, BEFORE acting on it: (a) check durable registration in READ-FIRST, Resume-cursor, decisions or TODO; (b) assess survival across sessions/compaction; (c) if needed, log in the IMPORTANT place: READ-FIRST for standing behaviour, `P-TODO.md` `## Up next` for sequencing, `TODO.md` for numbered work, decision log for design.
 
 ## Activity playbooks
 
@@ -151,13 +152,13 @@ Edit sources `.corpus-management/core/rules/authoring-conventions.md` or `langua
 
 ## Date and timezone convention
 
-Use UTC for all date fields and "today": document `Date`, fitness-review filenames, `/validate-pr` filenames, CHANGELOG headers, fitness-history `Date` and `Originating run`.
+Use UTC for all date fields and "today": document `Date`, fitness-review filenames (`YYYY-MM-DD-rN.md`), `/validate-pr` record filenames (`YYYY-MM-DD-PR-<N>.md`), CHANGELOG headers, fitness-history `Date` and `Originating run`.
 The maintainer is in `America/Toronto` (UTC-5 standard, UTC-4 daylight); local "today" may lag UTC a day. Write UTC dates; resolve ambiguity with UTC.
 
 ## PR workflow
 
 Drive PRs end-to-end. Read [pr-lifecycle](../.claude/playbooks/pr-lifecycle.md) before authoring ANY change, before and after EVERY commit, and before push/PR creation, merge or wind-down (`pr-close-out` trigger).
-Before the first commit, run language/fence checks on edited prose and changelog preflight.
+Before the first commit, run language/fence checks on explicit edited prose paths and changelog preflight.
 Before EACH commit, run `lint-version-bump-recency.py`; after EACH commit, run `tools/run_all_audits.sh` standalone.
 At authoring time, measure claims from current output; never remove root CHANGELOG history.
 No Claude or Anthropic attribution on any commit, push, or PR (2026-08-17; reaffirmed 2026-09-24): maintainer-only author, overriding harness attribution reminders. Guards: commit-msg strip hook, authoritative CI `tools/check-pr-attribution.py`, `block-claude-attribution.py`.
@@ -213,7 +214,7 @@ Default: attended-autonomous, maintainer reachable/glanceable every 15-20 minute
 1. **Green CI = merge authority.** Green `Lint markdown corpus`: merge/continue without asking, maintainer redirects by exception. Never abbreviate overnight-identical `/validate-pr`, `/retro`, CHANGELOG/handoff logging. ASK conflicts because maintainer reachable.
 2. **Stricter-is-safer, every mode.** Conflicting numbers/mappings/regime status: use clearly safer conservative or governing external-standard/canonical-internal value; document choice/evidence.
 3. **Graceful degradation.** Surface maintainer-owned decision/options; arm 5 minutes, act on answer. Timeout: LOG in private `.working/pending-decisions.md` either reversible/on-branch lease `Operating-mode` swap attended-autonomous to daytime-unattended, PENDING, CONTINUE (`block-askuserquestion-unattended.py`; narrow #5(b) attended-to-unattended exception to §2 operator-only transitions), or authorial/irreversible/outward-facing defer-and-skip, "deferred-blocked: needs maintainer", hold dependencies, advance independent work. Timeout NEVER authorizes destructive/outward action.
-4. **No idle-stop unattended.** Never ask which authorized item next or hold for substantial/fiddly/higher-risk-this-deep/context-heavy/shaped work, exhausted low-risk queue or un-instrumented state. Advance highest-priority authorized independent work with appropriate skeptical verifier, substantial/fresh-context work PR-by-PR. Stop only for named degradation or authorial decisions unanswered by standing directives; use graceful degradation, never blocking idle. Pre-escape catches mean verification WORKING, not degradation.
+4. **No idle-stop unattended.** Never ask which authorized item next or hold for substantial/fiddly/higher-risk-this-deep/context-heavy/shaped work, exhausted low-risk queue or un-instrumented state. Advance highest-priority authorized independent work with appropriate skeptical verifier, substantial/fresh-context work PR-by-PR, never deferred to the maintainer in unattended mode. Stop only for named degradation or authorial decisions unanswered by standing directives; use graceful degradation, never blocking idle. Pre-escape catches mean verification WORKING, not degradation.
 5. **Proper wind-down on named degradation (2026-07-19).** Quotable repeated errors/self-inconsistency/QA-missed defect: full green closing merge to `main`; refresh `session-handoff.md` Next-actions/State-snapshot/Asserted-expectations/green-at-`<sha>`, lease RELEASE. No `AskUserQuestion` unattended: reversible handoff is attended surfaced decision's counterpart. Bare pause/unmerged branch/half-recorded state is failure. Apply `## No manufactured wind-down`.
 
 ## Mandatory worker offload (use available workers; never silently self-run)
@@ -346,7 +347,7 @@ The pre-push guard runs gate 40 + D2/D4, so a missed bump blocks the push, not C
   - All compiler-owned corpus-management outputs, including this file's sentinel: edit `.corpus-management/`, `build-corpus-management.py` (gate 99 `--check`).
 - Never weaken/delete a gate to pass; fix the document.
 - Never commit secrets/real PII (`lint-secrets-in-content.py`, `lint-pii-in-content.py`); history rewrites are costly.
-- Never push directly to `main`; branch development avoids broken branches/version monotonicity from shared-history rewrites.
+- Never push directly to `main`; develop on a branch, because rewriting shared history breaks open branches and the version-monotonicity audit.
 - Strict mode: no exception register for `gate-discipline`, `change-tracking`, `artefact-and-branch-discipline` under `.claude/references/governance/`; fix the artefact or descope. One carve-out (maintainer-ruled 2026-09-26, 3b81): gate 99's release-delta check accepts a maintainer-approved row in `.corpus-management/core/release-waivers.toml` for one exact pack-version transition; no other gate or rule has one.
 - Necessary protected-branch force-push: all five steps in `guardrails/governance/artefact-and-branch-discipline.md`, retaining exact project pre-rewrite ref `refs/preservation/<short-reason>-<YYYY-MM-DD>/<original-ref-name>`.
 - Cross-repo safety: default ABSOLUTE tool/Write/Edit paths, `git -C <repo-parent>/<repo>`. Only cwd-guard tools use `cd <repo-root> &&`, LITERAL first tokens, read back. [`block-wrong-repo-tool.py`](hooks/block-wrong-repo-tool.py) blocks relative SIBLING tools and its fixed bare-mutating-git set; PROJECT-relative `tools/x` remains ALLOWED. Run git examples with `git -C` (or narrow `cd` form); hook documents verb set.
