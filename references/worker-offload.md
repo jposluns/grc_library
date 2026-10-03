@@ -53,7 +53,10 @@ rule (maintainer-directed 2026-07-19; expanded 2026-07-26; restructured for the 
    the permanent triple-family QA standard, which applies to EVERY QA pass (each member an `orch-verify`
    worker, one per family; the Claude member is a claude-family `orch-verify` worker, NEVER the in-session
    Agent tool, per `block-orchestrator-self-qa.py`). On token or tooling unavailability the panel drops
-   to the families that can run (triple to dual to single), never a discretionary downgrade. RESIDUE: a
+   to the families that can run (triple to dual to single), never a discretionary downgrade. A family is
+   unavailable only if no account can dispatch; a lone family runs two passes on two different models of
+   that family, and different model versions (for example Opus 4.8 and Opus 5.5) count as different models;
+   re-priming the same model does not count. RESIDUE: a
    read-only worker cannot complete the mechanical audit baseline (a gate test writes a temp fixture, so
    `run_all_audits.sh` fails under the read-only sandbox); the orchestrator runs the mechanical baseline
    itself (a deterministic Bash verification, not offloadable reasoning) as the authoritative half of the
