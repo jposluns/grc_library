@@ -31712,7 +31712,7 @@ class ClausePreservationTests(unittest.TestCase):
         self.save()
         self.check(1, "MOVED whole clause occurrence missing")
 
-    def test_whitespace_only_normalisation(self):
+    def test_whitespace_only_normalization(self):
         self.write(self.path, self.BASE.replace(
             "We MUST retain\nall review evidence.", " We\tMUST  retain all review evidence. ")
                    .replace("\n", "\r\n"))
@@ -32013,7 +32013,18 @@ class ClausePreservationTests(unittest.TestCase):
             code, output = run(mod, headroom, line_code)
             self.assertEqual(code, 1 if headroom < 0 else line_code)
             self.assertEqual("WARNING:" in output, headroom < 250)
+            if headroom < 0:
+                self.assertLess(output.index("WARNING:"), output.index("FAIL: startup"))
         source = Path(mod.__file__).read_text(encoding="utf-8")
+        warning_start = source.index("    if headroom < 250:")
+        ceiling_start = source.index('    if totals["startup"]["characters"] >', warning_start)
+        return_start = source.index("    return code", ceiling_start)
+        reordered = (source[:warning_start] + source[ceiling_start:return_start]
+                     + source[warning_start:ceiling_start] + source[return_start:])
+        exec(compile(reordered, mod.__file__, "exec"), mod.__dict__)
+        code, output = run(mod, -1, 0)
+        self.assertEqual(code, 1)
+        self.assertLess(output.index("FAIL: startup"), output.index("WARNING:"))
         self.assertIn("if headroom < 250:", source)
         exec(compile(source.replace("if headroom < 250:", "if headroom <= 250:"),
                      mod.__file__, "exec"), mod.__dict__)
@@ -32024,6 +32035,175 @@ class ClausePreservationTests(unittest.TestCase):
                 patch.object(mod, "census", side_effect=ValueError("broken")), \
                 contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(mod.run(), 2)
+
+    def regression_flip(self, base, changed, old, new, code=1):
+        self.new_base(base)
+        self.check(0)
+        self.write(self.path, changed)
+        self.save()
+        self.check(code, "unclosed fenced block" if code == 2
+                   else "whole clause occurrence missing")
+        self.check(0, tool=self.mutant(old, new))
+
+    def test_fence_bytes_and_flip(self):
+        base = "```python\nif approved:\n    audit()\n    publish()\n```\n"
+        for changed in (base.replace("    publish()", "publish()"),
+                        base.replace("audit()", "audit()  "),
+                        base.replace("\n", "\r\n"), base.rstrip("\n")):
+            with self.subTest(changed=changed):
+                self.regression_flip(base, changed, "return category, text",
+                                     'return category, " ".join(text.split())')
+
+    def test_inline_code_and_flip(self):
+        for base in ('Use `"deny  all"` as the exact token.\n',
+                     'Use ``a ` b  c`` exactly.\n',
+                     '| token | `deny  | all` |\n'):
+            with self.subTest(base=base):
+                self.regression_flip(base, base.replace("  ", " "),
+                                     "part if literal else re.sub", "re.sub")
+
+    def test_kind_and_flip(self):
+        self.regression_flip("# Never publish secrets\n",
+                             "    # Never publish secrets\n",
+                             "def match_key(unit: dict) -> tuple:",
+                             'def match_key(unit: dict) -> tuple:\n'
+                             '    return normalize(unit["base_quote"])')
+        self.regression_flip("- Review.\n", "Review.\n",
+                             "def match_key(unit: dict) -> tuple:",
+                             'def match_key(unit: dict) -> tuple:\n'
+                             '    return normalize(unit["base_quote"].lstrip("- "))')
+
+    def test_list_depth_and_flip(self):
+        for before, after in (("  - Review.\n", "- Review.\n"),
+                              ("- Review.\n", "  - Review.\n"),
+                              ("\t- Review.\n", "  - Review.\n")):
+            with self.subTest(before=before):
+                self.regression_flip(before, after, "len(match[1].expandtabs(4))", "0")
+        self.new_base("\t- Review.\n")
+        self.write(self.path, "    - Review.\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "len(match[1].expandtabs(4))", "len(match[1])"))
+
+    def test_list_marker_and_flip(self):
+        for marker in ("+", "*", "1.", "1)"):
+            with self.subTest(marker=marker):
+                self.regression_flip("- Review.\n", marker + " Review.\n",
+                                     'match[2],', '"",')
+
+    def test_heading_level_and_flip(self):
+        for base, changed in (("# Review\n", "## Review\n"),
+                              ("Review\n===\n", "Review\n---\n")):
+            with self.subTest(base=base):
+                self.regression_flip(base, changed, "category, level, normalize(body)",
+                                     "category, 0, normalize(body)")
+
+    def test_table_boundaries_and_flip(self):
+        self.regression_flip("| a | b |\n", "| a b |\n",
+                             "return category, table_cells(text)",
+                             'return category, normalize(text.replace("|", " "))')
+        self.new_base("| a | b |\n")
+        self.write(self.path, "|a|  b|\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "return category, table_cells(text)", "return category, text"))
+        mod = self.load_tool("check-clause-preservation.py")
+        self.assertEqual(mod.table_cells(r"| a\|b | `c|d` |"),
+                         ("", r"a\|b", "`c|d`", ""))
+        self.assertEqual(mod.table_cells(r"| a\\|b |"), ("", "a\\\\", "b", ""))
+        source = self.source.replace('slashes % 2 == 0', 'True')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        self.assertEqual(mod.table_cells(r"| a\|b |"), ("", "a\\", "b", ""))
+
+    def test_inline_whitespace_boundary_and_flip(self):
+        for char in ("\u00a0", "\u2028", "\f"):
+            with self.subTest(char=char):
+                self.regression_flip("Keep" + char + "evidence.\n", "Keep evidence.\n",
+                                     'r"[ \\t\\r\\n]+"', 'r"\\s+"')
+
+    def test_physical_lines_and_flip(self):
+        mod = self.load_tool("check-clause-preservation.py")
+        text = "A\u2028B\fC\n\n# Next\n"
+        units, excluded = mod.clauses(text)
+        self.assertEqual([(u["base_line"], u["end_line"]) for u in units], [(1, 1), (3, 3)])
+        self.assertEqual(excluded, [{"line": 2, "category": "BLANK"}])
+        source = self.source.replace('pieces = text.split("\\n")',
+                                     'pieces = text.splitlines() + [""]')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        units, _ = mod.clauses(text)
+        self.assertEqual(units[-1]["base_line"], 5)
+
+    def test_fence_closing_indent_and_flip(self):
+        self.regression_flip("Rule.\n", "```\n    ```\n\nRule.\n",
+                             'close = re.compile(r"^ {0,3}"',
+                             'close = re.compile(r"^[ \\t]*"', code=2)
+
+    def test_fence_opening_indent_and_flip(self):
+        self.new_base("    ```\ntext\n    ```\n")
+        self.assertEqual(self.rows[0]["kind"], "paragraph")
+        mod = self.load_tool("check-clause-preservation.py")
+        source = self.source.replace('FENCE = re.compile(r"^ {0,3}',
+                                     'FENCE = re.compile(r"^[ \\t]*')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        with self.assertRaisesRegex(ValueError, "unclosed fenced block"):
+            mod.clauses("    ```\ntext\n    ```\n")
+
+    def test_structural_change_requires_accounting(self):
+        for changed in ("Review.\n", "  - Review.\n"):
+            self.new_base("- Review.\n")
+            self.write(self.path, changed)
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+            self.rows[0].update(state="DROPPED", destination="", reason="Approved rewrite.")
+            self.check(0)
+            self.rows[0].update(state="MOVED", destination="archive.md", reason="")
+            self.write("archive.md", "- Review.\n")
+            self.save()
+            self.check(0)
+            self.write("archive.md", changed)
+            self.save()
+            self.check(1, "MOVED whole clause occurrence missing")
+
+    def test_disclosed_rendering_and_scope_residual(self):
+        for changed in ("<!-- retired\n\nRule.\n\n-->\n", "    Rule.\n"):
+            self.new_base("Rule.\n")
+            self.write(self.path, changed)
+            self.save()
+            self.check(0)
+            self.write(self.path, changed.replace("Rule.", "Changed."))
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+        self.new_base("# Mandatory\n\n- A\n\n# Optional\n\n- B\n")
+        self.write(self.path, "# Mandatory\n\n- B\n\n# Optional\n\n- A\n")
+        self.save()
+        self.check(0)
+        self.write(self.path, "# Mandatory\n\n  - B\n\n# Optional\n\n- A\n")
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+
+    def test_kept_moved_reason_and_flip(self):
+        for state, destination in (("KEPT", self.path), ("MOVED", "moved.md")):
+            self.write("moved.md", "We MUST retain all review evidence.\n")
+            self.save()
+            self.row(3).update(state=state, destination=destination, reason="")
+            self.check(0)
+            self.row(3)["reason"] = "Unexpected reason."
+            self.check(2, "KEPT/MOVED require empty reason")
+            self.check(0, tool=self.mutant('if row["reason"] != "":', 'if False:'))
+
+    def test_heading_syntax_equivalence_and_flip(self):
+        self.new_base("# Review\n")
+        self.write(self.path, "Review\n===\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "category, level, normalize(body)", "category, level, normalize(text)"))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
 
 
 class RepoRelativeDefaultPathTests(unittest.TestCase):

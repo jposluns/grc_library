@@ -8,16 +8,28 @@ presence, not that the destination gained the text since BASE.
 
 Units are ATX/setext headings, individual list items with adjacent wrapped
 continuations, pipe-containing table rows, fenced blocks, thematic breaks,
-and paragraphs. Nested list items start separate units. Blank lines separate
-paragraphs/items. Unknown Markdown is retained as paragraph text. This is a
-conservative lexical partition, not a CommonMark renderer or semantic proof.
-All physical lines belong to a unit or an explicit BLANK exclusion. Fenced
-blocks include internal blank lines; an unclosed fence is an input error.
+and paragraphs. Nested items start separate units. Blank lines separate
+paragraphs/items. Every LF-delimited physical line belongs to a unit or an
+explicit BLANK exclusion. Unclosed fences are input errors.
 
-Only runs of whitespace are normalised for matching. Whole destination units
-are consumed once per file, including repeated clauses. Ledger base quotes and
-line spans must exactly match the extracted inventory. Ledger files cannot
-supply evidence. Worktree/index/untracked content cannot satisfy a row.
+Matching includes unit kind, list indentation columns (four-column tab stops)
+and exact marker, heading level, and table cell boundaries. Fenced blocks
+are byte-exact UTF-8, including line endings and the closing line terminator.
+Inline backtick spans are exact too. Elsewhere only ASCII spaces, tabs and
+wrapped CR/LF breaks within a unit are normalized. Destination units are
+consumed once per file. Ledger quotes and spans must match BASE exactly.
+Ledger files cannot supply evidence; only committed tracked files can.
+
+Disclosed residual: this lexical partition is not a CommonMark renderer or
+semantic proof. HTML comments/blocks, indented code, and blockquote/list
+container context are not modeled. Wrapping a paragraph in a multiline HTML
+comment, or indenting it as code, can still satisfy KEPT. List indentation
+is lexical, not relative to a parsed parent. Equal-depth re-parenting,
+section moves and ordering are unchecked. Escaped backticks, HTML/CSS hiding,
+link/reference interpretation and other renderer-specific effects require
+manual diff review. Top-level fences accept at most three leading spaces;
+nested container fences are outside this model. Review each hunk for these
+rendering and scope changes even when the ledger passes.
 
 Flags are unchanged (including --repo). The new ledger schema deliberately
 rejects old K/M/S ledgers; regenerate with --extract. No files are written.
@@ -38,21 +50,87 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
 ATX = re.compile(r"^ {0,3}#{1,6}(?:\s|$)")
 SETEXT = re.compile(r"^ {0,3}(?:=+|-+)[ \t]*$")
-LIST = re.compile(r"^[ \t]*(?:[-+*]|[0-9]{1,9}[.)])[ \t]+")
-FENCE = re.compile(r"^[ \t]*(`{3,}|~{3,})(.*)$")
+LIST = re.compile(r"^([ \t]*)([-+*]|[0-9]{1,9}[.)])[ \t]+")
+FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 RULE = re.compile(r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$")
 TOP_KEYS = {"base_revision", "base_path", "clauses", "excluded_lines"}
 UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
 ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
 
 
-def normalise(text: str) -> str:
-    return " ".join(text.split())
+def inline_parts(text: str):
+    """Yield ordinary text and exact, equal-delimiter backtick spans."""
+    start = cursor = 0
+    while cursor < len(text):
+        opening = re.search(r"`+", text[cursor:])
+        if opening is None:
+            break
+        left = cursor + opening.start()
+        right = cursor + opening.end()
+        closing = re.search(r"(?<!`)" + re.escape(opening.group()) + r"(?!`)",
+                            text[right:])
+        if closing is None:
+            cursor = right
+            continue
+        end = right + closing.end()
+        yield False, text[start:left]
+        yield True, text[left:end]
+        start = cursor = end
+    yield False, text[start:]
+
+
+def normalize(text: str) -> str:
+    """Normalize prose whitespace, preserving literal backtick spans."""
+    return "".join(part if literal else re.sub(r"[ \t\r\n]+", " ", part)
+                   for literal, part in inline_parts(text)).strip(" ")
+
+
+def table_cells(text: str) -> tuple[str, ...]:
+    """Keep unescaped pipe boundaries outside exact backtick spans."""
+    cells = [""]
+    for literal, part in inline_parts(text):
+        if literal:
+            cells[-1] += part
+            continue
+        slashes = 0
+        for char in part:
+            if char == "|" and slashes % 2 == 0:
+                cells.append("")
+            else:
+                cells[-1] += char
+            slashes = slashes + 1 if char == "\\" else 0
+    return tuple(normalize(cell) for cell in cells)
+
+
+def match_key(unit: dict) -> tuple:
+    category, text = unit["kind"], unit["base_quote"]
+    if category == "fence":
+        return category, text
+    if category == "list_item":
+        match = LIST.match(text)
+        return (category, len(match[1].expandtabs(4)), match[2],
+                normalize(text[match.end():]))
+    if category == "heading":
+        first = text.split("\n", 1)[0]
+        if ATX.match(first):
+            level = len(first.lstrip(" ").split()[0])
+            body = first.lstrip(" ")[level:]
+        else:
+            body, underline = text.rsplit("\n", 1)
+            level = 1 if underline.lstrip().startswith("=") else 2
+        return category, level, normalize(body)
+    if category == "table_row":
+        return category, table_cells(text)
+    return category, normalize(text)
 
 
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
     """Partition every physical line; retain raw spelling for ledger review."""
-    lines = text.splitlines()
+    pieces = text.split("\n")
+    raw_lines = [piece + "\n" for piece in pieces[:-1]]
+    if pieces[-1]:
+        raw_lines.append(pieces[-1])
+    lines = [line.removesuffix("\n").removesuffix("\r") for line in raw_lines]
     units, excluded = [], []
 
     def kind(line):
@@ -77,7 +155,7 @@ def clauses(text: str) -> tuple[list[dict], list[dict]]:
         start, category = i, kind(lines[i])
         if category == "fence":
             marker = FENCE.match(lines[i]).group(1)
-            close = re.compile(r"^[ \t]*" + re.escape(marker[0])
+            close = re.compile(r"^ {0,3}" + re.escape(marker[0])
                                + "{" + str(len(marker)) + r",}[ \t]*$")
             i += 1
             while i < len(lines) and not close.fullmatch(lines[i]):
@@ -98,7 +176,8 @@ def clauses(text: str) -> tuple[list[dict], list[dict]]:
                     break
                 i += 1
         units.append(dict(base_line=start + 1, end_line=i, kind=category,
-                          base_quote="\n".join(lines[start:i])))
+                          base_quote=("".join(raw_lines[start:i]) if category == "fence"
+                                      else "\n".join(lines[start:i]))))
     return units, excluded
 
 
@@ -242,8 +321,8 @@ def check(root, base, head, path, expected, rows, ledger):
             raise ValueError(f"HEAD {head}:{destination}: ledger cannot supply evidence")
         if destination not in destinations:
             units, _ = inventory(root, head, destination)
-            destinations[destination] = Counter(normalise(unit["base_quote"]) for unit in units)
-        quote = normalise(by_line[line]["base_quote"])
+            destinations[destination] = Counter(match_key(unit) for unit in units)
+        quote = match_key(by_line[line])
         available = destinations[destination]
         if available[quote] < 1:
             findings.append(f"{label}: {row['state']} whole clause occurrence missing "
