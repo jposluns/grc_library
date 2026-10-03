@@ -69,8 +69,8 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # .claude/skills/addyosmani-<name>/ skill directories and condenses the external-overlay
 # paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
 # 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
-# 3b177-e lowers 781 -> 468 (measured 458 lines + 10) and the startup character ceiling 288490 -> 245289
-# (measured 244289 + 1000) after the deeper CLAUDE.md restructure; downward ratchet continues.
+# 3b177-e lowers 781 -> 468 and the startup character ceiling 288490 -> 245289 (set from the draft's
+# 458 lines + 10 and 244289 + 1000; restored clauses since then still fit); downward ratchet continues.
 CEILING = 468
 STARTUP_CHARACTER_CEILING = 245289  # 3b177-e; final backlog goal remains 150000
 

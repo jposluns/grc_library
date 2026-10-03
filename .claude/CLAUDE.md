@@ -12,7 +12,7 @@ Highest precedence: AIQT selects optimization priorities; the layer note selects
 
 ### 2. Integrity (non-negotiable)
 - Correctness first: never stub/mock/hardcode/simulate results to appear finished.
-- State every modification; never silently change or expand scope without instruction.
+- State every modification; never change anything silently; never expand scope without instruction.
 - Never comment out, weaken, skip or delete tests, assertions, type checks, linting, audit gates or error handling to force a pass (`gate-discipline` at apex precedence).
 - Never invent functions, APIs, configuration keys, citations or behaviour; if unknown, stop and say so (`evidence-grounded-completion` at apex precedence).
 - Surface failing states, never conceal them.
@@ -273,7 +273,7 @@ AIQT Progress governs decisiveness once a signal/instruction authorizes handoff,
 **NEVER triggers:** depth/length, elapsed time, long/heavy session, done-a-lot, complete milestone, this-deep-in, felt degradation, context-heaviness or remaining work's shape (series/migration/audit). Unobservable feelings are never assertable. Large work proceeds unit by unit with independent verification. Finish the unit, fix caught issues, continue.
 **Two-compaction FLOOR:** no discretionary wind-down proposal before two; never depth permission or ceiling. Named observable degradation valid at any count.
 **Fresh context means DISPATCH**, never stop: worker audits/assessments (`/deep-assessment`) while advancing the queue.
-Mechanization (2026-09-03): [`stop-guard-unattended.py`](hooks/stop-guard-unattended.py) blocks unattended (including attended-autonomous) yield while [`nmw-actionable`](hooks/nmw-actionable) reports work. Honours `stop_hook_active`/`.allow-idle-stop`, FAILS OPEN (including registry-read failure), allows at least three live uid/owner-scoped dispatch groups, replaces de-registered `block-idle-stop-with-actionable-backlog.py`; docstring holds mechanics.
+Mechanization (2026-09-03): [`stop-guard-unattended.py`](hooks/stop-guard-unattended.py) blocks unattended (including attended-autonomous) yield while [`nmw-actionable`](hooks/nmw-actionable) reports work. Honours `stop_hook_active`/`.allow-idle-stop`, FAILS OPEN (including registry-read failure), allows the yield while at least three live uid/owner-scoped dispatch groups are running, replaces de-registered `block-idle-stop-with-actionable-backlog.py`; docstring holds mechanics.
 On an evidence-triggered attended decision use `AskUserQuestion`: quote signals; assess next-five per-PR success; offer A handoff (recommended), B recommended continue order, C alternative slightly higher-risk order, D "do more than we should" (Ulysses pact: remind the maintainer not to be stupid and hand off immediately).
 Assess partitionability, incremental/fresh-context work, bookkeeping touchpoints, authorial decisions and references in hand for sequencing/verification, NEVER triggers.
 About 5-minute timer: act on answers; no answer means A, never B/C/D. Overnight conflict rules govern overnight. B/C relax nothing: full `/validate-pr` + `/retro`, degradation reassessed EACH PR boundary.
@@ -337,11 +337,11 @@ The pre-push guard runs gate 40 + D2/D4, so a missed bump blocks the push, not C
 
 ## Boundaries
 
-- Never hand-edit generated files; edit sources, regenerate, commit both together; CI `--check` fails drift (gate 91 umbrella). Generators are `tools/` scripts:
+- Never hand-edit generated files; edit sources, regenerate, commit both together; CI `--check` fails on drift (each generator's own `--check` gate). Generators are `tools/` scripts:
   - `taxonomy.yml`, `narrative.yml`, `docs/portal.md`, `docs/maturity-scorecard.md`: `build-taxonomy.py`, `build-narrative-registry.py`, `build-portal.py` per Project.
   - `governance/relationship-model.generated.json`: `build-relationship-model.py` (gate 93 `--check`).
   - `tools/alignment_citation_ids.json`: `build-alignment-citation-registry.py`; `--check` needs `_ref`, maintainer parity aid, not CI; gate 96 checks counts/digests at load.
-  - TODO sentinel `## Number allocation`: `build-todo-number-allocation.py`; PUBLIC `tools/todo-number-floor.json` is hand-maintained SOURCE, bumped on allocation, plus live ids; gate 78 reads same floor.
+  - TODO sentinel `## Number allocation`: `build-todo-number-allocation.py` (gate 91 `--check`); PUBLIC `tools/todo-number-floor.json` is hand-maintained SOURCE, bumped on allocation, plus live ids; gate 78 reads same floor.
   - `governance/specification-citation-verification.md` §7.1 publisher table: edit `json citation-publishers` block, `build-citation-publishers.py` (gate 102 `--check`).
   - `.project-governance/register-historical-citation-exceptions.md` sentinel table: edit `.toml`, `build-historical-citation-exceptions.py` (gate 6).
   - All compiler-owned corpus-management outputs, including this file's sentinel: edit `.corpus-management/`, `build-corpus-management.py` (gate 99 `--check`).
