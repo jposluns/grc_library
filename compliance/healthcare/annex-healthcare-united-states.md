@@ -2,8 +2,8 @@
 
 **Document Title:** United States HIPAA Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.1\
-**Date:** 2026-07-09\
+**Version:** 0.0.2\
+**Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/healthcare/README.md`](README.md), [`compliance/healthcare/annex-healthcare-sector-requirements.md`](annex-healthcare-sector-requirements.md), [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`privacy/jurisdictions/annex-privacy-united-states.md`](../../privacy/jurisdictions/annex-privacy-united-states.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md)\
@@ -129,7 +129,7 @@ HHS OCR enforces HIPAA. Civil money penalties are set on a four-tier culpability
 | 3 | The violation was due to willful neglect but was corrected within the 30-day period beginning when the organization knew or should have known of it |
 | 4 | The violation was due to willful neglect and was not corrected within that 30-day period |
 
-The per-violation amounts and the annual cap for identical violations rise across the tiers. This annex does not state a dollar figure: the amounts codified in 160.404 are statutory base figures that HHS adjusts for inflation annually and publishes at **45 CFR part 102**, so a current figure is taken from part 102 (or the current HHS OCR enforcement notice), not from a static citation. In determining an amount, the Secretary weighs the factors at 160.408 (the nature and extent of the violation and of the resulting harm, the organization's compliance history, its financial condition, and other matters justice may require). An affirmative defense is available where the violation was not due to willful neglect and was corrected within the 30-day period (160.410).
+Under 45 CFR 102.3, regulatory calendar-year caps for identical violations are the same across all four tiers; the 2019 enforcement-discretion annual caps rise by tier. See the [US privacy annex HIPAA section](../../privacy/jurisdictions/annex-privacy-united-states.md#hipaa) for amounts and the distinction between base and adjusted values. In determining an amount, the Secretary weighs the factors at 160.408 (the nature and extent of the violation and of the resulting harm, the organization's compliance history, its financial condition, and other matters justice may require). An affirmative defense is available where the violation was not due to willful neglect and was corrected within the 30-day period (160.410).
 
 ---
 

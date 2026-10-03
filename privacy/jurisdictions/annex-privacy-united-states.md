@@ -2,8 +2,8 @@
 
 **Document Title:** United States Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.2.13\
-**Date:** 2026-10-01\
+**Version:** 1.2.14\
+**Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -138,7 +138,18 @@ The earliest three comprehensive state laws converge on the same request-handlin
 
 ### HIPAA
 
-- Civil monetary penalties: USD 137 to 2,067,813 per violation category per year depending on culpability tier. Enforced by HHS Office for Civil Rights (OCR).
+Civil money penalties are enforced by HHS Office for Civil Rights (OCR). For violations occurring on or after 18 February 2009, Title 45 of the Code of Federal Regulations, [section 160.404](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-C/part-160/subpart-D/section-160.404), distinguishes amounts for each violation from caps for identical violations during a calendar year (1 January through 31 December). The table reproduces the **2025 adjustment column** of [section 102.3](https://www.ecfr.gov/current/title-45/subtitle-A/subchapter-A/part-102/section-102.3), the latest column in the text current as of 1 October 2026; all amounts are in USD. Read the regulatory caps together with the enforcement-discretion policy below.
+
+| Tier | Culpability | Per-violation minimum | Per-violation maximum | Regulatory calendar-year cap for identical violations |
+| --- | --- | --- | --- | --- |
+| 1 | The covered entity or business associate did not know and, by exercising reasonable diligence, would not have known that it violated the provision | 145 | 73,011 | 2,190,294 |
+| 2 | The violation was due to reasonable cause and not to willful neglect | 1,461 | 73,011 | 2,190,294 |
+| 3 | The violation was due to willful neglect and was corrected during the 30-day period defined below | 14,602 | 73,011 | 2,190,294 |
+| 4 | The violation was due to willful neglect and was not corrected during the 30-day period defined below | 73,011 | 2,190,294 | 2,190,294 |
+
+For tiers 3 and 4, the 30-day period begins on the first date the covered entity or business associate liable for the penalty knew, or, by exercising reasonable diligence, would have known that the violation occurred.
+
+Under HHS's [2019 Notification of Enforcement Discretion](https://www.federalregister.gov/documents/2019/04/30/2019-08530/notification-of-enforcement-discretion-regarding-hipaa-civil-money-penalties), HHS applies lower annual caps for the first three tiers. The notice's **base annual caps**, before inflation adjustment, are USD 25,000 for tier 1, USD 100,000 for tier 2, USD 250,000 for tier 3, and USD 1,500,000 for tier 4. Both tables in the notice (Table 1, describing the Enforcement Rule, and Table 2, the interim tiers the notice sets) list a tier-4 per-violation maximum of **USD 50,000 as a base value before inflation adjustment**, distinct from the adjusted regulatory maximum in section 102.3 above. The notice states that HHS will use this interim penalty tier structure, as adjusted for inflation, until further notice. Neither section 102.3 nor the notice supplies the current inflation-adjusted values of the lower annual caps; the base values are not current adjusted caps. Adopters must confirm the applicable inflation-adjusted enforcement-discretion limits with HHS OCR before reliance.
 
 ---
 

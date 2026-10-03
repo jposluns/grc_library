@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.17\
-**Date:** 2026-09-30\
+**Version:** 1.1.18\
+**Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -160,7 +160,7 @@ When the NPRM is finalized, the published Final Rule will take effect 60 days af
 | Notification to prominent media serving the state or jurisdiction | Breaches affecting more than 500 residents of a state or jurisdiction (45 CFR 164.406(a)) | Without unreasonable delay; no later than 60 calendar days after discovery |
 | Business associate breach notification to covered entity | Any breach affecting the covered entity's PHI | Within 60 days of discovery |
 
-**HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Penalties up to US$1.9M per violation category per year.
+**HHS OCR investigation triggers:** Any breach affecting 500+ individuals will be investigated by OCR. Under 45 CFR 102.3, regulatory calendar-year caps for identical violations are the same across all four tiers; the 2019 enforcement-discretion annual caps rise by tier. See the [US privacy annex HIPAA section](../../privacy/jurisdictions/annex-privacy-united-states.md#hipaa) for amounts and the distinction between base and adjusted values.
 
 **Operational procedure:** the executable HIPAA operational obligations, the Privacy Rule individual-rights response clocks (access, amendment, accounting), the Notice of Privacy Practices and minimum-necessary duties, the six-year documentation-retention schedule, the four-factor breach-determination test that decides whether the notification clock starts, and the business associate agreement content requirement, are operationalized in the [HIPAA Operational Compliance Procedure](procedure-hipaa-operational-compliance.md). The full US operational regime map, role determination, the Security Rule safeguard families, the Breach Notification mechanics and timelines, the four-tier enforcement structure, and the mapping of these obligations to library controls through the NIST SP 800-66r2 crosswalk, is in the [United States HIPAA Sector Requirements Annex](annex-healthcare-united-states.md).
 
