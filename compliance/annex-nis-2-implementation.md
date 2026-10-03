@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.6\
-**Date:** 2026-09-24\
+**Version:** 1.2.7\
+**Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -86,8 +86,8 @@ NIS 2 mandates a tiered incident-notification regime to the competent authority 
 
 | Phase | Window | Content |
 | --- | --- | --- |
-| Early warning | Within 24 hours of awareness of a significant incident | Indication of whether the incident is suspected to be caused by unlawful or malicious acts and whether it could have cross-border impact |
-| Incident notification | Within 72 hours of awareness; by derogation, without undue delay and in any event within 24 hours of awareness for a trust service provider, for significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph) | Initial assessment of severity, impact, indicators of compromise where available |
+| Early warning | Entities must submit without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)) | Indication of whether the incident is suspected to be caused by unlawful or malicious acts and whether it could have cross-border impact |
+| Incident notification | Entities must submit without undue delay and in any event within 72 hours of becoming aware of the significant incident (Article 23(4)(b)); by derogation, without undue delay and in any event within 24 hours of awareness for a trust service provider, for significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph) | Initial assessment of severity, impact, indicators of compromise where available |
 | Intermediate report | Upon request of the competent authority or CSIRT | Update on the situation |
 | Final report | Within one month of submitting the incident notification | Detailed description, type of threat or root cause, applied and ongoing mitigation, where applicable cross-border impact |
 | Progress report, then deferred final report (Article 23(4)(e)) | Where the incident is still ongoing when the final report falls due: a progress report at that point, and the final report within one month of the entity's handling of the incident | Progress report on the state of the incident; the final report then carries the Article 23(4)(d) content above |
