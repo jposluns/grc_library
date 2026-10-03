@@ -31628,7 +31628,7 @@ class ClausePreservationTests(unittest.TestCase):
             "HOME": str(self.root), "XDG_CONFIG_HOME": str(self.root),
             "TMPDIR": str(self.root), "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
             "TZ": "UTC", "PYTHONHASHSEED": "0", "PYTHONNOUSERSITE": "1",
-            "GIT_CONFIG_NOSYSTEM": "1",
+            "PYTHONDONTWRITEBYTECODE": "1", "GIT_CONFIG_NOSYSTEM": "1",
             "GIT_CONFIG_GLOBAL": os.devnull, "GIT_ATTR_NOSYSTEM": "1",
             "GIT_TERMINAL_PROMPT": "0", "GIT_ALLOW_PROTOCOL": "",
             "GIT_NO_REPLACE_OBJECTS": "1",
@@ -31673,7 +31673,7 @@ class ClausePreservationTests(unittest.TestCase):
 
     def invoke(self, *args, tool=None):
         return subprocess.run(
-            [sys.executable, str(tool or self.tool),
+            [sys.executable, "-B", str(tool or self.tool),
              "--repo", str(self.root), "--base", self.base, "--path", self.path, *args],
             env=self.env, cwd=self.root, text=True, capture_output=True,
         )
@@ -32291,380 +32291,166 @@ class ClausePreservationTests(unittest.TestCase):
         self.check(1, "whole clause occurrence missing", tool=self.mutant(
             "category, level, normalize(body)", "category, level, normalize(text)"))
 
-    # 3b196: relative link targets. Exact matching runs first, exactly as at base; a link
-    # key is consulted only for rows left unmatched, and only for unambiguous plain links.
-    SOURCE, MOVED = ".claude/CLAUDE.md", "references/moved.md"
+    REBASE_LINK = 'Read [policy](policy/a.md#scope "Scope") now.\n'
+    REBASE_MOVED = 'Read [policy](../policy/a.md#scope "Scope") now.\n'
+    BYTE_RULE = (" or base[i] != text[j]:", ":")
+    CHARS = '"\\\\%&<>"'
+    # name: (BASE text, destination text, expected message, rule source, rule off)
+    REBASE_REJECTIONS = {
+        "target": ("Read [x](policy/a.md) now.\n", "Read [x](../policy/b.md) now.\n",
+                   "resolves to 'policy/a.md' and 'policy/b.md'", "if left != right:",
+                   "if False:"),
+        "anchor": (REBASE_LINK, REBASE_MOVED.replace("#scope", "#other"),
+                   "text differs", *BYTE_RULE),
+        "outside_text": (REBASE_LINK, REBASE_MOVED.replace("Read", "Reed"),
+                         "first difference at BASE quote offset 2", *BYTE_RULE),
+        "rewrap": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md) now.\n",
+                   "text differs", *BYTE_RULE),
+        "identical": (REBASE_LINK, REBASE_LINK, "texts are identical; use MOVED",
+                      "if reason is None and result:", "if reason is None:"),
+        "escape": ("Read [x](../out.md) now.\n", "Read [x](../../out.md) now.\n",
+                   "outside the repository",
+                   'if target == ".." or target.startswith("../"):', "if False:"),
+        "scheme": ("Read [x](a:b.md) now.\n", "Read [x](../a:b.md) now.\n",
+                   "scheme or drive", 'if ":" in segment:', "if False:"),
+        "slash": ("Read [x](/a.md) now.\n", "Read [x](/docs/../a.md) now.\n",
+                  "leading '/'", 'if segment.startswith("/"):', "if False:"),
+        "empty": ("Read [x]() now.\n", "Read [x](..) now.\n", "empty target",
+                  "if not segment:", "if False:"),
+        "percent": ("Read [x](a%2Eb.md) now.\n", "Read [x](../a%2Eb.md) now.\n",
+                    "character '%'", CHARS, '"\\\\&<>"'),
+        "entity": ("Read [x](a&amp;b.md) now.\n", "Read [x](../a&amp;b.md) now.\n",
+                   "character '&'", CHARS, '"\\\\%<>"'),
+        "backslash": ("Read [x](a\\b.md) now.\n", "Read [x](../a\\b.md) now.\n",
+                      "character '\\\\'", CHARS, '"%&<>"'),
+        "less": ("Read [x](a<b.md) now.\n", "Read [x](../a<b.md) now.\n",
+                 "character '<'", CHARS, '"\\\\%&>"'),
+        "greater": ("Read [x](a>b.md) now.\n", "Read [x](../a>b.md) now.\n",
+                    "character '>'", CHARS, '"\\\\%&<"'),
+        "control": ("Read [x](a\x01b.md) now.\n", "Read [x](../a\x01b.md) now.\n",
+                    "control character", '== "Cc"', '== "Zz"'),
+        "unterminated": ("Read [x](a.md", "Read [x](../a.md", "text differs",
+                         'TARGET_END = re.compile(r"[)#?]|\\s")',
+                         'TARGET_END = re.compile(r"[)#?]|\\s|$")'),
+    }
 
-    def moved(self, before, after):
-        self.new_base(before + "\n", self.SOURCE)
+    def rebase(self, base, moved, code, message="OK:", tool=None,
+               path="instructions.md", destination="docs/moved.md"):
+        self.new_base(base, path)
         for row in self.rows:
-            row.update(state="MOVED", destination=self.MOVED)
-        self.write(self.MOVED, after + "\n")
+            row.update(state="REBASED", destination=destination)
+        self.write(destination, moved)
         self.save()
+        return self.check(code, message, tool=tool)
 
-    def accepted(self, before, after):
-        self.moved(before, after)
-        return self.check(0)
+    def rebase_flip(self, base, moved, code, message, old, new):
+        """Check the real tool, then show the case flips with its rule off."""
+        self.rebase(base, moved, code, message)
+        self.assertEqual(self.source.count(old), 1, old)
+        self.check(1 - code, "REBASED at HEAD" if code == 0 else "OK:",
+                   tool=self.mutant(old, new))
 
-    def rejected(self, before, after):
-        self.moved(before, after)
-        return self.check(1, "MOVED whole clause occurrence missing")
+    def rejected(self, name):
+        base, moved, message, old, new = self.REBASE_REJECTIONS[name]
+        self.rebase_flip(base, moved, 1, message, old, new)
 
-    REBASED = (
-        ("[hook](hooks/x.py#run)", "[hook](../.claude/hooks/x.py#run)"),
-        ("![hook](hooks/x.png)", "![hook](../.claude/hooks/x.png)"),
-        ("- [hook](hooks/x.py)", "- [hook](../.claude/hooks/x.py)"),
-        ("  1. [hook](hooks/x.py)", "  1. [hook](../.claude/hooks/x.py)"),
-        ("# [hook](hooks/x.py)", "# [hook](../.claude/hooks/x.py)"),
-        ("Title [hook](hooks/x.py)\n---", "Title [hook](../.claude/hooks/x.py)\n---"),
-        ("Use\n[hook](hooks/x.py)\nalways.", "Use [hook](../.claude/hooks/x.py) always."),
-        ("See [a](hooks/a.py), [b](https://example.invalid/b), [c](/c) and `[d](hooks/d.py)`.",
-         "See [a](../.claude/hooks/a.py), [b](https://example.invalid/b), [c](/c) and "
-         "`[d](hooks/d.py)`."),
-        ("[x](./hooks/old/../x.py?mode=raw#run)", "[x](../.claude/hooks/x.py?mode=raw#run)"),
-        ("[x](hooks/a//b/)", "[x](../.claude/hooks/a//b/)"),
-        ("- one [a](hooks/a.py)\n- two [b](hooks/b.py)",
-         "- one [a](../.claude/hooks/a.py)\n- two [b](../.claude/hooks/b.py)"),
-    )
+    def test_rebased_link_and_image_accepted(self):
+        for base, moved in (
+                (self.REBASE_LINK, self.REBASE_MOVED),
+                ("![map](img/m.png)\n", "![map](../img/m.png)\n"),
+                ("- [a](./a.md) and ![b](b/../c.png?v=1)\n",
+                 "- [a](../a.md) and ![b](../c.png?v=1)\n")):
+            with self.subTest(base=base):
+                self.rebase_flip(base, moved, 0, "1 REBASED asserted",
+                                 'if i >= 2 and base[i - 2:i] == "](" and', "if False and")
 
-    def test_rebased_links_accepted(self):
-        for before, after in self.REBASED:
-            with self.subTest(before=before):
-                self.accepted(before, after)
+    def test_rebased_rejects_changed_target(self):
+        self.rejected("target")
 
-    def test_rebased_links_discriminate(self):
-        for after in ("[hook](../.claude/hooks/y.py#run)", "[hook](../.claude/hooks/x.py#other)",
-                      "[hook](../.claude/hooks/x.py?mode=new#run)",
-                      "[hook](../.claude/hooks/x.py)", "[book](../.claude/hooks/x.py#run)",
-                      "[hook](../.claude/hooks/x.py/#run)", "[hook](../.claude//hooks/x.py#run)",
-                      "[hook](../different/hooks/x.py#run)", "[hook](/.claude/hooks/x.py#run)",
-                      "![hook](../.claude/hooks/x.py#run)", "[hook]( ../.claude/hooks/x.py#run)"):
-            with self.subTest(after=after):
-                self.rejected("[hook](hooks/x.py#run)", after)
-        for before, after in (
-                ("[b](https://example.invalid/a) [x](hooks/x.py)",
-                 "[b](https://example.invalid/b) [x](../.claude/hooks/x.py)"),
-                ("[b](/a) [x](hooks/x.py)", "[b](/b) [x](../.claude/hooks/x.py)"),
-                ("[x](docs/)", "[x](../.claude/docs)"), ("[x](a//b)", "[x](../.claude/a/b)")):
-            with self.subTest(before=before):
-                self.rejected(before, after)
+    def test_rebased_rejects_changed_anchor(self):
+        self.rejected("anchor")
 
-    def test_exact_matches_consumed_before_link_keys(self):
-        # Both base items share one link key; only the second matches the destination
-        # exactly. Exact matching first reports line 1, as base does.
-        self.moved("- [x](hooks/x.py)\n- [x](../.claude/hooks/x.py)",
-                   "- [x](../.claude/hooks/x.py)")
-        result = self.check(1, f"BASE {self.base}:{self.SOURCE}:1: MOVED whole clause")
-        self.assertNotIn(f"{self.SOURCE}:2:", result.stdout)
+    def test_rebased_rejects_text_outside_targets(self):
+        self.rejected("outside_text")
+        self.write("docs/moved.md", "Unrelated.\n\n" + self.REBASE_MOVED.replace("Read", "Reed"))
+        self.save()
+        self.check(1, "(BASE line 1; destination line 3): text differs")
 
-    def test_unchanged_moves_still_match_exactly(self):
-        # Disclosed residual, unchanged from base: an exact copy matches even where
-        # the move changes what a relative or anchor-only target points to.
-        for text in ("[p](#purpose)", "[x](hooks/x.py)", "| [x](hooks/x.py) |",
-                     "[x](../../outside)", "[x](hooks/a&amp;b.py)"):
-            with self.subTest(text=text):
-                self.accepted(text, text)
+    def test_rebased_rejects_rewrapped_text(self):
+        self.rejected("rewrap")
 
-    def test_link_occurrences_remain_consumed(self):
-        self.moved("- [x](hooks/x.py)\n- [x](./hooks/x.py)", "- [x](../.claude/hooks/x.py)\n" * 2)
-        self.check(0)
-        self.moved("- [x](hooks/x.py)\n- [x](./hooks/x.py)", "- [x](../.claude/hooks/x.py)")
-        self.check(1, "whole clause occurrence missing")
+    def test_rebased_rejects_identical_texts(self):
+        self.rejected("identical")
 
-    def test_outside_repository_compared_exactly(self):
-        self.moved("[x](hooks/x.py)", "[x](../.claude/hooks/x.py)\n\n[unused]: ../../outside")
-        self.check(0)
-        self.rejected("[x](hooks/x.py)", "[x](../../outside)")
-        self.rejected("[x](../../outside)", "[x](../../../outside)")
-        result = self.invoke("--extract")
-        self.assertEqual(result.returncode, 0, result.stderr)
+    def test_rebased_rejects_escape(self):
+        self.rejected("escape")
 
-    # 3b196 r3: a label that is exactly one complete code span, as in
-    # [`tools/x.py`](../tools/x.py), gets a link key like a plain label.
-    CODE_LABELS = (
-        ("[`x`](hooks/x.py)", "[`x`](../.claude/hooks/x.py)"),
-        ("![`x`](hooks/x.png)", "![`x`](../.claude/hooks/x.png)"),
-        ("[``a`b``](hooks/x.py#run)", "[``a`b``](../.claude/hooks/x.py#run)"),
-        ("[` x y `](hooks/x.py)", "[` x y `](../.claude/hooks/x.py)"),
-        ("Read [`check`](references/governance/check.md) `## Guard inputs` first.",
-         "Read [`check`](../.claude/references/governance/check.md) `## Guard inputs` first."),
-        ("- Wired: [`a.py`](hooks/a.py), [`b.py`](../tools/b.py), [c](../references/c.md).",
-         "- Wired: [`a.py`](../.claude/hooks/a.py), [`b.py`](../tools/b.py), "
-         "[c](c.md)."),
-    )
+    def test_rebased_rejects_scheme(self):
+        self.rejected("scheme")
 
-    def test_code_label_links_accepted(self):
-        for before, after in self.CODE_LABELS:
-            with self.subTest(before=before):
-                self.accepted(before, after)
+    def test_rebased_rejects_leading_slash(self):
+        self.rejected("slash")
 
-    def test_code_label_target_discriminates(self):
-        for after in ("[`x`](../.claude/hooks/y.py#run)", "[`x`](../different/hooks/x.py#run)",
-                      "[`x`](../.claude/hooks/x.py#other)", "[`x`](../.claude/hooks/x.py?q#run)",
-                      "[`x`](../.claude/hooks/x.py)"):
-            with self.subTest(after=after):
-                self.rejected("[`x`](hooks/x.py#run)", after)
+    def test_rebased_rejects_empty_target(self):
+        self.rejected("empty")
 
-    def test_code_label_text_discriminates(self):
-        for after in ("[`y`](../.claude/hooks/x.py#run)", "[`X`](../.claude/hooks/x.py#run)"):
-            with self.subTest(after=after):
-                self.rejected("[`x`](hooks/x.py#run)", after)
+    def test_rebased_rejects_percent(self):
+        self.rejected("percent")
 
-    # Each guard's fixtures are rejected when re-based, yet an identical copy still
-    # matches: the guarded form is compared exactly. Each fixture is a false pass
-    # with its guard removed.
-    GUARDS = {
-        "tag": (('<a title="[x](hooks/x.py)">', '<a title="[x](../.claude/hooks/x.py)">'),
-                ("<div>\n[x](hooks/x.py)\n</div>", "<div>\n[x](../.claude/hooks/x.py)\n</div>"),
-                ("<details>\n[x](hooks/x.py)", "<details>\n[x](../.claude/hooks/x.py)"),
-                ('<a title="[x](hooks/x.py)" data="`"> t `',
-                 '<a title="[x](../.claude/hooks/x.py)" data="`"> t `')),
-        "html_block": tuple((f"{start}\n\n[x](hooks/x.py)\n\n{end}",
-                             f"{start}\n\n[x](../.claude/hooks/x.py)\n\n{end}")
-                            for start, end in (("<pre>", "</pre>"), ("<!--", "-->"),
-                                               ("<?x", "?>"), ("<!X", ">"),
-                                               ("<![CDATA[", "]]>"))),
-        "pipe": (("| h | i |\n| --- | --- |\n| [x](hooks/a|b.py) |",
-                  "| h | i |\n| --- | --- |\n| [x](../.claude/hooks/a|b.py) |"),),
-        "tab": (("\t[x](hooks/x.py)", "\t[x](../.claude/hooks/x.py)"),),
-        "definition": (("[r]: [x](hooks/x.py)", "[r]: [x](../.claude/hooks/x.py)"),
-                       ("[r]:\n[x](hooks/x.py)", "[r]:\n[x](../.claude/hooks/x.py)")),
-        "escaped_backtick": (("\\``[x](hooks/x.py)`", "\\``[x](../.claude/hooks/x.py)`"),),
-        "blockquote": ((">     [x](hooks/x.py)", ">     [x](../.claude/hooks/x.py)"),),
-        "indented": (("    [x](hooks/x.py)", "    [x](../.claude/hooks/x.py)"),),
-        "list_gap": (("-     [x](hooks/x.py)", "-     [x](../.claude/hooks/x.py)"),),
-        "inner_block": (("- `a` `b\n    ***\n  ` [x](hooks/x.py) `c`",
-                         "- `a` `b\n    ***\n  ` [x](../.claude/hooks/x.py) `c`"),),
-        "code_crossing": (("x `a\n2. [x](hooks/x.py) `", "x `a\n2. [x](../.claude/hooks/x.py) `"),),
-        "unclosed_link": (("[o](x[x](hooks/a))", "[o](x[x](../.claude/hooks/a))"),),
-        "preceded": (("\\[x](hooks/x.py)", "\\[x](../.claude/hooks/x.py)"),
-                     ("[x][r](hooks/a)\n\n[r]: https://example.invalid/r",
-                      "[x][r](../.claude/hooks/a)\n\n[r]: https://example.invalid/r")),
-        "autolink": (("www.example.invalid/[x](hooks/x.py)",
-                      "www.example.invalid/[x](../.claude/hooks/x.py)"),
-                     ("https://example.invalid/[x](hooks/x.py)",
-                      "https://example.invalid/[x](../.claude/hooks/x.py)")),
-        "label_brackets": (("[r][y](hooks/a)\n\n[y]: https://example.invalid/y",
-                            "[r][y](../.claude/hooks/a)\n\n[y]: https://example.invalid/y"),),
-        "label_backtick": (("[a`b](hooks/x.py)", "[a`b](../.claude/hooks/x.py)"),),
-        "label_backslash": (("[a\\](hooks/x.py)", "[a\\](../.claude/hooks/x.py)"),),
-        "target_space": (("[x](hooks/x.py extra)", "[x](../.claude/hooks/x.py extra)"),),
-        "target_angle": (("[x](<1>)", "[x](../.claude/<1>)"),),
-        "target_backslash": (("[x](hooks/\\.\\./../x.py)", "[x](../.claude/hooks/x.py)"),),
-        "target_paren": (("[x](hooks/a(b.py)", "[x](../.claude/hooks/a(b.py)"),),
-        "target_entity": (("[x](hooks/a&sol;b/../x.py)", "[x](../.claude/hooks/x.py)"),),
-        "target_percent": (("[x](hooks/%2e%2e/../x.py)", "[x](../.claude/hooks/x.py)"),),
-        "target_own_file": (("[p](#purpose)", "[p](../.claude/#purpose)"),
-                            ("[p]()", "[p](../.claude/)"), ("[p](?q)", "[p](../.claude/?q)")),
-        "target_dot_segment": (("[x](hooks/..)", "[x](../.claude)"),),
-        "target_outside": (("[x](../../outside)", "[x](../outside)"),),
-        "fence_container": (("- ~~~\n\n  [x](hooks/x.py)\n\n  ~~~\n\n  ~~~",
-                             "- ~~~\n\n  [x](../.claude/hooks/x.py)\n\n  ~~~\n\n  ~~~"),),
-        "fence_info": (("``` a`b\nx\n```\n[x](hooks/x.py)\n```\n```",
-                        "``` a`b\nx\n```\n[x](../.claude/hooks/x.py)\n```\n```"),),
-        "fence_outdent": (("- a\n\n  ```\nfoo\n  ```\n\n[x](hooks/x.py)\n\n```\n```",
-                           "- a\n\n  ```\nfoo\n  ```\n\n[x](../.claude/hooks/x.py)\n\n```\n```"),),
-        "fence_closer": (("1. a\n\n   ```\n   x\n      ```\n\n   ```\n\n   [x](hooks/x.py)"
-                          "\n\n   ```\n   ```",
-                          "1. a\n\n   ```\n   x\n      ```\n\n   ```\n\n   "
-                          "[x](../.claude/hooks/x.py)\n\n   ```\n   ```"),),
-        "fence_after_tag": (("<div>\n```\n\n```\n\n[x](hooks/x.py)\n\n```\n```",
-                             "<div>\n```\n\n```\n\n[x](../.claude/hooks/x.py)\n\n```\n```"),),
-        # A label with a backtick qualifies only as exactly one complete code span.
-        "code_extra_text": (("[`x` y](hooks/x.py)", "[`x` y](../.claude/hooks/x.py)"),
-                            ("[y `x`](hooks/x.py)", "[y `x`](../.claude/hooks/x.py)")),
-        "code_two_spans": (("[`x` `y`](hooks/x.py)", "[`x` `y`](../.claude/hooks/x.py)"),
-                           ("[``x`` ``y``](hooks/x.py)", "[``x`` ``y``](../.claude/hooks/x.py)")),
-        "code_unbalanced": (("[``x`](hooks/x.py)", "[``x`](../.claude/hooks/x.py)"),
-                            ("[`x``](hooks/x.py)", "[`x``](../.claude/hooks/x.py)")),
-        "code_inner_run": (("[`a`b`](hooks/x.py)", "[`a`b`](../.claude/hooks/x.py)"),
-                           ("[``a``b``](hooks/x.py)", "[``a``b``](../.claude/hooks/x.py)")),
-        "code_bracket": (("[`a]b`](hooks/x.py)", "[`a]b`](../.claude/hooks/x.py)"),
-                         ("[`a[b`](hooks/x.py)", "[`a[b`](../.claude/hooks/x.py)")),
-        "code_backslash": (("[`a\\b`](hooks/x.py)", "[`a\\b`](../.claude/hooks/x.py)"),),
-    }
+    def test_rebased_rejects_entity(self):
+        self.rejected("entity")
 
-    def compared_exactly(self, name):
-        for before, after in self.GUARDS[name]:
-            with self.subTest(before=before):
-                self.rejected(before, after)
-                self.accepted(before, before)
+    def test_rebased_rejects_backslash(self):
+        self.rejected("backslash")
 
-    def test_raw_tag(self):
-        self.compared_exactly("tag")
+    def test_rebased_rejects_less_than(self):
+        self.rejected("less")
 
-    def test_raw_html_block(self):
-        self.compared_exactly("html_block")
+    def test_rebased_rejects_greater_than(self):
+        self.rejected("greater")
 
-    def test_raw_pipe(self):
-        self.compared_exactly("pipe")
+    def test_rebased_rejects_control_character(self):
+        self.rejected("control")
 
-    def test_raw_tab(self):
-        self.compared_exactly("tab")
+    def test_rebased_rejects_unterminated_target(self):
+        self.rejected("unterminated")
 
-    def test_raw_definition(self):
-        self.compared_exactly("definition")
+    def test_rebased_occurrences_consumed(self):
+        base = "- [x](a.md)\n- [x](a.md)\n"
+        self.rebase_flip(base, "- [x](../a.md)\n", 1, "no unconsumed list_item unit",
+                         "            used.add(index)\n"
+                         "            available[match_key(candidate)] -= 1\n", "")
+        self.rebase(base, "- [x](../a.md)\n- [x](../a.md)\n", 0, "2 REBASED asserted")
 
-    def test_raw_escaped_backtick(self):
-        self.compared_exactly("escaped_backtick")
+    def test_rebased_shares_occurrences_with_moved(self):
+        base, unit = "[x](a.md)\n\n[x](../rules/a.md)\n", "[x](../rules/a.md)\n"
+        self.rebase(base, unit, 1, "no unconsumed paragraph unit",
+                    path="rules/instructions.md", destination="rules/moved.md")
+        self.row(3)["state"] = "MOVED"
+        self.check(1, "MOVED whole clause occurrence missing")
+        self.check(0, tool=self.mutant(
+            "            available[match_key(candidate)] -= 1\n", ""))
+        self.rows.reverse()
+        self.check(1, "no unconsumed paragraph unit")
+        self.check(0, tool=self.mutant(
+            "\n                or available[match_key(candidate)] < 1)", ")"))
+        self.write("rules/moved.md", unit + "\n" + unit)
+        self.save()
+        self.check(0, "1 REBASED asserted")
 
-    def test_raw_blockquote(self):
-        self.compared_exactly("blockquote")
+    def test_moved_rejects_rebased_link(self):
+        self.rebase(self.REBASE_LINK, self.REBASE_MOVED, 0)
+        self.rows[0]["state"] = "MOVED"
+        self.check(1, "MOVED whole clause occurrence missing")
 
-    def test_raw_indented(self):
-        self.compared_exactly("indented")
-
-    def test_raw_list_gap(self):
-        self.compared_exactly("list_gap")
-
-    def test_raw_inner_block(self):
-        self.compared_exactly("inner_block")
-
-    def test_raw_code_crossing(self):
-        self.compared_exactly("code_crossing")
-
-    def test_raw_unclosed_link(self):
-        self.compared_exactly("unclosed_link")
-
-    def test_raw_preceded(self):
-        self.compared_exactly("preceded")
-
-    def test_raw_autolink(self):
-        self.compared_exactly("autolink")
-
-    def test_raw_label_brackets(self):
-        self.compared_exactly("label_brackets")
-
-    def test_raw_label_backtick(self):
-        self.compared_exactly("label_backtick")
-
-    def test_raw_label_backslash(self):
-        self.compared_exactly("label_backslash")
-
-    def test_raw_target_space(self):
-        self.compared_exactly("target_space")
-
-    def test_raw_target_angle(self):
-        self.compared_exactly("target_angle")
-
-    def test_raw_target_backslash(self):
-        self.compared_exactly("target_backslash")
-
-    def test_raw_target_paren(self):
-        self.compared_exactly("target_paren")
-
-    def test_raw_target_entity(self):
-        self.compared_exactly("target_entity")
-
-    def test_raw_target_percent(self):
-        self.compared_exactly("target_percent")
-
-    def test_raw_target_own_file(self):
-        self.compared_exactly("target_own_file")
-
-    def test_raw_target_dot_segment(self):
-        self.compared_exactly("target_dot_segment")
-
-    def test_raw_target_outside(self):
-        self.compared_exactly("target_outside")
-
-    def test_raw_fence_container(self):
-        self.compared_exactly("fence_container")
-
-    def test_raw_fence_info(self):
-        self.compared_exactly("fence_info")
-
-    def test_raw_fence_outdent(self):
-        self.compared_exactly("fence_outdent")
-
-    def test_raw_fence_closer(self):
-        self.compared_exactly("fence_closer")
-
-    def test_raw_fence_after_tag(self):
-        self.compared_exactly("fence_after_tag")
-
-    def test_raw_code_extra_text(self):
-        self.compared_exactly("code_extra_text")
-
-    def test_raw_code_two_spans(self):
-        self.compared_exactly("code_two_spans")
-
-    def test_raw_code_unbalanced(self):
-        self.compared_exactly("code_unbalanced")
-
-    def test_raw_code_inner_run(self):
-        self.compared_exactly("code_inner_run")
-
-    def test_raw_code_bracket(self):
-        self.compared_exactly("code_bracket")
-
-    def test_raw_code_backslash(self):
-        self.compared_exactly("code_backslash")
-
-    # QA round 1 and round 2 fixtures (3b196): each was a false pass at eee551c4 or
-    # 43169e9c; base 809dcece rejects every one, and so must this tool.
-    R1_CASES = {
-        "autolink": ("<https://example.invalid/[x](hooks/x.py)>",
-                     "<https://example.invalid/[x](../.claude/hooks/x.py)>"),
-        "semicolon": ("[x](hooks/a&copy.py)", "[x](../.claude/hooks/a\u00a9.py)"),
-        "escaped_entity": (r"[x](hooks/a\&amp;b.py)", "[x](../.claude/hooks/a&b.py)"),
-        "separator": ("[x](hooks/a%2Fb.py)", "[x](../.claude/hooks/a/b.py)"),
-        "separator_path": ("[x](..%2F.claude%2Fdocs%2Fa.md)", "[x](../.claude/docs/a.md)"),
-        "table": ("| A | B | C |\n| --- | --- | --- |\n| [x](hooks/a|b.py) | c |",
-                  "| A | B | C |\n| --- | --- | --- |\n| [x](../.claude/hooks/a%7Cb.py) | c |"),
-        "indent": ("    [x](hooks/x.py)", "    [x](../.claude/hooks/x.py)"),
-        "title": ("[x](hooks/x.py (unescaped(title))",
-                  "[x](../.claude/hooks/x.py (unescaped(title))"),
-        "tilde": ("~~~\n[x](hooks/x.py)\n~~~", "~~~\n[x](../.claude/hooks/x.py)\n~~~"),
-        "html": ('<a title="[x](hooks/x.py)">', '<a title="[x](../.claude/hooks/x.py)">'),
-        "escaped_pipe": ("| [x](a|b) | c |", r"| [x](../.claude/a\|b) | c |"),
-        "slash": ("[x](docs/)", "[x](../.claude/docs)"),
-        "empty_segment": ("[x](a//b)", "[x](../.claude/a/b)"),
-        "paragraph_definition": ("Paragraph\n[r]: hooks/x.py",
-                                 "Paragraph\n[r]: ../.claude/hooks/x.py"),
-        "anchor": ("[p](#purpose)", "[p](../.claude/CLAUDE.md#purpose)"),
-        "error_context": ("[x](hooks/x.py)", "[x](../../outside)"),
-        "reserved": ("[x](hooks/a%2Fb) [y](hooks/a%3Fb) [z](hooks/a%23b) [w](hooks/a%25b)",
-                     "[x](../.claude/hooks/a/b) [y](../.claude/hooks/a?b) "
-                     "[z](../.claude/hooks/a#b) [w](../.claude/hooks/a%b)"),
-    }
-
-    R2_CASES = {
-        "cell_definition": ("| [r]: hooks/x.py | b |", "| [r]: ../.claude/hooks/x.py | b |"),
-        "pipe_definition": ("[r]: hooks/x.py | note", "[r]: ../.claude/hooks/x.py | note"),
-        "table_definition": ("| A | B |\n| --- | --- |\n| [r]: hooks/x.py | other |",
-                             "| A | B |\n| --- | --- |\n| [r]: ../.claude/hooks/x.py | other |"),
-        "table_definition_angle": (
-            "| A | B |\n| --- | --- |\n| [r]: <hooks/x.py> | other |",
-            "| A | B |\n| --- | --- |\n| [r]: <../.claude/hooks/x.py> | other |"),
-        "nested": ("[[x](hooks/a)](hooks/b)", "[[x](../.claude/hooks/a)](../.claude/hooks/b)"),
-        "nested_words": ("[a [b](hooks/c)](hooks/d)",
-                         "[a [b](../.claude/hooks/c)](../.claude/hooks/d)"),
-        "nested_outer": ("[outer [inner](/same)](hooks/x.py)",
-                         "[outer [inner](/same)](../.claude/hooks/x.py)"),
-        "nested_setext": ("[outer [inner](/same)](hooks/x.py)\n===",
-                          "[outer [inner](/same)](../.claude/hooks/x.py)\n==="),
-        "html_backtick": ('<a title="[x](hooks/x.py)" data="`"> t `',
-                          '<a title="[x](../.claude/hooks/x.py)" data="`"> t `'),
-        "list_definition": ("Para\n2. [r]: hooks/x.py", "Para\n2. [r]: ../.claude/hooks/x.py"),
-        "div": ("<div>\n[x](hooks/x.py)\n</div>", "<div>\n[x](../.claude/hooks/x.py)\n</div>"),
-        "details": ("<details>\n[x](hooks/x.py)", "<details>\n[x](../.claude/hooks/x.py)"),
-        "reference_use": ("[x][r](hooks/a)\n\n[r]: https://example.invalid/r",
-                          "[x][r](../.claude/hooks/a)\n\n[r]: https://example.invalid/r"),
-        "pre": ("<pre>\n[x](hooks/x.py)\n</pre>", "<pre>\n[x](../.claude/hooks/x.py)\n</pre>"),
-        "pre_blank": ("<pre>\n\n[x](hooks/x.py)\n\n</pre>",
-                      "<pre>\n\n[x](../.claude/hooks/x.py)\n\n</pre>"),
-    }
-
-    def test_r1_fixtures_rejected(self):
-        for name, (before, after) in self.R1_CASES.items():
-            with self.subTest(name=name):
-                self.rejected(before, after)
-
-    def test_r2_fixtures_rejected(self):
-        for name, (before, after) in self.R2_CASES.items():
-            with self.subTest(name=name):
-                self.rejected(before, after)
+    def test_rebased_row_validation(self):
+        self.rebase(self.REBASE_LINK, self.REBASE_MOVED, 0)
+        self.rows[0]["reason"] = "Re-based."
+        self.check(2, "REBASED requires empty reason")
+        self.rows[0].update(reason="", destination=self.path)
+        self.check(2, "REBASED must use a different path")
+        self.check(1, "texts are identical; use MOVED", tool=self.mutant(
+            'if state != "KEPT" and row["destination"] == path:', "if False:"))
 
 
 if __name__ == "__main__":

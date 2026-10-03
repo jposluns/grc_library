@@ -6,6 +6,22 @@ Review every row. KEPT requires the same path at committed HEAD; MOVED requires
 another tracked text file; DROPPED requires a nonblank reason. A move asserts
 presence, not that the destination gained the text since BASE.
 
+REBASED is a reviewer assertion that the clause MOVED with only relative link
+targets re-based; like MOVED it needs another tracked file and an empty reason.
+It requires an unconsumed destination unit of the same kind whose raw text
+equals the BASE quote except for substituted target segments. A segment starts
+right after "](" in both texts and ends at the first ")", "#", "?" or
+whitespace; a target with no terminator is not a segment. Neither side may be
+empty or contain ":", a leading "/", a backslash, "%", "&", "<", ">" or a
+control character, and both sides must resolve with posixpath.normpath, against
+the BASE file's and the destination's directories, to the same path inside the
+repository. Every other byte, including any anchor, query or title after the
+target, must be identical (no whitespace normalization). Identical texts fail
+(use MOVED); any other mismatch names the first differing BASE offset. REBASED
+shares occurrence counting with MOVED and takes the first matching unit in file
+order. Code spans and fences are not exempt, and reference definitions are
+never re-based: review each REBASED hunk.
+
 Units are ATX/setext headings, individual list items with adjacent wrapped
 continuations, pipe-containing table rows, fenced blocks, thematic breaks,
 and paragraphs. Nested items start separate units. Blank lines separate
@@ -20,45 +36,12 @@ wrapped CR/LF breaks within a unit are normalized. Destination units are
 consumed once per file. Ledger quotes and spans must match BASE exactly.
 Ledger files cannot supply evidence; only committed tracked files can.
 
-Relative links: every row is first matched exactly, as above, with occurrences
-consumed in ledger order. Only a row left without an exact match may then match
-a remaining destination unit whose link key equals its own, so resolution can
-turn a mismatch into a match but never a match into a mismatch. A link key
-exists only when every condition below holds; otherwise the unit is compared
-exactly. The unit is a paragraph, list item or heading. Its group (adjacent
-units with no blank line between them) contains no |, tab, ]:, escaped
-backtick, blockquote marker, or < followed by a letter, /, ! or ?, and is not
-inside a multi-line HTML block. Each unit's first line is indented at most
-three spaces, list content at most four spaces after its marker, and no later
-line starts a heading, thematic break or setext underline. No backtick span
-crosses a unit boundary. Every ]( outside code spans closes a plain
-[label](target) link or image: the label has no [, ] or backslash, and has a
-backtick only when it is exactly one complete code span (an opening backtick
-run, content with no run of that length, and a closing run of that length, with
-nothing outside the span); no backslash or ] precedes it; no www. or :// occurs
-in the label or earlier in the same word; the target has no whitespace,
-parentheses, <, > or backslash. Every fence line in the file must be a
-top-level fence that container-aware CommonMark parses the same way: no
-container marker before it, no indentation of four or more spaces, no backtick
-in a backtick fence's info string, no fence line outdented from its opener, no
-deeper potential closer inside the fence, and no tag-like < in the lines
-directly above an opener. Schemed and /-rooted targets stay exact inside a link
-key. A unit has no link key if any other target contains & or %, is empty,
-query-only or anchor-only, ends in a . or .. segment, or leaves the repository.
-Remaining targets resolve lexically against the unit's own file directory: only
-dot segments are removed; empty segments, trailing slashes, queries and
-fragments stay exact. Reference definitions and reference-style links are never
-resolved. No filesystem/symlink resolution, existence check or network access
-occurs.
-
 Disclosed residual: this lexical partition is not a CommonMark renderer or
 semantic proof. HTML comments/blocks, indented code, and blockquote/list
-container context are not modeled for exact matches. Wrapping a paragraph in a
-multiline HTML comment, or indenting it as code, can still satisfy KEPT. List
-indentation is lexical, not relative to a parsed parent. Equal-depth
-re-parenting, section moves and ordering are unchecked. A relative or
-anchor-only link moved unchanged to another file still matches exactly, as at
-base, though it may now point elsewhere. Escaped backticks, HTML/CSS hiding,
+container context are not modeled. Wrapping a paragraph in a multiline HTML
+comment, or indenting it as code, can still satisfy KEPT. List indentation
+is lexical, not relative to a parsed parent. Equal-depth re-parenting,
+section moves and ordering are unchecked. Escaped backticks, HTML/CSS hiding,
 link/reference interpretation and other renderer-specific effects require
 manual diff review. Top-level fences accept at most three leading spaces;
 nested container fences are outside this model. Review each hunk for these
@@ -71,12 +54,15 @@ Exit 0: accounted inventory; 1: preservation findings; 2: input/git error.
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import os
 from pathlib import Path
+import posixpath
 import re
 import subprocess
 import sys
+import unicodedata
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
@@ -88,6 +74,7 @@ RULE = re.compile(r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$
 TOP_KEYS = {"base_revision", "base_path", "clauses", "excluded_lines"}
 UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
 ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
+TARGET_END = re.compile(r"[)#?]|\s")
 
 
 def inline_parts(text: str):
@@ -156,180 +143,55 @@ def match_key(unit: dict) -> tuple:
     return category, normalize(text)
 
 
-LINK = re.compile(r"\[([^\[\]\\\n]*)\]\(([^\s()<>\\\0]*)\)")
-SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
-TAG = re.compile(r"<[A-Za-z/!?]")
-QUOTE = re.compile(r" *(?:(?:[-+*]|[0-9]{1,9}[.)]) +)*>")
-CONTAINER = re.compile(r"(?:[ \t]*(?:>|[-+*](?=[ \t]|$)|[0-9]{1,9}[.)](?=[ \t]|$)))*[ \t]*")
-HTML_BLOCK = re.compile(r"<(?:(!--)|(\?)|(!\[cdata\[)|(![a-z])|(pre|script|style|textarea)(?=[\s>]|$))")
-HTML_END = ("-->", "?>", "]]>", ">")
+def target_error(segment: str) -> str | None:
+    """Name the first REBASED rule a substituted link target breaks."""
+    if not segment:
+        return "empty target"
+    if ":" in segment:
+        return "scheme or drive (':')"
+    if segment.startswith("/"):
+        return "leading '/'"
+    for char in segment:
+        if char in "\\%&<>":
+            return f"character {char!r}"
+        if unicodedata.category(char) == "Cc":
+            return f"control character {char!r}"
+    return None
 
 
-def unit_lines(unit: dict) -> list[str]:
-    text = unit["base_quote"]
-    if unit["kind"] != "fence":
-        return text.split("\n")
-    return [line.removesuffix("\r") for line in text.removesuffix("\n").split("\n")]
-
-
-def indent(line: str) -> int:
-    return len(line) - len(line.lstrip(" "))
-
-
-def mask(text: str) -> str:
-    """Blank exact backtick spans so no link inside one is ever matched."""
-    return "".join("\0" * len(part) if literal else part
-                   for literal, part in inline_parts(text))
-
-
-def label_plain(label: str) -> bool:
-    """No backtick, or exactly one complete code span with no [, ] or backslash."""
-    runs = [run.span() for run in re.finditer(r"`+", label)]
-    if not runs:
-        return True
-    if len(runs) < 2 or runs[0][0] or runs[-1][1] != len(label):
-        return False
-    width = runs[0][1] - runs[0][0]
-    if runs[-1][1] - runs[-1][0] != width:
-        return False
-    if any(end - start == width for start, end in runs[1:-1]):
-        return False
-    if "[" in label or "]" in label:
-        return False
-    return "\\" not in label
-
-
-def fence_plain(unit: dict) -> bool:
-    """A top-level fence that container-aware CommonMark parses the same way."""
-    lines = unit_lines(unit)
-    opener = FENCE.match(lines[0])
-    width, marker = indent(lines[0]), opener[1]
-    if marker[0] == "`" and "`" in opener[2]:
-        return False
-    if any(line.strip() and indent(line) < width for line in lines[1:]):
-        return False
-    closer = re.compile(re.escape(marker[0]) + "{" + str(len(marker)) + r",}[ \t]*")
-    return not any(closer.fullmatch(line.lstrip(" \t")) for line in lines[1:-1])
-
-
-def group_plain(group: list[dict]) -> bool:
-    """Adjacent units qualify only if no context can change what a link means."""
-    text = "\n".join(unit["base_quote"] for unit in group)
-    if TAG.search(text) or re.search(r"\||\t|\]:|\\`", text):
-        return False
-    breaks, offset = set(), 0
-    for unit in group:
-        lines = unit["base_quote"].split("\n")
-        if indent(lines[0]) > 3:
-            return False
-        if unit["kind"] == "list_item":
-            item = LIST.match(lines[0])
-            if len(item[0]) - item.end(2) > 4:
-                return False
-        for number, line in enumerate(lines):
-            rest = line.lstrip(" ")
-            if QUOTE.match(line):
-                return False
-            underline = unit["kind"] == "heading" and number == len(lines) - 1
-            if number and not underline and (ATX.match(rest) or RULE.fullmatch(rest)
-                                             or SETEXT.fullmatch(rest)):
-                return False
-        offset += len(unit["base_quote"])
-        breaks.add(offset)
-        offset += 1
-    offset = 0
-    for literal, part in inline_parts(text):
-        if literal and any(offset <= point < offset + len(part) for point in breaks):
-            return False
-        offset += len(part)
-    masked, closed = mask(text), set()
-    for link in LINK.finditer(masked):
-        word = re.split(r"\s", masked[:link.start()])[-1] + link[1]
-        if (masked[link.start() - 1:link.start()] in {"\\", "]"}
-                or not label_plain(text[link.start(1):link.end(1)])
-                or re.search(r"(?i)www\.|://", word)):
-            continue
-        closed.add(link.end(1))
-    return all(found.start() in closed for found in re.finditer(r"\]\(", masked))
-
-
-def link_units(units: list[dict]) -> set[int]:
-    """Indexes of units in plain groups; none when any fence could parse differently."""
-    groups, tainted, html_end = [], set(), None
-    for index, unit in enumerate(units):
-        adjacent = index > 0 and units[index - 1]["end_line"] + 1 == unit["base_line"]
-        joined = adjacent and units[index - 1]["kind"] != "fence"
-        if unit["kind"] == "fence":
-            if not fence_plain(unit):
-                return set()
-            if joined and any(TAG.search(units[i]["base_quote"]) for i in groups[-1]):
-                return set()
-            continue
-        if not joined:
-            groups.append([])
-        groups[-1].append(index)
-        for line in unit_lines(unit):
-            content = CONTAINER.sub("", line, count=1)
-            if content.startswith(("```", "~~~")):
-                return set()
-            if html_end is not None:
-                tainted.add(index)
-                if html_end in line.lower():
-                    html_end = None
-                continue
-            opened = HTML_BLOCK.match(content.lower())
-            if opened:
-                tainted.add(index)
-                kind = opened.lastindex
-                end = HTML_END[kind - 1] if kind < 5 else "</" + opened[5] + ">"
-                if end not in content.lower()[opened.end():]:
-                    html_end = end
-    return {index for group in groups
-            if not tainted.intersection(group) and group_plain([units[i] for i in group])
-            for index in group}
-
-
-def rebase(target: str, path: str):
-    """Repository path of a plain relative target, or None when not unambiguous."""
-    if not target or target[0] in "?#" or re.search(r"[&%]", target):
+def resolve(directory: str, segment: str) -> str | None:
+    """Resolve a relative target; None when it leaves the repository."""
+    target = posixpath.normpath(posixpath.join(directory, segment))
+    if target == ".." or target.startswith("../"):
         return None
-    cut = re.search(r"[?#]|$", target).start()
-    segments = target[:cut].split("/")
-    if segments[-1] in {".", ".."}:
-        return None
-    parts = path.split("/")[:-1]
-    for segment in segments:
-        if segment == "..":
-            if not parts:
-                return None
-            parts.pop()
-        elif segment != ".":
-            parts.append(segment)
-    value = json.dumps(["relative", "/".join(parts), target[cut:]])
-    return "\0" + value.encode("ascii").hex() + "\0"
+    return target
 
 
-def link_key(unit: dict, path: str):
-    """match_key with plain relative targets rebased, or None if any is ambiguous."""
-    text, pieces, last = unit["base_quote"], [], 0
-    for link in LINK.finditer(mask(text)):
-        target = link[2]
-        if target.startswith("/") or SCHEME.match(target):
-            continue
-        value = rebase(target, path)
-        if value is None:
-            return None
-        pieces += [text[last:link.start(2)], value]
-        last = link.end(2)
-    if not pieces:
-        return None
-    return match_key(dict(unit, base_quote="".join(pieces) + text[last:]))
-
-
-def link_keys(units: list[dict], path: str) -> list:
-    scope = link_units(units)
-    return [link_key(unit, path) if index in scope else None
-            for index, unit in enumerate(units)]
+def rebased(base: str, base_dir: str, text: str, text_dir: str):
+    """Return (substitutions, None), or (first differing BASE offset, reason)."""
+    i = j = substitutions = 0
+    while True:
+        if i >= 2 and base[i - 2:i] == "](" and text[j - 2:j] == "](":
+            end_base, end_text = TARGET_END.search(base, i), TARGET_END.search(text, j)
+            if end_base and end_text:
+                old, new = base[i:end_base.start()], text[j:end_text.start()]
+                if old != new:
+                    pair = f"target {old!r} -> {new!r}"
+                    problem = target_error(old) or target_error(new)
+                    if problem:
+                        return i, f"{pair}: {problem}"
+                    left, right = resolve(base_dir, old), resolve(text_dir, new)
+                    if left is None or right is None:
+                        return i, f"{pair}: outside the repository"
+                    if left != right:
+                        return i, f"{pair}: resolves to {left!r} and {right!r}"
+                    substitutions += 1
+                i, j = end_base.start(), end_text.start()
+        if i == len(base) and j == len(text):
+            return substitutions, None
+        if i == len(base) or j == len(text) or base[i] != text[j]:
+            return i, "text differs"
+        i, j = i + 1, j + 1
 
 
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
@@ -479,19 +341,20 @@ def validate_ledger(data, base, path, excluded):
             if not row["base_quote"].strip():
                 raise ValueError("base_quote must be nonblank")
             state = row["state"]
-            if state not in {"KEPT", "MOVED", "DROPPED"}:
-                raise ValueError("unknown state; expected KEPT, MOVED or DROPPED")
+            if state not in {"KEPT", "MOVED", "REBASED", "DROPPED"}:
+                raise ValueError("unknown state; expected KEPT, MOVED, REBASED or DROPPED")
             if state == "DROPPED":
                 if not row["reason"].strip() or row["destination"] != "":
                     raise ValueError("DROPPED requires nonblank reason and empty destination")
             else:
                 repo_path(row["destination"])
                 if row["reason"] != "":
-                    raise ValueError("KEPT/MOVED require empty reason")
+                    raise ValueError("REBASED requires empty reason" if state == "REBASED"
+                                     else "KEPT/MOVED require empty reason")
                 if state == "KEPT" and row["destination"] != path:
                     raise ValueError("KEPT must use base path")
-                if state == "MOVED" and row["destination"] == path:
-                    raise ValueError("MOVED must use a different path")
+                if state != "KEPT" and row["destination"] == path:
+                    raise ValueError(f"{state} must use a different path")
         except ValueError as exc:
             raise ValueError(f"row {index}: {exc}") from exc
     return rows
@@ -506,8 +369,36 @@ def is_ledger(root: Path, destination: str, ledger: Path) -> bool:
     return False
 
 
+def take_rebased(unit, path, destination, units, available, used):
+    """Consume the first unconsumed destination unit that re-bases unit."""
+    best, identical = None, False
+    for index, candidate in enumerate(units):
+        if (index in used or candidate["kind"] != unit["kind"]
+                or available[match_key(candidate)] < 1):
+            continue
+        result, reason = rebased(unit["base_quote"], posixpath.dirname(path),
+                                 candidate["base_quote"], posixpath.dirname(destination))
+        if reason is None and result:
+            used.add(index)
+            available[match_key(candidate)] -= 1
+            return None
+        if reason is None:
+            identical = True
+        elif best is None or result > best[0]:
+            best = (result, candidate["base_line"], reason)
+    if identical:
+        return "texts are identical; use MOVED"
+    if best is None:
+        return f"no unconsumed {unit['kind']} unit"
+    offset, line, reason = best
+    base_line = unit["base_line"] + unit["base_quote"][:offset].count("\n")
+    return (f"first difference at BASE quote offset {offset} (BASE line {base_line}; "
+            f"destination line {line}): {reason}")
+
+
 def check(root, base, head, path, expected, rows, ledger):
-    findings, seen, destinations, unmatched = [], set(), {}, []
+    findings, seen, destinations = [], set(), {}
+    unit_lists, used = {}, {}
     by_line = {unit["base_line"]: unit for unit in expected}
     for row in rows:
         line = row["base_line"]
@@ -529,28 +420,21 @@ def check(root, base, head, path, expected, rows, ledger):
             raise ValueError(f"HEAD {head}:{destination}: ledger cannot supply evidence")
         if destination not in destinations:
             units, _ = inventory(root, head, destination)
-            exact = {}
-            for index, unit in enumerate(units):
-                exact.setdefault(match_key(unit), []).append(index)
-            destinations[destination] = exact, link_keys(units, destination), set()
-        exact, _, used = destinations[destination]
-        available = exact.get(match_key(by_line[line]), [])
-        if available:
-            used.add(available.pop(0))
-        else:
-            unmatched.append((len(findings), line, destination))
+            destinations[destination] = Counter(match_key(unit) for unit in units)
+            unit_lists[destination], used[destination] = units, set()
+        quote = match_key(by_line[line])
+        available = destinations[destination]
+        if row["state"] == "REBASED":
+            problem = take_rebased(by_line[line], path, destination,
+                                   unit_lists[destination], available, used[destination])
+            if problem:
+                findings.append(f"{label}: REBASED at HEAD {head}:{destination}: {problem}")
+            continue
+        if available[quote] < 1:
             findings.append(f"{label}: {row['state']} whole clause occurrence missing "
                             f"at HEAD {head}:{destination}")
-    if unmatched:
-        own = dict(zip(by_line, link_keys(expected, path)))
-        for position, line, destination in unmatched:
-            _, links, used = destinations[destination]
-            match = next((index for index, key in enumerate(links) if key is not None
-                          and key == own[line] and index not in used), None)
-            if match is not None:
-                used.add(match)
-                findings[position] = None
-    findings = [finding for finding in findings if finding is not None]
+        else:
+            available[quote] -= 1
     for line in sorted(by_line.keys() - seen):
         findings.append(f"BASE {base}:{path}:{line}: missing ledger row")
     return findings
@@ -588,8 +472,10 @@ def main(argv: list[str]) -> int:
     for finding in findings:
         print(f"FAIL: ledger {args.ledger}: {finding}")
     dropped = sum(row["state"] == "DROPPED" for row in rows)
+    rebased_rows = sum(row["state"] == "REBASED" for row in rows)
+    note = f"; {rebased_rows} REBASED asserted" if rebased_rows else ""
     print(f"{'FAIL' if findings else 'OK'}: {len(expected)} clauses; "
-          f"{dropped} DROPPED with reasons; BASE {base}:{path}; HEAD {head}")
+          f"{dropped} DROPPED with reasons{note}; BASE {base}:{path}; HEAD {head}")
     return 1 if findings else 0
 
 
