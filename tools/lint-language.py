@@ -83,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
         gen_input = list(argv)
     else:
         md_input = [
+            "CHANGELOG.md",
             "README.md",
             "NOTICE.md",
             "specification-master-project.md",

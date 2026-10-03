@@ -10,6 +10,8 @@ It exits non-zero (so the ``&&`` chain will not fire) when the working-tree
 additions to the root [`CHANGELOG.md`] or the maintainer-grade detailed
 mirror contain any of:
 
+  - a gate-2 spelling finding (ise, isation, or yse), using the same language
+    profile and official-quote masks, or
   - an em-dash or en-dash in prose (the no-dash convention: delta gate D3
     enforces this PR-time on the root file, and gate 51 enforces it on the
     ``.working/`` mirror, but NEITHER fires on the first local commit), or
@@ -68,7 +70,7 @@ Usage:
     python3 tools/preflight-changelog.py --staged   # staged diff only
 
 Exit codes:
-    0   no dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
+    0   no spelling, dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
         a repository, an operational store or private sibling holding the mirror included) exits 2
@@ -101,6 +103,33 @@ _d7_spec = _ilu.spec_from_file_location(
     '_changelog_len_d7', Path(__file__).resolve().parent / 'check-changelog-length-on-pr.py')
 _d7 = _ilu.module_from_spec(_d7_spec)
 _d7_spec.loader.exec_module(_d7)
+
+
+def spelling_findings(lines):
+    """Check added lines with gate 2's vocabulary, patterns and quote masks.
+
+    Additions are checked in isolation, including inline code as in gate 2.
+    Fenced additions may over-report, like the existing preflight link check.
+    """
+    spec = _ilu.spec_from_file_location(
+        "_changelog_language", Path(_TOOLS_DIR) / "lint-language.py")
+    mod = _ilu.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    engine = mod._engine()
+    language = engine.compile_language(mod._language_config())
+    findings = []
+    for path, text in lines:
+        prose = engine.mask_allowed_spans(
+            text, language.vocab.allowed_commonwealth_spans)
+        for kind, pattern in (("ise", language.ise_pattern),
+                              ("isation", engine.ISATION_PATTERN),
+                              ("yse", language.yse_pattern)):
+            for match in pattern.finditer(prose):
+                word = match.group(0)
+                if kind == "isation" and word.lower() in language.vocab.isation_allowed_words:
+                    continue
+                findings.append((path, f"gate 2 spelling [{kind}]: {word}", text.strip()))
+    return findings
 
 
 def d7_length_findings(lines):
@@ -424,7 +453,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
-            "dash in prose, an unlinked path-shaped reference, a dangling "
+            "dash in prose, a gate-2 spelling, an unlinked path-shaped reference, a dangling "
             "in-repo markdown-link target, or a root entry over the D7 length ceiling."
         )
     )
@@ -475,12 +504,13 @@ def main(argv: list[str]) -> int:
             )
         )
 
+    findings.extend(spelling_findings(lines))
     findings.extend(d7_length_findings(lines))
 
     if not findings:
         scope = "staged" if args.staged else "working-tree"
         print(
-            f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are dash-free, "
+            f"OK: {len(lines)} added CHANGELOG line(s) ({scope}) are spelling-clean and dash-free, "
             f"every path-shaped reference is a markdown link, every in-repo link "
             f"target resolves, and no root entry exceeds the D7 length ceiling."
         )
@@ -494,12 +524,12 @@ def main(argv: list[str]) -> int:
         print(msg, file=sys.stderr)
     print(
         f"\n{len(findings)} CHANGELOG-hygiene issue(s) in the added lines. Fix "
-        f"before committing: remove em/en dashes from prose (use commas, "
+        f"before committing: fix gate-2 spellings, remove em/en dashes from prose (use commas, "
         f"colons, or parentheses), wrap path-shaped references as "
         f"[`path`](path), fix any dangling in-repo link target (or exclude "
         f"a cross-repo / illustrative link), and shorten any root entry over the "
         f"D7 length ceiling (100 words total, or a single sentence over 45 words). "
-        f"This aid mirrors delta gate D3, the D7 length check, gate 51, the "
+        f"This aid mirrors gate 2 spelling, delta gate D3, the D7 length check, gate 51, the "
         f"link-coverage gate, and the detailed-mirror link-resolution check "
         f"(3.34 (closing PR #1084)), surfaced before the first commit.",
         file=sys.stderr,
