@@ -871,6 +871,96 @@ class LanguageLinterTests(LinterTestCase):
         self.assertIn("docs/worked-example.md", scanned)
 
 
+class ChangelogLanguageTests(unittest.TestCase):
+    """Gate-2 default scope and preflight added-line spelling fixtures."""
+
+    def load_tool(self, name):
+        import importlib.util
+        sys.path.insert(0, str(REPO_ROOT / "tools"))
+        self.addCleanup(sys.path.pop, 0)
+        spec = importlib.util.spec_from_file_location(
+            name.replace("-", "_"), REPO_ROOT / "tools" / (name + ".py"))
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def test_root_in_default_and_explicit_scope(self):
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        mod = self.load_tool("lint-language")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            path = root / "CHANGELOG.md"
+            for word, expected in (("centralised", 1), ("centralized", 0)):
+                path.write_text("# Changelog\n\n" + word + " controls.\n", encoding="utf-8")
+                with patch.object(mod, "REPO_ROOT", root), redirect_stdout(io.StringIO()):
+                    self.assertEqual(mod.main([]), expected)
+                    self.assertEqual(mod.main([str(path)]), expected)
+
+    def test_spelling_matches_gate_two(self):
+        preflight = self.load_tool("preflight-changelog")
+        gate = self.load_tool("lint-language")
+        engine = gate._engine()
+        language = engine.compile_language(gate._language_config())
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            path = root / "CHANGELOG.md"
+            samples = ["centralised", "centralisation", "analysed", "centralized",
+                       "improvisation", "`centralised`", "Authorised Economic Operator"]
+            for text in samples:
+                with self.subTest(text=text):
+                    path.write_text(text + "\n", encoding="utf-8")
+                    expected = [(kind, word) for kind, _, word in
+                                engine.check_file(path, root, language=language)
+                                if kind in {"ise", "isation", "yse"}]
+                    found = preflight.spelling_findings([("CHANGELOG.md", text)])
+                    self.assertEqual([issue for _, issue, _ in found],
+                                     [f"gate 2 spelling [{k}]: {w}" for k, w in expected])
+
+    def test_preflight_staged_worktree_and_history(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            paths = ("CHANGELOG.md", mod.DETAILED_MIRROR_REL)
+
+            def git(*args):
+                return subprocess.run(["git", "-C", td, *args], check=True,
+                                      capture_output=True, text=True)
+
+            git("init", "-q")
+            for rel in paths:
+                path = root / rel
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("Historical centralised controls.\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+
+            def additions(staged):
+                return mod._added_lines_from_repo(root, paths, staged)
+
+            with patch.object(mod, "added_lines", side_effect=additions), \
+                 patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                 redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                self.assertEqual(mod.main([]), 0)
+                self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+                for rel in paths:
+                    with self.subTest(path=rel):
+                        path = root / rel
+                        history = path.read_text(encoding="utf-8")
+                        path.write_text(history + "New centralised controls.\n", encoding="utf-8")
+                        self.assertEqual(mod.main([]), 1)
+                        self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+                        git("add", rel)
+                        path.write_text(history + "New centralized controls.\n", encoding="utf-8")
+                        self.assertEqual(mod.main([]), 0)
+                        self.assertEqual(mod.main(["preflight", "--staged"]), 1)
+                        git("add", rel)
+                        self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+
+
 class LinksLinterTests(LinterTestCase):
     """tools/lint-links.py"""
 

@@ -6,13 +6,11 @@ corpus gates check repository state at HEAD; this script compares HEAD to the
 PR's merge-base and inspects only the lines the PR ADDS to CHANGELOG.md, failing
 if any added line contains an em dash (U+2014) or en dash (U+2013).
 
-Rationale (DD-1, 2026-06-23): the prose convention forbids em dashes and en dashes
-(see tools/lint-language.py), but CHANGELOG.md is deliberately outside that
-whole-file linter's scan set because its ~1500 lines of append-only historical
-entries accumulated ~130 dashes before the convention was enforced, and rewriting
-historical entries risks altering their meaning. This delta gate enforces the
-convention going forward on NEW entries only, leaving history untouched: a PR's
-added CHANGELOG lines must use commas, colons, or parentheses instead of dashes.
+The root CHANGELOG.md is also in tools/lint-language.py's default whole-file
+scan set. This delta gate retains the PR-diff check introduced for DD-1
+(2026-06-23): it rejects em/en dashes anywhere in added lines, including in
+code that the language gate skips. Historical lines are outside this delta
+check, but remain covered by the language gate under its normal rules.
 
 Scope: root CHANGELOG.md only. The detailed mirror at
 .working/changelog-details/CHANGELOG-detailed.md is maintainer working state,
@@ -103,8 +101,8 @@ def main(argv: list[str]) -> int:
     print(
         f"FAIL: {len(offending)} newly-added {CHANGELOG_PATH} line(s) contain an "
         f"em dash or en dash. Replace with a comma, colon, or parentheses "
-        f"(the prose convention forbids em/en dashes; historical entries are "
-        f"exempt, new ones are not):",
+        f"(this delta check covers added lines; lint-language.py also scans "
+        f"the whole root CHANGELOG.md under its normal rules):",
         file=sys.stderr,
     )
     for added in offending:

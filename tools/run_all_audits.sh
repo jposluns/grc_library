@@ -98,6 +98,7 @@ echo ""
 # Markdown linters (sub-group of the corpus gates). Order mirrors quality.yml.
 # ----------------------------------------------------------------------
 run_gate "Metadata audit"                                python3 tools/lint-metadata.py
+# Gate 2 checks the whole root CHANGELOG.md through its default scope.
 run_gate "Language and style audit"                      python3 tools/lint-language.py
 run_gate "Repository-internal link audit"                python3 tools/lint-links.py
 run_gate "Structural index integrity audit"              python3 tools/lint-structure.py

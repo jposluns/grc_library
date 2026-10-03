@@ -32,6 +32,7 @@ jobs:
       - name: Metadata audit
         run: python3 tools/lint-metadata.py
 
+      # Gate 2 checks the whole root CHANGELOG.md through its default scope.
       - name: Language and style audit
         run: python3 tools/lint-language.py
 

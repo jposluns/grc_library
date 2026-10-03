@@ -218,7 +218,10 @@ def _integration_self_test():
         for rel in ("tools/check-changelog-preflight-commit.py", "tools/check-commit-on-main.py",
                     "tools/install-git-hooks.sh", "tools/git-hooks/pre-commit", str(_PREFLIGHT),
                     "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
-                    "tools/aiqt_bootstrap.py"):
+                    "tools/aiqt_bootstrap.py", "tools/lint-language.py",
+                    ".corpus-management/tools/gate_lint_language.py",
+                    ".corpus-management/tools/profile_loader.py",
+                    ".corpus-management/defaults/grc/language.toml"):
             (repo / rel).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src / rel, repo / rel)
         # Isolated from the caller: no inherited GIT_* (GIT_INDEX_FILE above all), no global or system

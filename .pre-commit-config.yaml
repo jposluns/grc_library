@@ -23,6 +23,7 @@ repos:
         pass_filenames: false
         types: [markdown]
 
+      # Gate 2 checks the whole root CHANGELOG.md through its default scope.
       - id: lint-language
         name: Language and style audit
         entry: python3 tools/lint-language.py

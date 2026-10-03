@@ -21,9 +21,10 @@ Scope is the `.working/` tree ONLY, minus any `guardrail-seeds` directory
 inbox and everything under it is skipped; it holds verbatim foreign seed prose,
 exempt from the store house-style). Keep maintainer control docs and records OUT
 of a `guardrail-seeds` directory so they stay scanned. The corpus proper is covered by
-`lint-language.py`; the root `CHANGELOG.md`'s historical entries carry
-legitimate en-dashes and are covered at PR time by the D3 dash gate
-(`check-changelog-dash-on-pr.py`), so this gate does NOT full-scan `CHANGELOG.md`.
+`lint-language.py`, whose default whole-file scan also covers the root
+`CHANGELOG.md`. The D3 dash gate (`check-changelog-dash-on-pr.py`) additionally
+checks every added CHANGELOG line, including code. This working-tree gate
+does not scan the root `CHANGELOG.md` by default.
 
 Detection logic, per line outside a fenced block (`iter_non_code_lines`):
 
