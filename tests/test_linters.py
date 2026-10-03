@@ -31510,6 +31510,271 @@ class WorkerIdAnonymityTests(unittest.TestCase):
         self.assertEqual(rc, 0, out.getvalue())
 
 
+
+class ClausePreservationTests(unittest.TestCase):
+    """Real git fixtures: BASE and HEAD differ; ledger expectations are independent."""
+
+    BASE = (
+        "# Operating rules\n"
+        "We MUST verify é.\n"
+        "Never skip review.\n"
+        "Always retain evidence.\n"
+        "Approval is required.\n"
+        "Maintainer directive (2026-10-03): retain cadence.\n"
+        "Run gate D10.\n"
+        "Use the PreToolUse hook.\n"
+        "Invoke tools/lint-links.py.\n"
+        "Plain background prose.\n"
+        "Recheck after compaction\n"
+        "---\n"
+        "We MUST verify é.\n"
+        "Use check-size.py.\n"
+    )
+    SELECTED = (1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 13, 14)
+    REPLACEMENT = "Retain evidence after each check."
+
+    def setUp(self):
+        import json
+        tmp = tempfile.TemporaryDirectory(dir=FIXTURE_DIR)
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        self.env.update(
+            GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+            GIT_AUTHOR_NAME="Fixture", GIT_AUTHOR_EMAIL="fixture@example.invalid",
+            GIT_COMMITTER_NAME="Fixture", GIT_COMMITTER_EMAIL="fixture@example.invalid",
+        )
+        self.git("init", "-q")
+        self.write("instructions.md", self.BASE)
+        self.save()
+        self.base = self.git("rev-parse", "HEAD").stdout.strip()
+        lines = self.BASE.splitlines()
+        self.rows = [
+            dict(base_line=n, base_quote=lines[n - 1], state="K",
+                 quote=lines[n - 1], destination="instructions.md")
+            for n in self.SELECTED
+        ]
+        self.row(3).update(state="M", destination="moved.md")
+        self.row(4).update(state="S", quote=self.REPLACEMENT, destination="moved.md")
+        self.write("instructions.md", self.BASE.replace(lines[2] + "\n", "")
+                   .replace(lines[3] + "\n", ""))
+        self.write("moved.md", lines[2] + "\n" + self.REPLACEMENT + "\n")
+        self.save()
+        self.ledger = dict(base_revision=self.base, base_path="instructions.md",
+                           clauses=self.rows)
+        self.json = json
+
+    def git(self, *args):
+        return subprocess.run(
+            ["git", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgSign=false",
+             "-C", str(self.root), *args],
+            env=self.env, text=True, capture_output=True, check=True,
+        )
+
+    def write(self, path, text):
+        (self.root / path).write_text(text, encoding="utf-8")
+
+    def save(self):
+        self.git("add", ".")
+        self.git("commit", "-q", "-m", "fixture")
+
+    def row(self, number):
+        return next(row for row in self.rows if row["base_line"] == number)
+
+    def invoke(self, *args):
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools/check-clause-preservation.py"),
+             "--repo", str(self.root), "--base", self.base,
+             "--path", "instructions.md", *args],
+            env=self.env, text=True, capture_output=True,
+        )
+
+    def check(self, code, message=""):
+        self.write("ledger.json", self.json.dumps(self.ledger, ensure_ascii=False))
+        result = self.invoke("--ledger", str(self.root / "ledger.json"))
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, code, output)
+        self.assertIn(message, output)
+        return output
+
+    def test_extract_exact_lines_and_quotes(self):
+        result = self.invoke("--extract")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        data = self.json.loads(result.stdout)
+        self.assertEqual(data["base_revision"], self.base)
+        self.assertEqual(data["base_path"], "instructions.md")
+        self.assertEqual([row["base_line"] for row in data["clauses"]], list(self.SELECTED))
+        for row in data["clauses"]:
+            self.assertEqual(row["quote"], self.BASE.splitlines()[row["base_line"] - 1])
+            self.assertEqual(row["base_quote"], row["quote"])
+            self.assertEqual(row["state"], "K")
+
+    def test_kept_moved_and_superseded_pass(self):
+        self.check(0, "1 S rows require semantic review")
+
+    def test_deliberate_flip_removing_kept_clause_fails(self):
+        self.check(0)
+        text = (self.root / "instructions.md").read_text(encoding="utf-8")
+        self.write("instructions.md", text.replace("Approval is required.\n", ""))
+        self.save()
+        self.check(1, "instructions.md:5: K quote not found verbatim")
+
+    def test_missing_move_and_supersession_fail(self):
+        for line, state in ((3, "M"), (4, "S")):
+            with self.subTest(state=state):
+                quote = self.row(line)["quote"]
+                original = (self.root / "moved.md").read_text(encoding="utf-8")
+                self.write("moved.md", original.replace(quote, "Removed."))
+                self.save()
+                self.check(1, f"{state} quote not found verbatim")
+                self.write("moved.md", original)
+                self.save()
+
+    def test_missing_rows_including_repeated_base_line_fail(self):
+        self.rows.remove(self.row(13))
+        self.check(1, "instructions.md:13: missing ledger row")
+        self.ledger["clauses"] = []
+        self.check(1, "missing ledger row")
+
+    def test_duplicate_and_extra_rows_fail(self):
+        self.rows.append(dict(self.row(2)))
+        self.check(1, "duplicate ledger row")
+        self.rows.pop()
+        extra = dict(self.row(2), base_line=10, base_quote="Plain background prose.")
+        self.rows.append(extra)
+        self.check(1, "not an extracted base clause")
+
+    def test_compression_cannot_claim_k_or_m(self):
+        for line in (2, 3):
+            with self.subTest(line=line):
+                row = self.row(line)
+                original = row["quote"]
+                row["quote"] = original.split()[0]
+                self.check(1, "requires complete verbatim base quote")
+                row["quote"] = original
+
+    def test_state_destination_meanings(self):
+        self.row(3)["state"] = "K"
+        self.check(1, "K must stay")
+        self.row(3)["state"] = "M"
+        self.row(2)["state"] = "M"
+        self.check(1, "M must name a different destination")
+
+    def test_stale_base_identity_and_quote(self):
+        self.ledger["base_revision"] = "0" * 40
+        self.check(2, "matching resolved base_revision")
+        self.ledger["base_revision"] = self.base
+        self.ledger["base_path"] = "elsewhere.md"
+        self.check(2, "matching resolved base_revision")
+        self.ledger["base_path"] = "instructions.md"
+        self.row(2)["base_quote"] = "Invented base wording."
+        self.check(1, "base_quote differs from BASE")
+
+    def test_schema_rejects_empty_s_quotes_and_bad_types(self):
+        row = self.row(4)
+        for key, bad in (("quote", ""), ("quote", " \n"), ("state", "X"),
+                         ("state", []), ("base_line", True), ("base_line", 0),
+                         ("quote", 42), ("base_quote", None)):
+            with self.subTest(key=key, bad=bad):
+                saved = row[key]
+                row[key] = bad
+                self.check(2)
+                row[key] = saved
+        del row["quote"]
+        self.check(2, "row must have exactly")
+
+    def test_bad_json_and_duplicate_keys(self):
+        for text in ("{", '{"clauses": [], "clauses": []}'):
+            with self.subTest(text=text):
+                self.write("bad.json", text)
+                result = self.invoke("--ledger", str(self.root / "bad.json"))
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertNotIn("Traceback", result.stderr)
+
+    def test_head_ignores_worktree_and_index_repairs(self):
+        original = (self.root / "instructions.md").read_text(encoding="utf-8")
+        self.write("instructions.md", original.replace("Approval is required.\n", ""))
+        self.save()
+        self.write("instructions.md", original)
+        self.check(1, "instructions.md:5: K quote not found verbatim")
+        self.git("add", "instructions.md")
+        self.check(1, "instructions.md:5: K quote not found verbatim")
+
+    def test_quote_must_be_in_named_file_and_case_exact(self):
+        self.row(3)["destination"] = "instructions.md"
+        self.check(1, "M quote not found verbatim")
+        self.row(3)["destination"] = "missing.md"
+        self.check(1, "quote not found verbatim at HEAD:missing.md")
+        self.row(3)["destination"] = "moved.md"
+        self.row(4)["quote"] = self.REPLACEMENT.lower()
+        self.check(1, "S quote not found verbatim")
+
+    def test_bad_paths_and_revision_fail_closed(self):
+        for path in ("../outside.md", "/etc/passwd", ".git/config", "a/../b", "./a"):
+            with self.subTest(path=path):
+                self.row(3)["destination"] = path
+                self.check(2, "repository-relative path")
+        result = self.invoke("--base", "missing-revision", "--extract")
+        self.assertEqual(result.returncode, 2, result.stderr)
+
+    def test_symlink_and_non_utf8_destination_rejected(self):
+        (self.root / "link.md").symlink_to("moved.md")
+        self.save()
+        self.row(3)["destination"] = "link.md"
+        self.check(2, "no symlinks")
+        (self.root / "bad.md").write_bytes(b"\xff")
+        self.save()
+        self.row(3)["destination"] = "bad.md"
+        self.check(2, "ERROR: clause preservation")
+
+    @staticmethod
+    def load_tool(name):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("clause_fixture", REPO_ROOT / "tools" / name)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_extraction_boundaries_and_conservative_triggers(self):
+        mod = self.load_tool("check-clause-preservation.py")
+        self.assertEqual(mod.clauses("mustard nevermore alwayson unrequired\n"), {})
+        for text in ("MUST retain.\n", "2026-10-03: retain.\n",
+                     "Maintainer: retain.\n", "Run D10.\n", "PreToolUse\n",
+                     "Run pre-push.\n", "# Self-reminder cadence\n", "Title\n===\n",
+                     "Run lint-links.py.\n", "named-hook\n", "named-gate\n",
+                     "named-lint\n"):
+            with self.subTest(text=text):
+                self.assertIn(1, mod.clauses(text))
+        self.assertEqual(mod.clauses("must retain  \r\n"), {1: "must retain  \r"})
+
+    def test_empty_extraction_and_missing_base_fail_closed(self):
+        self.write("plain.md", "Background prose.\n")
+        self.save()
+        for path in ("plain.md", "missing.md"):
+            result = self.invoke("--base", "HEAD", "--path", path, "--extract")
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_d10_warning_boundaries_preserve_exit_codes(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load_tool("check-claude-md-size.py")
+        with patch.object(mod, "CLAUDE_MD", self.root / "instructions.md"):
+            for headroom, line_code in ((250, 0), (249, 0), (0, 0), (-1, 0), (5, 1)):
+                with self.subTest(headroom=headroom, line_code=line_code):
+                    totals = {"startup": {
+                        "characters": mod.STARTUP_CHARACTER_CEILING - headroom}}
+                    out = io.StringIO()
+                    with patch.object(mod, "census", return_value=totals), \
+                            patch.object(mod, "line_count", return_value=1), \
+                            patch.object(mod, "evaluate", return_value=(line_code, "fixture")), \
+                            contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                        code = mod.run()
+                    self.assertEqual(code, 1 if headroom < 0 else line_code)
+                    self.assertEqual("WARNING:" in out.getvalue(), headroom < 250)
+            with patch.object(mod, "census", side_effect=ValueError("broken")), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(mod.run(), 2)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 

@@ -227,6 +227,10 @@ def run() -> int:
     code, msg = evaluate(count, CEILING)
     print(msg, file=sys.stderr if code else sys.stdout)
     print(json.dumps(totals, sort_keys=True))
+    headroom = STARTUP_CHARACTER_CEILING - totals["startup"]["characters"]
+    if headroom < 250:
+        print(f"WARNING: D10 startup headroom is {headroom} characters "
+              "(under 250); preserve clauses when making room.")
     if totals["startup"]["characters"] > STARTUP_CHARACTER_CEILING:
         print(f"FAIL: startup character ceiling {STARTUP_CHARACTER_CEILING} exceeded")
         code = 1
