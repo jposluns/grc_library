@@ -2,7 +2,7 @@
 
 **Document Title:** Turkey Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.9\
+**Version:** 1.0.10\
 **Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -68,7 +68,7 @@ The procedures and principles for applying Article 9 are set by regulation (Arti
 
 ## Enforcement and fines
 
-Article 18 of Law No. 6698, as amended by Article 35 of Law No. 7499, provides the following administrative-fine categories, with the KVKK's revalued ranges applicable for 2026 from 1 January 2026:
+Article 18 of Law No. 6698, as amended by Article 35 of Law No. 7499, provides the following administrative-fine categories, with the revalued ranges announced by the Personal Data Protection Authority and applicable for 2026 from 1 January 2026:
 
 - **Article 18(1)(a):** Failure to fulfil the obligation to inform under Article 10: TRY 85,437 to 1,709,200.
 - **Article 18(1)(b):** Failure to fulfil the data-security obligations under Article 12: TRY 256,357 to 17,092,242.
@@ -76,11 +76,11 @@ Article 18 of Law No. 6698, as amended by Article 35 of Law No. 7499, provides t
 - **Article 18(1)(ç):** Failure to comply with registration and notification obligations for the Data Controllers' Registry under Article 16: TRY 341,809 to 17,092,242.
 - **Article 18(1)(d):** Failure to notify a standard contract under Article 9(5): TRY 90,308 to 1,806,177.
 
-Administrative fines are increased at the start of each calendar year by the revaluation rate determined and announced under Article 298 bis of Tax Procedure Law No. 213; fractions of one Turkish lira are disregarded (Misdemeanours Law, Article 17(7)).
+Administrative fines are increased at the start of each calendar year by the revaluation rate determined and announced under Article 298 bis of Tax Procedure Law No. 213; fractions of one Turkish lira are disregarded; this rule does not apply to proportional administrative fines (Misdemeanours Law, Article 17(7)).
 
 Under Article 18(2), fines under Article 18(1)(a), (b), (c) and (ç) apply to controllers, and the fine under Article 18(1)(d) applies to controllers or processors, in each case natural persons or private-law legal persons.
 
-Under Article 18(4), where the acts listed in Article 18(1) are committed within public institutions and organizations or professional organizations with public institution status, disciplinary action must be taken, upon notification by the Board, against the relevant civil servants and other public officials or personnel of those professional organizations, and the outcome must be reported to the Board.
+Under Article 18(4), where the acts listed in Article 18(1) are committed within public institutions and organizations or professional organizations with public institution status, action must be taken under the disciplinary rules, upon notification by the Board, against the relevant civil servants and other public officials or personnel of those professional organizations, and the outcome must be reported to the Board.
 
 - Criminal penalties: imprisonment from 1 to 4.5 years for unlawful processing of special categories of personal data.
 
