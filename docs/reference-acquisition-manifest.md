@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-09-29\
+**Date:** 2026-10-03\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -322,7 +322,7 @@ without the private reference sibling).
 | NIST SP 800-94, Guide to Intrusion Detection and Prevention Systems (IDPS) |  | NIST |  | FREE |
 | NIST SP 800-95, Guide to Secure Web Services | SP 800-95 (August 2007) | NIST |  | FREE |
 
-## Frameworks (329: 285 free, 44 licensed)
+## Frameworks (330: 286 free, 44 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -408,6 +408,7 @@ without the private reference sibling).
 | CIS Controls v8 Change Log (v7.1 to v8 mapping) |  | CIS |  | FREE |
 | CIS Critical Security Controls v8 (controls workbook, Controls V8 sheet) |  | CIS |  | FREE |
 | CIS Critical Security Controls v8 (full text) |  | CIS |  | FREE |
+| CISA BOD 26-04: Implementation Guidance for Prioritizing Security Updates Based on Risk | Issued June 10, 2026; updated August 25, 2026 | CISA | https://www.cisa.gov/news-events/directives/bod-26-04-implementation-guidance-prioritizing-security-updates-based-risk | FREE |
 | Cloud Security Alliance AI Model Risk Management Framework (2024) |  | CSA |  | FREE |
 | CMMI Adoption Guidance | V3.0 (2024 adoption guidance) | ISACA |  | LICENSED |
 | CMMI V3.0 Model Quick Reference Guide: an overview of the Capability Maturity Model Integration (CMMI) Model | V3.0 | ISACA |  | LICENSED |
@@ -656,7 +657,7 @@ without the private reference sibling).
 | US Interagency Paper: Sound Practices to Strengthen Operational Resilience (OCC / FRB / FDIC, 2020) |  | US OCC/FRB/FDIC |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (246: 246 free, 0 licensed)
+## Legislation (247: 247 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -668,7 +669,7 @@ without the private reference sibling).
 | American Recovery and Reinvestment Act of 2009 (Pub. L. 111-5), including the HITECH Act (Title XIII) |  | US |  | FREE |
 | Argentina Decreto 1558/2001 (reglamentario de la Ley 25.326 de Protección de los Datos Personales) | Decreto 1558/2001, enacted 29 November 2001 (B.O. 3 December 2001); Anexo I, arts. 1 to 32 reglamentados (arts. 33 to 46 sin reglamentar). Title, date, and implementing-decree status orchestrator-confirmed at argentina.gob.ar 2026-07-16 (texto original shown). | Argentina |  | FREE |
 | Argentina Ley 25.326 de Protección de los Datos Personales (Habeas Data) |  | Argentina |  | FREE |
-| Australia Privacy Act 1988 (current compilation C2026C00227) |  | Australia |  | FREE |
+| Australia Privacy Act 1988 (current compilation C2026C00227) | Compilation No. 104, 4 June 2026; includes Act No. 75, 2025; C2026C00227 | Australia |  | FREE |
 | Bahrain Personal Data Protection Law No. 30 of 2018 | Law No. 30 of 2018 (in force 1 Aug 2019) | Bahrain |  | FREE |
 | Bank Act (S.C. 1991, c. 46), Part XII.2 (Financial Consumer Protection Framework) extract | S.C. 1991, c. 46 (consolidated to 2026-06-17; Part XII.2 extract) | Canada |  | FREE |
 | Bill C-27, the Digital Charter Implementation Act, 2022 (enacting the Consumer Privacy Protection Act, the Personal Information and Data Protection Tribunal Act, and the Artificial Intelligence and Data Act), 44-1 first reading (DIED on the Order Paper January 2025; never enacted; historical reference only) | Bill C-27, 44-1, first reading 2022-06-16 (never enacted; died January 2025) | Canada |  | FREE |
@@ -704,6 +705,7 @@ without the private reference sibling).
 | China Data Security Law (2021), English translation (UNOFFICIAL) |  | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021) | PIPL (adopted 20 Aug 2021, effective 1 Nov 2021) | China |  | FREE |
 | China Personal Information Protection Law (PIPL, 2021), English translation (UNOFFICIAL) |  | China |  | FREE |
+| CISA BOD 26-04: Prioritizing Security Updates Based on Risk | BOD 26-04; issued June 10, 2026 | US | https://www.cisa.gov/news-events/directives/bod-26-04-prioritizing-security-updates-based-risk | FREE |
 | CJEU Case C-311/18, Data Protection Commissioner v Facebook Ireland and Schrems (Schrems II), judgment of 16 July 2020 |  | EU |  | FREE |
 | Colombia Decreto 1377 de 2013 (por el cual se reglamenta parcialmente la Ley 1581 de 2012, protección de datos personales) | Decreto 1377 de 2013 (Diario Oficial 48.834, 27 June 2013), Función Pública Gestor Normativo maintained text; partially derogated by Decreto 1081 de 2015; content compiled into the Decreto Único Reglamentario 1074 de 2015 | Colombia |  | FREE |
 | Colombia Decreto 338 de 2022, gobernanza de la seguridad digital |  | Colombia |  | FREE |
@@ -956,5 +958,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 891 sources (765 free, 126 licensed).**
+**Total: 893 sources (767 free, 126 licensed).**
 
