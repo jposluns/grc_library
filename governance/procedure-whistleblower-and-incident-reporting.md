@@ -2,7 +2,7 @@
 
 **Document Title:** Whistleblower and Incident Reporting Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Chief Information Officer\
@@ -122,7 +122,7 @@ Where an investigation identifies, or the organization otherwise becomes aware o
 | UK GDPR | Notify the Information Commission without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach, unless the breach is unlikely to result in a risk to individuals' rights and freedoms (UK GDPR Art. 33(1)) |
 | LGPD | Notify ANPD and affected data subjects within 3 business days of becoming aware that the incident affected personal data, where it may cause risk or relevant harm (Resolution CD/ANPD No. 15/2024, Arts. 6 and 9) |
 | EU AI Act | Notify competent authority for serious incidents involving High-risk AI systems |
-| NIS 2 Directive | Entities subject to Article 23 must report significant incidents to the CSIRT or competent authority in stages (Article 23(4)), timed from becoming aware: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, reduced to 24 hours for a trust service provider where the significant incident affects the provision of its trust services (Article 23(4), second subparagraph), an intermediate report on request, final report within one month of that notification; where the incident is still ongoing at that point, a progress report then and the final report within one month of handling the incident (Article 23(4)(e)) |
+| NIS 2 Directive | Entities subject to Article 23 must report significant incidents to the CSIRT or, where applicable, the competent authority in stages (Article 23(4)), timed from becoming aware: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph), an intermediate report on request, final report within one month of that notification; where the incident is still ongoing at that point, a progress report then and the final report within one month of handling the incident (Article 23(4)(e)) |
 
 ---
 

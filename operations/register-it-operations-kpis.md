@@ -2,7 +2,7 @@
 
 **Document Title:** IT Operations Key Performance Indicators Register\
 **Document Type:** Register\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-10-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -63,7 +63,7 @@ This register applies to all IT services, infrastructure, cloud environments, an
 | Mean time to restore | Average elapsed time between incident detection and service restoration for P1 and P2 incidents. | P1: ≤ 4 hours; P2: ≤ 8 hours | Monthly | Service Management Office | Incident record, resolution log | Chief Information Officer | Chief Information Officer | |
 | Major incident frequency | Count of P1 incidents per calendar month. | Trend reduction year-on-year | Monthly | Chief Information Officer | Incident register | Enterprise Risk Committee | Enterprise Risk Committee | No fixed target; trend reduction is the governance objective. |
 | Incident recurrence rate | Percentage of P1 and P2 incidents that are repeat occurrences of a known issue without a permanent fix applied. | < 10% | Monthly | Problem Manager | Incident record, problem register | Chief Information Officer | Chief Information Officer | High recurrence indicates unresolved underlying causes. |
-| NIS 2 notification compliance | Percentage of significant incidents subject to EU NIS 2 Article 23 for which both the early warning and incident notification met the applicable requirements: each must be submitted without undue delay; early warning within 24 hours of awareness; incident notification within 72 hours of awareness, reduced to 24 hours for a trust service provider where the significant incident affects the provision of its trust services (Article 23(4)(a), (b), and second subparagraph). | 100% | Per occurrence; quarterly review | Chief Information Security Officer | Notification record, incident log, awareness timestamp, applicable deadline and trust-service impact assessment | Enterprise Risk Committee | Enterprise Risk Committee | The percentage target, review frequency, evidence fields, and separate tracking are library governance choices. The notification requirements derive from Article 23(4) and are not illustrative service targets. This KPI must be tracked separately from general incident SLA; intermediate, progress, and final reports must be assessed separately. |
+| NIS 2 notification compliance | Percentage of significant incidents subject to EU NIS 2 Article 23 for which both the early warning and incident notification met the applicable requirements: each without undue delay and in any event within the applicable period from becoming aware of the significant incident: early warning within 24 hours; incident notification within 72 hours, or within 24 hours for a trust service provider whose significant incident has an impact on the provision of its trust services (Article 23(4)(a), (b), and second subparagraph). | 100% | Per occurrence; quarterly review | Chief Information Security Officer | Notification record, incident log, awareness timestamp, applicable deadline and trust-service impact assessment | Enterprise Risk Committee | Enterprise Risk Committee | The percentage target, review frequency, evidence fields, and separate tracking are library governance choices. The notification requirements derive from Article 23(4) and are not illustrative service targets. This KPI must be tracked separately from general incident SLA; intermediate, progress, and final reports must be assessed separately. |
 
 ---
 

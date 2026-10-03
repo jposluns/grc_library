@@ -2,7 +2,7 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-10-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -46,7 +46,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 
 ### 1. Incident management
 
-All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Where EU NIS 2 Article 23 applies, entities must report significant incidents to the CSIRT or, where applicable, the competent authority. Entities must submit an early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)). Entities must submit an incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, reduced to 24 hours for a trust service provider where the significant incident affects the provision of its trust services (Article 23(4), second subparagraph). Entities must provide an intermediate report on request under Article 23(4)(c). Entities must provide a final report within one month after submission of the incident notification under Article 23(4)(d); if the incident is still ongoing at that point, they must provide a progress report then and a final report within one month of handling the incident under Article 23(4)(e).
+All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Where EU NIS 2 Article 23 applies, entities must report significant incidents to the CSIRT or, where applicable, the competent authority. Entities must submit an early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)). Entities must submit an incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph). Entities must provide an intermediate report on request under Article 23(4)(c). Entities must provide a final report within one month after submission of the incident notification under Article 23(4)(d); if the incident is still ongoing at that point, they must provide a progress report then and a final report within one month of handling the incident under Article 23(4)(e).
 
 ### 2. Problem management
 

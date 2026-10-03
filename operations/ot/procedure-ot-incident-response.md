@@ -2,7 +2,7 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.5\
+**Version:** 1.1.6\
 **Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -305,7 +305,7 @@ These windows are indicative; the resilience domain's BC/DR standard ([`resilien
 11.2.1 Regulatory reporting obligations vary by jurisdiction and sector. The Communications Owner and Legal Counsel determine applicability and timing for each incident. Common OT-relevant reporting regimes:
 
 - **NERC CIP** (North American electricity): EOP-004-4 emergency reporting; CIP-008 reportable cyber security incidents.
-- **EU NIS 2** (essential or important entities subject to Article 23): Entities must submit: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, reduced to 24 hours for a trust service provider where the significant incident affects the provision of its trust services (Article 23(4), second subparagraph), final report within one month after submission of the incident notification (or, where the incident is still ongoing at that point, a progress report then and the final report within one month of handling, Art 23(4)(e)) per the NIS 2 implementation annex ([`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md)).
+- **EU NIS 2** (essential or important entities subject to Article 23): Entities must submit to the CSIRT or, where applicable, the competent authority: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph), final report within one month after submission of the incident notification (or, where the incident is still ongoing at that point, a progress report then and the final report within one month of handling, Art 23(4)(e)) per the NIS 2 implementation annex ([`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md)).
 - **Sector-specific transport regulators**: TSA pipeline directives (US), maritime cyber risk management guidelines (IMO MSC-FAL.1/Circ.3), aviation cybersecurity guidance (the non-binding ICAO Aviation Cybersecurity Strategy, October 2019).
 - **Privacy regulators**: where the OT incident affects personal data (operator credentials, employee records on engineering workstations) per the privacy breach response procedure ([`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)).
 
