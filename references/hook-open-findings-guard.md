@@ -74,7 +74,7 @@ Relocated from `.claude/CLAUDE.md` `## A delivered QA result BLOCKS progress unt
 while the orchestrator started new work.** This is the strongest form of the QA priority and it
 overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
 
-**SOURCE-INDEPENDENT (widened 2026-07-25, after the narrow version failed).** The rule below was
+**SOURCE-INDEPENDENT (widened 2026-07-25, after the narrow version failed).** The QA-blocking rule in `.claude/CLAUDE.md` was
 first written for QA arriving FROM WORKERS, and that scope had a hole almost immediately: live defects in
 a file-moving tool, produced by the orchestrator's OWN instrument moments earlier, were rendered as a
 table row and walked past in favour of writing a summary statistic about them. The severity of a defect
