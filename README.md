@@ -1,12 +1,12 @@
 # Governance, Risk, and Compliance Documentation Library
 
-**Date:** 2026-10-02\
+**Date:** 2026-10-03\
 **Classification:** Public\
 **Confidentiality:** Public\
 **License:** CC BY-SA 4.0\
 **SPDX-License-Identifier:** CC-BY-SA-4.0\
-**Library Version:** 2026.10.1378 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
-**README Version:** 1.11.465 (semantic per-document version for this file)
+**Library Version:** 2026.10.1379 (CalVer, library-wide; see [`specification-master-project.md`](specification-master-project.md) §4.5)\
+**README Version:** 1.11.466 (semantic per-document version for this file)
 
 ---
 
@@ -70,7 +70,7 @@ An adopter can engage with this repository at any of three levels:
 
 - **Adopt the corpus only.** You want the Markdown artefacts as a starting point and have your own maintenance workflow (or no AI assistance in the loop). Take the domain directories you need; ignore [`tools/`](tools/) and [`guardrails/`](guardrails/). The CC BY-SA 4.0 share-alike clause applies to derivatives you redistribute.
 
-- **Adopt the pack (now moving to AIQT Guardrails).** You are not building a GRC library, but you want a Claude Code / AI-assistant governance baseline for any project. The pack is being published as a standalone, open pack, **AIQT Guardrails**, at [jposluns/guardrails](https://github.com/jposluns/guardrails) ([aiqt.ai](https://aiqt.ai)). Rather than implementing the embedded copy here, we recommend the upcoming **AIQT 1.1.0** release, which installs the governance core into your project with per-assistant setup and a verifying doctor. The [`guardrails/`](guardrails/) copy in this repository (front door: its own [`README.md`](guardrails/README.md)) remains as the library's dogfood and tracks the migration.
+- **Adopt the pinned AIQT runtime and retained GRC procedures.** The exact snapshot and scope transformations are recorded in `vendor/aiqt/RULES.json`; read [`guardrails/README.md`](guardrails/README.md) for installation. The upstream snapshot is separately Apache-2.0 with its LICENSE and NOTICE retained; GRC-original compatibility and procedures remain CC BY-SA 4.0.
 
 The third mode is an emergent use that has been adopted by developers in practice; it is supported alongside the primary fork-the-whole-repo path.
 
@@ -82,7 +82,7 @@ The third mode is an emergent use that has been adopted by developers in practic
 
 2. **Identify the documents relevant to your programme.** Begin with the Day-1 floor and the Tier 1 starter set (see [`docs/template-quickstart.md`](docs/template-quickstart.md) and [`docs/adopter-guide.md`](docs/adopter-guide.md)), then grow toward the Core reference set below and into domain-specific standards and procedures as the programme matures.
 
-3. **Copy and adapt.** All content is CC BY-SA 4.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
+3. **Copy and adapt.** GRC-original content is CC BY-SA 4.0; the pinned AIQT snapshot is separately Apache-2.0. Copy documents into your own repository (attributing the library per CC BY-SA 4.0) and substitute organization-specific values: role names, jurisdiction, sector, system names, risk appetite, and contact details. If you redistribute the resulting derivative, the CC BY-SA 4.0 "ShareAlike" condition requires you to release that derivative under CC BY-SA 4.0 as well.
 
 4. **Validate applicability.** Not every document applies to every organization. Validate that each document's scope, jurisdictional references, and control requirements match your operating environment, sector, and regulatory obligations before adoption.
 
@@ -418,7 +418,7 @@ See [`NOTICE.md`](NOTICE.md) for repository rules governing external reference m
 
 Originally created and maintained by **Jeffrey Posluns** ([@jposluns](https://github.com/jposluns), <jeff@posluns.ca>, [LinkedIn](https://linkedin.com/in/jposluns), [ORCID](https://orcid.org/0009-0000-7775-2233)).
 
-The library is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0). The licence requires attribution of the library when content is redistributed, and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
+GRC-original material is released under Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0); the pinned AIQT snapshot is separately Apache-2.0 with its upstream LICENSE and NOTICE retained. The CC licence requires attribution of the library when content is redistributed, and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition). For machine-readable citation metadata see [`CITATION.cff`](CITATION.cff); for full attribution context and acknowledgement of contributors see [`AUTHORS.md`](AUTHORS.md).
 
 ---
 

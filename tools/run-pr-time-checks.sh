@@ -138,6 +138,7 @@ run_check "D8 Daily-changelog-rollup reminder" \
 run_check "D9 Retired-section-orphan check" \
     python3 tools/check-retired-section-orphan-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
+# D10 counts Unicode startup characters as well as core lines; reports all CLAUDE files.
 # Delta gate D10: CLAUDE.md size ratchet. FAILS when .claude/CLAUDE.md exceeds a
 # hand-maintained downward-ratchet ceiling, forcing new content to relocate to
 # references/ rather than swell the every-turn load. Reads working-tree state, so

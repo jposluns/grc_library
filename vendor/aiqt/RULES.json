@@ -1,0 +1,1812 @@
+{
+  "commit": "a3ff734ca855e4363f340eca52fbd87272c51854",
+  "compatibility_source": ".claude/references/governance-compatibility.md",
+  "compatibility_target": ".claude/rules/governance-compatibility.md",
+  "files": [
+    {
+      "bytes": 11358,
+      "path": "guardrails/aiqt-rules/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "bytes": 11026,
+      "path": "guardrails/aiqt-rules/NOTICE",
+      "sha256": "aaf972bbdd8b8520076c1bb6f9d701fab580ed6fd34a91c2ba125d39d463aa11"
+    },
+    {
+      "bytes": 787,
+      "path": "guardrails/aiqt-rules/README.md",
+      "sha256": "d2409b613a207ba37edc05dfbe64bb57a437a1721fcaff0199a2e10523a9b892"
+    },
+    {
+      "bytes": 622,
+      "path": "guardrails/aiqt-rules/aiqt/00-project-integrity.md",
+      "sha256": "3cb951f3c0cbccc6a68feb7c6ba56ff0c02c27724c9aa665d7b87624b1c0fb3e"
+    },
+    {
+      "bytes": 898,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-citation-from-opened-file.md",
+      "sha256": "e3c4fb5b1fb13e8014beb2a81315090fbb37d38f8a9ee59485fe17b0c7b9ca39"
+    },
+    {
+      "bytes": 675,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-claims-rest-on-observation.md",
+      "sha256": "81df92a591d35d1caa71e8cd27c352eeaf2037218c10e37f38b77e1513fa03ff"
+    },
+    {
+      "bytes": 2538,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md",
+      "sha256": "567f21bafa5e88a0b3dd305ea29b837d08e322107b77478cf278092913d0acea"
+    },
+    {
+      "bytes": 455,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-corroborate-external-claims.md",
+      "sha256": "14ecc6a4fa419a3b0b8223c9442b0f9c5ab7c32adeaa4e4a2b1fec1cf26b1fb9"
+    },
+    {
+      "bytes": 1918,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-count-carries-its-predicate.md",
+      "sha256": "b6b2317eccf36a090fa45ead79253aef1d4a53da999681873f0a201a4bb60d8f"
+    },
+    {
+      "bytes": 762,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-disclose-guard-residuals.md",
+      "sha256": "3b8bbb1a920a8c38d7763f6433eb457139c5dd814926559662dc8ffc0409271e"
+    },
+    {
+      "bytes": 3420,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-evidence-grounded-completion.md",
+      "sha256": "ef70b589312b5b37a02920f9f79e107265b806659c95e9ce529c931c26266161"
+    },
+    {
+      "bytes": 4024,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-guard-input-soundness.md",
+      "sha256": "8d21a518820de1d4b7f64f6551150a3eb020c9a40a2abc8bd7583a296b33549c"
+    },
+    {
+      "bytes": 1329,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md",
+      "sha256": "2321618ff2db7ba71f4ae2cb7af4b88ee60e740faad4c51f3f176a8d352ff56a"
+    },
+    {
+      "bytes": 450,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-no-fabrication.md",
+      "sha256": "45e14b4c516cbe6969867102c239f895e9047794a90231cf6a18b1db489f4a26"
+    },
+    {
+      "bytes": 2203,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md",
+      "sha256": "7dacbce3d155aced6bcea0474834ca59907b4f4a38ba6556090fdb0ce6ec78e7"
+    },
+    {
+      "bytes": 1257,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md",
+      "sha256": "1c8eba842cf43ab8c8f2b8a6e691b967115f6f922cd264209644d3daa055ed1f"
+    },
+    {
+      "bytes": 353,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-read-before-characterizing.md",
+      "sha256": "0bc2aa52717e6ce8ab222b6009b650484484e7b658d99dc197a381611d518698"
+    },
+    {
+      "bytes": 553,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-reference-capture.md",
+      "sha256": "16771120832a089c77aa198360d27b1e1cd5e287fdb322ee0ffae42ddae0a3f2"
+    },
+    {
+      "bytes": 463,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-reproduce-before-fix.md",
+      "sha256": "ba9cf2790a14e0b1b754fdd7924bf86b895c25043b9f2ee324579f9f8a568069"
+    },
+    {
+      "bytes": 632,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-timestamp-from-clock.md",
+      "sha256": "4cd20aa307683a46425e4c1e00f0da58ca05248f4a154fd771d6cf38430a1910"
+    },
+    {
+      "bytes": 268,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-validate-inference-before-action.md",
+      "sha256": "2981271ce9624a67f855d224b29fa51021e550b2a650b22c25223f3a70c91d3b"
+    },
+    {
+      "bytes": 6658,
+      "path": "guardrails/aiqt-rules/aiqt/10-ACCUR-verify-fix-in-commit.md",
+      "sha256": "63e7417e1e0ea72fced7086898e2e459b933fdfe6fd364d00be009f73a07de50"
+    },
+    {
+      "bytes": 541,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-anything-wrong-fixed-first.md",
+      "sha256": "7eae45965612b05da9802f2b211a4a58dba305f10b6e80e1514d09508b1d176c"
+    },
+    {
+      "bytes": 566,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-attestation-is-harness-owned.md",
+      "sha256": "dd3eab3381071080c059d31e998280fb3b29d5b07af6b3ea54a9ddbc7c8fa9b4"
+    },
+    {
+      "bytes": 719,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-branch-and-merge-on-green.md",
+      "sha256": "0b6e3cffbdcb82c6d729fe68286c44db290ef6d55f172175b6db6e0edb87f905"
+    },
+    {
+      "bytes": 1357,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-branch-rooted-on-live-main.md",
+      "sha256": "f3197be5d8d73e4ea53880a44c227d390a9b4c08d99f4cc0d00bed8a29026024"
+    },
+    {
+      "bytes": 1363,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md",
+      "sha256": "77b2e76a348f1468c55988ab1427e04511560c1479e0206aed88416deedacafd"
+    },
+    {
+      "bytes": 504,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-commit-identity.md",
+      "sha256": "04d66e54525d7ed4c8f1e7a1a5e7841e2fa6560430cdee4d2289a109614384d4"
+    },
+    {
+      "bytes": 3452,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md",
+      "sha256": "42fadd1cf7769a4af1114d91d461114a1859e7fc3aee1fe5feb081e33e38bd79"
+    },
+    {
+      "bytes": 4665,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-gate-discipline.md",
+      "sha256": "9a63652194fa01e678df4ee7043a086709382dbca362ae668691418535ca16c6"
+    },
+    {
+      "bytes": 360,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-generated-artefact-source-only.md",
+      "sha256": "42fb16d7257af3084dd556cd4ef4ac5053707ffd7aee70034843aab6673dfebc"
+    },
+    {
+      "bytes": 575,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-licence-compatibility.md",
+      "sha256": "994e4425fa85075bfde2951bbd22c2fffd7e74da95b016ee61df4e462140a5b4"
+    },
+    {
+      "bytes": 505,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-no-concealed-failure.md",
+      "sha256": "ee05fe9dd2edcba872cf7978870fa6eac20ba2578ee5a085293a4a6af18d3407"
+    },
+    {
+      "bytes": 803,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-preserve-uncommitted-work.md",
+      "sha256": "079b701bb284cb830c73014d506e6ba92310483b83f09a6eeb24e4537e4a6cef"
+    },
+    {
+      "bytes": 602,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-protected-branch-integrity.md",
+      "sha256": "59c40e70c51a3915f791927248162ecff2887ec97ed65b428149b3d2c6d327cf"
+    },
+    {
+      "bytes": 1442,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-required-step-remains-required.md",
+      "sha256": "ef4e9c629f937cc69b33eecafe0d1fb53c5ee0b6bc397b5bc16e231f1b27e478"
+    },
+    {
+      "bytes": 600,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md",
+      "sha256": "39ade60ff7a2dfb27108061aa340f8e091118640e71d2c1f3e3bcb8dedeed92b"
+    },
+    {
+      "bytes": 1121,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md",
+      "sha256": "66a13ad6f2a36a1362465ed34cdaa342bd53eee2b78d813c92d7fd6f8a2bed79"
+    },
+    {
+      "bytes": 431,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-safe-retries.md",
+      "sha256": "edfecac461bab41a3514c596b291c453fe01f49bd8f5613b95cb2aac98829549"
+    },
+    {
+      "bytes": 686,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-separate-task-changes.md",
+      "sha256": "a2e1df7edebc43fc90bf023efe316a2e3fc0aded3af28cc00936fcd50b513d52"
+    },
+    {
+      "bytes": 796,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-stage-then-promote-on-green.md",
+      "sha256": "63e9d9d79d38c31e27f5720b85ab47c5222cf9f6428da67a3d699c31a42bd20e"
+    },
+    {
+      "bytes": 1745,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-track-launched-work.md",
+      "sha256": "1a6ce97b0599e10e961d0c99689fbaa583b37ea208386216e9cdf46e1ea5ab74"
+    },
+    {
+      "bytes": 474,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-validation-gates-apply.md",
+      "sha256": "dfe15564e51ddab6e19af6995ad8e072229b5ba9d233efad288bf2c91a7aa842"
+    },
+    {
+      "bytes": 2670,
+      "path": "guardrails/aiqt-rules/aiqt/10-INTEG-workers-produce-inert-data.md",
+      "sha256": "6a7623c04a8f3bf5df2aee76188f7dc1e199360ce532af9b82e424288e05af2e"
+    },
+    {
+      "bytes": 558,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-absolute-paths.md",
+      "sha256": "11fb788e9b4da6deb19b0e2ccde54822a3dd084c9044a94c44acc4d189ad9e3e"
+    },
+    {
+      "bytes": 2527,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-change-carries-check.md",
+      "sha256": "f0d64dd9542cc5c544853576120c7591f52a91d70c6838d609f02cc3cd87eb1f"
+    },
+    {
+      "bytes": 446,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-compatibility-or-migration.md",
+      "sha256": "172d1c6ae6f644bdcdad7a1a9d5a912cc94951ce2c63128a95b71ae5dd9ff9d1"
+    },
+    {
+      "bytes": 1572,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-confirm-execution-target.md",
+      "sha256": "d5c77943670abf446d40b528e75b2e4226c1ff231c1347ea959dd1d782240f8f"
+    },
+    {
+      "bytes": 1321,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-defence-in-depth-default.md",
+      "sha256": "869083e9ef683c85b8eb380961c656ce727214fa20b1d599c559559904c4e0d6"
+    },
+    {
+      "bytes": 2174,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md",
+      "sha256": "62886e96c50d5d0728ef077f52115ef4806fd0eb1887e78270191451b970a3fc"
+    },
+    {
+      "bytes": 628,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md",
+      "sha256": "2422f9568c606f4e9f286c4f5b6c19e842fdee78b5a5e948cf4c71854dded45d"
+    },
+    {
+      "bytes": 928,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md",
+      "sha256": "57eba929d16870f286470300a85da43683b5d14d71e7335cecda4d10daebc092"
+    },
+    {
+      "bytes": 462,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-high-assurance-verification.md",
+      "sha256": "5f97f7ebd69a8b825747c384fbc0ac5717a3ccfecb86641c672b93afb32b96fa"
+    },
+    {
+      "bytes": 1963,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md",
+      "sha256": "f0aad39bcc86943d8173636c4630cd081d388e063228ce682cb52f8dd0e2bb6c"
+    },
+    {
+      "bytes": 560,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-lightweight-verifier-workers.md",
+      "sha256": "8130dffb7ed200c34a55f877250082ea14036bce473cb6b34fe842cd07217572"
+    },
+    {
+      "bytes": 381,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-match-surrounding-code.md",
+      "sha256": "a5efa2d1c098f87119de27b85a57ba6dd72185a1f08acbbab4b8ff738363193c"
+    },
+    {
+      "bytes": 695,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-minimize-dependencies.md",
+      "sha256": "52847a4bb4339269f413a5a857dc0d36206240a119c02fa43201c7682ae15fdb"
+    },
+    {
+      "bytes": 570,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-self-guardrail-from-error.md",
+      "sha256": "f0bb93048360259f1ddf6e456c7b4a91d5414b649959397d382de14711b0a464"
+    },
+    {
+      "bytes": 351,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-smallest-correct-change.md",
+      "sha256": "52d59eb0d79af9a80aa6c529c197925f19d55c65bf730d32da4057fb547865c7"
+    },
+    {
+      "bytes": 638,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-surface-counterproductive-instructions.md",
+      "sha256": "ed3443fb13e8dd7d19719c83d747153d27cc782ba278831180a817ede477bf4d"
+    },
+    {
+      "bytes": 4358,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-test-hermeticity.md",
+      "sha256": "76fcd50b0c87390e1bb75af0454edc76c3ff7c9147e1f9e3f1f87c849f37a0da"
+    },
+    {
+      "bytes": 2316,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-verifier-delivery-completeness.md",
+      "sha256": "15ff53ab46dba0a9908e39613b07ed56020b9340ac2f8c1c12fdc91220cab0b1"
+    },
+    {
+      "bytes": 997,
+      "path": "guardrails/aiqt-rules/aiqt/10-QUALI-verifier-diversity.md",
+      "sha256": "b9d0fa9a991d84fbe673a56208ef0c3f63dbea20425ace2b8ff3d43cf7f4071d"
+    },
+    {
+      "bytes": 538,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-ai-toolchain-register.md",
+      "sha256": "3e52b6bf3d53bc55ab6231ec441c4e448875315361005d6b3c11a2492deec972"
+    },
+    {
+      "bytes": 624,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-assess-advise-discussion-only.md",
+      "sha256": "10f5369a66ee5cc6b4c7e1d8c0bd0747bada6823d943d0ecfed15aa695d6797e"
+    },
+    {
+      "bytes": 742,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-atomic-claim-from-pool.md",
+      "sha256": "4b797e29b0c95684ed6084d224fb461c9f6581e6e40279b85dfa743c9c42a0fe"
+    },
+    {
+      "bytes": 502,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-change-record.md",
+      "sha256": "0f1974599cf36ae91ec0d06f303b58115814c59e39862975b21b8b36c90e2592"
+    },
+    {
+      "bytes": 481,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-change-tracking-ext.md",
+      "sha256": "fa3bba508acadc6ca5f710c341e02ba479ab56a8307efe3a1603af62a094e520"
+    },
+    {
+      "bytes": 485,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-clarify-before-acting.md",
+      "sha256": "06a68c8a599743de685c32c2b3070bfe219e8698b1374b2690393a661a962cd3"
+    },
+    {
+      "bytes": 365,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-concurrency-lease.md",
+      "sha256": "20c201093daf82185da0b45339bfa565acc96a9d81b327580804c7976b99c2ae"
+    },
+    {
+      "bytes": 9857,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-continue-by-default.md",
+      "sha256": "7b8b07efdd4a13e18c140e625820a0b893c804f9e9a6931df747c3fd4662703b"
+    },
+    {
+      "bytes": 399,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-express-authorization-before-execution.md",
+      "sha256": "0b4b235c936219010fda0629e5820600042dd1649845fcdc40e57468426bb45d"
+    },
+    {
+      "bytes": 721,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md",
+      "sha256": "500ec46b68c02422a357694f908dda4796e32e2d6092056509d94b63c2394c39"
+    },
+    {
+      "bytes": 577,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-no-console-diff-dumps.md",
+      "sha256": "308e6e2db143f234176832620768ea9e5d1b9b6ff8823f41e34fe692e637849d"
+    },
+    {
+      "bytes": 640,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-orchestrator-mistakes-register.md",
+      "sha256": "e65e499ccfb80d2d95aea11ec28e196043f109c66e3a4c9c7881de69f9514b0f"
+    },
+    {
+      "bytes": 888,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-reconcile-record-against-reality.md",
+      "sha256": "bffe77e19fcd63baccbc40d5f8abd92d518ac571f5e337f2c57b4f8d9dd9bbe7"
+    },
+    {
+      "bytes": 448,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-records-first.md",
+      "sha256": "ac5c8cfd3a376953a1ed0de2ad815605a7349e9d8666ae3111e3d70059ad31a7"
+    },
+    {
+      "bytes": 394,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-session-close-on-green.md",
+      "sha256": "888ecba6a01eceddf160c102b1f9434f9ef16f7e18e775dbd9ce1bb5b2ff1e56"
+    },
+    {
+      "bytes": 307,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-session-resume-from-handoff.md",
+      "sha256": "9036dc8e9c4bddec87b50df099ee7b426f0c50cb9651c926375729a6c814d163"
+    },
+    {
+      "bytes": 970,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-standing-constraints-persist.md",
+      "sha256": "29b79900c405646552937f27b434f2d4998e4b14158ddb82fdc43bd454b9c218"
+    },
+    {
+      "bytes": 408,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-trust-recovery-escalation.md",
+      "sha256": "8b0ac08aca16a572d07fa1c6a9a65d255be78532c2caed9edd43619819b62777"
+    },
+    {
+      "bytes": 614,
+      "path": "guardrails/aiqt-rules/aiqt/10-TRUST-trust-recovery-ext.md",
+      "sha256": "ca2a29d56f95091c3f50db083deae2655f01b54d7d44e2686f8d29b45ada76ff"
+    },
+    {
+      "bytes": 448,
+      "path": "guardrails/aiqt-rules/aiqt/20-PROGR-decision-classification-before-enacting.md",
+      "sha256": "29b1c64bcb19fe0b05134db59c44a7cf8e15f2c0f8fa31a453cd54e678257cba"
+    },
+    {
+      "bytes": 497,
+      "path": "guardrails/aiqt-rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md",
+      "sha256": "10f3addc005116937671bd2be90da3fde26828f6678226fb131ca4c500dcd7ac"
+    },
+    {
+      "bytes": 513,
+      "path": "guardrails/aiqt-rules/aiqt/30-SPEED-background-work-during-ci-waits.md",
+      "sha256": "bb9f3b8e737355cec4f8e48e81ffb645ac04eebf9b6fe4ab867709f781034c10"
+    },
+    {
+      "bytes": 340,
+      "path": "guardrails/aiqt-rules/aiqt/40-COST-cost-tier.md",
+      "sha256": "bf301122d02132e0d3a9f54988b2dbb645a1d07fee05b6676b9a6d18b888ea78"
+    },
+    {
+      "bytes": 1275,
+      "path": "guardrails/aiqt-rules/security/SECA-resource-bounds.md",
+      "sha256": "375447700ebc1747573126543b2b445f30616c29f87a215804a792150632e4b6"
+    },
+    {
+      "bytes": 946,
+      "path": "guardrails/aiqt-rules/security/SECA-verified-restore-path.md",
+      "sha256": "efb7cc448342f497f3a73d7a9480976b546d0e596f032ae154cf36de5e9160e0"
+    },
+    {
+      "bytes": 720,
+      "path": "guardrails/aiqt-rules/security/SECC-data-boundary.md",
+      "sha256": "8112e14e42ba88c5bad89d16183a7e38395e08a3d030b7062d2ad1527a641c86"
+    },
+    {
+      "bytes": 934,
+      "path": "guardrails/aiqt-rules/security/SECC-egress-destinations.md",
+      "sha256": "c1b18d883729b2f1871a3575265763fe5470ed1ebd90080e7bfa8e44e9a7f9f6"
+    },
+    {
+      "bytes": 1247,
+      "path": "guardrails/aiqt-rules/security/SECC-keep-secrets-out.md",
+      "sha256": "ed9b700dc61020f26f1fbc08d69823450809a44db0ebd990fe5e32b721dd8a54"
+    },
+    {
+      "bytes": 745,
+      "path": "guardrails/aiqt-rules/security/SECC-least-privilege-retrieval.md",
+      "sha256": "614ca3e928114e33bd238e1dcab39b7f4fec50ef8aada9ba11efdf89c30d4046"
+    },
+    {
+      "bytes": 727,
+      "path": "guardrails/aiqt-rules/security/SECC-no-cross-context-bleed.md",
+      "sha256": "4c35d3deddbe05cde0f59ed364610dd0e5b64eab05b02305d25df354ce4d5123"
+    },
+    {
+      "bytes": 776,
+      "path": "guardrails/aiqt-rules/security/SECC-no-hidden-context-disclosure.md",
+      "sha256": "f6d9184d603b813bd0856de9290e8d38212720683f28274a78550ca9957fe698"
+    },
+    {
+      "bytes": 793,
+      "path": "guardrails/aiqt-rules/security/SECC-rotate-leaked-secret.md",
+      "sha256": "49c9030bb835ac27bac61350f8093ea4737ee69205b1dc17171efe2ff723393f"
+    },
+    {
+      "bytes": 885,
+      "path": "guardrails/aiqt-rules/security/SECI-authentication.md",
+      "sha256": "72824b38e528d930f7c8752043c7377ab9a649f7be77df16ac50e7139499b181"
+    },
+    {
+      "bytes": 1114,
+      "path": "guardrails/aiqt-rules/security/SECI-authorization.md",
+      "sha256": "2e94a14bda0d0dd7293761463aa92ee1c2f9c22348e647f556d1d44c4b09f02c"
+    },
+    {
+      "bytes": 1249,
+      "path": "guardrails/aiqt-rules/security/SECI-config-is-executable-trust-gate.md",
+      "sha256": "d1163da189c678895879cc6048c03a56997cbac9fbd41d54968f50ef7d23714d"
+    },
+    {
+      "bytes": 1810,
+      "path": "guardrails/aiqt-rules/security/SECI-cryptography.md",
+      "sha256": "aecd04a29c4b0132ee3ddbec5b2220312d6fdbba149ea63b42d572f557cdc807"
+    },
+    {
+      "bytes": 1567,
+      "path": "guardrails/aiqt-rules/security/SECI-dependency-provenance.md",
+      "sha256": "e7da6f0169d1b771456821bc569051e3582eaada65638955aff9723377168451"
+    },
+    {
+      "bytes": 470,
+      "path": "guardrails/aiqt-rules/security/SECI-fail-closed.md",
+      "sha256": "04d7120445dec198c1550659972cf3363e9415c9686d4ed4b7fa9fb2741704fa"
+    },
+    {
+      "bytes": 809,
+      "path": "guardrails/aiqt-rules/security/SECI-federated-identity-flow.md",
+      "sha256": "e1c0dae14b1204be462169b81743f010708c40e6277a396783d23154ab2e1855"
+    },
+    {
+      "bytes": 921,
+      "path": "guardrails/aiqt-rules/security/SECI-file-upload-handling.md",
+      "sha256": "31619a3ad20c7afd16cc84ce9f659a9ab010f2bd2eceb3993551335b0fc908e0"
+    },
+    {
+      "bytes": 952,
+      "path": "guardrails/aiqt-rules/security/SECI-guardrail-config-integrity.md",
+      "sha256": "5ee165abb675a399e5884653c80b26567b29e08b2419e53470a195dbeb3d4362"
+    },
+    {
+      "bytes": 1063,
+      "path": "guardrails/aiqt-rules/security/SECI-human-authorization.md",
+      "sha256": "f9889b4752d978001803c78822b36af2447df00032a887af538decae4c54b411"
+    },
+    {
+      "bytes": 834,
+      "path": "guardrails/aiqt-rules/security/SECI-input-validation.md",
+      "sha256": "83c0ebf7d7efd8f557a05a10842824dccbf83734dd67978b6ae9329ab59120f0"
+    },
+    {
+      "bytes": 1071,
+      "path": "guardrails/aiqt-rules/security/SECI-inter-agent-trust.md",
+      "sha256": "d0f3ec20a83fe33f723eb0d33356b1f9214a63c7933da78b2b079a82c57fcacb"
+    },
+    {
+      "bytes": 805,
+      "path": "guardrails/aiqt-rules/security/SECI-key-management.md",
+      "sha256": "4e0d28e987ee8b2b2fddc43b8897fccc5e3922c1e4dae160c69f5dc86b618b6c"
+    },
+    {
+      "bytes": 1023,
+      "path": "guardrails/aiqt-rules/security/SECI-least-privilege-tools.md",
+      "sha256": "984745e42aa24a3ff8598be91abcb0e6388d3398eef2c8d3d6112e0eb0acb37c"
+    },
+    {
+      "bytes": 750,
+      "path": "guardrails/aiqt-rules/security/SECI-log-redaction.md",
+      "sha256": "b9077ec66be2225ff1453c61d77f564ef9e2efbee316007c2b57d0bfd9af8b4a"
+    },
+    {
+      "bytes": 373,
+      "path": "guardrails/aiqt-rules/security/SECI-operator-deception.md",
+      "sha256": "c802446890d45f943fe6a83af57414ef42cb5717beea05c6c9054f27c619e465"
+    },
+    {
+      "bytes": 759,
+      "path": "guardrails/aiqt-rules/security/SECI-output-encoding.md",
+      "sha256": "93572b31a1c8e475ec8ab4802da2975dfc63dfb19e70c49aec25e075162084f4"
+    },
+    {
+      "bytes": 1255,
+      "path": "guardrails/aiqt-rules/security/SECI-output-handling.md",
+      "sha256": "0cad8990877f14074c63093154a447a4a7a0ad0b3f8b04f6006f6f830f27e749"
+    },
+    {
+      "bytes": 1370,
+      "path": "guardrails/aiqt-rules/security/SECI-pin-referenced-instructions.md",
+      "sha256": "e472b7766cb37f523dd6c36bc19134a8267a6e965de76a3c04c894e531b0bd1d"
+    },
+    {
+      "bytes": 1118,
+      "path": "guardrails/aiqt-rules/security/SECI-poisoning-resistance.md",
+      "sha256": "dd5ed3e86c0cb3bfb99005751c887bb8d65f9a3d146f589c54b2b7be67c21562"
+    },
+    {
+      "bytes": 1401,
+      "path": "guardrails/aiqt-rules/security/SECI-prefer-removing-a-path.md",
+      "sha256": "7318a8f5900c32ac72f956831f2aa38fdd207daa9436547852f845263ff0e0a6"
+    },
+    {
+      "bytes": 875,
+      "path": "guardrails/aiqt-rules/security/SECI-preview-has-no-side-effects.md",
+      "sha256": "6c7af5ac18f022e4f32f51bc23cda6f1f5deaa9c64461b15384cb012edc88a77"
+    },
+    {
+      "bytes": 1561,
+      "path": "guardrails/aiqt-rules/security/SECI-prompt-trust-hierarchy.md",
+      "sha256": "7029abad5eae7ac2c25f19bf7ac76ca1beb968b5b5029ba3b3e84b12ca48cfce"
+    },
+    {
+      "bytes": 739,
+      "path": "guardrails/aiqt-rules/security/SECI-protect-audit-records.md",
+      "sha256": "e819796064dbfe636ace49f01c96c16c04c0a7aaf612a7cfee4aee5851b93961"
+    },
+    {
+      "bytes": 940,
+      "path": "guardrails/aiqt-rules/security/SECI-reject-vulnerable-versions.md",
+      "sha256": "7d1ed6a7d27fd70e4db10793336dfaf465fa0df8470ba1ca9a745f09582f088a"
+    },
+    {
+      "bytes": 689,
+      "path": "guardrails/aiqt-rules/security/SECI-release-integrity.md",
+      "sha256": "935c1ee116427f64752e4343ba8172b1e9a5e8c591966bdf7ee1883f32411860"
+    },
+    {
+      "bytes": 665,
+      "path": "guardrails/aiqt-rules/security/SECI-safe-deserialization.md",
+      "sha256": "ab862bb2e4e83cf198c0c087169122be26360395a3e97a90e858d492905419c5"
+    },
+    {
+      "bytes": 908,
+      "path": "guardrails/aiqt-rules/security/SECI-secure-configuration.md",
+      "sha256": "190917f3c1511a40aca3a3f6a65f72e430b725a3ad34a2d193ebfbe822f2f734"
+    },
+    {
+      "bytes": 891,
+      "path": "guardrails/aiqt-rules/security/SECI-security-logging.md",
+      "sha256": "cda2137d4626683a3762e9e71c9aa51baa8670c5b78be5091bdb5ebd46acc5c4"
+    },
+    {
+      "bytes": 1219,
+      "path": "guardrails/aiqt-rules/security/SECI-session-token-management.md",
+      "sha256": "78e3bb96a62f0d2a33bcc3d346503bc00ad387ee69926cd2f9f5b4c74ae200eb"
+    },
+    {
+      "bytes": 696,
+      "path": "guardrails/aiqt-rules/security/SECI-ssrf-prevention.md",
+      "sha256": "5b814dd41917601fd949fe32e025b0e8b11fee1c34a1e811506c064e59e9a34f"
+    },
+    {
+      "bytes": 2071,
+      "path": "guardrails/aiqt-rules/security/SECI-symlink-resolution.md",
+      "sha256": "fec1beb6357dcdcfe6faf5f17f35fe045baa3c4340ff3352495828cd00e36a63"
+    },
+    {
+      "bytes": 765,
+      "path": "guardrails/aiqt-rules/security/SECI-threat-model-boundaries.md",
+      "sha256": "377cd7ec6c5e0edf43103093ed413b330be661417d5c1c9701fd35c528b47911"
+    },
+    {
+      "bytes": 817,
+      "path": "guardrails/aiqt-rules/security/SECI-tool-argument-validation.md",
+      "sha256": "b1803500f22b1da3fb6a1eb77e0660a8431f0f5f9060d58f8a420753fd5f0458"
+    },
+    {
+      "bytes": 1634,
+      "path": "guardrails/aiqt-rules/security/SECI-untrusted-content.md",
+      "sha256": "dd052fc57cec8a82405e2df68149a7346aeb6dd781a0d11f837ca11a4dc0ff1c"
+    },
+    {
+      "bytes": 843,
+      "path": "guardrails/aiqt-rules/security/SECI-verify-dependency-exists.md",
+      "sha256": "7a93b710f859a06b83f920266b6cd080afda5c38a1bdc881891dbadb062cad7b"
+    },
+    {
+      "bytes": 913,
+      "path": "guardrails/aiqt-rules/security/SECP-data-minimization.md",
+      "sha256": "bef72daca0f70a0a0f0517fc805db090f0bc7e38e99552e6088d34a63ac5842c"
+    },
+    {
+      "bytes": 584,
+      "path": "guardrails/aiqt-rules/security/SECP-data-residency-retention.md",
+      "sha256": "46935d7e78f3371f63dd6012491c2f3b98eed630e8c1dadfcd360145a023c54b"
+    },
+    {
+      "bytes": 638,
+      "path": "guardrails/aiqt-rules/security/SECP-purpose-limitation.md",
+      "sha256": "b87293e42be693284e441088b0810b3aec17b5c403ad16bc7b606b49d0e94316"
+    },
+    {
+      "bytes": 689,
+      "path": "guardrails/aiqt-rules/security/SECP-synthetic-fixture-data.md",
+      "sha256": "27b27ca584b3f43f111051d861e316ae6f78a64373dcd2cb2197c6da241a7126"
+    }
+  ],
+  "legacy_details": [
+    ".claude/references/governance/action-before-explanation-of-inaction.md",
+    ".claude/references/governance/ai-assistant-workflow-disciplines.md",
+    ".claude/references/governance/artefact-and-branch-discipline.md",
+    ".claude/references/governance/change-tracking.md",
+    ".claude/references/governance/clarify-before-acting.md",
+    ".claude/references/governance/decision-classification-before-enacting.md",
+    ".claude/references/governance/evidence-grounded-completion.md",
+    ".claude/references/governance/express-authorization-before-execution.md",
+    ".claude/references/governance/gate-discipline.md",
+    ".claude/references/governance/high-assurance-verification.md",
+    ".claude/references/governance/project-integrity.md",
+    ".claude/references/governance/session-lifecycle.md",
+    ".claude/references/governance/surface-counterproductive-instructions.md",
+    ".claude/references/governance/trust-recovery-escalation.md",
+    ".claude/references/governance/validate-inference-before-action.md"
+  ],
+  "license": "Apache-2.0",
+  "owner": "upstream",
+  "repo": "jposluns/guardrails",
+  "rules": [
+    {
+      "bytes": 622,
+      "paths": [],
+      "sha256": "3cb951f3c0cbccc6a68feb7c6ba56ff0c02c27724c9aa665d7b87624b1c0fb3e",
+      "source": "guardrails/aiqt-rules/aiqt/00-project-integrity.md",
+      "target": ".claude/rules/aiqt/00-project-integrity.md",
+      "upstream": ".claude/rules/aiqt/00-project-integrity.md"
+    },
+    {
+      "bytes": 898,
+      "paths": [],
+      "sha256": "e3c4fb5b1fb13e8014beb2a81315090fbb37d38f8a9ee59485fe17b0c7b9ca39",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-citation-from-opened-file.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-citation-from-opened-file.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-citation-from-opened-file.md"
+    },
+    {
+      "bytes": 675,
+      "paths": [],
+      "sha256": "81df92a591d35d1caa71e8cd27c352eeaf2037218c10e37f38b77e1513fa03ff",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-claims-rest-on-observation.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-claims-rest-on-observation.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-claims-rest-on-observation.md"
+    },
+    {
+      "bytes": 2538,
+      "paths": [],
+      "sha256": "567f21bafa5e88a0b3dd305ea29b837d08e322107b77478cf278092913d0acea",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md"
+    },
+    {
+      "bytes": 455,
+      "paths": [],
+      "sha256": "14ecc6a4fa419a3b0b8223c9442b0f9c5ab7c32adeaa4e4a2b1fec1cf26b1fb9",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-corroborate-external-claims.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-corroborate-external-claims.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-corroborate-external-claims.md"
+    },
+    {
+      "bytes": 1918,
+      "paths": [],
+      "sha256": "b6b2317eccf36a090fa45ead79253aef1d4a53da999681873f0a201a4bb60d8f",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-count-carries-its-predicate.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-count-carries-its-predicate.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-count-carries-its-predicate.md"
+    },
+    {
+      "bytes": 762,
+      "paths": [],
+      "sha256": "3b8bbb1a920a8c38d7763f6433eb457139c5dd814926559662dc8ffc0409271e",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-disclose-guard-residuals.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-disclose-guard-residuals.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-disclose-guard-residuals.md"
+    },
+    {
+      "bytes": 3420,
+      "paths": [],
+      "sha256": "ef70b589312b5b37a02920f9f79e107265b806659c95e9ce529c931c26266161",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-evidence-grounded-completion.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-evidence-grounded-completion.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-evidence-grounded-completion.md"
+    },
+    {
+      "bytes": 4024,
+      "paths": [],
+      "sha256": "8d21a518820de1d4b7f64f6551150a3eb020c9a40a2abc8bd7583a296b33549c",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-guard-input-soundness.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-guard-input-soundness.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-guard-input-soundness.md"
+    },
+    {
+      "bytes": 1329,
+      "paths": [],
+      "sha256": "2321618ff2db7ba71f4ae2cb7af4b88ee60e740faad4c51f3f176a8d352ff56a",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md"
+    },
+    {
+      "bytes": 450,
+      "paths": [],
+      "sha256": "45e14b4c516cbe6969867102c239f895e9047794a90231cf6a18b1db489f4a26",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-no-fabrication.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-no-fabrication.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-no-fabrication.md"
+    },
+    {
+      "bytes": 2203,
+      "paths": [],
+      "sha256": "7dacbce3d155aced6bcea0474834ca59907b4f4a38ba6556090fdb0ce6ec78e7",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md"
+    },
+    {
+      "bytes": 1257,
+      "paths": [],
+      "sha256": "1c8eba842cf43ab8c8f2b8a6e691b967115f6f922cd264209644d3daa055ed1f",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md"
+    },
+    {
+      "bytes": 353,
+      "paths": [],
+      "sha256": "0bc2aa52717e6ce8ab222b6009b650484484e7b658d99dc197a381611d518698",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-read-before-characterizing.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-read-before-characterizing.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-read-before-characterizing.md"
+    },
+    {
+      "bytes": 553,
+      "paths": [],
+      "sha256": "16771120832a089c77aa198360d27b1e1cd5e287fdb322ee0ffae42ddae0a3f2",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-reference-capture.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-reference-capture.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-reference-capture.md"
+    },
+    {
+      "bytes": 463,
+      "paths": [],
+      "sha256": "ba9cf2790a14e0b1b754fdd7924bf86b895c25043b9f2ee324579f9f8a568069",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-reproduce-before-fix.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-reproduce-before-fix.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-reproduce-before-fix.md"
+    },
+    {
+      "bytes": 632,
+      "paths": [],
+      "sha256": "4cd20aa307683a46425e4c1e00f0da58ca05248f4a154fd771d6cf38430a1910",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-timestamp-from-clock.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-timestamp-from-clock.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-timestamp-from-clock.md"
+    },
+    {
+      "bytes": 268,
+      "paths": [],
+      "sha256": "2981271ce9624a67f855d224b29fa51021e550b2a650b22c25223f3a70c91d3b",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-validate-inference-before-action.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-validate-inference-before-action.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-validate-inference-before-action.md"
+    },
+    {
+      "bytes": 6658,
+      "paths": [],
+      "sha256": "63e7417e1e0ea72fced7086898e2e459b933fdfe6fd364d00be009f73a07de50",
+      "source": "guardrails/aiqt-rules/aiqt/10-ACCUR-verify-fix-in-commit.md",
+      "target": ".claude/rules/aiqt/10-ACCUR-verify-fix-in-commit.md",
+      "upstream": ".claude/rules/aiqt/10-ACCUR-verify-fix-in-commit.md"
+    },
+    {
+      "bytes": 541,
+      "paths": [],
+      "sha256": "7eae45965612b05da9802f2b211a4a58dba305f10b6e80e1514d09508b1d176c",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-anything-wrong-fixed-first.md",
+      "target": ".claude/rules/aiqt/10-INTEG-anything-wrong-fixed-first.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-anything-wrong-fixed-first.md"
+    },
+    {
+      "bytes": 566,
+      "paths": [],
+      "sha256": "dd3eab3381071080c059d31e998280fb3b29d5b07af6b3ea54a9ddbc7c8fa9b4",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-attestation-is-harness-owned.md",
+      "target": ".claude/rules/aiqt/10-INTEG-attestation-is-harness-owned.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-attestation-is-harness-owned.md"
+    },
+    {
+      "bytes": 719,
+      "paths": [],
+      "sha256": "0b6e3cffbdcb82c6d729fe68286c44db290ef6d55f172175b6db6e0edb87f905",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-branch-and-merge-on-green.md",
+      "target": ".claude/rules/aiqt/10-INTEG-branch-and-merge-on-green.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-branch-and-merge-on-green.md"
+    },
+    {
+      "bytes": 1357,
+      "paths": [],
+      "sha256": "f3197be5d8d73e4ea53880a44c227d390a9b4c08d99f4cc0d00bed8a29026024",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-branch-rooted-on-live-main.md",
+      "target": ".claude/rules/aiqt/10-INTEG-branch-rooted-on-live-main.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-branch-rooted-on-live-main.md"
+    },
+    {
+      "bytes": 1363,
+      "paths": [],
+      "sha256": "77b2e76a348f1468c55988ab1427e04511560c1479e0206aed88416deedacafd",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md",
+      "target": ".claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md"
+    },
+    {
+      "bytes": 504,
+      "paths": [],
+      "sha256": "04d66e54525d7ed4c8f1e7a1a5e7841e2fa6560430cdee4d2289a109614384d4",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-commit-identity.md",
+      "target": ".claude/rules/aiqt/10-INTEG-commit-identity.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-commit-identity.md"
+    },
+    {
+      "bytes": 3452,
+      "paths": [],
+      "sha256": "42fadd1cf7769a4af1114d91d461114a1859e7fc3aee1fe5feb081e33e38bd79",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md",
+      "target": ".claude/rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md"
+    },
+    {
+      "bytes": 4665,
+      "paths": [],
+      "sha256": "9a63652194fa01e678df4ee7043a086709382dbca362ae668691418535ca16c6",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-gate-discipline.md",
+      "target": ".claude/rules/aiqt/10-INTEG-gate-discipline.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-gate-discipline.md"
+    },
+    {
+      "bytes": 360,
+      "paths": [],
+      "sha256": "42fb16d7257af3084dd556cd4ef4ac5053707ffd7aee70034843aab6673dfebc",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-generated-artefact-source-only.md",
+      "target": ".claude/rules/aiqt/10-INTEG-generated-artefact-source-only.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-generated-artefact-source-only.md"
+    },
+    {
+      "bytes": 575,
+      "paths": [],
+      "sha256": "994e4425fa85075bfde2951bbd22c2fffd7e74da95b016ee61df4e462140a5b4",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-licence-compatibility.md",
+      "target": ".claude/rules/aiqt/10-INTEG-licence-compatibility.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-licence-compatibility.md"
+    },
+    {
+      "bytes": 505,
+      "paths": [],
+      "sha256": "ee05fe9dd2edcba872cf7978870fa6eac20ba2578ee5a085293a4a6af18d3407",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-no-concealed-failure.md",
+      "target": ".claude/rules/aiqt/10-INTEG-no-concealed-failure.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-no-concealed-failure.md"
+    },
+    {
+      "bytes": 803,
+      "paths": [],
+      "sha256": "079b701bb284cb830c73014d506e6ba92310483b83f09a6eeb24e4537e4a6cef",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-preserve-uncommitted-work.md",
+      "target": ".claude/rules/aiqt/10-INTEG-preserve-uncommitted-work.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-preserve-uncommitted-work.md"
+    },
+    {
+      "bytes": 602,
+      "paths": [],
+      "sha256": "59c40e70c51a3915f791927248162ecff2887ec97ed65b428149b3d2c6d327cf",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-protected-branch-integrity.md",
+      "target": ".claude/rules/aiqt/10-INTEG-protected-branch-integrity.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-protected-branch-integrity.md"
+    },
+    {
+      "bytes": 1442,
+      "paths": [],
+      "sha256": "ef4e9c629f937cc69b33eecafe0d1fb53c5ee0b6bc397b5bc16e231f1b27e478",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-required-step-remains-required.md",
+      "target": ".claude/rules/aiqt/10-INTEG-required-step-remains-required.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-required-step-remains-required.md"
+    },
+    {
+      "bytes": 600,
+      "paths": [],
+      "sha256": "39ade60ff7a2dfb27108061aa340f8e091118640e71d2c1f3e3bcb8dedeed92b",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md",
+      "target": ".claude/rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md"
+    },
+    {
+      "bytes": 1121,
+      "paths": [],
+      "sha256": "66a13ad6f2a36a1362465ed34cdaa342bd53eee2b78d813c92d7fd6f8a2bed79",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md",
+      "target": ".claude/rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md"
+    },
+    {
+      "bytes": 431,
+      "paths": [],
+      "sha256": "edfecac461bab41a3514c596b291c453fe01f49bd8f5613b95cb2aac98829549",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-safe-retries.md",
+      "target": ".claude/rules/aiqt/10-INTEG-safe-retries.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-safe-retries.md"
+    },
+    {
+      "bytes": 686,
+      "paths": [],
+      "sha256": "a2e1df7edebc43fc90bf023efe316a2e3fc0aded3af28cc00936fcd50b513d52",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-separate-task-changes.md",
+      "target": ".claude/rules/aiqt/10-INTEG-separate-task-changes.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-separate-task-changes.md"
+    },
+    {
+      "bytes": 796,
+      "paths": [],
+      "sha256": "63e9d9d79d38c31e27f5720b85ab47c5222cf9f6428da67a3d699c31a42bd20e",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-stage-then-promote-on-green.md",
+      "target": ".claude/rules/aiqt/10-INTEG-stage-then-promote-on-green.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-stage-then-promote-on-green.md"
+    },
+    {
+      "bytes": 1745,
+      "paths": [],
+      "sha256": "1a6ce97b0599e10e961d0c99689fbaa583b37ea208386216e9cdf46e1ea5ab74",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-track-launched-work.md",
+      "target": ".claude/rules/aiqt/10-INTEG-track-launched-work.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-track-launched-work.md"
+    },
+    {
+      "bytes": 474,
+      "paths": [],
+      "sha256": "dfe15564e51ddab6e19af6995ad8e072229b5ba9d233efad288bf2c91a7aa842",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-validation-gates-apply.md",
+      "target": ".claude/rules/aiqt/10-INTEG-validation-gates-apply.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-validation-gates-apply.md"
+    },
+    {
+      "bytes": 2670,
+      "paths": [],
+      "sha256": "6a7623c04a8f3bf5df2aee76188f7dc1e199360ce532af9b82e424288e05af2e",
+      "source": "guardrails/aiqt-rules/aiqt/10-INTEG-workers-produce-inert-data.md",
+      "target": ".claude/rules/aiqt/10-INTEG-workers-produce-inert-data.md",
+      "upstream": ".claude/rules/aiqt/10-INTEG-workers-produce-inert-data.md"
+    },
+    {
+      "bytes": 558,
+      "paths": [],
+      "sha256": "11fb788e9b4da6deb19b0e2ccde54822a3dd084c9044a94c44acc4d189ad9e3e",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-absolute-paths.md",
+      "target": ".claude/rules/aiqt/10-QUALI-absolute-paths.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-absolute-paths.md"
+    },
+    {
+      "bytes": 2527,
+      "paths": [],
+      "sha256": "f0d64dd9542cc5c544853576120c7591f52a91d70c6838d609f02cc3cd87eb1f",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-change-carries-check.md",
+      "target": ".claude/rules/aiqt/10-QUALI-change-carries-check.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-change-carries-check.md"
+    },
+    {
+      "bytes": 446,
+      "paths": [],
+      "sha256": "172d1c6ae6f644bdcdad7a1a9d5a912cc94951ce2c63128a95b71ae5dd9ff9d1",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-compatibility-or-migration.md",
+      "target": ".claude/rules/aiqt/10-QUALI-compatibility-or-migration.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-compatibility-or-migration.md"
+    },
+    {
+      "bytes": 1572,
+      "paths": [],
+      "sha256": "d5c77943670abf446d40b528e75b2e4226c1ff231c1347ea959dd1d782240f8f",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-confirm-execution-target.md",
+      "target": ".claude/rules/aiqt/10-QUALI-confirm-execution-target.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-confirm-execution-target.md"
+    },
+    {
+      "bytes": 1321,
+      "paths": [],
+      "sha256": "869083e9ef683c85b8eb380961c656ce727214fa20b1d599c559559904c4e0d6",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-defence-in-depth-default.md",
+      "target": ".claude/rules/aiqt/10-QUALI-defence-in-depth-default.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-defence-in-depth-default.md"
+    },
+    {
+      "bytes": 2174,
+      "paths": [],
+      "sha256": "62886e96c50d5d0728ef077f52115ef4806fd0eb1887e78270191451b970a3fc",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md",
+      "target": ".claude/rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md"
+    },
+    {
+      "bytes": 628,
+      "paths": [],
+      "sha256": "2422f9568c606f4e9f286c4f5b6c19e842fdee78b5a5e948cf4c71854dded45d",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md",
+      "target": ".claude/rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md"
+    },
+    {
+      "bytes": 928,
+      "paths": [],
+      "sha256": "57eba929d16870f286470300a85da43683b5d14d71e7335cecda4d10daebc092",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md",
+      "target": ".claude/rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md"
+    },
+    {
+      "bytes": 462,
+      "paths": [],
+      "sha256": "5f97f7ebd69a8b825747c384fbc0ac5717a3ccfecb86641c672b93afb32b96fa",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-high-assurance-verification.md",
+      "target": ".claude/rules/aiqt/10-QUALI-high-assurance-verification.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-high-assurance-verification.md"
+    },
+    {
+      "bytes": 1963,
+      "paths": [],
+      "sha256": "f0aad39bcc86943d8173636c4630cd081d388e063228ce682cb52f8dd0e2bb6c",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md",
+      "target": ".claude/rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md"
+    },
+    {
+      "bytes": 560,
+      "paths": [],
+      "sha256": "8130dffb7ed200c34a55f877250082ea14036bce473cb6b34fe842cd07217572",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-lightweight-verifier-workers.md",
+      "target": ".claude/rules/aiqt/10-QUALI-lightweight-verifier-workers.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-lightweight-verifier-workers.md"
+    },
+    {
+      "bytes": 381,
+      "paths": [],
+      "sha256": "a5efa2d1c098f87119de27b85a57ba6dd72185a1f08acbbab4b8ff738363193c",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-match-surrounding-code.md",
+      "target": ".claude/rules/aiqt/10-QUALI-match-surrounding-code.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-match-surrounding-code.md"
+    },
+    {
+      "bytes": 695,
+      "paths": [],
+      "sha256": "52847a4bb4339269f413a5a857dc0d36206240a119c02fa43201c7682ae15fdb",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-minimize-dependencies.md",
+      "target": ".claude/rules/aiqt/10-QUALI-minimize-dependencies.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-minimize-dependencies.md"
+    },
+    {
+      "bytes": 570,
+      "paths": [],
+      "sha256": "f0bb93048360259f1ddf6e456c7b4a91d5414b649959397d382de14711b0a464",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-self-guardrail-from-error.md",
+      "target": ".claude/rules/aiqt/10-QUALI-self-guardrail-from-error.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-self-guardrail-from-error.md"
+    },
+    {
+      "bytes": 351,
+      "paths": [],
+      "sha256": "52d59eb0d79af9a80aa6c529c197925f19d55c65bf730d32da4057fb547865c7",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-smallest-correct-change.md",
+      "target": ".claude/rules/aiqt/10-QUALI-smallest-correct-change.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-smallest-correct-change.md"
+    },
+    {
+      "bytes": 638,
+      "paths": [],
+      "sha256": "ed3443fb13e8dd7d19719c83d747153d27cc782ba278831180a817ede477bf4d",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-surface-counterproductive-instructions.md",
+      "target": ".claude/rules/aiqt/10-QUALI-surface-counterproductive-instructions.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-surface-counterproductive-instructions.md"
+    },
+    {
+      "bytes": 4358,
+      "paths": [],
+      "sha256": "76fcd50b0c87390e1bb75af0454edc76c3ff7c9147e1f9e3f1f87c849f37a0da",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-test-hermeticity.md",
+      "target": ".claude/rules/aiqt/10-QUALI-test-hermeticity.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-test-hermeticity.md"
+    },
+    {
+      "bytes": 2316,
+      "paths": [],
+      "sha256": "15ff53ab46dba0a9908e39613b07ed56020b9340ac2f8c1c12fdc91220cab0b1",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-verifier-delivery-completeness.md",
+      "target": ".claude/rules/aiqt/10-QUALI-verifier-delivery-completeness.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-verifier-delivery-completeness.md"
+    },
+    {
+      "bytes": 997,
+      "paths": [],
+      "sha256": "b9d0fa9a991d84fbe673a56208ef0c3f63dbea20425ace2b8ff3d43cf7f4071d",
+      "source": "guardrails/aiqt-rules/aiqt/10-QUALI-verifier-diversity.md",
+      "target": ".claude/rules/aiqt/10-QUALI-verifier-diversity.md",
+      "upstream": ".claude/rules/aiqt/10-QUALI-verifier-diversity.md"
+    },
+    {
+      "bytes": 538,
+      "paths": [],
+      "sha256": "3e52b6bf3d53bc55ab6231ec441c4e448875315361005d6b3c11a2492deec972",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-ai-toolchain-register.md",
+      "target": ".claude/rules/aiqt/10-TRUST-ai-toolchain-register.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-ai-toolchain-register.md"
+    },
+    {
+      "bytes": 624,
+      "paths": [],
+      "sha256": "10f5369a66ee5cc6b4c7e1d8c0bd0747bada6823d943d0ecfed15aa695d6797e",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-assess-advise-discussion-only.md",
+      "target": ".claude/rules/aiqt/10-TRUST-assess-advise-discussion-only.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-assess-advise-discussion-only.md"
+    },
+    {
+      "bytes": 742,
+      "paths": [],
+      "sha256": "4b797e29b0c95684ed6084d224fb461c9f6581e6e40279b85dfa743c9c42a0fe",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-atomic-claim-from-pool.md",
+      "target": ".claude/rules/aiqt/10-TRUST-atomic-claim-from-pool.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-atomic-claim-from-pool.md"
+    },
+    {
+      "bytes": 502,
+      "paths": [],
+      "sha256": "0f1974599cf36ae91ec0d06f303b58115814c59e39862975b21b8b36c90e2592",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-change-record.md",
+      "target": ".claude/rules/aiqt/10-TRUST-change-record.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-change-record.md"
+    },
+    {
+      "bytes": 481,
+      "paths": [],
+      "sha256": "fa3bba508acadc6ca5f710c341e02ba479ab56a8307efe3a1603af62a094e520",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-change-tracking-ext.md",
+      "target": ".claude/rules/aiqt/10-TRUST-change-tracking-ext.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-change-tracking-ext.md"
+    },
+    {
+      "bytes": 485,
+      "paths": [],
+      "sha256": "06a68c8a599743de685c32c2b3070bfe219e8698b1374b2690393a661a962cd3",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-clarify-before-acting.md",
+      "target": ".claude/rules/aiqt/10-TRUST-clarify-before-acting.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-clarify-before-acting.md"
+    },
+    {
+      "bytes": 365,
+      "paths": [],
+      "sha256": "20c201093daf82185da0b45339bfa565acc96a9d81b327580804c7976b99c2ae",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-concurrency-lease.md",
+      "target": ".claude/rules/aiqt/10-TRUST-concurrency-lease.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-concurrency-lease.md"
+    },
+    {
+      "bytes": 9857,
+      "paths": [],
+      "sha256": "7b8b07efdd4a13e18c140e625820a0b893c804f9e9a6931df747c3fd4662703b",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-continue-by-default.md",
+      "target": ".claude/rules/aiqt/10-TRUST-continue-by-default.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-continue-by-default.md"
+    },
+    {
+      "bytes": 399,
+      "paths": [],
+      "sha256": "0b4b235c936219010fda0629e5820600042dd1649845fcdc40e57468426bb45d",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-express-authorization-before-execution.md",
+      "target": ".claude/rules/aiqt/10-TRUST-express-authorization-before-execution.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-express-authorization-before-execution.md"
+    },
+    {
+      "bytes": 721,
+      "paths": [],
+      "sha256": "500ec46b68c02422a357694f908dda4796e32e2d6092056509d94b63c2394c39",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md",
+      "target": ".claude/rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md"
+    },
+    {
+      "bytes": 577,
+      "paths": [],
+      "sha256": "308e6e2db143f234176832620768ea9e5d1b9b6ff8823f41e34fe692e637849d",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-no-console-diff-dumps.md",
+      "target": ".claude/rules/aiqt/10-TRUST-no-console-diff-dumps.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-no-console-diff-dumps.md"
+    },
+    {
+      "bytes": 640,
+      "paths": [],
+      "sha256": "e65e499ccfb80d2d95aea11ec28e196043f109c66e3a4c9c7881de69f9514b0f",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-orchestrator-mistakes-register.md",
+      "target": ".claude/rules/aiqt/10-TRUST-orchestrator-mistakes-register.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-orchestrator-mistakes-register.md"
+    },
+    {
+      "bytes": 888,
+      "paths": [],
+      "sha256": "bffe77e19fcd63baccbc40d5f8abd92d518ac571f5e337f2c57b4f8d9dd9bbe7",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-reconcile-record-against-reality.md",
+      "target": ".claude/rules/aiqt/10-TRUST-reconcile-record-against-reality.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-reconcile-record-against-reality.md"
+    },
+    {
+      "bytes": 448,
+      "paths": [],
+      "sha256": "ac5c8cfd3a376953a1ed0de2ad815605a7349e9d8666ae3111e3d70059ad31a7",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-records-first.md",
+      "target": ".claude/rules/aiqt/10-TRUST-records-first.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-records-first.md"
+    },
+    {
+      "bytes": 394,
+      "paths": [],
+      "sha256": "888ecba6a01eceddf160c102b1f9434f9ef16f7e18e775dbd9ce1bb5b2ff1e56",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-session-close-on-green.md",
+      "target": ".claude/rules/aiqt/10-TRUST-session-close-on-green.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-session-close-on-green.md"
+    },
+    {
+      "bytes": 307,
+      "paths": [],
+      "sha256": "9036dc8e9c4bddec87b50df099ee7b426f0c50cb9651c926375729a6c814d163",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-session-resume-from-handoff.md",
+      "target": ".claude/rules/aiqt/10-TRUST-session-resume-from-handoff.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-session-resume-from-handoff.md"
+    },
+    {
+      "bytes": 970,
+      "paths": [],
+      "sha256": "29b79900c405646552937f27b434f2d4998e4b14158ddb82fdc43bd454b9c218",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-standing-constraints-persist.md",
+      "target": ".claude/rules/aiqt/10-TRUST-standing-constraints-persist.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-standing-constraints-persist.md"
+    },
+    {
+      "bytes": 408,
+      "paths": [],
+      "sha256": "8b0ac08aca16a572d07fa1c6a9a65d255be78532c2caed9edd43619819b62777",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-trust-recovery-escalation.md",
+      "target": ".claude/rules/aiqt/10-TRUST-trust-recovery-escalation.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-trust-recovery-escalation.md"
+    },
+    {
+      "bytes": 614,
+      "paths": [],
+      "sha256": "ca2a29d56f95091c3f50db083deae2655f01b54d7d44e2686f8d29b45ada76ff",
+      "source": "guardrails/aiqt-rules/aiqt/10-TRUST-trust-recovery-ext.md",
+      "target": ".claude/rules/aiqt/10-TRUST-trust-recovery-ext.md",
+      "upstream": ".claude/rules/aiqt/10-TRUST-trust-recovery-ext.md"
+    },
+    {
+      "bytes": 448,
+      "paths": [],
+      "sha256": "29b1c64bcb19fe0b05134db59c44a7cf8e15f2c0f8fa31a453cd54e678257cba",
+      "source": "guardrails/aiqt-rules/aiqt/20-PROGR-decision-classification-before-enacting.md",
+      "target": ".claude/rules/aiqt/20-PROGR-decision-classification-before-enacting.md",
+      "upstream": ".claude/rules/aiqt/20-PROGR-decision-classification-before-enacting.md"
+    },
+    {
+      "bytes": 497,
+      "paths": [],
+      "sha256": "10f3addc005116937671bd2be90da3fde26828f6678226fb131ca4c500dcd7ac",
+      "source": "guardrails/aiqt-rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md",
+      "target": ".claude/rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md",
+      "upstream": ".claude/rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md"
+    },
+    {
+      "bytes": 513,
+      "paths": [],
+      "sha256": "bb9f3b8e737355cec4f8e48e81ffb645ac04eebf9b6fe4ab867709f781034c10",
+      "source": "guardrails/aiqt-rules/aiqt/30-SPEED-background-work-during-ci-waits.md",
+      "target": ".claude/rules/aiqt/30-SPEED-background-work-during-ci-waits.md",
+      "upstream": ".claude/rules/aiqt/30-SPEED-background-work-during-ci-waits.md"
+    },
+    {
+      "bytes": 340,
+      "paths": [],
+      "sha256": "bf301122d02132e0d3a9f54988b2dbb645a1d07fee05b6676b9a6d18b888ea78",
+      "source": "guardrails/aiqt-rules/aiqt/40-COST-cost-tier.md",
+      "target": ".claude/rules/aiqt/40-COST-cost-tier.md",
+      "upstream": ".claude/rules/aiqt/40-COST-cost-tier.md"
+    },
+    {
+      "bytes": 1275,
+      "paths": [],
+      "sha256": "375447700ebc1747573126543b2b445f30616c29f87a215804a792150632e4b6",
+      "source": "guardrails/aiqt-rules/security/SECA-resource-bounds.md",
+      "target": ".claude/rules/security/SECA-resource-bounds.md",
+      "upstream": ".claude/rules/security/SECA-resource-bounds.md"
+    },
+    {
+      "bytes": 946,
+      "paths": [],
+      "sha256": "efb7cc448342f497f3a73d7a9480976b546d0e596f032ae154cf36de5e9160e0",
+      "source": "guardrails/aiqt-rules/security/SECA-verified-restore-path.md",
+      "target": ".claude/rules/security/SECA-verified-restore-path.md",
+      "upstream": ".claude/rules/security/SECA-verified-restore-path.md"
+    },
+    {
+      "bytes": 720,
+      "paths": [],
+      "sha256": "8112e14e42ba88c5bad89d16183a7e38395e08a3d030b7062d2ad1527a641c86",
+      "source": "guardrails/aiqt-rules/security/SECC-data-boundary.md",
+      "target": ".claude/rules/security/SECC-data-boundary.md",
+      "upstream": ".claude/rules/security/SECC-data-boundary.md"
+    },
+    {
+      "bytes": 934,
+      "paths": [],
+      "sha256": "c1b18d883729b2f1871a3575265763fe5470ed1ebd90080e7bfa8e44e9a7f9f6",
+      "source": "guardrails/aiqt-rules/security/SECC-egress-destinations.md",
+      "target": ".claude/rules/security/SECC-egress-destinations.md",
+      "upstream": ".claude/rules/security/SECC-egress-destinations.md"
+    },
+    {
+      "bytes": 1247,
+      "paths": [],
+      "sha256": "ed9b700dc61020f26f1fbc08d69823450809a44db0ebd990fe5e32b721dd8a54",
+      "source": "guardrails/aiqt-rules/security/SECC-keep-secrets-out.md",
+      "target": ".claude/rules/security/SECC-keep-secrets-out.md",
+      "upstream": ".claude/rules/security/SECC-keep-secrets-out.md"
+    },
+    {
+      "bytes": 745,
+      "paths": [],
+      "sha256": "614ca3e928114e33bd238e1dcab39b7f4fec50ef8aada9ba11efdf89c30d4046",
+      "source": "guardrails/aiqt-rules/security/SECC-least-privilege-retrieval.md",
+      "target": ".claude/rules/security/SECC-least-privilege-retrieval.md",
+      "upstream": ".claude/rules/security/SECC-least-privilege-retrieval.md"
+    },
+    {
+      "bytes": 727,
+      "paths": [],
+      "sha256": "4c35d3deddbe05cde0f59ed364610dd0e5b64eab05b02305d25df354ce4d5123",
+      "source": "guardrails/aiqt-rules/security/SECC-no-cross-context-bleed.md",
+      "target": ".claude/rules/security/SECC-no-cross-context-bleed.md",
+      "upstream": ".claude/rules/security/SECC-no-cross-context-bleed.md"
+    },
+    {
+      "bytes": 776,
+      "paths": [],
+      "sha256": "f6d9184d603b813bd0856de9290e8d38212720683f28274a78550ca9957fe698",
+      "source": "guardrails/aiqt-rules/security/SECC-no-hidden-context-disclosure.md",
+      "target": ".claude/rules/security/SECC-no-hidden-context-disclosure.md",
+      "upstream": ".claude/rules/security/SECC-no-hidden-context-disclosure.md"
+    },
+    {
+      "bytes": 793,
+      "paths": [],
+      "sha256": "49c9030bb835ac27bac61350f8093ea4737ee69205b1dc17171efe2ff723393f",
+      "source": "guardrails/aiqt-rules/security/SECC-rotate-leaked-secret.md",
+      "target": ".claude/rules/security/SECC-rotate-leaked-secret.md",
+      "upstream": ".claude/rules/security/SECC-rotate-leaked-secret.md"
+    },
+    {
+      "bytes": 885,
+      "paths": [],
+      "sha256": "72824b38e528d930f7c8752043c7377ab9a649f7be77df16ac50e7139499b181",
+      "source": "guardrails/aiqt-rules/security/SECI-authentication.md",
+      "target": ".claude/rules/security/SECI-authentication.md",
+      "upstream": ".claude/rules/security/SECI-authentication.md"
+    },
+    {
+      "bytes": 1114,
+      "paths": [],
+      "sha256": "2e94a14bda0d0dd7293761463aa92ee1c2f9c22348e647f556d1d44c4b09f02c",
+      "source": "guardrails/aiqt-rules/security/SECI-authorization.md",
+      "target": ".claude/rules/security/SECI-authorization.md",
+      "upstream": ".claude/rules/security/SECI-authorization.md"
+    },
+    {
+      "bytes": 1249,
+      "paths": [],
+      "sha256": "d1163da189c678895879cc6048c03a56997cbac9fbd41d54968f50ef7d23714d",
+      "source": "guardrails/aiqt-rules/security/SECI-config-is-executable-trust-gate.md",
+      "target": ".claude/rules/security/SECI-config-is-executable-trust-gate.md",
+      "upstream": ".claude/rules/security/SECI-config-is-executable-trust-gate.md"
+    },
+    {
+      "bytes": 1810,
+      "paths": [],
+      "sha256": "aecd04a29c4b0132ee3ddbec5b2220312d6fdbba149ea63b42d572f557cdc807",
+      "source": "guardrails/aiqt-rules/security/SECI-cryptography.md",
+      "target": ".claude/rules/security/SECI-cryptography.md",
+      "upstream": ".claude/rules/security/SECI-cryptography.md"
+    },
+    {
+      "bytes": 1567,
+      "paths": [],
+      "sha256": "e7da6f0169d1b771456821bc569051e3582eaada65638955aff9723377168451",
+      "source": "guardrails/aiqt-rules/security/SECI-dependency-provenance.md",
+      "target": ".claude/rules/security/SECI-dependency-provenance.md",
+      "upstream": ".claude/rules/security/SECI-dependency-provenance.md"
+    },
+    {
+      "bytes": 470,
+      "paths": [],
+      "sha256": "04d7120445dec198c1550659972cf3363e9415c9686d4ed4b7fa9fb2741704fa",
+      "source": "guardrails/aiqt-rules/security/SECI-fail-closed.md",
+      "target": ".claude/rules/security/SECI-fail-closed.md",
+      "upstream": ".claude/rules/security/SECI-fail-closed.md"
+    },
+    {
+      "bytes": 809,
+      "paths": [
+        "**/*.py",
+        "**/*.sh",
+        "**/*.js",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.jsx",
+        "**/*.html",
+        "**/*.yml",
+        "**/*.yaml",
+        "**/*.json",
+        "**/*.toml",
+        "security/**",
+        "dev-security/**",
+        "ai/**",
+        "architecture/**"
+      ],
+      "sha256": "e1c0dae14b1204be462169b81743f010708c40e6277a396783d23154ab2e1855",
+      "source": "guardrails/aiqt-rules/security/SECI-federated-identity-flow.md",
+      "target": ".claude/rules/security/SECI-federated-identity-flow.md",
+      "upstream": ".claude/rules/security/SECI-federated-identity-flow.md"
+    },
+    {
+      "bytes": 921,
+      "paths": [],
+      "sha256": "31619a3ad20c7afd16cc84ce9f659a9ab010f2bd2eceb3993551335b0fc908e0",
+      "source": "guardrails/aiqt-rules/security/SECI-file-upload-handling.md",
+      "target": ".claude/rules/security/SECI-file-upload-handling.md",
+      "upstream": ".claude/rules/security/SECI-file-upload-handling.md"
+    },
+    {
+      "bytes": 952,
+      "paths": [],
+      "sha256": "5ee165abb675a399e5884653c80b26567b29e08b2419e53470a195dbeb3d4362",
+      "source": "guardrails/aiqt-rules/security/SECI-guardrail-config-integrity.md",
+      "target": ".claude/rules/security/SECI-guardrail-config-integrity.md",
+      "upstream": ".claude/rules/security/SECI-guardrail-config-integrity.md"
+    },
+    {
+      "bytes": 1063,
+      "paths": [],
+      "sha256": "f9889b4752d978001803c78822b36af2447df00032a887af538decae4c54b411",
+      "source": "guardrails/aiqt-rules/security/SECI-human-authorization.md",
+      "target": ".claude/rules/security/SECI-human-authorization.md",
+      "upstream": ".claude/rules/security/SECI-human-authorization.md"
+    },
+    {
+      "bytes": 834,
+      "paths": [],
+      "sha256": "83c0ebf7d7efd8f557a05a10842824dccbf83734dd67978b6ae9329ab59120f0",
+      "source": "guardrails/aiqt-rules/security/SECI-input-validation.md",
+      "target": ".claude/rules/security/SECI-input-validation.md",
+      "upstream": ".claude/rules/security/SECI-input-validation.md"
+    },
+    {
+      "bytes": 1071,
+      "paths": [],
+      "sha256": "d0f3ec20a83fe33f723eb0d33356b1f9214a63c7933da78b2b079a82c57fcacb",
+      "source": "guardrails/aiqt-rules/security/SECI-inter-agent-trust.md",
+      "target": ".claude/rules/security/SECI-inter-agent-trust.md",
+      "upstream": ".claude/rules/security/SECI-inter-agent-trust.md"
+    },
+    {
+      "bytes": 805,
+      "paths": [],
+      "sha256": "4e0d28e987ee8b2b2fddc43b8897fccc5e3922c1e4dae160c69f5dc86b618b6c",
+      "source": "guardrails/aiqt-rules/security/SECI-key-management.md",
+      "target": ".claude/rules/security/SECI-key-management.md",
+      "upstream": ".claude/rules/security/SECI-key-management.md"
+    },
+    {
+      "bytes": 1023,
+      "paths": [],
+      "sha256": "984745e42aa24a3ff8598be91abcb0e6388d3398eef2c8d3d6112e0eb0acb37c",
+      "source": "guardrails/aiqt-rules/security/SECI-least-privilege-tools.md",
+      "target": ".claude/rules/security/SECI-least-privilege-tools.md",
+      "upstream": ".claude/rules/security/SECI-least-privilege-tools.md"
+    },
+    {
+      "bytes": 750,
+      "paths": [],
+      "sha256": "b9077ec66be2225ff1453c61d77f564ef9e2efbee316007c2b57d0bfd9af8b4a",
+      "source": "guardrails/aiqt-rules/security/SECI-log-redaction.md",
+      "target": ".claude/rules/security/SECI-log-redaction.md",
+      "upstream": ".claude/rules/security/SECI-log-redaction.md"
+    },
+    {
+      "bytes": 373,
+      "paths": [],
+      "sha256": "c802446890d45f943fe6a83af57414ef42cb5717beea05c6c9054f27c619e465",
+      "source": "guardrails/aiqt-rules/security/SECI-operator-deception.md",
+      "target": ".claude/rules/security/SECI-operator-deception.md",
+      "upstream": ".claude/rules/security/SECI-operator-deception.md"
+    },
+    {
+      "bytes": 759,
+      "paths": [],
+      "sha256": "93572b31a1c8e475ec8ab4802da2975dfc63dfb19e70c49aec25e075162084f4",
+      "source": "guardrails/aiqt-rules/security/SECI-output-encoding.md",
+      "target": ".claude/rules/security/SECI-output-encoding.md",
+      "upstream": ".claude/rules/security/SECI-output-encoding.md"
+    },
+    {
+      "bytes": 1255,
+      "paths": [],
+      "sha256": "0cad8990877f14074c63093154a447a4a7a0ad0b3f8b04f6006f6f830f27e749",
+      "source": "guardrails/aiqt-rules/security/SECI-output-handling.md",
+      "target": ".claude/rules/security/SECI-output-handling.md",
+      "upstream": ".claude/rules/security/SECI-output-handling.md"
+    },
+    {
+      "bytes": 1370,
+      "paths": [],
+      "sha256": "e472b7766cb37f523dd6c36bc19134a8267a6e965de76a3c04c894e531b0bd1d",
+      "source": "guardrails/aiqt-rules/security/SECI-pin-referenced-instructions.md",
+      "target": ".claude/rules/security/SECI-pin-referenced-instructions.md",
+      "upstream": ".claude/rules/security/SECI-pin-referenced-instructions.md"
+    },
+    {
+      "bytes": 1118,
+      "paths": [],
+      "sha256": "dd5ed3e86c0cb3bfb99005751c887bb8d65f9a3d146f589c54b2b7be67c21562",
+      "source": "guardrails/aiqt-rules/security/SECI-poisoning-resistance.md",
+      "target": ".claude/rules/security/SECI-poisoning-resistance.md",
+      "upstream": ".claude/rules/security/SECI-poisoning-resistance.md"
+    },
+    {
+      "bytes": 1401,
+      "paths": [],
+      "sha256": "7318a8f5900c32ac72f956831f2aa38fdd207daa9436547852f845263ff0e0a6",
+      "source": "guardrails/aiqt-rules/security/SECI-prefer-removing-a-path.md",
+      "target": ".claude/rules/security/SECI-prefer-removing-a-path.md",
+      "upstream": ".claude/rules/security/SECI-prefer-removing-a-path.md"
+    },
+    {
+      "bytes": 875,
+      "paths": [],
+      "sha256": "6c7af5ac18f022e4f32f51bc23cda6f1f5deaa9c64461b15384cb012edc88a77",
+      "source": "guardrails/aiqt-rules/security/SECI-preview-has-no-side-effects.md",
+      "target": ".claude/rules/security/SECI-preview-has-no-side-effects.md",
+      "upstream": ".claude/rules/security/SECI-preview-has-no-side-effects.md"
+    },
+    {
+      "bytes": 1561,
+      "paths": [],
+      "sha256": "7029abad5eae7ac2c25f19bf7ac76ca1beb968b5b5029ba3b3e84b12ca48cfce",
+      "source": "guardrails/aiqt-rules/security/SECI-prompt-trust-hierarchy.md",
+      "target": ".claude/rules/security/SECI-prompt-trust-hierarchy.md",
+      "upstream": ".claude/rules/security/SECI-prompt-trust-hierarchy.md"
+    },
+    {
+      "bytes": 739,
+      "paths": [],
+      "sha256": "e819796064dbfe636ace49f01c96c16c04c0a7aaf612a7cfee4aee5851b93961",
+      "source": "guardrails/aiqt-rules/security/SECI-protect-audit-records.md",
+      "target": ".claude/rules/security/SECI-protect-audit-records.md",
+      "upstream": ".claude/rules/security/SECI-protect-audit-records.md"
+    },
+    {
+      "bytes": 940,
+      "paths": [],
+      "sha256": "7d1ed6a7d27fd70e4db10793336dfaf465fa0df8470ba1ca9a745f09582f088a",
+      "source": "guardrails/aiqt-rules/security/SECI-reject-vulnerable-versions.md",
+      "target": ".claude/rules/security/SECI-reject-vulnerable-versions.md",
+      "upstream": ".claude/rules/security/SECI-reject-vulnerable-versions.md"
+    },
+    {
+      "bytes": 689,
+      "paths": [],
+      "sha256": "935c1ee116427f64752e4343ba8172b1e9a5e8c591966bdf7ee1883f32411860",
+      "source": "guardrails/aiqt-rules/security/SECI-release-integrity.md",
+      "target": ".claude/rules/security/SECI-release-integrity.md",
+      "upstream": ".claude/rules/security/SECI-release-integrity.md"
+    },
+    {
+      "bytes": 665,
+      "paths": [],
+      "sha256": "ab862bb2e4e83cf198c0c087169122be26360395a3e97a90e858d492905419c5",
+      "source": "guardrails/aiqt-rules/security/SECI-safe-deserialization.md",
+      "target": ".claude/rules/security/SECI-safe-deserialization.md",
+      "upstream": ".claude/rules/security/SECI-safe-deserialization.md"
+    },
+    {
+      "bytes": 908,
+      "paths": [],
+      "sha256": "190917f3c1511a40aca3a3f6a65f72e430b725a3ad34a2d193ebfbe822f2f734",
+      "source": "guardrails/aiqt-rules/security/SECI-secure-configuration.md",
+      "target": ".claude/rules/security/SECI-secure-configuration.md",
+      "upstream": ".claude/rules/security/SECI-secure-configuration.md"
+    },
+    {
+      "bytes": 891,
+      "paths": [],
+      "sha256": "cda2137d4626683a3762e9e71c9aa51baa8670c5b78be5091bdb5ebd46acc5c4",
+      "source": "guardrails/aiqt-rules/security/SECI-security-logging.md",
+      "target": ".claude/rules/security/SECI-security-logging.md",
+      "upstream": ".claude/rules/security/SECI-security-logging.md"
+    },
+    {
+      "bytes": 1219,
+      "paths": [],
+      "sha256": "78e3bb96a62f0d2a33bcc3d346503bc00ad387ee69926cd2f9f5b4c74ae200eb",
+      "source": "guardrails/aiqt-rules/security/SECI-session-token-management.md",
+      "target": ".claude/rules/security/SECI-session-token-management.md",
+      "upstream": ".claude/rules/security/SECI-session-token-management.md"
+    },
+    {
+      "bytes": 696,
+      "paths": [
+        "**/*.py",
+        "**/*.sh",
+        "**/*.js",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.jsx",
+        "**/*.html",
+        "**/*.yml",
+        "**/*.yaml",
+        "**/*.json",
+        "**/*.toml",
+        "security/**",
+        "dev-security/**",
+        "ai/**",
+        "architecture/**"
+      ],
+      "sha256": "5b814dd41917601fd949fe32e025b0e8b11fee1c34a1e811506c064e59e9a34f",
+      "source": "guardrails/aiqt-rules/security/SECI-ssrf-prevention.md",
+      "target": ".claude/rules/security/SECI-ssrf-prevention.md",
+      "upstream": ".claude/rules/security/SECI-ssrf-prevention.md"
+    },
+    {
+      "bytes": 2071,
+      "paths": [
+        "**/*.py",
+        "**/*.sh",
+        "**/*.js",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.jsx",
+        "**/*.html",
+        "**/*.yml",
+        "**/*.yaml",
+        "**/*.json",
+        "**/*.toml",
+        "security/**",
+        "dev-security/**",
+        "ai/**",
+        "architecture/**"
+      ],
+      "sha256": "fec1beb6357dcdcfe6faf5f17f35fe045baa3c4340ff3352495828cd00e36a63",
+      "source": "guardrails/aiqt-rules/security/SECI-symlink-resolution.md",
+      "target": ".claude/rules/security/SECI-symlink-resolution.md",
+      "upstream": ".claude/rules/security/SECI-symlink-resolution.md"
+    },
+    {
+      "bytes": 765,
+      "paths": [],
+      "sha256": "377cd7ec6c5e0edf43103093ed413b330be661417d5c1c9701fd35c528b47911",
+      "source": "guardrails/aiqt-rules/security/SECI-threat-model-boundaries.md",
+      "target": ".claude/rules/security/SECI-threat-model-boundaries.md",
+      "upstream": ".claude/rules/security/SECI-threat-model-boundaries.md"
+    },
+    {
+      "bytes": 817,
+      "paths": [],
+      "sha256": "b1803500f22b1da3fb6a1eb77e0660a8431f0f5f9060d58f8a420753fd5f0458",
+      "source": "guardrails/aiqt-rules/security/SECI-tool-argument-validation.md",
+      "target": ".claude/rules/security/SECI-tool-argument-validation.md",
+      "upstream": ".claude/rules/security/SECI-tool-argument-validation.md"
+    },
+    {
+      "bytes": 1634,
+      "paths": [],
+      "sha256": "dd052fc57cec8a82405e2df68149a7346aeb6dd781a0d11f837ca11a4dc0ff1c",
+      "source": "guardrails/aiqt-rules/security/SECI-untrusted-content.md",
+      "target": ".claude/rules/security/SECI-untrusted-content.md",
+      "upstream": ".claude/rules/security/SECI-untrusted-content.md"
+    },
+    {
+      "bytes": 843,
+      "paths": [],
+      "sha256": "7a93b710f859a06b83f920266b6cd080afda5c38a1bdc881891dbadb062cad7b",
+      "source": "guardrails/aiqt-rules/security/SECI-verify-dependency-exists.md",
+      "target": ".claude/rules/security/SECI-verify-dependency-exists.md",
+      "upstream": ".claude/rules/security/SECI-verify-dependency-exists.md"
+    },
+    {
+      "bytes": 913,
+      "paths": [],
+      "sha256": "bef72daca0f70a0a0f0517fc805db090f0bc7e38e99552e6088d34a63ac5842c",
+      "source": "guardrails/aiqt-rules/security/SECP-data-minimization.md",
+      "target": ".claude/rules/security/SECP-data-minimization.md",
+      "upstream": ".claude/rules/security/SECP-data-minimization.md"
+    },
+    {
+      "bytes": 584,
+      "paths": [],
+      "sha256": "46935d7e78f3371f63dd6012491c2f3b98eed630e8c1dadfcd360145a023c54b",
+      "source": "guardrails/aiqt-rules/security/SECP-data-residency-retention.md",
+      "target": ".claude/rules/security/SECP-data-residency-retention.md",
+      "upstream": ".claude/rules/security/SECP-data-residency-retention.md"
+    },
+    {
+      "bytes": 638,
+      "paths": [],
+      "sha256": "b87293e42be693284e441088b0810b3aec17b5c403ad16bc7b606b49d0e94316",
+      "source": "guardrails/aiqt-rules/security/SECP-purpose-limitation.md",
+      "target": ".claude/rules/security/SECP-purpose-limitation.md",
+      "upstream": ".claude/rules/security/SECP-purpose-limitation.md"
+    },
+    {
+      "bytes": 689,
+      "paths": [],
+      "sha256": "27b27ca584b3f43f111051d861e316ae6f78a64373dcd2cb2197c6da241a7126",
+      "source": "guardrails/aiqt-rules/security/SECP-synthetic-fixture-data.md",
+      "target": ".claude/rules/security/SECP-synthetic-fixture-data.md",
+      "upstream": ".claude/rules/security/SECP-synthetic-fixture-data.md"
+    }
+  ],
+  "schema_version": 1,
+  "upstream_bytes": 149344,
+  "upstream_files": 133,
+  "upstream_tree": ".claude/rules"
+}

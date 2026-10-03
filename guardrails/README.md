@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.71.58\
+**Version:** 1.72.0\
 **Date:** 2026-10-02\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -12,11 +12,12 @@
 **Category:** Developer Security\
 **Review Frequency:** Monthly, and upon material threat, tooling, or framework change\
 **Confidentiality:** Public\
-**License:** CC BY-SA 4.0
+**GRC-original license:** CC BY-SA 4.0
+**Pinned AIQT snapshot license:** Apache-2.0
 
 ---
 
-> **This pack is moving to AIQT Guardrails.** The governance discipline documented here is being published as a standalone, open pack, **AIQT Guardrails**, at [jposluns/guardrails](https://github.com/jposluns/guardrails) ([aiqt.ai](https://aiqt.ai)). Rather than implementing this embedded copy, we recommend the upcoming **AIQT 1.1.0** release, which installs the governance core into your project with per-assistant setup and a verifying doctor. This copy remains as the GRC Library's dogfood and tracks the migration.
+**Pinned AIQT runtime adoption.** This installation uses 132 pinned AIQT rules (83 AIQT principles + 49 security rules), 15 retained GRC compatibility procedures, and 24 skills. The exact upstream commit is `a3ff734ca855e4363f340eca52fbd87272c51854`, recorded in `vendor/aiqt/RULES.json` and `vendor/aiqt/PIN.toml`; it is not a tagged release. The legacy procedures remain mandatory at their activity boundary; none retires. GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z.
 
 ## What are these files?
 
@@ -96,6 +97,145 @@ guardrails/
 ├── vetting-log.md              Maintainer vetting log for the external rule sources referenced below
 ├── rule-provenance.md          Per-rule provenance register: each governance rule's origin, incident-earned or up-front-codified, without parent-project internals
 ├── guidance-claude-md-optimization.md  Maintainer guidance: condense a CLAUDE.md without losing a rule
+├── aiqt-rules/                 Upstream Apache-2.0 pinned snapshot
+│   ├── aiqt/
+<!-- AIQT-TREE-aiqt-BEGIN -->
+│   │   ├── 00-project-integrity.md
+│   │   ├── 10-ACCUR-citation-from-opened-file.md
+│   │   ├── 10-ACCUR-claims-rest-on-observation.md
+│   │   ├── 10-ACCUR-completeness-claim-enumerates-its-set.md
+│   │   ├── 10-ACCUR-corroborate-external-claims.md
+│   │   ├── 10-ACCUR-count-carries-its-predicate.md
+│   │   ├── 10-ACCUR-disclose-guard-residuals.md
+│   │   ├── 10-ACCUR-evidence-grounded-completion.md
+│   │   ├── 10-ACCUR-guard-input-soundness.md
+│   │   ├── 10-ACCUR-measured-and-estimated-figures-stay-separate.md
+│   │   ├── 10-ACCUR-no-fabrication.md
+│   │   ├── 10-ACCUR-observe-before-asserting-behaviour.md
+│   │   ├── 10-ACCUR-partial-read-is-not-the-whole.md
+│   │   ├── 10-ACCUR-read-before-characterizing.md
+│   │   ├── 10-ACCUR-reference-capture.md
+│   │   ├── 10-ACCUR-reproduce-before-fix.md
+│   │   ├── 10-ACCUR-timestamp-from-clock.md
+│   │   ├── 10-ACCUR-validate-inference-before-action.md
+│   │   ├── 10-ACCUR-verify-fix-in-commit.md
+│   │   ├── 10-INTEG-anything-wrong-fixed-first.md
+│   │   ├── 10-INTEG-attestation-is-harness-owned.md
+│   │   ├── 10-INTEG-branch-and-merge-on-green.md
+│   │   ├── 10-INTEG-branch-rooted-on-live-main.md
+│   │   ├── 10-INTEG-check-fails-closed-on-unreadable.md
+│   │   ├── 10-INTEG-commit-identity.md
+│   │   ├── 10-INTEG-explicit-binding-over-ambient-context.md
+│   │   ├── 10-INTEG-gate-discipline.md
+│   │   ├── 10-INTEG-generated-artefact-source-only.md
+│   │   ├── 10-INTEG-licence-compatibility.md
+│   │   ├── 10-INTEG-no-concealed-failure.md
+│   │   ├── 10-INTEG-preserve-uncommitted-work.md
+│   │   ├── 10-INTEG-protected-branch-integrity.md
+│   │   ├── 10-INTEG-required-step-remains-required.md
+│   │   ├── 10-INTEG-rerun-pass-is-still-failure.md
+│   │   ├── 10-INTEG-review-in-flight-pins-its-artefact.md
+│   │   ├── 10-INTEG-safe-retries.md
+│   │   ├── 10-INTEG-separate-task-changes.md
+│   │   ├── 10-INTEG-stage-then-promote-on-green.md
+│   │   ├── 10-INTEG-track-launched-work.md
+│   │   ├── 10-INTEG-validation-gates-apply.md
+│   │   ├── 10-INTEG-workers-produce-inert-data.md
+│   │   ├── 10-QUALI-absolute-paths.md
+│   │   ├── 10-QUALI-change-carries-check.md
+│   │   ├── 10-QUALI-compatibility-or-migration.md
+│   │   ├── 10-QUALI-confirm-execution-target.md
+│   │   ├── 10-QUALI-defence-in-depth-default.md
+│   │   ├── 10-QUALI-elapsed-aware-timer-restore.md
+│   │   ├── 10-QUALI-findings-are-fixed-not-argued.md
+│   │   ├── 10-QUALI-goal-fidelity-across-trajectory.md
+│   │   ├── 10-QUALI-high-assurance-verification.md
+│   │   ├── 10-QUALI-kill-timeout-exceeds-callee-wait.md
+│   │   ├── 10-QUALI-lightweight-verifier-workers.md
+│   │   ├── 10-QUALI-match-surrounding-code.md
+│   │   ├── 10-QUALI-minimize-dependencies.md
+│   │   ├── 10-QUALI-self-guardrail-from-error.md
+│   │   ├── 10-QUALI-smallest-correct-change.md
+│   │   ├── 10-QUALI-surface-counterproductive-instructions.md
+│   │   ├── 10-QUALI-test-hermeticity.md
+│   │   ├── 10-QUALI-verifier-delivery-completeness.md
+│   │   ├── 10-QUALI-verifier-diversity.md
+│   │   ├── 10-TRUST-ai-toolchain-register.md
+│   │   ├── 10-TRUST-assess-advise-discussion-only.md
+│   │   ├── 10-TRUST-atomic-claim-from-pool.md
+│   │   ├── 10-TRUST-change-record.md
+│   │   ├── 10-TRUST-change-tracking-ext.md
+│   │   ├── 10-TRUST-clarify-before-acting.md
+│   │   ├── 10-TRUST-concurrency-lease.md
+│   │   ├── 10-TRUST-continue-by-default.md
+│   │   ├── 10-TRUST-express-authorization-before-execution.md
+│   │   ├── 10-TRUST-human-oversight-and-autonomy-threshold.md
+│   │   ├── 10-TRUST-no-console-diff-dumps.md
+│   │   ├── 10-TRUST-orchestrator-mistakes-register.md
+│   │   ├── 10-TRUST-reconcile-record-against-reality.md
+│   │   ├── 10-TRUST-records-first.md
+│   │   ├── 10-TRUST-session-close-on-green.md
+│   │   ├── 10-TRUST-session-resume-from-handoff.md
+│   │   ├── 10-TRUST-standing-constraints-persist.md
+│   │   ├── 10-TRUST-trust-recovery-escalation.md
+│   │   ├── 10-TRUST-trust-recovery-ext.md
+│   │   ├── 20-PROGR-decision-classification-before-enacting.md
+│   │   ├── 20-PROGR-repeated-failure-triggers-premise-review.md
+│   │   ├── 30-SPEED-background-work-during-ci-waits.md
+│   │   ├── 40-COST-cost-tier.md
+<!-- AIQT-TREE-aiqt-END -->
+│   ├── security/
+<!-- AIQT-TREE-security-BEGIN -->
+│   │   ├── SECA-resource-bounds.md
+│   │   ├── SECA-verified-restore-path.md
+│   │   ├── SECC-data-boundary.md
+│   │   ├── SECC-egress-destinations.md
+│   │   ├── SECC-keep-secrets-out.md
+│   │   ├── SECC-least-privilege-retrieval.md
+│   │   ├── SECC-no-cross-context-bleed.md
+│   │   ├── SECC-no-hidden-context-disclosure.md
+│   │   ├── SECC-rotate-leaked-secret.md
+│   │   ├── SECI-authentication.md
+│   │   ├── SECI-authorization.md
+│   │   ├── SECI-config-is-executable-trust-gate.md
+│   │   ├── SECI-cryptography.md
+│   │   ├── SECI-dependency-provenance.md
+│   │   ├── SECI-fail-closed.md
+│   │   ├── SECI-federated-identity-flow.md
+│   │   ├── SECI-file-upload-handling.md
+│   │   ├── SECI-guardrail-config-integrity.md
+│   │   ├── SECI-human-authorization.md
+│   │   ├── SECI-input-validation.md
+│   │   ├── SECI-inter-agent-trust.md
+│   │   ├── SECI-key-management.md
+│   │   ├── SECI-least-privilege-tools.md
+│   │   ├── SECI-log-redaction.md
+│   │   ├── SECI-operator-deception.md
+│   │   ├── SECI-output-encoding.md
+│   │   ├── SECI-output-handling.md
+│   │   ├── SECI-pin-referenced-instructions.md
+│   │   ├── SECI-poisoning-resistance.md
+│   │   ├── SECI-prefer-removing-a-path.md
+│   │   ├── SECI-preview-has-no-side-effects.md
+│   │   ├── SECI-prompt-trust-hierarchy.md
+│   │   ├── SECI-protect-audit-records.md
+│   │   ├── SECI-reject-vulnerable-versions.md
+│   │   ├── SECI-release-integrity.md
+│   │   ├── SECI-safe-deserialization.md
+│   │   ├── SECI-secure-configuration.md
+│   │   ├── SECI-security-logging.md
+│   │   ├── SECI-session-token-management.md
+│   │   ├── SECI-ssrf-prevention.md
+│   │   ├── SECI-symlink-resolution.md
+│   │   ├── SECI-threat-model-boundaries.md
+│   │   ├── SECI-tool-argument-validation.md
+│   │   ├── SECI-untrusted-content.md
+│   │   ├── SECI-verify-dependency-exists.md
+│   │   ├── SECP-data-minimization.md
+│   │   ├── SECP-data-residency-retention.md
+│   │   ├── SECP-purpose-limitation.md
+│   │   ├── SECP-synthetic-fixture-data.md
+<!-- AIQT-TREE-security-END -->
 ├── core/                       Security and compliance rules (secrets, auth, input validation, crypto, OWASP)
 │   ├── secrets.md              Never hardcode credentials, keys, or tokens
 │   ├── authentication.md       Secure authentication and session requirements
@@ -184,26 +324,27 @@ guardrails/
 
 ## How to use
 
-### Option 1: copy the guardrails directory to your project
+### Pinned runtime installation
 
-The simplest approach. Copy the whole `guardrails/` directory into your project (its `CLAUDE.md` links to sibling files under `ai/` and `governance/`, so copying `CLAUDE.md` alone breaks those links), then reference it from your project's own root `CLAUDE.md`.
+Use the exact inventory and declared scope insertions in `vendor/aiqt/RULES.json`.
+Copy `guardrails/aiqt-rules/aiqt/` and `guardrails/aiqt-rules/security/` into
+`.claude/rules/`, preserving upstream frontmatter, including corpus-id and mappings.
+Insert the declared paths into the existing block for the three scoped security rules;
+never add a second frontmatter block. Keep LICENSE and NOTICE beside the vendored
+snapshot. Do not fetch a moving head or install the snapshot README as a rule.
 
-```bash
-cp -r path/to/guardrails ./guardrails
-```
+In GRC, `.claude/rules/governance-compatibility.md` is generated from
+`.claude/references/governance-compatibility.md` plus the retained overlays.
+Keep all legacy governance bodies under `.claude/references/governance/` and
+read them at the mandatory compatibility triggers. Do not copy `governance/`
+wholesale into `.claude/rules/` or import all the references at startup.
+The existing core/language/pipeline mirrors and all skills remain available.
+Standalone adopters must review GRC-specific overlays and supply their own wiring;
+the GRC compatibility output is not a portable export.
 
-Then add this line to your project's root `CLAUDE.md` (creating it if it does not exist):
+### Selective GRC security modules
 
-```markdown
-@guardrails/CLAUDE.md
-```
-
-Claude Code reads it in full at session start.
-
-### Option 2: selective rule files
-
-Copy only the rule files relevant to your project into `.claude/rules/`:
-
+The following optional modules retain their existing terms and scope:
 ```bash
 # For a Python web API with AI features
 cp path/to/guardrails/core/secrets.md .claude/rules/
@@ -284,6 +425,138 @@ If your project already has an `AGENTS.md` for other coding agents (Codex, Curso
 | [`languages/flutter.md`](languages/flutter.md) | Flutter / Dart cross-platform mobile applications; covers cross-platform and native-layer controls as applied through Flutter's platform-channel bridge |
 | [`languages/dotnet-maui.md`](languages/dotnet-maui.md) | .NET MAUI (and Blazor Hybrid) cross-platform mobile applications; covers cross-platform and native-layer controls as applied through MAUI's handler architecture and the Mono / .NET runtime |
 | [`languages/capacitor-ionic.md`](languages/capacitor-ionic.md) | Capacitor / Ionic (WebView-based hybrid) cross-platform mobile applications; covers cross-platform and native-layer controls as applied through Capacitor's WebView and plugin architecture; carries forward web-stack rules from [`languages/typescript.md`](languages/typescript.md) and `core/owasp.md` because the WebView is the application UI |
+| [`aiqt-rules/aiqt/00-project-integrity.md`](aiqt-rules/aiqt/00-project-integrity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-citation-from-opened-file.md`](aiqt-rules/aiqt/10-ACCUR-citation-from-opened-file.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-claims-rest-on-observation.md`](aiqt-rules/aiqt/10-ACCUR-claims-rest-on-observation.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md`](aiqt-rules/aiqt/10-ACCUR-completeness-claim-enumerates-its-set.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-corroborate-external-claims.md`](aiqt-rules/aiqt/10-ACCUR-corroborate-external-claims.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-count-carries-its-predicate.md`](aiqt-rules/aiqt/10-ACCUR-count-carries-its-predicate.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-disclose-guard-residuals.md`](aiqt-rules/aiqt/10-ACCUR-disclose-guard-residuals.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-evidence-grounded-completion.md`](aiqt-rules/aiqt/10-ACCUR-evidence-grounded-completion.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-guard-input-soundness.md`](aiqt-rules/aiqt/10-ACCUR-guard-input-soundness.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md`](aiqt-rules/aiqt/10-ACCUR-measured-and-estimated-figures-stay-separate.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-no-fabrication.md`](aiqt-rules/aiqt/10-ACCUR-no-fabrication.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md`](aiqt-rules/aiqt/10-ACCUR-observe-before-asserting-behaviour.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md`](aiqt-rules/aiqt/10-ACCUR-partial-read-is-not-the-whole.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-read-before-characterizing.md`](aiqt-rules/aiqt/10-ACCUR-read-before-characterizing.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-reference-capture.md`](aiqt-rules/aiqt/10-ACCUR-reference-capture.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-reproduce-before-fix.md`](aiqt-rules/aiqt/10-ACCUR-reproduce-before-fix.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-timestamp-from-clock.md`](aiqt-rules/aiqt/10-ACCUR-timestamp-from-clock.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-validate-inference-before-action.md`](aiqt-rules/aiqt/10-ACCUR-validate-inference-before-action.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-ACCUR-verify-fix-in-commit.md`](aiqt-rules/aiqt/10-ACCUR-verify-fix-in-commit.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-anything-wrong-fixed-first.md`](aiqt-rules/aiqt/10-INTEG-anything-wrong-fixed-first.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-attestation-is-harness-owned.md`](aiqt-rules/aiqt/10-INTEG-attestation-is-harness-owned.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-branch-and-merge-on-green.md`](aiqt-rules/aiqt/10-INTEG-branch-and-merge-on-green.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-branch-rooted-on-live-main.md`](aiqt-rules/aiqt/10-INTEG-branch-rooted-on-live-main.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md`](aiqt-rules/aiqt/10-INTEG-check-fails-closed-on-unreadable.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-commit-identity.md`](aiqt-rules/aiqt/10-INTEG-commit-identity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md`](aiqt-rules/aiqt/10-INTEG-explicit-binding-over-ambient-context.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-gate-discipline.md`](aiqt-rules/aiqt/10-INTEG-gate-discipline.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-generated-artefact-source-only.md`](aiqt-rules/aiqt/10-INTEG-generated-artefact-source-only.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-licence-compatibility.md`](aiqt-rules/aiqt/10-INTEG-licence-compatibility.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-no-concealed-failure.md`](aiqt-rules/aiqt/10-INTEG-no-concealed-failure.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-preserve-uncommitted-work.md`](aiqt-rules/aiqt/10-INTEG-preserve-uncommitted-work.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-protected-branch-integrity.md`](aiqt-rules/aiqt/10-INTEG-protected-branch-integrity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-required-step-remains-required.md`](aiqt-rules/aiqt/10-INTEG-required-step-remains-required.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md`](aiqt-rules/aiqt/10-INTEG-rerun-pass-is-still-failure.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md`](aiqt-rules/aiqt/10-INTEG-review-in-flight-pins-its-artefact.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-safe-retries.md`](aiqt-rules/aiqt/10-INTEG-safe-retries.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-separate-task-changes.md`](aiqt-rules/aiqt/10-INTEG-separate-task-changes.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-stage-then-promote-on-green.md`](aiqt-rules/aiqt/10-INTEG-stage-then-promote-on-green.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-track-launched-work.md`](aiqt-rules/aiqt/10-INTEG-track-launched-work.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-validation-gates-apply.md`](aiqt-rules/aiqt/10-INTEG-validation-gates-apply.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-INTEG-workers-produce-inert-data.md`](aiqt-rules/aiqt/10-INTEG-workers-produce-inert-data.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-absolute-paths.md`](aiqt-rules/aiqt/10-QUALI-absolute-paths.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-change-carries-check.md`](aiqt-rules/aiqt/10-QUALI-change-carries-check.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-compatibility-or-migration.md`](aiqt-rules/aiqt/10-QUALI-compatibility-or-migration.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-confirm-execution-target.md`](aiqt-rules/aiqt/10-QUALI-confirm-execution-target.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-defence-in-depth-default.md`](aiqt-rules/aiqt/10-QUALI-defence-in-depth-default.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md`](aiqt-rules/aiqt/10-QUALI-elapsed-aware-timer-restore.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md`](aiqt-rules/aiqt/10-QUALI-findings-are-fixed-not-argued.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md`](aiqt-rules/aiqt/10-QUALI-goal-fidelity-across-trajectory.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-high-assurance-verification.md`](aiqt-rules/aiqt/10-QUALI-high-assurance-verification.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md`](aiqt-rules/aiqt/10-QUALI-kill-timeout-exceeds-callee-wait.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-lightweight-verifier-workers.md`](aiqt-rules/aiqt/10-QUALI-lightweight-verifier-workers.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-match-surrounding-code.md`](aiqt-rules/aiqt/10-QUALI-match-surrounding-code.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-minimize-dependencies.md`](aiqt-rules/aiqt/10-QUALI-minimize-dependencies.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-self-guardrail-from-error.md`](aiqt-rules/aiqt/10-QUALI-self-guardrail-from-error.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-smallest-correct-change.md`](aiqt-rules/aiqt/10-QUALI-smallest-correct-change.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-surface-counterproductive-instructions.md`](aiqt-rules/aiqt/10-QUALI-surface-counterproductive-instructions.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-test-hermeticity.md`](aiqt-rules/aiqt/10-QUALI-test-hermeticity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-verifier-delivery-completeness.md`](aiqt-rules/aiqt/10-QUALI-verifier-delivery-completeness.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-QUALI-verifier-diversity.md`](aiqt-rules/aiqt/10-QUALI-verifier-diversity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-ai-toolchain-register.md`](aiqt-rules/aiqt/10-TRUST-ai-toolchain-register.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-assess-advise-discussion-only.md`](aiqt-rules/aiqt/10-TRUST-assess-advise-discussion-only.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-atomic-claim-from-pool.md`](aiqt-rules/aiqt/10-TRUST-atomic-claim-from-pool.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-change-record.md`](aiqt-rules/aiqt/10-TRUST-change-record.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-change-tracking-ext.md`](aiqt-rules/aiqt/10-TRUST-change-tracking-ext.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-clarify-before-acting.md`](aiqt-rules/aiqt/10-TRUST-clarify-before-acting.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-concurrency-lease.md`](aiqt-rules/aiqt/10-TRUST-concurrency-lease.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-continue-by-default.md`](aiqt-rules/aiqt/10-TRUST-continue-by-default.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-express-authorization-before-execution.md`](aiqt-rules/aiqt/10-TRUST-express-authorization-before-execution.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md`](aiqt-rules/aiqt/10-TRUST-human-oversight-and-autonomy-threshold.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-no-console-diff-dumps.md`](aiqt-rules/aiqt/10-TRUST-no-console-diff-dumps.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-orchestrator-mistakes-register.md`](aiqt-rules/aiqt/10-TRUST-orchestrator-mistakes-register.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-reconcile-record-against-reality.md`](aiqt-rules/aiqt/10-TRUST-reconcile-record-against-reality.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-records-first.md`](aiqt-rules/aiqt/10-TRUST-records-first.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-session-close-on-green.md`](aiqt-rules/aiqt/10-TRUST-session-close-on-green.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-session-resume-from-handoff.md`](aiqt-rules/aiqt/10-TRUST-session-resume-from-handoff.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-standing-constraints-persist.md`](aiqt-rules/aiqt/10-TRUST-standing-constraints-persist.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-trust-recovery-escalation.md`](aiqt-rules/aiqt/10-TRUST-trust-recovery-escalation.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/10-TRUST-trust-recovery-ext.md`](aiqt-rules/aiqt/10-TRUST-trust-recovery-ext.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/20-PROGR-decision-classification-before-enacting.md`](aiqt-rules/aiqt/20-PROGR-decision-classification-before-enacting.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md`](aiqt-rules/aiqt/20-PROGR-repeated-failure-triggers-premise-review.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/30-SPEED-background-work-during-ci-waits.md`](aiqt-rules/aiqt/30-SPEED-background-work-during-ci-waits.md) | Apache-2.0; All activities |
+| [`aiqt-rules/aiqt/40-COST-cost-tier.md`](aiqt-rules/aiqt/40-COST-cost-tier.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECA-resource-bounds.md`](aiqt-rules/security/SECA-resource-bounds.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECA-verified-restore-path.md`](aiqt-rules/security/SECA-verified-restore-path.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-data-boundary.md`](aiqt-rules/security/SECC-data-boundary.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-egress-destinations.md`](aiqt-rules/security/SECC-egress-destinations.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-keep-secrets-out.md`](aiqt-rules/security/SECC-keep-secrets-out.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-least-privilege-retrieval.md`](aiqt-rules/security/SECC-least-privilege-retrieval.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-no-cross-context-bleed.md`](aiqt-rules/security/SECC-no-cross-context-bleed.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-no-hidden-context-disclosure.md`](aiqt-rules/security/SECC-no-hidden-context-disclosure.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECC-rotate-leaked-secret.md`](aiqt-rules/security/SECC-rotate-leaked-secret.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-authentication.md`](aiqt-rules/security/SECI-authentication.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-authorization.md`](aiqt-rules/security/SECI-authorization.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-config-is-executable-trust-gate.md`](aiqt-rules/security/SECI-config-is-executable-trust-gate.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-cryptography.md`](aiqt-rules/security/SECI-cryptography.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-dependency-provenance.md`](aiqt-rules/security/SECI-dependency-provenance.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-fail-closed.md`](aiqt-rules/security/SECI-fail-closed.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-federated-identity-flow.md`](aiqt-rules/security/SECI-federated-identity-flow.md) | Apache-2.0; `**/*.py`, `**/*.sh`, `**/*.js`, `**/*.ts`, `**/*.tsx`, `**/*.jsx`, `**/*.html`, `**/*.yml`, `**/*.yaml`, `**/*.json`, `**/*.toml`, `security/**`, `dev-security/**`, `ai/**`, `architecture/**` |
+| [`aiqt-rules/security/SECI-file-upload-handling.md`](aiqt-rules/security/SECI-file-upload-handling.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-guardrail-config-integrity.md`](aiqt-rules/security/SECI-guardrail-config-integrity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-human-authorization.md`](aiqt-rules/security/SECI-human-authorization.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-input-validation.md`](aiqt-rules/security/SECI-input-validation.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-inter-agent-trust.md`](aiqt-rules/security/SECI-inter-agent-trust.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-key-management.md`](aiqt-rules/security/SECI-key-management.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-least-privilege-tools.md`](aiqt-rules/security/SECI-least-privilege-tools.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-log-redaction.md`](aiqt-rules/security/SECI-log-redaction.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-operator-deception.md`](aiqt-rules/security/SECI-operator-deception.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-output-encoding.md`](aiqt-rules/security/SECI-output-encoding.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-output-handling.md`](aiqt-rules/security/SECI-output-handling.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-pin-referenced-instructions.md`](aiqt-rules/security/SECI-pin-referenced-instructions.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-poisoning-resistance.md`](aiqt-rules/security/SECI-poisoning-resistance.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-prefer-removing-a-path.md`](aiqt-rules/security/SECI-prefer-removing-a-path.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-preview-has-no-side-effects.md`](aiqt-rules/security/SECI-preview-has-no-side-effects.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-prompt-trust-hierarchy.md`](aiqt-rules/security/SECI-prompt-trust-hierarchy.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-protect-audit-records.md`](aiqt-rules/security/SECI-protect-audit-records.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-reject-vulnerable-versions.md`](aiqt-rules/security/SECI-reject-vulnerable-versions.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-release-integrity.md`](aiqt-rules/security/SECI-release-integrity.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-safe-deserialization.md`](aiqt-rules/security/SECI-safe-deserialization.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-secure-configuration.md`](aiqt-rules/security/SECI-secure-configuration.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-security-logging.md`](aiqt-rules/security/SECI-security-logging.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-session-token-management.md`](aiqt-rules/security/SECI-session-token-management.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-ssrf-prevention.md`](aiqt-rules/security/SECI-ssrf-prevention.md) | Apache-2.0; `**/*.py`, `**/*.sh`, `**/*.js`, `**/*.ts`, `**/*.tsx`, `**/*.jsx`, `**/*.html`, `**/*.yml`, `**/*.yaml`, `**/*.json`, `**/*.toml`, `security/**`, `dev-security/**`, `ai/**`, `architecture/**` |
+| [`aiqt-rules/security/SECI-symlink-resolution.md`](aiqt-rules/security/SECI-symlink-resolution.md) | Apache-2.0; `**/*.py`, `**/*.sh`, `**/*.js`, `**/*.ts`, `**/*.tsx`, `**/*.jsx`, `**/*.html`, `**/*.yml`, `**/*.yaml`, `**/*.json`, `**/*.toml`, `security/**`, `dev-security/**`, `ai/**`, `architecture/**` |
+| [`aiqt-rules/security/SECI-threat-model-boundaries.md`](aiqt-rules/security/SECI-threat-model-boundaries.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-tool-argument-validation.md`](aiqt-rules/security/SECI-tool-argument-validation.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-untrusted-content.md`](aiqt-rules/security/SECI-untrusted-content.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECI-verify-dependency-exists.md`](aiqt-rules/security/SECI-verify-dependency-exists.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECP-data-minimization.md`](aiqt-rules/security/SECP-data-minimization.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECP-data-residency-retention.md`](aiqt-rules/security/SECP-data-residency-retention.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECP-purpose-limitation.md`](aiqt-rules/security/SECP-purpose-limitation.md) | Apache-2.0; All activities |
+| [`aiqt-rules/security/SECP-synthetic-fixture-data.md`](aiqt-rules/security/SECP-synthetic-fixture-data.md) | Apache-2.0; All activities |
 
 ---
 
@@ -546,7 +819,7 @@ This pack is documentation and operational discipline; three things it reference
 
 ## Licence
 
-All content in this directory is released under CC BY-SA 4.0. Copy, modify, and redistribute freely.
+GRC-original material is released under CC BY-SA 4.0. The upstream-owned `aiqt-rules/` snapshot and its runtime copies are separately Apache-2.0; preserve its verbatim LICENSE and NOTICE.
 
 External repositories (TikiTribe, Kariedo, addyosmani, Wiz) maintain their own licenses: check each repository before redistribution.
 

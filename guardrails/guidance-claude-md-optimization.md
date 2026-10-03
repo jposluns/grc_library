@@ -171,3 +171,7 @@ safe to attempt: every cut is recorded with the signal that would prove it wrong
 cadence review turns those signals into restorations or new rules. A condense without a
 ledger is a one-way deletion the maintainer cannot audit; a condense with one is a reversible
 hypothesis the project keeps testing.
+
+## Pinned runtime and retained procedures
+
+Use the pinned AIQT inventory for runtime rules. Keep the legacy governance bodies as required activity-triggered references, with one explicit compatibility rule naming every trigger. Ordinary index links are navigation, not startup imports. Preserve all procedural and overlay obligations when reducing automatic loading.

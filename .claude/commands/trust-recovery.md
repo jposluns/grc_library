@@ -1,4 +1,4 @@
-Run the trust-recovery escalation suite: the heavier, white-box re-examination invoked when accumulated AI-assistant discipline failures put a maintainer's confidence in a *window* of work in question (per the [`trust-recovery-escalation.md`](../rules/governance/trust-recovery-escalation.md) governance rule). This is a convenience wrapper that runs the two-skill suite in order; it does not replace either skill, and it does not self-authorize (the maintainer invokes it and names the PR window).
+Run the trust-recovery escalation suite: the heavier, white-box re-examination invoked when accumulated AI-assistant discipline failures put a maintainer's confidence in a *window* of work in question (per the [`trust-recovery-escalation.md`](../references/governance/trust-recovery-escalation.md) governance rule). This is a convenience wrapper that runs the two-skill suite in order; it does not replace either skill, and it does not self-authorize (the maintainer invokes it and names the PR window).
 
 Execute in order:
 
@@ -12,4 +12,4 @@ Execute in order:
 
 After sign-off, codify the process lessons per the rule's "After sign-off" protocol (formalize any ad-hoc forensic pass as a skill; bake any methodology lesson into the relevant skill; the durable backstop for the triggering failure class is a mechanical gate, not the suite alone).
 
-This wrapper is a thin sequencer over [`/full-qa`](full-qa.md) and [`/fitness`](fitness.md); the two underlying skills hold the authoritative step detail, evidence bars, and subagent dispatch discipline. See the [`trust-recovery-escalation.md`](../rules/governance/trust-recovery-escalation.md) rule for the trigger classes, the findings-routing convention, and the sign-off discipline.
+This wrapper is a thin sequencer over [`/full-qa`](full-qa.md) and [`/fitness`](fitness.md); the two underlying skills hold the authoritative step detail, evidence bars, and subagent dispatch discipline. See the [`trust-recovery-escalation.md`](../references/governance/trust-recovery-escalation.md) rule for the trigger classes, the findings-routing convention, and the sign-off discipline.

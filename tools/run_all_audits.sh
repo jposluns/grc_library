@@ -167,6 +167,7 @@ run_gate "Linter regression test suite"                  python3 tools/run-linte
 # meta-gates above; logically a drift check akin to the generator-output
 # in-sync gates.
 # ----------------------------------------------------------------------
+# Gate 37 also verifies pinned AIQT ownership, scopes, and retained procedures.
 run_gate "Claude-rules local-copy sync audit"            python3 tools/lint-claude-rules-sync.py
 run_gate "Section placement audit"                       python3 tools/lint-section-placement.py
 run_gate "Cross-file gate-count consistency audit"       python3 tools/lint-gate-count-consistency.py

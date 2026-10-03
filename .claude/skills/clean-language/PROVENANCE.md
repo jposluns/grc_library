@@ -9,7 +9,7 @@ This directory is the Clean Language skill, VENDORED into grc_library from its u
   copyright. That distinct-copyright-and-attribution preservation, not a different licence, is the point
   of vendoring it, the same stance as the third-party overlay under `.claude/rules/external/`.
 - **`NOTICE.md` is kept BYTE-IDENTICAL to upstream** (so the monthly drift check below can verify it):
-  its inherited line `See .claude/rules/governance/PROVENANCE.md for details` refers to UPSTREAM's repo
+  its inherited line `See .claude/references/governance/PROVENANCE.md for details` refers to UPSTREAM's repo
   layout and does NOT resolve in this repo; the provenance record for the vendored copy is THIS file
   (`.claude/skills/clean-language/PROVENANCE.md`). The pointer is left as-is rather than edited, because
   editing it would diverge `NOTICE.md` from upstream and defeat the drift check (codex vpr1328 finding 4).

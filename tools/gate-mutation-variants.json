@@ -220,6 +220,39 @@
         "path": "guardrails/core/secrets.md",
         "text": "\n  <!-- PROJECT-OVERLAY: not part of the distributable pack -->\n\nIndented leaked overlay.\n"
       }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "aiqt-scope-metadata-drift",
+      "description": "aiqt scope metadata drift",
+      "expect": "detect",
+      "action": {
+        "type": "replace_text",
+        "old": "**/*.py",
+        "new": "**/*.go",
+        "path": ".claude/rules/security/SECI-ssrf-prevention.md"
+      }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "aiqt-unknown-rule",
+      "description": "aiqt unknown rule",
+      "expect": "detect",
+      "action": {
+        "type": "create_file",
+        "text": "# Unknown rule\n",
+        "path": ".claude/rules/aiqt/unknown-rule.md"
+      }
+    },
+    {
+      "gate": "lint-claude-rules-sync.py",
+      "id": "missing-governance-compatibility",
+      "description": "missing governance compatibility",
+      "expect": "detect",
+      "action": {
+        "type": "delete_file",
+        "path": ".claude/rules/governance-compatibility.md"
+      }
     }
   ]
 }

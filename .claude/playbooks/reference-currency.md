@@ -65,7 +65,7 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
 When a task needs a load-bearing reference (a standard, regulation, RTS/ITS, framework, or dataset a
 citation or attributed value depends on) that `grc_library_ref` does not hold, follow the pack's
 missing-load-bearing-reference corollary in
-[`evidence-grounded-completion`](../rules/governance/evidence-grounded-completion.md) (its
+[`evidence-grounded-completion`](../references/governance/evidence-grounded-completion.md) (its
 `## Un-observable state, inventory, and external-version currency` section; PR #832): PAUSE,
 attempt acquisition, then named options on failure. The project instantiation:
 

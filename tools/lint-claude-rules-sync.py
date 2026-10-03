@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Claude-rules local-copy sync audit.
+"""Pinned AIQT bytes and declared scopes use exact equality, including metadata.
+Legacy GRC bodies remain mirrored under .claude/references/governance/;
+the compatibility output deterministically includes their retained overlays.
+
+Claude-rules local-copy sync audit.
 
 The project consumes a subset of the ``guardrails/``
 pack as session-start context by keeping copies under ``.claude/rules/``.
@@ -88,6 +92,7 @@ from __future__ import annotations
 import argparse
 import sys
 import tomllib
+from aiqt_rules import validate as validate_snapshot
 from pathlib import Path, PurePosixPath
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
@@ -116,21 +121,21 @@ MIRROR_MAP: dict[str, str] = {
     ".claude/rules/input-validation.md": "guardrails/core/input-validation.md",
     ".claude/rules/python.md": "guardrails/languages/python.md",
     ".claude/rules/cicd-gates.md": "guardrails/pipeline/cicd-gates.md",
-    ".claude/rules/governance/gate-discipline.md": "guardrails/governance/gate-discipline.md",
-    ".claude/rules/governance/change-tracking.md": "guardrails/governance/change-tracking.md",
-    ".claude/rules/governance/evidence-grounded-completion.md": "guardrails/governance/evidence-grounded-completion.md",
-    ".claude/rules/governance/clarify-before-acting.md": "guardrails/governance/clarify-before-acting.md",
-    ".claude/rules/governance/artefact-and-branch-discipline.md": "guardrails/governance/artefact-and-branch-discipline.md",
-    ".claude/rules/governance/action-before-explanation-of-inaction.md": "guardrails/governance/action-before-explanation-of-inaction.md",
-    ".claude/rules/governance/validate-inference-before-action.md": "guardrails/governance/validate-inference-before-action.md",
-    ".claude/rules/governance/ai-assistant-workflow-disciplines.md": "guardrails/governance/ai-assistant-workflow-disciplines.md",
-    ".claude/rules/governance/trust-recovery-escalation.md": "guardrails/governance/trust-recovery-escalation.md",
-    ".claude/rules/governance/project-integrity.md": "guardrails/governance/project-integrity.md",
-    ".claude/rules/governance/surface-counterproductive-instructions.md": "guardrails/governance/surface-counterproductive-instructions.md",
-    ".claude/rules/governance/high-assurance-verification.md": "guardrails/governance/high-assurance-verification.md",
-    ".claude/rules/governance/session-lifecycle.md": "guardrails/governance/session-lifecycle.md",
-    ".claude/rules/governance/decision-classification-before-enacting.md": "guardrails/governance/decision-classification-before-enacting.md",
-    ".claude/rules/governance/express-authorization-before-execution.md": "guardrails/governance/express-authorization-before-execution.md",
+    ".claude/references/governance/gate-discipline.md": "guardrails/governance/gate-discipline.md",
+    ".claude/references/governance/change-tracking.md": "guardrails/governance/change-tracking.md",
+    ".claude/references/governance/evidence-grounded-completion.md": "guardrails/governance/evidence-grounded-completion.md",
+    ".claude/references/governance/clarify-before-acting.md": "guardrails/governance/clarify-before-acting.md",
+    ".claude/references/governance/artefact-and-branch-discipline.md": "guardrails/governance/artefact-and-branch-discipline.md",
+    ".claude/references/governance/action-before-explanation-of-inaction.md": "guardrails/governance/action-before-explanation-of-inaction.md",
+    ".claude/references/governance/validate-inference-before-action.md": "guardrails/governance/validate-inference-before-action.md",
+    ".claude/references/governance/ai-assistant-workflow-disciplines.md": "guardrails/governance/ai-assistant-workflow-disciplines.md",
+    ".claude/references/governance/trust-recovery-escalation.md": "guardrails/governance/trust-recovery-escalation.md",
+    ".claude/references/governance/project-integrity.md": "guardrails/governance/project-integrity.md",
+    ".claude/references/governance/surface-counterproductive-instructions.md": "guardrails/governance/surface-counterproductive-instructions.md",
+    ".claude/references/governance/high-assurance-verification.md": "guardrails/governance/high-assurance-verification.md",
+    ".claude/references/governance/session-lifecycle.md": "guardrails/governance/session-lifecycle.md",
+    ".claude/references/governance/decision-classification-before-enacting.md": "guardrails/governance/decision-classification-before-enacting.md",
+    ".claude/references/governance/express-authorization-before-execution.md": "guardrails/governance/express-authorization-before-execution.md",
 }
 
 # Compiler-owned recognition (Corpus-Management pack, compile PR-2): the
@@ -217,6 +222,10 @@ def load_compiler_owned(root: Path) -> tuple[list[str], set[str], set[str]]:
         contains_rules = kind == "tree" and (
             tposix == claude_rules or tposix in claude_rules.parents
         )
+        if target in MIRROR_MAP or (kind == "tree" and any(
+                tposix in PurePosixPath(m).parents for m in MIRROR_MAP)):
+            findings.append(f"ownership overlap: {target} contests a mirror")
+            continue
         if not in_rules and not contains_rules:
             continue  # a target outside .claude/rules/ is not this gate's concern
         mirror_clash = sorted(
@@ -359,6 +368,11 @@ def _main(argv: list[str] | None = None) -> int:
     root: Path = args.root.resolve()
 
     findings: list[str] = []
+    try:
+        aiqt_owned = validate_snapshot(root)
+    except (ValueError, KeyError, TypeError, OSError) as exc:
+        print(f"FAIL: AIQT snapshot: {exc}")
+        return 1
 
     # --- Compiler-owned recognition (Corpus-Management pack, gate 99). ---
     try:
@@ -423,7 +437,7 @@ def _main(argv: list[str] | None = None) -> int:
     # --- register above, never through a directory skip). ---
     for local_path in find_local_rule_files(root):
         rel = local_path.relative_to(root).as_posix()
-        if rel in MIRROR_MAP:
+        if rel in MIRROR_MAP or rel in aiqt_owned:
             continue
         rel_posix = PurePosixPath(rel)
         if rel in owned_files or any(

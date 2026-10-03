@@ -2,8 +2,8 @@
 
 **Document Title:** Authors and Acknowledgements\
 **Document Type:** Register\
-**Version:** 1.1.4\
-**Date:** 2026-08-03\
+**Version:** 1.1.5\
+**Date:** 2026-10-02\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](README.md), [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE.md`](NOTICE.md)\
@@ -31,7 +31,7 @@ Jeffrey is the original creator and current maintainer of the Governance, Risk, 
 
 The library is released under [Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)](LICENSE). CC BY-SA 4.0 **requires** attribution when content is redistributed (in original or modified form) and requires that derivatives be released under CC BY-SA 4.0 as well (the "ShareAlike" condition).
 
-The [`guardrails/`](guardrails/) pack is library-original content and ships under the same CC BY-SA 4.0 terms; it does not carry a separate licence. The same attribution requirements apply whether an adopter uses the corpus, the pack, or both.
+GRC-original material retains CC BY-SA 4.0. The upstream-owned pinned snapshot in `guardrails/aiqt-rules/` and its local rule derivatives are separately licensed Apache-2.0; retain the verbatim upstream LICENSE and NOTICE in that directory. GRC owns its compatibility rule and the retained legacy procedures. Authority: maintainer decisions D1-D3, 2026-10-02 12:27Z.
 
 Required attribution forms (any of these satisfies the licence; the canonical machine-readable form is the [`CITATION.cff`](CITATION.cff) metadata):
 
@@ -62,7 +62,7 @@ Example citation (BibTeX):
 }
 ```
 
-Adopters using only the [`guardrails/`](guardrails/) pack (the standalone Claude Code baseline mode described in [`docs/adopter-guide.md`](docs/adopter-guide.md)) should cite the parent library, since the pack is a derivative artefact of the library's maintenance experience and ships under the same licence. The citation above is the canonical form regardless of which adoption mode an adopter chose.
+Adopters of GRC-original pack material should cite the parent library using the citation above. For the separately licensed AIQT snapshot, preserve its upstream Apache-2.0 LICENSE and NOTICE; the parent-library citation does not replace that attribution.
 
 ## AI assistance disclosure
 

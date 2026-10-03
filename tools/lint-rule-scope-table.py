@@ -31,7 +31,7 @@ the safe direction and does not occur on the well-formed live table):
     A second link inside the When-to-Use cell (several ``languages`` rows link
     the mobile-security standard, and the capacitor-ionic row links two more) is
     never read, so it cannot mis-key a row.
-  * The EXPECTED set is every ``<root>/<category>/*.md`` for the five categories
+  * The EXPECTED set is every ``<root>/<category>/*.md`` for the configured categories, including both nested AIQT families
     (``core`` / ``ai`` / ``pipeline`` / ``governance`` / ``languages``), keyed as
     ``<category>/<file>.md``, excluding a ``README.md`` basename (a category
     subdir never carries a table row). Top-level standalone files
@@ -63,7 +63,7 @@ from pathlib import Path
 
 from lint_common import REPO_ROOT, require_dir
 
-CATEGORY_DIRS = ("core", "ai", "pipeline", "governance", "languages")
+CATEGORY_DIRS = ("core", "ai", "pipeline", "governance", "languages", "aiqt-rules/aiqt", "aiqt-rules/security")
 DEFAULT_ROOT = REPO_ROOT / "guardrails"
 SCOPE_HEADING = "## Rule files and their scope"
 TABLE_HEADER_RE = re.compile(r"^\|\s*File\s*\|\s*When to Use\s*\|\s*$")
