@@ -176,7 +176,8 @@ def census(root: Path) -> dict:
                 try:
                     unscoped = not scoped(p.read_text(encoding="utf-8"))
                 except (OSError, UnicodeError, ValueError) as exc:
-                    raise ValueError(f"{p.relative_to(root).as_posix()}: {exc}") from exc
+                    exc.add_note(p.relative_to(root).as_posix())
+                    raise
                 if unscoped:
                     paths.append(p)
     def count(selected):
@@ -219,7 +220,7 @@ def run() -> int:
         count = line_count(CLAUDE_MD)
         totals = census(REPO_ROOT)
     except (OSError, UnicodeError, ValueError, subprocess.CalledProcessError) as exc:
-        print(f"ERROR: D10 census failed: {exc}", file=sys.stderr)
+        print(f"ERROR: D10 census failed: {exc} {getattr(exc, '__notes__', [])}", file=sys.stderr)
         return 2
     code, msg = evaluate(count, CEILING)
     print(msg, file=sys.stderr if code else sys.stdout)
