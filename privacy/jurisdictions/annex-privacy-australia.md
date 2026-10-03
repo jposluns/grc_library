@@ -2,8 +2,8 @@
 
 **Document Title:** Australia Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.7\
-**Date:** 2026-09-25\
+**Version:** 1.0.8\
+**Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -52,7 +52,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Enforcement and fines
 
-- **Serious or repeated privacy interferences:** Civil penalties up to AUD 50 million, or three times the benefit obtained, or 30% of adjusted turnover during the relevant period (whichever is greatest).
+- **Serious interference with privacy:** For serious interference with the privacy of an individual, the civil penalty for a body corporate is an amount not more than the greatest of the following (s. 13G(1), (3)): (a) AUD 50,000,000; (b) if the court can determine the value of the benefit that the body corporate, and any related body corporate, have obtained directly or indirectly and that is reasonably attributable to the conduct constituting the contravention, 3 times the value of that benefit; (c) if the court cannot determine the value of that benefit, 30% of the adjusted turnover of the body corporate during the breach turnover period for the contravention.
 - **Statutory tort (Privacy and Other Legislation Amendment Act 2024):** Compensation including damages for emotional distress for serious invasions of privacy.
 
 ---
