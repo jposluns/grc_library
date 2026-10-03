@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.14\
-**Date:** 2026-09-23\
+**Version:** 1.0.16\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -46,7 +46,7 @@ Applies to all IT services, infrastructure, applications, cloud environments, an
 
 ### 1. Incident management
 
-All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Significant cybersecurity incidents meet EU NIS 2 reporting timelines: an early warning within 24 hours of becoming aware, an incident notification with an initial assessment within 72 hours, and a final report within one month of that notification; where the incident is still ongoing when that final report falls due, a progress report at that point and the final report within one month of handling the incident (Article 23(4)(e)).
+All incidents are logged, categorized, prioritized, and tracked to resolution within defined SLAs. Major incidents trigger immediate escalation to the CIO, CISO, and Crisis Management Team. Where EU NIS 2 Article 23 applies, entities must report significant incidents to the CSIRT or, where applicable, the competent authority. Entities must submit an early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident (Article 23(4)(a)). Entities must submit an incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph). Entities must provide an intermediate report on request under Article 23(4)(c). Entities must provide a final report within one month after submission of the incident notification under Article 23(4)(d); if the incident is still ongoing at that point, they must provide a progress report then and a final report within one month of handling the incident under Article 23(4)(e).
 
 ### 2. Problem management
 
@@ -94,7 +94,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 | ITIL 4 | Foundation, Practices, and Guiding Principles | Service management process model |
 | COBIT 2019 | DSS02.02, DSS02.03, DSS02.04, DSS02.05, DSS02.06, DSS02.07 | Incident and request management |
 | COBIT 2019 | DSS03.01, DSS03.02, DSS03.03, DSS03.04, DSS03.05 | Problem management |
-| EU NIS 2 Directive | Incident Reporting and Business Continuity | Cybersecurity incident notification |
+| EU NIS 2 Directive | Articles 21(2)(c) and 23(4) | Business continuity and significant-incident reporting, including the 24-hour trust-service notification derogation in Article 23(4), second subparagraph |
 | CSA CCM v4.1 | SEF-01, SEF-02, GRC-01, GRC-06 | Service and governance controls |
 | NIST SP 800-61r3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Incident handling integration |
 

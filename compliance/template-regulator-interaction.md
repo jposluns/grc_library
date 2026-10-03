@@ -2,8 +2,8 @@
 
 **Document Title:** Regulator Interaction Templates\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-09-29\
+**Version:** 1.0.9\
+**Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/standard-internal-audit.md`](standard-internal-audit.md), [`compliance/register-compliance-obligations-template.md`](register-compliance-obligations-template.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -59,7 +59,7 @@ Determined by the framework. Common patterns:
 - **GDPR Article 33**: without undue delay and, where feasible, not later than 72 hours after becoming aware.
 - **SEC Form 8-K cybersecurity item**: four business days after determination of materiality.
 - **HIPAA Breach Notification Rule**: 60 days from discovery (Secretary notification thresholds vary).
-- **NIS 2 (EU)**: 24 hours early warning, 72 hours incident notification, one month final report; where the incident is still ongoing at that point, a progress report then and the final report one month after handling of the incident (Article 23(4)(e)).
+- **NIS 2 (EU)**: Entities subject to Article 23 must submit to the CSIRT or, where applicable, the competent authority: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph), final report within one month after submission of the incident notification; where the incident is still ongoing at that point, a progress report then and the final report within one month of handling of the incident (Article 23(4)(e)).
 - **DORA (EU financial)**: tiered reporting timelines depending on incident classification.
 
 Determine the applicable timing from the relevant annex or sector folder before drafting.
