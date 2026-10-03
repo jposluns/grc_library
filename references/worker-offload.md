@@ -145,3 +145,29 @@ integrity. This takes the orchestrator off the authoring critical path too; it o
 
 The design of record and the orchestrator-side operating discipline are kept in the private
 operational store.
+
+
+## Why offload is primordial
+
+Relocated from `.claude/CLAUDE.md` `## PRIMORDIAL RULE (orchestration): you are the orchestrator, orchestrate` (3b177-e); the always-on core stays inline.
+
+**Why this is primordial.** A manager who does the managed team's work cannot do the things only
+the manager can do (deciding and sequencing, dispatching, verifying, authoring the final record,
+merging, talking to the maintainer), and idles the paid-for worker capacity, so the same money
+buys less work and the singleton orchestrator becomes the bottleneck. The orchestrator's usage
+credits are the scarce, slow-to-renew resource; worker credits are separate and elastic. Spending
+orchestrator credits on work a worker could have done is the specific waste this rule forecloses.
+
+
+## Dispatch pinning and single-shot mechanics
+
+Relocated from `.claude/CLAUDE.md` `## Worker dispatch: pinning orders and single-shot orch-verify workers` (3b177-e); the always-on core stays inline.
+
+Two disciplines load at the worker-dispatch boundary. **Pin an order to a commit that CONTAINS what it references** (for a backlog item N, the commit that CREATED N, not a later one; name the SHA in the brief AND instruct the worker to inspect read-only against it (`git show` / `git diff <sha>`), since `orch-verify` reads the LIVE working tree at the given workdir, not a pinned ref, so a bare SHA is not itself a pin). **`orch-verify` workers are SINGLE-SHOT and SYNCHRONOUS**: each runs to completion and returns its stdout directly, so there is NO async delivery tray, no `collect-deliveries` sweep, and no resumable worker chat; scope each order to one self-contained pass. The full dispatch mechanics live in the [Mandatory worker offload](worker-offload.md) playbook. (The former `exec-dispatch` / two-delivery-tray model was retired when the transport moved to `orch-verify`.)
+
+
+## Guard-input project instances
+
+Relocated from `.claude/CLAUDE.md` `## Guard inputs: check the input's authority, not just the check` (3b177-e); the always-on core stays inline.
+
+**Project instances (one observed day, one shape):** `tools/manage-workers.py` prefix-matched a **tmux** session name against a per-run worker id, PERMITTING a destructive verb against a worker holding live work (fixed #1170, a five-state attribution that refuses on ambiguity or non-match); delivery-completeness was inferred from a file merely existing (fixed #1171, atomic rename + end-of-delivery sentinel, with the residue stated: the sentinel proves the file went through `deliver`, not that its content is semantically complete); worker-health is read from a heartbeat on a code path separate from the claim loop, so a worker that stopped claiming still read as healthy capacity (fixed #1174, the SAME class).
