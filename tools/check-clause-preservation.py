@@ -20,31 +20,43 @@ wrapped CR/LF breaks within a unit are normalized. Destination units are
 consumed once per file. Ledger quotes and spans must match BASE exactly.
 Ledger files cannot supply evidence; only committed tracked files can.
 
-After table-cell splitting, inline Markdown link/image destinations and
-reference-definition destinations are resolved lexically against each unit's
-own repository file directory. Relative paths normalize dot segments,
-Markdown punctuation escapes and semicolon-terminated entities in one pass,
-and percent-encoded ASCII unreserved bytes only. Reserved/other percent escapes
-and empty path segments remain distinct; query and fragment spelling stays
-exact. Empty, query-only and anchor-only destinations refer to the source file.
-Schemed URLs, network-path URLs and absolute paths stay byte-exact. A relative target escaping the repository is an input error,
-even in a dropped base unit or an unused unit of a named destination file.
-No filesystem/symlink resolution, existence checks or network access occurs.
-Link labels, titles and delimiters retain the existing normalization rules.
-Fences, indented code lines, inline code, autolinks and raw HTML tokens remain
-literal. Definition syntax cannot interrupt ordinary paragraph text. Invalid
-parenthesized titles are not resolved. Ambiguous container/HTML block context
-still requires manual review; this is deliberately a conservative lexer.
+Relative links: every row is first matched exactly, as above, with occurrences
+consumed in ledger order. Only a row left without an exact match may then match
+a remaining destination unit whose link key equals its own, so resolution can
+turn a mismatch into a match but never a match into a mismatch. A link key
+exists only when every condition below holds; otherwise the unit is compared
+exactly. The unit is a paragraph, list item or heading. Its group (adjacent
+units with no blank line between them) contains no |, tab, ]:, escaped
+backtick, blockquote marker, or < followed by a letter, /, ! or ?, and is not
+inside a multi-line HTML block. Each unit's first line is indented at most
+three spaces, list content at most four spaces after its marker, and no later
+line starts a heading, thematic break or setext underline. No backtick span
+crosses a unit boundary. Every ]( outside code spans closes a plain
+[label](target) link or image: the label has no [, ], backtick or backslash;
+no backslash or ] precedes it; no www. or :// occurs in the label or earlier
+in the same word; the target has no whitespace, parentheses, <, > or
+backslash. Every fence line in the file must be a top-level fence that
+container-aware CommonMark parses the same way: no container marker before it,
+no indentation of four or more spaces, no backtick in a backtick fence's info
+string, no fence line outdented from its opener, no deeper potential closer
+inside the fence, and no tag-like < in the lines directly above an opener.
+Schemed and /-rooted targets stay exact inside a link key. A unit has no link
+key if any other target contains & or %, is empty, query-only or anchor-only,
+ends in a . or .. segment, or leaves the repository. Remaining targets resolve
+lexically against the unit's own file directory: only dot segments are
+removed; empty segments, trailing slashes, queries and fragments stay exact.
+Reference definitions and reference-style links are never resolved. No
+filesystem/symlink resolution, existence check or network access occurs.
 
 Disclosed residual: this lexical partition is not a CommonMark renderer or
-semantic proof. HTML block boundaries and blockquote/list container context are not fully
-modeled. Indented text retains the old whitespace comparison, but its targets
-are not resolved. Wrapping a paragraph in a multiline HTML
-comment, or indenting it as code, can still satisfy KEPT. List indentation
-is lexical, not relative to a parsed parent. Equal-depth re-parenting,
-section moves and ordering are unchecked. Escaped backticks, HTML/CSS hiding,
-reference-use binding, duplicate definitions, HTML links and other
-renderer-specific effects require
+semantic proof. HTML comments/blocks, indented code, and blockquote/list
+container context are not modeled for exact matches. Wrapping a paragraph in a
+multiline HTML comment, or indenting it as code, can still satisfy KEPT. List
+indentation is lexical, not relative to a parsed parent. Equal-depth
+re-parenting, section moves and ordering are unchecked. A relative or
+anchor-only link moved unchanged to another file still matches exactly, as at
+base, though it may now point elsewhere. Escaped backticks, HTML/CSS hiding,
+link/reference interpretation and other renderer-specific effects require
 manual diff review. Top-level fences accept at most three leading spaces;
 nested container fences are outside this model. Review each hunk for these
 rendering and scope changes even when the ledger passes.
@@ -56,8 +68,6 @@ Exit 0: accounted inventory; 1: preservation findings; 2: input/git error.
 from __future__ import annotations
 
 import argparse
-from collections import Counter
-import html
 import json
 import os
 from pathlib import Path
@@ -104,7 +114,7 @@ def normalize(text: str) -> str:
                    for literal, part in inline_parts(text)).strip(" ")
 
 
-def table_cells(text: str, normalize_cells: bool = True) -> tuple[str, ...]:
+def table_cells(text: str) -> tuple[str, ...]:
     """Keep unescaped pipe boundaries outside exact backtick spans."""
     cells = [""]
     for literal, part in inline_parts(text):
@@ -118,7 +128,7 @@ def table_cells(text: str, normalize_cells: bool = True) -> tuple[str, ...]:
             else:
                 cells[-1] += char
             slashes = slashes + 1 if char == "\\" else 0
-    return tuple(normalize(cell) if normalize_cells else cell for cell in cells)
+    return tuple(normalize(cell) for cell in cells)
 
 
 def match_key(unit: dict) -> tuple:
@@ -143,230 +153,162 @@ def match_key(unit: dict) -> tuple:
     return category, normalize(text)
 
 
-PUNCT_ESCAPE = re.compile(r"\\([!\"#$%&'()*+,\-./:;<=>?@\[\\\]^_\x60{|}~])")
+LINK = re.compile(r"\[([^\[\]\\`\0\n]*)\]\(([^\s()<>\\\0]*)\)")
+SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
+TAG = re.compile(r"<[A-Za-z/!?]")
+QUOTE = re.compile(r" *(?:(?:[-+*]|[0-9]{1,9}[.)]) +)*>")
+CONTAINER = re.compile(r"(?:[ \t]*(?:>|[-+*](?=[ \t]|$)|[0-9]{1,9}[.)](?=[ \t]|$)))*[ \t]*")
+HTML_BLOCK = re.compile(r"<(?:(!--)|(\?)|(!\[cdata\[)|(![a-z])|(pre|script|style|textarea)(?=[\s>]|$))")
+HTML_END = ("-->", "?>", "]]>", ">")
 
 
-def decoded_target(raw: str):
-    """Decode escapes/entities once, retaining offsets into the original target."""
-    pieces, offsets = [], []
-    i = 0
-    while i < len(raw):
-        escape = PUNCT_ESCAPE.match(raw, i)
-        entity = re.match(r"&(?:#[xX][0-9A-Fa-f]{1,6};|#[0-9]{1,7};|[A-Za-z][A-Za-z0-9]*;)", raw[i:])
-        if escape:
-            value, end = escape[1], escape.end()
-        elif entity and (entity[0].startswith("&#") or entity[0][1:] in html.entities.html5):
-            value, end = html.unescape(entity[0]), i + entity.end()
-        else:
-            value, end = raw[i], i + 1
-        pieces.append(value)
-        offsets.extend([i] * len(value))
-        i = end
-    return "".join(pieces), offsets
-
-
-SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
-DEFINITION = re.compile(
-    r"(?m)^[ \t]*(?:>[ \t]*)*(?:(?:[-+*]|[0-9]{1,9}[.)])[ \t]+)?"
-    r"\[(?:\\[^\n]|[^\[\]\\])+\]:[ \t]*(?:\n[ \t]*)?")
-
-
-def target_key(raw: str, path: str) -> str:
-    """Resolve lexical paths; only percent-encoded ASCII unreserved bytes fold."""
-    decoded, offsets = decoded_target(raw)
-    if decoded.startswith("/") or SCHEME.match(decoded):
-        value = ("external", raw)
-    else:
-        delimiter = re.search(r"[?#]", decoded)
-        split = delimiter.start() if delimiter else len(decoded)
-        plain = decoded[:split]
-        suffix = raw[offsets[split]:] if delimiter else ""
-        plain = re.sub(r"%([0-9A-Fa-f]{2})", lambda m:
-                       chr(int(m[1], 16)) if chr(int(m[1], 16)) in
-                       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~"
-                       else m[0], plain)
-        if "\0" in plain or "\\" in plain or plain.startswith("/"):
-            raise ValueError(f"{path}: invalid relative Markdown target {raw!r}")
-        parts = path.split("/")[:-1] if plain else path.split("/")
-        for part in plain.split("/") if plain else ():
-            if part == ".":
-                continue
-            if part == "..":
-                if not parts:
-                    raise ValueError(f"{path}: Markdown target outside repository: {raw!r}")
-                parts.pop()
-            else:
-                parts.append(part)
-        value = ("relative", "/".join(parts), suffix)
-    return "\0" + json.dumps(value, ensure_ascii=True).encode("utf-8").hex() + "\0"
-
-
-def destination(text: str, start: int):
-    """Return target span and next position; support angles and balanced parens."""
-    if start < len(text) and text[start] == "<":
-        i = start + 1
-        while i < len(text):
-            if text[i] == "\\" and i + 1 < len(text):
-                i += 2
-                continue
-            if text[i] == ">":
-                return start + 1, i, i + 1
-            if text[i] in "<\r\n":
-                return None
-            i += 1
-        return None
-    i, depth = start, 0
-    while i < len(text):
-        char = text[i]
-        if char == "\\" and i + 1 < len(text):
-            i += 2
-            continue
-        if char in " \t\r\n":
-            break
-        if char == "(":
-            depth += 1
-        elif char == ")":
-            if not depth:
-                break
-            depth -= 1
-        elif char in "<>" or ord(char) < 32:
-            return None
-        i += 1
-    return None if depth else (start, i, i)
-
-
-def title_end(text: str, start: int):
-    """Parenthesized titles cannot contain unescaped opening parentheses."""
-    if start == len(text) or text[start] not in "\"'(":
-        return None
-    closing = ")" if text[start] == "(" else text[start]
-    i = start + 1
-    while i < len(text):
-        if text[i] == "\\" and i + 1 < len(text):
-            i += 2
-            continue
-        if closing == ")" and text[i] == "(":
-            return None
-        if text[i] == closing:
-            return i + 1
-        i += 1
-    return None
-
-
-def link_end(text: str, cursor: int):
-    """Accept closing ')' or whitespace followed by an optional Markdown title."""
-    i = cursor
-    while i < len(text) and text[i] in " \t\r\n":
-        i += 1
-    if i < len(text) and text[i] == ")":
-        return i + 1
-    if i == cursor:
-        return None
-    i = title_end(text, i)
-    if i is None:
-        return None
-    while i < len(text) and text[i] in " \t\r\n":
-        i += 1
-    return i + 1 if i < len(text) and text[i] == ")" else None
-
-
-def definition_end(text: str, cursor: int):
-    """Find a definition's end, excluding link-like text in its optional title."""
-    i = cursor
-    while i < len(text) and text[i] in " \t":
-        i += 1
-    line_end = i
-    if i < len(text) and text[i] in "\r\n":
-        if text[i:i + 2] == "\r\n":
-            i += 2
-        else:
-            i += 1
-        while i < len(text) and text[i] in " \t":
-            i += 1
-    end = title_end(text, i) if i > cursor else None
-    if end is not None:
-        while end < len(text) and text[end] in " \t":
-            end += 1
-        if end == len(text) or text[end] in "\r\n":
-            return end
-    if line_end == len(text) or text[line_end] in "\r\n":
-        return line_end
-    return None
-
-
-def resolve_links(text: str, path: str) -> str:
-    """Rewrite destination spans only; leave labels, titles and code untouched."""
-    masked = "".join(" " * len(part) if literal else part
-                     for literal, part in inline_parts(text))
-    # Treat autolinks, raw HTML and indented lines as opaque, like code spans.
-    # Over-masking unusual angle syntax is conservative: it cannot approve a move.
-    opaque = re.compile(r"<!--[\s\S]*?(?:-->|$)|<\?[\s\S]*?(?:\?>|$)|"
-                        r"<!\[CDATA\[[\s\S]*?(?:\]\]>|$)|"
-                        r"<(?:\"[^\"]*\"|'[^']*'|[^'\">])*>|"
-                        r"(?m:^[ ]{0,3}\t[^\n]*|^[ ]{4}[^\n]*)")
-    masked = opaque.sub(lambda m: " " * len(m[0]), masked)
-    spans, definitions = {}, {}
-    stop = 0
-    for match in DEFINITION.finditer(text):
-        if (match.start() < stop or text[stop:match.start()].strip()
-                or not masked[match.start():match.end()].strip()):
-            continue
-        found = destination(text, match.end())
-        if found is not None:
-            left, right, cursor = found
-            end = definition_end(text, cursor)
-            if end is not None and (right > left or text[match.end():cursor] == "<>"):
-                spans[left] = (right, target_key(text[left:right], path))
-                definitions[match.start()] = stop = end
-    stack = []
-    i = 0
-    while i < len(masked):
-        if i in definitions:
-            i = definitions[i]
-            continue
-        if i in spans:
-            i = spans[i][0]
-            continue
-        if masked[i] == "\\":
-            i += 2
-            continue
-        if masked[i] == "[":
-            stack.append(i)
-        elif masked[i] == "]" and stack:
-            stack.pop()
-            if masked[i + 1:i + 2] == "(":
-                start = i + 2
-                while start < len(text) and text[start] in " \t\r\n":
-                    start += 1
-                if start > i + 2 and text[start:start + 1] in {"'", '"'}:
-                    found = (i + 2, i + 2, i + 2)
-                else:
-                    found = destination(text, start)
-                if found is not None:
-                    left, right, cursor = found
-                    end = link_end(text, cursor)
-                    if end is not None:
-                        spans[left] = (right, target_key(text[left:right], path))
-                        i = end
-                        continue
-        i += 1
-    for left, (right, value) in sorted(spans.items(), reverse=True):
-        text = text[:left] + value + text[right:]
-    return text
-
-
-def file_key(unit: dict, path: str) -> tuple:
-    """Split table structure before resolving any destination inside a cell."""
+def unit_lines(unit: dict) -> list[str]:
     text = unit["base_quote"]
-    if re.match(r"^(?: {4}| {0,3}\t)", text):
-        return match_key(unit)
-    if unit["kind"] == "table_row":
-        unit = dict(unit, base_quote="|".join(resolve_links(cell, path)
-                    for cell in table_cells(text, normalize_cells=False)))
-        return match_key(unit)
     if unit["kind"] != "fence":
-        unit = dict(unit, base_quote=resolve_links(unit["base_quote"], path))
-    return match_key(unit)
+        return text.split("\n")
+    return [line.removesuffix("\r") for line in text.removesuffix("\n").split("\n")]
+
+
+def indent(line: str) -> int:
+    return len(line) - len(line.lstrip(" "))
+
+
+def mask(text: str) -> str:
+    """Blank exact backtick spans so no link inside one is ever matched."""
+    return "".join("\0" * len(part) if literal else part
+                   for literal, part in inline_parts(text))
+
+
+def fence_plain(unit: dict) -> bool:
+    """A top-level fence that container-aware CommonMark parses the same way."""
+    lines = unit_lines(unit)
+    opener = FENCE.match(lines[0])
+    width, marker = indent(lines[0]), opener[1]
+    if marker[0] == "`" and "`" in opener[2]:
+        return False
+    if any(line.strip() and indent(line) < width for line in lines[1:]):
+        return False
+    closer = re.compile(re.escape(marker[0]) + "{" + str(len(marker)) + r",}[ \t]*")
+    return not any(closer.fullmatch(line.lstrip(" \t")) for line in lines[1:-1])
+
+
+def group_plain(group: list[dict]) -> bool:
+    """Adjacent units qualify only if no context can change what a link means."""
+    text = "\n".join(unit["base_quote"] for unit in group)
+    if TAG.search(text) or re.search(r"\||\t|\]:|\\`", text):
+        return False
+    breaks, offset = set(), 0
+    for unit in group:
+        lines = unit["base_quote"].split("\n")
+        if indent(lines[0]) > 3:
+            return False
+        if unit["kind"] == "list_item":
+            item = LIST.match(lines[0])
+            if len(item[0]) - item.end(2) > 4:
+                return False
+        for number, line in enumerate(lines):
+            rest = line.lstrip(" ")
+            if QUOTE.match(line):
+                return False
+            underline = unit["kind"] == "heading" and number == len(lines) - 1
+            if number and not underline and (ATX.match(rest) or RULE.fullmatch(rest)
+                                             or SETEXT.fullmatch(rest)):
+                return False
+        offset += len(unit["base_quote"])
+        breaks.add(offset)
+        offset += 1
+    offset = 0
+    for literal, part in inline_parts(text):
+        if literal and any(offset <= point < offset + len(part) for point in breaks):
+            return False
+        offset += len(part)
+    masked, closed = mask(text), set()
+    for link in LINK.finditer(masked):
+        word = re.split(r"\s", masked[:link.start()])[-1] + link[1]
+        if (masked[link.start() - 1:link.start()] in {"\\", "]"}
+                or re.search(r"(?i)www\.|://", word)):
+            continue
+        closed.add(link.end(1))
+    return all(found.start() in closed for found in re.finditer(r"\]\(", masked))
+
+
+def link_units(units: list[dict]) -> set[int]:
+    """Indexes of units in plain groups; none when any fence could parse differently."""
+    groups, tainted, html_end = [], set(), None
+    for index, unit in enumerate(units):
+        adjacent = index > 0 and units[index - 1]["end_line"] + 1 == unit["base_line"]
+        joined = adjacent and units[index - 1]["kind"] != "fence"
+        if unit["kind"] == "fence":
+            if not fence_plain(unit):
+                return set()
+            if joined and any(TAG.search(units[i]["base_quote"]) for i in groups[-1]):
+                return set()
+            continue
+        if not joined:
+            groups.append([])
+        groups[-1].append(index)
+        for line in unit_lines(unit):
+            content = CONTAINER.sub("", line, count=1)
+            if content.startswith(("```", "~~~")):
+                return set()
+            if html_end is not None:
+                tainted.add(index)
+                if html_end in line.lower():
+                    html_end = None
+                continue
+            opened = HTML_BLOCK.match(content.lower())
+            if opened:
+                tainted.add(index)
+                kind = opened.lastindex
+                end = HTML_END[kind - 1] if kind < 5 else "</" + opened[5] + ">"
+                if end not in content.lower()[opened.end():]:
+                    html_end = end
+    return {index for group in groups
+            if not tainted.intersection(group) and group_plain([units[i] for i in group])
+            for index in group}
+
+
+def rebase(target: str, path: str):
+    """Repository path of a plain relative target, or None when not unambiguous."""
+    if not target or target[0] in "?#" or re.search(r"[&%]", target):
+        return None
+    cut = re.search(r"[?#]|$", target).start()
+    segments = target[:cut].split("/")
+    if segments[-1] in {".", ".."}:
+        return None
+    parts = path.split("/")[:-1]
+    for segment in segments:
+        if segment == "..":
+            if not parts:
+                return None
+            parts.pop()
+        elif segment != ".":
+            parts.append(segment)
+    value = json.dumps(["relative", "/".join(parts), target[cut:]])
+    return "\0" + value.encode("ascii").hex() + "\0"
+
+
+def link_key(unit: dict, path: str):
+    """match_key with plain relative targets rebased, or None if any is ambiguous."""
+    text, pieces, last = unit["base_quote"], [], 0
+    for link in LINK.finditer(mask(text)):
+        target = link[2]
+        if target.startswith("/") or SCHEME.match(target):
+            continue
+        value = rebase(target, path)
+        if value is None:
+            return None
+        pieces += [text[last:link.start(2)], value]
+        last = link.end(2)
+    if not pieces:
+        return None
+    return match_key(dict(unit, base_quote="".join(pieces) + text[last:]))
+
+
+def link_keys(units: list[dict], path: str) -> list:
+    scope = link_units(units)
+    return [link_key(unit, path) if index in scope else None
+            for index, unit in enumerate(units)]
 
 
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
@@ -470,10 +412,7 @@ def read_blob(root: Path, revision: str, path: str) -> str:
 
 def inventory(root: Path, revision: str, path: str):
     try:
-        units, excluded = clauses(read_blob(root, revision, path))
-        for unit in units:
-            file_key(unit, path)  # Validate even --extract and DROPPED units.
-        return units, excluded
+        return clauses(read_blob(root, revision, path))
     except INPUT_ERRORS as exc:
         raise ValueError(f"inventory {revision}:{path}: {exc}") from exc
 
@@ -547,7 +486,7 @@ def is_ledger(root: Path, destination: str, ledger: Path) -> bool:
 
 
 def check(root, base, head, path, expected, rows, ledger):
-    findings, seen, destinations = [], set(), {}
+    findings, seen, destinations, unmatched = [], set(), {}, []
     by_line = {unit["base_line"]: unit for unit in expected}
     for row in rows:
         line = row["base_line"]
@@ -569,14 +508,28 @@ def check(root, base, head, path, expected, rows, ledger):
             raise ValueError(f"HEAD {head}:{destination}: ledger cannot supply evidence")
         if destination not in destinations:
             units, _ = inventory(root, head, destination)
-            destinations[destination] = Counter(file_key(unit, destination) for unit in units)
-        quote = file_key(by_line[line], path)
-        available = destinations[destination]
-        if available[quote] < 1:
+            exact = {}
+            for index, unit in enumerate(units):
+                exact.setdefault(match_key(unit), []).append(index)
+            destinations[destination] = exact, link_keys(units, destination), set()
+        exact, _, used = destinations[destination]
+        available = exact.get(match_key(by_line[line]), [])
+        if available:
+            used.add(available.pop(0))
+        else:
+            unmatched.append((len(findings), line, destination))
             findings.append(f"{label}: {row['state']} whole clause occurrence missing "
                             f"at HEAD {head}:{destination}")
-        else:
-            available[quote] -= 1
+    if unmatched:
+        own = dict(zip(by_line, link_keys(expected, path)))
+        for position, line, destination in unmatched:
+            _, links, used = destinations[destination]
+            match = next((index for index, key in enumerate(links) if key is not None
+                          and key == own[line] and index not in used), None)
+            if match is not None:
+                used.add(match)
+                findings[position] = None
+    findings = [finding for finding in findings if finding is not None]
     for line in sorted(by_line.keys() - seen):
         findings.append(f"BASE {base}:{path}:{line}: missing ledger row")
     return findings
