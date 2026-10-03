@@ -35296,8 +35296,10 @@ class AIQTRoundTwoTests(unittest.TestCase):
                 for header in bad:
                     with self.subTest(header=header):
                         rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
-                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                        err = io.StringIO()
+                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
                             self.assertEqual(mod.run(), 2)
+                        self.assertIn('.claude/rules/rule.md', err.getvalue())
                 for header in ('paths: ["**/*.py"]', 'paths:\n  - "**/*.py"',
                                "paths:\n  - 'src/**/*.py'", 'paths:\n  - src/file.py'):
                     rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
