@@ -32291,6 +32291,155 @@ class ClausePreservationTests(unittest.TestCase):
         self.check(1, "whole clause occurrence missing", tool=self.mutant(
             "category, level, normalize(body)", "category, level, normalize(text)"))
 
+    def test_rebased_targets_and_discriminating_flips(self):
+        forms = (
+            "[hook]({})", "![hook]({})", '[hook](<{}> "title")',
+            "[hook with \x60code\x60 and [brackets]]({} 'title')",
+            "[hook]: {}", "[hook\nlabel]: {}", '[hook]:\n  <{}> "title"',
+            "- [hook]({})", "# [hook]({})", "| rule | [hook]({}) |",
+        )
+        for form in forms:
+            with self.subTest(form=form):
+                self.new_base(form.format("hooks/x.py#run") + "\n", ".claude/CLAUDE.md")
+                for row in self.rows:
+                    row.update(state="MOVED", destination="references/worker-offload.md")
+                good = form.format("../.claude/hooks/x.py#run") + "\n"
+                self.write("references/worker-offload.md", good)
+                self.save()
+                self.check(0)
+                self.check(1, "whole clause occurrence missing", tool=self.mutant(
+                    'base_quote=resolve_links(unit["base_quote"], path)',
+                    'base_quote=unit["base_quote"]'))
+                for bad in ("../.claude/hooks/y.py#run", "../.claude/hooks/x.py#other",
+                            "../.claude/hooks/x.py?mode=new#run"):
+                    self.write("references/worker-offload.md", form.format(bad) + "\n")
+                    self.save()
+                    self.check(1, "MOVED whole clause occurrence missing")
+                    self.check(0, tool=self.mutant(
+                        'value = ("relative", "/".join(parts), suffix)',
+                        'value = ("relative",)'))
+
+    def test_external_targets_exact_and_flip(self):
+        for good, bad in (
+            ("https://example.invalid/a", "https://example.invalid/b"),
+            ("//example.invalid/a", "//example.invalid/b"),
+            ("mailto:a@example.invalid", "mailto:b@example.invalid"),
+            ("/a", "/b"), ("#run", "#other"),
+            ("https://example.invalid/a%20b", "https://example.invalid/a b"),
+        ):
+            with self.subTest(good=good):
+                self.new_base(f"[x](<{good}>)\n", ".claude/CLAUDE.md")
+                self.rows[0].update(state="MOVED", destination="references/moved.md")
+                self.write("references/moved.md", f"[x](<{good}>)\n")
+                self.save()
+                self.check(0)
+                self.write("references/moved.md", f"[x](<{bad}>)\n")
+                self.save()
+                self.check(1, "whole clause occurrence missing")
+                self.check(0, tool=self.mutant('value = ("external", raw)',
+                                             'value = ("external",)'))
+
+    def test_relative_paths_and_literals(self):
+        mod = self.load_tool("check-clause-preservation.py")
+
+        def key(text, path):
+            return tuple(mod.file_key(unit, path) for unit in mod.clauses(text)[0])
+
+        for before, after in (
+            ("[x](hooks/a(b).py)", "[x](../.claude/hooks/a(b).py)"),
+            (r"[x](hooks/a\(b\).py)", r"[x](../.claude/hooks/a\(b\).py)"),
+            ("[x](hooks/./old/../x.py)", "[x](../.claude/hooks/x.py)"),
+            ("[x](hooks/a%20b.py)", "[x](../.claude/hooks/a%20b.py)"),
+            ("[x](hooks/a&amp;b.py)", "[x](../.claude/hooks/a&b.py)"),
+            ("[x]()", "[x](../.claude/CLAUDE.md)"),
+            ('[x]( "title")', '[x](../.claude/CLAUDE.md "title")'),
+            ("[x](hooks/x.py&#63;view=raw&#35;run)",
+             "[x](../.claude/hooks/x.py&#63;view=raw&#35;run)"),
+            ("[x](?view=raw#run)", "[x](../.claude/CLAUDE.md?view=raw#run)"),
+            ("[x](hooks/x.py) ![y](hooks/y.png)",
+             "[x](../.claude/hooks/x.py) ![y](../.claude/hooks/y.png)"),
+            ("[ref]: hooks/x.py\n\nUse [x][ref].",
+             "[ref]: ../.claude/hooks/x.py\n\nUse [x][ref]."),
+        ):
+            with self.subTest(before=before):
+                self.assertEqual(key(before, ".claude/CLAUDE.md"),
+                                 key(after, "references/moved.md"))
+                self.assertNotEqual(key(before, ".claude/CLAUDE.md"),
+                                    key(after.replace(".claude", "different"), "references/moved.md"))
+        for text in ("Use \x60[x](hooks/x.py)\x60.", r"\[x](hooks/x.py)",
+                     "\x60\x60\x60\n[x](hooks/x.py)\n\x60\x60\x60\n"):
+            self.assertEqual(key(text, ".claude/CLAUDE.md"), key(text, "references/moved.md"))
+            self.assertNotEqual(key(text, ".claude/CLAUDE.md"),
+                                key(text.replace("x.py", "y.py"), "references/moved.md"))
+        for changed in ("[x](hooks/x.py)", "[x](hooks/x.py&quest;other)",
+                        "[x](hooks/x.py?run)"):
+            self.assertNotEqual(key("[x](hooks/x.py&quest;run)", ".claude/CLAUDE.md"),
+                                key(changed, ".claude/CLAUDE.md"))
+        self.assertEqual(key("[x](hooks/x.py&quest;run)", ".claude/CLAUDE.md"),
+                         key("[x](../.claude/hooks/x.py&quest;run)", "references/moved.md"))
+        self.assertNotEqual(key("[x](hooks/x.py)", ".claude/CLAUDE.md"),
+                            key("[x](/.claude/hooks/x.py)", "references/moved.md"))
+        self.assertEqual(key("[x](hooks/x.py)", ".claude/CLAUDE.md"),
+                         key("[x](../.claude/hooks/x.py)", "references/moved.md"))
+
+    def test_titles_and_labels_remain_literal(self):
+        for form in ('[x]({} "[literal](hooks/y.py)")',
+                     '[x]: {} "[literal](hooks/y.py)"',
+                     '[x]: {}\n  "[literal](hooks/y.py)"',
+                     '[literal](hooks/y.py) [x]({})'):
+            self.new_base(form.format("hooks/x.py") + "\n", ".claude/CLAUDE.md")
+            for row in self.rows:
+                row.update(state="MOVED", destination="references/moved.md")
+            good = form.format("../.claude/hooks/x.py")
+            if form.startswith("[literal]"):
+                good = good.replace("hooks/y.py", "../.claude/hooks/y.py")
+            self.write("references/moved.md", good + "\n")
+            self.save()
+            self.check(0)
+            self.write("references/moved.md", good.replace("hooks/y.py", "hooks/z.py") + "\n")
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+            self.write("references/moved.md", good + "\n")
+            self.save()
+            self.check(0)
+
+    def test_link_occurrences_remain_consumed(self):
+        self.new_base("- [x](hooks/x.py)\n- [x](./hooks/x.py)\n", ".claude/CLAUDE.md")
+        for row in self.rows:
+            row.update(state="MOVED", destination="references/moved.md")
+        self.write("references/moved.md", "- [x](../.claude/hooks/x.py)\n" * 2)
+        self.save()
+        self.check(0)
+        self.write("references/moved.md", "- [x](../.claude/hooks/x.py)\n")
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+        self.check(0, tool=self.mutant("available[quote] -= 1", "available[quote] -= 0"))
+
+    def test_outside_repository_is_input_error(self):
+        self.new_base("[x](hooks/x.py)\n", ".claude/CLAUDE.md")
+        self.rows[0].update(state="MOVED", destination="references/moved.md")
+        self.write("references/moved.md", "[x](../.claude/hooks/x.py)\n")
+        self.save()
+        self.check(0)
+        for target in ("../../outside", "%2e%2e/%2e%2e/outside"):
+            self.write("references/moved.md",
+                       "[x](../.claude/hooks/x.py)\n\n[unused]: " + target + "\n")
+            self.save()
+            self.check(2, "outside repository")
+        self.write(self.path, "[x](../../outside)\n")
+        self.save()
+        result = self.invoke("--base", "HEAD", "--extract")
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("outside repository", result.stderr)
+        self.base = self.git("rev-parse", "HEAD").stdout.strip()
+        self.ledger["base_revision"] = self.base
+        self.rows[0].update(base_quote="[x](../../outside)", state="DROPPED",
+                            destination="", reason="Approved removal.")
+        self.check(2, "outside repository")
+        self.new_base("[x](hooks/x.py)\n", self.path)
+        self.rows[0].update(state="DROPPED", destination="", reason="Approved removal.")
+        self.check(0)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -20,13 +20,26 @@ wrapped CR/LF breaks within a unit are normalized. Destination units are
 consumed once per file. Ledger quotes and spans must match BASE exactly.
 Ledger files cannot supply evidence; only committed tracked files can.
 
+Before structural comparison, inline Markdown link/image destinations and
+reference-definition destinations are resolved lexically against each unit's
+own repository file directory. Relative paths normalize dot segments,
+Markdown punctuation escapes, HTML entities and UTF-8 percent escapes; query
+and fragment spelling stays exact. Empty destinations refer to the source
+file. Schemed URLs, network-path URLs, absolute paths and anchor-only targets
+stay byte-exact. A relative target escaping the repository is an input error,
+even in a dropped base unit or an unused unit of a named destination file.
+No filesystem/symlink resolution, existence checks or network access occurs.
+Link labels, titles and delimiters retain the existing normalization rules.
+Fences and inline code remain literal; link-like text inside them is untouched.
+
 Disclosed residual: this lexical partition is not a CommonMark renderer or
 semantic proof. HTML comments/blocks, indented code, and blockquote/list
 container context are not modeled. Wrapping a paragraph in a multiline HTML
 comment, or indenting it as code, can still satisfy KEPT. List indentation
 is lexical, not relative to a parsed parent. Equal-depth re-parenting,
 section moves and ordering are unchecked. Escaped backticks, HTML/CSS hiding,
-link/reference interpretation and other renderer-specific effects require
+reference-use binding, duplicate definitions, HTML links and other
+renderer-specific effects require
 manual diff review. Top-level fences accept at most three leading spaces;
 nested container fences are outside this model. Review each hunk for these
 rendering and scope changes even when the ledger passes.
@@ -39,12 +52,14 @@ from __future__ import annotations
 
 import argparse
 from collections import Counter
+import html
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
 import sys
+from urllib.parse import unquote
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
@@ -122,6 +137,211 @@ def match_key(unit: dict) -> tuple:
     if category == "table_row":
         return category, table_cells(text)
     return category, normalize(text)
+
+
+PUNCT_ESCAPE = re.compile(r"\\([!\"#$%&'()*+,\-./:;<=>?@\[\\\]^_\x60{|}~])")
+ENTITY = re.compile(r"&(?:#[xX][0-9A-Fa-f]+;?|#[0-9]+;?|[A-Za-z][A-Za-z0-9]*;?)")
+
+
+def decoded_target(raw: str):
+    """Decode Markdown spelling while mapping delimiters back to raw offsets."""
+    text, offsets = raw, list(range(len(raw)))
+    for pattern, decode in ((PUNCT_ESCAPE, lambda m: m[1]),
+                            (ENTITY, lambda m: html.unescape(m[0]))):
+        pieces, mapped, end = [], [], 0
+        for match in pattern.finditer(text):
+            pieces.append(text[end:match.start()])
+            mapped.extend(offsets[end:match.start()])
+            value = decode(match)
+            pieces.append(value)
+            mapped.extend([offsets[match.start()]] * len(value))
+            end = match.end()
+        pieces.append(text[end:])
+        mapped.extend(offsets[end:])
+        text, offsets = "".join(pieces), mapped
+    return text, offsets
+
+
+SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+DEFINITION = re.compile(
+    r"(?m)^[ \t]*(?:>[ \t]*)*(?:(?:[-+*]|[0-9]{1,9}[.)])[ \t]+)?"
+    r"\[(?:\\[^\n]|[^\[\]\\])+\]:[ \t]*(?:\n[ \t]*)?")
+
+
+def target_key(raw: str, path: str) -> str:
+    """Use NUL-delimited typed tokens, impossible in validated input text."""
+    decoded, offsets = decoded_target(raw)
+    if decoded.startswith(("/", "#")) or SCHEME.match(decoded):
+        value = ("external", raw)
+    else:
+        delimiter = re.search(r"[?#]", decoded)
+        split = delimiter.start() if delimiter else len(decoded)
+        plain = decoded[:split]
+        suffix = raw[offsets[split]:] if delimiter else ""
+        plain = unquote(plain, encoding="utf-8", errors="strict")
+        if "\0" in plain or "\\" in plain or plain.startswith("/"):
+            raise ValueError(f"{path}: invalid relative Markdown target {raw!r}")
+        parts = path.split("/")[:-1] if plain else path.split("/")
+        for part in plain.split("/"):
+            if part in {"", "."}:
+                continue
+            if part == "..":
+                if not parts:
+                    raise ValueError(f"{path}: Markdown target outside repository: {raw!r}")
+                parts.pop()
+            else:
+                parts.append(part)
+        value = ("relative", "/".join(parts), suffix)
+    return "\0" + json.dumps(value, ensure_ascii=True).encode("utf-8").hex() + "\0"
+
+
+def destination(text: str, start: int):
+    """Return target span and next position; support angles and balanced parens."""
+    if start < len(text) and text[start] == "<":
+        i = start + 1
+        while i < len(text):
+            if text[i] == "\\" and i + 1 < len(text):
+                i += 2
+                continue
+            if text[i] == ">":
+                return start + 1, i, i + 1
+            if text[i] in "<\r\n":
+                return None
+            i += 1
+        return None
+    i, depth = start, 0
+    while i < len(text):
+        char = text[i]
+        if char == "\\" and i + 1 < len(text):
+            i += 2
+            continue
+        if char in " \t\r\n":
+            break
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            if not depth:
+                break
+            depth -= 1
+        elif char in "<>" or ord(char) < 32:
+            return None
+        i += 1
+    return None if depth else (start, i, i)
+
+
+def title_end(text: str, start: int):
+    if start == len(text) or text[start] not in "\"'(":
+        return None
+    closing = ")" if text[start] == "(" else text[start]
+    i = start + 1
+    while i < len(text):
+        if text[i] == "\\" and i + 1 < len(text):
+            i += 2
+            continue
+        if text[i] == closing:
+            return i + 1
+        i += 1
+    return None
+
+
+def link_end(text: str, cursor: int):
+    """Accept closing ')' or whitespace followed by an optional Markdown title."""
+    i = cursor
+    while i < len(text) and text[i] in " \t\r\n":
+        i += 1
+    if i < len(text) and text[i] == ")":
+        return i + 1
+    if i == cursor:
+        return None
+    i = title_end(text, i)
+    if i is None:
+        return None
+    while i < len(text) and text[i] in " \t\r\n":
+        i += 1
+    return i + 1 if i < len(text) and text[i] == ")" else None
+
+
+def definition_end(text: str, cursor: int):
+    """Find a definition's end, excluding link-like text in its optional title."""
+    i = cursor
+    while i < len(text) and text[i] in " \t":
+        i += 1
+    line_end = i
+    if i < len(text) and text[i] in "\r\n":
+        if text[i:i + 2] == "\r\n":
+            i += 2
+        else:
+            i += 1
+        while i < len(text) and text[i] in " \t":
+            i += 1
+    end = title_end(text, i) if i > cursor else None
+    if end is not None:
+        while end < len(text) and text[end] in " \t":
+            end += 1
+        if end == len(text) or text[end] in "\r\n":
+            return end
+    if line_end == len(text) or text[line_end] in "\r\n":
+        return line_end
+    return None
+
+
+def resolve_links(text: str, path: str) -> str:
+    """Rewrite destination spans only; leave labels, titles and code untouched."""
+    masked = "".join(" " * len(part) if literal else part
+                     for literal, part in inline_parts(text))
+    spans, definitions = {}, {}
+    stop = 0
+    for match in DEFINITION.finditer(masked):
+        if match.start() < stop:
+            continue
+        found = destination(text, match.end())
+        if found is not None:
+            left, right, cursor = found
+            end = definition_end(text, cursor)
+            if end is not None and (right > left or text[match.end():cursor] == "<>"):
+                spans[left] = (right, target_key(text[left:right], path))
+                definitions[match.start()] = stop = end
+    stack = []
+    i = 0
+    while i < len(masked):
+        if i in definitions:
+            i = definitions[i]
+            continue
+        if i in spans:
+            i = spans[i][0]
+            continue
+        if masked[i] == "\\":
+            i += 2
+            continue
+        if masked[i] == "[":
+            stack.append(i)
+        elif masked[i] == "]" and stack:
+            stack.pop()
+            if masked[i + 1:i + 2] == "(":
+                start = i + 2
+                while start < len(text) and text[start] in " \t\r\n":
+                    start += 1
+                if start > i + 2 and text[start:start + 1] in {"'", '"'}:
+                    found = (i + 2, i + 2, i + 2)
+                else:
+                    found = destination(text, start)
+                if found is not None:
+                    left, right, cursor = found
+                    end = link_end(text, cursor)
+                    if end is not None:
+                        spans[left] = (right, target_key(text[left:right], path))
+                        i = end
+                        continue
+        i += 1
+    for left, (right, value) in sorted(spans.items(), reverse=True):
+        text = text[:left] + value + text[right:]
+    return text
+
+
+def file_key(unit: dict, path: str) -> tuple:
+    if unit["kind"] != "fence":
+        unit = dict(unit, base_quote=resolve_links(unit["base_quote"], path))
+    return match_key(unit)
 
 
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
@@ -225,7 +445,10 @@ def read_blob(root: Path, revision: str, path: str) -> str:
 
 def inventory(root: Path, revision: str, path: str):
     try:
-        return clauses(read_blob(root, revision, path))
+        units, excluded = clauses(read_blob(root, revision, path))
+        for unit in units:
+            file_key(unit, path)  # Validate even --extract and DROPPED units.
+        return units, excluded
     except INPUT_ERRORS as exc:
         raise ValueError(f"inventory {revision}:{path}: {exc}") from exc
 
@@ -321,8 +544,8 @@ def check(root, base, head, path, expected, rows, ledger):
             raise ValueError(f"HEAD {head}:{destination}: ledger cannot supply evidence")
         if destination not in destinations:
             units, _ = inventory(root, head, destination)
-            destinations[destination] = Counter(match_key(unit) for unit in units)
-        quote = match_key(by_line[line])
+            destinations[destination] = Counter(file_key(unit, destination) for unit in units)
+        quote = file_key(by_line[line], path)
         available = destinations[destination]
         if available[quote] < 1:
             findings.append(f"{label}: {row['state']} whole clause occurrence missing "
