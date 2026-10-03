@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.21\
-**Date:** 2026-09-30\
+**Version:** 1.0.22\
+**Date:** 2026-10-03\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -154,7 +154,7 @@ OSFI B-13 applies to all federally regulated financial institutions in Canada. K
 | **CISO appointment** | Qualified CISO; annual report to Board | Role definition in security domain |
 | **Penetration testing** | Annual penetration test; vulnerability scans and manual reviews at a frequency determined by the risk assessment and promptly after any material system change (23 NYCRR 500.5(a)) | [`resilience/procedure-continuity-and-recovery-testing.md`](../../resilience/procedure-continuity-and-recovery-testing.md): supplement with pen test programme |
 | **Multi-factor authentication** | MFA required for any individual accessing any information system, regardless of location, user type, or type of electronic information, effective 1 November 2025 (500.12; limited-exemption carve-out under 500.19(a)) | [`security/procedure-identity-management.md`](../../security/procedure-identity-management.md) |
-| **Annual filings and reviews** | Annual Cybersecurity Compliance filing by April 15 (500.17(b)); written cybersecurity policy review and approval by April 29 (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing and review deadlines |
+| **Annual filings and approvals** | Annual electronic submission to the superintendent by April 15 of a written certification of material compliance or acknowledgment of noncompliance for the prior calendar year (500.17(b)); written cybersecurity policy or policies approved at least annually by a senior officer or the covered entity's senior governing body (500.3) | [`security/policy-information-security.md`](../../security/policy-information-security.md): calendar the NYDFS annual filing deadline and recurring policy approvals |
 | **Encryption** | Encryption of non-public information in transit and at rest | [`security/framework-cryptographic-key-lifecycle.md`](../../security/framework-cryptographic-key-lifecycle.md) |
 | **Incident notification** | Notice to NYDFS as promptly as possible and no later than 72 hours after determining that a Cybersecurity Incident occurred (a reportable trigger under 23 NYCRR Part 500, narrower than a Cybersecurity Event) | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with NYDFS notification runbook |
 | **Cybersecurity policy** | Documented policy covering all 15 required areas | [`security/policy-information-security.md`](../../security/policy-information-security.md): verify coverage of all 15 areas |
