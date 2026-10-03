@@ -32,21 +32,24 @@ inside a multi-line HTML block. Each unit's first line is indented at most
 three spaces, list content at most four spaces after its marker, and no later
 line starts a heading, thematic break or setext underline. No backtick span
 crosses a unit boundary. Every ]( outside code spans closes a plain
-[label](target) link or image: the label has no [, ], backtick or backslash;
-no backslash or ] precedes it; no www. or :// occurs in the label or earlier
-in the same word; the target has no whitespace, parentheses, <, > or
-backslash. Every fence line in the file must be a top-level fence that
-container-aware CommonMark parses the same way: no container marker before it,
-no indentation of four or more spaces, no backtick in a backtick fence's info
-string, no fence line outdented from its opener, no deeper potential closer
-inside the fence, and no tag-like < in the lines directly above an opener.
-Schemed and /-rooted targets stay exact inside a link key. A unit has no link
-key if any other target contains & or %, is empty, query-only or anchor-only,
-ends in a . or .. segment, or leaves the repository. Remaining targets resolve
-lexically against the unit's own file directory: only dot segments are
-removed; empty segments, trailing slashes, queries and fragments stay exact.
-Reference definitions and reference-style links are never resolved. No
-filesystem/symlink resolution, existence check or network access occurs.
+[label](target) link or image: the label has no [, ] or backslash, and has a
+backtick only when it is exactly one complete code span (an opening backtick
+run, content with no run of that length, and a closing run of that length, with
+nothing outside the span); no backslash or ] precedes it; no www. or :// occurs
+in the label or earlier in the same word; the target has no whitespace,
+parentheses, <, > or backslash. Every fence line in the file must be a
+top-level fence that container-aware CommonMark parses the same way: no
+container marker before it, no indentation of four or more spaces, no backtick
+in a backtick fence's info string, no fence line outdented from its opener, no
+deeper potential closer inside the fence, and no tag-like < in the lines
+directly above an opener. Schemed and /-rooted targets stay exact inside a link
+key. A unit has no link key if any other target contains & or %, is empty,
+query-only or anchor-only, ends in a . or .. segment, or leaves the repository.
+Remaining targets resolve lexically against the unit's own file directory: only
+dot segments are removed; empty segments, trailing slashes, queries and
+fragments stay exact. Reference definitions and reference-style links are never
+resolved. No filesystem/symlink resolution, existence check or network access
+occurs.
 
 Disclosed residual: this lexical partition is not a CommonMark renderer or
 semantic proof. HTML comments/blocks, indented code, and blockquote/list
@@ -153,7 +156,7 @@ def match_key(unit: dict) -> tuple:
     return category, normalize(text)
 
 
-LINK = re.compile(r"\[([^\[\]\\`\0\n]*)\]\(([^\s()<>\\\0]*)\)")
+LINK = re.compile(r"\[([^\[\]\\\n]*)\]\(([^\s()<>\\\0]*)\)")
 SCHEME = re.compile(r"[A-Za-z][A-Za-z0-9+.-]*:")
 TAG = re.compile(r"<[A-Za-z/!?]")
 QUOTE = re.compile(r" *(?:(?:[-+*]|[0-9]{1,9}[.)]) +)*>")
@@ -177,6 +180,23 @@ def mask(text: str) -> str:
     """Blank exact backtick spans so no link inside one is ever matched."""
     return "".join("\0" * len(part) if literal else part
                    for literal, part in inline_parts(text))
+
+
+def label_plain(label: str) -> bool:
+    """No backtick, or exactly one complete code span with no [, ] or backslash."""
+    runs = [run.span() for run in re.finditer(r"`+", label)]
+    if not runs:
+        return True
+    if len(runs) < 2 or runs[0][0] or runs[-1][1] != len(label):
+        return False
+    width = runs[0][1] - runs[0][0]
+    if runs[-1][1] - runs[-1][0] != width:
+        return False
+    if any(end - start == width for start, end in runs[1:-1]):
+        return False
+    if "[" in label or "]" in label:
+        return False
+    return "\\" not in label
 
 
 def fence_plain(unit: dict) -> bool:
@@ -226,6 +246,7 @@ def group_plain(group: list[dict]) -> bool:
     for link in LINK.finditer(masked):
         word = re.split(r"\s", masked[:link.start()])[-1] + link[1]
         if (masked[link.start() - 1:link.start()] in {"\\", "]"}
+                or not label_plain(text[link.start(1):link.end(1)])
                 or re.search(r"(?i)www\.|://", word)):
             continue
         closed.add(link.end(1))

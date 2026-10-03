@@ -32379,6 +32379,37 @@ class ClausePreservationTests(unittest.TestCase):
         result = self.invoke("--extract")
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    # 3b196 r3: a label that is exactly one complete code span, as in
+    # [`tools/x.py`](../tools/x.py), gets a link key like a plain label.
+    CODE_LABELS = (
+        ("[`x`](hooks/x.py)", "[`x`](../.claude/hooks/x.py)"),
+        ("![`x`](hooks/x.png)", "![`x`](../.claude/hooks/x.png)"),
+        ("[``a`b``](hooks/x.py#run)", "[``a`b``](../.claude/hooks/x.py#run)"),
+        ("[` x y `](hooks/x.py)", "[` x y `](../.claude/hooks/x.py)"),
+        ("Read [`check`](references/governance/check.md) `## Guard inputs` first.",
+         "Read [`check`](../.claude/references/governance/check.md) `## Guard inputs` first."),
+        ("- Wired: [`a.py`](hooks/a.py), [`b.py`](../tools/b.py), [c](../references/c.md).",
+         "- Wired: [`a.py`](../.claude/hooks/a.py), [`b.py`](../tools/b.py), "
+         "[c](c.md)."),
+    )
+
+    def test_code_label_links_accepted(self):
+        for before, after in self.CODE_LABELS:
+            with self.subTest(before=before):
+                self.accepted(before, after)
+
+    def test_code_label_target_discriminates(self):
+        for after in ("[`x`](../.claude/hooks/y.py#run)", "[`x`](../different/hooks/x.py#run)",
+                      "[`x`](../.claude/hooks/x.py#other)", "[`x`](../.claude/hooks/x.py?q#run)",
+                      "[`x`](../.claude/hooks/x.py)"):
+            with self.subTest(after=after):
+                self.rejected("[`x`](hooks/x.py#run)", after)
+
+    def test_code_label_text_discriminates(self):
+        for after in ("[`y`](../.claude/hooks/x.py#run)", "[`X`](../.claude/hooks/x.py#run)"):
+            with self.subTest(after=after):
+                self.rejected("[`x`](hooks/x.py#run)", after)
+
     # Each guard's fixtures are rejected when re-based, yet an identical copy still
     # matches: the guarded form is compared exactly. Each fixture is a false pass
     # with its guard removed.
@@ -32415,8 +32446,7 @@ class ClausePreservationTests(unittest.TestCase):
                       "https://example.invalid/[x](../.claude/hooks/x.py)")),
         "label_brackets": (("[r][y](hooks/a)\n\n[y]: https://example.invalid/y",
                             "[r][y](../.claude/hooks/a)\n\n[y]: https://example.invalid/y"),),
-        "label_backtick": (("[`x`](hooks/x.py)", "[`x`](../.claude/hooks/x.py)"),
-                           ("[a`b](hooks/x.py)", "[a`b](../.claude/hooks/x.py)")),
+        "label_backtick": (("[a`b](hooks/x.py)", "[a`b](../.claude/hooks/x.py)"),),
         "label_backslash": (("[a\\](hooks/x.py)", "[a\\](../.claude/hooks/x.py)"),),
         "target_space": (("[x](hooks/x.py extra)", "[x](../.claude/hooks/x.py extra)"),),
         "target_angle": (("[x](<1>)", "[x](../.claude/<1>)"),),
@@ -32440,6 +32470,18 @@ class ClausePreservationTests(unittest.TestCase):
                           "[x](../.claude/hooks/x.py)\n\n   ```\n   ```"),),
         "fence_after_tag": (("<div>\n```\n\n```\n\n[x](hooks/x.py)\n\n```\n```",
                              "<div>\n```\n\n```\n\n[x](../.claude/hooks/x.py)\n\n```\n```"),),
+        # A label with a backtick qualifies only as exactly one complete code span.
+        "code_extra_text": (("[`x` y](hooks/x.py)", "[`x` y](../.claude/hooks/x.py)"),
+                            ("[y `x`](hooks/x.py)", "[y `x`](../.claude/hooks/x.py)")),
+        "code_two_spans": (("[`x` `y`](hooks/x.py)", "[`x` `y`](../.claude/hooks/x.py)"),
+                           ("[``x`` ``y``](hooks/x.py)", "[``x`` ``y``](../.claude/hooks/x.py)")),
+        "code_unbalanced": (("[``x`](hooks/x.py)", "[``x`](../.claude/hooks/x.py)"),
+                            ("[`x``](hooks/x.py)", "[`x``](../.claude/hooks/x.py)")),
+        "code_inner_run": (("[`a`b`](hooks/x.py)", "[`a`b`](../.claude/hooks/x.py)"),
+                           ("[``a``b``](hooks/x.py)", "[``a``b``](../.claude/hooks/x.py)")),
+        "code_bracket": (("[`a]b`](hooks/x.py)", "[`a]b`](../.claude/hooks/x.py)"),
+                         ("[`a[b`](hooks/x.py)", "[`a[b`](../.claude/hooks/x.py)")),
+        "code_backslash": (("[`a\\b`](hooks/x.py)", "[`a\\b`](../.claude/hooks/x.py)"),),
     }
 
     def compared_exactly(self, name):
@@ -32540,6 +32582,24 @@ class ClausePreservationTests(unittest.TestCase):
 
     def test_raw_fence_after_tag(self):
         self.compared_exactly("fence_after_tag")
+
+    def test_raw_code_extra_text(self):
+        self.compared_exactly("code_extra_text")
+
+    def test_raw_code_two_spans(self):
+        self.compared_exactly("code_two_spans")
+
+    def test_raw_code_unbalanced(self):
+        self.compared_exactly("code_unbalanced")
+
+    def test_raw_code_inner_run(self):
+        self.compared_exactly("code_inner_run")
+
+    def test_raw_code_bracket(self):
+        self.compared_exactly("code_bracket")
+
+    def test_raw_code_backslash(self):
+        self.compared_exactly("code_backslash")
 
     # QA round 1 and round 2 fixtures (3b196): each was a false pass at eee551c4 or
     # 43169e9c; base 809dcece rejects every one, and so must this tool.
