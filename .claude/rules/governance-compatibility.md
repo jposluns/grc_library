@@ -16,15 +16,15 @@ AIQT change-tracking-ext does not remove GRC's per-PR changelog obligation.
 AIQT verifier-diversity does not reduce GRC's triple-family standard or authorize
 a new fallback. Gate failures have no local exception-register bypass.
 
-1. Gate failure: apply gate-discipline.md and its diagnose skill. Never weaken,
+1. Gate work/failure/suppression or exception proposal: apply gate-discipline.md and its diagnose skill. Never weaken,
    bypass, suppress, or regenerate in CI to manufacture a pass. Fix or descope.
-2. Change/PR/close-out: apply change-tracking.md and the PR-lifecycle playbook.
+2. Change/PR/backlog/merge/close-out: apply change-tracking.md and the PR-lifecycle playbook.
    Every PR has its appropriate terse/substantive entry; retain detailed records,
    linked touched files, verification and phase context, plain-language public
    summaries, coupled archive/roll-up, DONE by permanent original ID, forward-only
    TODO, next-N from the private Up-next queue, and the overnight Status lifecycle.
    Preserve coupled Version/Date bumps and monotonic version history.
-3. Completion/state/reference claim: apply evidence-grounded-completion.md.
+3. Claim/reference/link, external wait, or turn-end guard work: apply evidence-grounded-completion.md.
    Enumerate, read, quote, contradict, distinguish mechanical from semantic
    coverage, and disclose gaps. Use the authoritative index for inventories and
    current upstream authority for currency claims. Attempt acquisition of a
@@ -32,24 +32,27 @@ a new fallback. Gate failures have no local exception-register bypass.
    claims require durable tracking. Verify an external link's destination and
    supporting content before including it. Prefer event subscriptions; required
    polling is authenticated, bounded and fail-loud, preserving error bodies.
-4. Ambiguity: apply clarify-before-acting.md. Retrieve findable facts before
+4. Nontrivial work (even unambiguous), questions, ambiguity, or unexpected state:
+   apply clarify-before-acting.md before implementation. Where plan mode exists,
+   enter it, resolve questions, submit an implementable plan and await approval.
+   Retrieve findable facts before
    asking; use documented reversible defaults. Surface material authorial choices
    and scope expansion before acting, with self-contained options, recommendation
    and consequences; honor standing authorization and the project's plan workflow.
 5. Generation/branch/version work: apply artefact-and-branch-discipline.md.
    Edit source, regenerate locally, commit both, check drift in CI. Preserve
    version bumps through conflicts and use the documented protected-branch flow.
-6. Inaction explanation: apply action-before-explanation-of-inaction.md.
+6. Action safety/authorization, status read/wait/poll/retry, or inaction explanation: apply action-before-explanation-of-inaction.md.
    Attempt an authorized safe/reversible action before saying it cannot proceed;
    for destructive actions name the unattempted action and obtain required
    authorization. Decision ambiguity is resolved first. Quote actual failures.
-7. Inference/guard/mutation/retry work: apply validate-inference-before-action.md.
+7. Inference/guard/mutation/retry work or worker tool use: apply validate-inference-before-action.md.
    Keep observation separate from decisions; maintain reality fixtures and mutate
    the observer as well as the predicate. Calibrate mutation runs with positive
    and negative controls, prove baseline behavior, and mark non-semantic mutations
    INVALID. After two same-class failures, write the error, mechanism, fix and
    byte-level difference before another attempt. Use absolute execution targets.
-8. Worker/QA/PR work: apply ai-assistant-workflow-disciplines.md.
+8. Worker/QA/PR/apply/publication work or a request to ask a set of questions: apply ai-assistant-workflow-disciplines.md.
    Workers research; the orchestrator verifies every surviving claim at apply time
    and authors the result. Log corrections and update/version the worker brief.
    Verify disjoint partitions and reserve shared surfaces; research in parallel,
@@ -66,18 +69,18 @@ a new fallback. Gate failures have no local exception-register bypass.
    history. Verify/dedupe findings and route every confirmed finding by severity.
    Hold for explicit combined-set sign-off, including a zero-finding result,
    before remediation, lessons or other substantive work.
-10. Priority checkpoints: apply project-integrity.md. Emit the AIQT checkpoint at
+10. Task/plan start, persistence, completion or tradeoff checkpoint: apply project-integrity.md. Emit the AIQT checkpoint at
     task/plan, persistence, completion and tradeoff boundaries, at least per PR,
     with a concrete self-acknowledgement. Never buy progress by reducing assurance.
 11. Counterproductive instruction: apply surface-counterproductive-instructions.md.
     Interpret charitably; surface material downside once with concrete options.
     Respect an informed authorized override and avoid repeated or trivial asks.
-12. Sensitive change: apply high-assurance-verification.md and /high-assurance
+12. Change assessment or sensitive work: apply high-assurance-verification.md and /high-assurance
     when correctness is gate-blind, scale delicate and escaped-error cost high,
     or when directed. Preserve research, negative-signal screening, independent
     adversarial lenses, invariant checks, scripted dry-run/idempotent apply and
     re-parse, guard-first sequencing, and the persistent resume-visible register.
-13. Resume/mode/close: apply session-lifecycle.md with the supersessions above.
+13. Resume/mode/unit/merge/close, decision timeout, lease or stalled-QA work: apply session-lifecycle.md with the supersessions above.
     Reconcile the bounded handoff, acquire/refresh/release the lease, honor
     decision-timeout reversibility, and obtain delivered/dispositioned QA before
     closing. Reissue stalled read-only QA, consume late results as cross-checks,
@@ -86,7 +89,7 @@ a new fallback. Gate failures have no local exception-register bypass.
 14. Plan-bending decision: apply decision-classification-before-enacting.md.
     Write ACT/ASK/BLOCKED before enactment; use only the closed blocker vocabulary
     retained below, ask reachable authorities, and prove whole-set exhaustion.
-15. Plan initiation: apply express-authorization-before-execution.md. A conditional
+15. Plan/run initiation or interpretation of authorization before execution: apply express-authorization-before-execution.md. A conditional
     go covers only the presently authorized step; await the required confirmation
     before the gated step. An adjacent or unnamed endorsement does not widen scope.
 

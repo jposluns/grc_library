@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.72.0\
-**Date:** 2026-10-02\
+**Version:** 1.72.1\
+**Date:** 2026-10-03\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -12,7 +12,7 @@
 **Category:** Developer Security\
 **Review Frequency:** Monthly, and upon material threat, tooling, or framework change\
 **Confidentiality:** Public\
-**GRC-original license:** CC BY-SA 4.0
+**GRC-original license:** CC BY-SA 4.0\
 **Pinned AIQT snapshot license:** Apache-2.0
 
 ---

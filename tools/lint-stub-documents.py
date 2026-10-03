@@ -55,7 +55,14 @@ EXEMPT_FILES = {
 
 
 
+# Upstream owns these pinned bytes; gate 37 verifies their exact inventory and
+# fidelity. Short upstream rules are not unfinished project-authored documents.
+EXEMPT_PATHS = {"guardrails/aiqt-rules": "Pinned upstream AIQT snapshot; no local authorship"}
+
+
 def is_target(path: Path) -> bool:
+    if any(path.resolve().is_relative_to(REPO_ROOT / rel) for rel in EXEMPT_PATHS):
+        return False
     if is_default_exempt_root(path, repo_root=REPO_ROOT):
         return False
     if path.suffix != ".md":

@@ -24949,7 +24949,7 @@ class PublicationManifestTest(unittest.TestCase):
         r = self.mod.evaluate(tree, entries)
         self.assertEqual(r, {"unclassified": [], "orphans": [], "bad_bucket": [],
                              "bad_entry": [], "bad_disclosure": [],
-                             "bad_combo": [], "empty_rationale": []})
+                             "bad_combo": [], "empty_rationale": [], "upstream_ownership": []})
 
     def test_unclassified_file_flagged(self):
         r = self.mod.evaluate({"a.md", "new.md"}, {"a.md": {"bucket": "CORE", "disclosure": "PUBLIC"}})
@@ -35226,3 +35226,109 @@ class AIQTCutoverTests(unittest.TestCase):
         self.assertFalse(p.exists())
         with self.assertRaises(FileNotFoundError):
             mod.apply_action(self.root, dict(type='delete_file', path='example.md'))
+
+
+class AIQTRoundTwoTests(unittest.TestCase):
+    """Boundary regressions, including real entry points and negative controls."""
+
+    load = staticmethod(AIQTCutoverTests.load)
+
+    def test_stub_exemption_is_root_anchored_and_project_stubs_still_fail(self):
+        from unittest.mock import patch
+        import contextlib
+        mod = self.load('lint-stub-documents.py')
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            root = Path(tmp)
+            paths = [root / p for p in (
+                'guardrails/aiqt-rules/security/short.md',
+                'guardrails/governance/short.md',
+                'guardrails/aiqt-rules-local/short.md',
+                'other/guardrails/aiqt-rules/short.md',
+            )]
+            for p in paths:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text('# Short\n\nTiny.\n')
+            with patch.object(mod, 'REPO_ROOT', root):
+                self.assertEqual(set(mod.iter_targets([str(root)])), set(paths[1:]))
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(mod.main(['lint-stub-documents.py', str(paths[0])]), 0)
+                    for p in paths[1:]:
+                        self.assertEqual(mod.main(['lint-stub-documents.py', str(p)]), 1)
+
+    def test_uncertainty_gate_keeps_project_requirements_in_scope(self):
+        source = REPO_ROOT / 'guardrails/rule-provenance.md'
+        result = run_linter('tools/lint-shall-near-uncertainty.py', source)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            p = Path(tmp) / 'standard-uncertain.md'
+            p.write_text('# Requirement\n\nThe service MUST encrypt data. TODO: confirm.\n')
+            result = run_linter('tools/lint-shall-near-uncertainty.py', p)
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_d10_entry_point_rejects_malformed_and_unknown_scope_metadata(self):
+        from unittest.mock import patch
+        import contextlib
+        mod = self.load('check-claude-md-size.py')
+        bad = [
+            'paths:\n  - [broken', 'paths:\n  - [one, two]',
+            'paths:\n  - {key: value}', 'paths:\n  - true',
+            'paths:\n  - null', 'paths:\n  - 123',
+            'paths:\n  - *alias', 'paths:\n  - &anchor value',
+            'paths:\n  - !tag value', "paths:\n  - 'x' junk'",
+            'paths:\n  - "x" trailing', 'paths:\n  - x: y',
+            'paths: ["**"]\n  - extra', 'paths: ["**"]\npathz: ["other"]',
+            'paths: ["**"]\nunknown: true', 'paths: ["**"]\ncorpus-id: [broken',
+            'paths: ["**"]\ncorpus-id:\n  invalid: [',
+            'paths: ["**"]\nsecondary: [broken',
+            'paths: ["**"]\nsecondary: ["x" trailing]',
+            'paths: ["**"]\npaths: ["other"]', 'paths: []',
+            'paths: [true]', 'paths: {"a": "b"}',
+            'paths:\n  - .nan', 'paths:\n  - .Inf',
+        ]
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            root = Path(tmp)
+            (root / '.claude/rules').mkdir(parents=True)
+            claude = root / '.claude/CLAUDE.md'
+            claude.write_text('# Test\n')
+            rule = root / '.claude/rules/rule.md'
+            subprocess.run(['git', 'init', '-q', str(root)], check=True)
+            with patch.object(mod, 'REPO_ROOT', root), patch.object(mod, 'CLAUDE_MD', claude):
+                for header in bad:
+                    with self.subTest(header=header):
+                        rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
+                        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                            self.assertEqual(mod.run(), 2)
+                for header in ('paths: ["**/*.py"]', 'paths:\n  - "**/*.py"',
+                               "paths:\n  - 'src/**/*.py'", 'paths:\n  - src/file.py'):
+                    rule.write_text('---\n' + header + '\n---\n' + 'x' * 400000)
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        self.assertEqual(mod.run(), 0)
+                rule.write_text('---\ncorpus-id: fixture\n---\n' + 'x' * 400000)
+                with contextlib.redirect_stdout(io.StringIO()):
+                    self.assertEqual(mod.run(), 1)
+
+    def test_publication_boundary_rejects_all_other_classifications(self):
+        from unittest.mock import patch
+        import contextlib
+        import itertools
+        import json
+        mod = self.load('lint-publication-manifest.py')
+        entries = json.loads((REPO_ROOT / 'tools/publication-manifest.json').read_text())['files']
+        upstream = [p for p in entries if p.startswith('aiqt-rules/')]
+        self.assertEqual(len(upstream), 135)
+        for p, bucket, disclosure in itertools.product(upstream, mod.BUCKETS, mod.DISCLOSURES):
+            row = dict(bucket=bucket, disclosure=disclosure, rationale='test')
+            result = mod.evaluate({p}, {p: row})
+            self.assertEqual(result['upstream_ownership'],
+                             [] if (bucket, disclosure) == ('EXCLUDED', 'WITHHELD') else [p])
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            manifest = Path(tmp) / 'publication-manifest.json'
+            with patch.object(mod, 'MANIFEST', str(manifest)), contextlib.redirect_stdout(io.StringIO()):
+                for bucket, disclosure in (('CORE', 'PUBLIC'), ('ADAPTER-INPUT', 'SANITIZE'),
+                                           ('GRC-ONLY', 'WITHHELD'), ('EXCLUDED', 'PUBLIC')):
+                    entries[upstream[0]].update(bucket=bucket, disclosure=disclosure)
+                    manifest.write_text(json.dumps({'files': entries}))
+                    self.assertEqual(mod.main(['lint-publication-manifest.py']), 1)
+                entries[upstream[0]].update(bucket='EXCLUDED', disclosure='WITHHELD')
+                manifest.write_text(json.dumps({'files': entries}))
+                self.assertEqual(mod.main(['lint-publication-manifest.py']), 0)

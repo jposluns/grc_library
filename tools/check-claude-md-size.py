@@ -70,12 +70,47 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # paragraph to ten lines; net ratchet 1022 -> 1021. Downward-ratchet convention resumes.
 # 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
 CEILING = 781
-STARTUP_CHARACTER_CEILING = 294233  # 3b177-a; final backlog goal remains 150000
+STARTUP_CHARACTER_CEILING = 288490  # 3b177-a; final backlog goal remains 150000
 
+
+
+# Accepted frontmatter is deliberately a small, explicit YAML subset. Unknown
+# keys or syntax fail closed: they cannot make a large rule disappear from D10.
+SCALAR_METADATA = {"corpus-id", "origin", "family", "facet", "slug"}
+LIST_METADATA = {"secondary"} | {
+    f"map-{framework}-{strength}"
+    for framework in (
+        "atlas", "csa-aicm", "csa-ccm", "cwe", "iso-23894", "iso-42001",
+        "nist-80053", "nist-airmf", "nist-ssdf", "owasp-api", "owasp-asi",
+        "owasp-asvs", "owasp-cheatsheet", "owasp-llm", "owasp-mcp",
+        "owasp-proactive", "owasp-web",
+    )
+    for strength in ("tight", "broad")
+}
+
+
+def string_scalar(value: str, *, path: bool = False) -> str:
+    """Read an explicit string or a conservative, unambiguous plain scalar."""
+    if value.startswith('"'):
+        parsed = json.loads(value)
+    elif value.startswith("'"):
+        if not re.fullmatch(r"'(?:[^']|'')*'", value):
+            raise ValueError("invalid quoted string")
+        parsed = value[1:-1].replace("''", "'")
+    else:
+        pattern = r"[A-Za-z_./][A-Za-z0-9_./*?-]*" if path else r"[A-Za-z0-9_][A-Za-z0-9_./&() -]*"
+        if (not re.fullmatch(pattern, value)
+                or value.lower() in {"true", "false", "null", "yes", "no", "on", "off", ".nan", ".inf"}
+                or (path and re.fullmatch(r"[+-]?[0-9.]+", value))):
+            raise ValueError("unsupported or non-string scalar")
+        parsed = value
+    if not isinstance(parsed, str) or not parsed.strip():
+        raise ValueError("empty or non-string scalar")
+    return parsed
 
 
 def scoped(text: str) -> bool:
-    """Accept the rule frontmatter subset; reject ambiguous or malformed input."""
+    """Accept only recognized scope metadata; reject everything ambiguous."""
     lines = text.splitlines()
     if not lines or lines[0] != "---":
         return False
@@ -85,55 +120,40 @@ def scoped(text: str) -> bool:
         raise ValueError("unterminated frontmatter") from exc
     keys = set()
     paths = None
-    in_paths = False
+    block_paths = False
     for line in lines[1:end]:
         if not line.strip() or line.lstrip().startswith("#"):
             continue
         if line.startswith((" ", "\t")):
-            if "\t" in line or not keys:
-                raise ValueError("invalid frontmatter indentation")
-            if in_paths:
-                m = re.fullmatch(r"  - (.+)", line)
-                if not m:
-                    raise ValueError("invalid paths list")
-                value = m[1]
-                if value.startswith('"'):
-                    value = json.loads(value)
-                elif value.startswith("'"):
-                    if not value.endswith("'") or len(value) < 2:
-                        raise ValueError("invalid quoted path")
-                    value = value[1:-1].replace("''", "'")
-                if not isinstance(value, str) or not value.strip():
-                    raise ValueError("empty path")
-                paths.append(value)
-            elif not re.fullmatch(r" +(?:[\w-]+:.*|- .+)", line):
-                raise ValueError("invalid metadata continuation")
+            m = re.fullmatch(r"  - (.+)", line)
+            if not block_paths or not m:
+                raise ValueError("unsupported frontmatter continuation")
+            paths.append(string_scalar(m[1], path=True))
             continue
         m = re.fullmatch(r"([\w-]+):(?: +(.*))?", line)
         if not m or m[1] in keys:
             raise ValueError("invalid or duplicate frontmatter key")
-        keys.add(m[1])
-        in_paths = m[1] == "paths"
-        value = m[2] or ""
-        if in_paths:
+        key, value = m[1], m[2] or ""
+        keys.add(key)
+        block_paths = key == "paths" and not value
+        if key == "paths":
             paths = json.loads(value) if value else []
             if not isinstance(paths, list) or any(not isinstance(x, str) or not x.strip() for x in paths):
                 raise ValueError("paths must be a string list")
-        elif value.startswith('"'):
-            json.loads(value)
-        elif value.startswith('['):
-            if not value.endswith(']') or any(c in value[1:-1] for c in '[]{}'):
-                raise ValueError("invalid metadata flow list")
-            for item in value[1:-1].split(','):
-                item = item.strip()
-                if item.startswith('"'):
-                    json.loads(item)
-                elif item.startswith("'") and not item.endswith("'"):
-                    raise ValueError("invalid metadata list string")
-        elif value.startswith('{'):
-            raise ValueError("flow mappings are not supported")
-        elif value.startswith("'") and not value.endswith("'"):
-            raise ValueError("unterminated quoted metadata")
+        elif key in SCALAR_METADATA:
+            string_scalar(value)
+        elif key in LIST_METADATA:
+            if not value.startswith("[") or not value.endswith("]"):
+                raise ValueError("metadata must be a flat flow list")
+            if value != "[]":
+                for item in value[1:-1].split(","):
+                    string_scalar(item.strip())
+        elif key == "apex" and value in {"true", "false"}:
+            pass
+        elif key == "tier" and value in {"10", "20", "30", "40"}:
+            pass
+        else:
+            raise ValueError("unrecognized frontmatter metadata: " + key)
     if paths == []:
         raise ValueError("empty paths is ambiguous")
     return paths is not None

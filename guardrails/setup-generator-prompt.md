@@ -407,8 +407,6 @@ The existing core/language/pipeline mirrors and all skills remain available.
 Standalone adopters must review GRC-specific overlays and supply their own wiring;
 the GRC compatibility output is not a portable export.
 
-### Selective GRC security modules
-
-The following optional modules retain their existing terms and scope:
+### Installation source and scope
 
 For this installation, fetch mode must use the exact pinned objects, never moving-head rule content. Preserve existing YAML frontmatter and insert scope there. The legacy governance modules are activity-triggered references, not a wholesale always-loaded pack.
