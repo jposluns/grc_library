@@ -2,7 +2,7 @@
 
 **Document Title:** Privacy Jurisdiction Index\
 **Document Type:** Annex\
-**Version:** 1.0.58\
+**Version:** 1.0.59\
 **Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -115,7 +115,7 @@ Individual jurisdiction files are located in `privacy/jurisdictions/`. Adopting 
 | Singapore | PDPA | mandatory breach notification; voluntary PDPC Model AI Governance Framework | s. 26 prescribed comparable-protection requirements; Commission exemption (s. 26(2)) | SGD 1M, or 10% of SG turnover if it exceeds SGD 10M (s.48J) |
 | Australia | Privacy Act 1988 | AI Ethics Framework (voluntary); APP principles; Privacy Act 2024 reforms | APP 8 contractual safeguards | AUD 50M or 30% adjusted turnover |
 | Japan | APPI | APPI purpose limitation for AI training; PPC AI guidance (not held, adopter-verify) <!-- ref-absence: PPC AI guidance | PPC guidance on AI --> | Consent; PPC-designated equivalent countries; recipient conforming system | JPY 100M |
-| South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | Adequacy (EU); PIPC SCCs; consent | 3% annual revenue |
+| South Korea | PIPA 2023 | Right to explanation; automated decision review; PIPC guidance | See [Article 28-8 transfer grounds, conditions and notice particulars](jurisdictions/annex-privacy-south-korea.md#cross-border-transfer-mechanisms). | 3% annual revenue |
 | New Zealand | Privacy Act 2020 | IPP principles; mandatory breach notification | IPP 12 disclosure conditions; prescribed binding schemes / prescribed countries (ss. 213-214) | NZD 10,000 per offence |
 | UAE | PDPL, DIFC DPL, ADGM DPR | Sector-specific AI guidance; automated-decision objection right (Art 18) | Bureau-approved legislated jurisdictions, or a UAE bilateral/multilateral agreement (Art 22); the six Art 23(1)(a)-(f) cases (contract/consent/judicial cooperation/rights/public interest) | Cabinet decision under Art 26 (PDPL); USD 100,000 (DIFC) |
 | Saudi Arabia | PDPL | SDAIA AI governance framework; automated-decision transparency (Impl. Reg. Art. 4(5)(c)) | Adequacy; Personal Data Transfer Regulation Art. 5 safeguards (BCR/SCC/certification/code) or Art. 6 cases; localization | SAR 5M, committee-imposed, may be doubled for repeat (Art. 36) |

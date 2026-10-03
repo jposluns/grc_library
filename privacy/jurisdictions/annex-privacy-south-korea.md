@@ -2,8 +2,8 @@
 
 **Document Title:** South Korea Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.2\
-**Date:** 2026-10-01\
+**Version:** 1.1.3\
+**Date:** 2026-10-03\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -24,7 +24,7 @@ This annex defines privacy and AI regulatory requirements applicable to the proc
 
 ## Applicable laws and regulatory authorities
 
-- **Personal Information Protection Act (PIPA)**: Most recently amended in 2023 (promulgated March 2023; key provisions effective September 2023). South Korea's primary data protection law.
+- **Personal Information Protection Act (PIPA)**: South Korea's primary data protection law. Most recently amended by Act No. 21445 (promulgated 10 March 2026, in force 11 September 2026); the 2023 amendment (Act No. 19234, promulgated March 2023, key provisions effective September 2023) is the version held in English translation. A further amendment, Act No. 21910 (in force 9 March 2027), is pending.
 - South Korea holds an EU GDPR adequacy decision (granted December 2021).
 - **Key 2023 amendments:** Right to explanation for automated decisions; right to data portability; mandatory data breach notification within 72 hours; enhanced penalty regime; mobile application and online service obligations.
 - **Regulatory authority:** Personal Information Protection Commission (PIPC).
@@ -64,8 +64,37 @@ The Personal Information Protection Act (PIPA) imposes the following core obliga
 
 ## Cross-border transfer mechanisms
 
-- Transfers permitted to: countries designated by the PIPC as providing equivalent or higher protection; the EU (adequacy decision); with data subject-specific consent; or via PIPC-approved standard contractual clauses.
-- Mandatory disclosure to data subjects of the identity, contact details, and purposes of overseas recipients at or before transfer.
+Article 28-8, quoted from the KLRI English translation (Act No. 19234), with no substantive difference found against Article 28-8 of the consolidated Act No. 21445 in force since 11 September 2026 (law.go.kr, checked 3 October 2026):
+
+> **Article 28-8(1) (transfer grounds):** No cross-border provision (including inquiry), entrusted processing, or storage (hereafter in this Section referred to as "transfer") of personal information shall be allowed by a personal information controller: Provided, That in any of the following cases, the cross-border transfer of personal information may be allowed:
+>
+> 1. Where separate consent is obtained from the data subject;
+> 2. Where there are special provisions regarding the cross-border transfer of personal information in a statute, a treaty to which the Republic of Korea is a party, or other international conventions;
+> 3. In any of the following cases where it is necessary to entrust the processing of personal information and to retain such personal information in order to conclude and perform a contract with the data subject:
+>    - (a) Where the matters set forth in the subparagraphs of paragraph (2) are disclosed in the Privacy Policy provided in Article 30;
+>    - (b) Where the matters provided in the subparagraphs of paragraph (2) are communicated to the data subject by means prescribed by Presidential Decree, such as electronic mail;
+> 4. Where the recipient of personal information obtains certification determined and publicly notified by the Protection Commission, such as the certification of personal information protection under Article 32-2, and takes all of the following measures:
+>    - (a) Safety measures necessary for protecting personal information and measures necessary for guaranteeing the rights of data subjects;
+>    - (b) Measures necessary for implementing certified matters in the country to which personal information is to be transferred;
+> 5. Where the Protection Commission recognizes that the personal information protection system of the country or international organization to which the personal information is to be transferred, the scope of guarantee of the rights of the data subject, and the procedures for damage relief, etc. are substantially equal to the level of personal information protection under this Act.
+>
+> **Article 28-8(2) (advance information for consent under paragraph (1)1):** A personal information controller shall inform data subjects of the following matters in advance when obtaining consent under paragraph (1) 1:
+>
+> 1. Particulars of the personal information to be transferred;
+> 2. The country to which the personal information is transferred, transfer date, and method;
+> 3. Name of the recipient of personal information (referring to the name of a corporation and the contact information of the corporation, if the recipient is a corporation);
+> 4. The purpose of using personal information by the recipient of personal information and the period of retention and use of personal information;
+> 5. The method and procedure for refusing the transfer of personal information and the effect of such refusal.
+>
+> **Article 28-8(3) (changes):** A personal information controller that intends to change the matters provided in any subparagraph of paragraph (2) shall inform a data subject of such change and obtain the data subject's consent thereto.
+>
+> **Article 28-8(4) (other provisions and protective measures):** A personal information controller shall comply with other provisions of this Act and Articles 17 through 19 and Chapter V of this Act, which are related to the cross-border transfer of personal information, and shall take protective measures prescribed by Presidential Decree, where it makes cross-border transfers of personal information pursuant to the proviso, with the exception of the subparagraphs, of paragraph (1).
+>
+> **Article 28-8(5) (contracts):** A personal information controller shall not enter into a contract for cross-border transfers of personal information containing terms and conditions that are in violation of this Act.
+>
+> **Article 28-8(6) (further criteria and procedures):** Except as provided in paragraphs (1) through (5), matters necessary for the criteria and procedures for the cross-border transfer of personal information, etc. shall be prescribed by Presidential Decree.
+
+**Pending amendment (Act No. 21910, promulgated 8 September 2026, in force 9 March 2027):** new Article 28-15 allows the PIPC, after deliberation and resolution, to disapply Article 28-8 to the extent of overseas outsourced processing (entrusted processing abroad) where personal information is used under the Article 28-12 special case for artificial intelligence development. The Article 28-8 transfer grounds above otherwise continue to apply.
 
 ---
 
