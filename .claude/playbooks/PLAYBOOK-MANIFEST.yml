@@ -74,12 +74,17 @@
     - "Stays orchestrator-side (never offloaded):"
     - "is NEVER a licence to self-run"
     - "Worker ids recorded in this public repo are ANONYMIZED aliases"
+    - "CONTAINS what it references"
+    - "SINGLE-SHOT and SYNCHRONOUS"
+    - "file-drops jump the queue"
   relocated_anchors:
     - "orch-verify <claude|codex|gemini> <prompt-file>"
     - "issue the SAME order again"
     - "Every QA pass gets one worker per available family"
     - "WORKERS ARE ELASTIC"
     - "design of record and the orchestrator-side operating discipline"
+    - "reads the LIVE working tree"
+    - "two-delivery-tray model was retired"
 
 - playbook: "references/ci-wait.md"
   activity: "Waiting on PR CI, a GitHub subscription, or any background task"

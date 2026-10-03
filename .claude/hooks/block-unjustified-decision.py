@@ -135,6 +135,8 @@ _CLASSIFICATION_RE = re.compile(r"\*\*Classification:\*\*\s*(.+)", re.IGNORECASE
 # Substring markers used by the forbidden-phrase check over the whole submission.
 # The audit-token guard instead tests classification captures for a BLOCKED prefix;
 # it does not use this set.
+# Kept in exact parity with the deferral-marker tuple in grc_library_private/tools/validate.py
+# (the decision-log shape check); edit both lists together.
 DEFERRAL_MARKERS = (
     "blocked", "defer", "wind down", "wind-down", "skip",
     "hold off", "postpone", "punt", "back-burner", "sit on",

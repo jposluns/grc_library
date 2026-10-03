@@ -64,3 +64,28 @@ clause (emitted by `tools/check-class-completeness.py --attest`) or a `[class-ex
 closed set. A `FIXED` class row under `## Open` missing the attestation is SURFACED AS A WARNING here, never a block
 (preserving the fail-open posture); the fail-closed half is the pre-push D14 check
 (`tools/check-class-attestation-on-pr.py`), which also reproduces the probe.
+
+
+## Why a hard block: the motivating incidents
+
+Relocated from `.claude/CLAUDE.md` `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` (3b177-e); the always-on core stays inline.
+
+**Maintainer-directed 2026-07-25, in capitals, after a large batch of QA deliveries sat unread in worker outboxes
+while the orchestrator started new work.** This is the strongest form of the QA priority and it
+overrides the queue: a QA result is not a document to get to, it is a STOP until actioned.
+
+**SOURCE-INDEPENDENT (widened 2026-07-25, after the narrow version failed).** The QA-blocking rule in `.claude/CLAUDE.md` was
+first written for QA arriving FROM WORKERS, and that scope had a hole almost immediately: live defects in
+a file-moving tool, produced by the orchestrator's OWN instrument moments earlier, were rendered as a
+table row and walked past in favour of writing a summary statistic about them. The severity of a defect
+does not depend on who noticed it, so this covers ANY confirmed finding from ANY source: a worker
+delivery, a gate run, an instrument the orchestrator just wrote, a maintainer observation, a self-caught
+slip mid-edit.
+
+**Why it is a hard block rather than a priority.** A finding nobody has read is strictly worse than
+no QA at all, because the record shows the pass ran and so the surface reads as covered. On
+one observed day that cost was concrete: an ERROR-severity finding on `manage-workers.py` and an
+error-severity HOLD on an EU AI Act retention change that had already MERGED without human review
+both sat unread while further PRs were built on top of them, and the retention finding
+described a fact pattern in which records could be destroyed before a statutory keeping period
+expires. The QA had already found it. Nobody had looked.
