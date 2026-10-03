@@ -136,6 +136,7 @@
     "advisory-not-gate": [
       "audit-stranded-matrix-code.py",
       "check-class-completeness.py",
+      "check-clause-preservation.py",
       "check-clean-language-upstream.py",
       "check-daily-changelog-rollup.py",
       "detect-collection-candidates.py"

@@ -31510,6 +31510,698 @@ class WorkerIdAnonymityTests(unittest.TestCase):
         self.assertEqual(rc, 0, out.getvalue())
 
 
+
+class ClausePreservationTests(unittest.TestCase):
+    """Synthetic committed fixtures; no repository writes or inherited Git config."""
+
+    BASE = (
+        "# Rules\n\n"
+        "We MUST retain\nall review evidence.\n\n"
+        "- Never push\n  without review.\n"
+        "- Repeat.\n- Repeat.\n\n"
+        "Plain background prose.\n\n"
+        "## Release\n"
+    )
+
+    def setUp(self):
+        import json
+        self.json = json
+        tmp = tempfile.TemporaryDirectory(prefix="clause-preservation-")
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        self.tool = REPO_ROOT / "tools/check-clause-preservation.py"
+        self.source = self.tool.read_text(encoding="utf-8")
+        self.git_bin = shutil.which("git")
+        self.assertIsNotNone(self.git_bin)
+        self.env = {
+            "PATH": str(Path(self.git_bin).parent) + os.pathsep + os.defpath,
+            "HOME": str(self.root), "XDG_CONFIG_HOME": str(self.root),
+            "TMPDIR": str(self.root), "LANG": "C.UTF-8", "LC_ALL": "C.UTF-8",
+            "TZ": "UTC", "PYTHONHASHSEED": "0", "PYTHONNOUSERSITE": "1",
+            "PYTHONDONTWRITEBYTECODE": "1", "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull, "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0", "GIT_ALLOW_PROTOCOL": "",
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_AUTHOR_NAME": "Fixture", "GIT_AUTHOR_EMAIL": "fixture@example.invalid",
+            "GIT_COMMITTER_NAME": "Fixture",
+            "GIT_COMMITTER_EMAIL": "fixture@example.invalid",
+            "GIT_AUTHOR_DATE": "2000-01-01T00:00:00+0000",
+            "GIT_COMMITTER_DATE": "2000-01-01T00:00:00+0000",
+        }
+        self.git("init", "-q", "--template=", "--initial-branch=main")
+        self.new_base(self.BASE)
+
+    def git(self, *args):
+        return subprocess.run(
+            [self.git_bin, "-c", "core.hooksPath=/dev/null",
+             "-c", "commit.gpgSign=false", "-c", "core.autocrlf=false",
+             "-C", str(self.root), *args],
+            env=self.env, text=True, capture_output=True, check=True,
+        )
+
+    def write(self, path, text):
+        target = self.root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(text.encode("utf-8") if isinstance(text, str) else text)
+
+    def save(self):
+        self.git("add", "-A")
+        self.git("commit", "-q", "--allow-empty", "-m", "fixture")
+
+    def new_base(self, text, path="instructions.md"):
+        self.path = path
+        self.write(path, text)
+        self.save()
+        self.base = self.git("rev-parse", "HEAD").stdout.strip()
+        result = self.invoke("--extract")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.ledger = self.json.loads(result.stdout)
+        self.rows = self.ledger["clauses"]
+
+    def row(self, line):
+        return next(row for row in self.rows if row["base_line"] == line)
+
+    def invoke(self, *args, tool=None):
+        return subprocess.run(
+            [sys.executable, "-B", str(tool or self.tool),
+             "--repo", str(self.root), "--base", self.base, "--path", self.path, *args],
+            env=self.env, cwd=self.root, text=True, capture_output=True,
+        )
+
+    def check(self, code, message="OK:", tool=None):
+        self.write("ledger.json", self.json.dumps(self.ledger, ensure_ascii=False))
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=tool)
+        output = result.stdout + result.stderr
+        self.assertEqual(result.returncode, code, output)
+        self.assertIn(message, output)
+        return result
+
+    def raw(self, content, code, message, tool=None):
+        self.write("ledger.json", content)
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=tool)
+        self.assertEqual(result.returncode, code, result.stdout + result.stderr)
+        self.assertIn(message, result.stderr)
+        self.assertIn(str(self.root / "ledger.json"), result.stderr)
+        self.assertIn(self.base, result.stderr)
+        self.assertIn(self.path, result.stderr)
+        return result
+
+    def mutant(self, old, new):
+        self.assertIn(old, self.source)
+        target = self.root / "mutant.py"
+        target.write_text(self.source.replace(old, new), encoding="utf-8")
+        return target
+
+    @staticmethod
+    def load_tool(name):
+        import types
+        path = REPO_ROOT / "tools" / name
+        module = types.ModuleType("clause_fixture")
+        module.__file__ = str(path)
+        exec(compile(path.read_text(encoding="utf-8"), str(path), "exec"), module.__dict__)
+        return module
+
+    def test_extract_complete_inventory(self):
+        self.assertEqual(self.ledger["base_revision"], self.base)
+        self.assertEqual(self.ledger["base_path"], self.path)
+        expected = [(1, 1, "heading"), (3, 4, "paragraph"), (6, 7, "list_item"),
+                    (8, 8, "list_item"), (9, 9, "list_item"),
+                    (11, 11, "paragraph"), (13, 13, "heading")]
+        self.assertEqual([(r["base_line"], r["end_line"], r["kind"]) for r in self.rows],
+                         expected)
+        lines = self.BASE.splitlines()
+        for row in self.rows:
+            self.assertEqual(row["base_quote"],
+                             "\n".join(lines[row["base_line"] - 1:row["end_line"]]))
+            self.assertEqual((row["state"], row["destination"], row["reason"]),
+                             ("KEPT", self.path, ""))
+        self.assertEqual(self.ledger["excluded_lines"],
+                         [{"line": n, "category": "BLANK"} for n in (2, 5, 10, 12)])
+        self.check(0)
+
+    def test_markdown_units_and_line_accounting(self):
+        text = ("Title\n===\n\n| A | B |\n| --- | --- |\n| x | y |\n\n"
+                "~~~python\n# literal\n\n- literal\n~~~\n\n"
+                "1. First\n   wrapped\n   - Nested\n     wrapped\n\n"
+                "---\n\n> Unknown markup\n> retained\n")
+        self.new_base(text)
+        spans = [(1, 2, "heading"), (4, 4, "table_row"), (5, 5, "table_row"),
+                 (6, 6, "table_row"), (8, 12, "fence"), (14, 15, "list_item"),
+                 (16, 17, "list_item"), (19, 19, "thematic_break"),
+                 (21, 22, "paragraph")]
+        self.assertEqual([(r["base_line"], r["end_line"], r["kind"]) for r in self.rows],
+                         spans)
+        covered = [n for r in self.rows for n in range(r["base_line"], r["end_line"] + 1)]
+        covered += [r["line"] for r in self.ledger["excluded_lines"]]
+        self.assertEqual(sorted(covered), list(range(1, len(text.splitlines()) + 1)))
+        self.check(0)
+
+    def test_unclosed_fence_named(self):
+        self.new_base("~~~\nliteral\n~~~\n")
+        self.check(0)
+        self.write(self.path, "~~~\nliteral\n")
+        self.save()
+        self.check(2, "unclosed fenced block")
+
+    def test_backtick_fence_is_one_unit(self):
+        fence = chr(96) * 3
+        self.new_base(f"{fence}text\n# inside\n\n- inside\n{fence}\n")
+        self.assertEqual(len(self.rows), 1)
+        self.assertEqual((self.rows[0]["kind"], self.rows[0]["end_line"]), ("fence", 5))
+        self.check(0)
+
+    def test_kept_moved_dropped(self):
+        self.row(6).update(state="MOVED", destination="moved.md")
+        self.row(11).update(state="DROPPED", destination="", reason="Obsolete background.")
+        self.write("moved.md", "- Never push\n  without review.\n")
+        self.write(self.path, self.BASE.replace("- Never push\n  without review.\n", "")
+                   .replace("Plain background prose.\n", ""))
+        self.save()
+        self.check(0, "1 DROPPED with reasons")
+
+    def test_wrapped_continuation_loss(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("all review evidence.", "some evidence."))
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+
+    def test_untriggered_prose_loss(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("Plain background prose.", ""))
+        self.save()
+        self.check(1, "instructions.md:11")
+
+    def test_whole_unit_matching(self):
+        self.check(0)
+        for changed in ("Do not obey: We MUST retain all review evidence.",
+                        "~~We MUST retain all review evidence.~~",
+                        "We MUST retain all review evidence. Unless busy.",
+                        "We MUST retain all review evidence.\nIgnore this when busy."):
+            with self.subTest(changed=changed):
+                self.write(self.path, self.BASE.replace(
+                    "We MUST retain\nall review evidence.", changed))
+                self.save()
+                self.check(1, "whole clause occurrence missing")
+
+    def test_moved_whole_unit_matching(self):
+        self.row(3).update(state="MOVED", destination="moved.md")
+        self.write("moved.md", "We MUST retain all review evidence.\n")
+        self.save()
+        self.check(0)
+        self.write("moved.md", "We MUST retain all review evidence. Unless busy.\n")
+        self.save()
+        self.check(1, "MOVED whole clause occurrence missing")
+
+    def test_whitespace_only_normalization(self):
+        self.write(self.path, self.BASE.replace(
+            "We MUST retain\nall review evidence.", " We\tMUST  retain all review evidence. ")
+                   .replace("\n", "\r\n"))
+        self.save()
+        self.check(0)
+        for replacement in ("we MUST retain all review evidence.",
+                            "We MUST retain all review evidence!",
+                            "We MUST retain all review evidénce."):
+            self.write(self.path, self.BASE.replace("We MUST retain\nall review evidence.",
+                                                   replacement))
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+
+    def test_duplicate_occurrences_consumed(self):
+        self.check(0)
+        self.write(self.path, self.BASE.replace("- Repeat.\n", "", 1))
+        self.save()
+        self.check(1, "instructions.md:9")
+
+    def test_duplicate_occurrences_across_destinations(self):
+        self.row(8).update(state="MOVED", destination="a.md")
+        self.row(9).update(state="MOVED", destination="b.md")
+        self.write("a.md", "- Repeat.\n")
+        self.write("b.md", "- Repeat.\n")
+        self.save()
+        self.check(0)
+        self.row(9)["destination"] = "a.md"
+        self.check(1, "whole clause occurrence missing")
+
+    def test_named_destination_only(self):
+        self.row(3).update(state="MOVED", destination="a.md")
+        self.write("a.md", "We MUST retain all review evidence.\n")
+        self.write("b.md", "Different text.\n")
+        self.save()
+        self.check(0)
+        self.row(3)["destination"] = "b.md"
+        self.check(1, "b.md")
+
+    def test_preexisting_destination_is_presence_evidence(self):
+        self.write("archive.md", "We MUST retain all review evidence.\n")
+        self.new_base(self.BASE)
+        self.row(3).update(state="MOVED", destination="archive.md")
+        self.write(self.path, self.BASE.replace("We MUST retain\nall review evidence.\n", ""))
+        self.save()
+        self.check(0)
+
+    def test_drop_requires_reason(self):
+        row = self.row(3)
+        row.update(state="DROPPED", destination="", reason="Replaced by approved policy.")
+        self.check(0)
+        for reason in ("", " \n\t"):
+            row["reason"] = reason
+            self.check(2, "DROPPED requires nonblank reason")
+        row.update(reason="Approved removal.", destination=self.path)
+        self.check(2, "empty destination")
+
+    def test_unknown_codes(self):
+        self.check(0)
+        for state in ("K", "M", "S", "D", "UNKNOWN"):
+            self.row(3)["state"] = state
+            self.check(2, "unknown state")
+
+    def test_state_destination_meanings(self):
+        self.check(0)
+        self.row(3)["destination"] = "other.md"
+        self.check(2, "KEPT must use base path")
+        self.row(3).update(state="MOVED", destination=self.path)
+        self.check(2, "MOVED must use a different path")
+
+    def test_identity_bound_to_base_and_path(self):
+        self.check(0)
+        for key, bad in (("base_revision", "0" * 40), ("base_path", "other.md")):
+            original = self.ledger[key]
+            self.ledger[key] = bad
+            self.check(2, "base_revision/base_path mismatch")
+            self.ledger[key] = original
+        self.check(0)
+        result = self.invoke("--base", self.base[:12], "--ledger", str(self.root / "ledger.json"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_metadata_cannot_weaken_clause(self):
+        self.check(0)
+        for key, bad in (("base_quote", "We MUST retain"), ("end_line", 3),
+                         ("kind", "heading")):
+            original = self.row(3)[key]
+            self.row(3)[key] = bad
+            self.check(1, "clause metadata differs from BASE")
+            self.row(3)[key] = original
+
+    def test_missing_row(self):
+        self.check(0)
+        self.rows.remove(self.row(9))
+        self.check(1, "missing ledger row")
+
+    def test_duplicate_row(self):
+        self.check(0)
+        self.rows.append(dict(self.row(3)))
+        self.check(1, "duplicate ledger row")
+
+    def test_extra_row(self):
+        self.check(0)
+        self.rows.append(dict(self.row(3), base_line=100))
+        self.check(1, "not an extracted base clause")
+
+    def test_empty_ledger_rows(self):
+        self.check(0)
+        self.ledger["clauses"] = []
+        self.check(2, "clauses must be a nonempty list")
+
+    def test_exclusion_inventory_cannot_hide_text(self):
+        self.check(0)
+        self.ledger["excluded_lines"].append({"line": 3, "category": "BLANK"})
+        self.check(2, "excluded_lines differs")
+
+    def test_schema_types_and_keys(self):
+        self.check(0)
+        self.ledger["extra"] = 1
+        self.check(2, "ledger must have exactly")
+        del self.ledger["extra"]
+        row = self.row(3)
+        row["extra"] = 1
+        self.check(2, "row 2: row must have exactly")
+        del row["extra"]
+        for key, bad, message in (
+            ("base_line", True, "positive integer"), ("end_line", 0, "positive integer"),
+            ("base_quote", None, "text without NUL"), ("base_quote", "", "nonblank"),
+            ("base_quote", "text\0", "text without NUL"), ("state", [], "text without NUL"),
+            ("reason", 1, "text without NUL"), ("destination", 1, "text without NUL"),
+        ):
+            original = row[key]
+            row[key] = bad
+            self.check(2, message)
+            row[key] = original
+
+    def test_duplicate_json_keys_discriminate(self):
+        good = self.json.dumps(self.ledger)
+        bad = good[:-1] + ', "base_path": ' + self.json.dumps(self.path) + "}"
+        self.raw(bad, 2, "duplicate JSON key: base_path")
+        mutant = self.mutant("object_pairs_hook=unique_keys", "object_pairs_hook=dict")
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=mutant)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        row_bad = good.replace('"state": "KEPT"', '"state": "KEPT", "state": "KEPT"', 1)
+        self.raw(row_bad, 2, "duplicate JSON key: state")
+
+    def test_malformed_json_named(self):
+        self.check(0)
+        for text in ("", "{", self.json.dumps(self.ledger) + "{}"):
+            self.raw(text, 2, "ERROR: clause preservation:")
+
+    def test_nonstandard_json_constant_named(self):
+        text = self.json.dumps(self.ledger).replace('"reason": ""', '"reason": NaN', 1)
+        self.raw(text, 2, "invalid JSON constant: NaN")
+
+    def test_deep_json_named(self):
+        self.raw("[" * 20000, 2, "ERROR: clause preservation:")
+        mutant = self.mutant("def load_ledger(path: Path):",
+                             'def load_ledger(path: Path):\n    raise RecursionError("depth limit")')
+        self.raw("{}", 2, "depth limit", tool=mutant)
+
+    def test_named_handler_has_traceback_flip(self):
+        result = self.raw("{", 2, "ERROR: clause preservation:")
+        self.assertNotIn("Traceback", result.stderr)
+        mutant = self.mutant("except INPUT_ERRORS as exc:", "except () as exc:")
+        result = self.invoke("--ledger", str(self.root / "ledger.json"), tool=mutant)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn("Traceback", result.stderr)
+
+    def test_missing_ledger_named(self):
+        result = self.invoke("--ledger", str(self.root / "absent.json"))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        for value in ("absent.json", self.base, self.path, "ERROR:"):
+            self.assertIn(value, result.stderr)
+
+    def test_unreadable_ledger_named(self):
+        result = self.invoke("--ledger", str(self.root))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        for value in (str(self.root), self.base, self.path, "ERROR:"):
+            self.assertIn(value, result.stderr)
+
+    def test_undecodable_ledger_named(self):
+        self.raw(b"\xff", 2, "utf-8")
+
+    def test_destination_must_be_tracked_at_head(self):
+        self.row(3).update(state="MOVED", destination="moved.md")
+        self.write("moved.md", "We MUST retain all review evidence.\n")
+        self.check(2, "missing tracked regular file")
+        self.git("add", "moved.md")
+        self.check(2, "missing tracked regular file")
+        self.save()
+        self.check(0)
+
+    def test_head_ignores_worktree_and_index_repairs(self):
+        self.write(self.path, self.BASE.replace("Plain background prose.", ""))
+        self.save()
+        self.write(self.path, self.BASE)
+        self.check(1, "whole clause occurrence missing")
+        self.git("add", self.path)
+        self.check(1, "whole clause occurrence missing")
+        self.save()
+        self.check(0)
+
+    def test_destination_cannot_be_ledger_or_alias(self):
+        self.row(3).update(state="MOVED", destination="ledger.json")
+        self.check(2, "ledger cannot supply evidence")
+        self.save()
+        self.check(2, "ledger cannot supply evidence")
+        alias = self.root / "alias.json"
+        alias.symlink_to("ledger.json")
+        result = self.invoke("--ledger", str(alias))
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("ledger cannot supply evidence", result.stderr)
+
+    def test_bad_destination_paths(self):
+        self.row(3)["state"] = "MOVED"
+        for path in ("../outside.md", "/etc/passwd", "a/../b", "./a", ".git/config",
+                     "a//b", "C:/x", "a\\b"):
+            self.row(3)["destination"] = path
+            self.check(2, "repository-relative path")
+
+    def test_literal_pathspec(self):
+        self.write("rules*.md", "We MUST retain all review evidence.\n")
+        self.write("rules-other.md", "We MUST retain all review evidence.\n")
+        self.save()
+        self.row(3).update(state="MOVED", destination="rules*.md")
+        self.check(0)
+        from unittest.mock import patch
+        mod = self.load_tool("check-clause-preservation.py")
+        with patch.object(mod.subprocess, "run", return_value=subprocess.CompletedProcess(
+                [], 0, b"", b"")) as run:
+            mod.git(self.root, "ls-tree", "HEAD", "--", "rules*.md")
+        self.assertEqual(run.call_args.args[0][:2], ["git", "--literal-pathspecs"])
+
+    def test_tree_entry_must_have_exact_name(self):
+        from unittest.mock import patch
+        mod = self.load_tool("check-clause-preservation.py")
+        record = b"100644 blob " + b"0" * 40 + b"\twrong.md\0"
+        with patch.object(mod, "git", return_value=record):
+            with self.assertRaisesRegex(ValueError, "expected exact regular file"):
+                mod.read_blob(self.root, self.base, "requested.md")
+
+    def test_nonregular_destinations(self):
+        self.write("folder/file.md", "text")
+        (self.root / "link.md").symlink_to(self.path)
+        self.save()
+        for path in ("folder", "link.md"):
+            self.row(3).update(state="MOVED", destination=path)
+            self.check(2, "expected exact regular file")
+
+    def test_destination_decode_and_nul_errors_named(self):
+        self.row(3).update(state="MOVED", destination="bad.md")
+        for content, message in ((b"\xff", "utf-8"), (b"text\0", "NUL in text")):
+            self.write("bad.md", content)
+            self.save()
+            result = self.check(2, message)
+            self.assertIn("bad.md", result.stderr)
+            self.assertIn(self.git("rev-parse", "HEAD").stdout.strip(), result.stderr)
+
+    def test_base_read_errors_named(self):
+        for content, message in ((b"\xff", "utf-8"), (b"text\0", "NUL in text"),
+                                 (b" \n", "no base clauses")):
+            self.write("bad.md", content)
+            self.save()
+            result = self.invoke("--base", "HEAD", "--path", "bad.md", "--extract")
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn(message, result.stderr)
+            self.assertIn("bad.md", result.stderr)
+            self.assertIn(self.git("rev-parse", "HEAD").stdout.strip(), result.stderr)
+
+    def test_missing_base_and_revision_named(self):
+        for args, message in ((("--path", "absent.md"), "absent.md"),
+                              (("--base", "--invalid-revision"), "--invalid-revision")):
+            # Use equals syntax so argparse passes an option-looking revision to Git.
+            if args[0] == "--base":
+                args = ("--base=--invalid-revision",)
+            result = self.invoke(*args, "--extract")
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn(message, result.stderr)
+            self.assertIn("ERROR: clause preservation:", result.stderr)
+
+    def test_d10_warning_boundaries_preserve_exit_codes(self):
+        import contextlib
+        from unittest.mock import patch
+
+        def run(mod, headroom, line_code):
+            totals = {"startup": {
+                "characters": mod.STARTUP_CHARACTER_CEILING - headroom}}
+            out = io.StringIO()
+            with patch.object(mod, "CLAUDE_MD", self.root / self.path), \
+                    patch.object(mod, "census", return_value=totals), \
+                    patch.object(mod, "line_count", return_value=1), \
+                    patch.object(mod, "evaluate", return_value=(line_code, "fixture")), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
+                code = mod.run()
+            return code, out.getvalue()
+
+        mod = self.load_tool("check-claude-md-size.py")
+        for headroom, line_code in ((250, 0), (249, 0), (0, 0), (-1, 0), (5, 1)):
+            code, output = run(mod, headroom, line_code)
+            self.assertEqual(code, 1 if headroom < 0 else line_code)
+            self.assertEqual("WARNING:" in output, headroom < 250)
+            if headroom < 0:
+                self.assertLess(output.index("WARNING:"), output.index("FAIL: startup"))
+        source = Path(mod.__file__).read_text(encoding="utf-8")
+        warning_start = source.index("    if headroom < 250:")
+        ceiling_start = source.index('    if totals["startup"]["characters"] >', warning_start)
+        return_start = source.index("    return code", ceiling_start)
+        reordered = (source[:warning_start] + source[ceiling_start:return_start]
+                     + source[warning_start:ceiling_start] + source[return_start:])
+        exec(compile(reordered, mod.__file__, "exec"), mod.__dict__)
+        code, output = run(mod, -1, 0)
+        self.assertEqual(code, 1)
+        self.assertLess(output.index("FAIL: startup"), output.index("WARNING:"))
+        self.assertIn("if headroom < 250:", source)
+        exec(compile(source.replace("if headroom < 250:", "if headroom <= 250:"),
+                     mod.__file__, "exec"), mod.__dict__)
+        code, output = run(mod, 250, 0)
+        self.assertEqual(code, 0)
+        self.assertIn("WARNING:", output)
+        with patch.object(mod, "CLAUDE_MD", self.root / self.path), \
+                patch.object(mod, "census", side_effect=ValueError("broken")), \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(mod.run(), 2)
+
+    def regression_flip(self, base, changed, old, new, code=1):
+        self.new_base(base)
+        self.check(0)
+        self.write(self.path, changed)
+        self.save()
+        self.check(code, "unclosed fenced block" if code == 2
+                   else "whole clause occurrence missing")
+        self.check(0, tool=self.mutant(old, new))
+
+    def test_fence_bytes_and_flip(self):
+        base = "```python\nif approved:\n    audit()\n    publish()\n```\n"
+        for changed in (base.replace("    publish()", "publish()"),
+                        base.replace("audit()", "audit()  "),
+                        base.replace("\n", "\r\n"), base.rstrip("\n")):
+            with self.subTest(changed=changed):
+                self.regression_flip(base, changed, "return category, text",
+                                     'return category, " ".join(text.split())')
+
+    def test_inline_code_and_flip(self):
+        for base in ('Use `"deny  all"` as the exact token.\n',
+                     'Use ``a ` b  c`` exactly.\n',
+                     '| token | `deny  | all` |\n'):
+            with self.subTest(base=base):
+                self.regression_flip(base, base.replace("  ", " "),
+                                     "part if literal else re.sub", "re.sub")
+
+    def test_kind_and_flip(self):
+        self.regression_flip("# Never publish secrets\n",
+                             "    # Never publish secrets\n",
+                             "def match_key(unit: dict) -> tuple:",
+                             'def match_key(unit: dict) -> tuple:\n'
+                             '    return normalize(unit["base_quote"])')
+        self.regression_flip("- Review.\n", "Review.\n",
+                             "def match_key(unit: dict) -> tuple:",
+                             'def match_key(unit: dict) -> tuple:\n'
+                             '    return normalize(unit["base_quote"].lstrip("- "))')
+
+    def test_list_depth_and_flip(self):
+        for before, after in (("  - Review.\n", "- Review.\n"),
+                              ("- Review.\n", "  - Review.\n"),
+                              ("\t- Review.\n", "  - Review.\n")):
+            with self.subTest(before=before):
+                self.regression_flip(before, after, "len(match[1].expandtabs(4))", "0")
+        self.new_base("\t- Review.\n")
+        self.write(self.path, "    - Review.\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "len(match[1].expandtabs(4))", "len(match[1])"))
+
+    def test_list_marker_and_flip(self):
+        for marker in ("+", "*", "1.", "1)"):
+            with self.subTest(marker=marker):
+                self.regression_flip("- Review.\n", marker + " Review.\n",
+                                     'match[2],', '"",')
+
+    def test_heading_level_and_flip(self):
+        for base, changed in (("# Review\n", "## Review\n"),
+                              ("Review\n===\n", "Review\n---\n")):
+            with self.subTest(base=base):
+                self.regression_flip(base, changed, "category, level, normalize(body)",
+                                     "category, 0, normalize(body)")
+
+    def test_table_boundaries_and_flip(self):
+        self.regression_flip("| a | b |\n", "| a b |\n",
+                             "return category, table_cells(text)",
+                             'return category, normalize(text.replace("|", " "))')
+        self.new_base("| a | b |\n")
+        self.write(self.path, "|a|  b|\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "return category, table_cells(text)", "return category, text"))
+        mod = self.load_tool("check-clause-preservation.py")
+        self.assertEqual(mod.table_cells(r"| a\|b | `c|d` |"),
+                         ("", r"a\|b", "`c|d`", ""))
+        self.assertEqual(mod.table_cells(r"| a\\|b |"), ("", "a\\\\", "b", ""))
+        source = self.source.replace('slashes % 2 == 0', 'True')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        self.assertEqual(mod.table_cells(r"| a\|b |"), ("", "a\\", "b", ""))
+
+    def test_inline_whitespace_boundary_and_flip(self):
+        for char in ("\u00a0", "\u2028", "\f"):
+            with self.subTest(char=char):
+                self.regression_flip("Keep" + char + "evidence.\n", "Keep evidence.\n",
+                                     'r"[ \\t\\r\\n]+"', 'r"\\s+"')
+
+    def test_physical_lines_and_flip(self):
+        mod = self.load_tool("check-clause-preservation.py")
+        text = "A\u2028B\fC\n\n# Next\n"
+        units, excluded = mod.clauses(text)
+        self.assertEqual([(u["base_line"], u["end_line"]) for u in units], [(1, 1), (3, 3)])
+        self.assertEqual(excluded, [{"line": 2, "category": "BLANK"}])
+        source = self.source.replace('pieces = text.split("\\n")',
+                                     'pieces = text.splitlines() + [""]')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        units, _ = mod.clauses(text)
+        self.assertEqual(units[-1]["base_line"], 5)
+
+    def test_fence_closing_indent_and_flip(self):
+        self.regression_flip("Rule.\n", "```\n    ```\n\nRule.\n",
+                             'close = re.compile(r"^ {0,3}"',
+                             'close = re.compile(r"^[ \\t]*"', code=2)
+
+    def test_fence_opening_indent_and_flip(self):
+        self.new_base("    ```\ntext\n    ```\n")
+        self.assertEqual(self.rows[0]["kind"], "paragraph")
+        mod = self.load_tool("check-clause-preservation.py")
+        source = self.source.replace('FENCE = re.compile(r"^ {0,3}',
+                                     'FENCE = re.compile(r"^[ \\t]*')
+        exec(compile(source, mod.__file__, "exec"), mod.__dict__)
+        with self.assertRaisesRegex(ValueError, "unclosed fenced block"):
+            mod.clauses("    ```\ntext\n    ```\n")
+
+    def test_structural_change_requires_accounting(self):
+        for changed in ("Review.\n", "  - Review.\n"):
+            self.new_base("- Review.\n")
+            self.write(self.path, changed)
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+            self.rows[0].update(state="DROPPED", destination="", reason="Approved rewrite.")
+            self.check(0)
+            self.rows[0].update(state="MOVED", destination="archive.md", reason="")
+            self.write("archive.md", "- Review.\n")
+            self.save()
+            self.check(0)
+            self.write("archive.md", changed)
+            self.save()
+            self.check(1, "MOVED whole clause occurrence missing")
+
+    def test_disclosed_rendering_and_scope_residual(self):
+        for changed in ("<!-- retired\n\nRule.\n\n-->\n", "    Rule.\n"):
+            self.new_base("Rule.\n")
+            self.write(self.path, changed)
+            self.save()
+            self.check(0)
+            self.write(self.path, changed.replace("Rule.", "Changed."))
+            self.save()
+            self.check(1, "whole clause occurrence missing")
+        self.new_base("# Mandatory\n\n- A\n\n# Optional\n\n- B\n")
+        self.write(self.path, "# Mandatory\n\n- B\n\n# Optional\n\n- A\n")
+        self.save()
+        self.check(0)
+        self.write(self.path, "# Mandatory\n\n  - B\n\n# Optional\n\n- A\n")
+        self.save()
+        self.check(1, "whole clause occurrence missing")
+
+    def test_kept_moved_reason_and_flip(self):
+        for state, destination in (("KEPT", self.path), ("MOVED", "moved.md")):
+            self.write("moved.md", "We MUST retain all review evidence.\n")
+            self.save()
+            self.row(3).update(state=state, destination=destination, reason="")
+            self.check(0)
+            self.row(3)["reason"] = "Unexpected reason."
+            self.check(2, "KEPT/MOVED require empty reason")
+            self.check(0, tool=self.mutant('if row["reason"] != "":', 'if False:'))
+
+    def test_heading_syntax_equivalence_and_flip(self):
+        self.new_base("# Review\n")
+        self.write(self.path, "Review\n===\n")
+        self.save()
+        self.check(0)
+        self.check(1, "whole clause occurrence missing", tool=self.mutant(
+            "category, level, normalize(body)", "category, level, normalize(text)"))
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
 
