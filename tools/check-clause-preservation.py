@@ -12,14 +12,15 @@ It compares raw unit text (CR and line terminators included, nothing
 normalized): an unconsumed destination unit must equal the BASE unit except for
 substituted target segments. A segment starts right after "](" in both texts
 and ends at the first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a
-target with no terminator is not a segment. After a "#" or "?" terminator, the
-text up to the next ")" must be identical and is not scanned for "](". Every
-other "](" is a target position, so "](" in prose, code, titles and reference
-definitions is re-based too. A changed segment must be nonempty, use only A-Z,
-a-z, 0-9 and "._~/+-", and have no leading or trailing "/", empty ("//") or "."
-component. Each side is joined to its file's directory and resolved lexically
-step by step; a step above the repository root fails, and the two
-repository-relative paths must be equal. Target existence, tracking and
+target with no terminator is not a segment. A "#" or "?" terminator starts a
+suffix that runs up to the next ")" in BASE: it must be identical, and a "(" in
+it fails, so no "](" can occur inside it. Every other "](" is a target
+position, so "](" in prose, code, titles and reference definitions is re-based
+too. A changed segment must be nonempty, use only A-Z, a-z, 0-9 and "._~/+-",
+and have no leading or trailing "/", no empty ("//") or "." component, and no
+".." as its last component. Each side is joined to its file's directory and
+resolved lexically step by step; a step above the repository root fails, and
+the two repository-relative paths must be equal. Target existence, tracking and
 symlinks are not checked, and unchanged segments are not resolved. Both texts
 must hold equally many "](". Identical texts fail (use MOVED); other mismatches
 name the first differing raw BASE offset. REBASED shares occurrence counting
@@ -162,6 +163,8 @@ def target_error(segment: str) -> str | None:
         return "empty path component ('//')"
     if "." in segment.split("/"):
         return "'.' path component"
+    if segment.split("/")[-1] == "..":
+        return "final '..' component"
     return None
 
 
@@ -186,6 +189,8 @@ def rebased(base: str, base_dir: str, text: str, text_dir: str):
         if i == len(base) or j == len(text) or base[i] != text[j]:
             return i, "text differs"
         suffix = suffix and base[i] != ")"
+        if suffix and base[i] == "(":
+            return i, "'(' in a '#' or '?' suffix"
         i, j = i + 1, j + 1
         if suffix or base[i - 2:i] != "](" or text[j - 2:j] != "](":
             continue

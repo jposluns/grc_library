@@ -32308,6 +32308,10 @@ class ClausePreservationTests(unittest.TestCase):
                 '                                 candidate["base_quote"]')
     SUFFIX_RULE = ('suffix = base.startswith(("#", "?"), i)', "suffix = False")
     COUNT_RULE = ('if base.count("](") != text.count("]("):', "if False:")
+    PAREN_RULE = ('if suffix and base[i] == "(":', "if False:")
+    DOTDOT_RULE = ('if segment.split("/")[-1] == "..":', "if False:")
+    # Fixtures whose BASE and destination files sit in sibling directories.
+    SIBLINGS = {"path": "p/base.md", "destination": "q/dest.md"}
     # name: (BASE text, destination text, expected message, rule flips)
     REBASE_REJECTIONS = {
         "target": ("Read [x](policy/a.md) now.\n", "Read [x](../policy/b.md) now.\n",
@@ -32330,7 +32334,7 @@ class ClausePreservationTests(unittest.TestCase):
         "slash": ("Read [x](/a.md) now.\n", "Read [x](/docs/../a.md) now.\n",
                   "leading '/'", (('if segment.startswith("/"):', "if False:"),)),
         "empty": ("Read [x]() now.\n", "Read [x](..) now.\n", "empty target",
-                  (("if not segment:", "if False:"),)),
+                  (("if not segment:", "if False:"), DOTDOT_RULE)),
         "percent": ("Read [x](a%2Eb.md) now.\n", "Read [x](../a%2Eb.md) now.\n",
                     "character '%'", ((PATH_RULE, ALLOW.replace("CHARS", "%")),)),
         "entity": ("Read [x](a&amp;b.md) now.\n", "Read [x](../a&amp;b.md) now.\n",
@@ -32351,7 +32355,7 @@ class ClausePreservationTests(unittest.TestCase):
         "nbsp": ("R [a](a/.\u00a0b.md) n.\n", "R [a](../a\u00a0b.md) n.\n",
                  "character '\\xa0'", (UNICODE_END, DOT_RULE)),
         "em_space": ("R [a](a/b/..\u2003c.md) n.\n", "R [a](../a\u2003c.md) n.\n",
-                     "character '\\u2003'", (UNICODE_END,)),
+                     "character '\\u2003'", (UNICODE_END, DOTDOT_RULE)),
         "table_pipe": ("| [a](x.md) | b |\n", "| [a](../z|w/../x.md) | b |\n",
                        "character '|'", ((PATH_RULE, ALLOW.replace("CHARS", "|")),)),
         "paren_open": ("R [a](x.md) n.\n", "R [a](../w(/../x.md) n.\n", "character '('",
@@ -32363,9 +32367,29 @@ class ClausePreservationTests(unittest.TestCase):
         "crlf_whole": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\r\n",
                        "text differs", (RAW_RULE,)),
         "fragment": ("Read [x](a.md#frag](b.md)) now.\n",
-                     "Read [x](../a.md#frag](../b.md)) now.\n", "text differs", (SUFFIX_RULE,)),
+                     "Read [x](../a.md#frag](../b.md)) now.\n",
+                     "'(' in a '#' or '?' suffix", (SUFFIX_RULE,)),
         "query": ("Read [x](a.md?q=](b.md)) now.\n",
-                  "Read [x](../a.md?q=](../b.md)) now.\n", "text differs", (SUFFIX_RULE,)),
+                  "Read [x](../a.md?q=](../b.md)) now.\n",
+                  "'(' in a '#' or '?' suffix", (SUFFIX_RULE,)),
+        # Round 5 QA rows: balanced "()" in a suffix must not end it early.
+        "paren_fragment": ("R [a](x.md#f()](y.md)) n.\n",
+                           "R [a](../p/x.md#f()](../p/y.md)) n.\n",
+                           "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+        "paren_anchor_only": ("R [a](x.md#f()](y.md)) n.\n",
+                              "R [a](x.md#f()](../p/y.md)) n.\n",
+                              "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+        "paren_query": ("R [a](x.md?q=()](y.md)) n.\n",
+                        "R [a](../p/x.md?q=()](../p/y.md)) n.\n",
+                        "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+        "paren_fragment_inner": ("[x](a.md#f(b)](c.md))\n", "[x](../a.md#f(b)](../c.md))\n",
+                                 "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
+        "paren_query_inner": ("[x](a.md?q=(b)](c.md))\n", "[x](../a.md?q=(b)](../c.md))\n",
+                              "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
+        "final_dotdot_file": ("R [a](x.md) n.\n", "R [a](../p/x.md/y/..) n.\n",
+                              "final '..' component", (DOTDOT_RULE,), SIBLINGS),
+        "final_dotdot_dir": ("R [a](sub/..) n.\n", "R [a](../p) n.\n",
+                             "final '..' component", (DOTDOT_RULE,), SIBLINGS),
         "trailing_slash": ("Read [x](x.md) now.\n", "Read [x](../x.md/) now.\n",
                            "trailing '/'", (('if segment.endswith("/"):', "if False:"),)),
         "double_slash": ("Read [x](a/x.md) now.\n", "Read [x](../a//x.md) now.\n",
@@ -32393,15 +32417,15 @@ class ClausePreservationTests(unittest.TestCase):
         target.write_text(source, encoding="utf-8")
         return target
 
-    def rebase_flip(self, base, moved, code, message, *flips):
+    def rebase_flip(self, base, moved, code, message, *flips, **where):
         """Check the real tool, then show the case flips with its rules off."""
-        self.rebase(base, moved, code, message)
+        self.rebase(base, moved, code, message, **where)
         self.check(1 - code, "REBASED at HEAD" if code == 0 else "OK:",
                    tool=self.flipped(*flips))
 
     def rejected(self, name):
-        base, moved, message, flips = self.REBASE_REJECTIONS[name]
-        self.rebase_flip(base, moved, 1, message, *flips)
+        base, moved, message, flips, *where = self.REBASE_REJECTIONS[name]
+        self.rebase_flip(base, moved, 1, message, *flips, **(where[0] if where else {}))
 
     def test_rebased_link_and_image_accepted(self):
         for base, moved in (
@@ -32491,8 +32515,15 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("crlf_whole")
 
     def test_rebased_fragment_and_query_suffixes_exact(self):
-        self.rejected("fragment")
-        self.rejected("query")
+        for name in ("fragment", "query"):
+            self.rejected(name)
+            self.check(1, "text differs", tool=self.flipped(self.PAREN_RULE))
+
+    def test_rebased_rejects_open_parenthesis_in_suffix(self):
+        for name in ("paren_fragment", "paren_anchor_only", "paren_query",
+                     "paren_fragment_inner", "paren_query_inner"):
+            with self.subTest(name=name):
+                self.rejected(name)
 
     def test_rebased_rejects_trailing_slash(self):
         self.rejected("trailing_slash")
@@ -32502,6 +32533,10 @@ class ClausePreservationTests(unittest.TestCase):
 
     def test_rebased_rejects_dot_component(self):
         self.rejected("dot_component")
+
+    def test_rebased_rejects_final_dotdot_component(self):
+        self.rejected("final_dotdot_file")
+        self.rejected("final_dotdot_dir")
 
     def test_rebased_occurrences_consumed(self):
         base = "- [x](a.md)\n- [x](a.md)\n"
