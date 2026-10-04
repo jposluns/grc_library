@@ -6,34 +6,51 @@ The gate ENGINE is pack-owned source of record at
 ``core/gates.toml``, id ``lint-links``, enforcing the pack's ``markdown-link-resolution``
 clause); this thin wrapper keeps the house ``python3 tools/lint-links.py`` shape (gate 35
 parses exactly that) and supplies the grc-local scan configuration the pack engine
-deliberately does not carry: the AIQT bootstrap, the repo root, the markdown scope selector
-(``iter_markdown_files``), and the default scan roots (``DEFAULT_SCAN_ROOTS``). These wrapper
-bytes are HAND-MAINTAINED, not compiler-generated, so gate 99 does NOT own them. Both
-``iter_markdown_files`` and ``DEFAULT_SCAN_ROOTS`` stay HERE (grc scan config) so the scan-scope
-regression's ALLOW map and the resolved-scan-root behavioural tests observe them unmoved.
+deliberately does not carry: the AIQT bootstrap, the repo root, and the scope
+selector (``iter_markdown_files``). By default, scan existing tracked ``.md`` files
+from Git's index, excluding ``.corpus-management/`` and configured adopter overlays.
+New directories need no allow-list update. Untracked Markdown is checked only via
+explicit paths, whose recursive selection is unchanged. Renamed provenance files
+remain included. Git selection failures return 2 rather than passing an empty scan.
+These wrapper bytes are HAND-MAINTAINED, not compiler-generated.
 
 Usage:
     python3 tools/lint-links.py
     python3 tools/lint-links.py path1 path2 ...
 
-Exit codes are the engine's: 0 clean; 1 broken link(s).
+Exit codes: 0 clean; 1 broken link(s); 2 invalid paths or selection failure.
 """
 
 from __future__ import annotations
 
+import os
+import subprocess
 import sys
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from external_overlay import RULE_PROVENANCE_PATHS
-from lint_common import AUDITED_DOMAIN_DIRS, REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdown  # noqa: E402  # grc-config/store, stays local
+from lint_common import REPO_ROOT, guard_explicit_paths, iter_scan_roots_markdown, is_default_exempt_root, is_adopter_exempt  # noqa: E402  # grc-config/store, stays local
 
 PACK_TOOLS = Path(__file__).resolve().parent.parent / ".corpus-management" / "tools"
 
 
-def iter_markdown_files(paths: list[str]) -> list[Path]:
-    files = set(iter_scan_roots_markdown(paths, repo_root=REPO_ROOT))
-    roots = [REPO_ROOT / p for p in paths]
+def iter_markdown_files(paths: list[str] | None = None) -> list[Path]:
+    if paths is None:
+        tracked = subprocess.check_output(
+            ["git", "-C", str(REPO_ROOT), "ls-files", "-z"],
+        )
+        files = {
+            REPO_ROOT / os.fsdecode(name)
+            for name in tracked.split(b"\0") if name.endswith(b".md")
+        }
+        files = {p for p in files if p.is_file()
+                 and not is_default_exempt_root(p, repo_root=REPO_ROOT)
+                 and not is_adopter_exempt(p, repo_root=REPO_ROOT)}
+        roots = [REPO_ROOT]
+    else:
+        files = set(iter_scan_roots_markdown(paths, repo_root=REPO_ROOT))
+        roots = [REPO_ROOT / p for p in paths]
     # The renamed provenance still contains Markdown links. Include it for
     # both directory scans and explicit-file scans, without adding arbitrary txt.
     for rel in RULE_PROVENANCE_PATHS:
@@ -41,36 +58,6 @@ def iter_markdown_files(paths: list[str]) -> list[Path]:
         if path.is_file() and any(p == path or p in path.parents for p in roots):
             files.add(path)
     return sorted(files)
-
-
-# Default scan roots when no paths are given. Exposed as a module-level constant so a
-# regression test can assert membership BEHAVIOURALLY (against the list the code actually
-# scans), not by grepping source text. ``tools`` and ``docs`` are per-linter extras beyond
-# the audited domains; the domain run is splatted from lint_common (the scan-scope parity
-# gate forbids hardcoding it). ``.claude/rules`` (3.182 (closing PR #1347)) is a shipped rule
-# surface, the pack mirror plus third-party overlays, whose relative Markdown targets must
-# resolve; it is in DEFAULT_EXEMPT_DIRS so no other gate link-checks it, and scanning it here
-# catches dead links (never-vendored companions, mirror path rot) before they ship in the
-# guardrails pack. The deferred rule bodies under `.claude/references` need the same
-# coverage after the corpus-management index split. Activity playbooks, references,
-# and all project/external skills also carry links that must resolve after relocation.
-DEFAULT_SCAN_ROOTS: list[str] = [
-    "README.md",
-    "NOTICE.md",
-    "specification-master-project.md",
-    "specification-ingestion.md",
-    "instruction-ai-document-ingestion.md",
-    *AUDITED_DOMAIN_DIRS,
-    "tools",
-    "docs",
-    ".claude/rules",
-    ".claude/references",
-    ".claude/playbooks",
-    "references",
-    ".claude/skills",
-    "guardrails",
-    "executive",  # narrative layer: IN link-integrity scope (P-1.25 scan-root split)
-]
 
 
 def _engine():
@@ -84,8 +71,13 @@ def _engine():
 
 def main(argv: list[str]) -> int:
     # Explicit paths are refused when unsound and normalized otherwise (3b21).
-    paths = guard_explicit_paths(argv[1:], repo_root=REPO_ROOT) if argv[1:] else DEFAULT_SCAN_ROOTS
-    return _engine().run(iter_markdown_files(paths), repo_root=REPO_ROOT)
+    paths = guard_explicit_paths(argv[1:], repo_root=REPO_ROOT) if argv[1:] else None
+    try:
+        files = iter_markdown_files(paths)
+    except (OSError, subprocess.CalledProcessError) as exc:
+        print(f"ERROR: cannot select link-audit files: {exc}", file=sys.stderr)
+        return 2
+    return _engine().run(files, repo_root=REPO_ROOT)
 
 
 if __name__ == "__main__":
