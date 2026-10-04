@@ -36549,6 +36549,23 @@ class AIQTCutoverTests(unittest.TestCase):
     def test_clean_snapshot(self):
         self.assertEqual(len(self.aiqt.validate(self.root)), 133)
 
+    def test_overlays_cite_live_store_paths(self):
+        # P-TODO 3b183: the retained overlays name store files at the operational store, not the
+        # retired grc_library_private/.working/ tree. The one permitted mention is change-tracking's
+        # statement that changelog-details/ there is the retired fallback target. The backlog
+        # pointer names both backlogs (public TODO.md and private P-TODO.md).
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        text = self.aiqt.compatibility(self.root, legacy).decode()
+        self.assertEqual(re.findall(r'grc_library_private/\.working/[\w./<>-]*', text),
+                         ['grc_library_private/.working/changelog-details/'])
+        self.assertNotIn('grc_library_private/degradation-watch-log.md', text)
+        self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', text)
+        for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
+                     'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
+                     'degradation-watch-log.md', 'worker-brief-template.md'):
+            with self.subTest(name=name):
+                self.assertIn('`/opt/grc/private/' + name + '`', text)
+
     def test_pinned_input_and_local_mutations_fail(self):
         import json
         data = json.loads((self.root / self.aiqt.MANIFEST).read_text())

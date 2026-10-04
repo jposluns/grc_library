@@ -325,8 +325,8 @@ The disciplines implement the same audit-trail-integrity principle the broader p
   Project wiring only; the pack body keeps in-session fan-out for adopters.
 
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
-- Worker-brief template: `grc_library_private/.working/worker-brief-template.md`.
-- Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/orch`).
+- Worker-brief template: `/opt/grc/private/worker-brief-template.md`.
+- Verifier-override register: `/opt/grc/private/verifier-overrides.md` (surfaced at `/orch`).
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
   channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
   guardrail seeds go to guardrails via `inbox-send`).

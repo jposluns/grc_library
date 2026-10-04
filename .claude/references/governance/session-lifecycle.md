@@ -127,17 +127,17 @@ The rule's mechanisms are the exception paths (graceful degradation for blocked 
 
 ## Project overlay (grc_library wiring and lineage; local copy only)
 
-- Handoff record: `grc_library_private/.working/session-handoff.md`; concurrency lease:
-  `grc_library_private/.working/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
-- Pending decisions: `grc_library_private/.working/pending-decisions.md`; the timer default and the
+- Handoff record: `/opt/grc/private/session-handoff.md`; concurrency lease:
+  `/opt/grc/private/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
+- Pending decisions: `/opt/grc/private/pending-decisions.md`; the timer default and the
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.
 - Unattended-degradation auto-handoff (section 4): operationalized in the project
   CLAUDE.md's No idle-stop-in-unattended-mode item (item 4 of `## Attended-autonomous operating mode`) and the wind-down sections. The closing
   handoff is executed directly and takes no `AskUserQuestion` (the unattended hook
   blocks it anyway); the concrete close is a green merged PR plus a refreshed
-  `grc_library_private/.working/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
-  green-at-`<sha>`) and the `grc_library_private/.working/session-state.md` lease RELEASE.
+  `/opt/grc/private/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
+  green-at-`<sha>`) and the `/opt/grc/private/session-state.md` lease RELEASE.
 - **No-manufactured-winddown interim supersession (2026-08-28).** The fleet share
   `10-TRUST-no-manufactured-winddown` is adopted as an interim local control in the project CLAUDE.md
   `## No manufactured wind-down` section, which SUPERSEDES this rule's §1 "prefer a fresh session"
