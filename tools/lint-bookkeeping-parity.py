@@ -86,7 +86,9 @@ and that finding keeps the gate failing. Both history readers exclude the
 malformed row while retaining valid peers, and no number in a malformed cell
 plays any part in the QA-cadence floor. While any malformed cell exists, the
 validate-pr floor is computed from well-formed rows only: a malformed cell
-cannot lower it, but if the malformed row held the oldest PR the floor rises to
+cannot lower it unless no well-formed row remains, when the floor falls to
+INCEPTION and every in-window PR is reported; if the malformed row held the
+oldest PR the floor rises to
 the oldest well-formed row, so floor-dependent findings (a PR missing its
 validate-pr row) may be incomplete until the cell is fixed. A PR whose only row
 is malformed is also reported as missing its row when it is at or above that
