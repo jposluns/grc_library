@@ -2,8 +2,8 @@
 
 **Document Title:** Telecommunications Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.2\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/telecommunications/annex-telecommunications-sector-requirements.md`](annex-telecommunications-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -34,7 +34,7 @@ This directory applies to organizations operating as any of the following:
 - Satellite and submarine cable operators.
 - Internet exchange points and top-level-domain registries.
 - Data centre operators in scope of jurisdictional electronic-communications regulation.
-- Designated essential entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
+- Designated essential or important entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
 
 ---
 

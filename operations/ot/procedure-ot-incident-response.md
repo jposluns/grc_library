@@ -2,7 +2,7 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.7\
+**Version:** 1.1.8\
 **Date:** 2026-10-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -42,7 +42,7 @@ The procedure applies to any incident affecting an OT zone, conduit, or supporti
 
 ### 2.3 Precedence
 
-Where this procedure conflicts with the safety-management procedure, the safety procedure takes precedence. Where it conflicts with sector-regulator-mandated reporting timelines (NERC CIP, NIS 2 essential-entity reporting, sector-specific), the regulator timeline takes precedence.
+Where this procedure conflicts with the safety-management procedure, the safety procedure takes precedence. Where it conflicts with sector-regulator-mandated reporting timelines (NERC CIP, NIS 2 Article 23 reporting, sector-specific), the regulator timeline takes precedence.
 
 ---
 
@@ -358,7 +358,7 @@ OT forensics operates under constraints that do not apply to IT forensics:
 | ISO/IEC 27035 | Information security incident management | Broader incident management framework |
 | IEC 61511 | Functional safety: Safety instrumented systems for the process industry sector | Safety-management precedence on SIS-implicated incidents |
 | NERC CIP-008 | Cyber security incident reporting and response planning | North American electricity reporting requirements |
-| EU NIS 2 Directive | Cybersecurity of network and information systems | EU essential-entity reporting timelines |
+| EU NIS 2 Directive | Cybersecurity of network and information systems | EU essential and important entity reporting timelines |
 | TSA Pipeline Security Directives | Sector-specific incident reporting | US pipeline operators |
 | IMO MSC-FAL.1/Circ.3 | Maritime cyber risk management | Maritime sector incident considerations |
 

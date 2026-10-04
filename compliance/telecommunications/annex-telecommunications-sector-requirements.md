@@ -2,8 +2,8 @@
 
 **Document Title:** Telecommunications Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.8\
-**Date:** 2026-10-01\
+**Version:** 0.0.10\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../../security/standard-logging-and-monitoring.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md)\
@@ -51,7 +51,7 @@ Most jurisdictions impose telecoms-specific cybersecurity obligations that overl
 | Annual sector security report | Outside library scope; regulator-template |
 | Penalties for non-compliance | Jurisdiction-specific |
 
-EU specifics: NIS 2 designates providers of public electronic communications networks or services as Essential entities; see the NIS 2 implementation annex.
+EU specifics: under NIS 2, a provider of public electronic communications networks or of publicly available electronic communications services is an essential entity where it qualifies as a medium-sized enterprise (Article 3(1)(c)) or exceeds the medium-sized ceilings (Article 3(1)(a)), and otherwise an important entity (Article 3(2)) unless another point of Article 3(1), such as a Member State identification, makes it essential; see the NIS 2 implementation annex.
 
 UK specifics: Telecommunications (Security) Act 2021 plus the Electronic Communications (Security Measures) Regulations 2022 plus Ofcom code of practice. Two tiers of provider with differentiated obligations.
 

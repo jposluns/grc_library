@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.1\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md), [`governance/register-document-index-and-classification.md`](../../governance/register-document-index-and-classification.md)\
@@ -34,7 +34,7 @@ This directory applies to organizations operating as any of the following:
 - Water and waste-water utilities.
 - District heating and cooling operators.
 - Smart-grid, smart-meter, and demand-response platform operators.
-- Designated essential entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
+- Designated essential or important entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
 
 ---
 
@@ -42,7 +42,7 @@ This directory applies to organizations operating as any of the following:
 
 | Document | Type | Description |
 | --- | --- | --- |
-| [`annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md) | Annex | Energy-and-utilities sector regulatory landscape including NERC CIP, ENISA guidance, EU NIS 2 essential-entity overlays, and country-specific energy-regulator obligations. |
+| [`annex-energy-and-utilities-sector-requirements.md`](annex-energy-and-utilities-sector-requirements.md) | Annex | Energy-and-utilities sector regulatory landscape including NERC CIP, ENISA guidance, EU NIS 2 entity obligations, and country-specific energy-regulator obligations. |
 
 ---
 
