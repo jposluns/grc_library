@@ -32313,8 +32313,15 @@ class ClausePreservationTests(unittest.TestCase):
     BACKSLASH_RULE = ('unit.find("\\\\")', "-1")
     LESS_RULE = ('unit.find("<")', "-1")
     LINK_PAREN_RULE = ("target_paren(unit)", "-1")
+    # Round 8: each target starts after leading whitespace; flips restore the r7 start.
+    PAREN_START = ("start = TARGET_START.match(unit, match.end()).end()", "start = match.end()")
+    REBASED_START = (("TARGET_START.match(base, i).end()", "i"),
+                     ("TARGET_START.match(text, j).end()", "j"))
+    WHITESPACE_RULES = (PAREN_START,) + REBASED_START
     # Fixtures whose BASE and destination files sit in sibling directories.
     SIBLINGS = {"path": "p/base.md", "destination": "q/dest.md"}
+    # Fixtures whose BASE and destination files share a directory.
+    SAME_DIR = {"path": "p/base.md", "destination": "p/dest.md"}
     # name: (BASE text, destination text, expected message, rule flips)
     REBASE_REJECTIONS = {
         "target": ("Read [x](policy/a.md) now.\n", "Read [x](../policy/b.md) now.\n",
@@ -32468,6 +32475,34 @@ class ClausePreservationTests(unittest.TestCase):
         "paren_unterminated_target": ("See [y](y.md) then ](x(", "See [y](../y.md) then ](x(",
                                       "'(' in a link target in the BASE unit at raw offset 22",
                                       (LINK_PAREN_RULE,)),
+        # Round 8 QA rows: whitespace between "](" and the destination.
+        "ws_space": ("R [a]( x.md#f](y.md)) n.\n", "R [a]( x.md#f](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 14",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_query": ("R [a]( x.md?q=](y.md)) n.\n", "R [a]( x.md?q=](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 15",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_tab": ("R [a](\tx.md#f](y.md)) n.\n", "R [a](\tx.md#f](../p/y.md)) n.\n",
+                   "'(' in a link target in the BASE unit at raw offset 14",
+                   WHITESPACE_RULES, SAME_DIR),
+        "ws_newline": ("R [a](\nx.md#f](y.md)) n.\n", "R [a](\nx.md#f](../p/y.md)) n.\n",
+                       "'(' in a link target in the BASE unit at raw offset 14",
+                       WHITESPACE_RULES, SAME_DIR),
+        "ws_external": ("R [a]( https://e.com/x#f](y.md)) n.\n",
+                        "R [a]( https://e.com/x#f](../p/y.md)) n.\n",
+                        "'(' in a link target in the BASE unit at raw offset 25",
+                        WHITESPACE_RULES, SAME_DIR),
+        "ws_image": ("R ![a]( x.png#f](y.md)) n.\n", "R ![a]( x.png#f](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 16",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_balanced": ("R [a]( https://e.com/W_(b)#s](y.md)) n.\n",
+                        "R [a]( https://e.com/W_(b)#s](../p/y.md)) n.\n",
+                        "'(' in a link target in the BASE unit at raw offset 23",
+                        WHITESPACE_RULES, SIBLINGS),
+        "ws_suffix_title": ('R [a]( x.md#s "T (x)") and [b](b.md).\n',
+                            'R [a]( x.md#s "T (x)") and [b](../p/b.md).\n',
+                            "BASE raw offset 17 (BASE line 1; destination line 1): "
+                            "'(' in a '#' or '?' suffix", REBASED_START, SIBLINGS),
     }
 
     def rebase(self, base, moved, code, message="OK:", tool=None,
@@ -32649,6 +32684,20 @@ class ClausePreservationTests(unittest.TestCase):
                          "1 REBASED asserted",
                          ('LINK_TARGET_END = re.compile(r"[) \\t\\n\\r\\f\\v]")',
                           'LINK_TARGET_END = re.compile(r"[)]")'))
+
+    def test_rebased_rejects_whitespace_led_targets(self):
+        for name in ("ws_space", "ws_query", "ws_tab", "ws_newline", "ws_external",
+                     "ws_image", "ws_balanced"):
+            with self.subTest(name=name):
+                self.rejected(name)
+
+    def test_rebased_target_start_skips_whitespace(self):
+        self.rejected("ws_suffix_title")
+        self.rebase_flip("R [a]( x.md) n.\n", "R [a]( ../x.md) n.\n", 0,
+                         "1 REBASED asserted", *self.REBASED_START)
+        self.rebase_flip("R [a]( x.md) n.\n", "R [a](\t../x.md) n.\n", 1,
+                         "BASE raw offset 6 (BASE line 1; destination line 1): text differs",
+                         ("if base[i:start_base] != text[j:start_text]:", "if False:"))
 
     def test_rebased_occurrences_consumed(self):
         base = "- [x](a.md)\n- [x](a.md)\n"

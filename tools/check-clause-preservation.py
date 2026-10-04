@@ -10,11 +10,13 @@ REBASED is a reviewer assertion that the clause MOVED with only relative link
 targets re-based; like MOVED it needs another tracked file and an empty reason.
 It compares raw unit text (CR and line terminators included, nothing
 normalized): an unconsumed destination unit must equal the BASE unit except for
-substituted target segments. Either unit fails if it holds a backslash or "<"
-anywhere, or a "(" in any link target: the text from each "](" up to the next
-ASCII ")", space, tab, LF, CR, FF or VT (or the unit's end), unchanged targets
-and any "#" or "?" part included. Each such refusal names its rule, side and
-raw offset. A segment starts right after "](" in both texts and ends at the
+substituted target segments. Every target starts after its "](" and any leading
+ASCII space, tab, LF, CR, FF or VT. Either unit fails if it holds a backslash
+or "<" anywhere, or a "(" in any link target: the text from that start up to
+the next ASCII ")", space, tab, LF, CR, FF or VT (or the unit's end), unchanged
+targets and any "#" or "?" part included. Each such refusal names its rule,
+side and raw offset. A segment starts at that start in both texts, after
+identical leading whitespace (otherwise the texts differ), and ends at the
 first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a target with no
 terminator is not a segment. A "#" or "?" terminator starts a suffix that runs
 up to the next ")" in BASE: it must be identical, and a "(" in it fails, so no
@@ -85,6 +87,7 @@ ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
 TARGET_END = re.compile(r"[)#? \t\n\r\f\v]")
 PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")
 LINK_TARGET_END = re.compile(r"[) \t\n\r\f\v]")
+TARGET_START = re.compile(r"[ \t\n\r\f\v]*")
 
 
 def inline_parts(text: str):
@@ -176,8 +179,9 @@ def target_error(segment: str) -> str | None:
 def target_paren(unit: str) -> int:
     """Raw offset of the first "(" inside any link target, or -1."""
     for match in re.finditer(r"\]\(", unit):
-        end = LINK_TARGET_END.search(unit, match.end())
-        offset = unit.find("(", match.end(), end.start() if end else len(unit))
+        start = TARGET_START.match(unit, match.end()).end()
+        end = LINK_TARGET_END.search(unit, start)
+        offset = unit.find("(", start, end.start() if end else len(unit))
         if offset >= 0:
             return offset
     return -1
@@ -226,6 +230,11 @@ def rebased(base: str, base_dir: str, text: str, text_dir: str):
         i, j = i + 1, j + 1
         if suffix or base[i - 2:i] != "](" or text[j - 2:j] != "](":
             continue
+        start_base = TARGET_START.match(base, i).end()
+        start_text = TARGET_START.match(text, j).end()
+        if base[i:start_base] != text[j:start_text]:
+            continue
+        i, j = start_base, start_text
         end_base, end_text = TARGET_END.search(base, i), TARGET_END.search(text, j)
         if not (end_base and end_text):
             continue
