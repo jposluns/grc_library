@@ -32291,6 +32291,451 @@ class ClausePreservationTests(unittest.TestCase):
         self.check(1, "whole clause occurrence missing", tool=self.mutant(
             "category, level, normalize(body)", "category, level, normalize(text)"))
 
+    REBASE_LINK = 'Read [policy](policy/a.md#scope "Scope") now.\n'
+    REBASE_MOVED = 'Read [policy](../policy/a.md#scope "Scope") now.\n'
+    # Rule flips: (tool source, replacement that turns the rule off).
+    BYTE_RULE = ((" or base[i] != text[j]:", ":"),)
+    TERMINATORS = 'TARGET_END = re.compile(r"[)#? \\t\\n\\r\\f\\v]")'
+    UNICODE_END = (TERMINATORS, 'TARGET_END = re.compile(r"[)#?]|\\s")')
+    PATH_RULE = 'PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")'
+    ALLOW = PATH_RULE.replace("+-]", "+CHARS-]")
+    DOT_RULE = ('if "." in segment.split("/"):', "if False:")
+    ESCAPE_RULE = ("if not parts:\n                return None",
+                   "if not parts:\n                continue")
+    RAW_RULE = ('unit["raw"], posixpath.dirname(path),\n'
+                '                                 candidate["raw"]',
+                'unit["base_quote"], posixpath.dirname(path),\n'
+                '                                 candidate["base_quote"]')
+    SUFFIX_RULE = ('suffix = base.startswith(("#", "?"), i)', "suffix = False")
+    COUNT_RULE = ('if base.count("](") != text.count("]("):', "if False:")
+    PAREN_RULE = ('if suffix and base[i] == "(":', "if False:")
+    DOTDOT_RULE = ('if segment.split("/")[-1] == "..":', "if False:")
+    BACKSLASH_RULE = ('unit.find("\\\\")', "-1")
+    LESS_RULE = ('unit.find("<")', "-1")
+    LINK_PAREN_RULE = ("target_paren(unit)", "-1")
+    # Round 8: each target starts after leading whitespace; flips restore the r7 start.
+    PAREN_START = ("start = TARGET_START.match(unit, match.end()).end()", "start = match.end()")
+    REBASED_START = (("TARGET_START.match(base, i).end()", "i"),
+                     ("TARGET_START.match(text, j).end()", "j"))
+    WHITESPACE_RULES = (PAREN_START,) + REBASED_START
+    # Fixtures whose BASE and destination files sit in sibling directories.
+    SIBLINGS = {"path": "p/base.md", "destination": "q/dest.md"}
+    # Fixtures whose BASE and destination files share a directory.
+    SAME_DIR = {"path": "p/base.md", "destination": "p/dest.md"}
+    # name: (BASE text, destination text, expected message, rule flips)
+    REBASE_REJECTIONS = {
+        "target": ("Read [x](policy/a.md) now.\n", "Read [x](../policy/b.md) now.\n",
+                   "resolves to 'policy/a.md' and 'policy/b.md'",
+                   (("if left != right:", "if False:"),)),
+        "anchor": (REBASE_LINK, REBASE_MOVED.replace("#scope", "#other"),
+                   "text differs", BYTE_RULE),
+        "outside_text": (REBASE_LINK, REBASE_MOVED.replace("Read", "Reed"),
+                         "first difference at BASE raw offset 2", BYTE_RULE),
+        "rewrap": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md) now.\n",
+                   "text differs", BYTE_RULE),
+        "identical": (REBASE_LINK, REBASE_LINK, "texts are identical; use MOVED",
+                      (("if reason is None and result:", "if reason is None:"),)),
+        "escape": ("Read [x](../out.md) now.\n", "Read [x](../../out.md) now.\n",
+                   "outside the repository", (ESCAPE_RULE,)),
+        "intermediate_escape": ("Read [x](x.md) now.\n", "Read [x](../../x.md) now.\n",
+                                "outside the repository", (ESCAPE_RULE,)),
+        "scheme": ("Read [x](a:b.md) now.\n", "Read [x](../a:b.md) now.\n",
+                   "character ':'", ((PATH_RULE, ALLOW.replace("CHARS", ":")),)),
+        "slash": ("Read [x](/a.md) now.\n", "Read [x](/docs/../a.md) now.\n",
+                  "leading '/'", (('if segment.startswith("/"):', "if False:"),)),
+        "empty": ("Read [x]() now.\n", "Read [x](..) now.\n", "empty target",
+                  (("if not segment:", "if False:"), DOTDOT_RULE)),
+        "percent": ("Read [x](a%2Eb.md) now.\n", "Read [x](../a%2Eb.md) now.\n",
+                    "character '%'", ((PATH_RULE, ALLOW.replace("CHARS", "%")),)),
+        "entity": ("Read [x](a&amp;b.md) now.\n", "Read [x](../a&amp;b.md) now.\n",
+                   "character '&'", ((PATH_RULE, ALLOW.replace("CHARS", "&;")),)),
+        "backslash": ("Read [x](a\\b.md) now.\n", "Read [x](../a\\b.md) now.\n",
+                      "backslash in the BASE unit at raw offset 10",
+                      (BACKSLASH_RULE, (PATH_RULE, ALLOW.replace("CHARS", "\\\\")))),
+        "less": ("Read [x](a<b.md) now.\n", "Read [x](../a<b.md) now.\n",
+                 "'<' in the BASE unit at raw offset 10",
+                 (LESS_RULE, (PATH_RULE, ALLOW.replace("CHARS", "<")))),
+        "greater": ("Read [x](a>b.md) now.\n", "Read [x](../a>b.md) now.\n",
+                    "character '>'", ((PATH_RULE, ALLOW.replace("CHARS", ">")),)),
+        "control": ("Read [x](a\x01b.md) now.\n", "Read [x](../a\x01b.md) now.\n",
+                    "character '\\x01'", ((PATH_RULE, ALLOW.replace("CHARS", "\\x01")),)),
+        "unterminated": ("Read [x](a.md", "Read [x](../a.md", "text differs",
+                         ((TERMINATORS, TERMINATORS.replace(']")', ']|$")')),)),
+        # Round 4 QA rows: renderer-visible changes the lexical rules must refuse.
+        "paren_dot": ("R [a](x(a/.).md) n.\n", "R [a](../x(a).md) n.\n",
+                      "'(' in a link target in the BASE unit at raw offset 7",
+                      (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "(")), DOT_RULE)),
+        "nbsp": ("R [a](a/.\u00a0b.md) n.\n", "R [a](../a\u00a0b.md) n.\n",
+                 "character '\\xa0'", (UNICODE_END, DOT_RULE)),
+        "em_space": ("R [a](a/b/..\u2003c.md) n.\n", "R [a](../a\u2003c.md) n.\n",
+                     "character '\\u2003'", (UNICODE_END, DOTDOT_RULE)),
+        "table_pipe": ("| [a](x.md) | b |\n", "| [a](../z|w/../x.md) | b |\n",
+                       "character '|'", ((PATH_RULE, ALLOW.replace("CHARS", "|")),)),
+        "paren_open": ("R [a](x.md) n.\n", "R [a](../w(/../x.md) n.\n",
+                       "'(' in a link target in the destination unit at raw offset 10",
+                       (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "(")))),
+        "bracket": ("R [a](x.md) n.\n", "R [a](../w](/../x.md) n.\n",
+                    "'(' in a link target in the destination unit at raw offset 11",
+                    (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "\\](")),
+                     COUNT_RULE)),
+        "cr_inside": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\n",
+                      "text differs", (RAW_RULE,)),
+        "crlf_whole": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\r\n",
+                       "text differs", (RAW_RULE,)),
+        "fragment": ("Read [x](a.md#frag](b.md)) now.\n",
+                     "Read [x](../a.md#frag](../b.md)) now.\n",
+                     "'(' in a link target in the BASE unit at raw offset 19",
+                     (LINK_PAREN_RULE, SUFFIX_RULE)),
+        "query": ("Read [x](a.md?q=](b.md)) now.\n",
+                  "Read [x](../a.md?q=](../b.md)) now.\n",
+                  "'(' in a link target in the BASE unit at raw offset 17",
+                  (LINK_PAREN_RULE, SUFFIX_RULE)),
+        # Round 5 QA rows: balanced "()" in a suffix must not end it early.
+        "paren_fragment": ("R [a](x.md#f()](y.md)) n.\n",
+                           "R [a](../p/x.md#f()](../p/y.md)) n.\n",
+                           "'(' in a link target in the BASE unit at raw offset 12",
+                           (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
+        "paren_anchor_only": ("R [a](x.md#f()](y.md)) n.\n",
+                              "R [a](x.md#f()](../p/y.md)) n.\n",
+                              "'(' in a link target in the BASE unit at raw offset 12",
+                              (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
+        "paren_query": ("R [a](x.md?q=()](y.md)) n.\n",
+                        "R [a](../p/x.md?q=()](../p/y.md)) n.\n",
+                        "'(' in a link target in the BASE unit at raw offset 13",
+                        (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
+        "paren_fragment_inner": ("[x](a.md#f(b)](c.md))\n", "[x](../a.md#f(b)](../c.md))\n",
+                                 "'(' in a link target in the BASE unit at raw offset 10",
+                                 (LINK_PAREN_RULE, PAREN_RULE)),
+        "paren_query_inner": ("[x](a.md?q=(b)](c.md))\n", "[x](../a.md?q=(b)](../c.md))\n",
+                              "'(' in a link target in the BASE unit at raw offset 11",
+                              (LINK_PAREN_RULE, PAREN_RULE)),
+        "paren_suffix_title": ('R [a](x.md#s "T (x)") n.\n', 'R [a](../x.md#s "T (x)") n.\n',
+                               "BASE raw offset 16 (BASE line 1; destination line 1): "
+                               "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
+        "final_dotdot_file": ("R [a](x.md) n.\n", "R [a](../p/x.md/y/..) n.\n",
+                              "final '..' component", (DOTDOT_RULE,), SIBLINGS),
+        "final_dotdot_dir": ("R [a](sub/..) n.\n", "R [a](../p) n.\n",
+                             "final '..' component", (DOTDOT_RULE,), SIBLINGS),
+        "trailing_slash": ("Read [x](x.md) now.\n", "Read [x](../x.md/) now.\n",
+                           "trailing '/'", (('if segment.endswith("/"):', "if False:"),)),
+        "double_slash": ("Read [x](a/x.md) now.\n", "Read [x](../a//x.md) now.\n",
+                         "empty path component", (('if "//" in segment:', "if False:"),)),
+        "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
+                          "'.' path component", (DOT_RULE,)),
+        # Round 6 QA rows: a ")" the renderer does not treat as the end of a target.
+        "r6_escaped_fragment": ("R [a](x.md#f\\)](y.md)) n.\n",
+                                "R [a](../p/x.md#f\\)](../p/y.md)) n.\n",
+                                "backslash in the BASE unit at raw offset 12",
+                                (BACKSLASH_RULE,), SIBLINGS),
+        "r6_escaped_query": ("R [a](x.md?q=\\)](y.md)) n.\n",
+                             "R [a](../p/x.md?q=\\)](../p/y.md)) n.\n",
+                             "backslash in the BASE unit at raw offset 13",
+                             (BACKSLASH_RULE,), SIBLINGS),
+        "r6_escaped_anchor_only": ("R [a](x.md#f\\)](y.md)) n.\n",
+                                   "R [a](x.md#f\\)](../p/y.md)) n.\n",
+                                   "backslash in the BASE unit at raw offset 12",
+                                   (BACKSLASH_RULE,), SIBLINGS),
+        "r6_balanced_parentheses": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
+                                    "R [a](https://e.com/W_(b)#s](../p/y.md)) n.\n",
+                                    "'(' in a link target in the BASE unit at raw offset 22",
+                                    (LINK_PAREN_RULE,), SIBLINGS),
+        "r6_angle_destination": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
+                                 "R [a](<https://e.com/x#f)](../p/y.md z>) n.\n",
+                                 "'<' in the BASE unit at raw offset 6", (LESS_RULE,), SIBLINGS),
+        "codex_escaped_fragment": ("[x](a.md#f\\)](b.md))\n", "[x](../a.md#f\\)](../b.md))\n",
+                                   "backslash in the BASE unit at raw offset 10",
+                                   (BACKSLASH_RULE,)),
+        "codex_escaped_query": ("[x](a.md?q=\\)](b.md))\n", "[x](../a.md?q=\\)](../b.md))\n",
+                                "backslash in the BASE unit at raw offset 11",
+                                (BACKSLASH_RULE,)),
+        "codex_escaped_fragment_kept": ("[x](a.md#f\\)](b.md))\n",
+                                        "[x](a.md#f\\)](../b.md))\n",
+                                        "backslash in the BASE unit at raw offset 10",
+                                        (BACKSLASH_RULE,)),
+        "codex_escaped_query_kept": ("[x](a.md?q=\\)](b.md))\n",
+                                     "[x](a.md?q=\\)](../b.md))\n",
+                                     "backslash in the BASE unit at raw offset 11",
+                                     (BACKSLASH_RULE,)),
+        # Round 7 maintainer ruling: one row per new rule, in prose and per side.
+        "backslash_prose": ("Use \\*x\\* and [y](y.md).\n", "Use \\*x\\* and [y](../y.md).\n",
+                            "backslash in the BASE unit at raw offset 4", (BACKSLASH_RULE,)),
+        "backslash_destination": ("R [x](a.md) n.\n", "R [x](../w\\/../a.md) n.\n",
+                                  "backslash in the destination unit at raw offset 10",
+                                  (BACKSLASH_RULE,
+                                   (PATH_RULE, ALLOW.replace("CHARS", "\\\\")))),
+        "less_prose": ("Keep <b>x</b> and [y](y.md).\n", "Keep <b>x</b> and [y](../y.md).\n",
+                       "'<' in the BASE unit at raw offset 5", (LESS_RULE,)),
+        "less_destination": ("R [x](a.md) n.\n", "R [x](../w</../a.md) n.\n",
+                             "'<' in the destination unit at raw offset 10",
+                             (LESS_RULE, (PATH_RULE, ALLOW.replace("CHARS", "<")))),
+        "paren_unchanged_target": ("See [w](https://e.com/W_(b)) and [y](y.md).\n",
+                                   "See [w](https://e.com/W_(b)) and [y](../y.md).\n",
+                                   "'(' in a link target in the BASE unit at raw offset 24",
+                                   (LINK_PAREN_RULE,)),
+        "paren_unterminated_target": ("See [y](y.md) then ](x(", "See [y](../y.md) then ](x(",
+                                      "'(' in a link target in the BASE unit at raw offset 22",
+                                      (LINK_PAREN_RULE,)),
+        # Round 8 QA rows: whitespace between "](" and the destination.
+        "ws_space": ("R [a]( x.md#f](y.md)) n.\n", "R [a]( x.md#f](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 14",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_query": ("R [a]( x.md?q=](y.md)) n.\n", "R [a]( x.md?q=](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 15",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_tab": ("R [a](\tx.md#f](y.md)) n.\n", "R [a](\tx.md#f](../p/y.md)) n.\n",
+                   "'(' in a link target in the BASE unit at raw offset 14",
+                   WHITESPACE_RULES, SAME_DIR),
+        "ws_newline": ("R [a](\nx.md#f](y.md)) n.\n", "R [a](\nx.md#f](../p/y.md)) n.\n",
+                       "'(' in a link target in the BASE unit at raw offset 14",
+                       WHITESPACE_RULES, SAME_DIR),
+        "ws_external": ("R [a]( https://e.com/x#f](y.md)) n.\n",
+                        "R [a]( https://e.com/x#f](../p/y.md)) n.\n",
+                        "'(' in a link target in the BASE unit at raw offset 25",
+                        WHITESPACE_RULES, SAME_DIR),
+        "ws_image": ("R ![a]( x.png#f](y.md)) n.\n", "R ![a]( x.png#f](../p/y.md)) n.\n",
+                     "'(' in a link target in the BASE unit at raw offset 16",
+                     WHITESPACE_RULES, SAME_DIR),
+        "ws_balanced": ("R [a]( https://e.com/W_(b)#s](y.md)) n.\n",
+                        "R [a]( https://e.com/W_(b)#s](../p/y.md)) n.\n",
+                        "'(' in a link target in the BASE unit at raw offset 23",
+                        WHITESPACE_RULES, SIBLINGS),
+        "ws_suffix_title": ('R [a]( x.md#s "T (x)") and [b](b.md).\n',
+                            'R [a]( x.md#s "T (x)") and [b](../p/b.md).\n',
+                            "BASE raw offset 17 (BASE line 1; destination line 1): "
+                            "'(' in a '#' or '?' suffix", REBASED_START, SIBLINGS),
+    }
+
+    def rebase(self, base, moved, code, message="OK:", tool=None,
+               path="instructions.md", destination="docs/moved.md"):
+        self.new_base(base, path)
+        for row in self.rows:
+            row.update(state="REBASED", destination=destination)
+        self.write(destination, moved)
+        self.save()
+        return self.check(code, message, tool=tool)
+
+    def flipped(self, *flips):
+        """Write the tool with each (rule, replacement) flip applied."""
+        source = self.source
+        for old, new in flips:
+            self.assertEqual(source.count(old), 1, old)
+            source = source.replace(old, new)
+        target = self.root / "mutant.py"
+        target.write_text(source, encoding="utf-8")
+        return target
+
+    def rebase_flip(self, base, moved, code, message, *flips, **where):
+        """Check the real tool, then show the case flips with its rules off."""
+        self.rebase(base, moved, code, message, **where)
+        self.check(1 - code, "REBASED at HEAD" if code == 0 else "OK:",
+                   tool=self.flipped(*flips))
+
+    def rejected(self, name):
+        base, moved, message, flips, *where = self.REBASE_REJECTIONS[name]
+        self.rebase_flip(base, moved, 1, message, *flips, **(where[0] if where else {}))
+
+    def shadowed(self, name, flip, message):
+        """Reject the case, then show an older rule still refuses it with flip off."""
+        self.rejected(name)
+        self.check(1, message, tool=self.flipped(flip))
+
+    def test_rebased_link_and_image_accepted(self):
+        for base, moved in (
+                (self.REBASE_LINK, self.REBASE_MOVED),
+                ("![map](img/m.png)\n", "![map](../img/m.png)\n"),
+                ("- [a](a.md) and ![b](b/../c.png?v=1)\n",
+                 "- [a](../a.md) and ![b](../c.png?v=1)\n"),
+                ("Read [x](a.md)\r\nnow.\r\n", "Read [x](../a.md)\r\nnow.\r\n")):
+            with self.subTest(base=base):
+                self.rebase_flip(base, moved, 0, "1 REBASED asserted",
+                                 ('if suffix or base[i - 2:i] != "](" or', "if True or"))
+
+    def test_rebased_rejects_changed_target(self):
+        self.rejected("target")
+
+    def test_rebased_rejects_changed_anchor(self):
+        self.rejected("anchor")
+
+    def test_rebased_rejects_text_outside_targets(self):
+        self.rejected("outside_text")
+        self.write("docs/moved.md", "Unrelated.\n\n" + self.REBASE_MOVED.replace("Read", "Reed"))
+        self.save()
+        self.check(1, "(BASE line 1; destination line 3): text differs")
+
+    def test_rebased_rejects_rewrapped_text(self):
+        self.rejected("rewrap")
+
+    def test_rebased_rejects_identical_texts(self):
+        self.rejected("identical")
+
+    def test_rebased_rejects_escape(self):
+        self.rejected("escape")
+
+    def test_rebased_rejects_intermediate_escape(self):
+        self.rejected("intermediate_escape")
+
+    def test_rebased_rejects_scheme(self):
+        self.rejected("scheme")
+
+    def test_rebased_rejects_leading_slash(self):
+        self.rejected("slash")
+
+    def test_rebased_rejects_empty_target(self):
+        self.rejected("empty")
+
+    def test_rebased_rejects_percent(self):
+        self.rejected("percent")
+
+    def test_rebased_rejects_entity(self):
+        self.rejected("entity")
+
+    def test_rebased_rejects_backslash(self):
+        self.shadowed("backslash", self.BACKSLASH_RULE, "character '\\\\'")
+
+    def test_rebased_rejects_less_than(self):
+        self.shadowed("less", self.LESS_RULE, "character '<'")
+
+    def test_rebased_rejects_greater_than(self):
+        self.rejected("greater")
+
+    def test_rebased_rejects_control_character(self):
+        self.rejected("control")
+
+    def test_rebased_rejects_unterminated_target(self):
+        self.rejected("unterminated")
+
+    def test_rebased_rejects_parenthesis_with_dot_collapse(self):
+        self.shadowed("paren_dot", self.LINK_PAREN_RULE, "character '('")
+
+    def test_rebased_rejects_non_ascii_space_terminators(self):
+        self.rejected("nbsp")
+        self.rejected("em_space")
+
+    def test_rebased_rejects_table_pipe(self):
+        self.rejected("table_pipe")
+
+    def test_rebased_rejects_open_parenthesis(self):
+        self.shadowed("paren_open", self.LINK_PAREN_RULE, "character '('")
+
+    def test_rebased_rejects_bracket_and_link_count(self):
+        self.shadowed("bracket", self.LINK_PAREN_RULE, "character ']'")
+        self.check(1, "'](' count differs: 1 in BASE, 2 at the destination",
+                   tool=self.flipped(*self.REBASE_REJECTIONS["bracket"][3][:2]))
+
+    def test_rebased_compares_raw_line_endings(self):
+        self.rejected("cr_inside")
+        self.rejected("crlf_whole")
+
+    def test_rebased_fragment_and_query_suffixes_exact(self):
+        for name in ("fragment", "query"):
+            self.shadowed(name, self.LINK_PAREN_RULE, "'(' in a '#' or '?' suffix")
+            self.check(1, "text differs",
+                       tool=self.flipped(self.LINK_PAREN_RULE, self.PAREN_RULE))
+
+    def test_rebased_rejects_open_parenthesis_in_suffix(self):
+        for name in ("paren_fragment", "paren_anchor_only", "paren_query",
+                     "paren_fragment_inner", "paren_query_inner"):
+            with self.subTest(name=name):
+                self.shadowed(name, self.LINK_PAREN_RULE, "'(' in a '#' or '?' suffix")
+        self.rejected("paren_suffix_title")
+
+    def test_rebased_rejects_trailing_slash(self):
+        self.rejected("trailing_slash")
+
+    def test_rebased_rejects_empty_component(self):
+        self.rejected("double_slash")
+
+    def test_rebased_rejects_dot_component(self):
+        self.rejected("dot_component")
+
+    def test_rebased_rejects_final_dotdot_component(self):
+        self.rejected("final_dotdot_file")
+        self.rejected("final_dotdot_dir")
+
+    def test_rebased_rejects_round6_escaped_parenthesis(self):
+        for name in ("r6_escaped_fragment", "r6_escaped_query", "r6_escaped_anchor_only",
+                     "codex_escaped_fragment", "codex_escaped_query",
+                     "codex_escaped_fragment_kept", "codex_escaped_query_kept"):
+            with self.subTest(name=name):
+                self.rejected(name)
+
+    def test_rebased_rejects_round6_balanced_parentheses(self):
+        self.rejected("r6_balanced_parentheses")
+
+    def test_rebased_rejects_round6_angle_destination(self):
+        self.rejected("r6_angle_destination")
+
+    def test_rebased_rejects_backslash_anywhere(self):
+        self.rejected("backslash_prose")
+        self.shadowed("backslash_destination", self.BACKSLASH_RULE, "character '\\\\'")
+
+    def test_rebased_rejects_less_than_anywhere(self):
+        self.rejected("less_prose")
+        self.shadowed("less_destination", self.LESS_RULE, "character '<'")
+
+    def test_rebased_rejects_parenthesis_in_any_link_target(self):
+        self.rejected("paren_unchanged_target")
+        self.rejected("paren_unterminated_target")
+        self.check(0, "1 REBASED asserted", tool=self.flipped(
+            ("end.start() if end else len(unit)", "end.start() if end else match.end()")))
+
+    def test_rebased_link_target_ends_at_whitespace(self):
+        self.rebase_flip('R [a](x.md "T (x)") n.\n', 'R [a](../x.md "T (x)") n.\n', 0,
+                         "1 REBASED asserted",
+                         ('LINK_TARGET_END = re.compile(r"[) \\t\\n\\r\\f\\v]")',
+                          'LINK_TARGET_END = re.compile(r"[)]")'))
+
+    def test_rebased_rejects_whitespace_led_targets(self):
+        for name in ("ws_space", "ws_query", "ws_tab", "ws_newline", "ws_external",
+                     "ws_image", "ws_balanced"):
+            with self.subTest(name=name):
+                self.rejected(name)
+
+    def test_rebased_target_start_skips_whitespace(self):
+        self.rejected("ws_suffix_title")
+        self.rebase_flip("R [a]( x.md) n.\n", "R [a]( ../x.md) n.\n", 0,
+                         "1 REBASED asserted", *self.REBASED_START)
+        self.rebase_flip("R [a]( x.md) n.\n", "R [a](\t../x.md) n.\n", 1,
+                         "BASE raw offset 6 (BASE line 1; destination line 1): text differs",
+                         ("if base[i:start_base] != text[j:start_text]:", "if False:"))
+
+    def test_rebased_occurrences_consumed(self):
+        base = "- [x](a.md)\n- [x](a.md)\n"
+        self.rebase_flip(base, "- [x](../a.md)\n", 1, "no unconsumed list_item unit",
+                         ("            used.add(index)\n"
+                          "            available[match_key(candidate)] -= 1\n", ""))
+        self.rebase(base, "- [x](../a.md)\n- [x](../a.md)\n", 0, "2 REBASED asserted")
+
+    def test_rebased_shares_occurrences_with_moved(self):
+        base, unit = "[x](a.md)\n\n[x](../rules/a.md)\n", "[x](../rules/a.md)\n"
+        self.rebase(base, unit, 1, "no unconsumed paragraph unit",
+                    path="rules/instructions.md", destination="rules/moved.md")
+        self.row(3)["state"] = "MOVED"
+        self.check(1, "MOVED whole clause occurrence missing")
+        self.check(0, tool=self.mutant(
+            "            available[match_key(candidate)] -= 1\n", ""))
+        self.rows.reverse()
+        self.check(1, "no unconsumed paragraph unit")
+        self.check(0, tool=self.mutant(
+            "if index in used or available[match_key(candidate)] < 1:", "if index in used:"))
+        self.write("rules/moved.md", unit + "\n" + unit)
+        self.save()
+        self.check(0, "1 REBASED asserted")
+
+    def test_moved_rejects_rebased_link(self):
+        self.rebase(self.REBASE_LINK, self.REBASE_MOVED, 0)
+        self.rows[0]["state"] = "MOVED"
+        self.check(1, "MOVED whole clause occurrence missing")
+
+    def test_rebased_row_validation(self):
+        self.rebase(self.REBASE_LINK, self.REBASE_MOVED, 0)
+        self.rows[0]["reason"] = "Re-based."
+        self.check(2, "REBASED requires empty reason")
+        self.rows[0].update(reason="", destination=self.path)
+        self.check(2, "REBASED must use a different path")
+        self.check(1, "texts are identical; use MOVED", tool=self.mutant(
+            'if state != "KEPT" and row["destination"] == path:', "if False:"))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

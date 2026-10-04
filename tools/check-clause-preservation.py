@@ -6,6 +6,33 @@ Review every row. KEPT requires the same path at committed HEAD; MOVED requires
 another tracked text file; DROPPED requires a nonblank reason. A move asserts
 presence, not that the destination gained the text since BASE.
 
+REBASED is a reviewer assertion that the clause MOVED with only relative link
+targets re-based; like MOVED it needs another tracked file and an empty reason.
+It compares raw unit text (CR and line terminators included, nothing
+normalized): an unconsumed destination unit must equal the BASE unit except for
+substituted target segments. Every target starts after its "](" and any leading
+ASCII space, tab, LF, CR, FF or VT. Either unit fails if it holds a backslash
+or "<" anywhere, or a "(" in any link target: the text from that start up to
+the next ASCII ")", space, tab, LF, CR, FF or VT (or the unit's end), unchanged
+targets and any "#" or "?" part included. Each such refusal names its rule,
+side and raw offset. A segment starts at that start in both texts, after
+identical leading whitespace (otherwise the texts differ), and ends at the
+first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a target with no
+terminator is not a segment. A "#" or "?" terminator starts a suffix that runs
+up to the next ")" in BASE: it must be identical, and a "(" in it fails, so no
+"](" can occur inside it. Every other "](" is a target position, so "](" in
+prose, code, titles and reference definitions is re-based too. A changed
+segment must be nonempty, use only A-Z, a-z, 0-9 and "._~/+-", and have no
+leading or trailing "/", no empty ("//") or "." component, and no ".." as its
+last component. Each side is joined to its file's directory and resolved
+lexically step by step; a step above the repository root fails, and the two
+repository-relative paths must be equal. Target existence, tracking and
+symlinks are not checked, and unchanged segments are not resolved. Both texts
+must hold equally many "](". Identical texts fail (use MOVED); other mismatches
+name the first differing raw BASE offset. REBASED shares occurrence counting
+with MOVED and takes the first matching unit in file order, so row order can
+cause a false failure. A reviewer must check every REBASED hunk.
+
 Units are ATX/setext headings, individual list items with adjacent wrapped
 continuations, pipe-containing table rows, fenced blocks, thematic breaks,
 and paragraphs. Nested items start separate units. Blank lines separate
@@ -42,6 +69,7 @@ from collections import Counter
 import json
 import os
 from pathlib import Path
+import posixpath
 import re
 import subprocess
 import sys
@@ -56,6 +84,10 @@ RULE = re.compile(r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$
 TOP_KEYS = {"base_revision", "base_path", "clauses", "excluded_lines"}
 UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
 ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
+TARGET_END = re.compile(r"[)#? \t\n\r\f\v]")
+PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")
+LINK_TARGET_END = re.compile(r"[) \t\n\r\f\v]")
+TARGET_START = re.compile(r"[ \t\n\r\f\v]*")
 
 
 def inline_parts(text: str):
@@ -124,6 +156,109 @@ def match_key(unit: dict) -> tuple:
     return category, normalize(text)
 
 
+def target_error(segment: str) -> str | None:
+    """Name the first REBASED rule a substituted link target breaks."""
+    if not segment:
+        return "empty target"
+    if segment.startswith("/"):
+        return "leading '/'"
+    for char in segment:
+        if not PATH_CHAR.fullmatch(char):
+            return f"character {char!r}"
+    if segment.endswith("/"):
+        return "trailing '/'"
+    if "//" in segment:
+        return "empty path component ('//')"
+    if "." in segment.split("/"):
+        return "'.' path component"
+    if segment.split("/")[-1] == "..":
+        return "final '..' component"
+    return None
+
+
+def target_paren(unit: str) -> int:
+    """Raw offset of the first "(" inside any link target, or -1."""
+    for match in re.finditer(r"\]\(", unit):
+        start = TARGET_START.match(unit, match.end()).end()
+        end = LINK_TARGET_END.search(unit, start)
+        offset = unit.find("(", start, end.start() if end else len(unit))
+        if offset >= 0:
+            return offset
+    return -1
+
+
+def unit_error(base: str, text: str) -> str | None:
+    """Name the first whole-unit REBASED refusal with its side and raw offset."""
+    for side, unit in (("BASE", base), ("destination", text)):
+        for rule, offset in (("backslash", unit.find("\\")),
+                             ("'<'", unit.find("<")),
+                             ("'(' in a link target", target_paren(unit))):
+            if offset >= 0:
+                return f"{rule} in the {side} unit at raw offset {offset}"
+    return None
+
+
+def resolve(directory: str, segment: str) -> str | None:
+    """Resolve a target step by step; None when any step leaves the repository."""
+    parts = []
+    for part in posixpath.join(directory, segment).split("/"):
+        if part == "..":
+            if not parts:
+                return None
+            parts.pop()
+        elif part not in {"", "."}:
+            parts.append(part)
+    return "/".join(parts)
+
+
+def rebased(base: str, base_dir: str, text: str, text_dir: str):
+    """Return (substitutions, None), or (first differing BASE offset, reason).
+
+    A whole-unit refusal returns offset -1; its reason names the raw offset.
+    """
+    problem = unit_error(base, text)
+    if problem:
+        return -1, problem
+    i = j = substitutions = 0
+    first, suffix = None, False
+    while i < len(base) or j < len(text):
+        if i == len(base) or j == len(text) or base[i] != text[j]:
+            return i, "text differs"
+        suffix = suffix and base[i] != ")"
+        if suffix and base[i] == "(":
+            return i, "'(' in a '#' or '?' suffix"
+        i, j = i + 1, j + 1
+        if suffix or base[i - 2:i] != "](" or text[j - 2:j] != "](":
+            continue
+        start_base = TARGET_START.match(base, i).end()
+        start_text = TARGET_START.match(text, j).end()
+        if base[i:start_base] != text[j:start_text]:
+            continue
+        i, j = start_base, start_text
+        end_base, end_text = TARGET_END.search(base, i), TARGET_END.search(text, j)
+        if not (end_base and end_text):
+            continue
+        old, new = base[i:end_base.start()], text[j:end_text.start()]
+        if old != new:
+            pair = f"target {old!r} -> {new!r}"
+            problem = target_error(old) or target_error(new)
+            if problem:
+                return i, f"{pair}: {problem}"
+            left, right = resolve(base_dir, old), resolve(text_dir, new)
+            if left is None or right is None:
+                return i, f"{pair}: outside the repository"
+            if left != right:
+                return i, f"{pair}: resolves to {left!r} and {right!r}"
+            first = i if first is None else first
+            substitutions += 1
+        i, j = end_base.start(), end_text.start()
+        suffix = base.startswith(("#", "?"), i)
+    if base.count("](") != text.count("]("):
+        return first, (f"'](' count differs: {base.count('](')} in BASE, "
+                       f"{text.count('](')} at the destination")
+    return substitutions, None
+
+
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
     """Partition every physical line; retain raw spelling for ledger review."""
     pieces = text.split("\n")
@@ -177,7 +312,8 @@ def clauses(text: str) -> tuple[list[dict], list[dict]]:
                 i += 1
         units.append(dict(base_line=start + 1, end_line=i, kind=category,
                           base_quote=("".join(raw_lines[start:i]) if category == "fence"
-                                      else "\n".join(lines[start:i]))))
+                                      else "\n".join(lines[start:i])),
+                          raw="".join(raw_lines[start:i])))
     return units, excluded
 
 
@@ -271,19 +407,20 @@ def validate_ledger(data, base, path, excluded):
             if not row["base_quote"].strip():
                 raise ValueError("base_quote must be nonblank")
             state = row["state"]
-            if state not in {"KEPT", "MOVED", "DROPPED"}:
-                raise ValueError("unknown state; expected KEPT, MOVED or DROPPED")
+            if state not in {"KEPT", "MOVED", "REBASED", "DROPPED"}:
+                raise ValueError("unknown state; expected KEPT, MOVED, REBASED or DROPPED")
             if state == "DROPPED":
                 if not row["reason"].strip() or row["destination"] != "":
                     raise ValueError("DROPPED requires nonblank reason and empty destination")
             else:
                 repo_path(row["destination"])
                 if row["reason"] != "":
-                    raise ValueError("KEPT/MOVED require empty reason")
+                    raise ValueError("REBASED requires empty reason" if state == "REBASED"
+                                     else "KEPT/MOVED require empty reason")
                 if state == "KEPT" and row["destination"] != path:
                     raise ValueError("KEPT must use base path")
-                if state == "MOVED" and row["destination"] == path:
-                    raise ValueError("MOVED must use a different path")
+                if state != "KEPT" and row["destination"] == path:
+                    raise ValueError(f"{state} must use a different path")
         except ValueError as exc:
             raise ValueError(f"row {index}: {exc}") from exc
     return rows
@@ -298,8 +435,37 @@ def is_ledger(root: Path, destination: str, ledger: Path) -> bool:
     return False
 
 
+def take_rebased(unit, path, destination, units, available, used):
+    """Consume the first unconsumed destination unit that re-bases unit."""
+    best, identical = None, False
+    for index, candidate in enumerate(units):
+        if index in used or available[match_key(candidate)] < 1:
+            continue
+        result, reason = rebased(unit["raw"], posixpath.dirname(path),
+                                 candidate["raw"], posixpath.dirname(destination))
+        if reason is None and result:
+            used.add(index)
+            available[match_key(candidate)] -= 1
+            return None
+        if reason is None:
+            identical = True
+        elif best is None or result > best[0]:
+            best = (result, candidate["base_line"], reason)
+    if identical:
+        return "texts are identical; use MOVED"
+    if best is None:
+        return f"no unconsumed {unit['kind']} unit"
+    offset, line, reason = best
+    if offset < 0:
+        return f"refused (BASE line {unit['base_line']}; destination line {line}): {reason}"
+    base_line = unit["base_line"] + unit["raw"][:offset].count("\n")
+    return (f"first difference at BASE raw offset {offset} (BASE line {base_line}; "
+            f"destination line {line}): {reason}")
+
+
 def check(root, base, head, path, expected, rows, ledger):
     findings, seen, destinations = [], set(), {}
+    unit_lists, used = {}, {}
     by_line = {unit["base_line"]: unit for unit in expected}
     for row in rows:
         line = row["base_line"]
@@ -322,8 +488,15 @@ def check(root, base, head, path, expected, rows, ledger):
         if destination not in destinations:
             units, _ = inventory(root, head, destination)
             destinations[destination] = Counter(match_key(unit) for unit in units)
+            unit_lists[destination], used[destination] = units, set()
         quote = match_key(by_line[line])
         available = destinations[destination]
+        if row["state"] == "REBASED":
+            problem = take_rebased(by_line[line], path, destination,
+                                   unit_lists[destination], available, used[destination])
+            if problem:
+                findings.append(f"{label}: REBASED at HEAD {head}:{destination}: {problem}")
+            continue
         if available[quote] < 1:
             findings.append(f"{label}: {row['state']} whole clause occurrence missing "
                             f"at HEAD {head}:{destination}")
@@ -353,6 +526,8 @@ def main(argv: list[str]) -> int:
             raise ValueError("no base clauses; empty inventory cannot prove preservation")
         if args.extract:
             rows = [dict(unit, state="KEPT", destination=path, reason="") for unit in expected]
+            for row in rows:
+                del row["raw"]
             print(json.dumps(dict(base_revision=base, base_path=path, clauses=rows,
                                   excluded_lines=excluded), indent=2, ensure_ascii=False))
             return 0
@@ -366,8 +541,10 @@ def main(argv: list[str]) -> int:
     for finding in findings:
         print(f"FAIL: ledger {args.ledger}: {finding}")
     dropped = sum(row["state"] == "DROPPED" for row in rows)
+    rebased_rows = sum(row["state"] == "REBASED" for row in rows)
+    note = f"; {rebased_rows} REBASED asserted" if rebased_rows else ""
     print(f"{'FAIL' if findings else 'OK'}: {len(expected)} clauses; "
-          f"{dropped} DROPPED with reasons; BASE {base}:{path}; HEAD {head}")
+          f"{dropped} DROPPED with reasons{note}; BASE {base}:{path}; HEAD {head}")
     return 1 if findings else 0
 
 
