@@ -77,6 +77,23 @@ the improvement log, with these exemptions:
   each gets its own floor. Before any sweep both floors equal ``INCEPTION`` and
   behaviour is identical to the fixed-constant gate.
 
+Validate-pr PR-bearing rows must begin their PR cell with a recognized identity.
+The exact historical dispositions abandoned-autocorrect (no PR) and
+routed pre-open (no PR) remain accepted without creating PR records.
+The set is closed and matched exactly (``NO_PR_DISPOSITIONS``).
+Any other malformed cell produces one finding naming its file, line and value,
+and that finding keeps the gate failing. Both history readers exclude the
+malformed row while retaining valid peers, and no number in a malformed cell
+plays any part in the QA-cadence floor. While any malformed cell exists, the
+validate-pr floor is computed from well-formed rows only: a malformed cell
+cannot lower it unless no well-formed row remains, when the floor falls to
+INCEPTION and every in-window PR is reported; if the malformed row held the
+oldest PR the floor rises to
+the oldest well-formed row, so floor-dependent findings (a PR missing its
+validate-pr row) may be incomplete until the cell is fixed. A PR whose only row
+is malformed is also reported as missing its row when it is at or above that
+floor (unless listed in ``KNOWN_HANDOFF_NO_ROW``).
+
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
 rotation-failure shapes the change-tracking rule explicitly prohibits on a
@@ -586,6 +603,37 @@ def parse_changelog_prs(text: str) -> set[int]:
     return prs
 
 
+# Exact historical no-PR dispositions: a closed set, matched exactly (case included). A suffix,
+# substring or case-folded match would let a malformed cell such as `other (no PR)` pass
+# silently; BookkeepingParityTests pins both the set and the exact match.
+NO_PR_DISPOSITIONS = frozenset({"abandoned-autocorrect (no PR)", "routed pre-open (no PR)"})
+
+
+def _validate_pr_rows(text: str, findings: list[str] | None = None):
+    """Yield PR-bearing rows; accept known no-PR dispositions without PR records.
+
+    A malformed PR cell is excluded and reported into ``findings``; no number in it reaches a
+    PR record or the QA-cadence floor.
+    """
+    for lineno, line in enumerate(text.splitlines(), 1):
+        if not TABLE_ROW.match(line):
+            continue
+        c = cells(line)
+        if len(c) < 5:
+            continue
+        # Exact historical no-PR dispositions; do not accept arbitrary prose cells.
+        if c[2] in NO_PR_DISPOSITIONS:
+            continue
+        if not STORE_PR_IDENTITY_RE.match(c[2]):
+            if findings is not None:
+                findings.append(
+                    f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
+                    f"malformed PR cell {c[2]!r}; expected a leading PR identity."
+                )
+            continue
+        yield lineno, c
+
+
 def parse_validate_pr_status(text: str) -> dict[int, str]:
     """Map each PR with a validate-pr row to its status.
 
@@ -597,13 +645,8 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
     not read as a PR.
     """
     status: dict[int, str] = {}
-    for line in text.splitlines():
-        if not TABLE_ROW.match(line):
-            continue
-        c = cells(line)
+    for _, c in _validate_pr_rows(text):
         # c[0]='' c[1]=date c[2]=PR c[3]=touched c[4]=findings ...
-        if len(c) < 5:
-            continue
         findings = c[4]
         if HANDOFF_FINDINGS.search(findings):
             row_status = "handoff"
@@ -669,7 +712,7 @@ def _disposition_candidates(c: list[str]) -> list[str]:
     return [c[4]] + ([c[5]] if len(c) > 5 else [])
 
 
-def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
+def _history_row_records(text: str, findings: list[str] | None = None) -> list[tuple[int, list[int], str, bool, bool]]:
     """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row.
 
     RAW read, no example masking (orchestrator decision 2026-09-30 14:51Z): a fenced or
@@ -683,12 +726,7 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
     never deferred on its endpoints alone.
     """
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
-        if not TABLE_ROW.match(line):
-            continue
-        c = cells(line)
-        if len(c) < 5:
-            continue
+    for lineno, c in _validate_pr_rows(text, findings):
         keys = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
         if not keys:
             continue
@@ -1260,6 +1298,9 @@ def qa_cadence_findings(
     # Dynamic per-register floors (1.19.9 (closing PR #1034)): a row swept to
     # grc_library_private drops below its register's floor and is out of scope,
     # not flagged missing. Before any sweep both floors equal INCEPTION.
+    # Malformed validate-pr cells are absent from vp_status and play no part in this floor
+    # (3b194 round 2): it comes from well-formed rows only, and the malformed-cell finding keeps
+    # the gate failing until the cell is fixed (see the module docstring).
     vp_floor = effective_floor(set(vp_status), floor=inception)
     retro_floor = effective_floor(retro_prs, floor=inception)
 
@@ -1529,7 +1570,7 @@ def main() -> int:
     if vp_text is None and retro_text is None:
         skipped.append("per-PR row integrity")
     if vp_text is not None:
-        vp_records = _history_row_records(vp_text)
+        vp_records = _history_row_records(vp_text, all_findings)
         for lineno, prs, *_ in vp_records:
             if above_store_ceiling(prs, scope):
                 print(store_deferral_note(prs, scope, "validate-pr/history.md", lineno))
