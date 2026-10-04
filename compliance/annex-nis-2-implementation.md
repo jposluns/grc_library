@@ -2,7 +2,7 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.10\
+**Version:** 1.2.11\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -33,7 +33,7 @@ NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope e
 | Annex I (sectors of high criticality) | Energy, transport, banking, financial market infrastructures, health (hospitals, laboratories, manufacturers of medicinal products), drinking water, waste water, digital infrastructure (DNS service providers, TLD name registries, cloud computing service providers, data centre service providers, content delivery network providers, trust service providers, providers of public electronic communications networks or services), ICT service management (managed service providers, managed security service providers), public administration entities, space |
 | Annex II (other critical sectors) | Postal and courier services, waste management, manufacture, production and distribution of chemicals, food, manufacturing (medical devices, computers and electronics, machinery, motor vehicles, transport equipment), digital providers (online marketplaces, online search engines, social networking services platforms), research |
 
-Article 2(1) size cap: entities of a type referred to in Annex I or II that qualify as medium-sized enterprises, or that exceed the ceilings for medium-sized enterprises defined in Article 2 of the Annex to Commission Recommendation 2003/361/EC, and that provide their services or carry out their activities within the Union, are in scope by default; micro and small enterprises fall below the cap and are out of scope by size alone. Regardless of size, entities of a type referred to in Annex I or II are also in scope where the specific conditions in Article 2(2) apply.
+Article 2(1) size cap: entities of a type referred to in Annex I or II that qualify as medium-sized enterprises, or that exceed the ceilings for medium-sized enterprises defined in Article 2 of the Annex to Commission Recommendation 2003/361/EC, and that provide their services or carry out their activities within the Union, are in scope by default; micro and small enterprises fall below the cap and are out of scope by size alone. Regardless of size, entities of a type referred to in Annex I or II are also in scope where the specific conditions in Article 2(2) apply, and the Directive applies regardless of size to entities identified as critical entities under Directive (EU) 2022/2557 (Article 2(3)) and to entities providing domain name registration services (Article 2(4)).
 
 ---
 

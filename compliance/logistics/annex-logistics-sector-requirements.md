@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.25\
+**Version:** 1.0.26\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -76,7 +76,7 @@ This annex applies where an organization:
 
 | Regulation / Directive | Authority | Scope |
 |---|---|---|
-| **NIS 2 Directive (2022/2555)** | National competent authorities | In-scope transport entities, essential or important depending on Article 3 classification, including road transport, rail, air, maritime, port facilities, logistics |
+| **NIS 2 Directive (2022/2555)** | National competent authorities | In-scope transport entities, essential or important depending on Article 3 classification, including road transport, rail, air, maritime and port facilities |
 | **EU Aviation Security Regulation (EC) 300/2008** | EASA / national authorities | Air carriers; airports; cargo operators |
 | **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
 | **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
