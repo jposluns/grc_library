@@ -16,22 +16,30 @@ of the original stdout file descriptor) is saved BEFORE any engine code runs,
 and file descriptor 1 is redirected into stderr, so engine prints and a closed
 or replaced ``sys.stdout`` cannot reach the result channel. The result is
 written to the saved descriptor and sealed with ``os._exit(0)``, so no engine
-teardown, atexit or shutdown code runs after it. There is deliberately NO
-exception handling here: any fault ends the child without the marked result
-line (a propagating SystemExit(0), a patched ``sys.exit`` and ``os._exit(0)``
-in engine code included, since each skips the marked line), and the parent
-fails closed on a nonzero exit, a timeout, a missing or extra or malformed
-result line, a wrong nonce, or a schema violation. A child that deliberately
-forges a well-formed marked line is outside the threat model (faults, not
-malice); see the preflight's module docstring.
+teardown, atexit or shutdown code runs after it. Before loading the engine,
+unraisable and thread exception hooks are installed to exit immediately with
+status 70, without writing a result. Exceptions delivered to either hook before
+sealing deny the result. Propagating exceptions and early exits before the result
+is written leave no valid result; exceptions caught by engine code are not
+detected. The parent rejects nonzero exits, timeouts and missing, extra,
+malformed or invalid results. A child that deliberately forges a well-formed
+marked line is outside the threat model (faults, not malice); see the preflight's
+module docstring.
 """
 import importlib.util
 import json
 import os
 import sys
+import threading
+
+
+def _exit_on_fault(_args, _exit=os._exit) -> None:
+    _exit(70)  # no formatting, buffering or cleanup before rejecting the result
 
 
 def main() -> None:
+    sys.unraisablehook = _exit_on_fault
+    threading.excepthook = _exit_on_fault
     request = json.loads(sys.stdin.read())
     nonce, texts = request["nonce"], request["texts"]
     result_fd = os.dup(1)

@@ -874,6 +874,13 @@ class LanguageLinterTests(LinterTestCase):
 class ChangelogLanguageTests(unittest.TestCase):
     """Gate-2 default scope and preflight added-line spelling fixtures."""
 
+    def setUp(self):
+        super().setUp()
+        from unittest.mock import patch
+        timeout = patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "60"})
+        timeout.start()
+        self.addCleanup(timeout.stop)
+
     def load_tool(self, name):
         import importlib.util
         sys.path.insert(0, str(REPO_ROOT / "tools"))
@@ -1098,8 +1105,8 @@ class ChangelogLanguageTests(unittest.TestCase):
         Default: the fault denies the child a valid marked result, so the
         preflight exits 2 with exactly the one constant line (no stdout, no
         traceback, no engine text) and the hook and the commit refuse (HEAD
-        pinned). verdict_preserved: the fault strikes only after the real matcher
-        produced the result the runner sealed, so the verdict stands: a clean
+        pinned). verdict_preserved: engine noise or post-seal cleanup must not
+        change the result, so the verdict stands: a clean
         entry passes and commits, a misspelled one is refused as a finding (exit
         1), and no engine text or traceback reaches the caller either way."""
         with tempfile.TemporaryDirectory() as td:
@@ -1203,15 +1210,15 @@ class ChangelogLanguageTests(unittest.TestCase):
 
     def assert_result_cleanup(self, raised):
         for word in ("centralised", "centralized"):
-            # Immediate destruction, a cycle, and a module-global reference:
-            # whatever the destruction timing, the fault strikes in the child only
-            # after the real matcher produced the result the runner sealed, so the
-            # verdict stands and nothing leaks (the child's stderr is discarded).
+            # Immediate destruction faults before sealing and must be refused.
+            # Retained cycles (GC disabled) and globals survive until shutdown,
+            # which the seal skips; those verdicts must still be preserved.
             for lifetime in ("immediate", "cycle", "module"):
                 with self.subTest(word=word, lifetime=lifetime):
                     retain = {"immediate": "", "cycle": "    result.cycle = result\n",
                               "module": "    retained.append(result)\n"}[lifetime]
                     source = (
+                        "import gc\ngc.disable()\n"
                         "_original_spelling_matches = spelling_matches\n"
                         "retained = []\n"
                         "class EngineResult(list):\n"
@@ -1220,13 +1227,187 @@ class ChangelogLanguageTests(unittest.TestCase):
                         "    result = EngineResult(_original_spelling_matches(text, checks))\n"
                         + retain + "    return result\n")
                     self.assert_engine_failure_refuses_staged_misspelling(
-                        source, staged_word=word, verdict_preserved=True)
+                        source, staged_word=word, verdict_preserved=lifetime != "immediate")
 
     def test_preflight_result_cleanup_runtime_error(self):
         self.assert_result_cleanup("RuntimeError('cleanup failed')")
 
     def test_preflight_result_cleanup_system_exit(self):
         self.assert_result_cleanup("SystemExit(0)")
+
+    def test_preflight_load_unraisable_refuses_clean_commit(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class LoadResource:\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "resource = LoadResource()\ndel resource\n", staged_word="centralized")
+
+    def test_preflight_compile_unraisable_refuses_clean_commit(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "_compile = compile_language\n"
+            "class Resource:\n"
+            "    def __del__(self): raise RuntimeError('compile cleanup failed')\n"
+            "def compile_language(config):\n"
+            "    resource = Resource()\n"
+            "    del resource\n"
+            "    return _compile(config)\n", staged_word="centralized")
+
+    def test_preflight_thread_fault_refuses_clean_commit(self):
+        fault = (
+            "import threading\n"
+            "def fail(): raise RuntimeError('thread failed')\n"
+            "def thread_fault():\n"
+            "    worker = threading.Thread(target=fail)\n"
+            "    worker.start()\n"
+            "    worker.join()\n")
+        for phase in ("thread_fault()\n",
+                      "_compile = compile_language\n"
+                      "def compile_language(config):\n"
+                      "    thread_fault()\n"
+                      "    return _compile(config)\n",
+                      "_matches = spelling_matches\n"
+                      "def spelling_matches(text, checks):\n"
+                      "    thread_fault()\n"
+                      "    return _matches(text, checks)\n"):
+            with self.subTest(phase=phase):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    fault + phase, staged_word="centralized")
+
+    def test_preflight_nested_child_result_fails_closed(self):
+        # Below the byte cap: this must exercise JSON's recursion failure.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import json\n"
+            "json.dumps = lambda *a, **kw: '[' * 200000 + ']' * 200000\n",
+            staged_word="centralized")
+
+    def test_preflight_oversized_child_result_is_not_parsed(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            stub = Path(td) / "runner.py"
+            stub.write_text(
+                "import json, sys\n"
+                "request = json.loads(sys.stdin.read())\n"
+                f"sys.stdout.write(' ' * {mod._ENGINE_STDOUT_MAX})\n"
+                "print(json.dumps({'nonce': request['nonce'], 'findings': []}))\n",
+                encoding="utf-8")
+            with patch.object(mod, "_LANGUAGE_RUNNER", stub), \
+                 patch.object(mod, "added_lines", return_value=[]), \
+                 patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                 patch.object(mod, "_validated_matches", wraps=mod._validated_matches) as parse:
+                self.assert_preflight_language_error(mod)
+                parse.assert_not_called()
+
+    def test_preflight_result_boundary_catches_base_exceptions(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        for target, name in ((mod.json, "loads"), (mod, "_validated_matches")):
+            for fault in (BaseException, SystemExit, GeneratorExit, MemoryError):
+                with self.subTest(stage=name, fault=fault.__name__), \
+                     patch.object(mod, "added_lines", return_value=[]), \
+                     patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                     patch.object(target, name, side_effect=fault):
+                    self.assert_preflight_language_error(mod)
+
+    def test_preflight_parent_keyboard_interrupt_propagates(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with patch.object(mod, "_validated_matches", side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                mod.spelling_findings([])
+
+    def test_preflight_non_ascii_result_fails_closed(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "", staged_word="centralized", runner_source=(
+                "import json, sys\n"
+                "request = json.loads(sys.stdin.read())\n"
+                "result = {'nonce': request['nonce'], "
+                "'findings': [[['ise', 'caf\\u00e9']] for _ in request['texts']]}\n"
+                "sys.stdout.buffer.write((json.dumps(result, ensure_ascii=False)"
+                " + '\\n').encode('utf-8'))\n"))
+
+    def test_preflight_non_utf8_stderr_preserves_result(self):
+        for word in ("centralized", "centralised"):
+            with self.subTest(word=word):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    "import os\nos.write(2, b'\\xff')\n",
+                    staged_word=word, verdict_preserved=True)
+
+    def test_preflight_stdout_noise_preserves_result(self):
+        for word in ("centralized", "centralised"):
+            with self.subTest(word=word):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    "print('engine-load-noise', flush=True)\n",
+                    staged_word=word, verdict_preserved=True)
+
+    def test_preflight_timeout_override_is_bounded(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        for value in ("", "bad", "0", "-1", "nan", "inf", "-inf", "1e400", "301"):
+            with self.subTest(value=value), \
+                 patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": value}):
+                self.assertEqual(mod._engine_timeout(), 60.0)
+        for value in ("0.25", "60", "300"):
+            with self.subTest(value=value), \
+                 patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": value}):
+                self.assertEqual(mod._engine_timeout(), float(value))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux subreaper assertion")
+    def test_preflight_timeout_kills_descendant(self):
+        import ctypes
+        import signal
+        import time
+        from unittest.mock import patch
+        # Adopt and reap the orphan ourselves, avoiding a dependency on PID 1's
+        # reaping speed and allowing an assertion that the PID really is gone.
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        mod = self.load_tool("preflight-changelog")
+        pid = None
+        reaped = False
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                pidfile = root / "pid"
+                wrapper = root / "lint-language.py"
+                wrapper.write_text(
+                    "import os, time\n"
+                    "pid = os.fork()\n"
+                    "if pid == 0:\n"
+                    "    time.sleep(60)\n"
+                    "    os._exit(0)\n"
+                    f"with open({str(pidfile)!r}, 'w') as stream:\n"
+                    "    stream.write(str(pid))\n"
+                    "time.sleep(60)\n", encoding="utf-8")
+                with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                     patch.object(mod, "added_lines", return_value=[]), \
+                     patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                     patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "1"}):
+                    self.assert_preflight_language_error(mod)
+                pid = int(pidfile.read_text())
+                deadline = time.monotonic() + 5
+                while time.monotonic() < deadline:
+                    waited, status = os.waitpid(pid, os.WNOHANG)
+                    if waited:
+                        reaped = True
+                        break
+                    time.sleep(0.01)
+                self.assertTrue(reaped, f"descendant {pid} survived timeout")
+                self.assertEqual(os.waitstatus_to_exitcode(status), -signal.SIGKILL)
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
+                # The runner too was reaped by the parent.
+                with self.assertRaises(ChildProcessError):
+                    os.waitpid(-1, os.WNOHANG)
+        finally:
+            if pid is not None and not reaped:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.waitpid(pid, 0)
+            self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
 
     def test_preflight_load_exception_cleanup(self):
         # A load-time exception whose own __del__ raises: the child dies without a

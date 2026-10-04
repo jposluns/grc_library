@@ -230,7 +230,8 @@ def _integration_self_test():
         # config, and no GRC_STORE (it would point the preflight's mirror scan at the real mirror). The
         # fixture does not carry the vendored AIQT pack the preflight imports, so it is named here.
         env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
-               and k not in (_OVERRIDE, "GRC_ALLOW_MAIN_COMMIT", "GRC_STORE")}
+               and k not in (_OVERRIDE, "GRC_ALLOW_MAIN_COMMIT", "GRC_STORE",
+                             "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
         env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT="0",
                    GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@example.invalid",
                    GIT_COMMITTER_NAME="t", GIT_COMMITTER_EMAIL="t@example.invalid",

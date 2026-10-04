@@ -91,10 +91,15 @@ added lines as JSON on the child's stdin. It accepts a result ONLY as exit statu
 0 plus exactly one JSON line on the child's stdout, carrying this run's nonce and
 one list of [kind, word] string pairs per input line. Anything else is the one
 fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
-seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT overrides it; the child is killed), no
-output, extra output, a wrong nonce, or a schema violation. Child stderr (engine
-tracebacks and prints included) is captured and discarded; no engine-supplied
-text is inspected or printed. The runner consumes stdin and duplicates the result
+seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite values up to 300 seconds),
+no output, extra output, a wrong nonce, or a schema violation. On timeout the
+child's process group is killed and the runner reaped; a descendant that calls
+setsid escapes that group (residual, stated). Results over 8 MiB are refused
+before parsing, though the pipe buffers the child's stdout before the cap is
+applied (residual, stated). Child stderr (engine tracebacks and prints included)
+goes directly to DEVNULL; only strict ASCII result bytes are decoded, inside the
+same fault boundary as JSON parsing and schema validation, and no engine
+diagnostic is printed. The runner consumes stdin and duplicates the result
 channel before any engine code runs, redirects the engine-visible stdout into the
 discarded stderr, and seals a computed result with os._exit(0), so engine output
 cannot reach the result channel and a fault delivered during child teardown
@@ -109,9 +114,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import re
 import secrets
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -147,8 +154,11 @@ _LANGUAGE_ERROR = (
 )
 
 # The engine child is killed after this many seconds (the hang fail-closed bound);
-# GRC_PREFLIGHT_ENGINE_TIMEOUT (a positive number of seconds) overrides it.
+# GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite seconds in (0, 300]; otherwise
+# the default applies. The result cap bounds decoding and JSON parsing.
 _ENGINE_TIMEOUT_DEFAULT = 60.0
+_ENGINE_TIMEOUT_MAX = 300.0
+_ENGINE_STDOUT_MAX = 8 * 1024 * 1024
 _ENGINE_TIMEOUT_ENV = "GRC_PREFLIGHT_ENGINE_TIMEOUT"
 
 
@@ -158,13 +168,15 @@ class LanguageEngineUnavailable(RuntimeError):
 
 def _engine_timeout() -> float:
     """Seconds before the engine child is killed. The env override is for tests
-    and operations; an absent, malformed or non-positive value keeps the default
-    (the bound never becomes unbounded)."""
+    and operations; an absent, malformed, non-finite, non-positive or
+    over-maximum value keeps the default (the bound never becomes unbounded,
+    and never exceeds 300 seconds)."""
     try:
         value = float(os.environ.get(_ENGINE_TIMEOUT_ENV, ""))
     except ValueError:
         return _ENGINE_TIMEOUT_DEFAULT
-    return value if value > 0 else _ENGINE_TIMEOUT_DEFAULT
+    return (value if math.isfinite(value) and 0 < value <= _ENGINE_TIMEOUT_MAX
+            else _ENGINE_TIMEOUT_DEFAULT)
 
 
 def _validated_matches(stdout, nonce, expected):
@@ -206,25 +218,42 @@ def spelling_findings(lines):
     lines still loads and validates the engine (the no-added-lines loading
     contract). Raises LanguageEngineUnavailable unless the child exits 0 with a
     valid marked result (fail closed)."""
-    nonce = secrets.token_hex(16)
-    request = json.dumps({"nonce": nonce, "texts": [text for _, text in lines]})
     try:
-        child = subprocess.run(
-            [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
-            input=request, capture_output=True, text=True, timeout=_engine_timeout())
-    except Exception:
-        # A spawn failure, a timeout (subprocess.run kills the child), or
-        # undecodable child output. KeyboardInterrupt is not an Exception and
-        # propagates: a real Ctrl-C interrupts this process itself.
+        nonce = secrets.token_hex(16)
+        request = json.dumps({"nonce": nonce, "texts": [text for _, text in lines]})
+        with subprocess.Popen(
+                [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL, start_new_session=True) as child:
+            try:
+                stdout, _ = child.communicate(
+                    input=request.encode("ascii"), timeout=_engine_timeout())
+            except BaseException:
+                # Kill descendants holding pipes open too, then reap the runner.
+                # A descendant that calls setsid can escape this process group.
+                try:
+                    os.killpg(child.pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                child.wait()
+                raise
+        if child.returncode != 0 or len(stdout) > _ENGINE_STDOUT_MAX:
+            raise LanguageEngineUnavailable()
+        matches = _validated_matches(stdout.decode("ascii"), nonce, len(lines))
+        if matches is None:
+            raise LanguageEngineUnavailable()
+        return [(path, f"gate 2 spelling [{kind}]: {word}", text.strip())
+                for (path, text), found in zip(lines, matches)
+                for kind, word in found]
+    except KeyboardInterrupt:
+        # Only the parent's own interrupt propagates, never a child's exception.
+        raise
+    except BaseException:
+        # Parsing and schema validation belong to the same fault boundary:
+        # a spawn failure, a timeout (the group is killed above), undecodable
+        # or over-cap result bytes, and a decoder resource fault all become
+        # the one fixed engine error.
         raise LanguageEngineUnavailable() from None
-    if child.returncode != 0:
-        raise LanguageEngineUnavailable()
-    matches = _validated_matches(child.stdout, nonce, len(lines))
-    if matches is None:
-        raise LanguageEngineUnavailable()
-    return [(path, f"gate 2 spelling [{kind}]: {word}", text.strip())
-            for (path, text), found in zip(lines, matches)
-            for kind, word in found]
 
 
 def d7_length_findings(lines):
