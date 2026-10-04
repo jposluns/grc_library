@@ -92,8 +92,10 @@ added lines as JSON on the child's stdin. It accepts a result ONLY as exit statu
 one list of [kind, word] string pairs per input line. Anything else is the one
 fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
 seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite values up to 300 seconds),
-no output, extra output, a wrong nonce, or a schema violation. On timeout the
-child's process group is killed and the runner reaped; a descendant that calls
+no output, extra output, a wrong nonce, or a schema violation. On every
+completion path (a delivered result, a nonzero exit, a timeout, an exception)
+the runner's process group, verified to be the runner's own while its unreaped
+pid still pinned it, is killed and the runner reaped; a descendant that calls
 setsid escapes that group (residual, stated). Results over 8 MiB are refused
 before parsing, though the pipe buffers the child's stdout before the cap is
 applied (residual, stated). Child stderr (engine tracebacks and prints included)
@@ -103,7 +105,11 @@ diagnostic is printed. The runner consumes stdin and duplicates the result
 channel before any engine code runs, redirects the engine-visible stdout into the
 discarded stderr, and seals a computed result with os._exit(0), so engine output
 cannot reach the result channel and a fault delivered during child teardown
-cannot alter a result the real matcher already produced. Residual, stated: the
+cannot alter a result the real matcher already produced. Before sealing, the
+runner collects pending garbage and refuses (exit 71, no result line) unless
+both fault hooks are still its own and no fault was recorded, so an engine that
+restores the interpreter's default hooks cannot mask a fault (see the runner's
+docstring for the replace-and-restore residual). Residual, stated: the
 child runs the same-tree engine with this process's credentials, so an engine
 that DELIBERATELY forges a well-formed marked result line is outside this
 boundary's threat model, which covers faults, not malice. The timeout override is
@@ -225,18 +231,27 @@ def spelling_findings(lines):
                 [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, start_new_session=True) as child:
+            # start_new_session put the runner alone in a NEW process group whose
+            # id is the runner's own pid; read it while the unreaped pid is still
+            # pinned to the runner, so the group kill below can never target a
+            # group that is not the runner's own.
+            pgid = os.getpgid(child.pid)
             try:
+                if pgid != child.pid:
+                    raise LanguageEngineUnavailable()
                 stdout, _ = child.communicate(
                     input=request.encode("ascii"), timeout=_engine_timeout())
-            except BaseException:
-                # Kill descendants holding pipes open too, then reap the runner.
-                # A descendant that calls setsid can escape this process group.
-                try:
-                    os.killpg(child.pid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
+            finally:
+                # EVERY completion path (a delivered result, a nonzero exit, a
+                # timeout, an exception) kills engine descendants left in the
+                # runner's group, then reaps the runner. A descendant that calls
+                # setsid escapes this group (residual, stated).
+                if pgid == child.pid:
+                    try:
+                        os.killpg(pgid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
                 child.wait()
-                raise
         if child.returncode != 0 or len(stdout) > _ENGINE_STDOUT_MAX:
             raise LanguageEngineUnavailable()
         matches = _validated_matches(stdout.decode("ascii"), nonce, len(lines))

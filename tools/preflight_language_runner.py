@@ -17,24 +17,39 @@ and file descriptor 1 is redirected into stderr, so engine prints and a closed
 or replaced ``sys.stdout`` cannot reach the result channel. The result is
 written to the saved descriptor and sealed with ``os._exit(0)``, so no engine
 teardown, atexit or shutdown code runs after it. Before loading the engine,
-unraisable and thread exception hooks are installed to exit immediately with
-status 70, without writing a result. Exceptions delivered to either hook before
-sealing deny the result. Propagating exceptions and early exits before the result
+unraisable and thread exception hooks are installed to record the fault and
+exit immediately with status 70, without writing a result. Exceptions delivered
+to either hook before sealing deny the result. Immediately before sealing,
+``gc.collect()`` runs under the fault hooks (surfacing pending destructor
+faults, retained cycles included), and then the result is refused with status
+71, without a result line, unless BOTH hooks are still this runner's own
+handler (an identity check) and no fault was recorded: an engine that merely
+restored the interpreter's default hooks, turning a fault into discarded stderr
+noise, cannot seal a result. A ``spelling_matches`` result is accepted only as
+a list or tuple of two-item list/tuple string pairs; any other return (a str,
+dict, set, generator or other iterable included) raises, ending the child
+without a result line. Propagating exceptions and early exits before the result
 is written leave no valid result; exceptions caught by engine code are not
 detected. The parent rejects nonzero exits, timeouts and missing, extra,
-malformed or invalid results. A child that deliberately forges a well-formed
-marked line is outside the threat model (faults, not malice); see the preflight's
-module docstring.
+malformed or invalid results. Residual, stated: an engine that REPLACES a fault
+hook, absorbs a fault under the replacement, and restores this runner's own
+handler before sealing defeats the identity check; like a child that
+deliberately forges a well-formed marked line, that is outside the threat model
+(faults, not malice); see the preflight's module docstring.
 """
+import gc
 import importlib.util
 import json
 import os
 import sys
 import threading
 
+_FAULTS: list = []
 
-def _exit_on_fault(_args, _exit=os._exit) -> None:
-    _exit(70)  # no formatting, buffering or cleanup before rejecting the result
+
+def _exit_on_fault(_args, _exit=os._exit, _record=_FAULTS.append) -> None:
+    _record(True)  # no formatting, buffering or cleanup before rejecting the result
+    _exit(70)
 
 
 def main() -> None:
@@ -59,14 +74,34 @@ def main() -> None:
     checks = engine.compile_language(mod._language_config())
     findings = []
     for text in texts:
+        result = engine.spelling_matches(text, checks)
+        # The declared contract, enforced: a list (or tuple) of (kind, word)
+        # string pairs. A str, dict, set or generator would otherwise iterate
+        # into zero or garbled pairs and become a sealed verdict.
+        if not isinstance(result, (list, tuple)):
+            raise TypeError("spelling_matches must return a list of (kind, word) pairs")
         matches = []
-        for kind, word in engine.spelling_matches(text, checks):
-            if not (isinstance(kind, str) and isinstance(word, str)):
+        for pair in result:
+            if not (isinstance(pair, (list, tuple)) and len(pair) == 2
+                    and isinstance(pair[0], str) and isinstance(pair[1], str)):
                 raise TypeError("spelling_matches must yield (kind, word) string pairs")
-            matches.append([kind, word])
+            matches.append([pair[0], pair[1]])
+        # Drop the engine's object before the pre-seal collection: a retained
+        # binding would keep an engine-created reference cycle reachable and
+        # hide its destructor fault from gc.collect().
+        del result
         findings.append(matches)
     payload = (json.dumps({"nonce": nonce, "findings": findings},
                           ensure_ascii=True) + "\n").encode("ascii")
+    # Immediately before sealing: surface pending destructor faults (retained
+    # cycles included) through the fault hooks, then refuse unless both hooks
+    # are still this runner's own handler and no fault was recorded. An engine
+    # that restored the interpreter's default hooks cannot turn a masked fault
+    # into a sealed result.
+    gc.collect()
+    if (sys.unraisablehook is not _exit_on_fault
+            or threading.excepthook is not _exit_on_fault or _FAULTS):
+        os._exit(71)  # distinct from the in-hook status 70: refused at sealing
     while payload:
         payload = payload[os.write(result_fd, payload):]
     os._exit(0)  # seal the result: no engine teardown code runs after it

@@ -891,6 +891,16 @@ class ChangelogLanguageTests(unittest.TestCase):
         spec.loader.exec_module(mod)
         return mod
 
+    def fixture_git_environment(self):
+        """This process's environment with every GIT_* variable dropped and
+        global/system git config ignored, so a repository-local variable a
+        caller leaks (a pre-commit hook's GIT_INDEX_FILE, a GIT_DIR) or an
+        external git configuration cannot redirect a fixture repository's git
+        commands (round 7, W4)."""
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+        return env
+
     def test_root_in_default_and_explicit_scope(self):
         from contextlib import redirect_stdout
         from unittest.mock import patch
@@ -928,6 +938,12 @@ class ChangelogLanguageTests(unittest.TestCase):
         from contextlib import redirect_stdout, redirect_stderr
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
+        # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
+        # or global/system git config must not redirect this fixture's git
+        # commands or the preflight's own diffs (round 7, W4).
+        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard.start()
+        self.addCleanup(env_guard.stop)
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             paths = ("CHANGELOG.md", mod.DETAILED_MIRROR_REL)
@@ -1058,6 +1074,12 @@ class ChangelogLanguageTests(unittest.TestCase):
     def test_preflight_engine_base_exceptions_refuse_staged_misspelling(self):
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
+        # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
+        # or global/system git config must not redirect this fixture's git
+        # commands or the preflight's own diffs (round 7, W4).
+        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard.start()
+        self.addCleanup(env_guard.stop)
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
 
@@ -1211,8 +1233,10 @@ class ChangelogLanguageTests(unittest.TestCase):
     def assert_result_cleanup(self, raised):
         for word in ("centralised", "centralized"):
             # Immediate destruction faults before sealing and must be refused.
-            # Retained cycles (GC disabled) and globals survive until shutdown,
-            # which the seal skips; those verdicts must still be preserved.
+            # A retained cycle (GC disabled) is collected by the runner's
+            # pre-seal gc.collect() and refused too (round 7, E1); a module
+            # global survives until shutdown, which the seal skips, so that
+            # verdict must still be preserved.
             for lifetime in ("immediate", "cycle", "module"):
                 with self.subTest(word=word, lifetime=lifetime):
                     retain = {"immediate": "", "cycle": "    result.cycle = result\n",
@@ -1227,7 +1251,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                         "    result = EngineResult(_original_spelling_matches(text, checks))\n"
                         + retain + "    return result\n")
                     self.assert_engine_failure_refuses_staged_misspelling(
-                        source, staged_word=word, verdict_preserved=lifetime != "immediate")
+                        source, staged_word=word, verdict_preserved=lifetime == "module")
 
     def test_preflight_result_cleanup_runtime_error(self):
         self.assert_result_cleanup("RuntimeError('cleanup failed')")
@@ -1370,6 +1394,7 @@ class ChangelogLanguageTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as td:
                 root = Path(td)
                 pidfile = root / "pid"
+                partial = root / "pid.partial"
                 wrapper = root / "lint-language.py"
                 wrapper.write_text(
                     "import os, time\n"
@@ -1377,16 +1402,25 @@ class ChangelogLanguageTests(unittest.TestCase):
                     "if pid == 0:\n"
                     "    time.sleep(60)\n"
                     "    os._exit(0)\n"
-                    f"with open({str(pidfile)!r}, 'w') as stream:\n"
+                    f"with open({str(partial)!r}, 'w') as stream:\n"
                     "    stream.write(str(pid))\n"
+                    f"os.replace({str(partial)!r}, {str(pidfile)!r})\n"
                     "time.sleep(60)\n", encoding="utf-8")
+                # A 5-second engine timeout and a bounded pidfile poll: a slow
+                # host must not kill the group before the engine has forked the
+                # descendant and atomically published its pid (round 7, N5).
                 with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
                      patch.object(mod, "added_lines", return_value=[]), \
                      patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
-                     patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "1"}):
+                     patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "5"}):
                     self.assert_preflight_language_error(mod)
+                poll = time.monotonic() + 30
+                while time.monotonic() < poll and not pidfile.exists():
+                    time.sleep(0.05)
+                self.assertTrue(pidfile.exists(),
+                                "the engine never published the descendant pid")
                 pid = int(pidfile.read_text())
-                deadline = time.monotonic() + 5
+                deadline = time.monotonic() + 10
                 while time.monotonic() < deadline:
                     waited, status = os.waitpid(pid, os.WNOHANG)
                     if waited:
@@ -1397,9 +1431,9 @@ class ChangelogLanguageTests(unittest.TestCase):
                 self.assertEqual(os.waitstatus_to_exitcode(status), -signal.SIGKILL)
                 with self.assertRaises(ProcessLookupError):
                     os.kill(pid, 0)
-                # The runner too was reaped by the parent.
-                with self.assertRaises(ChildProcessError):
-                    os.waitpid(-1, os.WNOHANG)
+                # The specific descendant is reaped and gone (asserted above);
+                # a process-wide os.waitpid(-1, ...) would couple this test to
+                # any other child of the test process (round 7, N6).
         finally:
             if pid is not None and not reaped:
                 try:
@@ -1407,6 +1441,88 @@ class ChangelogLanguageTests(unittest.TestCase):
                 except ProcessLookupError:
                     pass
                 os.waitpid(pid, 0)
+            self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux subreaper assertion")
+    def test_preflight_kills_descendant_on_success_and_failure(self):
+        # Round 7, E3: a descendant the engine leaves behind is killed on EVERY
+        # completion path, not only on timeout: after a successful run and
+        # after a failed engine load, the sleeper must be SIGKILLed and gone.
+        import ctypes
+        import signal
+        import time
+        from unittest.mock import patch
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        mod = self.load_tool("preflight-changelog")
+        engine_stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return {}\n")
+        try:
+            for outcome, tail in (("success", engine_stub),
+                                  ("failure", "raise RuntimeError('load failed')\n")):
+                with self.subTest(outcome=outcome), \
+                        tempfile.TemporaryDirectory() as td:
+                    root = Path(td)
+                    pidfile = root / "pid"
+                    partial = root / "pid.partial"
+                    wrapper = root / "lint-language.py"
+                    wrapper.write_text(
+                        "import os, subprocess, sys\n"
+                        "_sleeper = subprocess.Popen(\n"
+                        "    [sys.executable, '-c', 'import time; time.sleep(120)'],\n"
+                        "    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,\n"
+                        "    stderr=subprocess.DEVNULL)\n"
+                        f"with open({str(partial)!r}, 'w') as stream:\n"
+                        "    stream.write(str(_sleeper.pid))\n"
+                        f"os.replace({str(partial)!r}, {str(pidfile)!r})\n"
+                        + tail, encoding="utf-8")
+                    pid = None
+                    reaped = False
+                    try:
+                        with patch.object(mod, "_LANGUAGE_GATE", wrapper):
+                            if outcome == "success":
+                                self.assertEqual(mod.spelling_findings([]), [])
+                            else:
+                                with self.assertRaises(mod.LanguageEngineUnavailable):
+                                    mod.spelling_findings([])
+                        poll = time.monotonic() + 30
+                        while time.monotonic() < poll and not pidfile.exists():
+                            time.sleep(0.05)
+                        self.assertTrue(pidfile.exists(),
+                                        "the engine never published the sleeper pid")
+                        pid = int(pidfile.read_text())
+                        status = None
+                        deadline = time.monotonic() + 10
+                        while time.monotonic() < deadline:
+                            waited, status = os.waitpid(pid, os.WNOHANG)
+                            if waited:
+                                reaped = True
+                                break
+                            time.sleep(0.01)
+                        self.assertTrue(
+                            reaped, f"descendant {pid} survived the {outcome} path")
+                        self.assertEqual(os.waitstatus_to_exitcode(status),
+                                         -signal.SIGKILL)
+                        with self.assertRaises(ProcessLookupError):
+                            os.kill(pid, 0)
+                    finally:
+                        if pid is not None and not reaped:
+                            try:
+                                os.kill(pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                            try:
+                                os.waitpid(pid, 0)
+                            except ChildProcessError:
+                                pass
+        finally:
             self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
 
     def test_preflight_load_exception_cleanup(self):
@@ -1490,6 +1606,41 @@ class ChangelogLanguageTests(unittest.TestCase):
             "    def __del__(self): raise SystemExit(0)\n"
             "def spelling_matches(text, checks):\n"
             "    return EngineResult(_original_spelling_matches(text, checks))\n")
+
+    def test_preflight_restored_unraisablehook_fault_refuses_clean_commit(self):
+        # Round 7, E1: an engine that restores the interpreter's DEFAULT
+        # unraisable hook turns a destructor fault into discarded stderr noise;
+        # the runner's pre-seal identity check must refuse the result (exit
+        # 71), so even a clean entry cannot commit over the masked fault.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\n"
+            "sys.unraisablehook = sys.__unraisablehook__\n"
+            "class LoadResource:\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "resource = LoadResource()\n"
+            "del resource\n", staged_word="centralized")
+
+    def test_preflight_restored_thread_excepthook_fault_refuses_clean_commit(self):
+        # Round 7, E1: the same masking through threading.__excepthook__: a
+        # joined thread's exception becomes stderr noise under the default
+        # hook; the pre-seal identity check must still refuse the result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import threading\n"
+            "threading.excepthook = threading.__excepthook__\n"
+            "def _fail(): raise RuntimeError('thread failed')\n"
+            "_worker = threading.Thread(target=_fail)\n"
+            "_worker.start()\n"
+            "_worker.join()\n", staged_word="centralized")
+
+    def test_preflight_matcher_invalid_return_shape_refuses_staged_misspelling(self):
+        # Round 7, E2: a matcher returning '' or {} (or any other
+        # non-list shape) iterates into ZERO pairs, which round 6 sealed as a
+        # clean verdict over a staged misspelling; the runner must enforce the
+        # declared list-of-string-pairs contract and die without a result.
+        for value in ("''", "{}", "iter([])"):
+            with self.subTest(value=value):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    f"def spelling_matches(text, checks): return {value}\n")
 
     def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
         # The runner never calls sys.exit, so a patched one cannot turn a fault
