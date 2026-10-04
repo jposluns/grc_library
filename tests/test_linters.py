@@ -4958,6 +4958,26 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
         self.assertIn("self-test: ", result.stdout)
 
+    def test_check_generated_commit_hook_self_test(self) -> None:
+        """The git-native pre-commit generated-output check's --self-test, wired at introduction (P-TODO 3b200).
+
+        Refuses a commit that changes a Version or Date line or a generated output while the staged
+        taxonomy.yml, docs/portal.md or docs/maturity-scorecard.md is out of sync, judged by the staged
+        generators on a byte-for-byte copy of the index being committed. --self-test runs decide(), the
+        override parse, the diff-line trigger, and an end-to-end run through the real installer, the real
+        generators, and real commits: an unborn initial commit, Version-only and Date-only changes,
+        outputs regenerated but not staged, working-tree drift, `commit -a`, a pathspec commit, a -diff
+        attribute with hostile diff configuration, a hand-edited output, a deletion, a rename, unjudged
+        commits on a stale tree, a crashing and a missing staged generator, an override of "0", a linked
+        worktree, and the fail-open and commit-on-main ordering cases.
+        """
+        result = self._run_selftest(
+            [sys.executable, str(REPO_ROOT / "tools" / "check-generated-commit.py"), "--self-test"]
+        )
+        self.assertEqual(result.returncode, 0,
+                         f"hook --self-test failed.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        self.assertIn("self-test: ", result.stdout)
+
     def test_changelog_preflight_commit_refuses_every_nonzero_exit_and_pins_last(self) -> None:
         """The CHANGELOG preflight commit check refuses on EVERY non-zero preflight exit (its 2 is a git
         error; a crash or a signal is not a pass), and appends its diff pins AFTER the caller's `git -c`
@@ -27486,6 +27506,7 @@ class HookParserStrictnessTests(LinterTestCase):
             ("tools/check-version-bump-commit.py", "--self-test", "--stray"),
             ("tools/check-changelog-preflight-commit.py", "--pre-commit", "--stray"),
             ("tools/check-changelog-preflight-commit.py", "--self-test", "--stray"),
+            ("tools/check-generated-commit.py", "--self-test", "--stray"),
             ("tools/check-commit-on-main.py", "--pre-commit", "--stray"),
             ("tools/check-dirty-tree-push.py", "--stray"),
             ("tools/check-dirty-tree-push.py", "--pre-push", "origin", "url", "extra"),
@@ -27514,6 +27535,7 @@ class HookParserStrictnessTests(LinterTestCase):
             ("tools/check-pr-attribution.py", "--text-file", str(text)),
             ("tools/check-version-bump-commit.py", "--self-test"),
             ("tools/check-changelog-preflight-commit.py", "--self-test"),
+            ("tools/check-generated-commit.py", "--self-test"),
             ("tools/check-commit-on-main.py", "--self-test"),
             ("tools/check-dirty-tree-push.py", "--self-test"),
             ("tools/tension-scan.py", "HEAD", "HEAD"),

@@ -10,9 +10,9 @@ the index being committed, however the command was spelled.
 
 Why pre-commit and not commit-msg. check-version-bump-commit.py is a commit-msg hook because its
 opt-out is a line in the commit MESSAGE; this check has no message opt-out, so it runs before the
-message is written, from the tracked tools/git-hooks/pre-commit after check-commit-on-main.py. The
-dispatcher that tools/install-git-hooks.sh installs execs that tracked file, so a clone that has run
-the installer gets this check with no re-install.
+message is written, from the tracked tools/git-hooks/pre-commit after check-commit-on-main.py and
+check-generated-commit.py. The dispatcher that tools/install-git-hooks.sh installs execs that tracked
+file, so a clone that has run the installer gets this check with no re-install.
 
 What it checks. When the index being committed carries a non-deleted root CHANGELOG.md change, it
 runs the ACTIVE checkout's tools/preflight-changelog.py --staged (the preflight itself, not a copy of
