@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.36\
-**Date:** 2026-09-30\
+**Version:** 1.6.37\
+**Date:** 2026-10-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -345,7 +345,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 | Metric | Definition | Target |
 | --- | --- | --- |
 | **Requests Received** | Total DSRs received in the reporting period, by right type | Tracked; volume trend monitored |
-| **On-Time Fulfilment Rate (%)** | Percentage of requests fulfilled within the applicable legal timeframe | ≥ 95% |
+| **On-Time Fulfilment Rate (%)** | Percentage of requests fulfilled within the applicable legal timeframe | 100% |
 | **Denial Rate (%)** | Percentage of requests denied wholly or in part | Tracked; material increase triggers process review |
 | **Average Response Time (days)** | Mean number of calendar days from request receipt to response delivery | Target: ≤ 25 days (ahead of the one-month deadline); requests under a clock measured in hours, such as Indonesia's 3 x 24-hour windows, are reported separately against that clock |
 | **Identity Verification Failure Rate (%)** | Percentage of requests suspended or closed due to failure to verify identity | Tracked; used to assess intake process usability |

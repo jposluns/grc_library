@@ -2,8 +2,8 @@
 
 **Document Title:** South Korea Privacy Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.1.3\
-**Date:** 2026-10-03\
+**Version:** 1.1.4\
+**Date:** 2026-10-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/annex-privacy-jurisdiction-index.md`](../annex-privacy-jurisdiction-index.md), [`privacy/policy-privacy-and-data-governance.md`](../policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](../procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -51,7 +51,7 @@ The Personal Information Protection Act (PIPA) imposes the following core obliga
 | **Privacy officer / CPO (Art 31)**: the controller designates a privacy officer responsible for personal-information processing. | library accountability and privacy-officer controls |
 | **Data-breach notification (Art 34)**: on becoming aware of a divulgence, the controller notifies affected data subjects of the Art 34(1) matters without delay and, for a breach above the prescribed scale, reports without delay to the Protection Commission (PIPC) or a specialized institution designated by Presidential Decree (Art 34(3)). | library incident-response and breach-notification controls |
 | **Access, correction/erasure, suspension (Arts 35, 36, 37)**: a data subject may request access (Art 35), correction or erasure of accessed information (Art 36), and suspension of processing (Art 37), subject to the statutory exceptions. | library data-subject-rights controls (`privacy/procedure-data-subject-rights-management.md`, `privacy/template-dsar-workflow.md`) |
-| **Compensation and statutory damages (Arts 39, 39-2)**: a data subject suffering damage from a violation may claim compensation unless the controller proves no intent or negligence (Art 39(1)); where the damage arises from loss, theft, divulgence, forgery, alteration, or damage of the information caused by wrongful intent or negligence, the court may award up to three times the damage (Art 39(3)); for those same compromise events the data subject may instead elect statutory damages up to the Art 39-2 cap. | *(Korea-specific liability; the library's disclosure-accuracy and security controls reduce the exposure)* |
+| **Compensation and statutory damages (Arts 39, 39-2)**: a data subject suffering damage from a violation may claim compensation unless the controller proves no intent or negligence (Art 39(1)); where a data subject suffers damage from loss, theft, divulgence, forgery, alteration, or damage of their own personal information caused by the controller's intention or negligence, the court may award up to five times such damage, unless the controller proves the absence of intention or negligence (Art 39(3)); for those same compromise events the data subject may instead elect statutory damages up to the Art 39-2 cap. | *(Korea-specific liability; the library's disclosure-accuracy and security controls reduce the exposure)* |
 
 ## AI and privacy obligations
 

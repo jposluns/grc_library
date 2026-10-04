@@ -2,8 +2,8 @@
 
 **Document Title:** DevOps Security Requirements\
 **Document Type:** Standard\
-**Version:** 1.0.29\
-**Date:** 2026-09-25\
+**Version:** 1.0.30\
+**Date:** 2026-10-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`operations/README.md`](../operations/README.md)\
@@ -149,7 +149,7 @@ This section defines deployment-time and operational security requirements for a
 
 ### 8.1 Runtime version management
 
-All automation platform runtimes must be on a supported, non-EOL version. A runtime EOL tracking register must be maintained. SIEM alerts fire at 60 and 30 days before any runtime EOL. Pipelines block deployment to EOL runtimes per §2.2. Upgrade sequence: sandbox regression testing first, then production.
+All automation platform runtimes must be on a supported, non-EOL version. A runtime EOL tracking register must be maintained. SIEM alerts must fire at 180, 90, and 30 days before any runtime EOL. Pipelines block deployment to EOL runtimes per §2.2. Upgrade sequence: sandbox regression testing first, then production.
 
 ### 8.2 Deployment prerequisites
 
