@@ -1008,6 +1008,9 @@ class LinksLinterTests(LinterTestCase):
         with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
             root = Path(directory)
             subprocess.run(["git", "init", "-q", str(root)], check=True)
+            # One clean tracked file: the default scan refuses an empty selection.
+            (root / "README.md").write_text("Clean prose.\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "--", "README.md"], check=True)
             body = root / "docs/untracked.md"
             body.parent.mkdir()
             body.write_text("[broken](missing.md)\n", encoding="utf-8")
@@ -1095,6 +1098,109 @@ class LinksLinterTests(LinterTestCase):
                     finally:
                         body.write_bytes(original)
             self.assertEqual(run_default()[0], 0)
+
+    def _links_default(self, mod, root):
+        from contextlib import redirect_stderr, redirect_stdout
+        from unittest.mock import patch
+
+        output = io.StringIO()
+        with patch.object(mod, "REPO_ROOT", root), \
+                redirect_stdout(output), redirect_stderr(output):
+            status = mod.main(["lint-links.py"])
+        return status, output.getvalue()
+
+    @staticmethod
+    def _tracked_repo(root, files):
+        subprocess.run(["git", "init", "-q", str(root)], check=True)
+        for rel, text in files.items():
+            path = root / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+        if files:
+            subprocess.run(["git", "-C", str(root), "add", "-f", "--", *files], check=True)
+        return root
+
+    def test_default_unreadable_tracked_file_fails_closed(self) -> None:
+        """Every selected tracked file is read, or the gate exits 2 naming it."""
+        if os.name != "posix" or os.geteuid() == 0:
+            self.skipTest("needs POSIX permissions that bind the current user")
+        mod = load_linter_module("tools/lint-links.py", "_links_unreadable")
+        cases = {
+            "parent-directory-unreadable": ("locked/body.md", lambda p: p.parent.chmod(0)),
+            "file-unreadable": ("locked.md", lambda p: p.chmod(0)),
+            "deleted-from-checkout": ("deleted.md", lambda p: p.unlink()),
+            "not-utf-8": ("latin1.md",
+                          lambda p: p.write_bytes(b"[broken](missing.md) \xff\n")),
+        }
+        for case, (rel, break_file) in cases.items():
+            with self.subTest(case=case), \
+                    tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+                root = self._tracked_repo(Path(directory), {
+                    "clean.md": "Clean prose.\n", rel: "[broken](missing.md)\n"})
+                path = root / rel
+                # Positive control: the file is selected while it is readable.
+                self.assertEqual(self._links_default(mod, root)[0], 1)
+                break_file(path)
+                try:
+                    status, output = self._links_default(mod, root)
+                finally:
+                    path.parent.chmod(0o755)
+                    if path.exists():
+                        path.chmod(0o644)
+                self.assertEqual(status, 2, output)
+                self.assertIn(f"ERROR: cannot read selected file {rel}:", output)
+                self.assertNotIn("OK: no broken links.", output)
+
+    def test_default_empty_or_partial_selection_fails_closed(self) -> None:
+        """No tracked Markdown, or a root below the Git top level, exits 2."""
+        mod = load_linter_module("tools/lint-links.py", "_links_empty_selection")
+        cases = {
+            "nothing-tracked": ({}, ".", "no tracked Markdown selected"),
+            "only-exempt-tracked": ({".corpus-management/body.md": "Clean prose.\n"}, ".",
+                                    "no tracked Markdown selected"),
+            "untracked-subdirectory": ({"top.md": "Clean prose.\n"}, "nested",
+                                       "is not the Git top level"),
+            "tracked-subdirectory": ({"top.md": "Clean prose.\n",
+                                      "sub/body.md": "Clean prose.\n"}, "sub",
+                                     "is not the Git top level"),
+        }
+        for case, (files, subdir, message) in cases.items():
+            with self.subTest(case=case), \
+                    tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+                root = self._tracked_repo(Path(directory), files) / subdir
+                # An untracked broken file must not let an empty scan report clean.
+                stray = root / "untracked.md"
+                stray.parent.mkdir(parents=True, exist_ok=True)
+                stray.write_text("[broken](missing.md)\n", encoding="utf-8")
+                status, output = self._links_default(mod, root)
+                self.assertEqual(status, 2, output)
+                self.assertIn("ERROR: cannot select link-audit files:", output)
+                self.assertIn(message, output)
+                self.assertNotIn("OK: no broken links.", output)
+
+    def test_default_git_failure_exits_2(self) -> None:
+        """A failed or missing git exits 2 with its cause; it never passes empty."""
+        from unittest.mock import patch
+
+        mod = load_linter_module("tools/lint-links.py", "_links_git_failure")
+        with tempfile.TemporaryDirectory() as directory, \
+                tempfile.TemporaryDirectory() as empty_bin:
+            root = Path(directory) / "not-a-repo"
+            root.mkdir()
+            (root / "README.md").write_text("[broken](missing.md)\n", encoding="utf-8")
+            ceiling = {"GIT_CEILING_DIRECTORIES": directory}
+            cases = {
+                "not-a-repository": (ceiling, "returned non-zero exit status"),
+                "git-not-installed": ({**ceiling, "PATH": empty_bin}, "'git'"),
+            }
+            for case, (env, cause) in cases.items():
+                with self.subTest(case=case), patch.dict(os.environ, env):
+                    for name in ("GIT_DIR", "GIT_WORK_TREE"):
+                        os.environ.pop(name, None)
+                    status, output = self._links_default(mod, root)
+                    self.assertEqual(status, 2, output)
+                    self.assertIn("ERROR: cannot select link-audit files:", output)
+                    self.assertIn(cause, output)
 
 
 class CIWaitPrescriptionTests(LinterTestCase):
