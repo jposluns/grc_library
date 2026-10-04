@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.10\
-**Date:** 2026-09-18\
+**Version:** 1.2.11\
+**Date:** 2026-10-04\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
@@ -77,7 +77,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 
 For P1 incidents occurring outside business hours, the SOC must attempt phone contact with the CISO/CIO immediately. If unreachable within 15 minutes, escalate to the CEO.
 
-On-call responsibility rotates as documented in the IR Contact Register. Out-of-hours P2 incidents may wait until business hours if containment is confirmed; if containment is not confirmed, treat as P1.
+On-call responsibility rotates as documented in the IR Contact Register. The P2 notification clocks in the escalation matrix must continue outside business hours: SOC Manager within 30 minutes, CISO within 1 hour, and CIO within 2 hours. Only non-urgent follow-up investigation and remediation may wait until business hours when containment is confirmed, provided monitoring continues and applicable response and reporting deadlines are met; if containment is not confirmed, the incident must be treated as P1.
 
 ---
 

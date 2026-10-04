@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Notice Template\
 **Document Type:** Template\
-**Version:** 1.1.1\
-**Date:** 2026-09-14\
+**Version:** 1.1.3\
+**Date:** 2026-10-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/framework-consent-management.md`](framework-consent-management.md)\
@@ -170,7 +170,7 @@ For just-in-time notices delivered at the point of collection (form submission, 
 | GDPR | Articles 12, 13, 14, 22, Recital 39 | Information duties, transparency, ADM |
 | UK GDPR | Articles 12, 13, 14, 22A-22D | Equivalent obligations |
 | LGPD | Articles 6(VI), 9, 18 | Transparency, information duty |
-| PIPEDA / CPPA | Principle 8 / Sec 62 to 65 (lapsed with Bill C-27) | Openness; transparency |
+| PIPEDA / CPPA (CPPA lapsed, not in force) | Principle 8 / Sec 62 to 65 (lapsed with Bill C-27) | Openness; transparency |
 | PIPL | Articles 17 to 21 | Notification to individuals |
 | CCPA / CPRA | Notice at Collection and Privacy Policy (Cal. Civ. Code s. 1798.100(a); 11 CCR ss. 7011-7012) | Category-specific pre-collection disclosure (see Section 13) plus the comprehensive privacy policy |
 | ISO/IEC 29184:2020 | Online notice and consent | Notice structure |

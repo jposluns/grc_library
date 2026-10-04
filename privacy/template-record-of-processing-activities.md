@@ -2,8 +2,8 @@
 
 **Document Title:** Record of Processing Activities Template\
 **Document Type:** Template\
-**Version:** 1.0.12\
-**Date:** 2026-09-03\
+**Version:** 1.0.13\
+**Date:** 2026-10-04\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`privacy/register-cross-border-data-flow.md`](register-cross-border-data-flow.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`supply-chain/register-subprocessor-template.md`](../supply-chain/register-subprocessor-template.md)\
@@ -104,7 +104,7 @@ This template applies to every processing activity carried out by the organizati
 | UK GDPR | Article 30 | Equivalent obligation |
 | ISO/IEC 27701:2025 | Records of PII processing (section numbering changed in 2025 standalone revision) | Privacy information management |
 | LGPD | Article 37 | Record of operations |
-| CPPA | Section 60 (lapsed with Bill C-27) | Records of security-safeguard breaches |
+| CPPA (lapsed, not in force) | Section 60 (lapsed with Bill C-27) | Records of security-safeguard breaches |
 | PIPL | Article 55 | Impact-assessment record-keeping for specified processing (Article 54 governs periodic compliance audits) |
 | NIST Privacy Framework | ID.IM-P | Identifying and inventorying data |
 

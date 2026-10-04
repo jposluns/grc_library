@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.27\
-**Date:** 2026-10-03\
+**Version:** 1.0.28\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -145,7 +145,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | BASC v6 (2022) | Trade and Customs Compliance | BASC obligations, Chapter reporting |
 | WCO SAFE Framework (2025 edition) | AEO Security | Customs compliance and AEO obligations |
 | EU GDPR | Arts 33 to 34, Data protection | Breach notification, DPA reporting |
-| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Entities must submit staged significant-incident reports (Art 23(4): early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident; incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph); final report within one month after submission of the incident notification, or a progress report then and the final report within one month of handling where the incident is still ongoing) |
+| EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical infrastructure resilience | Entities must submit staged significant-incident reports (Art 23(4): early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident; incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph); an intermediate report on relevant status updates upon request of a CSIRT or, where applicable, the competent authority (Article 23(4)(c)); final report within one month after submission of the incident notification, or a progress report then and the final report within one month of handling where the incident is still ongoing) |
 | EU AI Act (2024) | Art 73 | AI serious incident reporting |
 | Canada PIPEDA; Treasury Board Directive on Automated Decision-Making / Voluntary Code of Conduct on Generative AI (AIDA lapsed) | Privacy and AI compliance | Canadian regulatory obligations |
 | NIST AI RMF 1.0 | GOVERN 1.1 (legal and regulatory requirements involving AI) | AI compliance governance |
