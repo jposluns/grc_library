@@ -10,8 +10,9 @@ It exits non-zero (so the ``&&`` chain will not fire) when the working-tree
 additions to the root [`CHANGELOG.md`] or the maintainer-grade detailed
 mirror contain any of:
 
-  - a gate-2 spelling finding (ise, isation, or yse), using the same language
-    profile and official-quote masks, or
+  - a gate-2 spelling finding (ise, isation, or yse), found by gate 2's own
+    matcher (the engine's ``spelling_matches``: the same language profile and
+    official-quote masks), or
   - an em-dash or en-dash in prose (the no-dash convention: delta gate D3
     enforces this PR-time on the root file, and gate 51 enforces it on the
     ``.working/`` mirror, but NEITHER fires on the first local commit), or
@@ -74,7 +75,10 @@ Exit codes:
     1   one or more issues (do not commit until fixed)
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
         a repository, an operational store or private sibling holding the mirror included) exits 2
-        instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1)
+        instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1); or the gate-2
+        language engine cannot be loaded (a missing or unimportable tools/lint-language.py, pack
+        engine or profile loader, or a malformed language profile), reported as one named ERROR
+        line rather than a traceback, whether or not any line was added (3b201)
 """
 
 from __future__ import annotations
@@ -105,31 +109,48 @@ _d7 = _ilu.module_from_spec(_d7_spec)
 _d7_spec.loader.exec_module(_d7)
 
 
-def spelling_findings(lines):
-    """Check added lines with gate 2's vocabulary, patterns and quote masks.
+# Gate 2's project entry point. load_language() loads it, and through it the pack
+# engine and the language profile, exactly as the gate does.
+_LANGUAGE_GATE = Path(_TOOLS_DIR) / "lint-language.py"
 
+
+class LanguageEngineUnavailable(RuntimeError):
+    """Gate 2's wrapper, engine or language profile could not be loaded (main() exits 2)."""
+
+
+def load_language():
+    """``(engine, checks)``: gate 2's engine module and its compiled language checks.
+
+    Any failure to load (a missing or unimportable wrapper, engine or profile
+    loader, or a malformed profile) raises LanguageEngineUnavailable naming the
+    cause, so the aid fails closed with exit 2 and a named message rather than a
+    traceback, and never skips the spelling check (3b201).
+    """
+    try:
+        spec = _ilu.spec_from_file_location("_changelog_language", _LANGUAGE_GATE)
+        mod = _ilu.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        engine = mod._engine()
+        return engine, engine.compile_language(mod._language_config())
+    except Exception as exc:
+        raise LanguageEngineUnavailable(
+            f"the gate-2 language engine could not be loaded through {_LANGUAGE_GATE.name} "
+            f"(its pack engine, profile loader and language profile included): "
+            f"{type(exc).__name__}: {exc}") from exc
+
+
+def spelling_findings(lines, language=None):
+    """Check added lines with gate 2's own spelling matcher, so the two cannot drift.
+
+    ``language`` is a load_language() result (None loads it). The engine's
+    ``spelling_matches`` applies gate 2's vocabulary, patterns and quote masks.
     Additions are checked in isolation, including inline code as in gate 2.
     Fenced additions may over-report, like the existing preflight link check.
     """
-    spec = _ilu.spec_from_file_location(
-        "_changelog_language", Path(_TOOLS_DIR) / "lint-language.py")
-    mod = _ilu.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    engine = mod._engine()
-    language = engine.compile_language(mod._language_config())
-    findings = []
-    for path, text in lines:
-        prose = engine.mask_allowed_spans(
-            text, language.vocab.allowed_commonwealth_spans)
-        for kind, pattern in (("ise", language.ise_pattern),
-                              ("isation", engine.ISATION_PATTERN),
-                              ("yse", language.yse_pattern)):
-            for match in pattern.finditer(prose):
-                word = match.group(0)
-                if kind == "isation" and word.lower() in language.vocab.isation_allowed_words:
-                    continue
-                findings.append((path, f"gate 2 spelling [{kind}]: {word}", text.strip()))
-    return findings
+    engine, checks = language or load_language()
+    return [(path, f"gate 2 spelling [{kind}]: {word}", text.strip())
+            for path, text in lines
+            for kind, word in engine.spelling_matches(text, checks)]
 
 
 def d7_length_findings(lines):
@@ -475,6 +496,12 @@ def main(argv: list[str]) -> int:
     except OSError as exc:
         print(f"ERROR: the CHANGELOG diff could not be read: {exc}", file=sys.stderr)
         return 2
+    try:
+        language = load_language()
+    except LanguageEngineUnavailable as exc:
+        # Fail closed (3b201): an unloadable engine is not a clean spelling check.
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
 
     findings: list[tuple[str, str, str]] = []
     for path, text in lines:
@@ -504,7 +531,7 @@ def main(argv: list[str]) -> int:
             )
         )
 
-    findings.extend(spelling_findings(lines))
+    findings.extend(spelling_findings(lines, language))
     findings.extend(d7_length_findings(lines))
 
     if not findings:

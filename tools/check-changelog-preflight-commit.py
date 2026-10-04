@@ -53,7 +53,8 @@ a staged CHANGELOG.md in a checkout without tools/preflight-changelog.py (3b141 
 failed open, silently, for an "older branch", but no older branch reaches this check: the tracked
 shim runs it only in a tree that carries it, and the preflight predates it, so only a working tree
 that has deleted or renamed the preflight gets here); and a preflight that cannot be started or
-exits other than 0 (its 1 is a finding or a crash, its 2 a git error).
+exits other than 0 (its 1 is a finding or a crash, its 2 a git error or a gate-2 language
+engine it could not load).
 
 Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
 in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
@@ -266,7 +267,9 @@ def _integration_self_test():
         # r4: reading the staged state against HEAD, which an unborn branch lacks, would refuse it). It
         # is made on another branch, so that feature stays unborn for the case after it.
         must(["git", "symbolic-ref", "HEAD", "refs/heads/first"])
-        must(["git", "add", "tools"])
+        # The gate-2 engine the preflight loads is committed with tools/, so a linked worktree carries
+        # it (3b201: untracked, it was absent there, and that case passed on the preflight's crash).
+        must(["git", "add", "tools", ".corpus-management"])
         cp = run(["git", "commit", "-q", "-m", "first"])
         expect(cp.returncode == 0 and "check-changelog" not in cp.stderr,
                f"an unborn initial commit not staging CHANGELOG.md was refused or not silent: {cp.stderr.strip()}")
@@ -295,6 +298,12 @@ def _integration_self_test():
                "a staged CHANGELOG dash was not refused with the preflight's report and the override")
         cp = run(["git", "commit", "-q", "-m", "dashed"], extra={_OVERRIDE: "0"})
         expect(refused(cp), f"{_OVERRIDE}=0 was taken as the override")
+        # A gate-2 spelling in a staged entry refuses with the preflight's report too (3b201).
+        changelog.write_text("# Changelog\n\na centralised entry\n", encoding="utf-8")
+        must(["git", "add", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "spelling"])
+        expect(refused(cp) and "gate 2 spelling [ise]: centralised" in cp.stderr,
+               f"a staged CHANGELOG -ise spelling was not refused with the preflight's report: {cp.stderr.strip()}")
         # Only the staged diff is judged: an unstaged dash is not this commit's, and a pass is silent.
         changelog.write_text("# Changelog\n\n" + clean, encoding="utf-8")
         must(["git", "add", _CHANGELOG])
@@ -386,7 +395,8 @@ def _integration_self_test():
         append(dashed, linked / _CHANGELOG)
         must(["git", "-C", str(linked), "add", _CHANGELOG])
         cp = run(["git", "-C", str(linked), "commit", "-q", "-m", "worktree"], cwd=base)
-        expect(refused(cp), "a CHANGELOG dash committed with git -C in a linked worktree was not refused")
+        expect(refused(cp) and "em/en dash in prose" in cp.stderr,
+               "a CHANGELOG dash committed with git -C in a linked worktree was not refused")
         # A mirror kept in a SEPARATE repository (the operational store, <repo-parent>/private) is
         # judged by that repository's own index (3b141 QA r2): the hook's GIT_INDEX_FILE, which
         # `commit -a` and a pathspec commit point at this repository's temporary index, once reached
@@ -422,6 +432,19 @@ def _integration_self_test():
         expect(cp.returncode == 0 and "check-changelog" not in cp.stderr,
                f"a clean staged store-mirror entry was refused or not silent: {cp.stderr.strip()}")
         shutil.rmtree(store)
+        # A gate-2 language engine the preflight cannot load refuses as a preflight that did not
+        # complete, with the preflight's named reason rather than a traceback (3b201).
+        engine = repo / ".corpus-management" / "tools" / "gate_lint_language.py"
+        engine_text = engine.read_text(encoding="utf-8")
+        engine.unlink()
+        append(clean)
+        must(["git", "add", _CHANGELOG])
+        cp = run(["git", "commit", "-q", "-m", "no engine"])
+        expect(refused(cp, "did not complete (exit 2)")
+               and "gate-2 language engine could not be loaded" in cp.stderr
+               and "Traceback" not in cp.stderr,
+               f"a missing gate-2 language engine did not refuse with a named reason: {cp.stderr.strip()}")
+        engine.write_text(engine_text, encoding="utf-8")
         # A preflight that does not complete refuses, and so does one that is absent (3b141 QA r4: that
         # once failed open, silently).
         preflight = repo / _PREFLIGHT

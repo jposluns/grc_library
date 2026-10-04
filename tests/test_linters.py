@@ -960,6 +960,45 @@ class ChangelogLanguageTests(unittest.TestCase):
                         git("add", rel)
                         self.assertEqual(mod.main(["preflight", "--staged"]), 0)
 
+    def test_gate_and_preflight_share_one_spelling_matcher(self):
+        from unittest.mock import patch
+        preflight = self.load_tool("preflight-changelog")
+        gate = self.load_tool("lint-language")
+        engine = gate._engine()
+        checks = engine.compile_language(gate._language_config())
+        with tempfile.TemporaryDirectory() as td, \
+             patch.object(engine, "spelling_matches", return_value=[("ise", "sentinel")]) as matcher:
+            root = Path(td)
+            (root / "x.md").write_text("plain text\n", encoding="utf-8")
+            (root / "gen.py").write_text('MESSAGE = "plain text"\n', encoding="utf-8")
+            self.assertEqual(engine.check_file(root / "x.md", root, language=checks),
+                             [("ise", 1, "sentinel")])
+            self.assertEqual(engine.check_generator_source(root / "gen.py", language=checks),
+                             [("ise", 1, "sentinel")])
+            self.assertEqual(
+                preflight.spelling_findings([("CHANGELOG.md", "plain text")], (engine, checks)),
+                [("CHANGELOG.md", "gate 2 spelling [ise]: sentinel", "plain text")])
+        self.assertEqual(matcher.call_count, 3)
+
+    def test_preflight_unloadable_engine_fails_closed_with_named_message(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "lint-language.py"
+            for lines in ([], [("CHANGELOG.md", "New centralised controls.")]):
+                with self.subTest(added=len(lines)):
+                    err = io.StringIO()
+                    with patch.object(mod, "_LANGUAGE_GATE", missing), \
+                         patch.object(mod, "added_lines", return_value=lines), \
+                         patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                         redirect_stdout(io.StringIO()), redirect_stderr(err):
+                        self.assertEqual(mod.main(["preflight"]), 2)
+                    self.assertIn("ERROR: the gate-2 language engine could not be loaded",
+                                  err.getvalue())
+                    self.assertIn("FileNotFoundError", err.getvalue())
+                    self.assertNotIn("Traceback", err.getvalue())
+
 
 class LinksLinterTests(LinterTestCase):
     """tools/lint-links.py"""
@@ -5083,7 +5122,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         `commit -a`, a pathspec commit, hostile diff configuration (external diff drivers, textconv
         and a -diff attribute included), an override of "0", a conflicted merge conclusion, a linked
         worktree, a mirror in a separate repository judged by that repository's own index, the
-        mirror-scan trigger scoping, the preflight's own exit 2 on a git error, an unborn initial commit
+        mirror-scan trigger scoping, the preflight's own exit 2 on a git error and on a gate-2 language
+        engine it cannot load, a staged gate-2 spelling, an unborn initial commit
         that does not stage CHANGELOG.md, and the fail-open and fail-closed cases.
         """
         result = self._run_selftest(
@@ -26266,7 +26306,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.8.0", "3b177-c adds the dash engine's optional scan reader on top of the 3b177-b index (MINOR, 0.7.0 to 0.8.0)")
+        self.assertEqual(man["pack"]["version"], "0.9.0", "3b201 adds the language engine's public spelling_matches helper on top of 3b177-c (MINOR, 0.8.0 to 0.9.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
