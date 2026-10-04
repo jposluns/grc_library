@@ -20937,7 +20937,9 @@ class HookToolItemCountParityTests(unittest.TestCase):
     and the audit tool's (audit-backlog-actionability.py) must count the SAME open-item
     set: guardrail layers 1 and 2 are a coordinated pair, and if they drift the hook's
     count-equality check becomes meaningless. Asserts they agree on the live TODO.md, so
-    a regex divergence is caught mechanically rather than silently."""
+    a regex divergence is caught mechanically rather than silently. Also checks the hook's
+    deferral markers against the private validator's literal tuple when the private sibling
+    exists; public-only clones skip that comparison. Both scripts are parsed, not run."""
 
     def _load(self, name, rel):
         import importlib.util
@@ -21252,6 +21254,36 @@ class HookToolItemCountParityTests(unittest.TestCase):
                     "a relative project_dir must resolve so the sibling P-TODO is found")
             finally:
                 os.chdir(cwd)
+
+
+    def test_hook_and_private_validator_deferral_markers_match(self):
+        import ast
+        private = REPO_ROOT.parent / "grc_library_private"
+        if not private.is_dir():
+            self.skipTest("no grc_library_private sibling (public-only clone)")
+        source = private / "tools" / "validate.py"
+        tree = ast.parse(source.read_text(encoding="utf-8"), filename=str(source))
+        functions = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                     and node.name == "check_autonomous_decisions_log"]
+        self.assertEqual(len(functions), 1, "private decision-log checker must exist")
+        generators = [node for node in ast.walk(functions[0])
+                      if isinstance(node, ast.GeneratorExp)]
+        self.assertEqual(len(generators), 1,
+                         "private marker scan changed shape; review the parity check")
+        self.assertEqual(len(generators[0].generators), 1)
+        markers = ast.literal_eval(generators[0].generators[0].iter)
+        self.assertIsInstance(markers, tuple)
+        self.assertTrue(markers)
+        self.assertTrue(all(isinstance(marker, str) for marker in markers))
+        hook = REPO_ROOT / ".claude" / "hooks" / "block-unjustified-decision.py"
+        hook_tree = ast.parse(hook.read_text(encoding="utf-8"), filename=str(hook))
+        assignments = [node for node in hook_tree.body if isinstance(node, ast.Assign)
+                       and any(isinstance(target, ast.Name) and target.id == "DEFERRAL_MARKERS"
+                               for target in node.targets)]
+        self.assertEqual(len(assignments), 1, "hook marker tuple must exist")
+        self.assertEqual(ast.literal_eval(assignments[0].value), markers,
+                         "hook/private deferral markers drifted; update both together")
+
 
 
 class TodoIndexRowGrammarParityTests(unittest.TestCase):
