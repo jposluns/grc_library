@@ -51,19 +51,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) loos
 
 **2026-10-02 | 2026.10.1376 | PR #2673** - tooling: the corpus-management rules now load as a short index naming each rule, its gate and where its full text lives, instead of all 52 rule texts on every turn; the two rules that govern all prose stay loaded in full. The always-loaded corpus-management text falls from 80,786 to 7,808 bytes; the gates still enforce every rule.
 
-**2026-10-01 | 2026.10.1375 | PR #2672** - tooling: every corpus check now agrees on what counts as a fenced code block, using one shared rule (a fence marker may be indented at most three spaces), so a deeply indented example can no longer hide content from one check while another reads it. The few deliberately broader screens that refuse doubtful input are named and documented.
-
-**2026-10-01 | 2026.10.1374 | PR #2671** - tooling: the per-PR QA-record check no longer demands a bypass-log row for the branch's own still-open pull request when that PR is merged out of order. It confirms the PR online, and refuses whenever the answer cannot be verified, so the exemption cannot reach any other PR.
-
-**2026-10-01 | 2026.10.1373 | PR #2670** - tooling: the version-history check now refuses a Markdown file that starts with an invisible byte-order mark, which hid the file's version from the push-time checks. It also stops with an error, rather than passing, on files or folders it cannot read.
-
-**2026-10-01 | 2026.10.1372 | PR #2669** - tooling: the reference-checking guidance now says how to refresh the list of held sources after each new source is added, so a claim that a source is not held is caught as soon as it becomes untrue. It also states exactly what that check can and cannot catch.
-
-**2026-10-01 | 2026.10.1371 | PR #2668** - tooling: the backlog audit now reports five more line shapes that look like open items but fall outside the counted format, and reads quoted headings the way Markdown renders them, so fewer uncounted items can hide in the backlog.
-
-**2026-10-01 | 2026.10.1370 | PR #2667** - tooling: the self-test of the stubbed shell runner no longer fails intermittently on a busy host; it now waits, for a bounded time, until a killed child process has really exited before checking it.
-
-**2026-10-01 | 2026.10.1369 | PR #2666** - tooling: a new blocking check (gate 104) requires canonical statements that a source is not held in the reference base or library to name that source in a hidden marker; paraphrases receive advisory guidance only. The manifest of held sources covers the four trusted catalogue sections, not publications or books; when an acquired source appears in it, the check fails, so a stale statement is caught once the refreshed manifest is committed. 32 documents carry the new markers.
+**2026-10-01 | 2026.10.1375 | PRs #2666-#2672 (7 PRs)** - Library checks are now harder to fool. A new blocking check requires statements that a source is not held to name it in a hidden marker, and the guidance explains how to refresh the held-source list and states the check's limits. All corpus checks share one rule for fenced code blocks. The version-history check refuses files starting with an invisible byte-order mark and errors on unreadable files. The QA-record check exempts a branch's own out-of-order pull request only after confirming it online. The backlog audit flags five more open-item lookalikes, and a self-test no longer fails intermittently.
 
 **2026-09-30 | 2026.09.1368 | PRs #2653-#2665 (12 PRs)** - The library now protects evidence under legal holds: records, lost or stolen devices and cryptographic keys may be destroyed, wiped or zeroized only after confirming that no hold or investigation applies, and only Legal Counsel may rule one out, in writing. A decision table now guides the response to a lost or stolen device. The Canadian privacy breach notification duty is stated accurately, and the UK regulator is renamed the Information Commission following legislation effective 30 September 2026. Internal audit and consistency tooling was also tightened, including earlier warnings before any citation lapses.
 
