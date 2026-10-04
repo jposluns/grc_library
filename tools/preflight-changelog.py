@@ -79,11 +79,28 @@ Exit codes:
         language engine cannot be loaded or used, reported as one fixed ERROR line rather
         than a traceback. Loading is checked even without added lines (3b201).
         KeyboardInterrupt propagates.
+
+Engine cleanup: main() records unraisable faults without inspecting their payload,
+releases the normal engine import if this call loaded it, and collects garbage
+before publishing any result. Any recorded fault overrides exits 0, 1 and 2.
+The previous unraisable hook is restored even when an exception propagates.
+Residual: this is an in-process boundary, not engine isolation. Pre-existing
+module references, engine self-registration under other sys.modules names,
+atexit callbacks, live threads and resurrected objects can retain engine state
+past collection. Faults delivered after main() restores the hook (including
+interpreter shutdown) cannot change its result or guarantee traceback suppression.
+Ordinary thread exceptions use threading.excepthook, not sys.unraisablehook;
+only unraisable faults delivered while our hook is installed are covered.
+An engine that ends the process itself (os._exit) bypasses every in-process
+boundary and can exit 0; only subprocess isolation could close that path.
 """
 
 from __future__ import annotations
 
 import argparse
+from contextlib import redirect_stderr, redirect_stdout
+import gc
+import io
 from functools import wraps
 import os
 import re
@@ -487,7 +504,7 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     return results
 
 
-def main(argv: list[str]) -> int:
+def _main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
@@ -581,5 +598,51 @@ def main(argv: list[str]) -> int:
     return 1
 
 
+def main(argv: list[str]) -> int:
+    """Publish a result only after engine teardown under the recording hook."""
+    unraisable = False
+    completed = False
+
+    def record_unraisable(_):
+        # Do not retain or inspect ANY part of the engine-supplied payload.
+        nonlocal unraisable
+        unraisable = True
+
+    previous_hook = sys.unraisablehook
+    engine_was_loaded = "gate_lint_language" in sys.modules
+    out, err = io.StringIO(), io.StringIO()
+    sys.unraisablehook = record_unraisable
+    try:
+        with redirect_stdout(out), redirect_stderr(err):
+            try:
+                code = _main(argv)
+                completed = True
+            finally:
+                # _main's normal return releases its frames and result references.
+                # Import caching otherwise retains the engine's globals until shutdown.
+                # Leave a caller's pre-existing module alone (see the residual above).
+                if not engine_was_loaded:
+                    sys.modules.pop("gate_lint_language", None)
+                gc.collect()
+    finally:
+        sys.unraisablehook = previous_hook
+        if not completed:
+            # Preserve argparse help/errors and diagnostics before a propagated exception.
+            if unraisable:
+                print(_LANGUAGE_ERROR, file=sys.stderr)
+            else:
+                print(out.getvalue(), end="")
+                print(err.getvalue(), end="", file=sys.stderr)
+
+    if unraisable:
+        print(_LANGUAGE_ERROR, file=sys.stderr)
+        return 2
+    print(out.getvalue(), end="")
+    print(err.getvalue(), end="", file=sys.stderr)
+    return code
+
+
 if __name__ == "__main__":
+    # Keep this one statement: sys.exit is bound before main() runs, so an engine
+    # that patches sys.exit cannot change the exit (the split form fails open).
     sys.exit(main(sys.argv))

@@ -1069,7 +1069,8 @@ class ChangelogLanguageTests(unittest.TestCase):
                             else:
                                 self.assert_preflight_language_error(mod)
 
-    def assert_engine_failure_refuses_staged_misspelling(self, source, interrupted=False):
+    def assert_engine_failure_refuses_staged_misspelling(
+            self, source, interrupted=False, *, staged_word="centralised", cleanup_flip=None):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             for rel in ("tools/preflight-changelog.py", "tools/lint-language.py",
@@ -1080,6 +1081,13 @@ class ChangelogLanguageTests(unittest.TestCase):
                         ".corpus-management/defaults/grc/language.toml"):
                 (root / rel).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(REPO_ROOT / rel, root / rel)
+            if cleanup_flip:
+                preflight = root / "tools/preflight-changelog.py"
+                real = preflight.read_text(encoding="utf-8")
+                guarded = "sys.exit(main(sys.argv))"
+                self.assertEqual(real.count(guarded), 1, "cleanup flip anchor disappeared")
+                preflight.write_text(real.replace(guarded, "sys.exit(_main(sys.argv))"),
+                                     encoding="utf-8")
             env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
                    and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT")}
             env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
@@ -1099,10 +1107,10 @@ class ChangelogLanguageTests(unittest.TestCase):
             git("add", ".")
             git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
                 "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
-            path.write_text("# Changelog\nNew centralised controls.\n", encoding="utf-8")
+            path.write_text(f"# Changelog\nNew {staged_word} controls.\n", encoding="utf-8")
             git("add", "CHANGELOG.md")
             path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
-            self.assertIn("New centralised controls.", git("show", ":CHANGELOG.md"))
+            self.assertIn(f"New {staged_word} controls.", git("show", ":CHANGELOG.md"))
             git("config", "user.name", "Fixture")
             git("config", "user.email", "fixture@example.test")
             git("config", "commit.gpgsign", "false")
@@ -1117,18 +1125,48 @@ class ChangelogLanguageTests(unittest.TestCase):
             commands = ((sys.executable, "tools/preflight-changelog.py", "--staged"),
                         (sys.executable, "tools/check-changelog-preflight-commit.py", "--pre-commit"),
                         ("git", "commit", "-qm", "Must refuse staged misspelling"))
+            clean = staged_word == "centralized"
             for command in commands:
                 result = run(*command)
-                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
-                self.assertIn("gate 2 spelling [ise]: centralised", result.stdout + result.stderr)
+                self.assertEqual(result.returncode, 0 if clean else 1, result.stdout + result.stderr)
+                if not clean:
+                    self.assertIn("gate 2 spelling [ise]: centralised", result.stdout + result.stderr)
+            # The clean control really commits; restore its staged delta for the fault probe.
+            if clean:
+                self.assertNotEqual(git("rev-parse", "HEAD"), head)
+                git("reset", "--soft", head.strip())
             engine = root / ".corpus-management/tools/gate_lint_language.py"
             engine.write_text(engine.read_text(encoding="utf-8") + "\n" + source,
                               encoding="utf-8")
             shutil.rmtree(engine.parent / "__pycache__", ignore_errors=True)
-            for command, expected in zip(commands, ((-2, 1, 1) if interrupted else (2, 1, 1))):
+            expected_codes = (-2, 1, 1) if interrupted else (2, 1, 1)
+            if cleanup_flip == "result":
+                expected_codes = (0, 0, 0) if clean else (1, 1, 1)
+            for command, expected in zip(commands, expected_codes):
                 with self.subTest(command=command):
                     result = run(*command)
                     self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                    if cleanup_flip:
+                        # Durable absence control: bypass ONLY main's cleanup guard.
+                        # Exit 0 hides the child's traceback in the hook and lands a commit;
+                        # load faults still refuse, but leak a traceback after the diagnostic.
+                        report = result.stdout + result.stderr
+                        if command == commands[0] or expected:
+                            self.assertIn("Traceback", result.stderr)
+                        else:
+                            self.assertEqual(report, "")
+                        if cleanup_flip == "load":
+                            self.assertTrue(result.stderr.startswith(
+                                "ERROR: the gate-2 language engine could not be loaded "))
+                        else:
+                            self.assertNotIn("ERROR: the gate-2", report)
+                            if command == commands[0]:
+                                self.assertIn("OK:" if clean else "gate 2 spelling [ise]", report)
+                        if command == commands[-1] and not expected:
+                            self.assertNotEqual(git("rev-parse", "HEAD"), head)
+                        else:
+                            self.assertEqual(git("rev-parse", "HEAD"), head)
+                        continue
                     self.assertEqual(result.stdout, "")
                     if interrupted:
                         self.assertIn("KeyboardInterrupt", result.stderr)
@@ -1145,6 +1183,74 @@ class ChangelogLanguageTests(unittest.TestCase):
                         self.assertIn("REFUSING the commit", result.stderr)
                         self.assertIn("exit -2" if interrupted else "exit 2", result.stderr)
                     self.assertEqual(git("rev-parse", "HEAD"), head)
+
+    def assert_result_cleanup(self, raised, *, flip=False):
+        for word in ("centralised", "centralized"):
+            # Immediate destruction, a cycle needing gc.collect(), and a module-global
+            # reference needing import-cache release must all precede the verdict.
+            for lifetime in ("immediate", "cycle", "module"):
+                with self.subTest(word=word, lifetime=lifetime):
+                    retain = {"immediate": "", "cycle": "    result.cycle = result\n",
+                              "module": "    retained.append(result)\n"}[lifetime]
+                    source = (
+                        "_original_spelling_matches = spelling_matches\n"
+                        "retained = []\n"
+                        "class EngineResult(list):\n"
+                        f"    def __del__(self): raise {raised}\n"
+                        "def spelling_matches(text, checks):\n"
+                        "    result = EngineResult(_original_spelling_matches(text, checks))\n"
+                        + retain + "    return result\n")
+                    self.assert_engine_failure_refuses_staged_misspelling(
+                        source, staged_word=word, cleanup_flip="result" if flip else None)
+
+    def test_preflight_result_cleanup_runtime_error(self):
+        self.assert_result_cleanup("RuntimeError('cleanup failed')")
+
+    def test_preflight_result_cleanup_runtime_error_flip(self):
+        self.assert_result_cleanup("RuntimeError('cleanup failed')", flip=True)
+
+    def test_preflight_result_cleanup_system_exit(self):
+        self.assert_result_cleanup("SystemExit(0)")
+
+    def test_preflight_result_cleanup_system_exit_flip(self):
+        self.assert_result_cleanup("SystemExit(0)", flip=True)
+
+    def assert_load_exception_cleanup(self, *, flip=False):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadLoad(Exception):\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "raise BadLoad()\n", cleanup_flip="load" if flip else None)
+
+    def test_preflight_load_exception_cleanup(self):
+        self.assert_load_exception_cleanup()
+
+    def test_preflight_load_exception_cleanup_flip(self):
+        self.assert_load_exception_cleanup(flip=True)
+
+    def test_preflight_restores_unraisable_hook_on_every_exit(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        previous = sys.unraisablehook
+        for outcome in (0, 1, 2, SystemExit(2), KeyboardInterrupt()):
+            with self.subTest(outcome=outcome):
+                kwargs = ({"side_effect": outcome} if isinstance(outcome, BaseException)
+                          else {"return_value": outcome})
+                with patch.object(mod, "_main", **kwargs), \
+                     redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                    if isinstance(outcome, BaseException):
+                        with self.assertRaises(type(outcome)):
+                            mod.main([])
+                    else:
+                        self.assertEqual(mod.main([]), outcome)
+                self.assertIs(sys.unraisablehook, previous)
+        for args, code, stream in ((["--help"], 0, "out"), (["--unknown"], 2, "err")):
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err), self.assertRaises(SystemExit) as raised:
+                mod.main(["preflight", *args])
+            self.assertEqual(raised.exception.code, code)
+            self.assertIn("usage:", (out if stream == "out" else err).getvalue())
+            self.assertIs(sys.unraisablehook, previous)
 
     def test_preflight_error_formatter_system_exit_refuses_staged_misspelling(self):
         self.assert_engine_failure_refuses_staged_misspelling(

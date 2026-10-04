@@ -54,7 +54,7 @@ failed open, silently, for an "older branch", but no older branch reaches this c
 shim runs it only in a tree that carries it, and the preflight predates it, so only a working tree
 that has deleted or renamed the preflight gets here); and a preflight that cannot be started or
 exits other than 0 (its 1 is a finding or a crash, its 2 a git error or a gate-2 language
-engine it could not load).
+engine it could not load or use).
 
 Residue, stated: the preflight's full detailed-mirror link scan runs on every call, so a dangling link
 in the mirror refuses a CHANGELOG commit that did not touch the mirror (as the `&&` chain does; fix
