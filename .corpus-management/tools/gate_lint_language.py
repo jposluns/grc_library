@@ -66,8 +66,9 @@ Fenced code blocks are skipped for every check above.
 
 The three spelling checks run through one helper, ``spelling_matches()``: the
 markdown scan, the generator-source scan below, and grc's CHANGELOG preflight
-aid (``tools/preflight-changelog.py``) all call it, so their spelling logic
-cannot drift.
+aid (``tools/preflight-changelog.py``) all share this token matcher. Their scan
+contexts differ: the preflight judges added lines in isolation, so fenced
+additions may be reported even though the markdown scan skips fenced blocks.
 
 The three generators listed in GENERATOR_SOURCES emit adopter-facing
 prose (audience blurbs, overview paragraphs, table cells) into the

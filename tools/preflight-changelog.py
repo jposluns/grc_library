@@ -138,7 +138,13 @@ def load_language():
     except KeyboardInterrupt:
         raise
     except BaseException as exc:
-        detail = " ".join(str(exc).splitlines())
+        try:
+            detail = " ".join(str(exc).splitlines())
+        except KeyboardInterrupt:
+            raise
+        except BaseException:
+            # Exception messages are untrusted too; formatting must fail closed.
+            detail = "<exception message unavailable>"
         raise LanguageEngineUnavailable(
             f"the gate-2 language engine could not be loaded through {_LANGUAGE_GATE.name} "
             f"(its pack engine, profile loader and language profile included): "

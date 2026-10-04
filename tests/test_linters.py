@@ -1068,6 +1068,86 @@ class ChangelogLanguageTests(unittest.TestCase):
                             else:
                                 self.assert_preflight_language_error(mod, raised.split("(")[0])
 
+    def assert_error_formatter_refuses_staged_misspelling(self, raised):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel in ("tools/preflight-changelog.py", "tools/lint-language.py",
+                        "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/aiqt_bootstrap.py", "tools/check-changelog-preflight-commit.py",
+                        ".corpus-management/tools/gate_lint_language.py",
+                        ".corpus-management/tools/profile_loader.py",
+                        ".corpus-management/defaults/grc/language.toml"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
+                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT")}
+            env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                       AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt"))
+
+            def run(*args):
+                return subprocess.run(args, cwd=root, env=env, capture_output=True, text=True)
+
+            def git(*args):
+                result = run("git", *args)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return result.stdout
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            path.write_text("# Changelog\nNew centralised controls.\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
+            self.assertIn("New centralised controls.", git("show", ":CHANGELOG.md"))
+            commands = (("tools/preflight-changelog.py", "--staged"),
+                        ("tools/check-changelog-preflight-commit.py", "--pre-commit"))
+            for command in commands:
+                result = run(sys.executable, *command)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertIn("gate 2 spelling [ise]: centralised", result.stdout + result.stderr)
+            engine = root / ".corpus-management/tools/gate_lint_language.py"
+            engine.write_text("class BadMessage(Exception):\n"
+                              "    def __str__(self):\n"
+                              f"        raise {raised}\n"
+                              "raise BadMessage()\n", encoding="utf-8")
+            shutil.rmtree(engine.parent / "__pycache__", ignore_errors=True)
+            for command, expected in zip(commands, (2, 1)):
+                with self.subTest(command=command):
+                    result = run(sys.executable, *command)
+                    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                    self.assertEqual(result.stdout, "")
+                    lines = result.stderr.splitlines()
+                    self.assertTrue(lines[0].startswith(
+                        "ERROR: the gate-2 language engine could not be loaded"), result.stderr)
+                    self.assertIn("BadMessage: <exception message unavailable>", lines[0])
+                    self.assertNotIn("Traceback", result.stderr)
+                    if expected == 2:
+                        self.assertEqual(len(lines), 1, result.stderr)
+                    else:
+                        self.assertIn("REFUSING the commit", result.stderr)
+                        self.assertIn("exit 2", result.stderr)
+
+    def test_preflight_error_formatter_system_exit_refuses_staged_misspelling(self):
+        self.assert_error_formatter_refuses_staged_misspelling("SystemExit(0)")
+
+    def test_preflight_error_formatter_value_error_refuses_staged_misspelling(self):
+        self.assert_error_formatter_refuses_staged_misspelling("ValueError('bad message')")
+
+    def test_preflight_error_formatter_preserves_keyboard_interrupt(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            wrapper = Path(td) / "lint-language.py"
+            wrapper.write_text("class BadMessage(Exception):\n"
+                               "    def __str__(self): raise KeyboardInterrupt()\n"
+                               "raise BadMessage()\n", encoding="utf-8")
+            with patch.object(mod, "_LANGUAGE_GATE", wrapper):
+                with self.assertRaises(KeyboardInterrupt):
+                    mod.load_language()
+
     def test_preflight_engine_error_is_one_line(self):
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
