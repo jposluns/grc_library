@@ -32310,6 +32310,9 @@ class ClausePreservationTests(unittest.TestCase):
     COUNT_RULE = ('if base.count("](") != text.count("]("):', "if False:")
     PAREN_RULE = ('if suffix and base[i] == "(":', "if False:")
     DOTDOT_RULE = ('if segment.split("/")[-1] == "..":', "if False:")
+    BACKSLASH_RULE = ('unit.find("\\\\")', "-1")
+    LESS_RULE = ('unit.find("<")', "-1")
+    LINK_PAREN_RULE = ("target_paren(unit)", "-1")
     # Fixtures whose BASE and destination files sit in sibling directories.
     SIBLINGS = {"path": "p/base.md", "destination": "q/dest.md"}
     # name: (BASE text, destination text, expected message, rule flips)
@@ -32340,9 +32343,11 @@ class ClausePreservationTests(unittest.TestCase):
         "entity": ("Read [x](a&amp;b.md) now.\n", "Read [x](../a&amp;b.md) now.\n",
                    "character '&'", ((PATH_RULE, ALLOW.replace("CHARS", "&;")),)),
         "backslash": ("Read [x](a\\b.md) now.\n", "Read [x](../a\\b.md) now.\n",
-                      "character '\\\\'", ((PATH_RULE, ALLOW.replace("CHARS", "\\\\")),)),
+                      "backslash in the BASE unit at raw offset 10",
+                      (BACKSLASH_RULE, (PATH_RULE, ALLOW.replace("CHARS", "\\\\")))),
         "less": ("Read [x](a<b.md) now.\n", "Read [x](../a<b.md) now.\n",
-                 "character '<'", ((PATH_RULE, ALLOW.replace("CHARS", "<")),)),
+                 "'<' in the BASE unit at raw offset 10",
+                 (LESS_RULE, (PATH_RULE, ALLOW.replace("CHARS", "<")))),
         "greater": ("Read [x](a>b.md) now.\n", "Read [x](../a>b.md) now.\n",
                     "character '>'", ((PATH_RULE, ALLOW.replace("CHARS", ">")),)),
         "control": ("Read [x](a\x01b.md) now.\n", "Read [x](../a\x01b.md) now.\n",
@@ -32350,42 +32355,56 @@ class ClausePreservationTests(unittest.TestCase):
         "unterminated": ("Read [x](a.md", "Read [x](../a.md", "text differs",
                          ((TERMINATORS, TERMINATORS.replace(']")', ']|$")')),)),
         # Round 4 QA rows: renderer-visible changes the lexical rules must refuse.
-        "paren_dot": ("R [a](x(a/.).md) n.\n", "R [a](../x(a).md) n.\n", "character '('",
-                      ((PATH_RULE, ALLOW.replace("CHARS", "(")), DOT_RULE)),
+        "paren_dot": ("R [a](x(a/.).md) n.\n", "R [a](../x(a).md) n.\n",
+                      "'(' in a link target in the BASE unit at raw offset 7",
+                      (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "(")), DOT_RULE)),
         "nbsp": ("R [a](a/.\u00a0b.md) n.\n", "R [a](../a\u00a0b.md) n.\n",
                  "character '\\xa0'", (UNICODE_END, DOT_RULE)),
         "em_space": ("R [a](a/b/..\u2003c.md) n.\n", "R [a](../a\u2003c.md) n.\n",
                      "character '\\u2003'", (UNICODE_END, DOTDOT_RULE)),
         "table_pipe": ("| [a](x.md) | b |\n", "| [a](../z|w/../x.md) | b |\n",
                        "character '|'", ((PATH_RULE, ALLOW.replace("CHARS", "|")),)),
-        "paren_open": ("R [a](x.md) n.\n", "R [a](../w(/../x.md) n.\n", "character '('",
-                       ((PATH_RULE, ALLOW.replace("CHARS", "(")),)),
-        "bracket": ("R [a](x.md) n.\n", "R [a](../w](/../x.md) n.\n", "character ']'",
-                    ((PATH_RULE, ALLOW.replace("CHARS", "\\](")), COUNT_RULE)),
+        "paren_open": ("R [a](x.md) n.\n", "R [a](../w(/../x.md) n.\n",
+                       "'(' in a link target in the destination unit at raw offset 10",
+                       (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "(")))),
+        "bracket": ("R [a](x.md) n.\n", "R [a](../w](/../x.md) n.\n",
+                    "'(' in a link target in the destination unit at raw offset 11",
+                    (LINK_PAREN_RULE, (PATH_RULE, ALLOW.replace("CHARS", "\\](")),
+                     COUNT_RULE)),
         "cr_inside": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\n",
                       "text differs", (RAW_RULE,)),
         "crlf_whole": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\r\n",
                        "text differs", (RAW_RULE,)),
         "fragment": ("Read [x](a.md#frag](b.md)) now.\n",
                      "Read [x](../a.md#frag](../b.md)) now.\n",
-                     "'(' in a '#' or '?' suffix", (SUFFIX_RULE,)),
+                     "'(' in a link target in the BASE unit at raw offset 19",
+                     (LINK_PAREN_RULE, SUFFIX_RULE)),
         "query": ("Read [x](a.md?q=](b.md)) now.\n",
                   "Read [x](../a.md?q=](../b.md)) now.\n",
-                  "'(' in a '#' or '?' suffix", (SUFFIX_RULE,)),
+                  "'(' in a link target in the BASE unit at raw offset 17",
+                  (LINK_PAREN_RULE, SUFFIX_RULE)),
         # Round 5 QA rows: balanced "()" in a suffix must not end it early.
         "paren_fragment": ("R [a](x.md#f()](y.md)) n.\n",
                            "R [a](../p/x.md#f()](../p/y.md)) n.\n",
-                           "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+                           "'(' in a link target in the BASE unit at raw offset 12",
+                           (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
         "paren_anchor_only": ("R [a](x.md#f()](y.md)) n.\n",
                               "R [a](x.md#f()](../p/y.md)) n.\n",
-                              "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+                              "'(' in a link target in the BASE unit at raw offset 12",
+                              (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
         "paren_query": ("R [a](x.md?q=()](y.md)) n.\n",
                         "R [a](../p/x.md?q=()](../p/y.md)) n.\n",
-                        "'(' in a '#' or '?' suffix", (PAREN_RULE,), SIBLINGS),
+                        "'(' in a link target in the BASE unit at raw offset 13",
+                        (LINK_PAREN_RULE, PAREN_RULE), SIBLINGS),
         "paren_fragment_inner": ("[x](a.md#f(b)](c.md))\n", "[x](../a.md#f(b)](../c.md))\n",
-                                 "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
+                                 "'(' in a link target in the BASE unit at raw offset 10",
+                                 (LINK_PAREN_RULE, PAREN_RULE)),
         "paren_query_inner": ("[x](a.md?q=(b)](c.md))\n", "[x](../a.md?q=(b)](../c.md))\n",
-                              "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
+                              "'(' in a link target in the BASE unit at raw offset 11",
+                              (LINK_PAREN_RULE, PAREN_RULE)),
+        "paren_suffix_title": ('R [a](x.md#s "T (x)") n.\n', 'R [a](../x.md#s "T (x)") n.\n',
+                               "BASE raw offset 16 (BASE line 1; destination line 1): "
+                               "'(' in a '#' or '?' suffix", (PAREN_RULE,)),
         "final_dotdot_file": ("R [a](x.md) n.\n", "R [a](../p/x.md/y/..) n.\n",
                               "final '..' component", (DOTDOT_RULE,), SIBLINGS),
         "final_dotdot_dir": ("R [a](sub/..) n.\n", "R [a](../p) n.\n",
@@ -32396,6 +32415,59 @@ class ClausePreservationTests(unittest.TestCase):
                          "empty path component", (('if "//" in segment:', "if False:"),)),
         "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
                           "'.' path component", (DOT_RULE,)),
+        # Round 6 QA rows: a ")" the renderer does not treat as the end of a target.
+        "r6_escaped_fragment": ("R [a](x.md#f\\)](y.md)) n.\n",
+                                "R [a](../p/x.md#f\\)](../p/y.md)) n.\n",
+                                "backslash in the BASE unit at raw offset 12",
+                                (BACKSLASH_RULE,), SIBLINGS),
+        "r6_escaped_query": ("R [a](x.md?q=\\)](y.md)) n.\n",
+                             "R [a](../p/x.md?q=\\)](../p/y.md)) n.\n",
+                             "backslash in the BASE unit at raw offset 13",
+                             (BACKSLASH_RULE,), SIBLINGS),
+        "r6_escaped_anchor_only": ("R [a](x.md#f\\)](y.md)) n.\n",
+                                   "R [a](x.md#f\\)](../p/y.md)) n.\n",
+                                   "backslash in the BASE unit at raw offset 12",
+                                   (BACKSLASH_RULE,), SIBLINGS),
+        "r6_balanced_parentheses": ("R [a](https://e.com/W_(b)#s](y.md)) n.\n",
+                                    "R [a](https://e.com/W_(b)#s](../p/y.md)) n.\n",
+                                    "'(' in a link target in the BASE unit at raw offset 22",
+                                    (LINK_PAREN_RULE,), SIBLINGS),
+        "r6_angle_destination": ("R [a](<https://e.com/x#f)](y.md z>) n.\n",
+                                 "R [a](<https://e.com/x#f)](../p/y.md z>) n.\n",
+                                 "'<' in the BASE unit at raw offset 6", (LESS_RULE,), SIBLINGS),
+        "codex_escaped_fragment": ("[x](a.md#f\\)](b.md))\n", "[x](../a.md#f\\)](../b.md))\n",
+                                   "backslash in the BASE unit at raw offset 10",
+                                   (BACKSLASH_RULE,)),
+        "codex_escaped_query": ("[x](a.md?q=\\)](b.md))\n", "[x](../a.md?q=\\)](../b.md))\n",
+                                "backslash in the BASE unit at raw offset 11",
+                                (BACKSLASH_RULE,)),
+        "codex_escaped_fragment_kept": ("[x](a.md#f\\)](b.md))\n",
+                                        "[x](a.md#f\\)](../b.md))\n",
+                                        "backslash in the BASE unit at raw offset 10",
+                                        (BACKSLASH_RULE,)),
+        "codex_escaped_query_kept": ("[x](a.md?q=\\)](b.md))\n",
+                                     "[x](a.md?q=\\)](../b.md))\n",
+                                     "backslash in the BASE unit at raw offset 11",
+                                     (BACKSLASH_RULE,)),
+        # Round 7 maintainer ruling: one row per new rule, in prose and per side.
+        "backslash_prose": ("Use \\*x\\* and [y](y.md).\n", "Use \\*x\\* and [y](../y.md).\n",
+                            "backslash in the BASE unit at raw offset 4", (BACKSLASH_RULE,)),
+        "backslash_destination": ("R [x](a.md) n.\n", "R [x](../w\\/../a.md) n.\n",
+                                  "backslash in the destination unit at raw offset 10",
+                                  (BACKSLASH_RULE,
+                                   (PATH_RULE, ALLOW.replace("CHARS", "\\\\")))),
+        "less_prose": ("Keep <b>x</b> and [y](y.md).\n", "Keep <b>x</b> and [y](../y.md).\n",
+                       "'<' in the BASE unit at raw offset 5", (LESS_RULE,)),
+        "less_destination": ("R [x](a.md) n.\n", "R [x](../w</../a.md) n.\n",
+                             "'<' in the destination unit at raw offset 10",
+                             (LESS_RULE, (PATH_RULE, ALLOW.replace("CHARS", "<")))),
+        "paren_unchanged_target": ("See [w](https://e.com/W_(b)) and [y](y.md).\n",
+                                   "See [w](https://e.com/W_(b)) and [y](../y.md).\n",
+                                   "'(' in a link target in the BASE unit at raw offset 24",
+                                   (LINK_PAREN_RULE,)),
+        "paren_unterminated_target": ("See [y](y.md) then ](x(", "See [y](../y.md) then ](x(",
+                                      "'(' in a link target in the BASE unit at raw offset 22",
+                                      (LINK_PAREN_RULE,)),
     }
 
     def rebase(self, base, moved, code, message="OK:", tool=None,
@@ -32426,6 +32498,11 @@ class ClausePreservationTests(unittest.TestCase):
     def rejected(self, name):
         base, moved, message, flips, *where = self.REBASE_REJECTIONS[name]
         self.rebase_flip(base, moved, 1, message, *flips, **(where[0] if where else {}))
+
+    def shadowed(self, name, flip, message):
+        """Reject the case, then show an older rule still refuses it with flip off."""
+        self.rejected(name)
+        self.check(1, message, tool=self.flipped(flip))
 
     def test_rebased_link_and_image_accepted(self):
         for base, moved in (
@@ -32478,10 +32555,10 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("entity")
 
     def test_rebased_rejects_backslash(self):
-        self.rejected("backslash")
+        self.shadowed("backslash", self.BACKSLASH_RULE, "character '\\\\'")
 
     def test_rebased_rejects_less_than(self):
-        self.rejected("less")
+        self.shadowed("less", self.LESS_RULE, "character '<'")
 
     def test_rebased_rejects_greater_than(self):
         self.rejected("greater")
@@ -32493,7 +32570,7 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("unterminated")
 
     def test_rebased_rejects_parenthesis_with_dot_collapse(self):
-        self.rejected("paren_dot")
+        self.shadowed("paren_dot", self.LINK_PAREN_RULE, "character '('")
 
     def test_rebased_rejects_non_ascii_space_terminators(self):
         self.rejected("nbsp")
@@ -32503,12 +32580,12 @@ class ClausePreservationTests(unittest.TestCase):
         self.rejected("table_pipe")
 
     def test_rebased_rejects_open_parenthesis(self):
-        self.rejected("paren_open")
+        self.shadowed("paren_open", self.LINK_PAREN_RULE, "character '('")
 
     def test_rebased_rejects_bracket_and_link_count(self):
-        self.rejected("bracket")
+        self.shadowed("bracket", self.LINK_PAREN_RULE, "character ']'")
         self.check(1, "'](' count differs: 1 in BASE, 2 at the destination",
-                   tool=self.flipped(self.REBASE_REJECTIONS["bracket"][3][0]))
+                   tool=self.flipped(*self.REBASE_REJECTIONS["bracket"][3][:2]))
 
     def test_rebased_compares_raw_line_endings(self):
         self.rejected("cr_inside")
@@ -32516,14 +32593,16 @@ class ClausePreservationTests(unittest.TestCase):
 
     def test_rebased_fragment_and_query_suffixes_exact(self):
         for name in ("fragment", "query"):
-            self.rejected(name)
-            self.check(1, "text differs", tool=self.flipped(self.PAREN_RULE))
+            self.shadowed(name, self.LINK_PAREN_RULE, "'(' in a '#' or '?' suffix")
+            self.check(1, "text differs",
+                       tool=self.flipped(self.LINK_PAREN_RULE, self.PAREN_RULE))
 
     def test_rebased_rejects_open_parenthesis_in_suffix(self):
         for name in ("paren_fragment", "paren_anchor_only", "paren_query",
                      "paren_fragment_inner", "paren_query_inner"):
             with self.subTest(name=name):
-                self.rejected(name)
+                self.shadowed(name, self.LINK_PAREN_RULE, "'(' in a '#' or '?' suffix")
+        self.rejected("paren_suffix_title")
 
     def test_rebased_rejects_trailing_slash(self):
         self.rejected("trailing_slash")
@@ -32537,6 +32616,39 @@ class ClausePreservationTests(unittest.TestCase):
     def test_rebased_rejects_final_dotdot_component(self):
         self.rejected("final_dotdot_file")
         self.rejected("final_dotdot_dir")
+
+    def test_rebased_rejects_round6_escaped_parenthesis(self):
+        for name in ("r6_escaped_fragment", "r6_escaped_query", "r6_escaped_anchor_only",
+                     "codex_escaped_fragment", "codex_escaped_query",
+                     "codex_escaped_fragment_kept", "codex_escaped_query_kept"):
+            with self.subTest(name=name):
+                self.rejected(name)
+
+    def test_rebased_rejects_round6_balanced_parentheses(self):
+        self.rejected("r6_balanced_parentheses")
+
+    def test_rebased_rejects_round6_angle_destination(self):
+        self.rejected("r6_angle_destination")
+
+    def test_rebased_rejects_backslash_anywhere(self):
+        self.rejected("backslash_prose")
+        self.shadowed("backslash_destination", self.BACKSLASH_RULE, "character '\\\\'")
+
+    def test_rebased_rejects_less_than_anywhere(self):
+        self.rejected("less_prose")
+        self.shadowed("less_destination", self.LESS_RULE, "character '<'")
+
+    def test_rebased_rejects_parenthesis_in_any_link_target(self):
+        self.rejected("paren_unchanged_target")
+        self.rejected("paren_unterminated_target")
+        self.check(0, "1 REBASED asserted", tool=self.flipped(
+            ("end.start() if end else len(unit)", "end.start() if end else match.end()")))
+
+    def test_rebased_link_target_ends_at_whitespace(self):
+        self.rebase_flip('R [a](x.md "T (x)") n.\n', 'R [a](../x.md "T (x)") n.\n', 0,
+                         "1 REBASED asserted",
+                         ('LINK_TARGET_END = re.compile(r"[) \\t\\n\\r\\f\\v]")',
+                          'LINK_TARGET_END = re.compile(r"[)]")'))
 
     def test_rebased_occurrences_consumed(self):
         base = "- [x](a.md)\n- [x](a.md)\n"

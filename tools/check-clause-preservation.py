@@ -10,17 +10,21 @@ REBASED is a reviewer assertion that the clause MOVED with only relative link
 targets re-based; like MOVED it needs another tracked file and an empty reason.
 It compares raw unit text (CR and line terminators included, nothing
 normalized): an unconsumed destination unit must equal the BASE unit except for
-substituted target segments. A segment starts right after "](" in both texts
-and ends at the first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a
-target with no terminator is not a segment. A "#" or "?" terminator starts a
-suffix that runs up to the next ")" in BASE: it must be identical, and a "(" in
-it fails, so no "](" can occur inside it. Every other "](" is a target
-position, so "](" in prose, code, titles and reference definitions is re-based
-too. A changed segment must be nonempty, use only A-Z, a-z, 0-9 and "._~/+-",
-and have no leading or trailing "/", no empty ("//") or "." component, and no
-".." as its last component. Each side is joined to its file's directory and
-resolved lexically step by step; a step above the repository root fails, and
-the two repository-relative paths must be equal. Target existence, tracking and
+substituted target segments. Either unit fails if it holds a backslash or "<"
+anywhere, or a "(" in any link target: the text from each "](" up to the next
+ASCII ")", space, tab, LF, CR, FF or VT (or the unit's end), unchanged targets
+and any "#" or "?" part included. Each such refusal names its rule, side and
+raw offset. A segment starts right after "](" in both texts and ends at the
+first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a target with no
+terminator is not a segment. A "#" or "?" terminator starts a suffix that runs
+up to the next ")" in BASE: it must be identical, and a "(" in it fails, so no
+"](" can occur inside it. Every other "](" is a target position, so "](" in
+prose, code, titles and reference definitions is re-based too. A changed
+segment must be nonempty, use only A-Z, a-z, 0-9 and "._~/+-", and have no
+leading or trailing "/", no empty ("//") or "." component, and no ".." as its
+last component. Each side is joined to its file's directory and resolved
+lexically step by step; a step above the repository root fails, and the two
+repository-relative paths must be equal. Target existence, tracking and
 symlinks are not checked, and unchanged segments are not resolved. Both texts
 must hold equally many "](". Identical texts fail (use MOVED); other mismatches
 name the first differing raw BASE offset. REBASED shares occurrence counting
@@ -80,6 +84,7 @@ UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
 ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
 TARGET_END = re.compile(r"[)#? \t\n\r\f\v]")
 PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")
+LINK_TARGET_END = re.compile(r"[) \t\n\r\f\v]")
 
 
 def inline_parts(text: str):
@@ -168,6 +173,27 @@ def target_error(segment: str) -> str | None:
     return None
 
 
+def target_paren(unit: str) -> int:
+    """Raw offset of the first "(" inside any link target, or -1."""
+    for match in re.finditer(r"\]\(", unit):
+        end = LINK_TARGET_END.search(unit, match.end())
+        offset = unit.find("(", match.end(), end.start() if end else len(unit))
+        if offset >= 0:
+            return offset
+    return -1
+
+
+def unit_error(base: str, text: str) -> str | None:
+    """Name the first whole-unit REBASED refusal with its side and raw offset."""
+    for side, unit in (("BASE", base), ("destination", text)):
+        for rule, offset in (("backslash", unit.find("\\")),
+                             ("'<'", unit.find("<")),
+                             ("'(' in a link target", target_paren(unit))):
+            if offset >= 0:
+                return f"{rule} in the {side} unit at raw offset {offset}"
+    return None
+
+
 def resolve(directory: str, segment: str) -> str | None:
     """Resolve a target step by step; None when any step leaves the repository."""
     parts = []
@@ -182,7 +208,13 @@ def resolve(directory: str, segment: str) -> str | None:
 
 
 def rebased(base: str, base_dir: str, text: str, text_dir: str):
-    """Return (substitutions, None), or (first differing BASE offset, reason)."""
+    """Return (substitutions, None), or (first differing BASE offset, reason).
+
+    A whole-unit refusal returns offset -1; its reason names the raw offset.
+    """
+    problem = unit_error(base, text)
+    if problem:
+        return -1, problem
     i = j = substitutions = 0
     first, suffix = None, False
     while i < len(base) or j < len(text):
@@ -415,6 +447,8 @@ def take_rebased(unit, path, destination, units, available, used):
     if best is None:
         return f"no unconsumed {unit['kind']} unit"
     offset, line, reason = best
+    if offset < 0:
+        return f"refused (BASE line {unit['base_line']}; destination line {line}): {reason}"
     base_line = unit["base_line"] + unit["raw"][:offset].count("\n")
     return (f"first difference at BASE raw offset {offset} (BASE line {base_line}; "
             f"destination line {line}): {reason}")
