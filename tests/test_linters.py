@@ -12744,6 +12744,74 @@ class BookkeepingParityTests(LinterTestCase):
                 self.assertEqual(records,
                                  [(1, prs, "", companion, False)] if prs else [])
 
+    def test_no_pr_dispositions_are_a_closed_exact_set(self) -> None:
+        # 3b194 round 1 (WARN-1): the no-PR dispositions are a closed set matched exactly. A
+        # suffix, substring or case-folded match would let these near-variants pass silently.
+        mod = self._load_module()
+        self.assertEqual(mod.NO_PR_DISPOSITIONS,
+                         {"abandoned-autocorrect (no PR)", "routed pre-open (no PR)"})
+        cases = (
+            ("other (no PR)", []),
+            ("Abandoned-autocorrect (no PR)", []),
+            ("ROUTED PRE-OPEN (NO PR)", []),
+            ("abandoned-autocorrect (no PR); see #2600", []),
+            ("#2600 (no PR)", [2600]),
+        )
+        for cell, prs in cases:
+            with self.subTest(cell=cell):
+                history = f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+                findings = []
+                records = mod._history_row_records(history, findings)
+                self.assertEqual(mod.parse_validate_pr_status(history),
+                                 {pr: "normal" for pr in prs})
+                self.assertEqual([list(record[1]) for record in records],
+                                 [prs] if prs else [])
+                self.assertEqual(findings, [] if prs else [
+                    f"  [qa-cadence] validate-pr/history.md:1: malformed PR cell "
+                    f"{cell!r}; expected a leading PR identity.",
+                ])
+
+    def test_malformed_oldest_row_does_not_raise_the_floor(self) -> None:
+        # 3b194 round 1 (NOTE-1): the malformed row holds the oldest surviving PR (its retro row
+        # corroborates it) and the PR just above it genuinely has no validate-pr row. Dropping the
+        # malformed row used to raise the floor past that PR and hide its no-row finding.
+        from contextlib import redirect_stderr, redirect_stdout
+        from io import StringIO
+        from unittest.mock import Mock, patch
+
+        mod = self._load_module()
+        first = mod.INCEPTION + 526
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        history = "| Date | PR | Touched | Findings | Hot-fix |\n"
+        history += row(f"**#{first}**") + row(f"#{first + 2}")
+        working = {
+            mod.VALIDATE_PR_HISTORY: Mock(read_text=Mock(return_value=history)),
+            mod.IMPROVEMENT_LOG: Mock(read_text=Mock(return_value=
+                row(f"#{first}") + row(f"#{first + 2}"))),
+        }
+        files = {
+            mod.CHANGELOG_PATH: "".join(
+                f"**2026-10-03 | 2026.10.1 | PR #{pr}** - x\n"
+                for pr in range(mod.INCEPTION, first + 3)),
+            mod.TODO_PATH: "",
+        }
+        stdout, stderr = StringIO(), StringIO()
+        with patch.object(mod, "read", side_effect=files.__getitem__), \
+                patch.object(mod, "resolve_working", side_effect=working.get), \
+                patch.object(mod, "store_scope", return_value=mod.StoreScope(None, None, None, None)), \
+                patch.object(mod, "discover_version_history_files", return_value=[]), \
+                redirect_stdout(stdout), redirect_stderr(stderr):
+            rc = mod.main()
+        err = stderr.getvalue()
+        self.assertEqual(rc, 1, err)
+        found = [line for line in err.splitlines() if line.startswith("  [")]
+        self.assertEqual(len(found), 2, err)
+        self.assertEqual(found[0], f"  [qa-cadence] validate-pr/history.md:2: malformed PR cell "
+                                   f"'**#{first}**'; expected a leading PR identity.")
+        self.assertTrue(found[1].startswith(
+            f"  [qa-cadence] PR #{first + 1}: no row in validate-pr/history.md."), err)
+        self.assertIn("FAIL: 2 bookkeeping-parity finding(s).", err)
+
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
         # (PR #855 reformat) as well as the long form.

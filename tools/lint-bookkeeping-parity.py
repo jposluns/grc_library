@@ -80,9 +80,14 @@ the improvement log, with these exemptions:
 Validate-pr PR-bearing rows must begin their PR cell with a recognized identity.
 The exact historical dispositions abandoned-autocorrect (no PR) and
 routed pre-open (no PR) remain accepted without creating PR records.
+The set is closed and matched exactly (``NO_PR_DISPOSITIONS``).
 Any other malformed cell produces one finding naming its file, line and value;
 both history readers exclude it while retaining valid peers, so it cannot lower
-the QA-cadence floor.
+the QA-cadence floor. Dropping it cannot raise the floor either: a PR number in
+a malformed cell still bounds the validate-pr floor when the improvement log
+holds that PR's retro row (independent evidence of a surviving in-window PR,
+unlike a foreign reference such as ``grc_library_ref #186``), and that PR is
+not reported a second time as missing its row.
 
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
@@ -593,8 +598,19 @@ def parse_changelog_prs(text: str) -> set[int]:
     return prs
 
 
-def _validate_pr_rows(text: str, findings: list[str] | None = None):
-    """Yield PR-bearing rows; accept known no-PR dispositions without PR records."""
+# Exact historical no-PR dispositions: a closed set, matched exactly (case included). A suffix,
+# substring or case-folded match would let a malformed cell such as `other (no PR)` pass
+# silently; BookkeepingParityTests pins both the set and the exact match.
+NO_PR_DISPOSITIONS = frozenset({"abandoned-autocorrect (no PR)", "routed pre-open (no PR)"})
+
+
+def _validate_pr_rows(text: str, findings: list[str] | None = None,
+                      malformed: list[str] | None = None):
+    """Yield PR-bearing rows; accept known no-PR dispositions without PR records.
+
+    A malformed PR cell is excluded: it is reported into ``findings`` and its raw value is
+    collected into ``malformed`` (floor evidence only, see ``malformed_validate_pr_prs``).
+    """
     for lineno, line in enumerate(text.splitlines(), 1):
         if not TABLE_ROW.match(line):
             continue
@@ -602,7 +618,7 @@ def _validate_pr_rows(text: str, findings: list[str] | None = None):
         if len(c) < 5:
             continue
         # Exact historical no-PR dispositions; do not accept arbitrary prose cells.
-        if c[2] in {"abandoned-autocorrect (no PR)", "routed pre-open (no PR)"}:
+        if c[2] in NO_PR_DISPOSITIONS:
             continue
         if not STORE_PR_IDENTITY_RE.match(c[2]):
             if findings is not None:
@@ -610,8 +626,18 @@ def _validate_pr_rows(text: str, findings: list[str] | None = None):
                     f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
                     f"malformed PR cell {c[2]!r}; expected a leading PR identity."
                 )
+            if malformed is not None:
+                malformed.append(c[2])
             continue
         yield lineno, c
+
+
+def malformed_validate_pr_prs(text: str) -> set[int]:
+    """PR numbers named in malformed validate-pr PR cells: never PR records, floor evidence only."""
+    bad: list[str] = []
+    for _ in _validate_pr_rows(text, malformed=bad):
+        pass
+    return {int(m.group(1) or m.group(2)) for cell in bad for m in PR_CELL_TOKEN.finditer(cell)}
 
 
 def parse_validate_pr_status(text: str) -> dict[int, str]:
@@ -1269,6 +1295,7 @@ def qa_cadence_findings(
     *,
     inception: int = INCEPTION,
     known_handoff: frozenset[int] = KNOWN_HANDOFF_NO_ROW,
+    vp_malformed_prs: set[int] | frozenset[int] = frozenset(),
 ) -> list[str]:
     """Check 1: every in-window substantive PR has its validate-pr + retro rows."""
     findings: list[str] = []
@@ -1278,7 +1305,13 @@ def qa_cadence_findings(
     # Dynamic per-register floors (1.19.9 (closing PR #1034)): a row swept to
     # grc_library_private drops below its register's floor and is out of scope,
     # not flagged missing. Before any sweep both floors equal INCEPTION.
-    vp_floor = effective_floor(set(vp_status), floor=inception)
+    # A malformed validate-pr row is no PR record, but dropping it must not RAISE the floor
+    # either (3b194 round 1): its PR numbers still bound the floor when the improvement log holds
+    # their retro rows, the independent evidence of surviving in-window PRs. An uncorroborated
+    # number (a foreign reference such as `grc_library_ref #186`) is ignored, so it cannot lower
+    # the floor into a no-row cascade.
+    vp_floor_evidence = set(vp_malformed_prs) & retro_prs
+    vp_floor = effective_floor(set(vp_status) | vp_floor_evidence, floor=inception)
     retro_floor = effective_floor(retro_prs, floor=inception)
 
     for pr in sorted(p for p in changelog_prs if inception <= p <= max_pr):
@@ -1289,6 +1322,9 @@ def qa_cadence_findings(
             if pr < vp_floor:
                 # Older than the oldest surviving validate-pr row: its row was
                 # swept to grc_library_private (PR #1034), so out of scope.
+                continue
+            if pr in vp_floor_evidence:
+                # Its row is present but malformed, already reported once by line and value.
                 continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "
@@ -1567,6 +1603,7 @@ def main() -> int:
                 changelog,
                 parse_validate_pr_status(vp_text),
                 parse_retro_prs(retro_text),
+                vp_malformed_prs=malformed_validate_pr_prs(vp_text),
             )
         )
 
