@@ -3960,7 +3960,7 @@ documents:
   domain: "compliance"
   type: "Annex"
   title: "Logistics Sector GRC Requirements Annex"
-  version: "1.0.26"
+  version: "1.0.27"
   date: "2026-10-04"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"

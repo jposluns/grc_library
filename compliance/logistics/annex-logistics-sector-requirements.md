@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -124,7 +124,7 @@ Under NIS 2, transportation entities in the following Annex I sub-sectors that f
 
 - Air transport (airlines, airports, air traffic management)
 - Rail transport (railway infrastructure managers; railway undertakings)
-- Water transport (inland waterway transport; sea and coastal water transport; ports; vessels)
+- Water transport (inland, sea and coastal passenger and freight water transport companies, not including the individual vessels they operate; managing bodies of ports and their port facilities; operators of vessel traffic services)
 - Road transport (road authorities; operators of intelligent transport systems)
 
 Post and courier services are **not** in NIS 2 Annex I. Postal and courier providers sit in Annex II (Other critical sectors); because Article 3(1)(a) confers essential status only on Annex I entities that exceed the medium-sized-enterprise ceilings, an in-scope postal or courier operator is an **important entity** under Article 3(2), subject to the lighter ex-post supervisory regime and the lower fine ceiling. It is treated as essential only where a Member State designates it so under Article 2(2), points (b) to (e), where it is identified as a critical entity under Directive (EU) 2022/2557, or where a Member State so provides for an entity it identified before 16 January 2023 as an operator of essential services under NIS 1 or national law (Article 3(1)(g)).

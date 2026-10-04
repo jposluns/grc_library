@@ -2,8 +2,8 @@
 
 **Document Title:** Citation Verification Worklist: Batch Q4 (Remaining Canonical Citations)\
 **Document Type:** Worklist\
-**Version:** 1.0.23\
-**Date:** 2026-09-24\
+**Version:** 1.0.24\
+**Date:** 2026-10-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/specification-citation-verification.md`](../governance/specification-citation-verification.md), [`governance/template-citation-verification-worklist.md`](../governance/template-citation-verification-worklist.md), [`.project-governance/register-citation-verifications.md`](register-citation-verifications.md), [`governance/register-canonical-citations.md`](../governance/register-canonical-citations.md), [`.project-governance/register-citation-verification-bundle.md`](register-citation-verification-bundle.md)\
@@ -187,7 +187,7 @@ Particular-attention flags (entries where AI-verifier confidence is lowest):
 | WTO TFA | https://www.wto.org/english/tratop_e/tradfa_e/tradfa_e.htm | all | 2017, Trade Facilitation Agreement |  |  |  |  |  |  |
 | ICAO Annex 17 (Chicago Convention) | https://store.icao.int/en/annex-17-security | all | Edition 12, 2022; Security (safeguarding international civil aviation against acts of unlawful interference). Corrected 2026-07-10: the prior "Doc 10026 / Manual on Aviation Security" pre-fill was wrong (its store URL 404s; Doc 10026 is the Report of the Legal Commission, and the AVSEC manual is the Restricted Doc 8973). |  |  |  |  |  |  |
 | ICAO Aviation Cybersecurity Strategy | https://www.icao.int/aviation-cybersecurity/strategy | all | October 2019 (no ICAO Doc number), Aviation Cybersecurity Strategy |  |  |  |  |  |  |
-| IMO MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 3, 2025-04, Maritime cyber risk management guidelines; supersedes Rev. 2 and Rev. 1 |  |  |  |  |  |  |
+| IMO MSC-FAL.1/Circ.3 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | all | Rev. 4, 2026-05, Maritime cyber risk management guidelines; supersedes Rev. 3, Rev. 2 and Rev. 1 |  |  |  |  |  |  |
 
 ### 3.12 AI safety evaluation programmes (3 entries; note that AI tooling references cluster separately covered in Q3)
 
