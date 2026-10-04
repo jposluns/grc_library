@@ -2,7 +2,7 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.9\
+**Version:** 1.2.10\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@ This annex does not reproduce NIS 2 article text or national transposition law. 
 
 ## Entity classification (Articles 2 to 3 and Annexes I to II)
 
-NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope entity, essential and important (Article 3). The class does not follow the sector annex. An entity of a type in Annex I is an essential entity only where it exceeds the ceilings for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission Recommendation 2003/361/EC (Article 3(1)(a)). Qualified trust service providers, top-level domain name registries, and DNS service providers are essential regardless of size (Article 3(1)(b)). Providers of public electronic communications networks or of publicly available electronic communications services are essential where they qualify as medium-sized enterprises (Article 3(1)(c)); larger providers are caught by Article 3(1)(a). Essential status also attaches to the public administration entities referred to in Article 2(2), point (f)(i), to entities a Member State identifies as essential under Article 2(2), points (b) to (e), to critical entities under Directive (EU) 2022/2557, and, where the Member State so provides, to entities it identified before 16 January 2023 as operators of essential services under NIS 1 or national law (Article 3(1)(d) to (g)). Every other in-scope entity of a type in Annex I or II is an important entity (Article 3(2)). Adopting entities first confirm whether they fall in scope, then derive their class from Article 3; the library is relevant where the entity is classified essential or important.
+NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope entity, essential and important (Article 3). The class does not follow the sector annex. An entity of a type in Annex I is an essential entity where it exceeds the ceilings for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission Recommendation 2003/361/EC (Article 3(1)(a)). Qualified trust service providers, top-level domain name registries, and DNS service providers are essential regardless of size (Article 3(1)(b)). Providers of public electronic communications networks or of publicly available electronic communications services are essential where they qualify as medium-sized enterprises (Article 3(1)(c)); larger providers are caught by Article 3(1)(a). Essential status also attaches to the public administration entities referred to in Article 2(2), point (f)(i), to entities a Member State identifies as essential under Article 2(2), points (b) to (e), to critical entities under Directive (EU) 2022/2557, and, where the Member State so provides, to entities it identified before 16 January 2023 as operators of essential services under NIS 1 or national law (Article 3(1)(d) to (g)). Every other in-scope entity of a type in Annex I or II is an important entity (Article 3(2)). Adopting entities first confirm whether they fall in scope, then derive their class from Article 3; the library is relevant where the entity is classified essential or important.
 
 | NIS 2 annex | Sectors (illustrative) |
 | --- | --- |

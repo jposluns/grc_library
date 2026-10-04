@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.107\
-**Date:** 2026-09-29\
+**Version:** 1.5.108\
+**Date:** 2026-10-04\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -322,7 +322,7 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | --- | --- | --- | --- | --- | --- | --- |
 | ICAO Annex 17 (Chicago Convention) | Edition 12 | 2022 | Security: safeguarding international civil aviation against acts of unlawful interference | Edition 11 | https://store.icao.int/en/annex-17-security | verified 2026-07-10 |
 | ICAO Aviation Cybersecurity Strategy | October 2019 | 2019-10 | Aviation cybersecurity framework of seven pillars (non-binding; published under the Secretary General's authority; no ICAO Doc number, Doc 10055 being the Manual on Notification and Publication of Differences) | - | https://www.icao.int/aviation-cybersecurity/strategy | 2026-09-24 |
-| IMO MSC-FAL.1/Circ.3 | Rev. 3 | 2025-04 | Maritime cyber risk management guidelines | Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-06-30 |
+| IMO MSC-FAL.1/Circ.3 | Rev. 4 | 2026-05 | Maritime cyber risk management guidelines | Rev. 3, Rev. 2, Rev. 1 | https://www.imo.org/en/OurWork/Security/Pages/Cyber-security.aspx | 2026-10-04 |
 
 ## International treaties and conventions
 

@@ -2,7 +2,7 @@
 
 **Document Title:** Energy and Utilities Sector Compliance README\
 **Document Type:** Register\
-**Version:** 1.0.2\
+**Version:** 1.0.3\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -34,7 +34,7 @@ This directory applies to organizations operating as any of the following:
 - Water and waste-water utilities.
 - District heating and cooling operators.
 - Smart-grid, smart-meter, and demand-response platform operators.
-- Designated essential entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
+- Designated essential or important entities or critical infrastructure operators under jurisdiction-specific cyber regulations.
 
 ---
 

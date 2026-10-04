@@ -2,7 +2,7 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.23\
+**Version:** 1.0.24\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -35,7 +35,7 @@ This annex applies where an organization:
 | Regulation / Directive | Scope | Effective |
 |---|---|---|
 | **DORA**: Digital Operational Resilience Act (Regulation (EU) 2022/2554) | Financial entities and ICT third-party service providers, with EU oversight of those designated Critical (CTPPs), operating in or serving the EU financial sector | 2025-01-17 |
-| **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities in scope, classified as essential or important under Article 3 | October 2024 (transposition) |
+| **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities in scope, classified as essential or important under Article 3; for DORA financial entities, NIS 2 Articles 21 and 23 and the Chapter VII supervision and enforcement provisions do not apply where DORA's requirements are at least equivalent (NIS 2 Article 4(1); DORA recital 16: DORA is lex specialis); see the [DORA implementation annex](annex-dora-implementation.md) and the [NIS 2 implementation annex](../annex-nis-2-implementation.md) | October 2024 (transposition) |
 | **GDPR** | All personal data processing | May 2018 |
 | **PSD2 / PSD3** | Payment services providers; open banking | Ongoing |
 | **AML Directives (AMLD6)** | Financial institutions; certain high-value goods dealers | Ongoing |

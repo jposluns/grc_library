@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.24\
+**Version:** 1.0.25\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -91,7 +91,7 @@ This annex applies where an organization:
 | **ICAO Annex 17 (Chicago Convention): Aviation Security** | International Civil Aviation Organization | States; aviation operators |
 | **ICAO Aviation Cybersecurity Strategy (October 2019)** | ICAO | States; airlines; ANSPs; airports |
 | **IMO MSC-FAL.1/Circ.3**: Maritime Cyber Risk Management (guidelines) | International Maritime Organization | Shipping companies; port operators |
-| **IMO MSC-FAL.1/Circ.3/Rev.3** (4 April 2025) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
+| **IMO MSC-FAL.1/Circ.3/Rev.4** (28 May 2026) | IMO | Guidelines supporting maritime cyber-risk management within the ISM Code SMS (per IMO Res. MSC.428(98)) |
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
 | **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations |
@@ -120,7 +120,7 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 
 ### EU NIS 2: transportation entities
 
-Under NIS 2, transportation entities in the following Annex I sub-sectors that fall within NIS 2 scope (medium-sized or larger, Article 2) are **essential entities** where they exceed the medium-sized-enterprise ceilings (Article 3(1)(a)) and otherwise **important entities** (Article 3(2)); essential entities are subject to the highest tier of obligations:
+Under NIS 2, transportation entities in the following Annex I sub-sectors that fall within NIS 2 scope (medium-sized or larger under Article 2(1), or regardless of size where Article 2(2) or (3) applies) are **essential entities** where they exceed the medium-sized-enterprise ceilings (Article 3(1)(a)) or another point of Article 3(1) applies (for example identification as a critical entity, Article 3(1)(f)), and otherwise **important entities** (Article 3(2)); both classes carry the Article 21 and 23 obligations, while essential entities face ex ante supervision and the higher fines (Articles 32 and 34(4)):
 
 - Air transport (airlines, airports, air traffic management)
 - Rail transport (railway infrastructure managers; railway undertakings)

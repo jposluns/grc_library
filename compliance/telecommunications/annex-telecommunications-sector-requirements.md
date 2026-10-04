@@ -2,7 +2,7 @@
 
 **Document Title:** Telecommunications Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.9\
+**Version:** 0.0.10\
 **Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -51,7 +51,7 @@ Most jurisdictions impose telecoms-specific cybersecurity obligations that overl
 | Annual sector security report | Outside library scope; regulator-template |
 | Penalties for non-compliance | Jurisdiction-specific |
 
-EU specifics: under NIS 2, a provider of public electronic communications networks or of publicly available electronic communications services is an essential entity where it qualifies as a medium-sized enterprise (Article 3(1)(c)) or exceeds the medium-sized ceilings (Article 3(1)(a)), and otherwise an important entity (Article 3(2)); see the NIS 2 implementation annex.
+EU specifics: under NIS 2, a provider of public electronic communications networks or of publicly available electronic communications services is an essential entity where it qualifies as a medium-sized enterprise (Article 3(1)(c)) or exceeds the medium-sized ceilings (Article 3(1)(a)), and otherwise an important entity (Article 3(2)) unless another point of Article 3(1), such as a Member State identification, makes it essential; see the NIS 2 implementation annex.
 
 UK specifics: Telecommunications (Security) Act 2021 plus the Electronic Communications (Security Measures) Regulations 2022 plus Ofcom code of practice. Two tiers of provider with differentiated obligations.
 
