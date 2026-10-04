@@ -996,10 +996,9 @@ class ChangelogLanguageTests(unittest.TestCase):
                         self.assertEqual(mod.main(["preflight"]), 2)
                     self.assertIn("ERROR: the gate-2 language engine could not be loaded",
                                   err.getvalue())
-                    self.assertIn("FileNotFoundError", err.getvalue())
                     self.assertNotIn("Traceback", err.getvalue())
 
-    def assert_preflight_language_error(self, mod, cause):
+    def assert_preflight_language_error(self, mod):
         from contextlib import redirect_stdout, redirect_stderr
         err = io.StringIO()
         with redirect_stdout(io.StringIO()), redirect_stderr(err):
@@ -1007,7 +1006,9 @@ class ChangelogLanguageTests(unittest.TestCase):
         message = err.getvalue()
         self.assertTrue(message.startswith(
             "ERROR: the gate-2 language engine could not be loaded"), message)
-        self.assertIn(cause, message)
+        self.assertEqual(message,
+                         "ERROR: the gate-2 language engine could not be loaded "
+                         "or used through lint-language.py.\n")
         self.assertEqual(len(message.splitlines()), 1, message)
         self.assertNotIn("Traceback", message)
 
@@ -1024,7 +1025,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                          patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
                         if missing:
                             delattr(engine, name)
-                        self.assert_preflight_language_error(mod, name)
+                        self.assert_preflight_language_error(mod)
 
     def test_preflight_engine_base_exceptions_refuse_staged_misspelling(self):
         from unittest.mock import patch
@@ -1066,9 +1067,9 @@ class ChangelogLanguageTests(unittest.TestCase):
                                 with self.assertRaises(KeyboardInterrupt):
                                     mod.load_language()
                             else:
-                                self.assert_preflight_language_error(mod, raised.split("(")[0])
+                                self.assert_preflight_language_error(mod)
 
-    def assert_error_formatter_refuses_staged_misspelling(self, raised):
+    def assert_engine_failure_refuses_staged_misspelling(self, source, interrupted=False):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             for rel in ("tools/preflight-changelog.py", "tools/lint-language.py",
@@ -1102,51 +1103,90 @@ class ChangelogLanguageTests(unittest.TestCase):
             git("add", "CHANGELOG.md")
             path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
             self.assertIn("New centralised controls.", git("show", ":CHANGELOG.md"))
-            commands = (("tools/preflight-changelog.py", "--staged"),
-                        ("tools/check-changelog-preflight-commit.py", "--pre-commit"))
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.test")
+            git("config", "commit.gpgsign", "false")
+            hook = root / ".git/hooks/pre-commit"
+            hook.write_text(
+                "#!/bin/sh\nexec " + sys.executable
+                + " tools/check-changelog-preflight-commit.py --pre-commit\n",
+                encoding="utf-8")
+            hook.chmod(0o755)
+            git("config", "core.hooksPath", str(hook.parent))
+            head = git("rev-parse", "HEAD")
+            commands = ((sys.executable, "tools/preflight-changelog.py", "--staged"),
+                        (sys.executable, "tools/check-changelog-preflight-commit.py", "--pre-commit"),
+                        ("git", "commit", "-qm", "Must refuse staged misspelling"))
             for command in commands:
-                result = run(sys.executable, *command)
+                result = run(*command)
                 self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
                 self.assertIn("gate 2 spelling [ise]: centralised", result.stdout + result.stderr)
             engine = root / ".corpus-management/tools/gate_lint_language.py"
-            engine.write_text("class BadMessage(Exception):\n"
-                              "    def __str__(self):\n"
-                              f"        raise {raised}\n"
-                              "raise BadMessage()\n", encoding="utf-8")
+            engine.write_text(engine.read_text(encoding="utf-8") + "\n" + source,
+                              encoding="utf-8")
             shutil.rmtree(engine.parent / "__pycache__", ignore_errors=True)
-            for command, expected in zip(commands, (2, 1)):
+            for command, expected in zip(commands, ((-2, 1, 1) if interrupted else (2, 1, 1))):
                 with self.subTest(command=command):
-                    result = run(sys.executable, *command)
+                    result = run(*command)
                     self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
                     self.assertEqual(result.stdout, "")
-                    lines = result.stderr.splitlines()
-                    self.assertTrue(lines[0].startswith(
-                        "ERROR: the gate-2 language engine could not be loaded"), result.stderr)
-                    self.assertIn("BadMessage: <exception message unavailable>", lines[0])
-                    self.assertNotIn("Traceback", result.stderr)
-                    if expected == 2:
-                        self.assertEqual(len(lines), 1, result.stderr)
+                    if interrupted:
+                        self.assertIn("KeyboardInterrupt", result.stderr)
+                        self.assertNotIn("ERROR: the gate-2", result.stderr)
                     else:
+                        lines = result.stderr.splitlines()
+                        self.assertEqual(lines[0],
+                                         "ERROR: the gate-2 language engine could not be loaded "
+                                         "or used through lint-language.py.")
+                        self.assertNotIn("Traceback", result.stderr)
+                        if expected == 2:
+                            self.assertEqual(len(lines), 1, result.stderr)
+                    if command != commands[0]:
                         self.assertIn("REFUSING the commit", result.stderr)
-                        self.assertIn("exit 2", result.stderr)
+                        self.assertIn("exit -2" if interrupted else "exit 2", result.stderr)
+                    self.assertEqual(git("rev-parse", "HEAD"), head)
 
     def test_preflight_error_formatter_system_exit_refuses_staged_misspelling(self):
-        self.assert_error_formatter_refuses_staged_misspelling("SystemExit(0)")
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __str__(self): raise SystemExit(0)\n"
+            "raise BadMessage()\n")
 
     def test_preflight_error_formatter_value_error_refuses_staged_misspelling(self):
-        self.assert_error_formatter_refuses_staged_misspelling("ValueError('bad message')")
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __str__(self): raise ValueError('bad message')\n"
+            "raise BadMessage()\n")
 
-    def test_preflight_error_formatter_preserves_keyboard_interrupt(self):
-        from unittest.mock import patch
-        mod = self.load_tool("preflight-changelog")
-        with tempfile.TemporaryDirectory() as td:
-            wrapper = Path(td) / "lint-language.py"
-            wrapper.write_text("class BadMessage(Exception):\n"
-                               "    def __str__(self): raise KeyboardInterrupt()\n"
-                               "raise BadMessage()\n", encoding="utf-8")
-            with patch.object(mod, "_LANGUAGE_GATE", wrapper):
-                with self.assertRaises(KeyboardInterrupt):
-                    mod.load_language()
+    def test_preflight_exception_metaclass_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class Meta(type):\n"
+            "    def __getattribute__(cls, name):\n"
+            "        if name == '__name__': raise SystemExit(0)\n"
+            "        return super().__getattribute__(name)\n"
+            "class BadMessage(Exception, metaclass=Meta): pass\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_exception_repr_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __repr__(self): raise SystemExit(0)\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_matcher_system_exit_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "def spelling_matches(text, checks): raise SystemExit(0)\n")
+
+    def test_preflight_matcher_value_error_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "def spelling_matches(text, checks): raise ValueError('bad matcher')\n")
+
+    def test_preflight_engine_preserves_keyboard_interrupt(self):
+        for source in ("raise KeyboardInterrupt()\n",
+                       "def spelling_matches(text, checks): raise KeyboardInterrupt()\n"):
+            with self.subTest(source=source):
+                self.assert_engine_failure_refuses_staged_misspelling(source, interrupted=True)
+
 
     def test_preflight_engine_error_is_one_line(self):
         from unittest.mock import patch
@@ -1157,8 +1197,7 @@ class ChangelogLanguageTests(unittest.TestCase):
                                encoding="utf-8")
             with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
                  patch.object(mod, "added_lines", return_value=[]):
-                self.assert_preflight_language_error(
-                    mod, "RuntimeError: first line second line third line")
+                self.assert_preflight_language_error(mod)
 
 
 class LinksLinterTests(LinterTestCase):

@@ -76,14 +76,15 @@ Exit codes:
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
         a repository, an operational store or private sibling holding the mirror included) exits 2
         instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1); or the gate-2
-        language engine cannot be loaded (a missing or unimportable tools/lint-language.py, pack
-        engine or profile loader, or a malformed language profile), reported as one named ERROR
-        line rather than a traceback, whether or not any line was added (3b201)
+        language engine cannot be loaded or used, reported as one fixed ERROR line rather
+        than a traceback. Loading is checked even without added lines (3b201).
+        KeyboardInterrupt propagates.
 """
 
 from __future__ import annotations
 
 import argparse
+from functools import wraps
 import os
 import re
 import subprocess
@@ -114,43 +115,47 @@ _d7_spec.loader.exec_module(_d7)
 _LANGUAGE_GATE = Path(_TOOLS_DIR) / "lint-language.py"
 
 
+_LANGUAGE_ERROR = (
+    "ERROR: the gate-2 language engine could not be loaded "
+    "or used through lint-language.py."
+)
+
+
 class LanguageEngineUnavailable(RuntimeError):
-    """Gate 2's wrapper, engine or language profile could not be loaded (main() exits 2)."""
+    """An engine interaction failed; main() reports the fixed error and exits 2."""
 
 
-def load_language():
-    """``(engine, checks)``: gate 2's engine module and its compiled language checks.
+def _language_boundary(operation):
+    """Guard complete engine operations, including consuming their results.
 
-    Any failure to load (a missing or unimportable wrapper, engine or profile
-    loader, or a malformed profile) raises LanguageEngineUnavailable naming the
-    cause, so the aid fails closed with exit 2 and a named message rather than a
-    traceback, and never skips the spelling check (3b201).
+    Never inspect an engine exception: even its type name, str and repr can
+    execute engine code. Only our constant diagnostic crosses this boundary.
     """
-    try:
-        spec = _ilu.spec_from_file_location("_changelog_language", _LANGUAGE_GATE)
-        mod = _ilu.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        engine = mod._engine()
-        for name in ("spelling_matches", "compile_language", "language_vocabulary"):
-            if not callable(getattr(engine, name, None)):
-                raise TypeError(f"language engine {name} must be callable")
-        return engine, engine.compile_language(mod._language_config())
-    except KeyboardInterrupt:
-        raise
-    except BaseException as exc:
+    @wraps(operation)
+    def guarded(*args, **kwargs):
         try:
-            detail = " ".join(str(exc).splitlines())
+            return operation(*args, **kwargs)
         except KeyboardInterrupt:
             raise
         except BaseException:
-            # Exception messages are untrusted too; formatting must fail closed.
-            detail = "<exception message unavailable>"
-        raise LanguageEngineUnavailable(
-            f"the gate-2 language engine could not be loaded through {_LANGUAGE_GATE.name} "
-            f"(its pack engine, profile loader and language profile included): "
-            f"{type(exc).__name__}: {detail}") from exc
+            raise LanguageEngineUnavailable() from None
+    return guarded
 
 
+@_language_boundary
+def load_language():
+    """Load and validate gate 2's engine and compile its language checks."""
+    spec = _ilu.spec_from_file_location("_changelog_language", _LANGUAGE_GATE)
+    mod = _ilu.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    engine = mod._engine()
+    for name in ("spelling_matches", "compile_language", "language_vocabulary"):
+        if not callable(getattr(engine, name, None)):
+            raise TypeError(f"language engine {name} must be callable")
+    return engine, engine.compile_language(mod._language_config())
+
+
+@_language_boundary
 def spelling_findings(lines, language=None):
     """Check added lines with gate 2's own spelling matcher.
 
@@ -509,10 +514,10 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: the CHANGELOG diff could not be read: {exc}", file=sys.stderr)
         return 2
     try:
-        language = load_language()
-    except LanguageEngineUnavailable as exc:
-        # Fail closed (3b201): an unloadable engine is not a clean spelling check.
-        print(f"ERROR: {exc}", file=sys.stderr)
+        spelling = spelling_findings(lines)
+    except LanguageEngineUnavailable:
+        # The boundary returns only completed findings or our fixed failure.
+        print(_LANGUAGE_ERROR, file=sys.stderr)
         return 2
 
     findings: list[tuple[str, str, str]] = []
@@ -543,7 +548,7 @@ def main(argv: list[str]) -> int:
             )
         )
 
-    findings.extend(spelling_findings(lines, language))
+    findings.extend(spelling)
     findings.extend(d7_length_findings(lines))
 
     if not findings:
