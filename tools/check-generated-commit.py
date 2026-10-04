@@ -13,9 +13,12 @@ check-changelog-preflight-commit.py. The dispatcher that tools/install-git-hooks
 tracked file, so a clone that has run the installer gets this check with no re-install.
 
 When it judges a commit. When the index being committed, against HEAD (against nothing on an unborn HEAD,
-so every staged file counts), adds or removes a `**Version:**` or `**Date:**` line in a staged Markdown file
-(the line-start form that build-taxonomy.py's FIELD_PATTERN reads), or changes one of the three generated
-outputs (so a hand-edited output is judged too). A bump, a new or deleted document, and a rename (read
+so every staged file counts), adds or removes a line in a staged Markdown file that build-taxonomy.py's
+extract_metadata() would read as the Version or Date field (a line-start `**<key>:**` matching its
+FIELD_PATTERN, the key compared after .strip(), so `**Version :**` and `** Date:**` count as well as
+`**Version:**`; this check carries a verbatim copy of that pattern, and its self-test fails if the copy or
+the key reading diverges from the generator's), or changes one of the three generated outputs (so a
+hand-edited output is judged too). A bump, a new or deleted document, and a rename (read
 with --no-renames, as a deletion plus an addition) all add or remove such a line. The diff is read with
 --text, --no-ext-diff, --no-textconv and --no-color, so a -diff attribute, an external diff driver,
 textconv or colour cannot hide a changed line; the staged Markdown names are passed as literal pathspecs.
@@ -35,11 +38,15 @@ the override. A commit that concludes a merge, cherry-pick or revert is checked 
 branches that each regenerated taxonomy.yml conflict there, and a hand resolution is what this check is for.
 It REFUSES, naming the override (ignorance refuses, as in the sibling checks): a git error while reading
 the staged state; an unmerged, unsafe or unknown-mode index entry; a generator missing from the staged tree
-or failing to start; and a generator that exits other than 0.
+or failing to start; and a generator that exits other than 0. An exit 1 whose stderr carries a Python
+traceback is reported as a generator crash, not as stale output; any other exit 1 is the generator's
+stale-output report.
 
 Residue, stated: a symlink or submodule entry is not copied into the snapshot, so a generator reading
-through one finds it missing (and refuses when the staged outputs list it); a staged body change that
-moves no Version or Date line is not judged here (check-version-bump-commit.py refuses an unbumped body at
+through one finds it missing (and refuses when the staged outputs list it); a generator that stops with
+sys.exit("message") exits 1 without a traceback, so it is reported as stale output (it still refuses); a
+staged body change that moves no Version or Date line is not judged here (check-version-bump-commit.py
+refuses an unbumped body at
 commit-msg, and gate 33 still runs in the suite), nor is a change to a generator or tools/lint_common.py
 alone (gate 33 again); `git commit --amend` is judged only when the amend itself changes a Version or Date
 line or an output relative to the commit it replaces; a commit that git's sequencer makes itself (every
@@ -57,8 +64,15 @@ from pathlib import Path
 _OVERRIDE = "GRC_ALLOW_STALE_GENERATED_COMMIT"
 _BUILDERS = ("tools/build-taxonomy.py", "tools/build-portal.py")
 _OUTPUTS = ("taxonomy.yml", "docs/portal.md", "docs/maturity-scorecard.md")
-# An added or removed metadata line, in the line-start form build-taxonomy.py's FIELD_PATTERN parses.
-_TRIGGER = re.compile(r"^[+-]\*\*(?:Version|Date):\*\*")
+# build-taxonomy.py's FIELD_PATTERN, verbatim. Its extract_metadata() reads a line this matches as the field
+# named by group 1 after .strip(), so `**Version :**` is the Version field; the self-test fails if this copy,
+# or metadata_line_changed()'s key reading, diverges from the generator's.
+_FIELD = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
+_KEYS = ("Version", "Date")
+# An uncaught Python exception also exits 1, the generators' stale-output code; its traceback tells them apart.
+_TRACEBACK = "Traceback (most recent call last):"
+_CRASHED = "crashed"
+_UNFINISHED = {None: "could not be started", _CRASHED: "crashed with an uncaught exception"}
 _REGULAR = ("100644", "100755")
 _UNCOPIED = ("120000", "160000")   # a symlink or a submodule: no file content to copy
 _FIX = ("Regenerate from the tree you are committing (`python3 tools/build-taxonomy.py && python3 "
@@ -72,17 +86,19 @@ def override_set(environ):
 
 
 def metadata_line_changed(diff):
-    """PURE. Does a unified diff add or remove a Version or Date line? Only hunk lines count: each file's
-    header (from its `diff --git` line to its first `@@`) is skipped, so a `---`/`+++` header or a mode
-    line is never read as content."""
-    in_hunk = False
+    """PURE. Does a unified diff add or remove a line that build-taxonomy.py's extract_metadata() would
+    read as the Version or Date field? Each added or removed line is split as the generator splits a
+    document (str.splitlines()), and a piece counts when _FIELD matches it and its key, stripped, is
+    Version or Date. No diff header line can count: each starts with `diff `, `index `, `---`, `+++`,
+    `@@` or a mode keyword, and git C-quotes a path holding a control character, so no header line is a
+    `+` or `-` followed by `**`."""
     for line in diff.split("\n"):
-        if line.startswith("diff --git "):
-            in_hunk = False
-        elif line.startswith("@@"):
-            in_hunk = True
-        elif in_hunk and _TRIGGER.match(line):
-            return True
+        if line[:1] not in ("+", "-"):
+            continue
+        for piece in line[1:].splitlines():
+            m = _FIELD.match(piece)
+            if m and m.group(1).strip() in _KEYS:
+                return True
     return False
 
 
@@ -91,8 +107,8 @@ def decide(allow, ok, judged, results):
 
     allow: override set; ok: the staged state was read (and, when judged, copied); judged: the commit
     changes a Version or Date line or a generated output (meaningful only when ok); results: one
-    (generator, exit code, or None when it could not be started) per generator (meaningful only when
-    judged)."""
+    (generator, exit code, None when it could not be started, or _CRASHED when it exited 1 with a Python
+    traceback) per generator (meaningful only when judged)."""
     if allow:
         return 0, (f"check-generated-commit: NOTE: {_OVERRIDE}=1 is set; skipping the generated-output "
                    "check.")
@@ -102,7 +118,7 @@ def decide(allow, ok, judged, results):
                    f"docs/maturity-scorecard.md are in sync. Deliberate override: {_OVERRIDE}=1.")
     if not judged:
         return 0, ""
-    unfinished = [f"{name} ({'could not be started' if code is None else f'exit {code}'})"
+    unfinished = [f"{name} ({_UNFINISHED.get(code, f'exit {code}')})"
                   for name, code in results if code not in (0, 1)]
     if unfinished or len(results) != len(_BUILDERS):
         return 1, ("check-generated-commit: REFUSING the commit: a staged generator did not complete ("
@@ -173,8 +189,9 @@ def snapshot(root, dest):
 
 
 def run_generators(dest):
-    """[(generator, exit code or None)] and the combined report of the snapshot's own generators, each run
-    with --check in the snapshot, isolated from Python and git environment overrides."""
+    """[(generator, exit code, None, or _CRASHED)] and the combined report of the snapshot's own generators,
+    each run with --check in the snapshot, isolated from Python and git environment overrides. An exit 1
+    whose stderr carries a Python traceback is _CRASHED (an uncaught exception), not a stale report."""
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     results, reports = [], []
     for rel in _BUILDERS:
@@ -190,7 +207,10 @@ def run_generators(dest):
             results.append((rel, None))
             reports.append(f"check-generated-commit: {rel}: {exc}")
             continue
-        results.append((rel, cp.returncode))
+        code = cp.returncode
+        if code == 1 and _TRACEBACK in cp.stderr:
+            code = _CRASHED
+        results.append((rel, code))
         if cp.returncode:
             reports.append((cp.stdout + cp.stderr).strip())
     return results, "\n".join(r for r in reports if r)
@@ -268,10 +288,11 @@ def _integration_self_test():
 
         doc = repo / "risk" / "policy-fixture.md"
 
-        def write_doc(version="1.0.0", date="2026-01-01", purpose="Initial purpose.", where=doc):
+        def write_doc(version="1.0.0", date="2026-01-01", purpose="Initial purpose.", where=doc, sep=""):
             where.parent.mkdir(parents=True, exist_ok=True)
             where.write_text(f"# Fixture\n\n**Document Title:** Fixture\\\n**Document Type:** Policy\\\n"
-                             f"**Version:** {version}\\\n**Date:** {date}\\\n\n---\n\n## Purpose\n\n{purpose}\n",
+                             f"**Version{sep}:** {version}\\\n**Date{sep}:** {date}\\\n\n---\n\n## Purpose\n\n"
+                             f"{purpose}\n",
                              encoding="utf-8")
 
         must(["git", "init", "-q", "-b", "feature"])
@@ -297,6 +318,23 @@ def _integration_self_test():
                    and "FAIL: taxonomy.yml is out of sync" in cp.stderr,
                    f"a staged {label} change without regenerated outputs was not refused: {cp.stderr.strip()}")
             reset()
+        # A key spelling build-taxonomy.py also reads as Version or Date (`**Version :**`, `**Date :**`),
+        # committed in sync: a value change without regenerated outputs refuses, and with them passes.
+        write_doc(sep=" ")
+        regenerate()
+        must(["git", "add", "-A"])
+        must(["git", "commit", "-q", "-m", "spaced keys"])
+        for version, date, label in (("1.0.1", "2026-01-01", "Version :"), ("1.0.1", "2026-02-02", "Date :")):
+            write_doc(version, date, sep=" ")
+            must(["git", "add", str(doc)])
+            cp = run(["git", "commit", "-q", "-m", f"{label} stale"])
+            expect(refused(cp) and "FAIL: taxonomy.yml is out of sync" in cp.stderr,
+                   f"a staged `{label}` change without regenerated outputs was not refused: {cp.stderr.strip()}")
+            regenerate()
+            must(["git", "add", *_OUTPUTS])
+            cp = run(["git", "commit", "-q", "-m", f"{label} regenerated"])
+            expect(cp.returncode == 0,
+                   f"a staged `{label}` change with regenerated outputs was refused: {cp.stderr.strip()}")
         # Outputs regenerated in the working tree but not staged: the index is judged, so it refuses.
         write_doc("1.0.1")
         must(["git", "add", str(doc)])
@@ -344,6 +382,12 @@ def _integration_self_test():
         write_doc("1.0.4")
         regenerate()
         must(["git", "add", "-A"])
+        (repo / _BUILDERS[1]).write_text("raise RuntimeError('fixture crash')\n", encoding="utf-8")
+        must(["git", "add", _BUILDERS[1]])
+        cp = run(["git", "commit", "-q", "-m", "crash"])
+        expect(refused(cp, "did not complete (tools/build-portal.py (crashed with an uncaught exception))")
+               and "RuntimeError: fixture crash" in cp.stderr and "out of sync with the staged" not in cp.stderr,
+               f"a staged generator raising an exception was not refused as a crash: {cp.stderr.strip()}")
         (repo / _BUILDERS[1]).write_text("raise SystemExit(3)\n", encoding="utf-8")
         must(["git", "add", _BUILDERS[1]])
         expect(refused(run(["git", "commit", "-q", "-m", "crash"]), "did not complete (tools/build-portal.py (exit 3))"),
@@ -399,7 +443,54 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "on main"])
         expect(cp.returncode != 0 and "check-commit-on-main: REFUSING" in cp.stderr
                and "check-generated-commit" not in cp.stderr, "the shim ran on past a commit-on-main refusal")
+        # A git error while reading the staged state refuses through the installed hook (ignorance
+        # refuses): with HEAD's root tree gone from the object store, the check's `git diff --cached` fails.
+        # Last, because it damages the fixture repository.
+        reset()
+        must(["git", "switch", "-q", "feature"])
+        tree = must(["git", "rev-parse", "HEAD^{tree}"]).stdout.strip()
+        write_doc("1.0.9")
+        must(["git", "add", str(doc)])
+        loose = repo / ".git" / "objects" / tree[:2] / tree[2:]
+        if loose.is_file():
+            loose.unlink()
+            cp = run(["git", "commit", "-q", "-m", "unreadable"])
+            expect(refused(cp, "could not be read or copied") and "CalledProcessError" in cp.stderr,
+                   f"a git error reading the staged state did not refuse through the hook: {cp.stderr.strip()}")
+        else:
+            expect(False, f"fixture: HEAD's root tree {tree} is not a loose object")
     return failures, len(checks)
+
+
+def _parity_failures():
+    """The trigger reads Version and Date lines as build-taxonomy.py does: _FIELD is its FIELD_PATTERN
+    verbatim, and on every probe line metadata_line_changed() agrees with its extract_metadata(). Returns
+    (failures, number of checks)."""
+    import ast
+    import importlib.util
+    path = Path(__file__).resolve().parent / "build-taxonomy.py"
+    calls = [n.value for n in ast.parse(path.read_text(encoding="utf-8")).body
+             if isinstance(n, ast.Assign) and [getattr(t, "id", None) for t in n.targets] == ["FIELD_PATTERN"]]
+    literal = (calls[0].args[0].value if len(calls) == 1 and isinstance(calls[0], ast.Call)
+               and len(calls[0].args) == 1 and not calls[0].keywords
+               and isinstance(calls[0].args[0], ast.Constant) else None)
+    failures = [] if literal == _FIELD.pattern else [
+        f"_FIELD {_FIELD.pattern!r} is not build-taxonomy.py's FIELD_PATTERN (read {literal!r})"]
+    spec = importlib.util.spec_from_file_location("_build_taxonomy_parity", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    probes = ("**Version:** 1.0.1\\", "**Version :** 1.0.1\\", "** Date:** 2026-01-01", "**Date\t:**2026-01-01",
+              "**\u00a0Version\u00a0:** 1", "**Version:**", "**Version :**\r", "text\x0c**Date:** 2026-01-01",
+              "**Library Version:** 1", "**Versions:** 1", "**version:** 1", "Version: 1", "**Version**: 1",
+              "  **Version:** 1", "**Ver*sion:** 1")
+    checks = 1
+    for probe in probes:
+        want = any(k in module.extract_metadata(probe) for k in _KEYS)
+        for sign in "+-":
+            checks += 1
+            if metadata_line_changed(f"@@ -1 +1 @@\n{sign}{probe}") != want:
+                failures.append(f"parity: {sign}{probe!r}: the trigger says {not want}, extract_metadata() {want}")
+    return failures, checks
 
 
 def _self_test():
@@ -417,24 +508,30 @@ def _self_test():
         ("a judged commit with no generator run refuses", decide(False, True, True, [])[0], 1),
         ("every refusal names the override",
          all(_OVERRIDE in decide(False, *a)[1] for a in ((False, False, []), (True, True, [(_BUILDERS[0], 1)]),
-                                                        (True, True, [(_BUILDERS[0], None)]))), True),
+                                                        (True, True, [(_BUILDERS[0], None)]),
+                                                        (True, True, [(_BUILDERS[0], _CRASHED)]))), True),
+        ("a crashed generator refuses as unfinished, without the stale-output fix",
+         (lambda r: (r[0], "crashed with an uncaught exception" in r[1], _FIX in r[1]))(
+             decide(False, True, True, [(_BUILDERS[0], 0), (_BUILDERS[1], _CRASHED)])), (1, True, False)),
         ("the override is exactly 1", override_set({_OVERRIDE: "1"}), True),
         ("0 is not the override", override_set({_OVERRIDE: "0"}), False),
         ("an empty value is not the override", override_set({_OVERRIDE: ""}), False),
         ("an added Version line triggers", metadata_line_changed(hunk + "+**Version:** 1.0.1\\"), True),
         ("a removed Date line triggers", metadata_line_changed(hunk + "-**Date:** 2026-01-01\\"), True),
+        ("a spaced `Version :` key triggers", metadata_line_changed(hunk + "+**Version :** 1.0.1\\"), True),
+        ("a removed spaced `Date :` key triggers", metadata_line_changed(hunk + "-**Date :** 2026-01-01\\"), True),
+        ("a padded `** Version:**` key triggers", metadata_line_changed(hunk + "+** Version:** 1.0.1"), True),
+        ("another key ending in Version does not trigger",
+         metadata_line_changed(hunk + "+**Library Version:** 1"), False),
         ("a line without the bold key does not trigger", metadata_line_changed(hunk + "+Version: 1.0.1"), False),
         ("an indented Version line (not FIELD_PATTERN's form) does not trigger",
          metadata_line_changed(hunk + "+  **Version:** 1.0.1"), False),
-        ("a file header is not content",
-         metadata_line_changed("diff --git a/x b/x\n--- a/**Version:**\n+++ b/**Date:**\n" + hunk + "+body"), False),
-        ("a header after an earlier hunk is not content",
-         metadata_line_changed(hunk + "+body\ndiff --git a/y b/y\n+++ b/**Version:** y\n"), False),
     ]
     failures = [f"{n}: got {g!r}, want {w!r}" for n, g, w in cases if g != w]
+    parity, parity_checks = _parity_failures()
     integ, checks = _integration_self_test()
-    failures += integ
-    total = len(cases) + checks
+    failures += parity + integ
+    total = len(cases) + parity_checks + checks
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"self-test: {total - len(failures)}/{total} passed" if not failures
