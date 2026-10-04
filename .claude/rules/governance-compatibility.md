@@ -125,7 +125,7 @@ the worker-brief template is the operational store root worker-brief-template.md
 
 - Worker-hallucination tracking artefact: `hallucination-metrics`.
 - Worker-brief template: `/opt/grc/private/worker-brief-template.md`.
-- Verifier-override register: `grc_library_private/.working/verifier-overrides.md` (surfaced at `/orch`).
+- Verifier-override register: `/opt/grc/private/verifier-overrides.md` (surfaced at `/orch`).
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
   channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
   guardrail seeds go to guardrails via `inbox-send`).
@@ -160,8 +160,8 @@ the worker-brief template is the operational store root worker-brief-template.md
 
 - Detailed mirror (Option C two-tier, maintainer-decided 2026-09-07): the LIVE mirror is `changelog-details/CHANGELOG-detailed.md` in the operational STORE, resolved by `lint_common.resolve_working` (store-first; by default `<repo-parent>/private/`), co-committed with the other working records (DONE, QA rows, bypass log). It is NOT at `grc_library_private/.working/changelog-details/` (that path is the retired transitional-fallback target; gate 59 and the roll-up tool both resolve via `resolve_working`, so they cannot disagree on the location).
 - Completed periods are ROLLED UP in the root CHANGELOG (daily, then weekly) AND SWEPT to the canonical PUSHED archive `grc_library_private/changelog-archive/<date>-daily.md` (durable, since the store is local-only-no-origin). These two halves are COUPLED into ONE close-out operation by `grc_library_private/tools/rollup-changelog.py` (replacing the broken `sweep-detailed-mirror.py`): a root-only roll-up (which gate 59 then fails) or a mirror-only sweep can never be produced by the sanctioned path. A planned archive-coverage gate (defense-in-depth) would further assert that every rolled-up root period vouches for an existing archive file (closing the mirror-only silent-pass direction), with an exemption list for accepted history-only ranges (e.g. 2026-08-31, whose detail is fragmented in store git history); the coupled tool is the primary guard and already prevents the split-brain drift.
-- Closed-work ledger: `grc_library_private/.working/DONE.md`; backlog: `TODO.md`; overnight file:
-  `grc_library_private/.working/overnight-pr.md` (gate 46 enforces its Status lifecycle).
+- Closed-work ledger: `/opt/grc/private/DONE.md`; backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`;
+  overnight file: `/opt/grc/private/overnight-pr.md` (gate 46 enforces its Status lifecycle).
 - The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"
   (2026-06-21), five medium README findings closed in one PR.
 - **After-merge next-N list source (this project):** the pack body's "list the upcoming next-N planned PRs from TODO" (`### After-merge`) reads, in this project, the `## Up next` queue at the top of the private `P-TODO.md` (the single ordered work queue across both backlogs; CLAUDE.md `## PR workflow` step 9). `TODO.md`'s Standing-conventions note and `.claude/playbooks/pr-lifecycle.md` are aligned to this; `/orch` itself continues from the handoff Next-actions, not this queue.
@@ -210,17 +210,17 @@ the worker-brief template is the operational store root worker-brief-template.md
 
 ## session-lifecycle.md
 
-- Handoff record: `grc_library_private/.working/session-handoff.md`; concurrency lease:
-  `grc_library_private/.working/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
-- Pending decisions: `grc_library_private/.working/pending-decisions.md`; the timer default and the
+- Handoff record: `/opt/grc/private/session-handoff.md`; concurrency lease:
+  `/opt/grc/private/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
+- Pending decisions: `/opt/grc/private/pending-decisions.md`; the timer default and the
   operating modes are operationalized in the project CLAUDE.md attended-autonomous,
   wind-down, and session-migration sections.
 - Unattended-degradation auto-handoff (section 4): operationalized in the project
   CLAUDE.md's No idle-stop-in-unattended-mode item (item 4 of `## Attended-autonomous operating mode`) and the wind-down sections. The closing
   handoff is executed directly and takes no `AskUserQuestion` (the unattended hook
   blocks it anyway); the concrete close is a green merged PR plus a refreshed
-  `grc_library_private/.working/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
-  green-at-`<sha>`) and the `grc_library_private/.working/session-state.md` lease RELEASE.
+  `/opt/grc/private/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
+  green-at-`<sha>`) and the `/opt/grc/private/session-state.md` lease RELEASE.
 - **No-manufactured-winddown interim supersession (2026-08-28).** The fleet share
   `10-TRUST-no-manufactured-winddown` is adopted as an interim local control in the project CLAUDE.md
   `## No manufactured wind-down` section, which SUPERSEDES this rule's §1 "prefer a fresh session"
@@ -254,7 +254,7 @@ the worker-brief template is the operational store root worker-brief-template.md
 ## validate-inference-before-action.md
 
 - The register in which validation-sweep dispatch declarations are recorded
-  (the skill's Rule 5.6): `grc_library_private/.working/validate-sweeps/history.md`.
+  (the skill's Rule 5.6): `/opt/grc/private/validate-sweeps/history.md`.
 - The repeated-failure circuit-breaker is backed by the
   [`block-repeated-tool-failure.py`](../hooks/block-repeated-tool-failure.py)
   PreToolUse hook, which mechanically refuses a byte-identical resubmit (GUARD 1) and, on
@@ -263,4 +263,4 @@ the worker-brief template is the operational store root worker-brief-template.md
   verify the diagnosis, and a command whose subject matches no recent blocked subject passes
   it, so writing and assessing the diagnosis is the discipline the hook prompts, not one it
   enforces. The degradation hypothesis, if raised, is recorded and assessed in
-  `grc_library_private/degradation-watch-log.md` before it is asserted.
+  `/opt/grc/private/degradation-watch-log.md` before it is asserted.
