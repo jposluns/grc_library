@@ -131,16 +131,22 @@ def load_language():
         mod = _ilu.module_from_spec(spec)
         spec.loader.exec_module(mod)
         engine = mod._engine()
+        for name in ("spelling_matches", "compile_language", "language_vocabulary"):
+            if not callable(getattr(engine, name, None)):
+                raise TypeError(f"language engine {name} must be callable")
         return engine, engine.compile_language(mod._language_config())
-    except Exception as exc:
+    except KeyboardInterrupt:
+        raise
+    except BaseException as exc:
+        detail = " ".join(str(exc).splitlines())
         raise LanguageEngineUnavailable(
             f"the gate-2 language engine could not be loaded through {_LANGUAGE_GATE.name} "
             f"(its pack engine, profile loader and language profile included): "
-            f"{type(exc).__name__}: {exc}") from exc
+            f"{type(exc).__name__}: {detail}") from exc
 
 
 def spelling_findings(lines, language=None):
-    """Check added lines with gate 2's own spelling matcher, so the two cannot drift.
+    """Check added lines with gate 2's own spelling matcher.
 
     ``language`` is a load_language() result (None loads it). The engine's
     ``spelling_matches`` applies gate 2's vocabulary, patterns and quote masks.

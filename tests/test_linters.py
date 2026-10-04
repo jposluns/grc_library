@@ -999,6 +999,87 @@ class ChangelogLanguageTests(unittest.TestCase):
                     self.assertIn("FileNotFoundError", err.getvalue())
                     self.assertNotIn("Traceback", err.getvalue())
 
+    def assert_preflight_language_error(self, mod, cause):
+        from contextlib import redirect_stdout, redirect_stderr
+        err = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(err):
+            self.assertEqual(mod.main(["preflight", "--staged"]), 2)
+        message = err.getvalue()
+        self.assertTrue(message.startswith(
+            "ERROR: the gate-2 language engine could not be loaded"), message)
+        self.assertIn(cause, message)
+        self.assertEqual(len(message.splitlines()), 1, message)
+        self.assertNotIn("Traceback", message)
+
+    def test_preflight_invalid_engine_api_fails_closed(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        engine = self.load_tool("lint-language")._engine()
+        for name in ("spelling_matches", "compile_language", "language_vocabulary"):
+            for missing in (True, False):
+                for lines in ([], [("CHANGELOG.md", "New centralised controls.")]):
+                    with self.subTest(attribute=name, missing=missing, added=len(lines)), \
+                         patch.object(engine, name, None), \
+                         patch.object(mod, "added_lines", return_value=lines), \
+                         patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
+                        if missing:
+                            delattr(engine, name)
+                        self.assert_preflight_language_error(mod, name)
+
+    def test_preflight_engine_base_exceptions_refuse_staged_misspelling(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+
+            def git(*args):
+                return subprocess.run(["git", "-C", td, *args], check=True,
+                                      capture_output=True, text=True)
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            path.write_text("# Changelog\nNew centralised controls.\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            # The working copy is clean prose; only the index has the misspelling.
+            path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
+            wrapper = root / "lint-language.py"
+
+            def additions(staged):
+                self.assertTrue(staged)
+                return mod._added_lines_from_repo(root, ("CHANGELOG.md",), staged)
+
+            with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                 patch.object(mod, "added_lines", side_effect=additions):
+                self.assertEqual(additions(True), [("CHANGELOG.md", "New centralised controls.")])
+                for phase in ("", "def _engine():\n    "):
+                    for raised in ("SystemExit(0)", "SystemExit(3)", "GeneratorExit()",
+                                   "BaseException('load failed')", "KeyboardInterrupt()"):
+                        with self.subTest(phase=phase, raised=raised):
+                            wrapper.write_text(phase + "raise " + raised + "\n", encoding="utf-8")
+                            # Avoid a stale import when two fixture sources have the same size.
+                            shutil.rmtree(root / "__pycache__", ignore_errors=True)
+                            if raised == "KeyboardInterrupt()":
+                                with self.assertRaises(KeyboardInterrupt):
+                                    mod.load_language()
+                            else:
+                                self.assert_preflight_language_error(mod, raised.split("(")[0])
+
+    def test_preflight_engine_error_is_one_line(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            wrapper = Path(td) / "lint-language.py"
+            wrapper.write_text("raise RuntimeError('first line\\nsecond line\\r\\nthird line')\n",
+                               encoding="utf-8")
+            with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                 patch.object(mod, "added_lines", return_value=[]):
+                self.assert_preflight_language_error(
+                    mod, "RuntimeError: first line second line third line")
+
 
 class LinksLinterTests(LinterTestCase):
     """tools/lint-links.py"""
