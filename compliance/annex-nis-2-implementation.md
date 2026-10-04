@@ -2,8 +2,8 @@
 
 **Document Title:** NIS 2 Implementation Annex\
 **Document Type:** Annex\
-**Version:** 1.2.8\
-**Date:** 2026-10-03\
+**Version:** 1.2.9\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](matrix-grc-compliance-alignment.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md)\
@@ -26,12 +26,12 @@ This annex does not reproduce NIS 2 article text or national transposition law. 
 
 ## Entity classification (Articles 2 to 3 and Annexes I to II)
 
-NIS 2 introduces a size-cap rule and two categories of in-scope entity: Essential and Important. Adopting entities first confirm whether they fall in scope; the library is relevant where the entity is classified Essential or Important.
+NIS 2 introduces a size-cap scope rule (Article 2) and two classes of in-scope entity, essential and important (Article 3). The class does not follow the sector annex. An entity of a type in Annex I is an essential entity only where it exceeds the ceilings for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission Recommendation 2003/361/EC (Article 3(1)(a)). Qualified trust service providers, top-level domain name registries, and DNS service providers are essential regardless of size (Article 3(1)(b)). Providers of public electronic communications networks or of publicly available electronic communications services are essential where they qualify as medium-sized enterprises (Article 3(1)(c)); larger providers are caught by Article 3(1)(a). Essential status also attaches to the public administration entities referred to in Article 2(2), point (f)(i), to entities a Member State identifies as essential under Article 2(2), points (b) to (e), to critical entities under Directive (EU) 2022/2557, and, where the Member State so provides, to entities it identified before 16 January 2023 as operators of essential services under NIS 1 or national law (Article 3(1)(d) to (g)). Every other in-scope entity of a type in Annex I or II is an important entity (Article 3(2)). Adopting entities first confirm whether they fall in scope, then derive their class from Article 3; the library is relevant where the entity is classified essential or important.
 
-| Category | Examples (illustrative) |
+| NIS 2 annex | Sectors (illustrative) |
 | --- | --- |
-| Essential | Energy, transport, banking, financial market infrastructures, health (hospitals, laboratories, manufacturers of medicinal products), drinking water, waste water, digital infrastructure (DNS service providers, TLD name registries, cloud computing service providers, data centre service providers, content delivery network providers, trust service providers, providers of public electronic communications networks or services), ICT service management (managed service providers, managed security service providers), public administration entities, space |
-| Important | Postal and courier services, waste management, manufacture, production and distribution of chemicals, food, manufacturing (medical devices, computers and electronics, machinery, motor vehicles, transport equipment), digital providers (online marketplaces, online search engines, social networking services platforms), research |
+| Annex I (sectors of high criticality) | Energy, transport, banking, financial market infrastructures, health (hospitals, laboratories, manufacturers of medicinal products), drinking water, waste water, digital infrastructure (DNS service providers, TLD name registries, cloud computing service providers, data centre service providers, content delivery network providers, trust service providers, providers of public electronic communications networks or services), ICT service management (managed service providers, managed security service providers), public administration entities, space |
+| Annex II (other critical sectors) | Postal and courier services, waste management, manufacture, production and distribution of chemicals, food, manufacturing (medical devices, computers and electronics, machinery, motor vehicles, transport equipment), digital providers (online marketplaces, online search engines, social networking services platforms), research |
 
 Article 2(1) size cap: entities of a type referred to in Annex I or II that qualify as medium-sized enterprises, or that exceed the ceilings for medium-sized enterprises defined in Article 2 of the Annex to Commission Recommendation 2003/361/EC, and that provide their services or carry out their activities within the Union, are in scope by default; micro and small enterprises fall below the cap and are out of scope by size alone. Regardless of size, entities of a type referred to in Annex I or II are also in scope where the specific conditions in Article 2(2) apply.
 

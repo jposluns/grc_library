@@ -2,8 +2,8 @@
 
 **Document Title:** Financial Services Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.22\
-**Date:** 2026-10-03\
+**Version:** 1.0.23\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -35,7 +35,7 @@ This annex applies where an organization:
 | Regulation / Directive | Scope | Effective |
 |---|---|---|
 | **DORA**: Digital Operational Resilience Act (Regulation (EU) 2022/2554) | Financial entities and ICT third-party service providers, with EU oversight of those designated Critical (CTPPs), operating in or serving the EU financial sector | 2025-01-17 |
-| **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities classified as essential entities | October 2024 (transposition) |
+| **NIS 2 Directive** (Directive 2022/2555) | Financial sector entities in scope, classified as essential or important under Article 3 | October 2024 (transposition) |
 | **GDPR** | All personal data processing | May 2018 |
 | **PSD2 / PSD3** | Payment services providers; open banking | Ongoing |
 | **AML Directives (AMLD6)** | Financial institutions; certain high-value goods dealers | Ongoing |

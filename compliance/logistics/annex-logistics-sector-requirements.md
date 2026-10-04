@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.23\
-**Date:** 2026-10-03\
+**Version:** 1.0.24\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -76,7 +76,7 @@ This annex applies where an organization:
 
 | Regulation / Directive | Authority | Scope |
 |---|---|---|
-| **NIS 2 Directive (2022/2555)** | National competent authorities | Essential entities including road transport, rail, air, maritime, port facilities, logistics |
+| **NIS 2 Directive (2022/2555)** | National competent authorities | In-scope transport entities, essential or important depending on Article 3 classification, including road transport, rail, air, maritime, port facilities, logistics |
 | **EU Aviation Security Regulation (EC) 300/2008** | EASA / national authorities | Air carriers; airports; cargo operators |
 | **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
 | **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
@@ -118,7 +118,7 @@ TSA Security Directives for surface transportation (freight rail, highway) and p
 
 **CISA Reporting Timeline:** Under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act), covered cyber incidents must be reported to CISA within 72 hours after the entity reasonably believes a covered incident has occurred, and ransom payments within 24 hours; the CISA implementing final rule remains pending (expected 2026), so the reporting obligation is not yet operative.
 
-### EU NIS 2: transportation essential entities
+### EU NIS 2: transportation entities
 
 Under NIS 2, transportation entities in the following Annex I sub-sectors that fall within NIS 2 scope (medium-sized or larger, Article 2) are **essential entities** where they exceed the medium-sized-enterprise ceilings (Article 3(1)(a)) and otherwise **important entities** (Article 3(2)); essential entities are subject to the highest tier of obligations:
 
@@ -129,7 +129,7 @@ Under NIS 2, transportation entities in the following Annex I sub-sectors that f
 
 Post and courier services are **not** in NIS 2 Annex I. Postal and courier providers sit in Annex II (Other critical sectors); because Article 3(1)(a) confers essential status only on Annex I entities that exceed the medium-sized-enterprise ceilings, an in-scope postal or courier operator is an **important entity** under Article 3(2), subject to the lighter ex-post supervisory regime and the lower fine ceiling. It is treated as essential only where a Member State designates it so under Article 2(2), points (b) to (e), where it is identified as a critical entity under Directive (EU) 2022/2557, or where a Member State so provides for an entity it identified before 16 January 2023 as an operator of essential services under NIS 1 or national law (Article 3(1)(g)).
 
-**Key NIS 2 cybersecurity obligations for essential entities:**
+**Key NIS 2 cybersecurity obligations for essential and important entities:**
 
 | NIS 2 Article | Obligation | GRC Library Mapping |
 |---|---|---|

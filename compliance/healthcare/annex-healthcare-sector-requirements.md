@@ -2,8 +2,8 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.18\
-**Date:** 2026-10-03\
+**Version:** 1.1.19\
+**Date:** 2026-10-04\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/healthcare/procedure-hipaa-operational-compliance.md`](procedure-hipaa-operational-compliance.md), [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`compliance/register-compliance-obligations-template.md`](../register-compliance-obligations-template.md), [`privacy/policy-privacy-and-data-governance.md`](../../privacy/policy-privacy-and-data-governance.md), [`privacy/annex-privacy-jurisdiction-index.md`](../../privacy/annex-privacy-jurisdiction-index.md), [`risk/standard-enterprise-risk-management.md`](../../risk/standard-enterprise-risk-management.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md)\
@@ -74,7 +74,7 @@ This annex applies where an organization:
 | **EU AI Act: High Risk (Article 6(1) + Annex I)** | National competent / market-surveillance authorities (Article 70; for the Section A Annex I medical-device route, the authority designated under the MDR/IVDR, or, in appropriate circumstances and with sectoral coordination, another authority a Member State designates (Article 74(3)); an Annex III point 5(d) system built on a general-purpose AI model by the same provider instead falls under the AI Office's Article 75(1) exclusive competence) | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); AI used solely for non-safety-related aspects such as performance optimization, service efficiency, or quality control is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), as inserted by Regulation (EU) 2026/1744; emergency call-evaluation, dispatch, and patient-triage AI is separately listed under Annex III point 5(d), where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles |
 | **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
 | **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission | In vitro diagnostic device manufacturers |
-| **EU NIS 2 Directive** | National competent authorities | Healthcare essential entities |
+| **EU NIS 2 Directive** | National competent authorities | Healthcare entities in scope; essential or important depending on Article 3 classification |
 | **European Health Data Space (EHDS)** | European Commission | Health data holders and processors: Regulation proposed |
 
 ### Global
