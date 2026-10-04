@@ -32293,45 +32293,85 @@ class ClausePreservationTests(unittest.TestCase):
 
     REBASE_LINK = 'Read [policy](policy/a.md#scope "Scope") now.\n'
     REBASE_MOVED = 'Read [policy](../policy/a.md#scope "Scope") now.\n'
-    BYTE_RULE = (" or base[i] != text[j]:", ":")
-    CHARS = '"\\\\%&<>"'
-    # name: (BASE text, destination text, expected message, rule source, rule off)
+    # Rule flips: (tool source, replacement that turns the rule off).
+    BYTE_RULE = ((" or base[i] != text[j]:", ":"),)
+    TERMINATORS = 'TARGET_END = re.compile(r"[)#? \\t\\n\\r\\f\\v]")'
+    UNICODE_END = (TERMINATORS, 'TARGET_END = re.compile(r"[)#?]|\\s")')
+    PATH_RULE = 'PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")'
+    ALLOW = PATH_RULE.replace("+-]", "+CHARS-]")
+    DOT_RULE = ('if "." in segment.split("/"):', "if False:")
+    ESCAPE_RULE = ("if not parts:\n                return None",
+                   "if not parts:\n                continue")
+    RAW_RULE = ('unit["raw"], posixpath.dirname(path),\n'
+                '                                 candidate["raw"]',
+                'unit["base_quote"], posixpath.dirname(path),\n'
+                '                                 candidate["base_quote"]')
+    SUFFIX_RULE = ('suffix = base.startswith(("#", "?"), i)', "suffix = False")
+    COUNT_RULE = ('if base.count("](") != text.count("]("):', "if False:")
+    # name: (BASE text, destination text, expected message, rule flips)
     REBASE_REJECTIONS = {
         "target": ("Read [x](policy/a.md) now.\n", "Read [x](../policy/b.md) now.\n",
-                   "resolves to 'policy/a.md' and 'policy/b.md'", "if left != right:",
-                   "if False:"),
+                   "resolves to 'policy/a.md' and 'policy/b.md'",
+                   (("if left != right:", "if False:"),)),
         "anchor": (REBASE_LINK, REBASE_MOVED.replace("#scope", "#other"),
-                   "text differs", *BYTE_RULE),
+                   "text differs", BYTE_RULE),
         "outside_text": (REBASE_LINK, REBASE_MOVED.replace("Read", "Reed"),
-                         "first difference at BASE quote offset 2", *BYTE_RULE),
+                         "first difference at BASE raw offset 2", BYTE_RULE),
         "rewrap": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md) now.\n",
-                   "text differs", *BYTE_RULE),
+                   "text differs", BYTE_RULE),
         "identical": (REBASE_LINK, REBASE_LINK, "texts are identical; use MOVED",
-                      "if reason is None and result:", "if reason is None:"),
+                      (("if reason is None and result:", "if reason is None:"),)),
         "escape": ("Read [x](../out.md) now.\n", "Read [x](../../out.md) now.\n",
-                   "outside the repository",
-                   'if target == ".." or target.startswith("../"):', "if False:"),
+                   "outside the repository", (ESCAPE_RULE,)),
+        "intermediate_escape": ("Read [x](x.md) now.\n", "Read [x](../../x.md) now.\n",
+                                "outside the repository", (ESCAPE_RULE,)),
         "scheme": ("Read [x](a:b.md) now.\n", "Read [x](../a:b.md) now.\n",
-                   "scheme or drive", 'if ":" in segment:', "if False:"),
+                   "character ':'", ((PATH_RULE, ALLOW.replace("CHARS", ":")),)),
         "slash": ("Read [x](/a.md) now.\n", "Read [x](/docs/../a.md) now.\n",
-                  "leading '/'", 'if segment.startswith("/"):', "if False:"),
+                  "leading '/'", (('if segment.startswith("/"):', "if False:"),)),
         "empty": ("Read [x]() now.\n", "Read [x](..) now.\n", "empty target",
-                  "if not segment:", "if False:"),
+                  (("if not segment:", "if False:"),)),
         "percent": ("Read [x](a%2Eb.md) now.\n", "Read [x](../a%2Eb.md) now.\n",
-                    "character '%'", CHARS, '"\\\\&<>"'),
+                    "character '%'", ((PATH_RULE, ALLOW.replace("CHARS", "%")),)),
         "entity": ("Read [x](a&amp;b.md) now.\n", "Read [x](../a&amp;b.md) now.\n",
-                   "character '&'", CHARS, '"\\\\%<>"'),
+                   "character '&'", ((PATH_RULE, ALLOW.replace("CHARS", "&;")),)),
         "backslash": ("Read [x](a\\b.md) now.\n", "Read [x](../a\\b.md) now.\n",
-                      "character '\\\\'", CHARS, '"%&<>"'),
+                      "character '\\\\'", ((PATH_RULE, ALLOW.replace("CHARS", "\\\\")),)),
         "less": ("Read [x](a<b.md) now.\n", "Read [x](../a<b.md) now.\n",
-                 "character '<'", CHARS, '"\\\\%&>"'),
+                 "character '<'", ((PATH_RULE, ALLOW.replace("CHARS", "<")),)),
         "greater": ("Read [x](a>b.md) now.\n", "Read [x](../a>b.md) now.\n",
-                    "character '>'", CHARS, '"\\\\%&<"'),
+                    "character '>'", ((PATH_RULE, ALLOW.replace("CHARS", ">")),)),
         "control": ("Read [x](a\x01b.md) now.\n", "Read [x](../a\x01b.md) now.\n",
-                    "control character", '== "Cc"', '== "Zz"'),
+                    "character '\\x01'", ((PATH_RULE, ALLOW.replace("CHARS", "\\x01")),)),
         "unterminated": ("Read [x](a.md", "Read [x](../a.md", "text differs",
-                         'TARGET_END = re.compile(r"[)#?]|\\s")',
-                         'TARGET_END = re.compile(r"[)#?]|\\s|$")'),
+                         ((TERMINATORS, TERMINATORS.replace(']")', ']|$")')),)),
+        # Round 4 QA rows: renderer-visible changes the lexical rules must refuse.
+        "paren_dot": ("R [a](x(a/.).md) n.\n", "R [a](../x(a).md) n.\n", "character '('",
+                      ((PATH_RULE, ALLOW.replace("CHARS", "(")), DOT_RULE)),
+        "nbsp": ("R [a](a/.\u00a0b.md) n.\n", "R [a](../a\u00a0b.md) n.\n",
+                 "character '\\xa0'", (UNICODE_END, DOT_RULE)),
+        "em_space": ("R [a](a/b/..\u2003c.md) n.\n", "R [a](../a\u2003c.md) n.\n",
+                     "character '\\u2003'", (UNICODE_END,)),
+        "table_pipe": ("| [a](x.md) | b |\n", "| [a](../z|w/../x.md) | b |\n",
+                       "character '|'", ((PATH_RULE, ALLOW.replace("CHARS", "|")),)),
+        "paren_open": ("R [a](x.md) n.\n", "R [a](../w(/../x.md) n.\n", "character '('",
+                       ((PATH_RULE, ALLOW.replace("CHARS", "(")),)),
+        "bracket": ("R [a](x.md) n.\n", "R [a](../w](/../x.md) n.\n", "character ']'",
+                    ((PATH_RULE, ALLOW.replace("CHARS", "\\](")), COUNT_RULE)),
+        "cr_inside": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\n",
+                      "text differs", (RAW_RULE,)),
+        "crlf_whole": ("Read [x](a.md)\nnow.\n", "Read [x](../a.md)\r\nnow.\r\n",
+                       "text differs", (RAW_RULE,)),
+        "fragment": ("Read [x](a.md#frag](b.md)) now.\n",
+                     "Read [x](../a.md#frag](../b.md)) now.\n", "text differs", (SUFFIX_RULE,)),
+        "query": ("Read [x](a.md?q=](b.md)) now.\n",
+                  "Read [x](../a.md?q=](../b.md)) now.\n", "text differs", (SUFFIX_RULE,)),
+        "trailing_slash": ("Read [x](x.md) now.\n", "Read [x](../x.md/) now.\n",
+                           "trailing '/'", (('if segment.endswith("/"):', "if False:"),)),
+        "double_slash": ("Read [x](a/x.md) now.\n", "Read [x](../a//x.md) now.\n",
+                         "empty path component", (('if "//" in segment:', "if False:"),)),
+        "dot_component": ("Read [x](a/x.md) now.\n", "Read [x](../a/./x.md) now.\n",
+                          "'.' path component", (DOT_RULE,)),
     }
 
     def rebase(self, base, moved, code, message="OK:", tool=None,
@@ -32343,26 +32383,36 @@ class ClausePreservationTests(unittest.TestCase):
         self.save()
         return self.check(code, message, tool=tool)
 
-    def rebase_flip(self, base, moved, code, message, old, new):
-        """Check the real tool, then show the case flips with its rule off."""
+    def flipped(self, *flips):
+        """Write the tool with each (rule, replacement) flip applied."""
+        source = self.source
+        for old, new in flips:
+            self.assertEqual(source.count(old), 1, old)
+            source = source.replace(old, new)
+        target = self.root / "mutant.py"
+        target.write_text(source, encoding="utf-8")
+        return target
+
+    def rebase_flip(self, base, moved, code, message, *flips):
+        """Check the real tool, then show the case flips with its rules off."""
         self.rebase(base, moved, code, message)
-        self.assertEqual(self.source.count(old), 1, old)
         self.check(1 - code, "REBASED at HEAD" if code == 0 else "OK:",
-                   tool=self.mutant(old, new))
+                   tool=self.flipped(*flips))
 
     def rejected(self, name):
-        base, moved, message, old, new = self.REBASE_REJECTIONS[name]
-        self.rebase_flip(base, moved, 1, message, old, new)
+        base, moved, message, flips = self.REBASE_REJECTIONS[name]
+        self.rebase_flip(base, moved, 1, message, *flips)
 
     def test_rebased_link_and_image_accepted(self):
         for base, moved in (
                 (self.REBASE_LINK, self.REBASE_MOVED),
                 ("![map](img/m.png)\n", "![map](../img/m.png)\n"),
-                ("- [a](./a.md) and ![b](b/../c.png?v=1)\n",
-                 "- [a](../a.md) and ![b](../c.png?v=1)\n")):
+                ("- [a](a.md) and ![b](b/../c.png?v=1)\n",
+                 "- [a](../a.md) and ![b](../c.png?v=1)\n"),
+                ("Read [x](a.md)\r\nnow.\r\n", "Read [x](../a.md)\r\nnow.\r\n")):
             with self.subTest(base=base):
                 self.rebase_flip(base, moved, 0, "1 REBASED asserted",
-                                 'if i >= 2 and base[i - 2:i] == "](" and', "if False and")
+                                 ('if suffix or base[i - 2:i] != "](" or', "if True or"))
 
     def test_rebased_rejects_changed_target(self):
         self.rejected("target")
@@ -32384,6 +32434,9 @@ class ClausePreservationTests(unittest.TestCase):
 
     def test_rebased_rejects_escape(self):
         self.rejected("escape")
+
+    def test_rebased_rejects_intermediate_escape(self):
+        self.rejected("intermediate_escape")
 
     def test_rebased_rejects_scheme(self):
         self.rejected("scheme")
@@ -32415,11 +32468,46 @@ class ClausePreservationTests(unittest.TestCase):
     def test_rebased_rejects_unterminated_target(self):
         self.rejected("unterminated")
 
+    def test_rebased_rejects_parenthesis_with_dot_collapse(self):
+        self.rejected("paren_dot")
+
+    def test_rebased_rejects_non_ascii_space_terminators(self):
+        self.rejected("nbsp")
+        self.rejected("em_space")
+
+    def test_rebased_rejects_table_pipe(self):
+        self.rejected("table_pipe")
+
+    def test_rebased_rejects_open_parenthesis(self):
+        self.rejected("paren_open")
+
+    def test_rebased_rejects_bracket_and_link_count(self):
+        self.rejected("bracket")
+        self.check(1, "'](' count differs: 1 in BASE, 2 at the destination",
+                   tool=self.flipped(self.REBASE_REJECTIONS["bracket"][3][0]))
+
+    def test_rebased_compares_raw_line_endings(self):
+        self.rejected("cr_inside")
+        self.rejected("crlf_whole")
+
+    def test_rebased_fragment_and_query_suffixes_exact(self):
+        self.rejected("fragment")
+        self.rejected("query")
+
+    def test_rebased_rejects_trailing_slash(self):
+        self.rejected("trailing_slash")
+
+    def test_rebased_rejects_empty_component(self):
+        self.rejected("double_slash")
+
+    def test_rebased_rejects_dot_component(self):
+        self.rejected("dot_component")
+
     def test_rebased_occurrences_consumed(self):
         base = "- [x](a.md)\n- [x](a.md)\n"
         self.rebase_flip(base, "- [x](../a.md)\n", 1, "no unconsumed list_item unit",
-                         "            used.add(index)\n"
-                         "            available[match_key(candidate)] -= 1\n", "")
+                         ("            used.add(index)\n"
+                          "            available[match_key(candidate)] -= 1\n", ""))
         self.rebase(base, "- [x](../a.md)\n- [x](../a.md)\n", 0, "2 REBASED asserted")
 
     def test_rebased_shares_occurrences_with_moved(self):
@@ -32433,7 +32521,7 @@ class ClausePreservationTests(unittest.TestCase):
         self.rows.reverse()
         self.check(1, "no unconsumed paragraph unit")
         self.check(0, tool=self.mutant(
-            "\n                or available[match_key(candidate)] < 1)", ")"))
+            "if index in used or available[match_key(candidate)] < 1:", "if index in used:"))
         self.write("rules/moved.md", unit + "\n" + unit)
         self.save()
         self.check(0, "1 REBASED asserted")

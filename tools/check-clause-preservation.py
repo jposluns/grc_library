@@ -8,19 +8,23 @@ presence, not that the destination gained the text since BASE.
 
 REBASED is a reviewer assertion that the clause MOVED with only relative link
 targets re-based; like MOVED it needs another tracked file and an empty reason.
-It requires an unconsumed destination unit of the same kind whose raw text
-equals the BASE quote except for substituted target segments. A segment starts
-right after "](" in both texts and ends at the first ")", "#", "?" or
-whitespace; a target with no terminator is not a segment. Neither side may be
-empty or contain ":", a leading "/", a backslash, "%", "&", "<", ">" or a
-control character, and both sides must resolve with posixpath.normpath, against
-the BASE file's and the destination's directories, to the same path inside the
-repository. Every other byte, including any anchor, query or title after the
-target, must be identical (no whitespace normalization). Identical texts fail
-(use MOVED); any other mismatch names the first differing BASE offset. REBASED
-shares occurrence counting with MOVED and takes the first matching unit in file
-order. Code spans and fences are not exempt, and reference definitions are
-never re-based: review each REBASED hunk.
+It compares raw unit text (CR and line terminators included, nothing
+normalized): an unconsumed destination unit must equal the BASE unit except for
+substituted target segments. A segment starts right after "](" in both texts
+and ends at the first ASCII ")", "#", "?", space, tab, LF, CR, FF or VT; a
+target with no terminator is not a segment. After a "#" or "?" terminator, the
+text up to the next ")" must be identical and is not scanned for "](". Every
+other "](" is a target position, so "](" in prose, code, titles and reference
+definitions is re-based too. A changed segment must be nonempty, use only A-Z,
+a-z, 0-9 and "._~/+-", and have no leading or trailing "/", empty ("//") or "."
+component. Each side is joined to its file's directory and resolved lexically
+step by step; a step above the repository root fails, and the two
+repository-relative paths must be equal. Target existence, tracking and
+symlinks are not checked, and unchanged segments are not resolved. Both texts
+must hold equally many "](". Identical texts fail (use MOVED); other mismatches
+name the first differing raw BASE offset. REBASED shares occurrence counting
+with MOVED and takes the first matching unit in file order, so row order can
+cause a false failure. A reviewer must check every REBASED hunk.
 
 Units are ATX/setext headings, individual list items with adjacent wrapped
 continuations, pipe-containing table rows, fenced blocks, thematic breaks,
@@ -62,7 +66,6 @@ import posixpath
 import re
 import subprocess
 import sys
-import unicodedata
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 INPUT_ERRORS = (OSError, UnicodeError, ValueError, RecursionError, RuntimeError)
@@ -74,7 +77,8 @@ RULE = re.compile(r"^ {0,3}(?:(?:\*[ \t]*){3,}|(?:-[ \t]*){3,}|(?:_[ \t]*){3,})$
 TOP_KEYS = {"base_revision", "base_path", "clauses", "excluded_lines"}
 UNIT_KEYS = {"base_line", "end_line", "kind", "base_quote"}
 ROW_KEYS = UNIT_KEYS | {"state", "destination", "reason"}
-TARGET_END = re.compile(r"[)#?]|\s")
+TARGET_END = re.compile(r"[)#? \t\n\r\f\v]")
+PATH_CHAR = re.compile(r"[A-Za-z0-9._~/+-]")
 
 
 def inline_parts(text: str):
@@ -147,51 +151,66 @@ def target_error(segment: str) -> str | None:
     """Name the first REBASED rule a substituted link target breaks."""
     if not segment:
         return "empty target"
-    if ":" in segment:
-        return "scheme or drive (':')"
     if segment.startswith("/"):
         return "leading '/'"
     for char in segment:
-        if char in "\\%&<>":
+        if not PATH_CHAR.fullmatch(char):
             return f"character {char!r}"
-        if unicodedata.category(char) == "Cc":
-            return f"control character {char!r}"
+    if segment.endswith("/"):
+        return "trailing '/'"
+    if "//" in segment:
+        return "empty path component ('//')"
+    if "." in segment.split("/"):
+        return "'.' path component"
     return None
 
 
 def resolve(directory: str, segment: str) -> str | None:
-    """Resolve a relative target; None when it leaves the repository."""
-    target = posixpath.normpath(posixpath.join(directory, segment))
-    if target == ".." or target.startswith("../"):
-        return None
-    return target
+    """Resolve a target step by step; None when any step leaves the repository."""
+    parts = []
+    for part in posixpath.join(directory, segment).split("/"):
+        if part == "..":
+            if not parts:
+                return None
+            parts.pop()
+        elif part not in {"", "."}:
+            parts.append(part)
+    return "/".join(parts)
 
 
 def rebased(base: str, base_dir: str, text: str, text_dir: str):
     """Return (substitutions, None), or (first differing BASE offset, reason)."""
     i = j = substitutions = 0
-    while True:
-        if i >= 2 and base[i - 2:i] == "](" and text[j - 2:j] == "](":
-            end_base, end_text = TARGET_END.search(base, i), TARGET_END.search(text, j)
-            if end_base and end_text:
-                old, new = base[i:end_base.start()], text[j:end_text.start()]
-                if old != new:
-                    pair = f"target {old!r} -> {new!r}"
-                    problem = target_error(old) or target_error(new)
-                    if problem:
-                        return i, f"{pair}: {problem}"
-                    left, right = resolve(base_dir, old), resolve(text_dir, new)
-                    if left is None or right is None:
-                        return i, f"{pair}: outside the repository"
-                    if left != right:
-                        return i, f"{pair}: resolves to {left!r} and {right!r}"
-                    substitutions += 1
-                i, j = end_base.start(), end_text.start()
-        if i == len(base) and j == len(text):
-            return substitutions, None
+    first, suffix = None, False
+    while i < len(base) or j < len(text):
         if i == len(base) or j == len(text) or base[i] != text[j]:
             return i, "text differs"
+        suffix = suffix and base[i] != ")"
         i, j = i + 1, j + 1
+        if suffix or base[i - 2:i] != "](" or text[j - 2:j] != "](":
+            continue
+        end_base, end_text = TARGET_END.search(base, i), TARGET_END.search(text, j)
+        if not (end_base and end_text):
+            continue
+        old, new = base[i:end_base.start()], text[j:end_text.start()]
+        if old != new:
+            pair = f"target {old!r} -> {new!r}"
+            problem = target_error(old) or target_error(new)
+            if problem:
+                return i, f"{pair}: {problem}"
+            left, right = resolve(base_dir, old), resolve(text_dir, new)
+            if left is None or right is None:
+                return i, f"{pair}: outside the repository"
+            if left != right:
+                return i, f"{pair}: resolves to {left!r} and {right!r}"
+            first = i if first is None else first
+            substitutions += 1
+        i, j = end_base.start(), end_text.start()
+        suffix = base.startswith(("#", "?"), i)
+    if base.count("](") != text.count("]("):
+        return first, (f"'](' count differs: {base.count('](')} in BASE, "
+                       f"{text.count('](')} at the destination")
+    return substitutions, None
 
 
 def clauses(text: str) -> tuple[list[dict], list[dict]]:
@@ -247,7 +266,8 @@ def clauses(text: str) -> tuple[list[dict], list[dict]]:
                 i += 1
         units.append(dict(base_line=start + 1, end_line=i, kind=category,
                           base_quote=("".join(raw_lines[start:i]) if category == "fence"
-                                      else "\n".join(lines[start:i]))))
+                                      else "\n".join(lines[start:i])),
+                          raw="".join(raw_lines[start:i])))
     return units, excluded
 
 
@@ -373,11 +393,10 @@ def take_rebased(unit, path, destination, units, available, used):
     """Consume the first unconsumed destination unit that re-bases unit."""
     best, identical = None, False
     for index, candidate in enumerate(units):
-        if (index in used or candidate["kind"] != unit["kind"]
-                or available[match_key(candidate)] < 1):
+        if index in used or available[match_key(candidate)] < 1:
             continue
-        result, reason = rebased(unit["base_quote"], posixpath.dirname(path),
-                                 candidate["base_quote"], posixpath.dirname(destination))
+        result, reason = rebased(unit["raw"], posixpath.dirname(path),
+                                 candidate["raw"], posixpath.dirname(destination))
         if reason is None and result:
             used.add(index)
             available[match_key(candidate)] -= 1
@@ -391,8 +410,8 @@ def take_rebased(unit, path, destination, units, available, used):
     if best is None:
         return f"no unconsumed {unit['kind']} unit"
     offset, line, reason = best
-    base_line = unit["base_line"] + unit["base_quote"][:offset].count("\n")
-    return (f"first difference at BASE quote offset {offset} (BASE line {base_line}; "
+    base_line = unit["base_line"] + unit["raw"][:offset].count("\n")
+    return (f"first difference at BASE raw offset {offset} (BASE line {base_line}; "
             f"destination line {line}): {reason}")
 
 
@@ -459,6 +478,8 @@ def main(argv: list[str]) -> int:
             raise ValueError("no base clauses; empty inventory cannot prove preservation")
         if args.extract:
             rows = [dict(unit, state="KEPT", destination=path, reason="") for unit in expected]
+            for row in rows:
+                del row["raw"]
             print(json.dumps(dict(base_revision=base, base_path=path, clauses=rows,
                                   excluded_lines=excluded), indent=2, ensure_ascii=False))
             return 0
