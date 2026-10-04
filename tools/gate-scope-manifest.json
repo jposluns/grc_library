@@ -76,6 +76,7 @@
       "check-version-bump-commit.py",
       "check-date-cobump-on-pr.py",
       "check-dirty-tree-push.py",
+      "check-generated-commit.py",
       "check-narrative-corpus-mixed-diff-on-pr.py",
       "check-pr-attribution.py",
       "check-retired-section-orphan-on-pr.py",
