@@ -975,10 +975,24 @@ class ChangelogLanguageTests(unittest.TestCase):
                              [("ise", 1, "sentinel")])
             self.assertEqual(engine.check_generator_source(root / "gen.py", language=checks),
                              [("ise", 1, "sentinel")])
-            self.assertEqual(
-                preflight.spelling_findings([("CHANGELOG.md", "plain text")], (engine, checks)),
-                [("CHANGELOG.md", "gate 2 spelling [ise]: sentinel", "plain text")])
-        self.assertEqual(matcher.call_count, 3)
+        self.assertEqual(matcher.call_count, 2)
+        # The preflight reaches the SAME engine entry point across its process
+        # boundary: in-process patching cannot cross it, so the sentinel rides in
+        # a wrapper whose engine's spelling_matches returns it, and the preflight
+        # must report it verbatim.
+        with tempfile.TemporaryDirectory() as td:
+            wrapper = Path(td) / "lint-language.py"
+            wrapper.write_text(
+                "class _Engine:\n"
+                "    def spelling_matches(self, text, checks): return [('ise', 'sentinel')]\n"
+                "    def compile_language(self, config): return config\n"
+                "    def language_vocabulary(self, **kwargs): return kwargs\n"
+                "def _engine(): return _Engine()\n"
+                "def _language_config(): return {}\n", encoding="utf-8")
+            with patch.object(preflight, "_LANGUAGE_GATE", wrapper):
+                self.assertEqual(
+                    preflight.spelling_findings([("CHANGELOG.md", "plain text")]),
+                    [("CHANGELOG.md", "gate 2 spelling [ise]: sentinel", "plain text")])
 
     def test_preflight_unloadable_engine_fails_closed_with_named_message(self):
         from contextlib import redirect_stdout, redirect_stderr
@@ -1015,17 +1029,24 @@ class ChangelogLanguageTests(unittest.TestCase):
     def test_preflight_invalid_engine_api_fails_closed(self):
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
-        engine = self.load_tool("lint-language")._engine()
+        stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return {}\n")
         for name in ("spelling_matches", "compile_language", "language_vocabulary"):
-            for missing in (True, False):
+            for breakage in ("delattr(_Engine, {0!r})\n", "_Engine.{0} = None\n"):
                 for lines in ([], [("CHANGELOG.md", "New centralised controls.")]):
-                    with self.subTest(attribute=name, missing=missing, added=len(lines)), \
-                         patch.object(engine, name, None), \
-                         patch.object(mod, "added_lines", return_value=lines), \
-                         patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
-                        if missing:
-                            delattr(engine, name)
-                        self.assert_preflight_language_error(mod)
+                    with tempfile.TemporaryDirectory() as td:
+                        wrapper = Path(td) / "lint-language.py"
+                        wrapper.write_text(stub + breakage.format(name), encoding="utf-8")
+                        with self.subTest(attribute=name, breakage=breakage, added=len(lines)), \
+                             patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                             patch.object(mod, "added_lines", return_value=lines), \
+                             patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
+                            self.assert_preflight_language_error(mod)
 
     def test_preflight_engine_base_exceptions_refuse_staged_misspelling(self):
         from unittest.mock import patch
@@ -1057,23 +1078,34 @@ class ChangelogLanguageTests(unittest.TestCase):
                  patch.object(mod, "added_lines", side_effect=additions):
                 self.assertEqual(additions(True), [("CHANGELOG.md", "New centralised controls.")])
                 for phase in ("", "def _engine():\n    "):
+                    # KeyboardInterrupt raised by ENGINE code is a fault inside the
+                    # isolated child; a real Ctrl-C reaches this process directly.
                     for raised in ("SystemExit(0)", "SystemExit(3)", "GeneratorExit()",
                                    "BaseException('load failed')", "KeyboardInterrupt()"):
                         with self.subTest(phase=phase, raised=raised):
                             wrapper.write_text(phase + "raise " + raised + "\n", encoding="utf-8")
                             # Avoid a stale import when two fixture sources have the same size.
                             shutil.rmtree(root / "__pycache__", ignore_errors=True)
-                            if raised == "KeyboardInterrupt()":
-                                with self.assertRaises(KeyboardInterrupt):
-                                    mod.load_language()
-                            else:
-                                self.assert_preflight_language_error(mod)
+                            self.assert_preflight_language_error(mod)
 
     def assert_engine_failure_refuses_staged_misspelling(
-            self, source, interrupted=False, *, staged_word="centralised", cleanup_flip=None):
+            self, source, *, staged_word="centralised", verdict_preserved=False,
+            extra_env=None, runner_source=None):
+        """End to end in a fixture repo: append ``source`` to the gate engine (and
+        optionally replace the runner with ``runner_source``), then run the
+        standalone preflight, the hook, and a real `git commit`.
+
+        Default: the fault denies the child a valid marked result, so the
+        preflight exits 2 with exactly the one constant line (no stdout, no
+        traceback, no engine text) and the hook and the commit refuse (HEAD
+        pinned). verdict_preserved: the fault strikes only after the real matcher
+        produced the result the runner sealed, so the verdict stands: a clean
+        entry passes and commits, a misspelled one is refused as a finding (exit
+        1), and no engine text or traceback reaches the caller either way."""
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            for rel in ("tools/preflight-changelog.py", "tools/lint-language.py",
+            for rel in ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
+                        "tools/lint-language.py",
                         "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
                         "tools/aiqt_bootstrap.py", "tools/check-changelog-preflight-commit.py",
                         ".corpus-management/tools/gate_lint_language.py",
@@ -1081,17 +1113,12 @@ class ChangelogLanguageTests(unittest.TestCase):
                         ".corpus-management/defaults/grc/language.toml"):
                 (root / rel).parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(REPO_ROOT / rel, root / rel)
-            if cleanup_flip:
-                preflight = root / "tools/preflight-changelog.py"
-                real = preflight.read_text(encoding="utf-8")
-                guarded = "sys.exit(main(sys.argv))"
-                self.assertEqual(real.count(guarded), 1, "cleanup flip anchor disappeared")
-                preflight.write_text(real.replace(guarded, "sys.exit(_main(sys.argv))"),
-                                     encoding="utf-8")
             env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
-                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT")}
+                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT",
+                                 "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
             env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
                        AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt"))
+            env.update(extra_env or {})
 
             def run(*args):
                 return subprocess.run(args, cwd=root, env=env, capture_output=True, text=True)
@@ -1139,55 +1166,47 @@ class ChangelogLanguageTests(unittest.TestCase):
             engine.write_text(engine.read_text(encoding="utf-8") + "\n" + source,
                               encoding="utf-8")
             shutil.rmtree(engine.parent / "__pycache__", ignore_errors=True)
-            expected_codes = (-2, 1, 1) if interrupted else (2, 1, 1)
-            if cleanup_flip == "result":
+            if runner_source is not None:
+                (root / "tools/preflight_language_runner.py").write_text(
+                    runner_source, encoding="utf-8")
+            if verdict_preserved:
                 expected_codes = (0, 0, 0) if clean else (1, 1, 1)
+            else:
+                expected_codes = (2, 1, 1)
             for command, expected in zip(commands, expected_codes):
                 with self.subTest(command=command):
                     result = run(*command)
-                    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
-                    if cleanup_flip:
-                        # Durable absence control: bypass ONLY main's cleanup guard.
-                        # Exit 0 hides the child's traceback in the hook and lands a commit;
-                        # load faults still refuse, but leak a traceback after the diagnostic.
-                        report = result.stdout + result.stderr
-                        if command == commands[0] or expected:
-                            self.assertIn("Traceback", result.stderr)
-                        else:
-                            self.assertEqual(report, "")
-                        if cleanup_flip == "load":
-                            self.assertTrue(result.stderr.startswith(
-                                "ERROR: the gate-2 language engine could not be loaded "))
-                        else:
-                            self.assertNotIn("ERROR: the gate-2", report)
-                            if command == commands[0]:
-                                self.assertIn("OK:" if clean else "gate 2 spelling [ise]", report)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, expected, report)
+                    self.assertNotIn("Traceback", report)
+                    if verdict_preserved:
+                        # The sealed result stands; no engine fault text leaks.
+                        self.assertNotIn("ERROR: the gate-2", report)
+                        if command == commands[0]:
+                            self.assertIn("OK:" if clean else "gate 2 spelling [ise]", report)
                         if command == commands[-1] and not expected:
                             self.assertNotEqual(git("rev-parse", "HEAD"), head)
                         else:
                             self.assertEqual(git("rev-parse", "HEAD"), head)
                         continue
                     self.assertEqual(result.stdout, "")
-                    if interrupted:
-                        self.assertIn("KeyboardInterrupt", result.stderr)
-                        self.assertNotIn("ERROR: the gate-2", result.stderr)
-                    else:
-                        lines = result.stderr.splitlines()
-                        self.assertEqual(lines[0],
-                                         "ERROR: the gate-2 language engine could not be loaded "
-                                         "or used through lint-language.py.")
-                        self.assertNotIn("Traceback", result.stderr)
-                        if expected == 2:
-                            self.assertEqual(len(lines), 1, result.stderr)
+                    lines = result.stderr.splitlines()
+                    self.assertEqual(lines[0],
+                                     "ERROR: the gate-2 language engine could not be loaded "
+                                     "or used through lint-language.py.")
+                    if expected == 2:
+                        self.assertEqual(len(lines), 1, result.stderr)
                     if command != commands[0]:
                         self.assertIn("REFUSING the commit", result.stderr)
-                        self.assertIn("exit -2" if interrupted else "exit 2", result.stderr)
+                        self.assertIn("exit 2", result.stderr)
                     self.assertEqual(git("rev-parse", "HEAD"), head)
 
-    def assert_result_cleanup(self, raised, *, flip=False):
+    def assert_result_cleanup(self, raised):
         for word in ("centralised", "centralized"):
-            # Immediate destruction, a cycle needing gc.collect(), and a module-global
-            # reference needing import-cache release must all precede the verdict.
+            # Immediate destruction, a cycle, and a module-global reference:
+            # whatever the destruction timing, the fault strikes in the child only
+            # after the real matcher produced the result the runner sealed, so the
+            # verdict stands and nothing leaks (the child's stderr is discarded).
             for lifetime in ("immediate", "cycle", "module"):
                 with self.subTest(word=word, lifetime=lifetime):
                     retain = {"immediate": "", "cycle": "    result.cycle = result\n",
@@ -1201,56 +1220,21 @@ class ChangelogLanguageTests(unittest.TestCase):
                         "    result = EngineResult(_original_spelling_matches(text, checks))\n"
                         + retain + "    return result\n")
                     self.assert_engine_failure_refuses_staged_misspelling(
-                        source, staged_word=word, cleanup_flip="result" if flip else None)
+                        source, staged_word=word, verdict_preserved=True)
 
     def test_preflight_result_cleanup_runtime_error(self):
         self.assert_result_cleanup("RuntimeError('cleanup failed')")
 
-    def test_preflight_result_cleanup_runtime_error_flip(self):
-        self.assert_result_cleanup("RuntimeError('cleanup failed')", flip=True)
-
     def test_preflight_result_cleanup_system_exit(self):
         self.assert_result_cleanup("SystemExit(0)")
 
-    def test_preflight_result_cleanup_system_exit_flip(self):
-        self.assert_result_cleanup("SystemExit(0)", flip=True)
-
-    def assert_load_exception_cleanup(self, *, flip=False):
+    def test_preflight_load_exception_cleanup(self):
+        # A load-time exception whose own __del__ raises: the child dies without a
+        # marked result, its teardown noise is discarded, the error stays one line.
         self.assert_engine_failure_refuses_staged_misspelling(
             "class BadLoad(Exception):\n"
             "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
-            "raise BadLoad()\n", cleanup_flip="load" if flip else None)
-
-    def test_preflight_load_exception_cleanup(self):
-        self.assert_load_exception_cleanup()
-
-    def test_preflight_load_exception_cleanup_flip(self):
-        self.assert_load_exception_cleanup(flip=True)
-
-    def test_preflight_restores_unraisable_hook_on_every_exit(self):
-        from contextlib import redirect_stdout, redirect_stderr
-        from unittest.mock import patch
-        mod = self.load_tool("preflight-changelog")
-        previous = sys.unraisablehook
-        for outcome in (0, 1, 2, SystemExit(2), KeyboardInterrupt()):
-            with self.subTest(outcome=outcome):
-                kwargs = ({"side_effect": outcome} if isinstance(outcome, BaseException)
-                          else {"return_value": outcome})
-                with patch.object(mod, "_main", **kwargs), \
-                     redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-                    if isinstance(outcome, BaseException):
-                        with self.assertRaises(type(outcome)):
-                            mod.main([])
-                    else:
-                        self.assertEqual(mod.main([]), outcome)
-                self.assertIs(sys.unraisablehook, previous)
-        for args, code, stream in ((["--help"], 0, "out"), (["--unknown"], 2, "err")):
-            out, err = io.StringIO(), io.StringIO()
-            with redirect_stdout(out), redirect_stderr(err), self.assertRaises(SystemExit) as raised:
-                mod.main(["preflight", *args])
-            self.assertEqual(raised.exception.code, code)
-            self.assertIn("usage:", (out if stream == "out" else err).getvalue())
-            self.assertIs(sys.unraisablehook, previous)
+            "raise BadLoad()\n")
 
     def test_preflight_error_formatter_system_exit_refuses_staged_misspelling(self):
         self.assert_engine_failure_refuses_staged_misspelling(
@@ -1287,12 +1271,197 @@ class ChangelogLanguageTests(unittest.TestCase):
         self.assert_engine_failure_refuses_staged_misspelling(
             "def spelling_matches(text, checks): raise ValueError('bad matcher')\n")
 
-    def test_preflight_engine_preserves_keyboard_interrupt(self):
+    def test_preflight_engine_closed_stdout_fails_closed(self):
+        # R5-1: the engine closes the child's stdout and raises. The result channel
+        # is a pre-saved duplicate descriptor, and the fault denies the marker anyway.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\nsys.stdout.close()\nraise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_closed_stderr_fails_closed(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\nsys.stderr.close()\nraise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_printed_traceback_is_discarded(self):
+        # R5-2: engine diagnostics printed before the fault never reach the caller
+        # (the single-line assertion in the helper would catch any replay).
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import traceback\n"
+            "try:\n"
+            "    raise ValueError('engine-detail-marker')\n"
+            "except ValueError:\n"
+            "    traceback.print_exc()\n"
+            "print('engine-stdout-marker')\n"
+            "raise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_os_exit_zero_fails_closed(self):
+        # An engine that ends the child with exit 0 cannot pass: no marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import os\nos._exit(0)\n")
+
+    def test_preflight_engine_replaced_unraisablehook_cannot_pass(self):
+        # The child-side unraisable hook is the engine's to break: one that turns
+        # a teardown fault into an immediate exit 0 still lacks the marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import os, sys\n"
+            "sys.unraisablehook = lambda *a: os._exit(0)\n"
+            "_original_spelling_matches = spelling_matches\n"
+            "class EngineResult(list):\n"
+            "    def __del__(self): raise SystemExit(0)\n"
+            "def spelling_matches(text, checks):\n"
+            "    return EngineResult(_original_spelling_matches(text, checks))\n")
+
+    def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
+        # The runner never calls sys.exit, so a patched one cannot turn a fault
+        # into a pass; the raise still ends the child without the marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\n"
+            "sys.exit = lambda *args, **kwargs: None\n"
+            "raise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_hang_times_out(self):
+        # A hung engine is killed at the configured bound and fails closed.
+        import time
+        start = time.monotonic()
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import time\ntime.sleep(20)\n",
+            extra_env={"GRC_PREFLIGHT_ENGINE_TIMEOUT": "5"})
+        self.assertLess(time.monotonic() - start, 120)
+
+    def test_preflight_engine_keyboard_interrupt_is_engine_fault(self):
+        # Engine-raised KeyboardInterrupt happens inside the isolated child: an
+        # engine fault (exit 2), not an interrupt of the preflight. A real Ctrl-C
+        # reaches the parent process directly and still propagates.
         for source in ("raise KeyboardInterrupt()\n",
                        "def spelling_matches(text, checks): raise KeyboardInterrupt()\n"):
             with self.subTest(source=source):
-                self.assert_engine_failure_refuses_staged_misspelling(source, interrupted=True)
+                self.assert_engine_failure_refuses_staged_misspelling(source)
 
+    def test_preflight_malformed_child_output_fails_closed_end_to_end(self):
+        # A runner replaced by one answering with unmarked output: no valid marked
+        # result, so the preflight, the hook and the commit all refuse.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "", runner_source=(
+                "import sys\nsys.stdin.read()\n"
+                "print('not a marked result')\nraise SystemExit(0)\n"))
+
+    def test_preflight_malformed_child_result_fails_closed(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        lines = [("CHANGELOG.md", "New centralised controls.")]
+        echo = (
+            "import json, sys\n"
+            "request = json.loads(sys.stdin.read())\n"
+            "print(json.dumps({'nonce': request['nonce'],"
+            " 'findings': [[] for _ in request['texts']]}))\n")
+        stubs = {
+            "no output": "import sys\nsys.stdin.read()\n",
+            "not json": "import sys\nsys.stdin.read()\nprint('not json')\n",
+            "extra line": echo + "print('extra')\n",
+            "wrong nonce": ("import json, sys\nsys.stdin.read()\n"
+                            "print(json.dumps({'nonce': 'forged', 'findings': [[]]}))\n"),
+            "extra key": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                          "print(json.dumps({'nonce': request['nonce'], 'findings':"
+                          " [[] for _ in request['texts']], 'extra': 1}))\n"),
+            "wrong length": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                             "print(json.dumps({'nonce': request['nonce'], 'findings': []}))\n"),
+            "non-string pair": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                                "print(json.dumps({'nonce': request['nonce'], 'findings':"
+                                " [[['ise', 1]] for _ in request['texts']]}))\n"),
+            "marked but nonzero exit": echo + "import sys\nsys.exit(3)\n",
+        }
+        with tempfile.TemporaryDirectory() as td:
+            stub = Path(td) / "runner.py"
+            with patch.object(mod, "_LANGUAGE_RUNNER", stub), \
+                 patch.object(mod, "added_lines", return_value=lines), \
+                 patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
+                # Control: a well-formed marked empty result is accepted (exit 0),
+                # so each refusal below is the malformation's, not the stub's.
+                stub.write_text(echo, encoding="utf-8")
+                with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                    self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+                for name, source in stubs.items():
+                    with self.subTest(malformation=name):
+                        stub.write_text(source, encoding="utf-8")
+                        self.assert_preflight_language_error(mod)
+
+    def test_preflight_help_and_argparse_untouched_by_pending_faults(self):
+        """Non-engine control: --help prints usage and exits 0 even when the CALLER
+        has a collectable object whose __del__ raises (be365929 collected it under
+        its recording hook, suppressed the help text and printed the engine error),
+        and the preflight never touches sys.unraisablehook."""
+        import gc
+        from contextlib import redirect_stdout, redirect_stderr
+        mod = self.load_tool("preflight-changelog")
+        previous_hook = sys.unraisablehook
+
+        class _CallerFault:
+            def __del__(self):
+                raise RuntimeError("caller-owned fault")
+
+        holder = _CallerFault()
+        holder.cycle = holder  # collectable only by gc, like a pending caller fault
+        del holder
+        try:
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err), \
+                 self.assertRaises(SystemExit) as raised:
+                mod.main(["preflight", "--help"])
+            self.assertEqual(raised.exception.code, 0)
+            self.assertIn("usage:", out.getvalue())
+            self.assertNotIn("ERROR: the gate-2", err.getvalue())
+            self.assertIs(sys.unraisablehook, previous_hook)
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err), \
+                 self.assertRaises(SystemExit) as raised:
+                mod.main(["preflight", "--unknown"])
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("usage:", err.getvalue())
+            self.assertIs(sys.unraisablehook, previous_hook)
+        finally:
+            # Collect the planted cycle under a neutral hook so its fault cannot
+            # surface later in an unrelated test.
+            sys.unraisablehook = lambda *args: None
+            try:
+                gc.collect()
+            finally:
+                sys.unraisablehook = previous_hook
+
+    def test_preflight_argparse_error_with_closed_stdout(self):
+        # R5-3 control: an unknown flag with the caller's stdout closed (runpy, as
+        # an embedding caller) stays an ordinary argparse error: usage on stderr,
+        # exit 2, no traceback (be365929 replayed empty stdout first and crashed).
+        preflight = REPO_ROOT / "tools" / "preflight-changelog.py"
+        driver = (
+            "import runpy, sys\n"
+            "sys.stdout.close()\n"
+            "sys.argv = ['preflight-changelog.py', '--unknown']\n"
+            f"runpy.run_path({str(preflight)!r}, run_name='__main__')\n")
+        # PYTHON_COLORS=0: Python 3.14 argparse colour detection probes the closed
+        # stdout's fileno() while BUILDING the parser, on the pre-PR preflight too;
+        # the subject here is the R5-3 replay regression, not colour detection.
+        result = subprocess.run([sys.executable, "-c", driver],
+                                capture_output=True, text=True,
+                                env={**os.environ, "PYTHON_COLORS": "0"})
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("usage:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_preflight_git_error_detail_is_reported(self):
+        # Non-engine control: a failing `git diff` still exits 2 with git's own
+        # detail (the engine boundary never swallows non-engine diagnostics).
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        exc = subprocess.CalledProcessError(
+            128, ["git", "diff"], stderr="fatal: bad revision 'HEAD'\n")
+        with patch.object(mod, "added_lines", side_effect=exc):
+            err = io.StringIO()
+            with redirect_stdout(io.StringIO()), redirect_stderr(err):
+                self.assertEqual(mod.main(["preflight", "--staged"]), 2)
+            self.assertIn("ERROR: git diff failed", err.getvalue())
+            self.assertIn("fatal: bad revision", err.getvalue())
+            self.assertNotIn("ERROR: the gate-2", err.getvalue())
 
     def test_preflight_engine_error_is_one_line(self):
         from unittest.mock import patch

@@ -76,34 +76,42 @@ Exit codes:
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
         a repository, an operational store or private sibling holding the mirror included) exits 2
         instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1); or the gate-2
-        language engine cannot be loaded or used, reported as one fixed ERROR line rather
-        than a traceback. Loading is checked even without added lines (3b201).
-        KeyboardInterrupt propagates.
+        language-engine child did not deliver a valid result (a load failure, an engine
+        API violation, a crash, a timeout, exit 0 without the marked result line, or
+        malformed output), reported as one fixed ERROR line rather than a traceback.
+        Loading is checked even without added lines (3b201). KeyboardInterrupt raised
+        in THIS process (a real Ctrl-C) propagates; one raised by engine code is an
+        engine fault in the child, exit 2.
 
-Engine cleanup: main() records unraisable faults without inspecting their payload,
-releases the normal engine import if this call loaded it, and collects garbage
-before publishing any result. Any recorded fault overrides exits 0, 1 and 2.
-The previous unraisable hook is restored even when an exception propagates.
-Residual: this is an in-process boundary, not engine isolation. Pre-existing
-module references, engine self-registration under other sys.modules names,
-atexit callbacks, live threads and resurrected objects can retain engine state
-past collection. Faults delivered after main() restores the hook (including
-interpreter shutdown) cannot change its result or guarantee traceback suppression.
-Ordinary thread exceptions use threading.excepthook, not sys.unraisablehook;
-only unraisable faults delivered while our hook is installed are covered.
-An engine that ends the process itself (os._exit) bypasses every in-process
-boundary and can exit 0; only subprocess isolation could close that path.
+Engine isolation (3b201, /validate-pr round 5): every language-engine interaction
+(loading lint-language.py, engine API validation, compile_language,
+spelling_matches) runs in a separate child process (``sys.executable -I`` on
+tools/preflight_language_runner.py), never in this process. The parent sends the
+added lines as JSON on the child's stdin. It accepts a result ONLY as exit status
+0 plus exactly one JSON line on the child's stdout, carrying this run's nonce and
+one list of [kind, word] string pairs per input line. Anything else is the one
+fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
+seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT overrides it; the child is killed), no
+output, extra output, a wrong nonce, or a schema violation. Child stderr (engine
+tracebacks and prints included) is captured and discarded; no engine-supplied
+text is inspected or printed. The runner consumes stdin and duplicates the result
+channel before any engine code runs, redirects the engine-visible stdout into the
+discarded stderr, and seals a computed result with os._exit(0), so engine output
+cannot reach the result channel and a fault delivered during child teardown
+cannot alter a result the real matcher already produced. Residual, stated: the
+child runs the same-tree engine with this process's credentials, so an engine
+that DELIBERATELY forges a well-formed marked result line is outside this
+boundary's threat model, which covers faults, not malice. The timeout override is
+read from this process's environment, which the caller already controls.
 """
 
 from __future__ import annotations
 
 import argparse
-from contextlib import redirect_stderr, redirect_stdout
-import gc
-import io
-from functools import wraps
+import json
 import os
 import re
+import secrets
 import subprocess
 import sys
 from pathlib import Path
@@ -127,9 +135,10 @@ _d7 = _ilu.module_from_spec(_d7_spec)
 _d7_spec.loader.exec_module(_d7)
 
 
-# Gate 2's project entry point. load_language() loads it, and through it the pack
-# engine and the language profile, exactly as the gate does.
+# Gate 2's project entry point: the isolated child loads it, and through it the
+# pack engine and the language profile, exactly as the gate does.
 _LANGUAGE_GATE = Path(_TOOLS_DIR) / "lint-language.py"
+_LANGUAGE_RUNNER = Path(_TOOLS_DIR) / "preflight_language_runner.py"
 
 
 _LANGUAGE_ERROR = (
@@ -137,54 +146,85 @@ _LANGUAGE_ERROR = (
     "or used through lint-language.py."
 )
 
+# The engine child is killed after this many seconds (the hang fail-closed bound);
+# GRC_PREFLIGHT_ENGINE_TIMEOUT (a positive number of seconds) overrides it.
+_ENGINE_TIMEOUT_DEFAULT = 60.0
+_ENGINE_TIMEOUT_ENV = "GRC_PREFLIGHT_ENGINE_TIMEOUT"
+
 
 class LanguageEngineUnavailable(RuntimeError):
     """An engine interaction failed; main() reports the fixed error and exits 2."""
 
 
-def _language_boundary(operation):
-    """Guard complete engine operations, including consuming their results.
-
-    Never inspect an engine exception: even its type name, str and repr can
-    execute engine code. Only our constant diagnostic crosses this boundary.
-    """
-    @wraps(operation)
-    def guarded(*args, **kwargs):
-        try:
-            return operation(*args, **kwargs)
-        except KeyboardInterrupt:
-            raise
-        except BaseException:
-            raise LanguageEngineUnavailable() from None
-    return guarded
+def _engine_timeout() -> float:
+    """Seconds before the engine child is killed. The env override is for tests
+    and operations; an absent, malformed or non-positive value keeps the default
+    (the bound never becomes unbounded)."""
+    try:
+        value = float(os.environ.get(_ENGINE_TIMEOUT_ENV, ""))
+    except ValueError:
+        return _ENGINE_TIMEOUT_DEFAULT
+    return value if value > 0 else _ENGINE_TIMEOUT_DEFAULT
 
 
-@_language_boundary
-def load_language():
-    """Load and validate gate 2's engine and compile its language checks."""
-    spec = _ilu.spec_from_file_location("_changelog_language", _LANGUAGE_GATE)
-    mod = _ilu.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    engine = mod._engine()
-    for name in ("spelling_matches", "compile_language", "language_vocabulary"):
-        if not callable(getattr(engine, name, None)):
-            raise TypeError(f"language engine {name} must be callable")
-    return engine, engine.compile_language(mod._language_config())
+def _validated_matches(stdout, nonce, expected):
+    """The child's per-input-line [kind, word] match lists, or None unless
+    ``stdout`` is EXACTLY one newline-terminated JSON object carrying this run's
+    nonce and a schema-valid findings list (one list of two-string pairs per
+    input line). Nothing else the child produced is inspected."""
+    if stdout.count("\n") != 1 or not stdout.endswith("\n"):
+        return None
+    try:
+        result = json.loads(stdout)
+    except ValueError:
+        return None
+    if not (isinstance(result, dict) and set(result) == {"nonce", "findings"}
+            and result["nonce"] == nonce):
+        return None
+    findings = result["findings"]
+    if not (isinstance(findings, list) and len(findings) == expected):
+        return None
+    for matches in findings:
+        if not isinstance(matches, list):
+            return None
+        for pair in matches:
+            if not (isinstance(pair, list) and len(pair) == 2
+                    and all(isinstance(item, str) for item in pair)):
+                return None
+    return findings
 
 
-@_language_boundary
-def spelling_findings(lines, language=None):
-    """Check added lines with gate 2's own spelling matcher.
+def spelling_findings(lines):
+    """Check added lines with gate 2's own spelling matcher, in an isolated child.
 
-    ``language`` is a load_language() result (None loads it). The engine's
-    ``spelling_matches`` applies gate 2's vocabulary, patterns and quote masks.
-    Additions are checked in isolation, including inline code as in gate 2.
-    Fenced additions may over-report, like the existing preflight link check.
-    """
-    engine, checks = language or load_language()
+    The child (the module docstring and tools/preflight_language_runner.py) loads
+    lint-language.py, validates the engine API, compiles the language and runs
+    the engine's ``spelling_matches`` on every added line, so gate 2's
+    vocabulary, patterns and quote masks apply. Additions are checked in
+    isolation, including inline code as in gate 2. Fenced additions may
+    over-report, like the existing preflight link check. A run with zero added
+    lines still loads and validates the engine (the no-added-lines loading
+    contract). Raises LanguageEngineUnavailable unless the child exits 0 with a
+    valid marked result (fail closed)."""
+    nonce = secrets.token_hex(16)
+    request = json.dumps({"nonce": nonce, "texts": [text for _, text in lines]})
+    try:
+        child = subprocess.run(
+            [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
+            input=request, capture_output=True, text=True, timeout=_engine_timeout())
+    except Exception:
+        # A spawn failure, a timeout (subprocess.run kills the child), or
+        # undecodable child output. KeyboardInterrupt is not an Exception and
+        # propagates: a real Ctrl-C interrupts this process itself.
+        raise LanguageEngineUnavailable() from None
+    if child.returncode != 0:
+        raise LanguageEngineUnavailable()
+    matches = _validated_matches(child.stdout, nonce, len(lines))
+    if matches is None:
+        raise LanguageEngineUnavailable()
     return [(path, f"gate 2 spelling [{kind}]: {word}", text.strip())
-            for path, text in lines
-            for kind, word in engine.spelling_matches(text, checks)]
+            for (path, text), found in zip(lines, matches)
+            for kind, word in found]
 
 
 def d7_length_findings(lines):
@@ -504,7 +544,7 @@ def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     return results
 
 
-def _main(argv: list[str]) -> int:
+def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
             "Pre-commit aid: fail when added CHANGELOG lines carry an em/en "
@@ -533,7 +573,7 @@ def _main(argv: list[str]) -> int:
     try:
         spelling = spelling_findings(lines)
     except LanguageEngineUnavailable:
-        # The boundary returns only completed findings or our fixed failure.
+        # The isolated child delivered no valid marked result; fail closed.
         print(_LANGUAGE_ERROR, file=sys.stderr)
         return 2
 
@@ -598,51 +638,5 @@ def _main(argv: list[str]) -> int:
     return 1
 
 
-def main(argv: list[str]) -> int:
-    """Publish a result only after engine teardown under the recording hook."""
-    unraisable = False
-    completed = False
-
-    def record_unraisable(_):
-        # Do not retain or inspect ANY part of the engine-supplied payload.
-        nonlocal unraisable
-        unraisable = True
-
-    previous_hook = sys.unraisablehook
-    engine_was_loaded = "gate_lint_language" in sys.modules
-    out, err = io.StringIO(), io.StringIO()
-    sys.unraisablehook = record_unraisable
-    try:
-        with redirect_stdout(out), redirect_stderr(err):
-            try:
-                code = _main(argv)
-                completed = True
-            finally:
-                # _main's normal return releases its frames and result references.
-                # Import caching otherwise retains the engine's globals until shutdown.
-                # Leave a caller's pre-existing module alone (see the residual above).
-                if not engine_was_loaded:
-                    sys.modules.pop("gate_lint_language", None)
-                gc.collect()
-    finally:
-        sys.unraisablehook = previous_hook
-        if not completed:
-            # Preserve argparse help/errors and diagnostics before a propagated exception.
-            if unraisable:
-                print(_LANGUAGE_ERROR, file=sys.stderr)
-            else:
-                print(out.getvalue(), end="")
-                print(err.getvalue(), end="", file=sys.stderr)
-
-    if unraisable:
-        print(_LANGUAGE_ERROR, file=sys.stderr)
-        return 2
-    print(out.getvalue(), end="")
-    print(err.getvalue(), end="", file=sys.stderr)
-    return code
-
-
 if __name__ == "__main__":
-    # Keep this one statement: sys.exit is bound before main() runs, so an engine
-    # that patches sys.exit cannot change the exit (the split form fails open).
     sys.exit(main(sys.argv))

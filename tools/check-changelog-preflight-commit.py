@@ -218,6 +218,7 @@ def _integration_self_test():
         repo = Path(base) / "clone with space" / "r"
         for rel in ("tools/check-changelog-preflight-commit.py", "tools/check-commit-on-main.py",
                     "tools/install-git-hooks.sh", "tools/git-hooks/pre-commit", str(_PREFLIGHT),
+                    "tools/preflight_language_runner.py",
                     "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
                     "tools/aiqt_bootstrap.py", "tools/lint-language.py",
                     ".corpus-management/tools/gate_lint_language.py",
