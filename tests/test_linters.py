@@ -12652,6 +12652,98 @@ class BookkeepingParityTests(LinterTestCase):
             f"codex R4-02).\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def _malformed_history_case(self, malformed, cell="grc_library_ref #186"):
+        from contextlib import redirect_stderr, redirect_stdout
+        from io import StringIO
+        from unittest.mock import Mock, patch
+
+        mod = self._load_module()
+        # 526 archived PRs, followed by two surviving rows around the bad row.
+        first = mod.INCEPTION + 526
+        prs = range(mod.INCEPTION, first + 2)
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        history = "| Date | PR | Touched | Findings | Hot-fix |\n"
+        history += row(f"#{first}")
+        if malformed:
+            history += row(cell)
+        history += row(f"#{first + 1}")
+        working = {
+            mod.VALIDATE_PR_HISTORY: Mock(read_text=Mock(return_value=history)),
+            mod.IMPROVEMENT_LOG: Mock(read_text=Mock(return_value=
+                row(f"#{first}") + row(f"#{first + 1}"))),
+        }
+        files = {
+            mod.CHANGELOG_PATH: "".join(
+                f"**2026-10-03 | 2026.10.1 | PR #{pr}** - x\n" for pr in prs),
+            mod.TODO_PATH: "",
+        }
+        stdout, stderr = StringIO(), StringIO()
+        with patch.object(mod, "read", side_effect=files.__getitem__), \
+                patch.object(mod, "resolve_working", side_effect=working.get), \
+                patch.object(mod, "store_scope", return_value=mod.StoreScope(None, None, None, None)), \
+                patch.object(mod, "discover_version_history_files", return_value=[]), \
+                redirect_stdout(stdout), redirect_stderr(stderr):
+            rc = mod.main()
+        self.assertEqual(mod.parse_validate_pr_status(history),
+                         {first: "normal", first + 1: "normal"})
+        self.assertEqual([list(record[1]) for record in mod._history_row_records(history)],
+                         [[first], [first + 1]])
+        return rc, stderr.getvalue()
+
+    def test_malformed_history_cell_is_one_named_finding(self) -> None:
+        rc, err = self._malformed_history_case(True)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("  [")], [
+            "  [qa-cadence] validate-pr/history.md:3: malformed PR cell "
+            "'grc_library_ref #186'; expected a leading PR identity.",
+        ])
+        self.assertIn("FAIL: 1 bookkeeping-parity finding(s).", err)
+        self.assertNotIn(": no row", err)
+
+    def test_malformed_history_cell_removal_flips_clean_without_cascade(self) -> None:
+        for malformed, expected_rc in ((False, 0), (True, 1), (False, 0)):
+            with self.subTest(malformed=malformed):
+                rc, err = self._malformed_history_case(malformed)
+                self.assertEqual(rc, expected_rc, err)
+                self.assertNotIn(": no row", err)
+                if not malformed:
+                    self.assertEqual(err, "")
+
+    def test_empty_history_cell_is_one_named_finding(self) -> None:
+        rc, err = self._malformed_history_case(True, "")
+        self.assertEqual(rc, 1, err)
+        self.assertEqual([line for line in err.splitlines() if line.startswith("  [")], [
+            "  [qa-cadence] validate-pr/history.md:3: malformed PR cell "
+            "''; expected a leading PR identity.",
+        ])
+        self.assertIn("FAIL: 1 bookkeeping-parity finding(s).", err)
+        self.assertNotIn(": no row", err)
+
+    def test_sanctioned_history_cell_forms_are_preserved(self) -> None:
+        mod = self._load_module()
+        cases = (
+            ("856", [856], False),
+            ("PR #1282", [1282], False),
+            ("1166 addendum", [1166], True),
+            ("#1210 addendum (backfill)", [1210], True),
+            ("#2429 iteration (HELD)", [2429], True),
+            ("PR #2429 iteration (block-dirty-tree-push hook)", [2429], True),
+            ("PR #2429 iteration (git-native pre-push, d5063339)", [2429], True),
+            ("abandoned-autocorrect (no PR)", [], False),
+            ("routed pre-open (no PR)", [], False),
+        )
+        for cell, prs, companion in cases:
+            with self.subTest(cell=cell):
+                history = f"| 2026-10-03 | {cell} | x | RETURNED | none |\\n"
+                history = history.replace("\\n", "\n")
+                findings = []
+                records = mod._history_row_records(history, findings)
+                self.assertEqual(findings, [])
+                self.assertEqual(mod.parse_validate_pr_status(history),
+                                 {pr: "normal" for pr in prs})
+                self.assertEqual(records,
+                                 [(1, prs, "", companion, False)] if prs else [])
+
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
         # (PR #855 reformat) as well as the long form.

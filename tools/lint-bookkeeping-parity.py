@@ -77,6 +77,13 @@ the improvement log, with these exemptions:
   each gets its own floor. Before any sweep both floors equal ``INCEPTION`` and
   behaviour is identical to the fixed-constant gate.
 
+Validate-pr PR-bearing rows must begin their PR cell with a recognized identity.
+The exact historical dispositions abandoned-autocorrect (no PR) and
+routed pre-open (no PR) remain accepted without creating PR records.
+Any other malformed cell produces one finding naming its file, line and value;
+both history readers exclude it while retaining valid peers, so it cannot lower
+the QA-cadence floor.
+
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
 rotation-failure shapes the change-tracking rule explicitly prohibits on a
@@ -586,6 +593,27 @@ def parse_changelog_prs(text: str) -> set[int]:
     return prs
 
 
+def _validate_pr_rows(text: str, findings: list[str] | None = None):
+    """Yield PR-bearing rows; accept known no-PR dispositions without PR records."""
+    for lineno, line in enumerate(text.splitlines(), 1):
+        if not TABLE_ROW.match(line):
+            continue
+        c = cells(line)
+        if len(c) < 5:
+            continue
+        # Exact historical no-PR dispositions; do not accept arbitrary prose cells.
+        if c[2] in {"abandoned-autocorrect (no PR)", "routed pre-open (no PR)"}:
+            continue
+        if not STORE_PR_IDENTITY_RE.match(c[2]):
+            if findings is not None:
+                findings.append(
+                    f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
+                    f"malformed PR cell {c[2]!r}; expected a leading PR identity."
+                )
+            continue
+        yield lineno, c
+
+
 def parse_validate_pr_status(text: str) -> dict[int, str]:
     """Map each PR with a validate-pr row to its status.
 
@@ -597,13 +625,8 @@ def parse_validate_pr_status(text: str) -> dict[int, str]:
     not read as a PR.
     """
     status: dict[int, str] = {}
-    for line in text.splitlines():
-        if not TABLE_ROW.match(line):
-            continue
-        c = cells(line)
+    for _, c in _validate_pr_rows(text):
         # c[0]='' c[1]=date c[2]=PR c[3]=touched c[4]=findings ...
-        if len(c) < 5:
-            continue
         findings = c[4]
         if HANDOFF_FINDINGS.search(findings):
             row_status = "handoff"
@@ -669,7 +692,7 @@ def _disposition_candidates(c: list[str]) -> list[str]:
     return [c[4]] + ([c[5]] if len(c) > 5 else [])
 
 
-def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, bool]]:
+def _history_row_records(text: str, findings: list[str] | None = None) -> list[tuple[int, list[int], str, bool, bool]]:
     """(line, prs, exemption_kind or '', is_companion, is_pending) for each history data row.
 
     RAW read, no example masking (orchestrator decision 2026-09-30 14:51Z): a fenced or
@@ -683,12 +706,7 @@ def _history_row_records(text: str) -> list[tuple[int, list[int], str, bool, boo
     never deferred on its endpoints alone.
     """
     out: list[tuple[int, list[int], str, bool, bool]] = []
-    for lineno, line in enumerate(text.splitlines(), 1):
-        if not TABLE_ROW.match(line):
-            continue
-        c = cells(line)
-        if len(c) < 5:
-            continue
+    for lineno, c in _validate_pr_rows(text, findings):
         keys = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
         if not keys:
             continue
@@ -1529,7 +1547,7 @@ def main() -> int:
     if vp_text is None and retro_text is None:
         skipped.append("per-PR row integrity")
     if vp_text is not None:
-        vp_records = _history_row_records(vp_text)
+        vp_records = _history_row_records(vp_text, all_findings)
         for lineno, prs, *_ in vp_records:
             if above_store_ceiling(prs, scope):
                 print(store_deferral_note(prs, scope, "validate-pr/history.md", lineno))
