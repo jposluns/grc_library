@@ -94,15 +94,17 @@ fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
 seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite values up to 300 seconds),
 no output, extra output, a wrong nonce, or a schema violation. Cleanup scope,
 exactly (round 8, W2): on every completion path (a delivered result, a nonzero
-exit, a timeout, an exception) the parent reads the child's stdout to EOF,
+exit, a timeout, an exception) not cut short by an interrupt, the parent reads the child's stdout to EOF,
 waits for the child's exit WITHOUT reaping it (os.waitid with WNOWAIT), kills
 ONLY the child's own process group, whose id it verified against the child's
 pid, and only then reaps the child, so the unreaped pid pins the group id
 through the kill. The parent holds the DEFAULT SIGCHLD disposition from before
 the spawn until after that reap and then restores the caller's, interrupt
 paths included: the restore is armed before the disposition changes, so an
-interrupt delivered at any point either finds the disposition unchanged or
-finds the restore armed (round 10). A caller-inherited SIGCHLD=SIG_IGN would
+interrupt delivered before or during the swap either finds the disposition
+unchanged or finds the restore armed (round 10); an interrupt at the instant
+of the restore itself, or before the group kill, is a disclosed residual
+(3b259, below). A caller-inherited SIGCHLD=SIG_IGN would
 otherwise make the kernel reap the runner automatically, unpinning its pid
 and refusing a healthy run (round 9, W1). The SUPPORTED invocations are the
 command line and the commit hook, each a fresh process, where only SIG_DFL
@@ -332,9 +334,10 @@ def spelling_findings(lines):
         # whole lifetime and put the caller's back only after the runner is
         # reaped, so the unreaped pid keeps pinning the group id on every
         # path. saved_sigchld is recorded BEFORE the swap, inside the
-        # protecting try, so an interrupt delivered at ANY point either finds
-        # the disposition unchanged or finds the restore below armed (round
-        # 10); re-arming an unswapped disposition is a harmless no-op. A
+        # protecting try, so an interrupt delivered before or during the swap
+        # either finds the disposition unchanged or finds the restore below
+        # armed (round 10; an interrupt at the restore instant itself is a
+        # disclosed residual, 3b259); re-arming an unswapped disposition is a harmless no-op. A
         # disposition this module reads as unsaveable (None: a non-Python
         # handler from before interpreter startup) or cannot swap (not the
         # main thread) is left alone: a real handler does not make the kernel
@@ -360,7 +363,7 @@ def spelling_findings(lines):
                 # whose id is the runner's own pid. That pid stays pinned to the
                 # runner (running, then an unreaped zombie) until the child.wait()
                 # in the finally below, and the group kill runs BEFORE that reap
-                # on every path, so the kill can never target a recycled id or a
+                # on every path an interrupt does not cut short (3b259), so the kill can never target a recycled id or a
                 # group that is not the runner's own (round 8, W2).
                 pgid = os.getpgid(child.pid)
                 if pgid != child.pid:
@@ -395,7 +398,8 @@ def spelling_findings(lines):
         finally:
             # The caller's SIGCHLD disposition returns only AFTER the runner
             # is reaped, on every path, interrupt paths included (rounds
-            # 9-10). ValueError here means a non-main-thread caller whose
+            # 9-10), except an interrupt at the instant of this restore
+            # (disclosed residual, 3b259). ValueError here means a non-main-thread caller whose
             # disposition was never swapped: nothing to put back.
             if saved_sigchld is not None:
                 try:
