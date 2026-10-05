@@ -94,11 +94,13 @@ fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
 seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite values up to 300 seconds),
 no output, extra output, a wrong nonce, or a schema violation. Cleanup scope,
 exactly (round 8, W2): on every completion path (a delivered result, a nonzero
-exit, a timeout, an exception) not cut short by an interrupt, the parent reads the child's stdout to EOF,
-waits for the child's exit WITHOUT reaping it (os.waitid with WNOWAIT), kills
+exit, a timeout, an exception) not cut short by an interrupt, the parent kills
 ONLY the child's own process group, whose id it verified against the child's
-pid, and only then reaps the child, so the unreaped pid pins the group id
-through the kill. The parent holds the DEFAULT SIGCHLD disposition from before
+pid, while the child is still unreaped, and only then reaps it, so the
+unreaped pid pins the group id through the kill. On a delivered result or a
+nonzero exit it first reads the child's stdout to EOF and waits for the exit
+WITHOUT reaping (os.waitid with WNOWAIT); on a timeout or an exception the
+child is still running, hence still unreaped, at the kill. The parent holds the DEFAULT SIGCHLD disposition from before
 the spawn until after that reap and then restores the caller's, interrupt
 paths included: the restore is armed before the disposition changes, so an
 interrupt delivered before or during the swap either finds the disposition
@@ -381,8 +383,9 @@ def spelling_findings(lines):
                         child, request.encode("ascii"), deadline)
                     _wait_runner_exit_unreaped(child, deadline)
                 finally:
-                    # EVERY completion path (a delivered result, a nonzero exit, a
-                    # timeout, an exception) kills engine descendants left in the
+                    # Every completion path not cut short by an interrupt (a
+                    # delivered result, a nonzero exit, a timeout, an exception;
+                    # 3b259) kills engine descendants left in the
                     # runner's own group, then reaps the runner. The runner is
                     # still unreaped here, running or a waitable zombie, so its
                     # pid pins the group id through the kill. Residuals, stated:
