@@ -64,6 +64,12 @@ Checks for:
 
 Fenced code blocks are skipped for every check above.
 
+The three spelling checks run through one helper, ``spelling_matches()``: the
+markdown scan, the generator-source scan below, and grc's CHANGELOG preflight
+aid (``tools/preflight-changelog.py``) all share this token matcher. Their scan
+contexts differ: the preflight judges added lines in isolation, so fenced
+additions may be reported even though the markdown scan skips fenced blocks.
+
 The three generators listed in GENERATOR_SOURCES emit adopter-facing
 prose (audience blurbs, overview paragraphs, table cells) into the
 GENERATED_DOCS artefacts, which are doubly blind to the markdown scan above:
@@ -241,6 +247,21 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
             line = line.replace(span, " " * len(span))
     return line
 
+
+def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str]]:
+    """The three spelling checks on one line or string literal, as ``(kind, word)``.
+
+    Kinds are ``ise``, ``isation`` and ``yse``, reported in that order, after the
+    allowed Commonwealth spans are masked. This is the single spelling loop:
+    check_file, check_generator_source and the grc CHANGELOG preflight aid call it.
+    """
+    masked = mask_allowed_spans(text, language.vocab.allowed_commonwealth_spans)
+    found = [("ise", m.group(0)) for m in language.ise_pattern.finditer(masked)]
+    found += [("isation", m.group(0)) for m in ISATION_PATTERN.finditer(masked)
+              if m.group(0).lower() not in language.vocab.isation_allowed_words]
+    found += [("yse", m.group(0)) for m in language.yse_pattern.finditer(masked)]
+    return found
+
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
 ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
 
@@ -299,14 +320,8 @@ def check_file(path: Path, repo_root: Path, *,
         if EM_DASH_PATTERN.search(line):
             findings.append(("dash", lineno, line.strip()))
 
-        spelling_line = mask_allowed_spans(line, language.vocab.allowed_commonwealth_spans)
-        for m in language.ise_pattern.finditer(spelling_line):
-            findings.append(("ise", lineno, m.group(0)))
-        for m in ISATION_PATTERN.finditer(spelling_line):
-            if m.group(0).lower() not in language.vocab.isation_allowed_words:
-                findings.append(("isation", lineno, m.group(0)))
-        for m in language.yse_pattern.finditer(spelling_line):
-            findings.append(("yse", lineno, m.group(0)))
+        for kind, word in spelling_matches(line, language):
+            findings.append((kind, lineno, word))
 
         # Skip the specs', the AI ingestion instruction's, and the document review
         # record template's own self-referential rule statements about "ensure that".
@@ -378,14 +393,8 @@ def check_generator_source(path: Path, *,
         lineno = getattr(node, "lineno", 0)
         if EM_DASH_PATTERN.search(value):
             findings.append(("dash", lineno, value.strip()[:160]))
-        masked_value = mask_allowed_spans(value, language.vocab.allowed_commonwealth_spans)
-        for m in language.ise_pattern.finditer(masked_value):
-            findings.append(("ise", lineno, m.group(0)))
-        for m in ISATION_PATTERN.finditer(masked_value):
-            if m.group(0).lower() not in language.vocab.isation_allowed_words:
-                findings.append(("isation", lineno, m.group(0)))
-        for m in language.yse_pattern.finditer(masked_value):
-            findings.append(("yse", lineno, m.group(0)))
+        for kind, word in spelling_matches(value, language):
+            findings.append((kind, lineno, word))
         if ENSURE_PATTERN.search(mask_verbatim_ensure_titles(value, language.vocab.verbatim_ensure_titles)):
             findings.append(("ensure", lineno, value.strip()[:160]))
     return findings

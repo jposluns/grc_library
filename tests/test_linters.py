@@ -874,6 +874,13 @@ class LanguageLinterTests(LinterTestCase):
 class ChangelogLanguageTests(unittest.TestCase):
     """Gate-2 default scope and preflight added-line spelling fixtures."""
 
+    def setUp(self):
+        super().setUp()
+        from unittest.mock import patch
+        timeout = patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "60"})
+        timeout.start()
+        self.addCleanup(timeout.stop)
+
     def load_tool(self, name):
         import importlib.util
         sys.path.insert(0, str(REPO_ROOT / "tools"))
@@ -883,6 +890,16 @@ class ChangelogLanguageTests(unittest.TestCase):
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod
+
+    def fixture_git_environment(self):
+        """This process's environment with every GIT_* variable dropped and
+        global/system git config ignored, so a repository-local variable a
+        caller leaks (a pre-commit hook's GIT_INDEX_FILE, a GIT_DIR) or an
+        external git configuration cannot redirect a fixture repository's git
+        commands (round 7, W4)."""
+        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+        return env
 
     def test_root_in_default_and_explicit_scope(self):
         from contextlib import redirect_stdout
@@ -921,6 +938,12 @@ class ChangelogLanguageTests(unittest.TestCase):
         from contextlib import redirect_stdout, redirect_stderr
         from unittest.mock import patch
         mod = self.load_tool("preflight-changelog")
+        # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
+        # or global/system git config must not redirect this fixture's git
+        # commands or the preflight's own diffs (round 7, W4).
+        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard.start()
+        self.addCleanup(env_guard.stop)
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             paths = ("CHANGELOG.md", mod.DETAILED_MIRROR_REL)
@@ -959,6 +982,1027 @@ class ChangelogLanguageTests(unittest.TestCase):
                         self.assertEqual(mod.main(["preflight", "--staged"]), 1)
                         git("add", rel)
                         self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+
+    def test_gate_and_preflight_share_one_spelling_matcher(self):
+        from unittest.mock import patch
+        preflight = self.load_tool("preflight-changelog")
+        gate = self.load_tool("lint-language")
+        engine = gate._engine()
+        checks = engine.compile_language(gate._language_config())
+        with tempfile.TemporaryDirectory() as td, \
+             patch.object(engine, "spelling_matches", return_value=[("ise", "sentinel")]) as matcher:
+            root = Path(td)
+            (root / "x.md").write_text("plain text\n", encoding="utf-8")
+            (root / "gen.py").write_text('MESSAGE = "plain text"\n', encoding="utf-8")
+            self.assertEqual(engine.check_file(root / "x.md", root, language=checks),
+                             [("ise", 1, "sentinel")])
+            self.assertEqual(engine.check_generator_source(root / "gen.py", language=checks),
+                             [("ise", 1, "sentinel")])
+        self.assertEqual(matcher.call_count, 2)
+        # The preflight reaches the SAME engine entry point across its process
+        # boundary: in-process patching cannot cross it, so the sentinel rides in
+        # a wrapper whose engine's spelling_matches returns it, and the preflight
+        # must report it verbatim.
+        with tempfile.TemporaryDirectory() as td:
+            wrapper = Path(td) / "lint-language.py"
+            wrapper.write_text(
+                "class _Engine:\n"
+                "    def spelling_matches(self, text, checks): return [('ise', 'sentinel')]\n"
+                "    def compile_language(self, config): return config\n"
+                "    def language_vocabulary(self, **kwargs): return kwargs\n"
+                "def _engine(): return _Engine()\n"
+                "def _language_config(): return {}\n", encoding="utf-8")
+            with patch.object(preflight, "_LANGUAGE_GATE", wrapper):
+                self.assertEqual(
+                    preflight.spelling_findings([("CHANGELOG.md", "plain text")]),
+                    [("CHANGELOG.md", "gate 2 spelling [ise]: sentinel", "plain text")])
+
+    def test_preflight_unloadable_engine_fails_closed_with_named_message(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            missing = Path(td) / "lint-language.py"
+            for lines in ([], [("CHANGELOG.md", "New centralised controls.")]):
+                with self.subTest(added=len(lines)):
+                    err = io.StringIO()
+                    with patch.object(mod, "_LANGUAGE_GATE", missing), \
+                         patch.object(mod, "added_lines", return_value=lines), \
+                         patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                         redirect_stdout(io.StringIO()), redirect_stderr(err):
+                        self.assertEqual(mod.main(["preflight"]), 2)
+                    self.assertIn("ERROR: the gate-2 language engine could not be loaded",
+                                  err.getvalue())
+                    self.assertNotIn("Traceback", err.getvalue())
+
+    def assert_preflight_language_error(self, mod):
+        from contextlib import redirect_stdout, redirect_stderr
+        err = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(err):
+            self.assertEqual(mod.main(["preflight", "--staged"]), 2)
+        message = err.getvalue()
+        self.assertTrue(message.startswith(
+            "ERROR: the gate-2 language engine could not be loaded"), message)
+        self.assertEqual(message,
+                         "ERROR: the gate-2 language engine could not be loaded "
+                         "or used through lint-language.py.\n")
+        self.assertEqual(len(message.splitlines()), 1, message)
+        self.assertNotIn("Traceback", message)
+
+    def test_preflight_invalid_engine_api_fails_closed(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return {}\n")
+        for name in ("spelling_matches", "compile_language", "language_vocabulary"):
+            for breakage in ("delattr(_Engine, {0!r})\n", "_Engine.{0} = None\n"):
+                for lines in ([], [("CHANGELOG.md", "New centralised controls.")]):
+                    with tempfile.TemporaryDirectory() as td:
+                        wrapper = Path(td) / "lint-language.py"
+                        wrapper.write_text(stub + breakage.format(name), encoding="utf-8")
+                        with self.subTest(attribute=name, breakage=breakage, added=len(lines)), \
+                             patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                             patch.object(mod, "added_lines", return_value=lines), \
+                             patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
+                            self.assert_preflight_language_error(mod)
+
+    def test_preflight_engine_base_exceptions_refuse_staged_misspelling(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
+        # or global/system git config must not redirect this fixture's git
+        # commands or the preflight's own diffs (round 7, W4).
+        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard.start()
+        self.addCleanup(env_guard.stop)
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+
+            def git(*args):
+                return subprocess.run(["git", "-C", td, *args], check=True,
+                                      capture_output=True, text=True)
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            path.write_text("# Changelog\nNew centralised controls.\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            # The working copy is clean prose; only the index has the misspelling.
+            path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
+            wrapper = root / "lint-language.py"
+
+            def additions(staged):
+                self.assertTrue(staged)
+                return mod._added_lines_from_repo(root, ("CHANGELOG.md",), staged)
+
+            with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                 patch.object(mod, "added_lines", side_effect=additions):
+                self.assertEqual(additions(True), [("CHANGELOG.md", "New centralised controls.")])
+                for phase in ("", "def _engine():\n    "):
+                    # KeyboardInterrupt raised by ENGINE code is a fault inside the
+                    # isolated child; a real Ctrl-C reaches this process directly.
+                    for raised in ("SystemExit(0)", "SystemExit(3)", "GeneratorExit()",
+                                   "BaseException('load failed')", "KeyboardInterrupt()"):
+                        with self.subTest(phase=phase, raised=raised):
+                            wrapper.write_text(phase + "raise " + raised + "\n", encoding="utf-8")
+                            # Avoid a stale import when two fixture sources have the same size.
+                            shutil.rmtree(root / "__pycache__", ignore_errors=True)
+                            self.assert_preflight_language_error(mod)
+
+    def assert_engine_failure_refuses_staged_misspelling(
+            self, source, *, staged_word="centralised", verdict_preserved=False,
+            extra_env=None, runner_source=None):
+        """End to end in a fixture repo: append ``source`` to the gate engine (and
+        optionally replace the runner with ``runner_source``), then run the
+        standalone preflight, the hook, and a real `git commit`.
+
+        Default: the fault denies the child a valid marked result, so the
+        preflight exits 2 with exactly the one constant line (no stdout, no
+        traceback, no engine text) and the hook and the commit refuse (HEAD
+        pinned). verdict_preserved: engine noise or post-seal cleanup must not
+        change the result, so the verdict stands: a clean
+        entry passes and commits, a misspelled one is refused as a finding (exit
+        1), and no engine text or traceback reaches the caller either way."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel in ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
+                        "tools/lint-language.py",
+                        "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/aiqt_bootstrap.py", "tools/check-changelog-preflight-commit.py",
+                        ".corpus-management/tools/gate_lint_language.py",
+                        ".corpus-management/tools/profile_loader.py",
+                        ".corpus-management/defaults/grc/language.toml"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
+                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT",
+                                 "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
+            env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                       AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt"))
+            env.update(extra_env or {})
+
+            def run(*args):
+                return subprocess.run(args, cwd=root, env=env, capture_output=True, text=True)
+
+            def git(*args):
+                result = run("git", *args)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return result.stdout
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            path.write_text(f"# Changelog\nNew {staged_word} controls.\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            path.write_text("# Changelog\nNew centralized controls.\n", encoding="utf-8")
+            self.assertIn(f"New {staged_word} controls.", git("show", ":CHANGELOG.md"))
+            git("config", "user.name", "Fixture")
+            git("config", "user.email", "fixture@example.test")
+            git("config", "commit.gpgsign", "false")
+            hook = root / ".git/hooks/pre-commit"
+            hook.write_text(
+                "#!/bin/sh\nexec " + sys.executable
+                + " tools/check-changelog-preflight-commit.py --pre-commit\n",
+                encoding="utf-8")
+            hook.chmod(0o755)
+            git("config", "core.hooksPath", str(hook.parent))
+            head = git("rev-parse", "HEAD")
+            commands = ((sys.executable, "tools/preflight-changelog.py", "--staged"),
+                        (sys.executable, "tools/check-changelog-preflight-commit.py", "--pre-commit"),
+                        ("git", "commit", "-qm", "Must refuse staged misspelling"))
+            clean = staged_word == "centralized"
+            for command in commands:
+                result = run(*command)
+                self.assertEqual(result.returncode, 0 if clean else 1, result.stdout + result.stderr)
+                if not clean:
+                    self.assertIn("gate 2 spelling [ise]: centralised", result.stdout + result.stderr)
+            # The clean control really commits; restore its staged delta for the fault probe.
+            if clean:
+                self.assertNotEqual(git("rev-parse", "HEAD"), head)
+                git("reset", "--soft", head.strip())
+            engine = root / ".corpus-management/tools/gate_lint_language.py"
+            engine.write_text(engine.read_text(encoding="utf-8") + "\n" + source,
+                              encoding="utf-8")
+            shutil.rmtree(engine.parent / "__pycache__", ignore_errors=True)
+            if runner_source is not None:
+                (root / "tools/preflight_language_runner.py").write_text(
+                    runner_source, encoding="utf-8")
+            if verdict_preserved:
+                expected_codes = (0, 0, 0) if clean else (1, 1, 1)
+            else:
+                expected_codes = (2, 1, 1)
+            for command, expected in zip(commands, expected_codes):
+                with self.subTest(command=command):
+                    result = run(*command)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, expected, report)
+                    self.assertNotIn("Traceback", report)
+                    if verdict_preserved:
+                        # The sealed result stands; no engine fault text leaks.
+                        self.assertNotIn("ERROR: the gate-2", report)
+                        if command == commands[0]:
+                            self.assertIn("OK:" if clean else "gate 2 spelling [ise]", report)
+                        if command == commands[-1] and not expected:
+                            self.assertNotEqual(git("rev-parse", "HEAD"), head)
+                        else:
+                            self.assertEqual(git("rev-parse", "HEAD"), head)
+                        continue
+                    self.assertEqual(result.stdout, "")
+                    lines = result.stderr.splitlines()
+                    self.assertEqual(lines[0],
+                                     "ERROR: the gate-2 language engine could not be loaded "
+                                     "or used through lint-language.py.")
+                    if expected == 2:
+                        self.assertEqual(len(lines), 1, result.stderr)
+                    if command != commands[0]:
+                        self.assertIn("REFUSING the commit", result.stderr)
+                        self.assertIn("exit 2", result.stderr)
+                    self.assertEqual(git("rev-parse", "HEAD"), head)
+
+    def assert_result_cleanup(self, raised):
+        for word in ("centralised", "centralized"):
+            # Immediate destruction faults before sealing and must be refused.
+            # A retained cycle (GC disabled) is collected by the runner's
+            # pre-seal gc.collect() and refused too (round 7, E1); a module
+            # global survives until shutdown, which the seal skips, so that
+            # verdict must still be preserved.
+            for lifetime in ("immediate", "cycle", "module"):
+                with self.subTest(word=word, lifetime=lifetime):
+                    retain = {"immediate": "", "cycle": "    result.cycle = result\n",
+                              "module": "    retained.append(result)\n"}[lifetime]
+                    source = (
+                        "import gc\ngc.disable()\n"
+                        "_original_spelling_matches = spelling_matches\n"
+                        "retained = []\n"
+                        "class EngineResult(list):\n"
+                        f"    def __del__(self): raise {raised}\n"
+                        "def spelling_matches(text, checks):\n"
+                        "    result = EngineResult(_original_spelling_matches(text, checks))\n"
+                        + retain + "    return result\n")
+                    self.assert_engine_failure_refuses_staged_misspelling(
+                        source, staged_word=word, verdict_preserved=lifetime == "module")
+
+    def test_preflight_result_cleanup_runtime_error(self):
+        self.assert_result_cleanup("RuntimeError('cleanup failed')")
+
+    def test_preflight_result_cleanup_system_exit(self):
+        self.assert_result_cleanup("SystemExit(0)")
+
+    def test_preflight_load_unraisable_refuses_clean_commit(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class LoadResource:\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "resource = LoadResource()\ndel resource\n", staged_word="centralized")
+
+    def test_preflight_compile_unraisable_refuses_clean_commit(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "_compile = compile_language\n"
+            "class Resource:\n"
+            "    def __del__(self): raise RuntimeError('compile cleanup failed')\n"
+            "def compile_language(config):\n"
+            "    resource = Resource()\n"
+            "    del resource\n"
+            "    return _compile(config)\n", staged_word="centralized")
+
+    def test_preflight_thread_fault_refuses_clean_commit(self):
+        fault = (
+            "import threading\n"
+            "def fail(): raise RuntimeError('thread failed')\n"
+            "def thread_fault():\n"
+            "    worker = threading.Thread(target=fail)\n"
+            "    worker.start()\n"
+            "    worker.join()\n")
+        for phase in ("thread_fault()\n",
+                      "_compile = compile_language\n"
+                      "def compile_language(config):\n"
+                      "    thread_fault()\n"
+                      "    return _compile(config)\n",
+                      "_matches = spelling_matches\n"
+                      "def spelling_matches(text, checks):\n"
+                      "    thread_fault()\n"
+                      "    return _matches(text, checks)\n"):
+            with self.subTest(phase=phase):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    fault + phase, staged_word="centralized")
+
+    def test_preflight_nested_child_result_fails_closed(self):
+        # Below the byte cap: this must exercise JSON's recursion failure.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import json\n"
+            "json.dumps = lambda *a, **kw: '[' * 200000 + ']' * 200000\n",
+            staged_word="centralized")
+
+    def test_preflight_oversized_child_result_is_not_parsed(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            stub = Path(td) / "runner.py"
+            stub.write_text(
+                "import json, sys\n"
+                "request = json.loads(sys.stdin.read())\n"
+                f"sys.stdout.write(' ' * {mod._ENGINE_STDOUT_MAX})\n"
+                "print(json.dumps({'nonce': request['nonce'], 'findings': []}))\n",
+                encoding="utf-8")
+            with patch.object(mod, "_LANGUAGE_RUNNER", stub), \
+                 patch.object(mod, "added_lines", return_value=[]), \
+                 patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                 patch.object(mod, "_validated_matches", wraps=mod._validated_matches) as parse:
+                self.assert_preflight_language_error(mod)
+                parse.assert_not_called()
+
+    def test_preflight_result_boundary_catches_base_exceptions(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        for target, name in ((mod.json, "loads"), (mod, "_validated_matches")):
+            for fault in (BaseException, SystemExit, GeneratorExit, MemoryError):
+                with self.subTest(stage=name, fault=fault.__name__), \
+                     patch.object(mod, "added_lines", return_value=[]), \
+                     patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                     patch.object(target, name, side_effect=fault):
+                    self.assert_preflight_language_error(mod)
+
+    def test_preflight_parent_keyboard_interrupt_propagates(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with patch.object(mod, "_validated_matches", side_effect=KeyboardInterrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                mod.spelling_findings([])
+
+    def test_preflight_non_ascii_result_fails_closed(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "", staged_word="centralized", runner_source=(
+                "import json, sys\n"
+                "request = json.loads(sys.stdin.read())\n"
+                "result = {'nonce': request['nonce'], "
+                "'findings': [[['ise', 'caf\\u00e9']] for _ in request['texts']]}\n"
+                "sys.stdout.buffer.write((json.dumps(result, ensure_ascii=False)"
+                " + '\\n').encode('utf-8'))\n"))
+
+    def test_preflight_non_utf8_stderr_preserves_result(self):
+        for word in ("centralized", "centralised"):
+            with self.subTest(word=word):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    "import os\nos.write(2, b'\\xff')\n",
+                    staged_word=word, verdict_preserved=True)
+
+    def test_preflight_stdout_noise_preserves_result(self):
+        for word in ("centralized", "centralised"):
+            with self.subTest(word=word):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    "print('engine-load-noise', flush=True)\n",
+                    staged_word=word, verdict_preserved=True)
+
+    def test_preflight_timeout_override_is_bounded(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        for value in ("", "bad", "0", "-1", "nan", "inf", "-inf", "1e400", "301"):
+            with self.subTest(value=value), \
+                 patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": value}):
+                self.assertEqual(mod._engine_timeout(), 60.0)
+        for value in ("0.25", "60", "300"):
+            with self.subTest(value=value), \
+                 patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": value}):
+                self.assertEqual(mod._engine_timeout(), float(value))
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux subreaper assertion")
+    def test_preflight_timeout_kills_descendant(self):
+        import ctypes
+        import signal
+        import time
+        from unittest.mock import patch
+        # Adopt and reap the orphan ourselves, avoiding a dependency on PID 1's
+        # reaping speed and allowing an assertion that the PID really is gone.
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        mod = self.load_tool("preflight-changelog")
+        pid = None
+        reaped = False
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                pidfile = root / "pid"
+                partial = root / "pid.partial"
+                wrapper = root / "lint-language.py"
+                wrapper.write_text(
+                    "import os, time\n"
+                    "pid = os.fork()\n"
+                    "if pid == 0:\n"
+                    "    time.sleep(60)\n"
+                    "    os._exit(0)\n"
+                    f"with open({str(partial)!r}, 'w') as stream:\n"
+                    "    stream.write(str(pid))\n"
+                    f"os.replace({str(partial)!r}, {str(pidfile)!r})\n"
+                    "time.sleep(60)\n", encoding="utf-8")
+                # A 5-second engine timeout and a bounded pidfile poll: a slow
+                # host must not kill the group before the engine has forked the
+                # descendant and atomically published its pid (round 7, N5).
+                with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                     patch.object(mod, "added_lines", return_value=[]), \
+                     patch.object(mod, "unresolved_links_in_mirror", return_value=[]), \
+                     patch.dict(os.environ, {"GRC_PREFLIGHT_ENGINE_TIMEOUT": "5"}):
+                    self.assert_preflight_language_error(mod)
+                poll = time.monotonic() + 30
+                while time.monotonic() < poll and not pidfile.exists():
+                    time.sleep(0.05)
+                self.assertTrue(pidfile.exists(),
+                                "the engine never published the descendant pid")
+                pid = int(pidfile.read_text())
+                deadline = time.monotonic() + 10
+                while time.monotonic() < deadline:
+                    waited, status = os.waitpid(pid, os.WNOHANG)
+                    if waited:
+                        reaped = True
+                        break
+                    time.sleep(0.01)
+                self.assertTrue(reaped, f"descendant {pid} survived timeout")
+                self.assertEqual(os.waitstatus_to_exitcode(status), -signal.SIGKILL)
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
+                # The specific descendant is reaped and gone (asserted above);
+                # a process-wide os.waitpid(-1, ...) would couple this test to
+                # any other child of the test process (round 7, N6).
+        finally:
+            if pid is not None and not reaped:
+                try:
+                    os.kill(pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                os.waitpid(pid, 0)
+            self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
+
+    @unittest.skipUnless(sys.platform == "linux", "Linux subreaper assertion")
+    def test_preflight_kills_descendant_on_success_and_failure(self):
+        # Round 7, E3: a descendant the engine leaves behind is killed on EVERY
+        # completion path, not only on timeout: after a successful run and
+        # after a failed engine load, the sleeper must be SIGKILLed and gone.
+        import ctypes
+        import signal
+        import time
+        from unittest.mock import patch
+        libc = ctypes.CDLL(None, use_errno=True)
+        previous = ctypes.c_int()
+        self.assertEqual(libc.prctl(37, ctypes.byref(previous), 0, 0, 0), 0)
+        self.assertEqual(libc.prctl(36, 1, 0, 0, 0), 0)
+        mod = self.load_tool("preflight-changelog")
+        engine_stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return {}\n")
+        try:
+            for outcome, tail in (("success", engine_stub),
+                                  ("failure", "raise RuntimeError('load failed')\n")):
+                with self.subTest(outcome=outcome), \
+                        tempfile.TemporaryDirectory() as td:
+                    root = Path(td)
+                    pidfile = root / "pid"
+                    partial = root / "pid.partial"
+                    wrapper = root / "lint-language.py"
+                    wrapper.write_text(
+                        "import os, subprocess, sys\n"
+                        "_sleeper = subprocess.Popen(\n"
+                        "    [sys.executable, '-c', 'import time; time.sleep(120)'],\n"
+                        "    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,\n"
+                        "    stderr=subprocess.DEVNULL)\n"
+                        f"with open({str(partial)!r}, 'w') as stream:\n"
+                        "    stream.write(str(_sleeper.pid))\n"
+                        f"os.replace({str(partial)!r}, {str(pidfile)!r})\n"
+                        + tail, encoding="utf-8")
+                    pid = None
+                    reaped = False
+                    try:
+                        with patch.object(mod, "_LANGUAGE_GATE", wrapper):
+                            if outcome == "success":
+                                self.assertEqual(mod.spelling_findings([]), [])
+                            else:
+                                with self.assertRaises(mod.LanguageEngineUnavailable):
+                                    mod.spelling_findings([])
+                        poll = time.monotonic() + 30
+                        while time.monotonic() < poll and not pidfile.exists():
+                            time.sleep(0.05)
+                        self.assertTrue(pidfile.exists(),
+                                        "the engine never published the sleeper pid")
+                        pid = int(pidfile.read_text())
+                        status = None
+                        deadline = time.monotonic() + 10
+                        while time.monotonic() < deadline:
+                            waited, status = os.waitpid(pid, os.WNOHANG)
+                            if waited:
+                                reaped = True
+                                break
+                            time.sleep(0.01)
+                        self.assertTrue(
+                            reaped, f"descendant {pid} survived the {outcome} path")
+                        self.assertEqual(os.waitstatus_to_exitcode(status),
+                                         -signal.SIGKILL)
+                        with self.assertRaises(ProcessLookupError):
+                            os.kill(pid, 0)
+                    finally:
+                        if pid is not None and not reaped:
+                            try:
+                                os.kill(pid, signal.SIGKILL)
+                            except ProcessLookupError:
+                                pass
+                            try:
+                                os.waitpid(pid, 0)
+                            except ChildProcessError:
+                                pass
+        finally:
+            self.assertEqual(libc.prctl(36, previous.value, 0, 0, 0), 0)
+
+    def test_preflight_load_exception_cleanup(self):
+        # A load-time exception whose own __del__ raises: the child dies without a
+        # marked result, its teardown noise is discarded, the error stays one line.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadLoad(Exception):\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "raise BadLoad()\n")
+
+    def test_preflight_error_formatter_system_exit_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __str__(self): raise SystemExit(0)\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_error_formatter_value_error_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __str__(self): raise ValueError('bad message')\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_exception_metaclass_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class Meta(type):\n"
+            "    def __getattribute__(cls, name):\n"
+            "        if name == '__name__': raise SystemExit(0)\n"
+            "        return super().__getattribute__(name)\n"
+            "class BadMessage(Exception, metaclass=Meta): pass\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_exception_repr_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "class BadMessage(Exception):\n"
+            "    def __repr__(self): raise SystemExit(0)\n"
+            "raise BadMessage()\n")
+
+    def test_preflight_matcher_system_exit_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "def spelling_matches(text, checks): raise SystemExit(0)\n")
+
+    def test_preflight_matcher_value_error_refuses_staged_misspelling(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "def spelling_matches(text, checks): raise ValueError('bad matcher')\n")
+
+    def test_preflight_engine_closed_stdout_fails_closed(self):
+        # R5-1: the engine closes the child's stdout and raises. The result channel
+        # is a pre-saved duplicate descriptor, and the fault denies the marker anyway.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\nsys.stdout.close()\nraise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_closed_stderr_fails_closed(self):
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\nsys.stderr.close()\nraise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_printed_traceback_is_discarded(self):
+        # R5-2: engine diagnostics printed before the fault never reach the caller
+        # (the single-line assertion in the helper would catch any replay).
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import traceback\n"
+            "try:\n"
+            "    raise ValueError('engine-detail-marker')\n"
+            "except ValueError:\n"
+            "    traceback.print_exc()\n"
+            "print('engine-stdout-marker')\n"
+            "raise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_os_exit_zero_fails_closed(self):
+        # An engine that ends the child with exit 0 cannot pass: no marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import os\nos._exit(0)\n")
+
+    def test_preflight_engine_replaced_unraisablehook_cannot_pass(self):
+        # The child-side unraisable hook is the engine's to break: one that turns
+        # a teardown fault into an immediate exit 0 still lacks the marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import os, sys\n"
+            "sys.unraisablehook = lambda *a: os._exit(0)\n"
+            "_original_spelling_matches = spelling_matches\n"
+            "class EngineResult(list):\n"
+            "    def __del__(self): raise SystemExit(0)\n"
+            "def spelling_matches(text, checks):\n"
+            "    return EngineResult(_original_spelling_matches(text, checks))\n")
+
+    def test_preflight_restored_unraisablehook_fault_refuses_clean_commit(self):
+        # Round 7, E1: an engine that restores the interpreter's DEFAULT
+        # unraisable hook turns a destructor fault into discarded stderr noise;
+        # the runner's pre-seal identity check must refuse the result (exit
+        # 71), so even a clean entry cannot commit over the masked fault.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\n"
+            "sys.unraisablehook = sys.__unraisablehook__\n"
+            "class LoadResource:\n"
+            "    def __del__(self): raise RuntimeError('load cleanup failed')\n"
+            "resource = LoadResource()\n"
+            "del resource\n", staged_word="centralized")
+
+    def test_preflight_restored_thread_excepthook_fault_refuses_clean_commit(self):
+        # Round 7, E1: the same masking through threading.__excepthook__: a
+        # joined thread's exception becomes stderr noise under the default
+        # hook; the pre-seal identity check must still refuse the result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import threading\n"
+            "threading.excepthook = threading.__excepthook__\n"
+            "def _fail(): raise RuntimeError('thread failed')\n"
+            "_worker = threading.Thread(target=_fail)\n"
+            "_worker.start()\n"
+            "_worker.join()\n", staged_word="centralized")
+
+    def test_preflight_matcher_invalid_return_shape_refuses_staged_misspelling(self):
+        # Round 7, E2: a matcher returning '' or {} (or any other
+        # non-list shape) iterates into ZERO pairs, which round 6 sealed as a
+        # clean verdict over a staged misspelling; the runner must enforce the
+        # declared list-of-string-pairs contract and die without a result.
+        for value in ("''", "{}", "iter([])"):
+            with self.subTest(value=value):
+                self.assert_engine_failure_refuses_staged_misspelling(
+                    f"def spelling_matches(text, checks): return {value}\n")
+
+    def test_preflight_async_thread_matcher_refuses_staged_misspelling(self):
+        # Round 8, E1: a matcher that hands the real work to a thread and
+        # returns its still-empty list at once would seal a clean verdict over
+        # a staged misspelling; the runner must refuse (exit 72, no result
+        # line) while any engine thread is alive, BEFORE reading the results,
+        # so the standalone preflight, the hook and a real git commit all
+        # refuse and HEAD stays unchanged.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import threading, time\n"
+            "_original_matches = spelling_matches\n"
+            "def spelling_matches(text, checks):\n"
+            "    pending = []\n"
+            "    def work():\n"
+            "        time.sleep(10)\n"
+            "        pending.extend(_original_matches(text, checks))\n"
+            "    threading.Thread(target=work).start()\n"
+            "    return pending\n")
+
+    def test_preflight_runner_unreaped_until_group_kill(self):
+        # Round 8, W2: the group kill must run while the runner is still
+        # UNREAPED (running, or a waitable zombie pinning the group id), on
+        # the success path and on the failure path alike. communicate() used
+        # to reap the runner before the kill, so the recorded pgid pointed at
+        # an already-freed pid slot when os.killpg ran.
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        engine_stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return dict()\n")
+        real_killpg = os.killpg
+        for outcome, source in (("success", engine_stub),
+                                ("failure", "raise RuntimeError('load failed')\n")):
+            pinned = []
+
+            def recording_killpg(pgid, sig, _record=pinned):
+                try:
+                    os.waitid(os.P_PID, pgid,
+                              os.WEXITED | os.WNOWAIT | os.WNOHANG)
+                except ChildProcessError:
+                    _record.append("reaped")
+                else:
+                    _record.append("unreaped")
+                return real_killpg(pgid, sig)
+
+            with self.subTest(outcome=outcome), \
+                    tempfile.TemporaryDirectory() as td:
+                wrapper = Path(td) / "lint-language.py"
+                wrapper.write_text(source, encoding="utf-8")
+                with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                        patch("os.killpg", recording_killpg):
+                    if outcome == "success":
+                        self.assertEqual(mod.spelling_findings([]), [])
+                    else:
+                        with self.assertRaises(mod.LanguageEngineUnavailable):
+                            mod.spelling_findings([])
+                self.assertEqual(pinned, ["unreaped"])
+
+    def test_preflight_pgid_mismatch_fails_closed_without_hang(self):
+        # Round 8, W2: were the group-id check ever to fail, the old code
+        # raised, skipped every kill, and then blocked forever in child.wait()
+        # on a runner still reading its never-closed stdin. The branch must
+        # kill the runner ITSELF, reap it, and refuse promptly, without
+        # signalling a group that was never verified as the runner's own.
+        import time
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        killpg_calls = []
+        start = time.monotonic()
+        with patch("os.getpgid", lambda pid: pid + 1), \
+                patch("os.killpg", lambda *args: killpg_calls.append(args)):
+            with self.assertRaises(mod.LanguageEngineUnavailable):
+                mod.spelling_findings([])
+        self.assertLess(time.monotonic() - start, 30)
+        self.assertEqual(killpg_calls, [])
+
+    def test_preflight_staged_verdicts_survive_inherited_sigchld_ignore(self):
+        # Round 9, W1: a caller that inherited SIGCHLD=SIG_IGN makes the
+        # kernel reap the runner the moment it exits; the WNOWAIT wait then
+        # raised ChildProcessError inside the engine fault boundary, so a
+        # CLEAN staged addition was refused as the fixed engine error (exit
+        # 2, where base 8e8fdad1 exits 0). The preflight must hold the
+        # default disposition for the runner's lifetime and put the caller's
+        # back after the reap: the staged verdicts are unchanged (clean 0,
+        # misspelled 1) and the caller's SIG_IGN survives. The scenario runs
+        # in its OWN process so the ignored SIGCHLD never leaks into this
+        # test runner.
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel in ("tools/preflight-changelog.py",
+                        "tools/preflight_language_runner.py",
+                        "tools/lint-language.py",
+                        "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/aiqt_bootstrap.py",
+                        ".corpus-management/tools/gate_lint_language.py",
+                        ".corpus-management/tools/profile_loader.py",
+                        ".corpus-management/defaults/grc/language.toml"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
+                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT",
+                                 "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
+            env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                       AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt"))
+
+            def git(*args):
+                result = subprocess.run(["git", *args], cwd=root, env=env,
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return result.stdout
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            driver = (
+                "import runpy, signal, sys\n"
+                "signal.signal(signal.SIGCHLD, signal.SIG_IGN)\n"
+                "sys.argv = ['preflight-changelog.py', '--staged']\n"
+                "code = 0\n"
+                "try:\n"
+                "    runpy.run_path('tools/preflight-changelog.py',"
+                " run_name='__main__')\n"
+                "except SystemExit as exc:\n"
+                "    code = exc.code if isinstance(exc.code, int) else 1\n"
+                "if signal.getsignal(signal.SIGCHLD) is not signal.SIG_IGN:\n"
+                "    print('SIGCHLD disposition not restored', file=sys.stderr)\n"
+                "    code = 97\n"
+                "sys.exit(code)\n")
+            for word, expected, marker in (
+                    ("centralized", 0, "OK:"),
+                    ("centralised", 1, "gate 2 spelling [ise]: centralised")):
+                with self.subTest(word=word):
+                    path.write_text("# Changelog\nNew " + word + " controls.\n",
+                                    encoding="utf-8")
+                    git("add", "CHANGELOG.md")
+                    result = subprocess.run([sys.executable, "-c", driver],
+                                            cwd=root, env=env,
+                                            capture_output=True, text=True)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, expected, report)
+                    self.assertIn(marker, report)
+                    self.assertNotIn("ERROR: the gate-2", report)
+                    self.assertNotIn("Traceback", report)
+
+    def test_preflight_interrupt_during_sigchld_swap_restores_disposition(self):
+        # Round 10: an interrupt delivered right after the swap to SIG_DFL,
+        # before the old code reached its cleanup-protecting try, propagated
+        # with the caller's SIGCHLD disposition still replaced, so a caller's
+        # SIG_IGN was permanently lost without any engine having run. The
+        # protection must be armed BEFORE the disposition changes: the
+        # interrupt still propagates, and the caller's disposition is back in
+        # place afterwards. The interrupt is injected from the signal.signal
+        # seam itself (immediately after the first swap to SIG_DFL takes
+        # effect), the narrowest window there is. The scenario runs in its
+        # OWN process so the ignored SIGCHLD and the injected interrupt never
+        # leak into this test runner.
+        driver = (
+            "import importlib.util, signal, sys\n"
+            "sys.path.insert(0, 'tools')\n"
+            "spec = importlib.util.spec_from_file_location(\n"
+            "    'preflight_changelog', 'tools/preflight-changelog.py')\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "signal.signal(signal.SIGCHLD, signal.SIG_IGN)\n"
+            "real_signal = signal.signal\n"
+            "def interrupt_after_swap(signum, handler):\n"
+            "    result = real_signal(signum, handler)\n"
+            "    if signum == signal.SIGCHLD and handler is signal.SIG_DFL:\n"
+            "        signal.signal = real_signal\n"
+            "        raise KeyboardInterrupt\n"
+            "    return result\n"
+            "signal.signal = interrupt_after_swap\n"
+            "try:\n"
+            "    mod.spelling_findings([('CHANGELOG.md', 'New centralized"
+            " controls.')])\n"
+            "except KeyboardInterrupt:\n"
+            "    pass\n"
+            "else:\n"
+            "    print('the injected interrupt did not propagate',"
+            " file=sys.stderr)\n"
+            "    sys.exit(96)\n"
+            "finally:\n"
+            "    signal.signal = real_signal\n"
+            "if signal.getsignal(signal.SIGCHLD) is not signal.SIG_IGN:\n"
+            "    print('SIGCHLD disposition not restored', file=sys.stderr)\n"
+            "    sys.exit(97)\n"
+            "print('OK: SIG_IGN restored after the injected interrupt')\n"
+            "sys.exit(0)\n")
+        result = subprocess.run([sys.executable, "-c", driver],
+                                cwd=REPO_ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
+        # The runner never calls sys.exit, so a patched one cannot turn a fault
+        # into a pass; the raise still ends the child without the marked result.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import sys\n"
+            "sys.exit = lambda *args, **kwargs: None\n"
+            "raise RuntimeError('engine failed')\n")
+
+    def test_preflight_engine_hang_times_out(self):
+        # A hung engine is killed at the configured bound and fails closed.
+        import time
+        start = time.monotonic()
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import time\ntime.sleep(20)\n",
+            extra_env={"GRC_PREFLIGHT_ENGINE_TIMEOUT": "5"})
+        self.assertLess(time.monotonic() - start, 120)
+
+    def test_preflight_engine_keyboard_interrupt_is_engine_fault(self):
+        # Engine-raised KeyboardInterrupt happens inside the isolated child: an
+        # engine fault (exit 2), not an interrupt of the preflight. A real Ctrl-C
+        # reaches the parent process directly and still propagates.
+        for source in ("raise KeyboardInterrupt()\n",
+                       "def spelling_matches(text, checks): raise KeyboardInterrupt()\n"):
+            with self.subTest(source=source):
+                self.assert_engine_failure_refuses_staged_misspelling(source)
+
+    def test_preflight_malformed_child_output_fails_closed_end_to_end(self):
+        # A runner replaced by one answering with unmarked output: no valid marked
+        # result, so the preflight, the hook and the commit all refuse.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "", runner_source=(
+                "import sys\nsys.stdin.read()\n"
+                "print('not a marked result')\nraise SystemExit(0)\n"))
+
+    def test_preflight_malformed_child_result_fails_closed(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        lines = [("CHANGELOG.md", "New centralised controls.")]
+        echo = (
+            "import json, sys\n"
+            "request = json.loads(sys.stdin.read())\n"
+            "print(json.dumps({'nonce': request['nonce'],"
+            " 'findings': [[] for _ in request['texts']]}))\n")
+        stubs = {
+            "no output": "import sys\nsys.stdin.read()\n",
+            "not json": "import sys\nsys.stdin.read()\nprint('not json')\n",
+            "extra line": echo + "print('extra')\n",
+            "wrong nonce": ("import json, sys\nsys.stdin.read()\n"
+                            "print(json.dumps({'nonce': 'forged', 'findings': [[]]}))\n"),
+            "extra key": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                          "print(json.dumps({'nonce': request['nonce'], 'findings':"
+                          " [[] for _ in request['texts']], 'extra': 1}))\n"),
+            "wrong length": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                             "print(json.dumps({'nonce': request['nonce'], 'findings': []}))\n"),
+            "non-string pair": ("import json, sys\nrequest = json.loads(sys.stdin.read())\n"
+                                "print(json.dumps({'nonce': request['nonce'], 'findings':"
+                                " [[['ise', 1]] for _ in request['texts']]}))\n"),
+            "marked but nonzero exit": echo + "import sys\nsys.exit(3)\n",
+        }
+        with tempfile.TemporaryDirectory() as td:
+            stub = Path(td) / "runner.py"
+            with patch.object(mod, "_LANGUAGE_RUNNER", stub), \
+                 patch.object(mod, "added_lines", return_value=lines), \
+                 patch.object(mod, "unresolved_links_in_mirror", return_value=[]):
+                # Control: a well-formed marked empty result is accepted (exit 0),
+                # so each refusal below is the malformation's, not the stub's.
+                stub.write_text(echo, encoding="utf-8")
+                with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                    self.assertEqual(mod.main(["preflight", "--staged"]), 0)
+                for name, source in stubs.items():
+                    with self.subTest(malformation=name):
+                        stub.write_text(source, encoding="utf-8")
+                        self.assert_preflight_language_error(mod)
+
+    def test_preflight_help_and_argparse_untouched_by_pending_faults(self):
+        """Non-engine control: --help prints usage and exits 0 even when the CALLER
+        has a collectable object whose __del__ raises (be365929 collected it under
+        its recording hook, suppressed the help text and printed the engine error),
+        and the preflight never touches sys.unraisablehook."""
+        import gc
+        from contextlib import redirect_stdout, redirect_stderr
+        mod = self.load_tool("preflight-changelog")
+        previous_hook = sys.unraisablehook
+
+        class _CallerFault:
+            def __del__(self):
+                raise RuntimeError("caller-owned fault")
+
+        holder = _CallerFault()
+        holder.cycle = holder  # collectable only by gc, like a pending caller fault
+        del holder
+        try:
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err), \
+                 self.assertRaises(SystemExit) as raised:
+                mod.main(["preflight", "--help"])
+            self.assertEqual(raised.exception.code, 0)
+            self.assertIn("usage:", out.getvalue())
+            self.assertNotIn("ERROR: the gate-2", err.getvalue())
+            self.assertIs(sys.unraisablehook, previous_hook)
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err), \
+                 self.assertRaises(SystemExit) as raised:
+                mod.main(["preflight", "--unknown"])
+            self.assertEqual(raised.exception.code, 2)
+            self.assertIn("usage:", err.getvalue())
+            self.assertIs(sys.unraisablehook, previous_hook)
+        finally:
+            # Collect the planted cycle under a neutral hook so its fault cannot
+            # surface later in an unrelated test.
+            sys.unraisablehook = lambda *args: None
+            try:
+                gc.collect()
+            finally:
+                sys.unraisablehook = previous_hook
+
+    def test_preflight_argparse_error_with_closed_stdout(self):
+        # R5-3 control: an unknown flag with the caller's stdout closed (runpy, as
+        # an embedding caller) stays an ordinary argparse error: usage on stderr,
+        # exit 2, no traceback (be365929 replayed empty stdout first and crashed).
+        preflight = REPO_ROOT / "tools" / "preflight-changelog.py"
+        driver = (
+            "import runpy, sys\n"
+            "sys.stdout.close()\n"
+            "sys.argv = ['preflight-changelog.py', '--unknown']\n"
+            f"runpy.run_path({str(preflight)!r}, run_name='__main__')\n")
+        # PYTHON_COLORS=0: Python 3.14 argparse colour detection probes the closed
+        # stdout's fileno() while BUILDING the parser, on the pre-PR preflight too;
+        # the subject here is the R5-3 replay regression, not colour detection.
+        result = subprocess.run([sys.executable, "-c", driver],
+                                capture_output=True, text=True,
+                                env={**os.environ, "PYTHON_COLORS": "0"})
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("usage:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_preflight_git_error_detail_is_reported(self):
+        # Non-engine control: a failing `git diff` still exits 2 with git's own
+        # detail (the engine boundary never swallows non-engine diagnostics).
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        exc = subprocess.CalledProcessError(
+            128, ["git", "diff"], stderr="fatal: bad revision 'HEAD'\n")
+        with patch.object(mod, "added_lines", side_effect=exc):
+            err = io.StringIO()
+            with redirect_stdout(io.StringIO()), redirect_stderr(err):
+                self.assertEqual(mod.main(["preflight", "--staged"]), 2)
+            self.assertIn("ERROR: git diff failed", err.getvalue())
+            self.assertIn("fatal: bad revision", err.getvalue())
+            self.assertNotIn("ERROR: the gate-2", err.getvalue())
+
+    def test_preflight_engine_error_is_one_line(self):
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        with tempfile.TemporaryDirectory() as td:
+            wrapper = Path(td) / "lint-language.py"
+            wrapper.write_text("raise RuntimeError('first line\\nsecond line\\r\\nthird line')\n",
+                               encoding="utf-8")
+            with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                 patch.object(mod, "added_lines", return_value=[]):
+                self.assert_preflight_language_error(mod)
 
 
 class LinksLinterTests(LinterTestCase):
@@ -5083,7 +6127,8 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
         `commit -a`, a pathspec commit, hostile diff configuration (external diff drivers, textconv
         and a -diff attribute included), an override of "0", a conflicted merge conclusion, a linked
         worktree, a mirror in a separate repository judged by that repository's own index, the
-        mirror-scan trigger scoping, the preflight's own exit 2 on a git error, an unborn initial commit
+        mirror-scan trigger scoping, the preflight's own exit 2 on a git error and on a gate-2 language
+        engine it cannot load, a staged gate-2 spelling, an unborn initial commit
         that does not stage CHANGELOG.md, and the fail-open and fail-closed cases.
         """
         result = self._run_selftest(
@@ -26266,7 +27311,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.8.0", "3b177-c adds the dash engine's optional scan reader on top of the 3b177-b index (MINOR, 0.7.0 to 0.8.0)")
+        self.assertEqual(man["pack"]["version"], "0.9.0", "3b201 adds the language engine's public spelling_matches helper on top of 3b177-c (MINOR, 0.8.0 to 0.9.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
