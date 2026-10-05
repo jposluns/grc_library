@@ -40,8 +40,9 @@ wrongly blocks a legitimate stop is worse than the mistake it prevents.
 
 PORTABILITY. The ADAPTER SEAM contains grc's lease-mode, producer and generic owner adapters,
 plus grc path, checkout, worker and one-shot helpers. main() also carries the one-shot escape
-pre-step. The registry observer, decision predicates, run(), payload parsing and diagnostic transport
-are lab_infra commit 17b407b9 (PR #952, item 373), unchanged. Emitted block-message text alone
+pre-step. The registry observer, decision predicates, run() and payload parsing are from
+lab_infra commit 17b407b9 (PR #952, item 373), unchanged. Diagnostic transport additionally carries
+3b226's connected-socket syscall adaptation below. Emitted block-message text alone
 carries P-1.36 (BLOCKED / WHY / CONSIDER INSTEAD), #2291 (count only, producer on demand) and
 #2496 (resolved declared-wait path). MODE_SET_HINT retains the detailed grc guidance; the emitted
 hint is shortened to fit B's message format. Unusually long override paths can still be truncated
@@ -88,6 +89,12 @@ Diagnostics are delivered only to regular files, FIFOs and sockets. Terminal std
 including PTY masters and slaves, other devices and unknown types receives no diagnostic:
 these destinations are silently dropped without writing or reopening them. Unavailable
 permitted destinations can also lose diagnostics. The exit status remains the contract.
+
+GRC DIAGNOSTIC ADAPTATION (2026-10-05; backlog 3b226). Connected socket stderr needs no
+address discovery: wrap the inherited descriptor with explicit neutral metadata and use sendmsg
+with MSG_DONTWAIT. This also delivers under sandboxes that deny socket metadata queries and
+sendto while permitting sendmsg on an already-connected descriptor. Fork isolation, shared
+fd flags, deadlines, message bounds and fail-open behaviour are unchanged.
 
 Self-test: python3 .claude/hooks/stop-guard-unattended.py --self-test.
 Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; registry cases remain.
@@ -452,7 +459,8 @@ def is_orchestrator_session(root):
 
 # ============================================================================
 # END ADAPTER SEAM -- B core below; decision predicates and registry code are unchanged. (GRC:
-# Exceptions (emitted message text only; predicates/decisions/exit unchanged): P-1.36, #2291, #2496.
+# Exceptions: emitted message text (P-1.36, #2291, #2496); connected-socket transport (3b226).
+# Predicates, decisions and exit statuses are unchanged.
 # main() below carries a one-shot-escape pre-step; see the GRC ADAPTATION note.)
 # ============================================================================
 
@@ -682,7 +690,10 @@ def _diagnostic(message):
         elif stat.S_ISSOCK(mode):
             # MSG_DONTWAIT is per send; dup() alone shares the original flags.
             fd = os.dup(2)
-            peer = socket.socket(fileno=fd)
+            # This connected fd needs no address/type/protocol discovery. Explicit neutral
+            # metadata avoids queries denied by some sandboxes; the kernel retains the
+            # actual socket properties. Only descriptor-based sendmsg and close are used.
+            peer = socket.socket(family=socket.AF_UNSPEC, type=0, proto=0, fileno=fd)
         elif stat.S_ISREG(mode):
             # Regular-file writes ignore O_NONBLOCK; only this child can stall.
             while remaining and time.monotonic() < deadline:
@@ -703,7 +714,7 @@ def _diagnostic(message):
             target = 2 if peer is not None else fd
             if not select.select([], [target], [], wait)[1]:
                 return
-            written = (peer.send(remaining, socket.MSG_DONTWAIT) if peer is not None
+            written = (peer.sendmsg([remaining], [], socket.MSG_DONTWAIT) if peer is not None
                        else os.write(fd, remaining))
             if written <= 0:
                 return
