@@ -107,17 +107,20 @@ otherwise make the kernel reap the runner automatically, unpinning its pid
 and refusing a healthy run (round 9, W1). The SUPPORTED invocations are the
 command line and the commit hook, each a fresh process, where only SIG_DFL
 and SIG_IGN can survive the exec boundary and both are saved and restored
-exactly. Disclosed residuals for IN-PROCESS EMBEDDING only, with behaviour
-unchanged for the supported invocations: a native SIGCHLD handler installed
-after interpreter startup outside the signal module reads as the stale
-startup snapshot, so the restore replaces the handler with that snapshot (one
-installed before startup reads as unsaveable, None, and is left alone); and a
+exactly. Disclosed residuals for IN-PROCESS EMBEDDING only (follow-up 3b259),
+with behaviour unchanged for the supported invocations: a native SIGCHLD
+handler installed after interpreter startup outside the signal module reads
+as the stale startup snapshot, so the restore replaces the handler with that
+snapshot (one installed before startup reads as unsaveable, None, and is left
+alone); and a
 spelling check run outside the main thread cannot swap the disposition at
 all, so under a caller-set SIGCHLD=SIG_IGN it refuses a healthy run as the
 fixed engine error (fail closed, availability only, never a wrong verdict)
-and leaves the caller's disposition untouched. Residuals, stated: a descendant that moves itself to a new
-process group, or to a new session, leaves that group and escapes the kill;
-and this process reaps only the child itself, so zombie reaping of descendants
+and leaves the caller's disposition untouched. An interrupt delivered at the
+instant of the restore can leave SIG_DFL in a process that is exiting
+(residual, stated, 3b259). Residuals, stated: a descendant that moves itself
+to a new process group, or to a new session, leaves that group and escapes
+the kill; and this process reaps only the child itself, so zombie reaping of descendants
 depends on the parent's reaper, and under a non-reaping reaper a killed or
 surviving descendant can persist as a zombie. An engine that forks a helper
 WITHOUT exec leaves the child's saved result descriptor open in the helper, so
