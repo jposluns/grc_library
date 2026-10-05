@@ -1792,6 +1792,54 @@ class ChangelogLanguageTests(unittest.TestCase):
                     self.assertNotIn("ERROR: the gate-2", report)
                     self.assertNotIn("Traceback", report)
 
+    def test_preflight_interrupt_during_sigchld_swap_restores_disposition(self):
+        # Round 10: an interrupt delivered right after the swap to SIG_DFL,
+        # before the old code reached its cleanup-protecting try, propagated
+        # with the caller's SIGCHLD disposition still replaced, so a caller's
+        # SIG_IGN was permanently lost without any engine having run. The
+        # protection must be armed BEFORE the disposition changes: the
+        # interrupt still propagates, and the caller's disposition is back in
+        # place afterwards. The interrupt is injected from the signal.signal
+        # seam itself (immediately after the first swap to SIG_DFL takes
+        # effect), the narrowest window there is. The scenario runs in its
+        # OWN process so the ignored SIGCHLD and the injected interrupt never
+        # leak into this test runner.
+        driver = (
+            "import importlib.util, signal, sys\n"
+            "sys.path.insert(0, 'tools')\n"
+            "spec = importlib.util.spec_from_file_location(\n"
+            "    'preflight_changelog', 'tools/preflight-changelog.py')\n"
+            "mod = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(mod)\n"
+            "signal.signal(signal.SIGCHLD, signal.SIG_IGN)\n"
+            "real_signal = signal.signal\n"
+            "def interrupt_after_swap(signum, handler):\n"
+            "    result = real_signal(signum, handler)\n"
+            "    if signum == signal.SIGCHLD and handler is signal.SIG_DFL:\n"
+            "        signal.signal = real_signal\n"
+            "        raise KeyboardInterrupt\n"
+            "    return result\n"
+            "signal.signal = interrupt_after_swap\n"
+            "try:\n"
+            "    mod.spelling_findings([('CHANGELOG.md', 'New centralized"
+            " controls.')])\n"
+            "except KeyboardInterrupt:\n"
+            "    pass\n"
+            "else:\n"
+            "    print('the injected interrupt did not propagate',"
+            " file=sys.stderr)\n"
+            "    sys.exit(96)\n"
+            "finally:\n"
+            "    signal.signal = real_signal\n"
+            "if signal.getsignal(signal.SIGCHLD) is not signal.SIG_IGN:\n"
+            "    print('SIGCHLD disposition not restored', file=sys.stderr)\n"
+            "    sys.exit(97)\n"
+            "print('OK: SIG_IGN restored after the injected interrupt')\n"
+            "sys.exit(0)\n")
+        result = subprocess.run([sys.executable, "-c", driver],
+                                cwd=REPO_ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
         # The runner never calls sys.exit, so a patched one cannot turn a fault
         # into a pass; the raise still ends the child without the marked result.

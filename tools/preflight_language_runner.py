@@ -21,8 +21,9 @@ unraisable and thread exception hooks are installed to record the fault and
 exit immediately with status 70, without writing a result. Exceptions delivered
 to either hook before sealing deny the result. After the last matcher call and
 BEFORE any matcher result is read, the runner refuses with status 72, without a
-result line, while any thread registered with the ``threading`` module is
-alive (``threading.enumerate()``): a matcher that handed its work to a
+result line, while any thread registered with the ``threading`` module, other
+than the runner's own main thread, is alive (``threading.enumerate()``): a
+matcher that handed its work to a
 still-running registered thread has returned a result it has not finished
 producing (round 8, E1). Only
 after that check are the results copied into an immutable snapshot (validated

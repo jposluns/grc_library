@@ -99,12 +99,23 @@ waits for the child's exit WITHOUT reaping it (os.waitid with WNOWAIT), kills
 ONLY the child's own process group, whose id it verified against the child's
 pid, and only then reaps the child, so the unreaped pid pins the group id
 through the kill. The parent holds the DEFAULT SIGCHLD disposition from before
-the spawn until after that reap and then restores the caller's: a
-caller-inherited SIGCHLD=SIG_IGN would otherwise make the kernel reap the
-runner automatically, unpinning its pid and refusing a healthy run (round 9,
-W1). A disposition the signal module cannot save (a non-Python handler), or a
-spelling check run outside the main thread, leaves the inherited disposition
-in place (residual, stated). Residuals, stated: a descendant that moves itself to a new
+the spawn until after that reap and then restores the caller's, interrupt
+paths included: the restore is armed before the disposition changes, so an
+interrupt delivered at any point either finds the disposition unchanged or
+finds the restore armed (round 10). A caller-inherited SIGCHLD=SIG_IGN would
+otherwise make the kernel reap the runner automatically, unpinning its pid
+and refusing a healthy run (round 9, W1). The SUPPORTED invocations are the
+command line and the commit hook, each a fresh process, where only SIG_DFL
+and SIG_IGN can survive the exec boundary and both are saved and restored
+exactly. Disclosed residuals for IN-PROCESS EMBEDDING only, with behaviour
+unchanged for the supported invocations: a native SIGCHLD handler installed
+after interpreter startup outside the signal module reads as the stale
+startup snapshot, so the restore replaces the handler with that snapshot (one
+installed before startup reads as unsaveable, None, and is left alone); and a
+spelling check run outside the main thread cannot swap the disposition at
+all, so under a caller-set SIGCHLD=SIG_IGN it refuses a healthy run as the
+fixed engine error (fail closed, availability only, never a wrong verdict)
+and leaves the caller's disposition untouched. Residuals, stated: a descendant that moves itself to a new
 process group, or to a new session, leaves that group and escapes the kill;
 and this process reaps only the child itself, so zombie reaping of descendants
 depends on the parent's reaper, and under a non-reaping reaper a killed or
@@ -123,8 +134,9 @@ discarded stderr, and seals a computed result with os._exit(0), so engine output
 cannot reach the result channel and a fault delivered during child teardown
 cannot alter a result the real matcher already produced. Before any matcher
 result is read, and again immediately before sealing, the runner refuses (exit
-72, no result line) while any thread registered with the threading module is
-alive, and takes an immutable snapshot of the validated results only after
+72, no result line) while any thread registered with the threading module,
+other than its own main thread, is alive, and takes an immutable snapshot of
+the validated results only after
 that check, so a matcher that handed its work to a still-running registered
 thread cannot seal an unfinished result (round 8, E1). Residual, stated: a
 thread started below the threading module (_thread.start_new_thread) is
@@ -316,17 +328,27 @@ def spelling_findings(lines):
         # error (round 9, W1). Hold the DEFAULT disposition for the runner's
         # whole lifetime and put the caller's back only after the runner is
         # reaped, so the unreaped pid keeps pinning the group id on every
-        # path. A disposition this module cannot save (a non-Python handler)
-        # or cannot swap (not the main thread) is left alone: a real handler
-        # does not make the kernel auto-reap (residual: one installed with
-        # SA_NOCLDWAIT outside the signal module is indistinguishable here).
-        saved_sigchld = signal.getsignal(signal.SIGCHLD)
-        if saved_sigchld is not None:
-            try:
-                signal.signal(signal.SIGCHLD, signal.SIG_DFL)
-            except ValueError:
-                saved_sigchld = None  # not the main thread: no swap, no restore
+        # path. saved_sigchld is recorded BEFORE the swap, inside the
+        # protecting try, so an interrupt delivered at ANY point either finds
+        # the disposition unchanged or finds the restore below armed (round
+        # 10); re-arming an unswapped disposition is a harmless no-op. A
+        # disposition this module reads as unsaveable (None: a non-Python
+        # handler from before interpreter startup) or cannot swap (not the
+        # main thread) is left alone: a real handler does not make the kernel
+        # auto-reap. Residual, in-process embedding only: a native handler
+        # installed AFTER startup outside the signal module reads as the
+        # stale startup snapshot, which the restore puts back (see the module
+        # docstring; one installed with SA_NOCLDWAIT is indistinguishable
+        # here too).
+        saved_sigchld = None
         try:
+            inherited = signal.getsignal(signal.SIGCHLD)
+            if inherited is not None:
+                saved_sigchld = inherited
+                try:
+                    signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+                except ValueError:
+                    saved_sigchld = None  # not the main thread: no swap
             with subprocess.Popen(
                     [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
                     stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -369,9 +391,14 @@ def spelling_findings(lines):
                     child.wait()
         finally:
             # The caller's SIGCHLD disposition returns only AFTER the runner
-            # is reaped, on every path (round 9, W1).
+            # is reaped, on every path, interrupt paths included (rounds
+            # 9-10). ValueError here means a non-main-thread caller whose
+            # disposition was never swapped: nothing to put back.
             if saved_sigchld is not None:
-                signal.signal(signal.SIGCHLD, saved_sigchld)
+                try:
+                    signal.signal(signal.SIGCHLD, saved_sigchld)
+                except ValueError:
+                    pass  # not the main thread: nothing was swapped
         if child.returncode != 0 or len(stdout) > _ENGINE_STDOUT_MAX:
             raise LanguageEngineUnavailable()
         matches = _validated_matches(stdout.decode("ascii"), nonce, len(lines))
