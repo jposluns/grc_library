@@ -98,7 +98,13 @@ exit, a timeout, an exception) the parent reads the child's stdout to EOF,
 waits for the child's exit WITHOUT reaping it (os.waitid with WNOWAIT), kills
 ONLY the child's own process group, whose id it verified against the child's
 pid, and only then reaps the child, so the unreaped pid pins the group id
-through the kill. Residuals, stated: a descendant that moves itself to a new
+through the kill. The parent holds the DEFAULT SIGCHLD disposition from before
+the spawn until after that reap and then restores the caller's: a
+caller-inherited SIGCHLD=SIG_IGN would otherwise make the kernel reap the
+runner automatically, unpinning its pid and refusing a healthy run (round 9,
+W1). A disposition the signal module cannot save (a non-Python handler), or a
+spelling check run outside the main thread, leaves the inherited disposition
+in place (residual, stated). Residuals, stated: a descendant that moves itself to a new
 process group, or to a new session, leaves that group and escapes the kill;
 and this process reaps only the child itself, so zombie reaping of descendants
 depends on the parent's reaper, and under a non-reaping reaper a killed or
@@ -117,10 +123,13 @@ discarded stderr, and seals a computed result with os._exit(0), so engine output
 cannot reach the result channel and a fault delivered during child teardown
 cannot alter a result the real matcher already produced. Before any matcher
 result is read, and again immediately before sealing, the runner refuses (exit
-72, no result line) if any thread other than its main thread is alive, and
-takes an immutable snapshot of the validated results only after that check, so
-a matcher that handed its work to a still-running thread cannot seal an
-unfinished result (round 8, E1). Before sealing, the
+72, no result line) while any thread registered with the threading module is
+alive, and takes an immutable snapshot of the validated results only after
+that check, so a matcher that handed its work to a still-running registered
+thread cannot seal an unfinished result (round 8, E1). Residual, stated: a
+thread started below the threading module (_thread.start_new_thread) is
+invisible to that check, and a result deferred through a signal handler runs
+no thread at all; both are a disclosed residual (follow-up 3b253). Before sealing, the
 runner collects pending garbage and refuses (exit 71, no result line) unless
 both fault hooks are still its own and no fault was recorded, so an engine that
 restores the interpreter's default hooks cannot mask a fault (see the runner's
@@ -300,46 +309,69 @@ def spelling_findings(lines):
     try:
         nonce = secrets.token_hex(16)
         request = json.dumps({"nonce": nonce, "texts": [text for _, text in lines]})
-        with subprocess.Popen(
-                [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL, start_new_session=True) as child:
-            # start_new_session put the runner alone in a NEW process group
-            # whose id is the runner's own pid. That pid stays pinned to the
-            # runner (running, then an unreaped zombie) until the child.wait()
-            # in the finally below, and the group kill runs BEFORE that reap
-            # on every path, so the kill can never target a recycled id or a
-            # group that is not the runner's own (round 8, W2).
-            pgid = os.getpgid(child.pid)
-            if pgid != child.pid:
-                # Unreachable (start_new_session completes before Popen
-                # returns), but fail closed IMMEDIATELY if it ever fires: kill
-                # the runner ITSELF, reap it, and refuse. Never signal a group
-                # this process has not verified as the runner's own, and never
-                # block on a runner still holding its stdin open (round 8, W2).
-                child.kill()
-                child.wait()
-                raise LanguageEngineUnavailable()
+        # A caller that inherited SIGCHLD=SIG_IGN makes the kernel reap this
+        # process's children automatically: the runner would be reaped the
+        # moment it exited, the WNOWAIT wait below would raise
+        # ChildProcessError, and a HEALTHY run would be refused as the engine
+        # error (round 9, W1). Hold the DEFAULT disposition for the runner's
+        # whole lifetime and put the caller's back only after the runner is
+        # reaped, so the unreaped pid keeps pinning the group id on every
+        # path. A disposition this module cannot save (a non-Python handler)
+        # or cannot swap (not the main thread) is left alone: a real handler
+        # does not make the kernel auto-reap (residual: one installed with
+        # SA_NOCLDWAIT outside the signal module is indistinguishable here).
+        saved_sigchld = signal.getsignal(signal.SIGCHLD)
+        if saved_sigchld is not None:
             try:
-                deadline = time.monotonic() + _engine_timeout()
-                stdout = _exchange_with_runner(
-                    child, request.encode("ascii"), deadline)
-                _wait_runner_exit_unreaped(child, deadline)
-            finally:
-                # EVERY completion path (a delivered result, a nonzero exit, a
-                # timeout, an exception) kills engine descendants left in the
-                # runner's own group, then reaps the runner. The runner is
-                # still unreaped here, running or a waitable zombie, so its
-                # pid pins the group id through the kill. Residuals, stated:
-                # a descendant that moved itself to a new process group or a
-                # new session escapes this kill, and this process reaps only
-                # the runner, so descendant zombie reaping depends on the
-                # parent's reaper.
+                signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+            except ValueError:
+                saved_sigchld = None  # not the main thread: no swap, no restore
+        try:
+            with subprocess.Popen(
+                    [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
+                    stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL, start_new_session=True) as child:
+                # start_new_session put the runner alone in a NEW process group
+                # whose id is the runner's own pid. That pid stays pinned to the
+                # runner (running, then an unreaped zombie) until the child.wait()
+                # in the finally below, and the group kill runs BEFORE that reap
+                # on every path, so the kill can never target a recycled id or a
+                # group that is not the runner's own (round 8, W2).
+                pgid = os.getpgid(child.pid)
+                if pgid != child.pid:
+                    # Unreachable (start_new_session completes before Popen
+                    # returns), but fail closed IMMEDIATELY if it ever fires: kill
+                    # the runner ITSELF, reap it, and refuse. Never signal a group
+                    # this process has not verified as the runner's own, and never
+                    # block on a runner still holding its stdin open (round 8, W2).
+                    child.kill()
+                    child.wait()
+                    raise LanguageEngineUnavailable()
                 try:
-                    os.killpg(pgid, signal.SIGKILL)
-                except ProcessLookupError:
-                    pass
-                child.wait()
+                    deadline = time.monotonic() + _engine_timeout()
+                    stdout = _exchange_with_runner(
+                        child, request.encode("ascii"), deadline)
+                    _wait_runner_exit_unreaped(child, deadline)
+                finally:
+                    # EVERY completion path (a delivered result, a nonzero exit, a
+                    # timeout, an exception) kills engine descendants left in the
+                    # runner's own group, then reaps the runner. The runner is
+                    # still unreaped here, running or a waitable zombie, so its
+                    # pid pins the group id through the kill. Residuals, stated:
+                    # a descendant that moved itself to a new process group or a
+                    # new session escapes this kill, and this process reaps only
+                    # the runner, so descendant zombie reaping depends on the
+                    # parent's reaper.
+                    try:
+                        os.killpg(pgid, signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    child.wait()
+        finally:
+            # The caller's SIGCHLD disposition returns only AFTER the runner
+            # is reaped, on every path (round 9, W1).
+            if saved_sigchld is not None:
+                signal.signal(signal.SIGCHLD, saved_sigchld)
         if child.returncode != 0 or len(stdout) > _ENGINE_STDOUT_MAX:
             raise LanguageEngineUnavailable()
         matches = _validated_matches(stdout.decode("ascii"), nonce, len(lines))

@@ -1721,6 +1721,77 @@ class ChangelogLanguageTests(unittest.TestCase):
         self.assertLess(time.monotonic() - start, 30)
         self.assertEqual(killpg_calls, [])
 
+    def test_preflight_staged_verdicts_survive_inherited_sigchld_ignore(self):
+        # Round 9, W1: a caller that inherited SIGCHLD=SIG_IGN makes the
+        # kernel reap the runner the moment it exits; the WNOWAIT wait then
+        # raised ChildProcessError inside the engine fault boundary, so a
+        # CLEAN staged addition was refused as the fixed engine error (exit
+        # 2, where base 8e8fdad1 exits 0). The preflight must hold the
+        # default disposition for the runner's lifetime and put the caller's
+        # back after the reap: the staged verdicts are unchanged (clean 0,
+        # misspelled 1) and the caller's SIG_IGN survives. The scenario runs
+        # in its OWN process so the ignored SIGCHLD never leaks into this
+        # test runner.
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel in ("tools/preflight-changelog.py",
+                        "tools/preflight_language_runner.py",
+                        "tools/lint-language.py",
+                        "tools/check-changelog-length-on-pr.py", "tools/lint_common.py",
+                        "tools/aiqt_bootstrap.py",
+                        ".corpus-management/tools/gate_lint_language.py",
+                        ".corpus-management/tools/profile_loader.py",
+                        ".corpus-management/defaults/grc/language.toml"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(REPO_ROOT / rel, root / rel)
+            env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")
+                   and k not in ("GRC_STORE", "GRC_ALLOW_FAILING_CHANGELOG_COMMIT",
+                                 "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
+            env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                       AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt"))
+
+            def git(*args):
+                result = subprocess.run(["git", *args], cwd=root, env=env,
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                return result.stdout
+
+            git("init", "-q")
+            path = root / "CHANGELOG.md"
+            path.write_text("# Changelog\n", encoding="utf-8")
+            git("add", ".")
+            git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.test",
+                "-c", "core.hooksPath=/dev/null", "commit", "-qm", "Fixture history")
+            driver = (
+                "import runpy, signal, sys\n"
+                "signal.signal(signal.SIGCHLD, signal.SIG_IGN)\n"
+                "sys.argv = ['preflight-changelog.py', '--staged']\n"
+                "code = 0\n"
+                "try:\n"
+                "    runpy.run_path('tools/preflight-changelog.py',"
+                " run_name='__main__')\n"
+                "except SystemExit as exc:\n"
+                "    code = exc.code if isinstance(exc.code, int) else 1\n"
+                "if signal.getsignal(signal.SIGCHLD) is not signal.SIG_IGN:\n"
+                "    print('SIGCHLD disposition not restored', file=sys.stderr)\n"
+                "    code = 97\n"
+                "sys.exit(code)\n")
+            for word, expected, marker in (
+                    ("centralized", 0, "OK:"),
+                    ("centralised", 1, "gate 2 spelling [ise]: centralised")):
+                with self.subTest(word=word):
+                    path.write_text("# Changelog\nNew " + word + " controls.\n",
+                                    encoding="utf-8")
+                    git("add", "CHANGELOG.md")
+                    result = subprocess.run([sys.executable, "-c", driver],
+                                            cwd=root, env=env,
+                                            capture_output=True, text=True)
+                    report = result.stdout + result.stderr
+                    self.assertEqual(result.returncode, expected, report)
+                    self.assertIn(marker, report)
+                    self.assertNotIn("ERROR: the gate-2", report)
+                    self.assertNotIn("Traceback", report)
+
     def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
         # The runner never calls sys.exit, so a patched one cannot turn a fault
         # into a pass; the raise still ends the child without the marked result.
