@@ -29667,6 +29667,7 @@ class HookRoundEightTests(unittest.TestCase):
             self._gate(assignment + ' /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py')
 
     def test_all_configured_commands_run_outside_project(self):
+        """Check launcher execution from another cwd, not hook policy decisions."""
         import json
         settings = json.loads((REPO_ROOT / '.claude/settings.json').read_text())
         entries = [(event, hook['command'])
@@ -29683,7 +29684,16 @@ class HookRoundEightTests(unittest.TestCase):
                     self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
                     proc = subprocess.run(['/bin/sh', '-c', command], cwd=td, env=env,
                                           input='{}', capture_output=True, text=True, timeout=30)
-                    self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
+                    # A documented policy block also proves this hook launched.
+                    private_launcher = (
+                        '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/'
+                        'block-operational-without-private.py')
+                    if launcher == private_launcher and proc.returncode == 2:
+                        self.assertTrue(
+                            proc.stderr.startswith('BLOCKED (operational-without-private): '),
+                            (command, proc.stdout, proc.stderr))
+                    else:
+                        self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
                     self.assertNotIn("can't open file", proc.stderr)
                     self.assertNotIn('Traceback', proc.stderr)
 
