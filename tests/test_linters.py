@@ -1642,6 +1642,85 @@ class ChangelogLanguageTests(unittest.TestCase):
                 self.assert_engine_failure_refuses_staged_misspelling(
                     f"def spelling_matches(text, checks): return {value}\n")
 
+    def test_preflight_async_thread_matcher_refuses_staged_misspelling(self):
+        # Round 8, E1: a matcher that hands the real work to a thread and
+        # returns its still-empty list at once would seal a clean verdict over
+        # a staged misspelling; the runner must refuse (exit 72, no result
+        # line) while any engine thread is alive, BEFORE reading the results,
+        # so the standalone preflight, the hook and a real git commit all
+        # refuse and HEAD stays unchanged.
+        self.assert_engine_failure_refuses_staged_misspelling(
+            "import threading, time\n"
+            "_original_matches = spelling_matches\n"
+            "def spelling_matches(text, checks):\n"
+            "    pending = []\n"
+            "    def work():\n"
+            "        time.sleep(10)\n"
+            "        pending.extend(_original_matches(text, checks))\n"
+            "    threading.Thread(target=work).start()\n"
+            "    return pending\n")
+
+    def test_preflight_runner_unreaped_until_group_kill(self):
+        # Round 8, W2: the group kill must run while the runner is still
+        # UNREAPED (running, or a waitable zombie pinning the group id), on
+        # the success path and on the failure path alike. communicate() used
+        # to reap the runner before the kill, so the recorded pgid pointed at
+        # an already-freed pid slot when os.killpg ran.
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        engine_stub = (
+            "class _Engine:\n"
+            "    def spelling_matches(self, text, checks): return []\n"
+            "    def compile_language(self, config): return config\n"
+            "    def language_vocabulary(self, **kwargs): return kwargs\n"
+            "def _engine(): return _Engine()\n"
+            "def _language_config(): return dict()\n")
+        real_killpg = os.killpg
+        for outcome, source in (("success", engine_stub),
+                                ("failure", "raise RuntimeError('load failed')\n")):
+            pinned = []
+
+            def recording_killpg(pgid, sig, _record=pinned):
+                try:
+                    os.waitid(os.P_PID, pgid,
+                              os.WEXITED | os.WNOWAIT | os.WNOHANG)
+                except ChildProcessError:
+                    _record.append("reaped")
+                else:
+                    _record.append("unreaped")
+                return real_killpg(pgid, sig)
+
+            with self.subTest(outcome=outcome), \
+                    tempfile.TemporaryDirectory() as td:
+                wrapper = Path(td) / "lint-language.py"
+                wrapper.write_text(source, encoding="utf-8")
+                with patch.object(mod, "_LANGUAGE_GATE", wrapper), \
+                        patch("os.killpg", recording_killpg):
+                    if outcome == "success":
+                        self.assertEqual(mod.spelling_findings([]), [])
+                    else:
+                        with self.assertRaises(mod.LanguageEngineUnavailable):
+                            mod.spelling_findings([])
+                self.assertEqual(pinned, ["unreaped"])
+
+    def test_preflight_pgid_mismatch_fails_closed_without_hang(self):
+        # Round 8, W2: were the group-id check ever to fail, the old code
+        # raised, skipped every kill, and then blocked forever in child.wait()
+        # on a runner still reading its never-closed stdin. The branch must
+        # kill the runner ITSELF, reap it, and refuse promptly, without
+        # signalling a group that was never verified as the runner's own.
+        import time
+        from unittest.mock import patch
+        mod = self.load_tool("preflight-changelog")
+        killpg_calls = []
+        start = time.monotonic()
+        with patch("os.getpgid", lambda pid: pid + 1), \
+                patch("os.killpg", lambda *args: killpg_calls.append(args)):
+            with self.assertRaises(mod.LanguageEngineUnavailable):
+                mod.spelling_findings([])
+        self.assertLess(time.monotonic() - start, 30)
+        self.assertEqual(killpg_calls, [])
+
     def test_preflight_engine_patched_sys_exit_cannot_rescue(self):
         # The runner never calls sys.exit, so a patched one cannot turn a fault
         # into a pass; the raise still ends the child without the marked result.

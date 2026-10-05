@@ -92,20 +92,35 @@ added lines as JSON on the child's stdin. It accepts a result ONLY as exit statu
 one list of [kind, word] string pairs per input line. Anything else is the one
 fixed engine error, exit 2: a nonzero or signalled exit, a timeout (default 60
 seconds, GRC_PREFLIGHT_ENGINE_TIMEOUT accepts finite values up to 300 seconds),
-no output, extra output, a wrong nonce, or a schema violation. On every
-completion path (a delivered result, a nonzero exit, a timeout, an exception)
-the runner's process group, verified to be the runner's own while its unreaped
-pid still pinned it, is killed and the runner reaped; a descendant that calls
-setsid escapes that group (residual, stated). Results over 8 MiB are refused
-before parsing, though the pipe buffers the child's stdout before the cap is
-applied (residual, stated). Child stderr (engine tracebacks and prints included)
+no output, extra output, a wrong nonce, or a schema violation. Cleanup scope,
+exactly (round 8, W2): on every completion path (a delivered result, a nonzero
+exit, a timeout, an exception) the parent reads the child's stdout to EOF,
+waits for the child's exit WITHOUT reaping it (os.waitid with WNOWAIT), kills
+ONLY the child's own process group, whose id it verified against the child's
+pid, and only then reaps the child, so the unreaped pid pins the group id
+through the kill. Residuals, stated: a descendant that moves itself to a new
+process group, or to a new session, leaves that group and escapes the kill;
+and this process reaps only the child itself, so zombie reaping of descendants
+depends on the parent's reaper, and under a non-reaping reaper a killed or
+surviving descendant can persist as a zombie. An engine that forks a helper
+WITHOUT exec leaves the child's saved result descriptor open in the helper, so
+the parent never sees end-of-output and the run is refused at the timeout:
+fail closed, availability only, never a wrong verdict (residual, stated).
+Results over 8 MiB are refused before parsing, though the parent reads and
+buffers the child's whole stdout before the cap is applied (residual, stated).
+Child stderr (engine tracebacks and prints included)
 goes directly to DEVNULL; only strict ASCII result bytes are decoded, inside the
 same fault boundary as JSON parsing and schema validation, and no engine
 diagnostic is printed. The runner consumes stdin and duplicates the result
 channel before any engine code runs, redirects the engine-visible stdout into the
 discarded stderr, and seals a computed result with os._exit(0), so engine output
 cannot reach the result channel and a fault delivered during child teardown
-cannot alter a result the real matcher already produced. Before sealing, the
+cannot alter a result the real matcher already produced. Before any matcher
+result is read, and again immediately before sealing, the runner refuses (exit
+72, no result line) if any thread other than its main thread is alive, and
+takes an immutable snapshot of the validated results only after that check, so
+a matcher that handed its work to a still-running thread cannot seal an
+unfinished result (round 8, E1). Before sealing, the
 runner collects pending garbage and refuses (exit 71, no result line) unless
 both fault hooks are still its own and no fault was recorded, so an engine that
 restores the interpreter's default hooks cannot mask a fault (see the runner's
@@ -124,9 +139,11 @@ import math
 import os
 import re
 import secrets
+import selectors
 import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 _TOOLS_DIR = str(Path(__file__).resolve().parent)
@@ -185,6 +202,62 @@ def _engine_timeout() -> float:
             else _ENGINE_TIMEOUT_DEFAULT)
 
 
+def _exchange_with_runner(child, request, deadline):
+    """Write ``request`` to the runner's stdin and read its stdout to EOF,
+    WITHOUT waiting on or reaping the runner: ``Popen.communicate`` reaps the
+    runner when it completes, which would free the runner's pid before the
+    group kill in :func:`spelling_findings` (round 8, W2). Raises
+    LanguageEngineUnavailable once ``deadline`` (``time.monotonic``) passes;
+    the caller's ``finally`` then kills the still-unreaped runner's group
+    before reaping it."""
+    stdin_fd, stdout_fd = child.stdin.fileno(), child.stdout.fileno()
+    os.set_blocking(stdin_fd, False)
+    os.set_blocking(stdout_fd, False)
+    pending = request
+    chunks = []
+    with selectors.DefaultSelector() as poller:
+        poller.register(stdin_fd, selectors.EVENT_WRITE)
+        poller.register(stdout_fd, selectors.EVENT_READ)
+        while poller.get_map():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise LanguageEngineUnavailable()
+            for key, _ in poller.select(remaining):
+                if key.fd == stdin_fd:
+                    try:
+                        pending = pending[os.write(stdin_fd, pending):]
+                    except BrokenPipeError:
+                        # The runner is gone or closed stdin; drain its stdout.
+                        pending = b""
+                    except BlockingIOError:
+                        continue
+                    if not pending:
+                        poller.unregister(stdin_fd)
+                        child.stdin.close()
+                else:
+                    data = os.read(stdout_fd, 65536)
+                    if data:
+                        chunks.append(data)
+                    else:
+                        poller.unregister(stdout_fd)
+    return b"".join(chunks)
+
+
+def _wait_runner_exit_unreaped(child, deadline):
+    """Block until the runner has exited WITHOUT reaping it (``os.waitid``
+    with ``os.WEXITED | os.WNOWAIT``): the exited runner stays waitable, so
+    its pid, and with it the recorded process-group id, remain pinned until
+    the group kill in :func:`spelling_findings` (round 8, W2). Polls with
+    ``os.WNOHANG`` so a runner that closed its stdout but never exits still
+    hits ``deadline`` and is refused (fail closed) instead of blocking this
+    process forever."""
+    while os.waitid(os.P_PID, child.pid,
+                    os.WEXITED | os.WNOWAIT | os.WNOHANG) is None:
+        if time.monotonic() >= deadline:
+            raise LanguageEngineUnavailable()
+        time.sleep(0.005)
+
+
 def _validated_matches(stdout, nonce, expected):
     """The child's per-input-line [kind, word] match lists, or None unless
     ``stdout`` is EXACTLY one newline-terminated JSON object carrying this run's
@@ -231,26 +304,41 @@ def spelling_findings(lines):
                 [sys.executable, "-I", str(_LANGUAGE_RUNNER), str(_LANGUAGE_GATE)],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, start_new_session=True) as child:
-            # start_new_session put the runner alone in a NEW process group whose
-            # id is the runner's own pid; read it while the unreaped pid is still
-            # pinned to the runner, so the group kill below can never target a
-            # group that is not the runner's own.
+            # start_new_session put the runner alone in a NEW process group
+            # whose id is the runner's own pid. That pid stays pinned to the
+            # runner (running, then an unreaped zombie) until the child.wait()
+            # in the finally below, and the group kill runs BEFORE that reap
+            # on every path, so the kill can never target a recycled id or a
+            # group that is not the runner's own (round 8, W2).
             pgid = os.getpgid(child.pid)
+            if pgid != child.pid:
+                # Unreachable (start_new_session completes before Popen
+                # returns), but fail closed IMMEDIATELY if it ever fires: kill
+                # the runner ITSELF, reap it, and refuse. Never signal a group
+                # this process has not verified as the runner's own, and never
+                # block on a runner still holding its stdin open (round 8, W2).
+                child.kill()
+                child.wait()
+                raise LanguageEngineUnavailable()
             try:
-                if pgid != child.pid:
-                    raise LanguageEngineUnavailable()
-                stdout, _ = child.communicate(
-                    input=request.encode("ascii"), timeout=_engine_timeout())
+                deadline = time.monotonic() + _engine_timeout()
+                stdout = _exchange_with_runner(
+                    child, request.encode("ascii"), deadline)
+                _wait_runner_exit_unreaped(child, deadline)
             finally:
                 # EVERY completion path (a delivered result, a nonzero exit, a
                 # timeout, an exception) kills engine descendants left in the
-                # runner's group, then reaps the runner. A descendant that calls
-                # setsid escapes this group (residual, stated).
-                if pgid == child.pid:
-                    try:
-                        os.killpg(pgid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                # runner's own group, then reaps the runner. The runner is
+                # still unreaped here, running or a waitable zombie, so its
+                # pid pins the group id through the kill. Residuals, stated:
+                # a descendant that moved itself to a new process group or a
+                # new session escapes this kill, and this process reaps only
+                # the runner, so descendant zombie reaping depends on the
+                # parent's reaper.
+                try:
+                    os.killpg(pgid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
                 child.wait()
         if child.returncode != 0 or len(stdout) > _ENGINE_STDOUT_MAX:
             raise LanguageEngineUnavailable()
