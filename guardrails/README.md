@@ -2,7 +2,7 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.72.2\
+**Version:** 1.72.3\
 **Date:** 2026-10-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -608,7 +608,9 @@ Use a literal script path starting with exactly
 `"$CLAUDE_PROJECT_DIR"/.claude/hooks/` followed by a literal path. The shipped
 commands use this anchor and work from any directory when the harness sets
 `CLAUDE_PROJECT_DIR` to the absolute project root. The reviewed loader still
-refuses a symlinked project root or hook/helper path.
+refuses a symlinked project root or hook/helper path. Such a refusal exits 2, which
+blocks every PreToolUse call and every turn end while it persists; launch the
+harness from the real (non-symlinked) project path.
 Every token after the script is checked too. Expansions are allowed only in the
 script anchor and the modelled lease assignment above. All other expansions,
 redirections (including here-strings and fd duplication), `-X`, `-W`, `-c`, `-m`
