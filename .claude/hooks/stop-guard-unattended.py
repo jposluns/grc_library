@@ -137,7 +137,7 @@ _LOCK_WAIT_SECONDS = 0.2
 # path (one word: `unattended` or `attended`). A project wiring its own mode tool ignores this.
 MODE_FILE = os.path.join(".working", "operating-mode")
 
-# The minimal file-based adapter runs this OPTIONAL repo-relative executable to enumerate actionable
+# The minimal file-based adapter runs this OPTIONAL repo-relative Python executable to enumerate actionable
 # items (stdout = one `id<TAB>title` per line). A project wiring its own backlog tool ignores this.
 ACTIONABLE_PRODUCER = os.path.join(".claude", "hooks", "nmw-actionable")
 
@@ -386,7 +386,7 @@ def _grc_lease_mode(root):
     return _grc_map_mode(m.group(1))
 
 def actionable_items(root):
-    """DEFAULT (minimal file-based) adapter. Run the OPTIONAL executable at ACTIONABLE_PRODUCER and parse
+    """DEFAULT (minimal file-based) adapter. Run the OPTIONAL Python executable at ACTIONABLE_PRODUCER and parse
     its stdout as one `id<TAB>title` per line (blank lines and lines whose first non-space char is `#`
     are ignored). Returns [(id, title), ...], or None on absence, non-executable, timeout, or nonzero
     exit (all indeterminate -> fail open).
@@ -403,11 +403,13 @@ def actionable_items(root):
         return None  # no producer wired -> indeterminate -> fail open
     try:
         proc = subprocess.run(
-            [exe], cwd=root, input="", capture_output=True, text=True, timeout=PRODUCER_TIMEOUT_S
+            [sys.executable, "-I", exe], cwd=root, input="", capture_output=True, text=True, timeout=PRODUCER_TIMEOUT_S
         )
     except Exception:
         return None  # timeout / spawn failure -> indeterminate -> fail open
     if proc.returncode != 0:
+        reason = " ".join(proc.stderr.splitlines()).strip() or (exe + " exited " + str(proc.returncode))
+        _diagnostic("NOTICE (stop-guard-unattended; fail open): " + reason[:1024] + "\n")
         return None  # producer error -> indeterminate -> fail open
     out = []
     for line in proc.stdout.splitlines():
@@ -850,7 +852,7 @@ def _self_test():
         if producer_lines is not None:
             p = os.path.join(d, ACTIONABLE_PRODUCER)
             os.makedirs(os.path.dirname(p), exist_ok=True)
-            script = "#!/bin/sh\ncat <<'EOF'\n%s\nEOF\nexit %d\n" % (producer_lines, producer_exit)
+            script = "#!/usr/bin/env python3\nimport sys\nprint(%r)\nsys.exit(%d)\n" % (producer_lines, producer_exit)
             _write(p, script)
             os.chmod(p, os.stat(p).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
@@ -1560,7 +1562,7 @@ def _self_test():
                 hook = self._hook_copy(d)
                 build(d, mode=mode, producer_lines=producer_lines)
                 with tempfile.TemporaryDirectory() as foreign:
-                    r = subprocess.run([sys.executable, hook],
+                    r = subprocess.run([sys.executable, "-I", hook],
                                        input=payload, capture_output=True, text=True, cwd=foreign)
                     return r.returncode
 
@@ -1584,7 +1586,7 @@ def _self_test():
                 hook = self._hook_copy(d)
                 build(d, mode=UNATT, producer_lines=ITEMS_MIXED)
                 env = {k: v for k, v in os.environ.items() if k not in ("ORCH_VERIFY_OWNER", "CLAUDE_CONFIG_DIR")}
-                proc = subprocess.Popen([sys.executable, "-B", hook], stdin=subprocess.PIPE,
+                proc = subprocess.Popen([sys.executable, "-I", "-B", hook], stdin=subprocess.PIPE,
                                         stdout=subprocess.DEVNULL, stderr=stderr, cwd=d, env=env)
                 _out, err = proc.communicate(_json.dumps({"stop_hook_active": False}).encode(), timeout=60)
                 return proc.returncode, err
@@ -1720,7 +1722,7 @@ def _self_test():
                     os.environ["GRC_DROP_ROOT"] = saved
             env = {k: v for k, v in os.environ.items() if k != "GRC_STORE"}
             code = "import runpy,sys; print(runpy.run_path(sys.argv[1])['_GRC_STATE_FILE'])"
-            out = subprocess.run([sys.executable, "-B", "-c", code, __file__], capture_output=True, text=True,
+            out = subprocess.run([sys.executable, "-I", "-B", "-c", code, __file__], capture_output=True, text=True,
                                  env=env, timeout=60)
             self.assertEqual(out.stdout.strip(), os.path.join(_GRC_PARENT, "private", "session-state.md"), out.stderr)
             with open(__file__, encoding="utf-8") as fh:
@@ -1757,7 +1759,7 @@ def _self_test():
                 env = {k: v for k, v in os.environ.items() if k not in ("GRC_DROP_ROOT", "GRC_STORE")}
                 for r, want_present in ((wt_root, True), (main_root, False)):
                     open(sentinel, "w").close()
-                    subprocess.run([sys.executable, "-B", os.path.join(r, ".claude", "hooks", os.path.basename(__file__))],
+                    subprocess.run([sys.executable, "-I", "-B", os.path.join(r, ".claude", "hooks", os.path.basename(__file__))],
                                    input="{}", text=True, capture_output=True, env=env, cwd=r, timeout=60)
                     self.assertEqual(os.path.exists(sentinel), want_present, r)
 
@@ -1816,7 +1818,7 @@ def _self_test():
                     Path(hook).write_text(text, encoding="utf-8")
                     for payload in payloads:
                         open(sentinel, "w").close()
-                        out = subprocess.run([sys.executable, "-B", hook], input=payload, text=True,
+                        out = subprocess.run([sys.executable, "-I", "-B", hook], input=payload, text=True,
                                              capture_output=True, env=env, cwd=root, timeout=60)
                         got[name, payload] = (out.returncode, os.path.exists(sentinel))
             want = {("grc_library", p): (0, False) for p in payloads}
@@ -1895,7 +1897,7 @@ def _self_test():
                     if name == "wt-locked":
                         os.chmod(locked, 0)
                     try:
-                        out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True,
+                        out = subprocess.run([sys.executable, "-I", "-B", "-c", code, hook], capture_output=True,
                                              text=True, env=env, timeout=60)
                     finally:
                         os.chmod(locked, 0o755)
@@ -1911,7 +1913,7 @@ def _self_test():
                 # A worker in the main checkout is never armed by the lease (3b101 QA r3).
                 hook = os.path.join(parent, "grc_library", ".claude", "hooks", os.path.basename(__file__))
                 env["CLAUDE_CONFIG_DIR"] = os.path.join(parent, "orch-worker.example")
-                out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
+                out = subprocess.run([sys.executable, "-I", "-B", "-c", code, hook], capture_output=True, text=True,
                                      env=env, timeout=60)
                 self.assertEqual(out.stdout.strip(), "None", out.stderr)
                 # A stray file-based mode record never shadows the lease in the main checkout (3b113 QA r2).
@@ -1920,7 +1922,7 @@ def _self_test():
                 os.makedirs(os.path.join(main, ".working"))
                 with open(os.path.join(main, MODE_FILE), "w", encoding="utf-8") as fh:
                     fh.write("attended\n")
-                out = subprocess.run([sys.executable, "-B", "-c", code, hook], capture_output=True, text=True,
+                out = subprocess.run([sys.executable, "-I", "-B", "-c", code, hook], capture_output=True, text=True,
                                      env=env, timeout=60)
                 self.assertEqual(out.stdout.strip(), "unattended", out.stderr)
 

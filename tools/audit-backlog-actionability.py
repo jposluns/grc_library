@@ -66,15 +66,46 @@ import unicodedata
 import sys
 from pathlib import Path
 
-# Ensure the tools dir is importable whether run standalone or loaded via importlib
-# (the regression suite loads this module with spec_from_file_location).
-_TOOLS_DIR = str(Path(__file__).resolve().parent)
-if _TOOLS_DIR not in sys.path:
-    sys.path.insert(0, _TOOLS_DIR)
-from lint_common import resolve_working, _store_dir, InaccessiblePath
-# P-TODO 3b121: the index-row grammar, index-header gate and item-heading grammar the decision-log hook and
-# gate 78 (lint-todo-number-permanence.py) read too.
-from todo_index_rows import index_rows, ITEM_HEADING_RE
+def _load_tool_helper(name, _cache={}):
+    """Load reviewed source, without adding tools to the module search path."""
+    if name in _cache:
+        return _cache[name]
+    if __name__ != "__main__" and name in sys.modules:
+        _cache[name] = sys.modules[name]
+        return _cache[name]
+    script = Path(os.path.abspath(__file__))
+    directory = script.parent
+    root = directory.parent
+    helper = directory / (name + ".py")
+    parts = (root, directory, script, helper)
+    if (directory.name != "tools" or any(p.is_symlink() for p in parts)
+            or script.resolve() != root.resolve() / "tools" / script.name
+            or helper.resolve() != root.resolve() / "tools" / helper.name):
+        print("BLOCKED (hook-helper-isolation): " + name +
+              ": symlink or invalid tool-helper containment", file=sys.stderr)
+        sys.exit(2)
+    if name == "todo_index_rows":
+        _load_tool_helper("lint_common")
+    try:
+        source = helper.read_bytes()
+    except OSError as exc:
+        print("BLOCKED (hook-helper-isolation): " + name + ": unavailable: " +
+              " ".join(str(exc).splitlines()), file=sys.stderr)
+        sys.exit(2)
+    module = type(sys)(name)
+    module.__file__ = str(helper)
+    exec(compile(source, str(helper), "exec", dont_inherit=True), module.__dict__)
+    sys.modules[name] = module
+    _cache[name] = module
+    return module
+
+_lint_common = _load_tool_helper("lint_common")
+resolve_working = _lint_common.resolve_working
+_store_dir = _lint_common._store_dir
+InaccessiblePath = _lint_common.InaccessiblePath
+_todo_index_rows = _load_tool_helper("todo_index_rows")
+index_rows = _todo_index_rows.index_rows
+ITEM_HEADING_RE = _todo_index_rows.ITEM_HEADING_RE
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TODO_PATH = REPO_ROOT / "TODO.md"

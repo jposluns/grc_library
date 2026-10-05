@@ -237,6 +237,7 @@ run_gate "Allow-list and publisher-table parity audit"            python3 tools/
 run_gate "Citation-publisher table in sync with its source of record"  python3 tools/build-citation-publishers.py --check
 run_gate "Worker-id anonymity audit"                             python3 tools/lint-worker-id-anonymity.py
 run_gate "Reference-absence claim audit"                         python3 tools/lint-ref-absence-claims.py
+run_gate "Hook-launcher isolation audit"                         python3 tools/lint-hooks-syntax.py --launcher-isolation
 
 # ----------------------------------------------------------------------
 # Summary

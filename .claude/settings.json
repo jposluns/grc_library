@@ -18,27 +18,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-verification-pipes.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-verification-pipes.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-wrong-repo-tool.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-wrong-repo-tool.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unbumped-version-commit.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unbumped-version-commit.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-public-working-write.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-public-working-write.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-bulk-git-add.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-bulk-git-add.py"
           }
         ]
       },
@@ -47,11 +47,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-repeated-tool-failure.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-askuserquestion-unattended.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-askuserquestion-unattended.py"
           }
         ]
       },
@@ -60,19 +60,19 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-operational-without-private.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-operational-without-private.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unjustified-decision.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unjustified-decision.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-branch-to-main-edit.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-branch-to-main-edit.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-public-working-write.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-public-working-write.py"
           }
         ]
       },
@@ -81,7 +81,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-orchestrator-self-qa.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-orchestrator-self-qa.py"
           }
         ]
       },
@@ -90,15 +90,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-on-open-findings.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-on-open-findings.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-pr-without-resume-validate.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-pr-without-resume-validate.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-claude-attribution.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-claude-attribution.py"
           }
         ]
       },
@@ -107,7 +107,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
           }
         ]
       }
@@ -117,23 +117,23 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-turn-end-with-outstanding-work.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-turn-end-with-outstanding-work.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/surface-session-facts.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/surface-session-facts.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-opus5-orchestrator-model.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unstamped-turn-end.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-unstamped-turn-end.py"
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard-unattended.py",
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-guard-unattended.py",
             "timeout": 10
           }
         ]
@@ -144,7 +144,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/inject-session-timestamp.py"
+            "command": "/usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/inject-session-timestamp.py"
           }
         ]
       }
@@ -154,7 +154,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md ORCH_STORE_ROOT=\"$CLAUDE_PROJECT_DIR\"/../private:\"$CLAUDE_PROJECT_DIR\"/../grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md /usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }
@@ -164,7 +164,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md ORCH_STORE_ROOT=\"$CLAUDE_PROJECT_DIR\"/../private:\"$CLAUDE_PROJECT_DIR\"/../grc_library_private/.working python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
+            "command": "ORCH_LEASE_FILE=\"$CLAUDE_PROJECT_DIR\"/../private/session-state.md /usr/bin/python3 -I \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/clock-inject.py"
           }
         ]
       }

@@ -28814,6 +28814,988 @@ class HooksSyntaxGateTests(unittest.TestCase):
             self.assertIn("OK", r.stdout)
 
 
+class HookLauncherIsolationGateTests(unittest.TestCase):
+    TOOL = str(REPO_ROOT / 'tools/lint-hooks-syntax.py')
+
+    def _run(self, *args):
+        import subprocess
+        return subprocess.run([sys.executable, self.TOOL, '--launcher-isolation', *args], capture_output=True, text=True)
+
+    def _settings(self, td, commands):
+        import json
+        entries = [dict(type='command', command=c) for c in commands]
+        payload = dict(hooks=dict(PreToolUse=[dict(matcher='Bash', hooks=entries)]))
+        path = Path(td) / 'settings.json'
+        path.write_text(json.dumps(payload), encoding='utf-8')
+        return str(path)
+
+    def test_positive_bare_python_launcher_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['/usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+            self.assertIn('hooks.PreToolUse[0].hooks[0]', r.stdout)
+
+    def test_unmodelled_env_prefixed_launcher_refused(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['A="$D"/f B=c:d /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_positive_incomplete_equivalent_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['/usr/bin/python3 -P -E "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+
+    def test_negative_isolated_variants_pass(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -P -E -s "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -PEs "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3.11 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+            self.assertIn('5 Python launcher(s) isolated', r.stdout)
+
+    def test_head_settings_launchers_isolated(self):
+        r = self._run()
+        self.assertEqual(r.returncode, 0, 'live .claude/settings.json has a non-isolated Python hook launcher:\n' + r.stdout + r.stderr)
+
+    def test_missing_or_empty_explicit_settings_refused(self):
+        for args in (('--settings', 'no/such/settings-3b257.json'), ('--settings=',)):
+            r = self._run(*args)
+            self.assertEqual(r.returncode, 2, (args, r.stdout, r.stderr))
+            self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_unparseable_or_duplicate_key_settings_refused(self):
+        with tempfile.TemporaryDirectory() as td:
+            bad = Path(td) / 'bad.json'
+            bad.write_text('not json at all', encoding='utf-8')
+            r = self._run('--settings', str(bad))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('ERROR: settings.json:', r.stderr)
+            dup = Path(td) / 'dup.json'
+            dup.write_text('{"hooks": 1, "hooks": 2}', encoding='utf-8')
+            r = self._run('--settings', str(dup))
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_option_arguments_never_credit_isolation(self):
+        for cmd in ('/usr/bin/python3 -Wignore::ImportWarning "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -X importtime "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -W I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -XutfI "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn("ERROR: settings.json:", r.stderr)
+
+    def test_genuine_flags_with_option_arguments_refused(self):
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['/usr/bin/python3 -I -X dev "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -sEP "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn("ERROR: settings.json:", r.stderr)
+
+    def test_compound_commands_refused(self):
+        compounds = ('/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py && /usr/bin/python3 y.py', '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py || /usr/bin/python3 y.py', '/usr/bin/python3 -I x.py; /usr/bin/python3 y.py', '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py | tee out.log', '/usr/bin/python3 -I x.py\npython3 y.py', '/usr/bin/python3 -I "$(pick-hook)" "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I `pick-hook` "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'sh -c "/usr/bin/python3 x.py"', 'bash -lc "/usr/bin/python3 x.py"')
+        for cmd in compounds:
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_shell_expansion_in_launcher_or_option_tokens_refused(self):
+        for cmd in ('/usr/bin/python3 -${I:-B} "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -$V "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -$ISOLATION "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I -X $MODE "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '~/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'python* -I x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_leading_redirection_refused(self):
+        for cmd in ('> o /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '>flags.out /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '2>&1 /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '< seed /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_shell_launchers_refused_in_every_form(self):
+        for cmd in ("sh -$V '/usr/bin/python3 x.py'", "sh -e '/usr/bin/python3 x.py'", 'bash "$D"/x.sh', 'dash wrapper.sh'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_wrapper_launchers_refused(self):
+        for cmd in ('command /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'exec /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', "env -S '/usr/bin/python3 x.py'", 'timeout 5 /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'nohup /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'nice -n 5 /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'xargs /usr/bin/python3 -I', 'setsid /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_python_involvement_under_unmodelled_program_refused(self):
+        for cmd in ('run-later /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'python x.py', 'python2 x.py', 'bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', './python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_every_non_python3_program_refused_allow_list(self):
+        for cmd in ('rbash -c "$RUN"', 'busybox sh -c "$RUN"', '/usr/bin/env /usr/bin/python3 "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', "perl -e 'exec @ARGV'", '/bin/true'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+
+    def test_assignment_value_with_shell_divergent_syntax_refused(self):
+        for cmd in ('A=1>out /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'LOG=~/log /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 'GLOB=*.md /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            with tempfile.TemporaryDirectory() as td:
+                p = self._settings(td, [cmd])
+                r = self._run('--settings', p)
+                self.assertEqual(r.returncode, 2, (cmd, r.stdout, r.stderr))
+                self.assertIn('ERROR: settings.json:', r.stderr)
+        with tempfile.TemporaryDirectory() as td:
+            p = self._settings(td, ['ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'])
+            r = self._run('--settings', p)
+            self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+
+    def test_missing_default_settings_fails_closed(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            tools = Path(td) / 'tools'
+            tools.mkdir()
+            gate = tools / 'lint-hook-launcher-isolation.py'
+            gate.write_text(Path(self.TOOL).read_text(encoding='utf-8'), encoding='utf-8')
+            r = subprocess.run([sys.executable, str(gate), '--launcher-isolation'], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('ERROR: settings.json:', r.stderr)
+            self.assertIn('settings.json', r.stderr)
+            self.assertNotIn('OK:', r.stdout)
+            (Path(td) / '.claude' / 'settings.json').mkdir(parents=True)
+            r = subprocess.run([sys.executable, str(gate), '--launcher-isolation'], capture_output=True, text=True)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('ERROR: settings.json:', r.stderr)
+
+class HookSiblingImportIsolationTests(unittest.TestCase):
+    HOOKS = REPO_ROOT / '.claude' / 'hooks'
+    DECOYS = ('pathlib.py', 'tempfile.py', 'shlex.py', 'datetime.py', 'subprocess.py')
+    DECOY_SOURCE = "import os\nopen(os.environ['DECOY_MARKER'], 'a').write(__name__ + ' ')\nraise RuntimeError('decoy stdlib module imported')\n"
+
+    def _arena(self, td, hook, helper):
+        root, env = self._repo_arena(td, hook, hook_helpers=(helper,))
+        d = root / '.claude' / 'hooks'
+        env['HOOK_STATE_FILE'] = str(d / 'recent-blocks.jsonl')
+        env.pop('GRC_ALLOW_PR_ATTRIBUTION', None)
+        return (d, env)
+
+    def _repo_arena(self, td, hook, hook_helpers=(), tool_helpers=()):
+        root = Path(td)
+        hooks_d = root / '.claude' / 'hooks'
+        tools_d = root / 'tools'
+        hooks_d.mkdir(parents=True)
+        tools_d.mkdir()
+        for name in (hook,) + tuple(hook_helpers):
+            (hooks_d / name).write_bytes((self.HOOKS / name).read_bytes())
+        for name in tool_helpers:
+            (tools_d / name).write_bytes((REPO_ROOT / 'tools' / name).read_bytes())
+        for directory in (hooks_d, tools_d):
+            for decoy in self.DECOYS:
+                (directory / decoy).write_text(self.DECOY_SOURCE, encoding='utf-8')
+        env = dict(os.environ, DECOY_MARKER=str(root / 'decoy-imported.marker'), HOOK_COPY=str(hooks_d / hook))
+        env.pop('CLAUDE_PROJECT_DIR', None)
+        return (root, env)
+
+    def _run_hook(self, d, env, hook, payload, *args):
+        import json
+        return subprocess.run([sys.executable, '-I', str(d / hook), *args], input='' if payload is None else json.dumps(payload), capture_output=True, text=True, cwd=str(d), env=env)
+
+    def _assert_no_decoy(self, env):
+        marker = Path(env['DECOY_MARKER'])
+        if marker.exists():
+            self.fail('decoy stdlib module imported: ' + marker.read_text(encoding='utf-8'))
+
+    def test_repeated_tool_failure_decoys_not_imported(self):
+        import json
+        import time
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-repeated-tool-failure.py', '_hook_state.py')
+            record = dict(cmd='echo repeat-me', hook='wrong-repo', ts=int(time.time()))
+            (d / 'recent-blocks.jsonl').write_text(json.dumps(record) + '\n', encoding='utf-8')
+            r = self._run_hook(d, env, 'block-repeated-tool-failure.py', dict(tool_input=dict(command='echo repeat-me')))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+
+    def test_verification_pipes_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-verification-pipes.py', '_hook_state.py')
+            cmd = './tools/run_all_audits.sh | tail -3'
+            r = self._run_hook(d, env, 'block-verification-pipes.py', dict(tool_input=dict(command=cmd)))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            state = d / 'recent-blocks.jsonl'
+            self.assertTrue(state.is_file(), 'helper did not record the block')
+            self.assertIn('verification-pipes', state.read_text(encoding='utf-8'))
+
+    def test_claude_attribution_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-claude-attribution.py', '_hook_state.py')
+            cmd = 'gh pr create --title t --body "Co-Authored-By: Claude <noreply@anthropic.com>"'
+            r = self._run_hook(d, env, 'block-claude-attribution.py', dict(tool_name='Bash', tool_input=dict(command=cmd)))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            state = d / 'recent-blocks.jsonl'
+            self.assertTrue(state.is_file(), 'helper did not record the block')
+            self.assertIn('claude-attribution', state.read_text(encoding='utf-8'))
+
+    def test_branch_to_main_edit_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-branch-to-main-edit.py', '_hook_state.py')
+            root = Path(td)
+            for args in (('init', '-q', '-b', 'main'),
+                         ('-c', 'user.name=test', '-c', 'user.email=test@example.invalid',
+                          'commit', '-q', '--allow-empty', '-m', 'fixture')):
+                subprocess.run(['git', '-C', str(root), *args], check=True, capture_output=True)
+            target = str(root / 'tracked.md')
+            payload = dict(tool_input=dict(file_path=target),
+                           workspace=dict(project_dir=str(root)))
+            r = self._run_hook(d, env, 'block-branch-to-main-edit.py', payload)
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('BLOCKED (branch-to-main-edit)', r.stderr)
+            state = d / 'recent-blocks.jsonl'
+            self.assertTrue(state.is_file(), 'helper did not record the block')
+            import json
+            record = json.loads(state.read_text().splitlines()[-1])
+            self.assertEqual(record['hook'], 'branch-to-main-edit')
+            self.assertEqual(record['cmd'], target)
+
+    def test_surface_session_facts_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'surface-session-facts.py', '_hookutil.py')
+            env['ORCH_VERIFY_OWNER'] = '1'
+            env['HOOK_COPY'] = str(d / 'surface-session-facts.py')
+            code = "import importlib.util, os\nspec = importlib.util.spec_from_file_location('sfs', os.environ['HOOK_COPY'])\nmod = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(mod)\nprint('WORKER', mod._is_worker())\n"
+            r = subprocess.run([sys.executable, '-I', '-c', code], capture_output=True, text=True, cwd=str(td), env=env)
+            self._assert_no_decoy(env)
+            self.assertIn('WORKER True', r.stdout, r.stdout + r.stderr)
+
+    def test_planted_pycache_bytecode_never_executes(self):
+        import importlib.util
+        import json
+        import py_compile
+        import time
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-repeated-tool-failure.py', '_hook_state.py')
+            decoy_src = d / 'planted-payload-source.py'
+            decoy_src.write_text(self.DECOY_SOURCE.replace('__name__', "'planted-pyc'"), encoding='utf-8')
+            cache = Path(importlib.util.cache_from_source(str(d / '_hook_state.py')))
+            cache.parent.mkdir()
+            py_compile.compile(str(decoy_src), cfile=str(cache), doraise=True, invalidation_mode=py_compile.PycInvalidationMode.UNCHECKED_HASH)
+            planted = cache.read_bytes()
+            record = dict(cmd='echo repeat-me', hook='wrong-repo', ts=int(time.time()))
+            (d / 'recent-blocks.jsonl').write_text(json.dumps(record) + '\n', encoding='utf-8')
+            r = self._run_hook(d, env, 'block-repeated-tool-failure.py', dict(tool_input=dict(command='echo repeat-me')))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertEqual(cache.read_bytes(), planted, 'the planted bytecode cache was touched')
+            self.assertEqual(sorted((p.name for p in cache.parent.iterdir())), [cache.name], 'new bytecode was written')
+            self.assertEqual(list(d.rglob('__pycache__')), [cache.parent], 'a bytecode cache directory was created')
+
+    def test_symlinked_helper_refused_fail_closed(self):
+        import shutil
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-repeated-tool-failure.py', '_hook_state.py')
+            outside = d / 'outside'
+            outside.mkdir()
+            shutil.move(str(d / '_hook_state.py'), str(outside / '_hook_state.py'))
+            (d / '_hook_state.py').symlink_to(outside / '_hook_state.py')
+            r = self._run_hook(d, env, 'block-repeated-tool-failure.py', dict(tool_input=dict(command='echo fresh-command')))
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+
+    def test_production_launch_never_trusts_preexisting_sys_modules(self):
+        import json
+        import time
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-repeated-tool-failure.py', '_hook_state.py')
+            env['HOOK_COPY'] = str(d / 'block-repeated-tool-failure.py')
+            record = dict(cmd='echo repeat-me', hook='wrong-repo', ts=int(time.time()))
+            (d / 'recent-blocks.jsonl').write_text(json.dumps(record) + '\n', encoding='utf-8')
+            preamble = "import os, runpy, sys, types\ndecoy = types.ModuleType('_hook_state')\ndecoy.SENTINEL = 'injected'\ndef _touch(*a, **k):\n    open(os.environ['DECOY_MARKER'], 'a').write('sys-modules-decoy ')\n    return []\nfor fn in ('find_recent_block', 'consecutive_block_count',\n           'subject_from_payload', 'record_block'):\n    setattr(decoy, fn, _touch)\nsys.modules['_hook_state'] = decoy\n"
+            seam = preamble + "ns = runpy.run_path(os.environ['HOOK_COPY'], run_name='seam-probe')\nprint('SEAM-REUSED', ns['_hook_state'].SENTINEL == 'injected')\n"
+            r = subprocess.run([sys.executable, '-I', '-c', seam], capture_output=True, text=True, cwd=str(d), env=env)
+            self.assertIn('SEAM-REUSED True', r.stdout, r.stdout + r.stderr)
+            prod = preamble + "code = 0\ntry:\n    runpy.run_path(os.environ['HOOK_COPY'], run_name='__main__')\nexcept SystemExit as exc:\n    code = exc.code\nprint('EXIT', code)\nprint('OVERWRITTEN', not hasattr(sys.modules['_hook_state'], 'SENTINEL'))\n"
+            r = subprocess.run([sys.executable, '-I', '-c', prod], input=json.dumps(dict(tool_input=dict(command='echo repeat-me'))), capture_output=True, text=True, cwd=str(d), env=env)
+            self.assertIn('EXIT 2', r.stdout, r.stdout + r.stderr)
+            self.assertIn('OVERWRITTEN True', r.stdout, r.stdout + r.stderr)
+            marker = Path(env['DECOY_MARKER'])
+            if marker.exists():
+                self.fail('a launch consumed the planted sys.modules decoy: ' + marker.read_text(encoding='utf-8'))
+
+    def test_no_hook_mutates_sys_path(self):
+        pattern = re.compile('\\bpath\\.(insert|append|extend|remove)\\s*\\(|sys\\.path\\s*\\+?=[^=]|sys\\.path\\[')
+        offenders = []
+        for py in sorted(self.HOOKS.glob('*.py')):
+            if pattern.search(py.read_text(encoding='utf-8')):
+                offenders.append(py.name)
+        self.assertEqual(offenders, [])
+
+    def test_unjustified_decision_tools_chain_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, env = self._repo_arena(td, 'block-unjustified-decision.py', tool_helpers=('todo_index_rows.py', 'lint_common.py'))
+            probe = "import os, runpy\nns = runpy.run_path(os.environ['HOOK_COPY'], run_name='probe')\nprint('LOADED', ns['_index_rows'] is not None and ns['_match_heading'] is not None)\n"
+            r = subprocess.run([sys.executable, '-I', '-c', probe], capture_output=True, text=True, cwd=str(root), env=env)
+            self._assert_no_decoy(env)
+            self.assertIn('LOADED True', r.stdout, r.stdout + r.stderr)
+
+    def test_askuserquestion_lint_common_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            root, env = self._repo_arena(td, 'block-askuserquestion-unattended.py', tool_helpers=('lint_common.py',))
+            probe = "import os, runpy\nns = runpy.run_path(os.environ['HOOK_COPY'], run_name='probe')\nprint('LOADED', ns['_resolve_working'] is not None)\n"
+            r = subprocess.run([sys.executable, '-I', '-c', probe], capture_output=True, text=True, cwd=str(root), env=env)
+            self._assert_no_decoy(env)
+            self.assertIn('LOADED True', r.stdout, r.stdout + r.stderr)
+
+    def test_inject_session_timestamp_decoys_not_imported(self):
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'inject-session-timestamp.py', '_session_clock.py')
+            r = self._run_hook(d, env, 'inject-session-timestamp.py', None, '--self-test')
+            self._assert_no_decoy(env)
+            self.assertEqual(r.returncode, 0, r.stdout[-400:] + r.stderr[-400:])
+            self.assertIn('self-test: OK', r.stdout)
+
+    def test_missing_helper_with_seeded_sys_modules_never_consumed(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            d, env = self._arena(td, 'block-verification-pipes.py', '_hook_state.py')
+            (d / '_hook_state.py').unlink()
+            env['HOOK_COPY'] = str(d / 'block-verification-pipes.py')
+            probe = "import os, runpy, sys, types\ndecoy = types.ModuleType('_hook_state')\ndef record_block(*a, **k):\n    open(os.environ['DECOY_MARKER'], 'a').write('sys-modules-decoy ')\ndecoy.record_block = record_block\nsys.modules['_hook_state'] = decoy\ncode = 0\ntry:\n    runpy.run_path(os.environ['HOOK_COPY'], run_name='__main__')\nexcept SystemExit as exc:\n    code = exc.code\nprint('EXIT', code)\n"
+            payload = dict(tool_input=dict(command='./tools/run_all_audits.sh | tail -3'))
+            r = subprocess.run([sys.executable, '-I', '-c', probe], input=json.dumps(payload), capture_output=True, text=True, cwd=str(d), env=env)
+            self._assert_no_decoy(env)
+            self.assertIn('EXIT 2', r.stdout, r.stdout + r.stderr)
+            self.assertFalse((d / 'recent-blocks.jsonl').exists(), 'recording happened without a reviewed helper')
+
+    def test_symlinked_tools_directory_refused(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'repo'
+            hooks_d = root / '.claude' / 'hooks'
+            hooks_d.mkdir(parents=True)
+            hook = 'block-askuserquestion-unattended.py'
+            (hooks_d / hook).write_bytes((self.HOOKS / hook).read_bytes())
+            outside = Path(td) / 'outside-tools'
+            outside.mkdir()
+            marker = Path(td) / 'outside-helper-executed.marker'
+            (outside / 'lint_common.py').write_text('open(' + repr(str(marker)) + ", 'a').write('outside ')\ndef resolve_working(*a, **k):\n    return None\n", encoding='utf-8')
+            (root / 'tools').symlink_to(outside)
+            env = dict(os.environ)
+            env.pop('CLAUDE_PROJECT_DIR', None)
+            r = subprocess.run([sys.executable, '-I', str(hooks_d / hook)], input='{}', capture_output=True, text=True, cwd=str(root), env=env)
+            self.assertFalse(marker.exists(), 'outside source executed through a symlinked tools/')
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+
+    def test_symlinked_hooks_directory_refused(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'repo'
+            (root / '.claude').mkdir(parents=True)
+            payload_dir = Path(td) / 'payload'
+            payload_dir.mkdir()
+            hook = 'block-repeated-tool-failure.py'
+            for name in (hook, '_hook_state.py'):
+                (payload_dir / name).write_bytes((self.HOOKS / name).read_bytes())
+            (root / '.claude' / 'hooks').symlink_to(payload_dir)
+            env = dict(os.environ, HOOK_STATE_FILE=str(Path(td) / 'recent-blocks.jsonl'))
+            r = subprocess.run([sys.executable, '-I', str(root / '.claude' / 'hooks' / hook)], input=json.dumps(dict(tool_input=dict(command='echo fresh'))), capture_output=True, text=True, cwd=str(root), env=env)
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+
+    def _marked_hook_state(self, marker):
+        return 'open(' + repr(str(marker)) + ", 'a').write('outside ')\ndef find_recent_block(*a, **k):\n    return None\ndef consecutive_block_count(*a, **k):\n    return 0\ndef subject_from_payload(*a, **k):\n    return 'x'\ndef record_block(*a, **k):\n    return None\n"
+
+    def _plain_env(self, td):
+        env = dict(os.environ, HOOK_STATE_FILE=str(Path(td) / 'recent-blocks.jsonl'))
+        env.pop('CLAUDE_PROJECT_DIR', None)
+        return env
+
+    def test_symlinked_hooks_dir_to_shaped_outside_tree_refused(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'repo'
+            (root / '.claude').mkdir(parents=True)
+            outside = Path(td) / 'outside' / '.claude' / 'hooks'
+            outside.mkdir(parents=True)
+            hook = 'block-repeated-tool-failure.py'
+            (outside / hook).write_bytes((self.HOOKS / hook).read_bytes())
+            marker = Path(td) / 'outside-helper-executed.marker'
+            (outside / '_hook_state.py').write_text(self._marked_hook_state(marker), encoding='utf-8')
+            (root / '.claude' / 'hooks').symlink_to(outside)
+            r = subprocess.run([sys.executable, '-I', str(root / '.claude' / 'hooks' / hook)], input=json.dumps(dict(tool_input=dict(command='echo fresh'))), capture_output=True, text=True, cwd=str(root), env=self._plain_env(td))
+            self.assertFalse(marker.exists(), 'outside helper executed through a symlinked hooks dir')
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+
+    def test_symlinked_claude_directory_refused(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'repo'
+            root.mkdir()
+            elsewhere = Path(td) / 'elsewhere' / '.claude' / 'hooks'
+            elsewhere.mkdir(parents=True)
+            hook = 'block-repeated-tool-failure.py'
+            (elsewhere / hook).write_bytes((self.HOOKS / hook).read_bytes())
+            marker = Path(td) / 'outside-helper-executed.marker'
+            (elsewhere / '_hook_state.py').write_text(self._marked_hook_state(marker), encoding='utf-8')
+            (root / '.claude').symlink_to(elsewhere.parent)
+            r = subprocess.run([sys.executable, '-I', str(root / '.claude' / 'hooks' / hook)], input=json.dumps(dict(tool_input=dict(command='echo fresh'))), capture_output=True, text=True, cwd=str(root), env=self._plain_env(td))
+            self.assertFalse(marker.exists(), 'outside helper executed through a symlinked .claude')
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+
+    def test_symlinked_repo_root_component_refused(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            real = Path(td) / 'real-repo'
+            hooks_d = real / '.claude' / 'hooks'
+            hooks_d.mkdir(parents=True)
+            hook = 'block-repeated-tool-failure.py'
+            (hooks_d / hook).write_bytes((self.HOOKS / hook).read_bytes())
+            marker = Path(td) / 'outside-helper-executed.marker'
+            (hooks_d / '_hook_state.py').write_text(self._marked_hook_state(marker), encoding='utf-8')
+            link = Path(td) / 'repo-link'
+            link.symlink_to(real)
+            r = subprocess.run([sys.executable, '-I', str(link / '.claude' / 'hooks' / hook)], input=json.dumps(dict(tool_input=dict(command='echo fresh'))), capture_output=True, text=True, cwd=str(td), env=self._plain_env(td))
+            self.assertFalse(marker.exists(), 'helper executed through a symlinked repo-root component')
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            self.assertIn('hook-helper-isolation', r.stderr)
+            self.assertIn('symlink', r.stderr)
+    HELPER_NAMES = ('_hook_state', '_hookutil', '_session_clock', 'lint_common', 'todo_index_rows')
+    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_session_clock|lint_common|todo_index_rows)')
+
+    def _helper_import_offences(self, paths):
+        import ast
+        offences = []
+        for py in paths:
+            text = py.read_text(encoding='utf-8')
+            if self.HELPER_IMPORT_RE.search(text):
+                offences.append(py.name + ': literal from/import of a repository helper')
+            for node in ast.walk(ast.parse(text)):
+                if isinstance(node, ast.Import):
+                    hits = [a.name for a in node.names if a.name.split('.')[0] in self.HELPER_NAMES]
+                elif isinstance(node, ast.ImportFrom):
+                    module = (node.module or '').split('.')[0]
+                    hits = [module] if module in self.HELPER_NAMES else []
+                else:
+                    continue
+                if hits:
+                    offences.append(py.name + ':' + str(node.lineno) + ': ' + ', '.join(hits))
+        return offences
+
+    def test_no_hook_imports_repository_helpers_by_name(self):
+        offenders = self._helper_import_offences(sorted(self.HOOKS.glob('*.py')))
+        self.assertEqual(offenders, [])
+
+    def test_tools_helpers_import_no_repository_helpers_by_name(self):
+        tools = REPO_ROOT / 'tools'
+        offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py'])
+        self.assertEqual(offenders, [])
+
+class HookDescendantIsolationTests(unittest.TestCase):
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 14, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(REPO), 'diff', '--quiet', 'main', name]", "['git', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
+
+    def test_every_python_descendant_is_isolated(self):
+        import ast
+        import json
+        import shlex
+        from collections import Counter
+        paths = set((REPO_ROOT / '.claude/hooks').glob('*.py'))
+        paths.add(REPO_ROOT / '.claude/hooks/nmw-actionable')
+        paths.update((REPO_ROOT / 'tools' / name for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py')))
+
+        def commands(node):
+            if isinstance(node, dict):
+                if node.get('type') == 'command':
+                    yield node['command']
+                for value in node.values():
+                    yield from commands(value)
+            elif isinstance(node, list):
+                for value in node:
+                    yield from commands(value)
+        for command in commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())):
+            scripts = [token for token in shlex.split(command) if '/.claude/hooks/' in token]
+            self.assertEqual(len(scripts), 1, command)
+            self.assertIn(REPO_ROOT / '.claude/hooks' / Path(scripts[0]).name, paths)
+        counts = Counter()
+        inventory = []
+        for path in sorted(paths):
+            tree = ast.parse(path.read_bytes())
+            aliases = {}
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for name in node.names:
+                        aliases[name.asname or name.name] = name.name
+                elif isinstance(node, ast.ImportFrom):
+                    for name in node.names:
+                        aliases[name.asname or name.name] = (node.module or '') + '.' + name.name
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Call):
+                    continue
+                spelling = ast.unparse(node.func)
+                first, dot, rest = spelling.partition('.')
+                function = aliases.get(first, first) + (dot + rest if dot else '')
+                if function.startswith('os.') and function.split('.')[-1].startswith(('exec', 'spawn', 'system', 'popen')):
+                    self.fail('unreviewed process API: ' + spelling)
+                if function not in {'subprocess.' + name for name in ('run', 'Popen', 'call', 'check_call', 'check_output', 'getoutput', 'getstatusoutput')}:
+                    continue
+                rel = path.relative_to(REPO_ROOT).as_posix()
+                counts[rel] += 1
+                self.assertFalse(any((k.arg == 'shell' and (not (isinstance(k.value, ast.Constant) and k.value.value is False)) for k in node.keywords)), rel)
+                self.assertTrue(node.args, rel)
+                argv = node.args[0]
+                expression = ast.unparse(argv)
+                location = rel + ':' + str(node.lineno)
+                if expression in self.NONPYTHON:
+                    inventory.append((location, 'non-Python', expression))
+                    continue
+                self.assertIsInstance(argv, (ast.List, ast.Tuple), location)
+                parts = argv.elts
+                self.assertGreaterEqual(len(parts), 3, location)
+                self.assertEqual(ast.unparse(parts[0]), 'sys.executable', location)
+                self.assertEqual(ast.unparse(parts[1]), "'-I'", location)
+                i = 2
+                while i < len(parts) and isinstance(parts[i], ast.Constant) and (isinstance(parts[i].value, str) and parts[i].value.startswith('-')):
+                    self.assertIn(parts[i].value, ('-B', '-c'), location)
+                    i += 1
+                self.assertLess(i, len(parts), location)
+                self.assertIn(ast.unparse(parts[i]), self.PYTHON_TARGETS.get(path.name, set()), location + ': unreviewed Python child; extend the scanned graph')
+                inventory.append((location, 'isolated Python', expression))
+            if path.name == 'stop-guard-unattended.py':
+                overrides = [ast.unparse(k.value) for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and (n.func.attr == 'workers') for k in n.keywords if k.arg == 'command']
+                self.assertEqual(overrides, ["['sh', '-c', 'timeout --foreground 60 sleep 60 & wait']"])
+        self.assertEqual(dict(counts), self.COUNTS, inventory)
+
+    def _stop_chain(self, decoy_dir, module):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'repo'
+            hooks = root / '.claude/hooks'
+            tools = root / 'tools'
+            hooks.mkdir(parents=True)
+            tools.mkdir()
+            (root / '.working').mkdir()
+            (root / '.working/operating-mode').write_text('unattended\n')
+            registry = root / 'empty-registry'
+            registry.mkdir()
+            source = (REPO_ROOT / '.claude/hooks/stop-guard-unattended.py').read_text()
+            anchor = '_KILLREG_DIR = "/run/orch-workers"\n'
+            self.assertEqual(source.count(anchor), 1)
+            (hooks / 'stop-guard-unattended.py').write_text(source.replace(anchor, '_KILLREG_DIR = ' + repr(str(registry)) + '\n'))
+            producer = hooks / 'nmw-actionable'
+            producer.write_bytes((REPO_ROOT / '.claude/hooks/nmw-actionable').read_bytes())
+            producer.chmod(493)
+            tool = tools / 'fixture.py'
+            tool.write_text("import datetime\nprint('1 open item(s); 1 ACTIONABLE.')\nprint('ACTIONABLE (1):')\nprint('  - 3b1 real work')\n")
+            marker = root / 'imported'
+            directory = hooks if decoy_dir == 'hooks' else tools
+            (directory / (module + '.py')).write_text('open(' + repr(str(marker)) + ", 'w').write('IMPORTED')\n")
+            env = {k: v for k, v in os.environ.items() if k not in ('ORCH_VERIFY_OWNER', 'CLAUDE_CONFIG_DIR', 'GRC_STORE', 'GRC_DROP_ROOT', 'CLAUDE_PROJECT_DIR')}
+            env['NMW_ACTIONABLE_TOOL'] = str(tool)
+            result = subprocess.run([sys.executable, '-I', str(hooks / 'stop-guard-unattended.py')], input=json.dumps({'stop_hook_active': False}), cwd=root, env=env, capture_output=True, text=True, timeout=60)
+            self.assertFalse(marker.exists(), 'hook descendant imported planted ' + module)
+            self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+
+    def test_stop_producer_ignores_sibling_module(self):
+        self._stop_chain('hooks', 'pathlib')
+
+    def test_nmw_child_ignores_sibling_module(self):
+        self._stop_chain('tools', 'datetime')
+
+    def test_real_actionability_tool_ignores_sibling_module(self):
+        with tempfile.TemporaryDirectory() as td:
+            tools = Path(td) / 'repo/tools'
+            tools.mkdir(parents=True)
+            for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py'):
+                (tools / name).write_bytes((REPO_ROOT / 'tools' / name).read_bytes())
+            marker = Path(td) / 'imported'
+            for name in ('json', 'datetime'):
+                (tools / (name + '.py')).write_text('open(' + repr(str(marker)) + ", 'w').write('IMPORTED')\n")
+            result = subprocess.run([sys.executable, '-I', str(tools / 'audit-backlog-actionability.py'), '--help'], capture_output=True, text=True, timeout=60)
+            self.assertFalse(marker.exists(), "the tool's helper import consumed a planted module")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+class HookScriptOperandTests(unittest.TestCase):
+
+    def _refused(self, command):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            settings = Path(td) / 'settings.json'
+            settings.write_text(json.dumps({'hooks': {'Stop': [{'type': 'command', 'command': command}]}}))
+            result = subprocess.run([sys.executable, '-I', str(REPO_ROOT / 'tools/lint-hooks-syntax.py'), '--launcher-isolation', '--settings', str(settings)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 2, (command, result.stdout, result.stderr))
+            self.assertIn('ERROR: settings.json:', result.stderr)
+
+    def test_command_operand_refused(self):
+        for command in ('/usr/bin/python3 -I -c "print(1)"', '/usr/bin/python3 -Ic "print(1)"'):
+            self._refused(command)
+
+    def test_module_operand_refused(self):
+        for command in ('/usr/bin/python3 -I -m foo', '/usr/bin/python3 -Imfoo'):
+            self._refused(command)
+
+    def test_stdin_operand_refused(self):
+        for command in ('/usr/bin/python3 -I -', '/usr/bin/python3 -I -- -'):
+            self._refused(command)
+
+    def test_missing_script_operand_refused(self):
+        for command in ('/usr/bin/python3 -I', '/usr/bin/python3 -I --', '/usr/bin/python3 -I -W ignore'):
+            self._refused(command)
+
+class HookRoundSevenTests(unittest.TestCase):
+
+    def _gate(self, command, expected=2):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / 'settings.json'
+            path.write_text(json.dumps({'hooks': {'Stop': [{'type': 'command', 'command': command}]}}))
+            proc = subprocess.run(['/usr/bin/python3', '-I', str(REPO_ROOT / 'tools/lint-hooks-syntax.py'), '--launcher-isolation', '--settings', str(path)], capture_output=True, text=True)
+            self.assertEqual(proc.returncode, expected, (command, proc.stdout, proc.stderr))
+            if expected == 2:
+                self.assertIn('ERROR: settings.json:', proc.stderr)
+
+    def _redirection(self, token):
+        for command in (token + ' /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '/usr/bin/python3 -I ' + token + ' x.py', '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py ' + token):
+            self._gate(command)
+
+    def test_input_redirection(self):
+        self._redirection('<input')
+
+    def test_output_redirection(self):
+        self._redirection('>output')
+
+    def test_stderr_redirection(self):
+        self._redirection('2>output')
+
+    def test_combined_redirection(self):
+        self._redirection('&>output')
+
+    def test_here_document(self):
+        self._redirection('<<EOF')
+
+    def test_here_string(self):
+        self._redirection('<<<payload')
+
+    def test_fd_duplication(self):
+        for token in ('2>&1', '0<&3', '3>&-'):
+            self._redirection(token)
+
+    def test_append_redirection(self):
+        self._redirection('>>output')
+
+    def test_script_expansion(self):
+        for operand in ('$HOOK', '"$HOOK"', '*.py', '~/hook.py', '${HOOK}', 'x?.py'):
+            self._gate('/usr/bin/python3 -I ' + operand)
+            self._gate('/usr/bin/python3 -I -- ' + operand)
+
+    def test_redirection_cannot_hide_command_operand(self):
+        self._gate('/usr/bin/python3 -I 2>/dev/null -c "print(1)"')
+
+    def test_bare_interpreter(self):
+        for program in ('python3', 'python3.11'):
+            self._gate(program + ' -I x.py')
+
+    def test_path_assignment(self):
+        self._gate('PATH=/evil /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py')
+
+    def test_other_resolution_assignments(self):
+        for name in ('LD_PRELOAD', 'LD_LIBRARY_PATH', 'PYTHONPATH', 'PYTHONHOME', 'BASH_ENV'):
+            self._gate(name + '=/evil /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py')
+
+    def test_absolute_adopter_override(self):
+        self._gate('/opt/reviewed/python3.12 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 0)
+
+    def test_literal_script_with_spaces(self):
+        self._gate('/usr/bin/python3 -I "./hooks/a b.py"')
+
+    def test_clock_data_assignments(self):
+        self._gate('ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/clock-inject.py', 0)
+
+    def test_empty_settings_refused(self):
+        import json
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / 'settings.json'
+            for payload in ({}, {'hooks': {}}, {'hooks': {'Stop': []}}):
+                path.write_text(json.dumps(payload))
+                proc = subprocess.run(['/usr/bin/python3', '-I', str(REPO_ROOT / 'tools/lint-hooks-syntax.py'), '--launcher-isolation', '--settings', str(path)], capture_output=True, text=True)
+                self.assertEqual(proc.returncode, 2, proc.stdout + proc.stderr)
+                self.assertIn('ERROR: settings.json:', proc.stderr)
+
+    def test_all_registered_launchers_pinned(self):
+        import json
+        import shlex
+
+        def commands(node):
+            if isinstance(node, dict):
+                if node.get('type') == 'command':
+                    yield node['command']
+                for value in node.values():
+                    yield from commands(value)
+            elif isinstance(node, list):
+                for value in node:
+                    yield from commands(value)
+        commands = list(commands(json.loads((REPO_ROOT / '.claude/settings.json').read_text())))
+        self.assertEqual(len(commands), 25)
+        for command in commands:
+            argv = shlex.split(command)
+            if command.endswith("/clock-inject.py"):
+                self.assertEqual(argv.pop(0),
+                                 'ORCH_LEASE_FILE=$CLAUDE_PROJECT_DIR/../private/session-state.md')
+                command = command.split(" ", 1)[1]
+            self.assertEqual(argv[:2], ['/usr/bin/python3', '-I'])
+            self.assertRegex(command, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
+            self.assertTrue(argv[2].startswith('$CLAUDE_PROJECT_DIR/.claude/hooks/'), argv)
+
+    def test_adopter_documentation(self):
+        text = (REPO_ROOT / 'guardrails/README.md').read_text()
+        for phrase in ('/usr/bin/python3 -I', 'absolute interpreter path', '--launcher-isolation', 'literal script path', 'Python producer'):
+            self.assertIn(phrase, text)
+
+    def _helper_notice(self, missing, stop):
+        import json
+        for name in ('lint_common', 'todo_index_rows'):
+            with tempfile.TemporaryDirectory() as td:
+                root = Path(td) / 'repo'
+                hooks = root / '.claude/hooks'
+                tools = root / 'tools'
+                hooks.mkdir(parents=True)
+                tools.mkdir()
+                (root / '.working').mkdir()
+                (root / '.working/operating-mode').write_text('unattended\n')
+                for filename in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py'):
+                    (tools / filename).write_bytes((REPO_ROOT / 'tools' / filename).read_bytes())
+                for filename in ('stop-guard-unattended.py', 'nmw-actionable'):
+                    (hooks / filename).write_bytes((REPO_ROOT / '.claude/hooks' / filename).read_bytes())
+                    (hooks / filename).chmod(493)
+                helper = tools / (name + '.py')
+                data = helper.read_bytes()
+                helper.unlink()
+                marker = root / 'outside-executed'
+                if not missing:
+                    outside = root / 'outside.py'
+                    outside.write_text('open(' + repr(str(marker)) + ", 'w').write('BAD')\n")
+                    helper.symlink_to(outside)
+                env = {k: v for k, v in os.environ.items() if k not in ('ORCH_VERIFY_OWNER', 'CLAUDE_CONFIG_DIR', 'GRC_STORE', 'GRC_DROP_ROOT', 'CLAUDE_PROJECT_DIR', 'NMW_ACTIONABLE_TOOL')}
+                env['NMW_ACTIONABLE_TOOL'] = str(tools / 'audit-backlog-actionability.py')
+                filename = 'stop-guard-unattended.py' if stop else 'nmw-actionable'
+                proc = subprocess.run(['/usr/bin/python3', '-I', str(hooks / filename)], cwd=root, env=env, input=json.dumps({'stop_hook_active': False}), capture_output=True, text=True, timeout=60)
+                self.assertEqual(proc.returncode, 0 if stop else 1, proc.stdout + proc.stderr)
+                self.assertEqual(proc.stdout, '')
+                self.assertEqual(len(proc.stderr.splitlines()), 1, proc.stderr)
+                self.assertIn(name, proc.stderr)
+                self.assertIn('unavailable' if missing else 'symlink', proc.stderr)
+                self.assertNotIn('Traceback', proc.stderr)
+                self.assertFalse(marker.exists())
+                if not missing:
+                    helper.unlink()
+                helper.write_bytes(data)
+
+    def test_nmw_missing_helper_notice(self):
+        self._helper_notice(True, False)
+
+    def test_nmw_refused_helper_notice(self):
+        self._helper_notice(False, False)
+
+    def test_stop_missing_helper_notice(self):
+        self._helper_notice(True, True)
+
+    def test_stop_refused_helper_notice(self):
+        self._helper_notice(False, True)
+
+
+class HookRoundEightTests(unittest.TestCase):
+    _gate = HookRoundSevenTests._gate
+
+    def test_project_anchor_grammar(self):
+        anchor = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
+        for separator in (' ', ' -- '):
+            self._gate('/usr/bin/python3 -I' + separator + anchor, 0)
+            for operand in (
+                '$CLAUDE_PROJECT_DIR/.claude/hooks/x.py',
+                '"${CLAUDE_PROJECT_DIR}"/.claude/hooks/x.py',
+                "'$CLAUDE_PROJECT_DIR'/.claude/hooks/x.py",
+                '"$CLAUDE_PROJECT_DIR/.claude/hooks/x.py"',
+                '"$CLAUDE_PROJECT_DIR"/tools/x.py',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/$HOOK.py',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/${HOOK}.py',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/*.py',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/../x.py',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py"$EVIL"',
+                '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py/extra',
+            ):
+                self._gate('/usr/bin/python3 -I' + separator + operand)
+
+    def test_every_script_argument_is_validated(self):
+        for script in ('"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', '-- "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+            prefix = '/usr/bin/python3 -I ' + script
+            self._gate(prefix + ' --name "two words" literal=value', 0)
+            for tail in ('$EVIL', '${EVIL:=y}', '"$EVIL"', '$((1+1))',
+                         '*.py', '~/x', 'x?.py', '{a,b}', ')',
+                         '>"$OUT"', '2>&1', '<<<payload', '; true',
+                         '&& true', '|| true', '| cat', '&',
+                         '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'):
+                self._gate(prefix + ' literal ' + tail)
+
+    def test_assignment_raw_words_and_values(self):
+        self._gate('ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py', 0)
+        for assignment in ('"ORCH_LEASE_FILE=x"', "'ORCH_LEASE_FILE=x'",
+                           'ORCH_LEASE_FILE"=x"', 'ORCH_LEASE_FILE=$EVIL',
+                           'ORCH_STORE_ROOT="$CLAUDE_PROJECT_DIR"/private'):
+            self._gate(assignment + ' /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py')
+
+    def test_all_configured_commands_run_outside_project(self):
+        import json
+        settings = json.loads((REPO_ROOT / '.claude/settings.json').read_text())
+        entries = [(event, hook['command'])
+                   for event, groups in settings['hooks'].items()
+                   for group in groups for hook in group['hooks']
+                   if hook.get('type') == 'command']
+        self.assertEqual(len(entries), 25)
+        with tempfile.TemporaryDirectory() as td:
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(REPO_ROOT),
+                       HOOK_STATE_FILE=str(Path(td) / 'state.jsonl'))
+            for event, command in entries:
+                with self.subTest(event=event, command=command):
+                    launcher = command.split(" ", 1)[1] if command.startswith("ORCH_LEASE_FILE=") else command
+                    self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
+                    proc = subprocess.run(['/bin/sh', '-c', command], cwd=td, env=env,
+                                          input='{}', capture_output=True, text=True, timeout=30)
+                    self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
+                    self.assertNotIn("can't open file", proc.stderr)
+                    self.assertNotIn('Traceback', proc.stderr)
+
+
+class HookRoundNineTests(unittest.TestCase):
+    _gate = HookRoundSevenTests._gate
+    ANCHOR = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py'
+
+    def test_lease_assignment_grammar(self):
+        tail = ' /usr/bin/python3 -I ' + self.ANCHOR
+        self._gate('ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md' + tail, 0)
+        for assignment in (
+            '"ORCH_LEASE_FILE=$CLAUDE_PROJECT_DIR/lease"',
+            'ORCH_LEASE_FILE"=""/literal"',
+            'ORCH_LEASE_FILE=/literal',
+            'ORCH_STORE_ROOT=/literal',
+            'ORCH_STORE_ROOT="$CLAUDE_PROJECT_DIR"/private',
+            'ORCH_LEASE_FILE=$CLAUDE_PROJECT_DIR/lease',
+            'ORCH_LEASE_FILE="${CLAUDE_PROJECT_DIR}"/lease',
+            "ORCH_LEASE_FILE='$CLAUDE_PROJECT_DIR'/lease",
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR/lease"',
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"',
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/$LEASE',
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/${LEASE}',
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/*.md',
+            'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/lease"$EVIL"',
+            'ORCH_LEASE_FILE="$(pwd)"/lease',
+        ):
+            with self.subTest(assignment=assignment):
+                self._gate(assignment + tail)
+
+    def test_interpreter_tuning_options_refused(self):
+        for option in ('-X pycache_prefix=/tmp/x', '-Xpycache_prefix=/tmp/x',
+                       '-IXpycache_prefix=/tmp/x', '-X dev', '-X importtime',
+                       '-W ignore', '-Wignore', '-IWignore'):
+            with self.subTest(option=option):
+                self._gate('/usr/bin/python3 -I ' + option + ' ' + self.ANCHOR)
+
+    def test_script_anchor_required(self):
+        for separator in (' ', ' -- '):
+            self._gate('/home/u/bin/python3 -I' + separator + self.ANCHOR, 0)
+            for operand in ('x.py', '.claude/hooks/x.py', './.claude/hooks/x.py',
+                            '/absolute/.claude/hooks/x.py'):
+                with self.subTest(separator=separator, operand=operand):
+                    self._gate('/usr/bin/python3 -I' + separator + operand)
+
+    def test_clock_commands_preserve_elapsed(self):
+        import datetime
+        import json
+        import shutil
+        settings = json.loads((REPO_ROOT / '.claude/settings.json').read_text())
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td) / 'project with spaces'
+            hooks = root / '.claude' / 'hooks'
+            hooks.mkdir(parents=True)
+            shutil.copyfile(REPO_ROOT / '.claude/hooks/clock-inject.py', hooks / 'clock-inject.py')
+            private = Path(td) / 'private'
+            private.mkdir()
+            start = datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0)
+            start -= datetime.timedelta(hours=3, minutes=27, seconds=30)
+            (private / 'session-state.md').write_text(
+                'Active-session: sess-' + start.strftime('%Y%m%dT%H%M%SZ') + '\n')
+            outside = Path(td) / 'outside'
+            outside.mkdir()
+            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(root))
+            for name in ('ORCH_WORKER', 'ORCH_VERIFY_OWNER', 'ORCH_LEASE_FILE', 'ORCH_PROJECT_ROOT'):
+                env.pop(name, None)
+            for event in ('PostToolUse', 'PostToolUseFailure'):
+                commands = [h['command'] for g in settings['hooks'][event]
+                            for h in g['hooks'] if 'clock-inject.py' in h.get('command', '')]
+                self.assertEqual(len(commands), 1)
+                proc = subprocess.run(['/bin/sh', '-c', commands[0]], cwd=outside, env=env,
+                                      input=json.dumps(dict(cwd=str(outside), hook_event_name=event)),
+                                      capture_output=True, text=True, timeout=30)
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                payload = json.loads(proc.stdout)['hookSpecificOutput']
+                self.assertEqual(payload['hookEventName'], event)
+                parts = payload['additionalContext'].split(' | ')
+                self.assertEqual(len(parts), 3, proc.stdout)
+                now = datetime.datetime.strptime(parts[1], '%Y-%m-%dT%H:%M:%SZ')
+                seconds = int((now.replace(tzinfo=datetime.timezone.utc) - start).total_seconds())
+                self.assertEqual(parts[2], 'session elapsed %02d:%02d' %
+                                 (seconds // 3600, seconds % 3600 // 60))
+
+    def test_production_dependency_preload(self):
+        helper = HookSiblingImportIsolationTests()
+        with tempfile.TemporaryDirectory() as td:
+            root, env = helper._repo_arena(td, 'block-unjustified-decision.py',
+                                         tool_helpers=('todo_index_rows.py', 'lint_common.py'))
+            probe = (
+                "import os, re, runpy, sys, types\n"
+                "fake = types.ModuleType('lint_common')\n"
+                "fake.TODO_ID_RE = re.compile(r'^(?:FAKE)$')\n"
+                "fake.has_todo_index_header = lambda text: True\n"
+                "sys.modules['lint_common'] = fake\n"
+                "try:\n"
+                "    runpy.run_path(os.environ['HOOK_COPY'], run_name='__main__')\n"
+                "except SystemExit as exc:\n"
+                "    if exc.code not in (None, 0): raise\n"
+                "lc = sys.modules['lint_common']\n"
+                "rows = sys.modules.get('todo_index_rows')\n"
+                "print('PRELOAD_REVIEWED', lc is not fake and rows is not None\n"
+                "      and rows.TODO_ID_RE is lc.TODO_ID_RE\n"
+                "      and rows.TODO_ID_RE.pattern != fake.TODO_ID_RE.pattern)\n"
+            )
+            proc = subprocess.run([sys.executable, '-I', '-c', probe], cwd=root, env=env,
+                                  input='{}', capture_output=True, text=True, timeout=30)
+            self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+            self.assertIn('PRELOAD_REVIEWED True', proc.stdout, proc.stdout + proc.stderr)
+            helper._assert_no_decoy(env)
+
+
 class SuggestListingSurfacesTests(unittest.TestCase):
     """tools/suggest-listing-surfaces.py (advisory, exit-0-always): must not crash on a
     doc whose first path segment is not a corpus domain with a README (docs/, a bogus

@@ -39,6 +39,7 @@ refused instead (3b50b2d1).
 Usage:
     python3 tools/lint-hooks-syntax.py                # scan .claude/hooks/ (gate 95)
     python3 tools/lint-hooks-syntax.py --hooks-dir D  # fixture/regression override
+    python3 tools/lint-hooks-syntax.py --launcher-isolation  # gate 105
 
 Exit codes: 0 = every scanned file compiles; 1 = one or more files do not compile;
 2 = a refused --hooks-dir (empty value, not a directory, or no hook file in it).
@@ -48,6 +49,10 @@ Stdlib-only Python 3.11.
 from __future__ import annotations
 
 import argparse
+import json
+import os
+import re
+import shlex
 import sys
 from pathlib import Path
 
@@ -91,7 +96,154 @@ def scan(hooks_dir: Path) -> tuple[int, list[str]]:
     return len(files), findings
 
 
+# Gate 105 shares this tracked tool with gate 95; select it explicitly.
+class Refusal(Exception):
+    """An input that cannot be proved to launch an isolated Python script."""
+
+
+def _no_duplicate_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise Refusal("duplicate JSON key " + repr(key))
+        result[key] = value
+    return result
+
+
+def _literal(token, role):
+    if not token or any(c in token for c in "$\x60*?[{~<>()}"):
+        raise Refusal(role + " must be a literal path or option token: " + repr(token))
+
+
+def _script(token, raw):
+    prefix = '"$CLAUDE_PROJECT_DIR"/.claude/hooks/'
+    if raw.startswith(prefix):
+        suffix = raw[len(prefix):]
+        if (not re.fullmatch(r"[A-Za-z0-9_./-]+\.py", suffix)
+                or any(part in {"", ".", ".."} for part in suffix.split("/"))):
+            raise Refusal("project-directory anchor needs a literal hook path")
+        return
+    raise Refusal('script operand must start with "$CLAUDE_PROJECT_DIR"/.claude/hooks/')
+
+
+def isolation_flags(tokens):
+    flags = set()
+    args = iter(tokens)
+    for token, raw in args:
+        if token == "--" or not token.startswith("-"):
+            if token == "--":
+                token, raw = next(args, ("", ""))
+            _script(token, raw)
+            if token == "-":
+                raise Refusal("stdin is refused; a script operand is required")
+            for argument, _raw in args:
+                _literal(argument, "script argument")
+            return flags
+        if token == "-":
+            raise Refusal("stdin is refused; a script operand is required")
+        _literal(token, "Python option")
+        if token.startswith("--"):
+            raise Refusal("unmodelled Python long option " + repr(token))
+        body = token[1:]
+        for position, char in enumerate(body):
+            if char in "cm":
+                raise Refusal("-c and -m are refused; a script operand is required")
+            if char in "WX":
+                raise Refusal("-X and -W Python options are refused")
+            if char == "Q":
+                argument = body[position + 1:] or next(args, ("", ""))[0]
+                _literal(argument, "Python option argument")
+                break
+            if char not in "bBdEIOPqRsSuvx":
+                raise Refusal("unmodelled Python option -" + char)
+            flags.add(char)
+    raise Refusal("a script operand is required")
+
+
+def classify(command):
+    # Check raw syntax even in quoted words; this is deliberately a narrow grammar.
+    if any(c in command for c in ";|&\n\r\0<>\x60#()") or "$(" in command:
+        raise Refusal("shell control, redirection, comment or substitution syntax")
+    try:
+        lexer = shlex.shlex(command, posix=True)
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        tokens = []
+        while True:
+            start = lexer.instream.tell()
+            token = lexer.get_token()
+            if token is None:
+                break
+            raw = command[start:lexer.instream.tell()].strip()
+            tokens.append((token, raw))
+    except ValueError as exc:
+        raise Refusal("command does not tokenize: " + str(exc)) from exc
+    i = 0
+    while i < len(tokens) and re.match(r"^[A-Za-z_][A-Za-z0-9_]*=", tokens[i][0]):
+        token, raw = tokens[i]
+        name, value = token.split("=", 1)
+        if not raw.startswith(name + "="):
+            raise Refusal("assignment name and equals sign must be unquoted")
+        prefix = 'ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"'
+        if (name != "ORCH_LEASE_FILE" or not raw.startswith(prefix)
+                or not re.fullmatch(r"/[A-Za-z0-9_./-]+", raw[len(prefix):])):
+            raise Refusal('only ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/literal/path is modelled')
+        i += 1
+    if i == len(tokens):
+        raise Refusal("empty command (no interpreter)")
+    program = tokens[i][0]
+    _literal(program, "interpreter")
+    if not os.path.isabs(program) or not re.fullmatch(r"python3(?:\.\d+)?", os.path.basename(program)):
+        raise Refusal("an absolute interpreter path with basename python3 or python3.N is required")
+    flags = isolation_flags(tokens[i + 1:])
+    return "python-isolated" if "I" in flags or set("PEs") <= flags else "python-bare"
+
+
+def iter_commands(node, trail="hooks"):
+    if isinstance(node, dict):
+        if node.get("type") == "command":
+            yield trail, node.get("command")
+        for key, value in node.items():
+            yield from iter_commands(value, trail + "." + key)
+    elif isinstance(node, list):
+        for i, value in enumerate(node):
+            yield from iter_commands(value, trail + "[" + str(i) + "]")
+
+
+def launcher_main(argv):
+    parser = argparse.ArgumentParser(description="Hook-launcher isolation audit (gate 105)")
+    parser.add_argument("--settings", default=None)
+    args = parser.parse_args(argv)
+    try:
+        if args.settings is not None and not args.settings.strip():
+            raise Refusal("--settings needs a nonempty file path")
+        path = Path(args.settings) if args.settings is not None else REPO_ROOT / ".claude/settings.json"
+        settings = json.loads(path.read_bytes().decode("utf-8"), object_pairs_hook=_no_duplicate_keys)
+        if not isinstance(settings, dict):
+            raise Refusal("settings must be a JSON object")
+        commands = list(iter_commands(settings.get("hooks")))
+        if not commands:
+            raise Refusal("settings has no command hooks")
+        findings = []
+        for trail, command in commands:
+            if not isinstance(command, str):
+                raise Refusal(trail + ": command must be a string")
+            if classify(command) != "python-isolated":
+                findings.append(trail + ": " + command)
+    except (Refusal, OSError, UnicodeError, ValueError) as exc:
+        print("ERROR: settings.json: " + str(exc), file=sys.stderr)
+        return 2
+    if findings:
+        print("FAIL: Python hook launcher(s) without isolation:\n  " + "\n  ".join(findings))
+        return 1
+    print("OK: hook-launcher isolation audit clean (" + str(len(commands)) +
+          " Python launcher(s) isolated).")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
+    if argv and argv[0] == "--launcher-isolation":
+        return launcher_main(argv[1:])
     ap = argparse.ArgumentParser(
         description="Hooks Python-syntax audit (gate 95): compile every "
                     ".claude/hooks/*.py and fail on any syntax error.")

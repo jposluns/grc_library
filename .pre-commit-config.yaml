@@ -715,3 +715,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-hook-launcher-isolation
+        name: Hook-launcher isolation audit
+        entry: python3 tools/lint-hooks-syntax.py --launcher-isolation
+        language: system
+        pass_filenames: false
+        always_run: true

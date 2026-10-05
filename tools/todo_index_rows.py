@@ -61,9 +61,40 @@ from __future__ import annotations
 import re
 from typing import NamedTuple
 
-from lint_common import TODO_ID_RE, has_todo_index_header
+# `lint_common` supplies the backlog-id grammar and the index-header gate, WITHOUT a
+# by-name import statement (3b257): hook-side, the hooks' _load_sibling loader has
+# already executed the reviewed tools/lint_common.py source and registered it in
+# sys.modules BEFORE this module's source runs (its dependency preload, which
+# OVERWRITES any pre-seeded entry on a production launch), so the entry consulted
+# here is the loader's reviewed module; tool-side (a gate run as a script with
+# tools/ as its own directory), the colocated reviewed source bytes are executed
+# directly, a symlinked file refused, no bytecode cache read or written.
+def _reviewed_lint_common():
+    import os.path
+    import sys
+    cached = sys.modules.get("lint_common")
+    if cached is not None:
+        return cached
+    here = os.path.dirname(os.path.realpath(os.path.abspath(__file__)))
+    path = os.path.join(here, "lint_common.py")
+    if os.path.islink(path) or os.path.realpath(path) != path:
+        raise ImportError("tools/lint_common.py is a symlink or its real path "
+                          "leaves " + here + "; refusing to execute it "
+                          "(reviewed source only)")
+    with open(path, "rb") as fh:
+        source = fh.read()
+    module = type(sys)("lint_common")
+    module.__file__ = path
+    exec(compile(source, path, "exec", dont_inherit=True), module.__dict__)
+    sys.modules["lint_common"] = module
+    return module
 
-# The backlog-id alternation, taken from lint_common.TODO_ID_RE (``^(?:...)$``) so the row grammar and
+
+_lint_common = _reviewed_lint_common()
+TODO_ID_RE = _lint_common.TODO_ID_RE
+has_todo_index_header = _lint_common.has_todo_index_header
+
+# The backlog-id alternation, taken out of lint_common.TODO_ID_RE (``^(?:...)$``) so the row grammar and
 # the id grammar the other backlog gates read cannot drift apart.
 if not (TODO_ID_RE.pattern.startswith("^(?:") and TODO_ID_RE.pattern.endswith(")$")):
     raise ImportError("lint_common.TODO_ID_RE is not an anchored ^(?:...)$ alternation; "
