@@ -100,7 +100,8 @@ pid, while the child is still unreaped, and only then reaps it, so the
 unreaped pid pins the group id through the kill. On a delivered result or a
 nonzero exit it first reads the child's stdout to EOF and waits for the exit
 WITHOUT reaping (os.waitid with WNOWAIT); on a timeout or an exception the
-child is still running, hence still unreaped, at the kill. The parent holds the DEFAULT SIGCHLD disposition from before
+child has not been reaped either (it may still be running or may have exited
+as a waitable zombie), so its pid still pins the group id at the kill. The parent holds the DEFAULT SIGCHLD disposition from before
 the spawn until after that reap and then restores the caller's, interrupt
 paths included: the restore is armed before the disposition changes, so an
 interrupt delivered before or during the swap either finds the disposition
