@@ -484,6 +484,7 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
     parent = tempfile.mkdtemp(prefix="shell-self-test-supervised-")
     worker, status, failure = None, None, None
     clean = False
+    unverified = False
     def owned():
         return [pid for pid in _test_children(os.getpid())
                 if pid not in original_children]
@@ -527,6 +528,18 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
     finally:
         # This deadline is independent of every production cleanup function.
         end = time.monotonic() + cleanup_wait
+        if reason and worker in owned():
+            unverified = True
+            # Kill only the pipe owner first. Its watcher must remain
+            # runnable to sweep sessions orphaned outside this supervisor.
+            try:
+                os.kill(worker, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            # Without adoption we cannot prove when the sweep finishes;
+            # give it the remaining cleanup budget before stopping trees.
+            while time.monotonic() < end:
+                time.sleep(min(0.02, max(0.0, end - time.monotonic())))
         while owned():
             for pid in owned():
                 stop_tree(pid)
@@ -543,7 +556,10 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
         clean = clean and not os.path.exists(parent)
         if not reason:
             libc.prctl(36, previous.value, 0, 0, 0)
-    if not clean:
+    if unverified:
+        clean = False
+        failure = name + ":cleanup-unverified"
+    elif not clean:
         failure = name + ":cleanup"
     if failure and report:
         print(f"run-shell-stubbed self-test: FAIL {[failure]}", flush=True)
