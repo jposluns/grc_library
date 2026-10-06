@@ -445,14 +445,142 @@ finally:
 
 # Self-test ceilings are monotonic liveness guards, not latency requirements.
 # 120s is four times the ordinary command budget; compound probes get 300s.
-# The real timeout check is bounded by 300s plus 120s supervisor cleanup.
-# SIGTERM readiness, exit and survivor checks share 120s; emergency process
-# wait and session cleanup can add 120s each (360s total). The lifetime watcher
-# can add 120s on context exit. These are per-check bounds, not a whole-test
-# promise: only selected regression wrappers impose a 600s whole-test timeout.
-# The ordinary gate-36 self-test invocation has no whole-test timeout.
+# An independent supervisor bounds the complete self-test, including cleanup,
+# to 420s execution plus 120s emergency cleanup, below the 600s gate wrapper.
+# A deadline breach aborts with a named failure rather than accumulating waits.
 TEST_WAIT = 120.0
 TEST_PROCESS_WAIT = 300.0
+
+
+def _test_children(pid):
+    try:
+        with open(f"/proc/{pid}/task/{pid}/children") as stream:
+            return [int(value) for value in stream.read().split()]
+    except FileNotFoundError:
+        return []
+
+
+def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True):
+    """Supervise the entire test, including waits inside production cleanup.
+
+    Only self-test callers use this Linux subreaper. The supervising process
+    never runs the callback or its mocks. Stop parents before enumerating their
+    children, then kill and reap the owned tree, including separate sessions.
+    The private directory belongs to this supervisor, not the blocked worker.
+    """
+    import ctypes
+    libc = ctypes.CDLL(None, use_errno=True)
+    previous = ctypes.c_int()
+    if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
+            or libc.prctl(36, 1, 0, 0, 0) != 0):
+        raise RuntimeError("self-test supervision requires a Linux child subreaper")
+    original_children = set(_test_children(os.getpid()))
+    parent = tempfile.mkdtemp(prefix="shell-self-test-supervised-")
+    worker, status, failure = None, None, None
+    clean = False
+    def owned():
+        return [pid for pid in _test_children(os.getpid())
+                if pid not in original_children]
+    def stop_tree(pid):
+        try:
+            os.kill(pid, signal.SIGSTOP)
+        except ProcessLookupError:
+            return
+        for child in _test_children(pid):
+            stop_tree(child)
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    try:
+        sys.stdout.flush()
+        sys.stderr.flush()
+        worker = os.fork()
+        if worker == 0:
+            try:
+                tempfile.tempdir = parent
+                os.environ["TMPDIR"] = parent
+                rc = callback()
+            except BaseException:
+                import traceback
+                traceback.print_exc()
+                rc = 1
+            sys.stdout.flush()
+            sys.stderr.flush()
+            os._exit(rc)
+        deadline = time.monotonic() + ceiling
+        while True:
+            done, status = os.waitpid(worker, os.WNOHANG)
+            if done:
+                break
+            if time.monotonic() >= deadline:
+                failure = name
+                break
+            time.sleep(0.02)
+    finally:
+        # This deadline is independent of every production cleanup function.
+        end = time.monotonic() + cleanup_wait
+        while owned():
+            for pid in owned():
+                stop_tree(pid)
+            for pid in owned():
+                try:
+                    os.waitpid(pid, os.WNOHANG)
+                except ChildProcessError:
+                    pass
+            if not owned() or time.monotonic() >= end:
+                break
+            time.sleep(0.02)
+        clean = not owned()
+        _rmtree(parent)
+        clean = clean and not os.path.exists(parent)
+        libc.prctl(36, previous.value, 0, 0, 0)
+    if not clean:
+        failure = name + ":cleanup"
+    if failure and report:
+        print(f"run-shell-stubbed self-test: FAIL {[failure]}", flush=True)
+    rc = 1 if failure else os.waitstatus_to_exitcode(status)
+    return rc, failure, clean
+
+
+def _cleanup_deadline_check():
+    # C1: exercise the public self-test supervisor, not just its helper.
+    # A second supervisor bounds this regression if that wiring is removed.
+    with tempfile.NamedTemporaryFile() as ready:
+        def probe():
+            def blocked():
+                globals().update(GRACE_SECONDS=0)
+                with _self_test_limits():
+                    def failed_kill(sid):
+                        with open(ready.name, "w") as stream:
+                            stream.write(str(sid))
+                        return False
+                    globals()["_kill_session"] = failed_kill
+                    run("sleep 3600", shells=("bash",))
+                return 0
+            globals().update(TEST_WAIT=0.1, TEST_PROCESS_WAIT=2.9,
+                             _self_test_worker=blocked)
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                rc = _self_test()
+            return 0 if (rc == 1 and "self-test-execution-deadline"
+                         in output.getvalue()) else 1
+        rc, failure, clean = _supervise_test(
+            probe, 10.0, "cleanup-hang-regression-wrapper",
+            cleanup_wait=5.0, report=False)
+        ready.seek(0)
+        return rc == 0 and failure is None and clean and bool(ready.read())
+
+
+def _self_test() -> int:
+    try:
+        # 420s execution + 120s emergency cleanup is below the 600s wrapper.
+        return _supervise_test(
+            _self_test_worker, TEST_PROCESS_WAIT + TEST_WAIT,
+            "self-test-execution-deadline")[0]
+    except BaseException as exc:
+        print(f"run-shell-stubbed self-test: FAIL ['self-test-supervision: {exc!r}']")
+        return 1
 
 
 def _fixture_identity(pid):
@@ -683,11 +811,22 @@ def _policy_checks():
         for name in ("run", "_run_shells"):
             fn = globals()[name]
             g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
+        class MissingProductionHandler(Exception):
+            pass
+        def missing_handler(signum, frame):
+            raise MissingProductionHandler(signum)
+        placeholder = getattr(signal, "SIG" + route) if route in ("TERM", "HUP") else None
+        previous_handler = None
+        if placeholder is not None:
+            previous_handler = signal.signal(placeholder, missing_handler)
         error, answer = None, None
         try:
             answer = g["run"]("model", shells=("bash",), timeout=1)
-        except (_Terminated, KeyboardInterrupt) as exc:
+        except (_Terminated, KeyboardInterrupt, MissingProductionHandler) as exc:
             error = exc
+        finally:
+            if placeholder is not None:
+                signal.signal(placeholder, previous_handler)
         ok = state["killed"] and state["removed"] and not state["late"]
         if route in ("TERM", "HUP", "INT"):
             ok = ok and isinstance(error, (_Terminated, KeyboardInterrupt))
@@ -808,7 +947,7 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         _rmtree(parent)
 
 
-def _self_test() -> int:
+def _self_test_worker() -> int:
     # All test-created dirs, including subprocess TMPDIRs, have one private
     # parent. Concurrent users of the system temp dir cannot affect this check.
     saved_int = signal.signal(signal.SIGINT, signal.default_int_handler)
@@ -817,7 +956,8 @@ def _self_test() -> int:
         tempfile.tempdir = parent
         os.environ["TMPDIR"] = parent
         try:
-            policy = _policy_checks()
+            policy = [("cleanup-hang-deadline", _cleanup_deadline_check())]
+            policy.extend(_policy_checks())
             with _self_test_limits() as failures:
                 return _self_test_body(policy, failures)
         finally:
