@@ -29667,35 +29667,175 @@ class HookRoundEightTests(unittest.TestCase):
             self._gate(assignment + ' /usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/x.py')
 
     def test_all_configured_commands_run_outside_project(self):
-        """Check launcher execution from another cwd, not hook policy decisions."""
+        """Exercise configured launchers with private sources, state and policy inputs."""
         import json
         settings = json.loads((REPO_ROOT / '.claude/settings.json').read_text())
-        entries = [(event, hook['command'])
+        entries = [(event, group.get('matcher', '*'), hook['command'])
                    for event, groups in settings['hooks'].items()
                    for group in groups for hook in group['hooks']
                    if hook.get('type') == 'command']
         self.assertEqual(len(entries), 25)
+        marker_names = {
+            'block-on-open-findings': ('open-findings', 'open-findings-misfiled'),
+            'block-wrong-repo-tool': ('wrong-repo-tool-abspath',
+                                     'wrong-repo-tool-sibling', 'wrong-repo-git'),
+            'block-turn-end-with-outstanding-work': ('turn-end-outstanding-work',),
+            'clock-inject': (),
+            'inject-session-timestamp': (),
+            'surface-session-facts': (),
+        }
+        # Residual: an expected blocker that wrongly blocks because its process cwd
+        # is outside the project can still pass. This is a launcher smoke test,
+        # not proof of each hook's allow policy; unexpected blockers DO fail.
         with tempfile.TemporaryDirectory() as td:
-            env = dict(os.environ, CLAUDE_PROJECT_DIR=str(REPO_ROOT),
-                       HOOK_STATE_FILE=str(Path(td) / 'state.jsonl'))
-            for event, command in entries:
-                with self.subTest(event=event, command=command):
-                    launcher = command.split(" ", 1)[1] if command.startswith("ORCH_LEASE_FILE=") else command
-                    self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
-                    proc = subprocess.run(['/bin/sh', '-c', command], cwd=td, env=env,
-                                          input='{}', capture_output=True, text=True, timeout=30)
-                    # A documented policy block also proves this hook launched.
-                    private_launcher = (
-                        '/usr/bin/python3 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/'
-                        'block-operational-without-private.py')
-                    if launcher == private_launcher and proc.returncode == 2:
-                        self.assertTrue(
-                            proc.stderr.startswith('BLOCKED (operational-without-private): '),
-                            (command, proc.stdout, proc.stderr))
+            base = Path(td)
+            project = base / 'project'
+            hooks = project / '.claude/hooks'
+            hooks.mkdir(parents=True)
+            (project / 'tools').mkdir()
+            # Copy bytes, never symlinks, caches, ignored state or Git metadata.
+            # Source-relative defaults and lint_common's sibling/local fallbacks
+            # now all resolve inside td, even when the preferred store file is absent.
+            for source in (REPO_ROOT / '.claude/hooks').glob('*.py'):
+                self.assertFalse(source.is_symlink(), source)
+                (hooks / source.name).write_bytes(source.read_bytes())
+            for name in ('lint_common.py', 'todo_index_rows.py'):
+                source = REPO_ROOT / 'tools' / name
+                self.assertFalse(source.is_symlink(), source)
+                (project / 'tools' / name).write_bytes(source.read_bytes())
+            fleet = base / 'operating-mode'
+            registry = base / 'registry'
+            # CANONICAL_MODE_FILE and _KILLREG_DIR are the only hook bytes
+            # not exercised unchanged: rewrite exact-once constants in copies.
+            # These authorities intentionally have no environment override;
+            # adding one would weaken production policy for a test seam.
+            for name, anchor, replacement in (
+                ('block-askuserquestion-unattended.py',
+                 'CANONICAL_MODE_FILE = "/opt/orch-operator/operating-mode"',
+                 'CANONICAL_MODE_FILE = ' + repr(str(fleet))),
+                ('stop-guard-unattended.py',
+                 '_KILLREG_DIR = "/run/orch-workers"',
+                 '_KILLREG_DIR = ' + repr(str(registry))),
+            ):
+                path = hooks / name
+                source = path.read_text()
+                anchor, replacement = '\n' + anchor + '\n', '\n' + replacement + '\n'
+                self.assertEqual(source.count(anchor), 1)
+                path.write_text(source.replace(anchor, replacement))
+            for name in ('home', 'tmp', 'private', 'grc_working', 'registry',
+                         'config', 'cache', 'data', 'runtime'):
+                (base / name).mkdir(exist_ok=True)
+            # An allowlist also removes worker signals, GIT_* redirections,
+            # bypass switches and inherited project/store/transcript overrides.
+            env = {
+                'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8', 'TZ': 'UTC',
+                'HOME': str(base / 'home'), 'TMPDIR': str(base / 'tmp'),
+                'XDG_CONFIG_HOME': str(base / 'config'),
+                'XDG_CACHE_HOME': str(base / 'cache'),
+                'XDG_DATA_HOME': str(base / 'data'),
+                'XDG_RUNTIME_DIR': str(base / 'runtime'),
+                'CLAUDE_PROJECT_DIR': str(project),
+                'GRC_DROP_ROOT': str(base / 'grc_working'),
+                'GRC_STORE': str(base / 'private'),
+                'HOOK_STATE_FILE': str(base / 'state.jsonl'),
+                'ORCH_PROJECT_ROOT': str(base),
+                'ORCH_LEASE_FILE': str(base / 'private/session-state.md'),
+                'ORCH_OWNER': 'launcher-smoke',
+                'GIT_CONFIG_NOSYSTEM': '1',
+                'GIT_ATTR_NOSYSTEM': '1',
+                'GIT_CONFIG_GLOBAL': str(base / 'home/gitconfig'),
+                'GIT_CEILING_DIRECTORIES': str(base),
+                'PYTHONDONTWRITEBYTECODE': '1',
+            }
+            # The configured clock assignment overrides the environment; its
+            # $CLAUDE_PROJECT_DIR/../private path is also inside this fixture.
+            (base / 'private/session-state.md').write_text(
+                '**Operating-mode:** attended\nActive-session: none\n')
+            (project / 'README.md').write_text('Launcher fixture\n')
+            (project / 'TODO.md').write_text('# Empty fixture backlog\n')
+            def git_fixture(*args):
+                # 120 s liveness ceiling: a stalled, loaded host must not fail the fixture.
+                subprocess.run(['git', '-C', str(project), *args], env=env,
+                               capture_output=True, text=True, check=True, timeout=120)
+            git_fixture('init', '--template=', '-b', 'main')
+            git_fixture('config', 'user.name', 'Launcher Fixture')
+            git_fixture('config', 'user.email', 'fixture@example.invalid')
+            git_fixture('remote', 'add', 'origin', 'https://github.com/jposluns/grc_library')
+            git_fixture('add', '--', '.')
+            git_fixture('-c', 'maintenance.auto=false', 'commit', '-m', 'Fixture')
+            private = base / 'grc_library_private'
+            for has_private in (False, True):
+                if has_private:
+                    private.mkdir()
+                    (private / 'P-TODO.md').write_text('# Empty private backlog\n')
+                for mode, content in (
+                    ('attended', '{"mode":"attended"}'),
+                    ('unattended', '{"mode":"unattended"}'),
+                    ('malformed', '{'),
+                    ('absent', None),
+                ) + ((('worker-attended', '{"mode":"attended"}'),) if has_private else ()):
+                    worker = mode == 'worker-attended'
+                    if worker:
+                        env['CLAUDE_CONFIG_DIR'] = str(base / 'orch-worker.fixture')
                     else:
-                        self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
-                    self.assertNotIn("can't open file", proc.stderr)
-                    self.assertNotIn('Traceback', proc.stderr)
+                        env.pop('CLAUDE_CONFIG_DIR', None)
+                    if fleet.exists():
+                        fleet.unlink()
+                    if content is not None:
+                        fleet.write_text(content)
+                    # Exact expected set, with one reason for each blocker.
+                    # Task dispatch blocks for orchestrators, allows for workers.
+                    expected = set() if worker else {'block-orchestrator-self-qa'}
+                    if not has_private:
+                        expected.add('block-operational-without-private')  # Maintainer origin, no sibling.
+                    if mode in ('unattended', 'malformed'):
+                        expected.add('block-askuserquestion-unattended')  # Unattended or fail-closed fleet.
+                    blocked = set()
+                    for event, matcher, command in entries:
+                        with self.subTest(private=has_private, mode=mode,
+                                          event=event, command=command):
+                            launcher = command.split(" ", 1)[1] if command.startswith("ORCH_LEASE_FILE=") else command
+                            self.assertRegex(launcher, r'^/usr/bin/python3 -I "\$CLAUDE_PROJECT_DIR"/\.claude/hooks/[a-z0-9-]+\.py$')
+                            name = Path(launcher.rsplit('/', 1)[1]).stem
+                            markers = tuple('BLOCKED (' + label + '): ' for label in
+                                            marker_names.get(name, (name.removeprefix('block-'),)))
+                            tool = matcher.split('|')[0] if matcher != '*' else 'Read'
+                            inputs = {
+                                'Bash': {'command': 'pwd'},
+                                'AskUserQuestion': {'questions': [{
+                                    'question': 'Which fixture should be checked?',
+                                    'header': 'Fixture',
+                                    'options': [
+                                        {'label': 'First', 'description': 'Check the first fixture.'},
+                                        {'label': 'Second', 'description': 'Check the second fixture.'},
+                                    ],
+                                    'multiSelect': False,
+                                }]},
+                                'Edit': {'file_path': str(base / 'fixture.txt'),
+                                         'old_string': 'before', 'new_string': 'after'},
+                                'Task': {'description': 'Inspect fixture', 'prompt': 'Read the fixture.',
+                                         'subagent_type': 'general-purpose'},
+                                'Read': {'file_path': str(project / 'README.md')},
+                            }
+                            payload = dict(hook_event_name=event, cwd=str(project),
+                                           session_id='launcher-smoke', tool_name=tool,
+                                           tool_input=inputs[tool], stop_hook_active=False)
+                            # Liveness ceiling for loaded hosts; passing runs are unaffected.
+                            proc = subprocess.run(['/bin/sh', '-c', command], cwd=td, env=env,
+                                                  input=json.dumps(payload), capture_output=True,
+                                                  text=True, timeout=120)
+                            if proc.returncode == 2:
+                                blocked.add(name)
+                                self.assertTrue(proc.stderr.startswith(markers),
+                                                (command, proc.stdout, proc.stderr))
+                            else:
+                                self.assertEqual(proc.returncode, 0, (command, proc.stdout, proc.stderr))
+                            for output in (proc.stdout, proc.stderr):
+                                self.assertNotIn("can't open file", output)
+                                self.assertNotIn('Traceback', output)
+                    if worker:
+                        self.assertNotIn('block-orchestrator-self-qa', blocked)
+                    self.assertEqual(blocked, expected, (has_private, mode))
 
 
 class HookRoundNineTests(unittest.TestCase):
