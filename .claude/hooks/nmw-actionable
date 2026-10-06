@@ -35,12 +35,14 @@ _ORIGIN = re.compile(r"^\((?:public|private)\)\s+")
 def main():
     try:
         proc = subprocess.run(
-            [sys.executable, TOOL, "--actionable-only"],
+            [sys.executable, "-I", TOOL, "--actionable-only"],
             capture_output=True, text=True, timeout=60,
         )
     except Exception:
         return 1  # spawn/timeout failure -> indeterminate -> hook fails open
     if proc.returncode != 0:
+        reason = " ".join(proc.stderr.splitlines()).strip() or (TOOL + " exited " + str(proc.returncode))
+        print("NOTICE (nmw-actionable; fail open): " + reason[:1024], file=sys.stderr)
         return 1  # tool error -> indeterminate -> hook fails open
 
     declared = None

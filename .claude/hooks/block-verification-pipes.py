@@ -40,6 +40,90 @@ import json
 import re
 import sys
 
+# The settings.json launcher runs `python3 -I` (SECI-config-is-executable-trust-gate): no
+# directory ever enters sys.path, the colocated `_hook_state` recorder executes ONLY from
+# its reviewed source bytes, loaded at the recording site through _load_sibling below, and
+# no import statement names it anywhere in this file, so nothing planted beside this hook
+# (a decoy module, a __pycache__/*.pyc, a seeded sys.modules entry) can run.
+# MISSING-HELPER BEHAVIOUR: the decision still blocks; only the recording is skipped.
+def _load_sibling(name, _cache={}):
+    """Execute a reviewed repository helper's .py SOURCE BYTES and return the module.
+
+    SECI-config-is-executable-trust-gate: the settings.json launcher runs `python3 -I`,
+    this function never touches sys.path and never uses import machinery for the
+    helper, so nothing planted beside a hook (a stdlib-named decoy module, a
+    __pycache__/*.pyc) can execute, and no bytecode cache is ever read or written.
+    Containment is decided on the path AS LAUNCHED, before any symlink resolution:
+    os.path.abspath(__file__) (unresolved) must sit at <root>/.claude/hooks/<hook>.py,
+    and every component from that root down to the hook and down to the helper (the
+    root itself, .claude, .claude/hooks, tools, the hook file and the helper file)
+    must not be a symlink; only then are real paths compared, requiring the hook's and
+    the helper's real locations to sit at exactly their expected places under the real
+    repository root (ancestors ABOVE the root may be symlinks: both sides of each
+    comparison resolve them identically). Any violation is REFUSED fail-closed: exit 2
+    with a clear message, raised as SystemExit so the hooks' fail-open
+    `except Exception` guards cannot swallow it. A MISSING helper is different: the
+    plain OSError propagates to the caller, which takes this hook's documented
+    missing-helper behaviour, never a sys.modules fallback.
+
+    TEST-ONLY SEAM: when this hook is loaded AS A MODULE by the in-repo test harness
+    (__name__ != "__main__"), a helper already present in sys.modules is reused, which
+    preserves the patch-the-helper-then-load-the-hook test contract. A production launch
+    is always a direct execution (__name__ == "__main__"), and neither the environment
+    nor any file in the tree can change that, so a production load NEVER consults a
+    pre-existing sys.modules entry: it always re-executes the reviewed source and
+    overwrites the entry (dependencies included: todo_index_rows reads lint_common from
+    the entry this loader has just written).
+    """
+    import os.path
+    import sys
+    if name in _cache:
+        return _cache[name]
+    if __name__ != "__main__" and name in sys.modules:
+        _cache[name] = sys.modules[name]
+        return _cache[name]
+
+    def _refuse(why):
+        print("BLOCKED (hook-helper-isolation): " + why + "; refusing to execute "
+              "anything but the reviewed helper sources.", file=sys.stderr)
+        sys.exit(2)
+
+    hook_path = os.path.abspath(__file__)  # the path AS LAUNCHED, symlinks unresolved
+    hooks_dir = os.path.dirname(hook_path)
+    claude_dir = os.path.dirname(hooks_dir)
+    root = os.path.dirname(claude_dir)
+    if os.path.basename(hooks_dir) != "hooks" or os.path.basename(claude_dir) != ".claude":
+        _refuse("this hook's launch path " + hook_path + " is not under "
+                "<repo-root>/.claude/hooks, so no repository root can anchor helper "
+                "containment")
+    parts = (".claude", "hooks") if name.startswith("_") else ("tools",)
+    helper_dir = os.path.join(root, *parts)
+    helper_path = os.path.join(helper_dir, name + ".py")
+    for p in (root, claude_dir, hooks_dir, hook_path, helper_dir, helper_path):
+        if os.path.islink(p):
+            _refuse(p + " is a symlink on the path as launched (containment is "
+                    "decided before any symlink resolution)")
+    real_root = os.path.realpath(root)
+    if os.path.realpath(hook_path) != os.path.join(real_root, ".claude", "hooks",
+                                                   os.path.basename(hook_path)):
+        _refuse("this hook's real location " + os.path.realpath(hook_path)
+                + " does not sit at its launch-path place under the real repository "
+                "root " + real_root)
+    if os.path.realpath(helper_path) != os.path.join(real_root, *parts, name + ".py"):
+        _refuse("helper " + helper_path + " does not resolve to its expected place "
+                "under the real repository root " + real_root)
+    for dep in {"todo_index_rows": ("lint_common",)}.get(name, ()):
+        _load_sibling(dep)
+    with open(helper_path, "rb") as fh:
+        source = fh.read()
+    module = type(sys)(name)
+    module.__file__ = helper_path
+    exec(compile(source, helper_path, "exec", dont_inherit=True), module.__dict__)
+    sys.modules[name] = module
+    _cache[name] = module
+    return module
+
+
 VERIFICATION = (
     r'(?:pre-push-guard\.sh|run_all_audits\.sh|run-pr-time-checks\.sh'
     r'|unittest\b|lint-[A-Za-z0-9_-]+\.py|preflight-changelog\.py'
@@ -86,8 +170,7 @@ def main() -> int:
     if not isinstance(command, str) or not command_is_blocked(command):
         return 0
     try:
-        from _hook_state import record_block
-        record_block(command, "verification-pipes")
+        _load_sibling("_hook_state").record_block(command, "verification-pipes")
     except Exception:
         pass
     sys.stderr.write(

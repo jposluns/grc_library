@@ -2,8 +2,8 @@
 
 **Document Title:** Claude Code Security Rules Usage Guide\
 **Document Type:** Guideline\
-**Version:** 1.72.1\
-**Date:** 2026-10-03\
+**Version:** 1.72.3\
+**Date:** 2026-10-05\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Parent-library related documents:** `dev-security/standard-developer-security-requirements.md`, `dev-security/standard-devops-security-requirements.md`, `dev-security/guideline-ai-coding-assistant-security.md`, `ai/standard-ai-and-agentic-development-security.md`\
@@ -589,6 +589,40 @@ additional fields (especially `arguments`) or a Claude Code upgrade require a fr
 ### Deterministic enforcement layer
 
 `CLAUDE.md` and `.claude/rules/*.md` are the behavioural guidance layer. For controls that must hold regardless of what Claude decides, use `.claude/settings.json` `permissions.deny` rules and `PreToolUse` hooks. Consult the current official Claude Code documentation for the supported settings and hook schemas.
+
+Python hook launchers in the parent GRC library use `/usr/bin/python3 -I`.
+Adopters must set their own absolute interpreter path in every command in
+`.claude/settings.json` if Python lives elsewhere, for example
+`/opt/reviewed/python3.12 -I "$CLAUDE_PROJECT_DIR"/.claude/hooks/clock-inject.py`.
+Keep the basename `python3` or `python3.N` and the isolation flag; bare
+`python3`, `PATH=`, loader-related assignments and shell wrappers are refused.
+The only modelled assignment is `ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/literal/path`:
+the name and equals sign are unquoted, and the exact double-quoted prefix is
+immediately followed by a literal path. Both clock commands retain
+`ORCH_LEASE_FILE="$CLAUDE_PROJECT_DIR"/../private/session-state.md` so session elapsed
+time works outside the project. The unused `ORCH_STORE_ROOT` assignment is dropped.
+Children inherit the selected absolute interpreter through
+`sys.executable` and also use `-I`.
+
+Use a literal script path starting with exactly
+`"$CLAUDE_PROJECT_DIR"/.claude/hooks/` followed by a literal path. The shipped
+commands use this anchor and work from any directory when the harness sets
+`CLAUDE_PROJECT_DIR` to the absolute project root. The reviewed loader still
+refuses a symlinked project root or hook/helper path. Such a refusal exits 2, which
+blocks every PreToolUse call and every turn end while it persists; launch the
+harness from the real (non-symlinked) project path.
+Every token after the script is checked too. Expansions are allowed only in the
+script anchor and the modelled lease assignment above. All other expansions,
+redirections (including here-strings and fd duplication), `-X`, `-W`, `-c`, `-m`
+and stdin scripts are refused. Relative script paths are refused. Check the configuration
+with `python3 tools/lint-hooks-syntax.py --launcher-isolation` before starting
+a new session. Gate 95's default syntax check remains separate.
+
+Stop's optional producer must be a Python producer, launched with the same
+interpreter and `-I`; a shell producer needs an explicitly reviewed adapter.
+Missing or refused backlog-tool helpers leave the producer indeterminate and
+Stop fail-open. Each emits a one-line stderr notice naming the helper and reason;
+Stop uses its existing bounded diagnostic transport.
 
 ## Generate your files (AI-assisted setup)
 

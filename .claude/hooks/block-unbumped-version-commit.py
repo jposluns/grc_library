@@ -794,14 +794,14 @@ def self_test() -> int:
     (d5 / "docs" / "maturity-scorecard.md").write_text("**Version:** 1.0.0\\\n\n| row | newer |\n")
     # A plain commit with the payload cwd in this checkout (a -C commit now steps aside, 3b25 r10 ruling).
     payload = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d5)})
-    r = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+    r = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                        capture_output=True, text=True)
     ck("a regenerated scorecard body edit is NOT blocked", r.returncode, 0)
     ck("the reference manifest is exempt as generated, matching gate 40", "docs/reference-acquisition-manifest.md" in GENERATED, True)
     # control: an ordinary versioned doc with an extra unstaged change still blocks
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnew body\n"); git(d5, "add", "x.md")
     (d5 / "x.md").write_text("**Version:** 1.0.0\\\n\nnewer unstaged\n")
-    r2 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
+    r2 = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=payload,
                         capture_output=True, text=True)
     ck("control: an ordinary versioned doc still blocks", r2.returncode, 2)
     # --- 3b25 r1 (codex P1): a commit aimed at ANOTHER checkout is not inspected or auto-bumped here ---
@@ -810,7 +810,7 @@ def self_test() -> int:
     (d6 / "y.md").write_text("**Version:** 1.0.0\\\n\nnew\n"); git(d6, "add", "y.md")
     before = git(d5, "show", ":x.md")
     p6 = _json.dumps({"tool_name": "Bash", "tool_input": {"command": "git commit -q -m x"}, "cwd": str(d6)})
-    r3 = subprocess.run([sys.executable, "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
+    r3 = subprocess.run([sys.executable, "-I", "-B", str(d5 / ".claude" / "hooks" / "hook.py")], input=p6,
                         capture_output=True, text=True)
     ck("a commit aimed at another checkout is not blocked here", r3.returncode, 0)
     ck("this checkout's staged offender is untouched by a foreign-target commit", git(d5, "show", ":x.md"), before)
