@@ -383,12 +383,12 @@ def main(argv=None) -> int:
     return 3 if uncontained else 0  # an uncontained run is not a normal result (QA r7)
 
 
-# The loaded-host reproduction for 3b125: the probe adopts the run's orphans (PR_SET_CHILD_SUBREAPER, 36) and
-# never reaps them, so a killed child stays a zombie for as long as the check looks, as behind a slow reaper.
+# The loaded-host reproduction for 3b125: adopt an exited orphan (PR_SET_CHILD_SUBREAPER, 36).
+# waitid(WNOWAIT) observes its exit without reaping it; reap only after checking the real zombie.
 # Where the subreaper cannot be set (a non-Linux host, or a container that blocks prctl), the probe says so and
 # why, and runs nothing (3b125 QA r1).
-SLOW_REAPER_PROBE = """
-import ctypes, json, os, runpy, sys, time
+SLOW_REAPER_PROBE = r"""
+import ctypes, json, os, runpy, sys, types
 try:
     adopted = ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
     reason = "" if adopted else "prctl(PR_SET_CHILD_SUBREAPER) failed: " + os.strerror(ctypes.get_errno())
@@ -398,18 +398,439 @@ if not adopted:
     print(json.dumps(dict(adopted=False, reason=reason)))
     sys.exit(0)
 tool = runpy.run_path(sys.argv[1], run_name="run_shell_stubbed_probe")
-r = tool["run"]("sleep 30 & echo started", shells=("bash",), timeout=10)[0]
-zombies = [pid for pid, state in tool["_session_members"](r["session"]) if state == "Z"]
-start = time.monotonic()
-survivors = tool["_session_survivors"](r["session"], timeout=5.0)
-print(json.dumps(dict(adopted=True, contained=r["contained"], zombies=zombies, survivors=survivors,
-                      waited=time.monotonic() - start)))
+readfd, writefd = os.pipe()
+middle = os.fork()
+if middle == 0:
+    os.close(readfd)
+    os.setsid()
+    child = os.fork()
+    if child == 0:
+        os._exit(0)
+    os.write(writefd, str(child).encode())
+    os._exit(0)
+os.close(writefd)
+child = int(os.read(readfd, 100))
+os.close(readfd)
+os.waitpid(middle, 0)
+# WNOWAIT leaves a real, adopted zombie for the single scan under test.
+os.waitid(os.P_PID, child, os.WEXITED | os.WNOWAIT)
+contained = tool["_kill_session"](middle)
+members = tool["_session_members"](middle)
+zombies = [pid for pid, state in members if state == "Z"]
+scans, waits = [], []
+fn = tool["_session_survivors"]
+g = dict(fn.__globals__)
+def scan(sid):
+    scans.append(sid)
+    if len(scans) != 1:
+        raise AssertionError("zombie caused another scan")
+    return tool["_session_members"](sid)
+def sleep(seconds):
+    waits.append(seconds)
+    raise AssertionError("zombie caused retry sleep")
+g.update(_session_members=scan,
+         time=types.SimpleNamespace(monotonic=g["time"].monotonic, sleep=sleep))
+call = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+try:
+    try:
+        survivors = call(middle)
+    except AssertionError:
+        survivors = None
+    print(json.dumps(dict(adopted=True, contained=contained, zombies=zombies, survivors=survivors,
+                         scans=len(scans), retried=bool(waits))))
+finally:
+    os.waitpid(child, 0)
 """
 
 
+# Self-test ceilings are monotonic liveness guards, not latency requirements.
+# 120s is four times the ordinary command budget; compound probes get 300s.
+# The real timeout check is bounded by 300s plus 120s supervisor cleanup.
+# SIGTERM readiness, exit and survivor checks share 120s; emergency process
+# wait and session cleanup can add 120s each (360s total). The lifetime watcher
+# can add 120s on context exit. These are per-check bounds, not a whole-test
+# promise: only selected regression wrappers impose a 600s whole-test timeout.
+# The ordinary gate-36 self-test invocation has no whole-test timeout.
+TEST_WAIT = 120.0
+TEST_PROCESS_WAIT = 300.0
+
+
+def _fixture_identity(pid):
+    """Return the session leader's Linux start time, or None."""
+    try:
+        with open(f"/proc/{pid}/stat") as stream:
+            fields = stream.read().rsplit(")", 1)[1].split()
+        return fields[19] if int(fields[3]) == pid else None
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def _fixture_watch():
+    """A pipe-owned supervisor kills registered sessions when the test dies.
+
+    Registration happens before exec, so SIGKILL between spawn and wait cannot
+    strand a fixture. Children close the writer at exec; only this test owns it.
+    This is test scaffolding, independent of the production cleanup under test.
+    Its preexec_fn selects fork plus exec instead of posix_spawn/vfork.
+    Registration includes the leader's start time to reject reused session IDs.
+    """
+    readfd, writefd = os.pipe()
+    watcher = os.fork()
+    if watcher == 0:
+        os.close(writefd)
+        os.setsid()
+        sessions, data = {}, b""
+        try:
+            while True:
+                chunk = os.read(readfd, 4096)
+                if not chunk:
+                    break
+                data += chunk
+                while b"\n" in data:
+                    line, data = data.split(b"\n", 1)
+                    sid, started = line.decode().split()
+                    sessions[int(sid)] = started
+            deadline = time.monotonic() + TEST_WAIT
+            while sessions and time.monotonic() < deadline:
+                sessions = {sid: started for sid, started in sessions.items()
+                            if _fixture_identity(sid) in (started, None)}
+                live = [(sid, pid) for sid in sessions
+                        for pid, state in _session_members(sid)
+                        if state not in ("Z", "X")]
+                if not live:
+                    break
+                # Stop all before killing any, including job-control groups.
+                for sig in (signal.SIGSTOP, signal.SIGKILL):
+                    for sid, pid in live:
+                        if _fixture_identity(sid) not in (sessions[sid], None):
+                            continue
+                        try:
+                            os.kill(pid, sig)
+                        except ProcessLookupError:
+                            pass
+                time.sleep(0.02)
+        finally:
+            os._exit(0)
+    os.close(readfd)
+    return watcher, writefd
+
+
+@contextlib.contextmanager
+def _fixture_lifetime():
+    watcher, writer = _fixture_watch()
+    saved = subprocess.Popen
+    class RegisteredProcess(saved):
+        def __init__(self, *args, **kwargs):
+            if kwargs.get("start_new_session"):
+                before = kwargs.get("preexec_fn")
+                def register():
+                    pid = os.getpid()
+                    started = _fixture_identity(pid)
+                    if started is None:
+                        raise RuntimeError("fixture leader identity unavailable")
+                    os.write(writer, f"{pid} {started}\n".encode())
+                    if before is not None:
+                        before()
+                kwargs["preexec_fn"] = register
+            super().__init__(*args, **kwargs)
+    subprocess.Popen = RegisteredProcess
+    try:
+        yield
+    finally:
+        subprocess.Popen = saved
+        os.close(writer)
+        os.waitpid(watcher, 0)
+
+
+def _command_timeout_check(failures):
+    # The supervisor's wait is independent of run's timeout. The pipe-owned
+    # fixture watchdog also survives SIGKILL of this supervisor or its child.
+    probe = r"""
+import json, runpy, sys
+t = runpy.run_path(sys.argv[1])
+with t["_self_test_limits"]():
+    r = t["run"]("while :; do ( : ) & done", shells=("bash",), timeout=2)[0]
+    print(json.dumps(r))
+"""
+    proc = subprocess.Popen(
+        [sys.executable, "-I", "-B", "-c", probe, os.path.abspath(__file__)],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+    try:
+        out, _err = proc.communicate(timeout=TEST_PROCESS_WAIT)
+        r = json.loads(out.splitlines()[-1])
+        return (proc.returncode == 0 and r["rc"] is None
+                and "timed out after 2s" in r["stderr"], r["contained"])
+    except (subprocess.TimeoutExpired, ValueError, IndexError, KeyError):
+        return False, False
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        try:
+            proc.communicate(timeout=TEST_WAIT)
+        except subprocess.TimeoutExpired:
+            failures.append(("command-timeout-probe-cleanup-wait", False))
+
+
+@contextlib.contextmanager
+def _self_test_limits():
+    # Only self-test execution receives the larger kill budget. A cloned
+    # function keeps the production function and its five-second policy intact.
+    import types
+    saved_run, saved_kill, saved_survivors = run, _kill_session, _session_survivors
+    g = dict(saved_kill.__globals__)
+    g["time"] = types.SimpleNamespace(
+        monotonic=lambda: time.monotonic() / 24, sleep=time.sleep)
+    kill = types.FunctionType(saved_kill.__code__, g, saved_kill.__name__,
+                              saved_kill.__defaults__)
+    failures, allocated = [], []
+    saved_prepare = _prepare
+    def prepare(tmp, stubs):
+        allocated.append(tmp)
+        return saved_prepare(tmp, stubs)
+    def bounded_run(*args, **kwargs):
+        kwargs.setdefault("timeout", TEST_WAIT)
+        results = saved_run(*args, **kwargs)
+        if any(not r["contained"] for r in results):
+            failures.append(("command-contained", False))
+        if any(os.path.exists(path) for path in allocated):
+            failures.append(("allocated-temp-dirs-removed", False))
+        return results
+    def survivors(sid, timeout=TEST_WAIT):
+        return saved_survivors(sid, timeout)
+    globals().update(run=bounded_run, _kill_session=kill,
+                     _session_survivors=survivors, _prepare=prepare)
+    try:
+        with _fixture_lifetime():
+            yield failures
+    finally:
+        globals().update(run=saved_run, _kill_session=saved_kill,
+                         _session_survivors=saved_survivors, _prepare=saved_prepare)
+
+
+def _background_call_check():
+    # A real recorder is held until the production grace loop yields. The
+    # lock is released on the first grace sleep; deleting grace cannot pass
+    # just because the recorder happened to run early.
+    import fcntl
+    import types
+    saved_shim, saved_time, saved_grace = SHIM, time, GRACE_SECONDS
+    with tempfile.NamedTemporaryFile() as gate:
+        fcntl.flock(gate, fcntl.LOCK_EX)
+        def release(seconds):
+            fcntl.flock(gate, fcntl.LOCK_UN)
+            saved_time.sleep(seconds)
+        try:
+            globals()["SHIM"] = SHIM.replace(
+                "import json, sys",
+                "import json, sys, fcntl\nwith open(" + repr(gate.name) +
+                ") as gate:\n    fcntl.flock(gate, fcntl.LOCK_SH)")
+            globals()["time"] = types.SimpleNamespace(
+                monotonic=saved_time.monotonic, sleep=release)
+            globals()["GRACE_SECONDS"] = TEST_WAIT
+            r = run("(gh pr merge 11) & echo started", shells=("bash",))[0]
+            return r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0
+        finally:
+            globals().update(SHIM=saved_shim, time=saved_time, GRACE_SECONDS=saved_grace)
+
+
+def _policy_checks():
+    """Exercise unchanged production code using a clock advanced by work.
+
+    The signal oracle requires an exception AND cleanup. Recording a signal
+    then returning from wait is a failure (the strengthened round-5 oracle).
+    Timeout goes through public run, so dropping its argument fails.
+    """
+    import types
+    results = []
+    for route in ("grace", "timeout", "TERM", "HUP", "INT"):
+        state = dict(clock=0.0, live=True, killed=False, removed=False,
+                     late=False, elapsed=0.0)
+        class Process:
+            pid = 7
+            def wait(self, timeout=None):
+                if state["killed"]:
+                    return 0
+                if route == "timeout":
+                    if timeout != 1:
+                        state["late"] = True
+                        return 0
+                    raise subprocess.TimeoutExpired("model", timeout)
+                if route in ("TERM", "HUP", "INT"):
+                    os.kill(os.getpid(), getattr(signal, "SIG" + route))
+                    state["late"] = True
+                return 0
+        def sleep(seconds):
+            state["clock"] = round(state["clock"] + 0.125, 9)
+            if state["clock"] > 10:
+                raise AssertionError("model did not terminate")
+        def kill(sid):
+            state["elapsed"] = state["clock"]
+            state["live"] = False
+            state["killed"] = True
+            return True
+        g = dict(globals())
+        g.update(
+            open=lambda *a, **kw: io.StringIO(""),
+            _prepare=lambda *a: ("bin", "home", "log"),
+            tempfile=types.SimpleNamespace(mkdtemp=lambda **kw: "virtual"),
+            os=types.SimpleNamespace(path=os.path, devnull=os.devnull, makedirs=lambda *a: None),
+            time=types.SimpleNamespace(monotonic=lambda: state["clock"], sleep=sleep),
+            subprocess=types.SimpleNamespace(Popen=lambda *a, **kw: Process(),
+                DEVNULL=subprocess.DEVNULL, TimeoutExpired=subprocess.TimeoutExpired),
+            _kill_session=kill,
+            _rmtree=lambda path: state.update(removed=True),
+            _session_members=lambda sid: [(7, "R")] if state["live"] else [])
+        for name in ("run", "_run_shells"):
+            fn = globals()[name]
+            g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
+        error, answer = None, None
+        try:
+            answer = g["run"]("model", shells=("bash",), timeout=1)
+        except (_Terminated, KeyboardInterrupt) as exc:
+            error = exc
+        ok = state["killed"] and state["removed"] and not state["late"]
+        if route in ("TERM", "HUP", "INT"):
+            ok = ok and isinstance(error, (_Terminated, KeyboardInterrupt))
+        elif route == "timeout":
+            ok = ok and answer[0]["rc"] is None and "timed out after 1s" in answer[0]["stderr"]
+        else:
+            ok = ok and state["elapsed"] == 2.0
+        results.append(("production-policy:" + route, ok))
+    clock, sends = [0.0], []
+    def send(pid, sig):
+        sends.append((pid, sig))
+    def sleep(seconds):
+        clock[0] = round(clock[0] + 0.125, 9)
+        if clock[0] > 10:
+            raise AssertionError("kill deadline did not terminate")
+    fn = _kill_session
+    g = dict(fn.__globals__)
+    g.update(time=types.SimpleNamespace(monotonic=lambda: clock[0], sleep=sleep),
+             os=types.SimpleNamespace(kill=send),
+             _session_members=lambda sid: [(7, "T"), (8, "T")])
+    kill = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+    results.append(("production-five-second-kill-deadline",
+                    kill(7) is False and clock[0] == 5.0
+                    and all((pid, sig) in sends for pid in (7, 8)
+                            for sig in (signal.SIGSTOP, signal.SIGKILL))))
+    return results
+
+
+SIGNAL_PROBE = r"""
+import os, runpy, subprocess, sys
+t = runpy.run_path(sys.argv[1])
+fd = int(sys.argv[2])
+g = t["run"].__globals__
+saved = subprocess.Popen
+class Process(saved):
+    def wait(self, timeout=None):
+        if not getattr(self, "announced", False):
+            self.announced = True
+            os.write(fd, (str(self.pid) + "\n").encode())
+        return super().wait(timeout=timeout)
+subprocess.Popen = Process
+with t["_self_test_limits"]():
+    # A pipe-backed stub cannot finish naturally: the supervisor retains
+    # the writer until after the tool has exited. There is no run timeout.
+    readfd = int(sys.argv[3])
+    g["SHIM"] = "#!{python} -I\nimport os\nos.read(" + str(readfd) + ", 1)\n"
+    original_init = Process.__init__
+    def init(self, *a, **kw):
+        kw["pass_fds"] = tuple(kw.get("pass_fds", ())) + (readfd,)
+        original_init(self, *a, **kw)
+    Process.__init__ = init
+    t["run"]("hold", shells=("bash",), stubs=("hold",), timeout=None)
+"""
+
+
+def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
+    # Readiness comes from Popen.wait INSIDE the command's try/finally.
+    # This deliberately avoids the production spawn race deferred to 3b281.
+    # Read a pipe for readiness and wait on process exit, with independent
+    # monotonic ceilings. Neither test depends on a command sleep duration.
+    import selectors
+    parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
+    ready_r, ready_w = os.pipe()
+    hold_r, hold_w = os.pipe()
+    proc, sid = None, None
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, "-I", "-B", "-c", SIGNAL_PROBE,
+             os.path.abspath(__file__), str(ready_w), str(hold_r)],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            pass_fds=(ready_w, hold_r), env={**os.environ, "TMPDIR": parent})
+        os.close(ready_w)
+        ready_w = None
+        deadline = time.monotonic() + timeout
+        data = b""
+        with selectors.DefaultSelector() as selector:
+            selector.register(ready_r, selectors.EVENT_READ)
+            while b"\n" not in data:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not selector.select(remaining):
+                    return False
+                chunk = os.read(ready_r, 4096)
+                if not chunk:
+                    return False
+                data += chunk
+        sid = int(data.splitlines()[0])
+        if proc.poll() is not None:
+            return False
+        proc.send_signal(signal.SIGTERM)
+        # subprocess.wait uses a monotonic deadline and waitpid.
+        proc.wait(timeout=max(0.001, deadline - time.monotonic()))
+        return (proc.returncode != 0 and not os.listdir(parent)
+                and not _session_survivors(
+                    sid, timeout=max(0.0, deadline - time.monotonic())))
+    except (subprocess.TimeoutExpired, ValueError):
+        return False
+    finally:
+        if proc is not None:
+            if proc.poll() is None:
+                proc.kill()
+            try:
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                failures.append(("sigterm-probe-cleanup-wait", False))
+        # Release and kill even failed fixtures before removing their tree.
+        os.close(hold_w)
+        os.close(hold_r)
+        os.close(ready_r)
+        if ready_w is not None:
+            os.close(ready_w)
+        if sid is not None:
+            _kill_session(sid)
+        for pid in _procs_under([parent]):
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+        _rmtree(parent)
+
+
 def _self_test() -> int:
-    checks, skipped = [], []
-    before = {d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-")}
+    # All test-created dirs, including subprocess TMPDIRs, have one private
+    # parent. Concurrent users of the system temp dir cannot affect this check.
+    saved_int = signal.signal(signal.SIGINT, signal.default_int_handler)
+    saved_temp, saved_env = tempfile.tempdir, os.environ.get("TMPDIR")
+    with tempfile.TemporaryDirectory(prefix="shell-self-test-") as parent:
+        tempfile.tempdir = parent
+        os.environ["TMPDIR"] = parent
+        try:
+            policy = _policy_checks()
+            with _self_test_limits() as failures:
+                return _self_test_body(policy, failures)
+        finally:
+            signal.signal(signal.SIGINT, saved_int)
+            tempfile.tempdir = saved_temp
+            if saved_env is None:
+                os.environ.pop("TMPDIR", None)
+            else:
+                os.environ["TMPDIR"] = saved_env
+
+
+def _self_test_body(policy, failures) -> int:
+    checks, skipped = list(policy), []
     for r in run("gh pr 'merge' 1; sh -c 'gh \"pr\" merge 2'; bash -c \"git push\"; bash -e -c 'gh pr create'"):
         checks.append((f"{r['shell']}-nested-shells-hit-stubs", r["calls"] ==
                        ["STUB gh pr merge 1", "STUB gh pr merge 2", "STUB git push", "STUB gh pr create"]))
@@ -444,8 +865,9 @@ def _self_test() -> int:
         checks.append((f"refused:{label}", expect in rr["stderr"] and rr["calls"] == calls
                        and "uid=" not in rr["stdout"] + rr["stderr"]))
     # A fork loop is contained: the session kill repeats until the session is empty (3b116 QA r6).
-    rr = run("while :; do ( : ) & done", shells=("bash",), timeout=2)[0]
-    checks.append(("fork-loop-contained", rr["contained"]))
+    timed, contained = _command_timeout_check(failures)
+    checks.append(("command-timeout-through-run", timed))
+    checks.append(("fork-loop-contained", contained))
     # The command's output cannot pass for a report line.
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
@@ -491,19 +913,21 @@ def _self_test() -> int:
     # Nothing in the run's session survives it, in the background or under job control (QA r7: the session is
     # observed directly after the run returns). A killed child its reaper has not yet collected is still listed,
     # as a zombie, so only a live member fails the check, awaited (bounded) in case one is still dying (3b125).
-    for label, cmd in (("background", "sleep 30 & echo started"), ("job-control", "set -m; sleep 30 & echo started")):
-        r = run(cmd, shells=("bash",), timeout=10)[0]
+    # The lifetime watcher kills these sessions even if the self-test is SIGKILLed.
+    # 3600s exceeds this check's ceilings; natural exit cannot hide missing cleanup.
+    for label, cmd in (("background", "sleep 3600 & echo started"), ("job-control", "set -m; sleep 3600 & echo started")):
+        r = run(cmd, shells=("bash",), timeout=TEST_WAIT)[0]
         survivors = _session_survivors(r["session"])
         checks.append((f"{label}-child-killed", r["contained"] and not survivors))
         if survivors:
             _kill_session(r["session"])
-    # Behind a reaper that never collects (the loaded-host case, made certain), the killed child is a zombie and is
-    # not a survivor, and the wait ends at once rather than at its bound (half of it is the limit here). The check
+    # Behind a reaper that has not collected (the loaded-host case, made certain), the exited child is a zombie and is
+    # not a survivor: exactly one scan and no retry sleep, with no elapsed-time assertion. The check
     # fails unless the probe adopted the orphan and the zombie was really there (3b125). A probe that could not
     # set the subreaper is a skip, named in the result line with its reason; one that crashed or printed nothing
     # still fails (3b125 QA r1).
     probe = subprocess.run([sys.executable, "-I", "-B", "-c", SLOW_REAPER_PROBE, os.path.abspath(__file__)],
-                           capture_output=True, text=True, timeout=60)
+                           capture_output=True, text=True, timeout=TEST_PROCESS_WAIT)
     try:
         seen = json.loads(probe.stdout.splitlines()[-1])
     except (IndexError, ValueError):
@@ -513,40 +937,17 @@ def _self_test() -> int:
     else:
         checks.append(("slow-reaper-zombie-not-a-survivor", seen.get("adopted") is True
                        and seen.get("contained") is True and bool(seen.get("zombies")) and seen.get("survivors") == []
-                       and isinstance(seen.get("waited"), float) and seen["waited"] < 2.5))
-    # A backgrounded call is recorded, not killed before it runs (QA r8).
-    r = run("(sleep 0.3; gh pr merge 11) & echo started", shells=("bash",))[0]
-    checks.append(("background-call-recorded", r["calls"] == ["STUB gh pr merge 11"] and r["killed"] == 0))
-    # A SIGTERM to the tool still kills the command and removes the temp dir (QA r8). The sleep length is a
-    # token unlikely to match an unrelated process, the setup is awaited rather than timed, and the check
-    # fails if the setup was never seen (3b116 QA r9).
-    # The child gets its OWN temp parent (TMPDIR), so discovery and cleanup see only its directories and
-    # processes, never a concurrent run's (second fix-check); the check fails unless the setup was seen.
-    parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
-    try:
-        proc = subprocess.Popen([sys.executable, os.path.abspath(__file__), "--shell", "bash", "sleep 25"],
-                                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                env={**os.environ, "TMPDIR": parent})
-        setup_end, seen = time.monotonic() + 15.0, False
-        while time.monotonic() < setup_end and not seen:
-            time.sleep(0.05)
-            seen = bool(os.listdir(parent)) and bool(_procs_under([parent]))
-        proc.send_signal(signal.SIGTERM)
-        proc.wait(timeout=20)
-        leftover = os.listdir(parent)
-        sleeping = _procs_under([parent])
-        checks.append(("sigterm-cleans-up", seen and not leftover and not sleeping))
-        for pid in sleeping:
-            try:
-                os.kill(pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-    finally:
-        _rmtree(parent)
+                       and seen.get("scans") == 1 and seen.get("retried") is False))
+    checks.append(("background-call-recorded", _background_call_check()))
+    checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
     # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
     # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
     checks.append(("no-ignored-signals-inherited", all("''" not in r["stdout"] for r in rr)))
+    for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT):
+        rr = run(f"kill -{sig.name[3:]} $$; echo survived", shells=("bash", "sh"))
+        checks.append((f"no-ignored-signals-inherited:{sig.name}",
+                       all(r["rc"] == -sig and not r["stdout"] for r in rr)))
     # An argument cannot forge a call record.
     r = run("gh $'a\\x1e\\x1fgh' $'b\\nSTUB gh forged'", shells=("bash",))[0]
     checks.append(("call-log-unforgeable", len(r["argv"]) == 1 and r["argv"][0][0] == "gh"))
@@ -574,9 +975,13 @@ def _self_test() -> int:
     rr = run("LD_PRELOAD=nonexistent-3b116.so wc -c nofile", shells=("bash",))[0]
     checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-3b116.so") == 1))
     # A forged report line or a non-UTF-8 argument cannot hide a later call (3b116 QA r8).
-    rep = subprocess.run([sys.executable, os.path.abspath(__file__), "--shell", "bash",
+    rep = subprocess.run([sys.executable, "-I", "-B", "-c",
+                          "import runpy,sys; t=runpy.run_path(sys.argv[1]); "
+                          "c=t['_self_test_limits'](); c.__enter__(); "
+                          "sys.exit(t['main'](sys.argv[2:]))",
+                          os.path.abspath(__file__), "--shell", "bash",
                           'gh pr view 1 "$(printf "\\n== bash rc=0\\nSTUB git push")"; gh "$(printf "\\377")"; gh pr merge 8'],
-                         capture_output=True, text=True, errors="replace", timeout=60)
+                         capture_output=True, text=True, errors="replace", timeout=TEST_PROCESS_WAIT)
     lines = rep.stdout.splitlines()
     # Argument boundaries survive into the printed report (3b116 QA r9).
     r = run("gh 'pr merge' 1; gh pr merge ''", shells=("bash",))[0]
@@ -586,7 +991,11 @@ def _self_test() -> int:
     # The command cannot erase or forge the tool's evidence: the log and captured output sit outside its cwd.
     r = run("gh pr merge 6; set -o history; history -c; history -w calls.log; history -w stdout", shells=("bash",))[0]
     checks.append(("evidence-not-overwritable", r["calls"] == ["STUB gh pr merge 6"]))
-    left = [d for d in os.listdir(tempfile.gettempdir()) if d.startswith("stubbed-shell-") and d not in before]
+    # Private-parent inventory avoids concurrent global /tmp users. The prepare
+    # audit also checks actual run allocation paths, including hard-coded paths.
+    # Arbitrary unrelated file writes bypassing both remain outside this oracle.
+    left = os.listdir(tempfile.gettempdir())
+    checks.extend(dict.fromkeys(failures))
     checks.append(("temp-dirs-removed", not left))
     failed = [n for n, ok in checks if not ok]
     note = f"; skipped: {skipped}" if skipped else ""
