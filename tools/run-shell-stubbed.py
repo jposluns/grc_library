@@ -469,11 +469,17 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
     The private directory belongs to this supervisor, not the blocked worker.
     """
     import ctypes
-    libc = ctypes.CDLL(None, use_errno=True)
     previous = ctypes.c_int()
-    if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
-            or libc.prctl(36, 1, 0, 0, 0) != 0):
-        raise RuntimeError("self-test supervision requires a Linux child subreaper")
+    reason = ""
+    try:
+        libc = ctypes.CDLL(None, use_errno=True)
+        if (libc.prctl(37, ctypes.byref(previous), 0, 0, 0) != 0
+                or libc.prctl(36, 1, 0, 0, 0) != 0):
+            reason = "child subreaper prctl failed: " + os.strerror(ctypes.get_errno())
+    except (AttributeError, OSError, TypeError) as exc:
+        reason = "child subreaper prctl unavailable: " + repr(exc)
+    # Without adoption, retain the parent's fork/wait deadline and best-effort
+    # tree cleanup, but do not claim the subreaper-dependent checks ran.
     original_children = set(_test_children(os.getpid()))
     parent = tempfile.mkdtemp(prefix="shell-self-test-supervised-")
     worker, status, failure = None, None, None
@@ -500,6 +506,7 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
             try:
                 tempfile.tempdir = parent
                 os.environ["TMPDIR"] = parent
+                globals()["_TEST_SUBREAPER_SKIP"] = reason
                 rc = callback()
             except BaseException:
                 import traceback
@@ -534,7 +541,8 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
         clean = not owned()
         _rmtree(parent)
         clean = clean and not os.path.exists(parent)
-        libc.prctl(36, previous.value, 0, 0, 0)
+        if not reason:
+            libc.prctl(36, previous.value, 0, 0, 0)
     if not clean:
         failure = name + ":cleanup"
     if failure and report:
@@ -822,6 +830,9 @@ def _policy_checks():
         error, answer = None, None
         try:
             answer = g["run"]("model", shells=("bash",), timeout=1)
+        except AssertionError:
+            results.append(("production-policy:" + route, False))
+            continue
         except (_Terminated, KeyboardInterrupt, MissingProductionHandler) as exc:
             error = exc
         finally:
@@ -848,10 +859,13 @@ def _policy_checks():
              os=types.SimpleNamespace(kill=send),
              _session_members=lambda sid: [(7, "T"), (8, "T")])
     kill = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
-    results.append(("production-five-second-kill-deadline",
-                    kill(7) is False and clock[0] == 5.0
-                    and all((pid, sig) in sends for pid in (7, 8)
-                            for sig in (signal.SIGSTOP, signal.SIGKILL))))
+    try:
+        ok = (kill(7) is False and clock[0] == 5.0
+              and all((pid, sig) in sends for pid in (7, 8)
+                      for sig in (signal.SIGSTOP, signal.SIGKILL)))
+    except AssertionError:
+        ok = False
+    results.append(("production-five-second-kill-deadline", ok))
     return results
 
 
@@ -956,7 +970,13 @@ def _self_test_worker() -> int:
         tempfile.tempdir = parent
         os.environ["TMPDIR"] = parent
         try:
-            policy = [("cleanup-hang-deadline", _cleanup_deadline_check())]
+            reason = globals().get("_TEST_SUBREAPER_SKIP", "")
+            policy = []
+            if reason:
+                print("run-shell-stubbed self-test: SKIP cleanup-hang-deadline "
+                      f"({reason})", flush=True)
+            else:
+                policy.append(("cleanup-hang-deadline", _cleanup_deadline_check()))
             policy.extend(_policy_checks())
             with _self_test_limits() as failures:
                 return _self_test_body(policy, failures)
@@ -1066,12 +1086,16 @@ def _self_test_body(policy, failures) -> int:
     # fails unless the probe adopted the orphan and the zombie was really there (3b125). A probe that could not
     # set the subreaper is a skip, named in the result line with its reason; one that crashed or printed nothing
     # still fails (3b125 QA r1).
-    probe = subprocess.run([sys.executable, "-I", "-B", "-c", SLOW_REAPER_PROBE, os.path.abspath(__file__)],
-                           capture_output=True, text=True, timeout=TEST_PROCESS_WAIT)
-    try:
-        seen = json.loads(probe.stdout.splitlines()[-1])
-    except (IndexError, ValueError):
-        seen = {}
+    reason = globals().get("_TEST_SUBREAPER_SKIP", "")
+    if reason:
+        seen = dict(adopted=False, reason=reason)
+    else:
+        probe = subprocess.run([sys.executable, "-I", "-B", "-c", SLOW_REAPER_PROBE, os.path.abspath(__file__)],
+                               capture_output=True, text=True, timeout=TEST_PROCESS_WAIT)
+        try:
+            seen = json.loads(probe.stdout.splitlines()[-1])
+        except (IndexError, ValueError):
+            seen = {}
     if seen.get("adopted") is False and seen.get("reason"):
         skipped.append(f"slow-reaper-zombie-not-a-survivor ({seen['reason']})")
     else:
