@@ -2,8 +2,8 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.8\
-**Date:** 2026-10-04\
+**Version:** 1.1.9\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -76,7 +76,7 @@ Operators, engineers, or vendors who observe suspected compromise must report ra
 
 | Role | OT incident responsibility |
 | --- | --- |
-| **Incident Commander (CISO or delegate)** | Overall response leadership; authorizes declaration, escalation, containment actions with production impact, and recovery sign-off. |
+| **Incident Commander (CISO or a delegate appointed in writing; for a P1, the CIO or CISO unless delegated in writing, per [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §2.2)** | Overall response leadership; authorizes declaration, escalation, containment actions with production impact, and recovery sign-off. |
 | **OT Security Lead** | OT-specific triage and technical response; primary interface to the IT SOC and to Control System Engineers. Reports to Incident Commander. |
 | **Plant Manager / Operations Director** | Accountable for production state during the incident; authorizes any production-impacting containment action; coordinates manual fallback if invoked. |
 | **Process Safety Engineer** | Accountable for safety state; authorizes any action that could affect safety-instrumented functions; consulted on every containment action affecting SIS or shared SIS/BPCS infrastructure. |
@@ -119,17 +119,19 @@ OT incidents may be detected through:
 
 ### 6.2 Initial triage
 
-6.2.1 Within 15 minutes of detection of a candidate OT incident, the IT SOC or detecting party:
+6.2.1 Within 15 minutes of detection of a candidate OT incident (the Detection timestamp defined in [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §4.3; for a report from a party outside the SOC, the time the SOC received it. That party reports to the IT SOC immediately, and the time it first noticed the activity is recorded as evidence), the IT SOC or detecting party:
 
 - Records the detection in the incident-tracking system.
 - Assigns an initial severity using the criteria in section 5.
 - Notifies the OT Security Lead.
+- For a P1, notifies the Incident Commander, CISO and CIO immediately, per [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §3.1.
 
 6.2.2 The OT Security Lead within 30 minutes of notification:
 
-- Confirms or revises severity.
+- Confirms or revises severity (a downgrade from P1 needs the Incident Commander's approval after consulting the appropriate roles, per [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §3.2).
 - Notifies the Plant Manager of the affected facility.
-- For P1 and P2 incidents, notifies the Incident Commander.
+- For P2 incidents, notifies the Incident Commander and the CISO, per [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §3.1.
+- Where the severity is revised to P1, from any level, notifies the Incident Commander, CISO and CIO immediately, per [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §3.1 (an initial P1 is notified under 6.2.1).
 - For incidents affecting safety-instrumented systems or with potential safety consequence, notifies the Process Safety Engineer immediately regardless of severity.
 
 ### 6.3 Initial situational awareness

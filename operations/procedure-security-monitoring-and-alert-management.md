@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.25\
-**Date:** 2026-09-25\
+**Version:** 1.3.26\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -130,7 +130,7 @@ All rules in the catalogue are tested for correct alerting before production dep
 | Medium | Same business day | Next business day |
 | Low | Next scheduled review cycle | Within 5 business days |
 
-Triage SLA timers start from the moment the SIEM generates the alert, not from the moment a SOC analyst first views it. Automated alerting to the on-call analyst begins the SLA clock.
+Triage SLA timers start at the Detection timestamp defined in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §4.3: for an automated alert, the earliest time the alert was available to the SOC in any of its tooling, whether generated there or delivered there, not the moment a SOC analyst first views it.
 
 ### 5.2 Triage steps
 
@@ -144,7 +144,7 @@ For each alert, the triaging SOC analyst must:
  - **Informational / expected**: a known authorized event that triggered the rule; document and close with justification.
  - **Needs further investigation**: insufficient context to decide; escalate to SOC lead for senior review.
 4. **Document the disposition** in the ITSM ticket with timestamps, evidence references, and the analyst's reasoning.
-5. **Close or escalate** the ticket with all required fields completed.
+5. **Close or escalate** the ticket with all required fields completed. A notification that [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §3.1 requires immediately (for example, for a P1) is made first; the ticket is completed afterwards.
 
 No alert may be closed without a documented disposition. Bulk-closing alerts without individual review is prohibited.
 
@@ -175,8 +175,8 @@ High severity alerts generate automated tickets with P2 priority. Medium and Low
 
 Any alert triaged as a confirmed true positive indicating active compromise, data exfiltration, unauthorized privileged access, or a threat to system availability must be immediately escalated to the Incident Response Procedure. The SOC analyst:
 
-1. Sets the ITSM ticket to "Escalated: Incident Response."
-2. Notifies the Incident Commander per the Incident Response Procedure notification chain.
+1. Notifies the Incident Commander per the Incident Response Procedure notification chain.
+2. Sets the ITSM ticket to "Escalated: Incident Response."
 3. Preserves SIEM alert context, timeline, and associated log evidence before any containment action is taken.
 4. Maintains the SIEM alert open and linked to the incident ticket for the duration of the incident.
 
@@ -317,7 +317,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 | Log source uptime (sources forwarding within SLA) | ≥ 99.5% |
 | Automated ticket creation success rate for Critical alerts | 100% |
 | MITRE ATT&CK coverage (% of high-relevance techniques with active rule) | Reviewed quarterly; improvement trend required |
-| Mean time to detect (MTTD): confirmed incidents | Reviewed; quarter-on-quarter improvement target |
+| Mean time to detect (MTTD): confirmed incidents | Reviewed; quarter-on-quarter improvement target; the targets are those of [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) section 11 |
 | AI anomaly detection false positive rate | < 10%; reviewed monthly |
 | Sector-programme environment alerts escalated to the relevant sector-conditional role within annex SLA (where the organization participates in a covered programme) | 100% |
 
