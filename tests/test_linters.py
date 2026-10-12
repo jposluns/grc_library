@@ -29974,8 +29974,31 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
         offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py'])
         self.assertEqual(offenders, [])
 
+
+_SLOT_SHARE_PRODUCTION_PATH = '/opt/' + 'orch-operator/' + 'slot-shares.json'
+
+
+def _write_slot_share_fixture(path):
+    path.write_text('{"schema":1,"default":4,"shares":{"grc":4}}')
+    path.chmod(0o644)
+    return path
+
+
+def _rewrite_slot_share_fixture(test, source, path):
+    for anchor, replacement in (
+            ('_SLOT_SHARES_FILE = "' + _SLOT_SHARE_PRODUCTION_PATH + '"',
+             '_SLOT_SHARES_FILE = ' + repr(str(path))),
+            ('_SLOT_SHARE_EXPECT_UID = 0', '_SLOT_SHARE_EXPECT_UID = (' + repr(os.geteuid()) + ')')):
+        test.assertEqual(source.count(anchor + '\n'), 1)
+        source = source.replace(anchor + '\n', replacement + '\n')
+        test.assertNotIn(anchor + '\n', source)
+        test.assertIn(replacement + '\n', source)
+    test.assertNotIn(_SLOT_SHARE_PRODUCTION_PATH, source)
+    return source
+
+
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 14, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
     NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(REPO), 'diff', '--quiet', 'main', name]", "['git', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
@@ -30040,7 +30063,7 @@ class HookDescendantIsolationTests(unittest.TestCase):
                 self.assertEqual(ast.unparse(parts[1]), "'-I'", location)
                 i = 2
                 while i < len(parts) and isinstance(parts[i], ast.Constant) and (isinstance(parts[i].value, str) and parts[i].value.startswith('-')):
-                    self.assertIn(parts[i].value, ('-B', '-c'), location)
+                    self.assertIn(parts[i].value, ('-B', '-O', '-c'), location)
                     i += 1
                 self.assertLess(i, len(parts), location)
                 self.assertIn(ast.unparse(parts[i]), self.PYTHON_TARGETS.get(path.name, set()), location + ': unreviewed Python child; extend the scanned graph')
@@ -30065,7 +30088,13 @@ class HookDescendantIsolationTests(unittest.TestCase):
             source = (REPO_ROOT / '.claude/hooks/stop-guard-unattended.py').read_text()
             anchor = '_KILLREG_DIR = "/run/orch-workers"\n'
             self.assertEqual(source.count(anchor), 1)
-            (hooks / 'stop-guard-unattended.py').write_text(source.replace(anchor, '_KILLREG_DIR = ' + repr(str(registry)) + '\n'))
+            source = source.replace(anchor, '_KILLREG_DIR = ' + repr(str(registry)) + '\n')
+            # Three live groups allow fallback; a successfully read share of four must block.
+            live = 'live_groups = live_dispatch_groups() if actionable else 0'
+            self.assertEqual(source.count(live), 1)
+            source = source.replace(live, 'live_groups = 3 if actionable else 0')
+            share = _write_slot_share_fixture(root / 'slot-shares.json')
+            (hooks / 'stop-guard-unattended.py').write_text(_rewrite_slot_share_fixture(self, source, share))
             producer = hooks / 'nmw-actionable'
             producer.write_bytes((REPO_ROOT / '.claude/hooks/nmw-actionable').read_bytes())
             producer.chmod(493)
@@ -30079,6 +30108,10 @@ class HookDescendantIsolationTests(unittest.TestCase):
             result = subprocess.run([sys.executable, '-I', str(hooks / 'stop-guard-unattended.py')], input=json.dumps({'stop_hook_active': False}), cwd=root, env=env, capture_output=True, text=True, timeout=60)
             self.assertFalse(marker.exists(), 'hook descendant imported planted ' + module)
             self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+            # The best-effort diagnostic has a 0.2-second deadline and may be dropped
+            # under load. The exit code above is the discriminating share assertion.
+            if result.stderr:
+                self.assertIn('at least 4 live owned dispatch groups', result.stderr)
 
     def test_stop_producer_ignores_sibling_module(self):
         self._stop_chain('hooks', 'pathlib')
@@ -30248,8 +30281,12 @@ class HookRoundSevenTests(unittest.TestCase):
                 (root / '.working/operating-mode').write_text('unattended\n')
                 for filename in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py'):
                     (tools / filename).write_bytes((REPO_ROOT / 'tools' / filename).read_bytes())
+                share = _write_slot_share_fixture(root / 'slot-shares.json')
                 for filename in ('stop-guard-unattended.py', 'nmw-actionable'):
-                    (hooks / filename).write_bytes((REPO_ROOT / '.claude/hooks' / filename).read_bytes())
+                    source = (REPO_ROOT / '.claude/hooks' / filename).read_text()
+                    if filename == 'stop-guard-unattended.py':
+                        source = _rewrite_slot_share_fixture(self, source, share)
+                    (hooks / filename).write_text(source)
                     (hooks / filename).chmod(493)
                 helper = tools / (name + '.py')
                 data = helper.read_bytes()
@@ -30366,8 +30403,8 @@ class HookRoundEightTests(unittest.TestCase):
                 (project / 'tools' / name).write_bytes(source.read_bytes())
             fleet = base / 'operating-mode'
             registry = base / 'registry'
-            # CANONICAL_MODE_FILE and _KILLREG_DIR are the only hook bytes
-            # not exercised unchanged: rewrite exact-once constants in copies.
+            share = _write_slot_share_fixture(base / 'slot-shares.json')
+            # Mode, registry and slot-share authorities are fixture constants in these copies.
             # These authorities intentionally have no environment override;
             # adding one would weaken production policy for a test seam.
             for name, anchor, replacement in (
@@ -30377,12 +30414,23 @@ class HookRoundEightTests(unittest.TestCase):
                 ('stop-guard-unattended.py',
                  '_KILLREG_DIR = "/run/orch-workers"',
                  '_KILLREG_DIR = ' + repr(str(registry))),
+                ('stop-guard-unattended.py',
+                 '_SLOT_SHARES_FILE = "' + _SLOT_SHARE_PRODUCTION_PATH + '"',
+                 '_SLOT_SHARES_FILE = ' + repr(str(share))),
+                ('stop-guard-unattended.py',
+                 '_SLOT_SHARE_EXPECT_UID = 0',
+                 '_SLOT_SHARE_EXPECT_UID = (' + repr(os.geteuid()) + ')'),
             ):
                 path = hooks / name
                 source = path.read_text()
                 anchor, replacement = '\n' + anchor + '\n', '\n' + replacement + '\n'
                 self.assertEqual(source.count(anchor), 1)
-                path.write_text(source.replace(anchor, replacement))
+                rewritten = source.replace(anchor, replacement)
+                if anchor != replacement:
+                    self.assertNotIn(anchor, rewritten)
+                self.assertIn(replacement, rewritten)
+                path.write_text(rewritten)
+            self.assertNotIn(_SLOT_SHARE_PRODUCTION_PATH, (hooks / 'stop-guard-unattended.py').read_text())
             for name in ('home', 'tmp', 'private', 'grc_working', 'registry',
                          'config', 'cache', 'data', 'runtime'):
                 (base / name).mkdir(exist_ok=True)
@@ -34320,6 +34368,7 @@ class BlockingHookMessageContractTests(unittest.TestCase):
                     m(mod, "read_operating_mode", "unattended")
                     m(mod, "actionable_items", [("P-1.95", "probe")])
                     m(mod, "live_dispatch_groups", 0)  # 3b113 base: never read the real /run/orch-workers registry
+                    m(mod, "read_slot_share", (None, "absent"))
                     # 3b113 base: _diagnostic forks a writer child (its own --self-test covers that transport);
                     # here it writes directly so the rendered refusal is captured and checked.
                     p(mod, "_diagnostic", lambda message: diag_calls.append((sys._getframe(1).f_lineno, message)))
