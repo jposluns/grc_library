@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.5\
+**Version:** 1.4.6\
 **Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -75,14 +75,14 @@ During a declared P1 incident, the Incident Commander is the CIO or CISO unless 
 
 | Severity | Criteria | Examples | Response SLA | Escalation |
 | --- | --- | --- | --- | --- |
-| **P1: Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of first SOC awareness, the Detection timestamp) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
-| **P2: High** | Suspected breach or significant security event with potential for serious impact; malware detected but not yet confirmed active; significant control failure. | Malware detected on a critical server; suspicious lateral movement observed in SIEM; single privileged account compromise suspected; failed restore test on production backup. | 4-hour initial response | CISO notified within 1 hour. Incident Commander assigned. |
-| **P3: Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Same-day (within 8 business hours) | SOC lead notified. Security team investigation initiated. |
-| **P4: Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days | Assigned to SOC queue. Standard change or remediation process. |
+| **P1: Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed or suspected privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of first SOC awareness, the Detection timestamp) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
+| **P2: High** | Suspected breach or significant security event with potential for serious impact; malware detected but not yet confirmed active; significant control failure. | Malware detected on a critical server; suspicious lateral movement observed in SIEM; failed restore test on production backup. | Within 1 hour of first SOC awareness, the Detection timestamp | CISO notified within 1 hour. Incident Commander assigned. |
+| **P3: Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Within 8 business hours of first SOC awareness | SOC lead notified. Security team investigation initiated. |
+| **P4: Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days of first SOC awareness | Assigned to SOC queue. Standard change or remediation process. |
 
 ### 3.2 Severity escalation
 
-Severity classification must be reassessed as new information becomes available. Any analyst may escalate severity upward without management approval. Downgrading severity from P1 requires Incident Commander approval. The initial classification is recorded and retained even if subsequently revised.
+Severity classification must be reassessed as new information becomes available. Any analyst may escalate severity upward without management approval. Downgrading severity from P1 requires Incident Commander approval, after consulting the appropriate roles (for example whichever of the CIO and CISO is not the Incident Commander and, where personal data is involved, the Data Protection Officer). The initial classification is recorded and retained even if subsequently revised.
 
 ---
 
@@ -111,7 +111,7 @@ Upon receipt of an alert or report, the SOC analyst must:
 2. **Classify severity** using the criteria in Section 3.
 3. **Preserve evidence immediately**: capture log snapshots, SIEM query results, endpoint telemetry, and network flows before any containment action is taken. Evidence preservation takes priority over service recovery in the first hour.
 4. **Assign an Incident ID** and open a formal incident record in the ticketing system.
-5. **Notify** the appropriate roles per Section 3.1 escalation requirements.
+5. **Notify** the appropriate roles per Section 3.1 escalation requirements. A notification Section 3.1 requires immediately (for example, for a P1) is made without waiting for the incident record in step 4.
 6. **Brief the Incident Commander** with: what is known, what systems and data are affected, what the suspected attack vector is, and what immediate containment options are available.
 
 ### 4.3 Triage record fields
@@ -286,7 +286,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 - Classify severity per §3.1 (P1 response SLA: immediate, within 15 minutes of first SOC awareness).
 - Preserve evidence before any containment action: log snapshots, SIEM results, EDR telemetry, network flows (§4.2, §5.1).
 - Assign an Incident ID and open the formal incident record (§4.2).
-- Notify per §3.1: for a P1, the Incident Commander, CISO, and CIO immediately; the IR partner by the CISO.
+- Notify per §3.1: for a P1, the Incident Commander, CISO, and CIO immediately; the IR partner by the CISO. An immediate notification is made without waiting for the incident record (§4.2 step 5).
 - Brief the Incident Commander on what is known, the affected systems and data, the suspected vector, and the containment options (§4.2).
 - Begin short-term containment under Incident Commander direction (segmentation, block attacker IPs, disable compromised credentials, revoke sessions); do not isolate or reimage without Incident Commander direction (§5.1, §5.2).
 

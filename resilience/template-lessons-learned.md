@@ -2,8 +2,8 @@
 
 **Document Title:** Lessons Learned Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-09-14\
+**Version:** 1.0.8\
+**Date:** 2026-10-12\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`governance/procedure-continuous-improvement-register.md`](../governance/procedure-continuous-improvement-register.md), [`resilience/template-tabletop-exercise.md`](template-tabletop-exercise.md)\
@@ -159,8 +159,8 @@ Actions are SMART: specific, measurable, achievable, relevant, time-bound.
 | --- | --- | --- | --- | --- |
 | Mean time to detect | Time from event onset to detection | Baseline | Current | Delta |
 | Mean time to convene | Time from declaration to Joint Command convene | Baseline | Current | Delta |
-| Mean time to contain | Time from declaration to containment | Baseline | Current | Delta |
-| Mean time to recover | Time from declaration to full service | Baseline | Current | Delta |
+| Mean time to contain | Time from declaration to confirmed containment | Baseline | Current | Delta |
+| Mean time to recover | Time from declaration to confirmed service restoration and closure | Baseline | Current | Delta |
 | Notification-window adherence | Percentage of regulatory windows met | Baseline | Current | Delta |
 | Customer satisfaction or trust signal | Per organization's measurement | Baseline | Current | Delta |
 

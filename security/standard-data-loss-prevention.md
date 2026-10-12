@@ -2,8 +2,8 @@
 
 **Document Title:** Data Loss Prevention Standard\
 **Document Type:** Standard\
-**Version:** 1.3.7\
-**Date:** 2026-08-26\
+**Version:** 1.3.8\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)\
@@ -107,7 +107,7 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 
 ### 7.3 Reporting cadence
 
-- Key metrics tracked: incidents per classification level; false positive and negative rates; mean time to identify (MTTI) and mean time to resolution.
+- Key metrics tracked: incidents per classification level; false positive and negative rates; mean time to identify and mean time to resolution.
 - Quarterly DLP metrics reviewed by the CISO and presented to the Enterprise Risk Committee (ERC).
 
 ---

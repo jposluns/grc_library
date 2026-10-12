@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.6\
-**Date:** 2026-09-30\
+**Version:** 1.1.7\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -168,7 +168,7 @@ For every recovery the procedure produces a request record with:
 | Category 1 lost | Self-service rekey where possible; otherwise, subject to the hold and investigation safeguard below, device reimage |
 | Category 1 compromised (exposed escrow) | Treat as a personal-data exposure if Confidential or Restricted content was encrypted with the key; per the privacy breach response procedure |
 | Category 2 lost | Rotate; affected service downtime accepted as the cost of the rotation |
-| Category 2 compromised | P2 or P3 incident; rotate and investigate; cascade to dependent secrets |
+| Category 2 compromised | Incident, classified per [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §3.1: P1 where any P1 criterion is met (including a secret that gives privileged access, or active exfiltration through the secret), otherwise P2 or P3; rotate and investigate; cascade to dependent secrets |
 | Category 3 lost | P1 incident; recovery ceremony from backup if available; full audit; consider trust-chain rotation if recovery integrity is uncertain |
 | Category 3 compromised | P1 incident; immediate ceremony to rotate; full trust chain re-issued; customer and regulator notification per applicable rules |
 
