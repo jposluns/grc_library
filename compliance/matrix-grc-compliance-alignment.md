@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.2\
-**Date:** 2026-09-27\
+**Version:** 1.12.3\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -437,7 +437,7 @@ This matrix is being expanded toward comprehensive coverage of the library's sub
 
 | Framework | Coverage emphasis |
 | --- | --- |
-| CSA CCM v4.1 | Broad applicability across the IT and security documents, spanning the GRC, IAM, DSP, LOG, I&S, CEK, TVM, SEF, BCR, STA, DCS, UEM, HRS, CCC, AIS, and IPY families |
+| CSA CCM v4.1 | Broad applicability across the IT and security documents, spanning the A&A, GRC, IAM, DSP, LOG, I&S, CEK, TVM, SEF, BCR, STA, DCS, UEM, HRS, CCC, AIS, and IPY families |
 | CSA AICM v1.1 | Concentrated on the AI domain and the AI-relevant rows elsewhere (governance, risk, privacy, dev-security, supply-chain, architecture, security); carries only the AICM-only AI-specific controls (MDS Model Security plus AI-specific AIS / GRC / DSP / HRS / IAM / LOG / TVM controls), so it is N/A for the many documents with no AI dimension |
 | ISO/IEC 27001:2022 | Broad applicability across Annex A controls and management-system clauses §4 to §10 |
 | NIST CSF 2.0 | Broad applicability across the GV, ID, PR, DE, RS, RC functions |

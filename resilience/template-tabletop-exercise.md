@@ -2,8 +2,8 @@
 
 **Document Title:** Tabletop Exercise Template\
 **Document Type:** Template\
-**Version:** 1.0.7\
-**Date:** 2026-09-14\
+**Version:** 1.0.8\
+**Date:** 2026-10-12\
 **Owner:** Resilience Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](standard-business-continuity-and-disaster-recovery.md), [`resilience/procedure-continuity-and-recovery-testing.md`](procedure-continuity-and-recovery-testing.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`resilience/register-resilience-metrics-and-testing-log.md`](register-resilience-metrics-and-testing-log.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md)\
@@ -118,7 +118,7 @@ The Exercise Director scores against the declared objectives using a structured 
 
 | Criterion | Score: 1 (Below) | Score: 3 (Meets) | Score: 5 (Exceeds) |
 | --- | --- | --- | --- |
-| Time to convene Joint Command | More than 90 minutes from declaration | 30 to 60 minutes | Under 30 minutes |
+| Time to convene Joint Command | More than 60 minutes from declaration | 30 to 60 minutes | Under 30 minutes |
 | Hand-off checklist completion | Items missed; rework required | All items completed correctly | All items completed and gaps in source procedure noted for improvement |
 | Decision quality | Decisions reversed during exercise; clear gaps | Decisions documented with rationale; minor adjustments | Decisions documented, traceable, and proactively communicated |
 | Communication clarity | Conflicting messages observed; missed approvals | Single source of truth; approvals followed | Communication anticipates and pre-empts likely questions |

@@ -2,8 +2,8 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.7\
-**Date:** 2026-09-30\
+**Version:** 1.5.8\
+**Date:** 2026-10-12\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`security/policy-byod.md`](../security/policy-byod.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md)\
@@ -372,7 +372,7 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | **Breaches by Severity** | Total personal data breaches confirmed in the reporting period, broken down by P1, P2, and P3 | Tracked; volume and severity trend monitored |
 | **Regulatory Notification SLA Adherence (%)** | Percentage of notifiable breaches where regulatory notifications were submitted within the applicable jurisdictional deadline | 100% |
 | **Mean Time to Notify (MTTN)** | Average time in hours from organizational awareness of a notifiable breach to submission of the regulatory notification | Target: ≤ 48 hours (comfortably within 72-hour deadlines) |
-| **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay, in line with the applicable jurisdiction's timing | ≥ 95% |
+| **Individual Notification Timeliness (%)** | Percentage of cases requiring individual notification where notification was issued without undue delay, in line with the applicable jurisdiction's timing | 100% |
 | **PIR Completion Rate (%)** | Percentage of P1 and P2 breaches with PIR completed within 5 business days of closure | ≥ 95% |
 | **Corrective Action Closure Rate (%)** | Percentage of PIR-identified corrective actions closed within their agreed deadline | ≥ 90% |
 | **Supplier Breach Notification Timeliness** | Percentage of supplier-involved breaches where the supplier notified the organization within 24 hours of the *supplier's* awareness of the breach (the contractual operationalization of GDPR Article 33(2)'s "without undue delay" standard; see §6.3) | Tracked; persistent non-compliance triggers contract review |
