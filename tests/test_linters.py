@@ -4266,9 +4266,9 @@ def _assert_historical_blob_missing(test: unittest.TestCase, clone: Path, first:
     ).stdout.strip()
     listed = subprocess.run(
         ["git", "-C", str(clone), "rev-list", "--objects", "--missing=print", first],
-        capture_output=True, text=True, check=True,
-    ).stdout.split()
-    test.assertIn("?" + blob, listed,
+        capture_output=True, check=True,
+    ).stdout.split(b"\n")
+    test.assertIn(b"?" + blob.encode(), listed,
                   "fixture must omit the historical blob; clone is not partial")
 
 
