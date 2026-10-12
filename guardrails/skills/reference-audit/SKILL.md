@@ -193,7 +193,18 @@ empty, refresh the configured per-document state with the source-store revision 
 document was audited against and commit it with the change's QA batch. In FULL mode,
 refresh state for every project document the run adjudicated. The state file is the delta anchor that keeps the per-touch
 cadence near-free at steady state; a document with no state row is treated as never
-audited and gets the full candidate set on its next touch.
+audited and gets the full candidate set on its next touch. In the parent GRC library,
+the refresh counts only when `--update-state` exits 0 and prints its `State updated for`
+line. After `nothing was written` (a line is named only for an unloaded row), the cause
+must be resolved, repairing the file by hand where its content is the cause, and the
+command rerun; after `cannot update state file`, the write can be partial, so before the
+rerun the cause must be resolved, the file restored from its last committed copy and the
+per-touch run of every document whose row was added or changed since that commit redone
+(that list comes from the runs and edits made, not from the damaged file); a document not
+redone keeps its committed row, or none, and its next touch starts from there. Where no
+committed copy exists, a row the rerun does not recreate stays absent and its document
+gets the full candidate set on its next touch. A run that printed either message does not
+count.
 
 ### 7. Record and surface
 

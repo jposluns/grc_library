@@ -471,7 +471,18 @@ is external. Two mechanisms:
      (`python3 tools/audit-reference-breadth.py --docs <touched paths>`, judge on any
      non-empty candidate set, then `--update-state`) is done and the
      `grc_library_private/.working/reference-audit/doc-state.md`
-     refresh is in the PR's QA batch. An empty candidate set is recorded as the one-line
+     refresh is in the PR's QA batch. The refresh counts only when `--update-state`
+     exits 0 and prints its `State updated for` line. After `nothing was written` (a
+     line is named only for an unloaded row), the cause must be resolved, repairing
+     the file by hand where its content is the cause, and the command rerun; after
+     `cannot update state file`, the write can be partial, so before the rerun the cause
+     must be resolved, the file restored from its last committed copy and the per-touch
+     run of every document whose row was added or changed since that commit redone (that
+     list comes from the runs and edits made, not from the damaged file); a document not
+     redone keeps its committed row, or none, and its next touch starts from there. Where
+     no committed copy exists, a row the rerun does not recreate stays absent and its
+     document gets the full candidate set on its next touch. A run that printed either
+     message does not count. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
    - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
