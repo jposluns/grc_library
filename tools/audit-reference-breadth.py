@@ -5,7 +5,9 @@ directions, exhaustively.
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID feeding the
 /reference-audit skill (2.14 (closing PR #707)), not an audit gate. It exits 0 after
 printing its report (2 only on internal or usage error, including a refused --docs argument:
-missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; a truncated-pipe consumer
+missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; or, with
+--update-state, a state-file read/write error, an unloaded state-like row, or a change to
+the file during the run; a truncated-pipe consumer
 such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool);
 CI cannot host it because
 the ground truth lives in the sibling private reference repo. Its output is a
@@ -23,7 +25,23 @@ Directions and modes:
   to reference items ADDED or UPDATED in the reference repo since the recorded SHA,
   plus any topic match the document has never been audited against. --update-state
   rewrites the state rows for the named documents to the reference repo's current
-  HEAD (intended to be committed with the PR's QA batch).
+  HEAD and today's UTC date (intended to be committed with the PR's QA batch),
+  preserving the dates of the other rows it loaded; a row it neither loads nor
+  detects (for example one with a SHA shorter than 7 characters) is dropped.
+  Missing or invalid dates are recorded as unknown until that document is
+  assessed.
+  The loader accepts names with a non-empty basename stem ending .md and
+  7 to 40 lowercase hex SHA characters, in the first recognized table only.
+  The detector examines every str.splitlines() segment of each LF line for
+  a pipe-led row whose second cell is 7 or more hex characters (either
+  case), regardless of its name. Only the first segment of an LF line whose
+  row was loaded is exempt.
+  Unloaded state-like rows refuse writes (exit 2) and warn on read-only --docs
+  runs; uppercase and 41-character SHAs intentionally change from silent drops
+  to refusals. Repair the file by hand and rerun. State read/decode errors
+  refuse updates; read-only --docs warns and uses empty state. Updates also
+  refuse if the state file's bytes or existence changed since loading.
+  A change after the pre-write comparison is not detected (no lock, no atomic write).
 - --ref-since SHA (or --ref-items SUBSTR ...): the new-ingest direction. For the
   reference items changed since SHA (or matching the substrings), list the corpus
   documents that topically match and do not cite them.
@@ -65,6 +83,7 @@ import sys
 
 from lint_common import REPO_ROOT, guard_explicit_paths, resolve_working, resolve_working_for_write_private, private_store_roots, _store_root
 from dataclasses import dataclass, field
+from datetime import date
 from pathlib import Path
 
 DEFAULT_REF_BASE = REPO_ROOT.parent / "grc_library_ref"
@@ -284,21 +303,74 @@ def doc_topics(rel: str, text: str) -> set[str]:
     return topics
 
 
-def load_state(path: Path | None) -> dict[str, str]:
-    state: dict[str, str] = {}
-    if path is None or not path.is_file():
-        return state
-    for ln in path.read_text(encoding="utf-8", errors="replace").splitlines():
+STATE_TABLE_HEADER = "| Document | Ref SHA at last audit | Updated (UTC) |"
+
+
+def _read_state_bytes(path: Path | None) -> bytes | None:
+    """Keep absence distinct from an empty file; propagate other read errors."""
+    if path is None:
+        return None
+    try:
+        return path.read_bytes()
+    except FileNotFoundError:
+        return None
+
+
+def _parse_state(text: str) -> tuple[dict[str, tuple[str, str]], int | None]:
+    """Load the first table and find its first omitted state-like row from one text."""
+    state: dict[str, tuple[str, str]] = {}
+    loaded: set[int] = set()
+    # Only LF ends a line; preserve editor line numbers even with form feeds.
+    lines = [ln.removesuffix("\r") for ln in text.split("\n")]
+    in_table = False
+    seen_table = False
+    header = [cell.strip() for cell in STATE_TABLE_HEADER.split("|")]
+    for number, ln in enumerate(lines, 1):
+        if [cell.strip() for cell in ln.split("|")] == header:
+            if seen_table:
+                break
+            seen_table = True
+            in_table = True
+            continue
+        if not ln.startswith("|"):
+            if in_table:
+                break
+        if not in_table:
+            continue
         m = re.match(r"^\|\s*`?([^|`]+?)`?\s*\|\s*([0-9a-f]{7,40})\s*\|", ln)
-        if m and "/" in m.group(1):
-            state[m.group(1).strip()] = m.group(2)
-    return state
+        if m and m.group(1).strip().endswith(".md") and m.group(1).strip().rsplit("/", 1)[-1][:-3]:
+            updated = ln[m.end():].split("|", 1)[0].strip()
+            try:
+                if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", updated):
+                    raise ValueError
+                date.fromisoformat(updated)
+            except ValueError:
+                updated = "unknown"
+            state[m.group(1).strip()] = (m.group(2), updated)
+            loaded.add(number)
+    for number, ln in enumerate(lines, 1):
+        for segment_index, segment in enumerate(ln.splitlines()):
+            cells = segment.strip().split("|")
+            # The loader can consume only the row starting at this LF line.
+            # Later segments may hold additional rows that it did not load.
+            if (number in loaded and segment_index == 0) or len(cells) < 3 or cells[0]:
+                continue
+            if re.fullmatch(r"[0-9a-fA-F]{7,}", cells[2].strip()):
+                return state, number
+    return state, None
 
 
-def write_state(path: Path, state: dict[str, str], ref_head: str,
+def load_state(path: Path | None) -> dict[str, tuple[str, str]]:
+    snapshot = _read_state_bytes(path)
+    return _parse_state(snapshot.decode("utf-8") if snapshot is not None else "")[0]
+
+
+def write_state(path: Path, state: dict[str, tuple[str, str]], ref_head: str,
                 docs: list[str], today: str) -> None:
+    if not docs:
+        return
     for d in docs:
-        state[d] = ref_head
+        state[d] = (ref_head, today)
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [
         "# Reference-audit per-document state",
@@ -311,11 +383,12 @@ def write_state(path: Path, state: dict[str, str], ref_head: str,
         "`tools/audit-reference-breadth.py --update-state`; include the store refresh in the",
         "touching PR's QA batch.",
         "",
-        "| Document | Ref SHA at last audit | Updated (UTC) |",
+        STATE_TABLE_HEADER,
         "| --- | --- | --- |",
     ]
     for doc in sorted(state):
-        lines.append(f"| `{doc}` | {state[doc]} | {today} |")
+        sha, updated = state[doc]
+        lines.append(f"| `{doc}` | {sha} | {updated} |")
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -502,12 +575,34 @@ def main(argv: list[str] | None = None) -> int:
                       f"the root citable documents only); nothing would be assessed.",
                       file=sys.stderr)
             return 2
-        state = load_state(args.state)
+        try:
+            snapshot = _read_state_bytes(args.state)
+            state, unloaded = _parse_state(
+                snapshot.decode("utf-8") if snapshot is not None else "")
+        except (OSError, UnicodeError) as exc:
+            if args.update_state:
+                print(f"ERROR: {args.state}: cannot read state file: {exc}; nothing was written",
+                      file=sys.stderr)
+                return 2
+            print(f"WARNING: {args.state}: cannot read state file: {exc}; continuing with empty state",
+                  file=sys.stderr)
+            state, unloaded = {}, None
+        if unloaded is not None:
+            message = (f"{args.state}: state file has state-like rows that were not loaded, "
+                       f"first at line {unloaded}; ")
+            message += ("nothing was written; repair the file by hand and rerun"
+                        if args.update_state else
+                        "candidate reporting continues with the rows that were loaded; "
+                        "repair the file by hand and rerun")
+            print(f"{'ERROR' if args.update_state else 'WARNING'}: {message}", file=sys.stderr)
+            if args.update_state:
+                return 2
         assessed: list[str] = []
         for rel in args.docs:
             assessed.append(rel)
             pool = items
-            anchor = state.get(rel)
+            entry = state.get(rel)
+            anchor = entry[0] if entry else None
             note = "never audited: all topic matches are candidates"
             if anchor:
                 try:
@@ -527,7 +622,16 @@ def main(argv: list[str] | None = None) -> int:
             print()
         if args.update_state:
             if assessed:
-                write_state(args.state, state, ref_head, assessed, today)
+                try:
+                    if _read_state_bytes(args.state) != snapshot:
+                        print(f"ERROR: {args.state}: state file changed during the run; "
+                              "nothing was written; repair the file by hand and rerun",
+                              file=sys.stderr)
+                        return 2
+                    write_state(args.state, state, ref_head, assessed, today)
+                except (OSError, UnicodeError) as exc:
+                    print(f"ERROR: {args.state}: cannot update state file: {exc}", file=sys.stderr)
+                    return 2
             print(f"State updated for {len(assessed)} assessed document(s) "
                   f"(of {len(args.docs)} named) at ref {ref_head}: "
                   f"{args.state}")
