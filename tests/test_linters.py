@@ -39674,6 +39674,9 @@ class AIQTCutoverTests(unittest.TestCase):
         self.aiqt = self.load('aiqt_rules.py')
 
     def test_clean_snapshot(self):
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        self.assertEqual(self.aiqt.compatibility(self.root, legacy),
+                         (self.root / self.aiqt.TARGET).read_bytes())
         self.assertEqual(len(self.aiqt.validate(self.root)), 133)
 
     def test_overlays_cite_live_store_paths(self):
@@ -39682,16 +39685,23 @@ class AIQTCutoverTests(unittest.TestCase):
         # statement that changelog-details/ there is the retired fallback target. The backlog
         # pointer names both backlogs (public TODO.md and private P-TODO.md).
         legacy = self.aiqt.inventory(self.root)['legacy_details']
-        text = self.aiqt.compatibility(self.root, legacy).decode()
+        rendered = self.aiqt.compatibility(self.root, legacy).decode()
+        self.assertEqual(re.findall(r'grc_library_private/\.working/[\w./<>-]*', rendered),
+                         ['grc_library_private/.working/changelog-details/'])
+        self.assertNotIn('grc_library_private/degradation-watch-log.md', rendered)
+        text = '\n'.join((self.root / path).read_bytes().decode('utf-8')
+                         .split(self.aiqt.MARKER, 1)[1]
+                         for path in self.aiqt.OVERLAY_DIGESTS)
         self.assertEqual(re.findall(r'grc_library_private/\.working/[\w./<>-]*', text),
                          ['grc_library_private/.working/changelog-details/'])
         self.assertNotIn('grc_library_private/degradation-watch-log.md', text)
-        self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', text)
-        for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
-                     'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
-                     'degradation-watch-log.md', 'worker-brief-template.md'):
-            with self.subTest(name=name):
-                self.assertIn('`/opt/grc/private/' + name + '`', text)
+        for label, body in (('rendered', rendered), ('raw', text)):
+            self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', body)
+            for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
+                         'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
+                         'degradation-watch-log.md', 'worker-brief-template.md'):
+                with self.subTest(body=label, name=name):
+                    self.assertIn('`/opt/grc/private/' + name + '`', body)
 
     def test_claude_md_cites_live_store_paths(self):
         # P-TODO 3b299: the always-loaded .claude/CLAUDE.md names the operational records at the
@@ -39715,6 +39725,465 @@ class AIQTCutoverTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(text.count('`/opt/grc/private/' + name + '`'), count)
                 self.assertEqual(text.count('grc_library_private/' + name), 0)
+
+    def test_validate_relative_root(self):
+        previous = Path.cwd()
+        try:
+            os.chdir(self.root)
+            try:
+                owned = self.aiqt.validate(Path('.'))
+            except ValueError as exc:
+                self.fail('relative root rejected: ' + str(exc))
+            self.assertEqual(len(owned), 133)
+        finally:
+            os.chdir(previous)
+
+    def test_validate_symlink_reached_root(self):
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            alias = Path(tmp) / 'root'
+            alias.symlink_to(self.root, target_is_directory=True)
+            try:
+                owned = self.aiqt.validate(alias)
+            except ValueError as exc:
+                self.fail('symlink-reached root rejected: ' + str(exc))
+            self.assertEqual(len(owned), 133)
+
+    def test_compatibility_target_rejects_target_self_loop(self):
+        target = self.root / self.aiqt.TARGET
+        target.unlink()
+        target.symlink_to(target.name)
+        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+            self.aiqt.compatibility_target(self.root)
+
+    def test_compatibility_target_rejects_parent_self_loop(self):
+        parent = (self.root / self.aiqt.TARGET).parent
+        shutil.rmtree(parent)
+        parent.symlink_to(parent.name)
+        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+            self.aiqt.compatibility_target(self.root)
+
+    def test_compatibility_target_rejects_parent_two_link_loop(self):
+        parent = (self.root / self.aiqt.TARGET).parent
+        shutil.rmtree(parent)
+        other = parent.with_name('other')
+        parent.symlink_to(other.name)
+        other.symlink_to(parent.name)
+        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+            self.aiqt.compatibility_target(self.root)
+
+    def test_compatibility_target_rejects_non_regular(self):
+        target = self.root / self.aiqt.TARGET
+        target.unlink()
+        for kind in ('directory', 'fifo'):
+            with self.subTest(kind=kind):
+                if kind == 'directory':
+                    target.mkdir()
+                else:
+                    os.mkfifo(target)
+                try:
+                    with self.assertRaisesRegex(
+                            ValueError, '^refusing non-regular compatibility target$'):
+                        self.aiqt.compatibility_target(self.root)
+                finally:
+                    if kind == 'directory':
+                        target.rmdir()
+                    else:
+                        target.unlink()
+
+    def test_validate_rejects_aliases_below_root(self):
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        for kind in ('hardlink', 'directory', 'parent', 'grandparent'):
+            with self.subTest(kind=kind), tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+                outside = Path(tmp) / 'saved'
+                if kind in ('parent', 'grandparent'):
+                    entry = target.parent if kind == 'parent' else target.parent.parent
+                    entry.rename(outside)
+                    entry.symlink_to(outside, target_is_directory=True)
+                else:
+                    entry = target
+                    target.rename(outside)
+                    if kind == 'hardlink':
+                        os.link(outside, target)
+                    else:
+                        target.mkdir()
+                try:
+                    with self.assertRaisesRegex(
+                            ValueError, '^refusing non-regular compatibility target$'):
+                        self.aiqt.validate(self.root)
+                    saved = (outside / target.relative_to(entry)
+                             if kind in ('parent', 'grandparent') else outside)
+                    self.assertEqual(saved.read_bytes(), old)
+                finally:
+                    if kind == 'directory':
+                        entry.rmdir()
+                    else:
+                        entry.unlink()
+                    outside.rename(entry)
+
+    def test_overlay_digest_mismatch(self):
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        for path in self.aiqt.OVERLAY_DIGESTS:
+            with self.subTest(path=path):
+                p = self.root / path
+                old = p.read_bytes()
+                marker = self.aiqt.MARKER.encode()
+                body, raw = old.split(marker, 1)
+                for changed in (old + b'changed overlay\n', old + b' \t\n',
+                                body + marker + raw.replace(b'\n', b'\r\n', 1)):
+                    with self.subTest(changed=changed[-40:]):
+                        try:
+                            p.write_bytes(changed)
+                            for check in (self.aiqt.overlays, self.aiqt.compatibility,
+                                          self.aiqt.validate):
+                                with self.assertRaises(ValueError) as caught:
+                                    if check != self.aiqt.validate:
+                                        check(self.root, legacy)
+                                    else:
+                                        check(self.root)
+                                self.assertEqual(str(caught.exception),
+                                                 'retained overlay drift: ' + path)
+                        finally:
+                            p.write_bytes(old)
+
+    def test_overlay_marker_count(self):
+        from unittest.mock import patch
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        path = next(iter(self.aiqt.OVERLAY_DIGESTS))
+        p = self.root / path
+        old = p.read_bytes()
+        marker = self.aiqt.MARKER.encode()
+        for changed, error in ((old + marker + b'\n', 'duplicate overlay marker: '),
+                               (old.replace(marker, b'', 1), 'missing overlay: ')):
+            with self.subTest(error=error):
+                try:
+                    p.write_bytes(changed)
+                    digest = self.aiqt.sha(changed.partition(marker)[2])
+                    with patch.dict(self.aiqt.OVERLAY_DIGESTS, {path: digest}):
+                        with self.assertRaises(ValueError, msg=error + 'accepted') as caught:
+                            self.aiqt.overlays(self.root, legacy)
+                    self.assertEqual(str(caught.exception), error + path)
+                finally:
+                    p.write_bytes(old)
+
+    def test_fifteenth_file_tail_rejected(self):
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        path = '.claude/references/governance/express-authorization-before-execution.md'
+        p = self.root / path
+        p.write_bytes(p.read_bytes() + self.aiqt.MARKER.encode() + b'\nnew overlay\n')
+        with self.assertRaises(ValueError) as caught:
+            self.aiqt.overlays(self.root, legacy)
+        self.assertEqual(str(caught.exception), 'unexpected overlay: ' + path)
+
+    def test_overlay_total(self):
+        from unittest.mock import patch
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        self.assertEqual(len(self.aiqt.OVERLAY_DIGESTS), 14)
+        path = next(iter(self.aiqt.OVERLAY_DIGESTS))
+        remaining = [entry for entry in legacy if entry != path]
+        digests = {key: value for key, value in self.aiqt.OVERLAY_DIGESTS.items() if key != path}
+        with patch.dict(self.aiqt.OVERLAY_DIGESTS, digests, clear=True):
+            with self.assertRaisesRegex(ValueError, '^expected fourteen retained overlays$'):
+                self.aiqt.overlays(self.root, remaining)
+
+    def test_validate_checks_overlays_independently(self):
+        from unittest.mock import patch
+        path = next(iter(self.aiqt.OVERLAY_DIGESTS))
+        p = self.root / path
+        p.write_bytes(p.read_bytes() + b' \n')
+        with patch.object(self.aiqt, 'compatibility',
+                          return_value=(self.root / self.aiqt.TARGET).read_bytes()):
+            with self.assertRaises(ValueError) as caught:
+                self.aiqt.validate(self.root)
+        self.assertEqual(str(caught.exception), 'retained overlay drift: ' + path)
+
+    def test_overlay_duplicate_entry(self):
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        first, second = list(self.aiqt.OVERLAY_DIGESTS)[:2]
+        legacy = [second if path == first else path for path in legacy]
+        with self.assertRaisesRegex(ValueError, '^retained overlay inventory mismatch$'):
+            self.aiqt.overlays(self.root, legacy)
+
+    def test_cli_duplicate_legacy_entry(self):
+        from unittest.mock import patch
+        import contextlib
+        import json
+        manifest = self.root / self.aiqt.MANIFEST
+        data = json.loads(manifest.read_text())
+        legacy = data['legacy_details']
+        data['legacy_details'] = [legacy[1]] + legacy[1:]
+        manifest.write_text(json.dumps(data))
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            with patch.object(self.aiqt, 'compatibility', return_value=old):
+                for mode in ('--write', '--check'):
+                    with self.subTest(mode=mode):
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
+                            result = self.aiqt.main([mode])
+                        self.assertEqual(result, 1, 'duplicate legacy entry accepted')
+                        self.assertEqual(output.getvalue(), 'legacy inventory mismatch\n')
+                        self.assertEqual(target.read_bytes(), old)
+
+    def test_cli_target_aliases(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            outside = Path(tmp) / 'sentinel'
+            outside.write_bytes(old)
+            for kind in ('symlink', 'hardlink'):
+                with self.subTest(kind=kind):
+                    target.unlink()
+                    if kind == 'symlink':
+                        target.symlink_to(outside)
+                    else:
+                        os.link(outside, target)
+                    try:
+                        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+                            for mode in ('--write', '--check'):
+                                output = io.StringIO()
+                                with contextlib.redirect_stdout(output):
+                                    result = self.aiqt.main([mode])
+                                self.assertEqual(result, 1, kind + ' target accepted')
+                                self.assertEqual(output.getvalue(),
+                                                 'refusing non-regular compatibility target\n')
+                                self.assertEqual(outside.read_bytes(), old)
+                                self.assertEqual(target.read_bytes(), old)
+                    finally:
+                        target.unlink()
+                        target.write_bytes(old)
+
+    def test_cli_symlinked_parent(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            outside = Path(tmp) / 'rules'
+            target.parent.rename(outside)
+            target.parent.symlink_to(outside, target_is_directory=True)
+            try:
+                with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+                    for mode in ('--write', '--check'):
+                        with contextlib.redirect_stdout(io.StringIO()):
+                            result = self.aiqt.main([mode])
+                        self.assertEqual(result, 1, 'symlinked parent accepted')
+                        self.assertEqual((outside / target.name).read_bytes(), old)
+                        self.assertEqual(target.read_bytes(), old)
+            finally:
+                target.parent.unlink()
+                outside.rename(target.parent)
+
+    def test_validate_rejects_target_symlink(self):
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            outside = Path(tmp) / 'sentinel'
+            outside.write_bytes(old)
+            target.unlink()
+            target.symlink_to(outside)
+            with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+                self.aiqt.validate(self.root)
+            self.assertEqual(outside.read_bytes(), old)
+
+    def test_cli_atomic_write(self):
+        from unittest.mock import patch
+        target = self.root / self.aiqt.TARGET
+        expected = target.read_bytes()
+        for mode, expected_mode in ((0o600, 0o600), (0o640, 0o640),
+                                    (0o666, 0o666), (0o755, 0o755),
+                                    (0o4644, 0o644)):
+            with self.subTest(mode=oct(mode)):
+                target.write_bytes(expected + b'changed\n')
+                target.chmod(mode)
+                before = target.stat()
+                if mode == 0o4644 and not before.st_mode & 0o4000:
+                    self.skipTest('filesystem did not keep the setuid bit for 04644')
+                self.assertEqual(before.st_mode & 0o7777, mode)
+                entries = set(target.parent.iterdir())
+                with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+                    self.assertEqual(self.aiqt.main(['--write']), 0)
+                self.assertEqual(target.read_bytes(), expected)
+                self.assertNotEqual(target.stat().st_ino, before.st_ino, 'target inode overwritten')
+                self.assertEqual(target.stat().st_mode & 0o7777, expected_mode)
+                self.assertEqual(set(target.parent.iterdir()), entries)
+
+    def test_cli_missing_target(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        expected = self.aiqt.compatibility(self.root, legacy)
+        target.unlink()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                result = self.aiqt.main(['--check'])
+            self.assertEqual(result, 1)
+            self.assertIn('No such file or directory', output.getvalue())
+            self.assertFalse(target.exists())
+            self.assertEqual(self.aiqt.main(['--write']), 0)
+        self.assertEqual(target.read_bytes(), expected)
+        self.assertEqual(target.stat().st_mode & 0o777, 0o644)
+
+    def test_cli_temporary_cleanup(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        entries = set(target.parent.iterdir())
+        def fail_replace(temporary, destination):
+            self.assertEqual(temporary.parent, target.parent)
+            self.assertEqual(destination, target)
+            self.assertNotEqual(temporary, target)
+            raise OSError('injected replace failure')
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            with patch.object(Path, 'replace', fail_replace):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    result = self.aiqt.main(['--write'])
+        self.assertEqual(result, 1)
+        self.assertEqual(output.getvalue(), 'injected replace failure\n')
+        self.assertEqual(target.read_bytes(), old)
+        self.assertEqual(set(target.parent.iterdir()), entries, 'temporary file leaked')
+
+    def test_cli_type_error(self):
+        from unittest.mock import patch
+        import contextlib
+        (self.root / 'vendor/aiqt/PIN.toml').write_text('source = []\n')
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for mode in ('--write', '--check'):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    try:
+                        result = self.aiqt.main([mode])
+                    except TypeError as exc:
+                        self.fail('TypeError escaped main: ' + str(exc))
+                self.assertEqual(result, 1)
+                self.assertIn('list indices must be integers or slices', output.getvalue())
+                self.assertEqual(target.read_bytes(), old)
+
+    def test_cli_recursion_error(self):
+        from unittest.mock import patch
+        import contextlib
+        # Exceed the recursion limit in force, including when the caller raises it.
+        depth = sys.getrecursionlimit() + 100
+        (self.root / 'vendor/aiqt/PIN.toml').write_text(
+            'source = ' + '[' * depth + '0' + ']' * depth + '\n')
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for mode in ('--write', '--check'):
+                with self.subTest(mode=mode):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        try:
+                            result = self.aiqt.main([mode])
+                        except RecursionError as exc:
+                            self.fail('RecursionError escaped main: ' + str(exc))
+                    self.assertEqual(result, 1)
+                    self.assertIn('maximum recursion depth exceeded', output.getvalue())
+                    self.assertEqual(target.read_bytes(), old)
+
+    def test_cli_key_error(self):
+        from unittest.mock import patch
+        import contextlib
+        (self.root / 'vendor/aiqt/PIN.toml').write_text('source = {}\n')
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for mode in ('--write', '--check'):
+                with self.subTest(mode=mode):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        try:
+                            result = self.aiqt.main([mode])
+                        except KeyError as exc:
+                            self.fail('KeyError escaped main: ' + str(exc))
+                    self.assertEqual(result, 1)
+                    self.assertEqual(output.getvalue(), "'commit'\n")
+                    self.assertEqual(target.read_bytes(), old)
+
+    def test_compatibility_cli_help_scope(self):
+        import contextlib
+        output = io.StringIO()
+        with contextlib.redirect_stdout(output):
+            with self.assertRaises(SystemExit) as caught:
+                self.aiqt.main(['--help'])
+        self.assertEqual(caught.exception.code, 0)
+        text = ' '.join(output.getvalue().split())
+        self.assertIn(self.aiqt.CLI_DESCRIPTION, text)
+        if self.aiqt.__doc__ is not None:
+            self.assertEqual(self.aiqt.CLI_DESCRIPTION, self.aiqt.__doc__.splitlines()[0])
+        self.assertNotIn('OVERLAY_DIGESTS', text)
+        self.assertNotIn('The inode is always replaced', text)
+        for flag, action in (('--write', 'Write'), ('--check', 'Check')):
+            with self.subTest(action=action):
+                self.assertIn(flag + ' ' + action +
+                              ' the compatibility target without full snapshot validation.',
+                              text)
+
+    def test_compatibility_cli_optimized(self):
+        tools = self.root / 'tools'
+        tools.mkdir()
+        script = tools / 'aiqt_rules.py'
+        shutil.copyfile(REPO_ROOT / 'tools/aiqt_rules.py', script)
+        env = dict(os.environ, PYTHONOPTIMIZE='2')
+        for mode in ('--help', '--check'):
+            with self.subTest(mode=mode):
+                result = subprocess.run(
+                    [sys.executable, str(script), mode], cwd=self.root,
+                    env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(result.stderr, '')
+                if mode == '--help':
+                    self.assertIn(self.aiqt.CLI_DESCRIPTION,
+                                  ' '.join(result.stdout.split()))
+                else:
+                    self.assertEqual(result.stdout, '')
+
+    def test_cli_requires_exactly_one_mode(self):
+        from unittest.mock import patch
+        import contextlib
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for args in ([], ['--check', '--write']):
+                with self.subTest(args=args), contextlib.redirect_stderr(io.StringIO()):
+                    with self.assertRaises(SystemExit) as caught:
+                        self.aiqt.main(args)
+                    self.assertEqual(caught.exception.code, 2)
+
+    def test_cli_resolves_own_symlink_reached_path(self):
+        from unittest.mock import patch
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
+            alias = Path(tmp) / 'root'
+            alias.symlink_to(self.root, target_is_directory=True)
+            with patch.object(self.aiqt, '__file__', str(alias / 'tools/aiqt_rules.py')):
+                self.assertEqual(self.aiqt.main(['--check']), 0)
+                self.assertEqual(self.aiqt.main(['--write']), 0)
+            self.assertEqual(target.read_bytes(), old)
+
+    def test_compatibility_cli(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            self.assertEqual(self.aiqt.main(['--check']), 0)
+            target.write_bytes(old + b'changed\n')
+            output = io.StringIO()
+            with contextlib.redirect_stdout(output):
+                self.assertEqual(self.aiqt.main(['--check']), 1)
+            self.assertEqual(output.getvalue(), 'generated compatibility drift\n')
+            self.assertEqual(self.aiqt.main(['--write']), 0)
+            self.assertEqual(target.read_bytes(), old)
+            self.assertEqual(self.aiqt.main(['--check']), 0)
 
     def test_pinned_input_and_local_mutations_fail(self):
         import json
