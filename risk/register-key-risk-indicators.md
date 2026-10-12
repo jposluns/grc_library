@@ -2,11 +2,11 @@
 
 **Document Title:** Key Risk Indicator Catalogue\
 **Document Type:** Register\
-**Version:** 1.1.5\
-**Date:** 2026-09-20\
+**Version:** 1.1.6\
+**Date:** 2026-10-12\
 **Owner:** Chief Risk Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
+**Related Documents:** [`risk/README.md`](README.md), [`risk/standard-enterprise-risk-management.md`](standard-enterprise-risk-management.md), [`risk/template-enterprise-risk-register.md`](template-enterprise-risk-register.md), [`risk/template-risk-appetite-statement.md`](template-risk-appetite-statement.md), [`risk/procedure-risk-register.md`](procedure-risk-register.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md)\
 **Classification:** Public\
 **Category:** Risk Management: Monitoring\
 **Review Frequency:** Annual and upon material change to risk landscape or strategic objectives\
@@ -51,14 +51,14 @@ Each KRI is defined by the following fields.
 | KRI ID | KRI Name | Indicator | Unit | Green | Amber | Red | Owner | Frequency |
 |---|---|---|---|---|---|---|---|---|
 | KRI-CYB-001 | Unpatched Critical Vulnerabilities | Count of critical-severity vulnerabilities unpatched beyond defined SLA | Count | 0 | 1 to 5 | >5 | CISO | Weekly |
-| KRI-CYB-002 | Mean Time to Detect (MTTD) | Average time from incident start to detection | Hours | <4 | 4 to 24 | >24 | CISO | Monthly |
-| KRI-CYB-003 | Mean Time to Contain (MTTC) | Average time from incident declaration to confirmed containment | Hours | <8 | 8 to 48 | >48 | CISO | Monthly |
+| KRI-CYB-002 | Mean Time to Detect (MTTD) | Average time from incident onset to first SOC awareness (the Detection timestamp in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §4.3), P1 and P2 incidents; thresholds shown for SOC Tier B ([`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) §11) | Hours | <4 | 4 to 24 | >24 | CISO | Monthly |
+| KRI-CYB-003 | Mean Time to Contain (MTTC) | Average time from incident declaration to confirmed containment, P1 and P2 incidents | Hours | <4 | 4 to 48 | >48 | CISO | Monthly |
 | KRI-CYB-004 | Phishing Click Rate | Percentage of staff clicking simulated phishing emails | % | <5% | 5 to 15% | >15% | CISO | Quarterly |
 | KRI-CYB-005 | Privileged Account MFA Coverage | Percentage of privileged accounts with MFA enforced | % | 100% | 95% to <100% | <95% | CISO | Monthly |
 | KRI-CYB-006 | Security Training Completion | Percentage of staff completing annual security awareness training | % | >95% | 85 to 95% | <85% | CISO / HR | Quarterly |
 | KRI-CYB-007 | Endpoint Protection Coverage | Percentage of managed endpoints with active protection | % | >99% | 95 to 99% | <95% | IT Operations | Weekly |
 | KRI-CYB-008 | Security Incidents (P1+P2) | Count of P1 and P2 security incidents in the period | Count | 0 | 1 to 2 | >2 | CISO | Monthly |
-| KRI-CYB-009 | Mean Time to Recover (MTTR) | Average time from incident declaration to confirmed service restoration | Hours | <24 | 24 to 72 | >72 | CISO | Monthly |
+| KRI-CYB-009 | Mean Time to Recover (MTTR) | Average time from incident declaration to confirmed service restoration and closure, P1 and P2 incidents | Hours | <24 | 24 to 72 | >72 | CISO | Monthly |
 
 ---
 
