@@ -39982,3 +39982,1038 @@ class AIQTRoundTwoTests(unittest.TestCase):
                 entries[upstream[0]].update(bucket='EXCLUDED', disclosure='WITHHELD')
                 manifest.write_text(json.dumps({'files': entries}))
                 self.assertEqual(mod.main(['lint-publication-manifest.py']), 0)
+
+
+class HeldBranchExpiryTests(unittest.TestCase):
+    """Deterministic session-start report and unchanged hook predicate parity."""
+
+    @staticmethod
+    def load(path, name):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(name, path)
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    def setUp(self):
+        from unittest import mock
+        import datetime
+        self.mock = mock
+        clean = mock.patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        clean.start()
+        self.addCleanup(clean.stop)
+        import contextlib
+        stderr = contextlib.redirect_stderr(io.StringIO())
+        stderr.__enter__()
+        self.addCleanup(stderr.__exit__, None, None, None)
+        self.today = datetime.date(2026, 10, 12)
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.path = self.root / "held-branches.txt"
+        with mock.patch.object(sys, "path", [str(REPO_ROOT / "tools"), *sys.path]):
+            self.mod = self.load(REPO_ROOT / "tools/audit-held-branch-expiry.py",
+                                 "held_expiry_test")
+        self.addCleanup(sys.modules.pop, "held_expiry_test", None)
+
+    def run_report(self, content, *args, presence="LOCAL"):
+        import contextlib
+        self.path.write_text(content, encoding="utf-8")
+        original = self.path.read_bytes()
+        out, err = io.StringIO(), io.StringIO()
+        with self.mock.patch.object(self.mod, "resolve_working", return_value=self.path), \
+                self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status(presence)), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = self.mod.main(["--today", "2026-10-12", *args])
+        self.assertEqual(self.path.read_bytes(), original)
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_states_and_exits(self):
+        for line, state, days, held, rc in [
+            ("b # 2026-10-11 reason", "LAPSED", "-1", "no", 1),
+            ("b # 2026-10-12 reason", "DUE", "0", "yes", 1),
+            ("b # 2026-10-22 reason", "OK", "10", "yes", 0),
+            ("b # no date", "MALFORMED", "-", "no", 1),
+            ("b # 2026-99-99", "MALFORMED", "-", "yes", 1),
+            ("b", "MALFORMED", "-", "no", 1),
+        ]:
+            with self.subTest(line=line):
+                got, out, err = self.run_report(line)
+                self.assertEqual(got, rc)
+                self.assertIn(f"days={days} expiry-state={state} branch-presence=LOCAL entry-live={held} branch-held={held}", out)
+                self.assertEqual(err, "")
+
+    def test_real_shapes(self):
+        rc, out, _ = self.run_report(
+            "tooling/example-one  # 2026-10-22 (re-triaged 2026-09-22: decision pending) HELD pending design decision\n"
+            "claude/example-two  # ROUTED-to-guardrails 2026-09-04 (seed 20260904T212707Z); not merging\n"
+        )
+        self.assertEqual(rc, 1)
+        self.assertEqual(out.splitlines(), [
+            "report-date-utc=2026-10-12 hook-date-local=2026-10-12",
+            "'tooling/example-one' expiry=2026-10-22 days=10 expiry-state=OK branch-presence=LOCAL entry-live=yes branch-held=yes",
+            "'claude/example-two' expiry=- days=- expiry-state=MALFORMED branch-presence=LOCAL entry-live=no branch-held=no",
+            "summary expiry-state:OK=1 expiry-state:MALFORMED=1 branch-presence:LOCAL=2",
+        ])
+
+    def test_comments_and_blank_lines(self):
+        self.assertEqual(self.run_report(" \n\t# comment\n\n")[:2],
+                         (0, "report-date-utc=2026-10-12 hook-date-local=2026-10-12\nsummary entries=0\n"))
+
+    def test_days_boundary(self):
+        for flag, due, ok in [([], "2026-10-17", "2026-10-18"),
+                              (["--days", "2"], "2026-10-14", "2026-10-15"),
+                              (["--days", "0"], "2026-10-12", "2026-10-13")]:
+            with self.subTest(flag=flag):
+                self.assertEqual(self.run_report("b # " + due, *flag)[0], 1)
+                self.assertIn("expiry-state=DUE ", self.run_report("b # " + due, *flag)[1])
+                self.assertEqual(self.run_report("b # " + ok, *flag)[0], 0)
+                self.assertIn("expiry-state=OK ", self.run_report("b # " + ok, *flag)[1])
+
+    def test_quiet_and_gone(self):
+        rc, out, _ = self.run_report("b # 2026-10-11\nc # 2026-10-22\n",
+                                     "--quiet", presence="GONE")
+        self.assertEqual(rc, 1)
+        self.assertEqual(len(out.splitlines()), 4)
+        self.assertIn("expiry-state=LAPSED branch-presence=GONE", out)
+        rc, out, _ = self.run_report("b # 2026-10-22", "--quiet", presence="GONE")
+        self.assertEqual(rc, 1)
+        self.assertIn("'b'", out)
+        self.assertIn("expiry-state=OK branch-presence=GONE", out)
+        rc, out, _ = self.run_report("b # 2026-10-22", "--quiet")
+        self.assertEqual(rc, 0)
+        self.assertEqual(out, "summary expiry-state:OK=1 branch-presence:LOCAL=1\n")
+
+    def test_unreadable_file(self):
+        import contextlib
+        self.path.write_text("b # 2026-10-11\n", encoding="utf-8")
+        with self.mock.patch.object(Path, "read_text", side_effect=PermissionError("denied")), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(self.mod.report(self.path, self.root, self.today, self.today), 2)
+        self.assertIn("cannot read", err.getvalue())
+        # Also exercise a real read failure, independent of the executing UID.
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(self.mod.report(self.root, self.root, self.today, self.today), 2)
+
+    def test_missing_file(self):
+        import contextlib
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(self.mod.report(self.path, self.root, self.today, self.today), 0)
+        self.assertIn(f"no held-branches file was found at {self.path}", out.getvalue())
+
+    def test_resolver_store_precedence_and_missing(self):
+        import contextlib
+        repo = self.root / "repo"
+        repo.mkdir()
+        store = self.root / "store"
+        store.mkdir()
+        local = repo / ".working"
+        local.mkdir()
+        (local / "held-branches.txt").write_text("fallback # 2026-10-11")
+        (store / "held-branches.txt").write_text("preferred # 2026-10-22")
+        with self.mock.patch.dict(os.environ, {"GRC_STORE": str(store)}, clear=True), \
+                self.mock.patch.object(self.mod, "REPO", repo), \
+                self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status("LOCAL")):
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(self.mod.main(["--today", "2026-10-12"]), 0)
+            self.assertIn("'preferred'", out.getvalue())
+            self.assertNotIn("'fallback'", out.getvalue())
+            (store / "held-branches.txt").unlink()
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(self.mod.main(["--today", "2026-10-12"]), 1)
+            (local / "held-branches.txt").unlink()
+            with contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(self.mod.main(["--today", "2026-10-12"]), 0)
+            self.assertIn(str(store / "held-branches.txt"), out.getvalue())
+
+    def test_resolver_failure_closed(self):
+        import contextlib
+        with self.mock.patch.object(self.mod, "resolve_working",
+                                    side_effect=PermissionError("store denied")), \
+                contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(self.mod.main(["--today", "2026-10-12"]), 2)
+
+    def test_utc_date_and_local_hook_clock(self):
+        import contextlib
+        import datetime
+        import types
+
+        class FrozenDate(datetime.date):
+            @classmethod
+            def today(cls):
+                return cls(2026, 10, 11)
+
+        class FrozenDatetime(datetime.datetime):
+            @classmethod
+            def now(cls, tz=None):
+                if tz is not datetime.timezone.utc:
+                    raise AssertionError("report clock must explicitly request UTC")
+                return cls(2026, 10, 12, 0, 30, tzinfo=tz)
+
+        self.path.write_text("b # 2026-10-11\n", encoding="utf-8")
+        clock = types.SimpleNamespace(date=FrozenDate, datetime=FrozenDatetime,
+                                      timezone=datetime.timezone)
+        with self.mock.patch.object(self.mod, "dt", clock), \
+                self.mock.patch.object(self.mod, "resolve_working", return_value=self.path), \
+                self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status("LOCAL")), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(self.mod.main([]), 1)
+        self.assertIn("days=-1 expiry-state=LAPSED branch-presence=LOCAL entry-live=yes branch-held=yes", out.getvalue())
+
+    def test_hook_parity(self):
+        import contextlib
+        import datetime
+        import types
+        import lint_common
+        lines = [
+            "", " \t", "# comment", "  # indented", "b", "b #", "b # no date",
+            "tooling/example-one  # 2026-10-22 (re-triaged 2026-09-22: decision pending) HELD pending design decision",
+            "claude/example-two  # ROUTED-to-guardrails 2026-09-04 (seed 20260904T212707Z); not merging",
+            "b # 2026-10-11 old", "b # 2026-10-12", "b # 2026-10-17 due",
+            "b # 2026-10-18 future", "b # 2026-99-99 invalid", "b # 2026-02-30 invalid",
+            "b # 9999-99-99", "b # 0000-01-01", "b # 2026-10-12suffix",
+            "b 2026-10-22", " b \t#\t2026-10-22\twhy # details ",
+            "b # ２０２６-１０-２２ unicode", "b # 2026-10-22\nb # 2026-10-11 later",
+            "\ufeffpresent # 2026-10-22 BOM", "a # ٢٠٢٦-١٠-٢٢ digits",
+            "a # 2026-13-01 month", "a # 2026-00-00 zero", "a # 9999-12-31",
+            "a # 2026-10-23 boundary", "a # 2026-10-24 future", "a # 2026-10-10 past",
+            "a # 2026-10-22\r\nb # 2026-10-11", "a # 2026-10-22\x85b # 2026-10-11",
+            "a # 2026-10-22\u2028b # 2026-10-11", "a # 2026-10-22\vb # 2026-10-11",
+            "a # 2026-10-22\fb # 2026-10-11", "a # 2026-10-22\x1cb # 2026-10-11",
+            "a #\u00a02026-10-22\u3000reason", "a\x00 # 2026-10-22 NUL",
+            "a # 2026-10-22 # reason", "a ## 2026-10-22", "a # 2026-1-22",
+            "a # 2026-10-2", "a # 2026-10-22Z", "a # +2026-10-22",
+            "a # 2026-10-22 live\na # 2026-10-11 expired",
+            "a # 2026-10-11 expired\na # 2026-10-22 live",
+            "a # 2026-10-22 first\na # 2026-10-24 second",
+            "a # 2026-10-22 live\na # nonsense",
+            " # 2026-10-22 empty name", "a # 2026-10-22",
+            "a # 2026-10-22\t", "\t a # 2026-10-22 spaced ",
+            "a # 2026-10-22 reason with spaces", "a # 2026-10-22#suffix",
+            "a#2026-10-22", "a # 2026-10-21", "a # 2026-10-23",
+            " a # 2026-10-22 first\na # 2026-10-23 last",
+            "a # 2026-10-22\nb # 2026-10-23",
+
+        ]
+        with self.mock.patch.dict(os.environ, {"CLAUDE_PROJECT_DIR": str(self.root)}, clear=True), \
+                self.mock.patch.object(lint_common, "resolve_working", return_value=None):
+            hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                             "held_expiry_hook_test")
+        self.addCleanup(sys.modules.pop, "held_expiry_hook_test", None)
+        self.parity_counts = dict(cases=len(lines), dates=3, per_line=0, per_branch=0)
+        for day in (datetime.date(2026, 10, 12), datetime.date(2026, 10, 22),
+                    datetime.date(2026, 10, 23)):
+            class FrozenDate(datetime.date):
+                @classmethod
+                def today(cls):
+                    return day
+
+            class FrozenDatetime(datetime.datetime):
+                @classmethod
+                def now(cls, tz=None):
+                    other = day + datetime.timedelta(days=1)
+                    return cls(other.year, other.month, other.day, tzinfo=tz)
+
+            clock = types.SimpleNamespace(date=FrozenDate, datetime=FrozenDatetime,
+                                          timezone=datetime.timezone)
+            for content in [*lines, "\n".join(lines)]:
+                with self.subTest(day=day, content=content):
+                    self.path.write_text(content, encoding="utf-8")
+                    entries = [entry for line in content.splitlines()
+                               if (entry := self.mod.parse_line(line)) is not None]
+                    expected = {entry[0]: entry[2] for entry in entries
+                                if self.mod.hook_held(entry, day)}
+                    with self.mock.patch.object(hook, "HELD_FILE", self.path), \
+                            self.mock.patch.object(hook, "_dt", clock):
+                        actual = hook.held_branches()
+                        self.assertEqual(actual, expected)
+                    with self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status("LOCAL")), \
+                            contextlib.redirect_stdout(io.StringIO()) as out:
+                        self.mod.report(self.path, self.root, day, day)
+                    rows = self.report_rows(out.getvalue())
+                    self.assertEqual(len(rows), len(entries))
+                    entry_lines = [line for line in content.splitlines()
+                                   if self.mod.parse_line(line) is not None]
+                    for entry, row, raw in zip(entries, rows, entry_lines):
+                        self.path.write_text(raw, encoding="utf-8")
+                        with self.mock.patch.object(hook, "HELD_FILE", self.path), \
+                                self.mock.patch.object(hook, "_dt", clock):
+                            live = entry[0] in hook.held_branches()
+                        self.assertIn("entry-live=" + ("yes" if live else "no"), row)
+                        self.assertIn("branch-held=" + ("yes" if entry[0] in actual else "no"), row)
+                        self.parity_counts["per_line"] += 1
+                        self.parity_counts["per_branch"] += 1
+
+    def init_repo(self, root=None):
+        root = root or self.root
+        self.git("-c", "init.defaultRefFormat=files", "init", "-q", str(root))
+        self.git("symbolic-ref", "HEAD", "refs/heads/unborn-fixture", root=root)
+        tree = self.git("mktree", root=root, input="").stdout.strip()
+        commit = self.git("commit-tree", tree, "-m", "fixture", root=root).stdout.strip()
+        self.git("update-ref", "refs/heads/present", commit, root=root)
+        return commit
+
+    def test_git_probe_real_local_and_gone(self):
+        self.init_repo()
+        self.assertEqual(self.presence("present"), "LOCAL")
+        self.assertEqual(self.presence("absent"), "GONE")
+
+    def test_exact_branch_names(self):
+        commit = self.init_repo()
+        for ref in ("refs/tags/tag-only", "refs/remotes/origin/remote-only",
+                    "refs/heads/feat/x", "refs/heads/v1", "refs/tags/v1",
+                    "refs/heads/-dash", "refs/heads/HEAD", "refs/heads/heads/literal"):
+            self.git("update-ref", ref, commit)
+        cases = {
+            "present": "LOCAL", "absent": "GONE", "feat": "GONE", "feat/x": "LOCAL",
+            "v1": "SHADOWED", "heads/v1": "LOCAL", "-dash": "LOCAL", "HEAD": "LOCAL",
+            "present~0": "GONE", "present^0": "GONE", "present^{commit}": "GONE",
+            "present@{0}": "GONE", "tag-only": "GONE", "remote-only": "GONE",
+            "origin/remote-only": "GONE", "has space": "GONE", "has*glob": "GONE",
+            "two..dots": "GONE", "\x00": "GONE", "literal": "GONE", "heads/literal": "LOCAL",
+        }
+        listing = self.git("for-each-ref", "--format=%(refname:short)", "refs/heads").stdout.split()
+        for name, expected in cases.items():
+            with self.subTest(name=name):
+                self.assertEqual(self.presence(name), expected)
+                self.assertEqual(name in listing, expected == "LOCAL")
+                rc, out, _ = self.real_report(f"{name} # 2026-10-22\n", quiet=True)
+                self.assertEqual(rc, 0 if expected == "LOCAL" else 1)
+                if expected != "LOCAL":
+                    self.assertIn(repr(name), out)
+                    self.assertIn(f"branch-presence={expected}", out)
+                if expected == "SHADOWED":
+                    self.assertIn("required-name='heads/v1'", out)
+
+    def test_broken_ref_is_unknown(self):
+        import contextlib
+        self.init_repo()
+        (self.root / ".git/refs/heads/broken").write_text("garbage\n")
+        self.path.write_text("broken # 2026-10-22\n")
+        for quiet in (False, True):
+            with self.subTest(quiet=quiet), contextlib.redirect_stdout(io.StringIO()) as out, \
+                    contextlib.redirect_stderr(io.StringIO()) as err:
+                rc = self.mod.report(self.path, self.root, self.today, self.today, quiet=quiet)
+            self.assertEqual(rc, 2)
+            self.assertIn("expiry-state=OK branch-presence=UNKNOWN", out.getvalue())
+            self.assertIn("ignoring broken ref", err.getvalue())
+
+    def test_dangling_symbolic_ref_is_gone(self):
+        self.init_repo()
+        self.git("symbolic-ref", "refs/heads/dangling", "refs/heads/missing-target")
+        rc, out, err = self.real_report("dangling # 2026-10-22\n", quiet=True)
+        self.assertEqual(rc, 1)
+        self.assertIn("branch-presence=GONE", out)
+        self.assertEqual(err, "")
+
+    def test_bom_is_gone(self):
+        import contextlib
+        self.init_repo()
+        self.path.write_text("\ufeffpresent # 2026-10-22\n", encoding="utf-8")
+        for quiet in (False, True):
+            with self.subTest(quiet=quiet), contextlib.redirect_stdout(io.StringIO()) as out:
+                rc = self.mod.report(self.path, self.root, self.today, self.today, quiet=quiet)
+            self.assertEqual(rc, 1)
+            self.assertIn("'\\ufeffpresent'", out.getvalue())
+            self.assertIn("branch-presence=GONE", out.getvalue())
+
+    def test_duplicate_entries_and_branch_hold(self):
+        rc, out, _ = self.run_report("b # 2026-10-22 live\nb # 2026-10-11 expired\n"
+                                     "b # no date\nb # 2026-10-23 second live\n")
+        self.assertEqual(rc, 1)
+        rows = self.report_rows(out)
+        self.assertEqual(len(rows), 4)
+        self.assertEqual(sum("entry-live=yes" in row for row in rows), 2)
+        self.assertTrue(all("branch-held=yes" in row for row in rows))
+        self.assertIn("expiry=2026-10-23", rows[-1])
+
+    def test_invalid_utf8_entry_point(self):
+        import contextlib
+        self.path.write_bytes(b"\xff")
+        with self.mock.patch.object(self.mod, "resolve_working", return_value=self.path), \
+                contextlib.redirect_stdout(io.StringIO()) as out, \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(self.mod.main(["--today", "2026-10-12"]), 2)
+        self.assertEqual(out.getvalue(), "")
+        self.assertIn("cannot read", err.getvalue())
+
+    def test_real_strict_resolver(self):
+        repo = self.root / "repo"
+        self.git("-c", "init.defaultRefFormat=files", "init", "-q", str(repo))
+        store = self.root / "store"
+        store.write_text("not a directory")
+        local = repo / ".working"
+        local.mkdir()
+        fallback = local / "held-branches.txt"
+        fallback.write_text("fallback # 2026-10-22")
+        # Run the real entry point and resolver without mocks. Default resolution
+        # would read the fallback and report GONE (exit 1) in this repository.
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(repo), GRC_STORE=str(store))
+        result = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+             "--today", "2026-10-12"],
+            env=env, capture_output=True, text=True, check=False, timeout=5,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("cannot resolve held-branches.txt", result.stderr)
+
+    def test_probe_timeout_argument(self):
+        self.init_repo()
+        with self.mock.patch.object(self.mod.subprocess, "run", wraps=subprocess.run) as run:
+            rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n")
+        self.assertEqual(rc, 1)
+        self.assertEqual(err, "")
+        self.assertIn("branch-presence=LOCAL", out)
+        self.assertEqual(run.call_count, 1)
+        call = run.call_args
+        self.assertEqual(call.kwargs.get("timeout"), self.mod.GIT_TIMEOUT)
+        self.assertEqual(call.kwargs.get("encoding"), "utf-8")
+        self.assertEqual(call.args[0][-3:],
+                         ["for-each-ref", "--format=%(refname)%00%(refname:short)", "refs/heads"])
+
+    def test_git_stderr_is_unknown(self):
+        self.init_repo()
+        for code, diagnostic in ((1, "diagnostic\n"), (128, "not a repository\n"),
+                                 (0, "fatal: corrupt refs\n"), (0, "error: bad refs\n")):
+            with self.subTest(code=code, diagnostic=diagnostic), \
+                    self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                                           subprocess.CompletedProcess([], code, "refs/heads/present\x00present\n", diagnostic)):
+                rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n", quiet=True)
+            self.assertEqual(rc, 2)
+            self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+            self.assertIn(diagnostic, err)
+
+    def test_clock_header_and_far_future(self):
+        import contextlib
+        import datetime
+        self.path.write_text("b # 9999-12-31\n")
+        for local in (datetime.date(2026, 10, 11), datetime.date(2026, 10, 13)):
+            with self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status("LOCAL")), \
+                    contextlib.redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(self.mod.report(self.path, self.root, self.today, local), 0)
+            self.assertIn(f"report-date-utc=2026-10-12 hook-date-local={local}", out.getvalue())
+            self.assertIn("The hook lapses a hold by the local date.", out.getvalue())
+            self.assertIn("expiry-state=OK", out.getvalue())
+
+    def test_git_timeout_and_error(self):
+        import contextlib
+        self.path.write_text("b # 2026-10-22\n", encoding="utf-8")
+        for exc in (subprocess.TimeoutExpired("git", 5), OSError("git unavailable")):
+            with self.subTest(exc=exc):
+                with self.mock.patch.object(self.mod.subprocess, "run", side_effect=exc):
+                    with contextlib.redirect_stdout(io.StringIO()) as out, \
+                            contextlib.redirect_stderr(io.StringIO()):
+                        self.assertEqual(self.mod.report(self.path, self.root,
+                                                         self.today, self.today, quiet=True), 2)
+                    self.assertIn("UNKNOWN", out.getvalue())
+        with self.mock.patch.object(self.mod.subprocess, "run",
+                                    return_value=subprocess.CompletedProcess([], 128, "", "not a repo")):
+            self.assertEqual(self.presence("b"), "UNKNOWN")
+
+    def test_invalid_arguments(self):
+        import contextlib
+        for args in (["--days", "-1"], ["--days", "bad"], ["--today", "2026-02-30"],
+                     ["--today", "20261012"], ["--unknown"]):
+            with self.subTest(args=args), contextlib.redirect_stderr(io.StringIO()):
+                with self.assertRaises(SystemExit) as exc:
+                    self.mod.main(args)
+                self.assertEqual(exc.exception.code, 2)
+
+    def test_self_test(self):
+        import contextlib
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(self.mod.self_test(), 0)
+        self.assertRegex(out.getvalue(), r"self-test: (\d+)/\1 passed")
+
+    def fixture_git_environment(self):
+        """Keep this class independent of host git config and repository variables."""
+        env = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull,
+                   GIT_AUTHOR_NAME="Test", GIT_COMMITTER_NAME="Test",
+                   GIT_AUTHOR_EMAIL="test@example.invalid", GIT_COMMITTER_EMAIL="test@example.invalid",
+                   GIT_AUTHOR_DATE="2026-10-12T00:00:00Z", GIT_COMMITTER_DATE="2026-10-12T00:00:00Z")
+        env["LC_ALL"] = "C"
+        env.pop("LANGUAGE", None)
+        return env
+
+    def git(self, *args, root=None, input=None):
+        return subprocess.run(["git", "-C", str(root or self.root), *args],
+                              input=input, env=self.fixture_git_environment(),
+                              capture_output=True, encoding="utf-8", check=True, timeout=5)
+
+    @staticmethod
+    def fixed_status(presence):
+        def fixed(repo, names):
+            mod = sys.modules["held_expiry_test"]
+            statuses = mod.BranchStatuses()
+            statuses.update({name: (presence, None) for name in names})
+            return statuses
+        return fixed
+
+    @staticmethod
+    def report_rows(output):
+        return [line for line in output.splitlines() if " expiry=" in line]
+
+    def presence(self, name, repo=None):
+        try:
+            statuses = self.mod.branch_statuses(repo or self.root, {name})
+            return "UNKNOWN" if statuses is None else statuses[name][0]
+        except Exception as exc:
+            return f"EXC: {exc}"
+
+    def real_report(self, content, quiet=False, repo=None):
+        import contextlib
+        self.path.write_text(content, encoding="utf-8")
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            try:
+                rc = self.mod.report(self.path, repo or self.root, self.today, self.today, quiet=quiet)
+            except Exception as exc:
+                rc = f"EXC: {exc}"
+        return rc, out.getvalue(), err.getvalue()
+
+    def test_warning_scope(self):
+        self.init_repo()
+        for diagnostic, unknown in (
+            ("warning: ignoring broken ref refs/heads/broken\n", True),
+            ("warning: unrelated setting\n", False),
+            ("trace: git internals\n", False),
+        ):
+            with self.subTest(diagnostic=diagnostic), \
+                    self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                                           subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                rc, out, err = self.real_report(
+                    "present # 2026-10-22\nbroken # 2026-10-22\n", quiet=True)
+            self.assertEqual(rc, 2 if unknown else 1)
+            self.assertIn("branch-presence=" + ("UNKNOWN" if unknown else "GONE"), out)
+            self.assertNotIn("'present'", out)
+            self.assertEqual(err, diagnostic)
+
+    def test_unrelated_broken_ref_and_empty_ref(self):
+        self.init_repo()
+        for raw in ("garbage\n", ""):
+            with self.subTest(raw=raw):
+                (self.root / ".git/refs/heads/broken").write_text(raw, encoding="utf-8")
+                rc, out, err = self.real_report(
+                    "present # 2026-10-22\nabsent # 2026-10-22\nbroken # 2026-10-22\n")
+                self.assertEqual(rc, 2)
+                self.assertIn("'present' expiry=2026-10-22 days=10 expiry-state=OK branch-presence=LOCAL", out)
+                self.assertIn("'absent' expiry=2026-10-22 days=10 expiry-state=OK branch-presence=GONE", out)
+                self.assertIn("'broken' expiry=2026-10-22 days=10 expiry-state=OK branch-presence=UNKNOWN", out)
+                self.assertIn("warning: ignoring broken ref refs/heads/broken", err)
+
+    def test_unrelated_configuration_warning(self):
+        self.init_repo()
+        self.git("config", "core.fsyncObjectFiles", "true")
+        rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n")
+        self.assertEqual(rc, 1)
+        self.assertIn("branch-presence=LOCAL", out)
+        self.assertIn("branch-presence=GONE", out)
+        self.assertIn("warning: core.fsyncObjectFiles", err)
+
+    def test_corrupt_packed_refs(self):
+        self.init_repo()
+        (self.root / ".git/packed-refs").write_text("invalid packed refs\n", encoding="utf-8")
+        rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n")
+        self.assertEqual(rc, 2)
+        self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+        self.assertIn("fatal:", err)
+
+    def test_environment_scrub(self):
+        self.init_repo()
+        other = self.root / "other"
+        other.mkdir()
+        commit = self.init_repo(other)
+        self.git("update-ref", "refs/heads/only-in-b", commit, root=other)
+        with self.mock.patch.dict(os.environ, {
+            "GIT_DIR": str(other / ".git"), "GIT_WORK_TREE": str(other),
+            "GIT_INDEX_FILE": str(other / "index"), "GIT_TRACE": "1",
+            "GIT_TRACE2": "1", "GIT_TRACE_PACKET": "1",
+        }):
+            rc, out, err = self.real_report("present # 2026-10-22\nonly-in-b # 2026-10-22\n")
+        self.assertEqual(rc, 1)
+        self.assertIn("'only-in-b' expiry=2026-10-22 days=10 expiry-state=OK branch-presence=GONE", out)
+        self.assertIn("branch-presence=LOCAL", out)
+        self.assertEqual(err, "")
+
+    def test_packed_refs_symbolic_alias_and_shadow(self):
+        commit = self.init_repo()
+        for ref in ("refs/heads/packed", "refs/heads/v1", "refs/tags/v1"):
+            self.git("update-ref", ref, commit)
+        self.git("pack-refs", "--all", "--prune")
+        self.assertFalse((self.root / ".git/refs/heads/packed").exists())
+        self.git("symbolic-ref", "refs/heads/alias", "refs/heads/present")
+        self.assertEqual(self.presence("packed"), "LOCAL")
+        self.assertEqual(self.presence("alias"), "LOCAL")
+        self.assertEqual(self.presence("v1"), "SHADOWED")
+
+    def test_outside_repository_and_git_missing(self):
+        for missing in (False, True):
+            with self.subTest(missing=missing), \
+                    self.mock.patch.dict(os.environ, {"PATH": ""} if missing else {}):
+                rc, out, err = self.real_report("b # 2026-10-22\nc # 2026-10-22\n")
+            self.assertEqual(rc, 2)
+            self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+            self.assertTrue(err)
+
+    def test_summary_and_quiet_header(self):
+        content = "a # 2026-10-11\nb # 2026-10-12\nc # 2026-10-22\nd # nope\n"
+        rc, out, _ = self.run_report(content)
+        self.assertEqual(rc, 1)
+        self.assertEqual(out.splitlines()[-1],
+                         "summary expiry-state:LAPSED=1 expiry-state:DUE=1 expiry-state:OK=1 "
+                         "expiry-state:MALFORMED=1 branch-presence:LOCAL=4")
+        rc, out, _ = self.run_report("a # 2026-10-22", "--quiet")
+        self.assertEqual(rc, 0)
+        self.assertNotIn("report-date", out)
+        import contextlib
+        import datetime
+        with self.mock.patch.object(self.mod, "branch_statuses", side_effect=self.fixed_status("LOCAL")), \
+                contextlib.redirect_stdout(io.StringIO()) as output:
+            self.mod.report(self.path, self.root, self.today, datetime.date(2026, 10, 13), quiet=True)
+        self.assertIn("report-date-utc=2026-10-12 hook-date-local=2026-10-13", output.getvalue())
+
+    def test_fifo_deadline(self):
+        self.init_repo()
+        os.mkfifo(self.root / ".git/refs/heads/blocker")
+        store = self.root / ".working"
+        store.mkdir()
+        (store / "held-branches.txt").write_text("blocker # 2026-10-22\n")
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(self.root),
+                   GRC_STORE=str(store))
+        try:
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+                 "--today", "2026-10-12"], env=env, capture_output=True,
+                encoding="utf-8", timeout=2, check=False)
+        except subprocess.TimeoutExpired:
+            self.fail("FIFO report exceeded the test's two-second deadline")
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("branch-presence=GONE", result.stdout)
+
+    def test_rejected_symlinks_do_not_disclose(self):
+        self.init_repo()
+        marker = "OUTSIDE_MARKER_3b291"
+        outside = self.root / "outside"
+        outside.write_text(marker)
+        for name in (".zz", "q.lock"):
+            with self.subTest(name=name):
+                (self.root / ".git/refs/heads" / name).symlink_to(outside)
+                rc, out, err = self.real_report(name + " # 2026-10-22\n")
+                self.assertNotIn(marker, out + err)
+                self.assertEqual(rc, 1)
+                self.assertIn("branch-presence=GONE", out)
+
+    def test_dangling_beside_literal_heads_branch(self):
+        commit = self.init_repo()
+        self.git("symbolic-ref", "refs/heads/y", "refs/heads/missing-target")
+        self.git("update-ref", "refs/heads/heads/y", commit)
+        rc, out, err = self.real_report("y # 2026-10-22\n")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=GONE", out)
+        self.assertNotIn("required-name", out)
+        self.assertNotIn("heads/y", out)
+
+    def test_paired_listing_matches_hook_whitespace_split(self):
+        import contextlib
+        commit = self.init_repo()
+        for name in ("v1", "heads/literal", "caf\u00e9", "wide\u2003gap", "line\u2028break"):
+            self.git("update-ref", "refs/heads/" + name, commit)
+        self.git("update-ref", "refs/tags/v1", commit)
+        command = ["for-each-ref", "--format=%(refname:short)", "refs/heads"]
+        expected = set(self.git(*command).stdout.split())
+        pairs = self.git("for-each-ref", "--format=%(refname)%00%(refname:short)",
+                         "refs/heads").stdout
+        short_names = [line.partition("\x00")[2] for line in pairs.split("\n") if line]
+        self.assertEqual(expected, set("\n".join(short_names).split()))
+        candidates = expected | {"v1", "literal", "absent", "wide\u2003gap", "line\u2028break"}
+        with contextlib.redirect_stderr(io.StringIO()):
+            got = self.mod.branch_statuses(self.root, candidates)
+        self.assertIsNotNone(got)
+        self.assertEqual({name for name, value in got.items() if value[0] == "LOCAL"},
+                         expected - {"wide", "gap", "line", "break"})
+        self.assertEqual(got["caf\u00e9"], ("LOCAL", None))
+        self.assertEqual(got["v1"], ("SHADOWED", "heads/v1"))
+        self.assertEqual(got["literal"], ("GONE", None))
+        for byte in ("\x00", "\n"):
+            # Git's CLI cannot receive NUL; check-ref-format rejects LF.
+            if byte == "\x00":
+                with self.assertRaises(ValueError):
+                    self.git("check-ref-format", "refs/heads/a" + byte + "b")
+            else:
+                result = subprocess.run(
+                    ["git", "check-ref-format", "refs/heads/a" + byte + "b"],
+                    capture_output=True, env=self.fixture_git_environment(), check=False)
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_head_born_and_unborn(self):
+        commit = self.init_repo()
+        self.git("symbolic-ref", "HEAD", "refs/heads/unborn-fixture")
+        self.git("update-ref", "refs/heads/HEAD", commit)
+        self.assertEqual(self.presence("HEAD"), "LOCAL")
+        self.git("symbolic-ref", "HEAD", "refs/heads/present")
+        rc, out, err = self.real_report("HEAD # 2026-10-22\n", quiet=True)
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=SHADOWED", out)
+        self.assertIn("required-name='heads/HEAD'", out)
+        self.assertEqual(self.presence("heads/HEAD"), "LOCAL")
+
+    def test_warning_exact_ref_and_shape(self):
+        self.init_repo()
+        for diagnostic, name, expected in (
+            ("warning: ignoring broken ref refs/heads/present\n", "present", "UNKNOWN"),
+            ("warning: ignoring ref with broken name refs/heads/present\n", "present", "UNKNOWN"),
+            ("warning: ignoring broken ref refs/heads/present x\n", "present", "LOCAL"),
+            ("warning: configuration quotes 'refs/heads/present'\n", "present", "LOCAL"),
+            ("warning: configuration refs/heads/present\n", "present", "LOCAL"),
+            ("warning: ignoring broken ref refs/heads/feat\n", "feat/x", "GONE"),
+            ("warning: ignoring broken ref refs/heads/feat/x\n", "feat/x", "UNKNOWN"),
+        ):
+            with self.subTest(diagnostic=diagnostic, name=name), \
+                    self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                        subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                rc, out, err = self.real_report(name + " # 2026-10-22\n")
+            self.assertEqual(rc, {"LOCAL": 0, "GONE": 1, "UNKNOWN": 2}[expected])
+            self.assertIn("branch-presence=" + expected, out)
+            self.assertEqual(err, diagnostic)
+
+    def test_nested_broken_ref_and_broken_name(self):
+        commit = self.init_repo()
+        refs = self.root / ".git/refs/heads"
+        (refs / "feat").mkdir()
+        (refs / "feat/x").write_text("garbage\n")
+        (refs / "bad..name").write_text(commit + "\n")
+        rc, out, err = self.real_report("feat/x # 2026-10-22\nbad..name # 2026-10-22\n")
+        self.assertEqual(rc, 2)
+        self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+        self.assertIn("warning: ignoring broken ref refs/heads/feat/x\n", err)
+        self.assertIn("warning: ignoring ref with broken name refs/heads/bad..name\n", err)
+
+    def test_git_locale_is_fixed(self):
+        self.init_repo()
+        with self.mock.patch.dict(os.environ, {"LANGUAGE": "de", "LC_ALL": "de_DE.UTF-8"}), \
+                self.mock.patch.object(self.mod.subprocess, "run", wraps=subprocess.run) as run:
+            rc, _, err = self.real_report("present # 2026-10-22\n")
+        self.assertEqual(rc, 0, err)
+        environment = run.call_args.kwargs.get("env")
+        self.assertIsInstance(environment, dict)
+        self.assertEqual(environment.get("LC_ALL"), "C")
+        self.assertNotIn("LANGUAGE", environment)
+
+    def test_reftable(self):
+        result = subprocess.run(
+            ["git", "init", "-q", "--ref-format=reftable", str(self.root)],
+            capture_output=True, encoding="utf-8", env=self.fixture_git_environment(),
+            timeout=5, check=False)
+        if result.returncode:
+            version = self.git("--version").stdout.strip()
+            self.skipTest(version + ": reftable unavailable: " + result.stderr.strip())
+        tree = self.git("mktree", input="").stdout.strip()
+        commit = self.git("commit-tree", tree, "-m", "fixture").stdout.strip()
+        for ref in ("refs/heads/present", "refs/heads/v1", "refs/tags/v1"):
+            self.git("update-ref", ref, commit)
+        for name, expected, code in (("absent", "GONE", 1), ("v1", "SHADOWED", 1),
+                                     ("present", "LOCAL", 0)):
+            with self.subTest(name=name):
+                rc, out, err = self.real_report(name + " # 2026-10-22\n")
+                self.assertEqual(rc, code, err)
+                self.assertIn("branch-presence=" + expected, out)
+                if name == "v1":
+                    self.assertIn("required-name='heads/v1'", out)
+
+    def test_empty_file_still_checks_git(self):
+        self.path.write_text("")
+        for diagnostic, code in (("", 0), ("fatal: unavailable\n", 2)):
+            with self.subTest(code=code), \
+                    self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                        subprocess.CompletedProcess([], 0, "", diagnostic)) as run:
+                rc, out, err = self.real_report("")
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(rc, code)
+            self.assertEqual(err, diagnostic)
+            self.assertIn("summary entries=0", out)
+
+    def test_timeout_preserves_stderr(self):
+        for diagnostic in (b"warning: before kill\n", "warning: before kill\n"):
+            with self.subTest(diagnostic=diagnostic), \
+                    self.mock.patch.object(self.mod.subprocess, "run", side_effect=
+                        subprocess.TimeoutExpired("git", 5, stderr=diagnostic)):
+                rc, out, err = self.real_report("b # 2026-10-22\n")
+            self.assertEqual(rc, 2)
+            self.assertIn("branch-presence=UNKNOWN", out)
+            self.assertIn("warning: before kill\n", err)
+
+    def test_trace_stdout_is_unknown(self):
+        self.init_repo()
+        config = self.root / "global-config"
+        config.write_text("[trace2]\n\tnormalTarget = /dev/stdout\n")
+        env = dict(self.fixture_git_environment(), GIT_CONFIG_GLOBAL=str(config))
+        result = subprocess.run(
+            ["git", "-C", str(self.root), "for-each-ref",
+             "--format=%(refname:short)", "refs/heads"],
+            env=env, capture_output=True, encoding="utf-8", timeout=5, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        names = set(result.stdout.split())
+        self.assertTrue({"version", "exit"} <= names)
+        with self.mock.patch.dict(os.environ, env, clear=True):
+            rc, out, err = self.real_report("version # 2026-10-22\nexit # 2026-10-22\n")
+        self.assertEqual(rc, 2, err)
+        self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+        self.assertIn("presence was not judged", err)
+
+    def test_report_process_audit_trace(self):
+        import json
+        self.init_repo()
+        self.path.write_text("../x # 2026-10-22\n/etc/passwd # 2026-10-22\n"
+                             "a/./b # 2026-10-22\nnul\x00name # 2026-10-22\n")
+        before = sorted(str(p) for p in self.root.rglob("*"))
+        # CPython does not emit audit events for stat/lstat. Instrument them too;
+        # the hook sees both those explicit events and native open/list events.
+        driver = r'''
+import contextlib
+import datetime
+import importlib.util
+import io
+import json
+import os
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+spec = importlib.util.spec_from_file_location("expiry_trace", Path(sys.argv[1]) / "audit-held-branch-expiry.py")
+mod = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = mod
+spec.loader.exec_module(mod)
+root, held = Path(sys.argv[2]), Path(sys.argv[3])
+events = []
+def audit(event, args):
+    if event == "open" or event in ("os.stat", "os.lstat", "os.fstat", "os.listdir", "os.scandir"):
+        events.append((event, [os.fspath(a) if isinstance(a, os.PathLike) else a for a in args]))
+sys.addaudithook(audit)
+def traced(name, original):
+    def call(*args, **kwargs):
+        sys.audit("os." + name, *args)
+        return original(*args, **kwargs)
+    return call
+for name in ("stat", "lstat", "fstat"):
+    setattr(os, name, traced(name, getattr(os, name)))
+out, err = io.StringIO(), io.StringIO()
+day = datetime.date(2026, 10, 12)
+with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+    codes = [mod.report(held, root, day, day),
+             mod.report(held, root, day, day, quiet=True),
+             mod.report(root / "missing", root, day, day)]
+print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.getvalue())))
+'''
+        result = subprocess.run(
+            [sys.executable, "-c", driver, str(REPO_ROOT / "tools"), str(self.root), str(self.path)],
+            capture_output=True, encoding="utf-8", timeout=10,
+            env=self.fixture_git_environment(), check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        try:
+            payload = json.loads(result.stdout)
+        except ValueError:
+            self.fail("audit driver did not return JSON: " + result.stdout)
+        self.assertEqual(payload["codes"], [1, 1, 0])
+        self.assertEqual(payload["out"].count("branch-presence=GONE"), 8)
+        self.assertEqual(payload["err"], "")
+        self.assertTrue(any(e == "open" and a[0] == str(self.path)
+                            for e, a in payload["events"]))
+        gitdir = str(self.root / ".git")
+        for event, args in payload["events"]:
+            with self.subTest(event=event, args=args):
+                if args and isinstance(args[0], str):
+                    path = os.path.abspath(args[0])
+                    self.assertFalse(path == gitdir or path.startswith(gitdir + os.sep))
+                if event == "open":
+                    mode, flags = args[1:3]
+                    self.assertFalse(mode and any(c in mode for c in "wax+"))
+                    self.assertFalse(flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC))
+        self.assertEqual(sorted(str(p) for p in self.root.rglob("*")), before)
+    def test_shadowed_unicode_space_has_no_required_name(self):
+        commit = self.init_repo()
+        for name in ("shadow\u2003gap", "x\u00a0y"):
+            with self.subTest(name=name):
+                self.git("update-ref", "refs/heads/" + name, commit)
+                self.git("update-ref", "refs/tags/" + name, commit)
+                needed = "heads/" + name
+                listing = self.git("for-each-ref", "--format=%(refname:short)", "refs/heads").stdout.split()
+                self.assertNotIn(needed, listing)
+                rc, out, err = self.real_report(name + " # 2026-10-22\n")
+                self.assertEqual(rc, 1, err)
+                self.assertIn("branch-presence=SHADOWED", out)
+                self.assertNotIn("required-name=", out)
+                self.assertIn("no hold name can match this branch because the hook splits its name", out)
+                self.assertIn(f"hook-tokens={needed.split()!r}", out)
+
+    def test_unshadowed_unicode_space_is_gone(self):
+        commit = self.init_repo()
+        name = "wide\u2003gap"
+        self.git("update-ref", "refs/heads/" + name, commit)
+        rc, out, err = self.real_report(name + " # 2026-10-22\n")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=GONE", out)
+        self.assertNotIn("required-name=", out)
+
+    def test_warning_with_leading_text_is_unrelated(self):
+        self.init_repo()
+        for shape in ("broken ref", "ref with broken name"):
+            diagnostic = f"unrelated leading text warning: ignoring {shape} refs/heads/present\n"
+            with self.subTest(shape=shape), \
+                    self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                        subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                rc, out, err = self.real_report("present # 2026-10-22\n")
+            self.assertEqual(rc, 0, err)
+            self.assertIn("branch-presence=LOCAL", out)
+            self.assertEqual(err, diagnostic)
+
+    def test_warning_splits_only_on_lf(self):
+        commit = self.init_repo()
+        for separator in ("\u2028", "\u0085"):
+            name = "broken" + separator + "tail"
+            with self.subTest(separator=separator):
+                self.git("update-ref", "refs/heads/" + name, commit)
+                (self.root / ".git/refs/heads" / name).write_text("garbage\n")
+                got = self.mod.branch_statuses(self.root, {name, "broken", "tail", "present"})
+                self.assertIsNotNone(got)
+                self.assertEqual(got[name], ("UNKNOWN", None))
+                self.assertEqual(got["broken"], ("GONE", None))
+                self.assertEqual(got["tail"], ("GONE", None))
+                self.assertEqual(got["present"], ("LOCAL", None))
+
+    def test_invalid_utf8_git_output_is_all_unknown(self):
+        commit = self.init_repo()
+        result = subprocess.run(
+            [b"git", b"-C", os.fsencode(self.root), b"update-ref",
+             b"refs/heads/invalid-\xff", commit.encode("ascii")],
+            env=self.fixture_git_environment(), capture_output=True, check=False, timeout=5)
+        if result.returncode:
+            self.skipTest("filesystem or git refused non-UTF-8 ref: " + repr(result.stderr))
+        rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n")
+        self.assertEqual(rc, 2, err)
+        self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+        self.assertIn("git enumeration failed", err)
+
+    def test_unclean_listing_is_all_unknown(self):
+        good = "refs/heads/present\x00present\n"
+        for bad in ("refs/heads/other\n", "trace: git internals\n", "refs/tags/tag\x00tag\n",
+                    "refs/tags/tag\x00refs/tags/tag\n",
+                    "refs/heads/other\x00unrelated\n", "refs/heads/other\x00other\x00extra\n",
+                    "refs/heads/other\x00othTRACEer\n", "refs/heads/\x00heads/\n"):
+            for content in ("present # 2026-10-22\nabsent # 2026-10-22\n", ""):
+                with self.subTest(bad=bad, empty=not content), \
+                        self.mock.patch.object(self.mod.subprocess, "run", return_value=
+                            subprocess.CompletedProcess([], 0, good + bad, "")):
+                    rc, out, err = self.real_report(content)
+                self.assertEqual(rc, 2, err)
+                self.assertEqual(out.count("branch-presence=UNKNOWN"), 2 if content else 0)
+                self.assertIn("git wrote something other than the branch listing to stdout", err)
+                self.assertIn("presence was not judged", err)
+
+    def test_all_short_name_forms_and_awkward_names(self):
+        names = ("present", "-dash", "HEAD", "heads/literal", "feat/x", "caf\u00e9",
+                 "wide\u2003gap", "line\u2028break", "next\u0085line", "x\u00a0y",
+                 "shadow\u2003gap", "prefixed", "full", "quote'\"", "semi;colon",
+                 "dollar$name", "back" + chr(96) + "tick", "paren(name)", "brace{name}", "hash#name")
+        for form in ("files", "reftable"):
+            with self.subTest(form=form):
+                root = self.root / form
+                result = subprocess.run(
+                    (["git", "-c", "init.defaultRefFormat=files", "init", "-q", str(root)]
+                     if form == "files" else
+                     ["git", "init", "-q", "--ref-format=reftable", str(root)]),
+                    env=self.fixture_git_environment(), capture_output=True,
+                    encoding="utf-8", timeout=5, check=False)
+                if result.returncode:
+                    if form == "reftable":
+                        self.skipTest("reftable unavailable: " + result.stderr.strip())
+                    self.fail(result.stderr)
+                self.git("symbolic-ref", "HEAD", "refs/heads/unborn-fixture", root=root)
+                tree = self.git("mktree", root=root, input="").stdout.strip()
+                commit = self.git("commit-tree", tree, "-m", "fixture", root=root).stdout.strip()
+                for name in names:
+                    self.git("update-ref", "refs/heads/" + name, commit, root=root)
+                for name in ("prefixed", "full", "heads/full", "shadow\u2003gap", "x\u00a0y"):
+                    self.git("update-ref", "refs/tags/" + name, commit, root=root)
+                if form == "files":
+                    self.assertTrue((root / ".git/refs/heads/present").is_file())
+                listing = self.git("for-each-ref", "--format=%(refname:short)",
+                                   "refs/heads", root=root).stdout.split()
+                got = self.mod.branch_statuses(root, set(names) | set(listing) | {"absent"})
+                self.assertIsNotNone(got)
+                self.assertTrue(all(value[0] != "UNKNOWN" for value in got.values()))
+                self.assertEqual({name for name, value in got.items() if value[0] == "LOCAL"},
+                                 set(listing) - {"wide", "gap", "line", "break", "next",
+                                                 "heads/x", "y", "heads/shadow"})
+                self.assertEqual(got["prefixed"], ("SHADOWED", "heads/prefixed"))
+                self.assertEqual(got["full"], ("SHADOWED", "refs/heads/full"))
+
+    def test_all_trace2_stdout_targets_are_unknown(self):
+        self.init_repo()
+        config = self.root / "global-config"
+        for target in ("normalTarget", "perfTarget", "eventTarget"):
+            config.write_text("[trace2]\n\t" + target + " = /dev/stdout\n")
+            env = dict(self.fixture_git_environment(), GIT_CONFIG_GLOBAL=str(config))
+            with self.subTest(target=target), self.mock.patch.dict(os.environ, env, clear=True):
+                rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n")
+            self.assertEqual(rc, 2, err)
+            self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
+            self.assertIn("presence was not judged", err)
+
+
+    def test_shadowed_token_exempts_another_branch(self):
+        commit = self.init_repo()
+        for ref in ("refs/heads/x", "refs/heads/heads/x",
+                    "refs/heads/refs/heads/x", "refs/tags/x"):
+            self.git("update-ref", ref, commit)
+        rc, out, err = self.real_report("refs/heads/x # 2026-10-22\n")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=SHADOWED", out)
+        self.assertIn("required-name='heads/refs/heads/x'", out)
+        self.assertIn("hook-exempts=['x']", out)
+
+    def test_split_fragment_is_not_local(self):
+        commit = self.init_repo()
+        self.git("update-ref", "refs/heads/heads/x\u00a0y", commit)
+        rc, out, err = self.real_report("heads/x # 2026-10-22\n")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=GONE", out)
+        self.assertIn("hook-token-fragment-of=['heads/x\\xa0y']", out)
+        self.assertNotIn("hook-exempts=", out)
+
+    def test_shadowed_name_matching_a_fragment(self):
+        commit = self.init_repo()
+        for ref in ("refs/heads/heads/x", "refs/tags/heads/x",
+                    "refs/heads/heads/x\u00a0y"):
+            self.git("update-ref", ref, commit)
+        rc, out, err = self.real_report("heads/x # 2026-10-22\n")
+        self.assertEqual(rc, 1, err)
+        self.assertIn("branch-presence=SHADOWED", out)
+        self.assertIn("required-name='heads/heads/x'", out)
+        self.assertIn("hook-token-fragment-of=['heads/x\\xa0y']", out)
+
+    def test_output_encoding_failure_is_not_resolver_failure(self):
+        commit = self.init_repo()
+        self.git("update-ref", "refs/heads/caf\u00e9", commit)
+        store = self.root / ".working"
+        store.mkdir()
+        (store / "held-branches.txt").write_text(
+            "present # 2026-10-22\ncaf\u00e9 # 2026-10-22\n", encoding="utf-8")
+        env = dict(self.fixture_git_environment(), CLAUDE_PROJECT_DIR=str(self.root),
+                   GRC_STORE=str(store), LC_ALL="C", PYTHONUTF8="0",
+                   PYTHONCOERCECLOCALE="0", PYTHONIOENCODING="ascii:strict")
+        for quiet in (False, True):
+            with self.subTest(quiet=quiet):
+                result = subprocess.run(
+                    [sys.executable, str(REPO_ROOT / "tools/audit-held-branch-expiry.py"),
+                     "--today", "2026-10-12", *(["--quiet"] if quiet else [])],
+                    env=env, capture_output=True, encoding="ascii", timeout=5, check=False)
+                self.assertEqual(result.returncode, 0 if quiet else 2, result.stderr)
+                self.assertNotIn("cannot resolve", result.stderr)
+                if quiet:
+                    self.assertEqual(result.stderr, "")
+                    self.assertIn("branch-presence:LOCAL=2", result.stdout)
+                else:
+                    self.assertIn("'present' expiry=", result.stdout)
+                    self.assertIn("cannot encode report output", result.stderr)
