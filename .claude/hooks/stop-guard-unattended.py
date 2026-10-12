@@ -28,7 +28,8 @@ What it does, in order (main first consumes any grc one-shot declared-wait escap
   2. `stop_hook_active` true -> allow (already nudged this chain; the documented loop-guard).
   3. The backlog tool's actionable set (open items whose block is NOT a granted block) is empty, or
      indeterminate -> allow (tool-verified exhaustion, or a read failure -> fail open).
-  4. At least _MIN_LIVE_GROUPS (3) live owned dispatch groups -> allow dispatch-and-await, with a note.
+  4. At least max(operator slot share, _MIN_LIVE_GROUPS=3) live owned dispatch groups -> allow
+     dispatch-and-await, with a note naming the share source or fallback cause.
      Registry read failure -> allow, except a boundary-byte failure discards the first row and
      continues counting; missing registry means zero groups.
   5. Otherwise -> BLOCK (exit 2), reporting the actionable count, producer command, rule and escape.
@@ -36,15 +37,17 @@ What it does, in order (main first consumes any grc one-shot declared-wait escap
 
 Fail-OPEN. On failure to determine the mode or the actionable set, the hook ALLOWS the stop. A
 guard that traps the actor on its own malfunction protects nothing; a convenience guardrail that
-wrongly blocks a legitimate stop is worse than the mistake it prevents.
+wrongly blocks a legitimate stop is worse than the mistake it prevents. An unusable share file
+never blocks a stop that the floor of 3 would allow.
 
 PORTABILITY. The ADAPTER SEAM contains grc's lease-mode, producer and generic owner adapters,
 plus grc path, checkout, worker and one-shot helpers. main() also carries the one-shot escape
 pre-step. The registry observer, decision predicates, run() and payload parsing are from
-lab_infra commit 17b407b9 (PR #952, item 373), unchanged. Diagnostic transport additionally carries
-3b226's connected-socket syscall adaptation below. Emitted block-message text alone
-carries P-1.36 (BLOCKED / WHY / CONSIDER INSTEAD), #2291 (count only, producer on demand) and
-#2496 (resolved declared-wait path). MODE_SET_HINT retains the detailed grc guidance; the emitted
+lab_infra commit 17b407b9 (PR #952, item 373); decide() and run() additionally carry the
+3b286 operator slot-share floor (max(share, 3)). Diagnostic transport carries 3b226's
+connected-socket syscall adaptation below. Block-message text carries P-1.36 (BLOCKED / WHY /
+CONSIDER INSTEAD), #2291 (count only, producer on demand), #2496 (resolved declared-wait path)
+and 3b286 (required live count). MODE_SET_HINT retains the detailed grc guidance; the emitted
 hint is shortened to fit B's message format. Unusually long override paths can still be truncated
 by B's unchanged per-line clamp.
 
@@ -69,8 +72,9 @@ Dispatch-and-await is separately observed through the broker's per-uid kill regi
 A file or narration alone cannot satisfy the live-group threshold: each distinct group needs a live,
 non-zombie, non-stopped timeout leader owned by this uid and recorded for this ORCH_OWNER
 (default: id -un), with pgid and start time still matching procfs. Empty or invalid owners
-cannot count. Three groups is the D-295 minimum proxy, not proof of three distinct workstreams
-or progress. Unrecorded/no-timeout dispatches and leaderless groups do not count. Like the
+cannot count. max(operator slot share, three) groups is the required proxy (three remains the
+D-295 floor), not proof of distinct workstreams or progress. Unrecorded/no-timeout dispatches
+and leaderless groups do not count. Like the
 existing registry consumer, this is a cooperative guardrail, not a security boundary against
 an owner manufacturing processes. A file alone cannot establish liveness; there is no
 payload/env override for the registry path. Only newline-terminated, six-field recorder rows
@@ -85,6 +89,12 @@ A nonzero starting offset reads one additional byte under the same lock to check
 newline. An unreadable boundary byte or an initial row fragment discards the first row.
 Oversized and unterminated rows do not count; rows before the tail window remain unobserved.
 Observation is a point-in-time snapshot.
+The earlier allowances for continuation, observation failure, declared wait and mode remain.
+A stale but valid share file keeps its recorded threshold with no staleness signal. A share above
+achievable concurrency blocks each armed turn-end once; the loop guard releases the second.
+Share ownership is checked in this process's uid namespace, not necessarily the host's. The check
+does not establish parent-directory control or exclude intermediate symlinks. Regular-file reads
+are assumed local; O_NONBLOCK does not guarantee bounded filesystem latency.
 Diagnostics are delivered only to regular files, FIFOs and sockets. Terminal stderr,
 including PTY masters and slaves, other devices and unknown types receives no diagnostic:
 these destinations are silently dropped without writing or reopening them. Unavailable
@@ -101,6 +111,7 @@ Self-contained: grc file/producer fixtures replace lab_infra tooling fixtures; r
 """
 
 import datetime
+import errno
 import fcntl
 import json
 import os
@@ -121,6 +132,11 @@ _MAX_LINE_CHARS = 160
 _MAX_IDS = 5
 _MIN_LIVE_GROUPS = 3  # D-295: three active workstreams; a lone worker cannot license a yield.
 _KILLREG_DIR = "/run/orch-workers"
+_SLOT_SHARES_FILE = "/opt/orch-operator/slot-shares.json"
+_SLOT_SHARE_PROJECT = "grc"
+_SLOT_SHARE_EXPECT_UID = 0
+_SLOT_SHARE_MAX = 64
+_SLOT_SHARE_MAX_BYTES = 65536
 _MAX_REGISTRY_ROW_BYTES = 4096
 _MAX_REGISTRY_ROWS = 4096
 _MAX_REGISTRY_SCAN_BYTES = 1024 * 1024 + _MAX_REGISTRY_ROW_BYTES
@@ -263,12 +279,12 @@ def repo_root():
 # GRC ADAPTATION (project wiring; see the module docstring's GRC note).
 # Lease-mode and producer adapters plus the grc helpers are carried from A, with the 3b113 QA r1 worker
 # scoping (both fleet signals) and the r2 lease-only mode source in the grc checkout.
-# main() carries the one-shot escape; decision predicates and the new registry remain B's.
-# Emitted-message exceptions only: P-1.36, #2291, #2496.
+# main() carries the one-shot escape; the registry remains B's, with the 3b286 share reader beside it.
+# Decision/message adaptations: P-1.36, #2291, #2496, 3b286.
 # ---------------------------------------------------------------------------
 # Paths follow the checkout (3b101): the repo root is this file's grandparent's parent, the lease lives
 # in the operational store (GRC_STORE, else <repo-parent>/private), and the declared-wait sentinel in
-# GRC_DROP_ROOT, else <repo-parent>/grc_working. No host path is hard-coded.
+# GRC_DROP_ROOT, else <repo-parent>/grc_working. The operator share has a fixed fleet path.
 def _grc_consume_escape(root):
     """grc one-shot operator escape. If this is the grc repo AND the declared-wait sentinel exists,
     CONSUME it (unlink) and return True (allow this stop). A failed unlink returns False (REFUSE the
@@ -460,9 +476,9 @@ def is_orchestrator_session(root):
     return _is_orchestrator(euid, owner_uid, _grc_is_worker())
 
 # ============================================================================
-# END ADAPTER SEAM -- B core below; decision predicates and registry code are unchanged. (GRC:
-# Exceptions: emitted message text (P-1.36, #2291, #2496); connected-socket transport (3b226).
-# Predicates, decisions and exit statuses are unchanged.
+# END ADAPTER SEAM -- B core below; registry code is unchanged. (GRC:
+# Exceptions: message text (P-1.36, #2291, #2496); socket transport (3b226); slot-share floor (3b286).
+# Exit statuses are unchanged; read_slot_share, decide() and run() carry the slot-share floor.
 # main() below carries a one-shot-escape pre-step; see the GRC ADAPTATION note.)
 # ============================================================================
 
@@ -610,11 +626,75 @@ def live_dispatch_groups():
     return len(live)
 
 
-def decide(mode, stop_hook_active, actionable, live_groups=0):
+# Share causes: absent | notreg | unowned | badmode | toobig | invalid | unread.
+# run() uses skipped only on paths that allow before formatting the share.
+def _no_duplicate_keys(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate key")
+        result[key] = value
+    return result
+
+
+def read_slot_share(path=None, project=None, expect_uid=None):
+    """Read the operator's recorded share. A valid project needs no valid default.
+    Closing is attempted; close errors are contained."""
+    path = _SLOT_SHARES_FILE if path is None else path
+    project = _SLOT_SHARE_PROJECT if project is None else project
+    expect_uid = _SLOT_SHARE_EXPECT_UID if expect_uid is None else expect_uid
+    try:
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+    except OSError as exc:
+        if exc.errno in (errno.ENOENT, errno.ENOTDIR):
+            return None, "absent"
+        return None, "notreg" if exc.errno == errno.ELOOP else "unread"
+    try:
+        metadata = os.fstat(fd)
+        if not stat.S_ISREG(metadata.st_mode):
+            return None, "notreg"
+        if metadata.st_uid != expect_uid:
+            return None, "unowned"
+        if metadata.st_mode & 0o022:
+            return None, "badmode"
+        chunks, total = [], 0
+        while True:
+            chunk = os.read(fd, _SLOT_SHARE_MAX_BYTES + 1 - total)
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+            if total > _SLOT_SHARE_MAX_BYTES:
+                return None, "toobig"
+    except OSError:
+        return None, "unread"
+    finally:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+    try:
+        data = json.loads(b"".join(chunks).decode("utf-8-sig"), object_pairs_hook=_no_duplicate_keys)
+        if not isinstance(data, dict) or type(data.get("schema")) is not int or data["schema"] != 1:
+            return None, "invalid"
+        if "shares" in data and not isinstance(data["shares"], dict):
+            return None, "invalid"
+        shares = data.get("shares", {})
+        value, source = (shares[project], project) if project in shares else (data["default"], "default")
+        if type(value) is not int or not 1 <= value <= _SLOT_SHARE_MAX:
+            return None, "invalid"
+        return value, source
+    except Exception:
+        return None, "invalid"
+
+
+def decide(mode, stop_hook_active, actionable, live_groups, share):
     """Pure decision. Returns (block: bool, reason: str). Block iff: unattended mode AND not already in a
-    stop-hook continuation AND the actionable set is non-empty AND the known live count is below the floor. `actionable` is a list (possibly
-    empty) or None (indeterminate -> fail open). Live groups at the floor permit awaiting;
-    an indeterminate live count also fails open."""
+    stop-hook continuation AND the actionable set is non-empty AND the known live count is below
+    the required count (the larger of the operator share and 3). `actionable` is a list (possibly
+    empty) or None (indeterminate -> fail open). An indeterminate live count also fails open.
+    share is a required (value, source-or-cause) tuple from read_slot_share or run(). The requirement is
+    max(share, _MIN_LIVE_GROUPS), falling back to _MIN_LIVE_GROUPS when the value is None."""
     if mode != "unattended":
         return False, ""
     if stop_hook_active:
@@ -623,9 +703,19 @@ def decide(mode, stop_hook_active, actionable, live_groups=0):
         return False, ""  # None (indeterminate) or empty (exhausted) -> allow
     if live_groups is None:
         return False, "STOP ALLOWED (unattended): live dispatch observation unavailable; fail open."
-    if live_groups >= _MIN_LIVE_GROUPS:
-        return False, "STOP ALLOWED (unattended): %d live owned dispatch groups; yielding to await work (minimum %d)." % (
-            live_groups, _MIN_LIVE_GROUPS)
+    value, token = share
+    if value is None:
+        required = _MIN_LIVE_GROUPS
+        note = "minimum %d, share %s" % (required, token)
+    else:
+        required = max(value, _MIN_LIVE_GROUPS)
+        if value < _MIN_LIVE_GROUPS:
+            note = "minimum %d, share %s %d below floor" % (required, token, value)
+        else:
+            note = "minimum %d, share %s" % (required, token)
+    if live_groups >= required:
+        return False, "STOP ALLOWED (unattended): %d live owned dispatch groups; yielding to await work (%s)." % (
+            live_groups, note)
     ids = ", ".join(str(iid)[:12] for iid, _title in actionable[:_MAX_IDS])
     if len(actionable) > _MAX_IDS:
         ids += " ..."
@@ -637,7 +727,7 @@ def decide(mode, stop_hook_active, actionable, live_groups=0):
         "CONSIDER INSTEAD: continue on the highest-priority actionable item "
         "(full list: %s)." % ACTIONABLE_PRODUCER,
         "Yield allowed with at least %d live owned dispatch groups, or no actionable items "
-        "(a [BLOCKED:<reason>] tag with a granted approvals row)." % _MIN_LIVE_GROUPS,
+        "(a [BLOCKED:<reason>] tag with a granted approvals row)." % required,
         "Declared wait: touch %s (once, after recording blocker); operator stop: set mode attended."
         % _grc_escape_file(),
     ]
@@ -740,7 +830,8 @@ def run(root, payload):
     """Core: exit 2 (block) iff this is the ORCHESTRATOR session, unattended, not a stop-hook continuation,
     and pipeline shows actionable work without enough live dispatches; else 0.
     Registry read failures fail open except boundary-byte failures, which discard the first row
-    and continue counting; unobservable groups do not count."""
+    and continue counting; unobservable groups do not count. Read the slot share only when
+    actionable work exists and the live count was observable."""
     if not is_orchestrator_session(root):
         return 0  # a dispatched worker (or an unconfirmable owner) -> allow; this guard binds the orchestrator only
     mode = read_operating_mode(root)
@@ -749,7 +840,13 @@ def run(root, payload):
     if mode == "unattended" and not stop_hook_active:
         actionable = actionable_items(root)  # only compute when it can change the outcome
     live_groups = live_dispatch_groups() if actionable else 0
-    block, reason = decide(mode, stop_hook_active, actionable, live_groups)
+    share = (None, "skipped")
+    if actionable and live_groups is not None:
+        try:
+            share = read_slot_share()
+        except Exception:
+            share = (None, "unread")
+    block, reason = decide(mode, stop_hook_active, actionable, live_groups, share)
     if reason:
         _diagnostic(reason + "\n")
     return 2 if block else 0
@@ -796,6 +893,45 @@ def _self_test():
     import shutil
     import tempfile
     import unittest
+
+    production_share_path = "/opt/" + "orch-operator/" + "slot-shares.json"
+    share_declarations = (_SLOT_SHARES_FILE, _SLOT_SHARE_PROJECT, _SLOT_SHARE_EXPECT_UID,
+                          _SLOT_SHARE_MAX, _SLOT_SHARE_MAX_BYTES)
+    share_opens = []
+    recording = True
+
+    # This lexical recorder does not recognize a leading double slash, relative paths,
+    # directory-descriptor opens, symlinked directories, or opens in child processes.
+    def record_share_open(event, args):
+        if recording and event == "open" and args:
+            try:
+                matches = os.fsdecode(os.path.normpath(os.fspath(args[0]))) == production_share_path
+            except Exception:
+                return  # Audit callbacks must tolerate non-path arguments and broken PathLike objects.
+            if matches:
+                share_opens.append(production_share_path)
+
+    sys.addaudithook(record_share_open)
+
+    def self_test_status(result, share_opens):
+        return 0 if result.wasSuccessful() and not share_opens else 1
+
+    def _write_share(path, data):
+        Path(path).write_bytes(data if isinstance(data, bytes) else _json.dumps(data).encode())
+        os.chmod(path, 0o644)
+        return path
+
+    def rewrite_share(test, source, path):
+        for anchor, replacement in (
+                ('_SLOT_SHARES_FILE = "' + production_share_path + '"',
+                 "_SLOT_SHARES_FILE = %r" % str(path)),
+                ("_SLOT_SHARE_EXPECT_UID = 0", "_SLOT_SHARE_EXPECT_UID = (%r)" % os.geteuid())):
+            test.assertEqual(source.count(anchor + "\n"), 1)
+            source = source.replace(anchor + "\n", replacement + "\n")
+            test.assertNotIn(anchor + "\n", source)
+            test.assertIn(replacement + "\n", source)
+        test.assertNotIn(production_share_path, source)
+        return source
 
     @contextlib.contextmanager
     def capture_stderr(stream):
@@ -861,7 +997,9 @@ def _self_test():
             # Never let a host's live fleet affect either in-process or subprocess tests.
             self.registry = tempfile.TemporaryDirectory()
             self.addCleanup(self.registry.cleanup)
-            patcher = mock.patch.dict(globals(), _KILLREG_DIR=self.registry.name)
+            patcher = mock.patch.dict(globals(), _KILLREG_DIR=self.registry.name,
+                                      _SLOT_SHARES_FILE=os.path.join(self.registry.name, "slot-shares.absent"),
+                                      _SLOT_SHARE_EXPECT_UID=os.geteuid())
             patcher.start()
             self.addCleanup(patcher.stop)
             owner_env = mock.patch.dict(os.environ, {"ORCH_OWNER": "fixture"})
@@ -1014,7 +1152,7 @@ def _self_test():
                         with mock.patch.object(os, "open", side_effect=PermissionError) as opened:
                             count = live_dispatch_groups()
                             self.assertEqual(count, 0)
-                            self.assertTrue(decide("unattended", False, [("1", "sample")], count)[0])
+                            self.assertTrue(decide("unattended", False, [("1", "sample")], count, (None, "absent"))[0])
                             opened.assert_not_called()
                     # The same object owned by us retains the observation-failure contract.
                     self.assertIsNone(live_dispatch_groups())
@@ -1432,7 +1570,7 @@ def _self_test():
 
         # ---- pure decision ----
         def test_decide_block_when_actionable(self):
-            block, reason = decide("unattended", False, [("1", "a"), ("3", "c")])
+            block, reason = decide("unattended", False, [("1", "a"), ("3", "c")], 0, (None, "absent"))
             self.assertTrue(block)
             self.assertIn("actionable", reason)
             self.assertIn("reports 2 actionable open backlog item(s)", reason)
@@ -1446,14 +1584,14 @@ def _self_test():
 
         def test_reason_at_most_five_lines_any_count(self):
             for n in (1, 2, 5, 6, 20, 21, 500):
-                block, reason = decide("unattended", False, self._items(n))
+                block, reason = decide("unattended", False, self._items(n), 0, (None, "absent"))
                 self.assertTrue(block)
                 lines = reason.split("\n")
                 self.assertLessEqual(len(lines), 5, "n=%d gave %d lines" % (n, len(lines)))
 
         def test_reason_lines_short_even_with_long_titles(self):
             for n in (1, 6, 500):
-                block, reason = decide("unattended", False, self._items(n, "a long title " * 40))
+                block, reason = decide("unattended", False, self._items(n, "a long title " * 40), 0, (None, "absent"))
                 self.assertTrue(block)
                 for line in reason.split("\n"):
                     self.assertLessEqual(len(line), 160, "n=%d line too long: %r" % (n, line))
@@ -1461,7 +1599,7 @@ def _self_test():
 
         def test_reason_carries_count_and_continue_instruction(self):
             with mock.patch.dict(globals(), _grc_escape_file=lambda: "/drop/.allow-idle-stop"):
-                block, reason = decide("unattended", False, self._items(37))
+                block, reason = decide("unattended", False, self._items(37), 0, (None, "absent"))
             self.assertIn("reports 37 actionable open backlog item(s)", reason)
             self.assertNotIn("First in backlog order:", reason)
             self.assertNotIn("1, 2, 3, 4, 5", reason)
@@ -1478,7 +1616,7 @@ def _self_test():
             self.assertTrue(reason.endswith("set mode attended."))
 
         def test_reason_does_not_claim_sole_legitimate_stop(self):
-            block, reason = decide("unattended", False, self._items(3))
+            block, reason = decide("unattended", False, self._items(3), 0, (None, "absent"))
             self.assertTrue(block)
             self.assertNotIn("legitimately", reason)  # not framed as the only legitimate stop
             self.assertIn("at least 3 live owned dispatch groups", reason)
@@ -1488,16 +1626,16 @@ def _self_test():
             self.assertLessEqual(len(line4), 150, "line 4 has no margin under the 160 clamp: %r" % line4)
 
         def test_decide_allow_stop_hook_active(self):
-            self.assertFalse(decide("unattended", True, [("1", "a")])[0])
+            self.assertFalse(decide("unattended", True, [("1", "a")], 0, (None, "skipped"))[0])
 
         def test_decide_allow_exhausted(self):
-            self.assertFalse(decide("unattended", False, [])[0])
+            self.assertFalse(decide("unattended", False, [], 0, (None, "skipped"))[0])
 
         def test_decide_allow_indeterminate(self):
-            self.assertFalse(decide("unattended", False, None)[0])
+            self.assertFalse(decide("unattended", False, None, 0, (None, "skipped"))[0])
 
         def test_decide_allow_attended(self):
-            self.assertFalse(decide("attended", False, [("1", "a")])[0])
+            self.assertFalse(decide("attended", False, [("1", "a")], 0, (None, "skipped"))[0])
 
         # ---- grc file-mode / executable-producer adapters + core (run) ----
         def test_unattended_actionable_blocks_end_to_end(self):
@@ -1552,8 +1690,10 @@ def _self_test():
             source = Path(__file__).read_text()
             seam = '_KILLREG_DIR = "/run/orch-workers"'
             self.assertEqual(source.count(seam + "\n"), 1)
-            Path(hooks, "hook.py").write_text(source.replace(
-                seam + "\n", "_KILLREG_DIR = %r\n" % self.registry.name))
+            source = source.replace(seam + "\n", "_KILLREG_DIR = %r\n" % self.registry.name)
+            path = _write_share(os.path.join(d, "slot-shares.json"),
+                                {"schema": 1, "default": 2, "shares": {"grc": 2}})
+            Path(hooks, "hook.py").write_text(rewrite_share(self, source, path))
             return os.path.join(hooks, "hook.py")
 
         def _subproc(self, mode, producer_lines, payload):
@@ -1694,7 +1834,7 @@ def _self_test():
             # emits the COUNT only, never the item enumeration, so its length does not
             # grow with the backlog size and item titles never reach the console.
             many = [("%d" % i, "title%d" % i) for i in range(500)]
-            _b, reason = decide("unattended", False, many)
+            _b, reason = decide("unattended", False, many, 0, (None, "absent"))
             self.assertNotIn("title", reason)
             self.assertIn("500", reason)
             self.assertLess(len(reason), 1200)
@@ -1710,7 +1850,7 @@ def _self_test():
                 self.assertEqual(_grc_map_mode(raw), want, raw)
 
         def test_grc_paths_follow_the_checkout(self):
-            # 3b101: no hard-coded host path; the lease and sentinel sit beside the checkout unless overridden.
+            # 3b101: the lease and sentinel sit beside the checkout unless overridden.
             # (3b101 QA r3, claude O6: each assertion now pins a value rather than holding trivially.)
             self.assertEqual(_GRC_REPO_ROOT, repo_root())
             self.assertEqual(_GRC_PARENT, os.path.dirname(_GRC_REPO_ROOT))
@@ -2058,6 +2198,15 @@ def _self_test():
 
 
     class ObservationTests(unittest.TestCase):
+        def setUp(self):
+            self.slot_share_dir = tempfile.TemporaryDirectory()
+            self.addCleanup(self.slot_share_dir.cleanup)
+            patcher = mock.patch.dict(
+                globals(), _SLOT_SHARES_FILE=os.path.join(self.slot_share_dir.name, "slot-shares.absent"),
+                _SLOT_SHARE_EXPECT_UID=os.geteuid())
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
         @contextlib.contextmanager
         def groups(self, count=3):
             children = []
@@ -2113,7 +2262,7 @@ def _self_test():
             with self.registry(data, stream_type):
                 count = live_dispatch_groups()
             self.assertEqual(count, expected)
-            block, _ = decide("unattended", False, [("1", "sample")], count)
+            block, _ = decide("unattended", False, [("1", "sample")], count, (None, "absent"))
             self.assertEqual(block, expected is not None and expected < 3)
 
         def test_registry_timestamps_do_not_license_yield(self):
@@ -2291,7 +2440,7 @@ def _self_test():
                                 self.assertEqual(count, expected)
                                 self.assertEqual(sum(consumed), _MAX_REGISTRY_SCAN_BYTES)
                                 self.assertEqual(
-                                    decide("unattended", False, [("1", "sample")], count)[0],
+                                    decide("unattended", False, [("1", "sample")], count, (None, "absent"))[0],
                                     expected < 3)
                                 # The read descriptor, and therefore its shared lock, is gone.
                                 fcntl.flock(writer.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -2387,7 +2536,7 @@ def _self_test():
                                               return_value=b"") as read:
                         count = live_dispatch_groups()
                         self.assertEqual(count, 2)
-                        self.assertTrue(decide("unattended", False, [("1", "sample")], count)[0])
+                        self.assertTrue(decide("unattended", False, [("1", "sample")], count, (None, "absent"))[0])
                         read.assert_called_once_with(-1, 1, 1)
                 # Size must be sampled again after locking, not from the earlier metadata.
                 with self.registry(b"bad\n" * _MAX_REGISTRY_SCAN_BYTES + good):
@@ -2465,7 +2614,7 @@ def _self_test():
                     os.environ.pop("ORCH_OWNER", None)
                     count = live_dispatch_groups()
                     self.assertEqual(count, 0)
-                    self.assertTrue(decide("unattended", False, [("1", "sample")], count)[0])
+                    self.assertTrue(decide("unattended", False, [("1", "sample")], count, (None, "absent"))[0])
 
         def test_observation_mutations(self):
             faults = []
@@ -2501,12 +2650,512 @@ def _self_test():
                  "live_dispatch_groups": broad_handler},
                 ((None, 0), (None, 2), (None, 3)), None, faults)
 
-    result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(
-        unittest.TestLoader().loadTestsFromTestCase(case) for case in (T, GRCAdapterTests, ObservationTests)))
-    for k, v in _saved_env.items():
-        if v is not None:
-            os.environ[k] = v
-    return 0 if result.wasSuccessful() else 1
+
+    class SlotShareTests(unittest.TestCase):
+        setUp = T.setUp
+        _hook_copy = T._hook_copy
+        record = T.record
+        workers = T.workers
+
+        def fixture(self, data=None):
+            return _write_share(_SLOT_SHARES_FILE, data if data is not None else
+                                {"schema": 1, "default": 2, "shares": {"grc": 4}})
+
+        def evaluate(self, live, items=10):
+            diagnostic = mock.Mock()
+            with mock.patch.dict(globals(), is_orchestrator_session=lambda root: True,
+                                 read_operating_mode=lambda root: UNATT,
+                                 actionable_items=lambda root: [("1", "work")] * items,
+                                 live_dispatch_groups=lambda: live, _diagnostic=diagnostic):
+                rc = run(root_real, {"stop_hook_active": False})
+            return rc, "".join(call.args[0] for call in diagnostic.call_args_list)
+
+        def test_slot_share_declarations(self):
+            self.assertEqual(share_declarations, (production_share_path, "grc", 0, 64, 65536))
+            self.assertEqual(Path(__file__).read_text().count(production_share_path), 1)
+
+        def test_slot_share_json(self):
+            cases = [
+                ({"schema": 1, "default": 2, "shares": {"grc": 4}}, (4, "grc")),
+                ({"schema": 1, "default": 2, "shares": {"other": 4}}, (2, "default")),
+                ({"schema": 1, "default": 2}, (2, "default")),
+                ({"schema": 1, "shares": {"grc": 4}}, (4, "grc")),
+                ({"schema": 1, "default": "bad", "shares": {"grc": 4}}, (4, "grc")),
+                ({"schema": 1, "extra": True, "shares": {"grc": 4}}, (4, "grc")),
+                ({"schema": 1, "default": 8, "shares": {"grc": {}}}, (None, "invalid")),
+                ({"schema": 1}, (None, "invalid")),
+                ([], (None, "invalid")),
+                (None, (None, "invalid")),
+                ("object", (None, "invalid")),
+            ]
+            for value in (True, 2.0, 4.0, "4", "2", None, 0, -1, 65):
+                cases.append(({"schema": 1, "default": 2, "shares": {"grc": value}}, (None, "invalid")))
+                cases.append(({"schema": 1, "default": value}, (None, "invalid")))
+            for value in (1.0, True, 2, "1", None):
+                cases.append(({"schema": value, "default": 4}, (None, "invalid")))
+            cases.append(({"default": 4}, (None, "invalid")))
+            for value in (None, [], [1], 2, "x"):
+                cases.append(({"schema": 1, "default": 4, "shares": value}, (None, "invalid")))
+            for data, expected in cases:
+                with self.subTest(data=data):
+                    self.fixture(_json.dumps(data).encode())
+                    self.assertEqual(read_slot_share(), expected)
+
+        def test_slot_share_bounds(self):
+            for value in (1, 2, 64):
+                with self.subTest(value=value):
+                    self.fixture({"schema": 1, "shares": {"grc": value}})
+                    self.assertEqual(read_slot_share(), (value, "grc"))
+
+        def test_slot_share_encoding(self):
+            raw = b'{"schema":1,"shares":{"grc":4}}'
+            for data, expected in ((b"\xef\xbb\xbf" + raw, (4, "grc")),
+                                   (b"\xef\xbb\xbf" * 2 + raw, (None, "invalid")),
+                                   (b'{"schema":1,"default":4,"x":"\xff"}', (None, "invalid")),
+                                   (b"\xff", (None, "invalid")), (b"{", (None, "invalid"))):
+                with self.subTest(data=data):
+                    self.fixture(data)
+                    self.assertEqual(read_slot_share(), expected)
+
+        def test_slot_share_non_utf8_documents(self):
+            text = '{"schema":1,"shares":{"grc":4}}'
+            # Exercise both endian forms, with and without their byte-order marks.
+            for encoding, bom in (("utf-16-le", b"\xff\xfe"),
+                                  ("utf-16-be", b"\xfe\xff"),
+                                  ("utf-32-le", b"\xff\xfe\x00\x00"),
+                                  ("utf-32-be", b"\x00\x00\xfe\xff")):
+                for prefix in (b"", bom):
+                    with self.subTest(encoding=encoding, bom=bool(prefix)):
+                        self.fixture(prefix + text.encode(encoding))
+                        self.assertEqual(read_slot_share(), (None, "invalid"),
+                                         "share documents must be UTF-8")
+            self.fixture(text.encode() + b"\x00")
+            self.assertEqual(read_slot_share(), (None, "invalid"),
+                             "a trailing NUL must invalidate the share document")
+
+        def test_slot_share_duplicates(self):
+            for data in (b'{"schema":1,"schema":1,"default":4}',
+                         b'{"schema":1,"default":4,"default":8}',
+                         b'{"schema":1,"shares":{"grc":4,"grc":4}}',
+                         b'{"schema":1,"default":8,"other":1,"other":2}',
+                         b'{"schema":1,"default":8,"shares":{"other":1,"other":2}}'):
+                with self.subTest(data=data):
+                    self.fixture(data)
+                    self.assertEqual(read_slot_share(), (None, "invalid"))
+
+        def test_slot_share_owner(self):
+            self.fixture()
+            self.assertEqual(read_slot_share(expect_uid=os.geteuid() + 1), (None, "unowned"))
+            self.assertEqual(read_slot_share(), (4, "grc"))
+
+        def test_slot_share_modes(self):
+            path = self.fixture()
+            try:
+                for mode in (0o600, 0o640, 0o644, 0o444, 0o000):
+                    for writable in (0, 0o020, 0o002, 0o022):
+                        with self.subTest(mode=oct(mode | writable)):
+                            os.chmod(path, mode | writable)
+                            if not os.access(path, os.R_OK):
+                                self.skipTest("invoking user cannot read mode %04o" %
+                                              (mode | writable))
+                            expected = (None, "badmode") if writable else (4, "grc")
+                            self.assertEqual(read_slot_share(), expected,
+                                             "readable non-writable shares must be accepted")
+            finally:
+                os.chmod(path, 0o644)
+
+        def test_slot_share_objects(self):
+            self.assertEqual(read_slot_share(), (None, "absent"))
+            path = self.fixture()
+            self.assertEqual(read_slot_share(path=path + "/child"), (None, "absent"))
+            self.assertEqual(read_slot_share(path=self.registry.name), (None, "notreg"))
+            link = os.path.join(self.registry.name, "link")
+            os.symlink(path, link)
+            self.assertEqual(read_slot_share(path=link), (None, "notreg"))
+            os.unlink(path)
+            self.assertEqual(read_slot_share(path=link), (None, "notreg"))
+
+        @unittest.skipIf(os.geteuid() == 0, "root bypasses file read permissions")
+        def test_slot_share_permissions(self):
+            path = self.fixture()
+            os.chmod(path, 0)
+            self.assertEqual(read_slot_share(), (None, "unread"))
+
+        def test_slot_share_open_error(self):
+            with mock.patch.object(os, "open", side_effect=OSError(errno.EACCES, "denied")):
+                self.assertEqual(read_slot_share(), (None, "unread"))
+
+        def test_slot_share_post_open_errors(self):
+            self.fixture()
+            for operation in ("fstat", "read"):
+                with self.subTest(operation=operation), \
+                        mock.patch.object(os, operation, side_effect=OSError("unread")), \
+                        mock.patch.object(os, "close", wraps=os.close) as close:
+                    self.assertEqual(read_slot_share(), (None, "unread"))
+                    close.assert_called_once()
+
+        def test_slot_share_partial_read_error(self):
+            self.fixture()
+            with mock.patch.object(os, "read", side_effect=[
+                    b'{"schema":1,"default":8}', OSError("after bytes")]) as read:
+                self.assertEqual(read_slot_share(), (None, "unread"))
+                self.assertEqual(read.call_count, 2)
+
+        def test_slot_share_parser_errors(self):
+            self.fixture()
+            for failure in (RecursionError, MemoryError):
+                with self.subTest(failure=failure), \
+                        mock.patch.object(json, "loads", side_effect=failure("parser")):
+                    try:
+                        result = read_slot_share()
+                    except Exception as exc:
+                        self.fail("share parser failure escaped: %s" % type(exc).__name__)
+                    self.assertEqual(result, (None, "invalid"))
+
+        def test_slot_share_close_error(self):
+            self.fixture()
+            real_close = os.close
+            def close(fd):
+                real_close(fd)
+                raise OSError("close")
+            with mock.patch.object(os, "close", side_effect=close):
+                try:
+                    result = read_slot_share()
+                except OSError as exc:
+                    self.fail("share close failure escaped: %s" % exc)
+                self.assertEqual(result, (4, "grc"))
+
+        def test_slot_share_short_reads(self):
+            self.fixture()
+            real_read = os.read
+            with mock.patch.object(os, "read", side_effect=lambda fd, size: real_read(fd, min(size, 7))):
+                self.assertEqual(read_slot_share(), (4, "grc"))
+
+        def test_slot_share_size(self):
+            raw = b'{"schema":1,"default":4}'
+            for size, expected in ((65536, (4, "default")), (65537, (None, "toobig"))):
+                with self.subTest(size=size):
+                    self.fixture(raw + b" " * (size - len(raw)))
+                    self.assertEqual(read_slot_share(), expected)
+
+        def test_slot_share_fifo(self):
+            with tempfile.TemporaryDirectory() as d:
+                hook = self._hook_copy(d)
+                fifo = os.path.join(d, "fifo")
+                os.mkfifo(fifo)
+                code = ("import runpy,sys; m=runpy.run_path(sys.argv[1]); "
+                        "print(m['read_slot_share']()); "
+                        "print(m['read_slot_share'](path=sys.argv[2])[1])")
+                try:
+                    out = subprocess.run([sys.executable, "-I", "-c", code, hook, fifo],
+                                         capture_output=True, text=True, timeout=10)
+                except subprocess.TimeoutExpired:
+                    self.fail("slot-share FIFO read exceeded its deadline")
+                self.assertEqual(out.returncode, 0, out.stderr)
+                self.assertEqual(out.stdout.splitlines(), ["(2, 'grc')", "notreg"])
+
+        def test_slot_share_call_time(self):
+            path = os.path.join(self.registry.name, "other")
+            _write_share(path, {"schema": 1, "default": 2, "shares": {"grc": 4, "other": 8}})
+            with mock.patch.dict(globals(), _SLOT_SHARES_FILE=path, _SLOT_SHARE_PROJECT="other",
+                                 _SLOT_SHARE_EXPECT_UID=os.geteuid()):
+                self.assertEqual(read_slot_share(), (8, "other"))
+                rc, reason = self.evaluate(8)
+                self.assertEqual(rc, 0)
+                self.assertIn("minimum 8, share other", reason)
+            self.assertEqual(read_slot_share(path=path, project="other"), (8, "other"))
+            with mock.patch.dict(globals(), _SLOT_SHARES_FILE=path, _SLOT_SHARE_EXPECT_UID=os.geteuid() + 1):
+                self.assertEqual(read_slot_share(), (None, "unowned"))
+
+        def test_slot_share_decisions(self):
+            cases = [
+                ({"schema": 1, "shares": {"grc": 4}}, 3, 10, 2, "at least 4"),
+                ({"schema": 1, "shares": {"grc": 4}}, 4, 10, 0, "minimum 4, share grc"),
+                ({"schema": 1, "shares": {"grc": 2}}, 3, 10, 0, "minimum 3, share grc 2 below floor"),
+                ({"schema": 1, "default": 8}, 7, 10, 2, "at least 8"),
+                ({"schema": 1, "default": 8}, 8, 10, 0, "minimum 8, share default"),
+                ({"schema": 1, "shares": {"grc": 8}}, 3, 1, 2, "at least 8"),
+                ({"schema": 1, "shares": {"grc": 8}}, 64, 10, 0, "minimum 8, share grc"),
+                ({"schema": 1, "shares": {"grc": "4"}}, 3, 10, 0, "share invalid"),
+                ({"schema": 1, "shares": {"grc": 65}}, 3, 10, 0, "share invalid"),
+            ]
+            for data, live, count, expected, fragment in cases:
+                with self.subTest(data=data, live=live, count=count):
+                    self.fixture(data)
+                    rc, reason = self.evaluate(live, count)
+                    self.assertEqual(rc, expected)
+                    self.assertIn(fragment, reason)
+            os.unlink(_SLOT_SHARES_FILE)
+            for live, expected, fragment in ((2, 2, "at least 3"), (3, 0, "minimum 3, share absent")):
+                with self.subTest(live=live):
+                    rc, reason = self.evaluate(live)
+                    self.assertEqual(rc, expected)
+                    self.assertIn(fragment, reason)
+
+        def test_slot_share_exact_floor_note(self):
+            self.fixture({"schema": 1, "shares": {"grc": 3}})
+            rc, reason = self.evaluate(3)
+            self.assertEqual(rc, 0)
+            self.assertIn("minimum 3, share grc", reason)
+            self.assertNotIn("below floor", reason)
+
+        def test_slot_share_floor(self):
+            self.fixture({"schema": 1, "shares": {"grc": 2}})
+            rc, reason = self.evaluate(2)
+            self.assertEqual(rc, 2, "share 2 at live 2 must retain the floor")
+            self.assertIn("at least 3", reason)
+
+        def test_slot_share_floor_decide_boundaries(self):
+            for value in (1, 2):
+                for live in (0, 1, 2, 3):
+                    with self.subTest(share=value, live=live):
+                        block, reason = decide(UNATT, False, [("1", "work")],
+                                               live, (value, "grc"))
+                        self.assertEqual(block, live < 3,
+                                         "direct decision must retain the floor of three")
+                        if live < 3:
+                            self.assertIn("at least 3 live owned dispatch groups", reason)
+                        else:
+                            self.assertIn("minimum 3, share grc %d below floor" % value, reason)
+
+        def test_slot_share_floor_reader_boundaries(self):
+            for value in (1, 2):
+                self.fixture({"schema": 1, "shares": {"grc": value}})
+                for live in (0, 1, 2, 3):
+                    with self.subTest(share=value, live=live):
+                        rc, reason = self.evaluate(live)
+                        self.assertEqual(rc, 2 if live < 3 else 0,
+                                         "reader-to-decision path must retain the floor of three")
+                        if live < 3:
+                            self.assertIn("at least 3 live owned dispatch groups", reason)
+                        else:
+                            self.assertIn("minimum 3, share grc %d below floor" % value, reason)
+
+        def test_slot_share_upper_decide_boundaries(self):
+            for value in (8, 64):
+                for live in (value - 1, value):
+                    with self.subTest(share=value, live=live):
+                        block, reason = decide(UNATT, False, [("1", "work")],
+                                               live, (value, "grc"))
+                        self.assertEqual(block, live < value,
+                                         "direct decision must reach the entire share")
+                        if live < value:
+                            self.assertIn("at least %d live owned dispatch groups" % value, reason)
+                        else:
+                            self.assertIn("minimum %d, share grc" % value, reason)
+
+        def test_slot_share_upper_reader_boundaries(self):
+            for value in (8, 64):
+                self.fixture({"schema": 1, "shares": {"grc": value}})
+                for live in (value - 1, value):
+                    with self.subTest(share=value, live=live):
+                        rc, reason = self.evaluate(live)
+                        self.assertEqual(rc, 2 if live < value else 0,
+                                         "reader-to-decision path must reach the entire share")
+                        if live < value:
+                            self.assertIn("at least %d live owned dispatch groups" % value, reason)
+                        else:
+                            self.assertIn("minimum %d, share grc" % value, reason)
+
+        def test_slot_share_max_mutation(self):
+            source = textwrap.dedent(inspect.getsource(decide))
+            seam = "max(value, _MIN_LIVE_GROUPS)"
+            self.assertEqual(source.count(seam), 1)
+            namespace = dict(globals())
+            exec(compile(source.replace(seam, "value"), "<share mutation>", "exec"), namespace)
+            with mock.patch.dict(globals(), decide=namespace["decide"]):
+                result = unittest.TestResult()
+                SlotShareTests("test_slot_share_floor").run(result)
+            self.assertFalse(result.errors, result.errors)
+            self.assertEqual(len(result.failures), 1, result.failures)
+            self.assertIn("share 2 at live 2 must retain the floor", result.failures[0][1])
+
+        def test_slot_share_skip_reads(self):
+            for mode, active, owner, items, live in (
+                    (ATT, False, True, [("1", "work")], 0),
+                    (UNATT, True, True, [("1", "work")], 0),
+                    (UNATT, False, False, [("1", "work")], 0),
+                    (UNATT, False, True, [], 0),
+                    (UNATT, False, True, None, 0),
+                    (UNATT, False, True, [("1", "work")], None)):
+                reader = mock.Mock(side_effect=AssertionError("unexpected share read"))
+                with self.subTest(mode=mode, active=active, owner=owner, items=items, live=live), \
+                        mock.patch.dict(globals(), is_orchestrator_session=lambda root: owner,
+                                        read_operating_mode=lambda root: mode,
+                                        actionable_items=lambda root: items,
+                                        live_dispatch_groups=lambda: live,
+                                        read_slot_share=reader, _diagnostic=mock.Mock()):
+                    self.assertEqual(run(root_real, {"stop_hook_active": active}), 0)
+                    reader.assert_not_called()
+            self.assertFalse(decide(UNATT, False, [("1", "work")], None, object())[0])
+            reader = mock.Mock(return_value=(4, "grc"))
+            with mock.patch.dict(globals(), read_slot_share=reader):
+                rc, reason = self.evaluate(0)
+            self.assertEqual(rc, 2)
+            self.assertIn("at least 4", reason)
+            reader.assert_called_once_with()
+
+        def test_slot_share_reader_exception(self):
+            with mock.patch.dict(globals(), read_slot_share=mock.Mock(side_effect=RuntimeError("reader"))):
+                try:
+                    blocked = self.evaluate(2)[0]
+                    rc, reason = self.evaluate(3)
+                except Exception as exc:
+                    self.fail("share reader failure escaped: %s" % exc)
+                self.assertEqual(blocked, 2)
+                self.assertEqual(rc, 0)
+                self.assertIn("minimum 3, share unread", reason)
+
+        def test_slot_share_live_file(self):
+            path = self.fixture()
+            real_open = os.open
+            opens = []
+            def opened(candidate, *args, **kwargs):
+                if candidate == path:
+                    opens.append((args, kwargs))
+                return real_open(candidate, *args, **kwargs)
+            diagnostic = mock.Mock()
+            with self.workers(), mock.patch.object(os, "open", side_effect=opened), \
+                    mock.patch.dict(globals(), is_orchestrator_session=lambda root: True,
+                                    read_operating_mode=lambda root: UNATT,
+                                    actionable_items=lambda root: [("1", "work")] * 10,
+                                    _diagnostic=diagnostic):
+                self.assertEqual(run(root_real, {"stop_hook_active": False}), 2)
+                self.assertIn("at least 4", diagnostic.call_args.args[0])
+                self.fixture({"schema": 1, "shares": {"grc": 3}})
+                self.assertEqual(run(root_real, {"stop_hook_active": False}), 0)
+                self.assertIn("share grc", diagnostic.call_args.args[0])
+            self.assertEqual(len(opens), 2)
+            self.assertTrue(all(args[0] & os.O_CLOEXEC for args, _kwargs in opens))
+
+        def test_slot_share_messages(self):
+            with mock.patch.dict(globals(), _grc_escape_file=lambda: "/drop/.allow-idle-stop"):
+                for share, required in (((_SLOT_SHARE_MAX, "default"), 64), ((2, "grc"), 3)):
+                    block, reason = decide(UNATT, False, [("1", "work")] * 10, 0, share)
+                    self.assertTrue(block)
+                    lines = reason.splitlines()
+                    self.assertEqual(len(lines), 5)
+                    self.assertTrue(all(len(line) <= 160 for line in lines))
+                    self.assertLessEqual(len(lines[3]), 145)
+                    self.assertEqual(lines[3], "Yield allowed with at least %d live owned dispatch groups, "
+                                     "or no actionable items (a [BLOCKED:<reason>] tag with a granted approvals row)." % required)
+                    self.assertTrue(reason.endswith("set mode attended."))
+                    for marker in ("BLOCKED (", "WHY:", "CONSIDER INSTEAD:"):
+                        self.assertEqual(reason.count(marker), 1)
+                    self.assertNotRegex(reason, "[\u2013\u2014]")
+            shares = [(None, cause) for cause in ("absent", "notreg", "unowned", "badmode",
+                                                  "toobig", "invalid", "unread")]
+            shares += [(value, token) for value in (1, 2, 3, _SLOT_SHARE_MAX)
+                       for token in ("default", _SLOT_SHARE_PROJECT, "other")]
+            for value, token in shares:
+                block, reason = decide(UNATT, False, [("1", "work")], 4096, (value, token))
+                self.assertFalse(block)
+                self.assertEqual(len(reason.splitlines()), 1)
+                self.assertLess(len(reason), 160)
+                self.assertIn("share " + token, reason)
+                if value == 1:
+                    self.assertIn("1 below floor", reason)
+
+        def test_slot_share_audit_verdict(self):
+            for successful in (False, True):
+                with self.subTest(successful=successful):
+                    result = mock.Mock()
+                    result.wasSuccessful.return_value = successful
+                    self.assertEqual(self_test_status(result, [production_share_path]), 1)
+                    self.assertEqual(self_test_status(result, []), 0 if successful else 1)
+
+        def test_slot_share_audit_control(self):
+            before = list(share_opens)
+            flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+            alias = os.path.dirname(production_share_path) + "/./" + os.path.basename(production_share_path)
+            parent_alias = os.path.dirname(production_share_path) + "/child/../slot-shares.json"
+            slash_alias = production_share_path.replace("/slot-shares.json", "//slot-shares.json")
+            class BrokenPath:
+                def __init__(self, failure):
+                    self.failure = failure
+
+                def __fspath__(self):
+                    raise self.failure("not a usable path")
+            try:
+                for path in (production_share_path, alias, parent_alias, slash_alias,
+                             os.fsencode(alias), Path(alias)):
+                    for mode, event_flags in (("r", os.O_RDONLY), (None, flags), ("anything", object())):
+                        with self.subTest(path=path, mode=mode):
+                            share_opens[:] = before
+                            sys.audit("open", path, mode, event_flags)
+                            self.assertEqual(share_opens, before + [production_share_path])
+                share_opens[:] = before
+                sys.audit("slot-share.non-open", production_share_path, None, flags)
+                self.assertEqual(share_opens, before, "non-open events must not be recorded")
+                # Native opens resolve PathLike objects first, but explicit sys.audit calls
+                # can carry one whose __fspath__ raises any exception.
+                for path in (None, 7, object(), BrokenPath(TypeError), BrokenPath(ValueError),
+                             production_share_path + ".other"):
+                    try:
+                        sys.audit("open", path, None, flags)
+                    except Exception as exc:
+                        self.fail("audit recorder must contain malformed paths: %s" %
+                                  type(exc).__name__)
+                self.assertEqual(share_opens, before)
+            finally:
+                share_opens[:] = before
+
+        def test_slot_share_audit_callsite(self):
+            # Exercise the actual return and post-suite probe, without recursively running this test.
+            suite = ("unittest.TestLoader().loadTestsFromTestCase(case)\n"
+                     "            for case in (T, GRCAdapterTests, ObservationTests, SlotShareTests)")
+            control = ('SlotShareTests("test_slot_share_audit_control")\n'
+                       "            for case in (SlotShareTests,)")
+            for optimize in (False, True):
+                for scenario, expected in (("control", 0), ("recorded", 1), ("active", 1)):
+                    with self.subTest(optimize=optimize, scenario=scenario), tempfile.TemporaryDirectory() as d:
+                        hook = self._hook_copy(d)
+                        source = Path(hook).read_text()
+                        self.assertEqual(source.count(suite), 1)
+                        source = source.replace(suite, control)
+                        if scenario == "recorded":
+                            anchor = "            finally:\n                share_opens[:] = before\n"
+                            replacement = anchor + '                sys.audit("open", production_share_path, "r", os.O_RDONLY)\n'
+                        elif scenario == "active":
+                            anchor = "        recording = False\n"
+                            replacement = "        recording = True\n"
+                        else:
+                            anchor = replacement = None
+                        if anchor is not None:
+                            self.assertEqual(source.count(anchor), 1)
+                            source = source.replace(anchor, replacement)
+                        Path(hook).write_text(source)
+                        if optimize:
+                            out = subprocess.run([sys.executable, "-I", "-O", hook, "--self-test"],
+                                                 capture_output=True, text=True, timeout=30)
+                        else:
+                            out = subprocess.run([sys.executable, "-I", hook, "--self-test"],
+                                                 capture_output=True, text=True, timeout=30)
+                        self.assertIn("Ran 1 test", out.stderr)
+                        self.assertIn("\nOK\n", out.stderr)
+                        self.assertEqual(out.returncode, expected, out.stdout + out.stderr)
+                        if scenario == "recorded":
+                            self.assertIn("self-test opened production slot-share path", out.stderr)
+                        elif scenario == "active":
+                            self.assertIn("slot-share audit recorder still active after suite", out.stderr)
+
+    try:
+        result = unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(
+            unittest.TestLoader().loadTestsFromTestCase(case)
+            for case in (T, GRCAdapterTests, ObservationTests, SlotShareTests)))
+    finally:
+        recording = False
+        for k, v in _saved_env.items():
+            if v is not None:
+                os.environ[k] = v
+    before = list(share_opens)
+    sys.audit("open", production_share_path, None, os.O_RDONLY)
+    if share_opens != before:
+        print("slot-share audit recorder still active after suite", file=sys.stderr)
+        return 1
+    if share_opens:
+        print("self-test opened production slot-share path: %r" % share_opens, file=sys.stderr)
+    return self_test_status(result, share_opens)
 
 
 if __name__ == "__main__":
