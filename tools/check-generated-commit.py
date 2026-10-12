@@ -375,6 +375,10 @@ def _integration_self_test():
                              encoding="utf-8")
 
         must(["git", "init", "-q", "-b", "feature"])
+        # The final corruption probe deletes a loose tree object; automatic packing
+        # would remove that file before the probe can delete it.
+        must(["git", "config", "gc.auto", "0"])
+        must(["git", "config", "gc.autoDetach", "false"])
         must(["git", "config", "commit.gpgsign", "false"])
         expect(run(["sh", "tools/install-git-hooks.sh"]).returncode == 0, "the installer failed")
         # An initial commit on an unborn HEAD is judged against nothing: stale outputs refuse, fresh pass.
@@ -568,13 +572,14 @@ def _integration_self_test():
         write_doc("1.0.9")
         must(["git", "add", str(doc)])
         loose = repo / ".git" / "objects" / tree[:2] / tree[2:]
+        expect(loose.is_file(),
+               f"fixture: HEAD's root tree {tree} is not a loose object; "
+               "automatic gc/repacking may have packed it before the deletion test")
         if loose.is_file():
             loose.unlink()
             cp = run(["git", "commit", "-q", "-m", "unreadable"])
             expect(refused(cp, "could not be read or copied") and "CalledProcessError" in cp.stderr,
                    f"a git error reading the staged state did not refuse through the hook: {cp.stderr.strip()}")
-        else:
-            expect(False, f"fixture: HEAD's root tree {tree} is not a loose object")
     return failures, len(checks)
 
 
