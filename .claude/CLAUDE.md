@@ -79,7 +79,7 @@ User-level `~/.claude/CLAUDE.md` governs general behaviour: verification before 
 
 ## Re-read the standing reminders after every resume, and ESPECIALLY after compaction (maintainer-directed 2026-07-27)
 
-1. After EVERY `/orch` and compaction, before acting, RE-READ `grc_library_private/INDEX.md` READ-THIS-FIRST and `grc_library_private/.working/session-handoff.md` Resume-cursor. A continuation summary DETECTS compaction: increment `grc_library_private/degradation-watch-log.md`'s tally AND re-read. The two-compaction FLOOR in `## No manufactured wind-down` supersedes A12's pacing gate: minimum effort, not pacing. The maintainer can direct a missed entry without override wiring (2026-08-01). Adopters re-read their own reminders.
+1. After EVERY `/orch` and compaction, before acting, RE-READ `grc_library_private/INDEX.md` READ-THIS-FIRST and `/opt/grc/private/session-handoff.md` Resume-cursor. A continuation summary DETECTS compaction: increment `/opt/grc/private/degradation-watch-log.md`'s tally AND re-read. The two-compaction FLOOR in `## No manufactured wind-down` supersedes A12's pacing gate: minimum effort, not pacing. The maintainer can direct a missed entry without override wiring (2026-08-01). Adopters re-read their own reminders.
 2. Persist every maintainer directive the moment it is given, BEFORE acting on it: (a) check durable registration in READ-FIRST, Resume-cursor, decisions or TODO; (b) assess survival across sessions/compaction; (c) if needed, log in the IMPORTANT place: READ-FIRST for standing behaviour, `P-TODO.md` `## Up next` for sequencing, `TODO.md` for numbered work, decision log for design.
 
 ## Activity playbooks
@@ -130,12 +130,12 @@ one must be added to all (the gate-parity audit enforces this).
 - `tools/lint_common.py` holds discovery, exemptions and helpers.
 - New audit: `tools/lint-*.py`, workflow/runner/pre-commit/audit-programme-spec wiring, regression fixture.
 - `DEFAULT_EXEMPT_DIRS`: `.git`, `node_modules`, `__pycache__`, `.claude`, `.working`, `references`. Also consult per-linter prefixes (`guardrails/`, `tools/`, `docs/`); common set is not exhaustive.
-- `grc_library_private/P-TODO.md` holds non-adopter tooling, orchestration, QA and `_ref` work; distinct filename prevents confusion with [TODO.md](../TODO.md). Split rationale: `grc_library_private/.working/todo-split-blocked-guardrail-design.md`.
-- Private audit-exempt per-run store: `grc_library_private/.working/` (`/validate`, `/fitness`, other maintainer activities). Read its `README.md` for archive/adopter/subdirectory conventions.
+- `grc_library_private/P-TODO.md` holds non-adopter tooling, orchestration, QA and `_ref` work; distinct filename prevents confusion with [TODO.md](../TODO.md). Split rationale: `/opt/grc/private/todo-split-blocked-guardrail-design.md`.
+- Private audit-exempt per-run store: `/opt/grc/private/` (`/validate`, `/fitness`, other maintainer activities). Read its `README.md` for archive/adopter/subdirectory conventions.
 
 ## Operational state lives in `grc_library_private` (the one delegation directive)
 
-**There is ONE place to start: read `grc_library_private/INDEX.md` and follow it.** Operational/design state lives there, never publicly. Use plain concern names (decisions, credit-offload metrics, orchestration runbook, hallucination/session metrics, high-assurance register, considerations, staged changes and drafts); INDEX resolves files.
+**There is ONE place to start: read `grc_library_private/INDEX.md` and follow it.** Operational/design state lives there, never publicly. Use plain concern names (decisions, credit-offload metrics, orchestration runbook, hallucination/session metrics, high-assurance register, considerations, staged changes and drafts); INDEX resolves files. Maintainer store `/opt/grc/private/`; adopters use their store. `grc_library_private/.working/<f>`: see `tools/lint_common.py` path resolvers, including private writes.
 `maintainer` / `maintainer-fresh-machine` REQUIRE `_private` (1.19.8/1.19.11, #1029): read/use INDEX if present; otherwise HALT operational work, never reconstruct from memory. Clone private remote to `../grc_library_private` or grant `--add-dir ../grc_library_private`, then continue. Fix setup; no workaround.
 Enforcement and semantics: `detect-env`, [`block-operational-without-private.py`](hooks/block-operational-without-private.py), `tools/pre-push-guard.sh`.
 Adopters: OFFERED, never blocked unless origin matches maintainer repo path: use `../grc_library_private`, let `/adopt` create `.private`, or create a store from these concerns. `_private` is unnecessary for corpus use/public gates.
@@ -183,7 +183,7 @@ Every gate/rule/skill/count change requires the FULL [PR-lifecycle impact map](.
 ## Session migration and PR close-out checklist
 
 At EVERY PR close-out execute the full [checklist](../.claude/playbooks/pr-lifecycle.md) (`## Session migration and PR close-out checklist`; `pr-close-out` trigger), including gated bookkeeping AND un-gated grep reminders; never skip/abbreviate.
-`grc_library_private/.working/session-handoff.md` is the single resume point: refresh in the same PR at every close-out; resume with `/orch`.
+`/opt/grc/private/session-handoff.md` is the single resume point: refresh in the same PR at every close-out; resume with `/orch`.
 **A session must NOT close with a large unvalidated PR**: finish with a green closing merge to `main`. Every merged PR carries a RETURNED `/validate-pr` (gate 50 Check 1); undelivered runs BLOCK and are re-issued, first delivery authoritative. Keep the last substantive PR SMALL.
 
 ## Multi-session orchestration
@@ -213,7 +213,7 @@ Default: attended-autonomous, maintainer reachable/glanceable every 15-20 minute
 
 1. **Green CI = merge authority.** Green `Lint markdown corpus`: merge/continue without asking, maintainer redirects by exception. Never abbreviate overnight-identical `/validate-pr`, `/retro`, CHANGELOG/handoff logging. ASK conflicts because maintainer reachable.
 2. **Stricter-is-safer, every mode.** Conflicting numbers/mappings/regime status: use clearly safer conservative or governing external-standard/canonical-internal value; document choice/evidence.
-3. **Graceful degradation.** Surface maintainer-owned decision/options; arm 5 minutes, act on answer. Timeout: LOG in `grc_library_private/.working/pending-decisions.md` either reversible/on-branch lease `Operating-mode` swap attended-autonomous to daytime-unattended, PENDING, CONTINUE (`block-askuserquestion-unattended.py`; narrow #5(b) attended-to-unattended exception to §2 operator-only transitions), or authorial/irreversible/outward-facing defer-and-skip, "deferred-blocked: needs maintainer", hold dependencies, advance independent work. Timeout NEVER authorizes destructive/outward action.
+3. **Graceful degradation.** Surface maintainer-owned decision/options; arm 5 minutes, act on answer. Timeout: LOG in `/opt/grc/private/pending-decisions.md` either reversible/on-branch lease `Operating-mode` swap attended-autonomous to daytime-unattended, PENDING, CONTINUE (`block-askuserquestion-unattended.py`; narrow #5(b) attended-to-unattended exception to §2 operator-only transitions), or authorial/irreversible/outward-facing defer-and-skip, "deferred-blocked: needs maintainer", hold dependencies, advance independent work. Timeout NEVER authorizes destructive/outward action.
 4. **No idle-stop unattended.** Never ask which authorized item next or hold for substantial/fiddly/higher-risk-this-deep/context-heavy/shaped work, exhausted low-risk queue or un-instrumented state. Advance highest-priority authorized independent work with appropriate skeptical verifier, substantial/fresh-context work PR-by-PR, never deferred to the maintainer in unattended mode. Stop only for named degradation or authorial decisions unanswered by standing directives; use graceful degradation, never blocking idle. Pre-escape catches mean verification WORKING, not degradation.
 5. **Unattended: proper wind-down on named degradation (2026-07-19).** Quotable repeated errors/self-inconsistency/QA-missed defect: full green closing merge to `main`; refresh `session-handoff.md` Next-actions/State-snapshot/Asserted-expectations/green-at-`<sha>`, lease RELEASE. No `AskUserQuestion` unattended: reversible handoff is attended surfaced decision's counterpart. Bare pause/unmerged branch/half-recorded state is failure. Apply `## No manufactured wind-down`.
 
@@ -306,12 +306,12 @@ Read [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-wo
 - Worker positives re-verified at source; clean zero findings trusted on proof-of-run.
 - History row, even zero findings.
 - Deferred fixes documented, never silently left.
-Activities: `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, `/deep-assessment`. Route to `grc_library_private/.working/pending-decisions.md`, risk items flagged for morning review. Apply pack reactive/proactive sign-off distinction: `/trust-recovery` adds maintainer sign-off; `/deep-assessment` does NOT (2026-07-27), outcome surfaced without separate sign-off. Known QA issues outrank build/tooling/content: finish current task, then fix.
+Activities: `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/reference-audit`, `/screen-publications`, `verify`, `/fitness`, `/full-qa`, `/deep-assessment`. Route to `/opt/grc/private/pending-decisions.md`, risk items flagged for morning review. Apply pack reactive/proactive sign-off distinction: `/trust-recovery` adds maintainer sign-off; `/deep-assessment` does NOT (2026-07-27), outcome surfaced without separate sign-off. Known QA issues outrank build/tooling/content: finish current task, then fix.
 
 ## Throughput pressure does not authorize QA abbreviation
 
 Long batches, tight windows or next-PR pressure NEVER license abbreviated/spot/memory/self-check/quick-scan substitutes for formal `/validate-pr` (step 4), `/retro` (step 5) or corpus-wide `/validate` when due. Read [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-workflow-disciplines.md) and [`clarify-before-acting`](references/governance/clarify-before-acting.md); surface pressure in one sentence, never act on it unilaterally.
-Only shapes: (a) full formal `/validate-pr` dispatch, Subagent A on diff plus touched-file cross-reference check, recorded in `grc_library_private/.working/validate-pr/` and history; (b) explicit maintainer-authorized exception with rationale in history Summary. "Abbreviated /validate-pr, 0 findings" is failure. Per-PR QA cadence IS the pace.
+Only shapes: (a) full formal `/validate-pr` dispatch, Subagent A on diff plus touched-file cross-reference check, recorded in `/opt/grc/private/validate-pr/` and history; (b) explicit maintainer-authorized exception with rationale in history Summary. "Abbreviated /validate-pr, 0 findings" is failure. Per-PR QA cadence IS the pace.
 
 ## Triple-family QA is the permanent standard for every QA pass (maintainer-directed 2026-08-17; supersedes the 2026-07-29 dual-family standard)
 
@@ -385,7 +385,7 @@ Read [`express-authorization-before-execution`](references/governance/express-au
 Apply set-completeness/asymmetric skepticism (2026-07-23): any blocked/exhausted/held characterization in chat, Up next or handoff MUST be [`audit-backlog-actionability.py`](../tools/audit-backlog-actionability.py)'s full output, EVERY open item ACTIONABLE or dispositioned with closed-set blocker. No partial hand-summary. Without exhaustion evidence, continue highest-priority open work.
 Persistent blocked enumerations go ONLY in `_private`; public tree holds on-demand tool. [`block-unjustified-decision.py`](hooks/block-unjustified-decision.py) requires fresh full-audit token matching live TODO count for set-completeness hold claims.
 Audience split (2026-07-31): public [TODO.md](../TODO.md) for adopter corpus/experience/OSCAL; private `grc_library_private/P-TODO.md` for everything else. Pack/AIQT umbrella moved private 2026-08-08; adopter roadmap lives in AIQT. Exactly one `[public]`/`[private]` tag; new private ids `P-n.m`, migrated retain `N.M`; permanence spans UNION (tool and gate 78). NEVER omit capture: uncertainty means file PRIVATE now, ask separately. Only clearly public, not-blocked corpus work goes public.
-`[BLOCKED:<reason>]` is maintainer-GRANTED, never self-written. Record id/reason in `grc_library_private/.working/pending-decisions.md` and ASK. PROPOSED stays ACTIONABLE. Audit counts blocked only with granted `blocked-approvals.md` row; UNAPPROVED counts actionable. Adopters without store count tags as written. "Everything blocked" needs EVERY item on BOTH lists approved. Design: private `todo-split-blocked-guardrail-design.md`; self-tag rejection hook queued (P-1.1 separate coupling work).
+`[BLOCKED:<reason>]` is maintainer-GRANTED, never self-written. Record id/reason in `/opt/grc/private/pending-decisions.md` and ASK. PROPOSED stays ACTIONABLE. Audit counts blocked only with granted `blocked-approvals.md` row; UNAPPROVED counts actionable. Adopters without store count tags as written. "Everything blocked" needs EVERY item on BOTH lists approved. Design: private `todo-split-blocked-guardrail-design.md`; self-tag rejection hook queued (P-1.1 separate coupling work).
 
 Numbers are PERMANENT, never reassigned after closure/deletion (gate 78 since #1173; codified 2026-07-25). Allocate next UNUSED, never lowest free; gaps record closed items. Reuse silently mis-resolves external citations. Corpus/tool prose OUTSIDE TODO cites CLOSING PR, never TODO section. Backstop `tools/lint-todo-number-permanence.py`; full proof/discipline: `change-tracking` `### Backlog item numbers are permanent and are never reused`.
 
@@ -398,7 +398,7 @@ Maintainer-directed 2026-07-24; read [`ai-assistant-workflow-disciplines`](refer
 
 Project-only chat mechanics (2026-07-24; 1.22.8, #1133):
 - After key answer/decision/status/question, PAUSE for acknowledgement; hold on screen in `AskUserQuestion` UI or `IMPORTANT:` chunk within about 30 lines.
-- Arm about 5 minutes. Act on answer; no response means continue independent work AND log unanswered question in `grc_library_private/.working/pending-decisions.md`.
+- Arm about 5 minutes. Act on answer; no response means continue independent work AND log unanswered question in `/opt/grc/private/pending-decisions.md`.
 - On maintainer's NEXT message promptly present logged unanswered questions BEFORE proceeding.
 
 ## Defence in depth is the default (maintainer-directed 2026-07-25)

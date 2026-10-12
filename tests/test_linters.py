@@ -38907,6 +38907,29 @@ class AIQTCutoverTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertIn('`/opt/grc/private/' + name + '`', text)
 
+    def test_claude_md_cites_live_store_paths(self):
+        # P-TODO 3b299: the always-loaded .claude/CLAUDE.md names the operational records at the
+        # operational store, not the retired grc_library_private/.working/ tree or a private-repository
+        # spelling. The one permitted mention is the complete backtick-delimited token
+        # `grc_library_private/.working/<f>` in the clause that points the old spelling still used in
+        # playbooks and commands to the tools/lint_common.py path resolvers. Each citation is counted,
+        # so removing one of several fails. Reads the repository working-tree file only, never the
+        # host's store.
+        text = (REPO_ROOT / '.claude' / 'CLAUDE.md').read_text(encoding='utf-8')
+        clause = ('INDEX resolves files. Maintainer store `/opt/grc/private/`; adopters use'
+                  ' their store. `grc_library_private/.working/<f>`: see `tools/lint_common.py`'
+                  ' path resolvers, including private writes.\n')
+        self.assertEqual(text.count(clause), 1)
+        self.assertEqual(re.findall(r'`?[^`\s]*grc_library_private/\.working[^`\s]*`?', text),
+                         ['`grc_library_private/.working/<f>`'])
+        self.assertEqual(text.count('Private audit-exempt per-run store: `/opt/grc/private/` ('), 1)
+        counts = {'session-handoff.md': 2, 'pending-decisions.md': 4, 'degradation-watch-log.md': 1,
+                  'todo-split-blocked-guardrail-design.md': 1, 'validate-pr/': 1}
+        for name, count in counts.items():
+            with self.subTest(name=name):
+                self.assertEqual(text.count('`/opt/grc/private/' + name + '`'), count)
+                self.assertEqual(text.count('grc_library_private/' + name), 0)
+
     def test_pinned_input_and_local_mutations_fail(self):
         import json
         data = json.loads((self.root / self.aiqt.MANIFEST).read_text())
