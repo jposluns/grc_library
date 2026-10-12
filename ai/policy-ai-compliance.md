@@ -2,11 +2,11 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.35\
-**Date:** 2026-09-29\
+**Version:** 1.0.36\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md)\
+**Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)\
 **Classification:** Public\
 **Category:** AI Governance\
 **Review Frequency:** 6 to 12 months and upon material AI governance or regulatory change\
@@ -308,7 +308,7 @@ An AI incident is any unintended behaviour of an AI system, or an event resultin
 
 ### 10.2 Internal reporting
 
-All AI incidents must be reported internally within 24 hours of detection to the CISO and the relevant AI System Owner. The CISO assesses the incident and determines whether external reporting obligations are triggered.
+The person who detects an AI incident, or first receives notice of it, must report it internally to the CISO and the relevant AI System Owner without delay and in any case within 24 hours of detecting it or receiving notice of it. Where a serious incident under EU AI Act Art. 3(49), as defined in Section 10.1, is suspected, that person must report it to the CISO, the relevant AI System Owner and Legal Counsel immediately. Where an AI incident is or may be a security incident, including a security compromise of an AI system (Section 10.1), that person must also report it to the SOC or security operations team immediately. The SOC escalates it on the timelines in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) Section 3.1, which apply alongside the 24-hour report; for a P1, the SOC notifies the Incident Commander, CISO and CIO immediately. Where a personal data breach is or may be involved, the person who detects the incident or first receives notice of it must also notify the Data Protection Officer immediately (Section 10.4). The CISO assesses the incident and, in consultation with Legal Counsel and, where personal data is involved, the Data Protection Officer, determines whether external reporting obligations are triggered; for a personal data breach, the Data Protection Officer's determination under Section 10.4 governs the GDPR notifications.
 
 ### 10.3 External reporting: EU AI act
 
@@ -381,6 +381,8 @@ Material non-compliance must be reported to the AIGC by the relevant business un
 - [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)
 - [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)
 - [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)
+- [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)
+- [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)
 
 ---
 
