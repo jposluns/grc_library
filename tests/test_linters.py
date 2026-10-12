@@ -6015,6 +6015,11 @@ class TodoRotationOnPrDeltaTests(DeltaGateRepoTestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+from tests import test_session_facts
+
+SessionFactsTests = test_session_facts.SessionFactsTests
+
+
 class VerificationGuardrailSelfTests(unittest.TestCase):
 
 
@@ -30042,8 +30047,8 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn('hook-helper-isolation', r.stderr)
             self.assertIn('symlink', r.stderr)
-    HELPER_NAMES = ('_hook_state', '_hookutil', '_session_clock', 'lint_common', 'todo_index_rows')
-    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_session_clock|lint_common|todo_index_rows)')
+    HELPER_NAMES = ('_hook_state', '_hookutil', '_session_clock', 'lint_common', 'todo_index_rows', 'session_facts')
+    HELPER_IMPORT_RE = re.compile('(?:from|import)\\s+(?:_hook_state|_hookutil|_session_clock|lint_common|todo_index_rows|session_facts)')
 
     def _helper_import_offences(self, paths):
         import ast
@@ -30070,7 +30075,7 @@ class HookSiblingImportIsolationTests(unittest.TestCase):
 
     def test_tools_helpers_import_no_repository_helpers_by_name(self):
         tools = REPO_ROOT / 'tools'
-        offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py'])
+        offenders = self._helper_import_offences([tools / 'lint_common.py', tools / 'todo_index_rows.py', tools / 'session_facts.py'])
         self.assertEqual(offenders, [])
 
 
@@ -30108,7 +30113,7 @@ class HookDescendantIsolationTests(unittest.TestCase):
         from collections import Counter
         paths = set((REPO_ROOT / '.claude/hooks').glob('*.py'))
         paths.add(REPO_ROOT / '.claude/hooks/nmw-actionable')
-        paths.update((REPO_ROOT / 'tools' / name for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py')))
+        paths.update((REPO_ROOT / 'tools' / name for name in ('audit-backlog-actionability.py', 'lint_common.py', 'todo_index_rows.py', 'session_facts.py')))
 
         def commands(node):
             if isinstance(node, dict):

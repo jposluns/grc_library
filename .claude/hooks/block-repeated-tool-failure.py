@@ -176,9 +176,9 @@ def decide(subject: str):
             "differs byte-for-byte from the blocked one. Do NOT attribute this to session "
             "length or degradation as a first move; DIAGNOSE THE MECHANISM. If you are about "
             "to cite session length or heaviness, first append a `considered` row to "
-            "the operational store's `degradation-watch-log.md` (resolved via lint_common.resolve_working) and read plus assess it (session "
-            "duration, whether a compaction happened, prior real indicators) before asserting "
-            "degradation."
+            "the operational store's `degradation-watch-log.md` (resolved via lint_common.resolve_working). "
+            "Assess session duration from the `session-state.md` lease through `tools/session_facts.py`, "
+            "and assess compaction evidence and prior indicators from that log before asserting degradation."
         )
 
     return True, "\n".join(lines)
@@ -277,6 +277,9 @@ def _self_test() -> int:
             block, reason = decide(cmd)
             self.assertTrue(block)
             self.assertIn("CIRCUIT-BREAKER", reason)
+            self.assertIn("session duration from the `session-state.md` lease through "
+                          "`tools/session_facts.py`", reason)
+            self.assertIn("compaction evidence and prior indicators from that log", reason)
 
         def test_single_prior_block_no_circuit_breaker(self):
             cmd = "python3 tools/credit-offload-queue.py list-workers"

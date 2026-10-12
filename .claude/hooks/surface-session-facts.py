@@ -11,19 +11,25 @@ externally-observable numbers the maintainer actually tracks.
 
 NON-BLOCKING: emits the facts via the hook `systemMessage` field (shown to the maintainer),
 never blocks turn-end. FAIL OPEN on any error, a personal instrument must never trap the run.
-MAINTAINER-ORCHESTRATOR-ONLY: reads degradation-watch-log.md from the operational store (via lint_common.resolve_working); if that is
-absent (adopter, or the operational store not present) it is a silent no-op.
+MAINTAINER-ORCHESTRATOR-ONLY: reads the operational lease and optional compaction log.
+Unknown starts are labelled UNKNOWN; reader errors fail open. Containment refusals still exit 2.
 
-Fact sources (the maintainer's own metric log):
-  * session length  = now minus the newest `session-start` ISO timestamp.
-  * compaction count = canonical `| <iso> | compaction |` rows with ts >= session-start.
+Fact sources (shared with tools/handoff-snapshot.py through tools/session_facts.py):
+  * session length = now minus lease start, or heartbeat minus start when stale.
+  * only Active-session's labelled orch-<UTC start> convention supplies a start.
+  * compaction count = canonical stamped rows from start through now (heartbeat when stale).
+  * ambiguous fields or absent/invalid start evidence = start and metrics UNKNOWN.
+  * missing, invalid, before-start or future heartbeat = both metrics UNKNOWN.
+  * invalid compaction rows = count UNKNOWN, including when the interval is unknown.
+  * absent log = "compactions: no log"; unreadable log fails open.
+  * heartbeat older than 24h = explicit stale warning, not a freshness claim.
 """
 import sys, os, re, json
 from pathlib import Path
 from datetime import datetime, timezone
 
 # The settings.json launcher runs `python3 -I` (SECI-config-is-executable-trust-gate):
-# the helpers (_hookutil, lint_common) are loaded at their call sites via _load_sibling,
+# the helpers (_hookutil, lint_common, session_facts) are loaded at their call sites via _load_sibling,
 # ONLY from reviewed source bytes; no directory ever enters sys.path and no import
 # statement names them. MISSING-HELPER BEHAVIOUR: worker detection falls back to False
 # and the facts surface exits silently (rc 0).
@@ -53,8 +59,8 @@ def _load_sibling(name, _cache={}):
     is always a direct execution (__name__ == "__main__"), and neither the environment
     nor any file in the tree can change that, so a production load NEVER consults a
     pre-existing sys.modules entry: it always re-executes the reviewed source and
-    overwrites the entry (dependencies included: todo_index_rows reads lint_common from
-    the entry this loader has just written).
+    overwrites the entry. todo_index_rows uses that lint_common entry;
+    session_facts independently executes the reviewed lint_common source bytes.
     """
     import os.path
     import sys
@@ -93,7 +99,8 @@ def _load_sibling(name, _cache={}):
     if os.path.realpath(helper_path) != os.path.join(real_root, *parts, name + ".py"):
         _refuse("helper " + helper_path + " does not resolve to its expected place "
                 "under the real repository root " + real_root)
-    for dep in {"todo_index_rows": ("lint_common",)}.get(name, ()):
+    for dep in {"todo_index_rows": ("lint_common",),
+                "session_facts": ("lint_common",)}.get(name, ()):
         _load_sibling(dep)
     with open(helper_path, "rb") as fh:
         source = fh.read()
@@ -107,7 +114,8 @@ def _load_sibling(name, _cache={}):
 
 ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"  # seconds OPTIONAL: the degradation log's dominant form is minute-only (handoff-snapshot.py:211)
 
-# --- session-start matcher (KEEP IN LOCKSTEP with tools/handoff-snapshot.py) ---
+# Legacy log-parser fixtures only; never a live session-start source.
+# KEEP IN LOCKSTEP: both consumers use tools/session_facts.py for live metrics.
 # A row is a session-start entry when the TYPE TOKEN `session-start` heads the row (after
 # optional bullet/heading/table markers and an optional leading ISO), NOT when the substring
 # appears inside another row's prose note (a compaction/considered DECOY). Two cases:
@@ -218,36 +226,17 @@ def main():
         _fail_open()
     repo = Path(os.environ.get("CLAUDE_PROJECT_DIR") or str(Path(__file__).resolve().parents[2])).resolve()
     try:
-        resolve_working = _load_sibling("lint_common").resolve_working
-        log_path = resolve_working("degradation-watch-log.md", repo_root=repo)
+        sm = _load_sibling("session_facts").session_metrics(repo)
     except Exception:
         _fail_open()
-    if log_path is None or not log_path.exists():
-        _fail_open()
-    try:
-        content = log_path.read_text(encoding="utf-8")
-    except Exception:
-        _fail_open()
-    # TYPE-token-keyed session-start detection (see _session_start_stamps): recalls all
-    # live layout variants (table both directions, bullet both directions, bold-iso, colon,
-    # ### heading, bare) and excludes decoy prose (a compaction/considered row's note).
-    starts = _session_start_stamps(content)
-    if not starts:
-        _fail_open()
-    start_ts = max(starts, key=_parse)
-    start_dt = _parse(start_ts)
-    now = datetime.now(timezone.utc)
-    secs = (now - start_dt).total_seconds()
-    h, mm = int(secs // 3600), int((secs % 3600) // 60)
-    comp = 0
-    for ln in content.splitlines():
-        m = re.match(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|", ln)
-        if m and _parse(m.group(1)) >= start_dt:
-            comp += 1
+    comp = ("compactions: no log" if sm["compaction_rows"] is None else
+            f"compactions this session: {sm['compaction_rows']}")
     facts = (
-        f"SESSION FACTS (not inference): length {h}h{mm:02d}m "
-        f"(session-start {start_ts} UTC); compactions this session: {comp}. "
-        f"Hold any session-depth / length / degradation claim against these numbers."
+        f"SESSION FACTS (not inference): length {sm['elapsed']} "
+        f"(session-start {sm['start']} UTC); {comp}. "
+        f"Source: {sm['start_source']}. "
+        + (sm["lease_warning"] + ". " if sm["lease_warning"] else "")
+        + "Hold any session-depth / length / degradation claim against these numbers."
     )
     print(json.dumps({"systemMessage": facts}))
     sys.exit(0)
