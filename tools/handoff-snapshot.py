@@ -17,16 +17,20 @@ Sources of truth (each the canonical one, so the emitted number cannot drift fro
   - HEAD                             : git rev-parse --short HEAD (green-at requires
                                        the pre-push guard to confirm; this tool only
                                        reports the sha, it does not run the guard).
-  - Session metrics (optional)       : the operational store's
-                                       degradation-watch-log.md, if present (adopter
-                                       clones have none; the section is then omitted).
+  - Session start (lease)            : session-state.md in the resolved working store;
+                                       only the labelled Active-session orch-<UTC start>
+                                       convention supplies a start; otherwise UNKNOWN.
+  - Compaction count (optional)      : degradation-watch-log.md in that store.
+                                       Log timestamps never select the session start.
 
 Usage:
   python3 tools/handoff-snapshot.py            # print the snapshot block
   python3 tools/handoff-snapshot.py --self-test # parser self-test against a fixture
 
-Exit codes: 0 on success (and on a passing self-test); 1 only on a self-test failure.
-The reporting path always exits 0, so this tool is advisory and never blocks a run.
+Exit codes: the reporting path exits 0; self-test failure exits 1.
+Unknown start evidence prints UNKNOWN. Reader errors (including released or future
+starts, unreadable inputs and changing leases) print an UNKNOWN Session line with
+the error text, preserving the other snapshot lines.
 """
 import argparse
 import os
@@ -38,7 +42,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import resolve_working, resolve_working_for_write  # noqa: E402
+from lint_common import resolve_working_for_write  # noqa: E402
+from session_facts import SessionStartError, session_metrics  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]  # tools/ -> repo root
 
@@ -105,7 +110,8 @@ def _parse_ts(ts):
     return None
 
 
-# --- session-start matcher (KEEP IN LOCKSTEP with .claude/hooks/surface-session-facts.py) ---
+# Legacy log-parser fixtures only; never a live session-start source.
+# KEEP IN LOCKSTEP: both consumers use tools/session_facts.py for live metrics.
 # A row is a session-start entry when the TYPE TOKEN `session-start` heads the row (after
 # optional bullet/heading/table markers and an optional leading ISO), NOT when the substring
 # appears inside another row's prose note (a compaction/considered DECOY). Two cases:
@@ -138,31 +144,6 @@ def _session_start_stamps(text: str) -> list:
     return out
 
 
-def session_metrics(root: Path, now: datetime | None = None):
-    """Best-effort: latest session-start timestamp + elapsed, from the operational store's log.
-
-    Returns None if the log is absent (the adopter case). Returns a dict
-    with `start` None if the log holds no parseable session-start timestamp.
-    """
-    log = resolve_working("degradation-watch-log.md", repo_root=root)
-    if log is None or not log.is_file():
-        return None
-    text = _read(log)
-    starts = _session_start_stamps(text)
-    _EPOCH0 = datetime.min.replace(tzinfo=timezone.utc)
-    start = max(starts, key=lambda t: _parse_ts(t) or _EPOCH0) if starts else None
-    elapsed = None
-    if start:
-        now = now or datetime.now(timezone.utc)
-        dt = _parse_ts(start)
-        if dt is not None:
-            secs = int((now - dt).total_seconds())
-            if secs >= 0:
-                elapsed = f"{secs // 3600}h{(secs % 3600) // 60}m"
-    compactions = len(re.findall(r"\|\s*compaction\s*\|", text))
-    return {"start": start, "elapsed": elapsed, "compaction_rows": compactions}
-
-
 def snapshot(root: Path) -> str:
     lib = library_version(root)
     rme = readme_version(root)
@@ -175,15 +156,16 @@ def snapshot(root: Path) -> str:
         f"- **Pack rules:** {rule_count(root)} / **skills:** {skill_count(root)} / **commands:** {command_count(root)}",
         f"- **HEAD:** `{head_sha(root) or 'UNKNOWN'}` (run the pre-push guard to confirm green-at this sha)",
     ]
-    sm = session_metrics(root)
-    if sm is not None:
-        start = sm["start"] or "UNKNOWN"
-        elapsed = sm["elapsed"] or "?"
-        lines.append(
-            f"- **Session:** start {start}, elapsed {elapsed}, "
-            f"{sm['compaction_rows']} stamped compaction row(s) in the working log "
-            "(count the rows at/after this session-start for the per-session figure)"
-        )
+    try:
+        sm = session_metrics(root)
+    except SessionStartError as exc:
+        lines.append(f"- **Session:** UNKNOWN ({exc})")
+        return "\n".join(lines) + "\n"
+    comp = ("compactions: no log" if sm["compaction_rows"] is None else
+            f"compactions this session: {sm['compaction_rows']}")
+    lines.append(f"- **Session:** start {sm['start']}, elapsed {sm['elapsed']}, {comp}; source: {sm['start_source']}")
+    if sm["lease_warning"]:
+        lines.append(f"- **Lease warning:** {sm['lease_warning']}")
     return "\n".join(lines) + "\n"
 
 
@@ -233,11 +215,21 @@ def _self_test() -> int:
             if got != want:
                 failures.append(f"  {name}: got {got!r}, want {want!r}")
 
-        # session_metrics: absent log -> None
-        if session_metrics(root) is not None:
-            failures.append("  session_metrics: expected None when the log is absent")
+        # A missing lease is UNKNOWN; no optional log exists in this fixture.
+        if session_metrics(root)["start"] != "UNKNOWN":
+            failures.append("  session_metrics: missing lease must be UNKNOWN")
+        lease = resolve_working_for_write("session-state.md", repo_root=root)
+        lease.parent.mkdir(parents=True, exist_ok=True)
+        lease.write_text("**Active-session:** orch-2026-07-29T15:30:45Z\n"
+                         "**Status:** active\n"
+                         "**Operating-mode:** attended-autonomous\n"
+                         "**Last-heartbeat-UTC:** 2026-07-29T15:30:45Z\n"
+                         "**Current-task:** self-test\n"
+                         "**Worker-dispatches:** none\n", encoding="utf-8")
+        if session_metrics(root)["start"] != "2026-07-29T15:30:45Z":
+            failures.append("  session_metrics: lease must work without a log")
 
-        # session_metrics: present log -> parse latest start + fixed-clock elapsed
+        # session_metrics: lease start + fixed-clock elapsed; log compactions only
         dw = resolve_working_for_write("degradation-watch-log.md", repo_root=root)
         dw.parent.mkdir(parents=True, exist_ok=True)
         dw.write_text(
@@ -253,10 +245,10 @@ def _self_test() -> int:
         now = datetime(2026, 7, 29, 18, 0, 0, tzinfo=timezone.utc)
         sm = session_metrics(root, now=now)
         if not sm or sm["start"] != "2026-07-29T15:30:45Z":
-            failures.append(f"  session_metrics.start (minutes-only latest): got {sm}")
+            failures.append(f"  session_metrics.start (authoritative lease): got {sm}")
         elif sm["elapsed"] != "2h29m":
             failures.append(f"  session_metrics.elapsed (same-minute mixed): got {sm['elapsed']!r}, want '2h29m'")
-        elif sm["compaction_rows"] != 2:
+        elif sm["compaction_rows"] != 1:
             failures.append(f"  session_metrics.compaction_rows: got {sm['compaction_rows']}")
         # matcher recall + decoy exclusion (guard-input reality fixture): every layout recalled,
         # the newer compaction-note decoy and the session-start-<suffix> row both excluded.
@@ -293,7 +285,7 @@ def _self_test() -> int:
         print("handoff-snapshot self-test: FAILED")
         print("\n".join(failures))
         return 1
-    print("handoff-snapshot self-test: OK, 6 parsers + session-metrics (absent + present) verified.")
+    print("handoff-snapshot self-test: OK, 6 parsers + session-metrics (lease facts + optional log) verified.")
     return 0
 
 
@@ -303,7 +295,8 @@ def main() -> int:
     args = ap.parse_args()
     if args.self_test:
         return _self_test()
-    sys.stdout.write(snapshot(ROOT))
+    report = snapshot(ROOT)
+    sys.stdout.write(report)
     return 0
 
 

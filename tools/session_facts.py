@@ -1,0 +1,186 @@
+"""Shared read-only lease facts. No log row ever selects a session start.
+
+Every LF-delimited line contributes field occurrences, regardless of context.
+Only a unique, column-zero bold field with one value token is usable.
+Duplicate or malformed fields make start and elapsed UNKNOWN; compactions
+are UNKNOWN with a log and reported as no log without one.
+Only the Active-session value can
+supply a start, via the labelled orch-<UTC seconds> convention.
+Missing, invalid, early or future heartbeats leave the start intact but make
+elapsed and compactions UNKNOWN: activity since the start is unverified.
+A heartbeat older than 24h caps both metrics at that last observation.
+Absent logs are distinguished from unreadable logs.
+After field ambiguity and release checks, all three usable fields must occur in
+Active-session, Status, Last-heartbeat-UTC order or every metric is UNKNOWN;
+absent fields retain their existing handling.
+Compaction rows begin with | at column zero, followed by a minute-form or
+second-form UTC Z timestamp, |, compaction and |, with optional whitespace
+between cells; trailing cells are ignored.
+Log lines use splitlines; non-matching lines are ignored without a warning.
+A matching row with an invalid calendar timestamp makes compactions UNKNOWN
+and adds COMPACTIONS_UNREADABLE; unreadable or undecodable logs raise that error.
+Known limit: no document structure is parsed, so matching compaction rows at
+column zero inside HTML comments or fenced blocks are counted.
+When a header field is absent, or written in a form the reader does not count (for example mis-cased as Active-Session
+or STATUS, or with the colon outside the bold), a solitary well-formed copy of
+that field elsewhere in the file is read in its place, with no warning,
+wherever the order rule accepts it: an Active-session copy above Status, a
+Status copy between Active-session and the heartbeat, or a heartbeat copy
+anywhere below Status. tools/lint-session-state.py accepted each such shape
+tried in review.
+With two or three uncounted header fields, copies can occupy other positions
+accepted by the order rule, including all three in a fenced block at EOF.
+"""
+import os
+import re
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+def _reviewed_lint_common():
+    """Load reviewed source bytes only; test symlinks before resolving paths."""
+    path = Path(os.path.abspath(__file__))
+    root = path.parent.parent
+    helper = path.parent / "lint_common.py"
+    for item in (root, path.parent, path, helper):
+        if item.is_symlink():
+            raise ImportError("reviewed helper is a symlink: " + str(item))
+    if path.parent.name != "tools" or helper.resolve() != root.resolve() / "tools/lint_common.py":
+        raise ImportError("reviewed helper outside repository tools")
+    module = type(sys)("lint_common")
+    module.__file__ = str(helper)
+    exec(compile(helper.read_bytes(), str(helper), "exec", dont_inherit=True), module.__dict__)
+    return module
+
+
+
+resolve_working = _reviewed_lint_common().resolve_working
+ISO = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2})?Z)"
+COMPACTION = re.compile(r"\|\s*" + ISO + r"\s*\|\s*compaction\s*\|")
+SECONDS = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z"
+NAMES = ("Active-session", "Status", "Last-heartbeat-UTC")
+FIELD = re.compile(r"\*\*(" + "|".join(NAMES) + r"):\*\*[ \t]+(\S+)[ \t]*")
+HEARTBEAT_MAX_AGE_SECONDS = 24 * 60 * 60
+
+
+class SessionStartError(RuntimeError):
+    """Reader error: snapshot reports UNKNOWN; Stop hook prints nothing and exits 0."""
+
+
+def _parse(value):
+    for fmt in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%MZ"):
+        try:
+            return datetime.strptime(value, fmt).replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    return None
+
+
+def _read(root, name, error):
+    try:
+        path = resolve_working(name, repo_root=root, strict=True)
+        if path is None:
+            return None, None
+        with path.open(encoding="utf-8", newline="") as stream:
+            return path, stream.read()
+    except (OSError, UnicodeDecodeError, RuntimeError) as exc:
+        raise SessionStartError(error + ": " + str(exc)) from exc
+
+
+def _fields(text):
+    occurrences = {name: [] for name in NAMES}
+    first = {}
+    for index, raw in enumerate((text or "").split("\n")):
+        line = raw.removesuffix("\r")
+        for name in NAMES:
+            if name + ":" in line:
+                first.setdefault(name, index)
+                occurrences[name].append(line)
+    fields, ambiguous = {}, []
+    for name, lines in occurrences.items():
+        if not lines:
+            continue
+        match = FIELD.fullmatch(lines[0]) if len(lines) == 1 else None
+        if match is None or match[1] != name:
+            detail = (f"appears {len(lines)} times" if len(lines) > 1
+                      else "has a malformed occurrence")
+            ambiguous.append(name + " " + detail)
+        else:
+            fields[name] = match[2]
+    return fields, ambiguous, first
+
+
+def session_metrics(root: Path, now: datetime | None = None):
+    """Return lease facts, preserving every applicable diagnostic."""
+    now = now or datetime.now(timezone.utc)
+    lease = _read(root, "session-state.md", "SESSION_START_UNREADABLE")
+    fields, ambiguous, first = _fields(lease[1])
+    out_of_order = False
+    if not ambiguous:
+        session = fields.get("Active-session", "")
+        status = fields.get("Status", "").lower()
+        if status == "released" or session.lower() == "none":
+            raise SessionStartError("SESSION_START_RELEASED: lease is released")
+        out_of_order = (len(fields) == len(NAMES) and not
+                        first["Active-session"] < first["Status"] < first["Last-heartbeat-UTC"])
+        if out_of_order:
+            ambiguous.append("fields are out of order: Active-session, Status, Last-heartbeat-UTC")
+    warnings = []
+    start, source, dt = "UNKNOWN", "UNKNOWN", None
+    if ambiguous:
+        warnings.append("AMBIGUOUS LEASE FIELD: " + ", ".join(ambiguous))
+    else:
+        if session and status in ("active", "winding-down"):
+            match = re.fullmatch("orch-(" + SECONDS + ")", session)
+            dt = _parse(match[1]) if match else None
+            source = ("derived from Active-session orch-<UTC start> convention" if dt else
+                      "start unknown because the lease id does not record one")
+        if dt is not None:
+            if dt > now:
+                raise SessionStartError("SESSION_START_FUTURE: lease start is after now")
+            start = dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+        else:
+            warnings.append("SESSION_START_UNKNOWN: " + (
+                "the lease id does not record a start time" if session and
+                status in ("active", "winding-down") else "no usable live lease start"))
+    end = None
+    if not ambiguous:
+        heartbeat = fields.get("Last-heartbeat-UTC", "")
+        hb = _parse(heartbeat) if re.fullmatch(SECONDS, heartbeat) else None
+        unverified = ": activity since the start is unverified; elapsed and compactions UNKNOWN"
+        if hb is None:
+            warnings.append("MISSING OR INVALID HEARTBEAT" + unverified)
+        elif dt is not None and hb < dt:
+            warnings.append("HEARTBEAT BEFORE START" + unverified)
+        elif hb > now:
+            warnings.append("FUTURE HEARTBEAT" + unverified)
+        elif (now - hb).total_seconds() > HEARTBEAT_MAX_AGE_SECONDS:
+            warnings.append("STALE HEARTBEAT: lease not refreshed since " + heartbeat
+                            + " (older than 24h; elapsed and compactions end at last heartbeat)")
+            end = hb
+        else:
+            end = now
+    _, content = _read(root, "degradation-watch-log.md", "COMPACTIONS_UNREADABLE")
+    stamps, invalid = [], False
+    for line in (content or "").splitlines():
+        match = COMPACTION.match(line)
+        if match:
+            stamp = _parse(match[1])
+            if stamp is None:
+                invalid = True
+            else:
+                stamps.append(stamp)
+    if invalid:
+        warnings.append("COMPACTIONS_UNREADABLE: invalid row timestamp")
+    if _read(root, "session-state.md", "SESSION_START_UNREADABLE") != lease:
+        raise SessionStartError("SESSION_START_STALE: lease changed while reading snapshot")
+    compactions = "UNKNOWN" if content is not None or out_of_order else None
+    elapsed = "UNKNOWN"
+    if dt is not None and end is not None:
+        seconds = int((end - dt).total_seconds())
+        elapsed = f"{seconds // 3600}h{seconds % 3600 // 60}m"
+        if content is not None and not invalid:
+            compactions = sum(dt <= stamp <= end for stamp in stamps)
+    return dict(start=start, elapsed=elapsed, compaction_rows=compactions,
+                lease_warning="; ".join(warnings), start_source=source)
