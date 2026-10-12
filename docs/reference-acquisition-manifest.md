@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-05\
+**Date:** 2026-10-12\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -663,7 +663,7 @@ without the private reference sibling).
 | VDA Information Security Assessment (ISA) catalogue ISA2027.1 (English) | Version 2027.1, 2026-09-30 (Cover sheet) | VDA |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (246: 246 free, 0 licensed)
+## Legislation (247: 247 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -697,6 +697,7 @@ without the private reference sibling).
 | California Data Broker Registration and Accessible Deletion Mechanism (DROP) Regulations, 11 CCR Division 6 Chapter 3 (CPPA, effective January 1, 2026) | CPPA Text of Regulations, Data Broker Registration and Accessible Deletion Mechanism, effective January 1, 2026 (Title 11, Division 6, Chapter 3, sections 7600 to 7622; Articles 1 to 4); 16 pages | US | https://cppa.ca.gov/regulations/pdf/data_broker_drop_reg.pdf | FREE |
 | California Delete Act / Data Broker Registration law, Cal. Civ. Code § 1798.99.80 et seq. (effective January 1, 2026, SB 361 update) | CPPA-published consolidated statute, Data Broker Registry / Delete Act, effective January 1, 2026 (SB 361 update); Cal. Civ. Code sections 1798.99.80 to 1798.99.89; posted cppa.ca.gov December 2025 | US | https://cppa.ca.gov/regulations/pdf/data_broker_reg_delete_act_statute_eff_20260101.pdf | FREE |
 | Canada Bill C-36, Protecting Privacy and Consumer Data Act (PPCDA), 45-1 first reading 2026 (PROPOSED, not in force) |  | Canada |  | FREE |
+| Canada Bill C-8, An Act respecting cyber security, S.C. 2026, c. 9 | S.C. 2026, c. 9 as enacted (Bill C-8, 45-1, Royal Assent 2026-06-15); Justice Laws lists the Critical Cyber Systems Protection Act (s. 11) as not in force, current to 2026-09-21 | Canada |  | FREE |
 | Canada Breach of Security Safeguards Regulations, SOR/2018-64 (under PIPEDA) | SOR/2018-64, Justice Laws consolidation current to 2026-05-26, last amended 2018-11-01; in force since 2018-11-01 | Canada |  | FREE |
 | Canada Customs Act (R.S.C. 1985, c. 1 (2nd Supp.)), consolidation | Justice Laws consolidation PDF (C-52.6), generated 2026-09-23 | Canada |  | FREE |
 | Canada Imported Goods Records Regulations (SOR/86-1011), consolidation | Justice Laws consolidation PDF, generated 2026-09-16 | Canada |  | FREE |
@@ -964,5 +965,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 899 sources (778 free, 121 licensed).**
+**Total: 900 sources (779 free, 121 licensed).**
 
