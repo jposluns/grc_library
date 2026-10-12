@@ -4344,6 +4344,7 @@ class DateCobumpOnPrTests(LinterTestCase):
             # Keep object-store assertions independent of automatic packing.
             sp.run(["git", "-C", str(src), "config", "gc.auto", "0"], check=True)
             sp.run(["git", "-C", str(src), "config", "gc.autoDetach", "false"], check=True)
+            sp.run(["git", "-C", str(src), "config", "maintenance.auto", "false"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
             # enable server-side filtering so --filter=blob:none genuinely omits blobs (else the
@@ -4359,7 +4360,8 @@ class DateCobumpOnPrTests(LinterTestCase):
             first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
                            capture_output=True, text=True, check=True).stdout.strip()
             cl = sp.run(["git", "clone", "-q", "--config", "gc.auto=0",
-                         "--config", "gc.autoDetach=false", "--filter=blob:none", "--no-local",
+                         "--config", "gc.autoDetach=false", "--config", "maintenance.auto=false",
+                         "--filter=blob:none", "--no-local",
                          "file://" + str(src), str(clone)], capture_output=True, text=True)
             if cl.returncode != 0:
                 self.skipTest("partial clone unsupported in this environment")
@@ -4401,6 +4403,7 @@ class DateCobumpOnPrTests(LinterTestCase):
             # Keep object-store assertions independent of automatic packing.
             sp.run(["git", "-C", str(src), "config", "gc.auto", "0"], check=True)
             sp.run(["git", "-C", str(src), "config", "gc.autoDetach", "false"], check=True)
+            sp.run(["git", "-C", str(src), "config", "maintenance.auto", "false"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
             sp.run(["git", "-C", str(src), "config", "uploadpack.allowFilter", "true"], check=True)
@@ -4414,7 +4417,8 @@ class DateCobumpOnPrTests(LinterTestCase):
             first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
                            capture_output=True, text=True, check=True).stdout.strip()
             cl = sp.run(["git", "clone", "-q", "--config", "gc.auto=0",
-                         "--config", "gc.autoDetach=false", "--filter=blob:none", "--no-local",
+                         "--config", "gc.autoDetach=false", "--config", "maintenance.auto=false",
+                         "--filter=blob:none", "--no-local",
                          "file://" + str(src), str(clone)], capture_output=True, text=True)
             if cl.returncode != 0:
                 self.skipTest("partial clone unsupported in this environment")
@@ -4493,6 +4497,7 @@ class PreflightVersionDateTests(LinterTestCase):
         # Keep object-store assertions independent of automatic packing.
         sp.run(["git", "-C", str(tmp), "config", "gc.auto", "0"], check=True)
         sp.run(["git", "-C", str(tmp), "config", "gc.autoDetach", "false"], check=True)
+        sp.run(["git", "-C", str(tmp), "config", "maintenance.auto", "false"], check=True)
         sp.run(["git", "-C", str(tmp), "config", "user.email", "t@test"], check=True)
         sp.run(["git", "-C", str(tmp), "config", "user.name", "T"], check=True)
         return tmp, sp, shutil
@@ -4922,6 +4927,7 @@ class PreflightVersionDateTests(LinterTestCase):
             # Keep object-store assertions independent of automatic packing.
             sp.run(["git", "-C", str(src), "config", "gc.auto", "0"], check=True)
             sp.run(["git", "-C", str(src), "config", "gc.autoDetach", "false"], check=True)
+            sp.run(["git", "-C", str(src), "config", "maintenance.auto", "false"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
             d = src / "governance"; d.mkdir()
@@ -4934,7 +4940,8 @@ class PreflightVersionDateTests(LinterTestCase):
             first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
                            capture_output=True, text=True, check=True).stdout.strip()
             cl = sp.run(["git", "clone", "-q", "--config", "gc.auto=0",
-                         "--config", "gc.autoDetach=false", "--filter=blob:none", "--no-local",
+                         "--config", "gc.autoDetach=false", "--config", "maintenance.auto=false",
+                         "--filter=blob:none", "--no-local",
                          "file://" + str(src), str(clone)], capture_output=True, text=True)
             if cl.returncode != 0:
                 self.skipTest("partial clone unsupported in this environment")
@@ -5470,6 +5477,7 @@ class PreflightVersionDateTests(LinterTestCase):
             # Keep object-store assertions independent of automatic packing.
             sp.run(["git", "-C", str(src), "config", "gc.auto", "0"], check=True)
             sp.run(["git", "-C", str(src), "config", "gc.autoDetach", "false"], check=True)
+            sp.run(["git", "-C", str(src), "config", "maintenance.auto", "false"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.email", "t@test"], check=True)
             sp.run(["git", "-C", str(src), "config", "user.name", "T"], check=True)
             d = src / "governance"; d.mkdir()
@@ -5482,7 +5490,8 @@ class PreflightVersionDateTests(LinterTestCase):
             first = sp.run(["git", "-C", str(src), "rev-parse", "HEAD~1"],
                            capture_output=True, text=True, check=True).stdout.strip()
             cl = sp.run(["git", "clone", "-q", "--config", "gc.auto=0",
-                         "--config", "gc.autoDetach=false", "--filter=blob:none", "--no-local",
+                         "--config", "gc.autoDetach=false", "--config", "maintenance.auto=false",
+                         "--filter=blob:none", "--no-local",
                          "file://" + str(src), str(clone)], capture_output=True, text=True)
             if cl.returncode != 0:
                 self.skipTest("partial clone unsupported in this environment")
