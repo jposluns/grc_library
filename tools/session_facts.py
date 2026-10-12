@@ -15,6 +15,9 @@ the heartbeat when stale), reading minute-form stamps as zero seconds and
 dropping rows after that window without warning, except that a minute-form
 row in the start minute with nonzero start seconds makes the count UNKNOWN
 with a warning because its position before or after the start is unknown.
+A minute-form row in a stale heartbeat's minute with nonzero heartbeat
+seconds also makes the count UNKNOWN with a warning because its position
+before or after the last heartbeat is unknown.
 Absent logs are distinguished from unreadable logs.
 After field ambiguity and release checks, all three usable fields must occur in
 Active-session, Status, Last-heartbeat-UTC order or every metric is UNKNOWN;
@@ -151,6 +154,7 @@ def session_metrics(root: Path, now: datetime | None = None):
                 "the lease id does not record a start time" if session and
                 status in ("active", "winding-down") else "no usable live lease start"))
     end = None
+    stale_heartbeat = False
     if not ambiguous:
         heartbeat = fields.get("Last-heartbeat-UTC", "")
         hb = _parse(heartbeat) if re.fullmatch(SECONDS, heartbeat) else None
@@ -165,11 +169,13 @@ def session_metrics(root: Path, now: datetime | None = None):
             warnings.append("STALE HEARTBEAT: lease not refreshed since " + heartbeat
                             + " (older than 24h; elapsed and compactions end at last heartbeat)")
             end = hb
+            stale_heartbeat = True
         else:
             end = now
     _, content = _read(root, "degradation-watch-log.md", "COMPACTIONS_UNREADABLE")
     stamps, invalid = [], False
     start_minute_ambiguous = False
+    end_minute_ambiguous = False
     for line in (content or "").splitlines():
         match = COMPACTION.match(line)
         if match:
@@ -181,11 +187,17 @@ def session_metrics(root: Path, now: datetime | None = None):
                 if (dt is not None and dt.second != 0 and len(match[1]) == 17
                         and stamp == dt.replace(second=0)):
                     start_minute_ambiguous = True
+                if (stale_heartbeat and end.second != 0 and len(match[1]) == 17
+                        and stamp == end.replace(second=0)):
+                    end_minute_ambiguous = True
     if invalid:
         warnings.append("COMPACTIONS_UNREADABLE: invalid row timestamp")
     if start_minute_ambiguous:
         warnings.append("AMBIGUOUS COMPACTION: a minute-form compaction row in the session's "
                         "start minute cannot be placed before or after the start")
+    if end_minute_ambiguous:
+        warnings.append("AMBIGUOUS COMPACTION: a minute-form compaction row in the minute "
+                        "of the last heartbeat cannot be placed before or after it")
     if _read(root, "session-state.md", "SESSION_START_UNREADABLE") != lease:
         raise SessionStartError("SESSION_START_STALE: lease changed while reading snapshot")
     compactions = "UNKNOWN" if content is not None or out_of_order else None
@@ -193,7 +205,8 @@ def session_metrics(root: Path, now: datetime | None = None):
     if dt is not None and end is not None:
         seconds = int((end - dt).total_seconds())
         elapsed = f"{seconds // 3600}h{seconds % 3600 // 60}m"
-        if content is not None and not invalid and not start_minute_ambiguous:
+        if (content is not None and not invalid and not start_minute_ambiguous
+                and not end_minute_ambiguous):
             compactions = sum(dt <= stamp <= end for stamp in stamps)
     return dict(start=start, elapsed=elapsed, compaction_rows=compactions,
                 lease_warning="; ".join(warnings), start_source=source)
