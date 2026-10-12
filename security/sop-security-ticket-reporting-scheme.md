@@ -2,8 +2,8 @@
 
 **Document Title:** Security Ticket Reporting Scheme\
 **Document Type:** SOP\
-**Version:** 1.1.4\
-**Date:** 2026-08-05\
+**Version:** 1.1.5\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Security Officer\
 **Related Documents:** [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -67,7 +67,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 ## Usage rules
 
 1. **Begin with the vendor tag** that generated or reported the incident.
-2. **Follow with a hyphen and the ITSM ticket number** from the ITSM portal in square brackets.
+2. **Follow with a hyphen and the ITSM ticket number** from the ITSM portal in square brackets. For an immediate notification sent before the ticket exists, omit this component (see Ticket creation requirements) and add the ticket number to the escalation record once the ticket exists.
 3. **Include the full alert name** as reported by the vendor or detection tool: do not abbreviate.
 4. **End with the affected user or system** to allow rapid identification of impact scope.
 5. If multiple users or systems are affected, note the primary affected party and add "(+N others)" as appropriate.
@@ -77,7 +77,7 @@ The current vendor tag table is maintained in the IT Security Operations Registe
 
 ## Ticket creation requirements
 
-All security incident tickets must be created in the ITSM portal before escalation to management. Verbal or informal reports must be formalized in the ITSM portal within 1 hour for P1/P2 incidents and within 4 hours for P3/P4 incidents.
+All security incident tickets must be created in the ITSM portal before escalation to management, except that a notification required immediately by [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §3.1 or by [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md) (for example, for a P1) is never delayed for ticket creation; it uses the naming format above without the ticket number until the ticket exists. Verbal or informal reports must be formalized in the ITSM portal within 1 hour for P1/P2 incidents and within 4 hours for P3/P4 incidents.
 
 The ticket must link to:
 - The vendor alert or report (where applicable).

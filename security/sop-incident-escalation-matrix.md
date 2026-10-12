@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.11\
-**Date:** 2026-10-04\
+**Version:** 1.2.12\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
@@ -26,9 +26,9 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 
 | Level | Severity | Definition |
 | --- | --- | --- |
-| **P1** | Critical | Active or confirmed breach, ransomware deployment, data exfiltration, complete service outage, or threat actor present in production environment. Enterprise-wide or customer-impacting. |
-| **P2** | High | Confirmed security incident with limited blast radius, potential data exposure, multi-system compromise, or active malware containment. Significant operational risk. |
-| **P3** | Medium | Suspected incident under investigation, policy violation, isolated malware, phishing with credential capture, or anomaly requiring containment. |
+| **P1** | Critical | Active or confirmed breach, ransomware deployment, data exfiltration, confirmed or suspected privileged account compromise, complete service outage, or threat actor present in production environment. Each listed trigger is P1 whatever its scope. |
+| **P2** | High | Suspected breach, or confirmed security incident (other than a P1 trigger) with limited blast radius, potential data exposure, multi-system compromise, or active malware containment. Significant operational risk. |
+| **P3** | Medium | Anomalous activity under investigation (a suspected breach is P2), policy violation, isolated malware, phishing with credential capture (P1 where the captured credential is privileged), or anomaly requiring containment. |
 | **P4** | Low | Informational alert, false positive confirmed after investigation, or minor procedural violation with no data or system impact. |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.0.4\
-**Date:** 2026-07-02\
+**Version:** 1.0.5\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
@@ -50,7 +50,7 @@ Adopting organizations document the current tier and the target tier in the secu
 | SOC Manager | Operational leadership; shift governance; SLA accountability; supplier relationship if hybrid |
 | SOC Analyst (Tier 1) | Initial triage; alert validation; routine investigation; documented response per playbook |
 | SOC Analyst (Tier 2) | Deep investigation; correlation across alerts; incident commander for P3 and P4 |
-| SOC Analyst (Tier 3) or Senior Incident Responder | Complex investigation; incident commander for P1 and P2; forensic work; co-ordination with external IR partner |
+| SOC Analyst (Tier 3) or Senior Incident Responder | Complex investigation; incident commander for P2, and for P1 only where the CIO or CISO delegates the role in writing (see [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §2.2); forensic work; co-ordination with external IR partner |
 | Detection Engineer | Detection content authoring, tuning, lifecycle; metric ownership |
 | Threat Intelligence Analyst | Intelligence collection, analysis, dissemination; sector and threat-actor tracking |
 | Threat Hunter | Hypothesis-driven hunting; produces detection content from findings |
@@ -155,9 +155,9 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 | Metric | Definition | Target by tier |
 | --- | --- | --- |
 | Mean time to detect (MTTD) | Time from incident onset to first SOC awareness | Tier A: best effort; Tier B: under 4 hours for P1/P2; Tier C: under 1 hour for P1/P2 |
-| Mean time to triage (MTTT) | Time from alert ingestion to triage decision | Tier B: under 30 minutes for P1; Tier C: under 15 minutes |
+| Mean time to triage (MTTT) | Time from first SOC awareness (the Detection timestamp in [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §4.3) to triage decision | Tier B: under 15 minutes for P1; Tier C: under 15 minutes |
 | Mean time to contain (MTTC) | Time from declaration to confirmed containment | Per the security incident response procedure |
-| Mean time to recover (MTTR) | Time from declaration to full service | Per the resilience programme |
+| Mean time to recover (MTTR) | Time from declaration to confirmed service restoration and closure | Per the security incident response procedure |
 | Alert volume per analyst | Daily volume per role | Trend-monitored; persistent above-baseline triggers tuning or staffing review |
 | False-positive rate | Per-rule and aggregate | Trend-monitored; per-rule threshold per tuning policy |
 | Detection coverage against ATT&CK | Per-technique coverage | Tier C and above: at least 70% of relevant techniques |
