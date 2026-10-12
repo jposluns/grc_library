@@ -4,8 +4,7 @@
 WHY THIS EXISTS. A lapsed hold or a name that matches no local branch protects
 nothing. This report makes those entries visible before the turn-end guard.
 Nothing runs the report automatically; the test suite runs --self-test. It
-uses the standard library and the
-repository's lint_common helper.
+uses the standard library and the repository's lint_common helper.
 
 The copied predicate is parity-tested against the unchanged held_branches().
 Only the first token after '#' is considered. A non-comment line whose token
@@ -32,8 +31,9 @@ NUL and one of its short-name forms: the branch name, heads/<name>, or the full
 ref name. This includes trace output from git configuration.
 LOCAL means the entry is a whole short name in a clean listing and, if a
 branch literally named by the entry exists, the entry's name matches it. The
-hook applies the hold only while the entry is live (entry-live) and when its
-own listing shows the same name (see the limits below).
+hook applies the hold only while an entry of this name is live (this entry or
+a duplicate) and when its own listing shows the same name (see the limits
+below).
 GONE means no whole short name applies this hold to the named branch; the
 branch may be deleted, may be a ref git cannot list, or may have a name the
 hook's whitespace split breaks apart.
@@ -84,7 +84,8 @@ Inherited GIT_TRACE output to stdout can add tokens to the hook's view, so
 the report can say GONE for a token that appears there.
 Trace output can also interrupt a listing record: the hook then loses the
 branch's token while the report can say LOCAL and exit 0 for that entry.
-The hook decodes git output using the interpreter's locale encoding; the
+The hook decodes git output with the interpreter's default text encoding
+(UTF-8 in UTF-8 mode, otherwise the locale encoding); the
 report uses UTF-8, so their decoding can differ: one can fail where the other
 succeeds (observed, next sentence), and under a non-UTF-8 locale other than C
 the hook may read a non-ASCII name as different text (not observed: the test
