@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Reporting and Escalation Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.3\
-**Date:** 2026-07-02\
+**Version:** 1.0.4\
+**Date:** 2026-10-12\
 **Owner:** Security Owner\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`resilience/procedure-cross-domain-incident-coordination.md`](procedure-cross-domain-incident-coordination.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-crisis-communication.md`](plan-crisis-communication.md), [`resilience/framework-business-continuity-and-resilience.md`](framework-business-continuity-and-resilience.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](../security/sop-security-ticket-reporting-scheme.md)\
@@ -49,7 +49,7 @@ Events should be reported when they involve or may involve:
 
 ### Step 1: Report
 
-Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organizations.
+Reports may originate from users, monitoring, suppliers, customers, audit, privacy, compliance, support channels, or automated detection. Reports must be captured in an approved internal record system by adopting organizations. A notification that [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §3.1 requires immediately (for example, for a P1) is made without waiting for the record.
 
 ### Step 2: Triage
 
