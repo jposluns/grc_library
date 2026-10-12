@@ -818,6 +818,116 @@ hook['main']()
         output = self.fixed_consumers()
         self.assertEqual(output.count("compactions: no log"), 2)
 
+    def start_minute_fixture(self, rows, start="2026-10-06T14:05:45Z"):
+        self.env["GRC_STORE"] = str(self.store)
+        self.lease.write_text(LIVE.replace("2026-10-04T13:36:00Z", start).replace(
+            "2026-10-06T14:02:31Z", "2026-10-06T14:06:00Z"))
+        self.log.write_text(rows)
+
+    def assert_start_minute_unknown(self, facts):
+        self.assertEqual(facts["compaction_rows"], "UNKNOWN")
+        self.assertIn(
+            "AMBIGUOUS COMPACTION: a minute-form compaction row in the session's "
+            "start minute cannot be placed before or after the start",
+            facts["lease_warning"])
+
+    def test_start_minute_reproduction(self):
+        self.start_minute_fixture(
+            "| 2026-10-06T14:05Z | compaction | event at 14:05:50 UTC |\n")
+        facts = self.metrics()
+        self.assert_start_minute_unknown(facts)
+        self.assertEqual(facts["start"], "2026-10-06T14:05:45Z")
+        self.assertEqual(facts["elapsed"], "0h0m")
+
+    def test_start_minute_zero_seconds(self):
+        self.start_minute_fixture(
+            "| 2026-10-06T14:05Z | compaction | event at 14:05:50 UTC |\n",
+            start="2026-10-06T14:05:00Z")
+        facts = self.metrics()
+        self.assertEqual(facts["compaction_rows"], 1)
+        self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_seconds_inside(self):
+        self.start_minute_fixture("| 2026-10-06T14:05:50Z | compaction | inside |\n")
+        facts = self.metrics()
+        self.assertEqual(facts["compaction_rows"], 1)
+        self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_seconds_before(self):
+        self.start_minute_fixture("| 2026-10-06T14:05:30Z | compaction | before |\n")
+        facts = self.metrics()
+        self.assertEqual(facts["compaction_rows"], 0)
+        self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_next_minute_and_end(self):
+        for stamp, count in (("14:06Z", 1), ("14:06:00Z", 1),
+                             ("14:06:01Z", 0), ("14:07Z", 0)):
+            with self.subTest(stamp=stamp):
+                self.start_minute_fixture("| 2026-10-06T" + stamp + " | compaction |\n")
+                facts = self.metrics()
+                self.assertEqual(facts["compaction_rows"], count)
+                self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_mixed_rows(self):
+        self.start_minute_fixture("| 2026-10-06T14:05Z | compaction | ambiguous |\n"
+                                  "| 2026-10-06T14:05:50Z | compaction | inside |\n")
+        self.assert_start_minute_unknown(self.metrics())
+
+    def test_start_minute_stale_cap(self):
+        self.start_minute_fixture("| 2026-10-06T14:05Z | compaction | ambiguous |\n"
+                                  "| 2026-10-06T14:06Z | compaction | end |\n"
+                                  "| 2026-10-06T14:06:01Z | compaction | after |\n")
+        facts = self.metrics("2026-10-08T14:06:00+00:00")
+        self.assert_start_minute_unknown(facts)
+        self.assertIn("STALE HEARTBEAT", facts["lease_warning"])
+        self.assertEqual(facts["elapsed"], "0h0m")
+
+    def test_start_minute_other_date(self):
+        self.start_minute_fixture("| 2026-10-05T14:05Z | compaction | before |\n"
+                                  "| 2026-10-07T14:05Z | compaction | future |\n")
+        facts = self.metrics()
+        self.assertEqual(facts["compaction_rows"], 0)
+        self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_row_predicate(self):
+        row = "| 2026-10-06T14:05Z | compaction | ambiguous |\n"
+        for content in (row, "<!--\n" + row + "-->\n", FENCE + "\n" + row + FENCE,
+                        row.replace("\n", "\r\n"), row.rstrip("\n") + " extra cells |\n"):
+            with self.subTest(content=content):
+                self.start_minute_fixture(content)
+                self.assert_start_minute_unknown(self.metrics())
+        for content in (" " + row, row.replace("| compaction |", "| considered |")):
+            with self.subTest(content=content):
+                self.start_minute_fixture(content)
+                facts = self.metrics()
+                self.assertEqual(facts["compaction_rows"], 0)
+                self.assertEqual(facts["lease_warning"], "")
+
+    def test_start_minute_consumers(self):
+        self.start_minute_fixture("| 2026-10-06T14:05Z | compaction | ambiguous |\n")
+        for proc in (self.fixed_cli(), self.hook()):
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertIn("compactions this session: UNKNOWN", proc.stdout)
+            self.assertIn("a minute-form compaction row in the session's start minute "
+                          "cannot be placed before or after the start", proc.stdout)
+
+    def test_unverified_heartbeat_without_log(self):
+        self.env["GRC_STORE"] = str(self.store)
+        self.log.unlink()
+        for value in (None, "not-a-date", "2020-01-01T00:00:00Z", "2099-01-01T00:00:00Z"):
+            with self.subTest(heartbeat=value):
+                line = "" if value is None else "**Last-heartbeat-UTC:** " + value + "\n"
+                self.lease.write_text(LIVE.replace(HBLINE, line))
+                facts = self.metrics()
+                self.assertEqual(facts["start"], "2026-10-04T13:36:00Z")
+                self.assertEqual(facts["elapsed"], "UNKNOWN")
+                self.assertIsNone(facts["compaction_rows"])
+                self.assertIn(UNVERIFIED, facts["lease_warning"])
+                proc = self.fixed_cli()
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+                self.assertIn("compactions: no log", proc.stdout)
+
+
 
 HBLINE = "**Last-heartbeat-UTC:** 2026-10-06T14:02:31Z\n"
 CURRENT = "**Active-session:** orch-2026-10-04T13:36:00Z\n"
