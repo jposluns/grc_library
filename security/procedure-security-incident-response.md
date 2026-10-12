@@ -2,11 +2,11 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.4\
-**Date:** 2026-09-30\
+**Version:** 1.4.5\
+**Date:** 2026-10-12\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md), [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change\
@@ -75,7 +75,7 @@ During a declared P1 incident, the Incident Commander is the CIO or CISO unless 
 
 | Severity | Criteria | Examples | Response SLA | Escalation |
 | --- | --- | --- | --- | --- |
-| **P1: Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of detection) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
+| **P1: Critical** | Confirmed active breach, ransomware in execution, active data exfiltration, or confirmed privileged account compromise. | Ransomware executing on production systems; confirmed exfiltration of customer PII or trade data; domain administrator credential confirmed compromised; active threat actor in the environment. | Immediate (within 15 minutes of first SOC awareness, the Detection timestamp) | Incident Commander, CISO, and CIO notified immediately. IR partner notified by CISO. All IR actions logged with timestamps. |
 | **P2: High** | Suspected breach or significant security event with potential for serious impact; malware detected but not yet confirmed active; significant control failure. | Malware detected on a critical server; suspicious lateral movement observed in SIEM; single privileged account compromise suspected; failed restore test on production backup. | 4-hour initial response | CISO notified within 1 hour. Incident Commander assigned. |
 | **P3: Medium** | Anomalous activity requiring investigation; policy violation with potential security significance; isolated endpoint compromise. | Single endpoint malware detection; user account exhibiting anomalous access patterns; unauthorized software detected on production system; failed authentication threshold exceeded. | Same-day (within 8 business hours) | SOC lead notified. Security team investigation initiated. |
 | **P4: Low** | Policy violations; failed security scans; informational security events with no confirmed harm. | Failed patch scan; acceptable use policy violation; expired certificate on non-critical system; minor misconfiguration with no exploitation evidence. | Within 5 business days | Assigned to SOC queue. Standard change or remediation process. |
@@ -119,7 +119,7 @@ Upon receipt of an alert or report, the SOC analyst must:
 | Field | Required Content |
 | --- | --- |
 | Incident ID | Unique identifier |
-| Detection timestamp | UTC timestamp of initial detection |
+| Detection timestamp | UTC timestamp of first SOC awareness: for an automated alert, the earliest time the alert was available to the SOC in any of its tooling, whether generated there or delivered there, not the time an analyst first viewed it; for a report, the time the SOC received it; for a finding the SOC makes itself, the time the SOC first noticed the activity, not the time it concluded that the activity was an incident; where more than one applies, the earliest. It is the end point of mean time to detect (MTTD) and the start point of mean time to initiate (MTTI); see §10 |
 | Detection source | SIEM, EDR, user report, third party, etc. |
 | Initial severity | P1 / P2 / P3 / P4 |
 | Affected systems | Hostnames, IPs, cloud resources |
@@ -261,7 +261,7 @@ Every incident, regardless of severity, must have a completed incident record co
 | --- | --- |
 | Incident ID | Unique identifier |
 | Severity (initial and final) | P1 to P4 with rationale |
-| Detection timestamp | UTC |
+| Detection timestamp | UTC; first SOC awareness (§4.3) |
 | Detection source | SIEM, EDR, user, external, etc. |
 | Affected systems and data | Hostnames, data classifications, record count where known |
 | Timeline | Key events with UTC timestamps |
@@ -283,7 +283,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 **First 60 minutes: detect, declare, contain**
 
 - Validate the event against at least one corroborating source (§4.2).
-- Classify severity per §3.1 (P1 response SLA: immediate, within 15 minutes of detection).
+- Classify severity per §3.1 (P1 response SLA: immediate, within 15 minutes of first SOC awareness).
 - Preserve evidence before any containment action: log snapshots, SIEM results, EDR telemetry, network flows (§4.2, §5.1).
 - Assign an Incident ID and open the formal incident record (§4.2).
 - Notify per §3.1: for a P1, the Incident Commander, CISO, and CIO immediately; the IR partner by the CISO.
@@ -302,7 +302,7 @@ This one-page checklist summarizes the time-phased actions for a declared P1 or 
 
 - Validate eradication with a follow-on scan or forensic review before recovery (§5.3).
 - Recover: before rebuilding, reimaging, re-flashing or wiping a device or storage volume, confirm that no legal hold or investigation covers the device, its user, or its data, using the two-part confirmation in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 2. The GRC platform and Records Register check alone does not complete it. Where a legal hold or investigation covers the device, or that status cannot be confirmed, keep the original unaltered in custody until Legal Counsel's written release or narrowing under [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 rule 8; a forensic image does not substitute. Recover service on replacement hardware, a new instance, or restored copies, never on the held original in place. Restore from known-good backups or clean-rebuilt images verified against integrity hashes; confirm monitoring rules are operational; apply enhanced monitoring for at least 14 days; obtain Incident Commander and System Owner sign-off (§5.4).
-- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR without undue delay and, where feasible, within 72 hours of awareness); Legal Counsel approves the content and the DPO submits (§6).
+- Where a regulatory threshold is met, initiate and track the notification clocks per §6 (for example, GDPR without undue delay and, where feasible, within 72 hours of becoming aware; see §6.1); Legal Counsel approves the content and the DPO submits (§6).
 - Document the return-to-service date and the basis for confirming eradication (§5.4).
 - Initiate the post-incident review track, mandatory for P1 and P2, due within 5 business days of closure (§7.1).
 
@@ -314,8 +314,8 @@ The SOC must track and report the following metrics at the monthly security oper
 
 | Metric | Definition | Target |
 | --- | --- | --- |
-| **Mean Time to Detect (MTTD)** | Time from incident onset to first detection signal | P1/P2: < 1 hour; P3: < 4 hours |
-| **Mean Time to Initiate (MTTI)** | Time from detection to formal incident declaration and Incident Commander assignment | P1: < 15 minutes; P2: < 1 hour |
+| **Mean Time to Detect (MTTD)** | Time from incident onset to first SOC awareness | By SOC capability tier, as defined in [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) §3; that standard's §11 sets these targets and governs: Tier A: best effort; Tier B: under 4 hours for P1/P2; Tier C: under 1 hour for P1/P2 |
+| **Mean Time to Initiate (MTTI)** | Time from first SOC awareness (the Detection timestamp) to formal incident declaration and Incident Commander assignment | P1: < 15 minutes; P2: < 1 hour |
 | **Mean Time to Contain (MTTC)** | Time from incident declaration to confirmed containment | P1: < 4 hours; P2: < 8 hours |
 | **Mean Time to Recover (MTTR)** | Time from incident declaration to confirmed service restoration and closure | P1: < 24 hours; P2: < 72 hours |
 | **SLA Adherence** | Percentage of incidents where notification and response SLAs were met | ≥ 95% |

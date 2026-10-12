@@ -12618,8 +12618,8 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Security Incident Response Procedure"
-  version: "1.4.4"
-  date: "2026-09-30"
+  version: "1.4.5"
+  date: "2026-10-12"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
   classification: "Public"
@@ -12637,6 +12637,7 @@ documents:
     - "resilience/procedure-cross-domain-incident-coordination.md"
     - "governance/standard-emergency-authority.md"
     - "security/standard-monitoring-integrity-and-coverage.md"
+    - "security/standard-soc-operating-model.md"
   sections:
     - "1. Purpose and scope"
     - "2. Governance"
