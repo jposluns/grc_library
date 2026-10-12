@@ -52,6 +52,17 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
 
 
+def fixture_git_environment():
+    """This process's environment with every GIT_* variable dropped and
+    global/system git config ignored, so a repository-local variable a
+    caller leaks (a pre-commit hook's GIT_INDEX_FILE, a GIT_DIR) or an
+    external git configuration cannot redirect a fixture repository's git
+    commands (round 7, W4)."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
+    return env
+
+
 # Minimal metadata block that satisfies lint-metadata.py's required-fields
 # check. Fixtures that need to pass metadata while triggering some other
 # linter's rule can prepend this block.
@@ -891,16 +902,6 @@ class ChangelogLanguageTests(unittest.TestCase):
         spec.loader.exec_module(mod)
         return mod
 
-    def fixture_git_environment(self):
-        """This process's environment with every GIT_* variable dropped and
-        global/system git config ignored, so a repository-local variable a
-        caller leaks (a pre-commit hook's GIT_INDEX_FILE, a GIT_DIR) or an
-        external git configuration cannot redirect a fixture repository's git
-        commands (round 7, W4)."""
-        env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-        env.update(GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull)
-        return env
-
     def test_root_in_default_and_explicit_scope(self):
         from contextlib import redirect_stdout
         from unittest.mock import patch
@@ -941,7 +942,7 @@ class ChangelogLanguageTests(unittest.TestCase):
         # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
         # or global/system git config must not redirect this fixture's git
         # commands or the preflight's own diffs (round 7, W4).
-        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard = patch.dict(os.environ, fixture_git_environment(), clear=True)
         env_guard.start()
         self.addCleanup(env_guard.stop)
         with tempfile.TemporaryDirectory() as td:
@@ -1077,7 +1078,7 @@ class ChangelogLanguageTests(unittest.TestCase):
         # Inherited repository-local GIT_* variables (a hook's GIT_INDEX_FILE)
         # or global/system git config must not redirect this fixture's git
         # commands or the preflight's own diffs (round 7, W4).
-        env_guard = patch.dict(os.environ, self.fixture_git_environment(), clear=True)
+        env_guard = patch.dict(os.environ, fixture_git_environment(), clear=True)
         env_guard.start()
         self.addCleanup(env_guard.stop)
         with tempfile.TemporaryDirectory() as td:
@@ -17317,6 +17318,626 @@ class DocsArgNormalizationTests(LinterTestCase):
             self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
             self.assertIn("could not be read", r.stderr)
             self.assertIn("across 0 flagged extract(s)", r.stdout)
+
+
+class ReferenceBreadthStateTests(unittest.TestCase):
+    """3b302: state dates belong to the documents actually assessed."""
+
+    DOCS = ("privacy/policy-privacy-and-data-governance.md", "risk/procedure-risk-register.md",
+            "security/policy-information-security.md")
+    DATES = ("2020-01-02", "2020-02-03", "2020-03-04")
+
+    def setUp(self):
+        import importlib.util
+        self.td = Path(tempfile.mkdtemp(prefix="reference-state-"))
+        self.addCleanup(shutil.rmtree, self.td)
+        tools_dir = str(REPO_ROOT / "tools")
+        if tools_dir not in sys.path:
+            sys.path.insert(0, tools_dir)
+            self.addCleanup(sys.path.remove, tools_dir)
+        name = "arb_state_3b302"
+        spec = importlib.util.spec_from_file_location(
+            name, REPO_ROOT / "tools/audit-reference-breadth.py")
+        self.mod = importlib.util.module_from_spec(spec)
+        if name in sys.modules:
+            self.addCleanup(sys.modules.__setitem__, name, sys.modules[name])
+        else:
+            self.addCleanup(sys.modules.pop, name, None)
+        sys.modules[name] = self.mod
+        spec.loader.exec_module(self.mod)
+        self.ref = self.td / "ref"
+        self.ref.mkdir()
+        self._git("init", "-q")
+        (self.ref / "catalogue.yml").write_text(
+            'standards:\n  - title: "State fixture changed"\n'
+            '    path: "standard.md"\n    topics: ["cybersecurity"]\n'
+            '  - title: "State fixture unchanged"\n'
+            '    path: "stable.md"\n    topics: ["cybersecurity"]\n',
+            encoding="utf-8")
+        (self.ref / "standard.md").write_text("Original reference.\n", encoding="utf-8")
+        (self.ref / "stable.md").write_text("Stable reference.\n", encoding="utf-8")
+        self._git("add", ".")
+        self._git("commit", "-qm", "reference fixture")
+        self.old_sha = self._git("rev-parse", "--short", "HEAD")
+        (self.ref / "standard.md").write_text("Updated reference.\n", encoding="utf-8")
+        self._git("add", "standard.md")
+        self._git("commit", "-qm", "reference update")
+        self.head = self._git("rev-parse", "--short", "HEAD")
+        self.state = self.td / "state.md"
+
+    def _git(self, *args):
+        r = subprocess.run(
+            ["git", "-C", str(self.ref), "-c", "user.name=Test",
+             "-c", "user.email=test@example.invalid", "-c", "core.hooksPath=/dev/null",
+             *args], capture_output=True, text=True, env=fixture_git_environment())
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        return r.stdout.strip()
+
+    def _seed(self, docs=None):
+        docs = self.DOCS if docs is None else docs
+        self.mod.write_state(self.state, {}, self.old_sha, list(docs), self.DATES[0])
+        text = self.state.read_text(encoding="utf-8")
+        for doc, date in zip(docs, self.DATES):
+            text = text.replace(self._row(doc, self.old_sha, self.DATES[0]),
+                                self._row(doc, self.old_sha, date))
+        self.state.write_text(text, encoding="utf-8")
+        return self.state.read_bytes()
+
+    @staticmethod
+    def _row(doc, sha, date):
+        return f"| `{doc}` | {sha} | {date} |\n"
+
+    @staticmethod
+    def _tool_environment():
+        env = fixture_git_environment()
+        env.update(GIT_CONFIG_COUNT="1", GIT_CONFIG_KEY_0="safe.directory",
+                   GIT_CONFIG_VALUE_0=str(REPO_ROOT.resolve()))
+        return env
+
+    def _run_tool(self, doc, update=True):
+        return subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools/audit-reference-breadth.py"),
+             "--ref-base", str(self.ref), "--state", str(self.state), "--docs", doc,
+             *(["--update-state"] if update else [])],
+            cwd=REPO_ROOT, capture_output=True, text=True, env=self._tool_environment())
+
+    def _update(self, doc):
+        import datetime
+        before = datetime.datetime.now(datetime.timezone.utc).date()
+        r = self._run_tool(doc)
+        after = datetime.datetime.now(datetime.timezone.utc).date()
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("State updated for 1 assessed document(s)", r.stdout)
+        stamp = re.search(r", (\d{4}-\d{2}-\d{2})\)$", r.stdout.splitlines()[0])
+        self.assertIsNotNone(stamp, r.stdout)
+        today = stamp.group(1)
+        self.assertLessEqual(before, datetime.date.fromisoformat(today))
+        self.assertLessEqual(datetime.date.fromisoformat(today), after)
+        return self.state.read_bytes(), r, today
+
+    def _assert_delta(self, result):
+        self.assertIn(f"delta since ref {self.old_sha}: 1 item(s) added/updated", result.stdout)
+        self.assertEqual(
+            [line for line in result.stdout.splitlines() if line.startswith("- [")],
+            ["- [authoritative] State fixture changed (`standard.md`; topics ['cybersecurity'])"])
+
+    def test_one_document_update_preserves_other_rows(self):
+        for docs in (self.DOCS, ("README.md", *self.DOCS[1:])):
+            with self.subTest(docs=docs):
+                before = self._seed(docs)
+                doc = docs[-1]
+                actual, result, today = self._update(doc)
+                self._assert_delta(result)
+                expected = before.replace(
+                    self._row(doc, self.old_sha, self.DATES[-1]).encode(),
+                    self._row(doc, self.head, today).encode())
+                self.assertEqual(actual, expected)
+                actual, result, next_date = self._update(doc)
+                expected = expected.replace(self._row(doc, self.head, today).encode(),
+                                            self._row(doc, self.head, next_date).encode())
+                self.assertEqual(actual, expected)
+                self.assertIn(f"delta since ref {self.head}: 0 item(s)", result.stdout)
+                self.assertFalse(any(line.startswith("- [") for line in result.stdout.splitlines()))
+
+    def test_seeded_root_document_uses_delta(self):
+        self._seed(("README.md", *self.DOCS[1:]))
+        actual, result, today = self._update("README.md")
+        self._assert_delta(result)
+        self.assertIn(self._row("README.md", self.head, today).encode(), actual)
+
+    def test_new_document_gets_today_preserving_existing_rows(self):
+        before = self._seed(self.DOCS[:2])
+        doc = self.DOCS[-1]
+        actual, result, today = self._update(doc)
+        self.assertIn("never audited: all topic matches are candidates", result.stdout)
+        self.assertEqual(
+            [line for line in result.stdout.splitlines() if line.startswith("- [")],
+            ["- [authoritative] State fixture changed (`standard.md`; topics ['cybersecurity'])",
+             "- [authoritative] State fixture unchanged (`stable.md`; topics ['cybersecurity'])"])
+        expected = before + self._row(doc, self.head, today).encode()
+        self.assertEqual(actual, expected)
+
+    def test_missing_or_malformed_date_is_unknown_until_assessed(self):
+        doc = self.DOCS[0]
+        for cell in ("", "yesterday |", "2020-02-30 |", "20200102 |"):
+            with self.subTest(cell=cell):
+                before = self._seed()
+                bad = f"| `{doc}` | {self.old_sha} | {cell}\n".encode()
+                before = before.replace(
+                    self._row(doc, self.old_sha, self.DATES[0]).encode(), bad)
+                self.state.write_bytes(before)
+                actual, _, today = self._update(self.DOCS[-1])
+                expected = before.replace(
+                    bad, self._row(doc, self.old_sha, "unknown").encode()).replace(
+                    self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+                    self._row(self.DOCS[-1], self.head, today).encode())
+                self.assertEqual(actual, expected)
+                actual, _, today = self._update(doc)
+                expected = expected.replace(
+                    self._row(doc, self.old_sha, "unknown").encode(),
+                    self._row(doc, self.head, today).encode())
+                self.assertEqual(actual, expected)
+
+    def test_loads_only_markdown_rows_in_document_state_table(self):
+        docs = ("README.md", *self.DOCS[1:])
+        before = self._seed(docs)
+        self.state.write_bytes(
+            b"| stray.md | aaaaaaa | 2021-01-01 |\n\n" + before +
+            b"|   | deadbeef | 2021-01-01 |\n"
+            b"| release note | deadbeef | 2021-01-01 |\n"
+            b"| docs/archive | 1234567 | 2021-01-01 |\n\n"
+            b"| Release | Hash | Date |\n| --- | --- | --- |\n"
+            b"| widget | 1234567 | 2021-01-01 |\n"
+            b"| unrelated.md | deadbeef | 2021-01-01 |\n"
+            b"| README.md | bbbbbbb | 2025-01-02 |\n")
+        self.assertEqual(self.mod.load_state(self.state),
+                         {doc: (self.old_sha, date) for doc, date in zip(docs, self.DATES)})
+        self._assert_refused(1)
+
+    def test_old_writer_header_retains_existing_rows(self):
+        # Literal header from write_state at 369856b2, independent of the new writer.
+        docs = ("README.md", *self.DOCS)
+        self.state.write_text(
+            "# Reference-audit per-document state\n\n"
+            "| Document | Ref SHA at last audit | Updated (UTC) |\n"
+            "| --- | --- | --- |\n" +
+            "".join(self._row(doc, self.old_sha, self.DATES[0]) for doc in docs),
+            encoding="utf-8")
+        expected = {doc: (self.old_sha, self.DATES[0]) for doc in docs}
+        self.assertEqual(self.mod.load_state(self.state), expected)
+        _, _, today = self._update(self.DOCS[-1])
+        expected[self.DOCS[-1]] = (self.head, today)
+        self.assertEqual(self.mod.load_state(self.state), expected)
+
+    def test_no_assessed_documents_leaves_state_unchanged(self):
+        before = self._seed()
+        self.mod.write_state(self.state, self.mod.load_state(self.state),
+                             self.head, [], "2030-01-01")
+        self.assertEqual(self.state.read_bytes(), before)
+        self.state.unlink()
+        self.mod.write_state(self.state, {}, self.head, [], "2030-01-01")
+        self.assertFalse(self.state.exists())
+
+    def _assert_refused(self, line):
+        before = self.state.read_bytes()
+        message = (f"{self.state}: state file has state-like rows that were not loaded, "
+                   f"first at line {line}; nothing was written; "
+                   "repair the file by hand and rerun\n")
+        result = self._run_tool(self.DOCS[-1])
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stderr, "ERROR: " + message)
+        self.assertEqual(self.state.read_bytes(), before)
+        result = self._run_tool(self.DOCS[-1], update=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        warning = message.replace(
+            "nothing was written",
+            "candidate reporting continues with the rows that were loaded")
+        self.assertEqual(result.stderr, "WARNING: " + warning)
+        self.assertNotIn("nothing was written", result.stderr)
+        self.assertEqual(self.state.read_bytes(), before)
+
+    def test_equivalent_header_cells_preserve_all_rows(self):
+        header = "| Document | Ref SHA at last audit | Updated (UTC) |"
+        for variant in (header + " ", "|Document|Ref SHA at last audit|Updated (UTC)|",
+                        "|  Document    | Ref SHA at last audit     | Updated (UTC)   |"):
+            with self.subTest(header=variant):
+                before = self._seed()
+                self.state.write_bytes(before.replace(header.encode(), variant.encode()))
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {doc: (self.old_sha, date)
+                                  for doc, date in zip(self.DOCS, self.DATES)})
+                actual, _, today = self._update(self.DOCS[-1])
+                self.assertEqual(actual, before.replace(
+                    self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+                    self._row(self.DOCS[-1], self.head, today).encode()))
+
+    def test_damaged_or_prefix_header_refuses_without_writing(self):
+        header = "| Document | Ref SHA at last audit | Updated (UTC) |"
+        for variant in ("| Broken | Ref SHA at last audit | Updated (UTC) |",
+                        header + " Extra",
+                        "| Document | Other SHA | Updated (UTC) |"):
+            with self.subTest(header=variant):
+                self.state.write_text(variant + "\n| --- | --- | --- |\n" +
+                                      self._row(self.DOCS[0], self.old_sha, self.DATES[0]),
+                                      encoding="utf-8")
+                self.assertEqual(self.mod.load_state(self.state), {})
+                self._assert_refused(3)
+
+    def test_blank_or_prose_ends_the_first_table(self):
+        header = "| Document | Ref SHA at last audit | Updated (UTC) |\n"
+        for boundary in ("\n", "Intervening prose.\n"):
+            with self.subTest(boundary=boundary):
+                self.state.write_text(
+                    header + "| --- | --- | --- |\n" +
+                    self._row(self.DOCS[0], self.old_sha, self.DATES[0]) + boundary +
+                    self._row(self.DOCS[1], self.old_sha, self.DATES[1]),
+                    encoding="utf-8")
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {self.DOCS[0]: (self.old_sha, self.DATES[0])})
+                self._assert_refused(5)
+
+    def test_only_first_matching_table_is_loaded(self):
+        header = "| Document | Ref SHA at last audit | Updated (UTC) |\n"
+        for first, second in ((self.DOCS[0], "x.md"), ("x.md", self.DOCS[0]),
+                              (self.DOCS[0], self.DOCS[0])):
+            for gap in ("", "\n"):
+                with self.subTest(first=first, second=second, gap=gap):
+                    self.state.write_text(
+                        header + "| --- | --- | --- |\n" +
+                        self._row(first, self.old_sha, self.DATES[0]) + gap +
+                        header + "| --- | --- | --- |\n" +
+                        self._row(second, self.head, self.DATES[1]), encoding="utf-8")
+                    self.assertEqual(self.mod.load_state(self.state),
+                                     {first: (self.old_sha, self.DATES[0])})
+                    self._assert_refused(6 + bool(gap))
+
+    def test_foreign_tables_before_and_after_refuse(self):
+        foreign = ("| Document | Other SHA | Other date |\n| --- | --- | --- |\n"
+                   + self._row("x.md", self.old_sha, self.DATES[0]))
+        for position in ("before", "after"):
+            with self.subTest(position=position):
+                before = self._seed()
+                text = before.decode()
+                if position == "before":
+                    text = foreign + "\n" + text
+                    line = 3
+                else:
+                    line = len(text.splitlines()) + 4
+                    text += "\n" + foreign
+                self.state.write_text(text, encoding="utf-8")
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {doc: (self.old_sha, date)
+                                  for doc, date in zip(self.DOCS, self.DATES)})
+                self._assert_refused(line)
+
+    def test_empty_markdown_stem_refuses(self):
+        for cell in (".md", " .md", "`.md`", "docs/.md", "`docs/.md`"):
+            with self.subTest(cell=cell):
+                before = self._seed()
+                self.state.write_bytes(before +
+                                       f"| {cell} | {self.old_sha} | 2020-01-01 |\n".encode())
+                self.assertNotIn(cell.strip().strip("`"), self.mod.load_state(self.state))
+                self._assert_refused(len(before.decode().split("\n")))
+
+    def test_calendar_dates_and_unknown_stay_unassessed_across_two_runs(self):
+        doc = self.DOCS[0]
+        for value, expected in (("2020-02-29", "2020-02-29"),
+                                ("1996-02-29", "1996-02-29"),
+                                ("1900-02-29", "unknown"), ("2023-02-29", "unknown"),
+                                ("unknown", "unknown")):
+            with self.subTest(value=value):
+                before = self._seed()
+                self.state.write_bytes(before.replace(
+                    self._row(doc, self.old_sha, self.DATES[0]).encode(),
+                    self._row(doc, self.old_sha, value).encode()))
+                for assessed in self.DOCS[1:]:
+                    actual, _, _ = self._update(assessed)
+                    self.assertIn(self._row(doc, self.old_sha, expected).encode(), actual)
+
+    def test_unquoted_document_loads(self):
+        before = self._seed()
+        self.state.write_bytes(before.replace(b"`", b""))
+        self.assertEqual(self.mod.load_state(self.state),
+                         {doc: (self.old_sha, date)
+                          for doc, date in zip(self.DOCS, self.DATES)})
+        actual, _, today = self._update(self.DOCS[-1])
+        self.assertEqual(actual, before.replace(
+            self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+            self._row(self.DOCS[-1], self.head, today).encode()))
+
+    def test_new_document_that_sorts_first_is_written_first(self):
+        before = self._seed()
+        actual, _, today = self._update("README.md")
+        row = self._row("README.md", self.head, today).encode()
+        first = self._row(self.DOCS[0], self.old_sha, self.DATES[0]).encode()
+        self.assertEqual(actual, before.replace(first, row + first))
+
+    def test_empty_missing_or_prose_only_state_can_be_created(self):
+        for content in (None, "", "Handwritten introduction.\n"):
+            with self.subTest(content=content):
+                self.state.unlink(missing_ok=True)
+                if content is not None:
+                    self.state.write_text(content, encoding="utf-8")
+                _, _, today = self._update(self.DOCS[-1])
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {self.DOCS[-1]: (self.head, today)})
+
+    def test_tool_environment_has_only_scoped_git_exception(self):
+        from unittest.mock import patch
+        hostile = {"GIT_DIR": "/unwanted", "GIT_INDEX_FILE": "/unwanted-index",
+                   "GIT_CONFIG_COUNT": "2", "GIT_CONFIG_KEY_0": "safe.directory",
+                   "GIT_CONFIG_VALUE_0": "*", "GIT_TRACE2_EVENT": "/unwanted-trace"}
+        with patch.dict(os.environ, hostile):
+            with patch.object(subprocess, "run") as run:
+                self._run_tool(self.DOCS[-1])
+            env = run.call_args.kwargs["env"]
+            self.assertEqual({k: v for k, v in env.items() if k.startswith("GIT_")},
+                             {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
+                              "GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "safe.directory",
+                              "GIT_CONFIG_VALUE_0": str(REPO_ROOT.resolve())})
+            captured = []
+            def main(_args):
+                captured.append(dict(os.environ))
+                return 0
+            with patch.object(self.mod, "main", side_effect=main):
+                self._main("--docs", self.DOCS[-1])
+            self.assertEqual(len(captured), 1)
+            self.assertEqual(
+                {k: v for k, v in captured[0].items() if k.startswith("GIT_")},
+                {k: v for k, v in env.items() if k.startswith("GIT_")})
+            fixture_env = fixture_git_environment()
+            self.assertEqual({k: v for k, v in fixture_env.items() if k.startswith("GIT_")},
+                             {"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+
+
+    def _main(self, *args):
+        from contextlib import redirect_stdout, redirect_stderr
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        import io
+        out, err = io.StringIO(), io.StringIO()
+        with patch.dict(os.environ, self._tool_environment(), clear=True):
+            with redirect_stdout(out), redirect_stderr(err):
+                rc = self.mod.main(["--ref-base", str(self.ref),
+                                    "--state", str(self.state), *args])
+        return SimpleNamespace(returncode=rc, stdout=out.getvalue(), stderr=err.getvalue())
+
+    def test_read_only_uses_loaded_anchor(self):
+        before = self._seed()
+        result = self._run_tool(self.DOCS[-1], update=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self._assert_delta(result)
+        self.assertEqual(self.state.read_bytes(), before)
+
+    def test_duplicate_rows_last_wins(self):
+        doc = self.DOCS[-1]
+        self._seed()
+        text = self.state.read_text(encoding="utf-8").replace(
+            self._row(doc, self.old_sha, self.DATES[-1]),
+            self._row(doc, self.head, self.DATES[0]) +
+            self._row(doc, self.old_sha, self.DATES[-1]))
+        self.state.write_text(text, encoding="utf-8")
+        self.assertEqual(self.mod.load_state(self.state)[doc],
+                         (self.old_sha, self.DATES[-1]))
+        self._assert_delta(self._run_tool(doc, update=False))
+        self._update(self.DOCS[0])
+        self.assertEqual(self.mod.load_state(self.state)[doc],
+                         (self.old_sha, self.DATES[-1]))
+
+    def test_loader_sha_boundaries(self):
+        for sha in ("a" * 6, "a" * 7, "a" * 40, "a" * 41, "a" * 42):
+            with self.subTest(sha=sha):
+                self.state.write_text(self.mod.STATE_TABLE_HEADER + "\n" +
+                                      self._row("x.md", sha, self.DATES[0]), encoding="utf-8")
+                expected = {"x.md": (sha, self.DATES[0])} if 7 <= len(sha) <= 40 else {}
+                self.assertEqual(self.mod.load_state(self.state), expected)
+                if not expected and len(sha) >= 7:
+                    self._assert_refused(2)
+
+    def test_unloaded_hash_rows_refuse_regardless_of_name(self):
+        for name, sha in (
+                ("docs/notes.markdown", "deadbeef"), ("docs/README.MD", "deadbeef"),
+                ("docs/archive", "deadbeef"), ("docs/old.md (retired)", "deadbeef"),
+                ("release", "deadbeef"), ("", "deadbeef"),
+                ("docs/upper.md", "ABCDEF1"), ("docs/long.md", "a" * 41)):
+            with self.subTest(name=name, sha=sha):
+                before = self._seed()
+                self.state.write_bytes(before + f"| {name} | {sha} | 2020-01-01 |\n".encode())
+                self._assert_refused(len(before.decode().split("\n")))
+
+    def test_outside_hash_row_shapes_refuse(self):
+        for line in ("| x.md | deadbeef", "| x.md | " + "a" * 40 + " |",
+                     "  | x.md | deadbeef |", "\t| x.md | deadbeef |"):
+            with self.subTest(line=line):
+                before = self._seed()
+                self.state.write_bytes(before + ("\n" + line + "\n").encode())
+                self._assert_refused(len(before.decode().split("\n")) + 1)
+
+    def test_line_numbers_count_only_lf(self):
+        before = self._seed()
+        text = "Prose\fstill the same line\r\n" + before.decode().replace("\n", "\r\n")
+        text += "\r\n| x.md | deadbeef\r\n"
+        self.state.write_bytes(text.encode())
+        self._assert_refused(len(text.split("\n")) - 1)
+
+
+    def test_splitlines_segments_refuse_at_the_lf_line(self):
+        for boundary in ("\v", "\f", "\r", "\x85", "\u2028", "\u2029",
+                         "\x1c", "\x1d", "\x1e"):
+            for prefix in ("Prose", self._row("docs/first.md", self.old_sha,
+                                             self.DATES[0]).rstrip("\n")):
+                with self.subTest(boundary=repr(boundary), prefix=prefix):
+                    before = self._seed()
+                    text = before.decode() + prefix + boundary + self._row(
+                        "docs/extra.md", self.old_sha, self.DATES[0])
+                    self.state.write_bytes(text.encode())
+                    self._assert_refused(len(before.decode().split("\n")))
+
+    def test_cr_only_table_refuses_without_losing_rows(self):
+        before = self._seed()
+        self.state.write_bytes(before.replace(b"\n", b"\r"))
+        self._assert_refused(1)
+
+    def test_non_state_segments_and_non_pipe_prose_are_accepted(self):
+        for boundary in ("\v", "\f", "\r", "\x85", "\u2028", "\u2029",
+                         "\x1c", "\x1d", "\x1e"):
+            with self.subTest(boundary=repr(boundary)):
+                before = self._seed()
+                prose = "Prose" + boundary + "still prose | label | deadbeef |\n"
+                self.state.write_bytes(prose.encode() + before)
+                actual, result, today = self._update(self.DOCS[-1])
+                self.assertEqual(result.stderr, "")
+                self.assertEqual(actual, before.replace(
+                    self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+                    self._row(self.DOCS[-1], self.head, today).encode()))
+
+    def test_update_creates_missing_state_parent(self):
+        self.state = self.td / "new" / "nested" / "state.md"
+        self.assertFalse(self.state.parent.exists())
+        result = self._run_tool(self.DOCS[-1])
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue(self.state.is_file())
+        self.assertEqual(self.mod.load_state(self.state)[self.DOCS[-1]][0], self.head)
+
+    def test_state_has_one_snapshot_read_and_one_prewrite_read(self):
+        from unittest.mock import patch
+        original = Path.read_bytes
+        for update in (False, True):
+            with self.subTest(update=update):
+                before = self._seed()
+                reads = []
+                def read(path):
+                    data = original(path)
+                    if path == self.state:
+                        reads.append(data)
+                    return data
+                with patch.object(Path, "read_bytes", read):
+                    result = self._main("--docs", self.DOCS[-1],
+                                        *(["--update-state"] if update else []))
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(reads, [before] * (2 if update else 1))
+
+    def test_state_change_before_write_refuses(self):
+        from unittest.mock import patch
+        import builtins
+        original_print = builtins.print
+        for change in ("edit", "same-length", "remove", "create", "crlf"):
+            with self.subTest(change=change):
+                before = self._seed()
+                if change == "create":
+                    self.state.unlink()
+                expected = {"edit": before + b"New prose.\n", "remove": None,
+                            "same-length": before.replace(b"2020-01-02", b"1999-12-31"),
+                            "create": b"", "crlf": before.replace(b"\n", b"\r\n")}[change]
+                if change == "same-length":
+                    self.assertNotEqual(expected, before)
+                    self.assertEqual(len(expected), len(before))
+                changed = []
+                def report(*args, **kwargs):
+                    if args and str(args[0]).startswith("## Per-touch candidates:"):
+                        if expected is None:
+                            self.state.unlink()
+                        else:
+                            self.state.write_bytes(expected)
+                        changed.append(True)
+                    return original_print(*args, **kwargs)
+                with patch.object(builtins, "print", report):
+                    result = self._main("--docs", self.DOCS[-1], "--update-state")
+                self.assertEqual(changed, [True])
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn(str(self.state), result.stderr)
+                self.assertIn("state file changed during the run", result.stderr)
+                self.assertEqual(len(result.stderr.splitlines()), 1)
+                self.assertEqual(self.state.read_bytes() if self.state.exists() else None, expected)
+
+    def test_state_read_errors_refuse_updates_and_warn_read_only(self):
+        from unittest.mock import patch
+        original = Path.read_bytes
+        for problem in (PermissionError("fixture unreadable"), IsADirectoryError("fixture directory"),
+                        b"\xff"):
+            for update in (False, True):
+                with self.subTest(problem=problem, update=update):
+                    before = self._seed()
+                    def read(path):
+                        if path != self.state:
+                            return original(path)
+                        if isinstance(problem, bytes):
+                            return problem
+                        raise problem
+                    with patch.object(Path, "read_bytes", read):
+                        result = self._main("--docs", self.DOCS[-1],
+                                            *(["--update-state"] if update else []))
+                    self.assertEqual(result.returncode, 2 if update else 0, result.stderr)
+                    self.assertTrue(result.stderr.startswith("ERROR: " if update else "WARNING: "))
+                    self.assertIn(str(self.state), result.stderr)
+                    self.assertEqual(len(result.stderr.splitlines()), 1)
+                    self.assertNotIn("Traceback", result.stderr)
+                    self.assertEqual(self.state.read_bytes(), before)
+                    if update:
+                        self.assertIn("nothing was written", result.stderr)
+                    else:
+                        self.assertIn("continuing with empty state", result.stderr)
+                        self.assertIn("never audited", result.stdout)
+                        self.assertEqual(len([ln for ln in result.stdout.splitlines()
+                                              if ln.startswith("- [")]), 2)
+
+    def test_unused_modes_do_not_read_state(self):
+        from unittest.mock import patch
+        original = Path.read_bytes
+        for problem in (PermissionError("fixture unreadable"), FileNotFoundError(), b"\xff"):
+            for mode in (("--ref-items", "State"), ("--ref-since", self.old_sha),
+                         ("adopter",), ("adopter", "--docs", self.DOCS[-1], "--update-state")):
+                with self.subTest(problem=problem, mode=mode):
+                    before = self._seed()
+                    reads = []
+                    def read(path):
+                        if path != self.state:
+                            return original(path)
+                        reads.append(path)
+                        if isinstance(problem, bytes):
+                            return problem
+                        raise problem
+                    with patch.object(Path, "read_bytes", read):
+                        if mode[0] == "adopter":
+                            with patch.object(self.mod, "DEFAULT_REF_BASE", self.ref / "absent"):
+                                result = self._main("--ref-base", str(self.ref / "absent"), *mode[1:])
+                            self.assertIn("no-op", result.stdout)
+                        else:
+                            result = self._main(*mode)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(result.stderr, "")
+                    self.assertEqual(reads, [])
+                    self.assertEqual(self.state.read_bytes(), before)
+
+    def test_prewrite_read_error_refuses(self):
+        from unittest.mock import patch
+        before = self._seed()
+        original = Path.read_bytes
+        reads = []
+        def read(path):
+            if path == self.state:
+                reads.append(path)
+                if len(reads) == 2:
+                    raise PermissionError("fixture changed permissions")
+            return original(path)
+        with patch.object(Path, "read_bytes", read):
+            result = self._main("--docs", self.DOCS[-1], "--update-state")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertTrue(result.stderr.startswith("ERROR: "))
+        self.assertIn(str(self.state), result.stderr)
+        self.assertEqual(len(result.stderr.splitlines()), 1)
+        self.assertEqual(self.state.read_bytes(), before)
+
+    def test_state_write_error_is_reported(self):
+        from unittest.mock import patch
+        before = self._seed()
+        with patch.object(self.mod, "write_state", side_effect=PermissionError("fixture write")):
+            result = self._main("--docs", self.DOCS[-1], "--update-state")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertTrue(result.stderr.startswith("ERROR: "))
+        self.assertIn(str(self.state), result.stderr)
+        self.assertEqual(len(result.stderr.splitlines()), 1)
+        self.assertEqual(self.state.read_bytes(), before)
 
 
 class QuickGuardSeparatorTests(LinterTestCase):
