@@ -24,10 +24,16 @@ Directions and modes:
   the candidate set, filtered (when the doc-state file has a row for the document)
   to reference items ADDED or UPDATED in the reference repo since the recorded SHA,
   plus any topic match the document has never been audited against. --update-state
-  rewrites the state rows for the named documents to the reference repo's current
-  HEAD and today's UTC date (intended to be committed with the PR's QA batch),
-  preserving the dates of the other rows it loaded; a row it neither loads nor
-  detects (for example one with a SHA shorter than 7 characters) is dropped.
+  regenerates the whole state file (hand-written prose around the table is
+  replaced), setting the rows for the named documents to the reference repo's
+  current HEAD using a SHA abbreviation of at least 12 characters (git lengthens
+  it when 12 are ambiguous) and today's UTC date (intended to be committed with
+  the PR's QA batch), preserving the dates of the other rows it loaded.
+  Where the first recognized table has two or more loadable rows with the same
+  document name (the cell text without backticks and surrounding whitespace),
+  only the last is kept.
+  A row it neither loads nor detects (for example one with a SHA shorter than
+  7 characters) is dropped.
   Missing or invalid dates are recorded as unknown until that document is
   assessed.
   The loader accepts names with a non-empty basename stem ending .md and
@@ -505,7 +511,7 @@ def main(argv: list[str] | None = None) -> int:
             it.keys = derive_keys(it, aliases)
         corpus = tracked_corpus_md(REPO_ROOT)
         ref_head = subprocess.run(
-            ["git", "-C", str(ref_base), "rev-parse", "--short", "HEAD"],
+            ["git", "-C", str(ref_base), "rev-parse", "--short=12", "HEAD"],
             capture_output=True, text=True, check=True).stdout.strip()
     except (RuntimeError, OSError, subprocess.CalledProcessError,
             json.JSONDecodeError) as exc:

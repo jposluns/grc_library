@@ -17362,7 +17362,7 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         (self.ref / "standard.md").write_text("Updated reference.\n", encoding="utf-8")
         self._git("add", "standard.md")
         self._git("commit", "-qm", "reference update")
-        self.head = self._git("rev-parse", "--short", "HEAD")
+        self.head = self._git("rev-parse", "--short=12", "HEAD")
         self.state = self.td / "state.md"
 
     def _git(self, *args):
@@ -17717,11 +17717,11 @@ class ReferenceBreadthStateTests(unittest.TestCase):
             self._row(doc, self.head, self.DATES[0]) +
             self._row(doc, self.old_sha, self.DATES[-1]))
         self.state.write_text(text, encoding="utf-8")
-        self.assertEqual(self.mod.load_state(self.state)[doc],
+        self.assertEqual(self.mod.load_state(self.state).get(doc),
                          (self.old_sha, self.DATES[-1]))
         self._assert_delta(self._run_tool(doc, update=False))
         self._update(self.DOCS[0])
-        self.assertEqual(self.mod.load_state(self.state)[doc],
+        self.assertEqual(self.mod.load_state(self.state).get(doc),
                          (self.old_sha, self.DATES[-1]))
 
     def test_loader_sha_boundaries(self):
@@ -17797,7 +17797,7 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         result = self._run_tool(self.DOCS[-1])
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertTrue(self.state.is_file())
-        self.assertEqual(self.mod.load_state(self.state)[self.DOCS[-1]][0], self.head)
+        self.assertEqual(self.mod.load_state(self.state).get(self.DOCS[-1], ("", ""))[0], self.head)
 
     def test_state_has_one_snapshot_read_and_one_prewrite_read(self):
         from unittest.mock import patch
@@ -17938,6 +17938,105 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         self.assertIn(str(self.state), result.stderr)
         self.assertEqual(len(result.stderr.splitlines()), 1)
         self.assertEqual(self.state.read_bytes(), before)
+
+
+    def test_read_only_unloaded_row_keeps_loaded_delta(self):
+        before = self._seed() + b"\n| label | abcdef0 |\n"
+        self.state.write_bytes(before)
+        result = self._run_tool(self.DOCS[-1], update=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("state-like rows that were not loaded", result.stderr)
+        self._assert_delta(result)
+        self.assertEqual(self.state.read_bytes(), before)
+
+    def test_unloaded_hex_cells_have_no_length_cap(self):
+        for length in (64, 200):
+            with self.subTest(length=length):
+                before = self._seed()
+                self.state.write_bytes(before + self._row(
+                    "docs/long.md", "a" * length, self.DATES[0]).encode())
+                self._assert_refused(len(before.decode().split("\n")))
+
+    def test_valid_dates_before_2000_are_preserved(self):
+        doc = self.DOCS[0]
+        for value in ("0001-01-01", "1970-01-01", "1997-06-15", "1999-12-31"):
+            with self.subTest(value=value):
+                before = self._seed()
+                self.state.write_bytes(before.replace(
+                    self._row(doc, self.old_sha, self.DATES[0]).encode(),
+                    self._row(doc, self.old_sha, value).encode()))
+                self.assertEqual(self.mod.load_state(self.state).get(doc),
+                                 (self.old_sha, value))
+                for assessed in self.DOCS[1:]:
+                    actual, _, _ = self._update(assessed)
+                    self.assertIn(self._row(doc, self.old_sha, value).encode(), actual)
+
+    def test_other_table_hex_prefix_is_not_a_state_row(self):
+        before = self._seed()
+        self.state.write_bytes(before +
+                               b"\n| Label | Description |\n| --- | --- |\n"
+                               b"| label | abcdef0 (old) |\n")
+        actual, result, today = self._update(self.DOCS[-1])
+        self.assertEqual(result.stderr, "")
+        self.assertEqual(actual, before.replace(
+            self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+            self._row(self.DOCS[-1], self.head, today).encode()))
+
+    def test_form_feed_tab_and_vertical_tab_header_cells_are_recognized(self):
+        for whitespace in ("\f", "\t", "\v"):
+            with self.subTest(whitespace=repr(whitespace)):
+                before = self._seed()
+                self.state.write_bytes(before.replace(
+                    b"| Document |",
+                    f"|{whitespace}Document{whitespace}|".encode()))
+                self.assertEqual(self.mod.load_state(self.state),
+                                 {doc: (self.old_sha, date)
+                                  for doc, date in zip(self.DOCS, self.DATES)})
+                actual, result, today = self._update(self.DOCS[-1])
+                self.assertEqual(result.stderr, "")
+                self.assertEqual(actual, before.replace(
+                    self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+                    self._row(self.DOCS[-1], self.head, today).encode()))
+
+    def test_short_core_abbrev_keeps_rows_across_two_updates(self):
+        self._git("config", "core.abbrev", "4")
+        self.assertEqual(self._git("config", "core.abbrev"), "4")
+        self.assertEqual(len(self._git("rev-parse", "--short", "HEAD")), 4)
+        for doc in self.DOCS[:2]:
+            result = self._run_tool(doc)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        loaded = self.mod.load_state(self.state)
+        self.assertIn(self.DOCS[0], loaded)
+        self.assertEqual(set(loaded), set(self.DOCS[:2]))
+        for doc in self.DOCS[:2]:
+            self.assertEqual(loaded[doc][0], self.head)
+            self.assertEqual(len(loaded[doc][0]), 12)
+
+    def test_legacy_seven_character_rows_load_and_survive_update(self):
+        self.old_sha = self._git("rev-parse", "--short=7", "HEAD^")
+        self.assertEqual(len(self.old_sha), 7)
+        before = self._seed()
+        self.assertEqual(self.mod.load_state(self.state),
+                         {doc: (self.old_sha, date)
+                          for doc, date in zip(self.DOCS, self.DATES)})
+        actual, result, today = self._update(self.DOCS[-1])
+        self._assert_delta(result)
+        self.assertEqual(actual, before.replace(
+            self._row(self.DOCS[-1], self.old_sha, self.DATES[-1]).encode(),
+            self._row(self.DOCS[-1], self.head, today).encode()))
+        self.assertEqual(len(self.mod.load_state(self.state).get(self.DOCS[-1], ("", ""))[0]), 12)
+
+    def test_read_only_delta_accepts_seven_and_twelve_character_anchors(self):
+        for length in (7, 12):
+            with self.subTest(length=length):
+                self.old_sha = self._git("rev-parse", f"--short={length}", "HEAD^")
+                self.assertEqual(len(self.old_sha), length)
+                before = self._seed()
+                result = self._run_tool(self.DOCS[-1], update=False)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertEqual(result.stderr, "")
+                self._assert_delta(result)
+                self.assertEqual(self.state.read_bytes(), before)
 
 
 class QuickGuardSeparatorTests(LinterTestCase):
