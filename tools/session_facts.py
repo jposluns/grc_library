@@ -15,9 +15,9 @@ the heartbeat when stale), reading minute-form stamps as zero seconds and
 dropping rows after that window without warning, except that a minute-form
 row in the start minute with nonzero start seconds makes the count UNKNOWN
 with a warning because its position before or after the start is unknown.
-A minute-form row in a stale heartbeat's minute with nonzero heartbeat
-seconds also makes the count UNKNOWN with a warning because its position
-before or after the last heartbeat is unknown.
+With a known session start, a minute-form row in a stale heartbeat's minute
+also makes the count UNKNOWN with a warning regardless of heartbeat seconds,
+because the minute's later seconds lie after the heartbeat.
 Absent logs are distinguished from unreadable logs.
 After field ambiguity and release checks, all three usable fields must occur in
 Active-session, Status, Last-heartbeat-UTC order or every metric is UNKNOWN;
@@ -187,7 +187,7 @@ def session_metrics(root: Path, now: datetime | None = None):
                 if (dt is not None and dt.second != 0 and len(match[1]) == 17
                         and stamp == dt.replace(second=0)):
                     start_minute_ambiguous = True
-                if (stale_heartbeat and end.second != 0 and len(match[1]) == 17
+                if (dt is not None and stale_heartbeat and len(match[1]) == 17
                         and stamp == end.replace(second=0)):
                     end_minute_ambiguous = True
     if invalid:

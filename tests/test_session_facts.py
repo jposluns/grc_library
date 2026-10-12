@@ -516,7 +516,7 @@ class SessionFactsTests(unittest.TestCase):
         self.assert_invalid_compaction('2026-02-30T00:00:00Z', 'ambiguous')
 
 
-    def fixed_consumers(self):
+    def fixed_consumers(self, clock=(2026, 10, 6, 14, 6)):
         """Run both consumers with the same injected UTC clock; no sleep-based equality."""
         hooks = self.root / ".claude/hooks"
         hooks.mkdir(parents=True, exist_ok=True)
@@ -527,7 +527,7 @@ from pathlib import Path
 class Clock(datetime):
     @classmethod
     def now(cls, tz=None):
-        return cls(2026, 10, 6, 14, 6, tzinfo=timezone.utc)
+        return cls(*clock, tzinfo=timezone.utc)
 tool = runpy.run_path('tools/handoff-snapshot.py')
 tool['session_metrics'].__globals__['datetime'] = Clock
 print(tool['snapshot'](Path.cwd()), end='')
@@ -547,7 +547,7 @@ sys.stdin = io.StringIO(json.dumps({'transcript_path':str(transcript.resolve())}
 os.environ['CLAUDE_PROJECT_DIR'] = str(Path.cwd())
 hook['main']()
 """
-        proc = self.runpy(code)
+        proc = self.runpy("clock = " + repr(clock) + "\n" + code)
         self.assertEqual(proc.returncode, 0, proc.stderr)
         return proc.stdout
 
@@ -724,13 +724,13 @@ hook['main']()
         self.log.write_bytes(content.encode())
         self.assertEqual(self.metrics()["compaction_rows"], len(expected))
 
-    def fixed_cli(self):
+    def fixed_cli(self, clock=(2026, 10, 6, 14, 6)):
         return self.runpy(
             "import runpy\nfrom datetime import datetime, timezone\n"
             "m=runpy.run_path('tools/handoff-snapshot.py')\n"
             "class Clock(datetime):\n"
             " @classmethod\n"
-            " def now(cls,tz=None): return cls(2026,10,6,14,6,tzinfo=timezone.utc)\n"
+            " def now(cls,tz=None): return cls(*" + repr(clock) + ",tzinfo=timezone.utc)\n"
             "m['session_metrics'].__globals__['datetime']=Clock\n"
             "raise SystemExit(m['main']())\n")
 
@@ -911,7 +911,6 @@ hook['main']()
             self.assertIn("a minute-form compaction row in the session's start minute "
                           "cannot be placed before or after the start", proc.stdout)
 
-
     def end_minute_fixture(self, rows, heartbeat="2026-10-06T14:30:20Z",
                            start="2026-10-06T13:00:00Z"):
         self.env["GRC_STORE"] = str(self.store)
@@ -941,7 +940,7 @@ hook['main']()
     def test_end_minute_zero_seconds(self):
         self.end_minute_fixture("| 2026-10-06T14:30Z | compaction |\n",
                                 heartbeat="2026-10-06T14:30:00Z")
-        self.assert_end_minute_count(1)
+        self.assert_end_minute_unknown(self.metrics("2026-10-08T14:30:20+00:00"))
 
     def test_end_minute_seconds_inside(self):
         self.end_minute_fixture("| 2026-10-06T14:30:10Z | compaction |\n")
@@ -981,45 +980,52 @@ hook['main']()
 
     def test_end_minute_consumers(self):
         self.end_minute_fixture("| 2026-10-06T14:30Z | compaction |\n")
-        hooks = self.root / ".claude/hooks"
-        hooks.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(ROOT / ".claude/hooks/surface-session-facts.py",
-                        hooks / "surface-session-facts.py")
-        clock = """import io, json, os, runpy, sys
-from datetime import datetime, timezone
-from pathlib import Path
-class Clock(datetime):
-    @classmethod
-    def now(cls, tz=None):
-        return cls(2026, 10, 8, 14, 30, 20, tzinfo=timezone.utc)
-"""
-        snapshot = """tool = runpy.run_path('tools/handoff-snapshot.py')
-tool['session_metrics'].__globals__['datetime'] = Clock
-raise SystemExit(tool['main']())
-"""
-        hook = """hook = runpy.run_path('.claude/hooks/surface-session-facts.py')
-g = hook['main'].__globals__
-loader = g['_load_sibling']
-def load(name):
-    module = loader(name)
-    if name == 'session_facts':
-        module.datetime = Clock
-    return module
-g['_load_sibling'] = load
-transcript = Path('transcript.jsonl')
-transcript.write_text(json.dumps({'type':'assistant','message':{
-    'content':[{'type':'text','text':'session depth'}]}}) + '\\n')
-sys.stdin = io.StringIO(json.dumps({'transcript_path':str(transcript.resolve())}))
-os.environ['CLAUDE_PROJECT_DIR'] = str(Path.cwd())
-raise SystemExit(hook['main']())
-"""
-        for name, code in (("snapshot", snapshot), ("hook", hook)):
-            with self.subTest(consumer=name):
-                proc = self.runpy(clock + code)
-                self.assertEqual(proc.returncode, 0, proc.stderr)
-                self.assertIn("compactions this session: UNKNOWN", proc.stdout)
-                self.assertIn("a minute-form compaction row in the minute of the last "
-                              "heartbeat cannot be placed before or after it", proc.stdout)
+        clock = (2026, 10, 8, 14, 30, 20)
+        proc = self.fixed_cli(clock)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        for output, count in ((self.fixed_consumers(clock), 2), (proc.stdout, 1)):
+            with self.subTest(consumers=count):
+                self.assertEqual(output.count("compactions this session: UNKNOWN"), count)
+                self.assertEqual(output.count(
+                    "a minute-form compaction row in the minute of the last "
+                    "heartbeat cannot be placed before or after it"), count)
+
+    def test_end_minute_worked_instants(self):
+        cases = (
+            ("14:30:00Z", "14:30Z", False, "UNKNOWN"),
+            ("14:30:20Z", "14:30Z", False, "UNKNOWN"),
+            ("14:30:59Z", "14:30Z", False, "UNKNOWN"),
+            ("14:30:00Z", "14:29Z", False, 1),
+            ("14:30:00Z", "14:30:00Z", False, 1),
+            ("14:30:00Z", "14:30:01Z", False, 0),
+            ("14:30:00Z", "14:31Z", False, 0),
+            ("14:30:20Z", "14:30Z", True, 1),
+        )
+        for heartbeat, stamp, fresh, count in cases:
+            with self.subTest(heartbeat=heartbeat, stamp=stamp, fresh=fresh):
+                self.end_minute_fixture("| 2026-10-06T" + stamp + " | compaction |\n",
+                                        heartbeat="2026-10-06T" + heartbeat)
+                now = "2026-10-06T14:30:20+00:00" if fresh else "2026-10-08T14:30:20+00:00"
+                facts = self.metrics(now)
+                self.assertEqual(facts["compaction_rows"], count)
+                if count == "UNKNOWN":
+                    self.assert_end_minute_unknown(facts)
+                else:
+                    self.assertNotIn("AMBIGUOUS COMPACTION", facts["lease_warning"])
+                if fresh:
+                    self.assertEqual(facts["lease_warning"], "")
+                else:
+                    self.assertIn("STALE HEARTBEAT", facts["lease_warning"])
+
+    def test_end_minute_unknown_start(self):
+        self.end_minute_fixture("| 2026-10-06T14:30Z | compaction |\n")
+        self.change("orch-2026-10-06T13:00:00Z", "unknown-id")
+        facts = self.metrics("2026-10-08T14:30:20+00:00")
+        for key in ("start", "elapsed", "compaction_rows"):
+            self.assertEqual(facts[key], "UNKNOWN")
+        self.assertIn("SESSION_START_UNKNOWN", facts["lease_warning"])
+        self.assertIn("STALE HEARTBEAT", facts["lease_warning"])
+        self.assertNotIn("AMBIGUOUS COMPACTION", facts["lease_warning"])
 
     def test_unverified_heartbeat_without_log(self):
         self.env["GRC_STORE"] = str(self.store)
