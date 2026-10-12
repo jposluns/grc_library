@@ -85,10 +85,10 @@ the report can say GONE for a token that appears there.
 Trace output can also interrupt a listing record: the hook then loses the
 branch's token while the report can say LOCAL and exit 0 for that entry.
 The hook decodes git output with the interpreter's default text encoding
-(UTF-8 in UTF-8 mode, otherwise the locale encoding); the
-report uses UTF-8, so their decoding can differ: one can fail where the other
-succeeds (observed, next sentence), and under a non-UTF-8 locale other than C
-the hook may read a non-ASCII name as different text (not observed: the test
+(UTF-8 in UTF-8 mode, otherwise the locale encoding); the report uses UTF-8,
+so their decoding can differ: one can fail where the other succeeds
+(observed, next sentence), and under a non-UTF-8 locale other than C the
+hook may read a non-ASCII name as different text (not observed: the test
 host has no such locale).
 With LC_ALL=C, PYTHONUTF8=0 and PYTHONCOERCECLOCALE=0, and the hook started
 without -I, a UTF-8 branch name with a non-ASCII letter raised
