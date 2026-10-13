@@ -1551,6 +1551,70 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         _rmtree(parent)
 
 
+SPAWN_WINDOW_PROBE = r"""
+import json, os, runpy, signal, subprocess, sys
+t = runpy.run_path(sys.argv[1])
+state = {"sid": None}
+with t["_self_test_limits"]():
+    class SpawnWindowPopen(subprocess.Popen):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            if kwargs.get("start_new_session") and state["sid"] is None:
+                # The signal lands in the real spawn window: the session
+                # already exists, but run has not yet entered the try whose
+                # finally kills it; only the production mask block across
+                # the spawn holds the SIGTERM until inside that try (3b339).
+                state["sid"] = self.pid
+                os.kill(os.getpid(), signal.SIGTERM)
+    subprocess.Popen = SpawnWindowPopen
+    terminated = False
+    try:
+        # A shell-builtin loop, deliberately: it needs no PATH lookup, so on
+        # the unfixed code (spawn block removed) the shell keeps running and
+        # the leak is observed. "sleep 3600" did not discriminate in the
+        # orchestrator's check (no survivors on the fix or the flip); the
+        # likely cause, not verified, is that the raise removes the PATH
+        # directory before the shell resolves sleep (3b339).
+        t["run"]("while :; do :; done", shells=("bash",), timeout=30)
+    except t["_Terminated"]:
+        terminated = True
+    sid = state["sid"]
+    survivors = None if sid is None else t["_session_survivors"](sid, timeout=2.0)
+    leaked_killed = bool(survivors) and t["_kill_session"](sid)
+    print(json.dumps(dict(terminated=terminated, sid=sid, survivors=survivors,
+                          leaked_killed=leaked_killed)))
+"""
+
+
+def _spawn_window_sigterm_check(failures):
+    # A REAL SIGTERM delivered inside the REAL spawn window (3b339): the
+    # probe's Popen subclass signals its own process right after
+    # super().__init__ returns, between session creation and the mask
+    # restore inside the try, so the mask block across the spawn is the only
+    # thing standing between the signal and a skipped session kill. The
+    # at-spawn policy routes model this window; this check exercises it end
+    # to end with a real child session. The probe kills a leaked session
+    # itself, its fixture watcher sweeps one if the probe dies, and the
+    # bounded communicate below bounds the whole probe.
+    proc = subprocess.Popen(
+        [sys.executable, "-I", "-B", "-c", SPAWN_WINDOW_PROBE, os.path.abspath(__file__)],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+    try:
+        out, _err = proc.communicate(timeout=TEST_PROCESS_WAIT)
+        r = json.loads(out.splitlines()[-1])
+        return (proc.returncode == 0 and r["terminated"] is True
+                and r["sid"] is not None and r["survivors"] == [])
+    except (subprocess.TimeoutExpired, ValueError, IndexError, KeyError):
+        return False
+    finally:
+        if proc.poll() is None:
+            proc.kill()
+        try:
+            proc.communicate(timeout=TEST_WAIT)
+        except subprocess.TimeoutExpired:
+            failures.append(("spawn-window-sigterm-probe-cleanup-wait", False))
+
+
 def _self_test_worker() -> int:
     # All test-created dirs, including subprocess TMPDIRs, have one private
     # parent. Concurrent users of the system temp dir cannot affect this check.
@@ -1694,6 +1758,7 @@ def _self_test_body(policy, failures) -> int:
                        and seen.get("scans") == 1 and seen.get("retried") is False))
     checks.append(("background-call-recorded", _background_call_check()))
     checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
+    checks.append(("sigterm-in-spawn-window-cleans-up", _spawn_window_sigterm_check(failures)))
     # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
     # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
