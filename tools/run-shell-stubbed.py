@@ -52,6 +52,7 @@ still alive at the kill deadline.
 from __future__ import annotations
 
 import argparse
+import functools
 import shlex
 import threading
 import contextlib
@@ -268,7 +269,30 @@ class _Terminated(Exception):
     pass
 
 
+# 3b281 round 4: a finally cannot protect its own body, so with the three
+# unblocked a further signal delivered during cleanup could still interrupt
+# _kill_session or the reap. While the cleanup of a shell (grace loop, kill,
+# reap, temp removal, mask restore) is in progress, _on_signal therefore
+# records the first cleanup signal instead of raising; _run_shells raises it,
+# as the same _Terminated the handler would have raised, once the mask
+# restore is done. The mask-based blocking stays as the first line of
+# defence. This covers only SIGTERM and SIGHUP (the signals _on_signal is
+# installed for): SIGINT keeps the default handler, so a KeyboardInterrupt
+# arriving while the three are unblocked can still cut _kill_session short
+# (the nested finally still reaps), a stated residual. Only the main thread
+# activates, drains or resets this state (CPython runs Python signal handlers
+# in the main thread, so _on_signal itself always runs there): a run on a
+# non-main thread must neither activate, clear nor drain the record the main
+# thread holds (3b281 round 5, item 1). The dict is mutated, never rebound,
+# so self-test clones of _run_shells share it with the real handler.
+_DEFERRED = {"active": False, "pending": None}
+
+
 def _on_signal(signum, _frame):
+    if _DEFERRED["active"]:
+        if _DEFERRED["pending"] is None:
+            _DEFERRED["pending"] = signum
+        return
     raise _Terminated(signum)
 
 
@@ -285,6 +309,15 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
     try:
         return _run_shells(command, shells, stubs, timeout, results)
     finally:
+        # Deferral state is per-shell and normally already cleared; clearing
+        # it again covers every exception path out of _run_shells, so a
+        # restored handler never sees a stale cleanup-in-progress flag. The
+        # state belongs to the main thread alone (3b281 round 5, item 1): a
+        # run on another thread must not wipe a deferral the main thread
+        # holds, so only the main thread resets it.
+        if threading.current_thread() is threading.main_thread():
+            _DEFERRED["active"] = False
+            _DEFERRED["pending"] = None
         for sig, handler in saved_handlers.items():
             signal.signal(sig, handler)
 
@@ -292,6 +325,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
 def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
     for shell in shells:
         tmp = tempfile.mkdtemp(prefix="stubbed-shell-")
+        spawn_mask = None
         cleanup_mask = None
         try:
             bindir, home, log = _prepare(tmp, stubs)
@@ -306,26 +340,143 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
             os.makedirs(work)
             out_path, err_path = os.path.join(tmp, "stdout"), os.path.join(tmp, "stderr")
             with open(out_path, "w") as o_fh, open(err_path, "w") as e_fh:
+                # 3b281: the spawn is a short critical section. A cleanup signal
+                # arriving between session creation and the try below would skip
+                # the session kill, so the three are blocked across the spawn and
+                # delivered at the mask restore just inside the try, where the
+                # finally already guarantees cleanup. pthread_sigmask changes one
+                # thread's mask and preexec_fn forks, so the window closes only
+                # for a single-threaded main-thread caller; a multi-threaded
+                # caller keeps the original spawn window and gets no preexec_fn,
+                # the stated residual (another thread would receive the signal
+                # regardless, and fork with live threads can deadlock preexec_fn).
+                # threading.active_count counts only threads known to the
+                # threading module: threads started by C extensions or raw
+                # _thread are invisible, so such a caller is treated as
+                # single-threaded here, a further stated residual.
+                if (threading.current_thread() is threading.main_thread()
+                        and threading.active_count() == 1):
+                    # Query with a no-op first, then block: the blocking call can
+                    # itself deliver a pending signal on return, and saving and
+                    # blocking in one call could then leave the three blocked
+                    # with no mask recorded to restore (3b281 round 1).
+                    spawn_mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+                    signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
+                # The child sets exactly spawn_mask before exec: a restore, not an
+                # unblock, so a signal the caller had blocked stays blocked in the
+                # command too. Popen's restore_signals does not clear an inherited
+                # mask (verified on this host, Python 3.14.4), so this is required.
                 p = subprocess.Popen(argv, stdout=o_fh, stderr=e_fh, stdin=subprocess.DEVNULL, env=env, cwd=work,
-                                     start_new_session=True)
+                                     start_new_session=True,
+                                     preexec_fn=None if spawn_mask is None else functools.partial(
+                                         signal.pthread_sigmask, signal.SIG_SETMASK, spawn_mask))
                 timed_out = ""
                 try:
+                    if spawn_mask is not None:
+                        # Restore the saved mask, do not unblock: a signal the
+                        # caller had blocked before calling in must stay blocked.
+                        # A signal that arrived during the spawn is raised here,
+                        # inside the try, so the finally below cleans up.
+                        signal.pthread_sigmask(signal.SIG_SETMASK, spawn_mask)
                     rc = p.wait(timeout=timeout)
                 except subprocess.TimeoutExpired:
                     rc, timed_out = None, f"timed out after {timeout}s"
                 finally:
-                    # A second signal must not cut cleanup short (3b116 QA r9), so the three are BLOCKED, not
-                    # ignored, until this shell's temp dir is removed: a signal that arrives meanwhile is
-                    # delivered afterwards (the run still stops), and nothing ignored is inherited by the next
-                    # shell (fix-check after QA r9). Main thread only.
-                    if threading.current_thread() is threading.main_thread():
-                        cleanup_mask = signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
-                    grace_end = time.monotonic() + GRACE_SECONDS
-                    while time.monotonic() < grace_end and _live(_session_members(p.pid)):
-                        time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
-                    killed = len(_live(_session_members(p.pid)))
-                    contained = _kill_session(p.pid)
-                    p.wait()
+                    # A second signal must not cut cleanup short (3b116 QA r9). Two layers
+                    # protect this shell's cleanup until its temp dir is removed. First the
+                    # mask: the three are BLOCKED, not ignored (a signal arriving meanwhile
+                    # is delivered afterwards, the run still stops, and nothing ignored is
+                    # inherited by the next shell; fix-check after QA r9). Any main-thread
+                    # caller blocks here, whether or not the spawn was eligible. Second,
+                    # because a finally cannot protect its own body, _on_signal DEFERS
+                    # while the flag below is set: if the three end up unblocked (both
+                    # block attempts below can raise), a SIGTERM or SIGHUP delivered during
+                    # the grace loop, the kill or the reap is recorded, not raised, and is
+                    # raised as _Terminated after the mask restore (3b281 round 4).
+                    # Residuals, stated plainly: a signal landing between entering this
+                    # finally and the protected try still raises before cleanup began
+                    # (the activation itself now sits inside that try, so a raise taken
+                    # during it still reaches the kill and the reap; round 5, item 3);
+                    # SIGINT keeps the default handler and is covered only by the mask; and
+                    # for a multi-threaded caller the mask protects cleanup only when its
+                    # other threads also block the three (the kernel may deliver to another
+                    # thread regardless) - the same residual as the spawn window (3b281
+                    # rounds 2 and 3).
+                    # pthread_sigmask runs pending Python signal handlers when it returns,
+                    # so either call below can still raise (with deferral active, only
+                    # through a handler other than _on_signal, such as SIGINT's); the
+                    # nested finalizers below therefore guarantee the session kill and the
+                    # reap on every path.
+                    try:
+                        if threading.current_thread() is threading.main_thread():
+                            # Entry ordering and thread scope (3b281 round 5, items
+                            # 1 and 3): only the main thread owns the deferral;
+                            # pending is cleared before activation, so a record a
+                            # signal makes between the two statements is never
+                            # wiped; and both sit inside this protected try, so a
+                            # _Terminated raised during them still reaches the
+                            # kill and the reap in the finallys below.
+                            _DEFERRED["pending"] = None
+                            _DEFERRED["active"] = True
+                            # Query with a no-op first, then block, as at the spawn:
+                            # if the blocking call raises, the mask to restore is
+                            # already recorded. When spawn_mask is set the two are
+                            # normally equal, but only if the restore at the top of
+                            # the try actually ran; spawn_mask therefore takes
+                            # precedence at the restore below (3b281 round 4).
+                            cleanup_mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+                            signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
+                    finally:
+                        try:
+                            # If the query above raised (a signal was already
+                            # pending), the three are not yet blocked; retry the
+                            # query-then-block once, recording cleanup_mask before
+                            # blocking as above, so the grace loop below normally
+                            # runs with the three blocked (3b281 round 3). An
+                            # earlier record is kept: the mask cannot have changed
+                            # if the blocking call never ran.
+                            if threading.current_thread() is threading.main_thread():
+                                current = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+                                if not _CLEANUP_SIGNALS <= current:
+                                    if cleanup_mask is None:
+                                        cleanup_mask = current
+                                    signal.pthread_sigmask(signal.SIG_BLOCK, _CLEANUP_SIGNALS)
+                        finally:
+                            # Even if both block attempts raised, the kill and the
+                            # reap still run: the grace loop sits in its own try
+                            # whose finally performs them (3b281 round 3), and the
+                            # reap sits in its own finally around the kill, so an
+                            # OSError (or anything else) raised by _kill_session
+                            # cannot skip p.wait() (3b281 round 4, gemini W).
+                            try:
+                                grace_end = time.monotonic() + GRACE_SECONDS
+                                while time.monotonic() < grace_end and _live(_session_members(p.pid)):
+                                    time.sleep(0.02)  # let a backgrounded call finish recording (QA r8)
+                                killed = len(_live(_session_members(p.pid)))
+                            finally:
+                                try:
+                                    contained = _kill_session(p.pid)
+                                finally:
+                                    # Bounded reap (3b281 round 5, item 2; codex
+                                    # CLEANUP-REAP-HANG): if _kill_session raised
+                                    # with the shell still alive or stopped, an
+                                    # unbounded wait would block forever; on
+                                    # timeout, SIGKILL the shell (p.kill() also
+                                    # ends a stopped process) and reap it, then
+                                    # let the original exception propagate.
+                                    # Residuals (3b281 round 6, routed 3b341):
+                                    # the wait after SIGKILL is unbounded, so a
+                                    # shell in uninterruptible sleep can still
+                                    # block it; the SIGKILL reaches only the
+                                    # shell, not other session members a failed
+                                    # _kill_session left alive; and a
+                                    # KeyboardInterrupt during the first wait
+                                    # skips the SIGKILL.
+                                    try:
+                                        p.wait(timeout=GRACE_SECONDS)
+                                    except subprocess.TimeoutExpired:
+                                        p.kill()
+                                        p.wait()
             with open(out_path, encoding="utf-8", errors="replace") as fh:
                 out = fh.read()
             with open(err_path, encoding="utf-8", errors="replace") as fh:
@@ -336,9 +487,44 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                             "killed": killed,
                             "session": p.pid, "calls": ["STUB " + shlex.join(r) for r in records], "argv": records})
         finally:
-            _rmtree(tmp)
-            if cleanup_mask is not None:
-                signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
+            # The mask is restored even when _rmtree raises. spawn_mask is
+            # authoritative when set: it was recorded before anything was
+            # blocked, while cleanup_mask is a later observation that can
+            # include the three if the restore at the top of the try was
+            # skipped (for example a non-cleanup handler raising between the
+            # spawn and that restore), so spawn_mask is restored first and
+            # cleanup_mask only when the spawn never recorded one (3b281
+            # round 4, after rounds 1-3). On the main thread - the deferral
+            # belongs to it alone (3b281 round 5, item 1) - the recorded
+            # signal is then taken before the flag is cleared, in the same
+            # protected region as the restore, so a signal the restore itself
+            # delivered is recorded while still active and neither wiped nor
+            # skipped (round 5, item 3); it is raised here, after the restore,
+            # as the _Terminated _on_signal would have raised (replacing, with
+            # chaining, an exception already propagating: the run stops either
+            # way). This clearing covers every path, including reentry for the
+            # next shell and the self-test clones.
+            try:
+                _rmtree(tmp)
+            finally:
+                try:
+                    if spawn_mask is not None:
+                        signal.pthread_sigmask(signal.SIG_SETMASK, spawn_mask)
+                    elif cleanup_mask is not None:
+                        signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
+                finally:
+                    # Exit residual (3b281 round 6, routed 3b341): a handler run
+                    # between taking the record and deactivating would record its
+                    # signal after the take, so it would not be raised and the next
+                    # reset would wipe it. CPython 3.12 and later run Python handlers
+                    # only at eval-breaker points, which these two statements do not
+                    # contain, so this is inferred unreachable on this host's Python
+                    # 3.14, not tested.
+                    if threading.current_thread() is threading.main_thread():
+                        pending, _DEFERRED["pending"] = _DEFERRED["pending"], None
+                        _DEFERRED["active"] = False
+                        if pending is not None:
+                            raise _Terminated(pending)
     return results
 
 
@@ -578,7 +764,12 @@ def _cleanup_deadline_check():
                     def failed_kill(sid):
                         with open(ready.name, "w") as stream:
                             stream.write(str(sid))
-                        return False
+                        # The reap after the kill is bounded (3b281 round 5,
+                        # item 2), so a kill that merely fails no longer hangs
+                        # the cleanup; the modelled hang moves into the kill
+                        # itself, which this supervisor must still bound.
+                        while True:
+                            time.sleep(60)
                     globals()["_kill_session"] = failed_kill
                     run("sleep 3600", shells=("bash",))
                 return 0
@@ -791,35 +982,171 @@ def _policy_checks():
     The signal oracle requires an exception AND cleanup. Recording a signal
     then returning from wait is a failure (the strengthened round-5 oracle).
     Timeout goes through public run, so dropping its argument fails.
+    Every route also asserts the caller's signal mask (3b281 round 1): equal
+    before and after the route, in force inside wait, and carried into the
+    child by a mask-restoring preexec_fn where a route exercises the mask.
+    Round 2 (3b281) adds: a modelled _rmtree that raises after marking
+    removal, a cleanup re-block that raises the way a pending handler would,
+    and a modelled second thread with a TERM arriving during cleanup.
+    Round 3 (3b281) adds: a reap oracle on every route that creates a
+    process, an ineligible-spawn route whose first block of the three raises
+    after setting the mask, and a route where the cleanup query and its
+    retry both raise and a further TERM lands inside the grace loop.
+    Round 4 (3b281) adds: a TERM delivered inside the kill with the three
+    unblocked, held by the handler deferral until after the mask restore; a
+    kill that raises OSError while the reap still runs; retry-success routes
+    (eligible and ineligible spawn) where only the first cleanup query raises
+    and the retry blocks the grace TERM; and a skipped top-of-try restore
+    proving spawn_mask takes restore precedence.
+    Round 5 (3b281) adds: a kill that raises with the shell still alive, so
+    the bounded reap must SIGKILL and reap it while the original exception
+    propagates; a run whose current_thread is modelled as non-main while the
+    main thread holds an active deferral with a recorded signal, which must
+    survive unchanged; and the modelled raising queries now raise
+    KeyboardInterrupt, so the deferral routes can end in a _Terminated for
+    SIGTERM only through the deferred raise at the end of a shell, chained
+    over that KeyboardInterrupt.
     """
     import types
     results = []
-    for route in ("grace", "timeout", "TERM", "HUP", "INT"):
+    class PopenRaised(Exception):
+        pass
+    class RmtreeRaised(Exception):
+        pass
+    class KillRaised(OSError):
+        pass
+    for route in ("grace", "timeout", "TERM", "HUP", "INT",
+                  "TERM-at-spawn", "INT-at-spawn", "HUP-at-spawn",
+                  "popen-raises", "rmtree-raises", "cleanup-block-raises",
+                  "TERM-caller-blocks-HUP", "TERM-in-cleanup-threads",
+                  "cleanup-first-block-raises-threads",
+                  "cleanup-query-raises-grace-TERM",
+                  "cleanup-query-raises-retry-TERM",
+                  "cleanup-query-raises-retry-threads",
+                  "TERM-in-kill-unblocked", "kill-raises",
+                  "spawn-restore-raises", "kill-raises-shell-alive",
+                  "nonmain-thread-preserves-deferral"):
+        base, at_spawn = route.split("-")[0], route.endswith("-at-spawn")
+        in_cleanup = route == "TERM-in-cleanup-threads"
+        in_kill = route == "TERM-in-kill-unblocked"
+        kill_raises = route == "kill-raises"
+        kill_raises_alive = route == "kill-raises-shell-alive"
+        nonmain = route == "nonmain-thread-preserves-deferral"
+        restore_skipped = route == "spawn-restore-raises"
+        retry_succeeds = route in ("cleanup-query-raises-retry-TERM",
+                                   "cleanup-query-raises-retry-threads")
+        threads = route in ("TERM-in-cleanup-threads",
+                            "cleanup-first-block-raises-threads",
+                            "cleanup-query-raises-retry-threads")
+        query_raises = route == "cleanup-query-raises-grace-TERM"
+        caller_saved = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+        if route == "TERM-caller-blocks-HUP":
+            # Covers restore-not-unblock: the caller blocked HUP before calling
+            # in, so inside wait HUP must still be blocked (SIG_SETMASK keeps
+            # it; SIG_UNBLOCK of the three would clear it), and the preexec_fn
+            # must carry that mask into the child.
+            signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGHUP})
+        mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, ())
         state = dict(clock=0.0, live=True, killed=False, removed=False,
-                     late=False, elapsed=0.0)
+                     late=False, elapsed=0.0, unmasked=False, preexec=None,
+                     blocked_at_spawn=False, cleanup_blocked=None,
+                     reaped=False, grace_delivered=None, kill_unblocked=None,
+                     kill_raised=False, sigkilled=False)
         class Process:
             pid = 7
             def wait(self, timeout=None):
                 if state["killed"]:
+                    # the post-kill reap inside the cleanup finally runs with
+                    # the three deliberately blocked, so its mask is not
+                    # checked; the reap itself is recorded and required on
+                    # every route that created a process (3b281 round 3)
+                    state["reaped"] = True
+                    return 0
+                if state["kill_raised"]:
+                    # The kill raised with the shell still alive: a reap would
+                    # block until the shell is killed, so an unbounded wait
+                    # models the hang and a bounded one times out (3b281
+                    # round 5, item 2; codex CLEANUP-REAP-HANG).
+                    if timeout is None:
+                        raise AssertionError("unbounded reap would hang")
+                    raise subprocess.TimeoutExpired("model", timeout)
+                # The main wait must run under the caller's own mask.
+                if signal.pthread_sigmask(signal.SIG_BLOCK, ()) != mask_before:
+                    state["unmasked"] = True
+                if at_spawn:
+                    # A deferral design that only acts when the command ends
+                    # reaches wait; the at-spawn signal must preempt it (3b281).
+                    state["late"] = True
                     return 0
                 if route == "timeout":
                     if timeout != 1:
                         state["late"] = True
                         return 0
                     raise subprocess.TimeoutExpired("model", timeout)
-                if route in ("TERM", "HUP", "INT"):
-                    os.kill(os.getpid(), getattr(signal, "SIG" + route))
+                if base in ("TERM", "HUP", "INT") and not in_cleanup and not in_kill:
+                    os.kill(os.getpid(), getattr(signal, "SIG" + base))
                     state["late"] = True
                 return 0
+            def kill(self):
+                # The bounded reap sends SIGKILL, which also ends a stopped
+                # shell; the next wait can then reap it (3b281 round 5, item 2).
+                state["sigkilled"] = True
+                state["live"] = False
+                state["killed"] = True
         def sleep(seconds):
             state["clock"] = round(state["clock"] + 0.125, 9)
             if state["clock"] > 10:
                 raise AssertionError("model did not terminate")
+            if query_raises and state["grace_delivered"] is None:
+                # Both cleanup block attempts raised, so the three are not
+                # blocked during the grace loop: a further signal arriving
+                # now is delivered inside time.sleep. Deliver only when the
+                # mask really is open; blocked, it would stay pending.
+                state["grace_delivered"] = not (
+                    _CLEANUP_SIGNALS <= signal.pthread_sigmask(signal.SIG_BLOCK, ()))
+                if state["grace_delivered"]:
+                    raise _Terminated(signal.SIGTERM)
+            if (in_cleanup or retry_succeeds) and state["cleanup_blocked"] is None:
+                # First grace-loop sleep: the cleanup block (for the retry
+                # routes, the one the retry performed) must already be in
+                # force, so a TERM sent now stays pending until the mask
+                # restore after the kill and the reap, where the deferral
+                # turns it into _Terminated (3b281 rounds 2 and 4).
+                state["cleanup_blocked"] = _CLEANUP_SIGNALS <= signal.pthread_sigmask(
+                    signal.SIG_BLOCK, ())
+                os.kill(os.getpid(), signal.SIGTERM)
         def kill(sid):
+            if in_kill:
+                # TERM delivered inside the kill with the three unblocked
+                # (both cleanup block attempts raised): only the deferral in
+                # _on_signal lets the kill finish (3b281 round 4, item 1).
+                state["kill_unblocked"] = not (_CLEANUP_SIGNALS <= signal.pthread_sigmask(
+                    signal.SIG_BLOCK, ()))
+                os.kill(os.getpid(), signal.SIGTERM)
             state["elapsed"] = state["clock"]
+            if kill_raises_alive:
+                # Raised with the shell still alive and possibly stopped: the
+                # bounded reap in the finally must SIGKILL and reap it while
+                # this exception propagates (3b281 round 5, item 2).
+                state["kill_raised"] = True
+                raise KillRaised()
             state["live"] = False
             state["killed"] = True
+            if kill_raises:
+                raise KillRaised()
             return True
+        def spawn(*a, **kw):
+            # An at-spawn route delivers the signal inside the Popen call, in
+            # the window between session creation and the cleanup try (3b281).
+            state["preexec"] = kw.get("preexec_fn")
+            state["blocked_at_spawn"] = _CLEANUP_SIGNALS <= signal.pthread_sigmask(
+                signal.SIG_BLOCK, ())
+            if route == "popen-raises":
+                raise PopenRaised()
+            proc = Process()
+            if at_spawn:
+                os.kill(os.getpid(), getattr(signal, "SIG" + base))
+            return proc
         g = dict(globals())
         g.update(
             open=lambda *a, **kw: io.StringIO(""),
@@ -827,7 +1154,7 @@ def _policy_checks():
             tempfile=types.SimpleNamespace(mkdtemp=lambda **kw: "virtual"),
             os=types.SimpleNamespace(path=os.path, devnull=os.devnull, makedirs=lambda *a: None),
             time=types.SimpleNamespace(monotonic=lambda: state["clock"], sleep=sleep),
-            subprocess=types.SimpleNamespace(Popen=lambda *a, **kw: Process(),
+            subprocess=types.SimpleNamespace(Popen=spawn,
                 DEVNULL=subprocess.DEVNULL, TimeoutExpired=subprocess.TimeoutExpired),
             _kill_session=kill,
             _rmtree=lambda path: state.update(removed=True),
@@ -835,32 +1162,265 @@ def _policy_checks():
         for name in ("run", "_run_shells"):
             fn = globals()[name]
             g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
+        if route == "rmtree-raises":
+            def rmtree_raises(path):
+                state.update(removed=True)
+                raise RmtreeRaised()
+            g["_rmtree"] = rmtree_raises
+        if route in ("cleanup-block-raises", "cleanup-first-block-raises-threads"):
+            # pthread_sigmask runs pending Python handlers when it returns,
+            # so a block of the three can raise after the mask is already
+            # set. For cleanup-block-raises the second block of the three is
+            # the cleanup re-block (the first is the spawn's) (3b281 round
+            # 2); for the threads route the spawn is ineligible, so the
+            # cleanup's block is the first and only one (3b281 round 3).
+            failing_block = 2 if route == "cleanup-block-raises" else 1
+            class SignalModel:
+                blocks = 0
+                def __getattr__(self, name):
+                    return getattr(signal, name)
+                def pthread_sigmask(self, how, sigs):
+                    result = signal.pthread_sigmask(how, sigs)
+                    if how == signal.SIG_BLOCK and sigs is _CLEANUP_SIGNALS:
+                        SignalModel.blocks += 1
+                        if SignalModel.blocks == failing_block:
+                            raise _Terminated(signal.SIGTERM)
+                    return result
+            g["signal"] = SignalModel()
+        raising_queries = ()
+        if query_raises or in_kill:
+            # The cleanup query itself raises (a pending signal is delivered
+            # when pthread_sigmask returns), and so does the retry's query:
+            # the grace loop and the kill then run with the three unblocked
+            # (3b281 rounds 3 and 4). The first query is the spawn's.
+            raising_queries = (2, 3)
+        elif route == "cleanup-query-raises-retry-TERM":
+            # Only the first cleanup query raises; the retry must record the
+            # mask and block the three (3b281 round 4, claude W1).
+            raising_queries = (2,)
+        elif route == "cleanup-query-raises-retry-threads":
+            # Ineligible spawn, so the cleanup query is the first the model
+            # sees; the retry must take its cleanup_mask = current branch.
+            raising_queries = (1,)
+        if raising_queries:
+            class QueryModel:
+                queries = 0
+                def __getattr__(self, name):
+                    return getattr(signal, name)
+                def pthread_sigmask(self, how, sigs):
+                    result = signal.pthread_sigmask(how, sigs)
+                    if how == signal.SIG_BLOCK and not sigs:
+                        QueryModel.queries += 1
+                        if QueryModel.queries in raising_queries:
+                            # KeyboardInterrupt, not _Terminated: on the
+                            # deferral routes the propagating error must be the
+                            # drained _Terminated for SIGTERM chained over
+                            # this, so removing the deferred raise at the end
+                            # of a shell is observable (3b281 round 5, item 4;
+                            # claude W3).
+                            raise KeyboardInterrupt()
+                    return result
+            g["signal"] = QueryModel()
+        if restore_skipped:
+            class SetmaskModel:
+                # The restore at the top of the try never runs: a non-cleanup
+                # handler raised first, so the three stay blocked and the
+                # cleanup query records a cleanup_mask that diverges from
+                # spawn_mask; only spawn_mask, which must take precedence at
+                # the restore, returns the true caller mask (3b281 round 4,
+                # item 3; gemini error). The second setmask is that restore.
+                setmasks = 0
+                def __getattr__(self, name):
+                    return getattr(signal, name)
+                def pthread_sigmask(self, how, sigs):
+                    if how == signal.SIG_SETMASK:
+                        SetmaskModel.setmasks += 1
+                        if SetmaskModel.setmasks == 1:
+                            raise _Terminated(signal.SIGTERM)
+                    return signal.pthread_sigmask(how, sigs)
+            g["signal"] = SetmaskModel()
+        if nonmain:
+            # current_thread is modelled as non-main (a fresh sentinel object
+            # each call), so the clone takes every non-main path
+            # deterministically while the route still runs on the real main
+            # thread (3b281 round 5, item 1).
+            g["threading"] = types.SimpleNamespace(
+                current_thread=lambda: object(),
+                main_thread=threading.main_thread,
+                active_count=lambda: 2)
+        if threads:
+            # A second Python thread is modelled, not started: the count makes
+            # the spawn ineligible deterministically while the caller is still
+            # the main thread (threading.active_count counts only threads the
+            # threading module knows, so this also models a caller whose extra
+            # threads came from a C extension or raw _thread).
+            g["threading"] = types.SimpleNamespace(
+                current_thread=threading.current_thread,
+                main_thread=threading.main_thread,
+                active_count=lambda: 2)
         class MissingProductionHandler(Exception):
             pass
         def missing_handler(signum, frame):
             raise MissingProductionHandler(signum)
-        placeholder = getattr(signal, "SIG" + route) if route in ("TERM", "HUP") else None
+        placeholder = getattr(signal, "SIG" + base) if base in ("TERM", "HUP") else None
         previous_handler = None
         if placeholder is not None:
             previous_handler = signal.signal(placeholder, missing_handler)
-        error, answer = None, None
+        error, answer, after, deferral_after = None, None, None, None
+        if nonmain:
+            # The main thread holds an active deferral with a recorded TERM;
+            # the modelled non-main run below must leave both untouched.
+            _DEFERRED["pending"] = signal.SIGTERM
+            _DEFERRED["active"] = True
         try:
             answer = g["run"]("model", shells=("bash",), timeout=1)
         except AssertionError:
             results.append(("production-policy:" + route, False))
             continue
-        except (_Terminated, KeyboardInterrupt, MissingProductionHandler) as exc:
+        except (_Terminated, KeyboardInterrupt, MissingProductionHandler,
+                PopenRaised, RmtreeRaised, KillRaised) as exc:
             error = exc
         finally:
+            if nonmain:
+                deferral_after = dict(_DEFERRED)
+                _DEFERRED["active"] = False
+                _DEFERRED["pending"] = None
             if placeholder is not None:
                 signal.signal(placeholder, previous_handler)
-        ok = state["killed"] and state["removed"] and not state["late"]
-        if route in ("TERM", "HUP", "INT"):
-            ok = ok and isinstance(error, (_Terminated, KeyboardInterrupt))
-        elif route == "timeout":
-            ok = ok and answer[0]["rc"] is None and "timed out after 1s" in answer[0]["stderr"]
+            # One call reads the after-route mask and restores the caller's.
+            after = signal.pthread_sigmask(signal.SIG_SETMASK, caller_saved)
+        pe = state["preexec"]
+        restoring = (isinstance(pe, functools.partial)
+                     and pe.func is signal.pthread_sigmask
+                     and pe.args == (signal.SIG_SETMASK, mask_before)
+                     and not pe.keywords)
+        ok = (after == mask_before and not state["unmasked"]
+              and not state["late"] and state["removed"])
+        if route != "popen-raises":
+            # 3b281 round 3 (codex W): every route that creates a process
+            # must observe the reap, the modelled post-kill p.wait().
+            ok = ok and state["reaped"]
+        if route == "popen-raises":
+            # Popen raised while the three were blocked; the outer finally
+            # must still restore the saved mask (3b281 round 1).
+            ok = (ok and state["blocked_at_spawn"] and restoring
+                  and isinstance(error, PopenRaised) and not state["killed"])
+        elif route == "rmtree-raises":
+            # _rmtree marked removal then raised: the error propagates, the
+            # session was already killed, and `after` above proves the nested
+            # finally still restored the caller's mask (3b281 round 2).
+            ok = (ok and state["killed"] and isinstance(error, RmtreeRaised)
+                  and state["elapsed"] == 2.0)
+        elif route == "cleanup-block-raises":
+            # The cleanup re-block raised after setting the mask; the grace
+            # loop, kill, reap and mask restore must still have run.
+            ok = (ok and state["killed"] and state["blocked_at_spawn"]
+                  and isinstance(error, _Terminated) and state["elapsed"] == 2.0)
+        elif in_cleanup:
+            # This route covers "an ineligible spawn still blocks at
+            # cleanup", not multi-threaded protection: with the three blocked
+            # only on the main thread, another real thread could still
+            # receive the signal (the stated residual). Spawn ineligible
+            # (modelled second thread): no preexec_fn and no spawn block, but
+            # the cleanup block held the TERM sent during the grace loop
+            # until the restore after the kill delivered it.
+            ok = (ok and state["killed"] and state["cleanup_blocked"] is True
+                  and not state["blocked_at_spawn"] and pe is None
+                  and isinstance(error, _Terminated) and state["elapsed"] == 2.0)
+        elif route == "cleanup-first-block-raises-threads":
+            # Ineligible spawn (modelled second thread), so the cleanup's
+            # query-then-block performs the first block of the three; it
+            # raised after setting the mask, with cleanup_mask already
+            # recorded by the query, so the kill, the reap and the mask
+            # restore still ran and _Terminated propagated (3b281 round 3,
+            # claude W2). A merged query+block would lose the only record of
+            # the caller's mask.
+            ok = (ok and state["killed"] and not state["blocked_at_spawn"]
+                  and pe is None and isinstance(error, _Terminated)
+                  and state["elapsed"] == 2.0)
+        elif query_raises:
+            # The cleanup query raised, the retry's query raised too, and a
+            # further TERM was delivered inside the grace loop's sleep: the
+            # nested finally still killed the session, reaped it, and the
+            # outer finally restored the mask (3b281 round 3, codex
+            # CLEANUP-QUERY-INTERRUPTION).
+            ok = (ok and state["killed"] and state["blocked_at_spawn"]
+                  and state["grace_delivered"] is True
+                  and isinstance(error, _Terminated))
+        elif in_kill:
+            # TERM delivered inside _kill_session with the three unblocked
+            # (both cleanup block attempts raised): the handler deferral let
+            # the kill complete and the reap run, and _Terminated was raised
+            # only after the mask restore (3b281 round 4, item 1; claude W2,
+            # codex CLEANUP-KILL-INTERRUPTION).
+            ok = (ok and state["killed"] and state["blocked_at_spawn"]
+                  and state["kill_unblocked"] is True
+                  and state["elapsed"] == 2.0 and isinstance(error, _Terminated)
+                  and error.args == (signal.SIGTERM,)
+                  and isinstance(error.__context__, KeyboardInterrupt))
+        elif kill_raises:
+            # The modelled kill raised OSError: the reap in its own finally
+            # still ran (asserted here explicitly as well as generically;
+            # 3b281 round 5, item 4, claude N3), the temp dir went, the mask
+            # was restored, and the OSError propagated (3b281 round 4,
+            # item 2; gemini W).
+            ok = (ok and state["killed"] and state["reaped"]
+                  and isinstance(error, KillRaised) and state["elapsed"] == 2.0)
+        elif kill_raises_alive:
+            # The modelled kill raised with the shell still alive: the bounded
+            # reap timed out, SIGKILLed the shell, reaped it, the temp dir
+            # went, the mask was restored, and the original exception still
+            # propagated (3b281 round 5, item 2; codex CLEANUP-REAP-HANG).
+            ok = (ok and state["sigkilled"] and state["killed"]
+                  and state["reaped"] and isinstance(error, KillRaised)
+                  and state["elapsed"] == 2.0)
+        elif nonmain:
+            # Production cleanup ran with current_thread modelled as non-main
+            # while the main thread held an active deferral with a recorded
+            # SIGTERM: the non-main run neither activated, cleared nor drained
+            # it - the record survived unchanged - and the run completed with
+            # no error, no spawn block and no preexec_fn (3b281 round 5,
+            # item 1; claude E1, gemini errors).
+            ok = (ok and state["killed"] and error is None
+                  and answer is not None and not state["blocked_at_spawn"]
+                  and pe is None and state["elapsed"] == 2.0
+                  and deferral_after == dict(active=True,
+                                             pending=signal.SIGTERM))
+        elif retry_succeeds:
+            # Only the first cleanup query raised; the retry recorded the
+            # mask and blocked the three, so the TERM sent at the first grace
+            # sleep stayed pending through the full grace, the kill and the
+            # reap, and was raised only after the restore (3b281 round 4,
+            # item 4; claude W1).
+            ok = (ok and state["killed"] and state["cleanup_blocked"] is True
+                  and state["elapsed"] == 2.0 and isinstance(error, _Terminated)
+                  and error.args == (signal.SIGTERM,)
+                  and isinstance(error.__context__, KeyboardInterrupt))
+            if route.endswith("-threads"):
+                # Ineligible spawn: cleanup_mask = current was the only mask
+                # record, and the restore fell back to it (after == the mask
+                # from before the route, asserted above).
+                ok = ok and not state["blocked_at_spawn"] and pe is None
+            else:
+                ok = ok and state["blocked_at_spawn"]
+        elif restore_skipped:
+            # The restore at the top of the try never ran, so cleanup_mask
+            # recorded the spawn-blocked mask; only spawn_mask, which takes
+            # restore precedence, returns the true caller mask - the generic
+            # after == mask_before above is the oracle (3b281 round 4,
+            # item 3; gemini error).
+            ok = (ok and state["killed"] and state["blocked_at_spawn"]
+                  and state["elapsed"] == 2.0 and isinstance(error, _Terminated))
         else:
-            ok = ok and state["elapsed"] == 2.0
+            ok = ok and state["killed"]
+            if at_spawn or route == "TERM-caller-blocks-HUP":
+                ok = ok and state["blocked_at_spawn"] and restoring
+            if base in ("TERM", "HUP", "INT"):
+                ok = ok and isinstance(error, (_Terminated, KeyboardInterrupt))
+            elif route == "timeout":
+                ok = ok and answer[0]["rc"] is None and "timed out after 1s" in answer[0]["stderr"]
+            else:
+                ok = ok and state["elapsed"] == 2.0
         results.append(("production-policy:" + route, ok))
     clock, sends = [0.0], []
     def send(pid, sig):
@@ -913,15 +1473,21 @@ with t["_self_test_limits"]():
 
 
 def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
-    # Readiness comes from Popen.wait INSIDE the command's try/finally.
-    # This deliberately avoids the production spawn race deferred to 3b281.
-    # Read a pipe for readiness and wait on process exit, with independent
-    # monotonic ceilings. Neither test depends on a command sleep duration.
+    # Readiness comes from Popen.wait INSIDE the command's try/finally; the
+    # production spawn window itself is covered by the at-spawn policy routes,
+    # so TERM is sent only after readiness. Read a pipe for readiness and wait
+    # on process exit; one shared monotonic deadline bounds both stages (they
+    # are not independent ceilings). Neither depends on a command sleep.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
     ready_r, ready_w = os.pipe()
     hold_r, hold_w = os.pipe()
     proc, sid = None, None
+    def fail(stage):
+        # 3b281 B3: a stalled stage must not impersonate a cleanup leak; every
+        # failure path names its stage. No ceiling or timing change.
+        failures.append(("sigterm-cleans-up:" + stage, False))
+        return False
     try:
         proc = subprocess.Popen(
             [sys.executable, "-I", "-B", "-c", SIGNAL_PROBE,
@@ -937,22 +1503,30 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
             while b"\n" not in data:
                 remaining = deadline - time.monotonic()
                 if remaining <= 0 or not selector.select(remaining):
-                    return False
+                    return fail("readiness-timeout")
                 chunk = os.read(ready_r, 4096)
                 if not chunk:
-                    return False
+                    return fail("ready-pipe-eof")
                 data += chunk
-        sid = int(data.splitlines()[0])
+        try:
+            sid = int(data.splitlines()[0])
+        except ValueError:
+            return fail("announce-unparsable")
         if proc.poll() is not None:
-            return False
+            return fail("probe-died-before-term")
         proc.send_signal(signal.SIGTERM)
         # subprocess.wait uses a monotonic deadline and waitpid.
-        proc.wait(timeout=max(0.001, deadline - time.monotonic()))
-        return (proc.returncode != 0 and not os.listdir(parent)
-                and not _session_survivors(
-                    sid, timeout=max(0.0, deadline - time.monotonic())))
-    except (subprocess.TimeoutExpired, ValueError):
-        return False
+        try:
+            proc.wait(timeout=max(0.001, deadline - time.monotonic()))
+        except subprocess.TimeoutExpired:
+            return fail("probe-exit-wait-timeout")
+        if proc.returncode == 0:
+            return fail("probe-exit-zero")
+        if os.listdir(parent):
+            return fail("tmp-left")
+        if _session_survivors(sid, timeout=max(0.0, deadline - time.monotonic())):
+            return fail("survivors")
+        return True
     finally:
         if proc is not None:
             if proc.poll() is None:
