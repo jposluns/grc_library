@@ -7484,7 +7484,7 @@ documents:
   domain: "operations"
   type: "Procedure"
   title: "Media Handling and Transport Procedure"
-  version: "1.4.6"
+  version: "1.5.0"
   date: "2026-10-13"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
@@ -7513,7 +7513,7 @@ documents:
     - "11. Framework alignment"
   frameworks:
     - "ISO/IEC 27001:2022"
-    - "NIST SP 800-88 Rev. 2 / IEEE 2883"
+    - "NIST SP 800-88 Rev. 2 / IEEE 2883-2022"
     - "CSA CCM v4.1"
     - "COBIT 2019"
 - path: "operations/ot/procedure-ot-change-management.md"
