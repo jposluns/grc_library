@@ -2,8 +2,8 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.8\
-**Date:** 2026-10-13\
+**Version:** 1.5.0\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/procedure-vulnerability-management.md`](../security/procedure-vulnerability-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/policy-byod.md`](../security/policy-byod.md)\
@@ -272,7 +272,7 @@ Subject to the hold and investigation safeguard in §9.1, all storage media must
 | Media Type | Required Method |
 | --- | --- |
 | Solid-state drives (SSD) | IEEE 2883 Purge via Cryptographic Erase or Sanitize Block Erase |
-| Hard disk drives (HDD) | Overwrite (IEEE 2883 Clear) or degaussing followed by verification |
+| Hard disk drives (HDD) | The method in the hard disk drives row of §7.1 of [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md), applied here to devices leaving IT custody, using the highest classification of data the drive has held (§7.1), applying the multiple-classification rule in §3 of that procedure |
 | Non-erasable or damaged media | Physical destruction |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by OS |
 

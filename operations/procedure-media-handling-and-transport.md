@@ -2,8 +2,8 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.1\
-**Date:** 2026-10-13\
+**Version:** 1.6.0\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md), [`operations/standard-physical-security-of-it-infrastructure.md`](standard-physical-security-of-it-infrastructure.md)\
@@ -170,7 +170,7 @@ Before any storage media is reissued for a different user or purpose, it must be
 
 | Media Type | Required Sanitization Method |
 | --- | --- |
-| Hard disk drives (HDD) | IEEE 2883 Clear (overwrite) for Internal and below; Purge (verified overwrite or degauss) for Confidential and above. |
+| Hard disk drives (HDD) | IEEE 2883-2022 Clear (overwrite) or a stronger method for Internal and below; Purge (overwrite by a device sanitize command that also covers non-addressable locations, or degaussing using vendor-approved tools with appropriate vendor documentation (IEEE 2883-2022 6.3)) for Confidential and above. Sanitization must be verified before reuse. |
 | Solid-state drives (SSD) and flash media | IEEE 2883 Purge via Sanitize Block Erase or Cryptographic Erase (the latter destroys the media encryption key on self-encrypting drives); or an equivalent manufacturer-verified Purge method (for example ATA Security Erase Unit in Enhanced Erase mode). |
 | Magnetic tapes | Degaussing followed by label removal and overwrite verification. |
 | Mobile device storage | Factory reset with cryptographic erasure where supported by the device OS. |
