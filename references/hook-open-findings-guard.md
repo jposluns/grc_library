@@ -108,7 +108,12 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   the file's uid, gid, mode and POSIX access ACL; a group that cannot be preserved refuses with
   `ledger-group-unpreservable`. `write-failed` reports an opening, write or rename failure before
   the rename succeeds. `written-dir-fsync-failed` means the rename happened but directory durability
-  could not be confirmed. Unexpected exceptions report only `error: internal`.
+  could not be confirmed. `post-write-readback-failed` means the rename happened but the read-back
+  itself failed; `post-write-mismatch` means the read-back succeeded and the file does not read back
+  as written. A failed temp-file close or unlink during cleanup never replaces the error already in
+  flight: the tool prints the original error line, then a second line, `error: temp-cleanup-failed`,
+  still exit 2. Unexpected exceptions report `error: internal`, followed by that same second line
+  when the temp-file cleanup also failed.
   `--ledger` values ending in `/` or `/.` are usage errors. Relative paths become `Path.cwd() / path`
   without additional normalization or symlink resolution, preserving kernel `link/..` semantics.
   Writes open the parent once with `O_DIRECTORY|O_NOFOLLOW`; temp creation, identity re-check,

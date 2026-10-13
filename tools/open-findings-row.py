@@ -63,8 +63,12 @@ directory-fd operations are unavailable (ledger-dir-fd-unavailable); the ledger'
 parent is itself a symlink (ledger-parent-symlink, decided by lstat when the parent open
 fails); opening the parent, writing,
 or renaming fails before the rename succeeds (write-failed); the directory fsync fails
-(written-dir-fsync-failed) or the written file does not read back as written (post-write-mismatch).
-The rename already happened for those last two errors. --dry-run runs the same write pre-flight
+(written-dir-fsync-failed); the read-back after the rename fails (post-write-readback-failed); or the
+written file does not read back as written (post-write-mismatch). The rename already happened for
+those last three errors. A failed temp-file close or unlink during cleanup never replaces the error
+already in flight: the original error line is printed, then a second line "error: temp-cleanup-failed",
+still exit 2; the same second line follows "error: internal" when the primary failure was
+unexpected. --dry-run runs the same write pre-flight
 (the directory-fd capability check and the O_DIRECTORY|O_NOFOLLOW parent open, then a close), so
 it refuses whatever that pre-flight refuses; later write stages (temp creation, group,
 ACL and metadata preservation, identity re-check) can still refuse a real write. Outside --self-test an
@@ -134,11 +138,13 @@ _NO_XATTR = {e for e in (getattr(errno, "ENODATA", None), errno.ENOTSUP, errno.E
 
 
 class EnvError(Exception):
-    """An environment failure (exit 2). ``code`` is a verdict code; ``line`` an optional line number."""
+    """An environment failure (exit 2). ``code`` is a verdict code; ``line`` an optional line number;
+    ``cleanup`` is "temp-cleanup-failed" when the temp-file cleanup also failed, else None."""
 
     def __init__(self, code: str, line: int | None = None):
         super().__init__(code if line is None else f"{code} (line {line})")
         self.code = code
+        self.cleanup: str | None = None
 
 
 class Refusal(Exception):
@@ -551,6 +557,7 @@ def atomic_replace(path: Path, data: bytes, expect: os.stat_result, expect_sha25
     tmp = f".{name}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
     fd = dfd = None
     created = replaced = False
+    primary: BaseException | None = None
     try:
         try:
             dfd = open_parent(path)
@@ -595,13 +602,21 @@ def atomic_replace(path: Path, data: bytes, expect: os.stat_result, expect_sha25
                 "written-dir-fsync-failed" if replaced else "write-failed"
             ) from exc
 
-        got, st, got_acl = read_ledger(name, dir_fd=dfd)
+        try:
+            got, st, got_acl = read_ledger(name, dir_fd=dfd)
+        except Exception as exc:  # noqa: BLE001 - the rename already happened; report that state
+            raise EnvError("post-write-readback-failed") from exc
         if (hashlib.sha256(got).digest() != hashlib.sha256(data).digest()
                 or stat.S_IMODE(st.st_mode) != stat.S_IMODE(expect.st_mode)
                 or (st.st_uid, st.st_gid) != (expect.st_uid, expect.st_gid)
                 or got_acl != expect_acl):
             raise EnvError("post-write-mismatch")
+    except BaseException as exc:
+        # Captured explicitly, so only this function's own error can carry the flag.
+        primary = exc
+        raise
     finally:
+        # A failed temp close or unlink must not replace the error in flight.
         try:
             try:
                 if fd is not None:
@@ -610,6 +625,10 @@ def atomic_replace(path: Path, data: bytes, expect: os.stat_result, expect_sha25
                 if created and not replaced:
                     with contextlib.suppress(FileNotFoundError):
                         os.unlink(tmp, dir_fd=dfd)
+        except OSError as exc:
+            if primary is None:
+                raise EnvError("temp-cleanup-failed") from exc
+            primary.cleanup = "temp-cleanup-failed"
         finally:
             if dfd is not None:
                 os.close(dfd)
@@ -692,10 +711,14 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: byte
         return _run(args, Path(root) if root is not None else REPO_ROOT, raw)
     except EnvError as exc:
         print(f"error: {exc}", file=sys.stderr)
+        if exc.cleanup == "temp-cleanup-failed":
+            print("error: temp-cleanup-failed", file=sys.stderr)
         print("result: ERROR")
         return 2
-    except Exception:  # noqa: BLE001 - never disclose row text through an unexpected exception
+    except Exception as exc:  # noqa: BLE001 - never disclose row text through an unexpected exception
         print("error: internal", file=sys.stderr)
+        if getattr(exc, "cleanup", None) == "temp-cleanup-failed":
+            print("error: temp-cleanup-failed", file=sys.stderr)
         print("result: ERROR")
         return 2
 
