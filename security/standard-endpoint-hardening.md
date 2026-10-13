@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Hardening Standard\
 **Document Type:** Standard\
-**Version:** 1.1.6\
+**Version:** 1.1.7\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -221,12 +221,15 @@ Devices used to administer production environments meet a stricter baseline.
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | CIS Benchmarks | Per OS platform | Authoritative configuration baselines |
-| NIST SP 800-46 Rev. 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device | Remote and BYOD context |
+| NIST SP 800-46 Rev. 2 | Guide to Enterprise Telework, Remote Access, and Bring Your Own Device (BYOD) Security | Remote and BYOD context |
 | NIST SP 800-124 Rev. 2 | Guidelines for Managing the Security of Mobile Devices in the Enterprise, §4.3 Recommended Mitigations and Countermeasures | Mobile baseline |
 | NIST SP 800-83 Rev. 1 | Guide to Malware Incident Prevention and Handling for Desktops and Laptops, §3.3, §3.4.3, §3.4.5 | Enduring malware-prevention endpoint hardening: least privilege, application hardening and allowlisting, host-based firewalls |
 | NIST SP 800-128 | Guide for Security-Focused Configuration Management of Information Systems (2011, updated 2019) | Security-focused configuration management for hardening baselines and change control |
+| NIST SP 800-111 | Guide to Storage Encryption Technologies for End User Devices (November 2007), §3.1.1 Full Disk Encryption | Full-disk encryption on end-user devices |
+| NIST SP 800-63B-4 | Digital Identity Guidelines: Authentication and Authenticator Management (July 2025), §3.2.5 Phishing Resistance | Phishing-resistant authentication |
 | ISO/IEC 27001:2022 | A.8.1 (user endpoints), A.8.3, A.8.7 | Endpoint controls |
-| CSA Cloud Controls Matrix | UEM domain | Cross-walk |
+| ISO/IEC 27002:2022 | §8.1, §8.3, §8.7 | Implementation guidance for the endpoint controls |
+| CSA Cloud Controls Matrix v4.1 | UEM domain | Cross-walk |
 | Microsoft Security Compliance Toolkit | Vendor baseline | Where applicable |
 | macOS Security Compliance Project | Open standard | Where applicable |
 | Apple Platform Security and Android Enterprise security models | Vendor documentation | Mobile baselines |
