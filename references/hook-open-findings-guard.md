@@ -66,6 +66,55 @@ closed set. A `FIXED` class row under `## Open` missing the attestation is SURFA
 (`tools/check-class-attestation-on-pr.py`), which also reproduces the probe.
 
 
+## Writing rows (`tools/open-findings-row.py`, 3b334)
+
+Write a ledger row with `tools/open-findings-row.py` rather than by hand. The tool checks one row with
+this hook's own functions, loaded from the same checkout as `merge-when-green.py` loads them, and then
+inserts the row in place atomically. It defines no grammar of its own, so it cannot accept a row that
+this hook reads differently.
+
+```text
+python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--ledger PATH] [--dry-run] [--open] < row
+```
+
+- **Input and output.** One table line on stdin, never in argv. The output carries line numbers,
+  verdict codes and counts, never row text or ids.
+- **Finding id.** The leading bracketed token of the Finding cell (`[VPR3B330-PR8-R1]`). `--id` is that
+  token without brackets and must be unique across `## Open`, `## Closed today`, and unfenced
+  archive or mis-filed rows that the hook's `MISFILED_ROW_RE` matches. This hook reads the same token as a class token, so a `FIXED` row needs a
+  `[class: ...]` or `[class-exempt: ...]` clause.
+- **Placement.** `--after ANCHOR_ID` inserts after the one `## Open` or `## Closed today` row led by that
+  id. `--append` inserts after the newest dated `## Open` row (a tie goes to the last in file order),
+  not blindly at end of file; an Open table with no dated row is refused.
+- **Refusals (exit 1).** A row this hook would parse as malformed; a severity outside `error`,
+  `warning` and `note`; an `error` or `warning` disposition that fails the grammar (for example
+  `FIXED (d44d9b2b)`, `ROUTED pending-decisions` or `FIXED d44d9b2b`); a `FIXED` class row without a
+  valid clause; more than one clause on any row; a duplicate or mismatched id; a missing or ambiguous
+  anchor; and any splice this hook would read as anything other than the earlier rows plus the new one.
+  The new row must have a valid ISO Found date (`YYYY-MM-DD`), or `found-not-iso` refuses it.
+  Note dispositions are not grammar-checked, as here, but their columns and clause count are.
+  Refusing an unattested `FIXED` class row is deliberately stricter than the merge guard warning,
+  matching the D14 pre-push check.
+- **`--open`.** Records an `error` or `warning` row with an empty disposition. Without the flag such a
+  row is refused. With it, an empty error row blocks the merge guard while an empty warning row is
+  surfaced without blocking. Either row may not land in `## Closed today`, which this hook does not scan.
+- **Class count (report only).** For a `FIXED` row with a `[class: "<token>" @ <count>]` clause, the tool
+  re-runs the `check-class-completeness.py` probe on the current checkout and warns when the count
+  differs. It does not refuse, because an in-flight branch can differ from this tree; D14 remains the
+  pre-push check.
+- **Environment (exit 2).** This hook cannot load; the ledger is missing, unreadable, a symlink,
+  hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
+  changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
+  the file's uid, gid, mode and POSIX access ACL; a group that cannot be preserved refuses with
+  `ledger-group-unpreservable`. `written-dir-fsync-failed` means the rename happened but directory
+  durability could not be confirmed. Unexpected exceptions report only `error: internal`.
+  `--ledger` becomes absolute without resolving symlinks, preserving the symlink refusal.
+- **Stated residue.** The letter-series ref shape (`3b108`, `3b50b2e1`) overlaps hexadecimal, so a short
+  SHA such as `1b2e3a4` passes as a ref in the tool and in this hook. Closing it needs a hook grammar
+  change. There is no shared lock: a write between the re-check and the rename, or by a writer
+  holding the old inode open, is lost. Extended attributes other than the access ACL are not carried
+  over; access ACL handling uses Linux xattrs.
+
 ## Why a hard block: the motivating incidents
 
 Relocated from `.claude/CLAUDE.md` `## A delivered QA result BLOCKS progress until it is read and its findings are fixed` (3b177-e); the always-on core stays inline.
