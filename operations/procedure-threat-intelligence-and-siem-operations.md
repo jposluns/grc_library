@@ -2,8 +2,8 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.12\
-**Date:** 2026-09-24\
+**Version:** 1.3.13\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`operations/procedure-security-monitoring-and-alert-management.md`](procedure-security-monitoring-and-alert-management.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -22,7 +22,7 @@
 
 This procedure defines the operational processes for managing threat intelligence, operating the Security Information and Event Management (SIEM) platform, developing and maintaining correlation rules, conducting threat hunting, and sharing intelligence with sector peers. It establishes the practices by which threat intelligence is operationalized into detection capability and feeds back into continual improvement of the organization's security posture.
 
-The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 Annex A.5.7, COBIT 2019 DSS05, and CSA CCM v4.1 TVM (Threat and Vulnerability Management) and SEF (Security Incident Management) domain controls.
+The procedure is aligned with NIST SP 800-150 (Guide to Cyber Threat Information Sharing), MITRE ATT&CK Enterprise, ISO/IEC 27001:2022 Annex A.5.7, COBIT 2019 DSS05, and CSA CCM v4.1 TVM (Threat & Vulnerability Management) and SEF (Security Incident Management, E-Discovery, & Cloud Forensics) domain controls.
 
 ### 1.2 Scope
 

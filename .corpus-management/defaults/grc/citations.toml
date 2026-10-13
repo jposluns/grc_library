@@ -56,12 +56,12 @@ replacement = "operations/framework-it-service-management.md (or governance/stan
 
 [[citations.denylist]]
 term = "CCM GRM"
-reason = "Stale v3 CCM domain code. v4.1 uses GRC (Governance, Risk, Compliance)."
+reason = "Stale v3 CCM domain code. v4.1 uses GRC (Governance, Risk and Compliance)."
 replacement = "CCM GRC"
 
 [[citations.denylist]]
 term = "CCM EKM"
-reason = "Stale v3 CCM domain code. v4.1 uses CEK (Cryptography, Encryption, Key Management)."
+reason = "Stale v3 CCM domain code. v4.1 uses CEK (Cryptography, Encryption & Key Management)."
 replacement = "CCM CEK"
 
 [[citations.denylist]]
@@ -71,7 +71,7 @@ replacement = "CCM UEM"
 
 [[citations.denylist]]
 term = "CCM TIM"
-reason = "Non-existent CCM domain code. Threat intelligence is part of TVM (Threat and Vulnerability Management) in v4.1."
+reason = "Non-existent CCM domain code. Threat intelligence is part of TVM (Threat & Vulnerability Management) in v4.1."
 replacement = "CCM TVM"
 
 [citations.path_exemptions]
