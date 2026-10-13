@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.34\
+**Version:** 1.4.35\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -203,7 +203,7 @@ Sector-specific framework alignments (for example, BASC International Standard v
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. No rights reserved.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

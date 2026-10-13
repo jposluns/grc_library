@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.0\
+**Version:** 1.5.1\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -345,7 +345,7 @@ Beyond the incident-lifecycle mappings above, this procedure aligns with NIST SP
 
 ## Licence
 
-This document is released under the **CC BY-SA 4.0** licence. To the extent possible under law, all copyright and related rights are waived. See [`LICENSE`](../LICENSE) in the repository root.
+This document is released under the **CC BY-SA 4.0** licence. See [`LICENSE`](../LICENSE) in the repository root.
 
 ---
 

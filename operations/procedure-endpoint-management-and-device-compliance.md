@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.7\
+**Version:** 1.4.8\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -325,7 +325,7 @@ The following metrics are reported to the CISO monthly and reviewed at the quart
 
 ---
 
-*This document is released under CC BY-SA 4.0. No rights reserved.*
+*This document is released under CC BY-SA 4.0.*
 
 
 

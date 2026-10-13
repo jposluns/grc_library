@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.42\
+**Version:** 1.3.43\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -222,7 +222,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 
 ---
 
-*This document is released under CC BY-SA 4.0. No rights reserved.*
+*This document is released under CC BY-SA 4.0.*
 
 
 

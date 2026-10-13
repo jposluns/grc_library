@@ -2,8 +2,8 @@
 
 **Document Title:** Workforce Network Monitoring Policy\
 **Document Type:** Policy\
-**Version:** 0.1.2\
-**Date:** 2026-09-23\
+**Version:** 0.1.3\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`governance/framework-human-capital-and-ethical-conduct.md`](../governance/framework-human-capital-and-ethical-conduct.md), [`governance/register-data-retention-schedule.md`](../governance/register-data-retention-schedule.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -160,7 +160,7 @@ All personnel are informed of this policy and acknowledge it on hire, annually, 
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

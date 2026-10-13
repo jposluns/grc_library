@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.0\
+**Version:** 1.5.1\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -299,7 +299,7 @@ For the BASC-certified trade and customs operations named in §1.2, the periodic
 
 ---
 
-*This document is released under CC BY-SA 4.0. No rights reserved.*
+*This document is released under CC BY-SA 4.0.*
 
 
 

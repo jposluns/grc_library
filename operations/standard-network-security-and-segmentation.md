@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.15\
-**Date:** 2026-09-24\
+**Version:** 1.4.16\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -183,7 +183,7 @@ Sector-specific framework alignments (for example, the applicable BASC Internati
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 
