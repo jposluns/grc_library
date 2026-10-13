@@ -12703,8 +12703,8 @@ documents:
   domain: "security"
   type: "SOP"
   title: "Incident Escalation Matrix"
-  version: "1.2.12"
-  date: "2026-10-12"
+  version: "1.2.13"
+  date: "2026-10-13"
   owner: "Chief Information Security Officer"
   approving_authority: "Chief Information Officer"
   classification: "Public"
@@ -12718,6 +12718,7 @@ documents:
     - "resilience/procedure-security-incident-reporting-and-escalation.md"
     - "privacy/procedure-data-protection-and-privacy-breach-response.md"
     - "resilience/plan-business-continuity-and-crisis-management.md"
+    - "operations/framework-it-service-management.md"
   sections:
     - "Purpose"
     - "Incident severity levels"
