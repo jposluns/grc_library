@@ -342,9 +342,9 @@ KNOWN_HANDOFF_NO_ROW: frozenset[int] = frozenset({300, 322, 334, 1054})
 # number is shown in-range rather than as a visible gap), but this gate builds its
 # "every merged PR needs a QA row" universe by expanding those ranges, so a skipped
 # number would otherwise be demanded a validate-pr and a bypass-log row it can never
-# have. These PRs were opened-and-closed-without-merge (verified: no `(#N)` merge
+# have. #2698 is an issue (see commit 35549cb6); the other numbers were opened-and-closed-without-merge (verified: no `(#N)` merge
 # commit on `main`), so excluding them is a false-positive fix, not a gate weakening.
-KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653})
+KNOWN_SKIPPED_PRS: frozenset[int] = frozenset({1092, 1093, 1221, 1400, 1471, 1493, 1648, 2083, 2653, 2698})
 
 # A row whose Findings cell marks the PR as a session-closing handoff
 # (validate-pr + retro both legitimately skipped, the loop-break).
