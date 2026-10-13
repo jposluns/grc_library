@@ -36385,6 +36385,747 @@ class SelfTestTempdirTests(unittest.TestCase):
                 self.assertEqual(sorted(os.listdir(tmp)), [])
 
 
+class OpenFindingsRowTests(unittest.TestCase):
+    """tools/open-findings-row.py (3b334): the ledger-row helper refuses a row the merge guard would read
+    differently from its author, places it by the guard's own parse, writes it atomically, and never
+    prints row text. Every ledger is a synthetic temp-dir file; the live ledger is never read. The
+    rejected dispositions are the mistakes-register-95 forms (`FIXED (` with no adjacent ref, `ROUTED
+    pending-decisions`) and `FIXED d44d9b2b`, a short SHA that is not a ref."""
+
+    TOOL = REPO_ROOT / "tools" / "open-findings-row.py"
+    OPEN_B = "| 2026-10-05 | error | [OPEN-B] newest open | probe | ROUTED TODO 3.73 |\n"
+    LEDGER = (
+        "# Open findings\n"
+        "\n"
+        "## Disposition values\n"
+        "```\n"
+        "| 2026-10-01 | error | [FENCED-1] a fenced example | probe |  |\n"
+        "```\n"
+        "\n"
+        "## Open\n"
+        "\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-10-02 | warning | [OPEN-A] first open | probe | ROUTED 3b330 |\n"
+        + OPEN_B
+        + "| 2026-10-03 | note | [OPEN-C] an older note after it | probe |  |\n"
+        "\n"
+        "## Closed today\n"
+        "\n"
+        "| Found | Severity | Finding | Source | Disposition |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| 2026-10-04 | error | [CLOSED-A] closed row | probe | FIXED #2700 [class-exempt: singleton] |\n"
+        "\n"
+        "## 2026-09-30 archive\n"
+        "\n"
+        "| 2026-09-30 | warning | [ARCH-A] archived row | probe | FIXED #2600 [class-exempt: singleton] |\n"
+    )
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.dir = Path(self._tmp.name)
+        self.ledger = self.dir / "open-findings.md"
+        self.ledger.write_text(self.LEDGER, encoding="utf-8")
+
+    @staticmethod
+    def row(disp: str, sev: str = "error", fid: str = "NEW-1", finding: str = "a finding",
+            source: str = "probe") -> str:
+        return f"| 2026-10-13 | {sev} | [{fid}] {finding} | {source} | {disp} |"
+
+    def run_tool(self, row, *args: str, ledger: Path | None = None) -> tuple[int, str, str]:
+        data = row if isinstance(row, bytes) else (row + "\n").encode("utf-8")
+        done = subprocess.run(
+            [sys.executable, "-I", str(self.TOOL), "--ledger", str(ledger or self.ledger), *args],
+            input=data, capture_output=True, cwd=str(REPO_ROOT), timeout=300)
+        return done.returncode, done.stdout.decode("utf-8", "replace"), done.stderr.decode("utf-8", "replace")
+
+    def assertRefused(self, row: str, code: str, *args: str, fid: str = "NEW-1") -> str:
+        before = self.ledger.read_bytes()
+        rc, out, err = self.run_tool(row, "--id", fid, *(args or ("--append",)))
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn(f"refused: {code}", err)
+        self.assertEqual(self.ledger.read_bytes(), before)
+        return out + err
+
+    def assertWouldWrite(self, row: str, *args: str, fid: str = "NEW-1") -> str:
+        rc, out, err = self.run_tool(row, "--id", fid, *(args or ("--append",)), "--dry-run")
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("result: WOULD-WRITE", out)
+        return out + err
+
+    def test_open_findings_row_self_test_passes(self) -> None:
+        result = run_linter("tools/open-findings-row.py", "--self-test")
+        self.assertEqual(
+            result.returncode, 0,
+            f"open-findings-row.py --self-test failed.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertIn("OK", result.stdout)
+
+    def test_rejects_fixed_paren_without_ref(self) -> None:
+        for disp in ("FIXED (d44d9b2b)", "FIXED (pending merge)"):
+            with self.subTest(disp=disp):
+                self.assertRefused(self.row(disp), "disposition-invalid")
+
+    def test_accepts_fixed_paren_pr_ref(self) -> None:
+        self.assertWouldWrite(self.row("FIXED (#1178) [class-exempt: singleton]"))
+
+    def test_rejects_routed_pending_decisions(self) -> None:
+        self.assertRefused(self.row("ROUTED pending-decisions"), "disposition-invalid")
+
+    def test_rejects_fixed_short_sha_d44d9b2b(self) -> None:
+        self.assertRefused(self.row("FIXED d44d9b2b"), "disposition-invalid")
+
+    def test_short_sha_in_letter_series_shape_is_stated_residue(self) -> None:
+        # Pinned residue: the hook's letter-series ref shape overlaps hex, so this short SHA passes the
+        # guard and the helper alike. A hook grammar change that closes it must flip this test.
+        self.assertWouldWrite(self.row("FIXED 1b2e3a4 [class-exempt: singleton]"))
+
+    def test_rejects_unescaped_pipe_column_count(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330", finding="a | b"), "malformed-columns")
+
+    def test_accepts_escaped_pipe(self) -> None:
+        self.assertWouldWrite(self.row("ROUTED 3b330", finding="a \\| b"))
+
+    def test_rejects_severity_outside_vocabulary(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330", sev="eror"), "severity-unknown")
+
+    def test_rejects_empty_error_disposition_without_open(self) -> None:
+        self.assertRefused(self.row(""), "disposition-empty")
+
+    def test_open_flag_admits_empty_error_and_reports_block(self) -> None:
+        import contextlib
+        out = self.assertWouldWrite(self.row(""), "--append", "--open")
+        self.assertIn("merge-guard: before allow, after block (this row, admitted by --open)", out)
+        rc, out, err = self.run_tool(self.row(""), "--id", "NEW-1", "--append", "--open")
+        self.assertEqual(rc, 0, out + err)
+        hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_open_flag_hook")
+        text = self.ledger.read_text(encoding="utf-8")
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(hook.decide_exit(hook.parse_open_rows(text), text), 2)
+
+    def test_note_disposition_not_checked(self) -> None:
+        self.assertWouldWrite(self.row("pending", sev="note"))
+
+    def test_rejects_unattested_fixed_class_row(self) -> None:
+        self.assertRefused(self.row("FIXED #1"), "class-unattested")
+
+    def test_rejects_off_set_class_exempt(self) -> None:
+        self.assertRefused(self.row("FIXED #1 [class-exempt: too-hard]"), "class-bad-exempt")
+
+    def test_rejects_multi_clause_row(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330 [class-exempt: singleton] [class-exempt: cross-repo]"),
+                           "class-multi")
+
+    def test_accepts_attested_and_exempt_class_rows(self) -> None:
+        self.assertWouldWrite(self.row("FIXED #1 [class-exempt: singleton]"))
+        import secrets
+        token = "zzq-" + secrets.token_hex(24)
+        out = self.assertWouldWrite(self.row(f'FIXED #1 [class: "{token}" @ 0]'))
+        self.assertIn("class-count: reproduced 0 = attested 0", out)
+
+    def test_rejects_duplicate_id_open(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330", fid="OPEN-A"), "duplicate-id (line 12)", fid="OPEN-A")
+
+    def test_rejects_duplicate_id_closed_today(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330", fid="CLOSED-A"), "duplicate-id (line 20)", fid="CLOSED-A")
+
+    def test_rejects_duplicate_id_archive(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330", fid="ARCH-A"), "duplicate-id (line 24)", fid="ARCH-A")
+
+    def test_rejects_anchor_missing(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330"), "anchor-not-found", "--after", "NOPE-1")
+
+    def test_rejects_anchor_twice(self) -> None:
+        self.ledger.write_text(self.LEDGER.replace("[OPEN-C]", "[OPEN-A]"), encoding="utf-8")
+        self.assertRefused(self.row("ROUTED 3b330"), "anchor-ambiguous (line 14)", "--after", "OPEN-A")
+
+    def test_fenced_line_is_never_an_anchor(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330"), "anchor-not-found", "--after", "FENCED-1")
+
+    def test_header_row_is_never_an_anchor(self) -> None:
+        # A header whose first cell is not `Found` is parsed by the guard as a row (severity `level`).
+        self.ledger.write_text(
+            self.LEDGER.replace("| Found | Severity | Finding |", "| Date | Level | [Finding] |"), encoding="utf-8")
+        self.assertRefused(self.row("ROUTED 3b330"), "anchor-not-found", "--after", "Finding")
+        self.assertIn("insert: line 14 (open)", self.assertWouldWrite(self.row("ROUTED 3b330")))
+
+    def test_append_after_newest_dated_open_row_not_eof(self) -> None:
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 0, out + err)
+        lines = self.ledger.read_text(encoding="utf-8").splitlines()
+        self.assertEqual(lines[13], self.row("ROUTED 3b330"))
+        self.assertTrue(lines[-1].startswith("| 2026-09-30 | warning | [ARCH-A]"))
+        self.assertEqual(len(lines), self.LEDGER.count("\n") + 1)
+
+    def test_append_tie_takes_last_in_file_order(self) -> None:
+        self.ledger.write_text(self.LEDGER.replace("| 2026-10-03 | note |", "| 2026-10-05 | note |"),
+                               encoding="utf-8")
+        self.assertIn("insert: line 15 (open)", self.assertWouldWrite(self.row("ROUTED 3b330")))
+
+    def test_append_refuses_without_dated_row(self) -> None:
+        self.ledger.write_text(self.LEDGER.split("| 2026-10-02")[0] + "\n## Closed today\n", encoding="utf-8")
+        self.assertRefused(self.row("ROUTED 3b330"), "no-dated-open-row")
+
+    def test_after_closed_today_anchor_and_open_row_refused_there(self) -> None:
+        self.assertIn("insert: line 21 (closed)",
+                      self.assertWouldWrite(self.row("ROUTED 3b330"), "--after", "CLOSED-A"))
+        self.assertRefused(self.row(""), "open-row-in-closed", "--after", "CLOSED-A", "--open")
+
+    def test_dry_run_prints_no_row_text(self) -> None:
+        sentinel = "SENTINEL-3B334-ROW-TEXT"
+        out = self.assertWouldWrite(self.row("ROUTED 3b330", finding=sentinel, source=sentinel))
+        self.assertNotIn(sentinel, out)
+        self.assertNotIn("NEW-1", out)
+
+    def test_refusal_prints_no_row_text(self) -> None:
+        sentinel = "SENTINEL-3B334-ROW-TEXT"
+        for disp, code in (("FIXED (pending merge)", "disposition-invalid"), (f"a | {sentinel}", "malformed-columns")):
+            with self.subTest(code=code):
+                out = self.assertRefused(self.row(disp, finding=sentinel, source=sentinel), code)
+                self.assertNotIn(sentinel, out)
+                self.assertNotIn("NEW-1", out)
+
+    def test_dry_run_leaves_bytes_and_mtime(self) -> None:
+        before = (self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns)
+        self.assertWouldWrite(self.row("ROUTED 3b330"))
+        self.assertEqual((self.ledger.read_bytes(), os.stat(self.ledger).st_mtime_ns), before)
+
+    def test_write_preserves_mode_0640(self) -> None:
+        import stat
+        os.chmod(self.ledger, 0o640)
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(stat.S_IMODE(os.stat(self.ledger).st_mode), 0o640)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_write_preserves_posix_acl(self) -> None:
+        import errno
+        import stat
+        import struct
+        if not hasattr(os, "setxattr"):
+            self.skipTest("os.setxattr is unavailable on this platform")
+        undefined = 0xFFFFFFFF
+        # USER_OBJ rw, USER (this uid) r, GROUP_OBJ r, MASK r, OTHER none: an access ACL for mode 0640.
+        entries = ((0x01, 6, undefined), (0x02, 4, os.getuid()), (0x04, 4, undefined),
+                   (0x10, 4, undefined), (0x20, 0, undefined))
+        acl = struct.pack("<I", 2) + b"".join(struct.pack("<HHI", *e) for e in entries)
+        try:
+            os.setxattr(self.ledger, "system.posix_acl_access", acl)
+        except OSError as exc:
+            if exc.errno in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.EPERM, errno.EINVAL):
+                self.skipTest(f"POSIX ACLs cannot be set here ({errno.errorcode.get(exc.errno)})")
+            raise
+        before = (os.getxattr(self.ledger, "system.posix_acl_access"), stat.S_IMODE(os.stat(self.ledger).st_mode))
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 0, out + err)
+        after = (os.getxattr(self.ledger, "system.posix_acl_access"), stat.S_IMODE(os.stat(self.ledger).st_mode))
+        self.assertEqual(after, before)
+
+    def test_refuses_symlink_ledger(self) -> None:
+        link = self.dir / "link.md"
+        os.symlink(self.ledger, link)
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append", ledger=link)
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("error: ledger-symlink", err)
+
+    def test_refuses_hardlinked_ledger(self) -> None:
+        os.link(self.ledger, self.dir / "hard.md")
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("error: ledger-hardlinked", err)
+
+    def test_refuses_concurrent_change(self) -> None:
+        import hashlib
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_concurrent")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with open(self.ledger, "a", encoding="utf-8") as fh:
+            fh.write("| 2026-10-13 | note | [RACE] concurrent | probe |  |\n")
+        raced = self.ledger.read_bytes()
+        with self.assertRaises(mod.EnvError) as cm:
+            mod.atomic_replace(self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-changed")
+        self.assertEqual(self.ledger.read_bytes(), raced)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_no_temp_file_left_on_refusal(self) -> None:
+        self.assertRefused(self.row("FIXED d44d9b2b"), "disposition-invalid")
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_refuses_unloadable_hook(self) -> None:
+        import contextlib
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_unloadable")
+        hooks = self.dir / ".claude" / "hooks"
+        hooks.mkdir(parents=True)
+        (hooks / "block-on-open-findings.py").write_text("raise RuntimeError('broken')\n", encoding="utf-8")
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append", "--ledger", str(self.ledger)], root=self.dir,
+                          stdin=(self.row("ROUTED 3b330") + "\n").encode("utf-8"))
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertIn("error: hook-unloadable", err.getvalue())
+
+    def test_refuses_missing_ledger(self) -> None:
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append",
+                                     ledger=self.dir / "absent.md")
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("error: ledger-missing", err)
+
+    def test_refuses_line_model_divergence_u2028(self) -> None:
+        self.ledger.write_text(self.LEDGER.replace("first open", "first\u2028open"), encoding="utf-8")
+        rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+        self.assertEqual(rc, 2, out + err)
+        self.assertIn("error: line-model", err)
+
+    def test_refusal_matches_merge_guard_decision(self) -> None:
+        """Parity here covers disposition refusals only, not the stricter class-attestation check."""
+        import contextlib
+        hook = load_linter_module(".claude/hooks/block-on-open-findings.py", "_ofr_parity_hook")
+        for disp in ("", "pending", "FIXED (d44d9b2b)", "FIXED (pending merge)", "ROUTED pending-decisions",
+                     "FIXED d44d9b2b", "FIXED #1178", "FIXED (#1178)", "ROUTED 3b330", "ROUTED TODO 3.73",
+                     "REFUTED by the maintainer", "ACCEPTED: recorded", "FIXED in #1208"):
+            with self.subTest(disp=disp):
+                row = self.row(disp)
+                text = self.LEDGER.replace(self.OPEN_B, self.OPEN_B + row + "\n")
+                with contextlib.redirect_stderr(io.StringIO()):
+                    guard = hook.decide_exit(hook.parse_open_rows(text), text)
+                rc, out, err = self.run_tool(row, "--id", "NEW-1", "--append", "--dry-run")
+                self.assertEqual("refused: disposition-" in err, guard == 2, out + err)
+
+    def test_tool_defines_no_disposition_grammar(self) -> None:
+        import ast
+        tree = ast.parse(self.TOOL.read_text(encoding="utf-8"))
+        owned = {"TERMINAL", "SEVERITIES", "_REF", "_DISPOSITION_RE", "CLASS_TOKEN_RE", "CLASS_ATTEST_RE",
+                 "CLASS_EXEMPT_RE", "CLASS_EXEMPT_REASONS", "MISFILED_ROW_RE"}
+        assigned = {t.id for n in ast.walk(tree) if isinstance(n, (ast.Assign, ast.AnnAssign))
+                    for t in (n.targets if isinstance(n, ast.Assign) else [n.target]) if isinstance(t, ast.Name)}
+        self.assertEqual(assigned & owned, set())
+        patterns = [a.value for n in ast.walk(tree)
+                    if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+                    and isinstance(n.func.value, ast.Name) and n.func.value.id == "re"
+                    for a in n.args[:1] if isinstance(a, ast.Constant) and isinstance(a.value, str)]
+        self.assertNotEqual(patterns, [])  # the scan sees the tool's one date pattern, so it is not vacuous
+        for p in patterns:
+            self.assertIsNone(re.search(r"(?i)fixed|routed|refuted|accepted|error|warning|class", p), p)
+
+    def test_bad_exempt_does_not_hide_multiple_clauses(self) -> None:
+        self.assertRefused(self.row("ROUTED 3b330 [class-exempt: bad] [class-exempt: singleton]"),
+                           "class-multi")
+
+    def test_exempt_inside_class_token_is_not_a_second_clause(self) -> None:
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_overlap")
+        hook = mod.load_hook(REPO_ROOT)
+        codes, _ = mod.check_row(hook, self.row('FIXED #1 [class: "[class-exempt: bad]" @ 0]'),
+                                "NEW-1", allow_open=False)
+        self.assertEqual(codes, [])
+
+    def test_open_warning_evaluate_allows_without_block(self) -> None:
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_warning")
+        codes, report, new = mod.evaluate(mod.load_hook(REPO_ROOT), self.LEDGER,
+                                          self.row("", sev="warning"), "NEW-1",
+                                          after_id=None, allow_open=True)
+        self.assertEqual(codes, [])
+        self.assertIsNotNone(new)
+        self.assertIn("merge-guard: before allow, after allow", report)
+
+    def test_class_probe_output_does_not_leak_sentinel(self) -> None:
+        import contextlib
+        import secrets
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_sentinel")
+        sentinel = "sentinel-" + secrets.token_hex(24)
+
+        def noisy(token):
+            print(token)
+            print(token, file=sys.stderr)
+            return 0, 0
+
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            codes, report, _ = mod.evaluate(
+                mod.load_hook(REPO_ROOT), self.LEDGER,
+                self.row(f'FIXED #1 [class: "{sentinel}" @ 0]'), "NEW-1",
+                after_id=None, allow_open=False, probe=noisy)
+        self.assertEqual(codes, [])
+        self.assertIn("class-count: reproduced 0 = attested 0", report)
+        self.assertNotIn(sentinel, out.getvalue() + err.getvalue() + str(report))
+
+    def test_write_preserves_second_group_and_setgid(self) -> None:
+        import grp
+        import stat
+        original_gid = self.ledger.stat().st_gid
+        candidates = set(os.getgroups()) | {os.getegid()}
+        if os.geteuid() == 0:
+            candidates.update(g.gr_gid for g in grp.getgrall())
+        for gid in sorted(candidates - {original_gid}):
+            try:
+                os.chown(self.ledger, -1, gid)
+            except PermissionError:
+                continue
+            break
+        else:
+            self.skipTest("process has no second group it may chown to")
+        for mode in (0o2640, 0o2750):
+            with self.subTest(mode=oct(mode)):
+                self.ledger.write_text(self.LEDGER, encoding="utf-8")
+                os.chmod(self.ledger, mode)
+                if stat.S_IMODE(self.ledger.stat().st_mode) != mode:
+                    self.skipTest("filesystem or process cannot retain the set-group-id bit")
+                rc, out, err = self.run_tool(self.row("ROUTED 3b330"), "--id", "NEW-1", "--append")
+                self.assertEqual(rc, 0, out + err)
+                self.assertEqual(self.ledger.stat().st_gid, gid)
+                self.assertEqual(stat.S_IMODE(self.ledger.stat().st_mode), mode)
+
+    def test_group_failure_refuses_without_replacing(self) -> None:
+        import hashlib
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_group_fail")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod.os, "fchown", side_effect=PermissionError), self.assertRaises(mod.EnvError) as cm:
+            mod.atomic_replace(self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-group-unpreservable")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_chmod_between_read_and_write_refuses(self) -> None:
+        import hashlib
+        import stat
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_chmod")
+        os.chmod(self.ledger, 0o640)
+        data, st, acl = mod.read_ledger(self.ledger)
+        os.chmod(self.ledger, 0o600)
+        with self.assertRaises(mod.EnvError) as cm:
+            mod.atomic_replace(self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-changed")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(stat.S_IMODE(self.ledger.stat().st_mode), 0o600)
+
+    def test_acl_removal_between_read_and_write_refuses(self) -> None:
+        import errno
+        import hashlib
+        import struct
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_acl_race")
+        if not hasattr(os, "setxattr"):
+            self.skipTest("os.setxattr is unavailable on this platform")
+        undefined = 0xFFFFFFFF
+        entries = ((0x01, 6, undefined), (0x02, 4, os.getuid()), (0x04, 4, undefined),
+                   (0x10, 4, undefined), (0x20, 0, undefined))
+        acl = struct.pack("<I", 2) + b"".join(struct.pack("<HHI", *e) for e in entries)
+        try:
+            os.setxattr(self.ledger, mod.ACL_XATTR, acl)
+        except OSError as exc:
+            if exc.errno in (errno.ENOTSUP, errno.EOPNOTSUPP, errno.EPERM, errno.EINVAL):
+                self.skipTest(f"POSIX ACLs cannot be set here ({errno.errorcode.get(exc.errno)})")
+            raise
+        data, st, acl = mod.read_ledger(self.ledger)
+        os.removexattr(self.ledger, mod.ACL_XATTR)
+        with self.assertRaises(mod.EnvError) as cm:
+            mod.atomic_replace(self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-changed")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertIsNone(mod.read_acl(self.ledger))
+
+    def test_directory_fsync_failure_reports_already_written(self) -> None:
+        import hashlib
+        import stat
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_fsync")
+        data, st, acl = mod.read_ledger(self.ledger)
+        real_fsync = os.fsync
+
+        def fsync(fd):
+            if stat.S_ISDIR(os.fstat(fd).st_mode):
+                raise OSError("injected directory failure")
+            real_fsync(fd)
+
+        with mock.patch.object(mod.os, "fsync", side_effect=fsync), self.assertRaises(mod.EnvError) as cm:
+            mod.atomic_replace(self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "written-dir-fsync-failed")
+        self.assertEqual(self.ledger.read_bytes(), b"x\n")
+
+    def test_unexpected_exception_is_sanitized(self) -> None:
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_internal")
+        out, err = io.StringIO(), io.StringIO()
+        with mock.patch.object(mod, "_run", side_effect=RuntimeError("secret-row")), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append"], stdin=b"")
+        self.assertEqual(rc, 2)
+        self.assertEqual(err.getvalue(), "error: internal\n")
+        self.assertEqual(out.getvalue(), "result: ERROR\n")
+
+    def test_refuses_non_iso_or_invalid_found_date(self) -> None:
+        for found in ("2026-2-01", "2026-02-30", "today"):
+            with self.subTest(found=found):
+                self.assertRefused(self.row("ROUTED 3b330").replace("2026-10-13", found), "found-not-iso")
+
+    def test_relative_ledger_symlink_is_refused_end_to_end(self) -> None:
+        import contextlib
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_relative_symlink")
+        link = self.dir / "relative.md"
+        os.symlink(self.ledger, link)
+        before = self.ledger.read_bytes()
+        out, err = io.StringIO(), io.StringIO()
+        previous_cwd = Path.cwd()
+        try:
+            os.chdir(self.dir)
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = mod.main(
+                    ["--id", "NEW-1", "--append", "--ledger", "relative.md"],
+                    root=REPO_ROOT, stdin=self.row("ROUTED 3b330").encode("utf-8"))
+        finally:
+            os.chdir(previous_cwd)
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertEqual(err.getvalue(), "error: ledger-symlink\n")
+        self.assertEqual(out.getvalue(), "result: ERROR\n")
+        self.assertTrue(link.is_symlink())
+        self.assertEqual(self.ledger.read_bytes(), before)
+
+    def test_backstop_splice_mismatch(self) -> None:
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_splice_mismatch")
+        hook = mod.load_hook(REPO_ROOT)
+        real_verify = mod.verify_splice
+
+        def changed_parse(hook, before, after, parsed, at, section, kinds):
+            parsed = (*parsed[:2], parsed[2] + " changed", parsed[3])
+            return real_verify(hook, before, after, parsed, at, section, kinds)
+
+        with mock.patch.object(mod, "verify_splice", side_effect=changed_parse):
+            codes, _, new = mod.evaluate(
+                hook, self.LEDGER, self.row("ROUTED 3b330"), "NEW-1",
+                after_id=None, allow_open=False)
+        self.assertEqual(codes, ["splice-mismatch"])
+        self.assertIsNone(new)
+
+    def test_backstop_misfiled_grew(self) -> None:
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_misfiled")
+        hook = mod.load_hook(REPO_ROOT)
+        real_misfiled = hook.misfiled_finding_rows
+
+        def misfiled(text):
+            rows = list(real_misfiled(text))
+            if "[NEW-1]" in text:
+                rows.append((1, "error", "synthetic misfiled row"))
+            return rows
+
+        with mock.patch.object(hook, "misfiled_finding_rows", side_effect=misfiled), \
+                mock.patch.object(hook, "decide_exit", return_value=0):
+            codes, _, new = mod.evaluate(
+                hook, self.LEDGER, self.row("ROUTED 3b330"), "NEW-1",
+                after_id=None, allow_open=False)
+        self.assertEqual(codes, ["misfiled-grew"])
+        self.assertIsNone(new)
+
+    def test_backstop_merge_guard_regressed(self) -> None:
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_regressed")
+        hook = mod.load_hook(REPO_ROOT)
+
+        def decide(rows, text):
+            return 2 if "[NEW-1]" in text else 0
+
+        with mock.patch.object(hook, "decide_exit", side_effect=decide) as guard:
+            codes, report, new = mod.evaluate(
+                hook, self.LEDGER, self.row("ROUTED 3b330"), "NEW-1",
+                after_id=None, allow_open=False)
+        self.assertEqual(guard.call_count, 2)
+        self.assertNotIn("[NEW-1]", guard.call_args_list[0].args[1])
+        self.assertIn("[NEW-1]", guard.call_args_list[1].args[1])
+        self.assertEqual(codes, ["merge-guard-regressed"])
+        self.assertIn("merge-guard: before allow, after block", report)
+        self.assertIsNone(new)
+
+    def test_backstop_row_map_divergence(self) -> None:
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_row_map")
+        hook = mod.load_hook(REPO_ROOT)
+        real_parse = hook.parse_open_rows_full
+
+        def parse(text):
+            rows = real_parse(text)
+            return rows[:-1] if text == self.LEDGER else rows
+
+        with mock.patch.object(hook, "parse_open_rows_full", side_effect=parse):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.evaluate(hook, self.LEDGER, self.row("ROUTED 3b330"), "NEW-1",
+                             after_id=None, allow_open=False)
+        self.assertEqual(cm.exception.code, "row-map-divergence")
+
+    def test_backstop_post_write_mismatch(self) -> None:
+        import hashlib
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_post_write")
+        data, st, acl = mod.read_ledger(self.ledger)
+        real_read = mod.read_ledger
+        real_replace = mod.os.replace
+        replaced = False
+
+        def replace(src, dst):
+            nonlocal replaced
+            real_replace(src, dst)
+            replaced = True
+
+        def read(path):
+            got, current, current_acl = real_read(path)
+            return (got + b"changed" if replaced else got), current, current_acl
+
+        with mock.patch.object(mod.os, "replace", side_effect=replace), \
+                mock.patch.object(mod, "read_ledger", side_effect=read):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(self.ledger, b"x\n", st,
+                                   hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "post-write-mismatch")
+        self.assertTrue(replaced)
+        self.assertEqual(self.ledger.read_bytes(), b"x\n")
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_backstop_acl_copy_failed(self) -> None:
+        import hashlib
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_acl_copy")
+        data, st, _ = mod.read_ledger(self.ledger)
+        acl = b"synthetic access ACL"
+        with mock.patch.object(mod, "read_acl", return_value=acl), \
+                mock.patch.object(mod.os, "setxattr", side_effect=OSError("injected")) as setter:
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(self.ledger, b"x\n", st,
+                                   hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "acl-copy-failed")
+        setter.assert_called_once_with(mock.ANY, mod.ACL_XATTR, acl)
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_backstop_ledger_owner_differs(self) -> None:
+        import hashlib
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_owner")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod.os, "geteuid", return_value=st.st_uid + 1):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(self.ledger, b"x\n", st,
+                                   hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-owner-differs")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_backstop_ledger_not_utf8(self) -> None:
+        import contextlib
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_ledger_utf8")
+        data = self.LEDGER.encode("utf-8") + b"\xff\n"
+        self.ledger.write_bytes(data)
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = mod.main(["--id", "NEW-1", "--append", "--ledger", str(self.ledger)],
+                          root=REPO_ROOT, stdin=self.row("ROUTED 3b330").encode("utf-8"))
+        self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+        self.assertEqual(err.getvalue(), "error: ledger-not-utf8\n")
+        self.assertEqual(out.getvalue(), "result: ERROR\n")
+        self.assertEqual(self.ledger.read_bytes(), data)
+
+    def test_symlink_parent_dotdot_writes_kernel_selected_ledger(self) -> None:
+        actual = self.dir / "actual"
+        (actual / "child").mkdir(parents=True)
+        os.symlink("actual/child", self.dir / "link")
+        selected = actual / "ledger.md"
+        other = self.dir / "ledger.md"
+        selected.write_text(self.LEDGER, encoding="utf-8")
+        other.write_text(self.LEDGER, encoding="utf-8")
+        selected_before = selected.read_bytes()
+        other_before = other.read_bytes()
+        other_inode = other.stat().st_ino
+        row = self.row("ROUTED 3b330")
+        ledger_path = self.dir / "link" / ".." / "ledger.md"
+        rc, out, err = self.run_tool(
+            row, "--id", "NEW-1", "--append", ledger=ledger_path)
+        self.assertEqual(rc, 0, out + err)
+        self.assertIn("result: WROTE", out)
+        expected = selected_before.replace(
+            self.OPEN_B.encode("utf-8"),
+            (self.OPEN_B + row + "\n").encode("utf-8"), 1)
+        self.assertEqual(selected.read_bytes(), expected)
+        self.assertEqual(ledger_path.read_bytes(), expected)
+        self.assertEqual(other.read_bytes(), other_before)
+        self.assertEqual(other.stat().st_ino, other_inode)
+
+    def test_metadata_mismatch_refuses_before_replace(self) -> None:
+        import hashlib
+        from types import SimpleNamespace
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_metadata_fail")
+        os.chmod(self.ledger, 0o640)
+        data, st, acl = mod.read_ledger(self.ledger)
+        real_fstat = os.fstat
+        for mismatch in ("gid", "mode", "acl"):
+            with self.subTest(mismatch=mismatch):
+                def fstat(fd):
+                    current = real_fstat(fd)
+                    return SimpleNamespace(
+                        st_gid=current.st_gid + (1 if mismatch == "gid" else 0),
+                        st_mode=current.st_mode ^ (0o100 if mismatch == "mode" else 0))
+
+                observed_acl = (b"" if acl is None else acl + b"x") if mismatch == "acl" else acl
+                with mock.patch.object(mod, "_copy_acl"), \
+                        mock.patch.object(mod.os, "fstat", side_effect=fstat), \
+                        mock.patch.object(mod, "read_acl", return_value=observed_acl), \
+                        mock.patch.object(mod.os, "replace") as replace:
+                    with self.assertRaises(mod.EnvError) as cm:
+                        mod.atomic_replace(
+                            self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+                self.assertEqual(cm.exception.code, "ledger-metadata-unpreservable")
+                replace.assert_not_called()
+                self.assertEqual(self.ledger.read_bytes(), data)
+                self.assertEqual(self.ledger.stat().st_ino, st.st_ino)
+                self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_relative_symlink_parent_dotdot_writes_kernel_selected_ledger(self) -> None:
+        import contextlib
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_relative_dotdot")
+        actual = self.dir / "actual"
+        (actual / "child").mkdir(parents=True)
+        os.symlink("actual/child", self.dir / "link")
+        selected = actual / "ledger.md"
+        other = self.dir / "ledger.md"
+        selected.write_text(self.LEDGER, encoding="utf-8")
+        other.write_text(self.LEDGER, encoding="utf-8")
+        selected_before = selected.read_bytes()
+        other_before = other.read_bytes()
+        other_inode = other.stat().st_ino
+        row = self.row("ROUTED 3b330")
+        out, err = io.StringIO(), io.StringIO()
+        previous_cwd = Path.cwd()
+        try:
+            os.chdir(self.dir)
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = mod.main(
+                    ["--id", "NEW-1", "--append", "--ledger", "link/../ledger.md"],
+                    root=REPO_ROOT, stdin=row.encode("utf-8"))
+        finally:
+            os.chdir(previous_cwd)
+        self.assertEqual(rc, 0, out.getvalue() + err.getvalue())
+        self.assertIn("result: WROTE", out.getvalue())
+        expected = selected_before.replace(
+            self.OPEN_B.encode("utf-8"),
+            (self.OPEN_B + row + "\n").encode("utf-8"), 1)
+        self.assertEqual(selected.read_bytes(), expected)
+        self.assertEqual(other.read_bytes(), other_before)
+        self.assertEqual(other.stat().st_ino, other_inode)
+
+    def test_multi_state_alone_refuses_class_multi(self) -> None:
+        from unittest import mock
+        mod = load_linter_module("tools/open-findings-row.py", "_ofr_state_multi")
+        hook = mod.load_hook(REPO_ROOT)
+        row = self.row("FIXED #1 [class-exempt: singleton]")
+        self.assertEqual(mod.check_row(hook, row, "NEW-1", allow_open=False)[0], [])
+        with mock.patch.object(hook, "class_attestation_state", return_value="multi"):
+            codes, _ = mod.check_row(hook, row, "NEW-1", allow_open=False)
+        self.assertEqual(codes, ["class-multi"])
+
+
 class ProvisionIndexTests(LinterTestCase):
     """tools/provision_citations.py, tools/build-provision-index.py and
     tools/audit-provision-siblings.py (advisory; P-TODO from the #2649 retro).
