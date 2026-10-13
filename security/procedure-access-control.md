@@ -2,7 +2,7 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.16\
+**Version:** 1.3.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -154,7 +154,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 - Just-in-time access activation required for all domain and cloud administrative roles, except where just-in-time activation is genuinely unavailable and standing access is authorized through the formal exception process (see 6.2).
 - Privileged activity is reviewed by the CISO quarterly.
 
-6.2 Standing privileged access is prohibited where just-in-time activation is available. Where just-in-time activation is genuinely unavailable, standing privileged access is permitted only through the formal exception process governed by the [Policy Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4), with a documented business justification, a compensating control, and a time-bound review, and it remains subject to the controls in the [Privileged Access Management Standard](../security/standard-privileged-access-management.md). Certificate Authority administrative privilege admits no standing-access exception and is always activated just-in-time (see the [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md), Section 11.2).
+6.2 Standing privileged access is prohibited where just-in-time activation is available. Where just-in-time activation is genuinely unavailable, standing privileged access is permitted only through the formal exception process governed by the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) (Section 4), with a documented business justification, a compensating control, and a time-bound review, and it remains subject to the controls in the [Privileged Access Management Standard](../security/standard-privileged-access-management.md). Certificate Authority administrative privilege admits no standing-access exception and is always activated just-in-time (see the [Certificate Authority Management Standard](../operations/standard-certificate-authority-management.md), Section 11.2).
 
 6.3 Break-glass (emergency) accounts are sealed, inventoried, and their use triggers an immediate security alert.
 
@@ -174,13 +174,16 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.15: Access control; A.5.16: Identity management; A.5.17: Authentication information; A.5.18: Access rights | Access governance |
-| ISO/IEC 27002:2022 | §5.15 to 5.18 | Access request, review, and revocation |
+| ISO/IEC 27001:2022 | Annex A.5.15: Access control; A.5.16: Identity management; A.5.17: Authentication information; A.5.18: Access rights; A.8.2: Privileged access rights | Access governance and privileged access |
+| ISO/IEC 27002:2022 | §5.15 to 5.18, §8.2 | Access request, review, revocation, and privileged access rights |
 | ISO/IEC 29146:2024 | A framework for access management | Access-management framework and lifecycle |
 | NIST SP 800-53 Rev. 5 | AC: Access Control Family | Access management controls |
 | COBIT 2019 | DSS05.04 | Access security services |
 | CSA CCM v4.1 | IAM-01 through IAM-10, IAM-12 through IAM-15: Identity & Access Management | Cloud IAM controls |
 | NIST SP 800-207 | Zero Trust Architecture | Least privilege and continuous authorization |
+| CISA Zero Trust Maturity Model v2.0 (April 2023) | 5.1 Identity, Table 2: Identity Pillar, Access Management function | Just-in-time, time-limited privileged access in place of standing access |
+| ISO/IEC 27017:2026 | 8.2, Table 30: Guidance for privileged access rights | Strong (for example, multi-factor) authentication for cloud service administrators |
+| ISO/IEC 27036-2:2022 | 7.5.3, Table 24: Supplier termination management process activities | Timely removal of supplier access rights at termination |
 
 ---
 
