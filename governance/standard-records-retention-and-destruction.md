@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.35\
+**Version:** 1.4.36\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -94,7 +94,7 @@ Sector-specific retention categories (for example, trade and customs records und
 
 Records must be stored in secure, access-controlled systems with encryption applied at rest and in transit. Requirements include:
 
-- Cloud-hosted storage must conform to ISO/IEC 27018 and CSA CCM DSP controls.
+- Cloud-hosted storage must conform to ISO/IEC 27018:2025 and CSA CCM DSP controls.
 - Access must follow least-privilege principles as defined in the Access Control Procedure.
 - Critical records require multi-region backup and tamper-proof logging.
 
@@ -124,7 +124,7 @@ The steps of rule 2 that apply only to devices, such as the remote lock within 1
 | Media Type | Accepted Methods |
 |---|---|
 | **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
-| **Electronic / Digital** | Cryptographic erasure, secure overwrite (IEEE 2883 Clear), or physical drive destruction |
+| **Electronic / Digital** | Cryptographic erasure, secure overwrite (IEEE 2883-2022 Clear), or physical drive destruction |
 
 ### 8.2 Destruction documentation
 
@@ -191,11 +191,14 @@ Annual audits verify:
 
 | Framework | Relevance |
 |---|---|
-| ISO 15489:2016 | Records Management |
+| ISO 15489-1:2016 | Records management: concepts and principles |
+| ISO/IEC 27002:2022 §5.33, §8.10 | Protection of records and retention schedules; information deletion when no longer required |
 | ISO/IEC 27701:2025 | Data Retention and Deletion (privacy information management system; section numbering changed in 2025 standalone revision) |
-| COBIT 2019 DSS01 | Managed Operations |
+| COBIT 2019 APO14.09, DSS01 | Data archiving and retention; managed operations |
 | CSA CCM v4.1 DSP-16 | Data Retention and Deletion |
 | CSA CCM v4.1 DSP-02 | Secure Disposal |
+| ISO/IEC 27040:2024 §10.6.7 | Proof of sanitization: sanitization records and certificates |
+| NIST SP 800-88 Rev. 2 §4.6 | Certificate of sanitization for each sanitized medium |
 | ISO/IEC 42001:2023 §7.5.3 | Control of documented information (retention and disposition) |
 | EU AI Act Annex IV | AI System Documentation |
 
