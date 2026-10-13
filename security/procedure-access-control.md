@@ -2,7 +2,7 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.15\
+**Version:** 1.2.16\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -174,7 +174,7 @@ Access that does not meet all four criteria is treated as unjustified. The revie
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| ISO/IEC 27001:2022 | Annex A.5.15 to 5.18: Access Control | Access governance |
+| ISO/IEC 27001:2022 | Annex A.5.15: Access control; A.5.16: Identity management; A.5.17: Authentication information; A.5.18: Access rights | Access governance |
 | ISO/IEC 27002:2022 | §5.15 to 5.18 | Access request, review, and revocation |
 | ISO/IEC 29146:2024 | A framework for access management | Access-management framework and lifecycle |
 | NIST SP 800-53 Rev. 5 | AC: Access Control Family | Access management controls |

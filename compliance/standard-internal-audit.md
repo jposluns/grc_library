@@ -2,7 +2,7 @@
 
 **Document Title:** Internal Audit Standard\
 **Document Type:** Standard\
-**Version:** 1.2.11\
+**Version:** 1.2.12\
 **Date:** 2026-10-13\
 **Owner:** Chief Audit Executive\
 **Approving Authority:** Governance Library Maintainer\
@@ -449,7 +449,7 @@ Audit findings are not closed in the audit register until the corresponding CAPA
 
 | Framework / Standard | Relevant Clause or Control | Mapping |
 |----------------------|---------------------------|---------|
-| ISO/IEC 27001:2022 | §9.2 Internal Audit | This standard operationalizes the internal audit requirements of the ISMS |
+| ISO/IEC 27001:2022 | §9.2 Internal audit | This standard operationalizes the internal audit requirements of the ISMS |
 | ISO 19011:2026 | Clauses 4 to 7 | Primary methodological reference for audit principles, programme management, and auditor competency |
 | COBIT 2019 | MEA04 (Managed Assurance) | Audit programme management and assurance reporting align to MEA04 objectives |
 | CSA Cloud Controls Matrix | A&A-01 through A&A-06 (Audit & Assurance) | Audit planning, scope, independence, results, metrics, and remediation |

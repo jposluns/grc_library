@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.1.9\
+**Version:** 1.1.10\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -112,7 +112,7 @@ Where a cloud provider cannot meet the contract requirements in this standard, f
 | CSA CCM v4.1 | IPY-01, IPY-03 through IPY-04: Interoperability & Portability | Cloud exit and portability controls |
 | ISO/IEC 27001:2022 | Annex A.5.20: Addressing information security within supplier agreements | Supplier contract requirements |
 | NIST SP 800-53 Rev. 5 | SA-9: External System Services | Third-party cloud service controls |
-| GDPR (2018) | Article 20: Data Portability | Personal data portability rights |
+| GDPR (2018) | Article 20: Right to data portability | Personal data portability rights |
 | ENISA Cloud Computing | Exit and Portability Recommendations | Cloud exit planning guidance |
 
 ---
