@@ -36433,7 +36433,7 @@ class OpenFindingsRowTests(unittest.TestCase):
             source: str = "probe") -> str:
         return f"| 2026-10-13 | {sev} | [{fid}] {finding} | {source} | {disp} |"
 
-    def run_tool(self, row, *args: str, ledger: Path | None = None) -> tuple[int, str, str]:
+    def run_tool(self, row, *args: str, ledger: Path | str | None = None) -> tuple[int, str, str]:
         data = row if isinstance(row, bytes) else (row + "\n").encode("utf-8")
         done = subprocess.run(
             [sys.executable, "-I", str(self.TOOL), "--ledger", str(ledger or self.ledger), *args],
@@ -36965,13 +36965,13 @@ class OpenFindingsRowTests(unittest.TestCase):
         real_replace = mod.os.replace
         replaced = False
 
-        def replace(src, dst):
+        def replace(src, dst, **kwargs):
             nonlocal replaced
-            real_replace(src, dst)
+            real_replace(src, dst, **kwargs)
             replaced = True
 
-        def read(path):
-            got, current, current_acl = real_read(path)
+        def read(path, **kwargs):
+            got, current, current_acl = real_read(path, **kwargs)
             return (got + b"changed" if replaced else got), current, current_acl
 
         with mock.patch.object(mod.os, "replace", side_effect=replace), \
@@ -37124,6 +37124,324 @@ class OpenFindingsRowTests(unittest.TestCase):
         with mock.patch.object(hook, "class_attestation_state", return_value="multi"):
             codes, _ = mod.check_row(hook, row, "NEW-1", allow_open=False)
         self.assertEqual(codes, ["class-multi"])
+
+    def test_ledger_directory_suffix_refused_before_path_conversion(self) -> None:
+        before = self.ledger.read_bytes()
+        inode = self.ledger.stat().st_ino
+        for suffix in ("/", "/.", "//", "/./"):
+            for dry_run in (False, True):
+                with self.subTest(suffix=suffix, dry_run=dry_run):
+                    args = ["--id", "NEW-1", "--append"]
+                    if dry_run:
+                        args.append("--dry-run")
+                    rc, out, err = self.run_tool(
+                        self.row("ROUTED 3b330"),
+                        *args,
+                        ledger=str(self.ledger) + suffix,
+                    )
+                    self.assertEqual(rc, 2, out + err)
+                    self.assertIn("ledger-path-directory-suffix", err)
+                    self.assertNotIn("result: WROTE", out)
+                    self.assertNotIn("result: WOULD-WRITE", out)
+                    self.assertEqual(self.ledger.read_bytes(), before)
+                    self.assertEqual(self.ledger.stat().st_ino, inode)
+                    self.assertEqual(
+                        sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def _parent_swap_fixture(self, mod):
+        """left/rows and right/rows each hold a ledger; ``via`` is a symlink to left.
+
+        ``path`` goes through the intermediate ``via`` symlink; its final parent
+        component ``rows`` is a real directory, so the immediate-parent refusal
+        is not what these tests exercise."""
+        left = self.dir / "left"
+        right = self.dir / "right"
+        left_rows = left / "rows"
+        right_rows = right / "rows"
+        left_rows.mkdir(parents=True)
+        right_rows.mkdir(parents=True)
+        (left_rows / "ledger.md").write_bytes(b"original\n")
+        (right_rows / "ledger.md").write_bytes(b"redirected\n")
+        via = self.dir / "via"
+        os.symlink(left, via)
+        path = via / "rows" / "ledger.md"
+        data, st, acl = mod.read_ledger(path)
+        return left_rows, right_rows, via, path, data, st, acl
+
+    def test_parent_swap_after_recheck_stays_in_original_directory(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_parent_swap")
+        left = self.dir / "left"
+        right = self.dir / "right"
+        left_rows = left / "rows"
+        right_rows = right / "rows"
+        left_rows.mkdir(parents=True)
+        right_rows.mkdir(parents=True)
+        original = left_rows / "ledger.md"
+        redirected = right_rows / "ledger.md"
+        original.write_bytes(b"original\n")
+        redirected.write_bytes(b"redirected\n")
+        redirected_inode = redirected.stat().st_ino
+
+        via = self.dir / "via"
+        os.symlink(left, via)
+        path = via / "rows" / "ledger.md"
+        data, st, acl = mod.read_ledger(path)
+        real_replace = mod.os.replace
+        switched = False
+        decoy = None
+
+        def replace(src, dst, **kwargs):
+            nonlocal switched, decoy
+            self.assertFalse(switched)
+            # A matching source name makes HEAD's redirected rename succeed,
+            # rather than merely failing because the temp file is absent.
+            decoy = right_rows / Path(src).name
+            decoy.write_bytes(b"decoy\n")
+            via.unlink()
+            os.symlink(right, via)
+            switched = True
+            return real_replace(src, dst, **kwargs)
+
+        with mock.patch.object(mod.os, "replace", side_effect=replace):
+            mod.atomic_replace(
+                path, b"new\n", st, hashlib.sha256(data).hexdigest(), acl)
+
+        self.assertTrue(switched)
+        self.assertEqual(original.read_bytes(), b"new\n")
+        self.assertEqual(redirected.read_bytes(), b"redirected\n")
+        self.assertEqual(redirected.stat().st_ino, redirected_inode)
+        self.assertEqual(decoy.read_bytes(), b"decoy\n")
+        self.assertEqual(sorted(os.listdir(left_rows)), ["ledger.md"])
+        self.assertEqual(
+            sorted(os.listdir(right_rows)), sorted(["ledger.md", decoy.name]))
+
+    def test_parent_swap_before_recheck_uses_open_directory(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_parent_swap_recheck")
+        left_rows, right_rows, via, path, data, st, acl = self._parent_swap_fixture(mod)
+        right = self.dir / "right"
+        redirected = right_rows / "ledger.md"
+        redirected_inode = redirected.stat().st_ino
+        real_read = mod.read_ledger
+        switched = False
+
+        def read(p, **kwargs):
+            nonlocal switched
+            if not switched:
+                via.unlink()
+                os.symlink(right, via)
+                switched = True
+            return real_read(p, **kwargs)
+
+        with mock.patch.object(mod, "read_ledger", side_effect=read):
+            mod.atomic_replace(
+                path, b"new\n", st, hashlib.sha256(data).hexdigest(), acl)
+
+        self.assertTrue(switched)
+        self.assertEqual((left_rows / "ledger.md").read_bytes(), b"new\n")
+        self.assertEqual(redirected.read_bytes(), b"redirected\n")
+        self.assertEqual(redirected.stat().st_ino, redirected_inode)
+        self.assertEqual(sorted(os.listdir(left_rows)), ["ledger.md"])
+        self.assertEqual(sorted(os.listdir(right_rows)), ["ledger.md"])
+
+    def test_parent_swap_on_failure_cleans_original_temp(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_parent_swap_failure")
+        left_rows, right_rows, via, path, data, st, acl = self._parent_swap_fixture(mod)
+        right = self.dir / "right"
+        decoy = None
+
+        def replace(src, dst, **kwargs):
+            nonlocal decoy
+            decoy = right_rows / Path(src).name
+            decoy.write_bytes(b"decoy\n")
+            via.unlink()
+            os.symlink(right, via)
+            raise OSError("injected rename failure")
+
+        with mock.patch.object(mod.os, "replace", side_effect=replace):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    path, b"new\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "write-failed")
+        self.assertEqual((left_rows / "ledger.md").read_bytes(), b"original\n")
+        self.assertEqual((right_rows / "ledger.md").read_bytes(), b"redirected\n")
+        self.assertEqual(sorted(os.listdir(left_rows)), ["ledger.md"])
+        self.assertEqual(decoy.read_bytes(), b"decoy\n")
+        self.assertEqual(
+            sorted(os.listdir(right_rows)), sorted(["ledger.md", decoy.name]))
+
+    def test_directory_fsync_uses_original_parent(self) -> None:
+        import hashlib
+        import stat
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_parent_swap_fsync")
+        left_rows, right_rows, via, path, data, st, acl = self._parent_swap_fixture(mod)
+        right = self.dir / "right"
+        left_dir_st = os.stat(left_rows)
+        dir_fsyncs = []
+        real_fsync = os.fsync
+        real_replace = mod.os.replace
+
+        def fsync(fd):
+            fst = os.fstat(fd)
+            if stat.S_ISDIR(fst.st_mode):
+                dir_fsyncs.append((fst.st_dev, fst.st_ino))
+            real_fsync(fd)
+
+        def replace(src, dst, **kwargs):
+            real_replace(src, dst, **kwargs)
+            via.unlink()
+            os.symlink(right, via)
+
+        with mock.patch.object(mod.os, "fsync", side_effect=fsync), \
+                mock.patch.object(mod.os, "replace", side_effect=replace):
+            mod.atomic_replace(
+                path, b"new\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(dir_fsyncs, [(left_dir_st.st_dev, left_dir_st.st_ino)])
+        self.assertEqual((left_rows / "ledger.md").read_bytes(), b"new\n")
+        self.assertEqual((right_rows / "ledger.md").read_bytes(), b"redirected\n")
+
+    def test_immediate_symlink_parent_refuses_write(self) -> None:
+        target = self.dir / "target"
+        target.mkdir()
+        ledger = target / "ledger.md"
+        ledger.write_text(self.LEDGER, encoding="utf-8")
+        inode = ledger.stat().st_ino
+        via = self.dir / "via"
+        os.symlink(target, via)
+        for dry_run in (False, True):
+            with self.subTest(dry_run=dry_run):
+                args = ["--id", "NEW-1", "--append"]
+                if dry_run:
+                    args.append("--dry-run")
+                rc, out, err = self.run_tool(
+                    self.row("ROUTED 3b330"), *args, ledger=via / "ledger.md")
+                self.assertEqual(rc, 2, out + err)
+                self.assertIn("error: ledger-parent-symlink", err)
+                self.assertNotIn("result: WROTE", out)
+                self.assertNotIn("result: WOULD-WRITE", out)
+                self.assertEqual(ledger.read_bytes(), self.LEDGER.encode("utf-8"))
+                self.assertEqual(ledger.stat().st_ino, inode)
+                self.assertEqual(sorted(os.listdir(target)), ["ledger.md"])
+
+    def test_dir_fd_unavailable_refuses_before_temp(self) -> None:
+        import contextlib
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_dir_fd_unavailable")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod, "DIR_FD_WRITE_SUPPORTED", False), \
+                mock.patch.object(mod.os, "replace") as replace:
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-dir-fd-unavailable")
+        replace.assert_not_called()
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+        with self.subTest(dry_run=True):
+            out, err = io.StringIO(), io.StringIO()
+            with mock.patch.object(mod, "DIR_FD_WRITE_SUPPORTED", False), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = mod.main(
+                    ["--id", "NEW-1", "--append", "--dry-run", "--ledger", str(self.ledger)],
+                    root=REPO_ROOT,
+                    stdin=(self.row("ROUTED 3b330") + "\n").encode("utf-8"))
+            self.assertEqual(rc, 2, out.getvalue() + err.getvalue())
+            self.assertIn("error: ledger-dir-fd-unavailable", err.getvalue())
+            self.assertNotIn("result: WOULD-WRITE", out.getvalue())
+            self.assertEqual(self.ledger.read_bytes(), data)
+            self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_replace_dir_fd_not_implemented_refuses(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_replace_not_implemented")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod.os, "replace", side_effect=NotImplementedError):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "ledger-dir-fd-unavailable")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_write_and_replace_failures_report_write_failed(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        for target in ("write", "replace"):
+            with self.subTest(target=target):
+                mod = load_linter_module(
+                    "tools/open-findings-row.py", f"_ofr_write_failed_{target}")
+                self.ledger.write_text(self.LEDGER, encoding="utf-8")
+                data, st, acl = mod.read_ledger(self.ledger)
+                inode = self.ledger.stat().st_ino
+                with mock.patch.object(mod.os, target, side_effect=OSError("injected")):
+                    with self.assertRaises(mod.EnvError) as cm:
+                        mod.atomic_replace(
+                            self.ledger, b"x\n", st,
+                            hashlib.sha256(data).hexdigest(), acl)
+                self.assertEqual(cm.exception.code, "write-failed")
+                self.assertEqual(self.ledger.read_bytes(), data)
+                self.assertEqual(self.ledger.stat().st_ino, inode)
+                self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
+    def test_environment_doc_lists_write_failed_before_rename(self) -> None:
+        import ast
+
+        doc = ast.get_docstring(ast.parse(self.TOOL.read_text(encoding="utf-8")))
+        environment = doc.split("ENVIRONMENT (exit 2).", 1)[1].split(
+            "\n\nLINE MAPPING.", 1)[0]
+        normalized = " ".join(environment.split())
+        self.assertIn(
+            "opening the parent, writing, or renaming fails before the rename "
+            "succeeds (write-failed)",
+            normalized,
+        )
+        self.assertIn(
+            "The rename already happened for those last two errors.",
+            normalized,
+        )
+
+    def test_empty_error_row_wording_in_tool_and_reference(self) -> None:
+        import ast
+
+        doc = ast.get_docstring(ast.parse(self.TOOL.read_text(encoding="utf-8")))
+        reference = (
+            REPO_ROOT / "references" / "hook-open-findings-guard.md"
+        ).read_text(encoding="utf-8")
+        writing = reference.split(
+            "## Writing rows (`tools/open-findings-row.py`, 3b334)", 1
+        )[1].split("\n## ", 1)[0]
+        for name, text in (("tool", doc), ("reference", writing)):
+            with self.subTest(source=name):
+                normalized = " ".join(text.split())
+                self.assertIn(
+                    "an empty error row makes the merge guard block the merge",
+                    normalized,
+                )
+                self.assertNotIn(
+                    "an empty error row blocks the merge guard",
+                    normalized,
+                )
 
 
 class ProvisionIndexTests(LinterTestCase):

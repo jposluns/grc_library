@@ -39,7 +39,7 @@ PLACEMENT.
 REFUSALS (exit 1). not-utf8, multiline, bad-line-char (a CR or another character str.splitlines
 treats as a line break), malformed-columns, severity-unknown, disposition-invalid, disposition-empty
 (an error or warning row with an empty disposition; --open admits it: an empty error row
-blocks the merge guard, while an empty warning row is surfaced without blocking), class-unattested, class-bad-exempt, class-multi (on any row: one clause
+makes the merge guard block the merge, while an empty warning row is surfaced without blocking), class-unattested, class-bad-exempt, class-multi (on any row: one clause
 per row), found-not-iso, id-invalid, id-not-in-row, duplicate-id, anchor-not-found, anchor-ambiguous,
 no-dated-open-row, open-row-in-closed (an --open row may not land in `## Closed today`, which the guard
 does not scan), splice-mismatch, misfiled-grew, merge-guard-regressed. A block the ledger already has
@@ -58,10 +58,19 @@ belongs to another user (ownership cannot survive the rename); its line ends are
 uniformly CRLF as str.splitlines (the hook's line model) reads them; the rows the guard parses and the
 rows mapped to lines here disagree; the file changed between read and write; the access ACL could not
 be read or copied; the group cannot be preserved (ledger-group-unpreservable); the temp file's group,
-mode or access ACL differs from the expected values (ledger-metadata-unpreservable); the directory
-fsync fails (written-dir-fsync-failed) or the written file does not read back as written
-(post-write-mismatch). The rename already happened for those last two errors. Outside --self-test an
-unexpected failure prints "error: internal" (under --self-test it shows its traceback). A usage error also exits 2.
+mode or access ACL differs from the expected values (ledger-metadata-unpreservable); required
+directory-fd operations are unavailable (ledger-dir-fd-unavailable); the ledger's immediate
+parent is itself a symlink (ledger-parent-symlink, decided by lstat when the parent open
+fails); opening the parent, writing,
+or renaming fails before the rename succeeds (write-failed); the directory fsync fails
+(written-dir-fsync-failed) or the written file does not read back as written (post-write-mismatch).
+The rename already happened for those last two errors. --dry-run runs the same write pre-flight
+(the directory-fd capability check and the O_DIRECTORY|O_NOFOLLOW parent open, then a close), so
+it refuses whatever that pre-flight refuses; later write stages (temp creation, group,
+ACL and metadata preservation, identity re-check) can still refuse a real write. Outside --self-test an
+unexpected failure prints "error: internal" (under --self-test it shows its traceback). A usage error
+also exits 2: a --ledger value ending in / or /. is refused that way (ledger-path-directory-suffix)
+before pathlib would discard the suffix.
 
 LINE MAPPING. classify() walks the ledger with the hook's own fence and heading predicates
 (_fence_run, _fence_closes, _opens_scanned_section) and parses each candidate line with the hook's row
@@ -69,9 +78,13 @@ parser; cross_check() then requires the rows so mapped to equal parse_open_rows_
 parse_dispositioned_rows_full on the whole text, and exits 2 when they differ. A future hook change
 that moves a scope rule therefore stops this tool instead of placing a row wrongly.
 
-ATOMIC WRITE. A sibling temp file is created O_EXCL|O_NOFOLLOW at 0600 (no tempfile dir= allocator),
-written and fsynced, given the original group, POSIX access ACL and mode, then os.replace'd after the
-target's inode, size, mtime, ctime, mode, uid, gid, access ACL and sha256 are re-checked; the directory is fsynced and the result re-read.
+ATOMIC WRITE. The write transaction opens the parent once with O_DIRECTORY|O_NOFOLLOW. A sibling temp file is created
+relative to that directory fd with O_EXCL|O_NOFOLLOW at 0600, written and fsynced, and given the
+original group, POSIX access ACL and mode. The target's inode, size, mtime, ctime, mode, uid, gid,
+access ACL and sha256 are re-checked relative to the same directory fd before os.replace uses it
+for both operands. That directory fd is fsynced and used for read-back and any temp cleanup.
+An immediate symlink parent is refused (ledger-parent-symlink); intermediate symlinks and '..'
+retain kernel lookup semantics. Writes require directory-fd support; there is no pathname-based fallback.
 RESIDUES, stated: there is no shared lock, so a write landing between the re-check and the rename is
 lost, as is a write by a writer holding the old inode open; extended attributes other than the access ACL are not carried over; ACLs are read through Linux
 xattrs only.
@@ -102,6 +115,12 @@ from lint_common import REPO_ROOT, resolve_working  # noqa: E402
 HOOK_REL = Path(".claude") / "hooks" / "block-on-open-findings.py"
 MATCHER_REL = Path("tools") / "check-class-completeness.py"
 ACL_XATTR = "system.posix_acl_access"
+DIR_FD_WRITE_SUPPORTED = (
+    all(hasattr(os, name) for name in
+        ("O_DIRECTORY", "O_NOFOLLOW", "O_CLOEXEC"))
+    and all(func in os.supports_dir_fd
+            for func in (os.open, os.unlink, os.rename))
+)
 # Every hook name this tool reads; a hook that lacks one is an environment error, not a pass.
 HOOK_API = (
     "SEVERITIES", "CLASS_ATTEST_RE", "CLASS_EXEMPT_RE", "MISFILED_ROW_RE", "parse_open_rows_full", "parse_dispositioned_rows_full",
@@ -441,10 +460,15 @@ def metadata(st: os.stat_result) -> tuple[int, ...]:
             st.st_mode, st.st_uid, st.st_gid)
 
 
-def read_ledger(path: Path) -> tuple[bytes, os.stat_result, bytes | None]:
-    """(bytes, stat, access ACL) of the ledger, refusing a symlink, a non-regular file and a hard-linked file."""
+def read_ledger(path: Path | str, *, dir_fd: int | None = None
+                ) -> tuple[bytes, os.stat_result, bytes | None]:
+    """Read the ledger, refusing a symlink (ledger-symlink), a non-regular file
+    (ledger-not-regular) and a hard-linked file (ledger-hardlinked). When dir_fd is supplied,
+    ``path`` is opened relative to that directory fd (the write-side re-check and read-back)."""
     try:
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+        fd = os.open(
+            path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+            dir_fd=dir_fd)
     except FileNotFoundError as exc:
         raise EnvError("ledger-missing") from exc
     except OSError as exc:
@@ -499,59 +523,96 @@ def check_owner(st: os.stat_result) -> None:
         raise EnvError("ledger-owner-differs")
 
 
+def open_parent(path: Path) -> int:
+    """The ledger's immediate parent as an O_DIRECTORY|O_NOFOLLOW fd: the write anchor, and the
+    pre-flight --dry-run shares, so both refuse the same parent and capability problems. Raises
+    ledger-dir-fd-unavailable without directory-fd support, ledger-parent-symlink when the open
+    fails and the immediate parent lstats as a symlink, and write-failed for any other failed
+    open."""
+    if not DIR_FD_WRITE_SUPPORTED:
+        raise EnvError("ledger-dir-fd-unavailable")
+    try:
+        return os.open(
+            path.parent,
+            os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    except OSError as exc:
+        with contextlib.suppress(OSError):
+            if stat.S_ISLNK(os.lstat(path.parent).st_mode):
+                raise EnvError("ledger-parent-symlink") from exc
+        raise EnvError("write-failed") from exc
+
+
 def atomic_replace(path: Path, data: bytes, expect: os.stat_result, expect_sha256: str,
                    expect_acl: bytes | None) -> None:
-    """Replace ``path`` with ``data`` atomically, keeping its uid, gid, mode and access ACL; see the docstring."""
+    """Replace the ledger through one parent fd, preserving its checked metadata."""
     path = Path(path)
     check_owner(expect)
-    acl = expect_acl
-    tmp = path.with_name(f".{path.name}.{os.getpid()}.{secrets.token_hex(8)}.tmp")
-    fd = None
+    name = path.name
+    tmp = f".{name}.{os.getpid()}.{secrets.token_hex(8)}.tmp"
+    fd = dfd = None
     created = replaced = False
     try:
-        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
-        created = True
-        view = memoryview(data)
-        while view:
-            view = view[os.write(fd, view):]
         try:
-            os.fchown(fd, -1, expect.st_gid)
-        except OSError as exc:
-            raise EnvError("ledger-group-unpreservable") from exc
-        _copy_acl(fd, acl)
-        os.fchmod(fd, stat.S_IMODE(expect.st_mode))
-        temp_st = os.fstat(fd)
-        if (temp_st.st_gid != expect.st_gid
-                or stat.S_IMODE(temp_st.st_mode) != stat.S_IMODE(expect.st_mode)
-                or read_acl(fd) != expect_acl):
-            raise EnvError("ledger-metadata-unpreservable")
-        os.fsync(fd)
-        f, fd = fd, None
-        os.close(f)
-        now_data, now, now_acl = read_ledger(path)
-        if (metadata(now) != metadata(expect) or now_acl != expect_acl
-                or hashlib.sha256(now_data).hexdigest() != expect_sha256):
-            raise EnvError("ledger-changed")
-        os.replace(tmp, path)
-        replaced = True
-        dfd = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
-        try:
+            dfd = open_parent(path)
+            fd = os.open(
+                tmp,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                | os.O_NOFOLLOW | os.O_CLOEXEC,
+                0o600,
+                dir_fd=dfd)
+            created = True
+            view = memoryview(data)
+            while view:
+                view = view[os.write(fd, view):]
+            try:
+                os.fchown(fd, -1, expect.st_gid)
+            except OSError as exc:
+                raise EnvError("ledger-group-unpreservable") from exc
+            _copy_acl(fd, expect_acl)
+            os.fchmod(fd, stat.S_IMODE(expect.st_mode))
+            temp_st = os.fstat(fd)
+            if (temp_st.st_gid != expect.st_gid
+                    or stat.S_IMODE(temp_st.st_mode)
+                    != stat.S_IMODE(expect.st_mode)
+                    or read_acl(fd) != expect_acl):
+                raise EnvError("ledger-metadata-unpreservable")
+            os.fsync(fd)
+            f, fd = fd, None
+            os.close(f)
+
+            now_data, now, now_acl = read_ledger(name, dir_fd=dfd)
+            if (metadata(now) != metadata(expect) or now_acl != expect_acl
+                    or hashlib.sha256(now_data).hexdigest() != expect_sha256):
+                raise EnvError("ledger-changed")
+
+            os.replace(tmp, name, src_dir_fd=dfd, dst_dir_fd=dfd)
+            replaced = True
             os.fsync(dfd)
-        finally:
-            os.close(dfd)
-    except OSError as exc:
-        raise EnvError("written-dir-fsync-failed" if replaced else "write-failed") from exc
+        except NotImplementedError as exc:
+            raise EnvError("ledger-dir-fd-unavailable") from exc
+        except OSError as exc:
+            raise EnvError(
+                "written-dir-fsync-failed" if replaced else "write-failed"
+            ) from exc
+
+        got, st, got_acl = read_ledger(name, dir_fd=dfd)
+        if (hashlib.sha256(got).digest() != hashlib.sha256(data).digest()
+                or stat.S_IMODE(st.st_mode) != stat.S_IMODE(expect.st_mode)
+                or (st.st_uid, st.st_gid) != (expect.st_uid, expect.st_gid)
+                or got_acl != expect_acl):
+            raise EnvError("post-write-mismatch")
     finally:
-        if fd is not None:
-            os.close(fd)
-        if created and not replaced:
-            with contextlib.suppress(FileNotFoundError):
-                os.unlink(tmp)
-    got, st, got_acl = read_ledger(path)
-    if (hashlib.sha256(got).digest() != hashlib.sha256(data).digest()
-            or stat.S_IMODE(st.st_mode) != stat.S_IMODE(expect.st_mode)
-            or (st.st_uid, st.st_gid) != (expect.st_uid, expect.st_gid) or got_acl != acl):
-        raise EnvError("post-write-mismatch")
+        try:
+            try:
+                if fd is not None:
+                    os.close(fd)
+            finally:
+                if created and not replaced:
+                    with contextlib.suppress(FileNotFoundError):
+                        os.unlink(tmp, dir_fd=dfd)
+        finally:
+            if dfd is not None:
+                os.close(dfd)
 
 
 def _refuse(codes: list[str]) -> int:
@@ -588,12 +649,21 @@ def _run(args, root: Path, raw: bytes) -> int:
         print(line)
     if refusals:
         return _refuse(refusals)
+    # The write pre-flight, shared with atomic_replace: --dry-run refuses what a write refuses.
+    os.close(open_parent(path))
     if args.dry_run:
         print("result: WOULD-WRITE")
         return 0
     atomic_replace(path, new_text.encode("utf-8"), st, hashlib.sha256(data).hexdigest(), acl)
     print("result: WROTE")
     return 0
+
+
+def ledger_path(value: str) -> Path:
+    """Reject directory-only suffixes before pathlib discards them."""
+    if value.endswith(("/", "/.")):
+        raise argparse.ArgumentTypeError("ledger-path-directory-suffix")
+    return Path(value)
 
 
 def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: bytes | None = None) -> int:
@@ -604,8 +674,11 @@ def main(argv: list[str] | None = None, *, root: Path | None = None, stdin: byte
                        help="insert after the one Open or Closed-today row led by [ANCHOR_ID]")
     where.add_argument("--append", action="store_true",
                        help="insert after the newest dated row the guard reads as Open")
-    ap.add_argument("--ledger", type=Path, help="ledger path (default: resolve_working, strict)")
-    ap.add_argument("--dry-run", action="store_true", help="check and report; write nothing")
+    ap.add_argument("--ledger", type=ledger_path,
+                    help="ledger path (default: resolve_working, strict); a value ending in / or /. "
+                         "is refused (ledger-path-directory-suffix)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="check and report, running the write pre-flight; write nothing")
     ap.add_argument("--open", dest="allow_open", action="store_true",
                     help="admit an error or warning row with an empty disposition")
     ap.add_argument("--self-test", action="store_true", help="run the built-in self-test and exit")
