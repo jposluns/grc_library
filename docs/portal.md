@@ -289,7 +289,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
 - [Continuous Improvement Register Procedure](../governance/procedure-continuous-improvement-register.md) (maturity: Baseline)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Mature)
 - [GRC Programme Management and Annual Review Procedure](../governance/procedure-grc-programme-management-and-annual-review.md) (maturity: Baseline)
 - [HIPAA Operational Compliance Procedure](../compliance/healthcare/procedure-hipaa-operational-compliance.md) (maturity: Draft)
 - [Library Quality and Review Cadence Procedure](../governance/procedure-library-quality-and-review-cadence.md) (maturity: Baseline)
@@ -613,7 +613,7 @@ The Chief Compliance Officer needs the compliance and audit policies, the regula
 
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Mature)
 - [HIPAA Operational Compliance Procedure](../compliance/healthcare/procedure-hipaa-operational-compliance.md) (maturity: Draft)
 - [Mergers and Acquisitions Due Diligence Procedure](../compliance/procedure-mergers-acquisitions-due-diligence.md) (maturity: Baseline)
 - [UK AEO IT Self-Assessment Procedure](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) (maturity: Baseline)
@@ -664,7 +664,7 @@ Internal Audit and external auditors need the internal audit standard, the contr
 
 - [Audit Planning Procedure](../compliance/procedure-audit-planning.md) (maturity: Baseline)
 - [Control Testing Procedure](../compliance/procedure-control-testing.md) (maturity: Mature)
-- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Baseline)
+- [Corrective and Preventive Action (CAPA) Procedure](../compliance/procedure-capa.md) (maturity: Mature)
 
 ### Register
 

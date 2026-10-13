@@ -2,7 +2,7 @@
 
 **Document Title:** Corrective and Preventive Action (CAPA) Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
+**Version:** 1.1.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -469,9 +469,11 @@ Records are stored in the designated secure GRC document repository. Access is r
 |----------------------|---------------------------|---------|
 | ISO 9001:2015 | §10.2 Nonconformity and corrective action; §10.3 Continual improvement | Primary source for corrective and preventive action requirements; this procedure operationalizes these clauses |
 | ISO/IEC 27001:2022 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | ISMS-specific requirements for nonconformity treatment and improvement |
+| ISO 37301:2021 | §10.1 Continual improvement; §10.2 Nonconformity and corrective action | Compliance-management-system requirements to react to nonconformity, determine its causes and whether similar nonconformities exist, implement action, and review corrective-action effectiveness (§3, §4, §6, §7.1, §7.2, §7.5, §9.2, §10, §11) |
+| ISO 19011:2026 | §6.7 Conducting the audit follow-up | Verification of the completion and effectiveness of corrective actions arising from audit findings, including verification as part of a subsequent audit (§5.1 follow-up audit; §7.2 verification; §7.3 re-audit; §7.4 closure of audit-linked CAPAs; §7.5 effectiveness validation) |
 | COBIT 2019 | MEA02 (Managed System of Internal Control) | Control-deficiency identification, corrective action, and monitoring requirements |
 | CSA Cloud Controls Matrix | A&A-06 (Audit & Assurance: Remediation) | Requirements for tracking and remediating audit findings |
-| BASC International Norm V6-2022 | §9.2 to §9.4 Improvement | Corrective action and improvement requirements within the BASC management system |
+| BASC International Norm V6-2022; BASC International Norm Implementation Guide V6-2022 (Version 06, effective 2022-03-02) | Norm §9.2 to §9.4 Improvement; Implementation Guide, Improvement: "Corrective action" | Corrective action and improvement requirements within the BASC management system; root-cause methodology guidance (5 whys, fishbone) underpinning §4.1 |
 | NIST Cybersecurity Framework 2.0 | ID.IM (Identify: Improvement) | Incorporating lessons learned into corrective-action and GRC programme improvement |
 
 ---
