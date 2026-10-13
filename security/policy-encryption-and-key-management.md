@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.3.43\
+**Version:** 1.3.44\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -208,14 +208,19 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | Framework | Reference |
 |---|---|
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography |
+| ISO/IEC 27017:2026 | 8.24, Table 43: Guidance for use of cryptography (cloud services) |
 | COBIT 2019 | DSS05.03: Manage endpoint security |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management |
 | CSA CCM v4.1 | CEK-02: CEK Roles and Responsibilities |
 | CSA CCM v4.1 | CEK-03: Data Protection |
 | CSA CCM v4.1 | CEK-04: Encryption Algorithm |
-| NIST SP 800-57 | Key Management Guidelines |
+| NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management, Part 1: General (May 2020) |
+| NIST FIPS 197-upd1 | Advanced Encryption Standard (AES) (November 2001, updated May 2023) |
+| NIST SP 800-38D | Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC (November 2007) |
+| NIST SP 800-131A Rev. 2 | Transitioning the Use of Cryptographic Algorithms and Key Lengths (March 2019) |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes |
 | PCI DSS v4.0.1 | Requirement 3: Protect Stored Account Data |
+| ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.2.1-4: protection of sensitive data, such as training or test data, against unauthorized access; informative implementation guidance ETSI TR 104 128 V1.1.1 (2025-05) 6.5.5 (Provision 5.2.1-4, written against the predecessor ETSI TS 104 223), example measures: encryption at rest and in transit, including model artifacts and training data |
 | BASC International Security Standard 6.0.2/6.0.3 (2022) | Trade and Customs Data Security |
 | WCO SAFE Framework (2025 edition) | Supply Chain Security |
 | ISO 28000:2022 | Supply-Chain Security and Resilience |
