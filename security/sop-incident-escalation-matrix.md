@@ -2,11 +2,11 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.12\
-**Date:** 2026-10-12\
+**Version:** 1.2.13\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md)\
+**Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual or following significant organizational or contact change\
@@ -26,7 +26,7 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 
 | Level | Severity | Definition |
 | --- | --- | --- |
-| **P1** | Critical | Active or confirmed breach, ransomware deployment, data exfiltration, confirmed or suspected privileged account compromise, complete service outage, or threat actor present in production environment. Each listed trigger is P1 whatever its scope. |
+| **P1** | Critical | Active or confirmed breach, ransomware deployment, data exfiltration, confirmed or suspected privileged account compromise, complete service outage caused or suspected to be caused by a security incident, or threat actor present in production environment. Each listed trigger is P1 whatever its scope. Otherwise, a complete service outage is an IT operations P1 handled under the [IT Service Management Framework](../operations/framework-it-service-management.md), sections "Service levels" and "1. Incident management" (under "Framework principles"), not the security incident-response procedure. |
 | **P2** | High | Suspected breach, or confirmed security incident (other than a P1 trigger) with limited blast radius, potential data exposure, multi-system compromise, or active malware containment. Significant operational risk. |
 | **P3** | Medium | Anomalous activity under investigation (a suspected breach is P2), policy violation, isolated malware, phishing with credential capture (P1 where the captured credential is privileged), or anomaly requiring containment. |
 | **P4** | Low | Informational alert, false positive confirmed after investigation, or minor procedural violation with no data or system impact. |
