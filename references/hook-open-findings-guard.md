@@ -96,7 +96,7 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   Refusing an unattested `FIXED` class row is deliberately stricter than the merge guard warning,
   matching the D14 pre-push check.
 - **`--open`.** Records an `error` or `warning` row with an empty disposition. Without the flag such a
-  row is refused. With it, an empty error row blocks the merge guard while an empty warning row is
+  row is refused. With it, an empty error row makes the merge guard block the merge while an empty warning row is
   surfaced without blocking. Either row may not land in `## Closed today`, which this hook does not scan.
 - **Class count (report only).** For a `FIXED` row with a `[class: "<token>" @ <count>]` clause, the tool
   re-runs the `check-class-completeness.py` probe on the current checkout and warns when the count
@@ -106,9 +106,18 @@ python3 -I tools/open-findings-row.py --id ID (--after ANCHOR_ID | --append) [--
   hard-linked or owned by another user; its line ends disagree with this hook's line model; or the file
   changed between read and write (including ctime, mode, uid, gid or access ACL). The write keeps
   the file's uid, gid, mode and POSIX access ACL; a group that cannot be preserved refuses with
-  `ledger-group-unpreservable`. `written-dir-fsync-failed` means the rename happened but directory
-  durability could not be confirmed. Unexpected exceptions report only `error: internal`.
-  `--ledger` becomes absolute without resolving symlinks, preserving the symlink refusal.
+  `ledger-group-unpreservable`. `write-failed` reports an opening, write or rename failure before
+  the rename succeeds. `written-dir-fsync-failed` means the rename happened but directory durability
+  could not be confirmed. Unexpected exceptions report only `error: internal`.
+  `--ledger` values ending in `/` or `/.` are usage errors. Relative paths become `Path.cwd() / path`
+  without additional normalization or symlink resolution, preserving kernel `link/..` semantics.
+  Writes open the parent once with `O_DIRECTORY|O_NOFOLLOW`; temp creation, identity re-check,
+  replacement, cleanup and read-back use that directory fd, which is also fsynced. An immediate
+  symlink parent refuses with `ledger-parent-symlink` (decided by `lstat` when the parent open
+  fails). Missing directory-fd support refuses with `ledger-dir-fd-unavailable`;
+  there is no pathname-based fallback. `--dry-run` runs the same pre-flight (the directory-fd
+  capability check and the `O_DIRECTORY|O_NOFOLLOW` parent open), so it refuses whatever that
+  pre-flight refuses; later write stages can still refuse a real write.
 - **Stated residue.** The letter-series ref shape (`3b108`, `3b50b2e1`) overlaps hexadecimal, so a short
   SHA such as `1b2e3a4` passes as a ref in the tool and in this hook. Closing it needs a hook grammar
   change. There is no shared lock: a write between the re-check and the rename, or by a writer
