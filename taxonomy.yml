@@ -8369,7 +8369,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Data Protection and Privacy Breach Response Procedure"
-  version: "1.5.9"
+  version: "1.5.10"
   date: "2026-10-13"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"
