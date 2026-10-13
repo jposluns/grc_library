@@ -2,7 +2,7 @@
 
 **Document Title:** Data Classification and Handling Standard\
 **Document Type:** Standard\
-**Version:** 1.5.4\
+**Version:** 1.6.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -147,6 +147,10 @@ Where the organization participates in a sector programme that imposes additiona
 | Trade data (BASC) | N/A | N/A | N/A | BASC Security Standard 6.0.2/6.0.3, ISO 28000:2022 |
 
 This standard also aligns with ISO/IEC 27040:2024 (Storage security) for the secure storage, retention, and sanitization of classified data at rest.
+
+For cloud-hosted information, this standard also aligns with ISO/IEC 27017:2026 (second edition, 2026-07), clause 5.13 (Labelling of information), whose cloud-service guidance advises the cloud service customer to label information and other associated assets held in the cloud under its own labelling procedures, and allows it to use labelling functionality that the cloud service provider offers, where applicable; this supports rule 5.2 and the labelling element of rule 5.3.
+
+For personal data, this standard also aligns with ISO/IEC 29151:2026 (second edition, 2026-07). Clause 5.12 (Classification of information) advises classifying all information that contains PII, using categories that reflect legal and contractual obligations, the sensitivity of the information, and the risk of harm from a breach; this supports classifying personal data, and section 4 places sensitive personal data in the Confidential level. Annex A.6 (Data minimization), items f) to h), advises deciding which PII to anonymize or de-identify, de-identifying it according to its form and the risks identified, and de-identifying or anonymizing publicly available data used for AI training where consent cannot be obtained from the people concerned; this supports rule 7.2. Items f) and g) are risk-based guidance on de-identification and item h) is limited to publicly available data used for AI training where consent cannot be obtained, whereas rule 7.2 is a mandatory requirement that also accepts encryption and also covers proprietary information: this citation shows alignment, not that ISO/IEC 29151 requires rule 7.2.
 
 For cloud-hosted data, **CCCS ITSP.50.103 (Security Categorization of Cloud-Based Services)** provides an injury-based security-categorization methodology that bridges this standard's sensitivity classification to cloud control-profile selection. It defines security categorization as "the process of identifying the potential injuries that could result from compromises to business" processes and information, and makes categorization "fundamental" because it "provides the basis for selecting the appropriate cloud capabilities, security control profile". ITSP.50.103 "applies to both private and public-sector organizations", so it is usable as a categorization-to-control-profile bridge alongside this standard's classification model rather than as a public-sector-only instrument.
 

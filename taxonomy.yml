@@ -11819,7 +11819,7 @@ documents:
   domain: "security"
   type: "Standard"
   title: "Data Classification and Handling Standard"
-  version: "1.5.4"
+  version: "1.6.0"
   date: "2026-10-13"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
