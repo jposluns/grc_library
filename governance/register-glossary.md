@@ -2,8 +2,8 @@
 
 **Document Title:** Glossary and Acronym Index\
 **Document Type:** Register\
-**Version:** 1.4.19\
-**Date:** 2026-09-25\
+**Version:** 1.4.20\
+**Date:** 2026-10-13\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md), [`README.md`](../README.md)\
@@ -62,7 +62,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **AIGC** | AI Governance Council. Cross-functional governance forum defined in the library's AI charter. |
 | **AIMS** | Artificial Intelligence Management System (per ISO/IEC 42001:2023). |
 | **AIQT** | Accuracy, Integrity, Quality, Trust. The library's foundational production principle: the priority ordering (Accuracy = Integrity = Quality = Trust) > Progress > Speed > Cost. See [`governance/principle-integrity-and-trustworthiness.md`](principle-integrity-and-trustworthiness.md). |
-| **AIS** | AI System. A unit of AI capability tracked in the AI System Register. (CSA CCM also uses AIS as Application and Interface Security, the CCM domain covering application-layer controls; the library cites that domain explicitly where used.) |
+| **AIS** | AI System. A unit of AI capability tracked in the AI System Register. (CSA CCM also uses AIS as Application & Interface Security, the CCM domain covering application-layer controls; the library cites that domain explicitly where used.) |
 | **ASD** | Australian Signals Directorate. Authority for the Australian Information Security Manual (ISM). |
 | **ATT** | Australian Trusted Trader. Australia's AEO-equivalent trusted-trader programme. |
 
@@ -89,7 +89,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **CCO** | Chief Compliance Officer. |
 | **CCPA** | California Consumer Privacy Act. |
 | **CDO** | Chief Data Officer. |
-| **CEK** | (CSA CCM domain) Cryptography, Encryption, and Key Management. |
+| **CEK** | (CSA CCM domain) Cryptography, Encryption & Key Management. |
 | **CIA** | Confidentiality, Integrity, Availability. The classic information-security triad. |
 | **CIIO** | Critical Information Infrastructure Operator. Chinese-law designation under the Cybersecurity Law of China. Designated by the relevant industry regulator (not self-designated). Triggers mandatory CAC Security Assessment for outbound personal information transfers under PIPL Article 38 and a domestic-storage default under PIPL Article 40. |
 | **CIAM** | Customer Identity and Access Management. |
@@ -113,7 +113,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 
 | Term | Expansion / definition |
 | --- | --- |
-| **DCS** | Two distinct meanings disambiguated by context: (1) (CSA CCM domain) Data Security and Privacy Lifecycle Management; (2) (OT) Distributed Control System. The library uses CCM-DCS for the cloud-control-matrix domain and OT-DCS or "Distributed Control System" spelled out where the OT meaning is intended. |
+| **DCS** | Two distinct meanings disambiguated by context: (1) (CSA CCM domain) Datacenter Security; (2) (OT) Distributed Control System. The library uses CCM-DCS for the cloud-control-matrix domain and OT-DCS or "Distributed Control System" spelled out where the OT meaning is intended. |
 | **DLP** | Data Loss Prevention. |
 | **DORA** | Digital Operational Resilience Act (EU). Financial-services regulation. See [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md). |
 | **DPA** | Data Processing Agreement. |
@@ -121,7 +121,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **DPO** | Data Protection Officer. Canonical privacy-lead role in the library, following the statutorily-mandated title in GDPR Article 37, LGPD Article 41, India DPDP Act 2023 §10, Malaysia PDPA (as amended), and similar regimes. See [`register-role-authority.md`](register-role-authority.md) for the role definition and adopter-customization guidance. The North American variant "Chief Privacy Officer (CPO)" is an acceptable adopter substitution; some adopters maintain both DPO and CPO as distinct roles. |
 | **DR** | Disaster Recovery. |
 | **DSAR** | Data Subject Access Request. |
-| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. Used interchangeably with DCS in CCM v4.1. |
+| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. Distinct from DCS (Datacenter Security) in CCM v4.1. |
 | **DSPT** | Data Security and Protection Toolkit (UK NHS). |
 | **DSR** | Data Subject Request. Broader than DSAR; includes erasure, rectification, portability, etc. |
 
@@ -183,7 +183,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **IEC** | International Electrotechnical Commission. Co-publishes ISO/IEC standards. |
 | **IMO** | International Maritime Organization. |
 | **IPS** | Intrusion Prevention System. |
-| **IPY** | (CSA CCM domain) Interoperability and Portability. |
+| **IPY** | (CSA CCM domain) Interoperability & Portability. |
 | **I&S** | (CSA CCM domain) Infrastructure Security. Renamed from the v4.0 IVS (Infrastructure and Virtualization Security) domain in CCM v4.1.0. |
 | **ISACA** | Information Systems Audit and Control Association. Publishes COBIT. |
 | **ISM** | Information Security Manual (Australia). |
@@ -323,7 +323,7 @@ When in doubt: external term or acronym → this register. Internal governance c
 | **TPRM** | Third-Party Risk Management. |
 | **TRA** | Transfer Risk Assessment (UK GDPR analogue of TIA). |
 | **TSA** | Transportation Security Administration (U.S.). |
-| **TVM** | (CSA CCM domain) Threat and Vulnerability Management. |
+| **TVM** | (CSA CCM domain) Threat & Vulnerability Management. |
 
 ## U
 

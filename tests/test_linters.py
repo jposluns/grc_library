@@ -28076,7 +28076,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.9.0", "3b201 adds the language engine's public spelling_matches helper on top of 3b177-c (MINOR, 0.8.0 to 0.9.0)")
+        self.assertEqual(man["pack"]["version"], "0.10.0", "3b330 corrects three CSA CCM expansions in the citations.toml denylist reasons on top of 3b201 (MINOR, 0.9.0 to 0.10.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")

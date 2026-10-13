@@ -2,8 +2,8 @@
 
 **Document Title:** Compliance Controls and Gap Register Template\
 **Document Type:** Register\
-**Version:** 1.0.6\
-**Date:** 2026-07-23\
+**Version:** 1.0.7\
+**Date:** 2026-10-13\
 **Owner:** Security Architecture Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md), [`risk/standard-enterprise-risk-management.md`](../risk/standard-enterprise-risk-management.md)\
@@ -53,7 +53,7 @@ Organizations should populate this template with their specific implementation s
 
 ## CSA CCM v4.1 control mapping
 
-### Audit and assurance (a&a)
+### Audit & assurance (A&A)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -64,7 +64,7 @@ Organizations should populate this template with their specific implementation s
 | A&A-05 | Audit Management Process | | | | |
 | A&A-06 | Remediation | | | | |
 
-### Application and interface security (AIS)
+### Application & interface security (AIS)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -77,7 +77,7 @@ Organizations should populate this template with their specific implementation s
 | AIS-07 | Application Vulnerability Remediation | | | | |
 | AIS-08 | API Security | | | | |
 
-### Business continuity management (BCR)
+### Business continuity management and operational resilience (BCR)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -105,7 +105,7 @@ Organizations should populate this template with their specific implementation s
 | CCC-08 | Exception Management | | | | |
 | CCC-09 | Change Restoration | | | | |
 
-### Cryptography, encryption and key management (CEK)
+### Cryptography, encryption & key management (CEK)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ Organizations should populate this template with their specific implementation s
 | CEK-19 | Key Compromise | | | | |
 | CEK-21 | Key Inventory Management | | | | |
 
-### Data security and privacy (DSP)
+### Data security and privacy lifecycle management (DSP)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -173,7 +173,7 @@ Organizations should populate this template with their specific implementation s
 | HRS-09 | Personnel Roles and Responsibilities | | | | |
 | HRS-11 | Security Awareness Training | | | | |
 
-### Identity and access management (IAM)
+### Identity & access management (IAM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -218,7 +218,7 @@ Organizations should populate this template with their specific implementation s
 | LOG-13 | Access Control Logs | | | | |
 | LOG-14 | Failures and Anomalies Reporting | | | | |
 
-### Security incident management, e-discovery, and cloud forensics (SEF)
+### Security incident management, e-discovery, & cloud forensics (SEF)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -230,7 +230,7 @@ Organizations should populate this template with their specific implementation s
 | SEF-09 | Incident Records Management | | | | |
 | SEF-10 | Points of Contact Maintenance | | | | |
 
-### Supply chain management (STA)
+### Supply chain management, transparency, and accountability (STA)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
@@ -241,7 +241,7 @@ Organizations should populate this template with their specific implementation s
 | STA-10 | Supply Chain Risk Management | | | | |
 | STA-13 | Supply Chain Compliance Assessment | | | | |
 
-### Threat and vulnerability management (TVM)
+### Threat & vulnerability management (TVM)
 
 | Control ID | Control Title | Status | Responsible | Evidence Reference | Notes |
 | --- | --- | --- | --- | --- | --- |
