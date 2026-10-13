@@ -2,7 +2,7 @@
 
 **Document Title:** IT Disaster Recovery Plan\
 **Document Type:** Plan\
-**Version:** 1.5.4\
+**Version:** 1.5.5\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
@@ -144,8 +144,11 @@ In an illustrative ransomware scenario, recovery could span roughly a 30-day win
 | ISO 22301:2019 | Business Continuity Management Systems | DR governance and testing |
 | COBIT 2019 | DSS04.03, DSS04.04, DSS04.05, DSS04.07 | IT continuity management |
 | NIST SP 800-34r1 | §4.1, §4.2.1, §4.3.1, §4.3.2, §4.4 | DR plan structure |
-| CSA CCM v4.1 | BCR-08, BCR-09, BCR-11: backups, disaster response plan, and redundant business-critical equipment | Cloud resilience controls |
+| CSA CCM v4.1 | BCR-08, BCR-09, BCR-10, BCR-11: backups, disaster response plan, response plan exercise, and redundant business-critical equipment | Cloud resilience controls |
 | NIST SP 800-184 (Guide for Cybersecurity Event Recovery) | Sections 2-3 (Planning for Cyber Event Recovery; Continuous Improvement) | Tactical and strategic guidance for developing the recovery plan and its playbooks, defining recovery initiation and termination criteria, and validating and continuously improving recovery capabilities following a cybersecurity event |
+| ISO/IEC 27031:2025 (Information and communication technology readiness for business continuity) | 10.3.1 RPO and RTO plans for ICT; 10.3.2 Facilities | Recovery objectives for each product and service; ICT recovery systems and critical data backups physically separated from the operational site where possible |
+| ISO/IEC 27002:2022 (Information security controls) | 5.30 ICT readiness for business continuity; 8.13 Information backup | ICT continuity readiness; backups maintained and regularly tested |
+| NIST IR 8374 Rev. 1 (Ransomware Risk Management: A Cybersecurity Framework 2.0 Community Profile, June 2026) | ID.IM-04: incident response and other cybersecurity plans established, communicated, maintained and improved | Recovery plans, including ransomware recovery, tested periodically |
 
 ---
 
