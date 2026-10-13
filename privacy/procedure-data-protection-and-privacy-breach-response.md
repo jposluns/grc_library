@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.11\
+**Version:** 1.6.0\
 **Date:** 2026-10-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -205,7 +205,7 @@ The notification assessment is documented in the breach record and approved by t
 
 | Jurisdiction | Governing Law | Regulatory Authority | Notification Trigger | Regulatory Deadline | Individual Notification |
 | --- | --- | --- | --- | --- | --- |
-| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); where UK GDPR also applies, notify the UK regulator as well (see the United Kingdom row) | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1); individuals notified where high risk, Art. 34) | Without undue delay and, where feasible, within 72 hours of becoming aware | Without undue delay where the breach is likely to result in a high risk to individuals |
+| **European Union** | GDPR Arts. 33 to 34 | Relevant lead supervisory authority (EDPB member authority); where UK GDPR also applies, notify the UK regulator as well (see the United Kingdom row) | Personal data breach, unless unlikely to result in a risk to the rights and freedoms of natural persons (Art. 33(1); individuals notified where high risk, Art. 34(1)) | Without undue delay and, where feasible, within 72 hours of becoming aware (Art. 33(1)) | Without undue delay where the breach is likely to result in a high risk to individuals (Art. 34(1)) |
 | **United Kingdom** | UK GDPR Arts. 33 to 34 | Information Commission | Same threshold as EU GDPR | Without undue delay and, where feasible, within 72 hours of becoming aware (UK GDPR Art. 33(1)) | Without undue delay where high risk |
 | **Canada (Federal)** | PIPEDA (Breach of Security Safeguards Regulations); successor Bill C-36 (PPCDA) proposed, not in force | Office of the Privacy Commissioner of Canada (OPC) | Reasonable belief, in the circumstances, that the breach creates a real risk of significant harm to an individual (PIPEDA s. 10.1(1)) | As soon as feasible after the organization determines that the breach has occurred (PIPEDA s. 10.1(2); no fixed hour or day limit) | As soon as feasible after the organization determines that the breach has occurred, where it is reasonable in the circumstances to believe the breach creates a real risk of significant harm to that individual, unless otherwise prohibited by law (PIPEDA s. 10.1(3) and (6)) |
 | **Quebec (Provincial)** | Quebec Law 25 (Bill 64); Act Respecting the Protection of Personal Information | Commission d'accès à l'information (CAI) | Confidentiality incident creating a serious injury risk | Promptly to the CAI (the Act sets no fixed hour-count); affected individuals must also be notified (the Act states the duty without a timeliness standard) | Promptly, as programme policy (the Act states no sequencing or timeliness standard) |
@@ -384,15 +384,16 @@ The following metrics are tracked and reported to the CIO and CISO at the quarte
 | Control Area | Framework Reference |
 | --- | --- |
 | Privacy breach response programme | ISO/IEC 27701:2025 (privacy incident management); CSA CCM v4.1 SEF-08, SEF-03 |
-| Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34; UK GDPR Arts. 33 to 34; EDPB Guidelines 9/2022 on personal data breach notification |
+| Regulatory breach notification: EU/UK | GDPR Arts. 33 to 34 (Art. 33(1) notification to the supervisory authority; Art. 34(1) communication to the data subject); UK GDPR Arts. 33 to 34; EDPB Guidelines 9/2022 on personal data breach notification (Version 2.0; paragraph 118: the number of affected individuals as one risk factor, while a breach can severely affect even one individual, depending on the nature of the data and the context) |
 | Regulatory breach notification: Canada | PIPEDA Breach of Security Safeguards Regulations (successor Bill C-36/PPCDA proposed, not in force); Quebec Law 25 |
 | Regulatory breach notification: China | PIPL Art. 57 |
 | Regulatory breach notification: India | DPDPA 2023; Digital Personal Data Protection Rules 2025; DPBI |
 | Regulatory breach notification: Indonesia | UU PDP (Law No. 27 of 2022) Art. 46 |
 | Regulatory breach notification: Brazil | LGPD Arts. 48 to 49 |
 | Regulatory breach notification: US | State breach notification laws; refer to [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md) |
-| Security incident response | ISO/IEC 27035; NIST SP 800-61 Rev. 3; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
-| Evidence preservation | ISO/IEC 27037; [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
+| Security incident response | ISO/IEC 27035-1:2023; ISO/IEC 27035-2:2023; ISO/IEC 27035-3:2020; NIST SP 800-61 Rev. 3, including §2.3 (roles and authorities to confiscate, disconnect or shut down technology assets); [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) |
+| Evidence preservation | ISO/IEC 27037:2012 §5.4.1 (minimize handling of the original; document unavoidable changes); [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §8 |
+| Lost or stolen device containment | NIST SP 800-124 Rev. 2 §4.3.3 (remote wipe scope and its limits as a sole control); ISO/IEC 27037:2012 §5.4.1; NIST SP 800-111 §§3.1.1 and 3.2 (pre-boot authentication); EDPB Guidelines 9/2022 (Version 2.0) paragraphs 78 to 80 and Annex B example (i); GDPR Art. 34(3)(a); [`security/policy-byod.md`](../security/policy-byod.md) |
 | SIEM alert integration | CSA CCM v4.1 SEF-06; [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md) |
 | Record keeping and retention | ISO/IEC 27701:2025 §7.5.3, Annex A.3.14; [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) |
 | AI training data leakage | ISO/IEC 27701:2025 Annex A.3.12; [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md) |
