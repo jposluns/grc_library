@@ -272,7 +272,7 @@ class _Terminated(Exception):
 # 3b281 round 4: a finally cannot protect its own body, so with the three
 # unblocked a further signal delivered during cleanup could still interrupt
 # _kill_session or the reap. While the cleanup of a shell (grace loop, kill,
-# reap, temp removal, mask restore) is in progress, _on_signal therefore
+# reap, output collection, temp removal, mask restore) is in progress, _on_signal therefore
 # records the first cleanup signal instead of raising; _run_shells raises it,
 # as the same _Terminated the handler would have raised, once the mask
 # restore is done. The mask-based blocking stays as the first line of
@@ -391,8 +391,9 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                     # because a finally cannot protect its own body, _on_signal DEFERS
                     # while the flag below is set: if the three end up unblocked (both
                     # block attempts below can raise), a SIGTERM or SIGHUP delivered during
-                    # the grace loop, the kill or the reap is recorded, not raised, and is
-                    # raised as _Terminated after the mask restore (3b281 round 4).
+                    # the grace loop, kill, reap, output collection, temp removal or
+                    # mask restore is recorded, not raised, and is raised as
+                    # _Terminated after the mask restore (3b281 round 4).
                     # Residuals, stated plainly: a signal landing between entering this
                     # finally and the protected try still raises before cleanup began
                     # (the activation itself now sits inside that try, so a raise taken
@@ -1025,7 +1026,8 @@ def _policy_checks():
                   "cleanup-query-raises-retry-threads",
                   "TERM-in-kill-unblocked", "kill-raises",
                   "spawn-restore-raises", "kill-raises-shell-alive",
-                  "nonmain-thread-preserves-deferral"):
+                  "nonmain-thread-preserves-deferral",
+                  "deferral-covers-output-collection"):
         base, at_spawn = route.split("-")[0], route.endswith("-at-spawn")
         in_cleanup = route == "TERM-in-cleanup-threads"
         in_kill = route == "TERM-in-kill-unblocked"
@@ -1147,9 +1149,14 @@ def _policy_checks():
             if at_spawn:
                 os.kill(os.getpid(), getattr(signal, "SIG" + base))
             return proc
+        read_deferrals = []
+        def model_open(path, mode="r", **kwargs):
+            if "r" in mode:
+                read_deferrals.append(_DEFERRED["active"])
+            return io.StringIO("")
         g = dict(globals())
         g.update(
-            open=lambda *a, **kw: io.StringIO(""),
+            open=model_open,
             _prepare=lambda *a: ("bin", "home", "log"),
             tempfile=types.SimpleNamespace(mkdtemp=lambda **kw: "virtual"),
             os=types.SimpleNamespace(path=os.path, devnull=os.devnull, makedirs=lambda *a: None),
@@ -1374,6 +1381,9 @@ def _policy_checks():
             ok = (ok and state["sigkilled"] and state["killed"]
                   and state["reaped"] and isinstance(error, KillRaised)
                   and state["elapsed"] == 2.0)
+        elif route == "deferral-covers-output-collection":
+            ok = (ok and error is None and answer is not None
+                  and len(read_deferrals) == 3 and all(read_deferrals))
         elif nonmain:
             # Production cleanup ran with current_thread modelled as non-main
             # while the main thread held an active deferral with a recorded
@@ -1551,11 +1561,18 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         _rmtree(parent)
 
 
+SPAWN_WINDOW_COMMAND = "while ((SECONDS < 600)); do :; done"
+
+
 SPAWN_WINDOW_PROBE = r"""
 import json, os, runpy, signal, subprocess, sys
 t = runpy.run_path(sys.argv[1])
-state = {"sid": None}
-with t["_self_test_limits"]():
+state = {"sid": None, "term_pending": False}
+with t["_self_test_limits"]() as failures:
+    g = t["run"].__globals__
+    invoked_run = g["run"]
+    invoked_survivors = g["_session_survivors"]
+    invoked_kill = g["_kill_session"]
     class SpawnWindowPopen(subprocess.Popen):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -1565,7 +1582,11 @@ with t["_self_test_limits"]():
                 # finally kills it; only the production mask block across
                 # the spawn holds the SIGTERM until inside that try (3b339).
                 state["sid"] = self.pid
+                # The survivors-based leak observation relies on CPython running
+                # the unblocked handler inside os.kill. Requiring term_pending
+                # also detects a missing spawn block without that timing property.
                 os.kill(os.getpid(), signal.SIGTERM)
+                state["term_pending"] = signal.SIGTERM in signal.sigpending()
     subprocess.Popen = SpawnWindowPopen
     terminated = False
     try:
@@ -1575,18 +1596,21 @@ with t["_self_test_limits"]():
         # orchestrator's check (no survivors on the fix or the flip); the
         # likely cause, not verified, is that the raise removes the PATH
         # directory before the shell resolves sleep (3b339).
-        t["run"]("while :; do :; done", shells=("bash",), timeout=30)
+        invoked_run(g["SPAWN_WINDOW_COMMAND"], shells=("bash",), timeout=30)
     except t["_Terminated"]:
         terminated = True
     sid = state["sid"]
-    survivors = None if sid is None else t["_session_survivors"](sid, timeout=2.0)
-    leaked_killed = bool(survivors) and t["_kill_session"](sid)
-    print(json.dumps(dict(terminated=terminated, sid=sid, survivors=survivors,
-                          leaked_killed=leaked_killed)))
+    survivors = None if sid is None else invoked_survivors(sid, timeout=2.0)
+    leaked_killed = bool(survivors) and invoked_kill(sid)
+print(json.dumps(dict(terminated=terminated, sid=sid, survivors=survivors,
+                      leaked_killed=leaked_killed, term_pending=state["term_pending"],
+                      run_qualname=invoked_run.__qualname__,
+                      survivors_qualname=invoked_survivors.__qualname__,
+                      kill_is_clone=invoked_kill is not t["_kill_session"], failures=failures)))
 """
 
 
-def _spawn_window_sigterm_check(failures):
+def _spawn_window_sigterm_check(failures, probe=SPAWN_WINDOW_PROBE):
     # A REAL SIGTERM delivered inside the REAL spawn window (3b339): the
     # probe's Popen subclass signals its own process right after
     # super().__init__ returns, between session creation and the mask
@@ -1596,16 +1620,51 @@ def _spawn_window_sigterm_check(failures):
     # to end with a real child session. The probe kills a leaked session
     # itself, its fixture watcher sweeps one if the probe dies, and the
     # bounded communicate below bounds the whole probe.
+    def fail(stage):
+        failures.append(("sigterm-in-spawn-window:" + stage, False))
+        return False
     proc = subprocess.Popen(
-        [sys.executable, "-I", "-B", "-c", SPAWN_WINDOW_PROBE, os.path.abspath(__file__)],
+        [sys.executable, "-I", "-B", "-c", probe, os.path.abspath(__file__)],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+    out = _err = ""
     try:
         out, _err = proc.communicate(timeout=TEST_PROCESS_WAIT)
         r = json.loads(out.splitlines()[-1])
-        return (proc.returncode == 0 and r["terminated"] is True
-                and r["sid"] is not None and r["survivors"] == [])
-    except (subprocess.TimeoutExpired, ValueError, IndexError, KeyError):
-        return False
+        if proc.returncode != 0:
+            if _err:
+                print(_err, end="", file=sys.stderr)
+            return fail("probe-rc-nonzero")
+        required = {"terminated", "sid", "survivors", "run_qualname",
+                    "survivors_qualname", "kill_is_clone", "failures", "term_pending"}
+        if not isinstance(r, dict) or not required <= r.keys():
+            return fail("field-missing")
+        if (not isinstance(r["run_qualname"], str)
+                or r["run_qualname"].rsplit(".", 1)[-1] != "bounded_run"):
+            return fail("run-not-bounded")
+        if r["survivors_qualname"] != "_self_test_limits.<locals>.survivors":
+            return fail("survivors-not-bounded")
+        # The clone shares the production qualname; identity distinguishes it.
+        if r["kill_is_clone"] is not True:
+            return fail("kill-helper-unexpected")
+        if r["failures"] != []:
+            return fail("probe-failures")
+        if r["term_pending"] is not True:
+            return fail("term-not-pending")
+        if r["terminated"] is not True:
+            return fail("not-terminated")
+        if r["sid"] is None:
+            return fail("no-session")
+        if r["survivors"] != []:
+            return fail("survivors")
+        return True
+    except subprocess.TimeoutExpired:
+        return fail("probe-timeout")
+    except (ValueError, IndexError):
+        if proc.returncode != 0:
+            if _err:
+                print(_err, end="", file=sys.stderr)
+            return fail("probe-rc-nonzero")
+        return fail("output-unparsable")
     finally:
         if proc.poll() is None:
             proc.kill()
@@ -1613,6 +1672,82 @@ def _spawn_window_sigterm_check(failures):
             proc.communicate(timeout=TEST_WAIT)
         except subprocess.TimeoutExpired:
             failures.append(("spawn-window-sigterm-probe-cleanup-wait", False))
+        except ValueError:
+            # communicate can repeat the decode failure already classified above.
+            pass
+
+
+def _spawn_window_stages_check():
+    # Stub the transport as well as the payload: no wall-clock timeout needed.
+    import types
+    sentinel_stderr = "spawn-window probe stderr sentinel\n"
+    good = dict(terminated=True, sid=7, survivors=[], run_qualname="bounded_run",
+                survivors_qualname="_self_test_limits.<locals>.survivors",
+                kill_is_clone=True, failures=[], term_pending=True)
+    class Probe:
+        returncode = 0
+        def __init__(self, argv, **kwargs):
+            self.stage = argv[4]
+        def communicate(self, timeout):
+            if self.stage == "probe-timeout" and self.returncode is None:
+                raise subprocess.TimeoutExpired("stub", timeout)
+            if self.stage == "probe-rc-nonzero-decode":
+                raise UnicodeDecodeError("utf-8", b"\xff", 0, 1, "invalid start byte")
+            payload = dict(good)
+            if self.stage == "output-unparsable":
+                return "not JSON", ""
+            if self.stage == "probe-rc-nonzero":
+                return "", sentinel_stderr
+            if self.stage == "probe-rc-nonzero-parsable":
+                return json.dumps(payload), sentinel_stderr
+            if self.stage == "probe-rc-nonzero-field-missing":
+                del payload["sid"]
+                return json.dumps(payload), sentinel_stderr
+            if self.stage == "field-missing":
+                del payload["sid"]
+            for stage, key, value in (
+                    ("not-terminated", "terminated", False), ("no-session", "sid", None),
+                    ("survivors", "survivors", [7]),
+                    ("run-not-bounded", "run_qualname", "unbounded_run"),
+                    ("survivors-not-bounded", "survivors_qualname", "_session_survivors"),
+                    ("kill-helper-unexpected", "kill_is_clone", False),
+                    ("probe-failures", "failures", [["stub", False]]),
+                    ("term-not-pending", "term_pending", False)):
+                if self.stage == stage:
+                    payload[key] = value
+            return json.dumps(payload), ""
+        def poll(self):
+            return self.returncode
+        def kill(self):
+            self.returncode = -signal.SIGKILL
+    fn = _spawn_window_sigterm_check
+    g = dict(fn.__globals__)
+    g["subprocess"] = types.SimpleNamespace(
+        Popen=Probe, PIPE=subprocess.PIPE, TimeoutExpired=subprocess.TimeoutExpired)
+    check = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+    for stage in ("probe-timeout", "output-unparsable", "field-missing", "probe-rc-nonzero",
+                  "probe-rc-nonzero-parsable", "probe-rc-nonzero-field-missing",
+                  "probe-rc-nonzero-decode",
+                  "not-terminated", "no-session", "survivors", "run-not-bounded",
+                  "survivors-not-bounded", "kill-helper-unexpected",
+                  "probe-failures", "term-not-pending", "ok"):
+        nonzero = stage in ("probe-rc-nonzero", "probe-rc-nonzero-parsable",
+                            "probe-rc-nonzero-field-missing", "probe-rc-nonzero-decode")
+        Probe.returncode = None if stage == "probe-timeout" else int(nonzero)
+        stderr = io.StringIO()
+        g["sys"] = types.SimpleNamespace(executable=sys.executable, stderr=stderr)
+        failures = []
+        try:
+            passed = check(failures, probe=stage)
+        except UnicodeDecodeError:
+            return False
+        expected_stage = "probe-rc-nonzero" if nonzero else stage
+        expected = [] if stage == "ok" else [("sigterm-in-spawn-window:" + expected_stage, False)]
+        expected_stderr = sentinel_stderr if nonzero and stage != "probe-rc-nonzero-decode" else ""
+        if (passed != (stage == "ok") or failures != expected
+                or stderr.getvalue() != expected_stderr):
+            return False
+    return True
 
 
 def _self_test_worker() -> int:
@@ -1758,6 +1893,9 @@ def _self_test_body(policy, failures) -> int:
                        and seen.get("scans") == 1 and seen.get("retried") is False))
     checks.append(("background-call-recorded", _background_call_check()))
     checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
+    checks.append(("spawn-window-stages-named", _spawn_window_stages_check()))
+    r = run("SECONDS=600; " + SPAWN_WINDOW_COMMAND, shells=("bash",), timeout=5)[0]
+    checks.append(("spawn-window-command-bounded", r["rc"] == 0 and "timed out" not in r["stderr"]))
     checks.append(("sigterm-in-spawn-window-cleans-up", _spawn_window_sigterm_check(failures)))
     # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
