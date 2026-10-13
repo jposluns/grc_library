@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.8\
+**Version:** 1.4.9\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@
 
 This procedure defines the end-to-end lifecycle for managing information security incidents: from initial detection and triage through containment, eradication, recovery, regulatory notification, and post-incident review. It establishes mandatory roles, response timeframes, evidence-handling requirements, and escalation obligations that apply to all confirmed and suspected security incidents.
 
-The procedure is aligned to ISO/IEC 27035 (Information Security Incident Management), NIST SP 800-61 Rev. 3 (Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile), COBIT 2019 DSS02, and the CSA CCM v4.1 Security Incident Management, E-Discovery, & Cloud Forensics (SEF) domain.
+The procedure is aligned to ISO/IEC 27035 (Information security incident management), NIST SP 800-61 Rev. 3 (Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile), COBIT 2019 DSS02, and the CSA CCM v4.1 Security Incident Management, E-Discovery, & Cloud Forensics (SEF) domain.
 
 ### 1.2 Scope
 

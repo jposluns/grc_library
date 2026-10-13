@@ -2,8 +2,8 @@
 
 **Document Title:** AI Incident Response Plan\
 **Document Type:** Plan\
-**Version:** 1.0.12\
-**Date:** 2026-09-13\
+**Version:** 1.0.13\
+**Date:** 2026-10-13\
 **Owner:** AI Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/guide-ai-adversarial-test-reference.md`](guide-ai-adversarial-test-reference.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md)\
@@ -200,7 +200,7 @@ The AI Security Maintainer ensures that the following evidence is preserved for 
 | ISO/IEC TR 27563:2023 | Security and privacy in AI use cases (informative best practices) | Supporting reference for privacy-implicated incident paths (STRIDE and LINDDUN framing; re-identification and inference risks); the normative privacy-breach path is the privacy breach-response procedure |
 | ISO/IEC 42001:2023 | §9, §10 | AI management system performance and improvement |
 | EU AI Act | Articles 15, 17, 26 | Security, quality management, deployer obligations |
-| ISO/IEC 27035-3 | Information security incident response | Underlying IR practice |
+| ISO/IEC 27035-3:2020 | Information security incident management, Part 3: Guidelines for ICT incident response operations | Underlying IR practice |
 | SANS CAISG v1.4 | Incident Response and Forensics for AI Systems | AI-specific audit-trail capture across the stack and a model-integrity baseline for IR evidence and detection |
 | OWASP AI Exchange | Monitor use | AI-specific monitoring and log traceability supporting incident reconstruction and evidence preservation |
 | ETSI EN 304 223 V2.1.1 | Provision 5.2.2-5 (Principle 6) | Incident management and recovery planning for AI systems (matrix-rated partial: no plan test/exercise requirement) |

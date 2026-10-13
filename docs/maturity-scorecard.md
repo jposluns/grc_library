@@ -49,7 +49,7 @@ _123 documents._
 | [ai/framework-ai-governance-and-risk.md](../ai/framework-ai-governance-and-risk.md) | AI Governance and Risk Framework | Framework | 1.1.7 | 2026-09-22 |
 | [ai/guide-ai-adversarial-test-reference.md](../ai/guide-ai-adversarial-test-reference.md) | AI Adversarial Test Reference | Guide | 1.3.6 | 2026-09-13 |
 | [ai/guide-ai-security-technical-implementation.md](../ai/guide-ai-security-technical-implementation.md) | AI Security Technical Implementation Guide | Guide | 1.3.10 | 2026-10-04 |
-| [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.8 | 2026-09-25 |
+| [ai/procedure-ai-audit.md](../ai/procedure-ai-audit.md) | AI Audit Procedure | Procedure | 1.1.9 | 2026-10-13 |
 | [ai/standard-ai-and-agentic-development-security.md](../ai/standard-ai-and-agentic-development-security.md) | AI and Agentic Development Security Standard | Standard | 1.8.47 | 2026-09-29 |
 | [ai/standard-ai-model-risk.md](../ai/standard-ai-model-risk.md) | AI Model Risk Standard | Standard | 1.1.5 | 2026-08-31 |
 | [ai/standard-ai-security-and-risk.md](../ai/standard-ai-security-and-risk.md) | AI Security and Risk Standard | Standard | 1.1.8 | 2026-09-13 |
@@ -63,7 +63,7 @@ _123 documents._
 | [compliance/logistics/register-basc-it-responsibilities.md](../compliance/logistics/register-basc-it-responsibilities.md) | BASC IT and Information Security Responsibilities | Register | 1.1.3 | 2026-09-01 |
 | [compliance/matrix-grc-compliance-alignment.md](../compliance/matrix-grc-compliance-alignment.md) | GRC Library Compliance Alignment Matrix | Matrix | 1.12.3 | 2026-10-12 |
 | [compliance/procedure-control-testing.md](../compliance/procedure-control-testing.md) | Control Testing Procedure | Procedure | 1.1.9 | 2026-09-25 |
-| [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.11 | 2026-10-13 |
+| [compliance/standard-internal-audit.md](../compliance/standard-internal-audit.md) | Internal Audit Standard | Standard | 1.2.12 | 2026-10-13 |
 | [compliance/template-audit-evidence-package.md](../compliance/template-audit-evidence-package.md) | Audit Evidence Package Template | Template | 1.1.4 | 2026-09-29 |
 | [dev-security/guideline-ai-coding-assistant-security.md](../dev-security/guideline-ai-coding-assistant-security.md) | AI Coding Assistant Security Guideline | Guideline | 1.3.22 | 2026-09-25 |
 | [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.36 | 2026-09-25 |
@@ -149,10 +149,10 @@ _123 documents._
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.28 | 2026-09-25 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.33 | 2026-10-03 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.17 | 2026-09-20 |
-| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.15 | 2026-10-13 |
+| [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.2.16 | 2026-10-13 |
 | [security/procedure-key-escrow-and-recovery.md](../security/procedure-key-escrow-and-recovery.md) | Key Escrow and Recovery Procedure | Procedure | 1.1.8 | 2026-10-13 |
 | [security/procedure-onboarding-and-offboarding.md](../security/procedure-onboarding-and-offboarding.md) | IT Onboarding and Offboarding Procedure | Procedure | 1.1.4 | 2026-10-13 |
-| [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.4.8 | 2026-10-13 |
+| [security/procedure-security-incident-response.md](../security/procedure-security-incident-response.md) | Security Incident Response Procedure | Procedure | 1.4.9 | 2026-10-13 |
 | [security/procedure-vulnerability-management.md](../security/procedure-vulnerability-management.md) | Vulnerability Management Procedure | Procedure | 1.3.23 | 2026-10-04 |
 | [security/roadmap-post-quantum-cryptography.md](../security/roadmap-post-quantum-cryptography.md) | Post-Quantum Cryptography Readiness Roadmap | Roadmap | 1.1.11 | 2026-09-25 |
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.2.13 | 2026-10-13 |
@@ -166,7 +166,7 @@ _123 documents._
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.27 | 2026-10-03 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.15 | 2026-09-25 |
-| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.9 | 2026-10-13 |
+| [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.1.10 | 2026-10-13 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.14 | 2026-09-25 |
 
 ---
@@ -187,7 +187,7 @@ _157 documents._
 | [ai/guideline-ethical-ai-use.md](../ai/guideline-ethical-ai-use.md) | Ethical AI Use Guideline | Guideline | 1.0.6 | 2026-08-31 |
 | [ai/jurisdictions/annex-ai-canada.md](../ai/jurisdictions/annex-ai-canada.md) | Canada AI Regulatory Requirements | Annex | 1.0.9 | 2026-09-25 |
 | [ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md](../ai/matrix-ai-model-risk-control-to-lifecycle-mapping.md) | AI Model Risk Control to Lifecycle Mapping Matrix | Matrix | 1.0.3 | 2026-08-31 |
-| [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.12 | 2026-09-13 |
+| [ai/plan-ai-incident-response.md](../ai/plan-ai-incident-response.md) | AI Incident Response Plan | Plan | 1.0.13 | 2026-10-13 |
 | [ai/policy-ai-compliance.md](../ai/policy-ai-compliance.md) | AI Compliance Policy | Policy | 1.0.36 | 2026-10-12 |
 | [ai/procedure-ai-evaluation.md](../ai/procedure-ai-evaluation.md) | AI Evaluation Procedure | Procedure | 1.0.12 | 2026-09-25 |
 | [ai/procedure-ai-model-lifecycle-management.md](../ai/procedure-ai-model-lifecycle-management.md) | AI Model Lifecycle Management Procedure | Procedure | 1.0.10 | 2026-09-25 |
@@ -216,7 +216,7 @@ _157 documents._
 | [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.5 | 2026-09-25 |
 | [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.29 | 2026-09-25 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.28 | 2026-10-04 |
-| [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.14 | 2026-09-25 |
+| [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.15 | 2026-10-13 |
 | [compliance/procedure-capa.md](../compliance/procedure-capa.md) | Corrective and Preventive Action (CAPA) Procedure | Procedure | 1.0.16 | 2026-10-13 |
 | [compliance/procedure-mergers-acquisitions-due-diligence.md](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Mergers and Acquisitions Due Diligence Procedure | Procedure | 1.0.4 | 2026-09-14 |
 | [compliance/register-compliance-obligations-template.md](../compliance/register-compliance-obligations-template.md) | Compliance Obligations Register Template | Register | 1.0.19 | 2026-09-30 |
@@ -308,7 +308,7 @@ _157 documents._
 | [security/framework-insider-risk-programme.md](../security/framework-insider-risk-programme.md) | Insider Risk Programme Framework | Framework | 1.0.7 | 2026-09-14 |
 | [security/policy-acceptance-into-service.md](../security/policy-acceptance-into-service.md) | Acceptance Into Service Policy | Policy | 1.0.17 | 2026-09-25 |
 | [security/procedure-cryptographic-key-operations.md](../security/procedure-cryptographic-key-operations.md) | Cryptographic Key Operations Procedure | Procedure | 1.0.15 | 2026-10-13 |
-| [security/procedure-identity-management.md](../security/procedure-identity-management.md) | Identity Management Procedure | Procedure | 2.0.7 | 2026-09-25 |
+| [security/procedure-identity-management.md](../security/procedure-identity-management.md) | Identity Management Procedure | Procedure | 2.0.8 | 2026-10-13 |
 | [security/procedure-security-disciplinary-process.md](../security/procedure-security-disciplinary-process.md) | Security Disciplinary Process Procedure | Procedure | 1.0.6 | 2026-09-24 |
 | [security/standard-email-security.md](../security/standard-email-security.md) | Email Security Standard | Standard | 1.0.5 | 2026-08-05 |
 | [security/standard-penetration-testing-and-red-team.md](../security/standard-penetration-testing-and-red-team.md) | Penetration Testing and Red Team Standard | Standard | 1.0.14 | 2026-09-24 |
