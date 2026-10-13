@@ -2,8 +2,8 @@
 
 **Document Title:** Data Loss Prevention Standard\
 **Document Type:** Standard\
-**Version:** 1.3.8\
-**Date:** 2026-10-12\
+**Version:** 1.3.9\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)\
@@ -124,7 +124,7 @@ The organization applies a 5-level Data Classification Model. DLP controls are c
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. No rights reserved.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

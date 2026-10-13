@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.26\
-**Date:** 2026-10-12\
+**Version:** 1.3.27\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -339,7 +339,7 @@ The following metrics are tracked by the SOC, reported to the CISO monthly, and 
 
 ---
 
-*This document is released under CC BY-SA 4.0. No rights reserved.*
+*This document is released under CC BY-SA 4.0.*
 
 
 

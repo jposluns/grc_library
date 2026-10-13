@@ -2,8 +2,8 @@
 
 **Document Title:** Data Subject Rights Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.38\
-**Date:** 2026-10-04\
+**Version:** 1.6.39\
+**Date:** 2026-10-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/charter-privacy-management-programme.md`](charter-privacy-management-programme.md), [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md)\
@@ -371,7 +371,7 @@ The following metrics are tracked and reported to the CIO at the quarterly Priva
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See [`LICENSE`](../LICENSE) in the repository root.*
+*This document is released under the CC BY-SA 4.0 licence. See [`LICENSE`](../LICENSE) in the repository root.*
 
 ---
 

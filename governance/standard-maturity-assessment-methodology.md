@@ -2,8 +2,8 @@
 
 **Document Title:** Maturity Assessment Methodology Standard\
 **Document Type:** Standard\
-**Version:** 1.1.4\
-**Date:** 2026-09-24\
+**Version:** 1.1.5\
+**Date:** 2026-10-13\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`docs/template-maturity-self-assessment.md`](../docs/template-maturity-self-assessment.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`docs/maturity-scorecard.md`](../docs/maturity-scorecard.md)\
@@ -194,7 +194,7 @@ This standard is reviewed annually, or on material change to the maturity model 
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. No rights reserved.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

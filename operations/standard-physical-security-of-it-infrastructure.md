@@ -2,8 +2,8 @@
 
 **Document Title:** Physical Security of IT Infrastructure Standard\
 **Document Type:** Standard\
-**Version:** 1.3.9\
-**Date:** 2026-09-24\
+**Version:** 1.3.10\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](standard-network-security-and-segmentation.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md)\
@@ -111,7 +111,7 @@ IT Operations areas and the server room must maintain a clean desk policy. Print
 
 ---
 
-*This document is released under CC BY-SA 4.0. No rights reserved.*
+*This document is released under CC BY-SA 4.0.*
 
 
 

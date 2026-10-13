@@ -2,8 +2,8 @@
 
 **Document Title:** Privacy Management Programme Charter\
 **Document Type:** Charter\
-**Version:** 1.5.20\
-**Date:** 2026-09-30\
+**Version:** 1.5.21\
+**Date:** 2026-10-13\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/procedure-privacy-impact-and-cross-border-transfer.md`](procedure-privacy-impact-and-cross-border-transfer.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md)\
@@ -221,7 +221,7 @@ Results are reported to the CIO and included in the annual GRC programme report 
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. No rights reserved.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

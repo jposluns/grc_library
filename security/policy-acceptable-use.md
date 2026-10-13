@@ -2,8 +2,8 @@
 
 **Document Title:** Acceptable Use Policy\
 **Document Type:** Policy\
-**Version:** 1.3.7\
-**Date:** 2026-09-24\
+**Version:** 1.3.8\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-security-awareness-and-training.md`](standard-security-awareness-and-training.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -106,7 +106,7 @@ All personnel must sign or electronically acknowledge this policy upon hire and 
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

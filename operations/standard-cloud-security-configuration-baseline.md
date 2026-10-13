@@ -2,8 +2,8 @@
 
 **Document Title:** Cloud Security Configuration Baseline\
 **Document Type:** Standard\
-**Version:** 1.4.18\
-**Date:** 2026-09-24\
+**Version:** 1.4.19\
+**Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`security/standard-privileged-access-management.md`](../security/standard-privileged-access-management.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md)\
@@ -206,7 +206,7 @@ To reduce the manual correlation an auditor would otherwise perform, the baselin
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. No rights reserved.*
+*This document is released under the CC BY-SA 4.0 licence.*
 
 
 

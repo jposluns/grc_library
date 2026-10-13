@@ -2,7 +2,7 @@
 
 **Document Title:** Threat Intelligence and SIEM Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.13\
+**Version:** 1.3.14\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -338,7 +338,7 @@ Metric trends are reviewed for continual improvement. Lessons learned from incid
 
 ---
 
-*This document is released under the CC BY-SA 4.0 licence. To the extent possible under law, all copyright and related rights are waived. See [`LICENSE`](../LICENSE) in the repository root.*
+*This document is released under the CC BY-SA 4.0 licence. See [`LICENSE`](../LICENSE) in the repository root.*
 
 ---
 
