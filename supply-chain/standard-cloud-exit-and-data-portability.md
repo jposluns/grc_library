@@ -2,7 +2,7 @@
 
 **Document Title:** Cloud Exit and Data Portability Standard\
 **Document Type:** Standard\
-**Version:** 1.1.10\
+**Version:** 1.2.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -113,7 +113,7 @@ Where a cloud provider cannot meet the contract requirements in this standard, f
 | ISO/IEC 27001:2022 | Annex A.5.20: Addressing information security within supplier agreements | Supplier contract requirements |
 | NIST SP 800-53 Rev. 5 | SA-9: External System Services | Third-party cloud service controls |
 | GDPR (2018) | Article 20: Right to data portability | Personal data portability rights |
-| ENISA Cloud Computing | Exit and Portability Recommendations | Cloud exit planning guidance |
+| EDPB Guidelines 07/2020 on the concepts of controller and processor in the GDPR, Version 2.1 (adopted 7 July 2021) | Part II, section 1.3.7, paragraphs 139 to 142: Article 28(3)(g) GDPR (deletion or return of personal data at the end of processing) | For personal data held by a processor, supports the Section 4 item 2 deletion-confirmation requirement: secure deletion of all copies, confirmed to the controller within an agreed timescale and manner, with copies kept only where EU or Member State law requires further storage; item 2's corpus-retention exception and its legal-retention exceptions under law other than EU or Member State law are outside this reference |
 
 ---
 
