@@ -37404,6 +37404,69 @@ class OpenFindingsRowTests(unittest.TestCase):
                 self.assertEqual(self.ledger.stat().st_ino, inode)
                 self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
 
+    def test_temp_cleanup_failure_keeps_primary_error(self) -> None:
+        import contextlib
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_cleanup_fail")
+        data, st, acl = mod.read_ledger(self.ledger)
+        with mock.patch.object(mod.os, "replace", side_effect=OSError("injected rename failure")), \
+                mock.patch.object(mod.os, "unlink", side_effect=PermissionError("injected cleanup failure")):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "write-failed")
+        self.assertEqual(cm.exception.cleanup, "temp-cleanup-failed")
+        self.assertEqual(self.ledger.read_bytes(), data)
+        primary = mod.EnvError("write-failed")
+        primary.cleanup = "temp-cleanup-failed"
+        internal = RuntimeError("secret-row")
+        internal.cleanup = "temp-cleanup-failed"
+        for exc, first in ((primary, "error: write-failed"), (internal, "error: internal")):
+            with self.subTest(first=first):
+                out, err = io.StringIO(), io.StringIO()
+                with mock.patch.object(mod, "_run", side_effect=exc), \
+                        contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                    rc = mod.main(["--id", "NEW-1", "--append"], stdin=b"")
+                self.assertEqual(rc, 2)
+                self.assertEqual(err.getvalue(), first + "\nerror: temp-cleanup-failed\n")
+                self.assertEqual(out.getvalue(), "result: ERROR\n")
+
+    def test_readback_failure_after_rename_reports_written(self) -> None:
+        import hashlib
+        from unittest import mock
+
+        mod = load_linter_module(
+            "tools/open-findings-row.py", "_ofr_readback_fail")
+        data, st, acl = mod.read_ledger(self.ledger)
+        real_read = mod.read_ledger
+        real_replace = mod.os.replace
+        replaced = False
+
+        def replace(src, dst, **kwargs):
+            nonlocal replaced
+            real_replace(src, dst, **kwargs)
+            replaced = True
+
+        def read(path, **kwargs):
+            if replaced:
+                raise OSError("injected read-back failure")
+            return real_read(path, **kwargs)
+
+        with mock.patch.object(mod.os, "replace", side_effect=replace), \
+                mock.patch.object(mod, "read_ledger", side_effect=read):
+            with self.assertRaises(mod.EnvError) as cm:
+                mod.atomic_replace(
+                    self.ledger, b"x\n", st, hashlib.sha256(data).hexdigest(), acl)
+        self.assertEqual(cm.exception.code, "post-write-readback-failed")
+        self.assertIsInstance(cm.exception.__cause__, OSError)
+        self.assertIsNone(cm.exception.cleanup)
+        self.assertTrue(replaced)
+        self.assertEqual(self.ledger.read_bytes(), b"x\n")
+        self.assertEqual(sorted(os.listdir(self.dir)), ["open-findings.md"])
+
     def test_environment_doc_lists_write_failed_before_rename(self) -> None:
         import ast
 
@@ -37417,9 +37480,33 @@ class OpenFindingsRowTests(unittest.TestCase):
             normalized,
         )
         self.assertIn(
-            "The rename already happened for those last two errors.",
+            "The rename already happened for those last three errors.",
             normalized,
         )
+
+    def test_cleanup_and_readback_codes_documented(self) -> None:
+        import ast
+
+        doc = ast.get_docstring(ast.parse(self.TOOL.read_text(encoding="utf-8")))
+        environment = doc.split("ENVIRONMENT (exit 2).", 1)[1].split(
+            "\n\nLINE MAPPING.", 1)[0]
+        normalized = " ".join(environment.split())
+        self.assertIn("(post-write-readback-failed)", normalized)
+        self.assertIn("temp-cleanup-failed", normalized)
+        self.assertIn(
+            "The rename already happened for those last three errors.",
+            normalized,
+        )
+        reference = (
+            REPO_ROOT / "references" / "hook-open-findings-guard.md"
+        ).read_text(encoding="utf-8")
+        writing = reference.split(
+            "## Writing rows (`tools/open-findings-row.py`, 3b334)", 1
+        )[1].split("\n## ", 1)[0]
+        ref_normalized = " ".join(writing.split())
+        self.assertIn("`post-write-readback-failed`", ref_normalized)
+        self.assertIn("`post-write-mismatch`", ref_normalized)
+        self.assertIn("`error: temp-cleanup-failed`", ref_normalized)
 
     def test_empty_error_row_wording_in_tool_and_reference(self) -> None:
         import ast
