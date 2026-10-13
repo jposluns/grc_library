@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.15\
+**Version:** 1.0.16\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -168,6 +168,9 @@ Dual control is required for all key generation, export, and destruction operati
 | NIST SP 800-57 Part 2 Rev. 1 | Recommendation for Key Management, Part 2: Best Practices for Key Management Organizations | Key management organization procedures |
 | NIST SP 800-57 Part 3 Rev. 1 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | Application-specific key operational procedures |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
+| NIST SP 800-38F | Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping (December 2012), 3.1 Overview | Protection of symmetric keys distributed by key wrapping |
+| NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems (August 2013), 6.2.1 Metadata Elements (b) to (d) and 8.2.4 Auditing and Remote Monitoring | Key identifier, owner and lifecycle-state metadata; audit of key generation, activation, revocation and destruction events with time and initiator |
+| NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization (September 2025), 3.2.3 Sanitization of Keys | Zeroization of keys at destruction |
 | COBIT 2019 | DSS05: Managed Security Services | Security service operations |
 | CSA CCM v4.1 | CEK-02, CEK-10, CEK-11, CEK-12, CEK-13, CEK-14, CEK-15, CEK-21, LOG-12 | Cloud key management operations |
 
