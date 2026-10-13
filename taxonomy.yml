@@ -12622,7 +12622,7 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Security Incident Response Procedure"
-  version: "1.4.9"
+  version: "1.5.0"
   date: "2026-10-13"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
@@ -12657,6 +12657,8 @@ documents:
     - "Licence"
   frameworks:
     - "ISO/IEC 27035-1:2023"
+    - "ISO/IEC 27035-2:2023"
+    - "ISO/IEC 27035-3:2020"
     - "NIST SP 800-61 Rev. 3"
     - "ISO/IEC 27001:2022"
     - "COBIT 2019"

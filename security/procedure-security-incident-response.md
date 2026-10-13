@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.9\
+**Version:** 1.5.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -26,7 +26,7 @@
 
 This procedure defines the end-to-end lifecycle for managing information security incidents: from initial detection and triage through containment, eradication, recovery, regulatory notification, and post-incident review. It establishes mandatory roles, response timeframes, evidence-handling requirements, and escalation obligations that apply to all confirmed and suspected security incidents.
 
-The procedure is aligned to ISO/IEC 27035 (Information security incident management), NIST SP 800-61 Rev. 3 (Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile), COBIT 2019 DSS02, and the CSA CCM v4.1 Security Incident Management, E-Discovery, & Cloud Forensics (SEF) domain.
+The procedure is aligned to the ISO/IEC 27035 series (Information security incident management) by part: ISO/IEC 27035-1:2023 (Part 1: Principles and process), ISO/IEC 27035-2:2023 (Part 2: Guidelines to plan and prepare for incident response) and ISO/IEC 27035-3:2020 (Part 3: Guidelines for ICT incident response operations). It is also aligned to NIST SP 800-61 Rev. 3 (Incident Response Recommendations and Considerations for Cybersecurity Risk Management: A CSF 2.0 Community Profile), COBIT 2019 DSS02, and the CSA CCM v4.1 Security Incident Management, E-Discovery, & Cloud Forensics (SEF) domain.
 
 ### 1.2 Scope
 
@@ -327,17 +327,17 @@ The SOC must track and report the following metrics at the monthly security oper
 
 ## 11. Framework alignment
 
-| Control Area | ISO/IEC 27035-1:2023 | NIST SP 800-61 Rev. 3 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 |
-| --- | --- | --- | --- | --- | --- |
-| Incident management policy and planning | Clause 5.2 | §2.3, §3.1 | A.5.24 | DSS02.01 | SEF-01, SEF-03 |
-| Detection and reporting | Clause 5.3 | §3.2 | A.6.8 | DSS02.02 | SEF-06 |
-| Triage and classification | Clause 5.4 | §3.2 | A.5.25 | DSS02.02 | SEF-06 |
-| Containment and evidence preservation | Clause 5.5 | §3.2 | A.5.26 | DSS02.04 | SEF-07, SEF-09 |
-| Eradication and recovery | Clause 5.5 | §3.2 | A.5.26 | DSS02.05 | SEF-07 |
-| Regulatory notification | Clause 5.5 | §3.2 | A.5.5 | MEA03.01, MEA03.02 | SEF-08 |
-| Post-incident review | Clause 5.6 | §3.1 | A.5.27 | DSS02.06 | SEF-07, SEF-09 |
-| Evidence handling | Clause 5.5 | §3.2 | A.5.28 | DSS02.04 | SEF-09 |
-| Incident response metrics | Clause 5.6 | §3.1 | Clause 9.1 | MEA01.02, MEA01.03, MEA01.04 | SEF-05 |
+| Control Area | ISO/IEC 27035-1:2023 | ISO/IEC 27035-2:2023 | ISO/IEC 27035-3:2020 | NIST SP 800-61 Rev. 3 | ISO/IEC 27001:2022 | COBIT 2019 | CSA CCM v4.1 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Incident management policy and planning | Clause 5.2 | Clauses 4 to 11 | N/A | §2.3, §3.1 | A.5.24 | DSS02.01 | SEF-01, SEF-03 |
+| Detection and reporting | Clause 5.3 | N/A | Clauses 7, 8 and 12 | §3.2 | A.6.8 | DSS02.02 | SEF-06 |
+| Triage and classification | Clause 5.4 | Clause 6.5 | Clauses 9 and 10 | §3.2 (RS.MA-02, RS.MA-03, RS.MA-04) | A.5.25 | DSS02.02 | SEF-06 |
+| Containment and evidence preservation | Clause 5.5 | N/A | Clause 11.2 | §3.2 (RS.MI-01, RS.AN-06, RS.AN-07) | A.5.26 | DSS02.04 | SEF-07, SEF-09 |
+| Eradication and recovery | Clause 5.5 | N/A | Clauses 11.3 and 11.4 | §3.2 (RS.MI-02, RS.MA-05, RC.RP-01, RC.RP-02, RC.RP-03, RC.RP-04, RC.RP-05) | A.5.26 | DSS02.05 | SEF-07 |
+| Regulatory notification | Clause 5.5 j), l) | N/A | Clause 12.3 | §3.2 (RS.CO-02) | A.5.5 | MEA03.01, MEA03.02 | SEF-08 |
+| Post-incident review | Clause 5.6 | Clause 12 | N/A | §3.1 | A.5.27 | DSS02.06 | SEF-07, SEF-09 |
+| Evidence handling | Clauses 5.3 d), i); 5.4 i), l); 5.5 f), j), m) | N/A | Clause 10.6 | §3.2 (RS.AN-06, RS.AN-07) | A.5.28 | DSS02.04 | SEF-09 |
+| Incident response metrics | Clause 5.6 | Clause 12.1 | N/A | §3.1 | Clause 9.1 | MEA01.02, MEA01.03, MEA01.04 | SEF-05 |
 
 Beyond the incident-lifecycle mappings above, this procedure aligns with NIST SP 800-184 (Guide for Cybersecurity Event Recovery) for the recovery phase, and with NIST SP 800-86 (Guide to Integrating Forensic Techniques into Incident Response) and ISO/IEC 27037:2012 (Guidelines for identification, collection, acquisition and preservation of digital evidence) for evidence handling and digital forensics.
 
