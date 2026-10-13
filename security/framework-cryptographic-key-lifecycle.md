@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.26\
+**Version:** 1.0.27\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -127,6 +127,12 @@ ML-KEM (key encapsulation; formerly CRYSTALS-Kyber) and ML-DSA (digital signatur
 | NIST SP 800-57 Part 3 Rev. 1 | Recommendation for Key Management, Part 3: Application-Specific Key Management Guidance | Application-specific key management |
 | NIST SP 800-208 | Recommendation for Stateful Hash-Based Signature Schemes | Stateful hash-based signature key management (LMS, HSS, XMSS, XMSS^MT) |
 | NIST FIPS 203 / 204 | ML-KEM and ML-DSA Standards | PQC algorithm selection |
+| NIST FIPS 197-upd1 | Advanced Encryption Standard (AES) (November 2001, updated May 2023) | AES-256 in the approved symmetric algorithms |
+| NIST FIPS 186-5 | Digital Signature Standard (DSS) (February 2023) | RSA and ECDSA digital signatures in the approved asymmetric algorithms |
+| NIST FIPS 180-4 | Secure Hash Standard (SHS) (August 2015) | SHA-512 in the approved hashing algorithms |
+| NIST SP 800-131A Rev. 2 | Transitioning the Use of Cryptographic Algorithms and Key Lengths (March 2019) | Acceptability of NIST-approved algorithms and key lengths |
+| NIST SP 800-90B | Recommendation for the Entropy Sources Used for Random Bit Generation (January 2018) | Entropy sources for the random bit generation used in key generation |
+| NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems (August 2013), 6.2.1 Metadata Elements | Key metadata recorded in the Key Lifecycle Register |
 | COBIT 2019 | DSS05: Managed Security Services | Security service controls |
 | CSA CCM v4.1 | CEK-01: Encryption and Key Management | Cloud key management controls |
 | CSA CCM v4.1 | CEK-04: Encryption Algorithm | Approved encryption algorithm standards |
