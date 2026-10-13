@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.4.6\
+**Version:** 1.5.0\
 **Date:** 2026-10-13\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -166,7 +166,7 @@ Backup media (tapes or portable drives used for off-site backup) must be encrypt
 
 ### 7.1 Sanitization before reuse
 
-Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization-technique categories of IEEE 2883 (NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard):
+Before any storage media is reissued for a different user or purpose, it must be sanitized to remove all previous data. The sanitization method must be appropriate to the classification of the data previously held and consistent with the organization's media-sanitization programme (NIST SP 800-88 Rev. 2) and the sanitization-technique categories of IEEE 2883-2022 (NIST SP 800-88 Rev. 2 reframes around an enterprise sanitization programme and defers the technique detail to IEEE 2883, NSA specifications, or an organizationally-approved standard):
 
 | Media Type | Required Sanitization Method |
 | --- | --- |
@@ -284,16 +284,18 @@ The following metrics are reported to the CISO quarterly and reviewed annually a
 
 ## 11. Framework alignment
 
-| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 Rev. 2 / IEEE 2883 | CSA CCM v4.1 | COBIT 2019 |
+| Control Area | ISO/IEC 27001:2022 | NIST SP 800-88 Rev. 2 / IEEE 2883-2022 | CSA CCM v4.1 | COBIT 2019 |
 | --- | --- | --- | --- | --- |
 | Media handling and classification | A.7.10, A.5.12 | 800-88 Rev. 2: programme scope | DSP-04 | DSS05.06 |
-| Physical transport and chain of custody | A.7.10 | N/A | DCS-05 | DSS05.06 |
+| Physical transport and chain of custody | A.7.10, A.5.14 | N/A | DCS-05 | DSS05.06 |
 | Digital transfer controls | A.8.24, A.5.14 | N/A | DSP-10, CEK-03 | DSS05.02 |
 | Media storage | A.7.10, A.7.9 | N/A | DCS-04 | DSS05.05, DSS05.06 |
-| Sanitization and destruction | A.8.10 | IEEE 2883: Purge / Destruct | DSP-02 | DSS05.06 |
+| Sanitization and destruction | A.8.10, A.7.14 | IEEE 2883: Purge / Destruct | DSP-02 | DSS05.06 |
 | Certificate of Destruction and records | A.5.33 | 800-88 Rev. 2: documentation | DSP-02 | DSS05.06 |
 
 This procedure also aligns with ISO/IEC 27040:2024 (Storage security) for the secure handling, storage, and sanitization of storage media.
+
+For the BASC-certified trade and customs operations named in §1.2, the periodic inventory of media and equipment, their controlled disposal, and the restriction of connections of unauthorized personal devices and peripherals to organization-managed endpoints also align with BASC International Security Standard 6.0.2 and 6.0.3 (Version 6, 2022), clause 5.2, items r) and s); item r) also requires that disposal follow current legislation.
 
 ---
 
