@@ -2,8 +2,8 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.8\
-**Date:** 2026-10-13\
+**Version:** 1.1.9\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md), [`security/procedure-access-control.md`](procedure-access-control.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`resilience/procedure-backup-and-recovery.md`](../resilience/procedure-backup-and-recovery.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md)\
@@ -213,6 +213,7 @@ Where the affected key is in scope of the post-quantum cryptography roadmap:
 | --- | --- | --- |
 | ISO/IEC 27002:2022 | §8.24: Use of cryptography | Cryptographic controls |
 | NIST SP 800-57 Part 1 Rev. 5 | Recommendation for Key Management | Key lifecycle |
+| NIST SP 800-57 Part 2 Rev. 1 | §3.2.2: Key Management Planning Information Requirements, Key Recovery subsection | Case-by-case decision on employing key recovery, weighing continuity of operations against the risk of exposing the key and the information it protects if control of the key is lost |
 | NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems | CKMS design |
 | NIST SP 800-152 | A Profile for U.S. Federal Cryptographic Key Management Systems | Federal profile reference |
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM baseline |
