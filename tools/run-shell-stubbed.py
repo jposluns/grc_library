@@ -331,23 +331,26 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
         return _run_shells(command, shells, stubs, timeout, results)
     finally:
         # Keep our TERM/HUP handler non-raising until all saved handlers
-        # are restored. Even a raise during activation reaches the loop.
+        # are restored. Even a raise during activation reaches the restores.
         # Residuals: handler installation above precedes the protected try,
         # so a signal arriving there is handled outside this deferral and
         # restore. Inferred from the control flow: a TERM/HUP before
         # activation at the current_thread()/main_thread() check raises
         # directly, so the restores then run undeferred. A second TERM/HUP
-        # during the TERM or HUP restore can leave _on_signal installed.
+        # during the TERM or HUP restore can leave _on_signal installed
+        # (inferred: CPython runs pending handlers before installing a handler).
         # A restore call that raises (SIGINT or a raising caller handler,
         # or TypeError from a saved None for a handler installed outside
         # Python, even without a signal) may leave its own handler unrestored,
-        # possibly still _on_signal; the later restores and the drain still run.
+        # possibly still _on_signal (inferred for SIGINT or a pending caller
+        # handler: CPython runs it before installing the replacement); the later
+        # restores and the drain still run.
         # An interrupt after restoration but before the drain can still skip
         # the drain itself. Inferred from the control flow: if skipped while
         # active, deferral stays active until the next main-thread run() entry
         # resets it. Until then it is inert unless a failed restore left
-        # _on_signal installed; the caller's later TERM/HUP are then recorded
-        # rather than raised.
+        # _on_signal installed; only the first later TERM/HUP is recorded
+        # while pending is None; the rest are dropped, and none is raised.
         try:
             if threading.current_thread() is threading.main_thread():
                 # Residual: TERM/HUP handled between these stores raises
@@ -371,6 +374,7 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
 
 
 def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
+    caller_exception = sys.exception()
     for shell in shells:
         tmp = tempfile.mkdtemp(prefix="stubbed-shell-")
         spawn_mask = None
@@ -517,12 +521,21 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                         pass
                                     finally:
                                         if p.returncode is None:
-                                            # Residuals: one-snapshot sweep; interrupts
+                                            # Residuals: members a raising _kill_session
+                                            # left alive are swept only if the shell is
+                                            # still unreaped; if the first wait reaps it,
+                                            # the fallback and its sweep are skipped.
+                                            # One-snapshot sweep; interrupts
                                             # during fallback itself; killpg errors other
                                             # than ProcessLookupError, or session-scan
                                             # errors, propagate and skip the member sweep.
                                             # After the waitpid race, the shell PID is
                                             # signalled without a poll.
+                                            # If the propagating exception is the caller's
+                                            # own handled object (e.g. a bare raise in a
+                                            # caller signal handler), the guard below
+                                            # suppresses the note; propagation also means
+                                            # no result reports reaped False.
                                             try:
                                                 with contextlib.suppress(ProcessLookupError):
                                                     os.killpg(p.pid, signal.SIGKILL)
@@ -539,7 +552,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                                     p.wait(timeout=GRACE_SECONDS)
                                                 except subprocess.TimeoutExpired:
                                                     reaped = False
-                                                    if exc is not None:
+                                                    if exc is not None and exc is not caller_exception:
                                                         exc.add_note("shell could not be reaped after fallback SIGKILL")
             with open(out_path, encoding="utf-8", errors="replace") as fh:
                 out = fh.read()
@@ -1193,6 +1206,8 @@ def _policy_checks():
                   "TERM-in-kill-unblocked", "kill-raises",
                   "spawn-restore-raises", "kill-raises-shell-alive",
                   "kill-fails-shell-unkillable", "kill-raises-shell-unkillable",
+                  "caller-except-shell-unkillable",
+                  "caller-except-kill-raises-shell-unkillable",
                   "kill-raises-session-alive", "kill-raises-wait-interrupted",
                   "killpg-lookup-error", "kill-sweep-oserror", "fallback-scan-oserror",
                   "nonmain-thread-preserves-deferral",
@@ -1209,7 +1224,9 @@ def _policy_checks():
         in_cleanup = route == "TERM-in-cleanup-threads"
         in_kill = route == "TERM-in-kill-unblocked"
         kill_raises = route == "kill-raises"
-        unkillable = route in ("kill-fails-shell-unkillable", "kill-raises-shell-unkillable",
+        caller_except = route in ("caller-except-shell-unkillable",
+                                  "caller-except-kill-raises-shell-unkillable")
+        unkillable = caller_except or route in ("kill-fails-shell-unkillable", "kill-raises-shell-unkillable",
                                "fallback-scan-oserror")
         fallback = unkillable or route in (
             "kill-raises-session-alive", "kill-raises-wait-interrupted",
@@ -1343,7 +1360,7 @@ def _policy_checks():
                 # bounded reap in the finally must SIGKILL and reap it while
                 # this exception propagates (3b281 round 5, item 2).
                 state["kill_raised"] = True
-                if route == "kill-fails-shell-unkillable":
+                if route in ("kill-fails-shell-unkillable", "caller-except-shell-unkillable"):
                     return False
                 raise kill_error
             state["live"] = False
@@ -1526,7 +1543,14 @@ def _policy_checks():
             _DEFERRED["pending"] = signal.SIGTERM
             _DEFERRED["active"] = True
         try:
-            answer = g["run"]("model", shells=("bash",), timeout=1)
+            if caller_except:
+                caller_error = ValueError("caller handled exception")
+                try:
+                    raise caller_error
+                except ValueError:
+                    answer = g["run"]("model", shells=("bash",), timeout=1)
+            else:
+                answer = g["run"]("model", shells=("bash",), timeout=1)
         except AssertionError:
             results.append(("production-policy:" + route, False))
             continue
@@ -1623,15 +1647,22 @@ def _policy_checks():
             ok = ok and ("group", 7, signal.SIGKILL) in state["signals"]
             if unkillable:
                 ok = ok and not state["reaped"]
-                if route == "kill-fails-shell-unkillable":
+                if route in ("kill-fails-shell-unkillable", "caller-except-shell-unkillable"):
                     ok = (ok and error is None and answer is not None
                           and answer[0]["reaped"] is False and answer[0]["contained"] is False)
+                    if caller_except:
+                        ok = ok and not getattr(caller_error, "__notes__", ())
                 else:
                     if route == "fallback-scan-oserror":
                         ok = (ok and error is scan_error
                               and error.__context__ is kill_error)
                     else:
                         ok = ok and isinstance(error, KillRaised)
+                    if caller_except:
+                        ok = (ok and error is kill_error and answer is None
+                              and error.__context__ is caller_error
+                              and error.__cause__ is None and not error.__suppress_context__
+                              and not getattr(caller_error, "__notes__", ()))
                     ok = (ok and "shell could not be reaped after fallback SIGKILL"
                           in getattr(error, "__notes__", []))
             elif route == "kill-raises-wait-interrupted":
