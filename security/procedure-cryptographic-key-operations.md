@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -146,7 +146,7 @@ Dual control is required for all key generation, export, and destruction operati
 4. Keys stored in HSMs are destroyed via the HSM's zeroization function.
 5. Keys stored in software are overwritten using approved secure deletion methods. Where HSM zeroization or software overwrite is not applicable to a listed copy, including copies in cloud key services, key shares on cards or paper, or copies held by a third party, use the provider's or holder's documented destruction method that removes all traces of the key material so that it cannot be recovered by physical or electronic means. For destruction performed by a provider or holder, the dual control required by step 2 is met when two Key Custodians authorize the destruction request and review the provider's or holder's destruction evidence.
 6. The Key Custodian sets the KLR status to Destroyed and records the destruction method, date and operator and, for a secret or private key, each copy's method, date and operator in the key record's Destruction Record only after confirming that every listed copy has been destroyed; otherwise, the status must not be set to Destroyed and the outstanding copies and their disposition are recorded in the destruction request.
-7. A certificate of destruction is retained in the compliance repository for destruction performed, identifying each copy destroyed, its location, the method used, the destruction date, the operator and the witnessing or authenticating Key Custodians, and including supporting evidence from the provider or holder where its documented destruction method was used.
+7. A certificate of destruction is retained in the compliance repository for destruction performed, identifying each copy destroyed, its location, the method used, the destruction date, the operator and the witnessing or authenticating Key Custodians, and including supporting evidence from the provider or holder where its documented destruction method was used. The Key Custodian records the certificate reference in the key record's Destruction Record or, where destruction is incomplete, in the destruction request with the outstanding copies; when destruction completes, the Destruction Record references every certificate issued for the key, including any recorded earlier in the destruction request.
 
 ---
 
