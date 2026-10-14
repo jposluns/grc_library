@@ -987,9 +987,21 @@ def _command_timeout_check(failures):
     probe = r"""
 import json, runpy, sys
 t = runpy.run_path(sys.argv[1])
-with t["_self_test_limits"]():
-    r = t["run"]("while :; do ( : ) & done", shells=("bash",), timeout=2)[0]
-    print(json.dumps(r))
+with t["_self_test_limits"]() as failures:
+    g = t["run"].__globals__
+    invoked_run = g["run"]
+    # The report comes from the stack of the call that actually prepares the
+    # command, not from the name of the object the probe meant to call.
+    seen, hooked_prepare = [], g["_prepare"]
+    def prepare(*args):
+        f = sys._getframe(1)
+        while f is not None and not (f.f_code.co_name == "bounded_run" and f.f_globals is g):
+            f = f.f_back
+        seen.append("" if f is None else f.f_code.co_qualname)
+        return hooked_prepare(*args)
+    g["_prepare"] = prepare
+    r = invoked_run("while :; do ( : ) & done", shells=("bash",), timeout=2)[0]
+print(json.dumps(dict(r, run_qualname=seen[0] if seen else "", failures=failures)))
 """
     proc = subprocess.Popen(
         [sys.executable, "-I", "-B", "-c", probe, os.path.abspath(__file__)],
@@ -998,7 +1010,9 @@ with t["_self_test_limits"]():
         out, _err = proc.communicate(timeout=TEST_PROCESS_WAIT)
         r = json.loads(out.splitlines()[-1])
         return (proc.returncode == 0 and r["rc"] is None
-                and "timed out after 2s" in r["stderr"], r["contained"])
+                and "timed out after 2s" in r["stderr"]
+                and r["run_qualname"].rsplit(".", 1)[-1] == "bounded_run"
+                and r["failures"] == [], r["contained"])
     except (subprocess.TimeoutExpired, ValueError, IndexError, KeyError):
         return False, False
     finally:
@@ -1848,20 +1862,26 @@ class Process(saved):
     def wait(self, timeout=None):
         if not getattr(self, "announced", False):
             self.announced = True
-            os.write(fd, (str(self.pid) + "\n").encode())
+            # Report the bounded_run frame actually on the stack, if any.
+            f = sys._getframe(1)
+            while f is not None and not (f.f_code.co_name == "bounded_run" and f.f_globals is g):
+                f = f.f_back
+            run_qualname = "" if f is None else f.f_code.co_qualname
+            os.write(fd, (str(self.pid) + " " + run_qualname + "\n").encode())
         return super().wait(timeout=timeout)
 subprocess.Popen = Process
 with t["_self_test_limits"]():
     # A pipe-backed stub cannot finish naturally: the supervisor retains
     # the writer until after the tool has exited. There is no run timeout.
     readfd = int(sys.argv[3])
+    invoked_run = g["run"]
     g["SHIM"] = "#!{python} -I\nimport os\nos.read(" + str(readfd) + ", 1)\n"
     original_init = Process.__init__
     def init(self, *a, **kw):
         kw["pass_fds"] = tuple(kw.get("pass_fds", ())) + (readfd,)
         original_init(self, *a, **kw)
     Process.__init__ = init
-    t["run"]("hold", shells=("bash",), stubs=("hold",), timeout=None)
+    invoked_run("hold", shells=("bash",), stubs=("hold",), timeout=None)
 """
 
 
@@ -1902,9 +1922,12 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
                     return fail("ready-pipe-eof")
                 data += chunk
         try:
-            sid = int(data.splitlines()[0])
+            sid_text, _, run_qualname = data.splitlines()[0].decode().partition(" ")
+            sid = int(sid_text)
         except ValueError:
             return fail("announce-unparsable")
+        if run_qualname.rsplit(".", 1)[-1] != "bounded_run":
+            return fail("run-not-bounded")
         if proc.poll() is not None:
             return fail("probe-died-before-term")
         proc.send_signal(signal.SIGTERM)
