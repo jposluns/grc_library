@@ -2,8 +2,8 @@
 
 **Document Title:** Key Terms and Definitions Register\
 **Document Type:** Register\
-**Version:** 1.1.6\
-**Date:** 2026-08-31\
+**Version:** 1.2.0\
+**Date:** 2026-10-14\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/register-glossary.md`](register-glossary.md)\
@@ -64,6 +64,7 @@ When in doubt: external term or acronym → the glossary. Internal governance co
 | Matrix | A structured mapping among risks, controls, obligations, frameworks, evidence, lifecycle stages, or artefacts. |
 | Membership Inference | A model attack attempting to determine whether a specific record or individual was present in training or reference data. |
 | Model Inversion | A model attack attempting to reconstruct sensitive training or input data from model outputs or access patterns. |
+| Normal Disposal | Disposal through ordinary waste or recycling without shredding or a secure disposal service. The library accepts it for Public paper only; see [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md) section 3 and [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md) section 8.1. |
 | Policy | A binding statement of governance intent and mandatory principles. |
 | Procedure | A repeatable operational method for executing a policy, standard, plan, or control. |
 | Prompt Injection | An attack in which instructions embedded in user input, documents, retrieved content, or tool outputs alter system behaviour or cause unauthorized action or disclosure. |

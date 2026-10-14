@@ -312,7 +312,7 @@ The GRC programme leadership needs the controlled vocabulary, registers, matrice
 - [Compliance Obligations Register Template](../compliance/register-compliance-obligations-template.md) (maturity: Baseline)
 - [Coverage Gap Analysis Register](../governance/register-coverage-gaps.md) (maturity: Mature)
 - [Crypto-Asset Domain Inventory Register](../crypto/register-crypto-asset-inventory.md) (maturity: Draft)
-- [Data Retention Schedule](../governance/register-data-retention-schedule.md) (maturity: Baseline)
+- [Data Retention Schedule](../governance/register-data-retention-schedule.md) (maturity: Mature)
 - [Digital Trust and Assurance Metrics Register](../governance/register-digital-trust-and-assurance-metrics.md) (maturity: Mature)
 - [Document Index and Classification Register](../governance/register-document-index-and-classification.md) (maturity: Mature)
 - [Global Regulatory Applicability Register](../compliance/register-global-regulatory-applicability.md) (maturity: Baseline)

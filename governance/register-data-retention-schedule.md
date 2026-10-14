@@ -2,8 +2,8 @@
 
 **Document Title:** Data Retention Schedule\
 **Document Type:** Register\
-**Version:** 1.0.45\
-**Date:** 2026-09-30\
+**Version:** 1.1.0\
+**Date:** 2026-10-14\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/standard-records-retention-and-destruction.md`](standard-records-retention-and-destruction.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../compliance/policy-legal-and-regulatory-compliance.md), [`governance/standard-delegation-of-authority.md`](standard-delegation-of-authority.md)\
@@ -153,8 +153,8 @@ When litigation, regulatory investigation, or audit is anticipated or underway:
 
 Records reaching the end of their retention period are destroyed per the Records Retention and Destruction Standard:
 - Electronic records: secure deletion using approved methods (NIST SP 800-88 or equivalent).
-- Physical records: cross-cut shredding or certified destruction service.
-- Destruction is documented with: record type, volume, destruction date, method, and authorizing role.
+- Physical records: cross-cut shredding or certified destruction service, except paper whose highest classification of information held is Public, which may go to normal disposal (see [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md)) after the hold check in section 8 of that standard.
+- Destruction, other than normal disposal of Public paper, is documented with: record type, volume, destruction date, method, and authorizing role.
 
 ---
 

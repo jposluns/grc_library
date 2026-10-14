@@ -2,8 +2,8 @@
 
 **Document Title:** Remote Working Security Standard\
 **Document Type:** Standard\
-**Version:** 1.1.5\
-**Date:** 2026-09-30\
+**Version:** 1.2.0\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-authentication-and-password-management.md`](standard-authentication-and-password-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/policy-byod.md`](policy-byod.md)\
@@ -136,7 +136,7 @@ This standard supports the Information Security Policy, the Acceptable Use Polic
 
 6.5 Clean desk principles apply when not actively working: documents must be put away, screens locked, and physical notes containing sensitive information must be stored securely.
 
-6.6 Printed documents containing organizational information must be stored securely when not in use and disposed of via cross-cut shredding. Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
+6.6 Printed documents containing organizational information must be stored securely when not in use and disposed of via cross-cut shredding, including Public documents (deliberately stricter than the normal disposal permitted for Public paper by §8.1 of the Records Retention and Destruction Standard). Printing of Confidential or Restricted data at home or public locations requires prior written approval from the relevant line manager and the CISO.
 
 ---
 
