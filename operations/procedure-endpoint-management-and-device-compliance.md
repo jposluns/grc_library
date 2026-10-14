@@ -2,7 +2,7 @@
 
 **Document Title:** Endpoint Management and Device Compliance Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -267,14 +267,14 @@ When an endpoint or server is retired, the following steps must be completed bef
 
 ### 9.2 Media sanitization
 
-Subject to the hold and investigation safeguard in §9.1, all storage media must be sanitized before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 guidelines:
+Subject to the hold and investigation safeguard in §9.1, all storage media must be sanitized before a device leaves IT custody, consistent with the Media Handling and Transport Procedure and NIST SP 800-88 Rev. 2 guidelines:
 
 | Media Type | Required Method |
 | --- | --- |
-| Solid-state drives (SSD) | IEEE 2883 Purge via Cryptographic Erase or Sanitize Block Erase |
+| Solid-state drives (SSD) | The method in the solid-state drives (SSD) and flash media row of §7.1 of [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md), applied here to devices leaving IT custody, including its cryptographic erase prerequisites and its Destruct fallback |
 | Hard disk drives (HDD) | The method in the hard disk drives row of §7.1 of [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md), applied here to devices leaving IT custody, using the highest classification of data the drive has held (§7.1), applying the multiple-classification rule in §3 of that procedure |
-| Non-erasable or damaged media | Physical destruction |
-| Mobile device storage | Factory reset with cryptographic erasure where supported by OS |
+| Non-erasable or damaged media | The destruction method in §7.2 of [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md) (IEEE 2883-2022 Destruct), applied here to devices leaving IT custody |
+| Mobile device storage | The method in the mobile device storage row of §7.1 of [`operations/procedure-media-handling-and-transport.md`](procedure-media-handling-and-transport.md), applied here to devices leaving IT custody, including its reviewed Purge procedure, removable storage treatment and Destruct fallback |
 
 Sanitization must be verified and documented before the asset register is updated to "disposed."
 

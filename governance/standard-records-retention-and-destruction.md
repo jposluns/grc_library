@@ -2,7 +2,7 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Date:** 2026-10-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -112,7 +112,7 @@ When a record is subject to audit, investigation, or litigation, a retention hol
 
 ## 8. Secure destruction
 
-Upon expiration of the applicable retention period, records must be securely destroyed using an approved method. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction as soon as the Compliance Manager learns of the change. Legal Counsel or the Incident Commander, on applying or learning of a hold or investigation that covers records released or scheduled for destruction, must notify the Compliance Manager without delay. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
+Upon expiration of the applicable retention period, records must be securely destroyed using an approved method, or, for Public paper, may go to normal disposal under section 8.1. Destruction proceeds only once the hold check confirms that no hold or investigation applies to the records. The hold check must be completed immediately before destruction. Where destruction is queued, scheduled or handed to a contracted disposal service, the check is completed immediately before the records are released for destruction. If a hold or investigation comes to apply before destruction is complete, the Compliance Manager must stop or recall the destruction as soon as the Compliance Manager learns of the change. Legal Counsel or the Incident Commander, on applying or learning of a hold or investigation that covers records released or scheduled for destruction, must notify the Compliance Manager without delay. The hold check is the two-part check that rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 applies to devices, adapted here to records. Both parts must be complete:
 
 1. The Compliance Manager checks both the retention hold status in the Records Register (section 7) and the legal hold status in the GRC platform (the Legal holds section of [`governance/register-data-retention-schedule.md`](register-data-retention-schedule.md)). A check of only one of those two records does not complete this part.
 2. Those records show only holds that have been recorded, so they cannot complete the check on their own. Legal Counsel must confirm in writing that no legal hold or retention hold is required but not yet recorded, and that no investigation by an external authority treats the records as evidence. Legal Counsel or the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead must confirm whether an investigation under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) treats the records as evidence.
@@ -123,15 +123,18 @@ The steps of rule 2 that apply only to devices, such as the remote lock within 1
 
 | Media Type | Accepted Methods |
 |---|---|
-| **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
-| **Electronic / Digital (Public, Controlled and Internal)** | Secure overwrite (IEEE 2883-2022 Clear) for hard disk drives only, since overwrite is unreliable on flash media; or IEEE 2883-2022 Purge, or physical drive destruction |
-| **Electronic / Digital (Confidential and Restricted)** | IEEE 2883-2022 Purge, including cryptographic erase only where the prerequisites in IEEE 2883-2022 6.5.3 are met, or physical drive destruction; IEEE 2883-2022 Clear is not accepted |
+| **Paper (Public)** | Normal disposal (see [`governance/register-key-terms-and-definitions.md`](register-key-terms-and-definitions.md)), which §3 of the Media Handling and Transport Procedure allows for Public paper, or any method the Paper / Physical row accepts. The section 8 hold check still applies; section 8.2 sets out the documentation |
+| **Paper / Physical** | Cross-cut shredding or contracted secure disposal service; for Confidential and Restricted records, cross-cut shredding at DIN 66399 Level P-4 or higher, or a contracted secure document destruction service that meets an equivalent standard, as §7.3 of the Media Handling and Transport Procedure requires (strip-cut shredding is not accepted). Electronic storage media follow the Electronic / Digital rows |
+| **Electronic / Digital (Public, Controlled and Internal)** | Secure overwrite (IEEE 2883-2022 Clear) for hard disk drives only, since overwrite is unreliable on flash media; or IEEE 2883-2022 Purge, including cryptographic erase only where the prerequisites in IEEE 2883-2022 6.5.3 are met; or IEEE 2883-2022 Destruct (disintegration, incineration or melting; for optical media, the techniques in IEEE 2883-2022 8.3.1.3, including CD-only grinding and optical media shredding to the specified particle dimensions) under §7.2 of the Media Handling and Transport Procedure. For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Apply the media-specific requirements in §7.1 of that procedure |
+| **Electronic / Digital (Confidential and Restricted)** | IEEE 2883-2022 Purge, including cryptographic erase only where the prerequisites in IEEE 2883-2022 6.5.3 are met, or IEEE 2883-2022 Destruct (disintegration, incineration or melting; for optical media, the techniques in IEEE 2883-2022 8.3.1.3, including CD-only grinding and optical media shredding to the specified particle dimensions) under §7.2 of the Media Handling and Transport Procedure; IEEE 2883-2022 Clear is not accepted. For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Apply the media-specific requirements in §7.1 of that procedure |
 
 Select the applicable Electronic / Digital row using the highest classification of data the media has held (§7.1 of the Media Handling and Transport Procedure), applying the multiple-classification rule in §3 of [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md).
 
+Select the applicable paper row using the highest classification of information the paper holds, applying the same multiple-classification rule. The Paper (Public) row applies only where all information on the paper is Public; paper that holds any information classified above Public, including paper that also holds Public information, follows the Paper / Physical row. The Paper (Public) row covers paper only; other physical records follow the Paper / Physical row at every classification, and electronic storage media follow the Electronic / Digital rows.
+
 ### 8.2 Destruction documentation
 
-All destruction actions must be logged in the Destruction Register. Each entry must include:
+All destruction actions, other than normal disposal of Public paper under section 8.1, must be logged in the Destruction Register. Each entry must include:
 
 - Record identifier and classification level.
 - Destruction method applied.
@@ -139,7 +142,9 @@ All destruction actions must be logged in the Destruction Register. Each entry m
 - Role of responsible person.
 - Hold check outcome and date, who gave each part 2 confirmation, and a reference to Legal Counsel's written confirmation (section 8).
 - Date released for destruction (where queued, scheduled or contracted), and any stop or recall, with the date the hold or investigation became known to the Compliance Manager and the date of the stop or recall.
-- Witness signature (required for physical destruction).
+- Witness signature (required for physical destruction other than normal disposal of Public paper).
+
+Normal disposal of Public paper under section 8.1 needs no Destruction Register entry and no witness signature, but it proceeds only once the section 8 hold check is complete. The Compliance Manager records the hold check outcome and date, and a reference to Legal Counsel's written confirmation, in the Records Register as the evidence for the quarterly review in section 11.1.
 
 Certificates of Destruction must be retained for a minimum of 7 years.
 

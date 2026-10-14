@@ -2,7 +2,7 @@
 
 **Document Title:** Media Handling and Transport Procedure\
 **Document Type:** Procedure\
-**Version:** 1.6.0\
+**Version:** 1.7.0\
 **Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -53,7 +53,7 @@ The required level of protection for any piece of media is determined by the hig
 
 | Data Classification | Physical Media Requirement | Digital Media Requirement |
 | --- | --- | --- |
-| **Public** | No restrictions. Normal disposal. | No restrictions on transfer channel. |
+| **Public** | No restrictions on storage or transport. Normal disposal for paper only; electronic media follow §7. | No restrictions on transfer channel. |
 | **Controlled** | Standard storage; no special transport requirements. | Standard approved channels. |
 | **Internal** | Locked storage when unattended. | Approved internal channels only; external transfer requires management approval. |
 | **Confidential** | Locked container for storage and transport; encryption required if electronic. | Encrypted transfer channel (TLS 1.3); no personal cloud storage. |
@@ -170,17 +170,17 @@ Before any storage media is reissued for a different user or purpose, it must be
 
 | Media Type | Required Sanitization Method |
 | --- | --- |
-| Hard disk drives (HDD) | IEEE 2883-2022 Clear (overwrite) or a stronger method for Internal and below; Purge (overwrite by a device sanitize command that also covers non-addressable locations, or degaussing using vendor-approved tools with appropriate vendor documentation (IEEE 2883-2022 6.3)) for Confidential and above. Sanitization must be verified before reuse. |
-| Solid-state drives (SSD) and flash media | IEEE 2883 Purge via Sanitize Block Erase or Cryptographic Erase (the latter destroys the media encryption key on self-encrypting drives); or an equivalent manufacturer-verified Purge method (for example ATA Security Erase Unit in Enhanced Erase mode). |
-| Magnetic tapes | Degaussing followed by label removal and overwrite verification. |
-| Mobile device storage | Factory reset with cryptographic erasure where supported by the device OS. |
-| Optical media (CD, DVD, Blu-ray) | Physical destruction (shredding); optical media cannot be reliably overwritten and must not be reused for Confidential or above. |
+| Hard disk drives (HDD) | IEEE 2883-2022 Clear (overwrite) or a stronger method for Internal and below; Purge (overwrite by a device sanitize command that also covers non-addressable locations (IEEE 2883-2022 6.3)) for Confidential and above. Degaussing is not used on a drive intended for reuse, because it generally leaves a hard disk drive permanently inoperable (IEEE 2883-2022 8.4.3.1). Sanitization must be verified before reuse. |
+| Solid-state drives (SSD) and flash media | IEEE 2883-2022 Purge via sanitize block erase, or via cryptographic erase (which changes the media encryption key on a self-encrypting drive) only where the prerequisites in IEEE 2883-2022 6.5.3 are met; or an equivalent manufacturer-verified Purge method (for example ATA Security Erase Unit in Enhanced Erase mode). For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). Memory cards (SD, CompactFlash and similar) have no standard Purge method and are destroyed under §7.2 unless IT Operations has approved a protocol-specific Purge command for the card type (IEEE 2883-2022 8.7.2). If no Purge method in this row can be completed and verified, the media is destroyed under §7.2 (IEEE 2883-2022 8.4.3.1 and 6.1). |
+| Magnetic tapes | IEEE 2883-2022 Purge by degaussing in an approved degausser rated for the tape type (IEEE 2883-2022 8.5.3.2), only where vendor documentation confirms that degaussing sanitizes that tape type and leaves it usable; tapes with servo tracks are rendered unusable by effective degaussing (IEEE 2883-2022 6.5.4) and are not reissued. Reset any cartridge memory (MAM) to factory default with a vendor-specific application, remove labels and verify sanitization before reuse. A tape that cannot be purged and remain usable is destroyed under §7.2. |
+| Mobile device storage | IEEE 2883-2022 Purge by a manufacturer-documented procedure for the specific device model and OS version that IT Operations has reviewed and recorded as effective for Purge (IEEE 2883-2022 A.3.2); cryptographic erase is accepted only where the prerequisites in IEEE 2883-2022 6.5.3 are met. For ATA, SCSI and NVMe storage devices, cryptographic erase must not be used if the device does not support encryption, supports none of the techniques specified in IEEE 2883-2022 8.4.3.5, enabled encryption only after sensitive data were stored, contains both encrypted and unencrypted data, or has any unencrypted NVMe namespace (IEEE 2883-2022 8.4.3.5). A factory reset is accepted only where it carries out that reviewed procedure; any other factory reset is not accepted as Purge. Sanitize removable storage under its own media row, and confirm through the device interface that no organizational data remains before reuse. If Purge cannot be completed and verified, the device is not reissued and is destroyed under §7.2, subject to §1.2 for personally-owned devices. |
+| Optical media (CD, DVD, Blu-ray) | Not reissued at any classification, because IEEE 2883-2022 accepts only Destruct for optical media (IEEE 2883-2022 clauses 8.3.1.1 and 8.3.1.2). Destroy under IEEE 2883-2022 8.3.1.3 by, in order of preference, a commercial optical disk grinder that removes the information-bearing layers (CD only, not DVD or Blu-ray), incineration to ash at a licensed facility, or an optical media shredder or disintegrator that reduces the media to particles of nominal edge 0.5 mm and surface area 0.25 mm² or smaller. |
 
 ### 7.2 Destruction of electronic media
 
-Electronic media that cannot be sanitized, including media that has failed, damaged media, or media for which cryptographic erasure keys are unavailable, must be physically destroyed:
+Electronic media for which the required Clear or Purge cannot be completed and verified, including failed or damaged media, and media whose cryptographic erasure keys are unavailable where no other Purge method in §7.1 applies, must be destroyed:
 
-- Shredding, crushing, or disintegration in a manner that renders data recovery infeasible.
+- Optical media are destroyed as the optical media row of §7.1 specifies (IEEE 2883-2022 8.3.1.3). All other electronic media require IEEE 2883-2022 Destruct by disintegration, incineration in a licensed incinerator, or melting (IEEE 2883-2022 6.4 and 8.4.4), so that recovery of the data is infeasible even with state-of-the-art laboratory techniques. For those other electronic media, shredding, crushing or pulverizing is accepted only as an interim step before one of those techniques and never as final destruction, whatever the classification.
 - Destruction must be performed or witnessed by an IT Operations staff member, or by a contracted accredited disposal vendor with Certificates of Destruction issued.
 
 ### 7.3 Destruction of paper and physical records
@@ -219,7 +219,7 @@ Each Certificate of Destruction must include:
 | --- | --- |
 | Asset or media identifier | Asset tag, serial number, or batch reference |
 | Data classification | Highest classification of information held |
-| Destruction method | Method applied (e.g., cryptographic erasure, physical shredding) |
+| Destruction method | Method applied and sanitization category (e.g., Purge: cryptographic erasure; Destruct: disintegration, incineration) |
 | Date of destruction | Date destruction was completed |
 | Location | Site or facility where destruction occurred |
 | Performed by | Individual or vendor name |
