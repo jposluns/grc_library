@@ -47,7 +47,7 @@ Usage:
 
 Output: per shell, the exit code, stdout, stderr and each stubbed call as `STUB <name> <argv...>`.
 Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error; 3 processes of the run were
-still alive at the kill deadline.
+still alive at the kill deadline or the shell could not be reaped within the cleanup deadlines.
 """
 from __future__ import annotations
 
@@ -456,6 +456,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                     # through a handler other than _on_signal, such as SIGINT's); the
                     # nested finalizers below therefore guarantee the session kill and the
                     # reap on every path.
+                    reaped = True
                     try:
                         if threading.current_thread() is threading.main_thread():
                             # Entry ordering and thread scope (3b281 round 5, items
@@ -506,26 +507,40 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                 try:
                                     contained = _kill_session(p.pid)
                                 finally:
-                                    # Bounded reap (3b281 round 5, item 2; codex
-                                    # CLEANUP-REAP-HANG): if _kill_session raised
-                                    # with the shell still alive or stopped, an
-                                    # unbounded wait would block forever; on
-                                    # timeout, SIGKILL the shell (p.kill() also
-                                    # ends a stopped process) and reap it, then
-                                    # let the original exception propagate.
-                                    # Residuals (3b281 round 6, routed 3b341):
-                                    # the wait after SIGKILL is unbounded, so a
-                                    # shell in uninterruptible sleep can still
-                                    # block it; the SIGKILL reaches only the
-                                    # shell, not other session members a failed
-                                    # _kill_session left alive; and a
-                                    # KeyboardInterrupt during the first wait
-                                    # skips the SIGKILL.
+                                    # Bound both waits. An interrupted first wait still
+                                    # runs the fallback when returncode is unset.
+                                    # An interrupt after waitpid but before returncode
+                                    # is set can leave the shell already reaped.
                                     try:
                                         p.wait(timeout=GRACE_SECONDS)
                                     except subprocess.TimeoutExpired:
-                                        p.kill()
-                                        p.wait()
+                                        pass
+                                    finally:
+                                        if p.returncode is None:
+                                            # Residuals: one-snapshot sweep; interrupts
+                                            # during fallback itself; killpg errors other
+                                            # than ProcessLookupError, or session-scan
+                                            # errors, propagate and skip the member sweep.
+                                            # After the waitpid race, the shell PID is
+                                            # signalled without a poll.
+                                            try:
+                                                with contextlib.suppress(ProcessLookupError):
+                                                    os.killpg(p.pid, signal.SIGKILL)
+                                                # Job-control children can have their own
+                                                # process groups in the same session.
+                                                for pid in _live(_session_members(p.pid)):
+                                                    with contextlib.suppress(OSError):
+                                                        os.kill(pid, signal.SIGKILL)
+                                            finally:
+                                                # May be the caller's handled exception
+                                                # when run() is called inside except.
+                                                exc = sys.exception()
+                                                try:
+                                                    p.wait(timeout=GRACE_SECONDS)
+                                                except subprocess.TimeoutExpired:
+                                                    reaped = False
+                                                    if exc is not None:
+                                                        exc.add_note("shell could not be reaped after fallback SIGKILL")
             with open(out_path, encoding="utf-8", errors="replace") as fh:
                 out = fh.read()
             with open(err_path, encoding="utf-8", errors="replace") as fh:
@@ -533,7 +548,7 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
             with open(log, encoding="utf-8") as fh:
                 records = [json.loads(line) for line in fh if line.strip()]
             results.append({"shell": shell, "rc": rc, "stdout": out, "stderr": err, "contained": contained,
-                            "killed": killed,
+                            "killed": killed, "reaped": reaped,
                             "session": p.pid, "calls": ["STUB " + shlex.join(r) for r in records], "argv": records})
         finally:
             # The mask is restored even when _rmtree raises. spawn_mask is
@@ -594,12 +609,14 @@ def main(argv=None) -> int:
     uncontained = False
     for r in run(args.command, shells, stubs):
         print(f"== {r['shell']} rc={r['rc']}")
-        uncontained = uncontained or not r["contained"]
+        uncontained = uncontained or not r["contained"] or not r["reaped"]
         if r["killed"]:
             print(f"WARNING: {r['killed']} process(es) were still running {GRACE_SECONDS:.0f}s after the command "
                   f"ended and were killed; a call they would have made is missing")
         if not r["contained"]:
             print("WARNING: processes of this run were still alive at the kill deadline")
+        if not r["reaped"]:
+            print("WARNING: shell could not be reaped within the cleanup deadlines")
         for c in r["calls"]:
             print("STUB " + _printable(c[5:]))  # a call argument cannot forge a report line (QA r8)
         # The command's own output is prefixed, so it cannot pass for a report line (3b116 QA r6).
@@ -977,6 +994,8 @@ def _self_test_limits():
             results = saved_run(*args, **kwargs)
             if any(not r["contained"] for r in results):
                 failures.append(("command-contained", False))
+            if any(not r["reaped"] for r in results):
+                failures.append(("command-reaped", False))
             return results
         finally:
             if any(os.path.exists(path) for path in allocated):
@@ -1094,6 +1113,26 @@ def _raising_run_audit_check():
             and failures == [("allocated-temp-dirs-removed", False)])
 
 
+def _unreaped_reporting_check(audit=False):
+    # Containment alone must not hide a failed reap. No process or file I/O.
+    import types
+    result = dict(shell="bash", rc=0, stdout="", stderr="", calls=[],
+                  killed=0, contained=True, reaped=False)
+    fn = _self_test_limits.__wrapped__ if audit else main
+    g = dict(fn.__globals__)
+    g.update(run=lambda *a, **kw: [result],
+             _fixture_lifetime=contextlib.nullcontext)
+    clone = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+    if audit:
+        with contextlib.contextmanager(clone)() as failures:
+            g["run"]("model")
+        return failures == [("command-reaped", False)]
+    out = io.StringIO()
+    with contextlib.redirect_stdout(out):
+        rc = clone(["true"])
+    return rc == 3 and "WARNING: shell could not be reaped" in out.getvalue()
+
+
 def _policy_checks():
     """Exercise unchanged production code using a clock advanced by work.
 
@@ -1134,6 +1173,8 @@ def _policy_checks():
          _handler_restore_check(restore_call=5)),
         ("production-policy:first-handler-restore-raises", _handler_restore_check(True)),
         ("raising-run-temp-dir-audit", _raising_run_audit_check()),
+        ("unreaped-main-report", _unreaped_reporting_check()),
+        ("unreaped-run-audit", _unreaped_reporting_check(True)),
     ]
     class PopenRaised(Exception):
         pass
@@ -1151,6 +1192,9 @@ def _policy_checks():
                   "cleanup-query-raises-retry-threads",
                   "TERM-in-kill-unblocked", "kill-raises",
                   "spawn-restore-raises", "kill-raises-shell-alive",
+                  "kill-fails-shell-unkillable", "kill-raises-shell-unkillable",
+                  "kill-raises-session-alive", "kill-raises-wait-interrupted",
+                  "killpg-lookup-error", "kill-sweep-oserror", "fallback-scan-oserror",
                   "nonmain-thread-preserves-deferral",
                   "run-entry-clears-stale-deferral",
                   "deferral-covers-output-collection",
@@ -1165,7 +1209,12 @@ def _policy_checks():
         in_cleanup = route == "TERM-in-cleanup-threads"
         in_kill = route == "TERM-in-kill-unblocked"
         kill_raises = route == "kill-raises"
-        kill_raises_alive = route == "kill-raises-shell-alive"
+        unkillable = route in ("kill-fails-shell-unkillable", "kill-raises-shell-unkillable",
+                               "fallback-scan-oserror")
+        fallback = unkillable or route in (
+            "kill-raises-session-alive", "kill-raises-wait-interrupted",
+            "killpg-lookup-error", "kill-sweep-oserror")
+        kill_raises_alive = route == "kill-raises-shell-alive" or fallback
         nonmain = route == "nonmain-thread-preserves-deferral"
         restore_skipped = route == "spawn-restore-raises"
         retry_succeeds = route in ("cleanup-query-raises-retry-TERM",
@@ -1182,13 +1231,17 @@ def _policy_checks():
             # must carry that mask into the child.
             signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGHUP})
         mask_before = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+        scan_error = OSError("fallback scan failed")
+        kill_error = KillRaised()
         state = dict(clock=0.0, live=True, killed=False, removed=False,
                      late=False, elapsed=0.0, unmasked=False, preexec=None,
                      blocked_at_spawn=False, cleanup_blocked=None,
                      reaped=False, grace_delivered=None, kill_unblocked=None,
-                     kill_raised=False, sigkilled=False)
+                     kill_raised=False, sigkilled=False, interrupted=False,
+                     member=fallback, second_member=route == "kill-sweep-oserror", signals=[])
         class Process:
             pid = 7
+            returncode = None
             def wait(self, timeout=None):
                 if state["killed"]:
                     # the post-kill reap inside the cleanup finally runs with
@@ -1196,8 +1249,12 @@ def _policy_checks():
                     # checked; the reap itself is recorded and required on
                     # every route that created a process (3b281 round 3)
                     state["reaped"] = True
+                    self.returncode = 0
                     return 0
                 if state["kill_raised"]:
+                    if route == "kill-raises-wait-interrupted" and not state["interrupted"]:
+                        state["interrupted"] = True
+                        raise KeyboardInterrupt()
                     # The kill raised with the shell still alive: a reap would
                     # block until the shell is killed, so an unbounded wait
                     # models the hang and a bounded one times out (3b281
@@ -1227,8 +1284,29 @@ def _policy_checks():
                 # The bounded reap sends SIGKILL, which also ends a stopped
                 # shell; the next wait can then reap it (3b281 round 5, item 2).
                 state["sigkilled"] = True
-                state["live"] = False
-                state["killed"] = True
+                if not unkillable:
+                    state["live"] = False
+                    state["killed"] = True
+        def killpg(pgid, sig):
+            if pgid != 7 or sig != signal.SIGKILL or state["reaped"]:
+                raise AssertionError("unexpected group signal or signal after reap")
+            state["signals"].append(("group", pgid, sig))
+            if route == "killpg-lookup-error":
+                raise ProcessLookupError()
+            Process().kill()
+        def kill_member(pid, sig):
+            if sig != signal.SIGKILL or state["reaped"]:
+                raise AssertionError("unexpected member signal or signal after reap")
+            state["signals"].append(("member", pid, sig))
+            if pid == 7:
+                Process().kill()
+            # Member 8 models a separate job-control process group.
+            elif pid == 8:
+                if route == "kill-sweep-oserror":
+                    raise PermissionError()
+                state["member"] = False
+            elif pid == 9:
+                state["second_member"] = False
         def sleep(seconds):
             state["clock"] = round(state["clock"] + 0.125, 9)
             if state["clock"] > 10:
@@ -1265,7 +1343,9 @@ def _policy_checks():
                 # bounded reap in the finally must SIGKILL and reap it while
                 # this exception propagates (3b281 round 5, item 2).
                 state["kill_raised"] = True
-                raise KillRaised()
+                if route == "kill-fails-shell-unkillable":
+                    return False
+                raise kill_error
             state["live"] = False
             state["killed"] = True
             if kill_raises:
@@ -1283,6 +1363,12 @@ def _policy_checks():
             if at_spawn:
                 os.kill(os.getpid(), getattr(signal, "SIG" + base))
             return proc
+        def members(sid):
+            if route == "fallback-scan-oserror" and state["sigkilled"]:
+                raise scan_error
+            return ([(7, "R")] if state["live"] else []) + (
+                [(8, "R")] if state["member"] else []) + (
+                [(9, "R")] if state["second_member"] else [])
         read_deferrals = []
         def model_open(path, mode="r", **kwargs):
             if "r" in mode:
@@ -1293,13 +1379,14 @@ def _policy_checks():
             open=model_open,
             _prepare=lambda *a: ("bin", "home", "log"),
             tempfile=types.SimpleNamespace(mkdtemp=lambda **kw: "virtual"),
-            os=types.SimpleNamespace(path=os.path, devnull=os.devnull, makedirs=lambda *a: None),
+            os=types.SimpleNamespace(path=os.path, devnull=os.devnull, makedirs=lambda *a: None,
+                                     killpg=killpg, kill=kill_member),
             time=types.SimpleNamespace(monotonic=lambda: state["clock"], sleep=sleep),
             subprocess=types.SimpleNamespace(Popen=spawn,
                 DEVNULL=subprocess.DEVNULL, TimeoutExpired=subprocess.TimeoutExpired),
             _kill_session=kill,
             _rmtree=lambda path: state.update(removed=True),
-            _session_members=lambda sid: [(7, "R")] if state["live"] else [])
+            _session_members=members)
         for name in ("run", "_run_shells", "_drain_deferral"):
             fn = globals()[name]
             g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
@@ -1444,7 +1531,7 @@ def _policy_checks():
             results.append(("production-policy:" + route, False))
             continue
         except (_Terminated, KeyboardInterrupt, MissingProductionHandler,
-                PopenRaised, RmtreeRaised, KillRaised) as exc:
+                PopenRaised, RmtreeRaised, OSError) as exc:
             error = exc
         finally:
             if nonmain or stale_deferral:
@@ -1462,7 +1549,7 @@ def _policy_checks():
                      and not pe.keywords)
         ok = (after == mask_before and not state["unmasked"]
               and not state["late"] and state["removed"])
-        if route != "popen-raises":
+        if route != "popen-raises" and not unkillable:
             # 3b281 round 3 (codex W): every route that creates a process
             # must observe the reap, the modelled post-kill p.wait().
             ok = ok and state["reaped"]
@@ -1532,6 +1619,32 @@ def _policy_checks():
             # item 2; gemini W).
             ok = (ok and state["killed"] and state["reaped"]
                   and isinstance(error, KillRaised) and state["elapsed"] == 2.0)
+        elif fallback:
+            ok = ok and ("group", 7, signal.SIGKILL) in state["signals"]
+            if unkillable:
+                ok = ok and not state["reaped"]
+                if route == "kill-fails-shell-unkillable":
+                    ok = (ok and error is None and answer is not None
+                          and answer[0]["reaped"] is False and answer[0]["contained"] is False)
+                else:
+                    if route == "fallback-scan-oserror":
+                        ok = (ok and error is scan_error
+                              and error.__context__ is kill_error)
+                    else:
+                        ok = ok and isinstance(error, KillRaised)
+                    ok = (ok and "shell could not be reaped after fallback SIGKILL"
+                          in getattr(error, "__notes__", []))
+            elif route == "kill-raises-wait-interrupted":
+                ok = (ok and state["sigkilled"] and state["reaped"]
+                      and isinstance(error, KeyboardInterrupt)
+                      and isinstance(error.__context__, KillRaised))
+            else:
+                ok = (ok and isinstance(error, KillRaised) and state["reaped"]
+                      and ("member", 8, signal.SIGKILL) in state["signals"]
+                      and state["member"] == (route == "kill-sweep-oserror")
+                      and not state["second_member"])
+                if route == "kill-sweep-oserror":
+                    ok = ok and ("member", 9, signal.SIGKILL) in state["signals"]
         elif kill_raises_alive:
             # The modelled kill raised with the shell still alive: the bounded
             # reap timed out, SIGKILLed the shell, reaped it, the temp dir
@@ -1595,9 +1708,10 @@ def _policy_checks():
             if base in ("TERM", "HUP", "INT"):
                 ok = ok and isinstance(error, (_Terminated, KeyboardInterrupt))
             elif route == "timeout":
-                ok = ok and answer[0]["rc"] is None and "timed out after 1s" in answer[0]["stderr"]
+                ok = (ok and error is None and answer is not None
+                      and answer[0]["rc"] is None and "timed out after 1s" in answer[0]["stderr"])
             else:
-                ok = ok and state["elapsed"] == 2.0
+                ok = ok and state["elapsed"] == 2.0 and error is None
         results.append(("production-policy:" + route, ok))
     clock, sends = [0.0], []
     def send(pid, sig):
