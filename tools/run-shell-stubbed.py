@@ -1973,7 +1973,7 @@ SPAWN_WINDOW_COMMAND = "while ((SECONDS < 600)); do :; done"
 SPAWN_WINDOW_PROBE = r"""
 import json, os, runpy, signal, subprocess, sys
 t = runpy.run_path(sys.argv[1])
-state = {"sid": None, "term_pending": False}
+state = {"sid": None, "term_pending": False, "run_qualname": ""}
 with t["_self_test_limits"]() as failures:
     g = t["run"].__globals__
     invoked_run = g["run"]
@@ -1983,6 +1983,11 @@ with t["_self_test_limits"]() as failures:
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             if kwargs.get("start_new_session") and state["sid"] is None:
+                # Report the bounded_run frame actually on the stack, if any.
+                f = sys._getframe(1)
+                while f is not None and not (f.f_code.co_name == "bounded_run" and f.f_globals is g):
+                    f = f.f_back
+                state["run_qualname"] = "" if f is None else f.f_code.co_qualname
                 # The signal lands in the real spawn window: the session
                 # already exists, but run has not yet entered the try whose
                 # finally kills it; only the production mask block across
@@ -2010,7 +2015,7 @@ with t["_self_test_limits"]() as failures:
     leaked_killed = bool(survivors) and invoked_kill(sid)
 print(json.dumps(dict(terminated=terminated, sid=sid, survivors=survivors,
                       leaked_killed=leaked_killed, term_pending=state["term_pending"],
-                      run_qualname=invoked_run.__qualname__,
+                      run_qualname=state["run_qualname"],
                       survivors_qualname=invoked_survivors.__qualname__,
                       kill_is_clone=invoked_kill is not t["_kill_session"], failures=failures)))
 """
