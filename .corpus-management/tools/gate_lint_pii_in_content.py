@@ -6,13 +6,17 @@ Scan content for suspected personally-identifying information: email addresses
 maintainer-contact domains, plus the RFC 2606 / RFC 6761 reserved TLDs
 .invalid/.test/.example/.localhost), US SSN patterns, US phone numbers, public IPv4
 addresses (documentation / private / reserved / version-number-shaped matches
-are filtered out), and postal street-address fragments. Lines inside fenced code
-blocks are skipped (the shared fence-aware scan).
+are filtered out, as are four-part standard clause numbers cited after a section
+sign, "section(s)", "clause(s)" or a standard designator, or later in a list of
+four-part clause numbers one of these opens; a match with a port, a CIDR suffix or a
+URL scheme in the same token is never treated as a citation), and postal
+street-address fragments.
+Lines inside fenced code blocks are skipped (the shared fence-aware scan).
 
 Engine/wrapper split (SHARED/SAFETY lane PR-38, Pattern A): this engine carries the
 detection regexes (``EMAIL_RE``, ``US_SSN_RE``, ``US_PHONE_RE``, ``IPV4_RE``,
-``STREET_RE``), the IP filters (``is_documentation_ip``, ``is_version_ip``), and the
-pure ``scan``; the project wrapper (``tools/lint-pii-in-content.py``) supplies the grc
+``STREET_RE``), the IP filters (``is_documentation_ip``, ``is_version_ip``, ``is_citation_ip``),
+and the pure ``scan``; the project wrapper (``tools/lint-pii-in-content.py``) supplies the grc
 scan scope (the scanned-suffix set and the exempt-file set, which includes THIS engine
 because it documents the PII formats by design) and the grc example-domain allow-list,
 and keeps a thin module-global ``scan`` shim delegating here so the scan-scope
@@ -68,6 +72,28 @@ STREET_RE = re.compile(
     r"(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Boulevard|Blvd\.?|Lane|Ln\.?|Drive|Dr\.?|Court|Ct\.?|Way|Place|Pl\.?)"
     r"\b"
 )
+# Citation context for an IPv4-shaped match (``is_citation_ip``). A four-part
+# standard clause number ("section 8.2.2.1", "IEEE 2883-2022 clauses 8.3.1.1,
+# 8.3.1.2 and 8.3.1.3") matches IPV4_RE. The text before such a match ends with a
+# cue (a section sign; "section", "sections", "clause" or "clauses" in any letter
+# case; or a standard designator, optionally followed by its document number such
+# as "2883-2022", "800-53" or "27001:2022"), then only four-part clause numbers
+# joined by list separators (a comma, "and", "or", "to", "through", a hyphen or an
+# en dash), so a later item of a continuing list keeps the cue. A list item must be
+# a four-part number: a shorter section or document number ("section 4 to",
+# "section 4.2 to", "RFC 5737,") does not carry the cue on to a following address.
+_CLAUSE_NUMBER = r"\d+(?:\.\d+){3}"
+_CLAUSE_LIST_SEP = r"(?:\s*,\s*(?:(?:and|or)\s+)?|\s+(?:and|or|to|through)\s+|\s*[-\u2013]\s*)"
+CITATION_CUE_RE = re.compile(
+    r"(?:\u00a7\u00a7?\s*"
+    r"|(?:\b(?i:sections?|clauses?)|\b(?:IEEE|ISO/IEC|ISO|IEC|NIST|SP|RFC)(?:\s+\d[\w:/-]*)?)\s+)"
+    rf"(?:{_CLAUSE_NUMBER}{_CLAUSE_LIST_SEP})*$"
+)
+# A port (":53") or a CIDR prefix length ("/0" to "/32", including one that ends a
+# sentence) right after the match, or a URL scheme in the same token before it,
+# marks a network address, never a clause number, whatever cue precedes it.
+_ADDRESS_SUFFIX_RE = re.compile(r":\d|/(?:3[0-2]|[12]?\d)(?!\d|\.\d)")
+_URL_PREFIX_RE = re.compile(r"[A-Za-z][A-Za-z0-9+.\-]*://\S*$")
 
 
 def is_documentation_ip(addr: str) -> bool:
@@ -109,6 +135,24 @@ def is_version_ip(line: str, start: int) -> bool:
     window = line[max(0, start - 30):start + 30].lower()
     indicators = ("version", "release", "rev ", "v1.", "v2.", "v3.", "v4.", "v5.")
     return any(ind in window for ind in indicators)
+
+
+def is_citation_ip(line: str, start: int, end: int) -> bool:
+    """Heuristic: is the IP-shaped match a standard clause number in a citation?
+
+    Clause numbers like "8.2.2.1" can match the IPv4 regex. If the match sits
+    directly after a citation cue, or later in a list of clause numbers that a cue
+    opens (see ``CITATION_CUE_RE``), treat it as a clause number, not an IP. A port
+    or CIDR suffix after the match, or a URL scheme before it, keeps it an address.
+    No octet-range check is needed here: ``is_documentation_ip`` already skips a
+    match that does not parse as an IPv4 address, such as one with an octet over 255.
+    """
+    if _ADDRESS_SUFFIX_RE.match(line, end):
+        return False
+    prefix = line[:start]
+    if not CITATION_CUE_RE.search(prefix):
+        return False
+    return not _URL_PREFIX_RE.search(prefix)
 
 
 # Domain-label separators, including the Unicode "dot" variants that IDN / browsers
@@ -235,6 +279,8 @@ def scan(path: Path, *, example_domains) -> list[tuple[int, str, str]]:
             if is_documentation_ip(addr):
                 continue
             if is_version_ip(line, m.start()):
+                continue
+            if is_citation_ip(line, m.start(), m.end()):
                 continue
             findings.append((lineno, "public IPv4 address", addr))
         # Street addresses

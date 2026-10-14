@@ -5,8 +5,12 @@ scans for email addresses (excluding a caller-supplied allow-list of
 documentation, example, and maintainer-contact domains, and the RFC 2606 /
 RFC 6761 reserved TLDs .invalid/.test/.example/.localhost), US Social Security
 number patterns, US phone numbers, public IPv4 addresses (documentation,
-private, reserved, and version-number-shaped matches are filtered out), and
-postal street-address fragments. Lines inside fenced code blocks are skipped. The
+private, reserved, and version-number-shaped matches are filtered out, and so is
+a four-part standard clause number cited directly after a section sign,
+"section", "sections", "clause", "clauses", or a standard designator, or later
+in a list of four-part clause numbers that one of these cues opens; a match with a port, a
+CIDR suffix, or a URL scheme is still reported), and postal street-address
+fragments. Lines inside fenced code blocks are skipped. The
 detection regexes and the IP filters are fixed in the check implementation; the
 scanned-suffix set, the exempt-file set (files that carry maintainer contact or
 document PII formats by design, including the check's own source), and the

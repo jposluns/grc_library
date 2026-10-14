@@ -10059,6 +10059,26 @@ class PIIContentTests(LinterTestCase):
         result = run_linter("tools/lint-pii-in-content.py", fixture)
         self.assertLinterFails(result, "IPv4")
 
+    def test_clause_citation_not_flagged_as_ipv4(self) -> None:
+        # Gate 22 citation rule, end to end through the wrapper: four-part
+        # clause numbers cited after "section" or in a list opened by a standard
+        # designator's "clauses" are clause numbers, not public addresses. Each
+        # parses as a public address (the engine-level test checks this).
+        fixture = self.make_fixture(
+            "standard-clause-citation.md",
+            VALID_METADATA
+            + "\n\nSee section 3.2.2.9 and section 8.2.2.1 for the control.\n"
+            + "IEEE 2883-2022 clauses 8.3.1.1, 8.3.1.2, 8.3.1.3, 8.4.3.1, 8.4.3.5"
+            " and 8.5.3.2 apply here.\n",
+        )
+        result = run_linter("tools/lint-pii-in-content.py", fixture)
+        self.assertEqual(
+            result.returncode,
+            0,
+            "clause citations must not be reported as public IPv4 addresses.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
     def test_us_phone_number_flagged(self) -> None:
         # 10-digit phone number with separators.
         fixture = self.make_fixture(
@@ -28076,7 +28096,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.10.0", "3b330 corrects three CSA CCM expansions in the citations.toml denylist reasons on top of 3b201 (MINOR, 0.9.0 to 0.10.0)")
+        self.assertEqual(man["pack"]["version"], "0.11.0", "3b343 adds the gate 22 clause-citation filter is_citation_ip, a new public function, on top of 3b330 (MINOR, 0.10.0 to 0.11.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -33482,10 +33502,10 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
 
     def test_check_moved_to_engine(self):
         for name in ("EMAIL_RE", "US_SSN_RE", "US_PHONE_RE", "IPV4_RE", "STREET_RE",
-                     "is_documentation_ip", "is_version_ip", "scan"):
+                     "is_documentation_ip", "is_version_ip", "is_citation_ip", "scan"):
             self.assertTrue(hasattr(self.engine, name), f"engine missing {name}")
         for name in ("EMAIL_RE", "US_SSN_RE", "US_PHONE_RE", "IPV4_RE", "STREET_RE",
-                     "is_documentation_ip", "is_version_ip"):
+                     "is_documentation_ip", "is_version_ip", "is_citation_ip"):
             self.assertFalse(hasattr(self.wrapper, name),
                              f"wrapper should not redefine {name} (moved to engine)")
         self.assertTrue(hasattr(self.wrapper, "scan"))             # the shim
@@ -33636,6 +33656,56 @@ class PiiInContentEngineTransferTests(unittest.TestCase):
 
     def test_version_number_not_ip(self):
         self.assertEqual(self._scan("upgrade to version 4.0.1.2 today.\n"), [])
+
+    def test_clause_citation_not_ip(self):
+        # Gate 22 citation rule: a four-part standard clause number cited directly
+        # after "section", a section sign or a standard designator, or later in a
+        # list one of those opens, is a clause number, not a public address.
+        cited = ("3.2.2.9", "8.2.2.1", "8.3.1.1", "8.3.1.2", "8.3.1.3",
+                 "8.4.3.1", "8.4.3.5", "8.5.3.2")
+        for n in cited:  # each is a public address, so the rule alone suppresses it
+            self.assertFalse(self.engine.is_documentation_ip(n), n)
+        listed = ("IEEE 2883-2022 clauses 8.3.1.1, 8.3.1.2, 8.3.1.3, 8.4.3.1,"
+                  " 8.4.3.5 and 8.5.3.2 cover media sanitization.\n")
+        for m in self.engine.IPV4_RE.finditer(listed):
+            self.assertFalse(self.engine.is_version_ip(listed, m.start()), m.group())
+            self.assertTrue(self.engine.is_citation_ip(listed, m.start(), m.end()), m.group())
+        for doc in ("See section 3.2.2.9 for the control.\n",
+                    "See section 8.2.2.1 for the control.\n",
+                    "IEEE 2883-2022 clauses 8.3.1.1, 8.3.1.2, 8.3.1.3, 8.4.3.1,"
+                    " 8.4.3.5 and 8.5.3.2 cover media sanitization.\n",
+                    "As §8.2.2.1 states, records are kept.\n",
+                    "IEEE 2883-2022 8.3.1.1 covers optical media.\n",
+                    "ISO/IEC 27001:2022 8.2.2.1 is the reference.\n",
+                    "See §§ 8.2.2.1 and 8.3.1.1 for both.\n",
+                    "See sections 8.3.1.1 through 8.3.1.3 for the rows.\n"):
+            self.assertEqual(
+                [f for f in self._scan(doc) if f[1] == "public IPv4 address"], [],
+                f"clause citation must not be reported as an address: {doc!r}")
+
+    def test_citation_cue_keeps_addresses_flagged(self):
+        # Bare public addresses in prose stay reported, and so does a match with a
+        # port, a CIDR suffix or a URL scheme, even directly after "section" or a
+        # section sign; a list continues only through clause numbers and separators.
+        for doc, addr in (("Forward queries to 8.8.8.8 today.\n", "8.8.8.8"),
+                          ("Point clients at section 8.8.8.8:53 for DNS.\n", "8.8.8.8"),
+                          ("Allow the resolver at section 8.8.8.8/32 only.\n", "8.8.8.8"),
+                          ("The resolver 8.8.8.8:53 answers.\n", "8.8.8.8"),
+                          ("Allow 8.8.8.8/32 outbound.\n", "8.8.8.8"),
+                          ("Fetch https://8.8.8.8/dns-query now.\n", "8.8.8.8"),
+                          ("Open https://docs.invalid/§8.8.4.4 here.\n", "8.8.4.4"),
+                          ("Clause 8.3.1.1 applies and the resolver 8.8.8.8 answers.\n", "8.8.8.8"),
+                          ("Per RFC 5737, 8.8.8.8 is not a documentation address.\n", "8.8.8.8"),
+                          ("Set the resolver in section 4 to 8.8.8.8 and restart.\n", "8.8.8.8"),
+                          ("As described in section 3, 8.8.8.8 answers queries.\n", "8.8.8.8"),
+                          ("NIST SP 800-53 and 8.8.8.8 here.\n", "8.8.8.8"),
+                          ("Set the resolver in section 4.2 to 8.8.8.8 and restart.\n", "8.8.8.8"),
+                          ("As described in section 3.1, 8.8.8.8 answers queries.\n", "8.8.8.8"),
+                          ("See clause 5.1 and 8.8.8.8 here.\n", "8.8.8.8"),
+                          ("Allow only §8.8.8.0/24.\n", "8.8.8.0"),
+                          ("Permit section 8.8.8.0/24.\n", "8.8.8.0")):
+            found = [f[2] for f in self._scan(doc) if f[1] == "public IPv4 address"]
+            self.assertEqual(found, [addr], f"address must stay reported: {doc!r}")
 
     def test_street_fragment_flagged(self):
         found = self._scan("mail to 1600 Pennsylvania Avenue here.\n")
