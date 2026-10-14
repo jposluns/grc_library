@@ -39,6 +39,13 @@ Exemption layers:
   - Version-string heuristic: IPv4-shaped strings that look like
     software versions (e.g., ``4.0.1.2`` adjacent to "v" or "version"
     or "Rev") are treated as version numbers, not addresses.
+  - Clause-citation context: a four-part standard clause number
+    directly after a section sign, "section(s)", "clause(s)" or a
+    standard designator (IEEE, ISO/IEC, ISO, IEC, NIST, SP, RFC), or
+    later in a list of four-part clause numbers one of those opens
+    (a designator may carry its document number), is treated
+    as a citation, not an address. A match with a port, a CIDR suffix
+    or a URL scheme is still reported.
   - Per-file exemptions: a small set of AI security guides and
     research notes whose content legitimately includes IP-shaped
     threat indicators or address examples.
