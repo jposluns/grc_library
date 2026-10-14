@@ -2,8 +2,8 @@
 
 **Document Title:** Records Retention and Destruction Standard\
 **Document Type:** Standard\
-**Version:** 1.4.36\
-**Date:** 2026-10-13\
+**Version:** 1.5.0\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-data-classification-and-handling.md`](../security/standard-data-classification-and-handling.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
@@ -124,7 +124,10 @@ The steps of rule 2 that apply only to devices, such as the remote lock within 1
 | Media Type | Accepted Methods |
 |---|---|
 | **Paper / Physical** | Cross-cut shredding or contracted secure disposal service |
-| **Electronic / Digital** | Cryptographic erasure, secure overwrite (IEEE 2883-2022 Clear), or physical drive destruction |
+| **Electronic / Digital (Public, Controlled and Internal)** | Secure overwrite (IEEE 2883-2022 Clear) for hard disk drives only, since overwrite is unreliable on flash media; or IEEE 2883-2022 Purge, or physical drive destruction |
+| **Electronic / Digital (Confidential and Restricted)** | IEEE 2883-2022 Purge, including cryptographic erase only where the prerequisites in IEEE 2883-2022 6.5.3 are met, or physical drive destruction; IEEE 2883-2022 Clear is not accepted |
+
+Select the applicable Electronic / Digital row using the highest classification of data the media has held (§7.1 of the Media Handling and Transport Procedure), applying the multiple-classification rule in §3 of [`operations/procedure-media-handling-and-transport.md`](../operations/procedure-media-handling-and-transport.md).
 
 ### 8.2 Destruction documentation
 
