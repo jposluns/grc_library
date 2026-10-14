@@ -422,6 +422,31 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                                      start_new_session=True,
                                      preexec_fn=None if spawn_mask is None else functools.partial(
                                          signal.pthread_sigmask, signal.SIG_SETMASK, spawn_mask))
+                # Residual (3b341 item (b), decision V, 2026-10-14): a Python
+                # signal handler the caller installed for a signal other than
+                # the three (SIGALRM or SIGUSR1, for example) can run and raise
+                # after Popen has created the shell and before the try below
+                # is entered; Popen's own error path closes its pipes but
+                # neither kills nor waits for a child it created (read in the
+                # Python 3.14.4 source). The shell is then neither reaped nor
+                # killed with its session here; the outer finally still tries
+                # to remove the temp dir, restores the mask and drains the
+                # deferral, and an exception propagates (the handler's, or one
+                # chained over it) with no result.
+                # Accepted: blocking every signal across this window was not
+                # adopted, and the spawn mask belongs to 3b281 part B2.
+                # Bounds: for an eligible spawn the three are blocked here, so
+                # no TERM, HUP or INT handler can raise in the window (an
+                # ineligible spawn, or one whose caller has threads invisible
+                # to threading, keeps the spawn-window residuals above);
+                # CPython runs Python handlers only in the main thread, between
+                # bytecodes or inside C calls that check for signals (such as
+                # Popen's errpipe read); after Popen the window holds one
+                # constant store; and once the temp dir is gone the shell finds
+                # PATH naming a removed directory, so it can run builtins but no
+                # program.
+                # Pinned with this ordering by the self-test check
+                # spawn-to-try-residual-pinned; update both together.
                 timed_out = ""
                 try:
                     if spawn_mask is not None:
@@ -1146,6 +1171,51 @@ def _unreaped_reporting_check(audit=False):
     return rc == 3 and "WARNING: shell could not be reaped" in out.getvalue()
 
 
+# sha256 of the residual comment between Popen and the cleanup try in
+# _run_shells, its lines stripped and joined with "\n" (3b341 item (b)).
+SPAWN_RESIDUAL_SHA256 = "b567af6b255e331f97dfb59d79506ac4593083beb344f07c14bad5276d29e8ea"
+
+
+def _spawn_residual_pin_check():
+    # Decision V keeps the Popen-to-try window, so this pins the source rather
+    # than running anything: exactly one p = subprocess.Popen(...) statement
+    # in a statement list of _run_shells, then only the
+    # residual comment and timed_out = "", then the try whose finally cleans
+    # up. Editing the comment or that ordering fails until both match again.
+    import ast
+    import hashlib
+    try:
+        with open(os.path.abspath(__file__), encoding="utf-8") as fh:
+            source = fh.read()
+        tree = ast.parse(source)
+    except (OSError, SyntaxError, UnicodeDecodeError):
+        return False
+    # ast counts lines by "\n" only; text mode already turned \r\n and \r into \n.
+    lines = source.split("\n")
+    shells = [node for node in ast.walk(tree)
+              if isinstance(node, ast.FunctionDef) and node.name == "_run_shells"]
+    if len(shells) != 1:
+        return False
+    windows = []
+    for node in ast.walk(shells[0]):
+        for field in ("body", "orelse", "finalbody"):
+            body = getattr(node, field, None)
+            for i, stmt in enumerate(body if isinstance(body, list) else ()):
+                if (isinstance(stmt, ast.Assign) and isinstance(stmt.value, ast.Call)
+                        and ast.unparse(stmt.value.func) == "subprocess.Popen"):
+                    windows.append(body[i:i + 3])
+    if len(windows) != 1 or len(windows[0]) != 3:
+        return False
+    spawn, store, cleanup = windows[0]
+    comment = [line.strip() for line in lines[spawn.end_lineno:store.lineno - 1]]
+    return (ast.unparse(spawn.targets[0]) == "p"
+            and isinstance(store, ast.Assign) and ast.unparse(store) == "timed_out = ''"
+            and isinstance(cleanup, ast.Try) and bool(cleanup.finalbody)
+            and store.end_lineno + 1 == cleanup.lineno
+            and bool(comment) and all(line.startswith("#") for line in comment)
+            and hashlib.sha256("\n".join(comment).encode()).hexdigest() == SPAWN_RESIDUAL_SHA256)
+
+
 def _policy_checks():
     """Exercise unchanged production code using a clock advanced by work.
 
@@ -1188,6 +1258,7 @@ def _policy_checks():
         ("raising-run-temp-dir-audit", _raising_run_audit_check()),
         ("unreaped-main-report", _unreaped_reporting_check()),
         ("unreaped-run-audit", _unreaped_reporting_check(True)),
+        ("spawn-to-try-residual-pinned", _spawn_residual_pin_check()),
     ]
     class PopenRaised(Exception):
         pass
