@@ -275,7 +275,8 @@ class _Terminated(Exception):
 # reap, output collection, temp removal, mask restore) is in progress, _on_signal therefore
 # records the first cleanup signal instead of raising; _run_shells raises it,
 # as the same _Terminated the handler would have raised, once the mask
-# restore is done. The mask-based blocking stays as the first line of
+# restore is done. run() also defers during its handler restore and raises
+# from its own drain. The mask-based blocking stays as the first line of
 # defence. This covers only SIGTERM and SIGHUP (the signals _on_signal is
 # installed for): SIGINT keeps the default handler, so a KeyboardInterrupt
 # arriving while the three are unblocked can still cut _kill_session short
@@ -296,6 +297,23 @@ def _on_signal(signum, _frame):
     raise _Terminated(signum)
 
 
+def _drain_deferral():
+    # Re-take after deactivation: a handler between the first take and the
+    # flag change still records. Once inactive, _on_signal raises directly.
+    # The self-test models this window with a __setitem__ hook, not a real
+    # signal. It is inferred unreachable on CPython 3.12 and later because
+    # plain dict stores contain no eval-breaker point; the second take is
+    # defence in depth. Each take is a load followed by a store, so a
+    # handler between the first take's load and store would also be lost;
+    # the same CPython 3.12 and later inference applies to that window.
+    pending, _DEFERRED["pending"] = _DEFERRED["pending"], None
+    _DEFERRED["active"] = False
+    late, _DEFERRED["pending"] = _DEFERRED["pending"], None
+    pending = pending if pending is not None else late
+    if pending is not None:
+        raise _Terminated(pending)
+
+
 def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int = 30) -> list[dict]:
     """Run command under each shell (restricted bash; sh as restricted bash --posix); one result dict each."""
     results = []
@@ -303,23 +321,53 @@ def run(command: str, shells=("bash", "sh"), stubs=DEFAULT_STUBS, timeout: int =
     # dir (only SIGINT did before; QA r8). Handlers are installed only from the main thread.
     saved_handlers = {}
     if threading.current_thread() is threading.main_thread():
+        # An interrupted earlier run may have skipped its final drain.
+        _DEFERRED["active"] = False
+        _DEFERRED["pending"] = None
         saved_handlers[signal.SIGINT] = signal.getsignal(signal.SIGINT)
         for sig in (signal.SIGTERM, signal.SIGHUP):
             saved_handlers[sig] = signal.signal(sig, _on_signal)
     try:
         return _run_shells(command, shells, stubs, timeout, results)
     finally:
-        # Deferral state is per-shell and normally already cleared; clearing
-        # it again covers every exception path out of _run_shells, so a
-        # restored handler never sees a stale cleanup-in-progress flag. The
-        # state belongs to the main thread alone (3b281 round 5, item 1): a
-        # run on another thread must not wipe a deferral the main thread
-        # holds, so only the main thread resets it.
-        if threading.current_thread() is threading.main_thread():
-            _DEFERRED["active"] = False
-            _DEFERRED["pending"] = None
-        for sig, handler in saved_handlers.items():
-            signal.signal(sig, handler)
+        # Keep our TERM/HUP handler non-raising until all saved handlers
+        # are restored. Even a raise during activation reaches the loop.
+        # Residuals: handler installation above precedes the protected try,
+        # so a signal arriving there is handled outside this deferral and
+        # restore. Inferred from the control flow: a TERM/HUP before
+        # activation at the current_thread()/main_thread() check raises
+        # directly, so the restores then run undeferred. A second TERM/HUP
+        # during the TERM or HUP restore can leave _on_signal installed.
+        # A restore call that raises (SIGINT or a raising caller handler,
+        # or TypeError from a saved None for a handler installed outside
+        # Python, even without a signal) may leave its own handler unrestored,
+        # possibly still _on_signal; the later restores and the drain still run.
+        # An interrupt after restoration but before the drain can still skip
+        # the drain itself. Inferred from the control flow: if skipped while
+        # active, deferral stays active until the next main-thread run() entry
+        # resets it. Until then it is inert unless a failed restore left
+        # _on_signal installed; the caller's later TERM/HUP are then recorded
+        # rather than raised.
+        try:
+            if threading.current_thread() is threading.main_thread():
+                # Residual: TERM/HUP handled between these stores raises
+                # directly. Inferred unreachable on CPython 3.12 and later:
+                # plain dict stores contain no eval-breaker point.
+                _DEFERRED["pending"] = None
+                _DEFERRED["active"] = True
+        finally:
+            try:
+                if saved_handlers:
+                    try:
+                        signal.signal(signal.SIGINT, saved_handlers[signal.SIGINT])
+                    finally:
+                        try:
+                            signal.signal(signal.SIGTERM, saved_handlers[signal.SIGTERM])
+                        finally:
+                            signal.signal(signal.SIGHUP, saved_handlers[signal.SIGHUP])
+            finally:
+                if threading.current_thread() is threading.main_thread():
+                    _drain_deferral()
 
 
 def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
@@ -514,18 +562,10 @@ def _run_shells(command, shells, stubs, timeout, results) -> list[dict]:
                     elif cleanup_mask is not None:
                         signal.pthread_sigmask(signal.SIG_SETMASK, cleanup_mask)
                 finally:
-                    # Exit residual (3b281 round 6, routed 3b341): a handler run
-                    # between taking the record and deactivating would record its
-                    # signal after the take, so it would not be raised and the next
-                    # reset would wipe it. CPython 3.12 and later run Python handlers
-                    # only at eval-breaker points, which these two statements do not
-                    # contain, so this is inferred unreachable on this host's Python
-                    # 3.14, not tested.
+                    # Drain after mask restoration, including a signal
+                    # recorded between the initial take and deactivation.
                     if threading.current_thread() is threading.main_thread():
-                        pending, _DEFERRED["pending"] = _DEFERRED["pending"], None
-                        _DEFERRED["active"] = False
-                        if pending is not None:
-                            raise _Terminated(pending)
+                        _drain_deferral()
     return results
 
 
@@ -933,12 +973,14 @@ def _self_test_limits():
         return saved_prepare(tmp, stubs)
     def bounded_run(*args, **kwargs):
         kwargs.setdefault("timeout", TEST_WAIT)
-        results = saved_run(*args, **kwargs)
-        if any(not r["contained"] for r in results):
-            failures.append(("command-contained", False))
-        if any(os.path.exists(path) for path in allocated):
-            failures.append(("allocated-temp-dirs-removed", False))
-        return results
+        try:
+            results = saved_run(*args, **kwargs)
+            if any(not r["contained"] for r in results):
+                failures.append(("command-contained", False))
+            return results
+        finally:
+            if any(os.path.exists(path) for path in allocated):
+                failures.append(("allocated-temp-dirs-removed", False))
     def survivors(sid, timeout=TEST_WAIT):
         return saved_survivors(sid, timeout)
     globals().update(run=bounded_run, _kill_session=kill,
@@ -977,6 +1019,81 @@ def _background_call_check():
             globals().update(SHIM=saved_shim, time=saved_time, GRACE_SECONDS=saved_grace)
 
 
+def _handler_restore_check(raise_first=False, restore_call=3):
+    import types
+    g = dict(globals())
+    g["_DEFERRED"] = dict(active=False, pending=None)
+    g["_run_shells"] = lambda *args: []
+    for name in ("run", "_on_signal", "_drain_deferral"):
+        fn = globals()[name]
+        g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
+    class SignalModel:
+        calls = 0
+        def __getattr__(self, name):
+            return getattr(signal, name)
+        def signal(self, sig, handler):
+            self.calls += 1
+            if self.calls == restore_call:  # INT=3, TERM=4, HUP=5 after installation.
+                os.kill(os.getpid(), signal.SIGTERM)
+                if raise_first:
+                    raise KeyboardInterrupt()
+            return signal.signal(sig, handler)
+    g["signal"] = SignalModel()
+    def term(signum, frame):
+        # At the HUP restore, TERM already uses this saved caller handler.
+        # Delegate to the clone to exercise deferral at that restore too.
+        g["_on_signal"](signum, frame)
+    def hup(signum, frame):
+        pass
+    saved = {sig: signal.getsignal(sig)
+             for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)}
+    mask = signal.pthread_sigmask(signal.SIG_BLOCK, ())
+    error = None
+    try:
+        signal.signal(signal.SIGTERM, term)
+        signal.signal(signal.SIGHUP, hup)
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGTERM})
+        try:
+            g["run"]("model")
+        except (_Terminated, KeyboardInterrupt) as exc:
+            error = exc
+        return (isinstance(error, _Terminated) and error.args == (signal.SIGTERM,)
+                and (not raise_first or isinstance(error.__context__, KeyboardInterrupt))
+                and signal.getsignal(signal.SIGTERM) is term
+                and signal.getsignal(signal.SIGHUP) is hup
+                and g["_DEFERRED"] == dict(active=False, pending=None))
+    finally:
+        for sig, handler in saved.items():
+            signal.signal(sig, handler)
+        signal.pthread_sigmask(signal.SIG_SETMASK, mask)
+
+
+def _raising_run_audit_check():
+    # A deliberately leaked model allocation must enter the failures list
+    # even when run raises. No real directory or process is needed here.
+    import types
+    fn = _self_test_limits.__wrapped__
+    g = dict(fn.__globals__)
+    g.update(_prepare=lambda *args: None,
+             _fixture_lifetime=contextlib.nullcontext,
+             os=types.SimpleNamespace(path=types.SimpleNamespace(
+                 exists=lambda path: path == "virtual")))
+    def raising_run(*args, **kwargs):
+        g["_prepare"]("virtual", ())
+        raise _Terminated(signal.SIGTERM)
+    g["run"] = raising_run
+    limits = contextlib.contextmanager(
+        types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__))
+    error = None
+    with limits() as failures:
+        try:
+            g["run"]("model")
+        except _Terminated as exc:
+            error = exc
+    return (isinstance(error, _Terminated) and error.args == (signal.SIGTERM,)
+            and failures == [("allocated-temp-dirs-removed", False)])
+
+
 def _policy_checks():
     """Exercise unchanged production code using a clock advanced by work.
 
@@ -1009,7 +1126,15 @@ def _policy_checks():
     over that KeyboardInterrupt.
     """
     import types
-    results = []
+    results = [
+        ("production-policy:TERM-during-handler-restore", _handler_restore_check()),
+        ("production-policy:TERM-during-TERM-handler-restore",
+         _handler_restore_check(restore_call=4)),
+        ("production-policy:TERM-during-HUP-handler-restore",
+         _handler_restore_check(restore_call=5)),
+        ("production-policy:first-handler-restore-raises", _handler_restore_check(True)),
+        ("raising-run-temp-dir-audit", _raising_run_audit_check()),
+    ]
     class PopenRaised(Exception):
         pass
     class RmtreeRaised(Exception):
@@ -1027,8 +1152,16 @@ def _policy_checks():
                   "TERM-in-kill-unblocked", "kill-raises",
                   "spawn-restore-raises", "kill-raises-shell-alive",
                   "nonmain-thread-preserves-deferral",
-                  "deferral-covers-output-collection"):
+                  "run-entry-clears-stale-deferral",
+                  "deferral-covers-output-collection",
+                  "TERM-recorded-at-deactivation",
+                  "TERM-recorded-at-run-deactivation"):
         base, at_spawn = route.split("-")[0], route.endswith("-at-spawn")
+        stale_deferral = route == "run-entry-clears-stale-deferral"
+        if stale_deferral:
+            base = "TERM"
+        deactivation = route in ("TERM-recorded-at-deactivation",
+                                 "TERM-recorded-at-run-deactivation")
         in_cleanup = route == "TERM-in-cleanup-threads"
         in_kill = route == "TERM-in-kill-unblocked"
         kill_raises = route == "kill-raises"
@@ -1085,7 +1218,8 @@ def _policy_checks():
                         state["late"] = True
                         return 0
                     raise subprocess.TimeoutExpired("model", timeout)
-                if base in ("TERM", "HUP", "INT") and not in_cleanup and not in_kill:
+                if (base in ("TERM", "HUP", "INT") and not in_cleanup and not in_kill
+                        and not deactivation):
                     os.kill(os.getpid(), getattr(signal, "SIG" + base))
                     state["late"] = True
                 return 0
@@ -1166,9 +1300,29 @@ def _policy_checks():
             _kill_session=kill,
             _rmtree=lambda path: state.update(removed=True),
             _session_members=lambda sid: [(7, "R")] if state["live"] else [])
-        for name in ("run", "_run_shells"):
+        for name in ("run", "_run_shells", "_drain_deferral"):
             fn = globals()[name]
             g[name] = types.FunctionType(fn.__code__, g, name, fn.__defaults__)
+        if deactivation:
+            class DeferralModel(dict):
+                fired = False
+                armed = route != "TERM-recorded-at-run-deactivation"
+                def __setitem__(self, key, value):
+                    if key == "active" and value is False and self[key]:
+                        if self.armed and not self.fired:
+                            self.fired = True
+                            g["_on_signal"](signal.SIGTERM, None)
+                    super().__setitem__(key, value)
+            g["_DEFERRED"] = DeferralModel(active=False, pending=None)
+            if route == "TERM-recorded-at-run-deactivation":
+                cloned_run_shells = g["_run_shells"]
+                def arm_after_run_shells(*args, **kwargs):
+                    answer = cloned_run_shells(*args, **kwargs)
+                    g["_DEFERRED"].armed = True
+                    return answer
+                g["_run_shells"] = arm_after_run_shells
+            fn = _on_signal
+            g["_on_signal"] = types.FunctionType(fn.__code__, g, fn.__name__)
         if route == "rmtree-raises":
             def rmtree_raises(path):
                 state.update(removed=True)
@@ -1274,6 +1428,11 @@ def _policy_checks():
         if placeholder is not None:
             previous_handler = signal.signal(placeholder, missing_handler)
         error, answer, after, deferral_after = None, None, None, None
+        if stale_deferral:
+            # Model a prior run whose final drain was interrupted. The new
+            # TERM in wait must raise, not be swallowed behind stale HUP.
+            _DEFERRED["active"] = True
+            _DEFERRED["pending"] = signal.SIGHUP
         if nonmain:
             # The main thread holds an active deferral with a recorded TERM;
             # the modelled non-main run below must leave both untouched.
@@ -1288,7 +1447,7 @@ def _policy_checks():
                 PopenRaised, RmtreeRaised, KillRaised) as exc:
             error = exc
         finally:
-            if nonmain:
+            if nonmain or stale_deferral:
                 deferral_after = dict(_DEFERRED)
                 _DEFERRED["active"] = False
                 _DEFERRED["pending"] = None
@@ -1381,6 +1540,14 @@ def _policy_checks():
             ok = (ok and state["sigkilled"] and state["killed"]
                   and state["reaped"] and isinstance(error, KillRaised)
                   and state["elapsed"] == 2.0)
+        elif stale_deferral:
+            ok = (ok and state["killed"]
+                  and isinstance(error, _Terminated) and error.args == (signal.SIGTERM,)
+                  and deferral_after == dict(active=False, pending=None))
+        elif deactivation:
+            ok = (ok and state["killed"] and g["_DEFERRED"].fired
+                  and isinstance(error, _Terminated) and error.args == (signal.SIGTERM,)
+                  and g["_DEFERRED"] == dict(active=False, pending=None))
         elif route == "deferral-covers-output-collection":
             ok = (ok and error is None and answer is not None
                   and len(read_deferrals) == 3 and all(read_deferrals))
