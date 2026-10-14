@@ -126,7 +126,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 
 ### Framework
 
-- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
+- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Mature)
 - [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
 - [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
 
@@ -146,7 +146,7 @@ The Chief Information Security Officer needs policies, standards, and procedures
 
 - [Access Control Procedure](../security/procedure-access-control.md) (maturity: Mature)
 - [Change Management and Configuration Control Procedure](../operations/procedure-change-management-and-configuration-control.md) (maturity: Mature)
-- [Cryptographic Key Operations Procedure](../security/procedure-cryptographic-key-operations.md) (maturity: Baseline)
+- [Cryptographic Key Operations Procedure](../security/procedure-cryptographic-key-operations.md) (maturity: Mature)
 - [Endpoint Management and Device Compliance Procedure](../operations/procedure-endpoint-management-and-device-compliance.md) (maturity: Mature)
 - [IT Onboarding and Offboarding Procedure](../security/procedure-onboarding-and-offboarding.md) (maturity: Mature)
 - [Identity Management Procedure](../security/procedure-identity-management.md) (maturity: Baseline)
@@ -379,7 +379,7 @@ Security architects need the dev-security standards, the AI security guides, the
 - [AI Value and Decision-Governance Framework](../ai/framework-ai-value-and-decision-governance.md) (maturity: Draft)
 - [Agentic Response State Model Framework](../ai/framework-agentic-response-state-model.md) (maturity: Draft)
 - [Crypto-Asset Governance Framework](../crypto/framework-crypto-asset-governance.md) (maturity: Draft)
-- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Baseline)
+- [Cryptographic Key Lifecycle Management Framework](../security/framework-cryptographic-key-lifecycle.md) (maturity: Mature)
 - [Insider Risk Programme Framework](../security/framework-insider-risk-programme.md) (maturity: Baseline)
 - [Zero Trust Architecture Framework](../security/framework-zero-trust-architecture.md) (maturity: Draft)
 

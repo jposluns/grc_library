@@ -2,8 +2,8 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.16\
-**Date:** 2026-10-13\
+**Version:** 1.1.0\
+**Date:** 2026-10-14\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/framework-cryptographic-key-lifecycle.md`](framework-cryptographic-key-lifecycle.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md)\
@@ -140,12 +140,13 @@ Dual control is required for all key generation, export, and destruction operati
 7.1 Keys are destroyed when: revoked and no longer needed, at end of planned lifecycle, or upon system decommission. A data-encryption key is destroyed only after the data it protects has been re-encrypted under a new key or destroyed, and a key-wrapping key is retained while any key it protects is still needed ([Encryption and Key Management Policy](policy-encryption-and-key-management.md), section 5.5). Before a key is destroyed or zeroized, including the purge of a superseded key version and the destruction of key shares, the Key Custodian confirms whether a legal hold or investigation covers data the key protects, directly or through a key it wraps. This is the single key destruction check, and the [Key Escrow and Recovery Procedure](procedure-key-escrow-and-recovery.md) sends its purge, share destruction and zeroization steps here. The check uses the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1, applied to that data. First, for recorded holds, the Key Custodian obtains the confirmation from Legal Counsel or checks both the retention hold recorded in the Records Register ([Records Retention and Destruction Standard](../governance/standard-records-retention-and-destruction.md), section 7, Retention hold and litigation freeze) and the legal hold status tracked in the GRC platform ([Data Retention Schedule](../governance/register-data-retention-schedule.md), Legal holds). Second, those records alone do not complete the check, because neither shows an investigation or a hold that is required but not yet recorded. Legal Counsel or the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead confirms whether an investigation under the [Security Incident Response Procedure](procedure-security-incident-response.md) treats that data or the key as evidence. Only Legal Counsel confirms whether an investigation by an external authority does so, and whether a hold is required but not yet recorded. If a hold or investigation applies, or either part cannot be completed, the key is retained under Key Custodian custody and is not destroyed or zeroized. It stays retained until Legal Counsel, in writing, releases the hold or narrows it so that it no longer covers that data, or, for an investigation without a legal hold, confirms that the investigation no longer treats that data or the key as evidence, consistent with rule 8 of the same decision table.
 
 7.2 Destruction procedure:
-1. Key Custodian submits a destruction request approved by CISO, with the record of both parts of the 7.1 check attached.
+1. Key Custodian must identify every copy of a secret or private key and ensure that every copy is destroyed as soon as it is no longer required, subject to section 7.1 (NIST SP 800-57 Part 1 Rev. 5, section 8.2.2, Backup Storage subsection, and section 8.3.4). Before seeking CISO approval, the Key Custodian uses the KLR, the distribution events logged under 3.4, and escrow and backup records to list every copy and its location in the destruction request, including backup, archived, escrowed, wrapped and replicated copies, copies in other HSMs or cloud key services, copies held by third parties, and key shares on cards or paper. The Key Custodian attaches the record of both parts of the 7.1 check and obtains CISO approval of the complete request before any destruction.
 2. Two Key Custodians must witness or cryptographically authenticate destruction.
-3. Keys stored in HSMs are destroyed via the HSM's zeroization function.
-4. Keys stored in software are overwritten using approved secure deletion methods.
-5. KLR is updated: status set to Destroyed, destruction date and operator recorded.
-6. A certificate of destruction is retained in the compliance repository.
+3. Where section 7.1 retains the key, no copy is destroyed or zeroized, and the Key Custodian records each listed copy in the destruction request with its location, custodian and retention reason; destruction remains deferred until section 7.1 permits it. Otherwise, every listed copy is destroyed using the applicable method in step 4 or 5.
+4. Keys stored in HSMs are destroyed via the HSM's zeroization function.
+5. Keys stored in software are overwritten using approved secure deletion methods. Where HSM zeroization or software overwrite is not applicable to a listed copy, including copies in cloud key services, key shares on cards or paper, or copies held by a third party, use the provider's or holder's documented destruction method that removes all traces of the key material so that it cannot be recovered by physical or electronic means. For destruction performed by a provider or holder, the dual control required by step 2 is met when two Key Custodians authorize the destruction request and review the provider's or holder's destruction evidence.
+6. The Key Custodian sets the KLR status to Destroyed and records the destruction date and operator only after confirming that every listed copy has been destroyed; otherwise, the status must not be set to Destroyed and the outstanding copies and their disposition are recorded in the destruction request.
+7. A certificate of destruction is retained in the compliance repository for destruction performed, identifying each copy destroyed, its location, the method used, the destruction date, the operator and the witnessing or authenticating Key Custodians, and including supporting evidence from the provider or holder where its documented destruction method was used.
 
 ---
 
@@ -170,7 +171,7 @@ Dual control is required for all key generation, export, and destruction operati
 | NIST FIPS 140-3 | Security Requirements for Cryptographic Modules | HSM and module requirements |
 | NIST SP 800-38F | Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping (December 2012), 3.1 Overview | Protection of symmetric keys distributed by key wrapping |
 | NIST SP 800-130 | A Framework for Designing Cryptographic Key Management Systems (August 2013), 6.2.1 Metadata Elements (b) to (d) and 8.2.4 Auditing and Remote Monitoring | Key identifier, owner and lifecycle-state metadata; audit of key generation, activation, revocation and destruction events with time and initiator |
-| NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization (September 2025), 3.2.3 Sanitization of Keys | Zeroization of keys at destruction |
+| NIST SP 800-88 Rev. 2 | Guidelines for Media Sanitization (September 2025), 3.2.3 Sanitization of Keys | Recommended zeroization of target cryptographic keys for cryptographic erase |
 | COBIT 2019 | DSS05: Managed Security Services | Security service operations |
 | CSA CCM v4.1 | CEK-02, CEK-10, CEK-11, CEK-12, CEK-13, CEK-14, CEK-15, CEK-21, LOG-12 | Cloud key management operations |
 
