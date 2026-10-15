@@ -2,11 +2,11 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.9.0\
+**Version:** 1.10.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md)\
+**Related Documents:** [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/roadmap-post-quantum-cryptography.md`](roadmap-post-quantum-cryptography.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`security/register-approved-key-agreement-protocols.md`](register-approved-key-agreement-protocols.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material cryptographic standard or regulatory change\
@@ -32,7 +32,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 | Phase | Objective | Core Activities |
 | --- | --- | --- |
-| **Generation** | Securely create cryptographic keys using approved algorithms and entropy sources. | HSM-based key creation; PQC hybrid generation (ML-KEM + ECC). An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (Cryptographic Key Operations Procedure, section 1.2). A private or public ephemeral key-agreement key generated within an approved protocol is outside the ITSM request, Security Architecture approval, dual control at generation and generation logging (that procedure's steps 1.1, 1.2, 1.4 and 1.6; exemption stated in 1.1); the requirement in that procedure's section 1.3 to use a FIPS 140-3 validated hardware security module or an approved software cryptographic library still applies to it. |
+| **Generation** | Securely create cryptographic keys using approved algorithms and entropy sources. | HSM-based key creation; PQC hybrid generation (ML-KEM + ECC). An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (Cryptographic Key Operations Procedure, section 1.2), and listed in the [Approved Key-Agreement Protocols Register](register-approved-key-agreement-protocols.md). A private or public ephemeral key-agreement key generated within an approved protocol is outside the ITSM request, Security Architecture approval, dual control at generation and generation logging (that procedure's steps 1.1, 1.2, 1.4 and 1.6; exemption stated in 1.1); the requirement in that procedure's section 1.3 to use a FIPS 140-3 validated hardware security module or an approved software cryptographic library still applies to it. A symmetric session key derived within an approved protocol from an ephemeral key agreement is treated in this framework as a private ephemeral key-agreement key (Cryptographic Key Operations Procedure, section 1.1). |
 | **Registration** | Record metadata in the Key Lifecycle Register (KLR) for audit. | Assign unique ID, owner, usage scope, and validity period. |
 | **Distribution** | Deliver keys securely to authorized endpoints or systems. | Use PKI or encrypted APIs (TLS 1.3+); enforce MFA and RBAC. The export of a public ephemeral key-agreement key to the peer within an approved protocol is outside this row (Cryptographic Key Operations Procedure, section 3.1). |
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
@@ -83,7 +83,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Approves cryptographic standards and key management policy; approves once, in addition to Security Architecture, each approved protocol used for ephemeral key-agreement keys on high-sensitivity systems, in place of per-key approval of their activation (Cryptographic Key Operations Procedure, section 4.3); approves each use of a compromised key for processing under controlled conditions, and those conditions (NIST SP 800-57 Part 1 Rev. 5, section 7.5), with the approval, the conditions, the users told of the consequences and the period of use recorded in the KLR; reviews KLR quarterly. |
-| **Security Architecture** | Designs key management architecture; selects approved algorithms and HSM platforms; approves the protocols within which the ephemeral key-agreement key exemptions in this framework apply. |
+| **Security Architecture** | Designs key management architecture; selects approved algorithms and HSM platforms; approves the protocols within which the ephemeral key-agreement key exemptions in this framework apply, and maintains the Approved Key-Agreement Protocols Register. |
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
 

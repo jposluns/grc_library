@@ -2,8 +2,8 @@
 
 **Document Title:** Information Security Domain README\
 **Document Type:** Register\
-**Version:** 1.2.4\
-**Date:** 2026-09-04\
+**Version:** 1.2.5\
+**Date:** 2026-10-15\
 **Owner:** Information Security Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`security/policy-information-security.md`](policy-information-security.md)\
@@ -63,6 +63,7 @@ This directory contains organization-neutral information security governance art
 | Framework | Insider Risk Programme Framework | [`security/framework-insider-risk-programme.md`](framework-insider-risk-programme.md) |
 | Standard | Endpoint Hardening Standard | [`security/standard-endpoint-hardening.md`](standard-endpoint-hardening.md) |
 | Procedure | Key Escrow and Recovery Procedure | [`security/procedure-key-escrow-and-recovery.md`](procedure-key-escrow-and-recovery.md) |
+| Register | Approved Key-Agreement Protocols Register | [`security/register-approved-key-agreement-protocols.md`](register-approved-key-agreement-protocols.md) |
 
 ---
 

@@ -2,11 +2,11 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.7.1\
+**Version:** 1.8.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
-**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md)\
+**Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/register-approved-key-agreement-protocols.md`](register-approved-key-agreement-protocols.md)\
 **Classification:** Public\
 **Category:** Information Security\
 **Review Frequency:** Annual and upon material threat, framework, or regulatory change\
@@ -51,7 +51,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 | State | Requirement | Approved Standards |
 |---|---|---|
 | At Rest | Encrypt all sensitive, confidential, and restricted data. | AES-256 or stronger (FIPS 140-3 validated). |
-| In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. |
+| In Transit | Encrypt all external and internal communications. | TLS 1.3 or stronger; SSH 2.0 or stronger. Approved key-agreement protocols: [Approved Key-Agreement Protocols Register](register-approved-key-agreement-protocols.md). |
 | In Use | Protect data processed in volatile memory through secure enclaves or hardware encryption where supported. | Trusted Execution Environments (TEE), SGX, SEV. |
 | AI and Model Data | Apply encryption for model weights, datasets, and configuration files. | AES-256-GCM (AEAD: confidentiality with built-in integrity tag); HKDF-SHA-256 for key derivation from high-entropy material; Argon2id (or scrypt) for password-derived keys. SHA-512 alone is a hash function, not a key-derivation function. |
 | Customs and Trade Data (sector programme) | Ensure that encryption is applied for all cargo manifests, customs documentation, and trade communications. | AES-256 (organization baseline); digital-certificate / PKI arrangements per the applicable sector annex. |
@@ -59,6 +59,8 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 ---
 
 ## 5. Cryptographic key management
+
+A private or public ephemeral key-agreement key within an approved protocol, including a symmetric session key treated as one (both as defined in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), which governs these keys), is outside the asymmetric key exchange requirement in 5.2 and outside sections 5.3 and 5.5. The prohibitions in 5.3 remain absolute for every other key and are not subject to the Section 11 exception process.
 
 ### 5.1 Key generation
 

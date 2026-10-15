@@ -2,8 +2,8 @@
 
 **Document Title:** Document Index and Classification Register\
 **Document Type:** Register\
-**Version:** 1.27.205\
-**Date:** 2026-09-27\
+**Version:** 1.27.206\
+**Date:** 2026-10-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`NOTICE.md`](../NOTICE.md)\
@@ -306,6 +306,7 @@ Documents are classified by their **primary** disposition. The small number that
 | Security | Framework | Insider Risk Programme Framework | [`security/framework-insider-risk-programme.md`](../security/framework-insider-risk-programme.md) | Chief Information Security Officer | Annual | ISO/IEC 27001:2022 Annex A.6.1-5/A.8.2-5, ISO/IEC 27002:2022, NIST SP 800-53 Rev. 5 PS/AT, CERT Insider Threat Center, NITTF, EU GDPR Arts 5/6/13/14/22/88 (UK GDPR: Arts 22A-22D, no Art 88), ILO, works councils | template |
 | Security | Standard | Endpoint Hardening Standard | [`security/standard-endpoint-hardening.md`](../security/standard-endpoint-hardening.md) | Chief Information Security Officer | Annual | CIS Benchmarks, NIST SP 800-46r2/800-124r2, ISO/IEC 27001:2022 Annex A.8.1/A.8.3/A.8.7, CSA CCM UEM, Microsoft SCT, macOS Security Compliance Project | template |
 | Security | Procedure | Key Escrow and Recovery Procedure | [`security/procedure-key-escrow-and-recovery.md`](../security/procedure-key-escrow-and-recovery.md) | Chief Information Security Officer | Annual | ISO/IEC 27002:2022 §8.24, NIST SP 800-57/800-130/800-152, NIST FIPS 140-3, CSA CCM CEK, ETSI EN 319 411, PCI DSS v4.0.1, RFC 5280 | template |
+| Security | Register | Approved Key-Agreement Protocols Register | [`security/register-approved-key-agreement-protocols.md`](../security/register-approved-key-agreement-protocols.md) | Chief Information Security Officer | Annual | ISO/IEC 27002:2022 §8.24, NIST SP 800-57 | template |
 | Operations | Framework | IT Service Management Framework | [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md) | Chief Information Officer | Annual | ISO/IEC 20000-1:2018, ITIL 4, COBIT DSS02/DSS03, EU NIS 2 Directive | template |
 | Operations | Register | Asset Inventory Register | [`operations/register-asset-inventory.md`](../operations/register-asset-inventory.md) | Chief Information Officer | Continuous / Quarterly | ISO/IEC 27001:2022 Annex A.5.9, NIST SP 800-53 Rev. 5 CM-8, COBIT BAI09 | template |
 | Operations | Register | IT Security Operations Register | [`operations/register-it-security-operations.md`](../operations/register-it-security-operations.md) | Chief Information Security Officer | Continuous / Monthly | ISO/IEC 27001:2022 §9.1, NIST SP 800-53 Rev. 5 CA-7, COBIT DSS05 | template |

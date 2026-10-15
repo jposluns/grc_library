@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.27\
-**Date:** 2026-10-03\
+**Version:** 1.1.28\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -181,7 +181,7 @@ These are mandatory SLAs, not targets. Critical findings trigger immediate alert
 | Hashing for integrity | SHA-512, BLAKE2b-512 (an externally mandated digest format keeps its own algorithm for interoperability only, per the Encryption and Key Management Policy) | MD5, SHA-1 |
 | Hashing passwords | Argon2id (preferred), scrypt, bcrypt (cost ≥12); PBKDF2 (HMAC-SHA-256/512, high iteration count) for FIPS-140 contexts | SHA-256 (for passwords), MD5, plain storage |
 | Asymmetric encryption | RSA-4096, EC P-384 | RSA < 4096 |
-| Key exchange | ECDHE, DHE | Static RSA key exchange |
+| Key exchange | ECDHE, DHE (approved protocols: [Approved Key-Agreement Protocols Register](../security/register-approved-key-agreement-protocols.md)) | Static RSA key exchange |
 | Signing certificates | SHA-256 RSA or ECDSA | SHA-1 |
 
 ---

@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.17\
-**Date:** 2026-09-20\
+**Version:** 1.1.18\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -104,7 +104,7 @@ Sector-conditional roles (for example, a sector-conditional compliance role that
 
 ## 8. Encryption and data protection
 
-8.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256).
+8.1 All network traffic must be encrypted using industry-approved algorithms (TLS 1.3, IPsec AES-256). Approved key-agreement protocols are listed in the [Approved Key-Agreement Protocols Register](register-approved-key-agreement-protocols.md).
 
 8.2 Cryptographic controls must follow the Encryption and Key Management Policy.
 
