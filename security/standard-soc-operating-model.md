@@ -2,8 +2,8 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.0.5\
-**Date:** 2026-10-12\
+**Version:** 1.1.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`security/sop-security-ticket-reporting-scheme.md`](sop-security-ticket-reporting-scheme.md), [`operations/procedure-security-monitoring-and-alert-management.md`](../operations/procedure-security-monitoring-and-alert-management.md), [`operations/procedure-threat-intelligence-and-siem-operations.md`](../operations/procedure-threat-intelligence-and-siem-operations.md), [`security/standard-penetration-testing-and-red-team.md`](standard-penetration-testing-and-red-team.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`ai/plan-ai-incident-response.md`](../ai/plan-ai-incident-response.md)\
@@ -47,9 +47,9 @@ Adopting organizations document the current tier and the target tier in the secu
 
 | Role | Responsibilities |
 | --- | --- |
-| SOC Manager | Operational leadership; shift governance; SLA accountability; supplier relationship if hybrid |
+| SOC Manager | Operational leadership; shift governance; SLA accountability; supplier relationship if hybrid; SOC lead, or designates a duty deputy as SOC lead (see below) |
 | SOC Analyst (Tier 1) | Initial triage; alert validation; routine investigation; documented response per playbook |
-| SOC Analyst (Tier 2) | Deep investigation; correlation across alerts; incident commander for P3 and P4 |
+| SOC Analyst (Tier 2) | Deep investigation; correlation across alerts; incident commander for a P3 or P4 incident when assigned to that incident |
 | SOC Analyst (Tier 3) or Senior Incident Responder | Complex investigation; incident commander for P2, and for P1 only where the CIO or CISO delegates the role in writing (see [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §2.2); forensic work; co-ordination with external IR partner |
 | Detection Engineer | Detection content authoring, tuning, lifecycle; metric ownership |
 | Threat Intelligence Analyst | Intelligence collection, analysis, dissemination; sector and threat-actor tracking |
@@ -58,6 +58,8 @@ Adopting organizations document the current tier and the target tier in the secu
 | On-call rota | Out-of-hours coverage where the SOC is not 24/7 in-house |
 
 Smaller SOCs combine roles. Larger SOCs additionally include red team, purple team, and embedded data-engineering capacity.
+
+**SOC lead.** The SOC lead is the SOC Manager, or a duty deputy the SOC Manager explicitly designates in the on-call rota (section 10). For a security P3 or P4 incident with no assigned Incident Commander, the SOC lead holds the limited authority in [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §2.2: technical and operational response direction, and approval or deferral of system isolation, service suspension, or credential revocation. The SOC lead also confirms whether the investigation treats a device, its user, its data, or records as evidence, and notifies Legal Counsel and the Compliance Manager as that procedure and [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) sections 3 and 8 require. Once an Incident Commander, such as a SOC Analyst (Tier 2), is assigned, that Incident Commander acts instead.
 
 ---
 
@@ -141,7 +143,7 @@ Where supplier-managed-SOC provides out-of-hours coverage, the contract specifie
 
 | Practice | Requirement |
 | --- | --- |
-| On-call rota | Documented schedule with primary and secondary on-call |
+| On-call rota | Documented schedule with primary and secondary on-call, and the SOC lead (the SOC Manager or a designated duty deputy) for each period |
 | Handover at shift change | Structured handover covering active incidents, pending investigations, environmental anomalies, intelligence highlights |
 | Escalation contacts | Up-to-date roster including IR partner, supplier-managed-SOC, executive sponsor |
 | Out-of-hours capability | Documented authority for out-of-hours decisions; clear thresholds for waking the executive sponsor |

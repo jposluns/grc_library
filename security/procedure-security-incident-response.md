@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.5.1\
-**Date:** 2026-10-13\
+**Version:** 1.6.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md), [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md)\
@@ -48,6 +48,7 @@ This procedure applies to:
 | **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. Authorizes IR partner engagement. Coordinates with the DPO on regulatory notification. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers and partners; regulatory notifications route through the DPO with Legal Counsel content approval per the notification steps in this procedure. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under direction from the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead. Maintains timestamped logs of all IR actions. |
+| **SOC lead** | The SOC Manager, or a duty deputy the SOC Manager explicitly designates in the SOC on-call rota ([`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) section 4 for the definition and section 10 for the rota). Acts only for P3 and P4 incidents where no Incident Commander is assigned, with the authority in section 2.2, the recovery sign-off in section 5.4, and the Legal Counsel notification duty in the Incident Commander row. Notifies the Compliance Manager without delay of an investigation covering records released or scheduled for destruction ([`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) section 8). Once an Incident Commander is assigned, that Incident Commander acts instead. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead. |
 | **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organization participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
