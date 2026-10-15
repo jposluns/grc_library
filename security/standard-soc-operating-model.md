@@ -2,7 +2,7 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.1.2\
+**Version:** 1.2.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -59,7 +59,7 @@ Adopting organizations document the current tier and the target tier in the secu
 
 Smaller SOCs combine roles. Larger SOCs additionally include red team, purple team, and embedded data-engineering capacity.
 
-**SOC lead.** The SOC lead is the SOC Manager, or a duty deputy the SOC Manager explicitly designates in the on-call rota (section 10). The SOC lead's incident authority and duties are only those given to the SOC lead in [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) sections 2.1, 2.2, 5.1, 5.2, 5.4 and 7.2, and in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) section 8. Those sections hold the full list; the SOC lead holds no other Incident Commander authority. The SOC lead holds that authority and those duties only while a security P3 or P4 incident has no Incident Commander assigned; once one, such as a SOC Analyst (Tier 2), is assigned, that Incident Commander acts instead. The exception is the post-incident review in section 7.2 of that procedure, which the SOC lead conducts for any security P3 or P4 incident that has one under section 7.1 of that procedure, whether or not an Incident Commander is assigned.
+**SOC lead.** The SOC lead is the SOC Manager, or a duty deputy the SOC Manager explicitly designates in the on-call rota (section 10). The SOC lead's incident authority and duties are only those given to the SOC lead in [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) sections 2.1, 2.2, 5.1, 5.2, 5.4 and 7.2, and in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) section 8. Those sections hold the full list; the SOC lead holds no other Incident Commander authority. The SOC lead holds that authority and those duties only while a security P3 or P4 incident has no Incident Commander assigned; once one, such as a SOC Analyst (Tier 2), is assigned, that Incident Commander acts instead. This includes the post-incident review in section 7.2 of that procedure: for a security P3 or P4 incident that has one under section 7.1 of that procedure, the SOC lead conducts it only where no Incident Commander was assigned.
 
 ---
 
