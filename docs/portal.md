@@ -69,7 +69,7 @@ The Chief Information Officer needs the enterprise picture: governance, risk, te
 - [Governance Performance and Improvement Framework](../governance/framework-governance-performance-and-improvement.md) (maturity: Baseline)
 - [Governance Relationship and Flow Modelling Framework](../governance/framework-governance-relationship-and-flow-modelling.md) (maturity: Baseline)
 - [Human Capital and Ethical Conduct Framework](../governance/framework-human-capital-and-ethical-conduct.md) (maturity: Baseline)
-- [IT Service Management Framework](../operations/framework-it-service-management.md) (maturity: Baseline)
+- [IT Service Management Framework](../operations/framework-it-service-management.md) (maturity: Mature)
 - [Metrics, Monitoring and Performance Reporting Framework](../governance/framework-metrics-monitoring-and-performance-reporting.md) (maturity: Mature)
 - [Sustainability and Responsible Technology Framework](../governance/framework-sustainability-and-responsible-technology.md) (maturity: Mature)
 

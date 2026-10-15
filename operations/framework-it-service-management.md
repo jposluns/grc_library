@@ -2,8 +2,8 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.16\
-**Date:** 2026-10-03\
+**Version:** 1.1.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
@@ -78,7 +78,7 @@ ITIL 4 continual improvement cycles are adopted. Service improvement plans are d
 
 | Priority | Definition | Response | Resolution |
 | --- | --- | --- | --- |
-| P1: Critical | Complete service outage; major customer impact | Immediate | 4 hours |
+| P1: Critical | Complete service outage, or major customer impact; either condition alone is enough. A complete service outage caused or suspected to be caused by a security incident is a security P1 under the [Incident Escalation Matrix](../security/sop-incident-escalation-matrix.md), section "Incident severity levels", not an IT operations P1. | Immediate | 4 hours |
 | P2: High | Significant degradation; significant user impact | 30 minutes | 8 hours |
 | P3: Medium | Partial degradation; workaround available | 4 hours | 3 business days |
 | P4: Low | Minor issue; minimal impact | 1 business day | 5 business days |
