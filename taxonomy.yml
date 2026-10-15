@@ -8377,7 +8377,7 @@ documents:
   domain: "privacy"
   type: "Procedure"
   title: "Data Protection and Privacy Breach Response Procedure"
-  version: "1.7.0"
+  version: "1.8.0"
   date: "2026-10-15"
   owner: "Data Protection Officer"
   approving_authority: "Governance Library Maintainer"

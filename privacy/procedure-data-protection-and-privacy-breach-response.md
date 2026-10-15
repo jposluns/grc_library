@@ -2,7 +2,7 @@
 
 **Document Title:** Data Protection and Privacy Breach Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Date:** 2026-10-15\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -74,6 +74,8 @@ All suspected personal data breaches are classified at the point of initial dete
 | **P1: Critical** | Large-scale personal data exposure affecting 1,000 or more individuals (an internal P1 escalation trigger, not a statutory notification threshold; assess notification separately under §6); Restricted or sensitive personal data (health, financial, biometric, children's data) exfiltrated or exposed; BASC trade data breach with embedded personal data; credentials or encryption keys protecting personal data stores confirmed compromised; ransomware or destructive attack affecting systems holding personal data | Exfiltration of customer PII database; ransomware encrypting HR and payroll systems; confirmed compromise of credentials for the identity provider protecting personal data repositories; BASC cargo manifest breach disclosing shipper personal data at scale |
 | **P2: High** | Moderate personal data exposure affecting fewer than 1,000 individuals; unauthorized access to Confidential personal data without confirmed exfiltration; accidental disclosure to an unintended recipient; supplier breach confirmed to have affected personal data held on the organization's behalf | Supplier notification of unauthorized access to a CRM extract; unauthorized internal access to payroll records |
 | **P3: Medium** | Internal data only with no personal data; limited scope with no confirmed external disclosure; technical misconfiguration corrected before any confirmed access; minor policy violations | Configuration error exposing internal-only operational data to authenticated internal users; log file with non-personal technical data briefly publicly accessible |
+
+Where criteria for more than one severity are met, the higher severity applies.
 
 Severity is reassessed at each phase of the breach response lifecycle. Any team member may escalate severity upward. Every privacy severity downgrade requires Incident Commander approval, after consulting the appropriate roles (including the CIO, CISO, and Data Protection Officer, excluding whoever is acting as Incident Commander). This applies the approval and consultation requirement in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §3.2 to every privacy severity downgrade.
 
