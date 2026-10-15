@@ -2,8 +2,8 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.2.13\
-**Date:** 2026-10-13\
+**Version:** 1.3.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md), [`resilience/plan-business-continuity-and-crisis-management.md`](../resilience/plan-business-continuity-and-crisis-management.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
@@ -30,6 +30,10 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 | **P2** | High | Suspected breach, or confirmed security incident (other than a P1 trigger) with limited blast radius, potential data exposure, multi-system compromise, or active malware containment. Significant operational risk. |
 | **P3** | Medium | Anomalous activity under investigation (a suspected breach is P2), policy violation, isolated malware, phishing with credential capture (P1 where the captured credential is privileged), or anomaly requiring containment. |
 | **P4** | Low | Informational alert, false positive confirmed after investigation, or minor procedural violation with no data or system impact. |
+
+**Meaning of "security incident".** In the P1 trigger "complete service outage caused or suspected to be caused by a security incident", "security incident" has the meaning of "information security incident" in ISO/IEC 27035-1:2023, clause 3.1.5: one or more related and identified information security events that can harm the organization's assets or compromise its operations. An information security event is an occurrence indicating a possible breach of information security or failure of controls (clause 3.1.4). A security incident can be deliberate, accidental (for example, caused by inadvertent human error) or environmental (for example, caused by fire or flood), and can include the unavailability of information (clause 4.1). Malicious activity is not required.
+
+**Assessing whether an outage is security-related.** When the SOC learns of a complete service outage, it assesses whether a security incident caused or is suspected to have caused it. The test is whether the evidence indicates a possible breach of information security or a failure of information security controls, whatever the cause. An absence of signs of malicious activity is not, on its own, enough to rule out a security incident. The SOC reassesses as new information becomes available; if a security incident is later identified or suspected as the cause, the outage becomes a security P1 under this SOP.
 
 ---
 
