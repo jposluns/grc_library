@@ -2,8 +2,8 @@
 
 **Document Title:** Access Control Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-10-13\
+**Version:** 1.4.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`security/procedure-identity-management.md`](procedure-identity-management.md), [`security/procedure-onboarding-and-offboarding.md`](procedure-onboarding-and-offboarding.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`risk/procedure-risk-assessment-methodology.md`](../risk/procedure-risk-assessment-methodology.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md)\
@@ -97,7 +97,7 @@ Applies to all access to organizational systems including cloud platforms, on-pr
 | Access Type | Review Frequency |
 | --- | --- |
 | Privileged / administrative access | Quarterly |
-| Standard user access: high-sensitivity systems | Semi-annual |
+| Standard user access: high-sensitivity systems (as defined in [`procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md) §4.3) | Semi-annual |
 | Standard user access: general systems | Annual |
 | Third-party / contractor access | On contract renewal and at least annually |
 

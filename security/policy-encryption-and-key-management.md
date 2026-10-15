@@ -2,7 +2,7 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.8.0\
+**Version:** 1.9.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -60,7 +60,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ve
 
 ## 5. Cryptographic key management
 
-A private or public ephemeral key-agreement key within an approved protocol, including a symmetric session key treated as one (both as defined in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), which governs these keys), is outside the asymmetric key exchange requirement in 5.2 and outside sections 5.3 and 5.5. The prohibitions in 5.3 remain absolute for every other key and are not subject to the Section 11 exception process.
+A private or public ephemeral key-agreement key within an approved protocol, including a symmetric session key treated as one (both as defined in the [Cryptographic Key Operations Procedure](procedure-cryptographic-key-operations.md), which governs these keys), is outside the asymmetric key exchange requirement in 5.2 and the centralized Key Management Service (KMS) integration requirement in 7.1, and outside sections 5.3, 5.5 and 9.2. The prohibitions in 5.3 remain absolute for every other key and are not subject to the Section 11 exception process.
 
 ### 5.1 Key generation
 
