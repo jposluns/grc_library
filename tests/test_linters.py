@@ -30804,6 +30804,126 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("ai/README.md", r.stdout)
 
+    # Every `python3 <script>.py ... --check` anywhere in the guard or in a tools/*.sh file the
+    # guard names, deliberately broader than the helper's anchored stage grammar (it also
+    # matches a check inside $(...) or an if-test, or after an interpreter flag that takes an
+    # argument such as -X dev), so a narrowed helper parser cannot pass.
+    ANY_CHECK_RE = re.compile(r"python3\b[^\n]*?\s([\w./-]+\.py)\b[^\n]*?\s--check\b")
+
+    def _guard_check_scripts(self):
+        guard = (REPO_ROOT / "tools/pre-push-guard.sh").read_text(encoding="utf-8")
+        texts = [guard] + [(REPO_ROOT / rel).read_text(encoding="utf-8")
+                           for rel in sorted(set(re.findall(r"tools/[\w-]+\.sh", guard)))
+                           if (REPO_ROOT / rel).is_file()]
+        return {m.group(1) for t in texts for m in self.ANY_CHECK_RE.finditer(t)
+                if (REPO_ROOT / m.group(1)).is_file()}
+
+    def test_every_guard_generator_is_listed_or_recorded_as_excluded(self):
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_generators")
+        derived = helper.guard_generators()
+        self.assertIsNotNone(derived, "the helper could not read the guard's generator stages")
+        excluded = helper.NOT_TRIGGERED_BY_NEW_DOCUMENT
+        checks = self._guard_check_scripts()
+        # The regression that motivated the derivation, and the original pair.
+        for anchor in (".web/build.py", "tools/build-taxonomy.py", "tools/build-portal.py"):
+            self.assertIn(anchor, derived)
+        for script in sorted(checks):
+            self.assertTrue(script in derived or script in excluded,
+                            f"{script} runs --check under tools/pre-push-guard.sh but the helper "
+                            "neither derives it nor records it in NOT_TRIGGERED_BY_NEW_DOCUMENT")
+        for script in sorted(set(excluded) | helper.NARRATIVE_ONLY | helper.CORPUS_ONLY):
+            self.assertIn(script, checks, f"stale helper entry: the guard no longer runs {script}")
+
+    def test_regenerate_line_names_the_web_manifest(self):
+        r = self._run("ai/standard-proposed-listing-probe.md")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        line = next(row for row in r.stdout.splitlines() if "[regenerate]" in row)
+        self.assertIn(".web/corpus-link-manifest.md", line)
+        self.assertIn("python3 tools/build-taxonomy.py && python3 tools/build-portal.py "
+                      "&& python3 .web/build.py", line)
+        r = self._run("executive/briefs/proposed-listing-probe.md")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        line = next(row for row in r.stdout.splitlines() if "[regenerate]" in row)
+        self.assertIn("python3 tools/build-narrative-registry.py && python3 .web/build.py", line)
+        self.assertNotIn("build-taxonomy", line)
+
+    def test_root_level_regenerate_line_only_for_an_indexed_root_spec(self):
+        # taxonomy.yml indexes (domain "root") only the root files iter_all_docs() in
+        # tools/build-taxonomy.py names, so only those get the corpus generators.
+        r = self._run("specification-master-project.md")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        line = next(row for row in r.stdout.splitlines() if "[regenerate]" in row)
+        self.assertIn("python3 tools/build-taxonomy.py && python3 tools/build-portal.py", line)
+        self.assertNotIn("build-narrative-registry", line)
+        # A new root-level document must first be added to that list; regenerating does nothing.
+        r = self._run("specification-proposed-listing-probe.md")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertNotIn("[regenerate]", r.stdout)
+        line = next(row for row in r.stdout.splitlines() if "[add]" in row)
+        self.assertIn("iter_all_docs() in tools/build-taxonomy.py", line)
+
+    def test_indexed_root_documents_are_read_from_build_taxonomy(self):
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_roots")
+        indexed = helper.indexed_root_documents()
+        self.assertIsNotNone(indexed, "could not parse the root-file list in tools/build-taxonomy.py")
+        for name in ("specification-master-project.md", "specification-ingestion.md"):
+            self.assertIn(name, indexed)
+        td = Path(tempfile.mkdtemp(prefix="sls-roots-"))
+        self.addCleanup(shutil.rmtree, td)
+        self.assertIsNone(helper.indexed_root_documents(td))
+
+    def test_unreadable_or_partial_derivation_reports_unknown(self):
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_unknown")
+        td = Path(tempfile.mkdtemp(prefix="sls-guard-"))
+        self.addCleanup(shutil.rmtree, td)
+        (td / "tools").mkdir()
+        (td / "tools/pre-push-guard.sh").write_text("", encoding="utf-8")
+        # An existing but unreadable guard (PermissionError from the reader, not chmod 000,
+        # which root ignores) is None, not a crash.
+        with patch.object(helper, "read_text_safe", side_effect=PermissionError(13, "denied")):
+            self.assertIsNone(helper.guard_generators(td))
+            out = io.StringIO()
+            with redirect_stdout(out):
+                helper.report_regenerate("ai")
+            self.assertIn("[unknown]", out.getvalue())
+        # A readable guard whose derivation misses an anchor is unknown, not a partial list.
+        with patch.object(helper, "guard_generators", return_value=["tools/build-portal.py"]):
+            out = io.StringIO()
+            with redirect_stdout(out):
+                helper.report_regenerate("ai")
+            self.assertIn("[unknown]", out.getvalue())
+            self.assertNotIn("[regenerate]", out.getvalue())
+
+    def test_derivation_follows_guard_stages_in_order(self):
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_fixture")
+        td = Path(tempfile.mkdtemp(prefix="sls-guard-"))
+        self.addCleanup(shutil.rmtree, td)
+        (td / "tools").mkdir()
+        for rel in ("tools/build-other.py", "tools/build-new.py", "tools/build-adv.py",
+                    "tools/build-flagged.py", "tools/lint-x.py"):
+            (td / rel).write_text("", encoding="utf-8")
+        (td / "tools/runner.sh").write_text(
+            'run_gate "Lint" python3 tools/lint-x.py --strict\n'
+            'run_gate "Other in sync" python3 tools/build-other.py --check --release-delta\n',
+            encoding="utf-8")
+        (td / "tools/pre-push-guard.sh").write_text(
+            "# 3. .web/build.py --check (comment, not a stage)\n"
+            "tools/runner.sh\n"
+            "    python3 tools/build-new.py --check\n"
+            "    python3 -I tools/build-flagged.py --check\n"
+            "    python3 .web/build.py --check\n"
+            "if out=$(python3 tools/build-adv.py --check 2>&1); then rc=0; fi\n",
+            encoding="utf-8")
+        # The runner's stage comes first (expanded in place); the absent .web/build.py is
+        # skipped as the guard skips it; the advisory inside $(...) is not a stage; an
+        # interpreter flag (-I) does not hide a stage.
+        self.assertEqual(helper.guard_generators(td),
+                         ["tools/build-other.py", "tools/build-new.py", "tools/build-flagged.py"])
+        (td / "tools/runner.sh").unlink()
+        self.assertIsNone(helper.guard_generators(td))
+
 
 class AlignmentCitationExistenceTests(LinterTestCase):
     """tools/lint-alignment-citation-existence.py (fabricated NIST Privacy Framework, OWASP ASVS and MITRE CWE identifiers)"""

@@ -6,9 +6,15 @@ should be updated so the document is discoverable. This tool, run at
 authoring time, reports them for a given document path, split into:
 
   MECHANICAL surfaces (hard-gated by lint-listing-surface-completeness.py
-  and the taxonomy/portal sync gates): these MUST be updated or
-  regenerated, and CI will fail otherwise. The tool reports, for each,
-  whether the document is already present.
+  and the generator --check stages of tools/pre-push-guard.sh): these MUST
+  be updated or regenerated, and CI will fail otherwise. The tool reports,
+  for each hand-edited surface, whether the document is already present.
+  The regenerate list is DERIVED from the guard, never hand-listed: every
+  ``python3 <script>.py --check`` stage line in the guard and in the runner
+  scripts it chains (``tools/*.sh``) is a generator, and each one not in
+  NOT_TRIGGERED_BY_NEW_DOCUMENT is listed, so a generator added to the
+  guard joins this list without an edit here (SuggestListingSurfacesTests
+  fails when a guard generator is neither derived nor recorded there).
 
   SEMANTIC surfaces (matrices, crosswalks, glossary, Related Documents):
   these are relevance-based and are NOT gated. The tool emits a
@@ -31,6 +37,7 @@ usage error.
 
 from __future__ import annotations
 
+import ast
 import re
 import sys
 from pathlib import Path
@@ -43,6 +50,48 @@ REGISTER = "governance/register-document-index-and-classification.md"
 PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
 TITLE_RE = re.compile(r"^\*\*Document Title:\*\*\s*(.+?)\s*\\?$", re.M)
 TYPE_RE = re.compile(r"^\*\*Document Type:\*\*\s*(.+?)\s*\\?$", re.M)
+
+GUARD = "tools/pre-push-guard.sh"
+# A guard stage that runs a runner script: a bare `tools/<name>.sh` line.
+GUARD_RUNNER_RE = re.compile(r"^\s*(tools/[a-z0-9_-]+\.sh)\s*$")
+# A generator drift check: a whole line `python3 [-I ...] <script>.py [flags]`
+# (optionally in the runner's `run_gate "<name>"` grammar, the one gate parity
+# parses) whose flags include --check. Anchored, so a check inside $(...) or an
+# if-test is not a stage (the guard's reference-manifest ADVISORY is one; it is
+# recorded below).
+CHECK_STAGE_RE = re.compile(
+    r'^\s*(?:run_gate\s+"[^"]+"\s+)?python3(?:\s+-\w+)*\s+([\w./-]+\.py)((?:\s+--[a-z][a-z-]*)*)\s*$'
+)
+# Generators the guard runs whose inputs a new corpus or executive/ document
+# does not change, with the reason. A generator the guard runs that is neither
+# listed here nor derived as a stage fails SuggestListingSurfacesTests.
+NOT_TRIGGERED_BY_NEW_DOCUMENT = {
+    "tools/build-todo-number-allocation.py": "reads TODO.md, TODO-REFERENCE.md and tools/todo-number-floor.json",
+    "tools/build-relationship-model.py": "reads governance/relationship-model-source.json",
+    "tools/build-corpus-management.py": "reads the .corpus-management/ sources",
+    "tools/build-citation-publishers.py": "reads the citation-publishers block of "
+    "governance/specification-citation-verification.md",
+    "tools/build-reference-manifest.py": "advisory guard check over the grc_library_ref sibling; never blocks",
+}
+# Generators whose inputs are executive/ narrative pages only, and those whose
+# inputs are corpus metadata only (taxonomy.yml is corpus-only by construction).
+# Any other derived generator applies to both.
+NARRATIVE_ONLY = frozenset({"tools/build-narrative-registry.py"})
+CORPUS_ONLY = frozenset({"tools/build-taxonomy.py", "tools/build-portal.py"})
+# Generators a sound derivation must find (when present in the tree): a readable
+# guard that yields a list without one of them was restructured past the parser,
+# so the helper reports [unknown] rather than a silently partial list.
+ANCHORS = ("tools/build-taxonomy.py", "tools/build-portal.py", ".web/build.py")
+# Display only: the committed outputs a generator rewrites. A generator absent
+# from this map is still listed, with a generic note.
+OUTPUTS = {
+    "tools/build-taxonomy.py": "taxonomy.yml",
+    "tools/build-portal.py": "docs/portal.md, docs/maturity-scorecard.md",
+    "tools/build-narrative-registry.py": "narrative.yml",
+    ".web/build.py": ".web/corpus-link-manifest.md",
+}
+# taxonomy.yml indexes only the root-level files named in this builder's iter_all_docs().
+TAXONOMY_BUILDER = "tools/build-taxonomy.py"
 
 # Words too common to be useful for keyword-overlap ranking.
 STOPWORDS = frozenset(
@@ -106,6 +155,95 @@ def referenced_paths(file_rel: str) -> set[str]:
     return set(PATH_IN_CODESPAN.findall(text))
 
 
+def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
+    """Scripts of the generator --check stages the pre-push guard runs, in run order.
+
+    Walks the guard line by line, expanding each runner-script stage
+    (``tools/<name>.sh``) in place, and keeps each ``python3 <script>.py ...
+    --check`` stage whose script exists (the guard skips an absent
+    .web/build.py). None when the guard or a runner it names cannot be read
+    (absent, unreadable, or not UTF-8).
+    """
+    found: list[str] = []
+
+    def walk(rel: str, expand_runners: bool) -> bool:
+        path = root / rel
+        try:
+            text = read_text_safe(path) if path.is_file() else None
+        except OSError:  # read_text_safe surfaces filesystem errors; this helper is advisory
+            text = None
+        if text is None:
+            return False
+        for line in text.splitlines():
+            m = GUARD_RUNNER_RE.match(line)
+            if m and expand_runners:
+                if not walk(m.group(1), False):
+                    return False
+                continue
+            m = CHECK_STAGE_RE.match(line)
+            if m and "--check" in m.group(2).split():
+                script = m.group(1)
+                if script not in found and (root / script).is_file():
+                    found.append(script)
+        return True
+
+    return found if walk(GUARD, True) else None
+
+
+def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
+    """Root-level files tools/build-taxonomy.py indexes, read from its source.
+
+    Parses the builder (never imports it) and returns the string-literal tuple that a
+    ``for`` loop in ``iter_all_docs()`` walks. None when the builder cannot be read or
+    parsed, or no such loop is found.
+    """
+    path = root / TAXONOMY_BUILDER
+    try:
+        text = read_text_safe(path) if path.is_file() else None
+        tree = ast.parse(text) if text is not None else None
+    except (OSError, SyntaxError, ValueError):  # advisory helper: report unknown, never crash
+        return None
+    if tree is None:
+        return None
+    for fn in tree.body:
+        if not (isinstance(fn, ast.FunctionDef) and fn.name == "iter_all_docs"):
+            continue
+        for node in ast.walk(fn):
+            if (
+                isinstance(node, ast.For)
+                and isinstance(node.iter, ast.Tuple)
+                and node.iter.elts
+                and all(isinstance(e, ast.Constant) and isinstance(e.value, str) for e in node.iter.elts)
+            ):
+                return tuple(e.value for e in node.iter.elts)
+    return None
+
+
+def report_regenerate(domain: str | None) -> None:
+    generators = guard_generators()
+    if generators is not None and any(
+        a not in generators and (REPO_ROOT / a).is_file() for a in ANCHORS
+    ):
+        generators = None  # a partial derivation is reported as unknown, never listed
+    if generators is None:
+        print(
+            f"    [unknown] could not read the generator stages from {GUARD} or a runner "
+            f"it chains; run {GUARD} before pushing and regenerate whatever it reports stale."
+        )
+        return
+    skip = CORPUS_ONLY if domain == "executive" else NARRATIVE_ONLY
+    regen = [g for g in generators if g not in NOT_TRIGGERED_BY_NEW_DOCUMENT and g not in skip]
+    if not regen:
+        print(f"    [regenerate] none -- no generator stage in {GUARD} applies.")
+        return
+    outputs = ", ".join(OUTPUTS.get(g, f"the committed outputs of {g}") for g in regen)
+    print(
+        f"    [regenerate] {outputs} -- run: "
+        + " && ".join(f"python3 {g}" for g in regen)
+        + f" (derived from the --check stages of {GUARD}; commit the outputs with the document)"
+    )
+
+
 def report_one(doc_path: str) -> None:
     if is_default_exempt_root(doc_path, repo_root=REPO_ROOT):
         print(f"\n=== {doc_path} ===")
@@ -128,9 +266,26 @@ def report_one(doc_path: str) -> None:
         print(
             "    Root-level document (no domain prefix). The domain-index "
             "register and domain READMEs do not index root-level "
-            "meta-specifications; no MECHANICAL listing surface applies. "
+            "meta-specifications, so no hand-edited MECHANICAL surface applies. "
             "Confirm this is an intentional root-level document."
         )
+        indexed = indexed_root_documents()
+        if indexed is None:
+            print(
+                f"    [unknown] could not read the root specifications iter_all_docs() in "
+                f"{TAXONOMY_BUILDER} indexes; check whether it names {doc_path} before regenerating."
+            )
+        elif doc_path in indexed:
+            print("    taxonomy.yml indexes it (domain \"root\"), so the corpus generators apply.")
+            report_regenerate(domain)
+        else:
+            print(
+                f"    [add] {TAXONOMY_BUILDER} indexes only its named root specifications "
+                f"({', '.join(indexed)}), so taxonomy.yml does not index this document and "
+                f"regenerating does nothing for it. First add it to the root-file list in "
+                f"iter_all_docs() in {TAXONOMY_BUILDER}; the regenerate line then applies "
+                f"(rerun this tool)."
+            )
         return
 
     # --- MECHANICAL surfaces (gated) ---
@@ -157,12 +312,7 @@ def report_one(doc_path: str) -> None:
             f"    [n/a] {readme} does not exist -- '{domain}/' is not a corpus "
             f"domain with a README (no MECHANICAL domain-README surface applies)."
         )
-    print(
-        "    [regenerate] taxonomy.yml, docs/portal.md, docs/maturity-scorecard.md "
-        "-- run: python3 tools/build-taxonomy.py && python3 tools/build-portal.py "
-        "(an executive/ page instead regenerates narrative.yml via "
-        "tools/build-narrative-registry.py)"
-    )
+    report_regenerate(domain)
 
     # --- SEMANTIC surfaces (ranked candidates, not gated) ---
     kw = keywords(doc_path)
@@ -220,7 +370,7 @@ def main(argv: list[str]) -> int:
     print(
         "Listing-surface suggestions. MECHANICAL surfaces are gated by "
         "lint-listing-surface-completeness.py (register + domain README) and "
-        "the taxonomy/portal sync gates; SEMANTIC surfaces are advisory."
+        f"the generator --check stages of {GUARD}; SEMANTIC surfaces are advisory."
     )
     for doc_path in docs:
         report_one(doc_path.lstrip("./"))
