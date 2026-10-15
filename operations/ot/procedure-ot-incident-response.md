@@ -2,7 +2,7 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -91,14 +91,14 @@ Operators, engineers, or vendors who observe suspected compromise must report ra
 
 ## 5. Severity classification
 
-OT incident severity uses the base severity scale from [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) with OT-specific triggers added.
+OT incident severity uses the severity levels and criteria in [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md) §3.1 as a floor, and the OT-specific triggers below add to them. An OT case is never classified lower than those criteria would classify it. Where a case meets the criteria of more than one level, under those criteria or the triggers below, the more severe level applies.
 
 | Severity | OT-specific trigger criteria |
 | --- | --- |
-| **P1: Critical** | Confirmed adversary presence in a production OT zone with SL-T ≥ SL 3. Compromise of a SIS or potential to affect safety. Loss-of-view or loss-of-control on a production process. Cyber-related production outage of a critical site. |
-| **P2: High** | Suspected adversary presence in a production OT zone. Anomalous control commands not attributable to scheduled changes. Cyber compromise of an OT vendor with active access. Confirmed compromise in an OT DMZ. Loss-of-view or loss-of-control on a non-critical process. |
-| **P3: Medium** | Unauthorized configuration change detected post-event. Compromise of an engineering workstation with no evidence of further movement. Failed authentication storm against an OT identity surface. |
-| **P4: Low** | Single suspicious event without corroboration. Policy violation (for example, unsanctioned removable media use) with no compromise evidence. |
+| **P1: Critical** | Confirmed adversary presence in a production OT zone. Compromise of a SIS or potential to affect safety. Loss-of-view or loss-of-control on a production process. Cyber-related production outage of a critical site. Confirmed compromise in an OT DMZ. |
+| **P2: High** | Suspected adversary presence in a production OT zone. Anomalous control commands not attributable to scheduled changes. Cyber compromise of an OT vendor with active access. Compromise of an engineering workstation with no evidence of further movement (P1 where any base P1 criterion is met, for example privileged credential compromise). Loss-of-view or loss-of-control on a non-critical process. |
+| **P3: Medium** | Unauthorized configuration change detected post-event. Failed authentication storm against an OT identity surface. Policy violation (for example, unsanctioned removable media use) with no compromise evidence. |
+| **P4: Low** | Single suspicious event without corroboration. |
 
 Classification is initial; severity is re-evaluated at each phase of the procedure.
 
