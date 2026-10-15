@@ -1011,7 +1011,7 @@ print(json.dumps(dict(r, run_qualname=seen[0] if seen else "", failures=failures
         r = json.loads(out.splitlines()[-1])
         return (proc.returncode == 0 and r["rc"] is None
                 and "timed out after 2s" in r["stderr"]
-                and r["run_qualname"].rsplit(".", 1)[-1] == "bounded_run"
+                and r["run_qualname"] == BOUNDED_RUN_QUALNAME
                 and r["failures"] == [], r["contained"])
     except (subprocess.TimeoutExpired, ValueError, IndexError, KeyError):
         return False, False
@@ -1022,6 +1022,11 @@ print(json.dumps(dict(r, run_qualname=seen[0] if seen else "", failures=failures
             proc.communicate(timeout=TEST_WAIT)
         except subprocess.TimeoutExpired:
             failures.append(("command-timeout-probe-cleanup-wait", False))
+
+
+# The parent checks require this exact qualname: a suffix match would accept
+# any function named bounded_run, not the one _self_test_limits swaps in.
+BOUNDED_RUN_QUALNAME = "_self_test_limits.<locals>.bounded_run"
 
 
 @contextlib.contextmanager
@@ -1928,7 +1933,7 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
             sid = int(sid_text)
         except ValueError:
             return fail("announce-unparsable")
-        if run_qualname.rsplit(".", 1)[-1] != "bounded_run":
+        if run_qualname != BOUNDED_RUN_QUALNAME:
             return fail("run-not-bounded")
         if proc.poll() is not None:
             return fail("probe-died-before-term")
@@ -2052,8 +2057,11 @@ def _spawn_window_sigterm_check(failures, probe=SPAWN_WINDOW_PROBE):
                     "survivors_qualname", "kill_is_clone", "failures", "term_pending"}
         if not isinstance(r, dict) or not required <= r.keys():
             return fail("field-missing")
+        # No spawned session leaves run_qualname empty; name the cause first.
+        if r["sid"] is None:
+            return fail("no-session")
         if (not isinstance(r["run_qualname"], str)
-                or r["run_qualname"].rsplit(".", 1)[-1] != "bounded_run"):
+                or r["run_qualname"] != BOUNDED_RUN_QUALNAME):
             return fail("run-not-bounded")
         if r["survivors_qualname"] != "_self_test_limits.<locals>.survivors":
             return fail("survivors-not-bounded")
@@ -2066,8 +2074,6 @@ def _spawn_window_sigterm_check(failures, probe=SPAWN_WINDOW_PROBE):
             return fail("term-not-pending")
         if r["terminated"] is not True:
             return fail("not-terminated")
-        if r["sid"] is None:
-            return fail("no-session")
         if r["survivors"] != []:
             return fail("survivors")
         return True
@@ -2095,7 +2101,7 @@ def _spawn_window_stages_check():
     # Stub the transport as well as the payload: no wall-clock timeout needed.
     import types
     sentinel_stderr = "spawn-window probe stderr sentinel\n"
-    good = dict(terminated=True, sid=7, survivors=[], run_qualname="bounded_run",
+    good = dict(terminated=True, sid=7, survivors=[], run_qualname=BOUNDED_RUN_QUALNAME,
                 survivors_qualname="_self_test_limits.<locals>.survivors",
                 kill_is_clone=True, failures=[], term_pending=True)
     class Probe:
@@ -2123,10 +2129,16 @@ def _spawn_window_stages_check():
                     ("not-terminated", "terminated", False), ("no-session", "sid", None),
                     ("survivors", "survivors", [7]),
                     ("run-not-bounded", "run_qualname", "unbounded_run"),
+                    ("run-suffix-only", "run_qualname", "x.bounded_run"),
                     ("survivors-not-bounded", "survivors_qualname", "_session_survivors"),
                     ("kill-helper-unexpected", "kill_is_clone", False),
                     ("probe-failures", "failures", [["stub", False]]),
-                    ("term-not-pending", "term_pending", False)):
+                    ("term-not-pending", "term_pending", False),
+                    # The real payload when the probe's session never spawned.
+                    ("no-session-payload", "sid", None),
+                    ("no-session-payload", "run_qualname", ""),
+                    ("no-session-payload", "term_pending", False),
+                    ("no-session-payload", "survivors", None)):
                 if self.stage == stage:
                     payload[key] = value
             return json.dumps(payload), ""
@@ -2142,8 +2154,9 @@ def _spawn_window_stages_check():
     for stage in ("probe-timeout", "output-unparsable", "field-missing", "probe-rc-nonzero",
                   "probe-rc-nonzero-parsable", "probe-rc-nonzero-field-missing",
                   "probe-rc-nonzero-decode",
-                  "not-terminated", "no-session", "survivors", "run-not-bounded",
-                  "survivors-not-bounded", "kill-helper-unexpected",
+                  "not-terminated", "no-session", "no-session-payload", "survivors",
+                  "run-not-bounded",
+                  "run-suffix-only", "survivors-not-bounded", "kill-helper-unexpected",
                   "probe-failures", "term-not-pending", "ok"):
         nonzero = stage in ("probe-rc-nonzero", "probe-rc-nonzero-parsable",
                             "probe-rc-nonzero-field-missing", "probe-rc-nonzero-decode")
@@ -2155,11 +2168,60 @@ def _spawn_window_stages_check():
             passed = check(failures, probe=stage)
         except UnicodeDecodeError:
             return False
-        expected_stage = "probe-rc-nonzero" if nonzero else stage
+        expected_stage = ("probe-rc-nonzero" if nonzero
+                          else "run-not-bounded" if stage == "run-suffix-only"
+                          else "no-session" if stage == "no-session-payload" else stage)
         expected = [] if stage == "ok" else [("sigterm-in-spawn-window:" + expected_stage, False)]
         expected_stderr = sentinel_stderr if nonzero and stage != "probe-rc-nonzero-decode" else ""
         if (passed != (stage == "ok") or failures != expected
                 or stderr.getvalue() != expected_stderr):
+            return False
+    return True
+
+
+def _bounded_run_qualname_stages_check():
+    # Stub the probes of the command-timeout and SIGTERM cleanup checks, as the
+    # spawn-window stage table does: each must reject a suffix-only qualname.
+    import types
+    class Probe:
+        qualname = returncode = None
+        def __init__(self, argv, **kwargs):
+            pass
+        def communicate(self, timeout):
+            self.returncode = 0
+            return json.dumps(dict(rc=None, stderr="timed out after 2s", contained=True,
+                                   run_qualname=self.qualname, failures=[])), ""
+        def poll(self):
+            return self.returncode
+        def kill(self):
+            self.returncode = -signal.SIGKILL
+        def wait(self, timeout):
+            return self.returncode
+    class Announcing(Probe):
+        # Announce a fake sid, then exit before TERM would be sent.
+        def __init__(self, argv, **kwargs):
+            os.write(int(argv[6]), ("7 " + self.qualname + "\n").encode())
+            self.returncode = 0
+    def stubbed(fn, popen, **extra):
+        g = dict(fn.__globals__, **extra)
+        g["subprocess"] = types.SimpleNamespace(
+            Popen=popen, PIPE=subprocess.PIPE, DEVNULL=subprocess.DEVNULL,
+            TimeoutExpired=subprocess.TimeoutExpired)
+        return types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+    timed = stubbed(_command_timeout_check, Probe)
+    # The fake sid must never reach the real session kill.
+    term = stubbed(_sigterm_cleanup_check, Announcing, _kill_session=lambda sid: True)
+    for qualname, ok in ((BOUNDED_RUN_QUALNAME, True), ("x.bounded_run", False)):
+        Probe.qualname = qualname
+        failures = []
+        stage = "probe-died-before-term" if ok else "run-not-bounded"
+        try:
+            if timed(failures) != (ok, True) or failures != []:
+                return False
+            if term(failures) is not False or failures != [("sigterm-cleans-up:" + stage, False)]:
+                return False
+        except Exception:
+            # A stub that no longer fits the probe fails closed.
             return False
     return True
 
@@ -2308,6 +2370,7 @@ def _self_test_body(policy, failures) -> int:
     checks.append(("background-call-recorded", _background_call_check()))
     checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
     checks.append(("spawn-window-stages-named", _spawn_window_stages_check()))
+    checks.append(("bounded-run-qualname-stages", _bounded_run_qualname_stages_check()))
     r = run("SECONDS=600; " + SPAWN_WINDOW_COMMAND, shells=("bash",), timeout=5)[0]
     checks.append(("spawn-window-command-bounded", r["rc"] == 0 and "timed out" not in r["stderr"]))
     checks.append(("sigterm-in-spawn-window-cleans-up", _spawn_window_sigterm_check(failures)))
