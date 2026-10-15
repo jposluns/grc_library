@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -39,13 +39,13 @@ Applies to all cryptographic key operations performed by IT Operations, Security
 | **Legal Counsel** | Confirms under 7.1 whether a legal hold or investigation covers data a key protects, and is the only role that can confirm an external-authority investigation or a hold that is required but not yet recorded; gives the written release under 7.1. |
 | **Internal Audit** | Audits KLR completeness and key operation logs annually. |
 
-Dual control is required for all key generation, export, and destruction operations: no single person may perform these operations unilaterally. The destruction of a private or public ephemeral key-agreement key within the protocol is outside this requirement (7.1).
+Dual control is required for all key generation, export, and destruction operations: no single person may perform these operations unilaterally. An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (1.2). The generation of a private or public ephemeral key-agreement key within an approved protocol (1.1), and the export of the public ephemeral key-agreement key to the peer within that protocol are outside this requirement. The destruction of a private or public ephemeral key-agreement key within the protocol is outside this requirement (7.1).
 
 ---
 
 ## 1. Key generation
 
-1.1 Submit a key generation request through the ITSM portal specifying: key type, algorithm, key length, intended use, system/application, and required validity period.
+1.1 Steps 1.1, 1.2, 1.4 and 1.6 do not apply to a private or public ephemeral key-agreement key generated within an approved protocol, and 1.5 does not apply because the key has no KLR entry (2.1); 1.3 still applies to it. For every other key, submit a key generation request through the ITSM portal specifying: key type, algorithm, key length, intended use, system/application, and required validity period.
 
 1.2 The Security Architecture team reviews and approves the request, confirming algorithm compliance with the Cryptographic Key Lifecycle Management Framework.
 

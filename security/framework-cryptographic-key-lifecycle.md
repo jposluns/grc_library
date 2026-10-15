@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -32,7 +32,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 
 | Phase | Objective | Core Activities |
 | --- | --- | --- |
-| **Generation** | Securely create cryptographic keys using approved algorithms and entropy sources. | HSM-based key creation; PQC hybrid generation (ML-KEM + ECC). |
+| **Generation** | Securely create cryptographic keys using approved algorithms and entropy sources. | HSM-based key creation; PQC hybrid generation (ML-KEM + ECC). An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (Cryptographic Key Operations Procedure, section 1.2). A private or public ephemeral key-agreement key generated within an approved protocol is outside the ITSM request, Security Architecture approval, dual control at generation and generation logging (that procedure's steps 1.1, 1.2, 1.4 and 1.6; exemption stated in 1.1); the requirement in that procedure's section 1.3 to use a FIPS 140-3 validated hardware security module or an approved software cryptographic library still applies to it. |
 | **Registration** | Record metadata in the Key Lifecycle Register (KLR) for audit. | Assign unique ID, owner, usage scope, and validity period. |
 | **Distribution** | Deliver keys securely to authorized endpoints or systems. | Use PKI or encrypted APIs (TLS 1.3+); enforce MFA and RBAC. |
 | **Activation** | Enable keys for cryptographic operations. | Integration with encryption libraries and system credentials. |
@@ -53,7 +53,7 @@ Applies to all enterprise systems, databases, applications, network devices, and
 **Control requirements:**
 
 - Key separation is mandatory: encryption, signing, and authentication keys must be segregated.
-- Dual control is required for any key activation or export operation.
+- Dual control is required for any key activation or export operation, except the activation of a private or public ephemeral key-agreement key by its use within an approved protocol and the export of the public ephemeral key-agreement key to the peer within that protocol.
 - All root and master keys are stored in FIPS 140-3 compliant Hardware Security Modules (HSMs).
 - PQC hybrid key issuance in PKI environments follows the Post-Quantum Cryptography Roadmap.
 
