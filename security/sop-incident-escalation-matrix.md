@@ -2,7 +2,7 @@
 
 **Document Title:** Incident Escalation Matrix\
 **Document Type:** SOP\
-**Version:** 1.3.0\
+**Version:** 1.4.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -18,7 +18,7 @@
 
 ## Purpose
 
-This SOP defines the incident escalation matrix for security incidents. It specifies severity levels, notification paths, timelines, and responsible parties to ensure that every incident is escalated to the right people at the right time. It is a companion document to the Incident Response Procedure and the Security Incident Reporting and Escalation Procedure. Those documents govern the full IR lifecycle; this SOP provides a quick-reference escalation guide for the SOC and IR team.
+This SOP defines the incident escalation matrix for security incidents. It specifies severity levels, notification paths, timelines, and responsible parties to ensure that every incident is escalated to the right people at the right time. It is a companion document to the Security Incident Response Procedure and the Security Incident Reporting and Escalation Procedure. Those documents govern the full IR lifecycle; this SOP provides a quick-reference escalation guide for the SOC and IR team. Where this SOP and the Security Incident Response Procedure ([`security/procedure-security-incident-response.md`](procedure-security-incident-response.md)) differ on the severity of an incident, the procedure governs.
 
 ---
 
@@ -26,10 +26,12 @@ This SOP defines the incident escalation matrix for security incidents. It speci
 
 | Level | Severity | Definition |
 | --- | --- | --- |
-| **P1** | Critical | Active or confirmed breach, ransomware deployment, data exfiltration, confirmed or suspected privileged account compromise, complete service outage caused or suspected to be caused by a security incident, or threat actor present in production environment. Each listed trigger is P1 whatever its scope. Otherwise, a complete service outage is an IT operations P1 handled under the [IT Service Management Framework](../operations/framework-it-service-management.md), sections "Service levels" and "1. Incident management" (under "Framework principles"), not the security incident-response procedure. |
-| **P2** | High | Suspected breach, or confirmed security incident (other than a P1 trigger) with limited blast radius, potential data exposure, multi-system compromise, or active malware containment. Significant operational risk. |
-| **P3** | Medium | Anomalous activity under investigation (a suspected breach is P2), policy violation, isolated malware, phishing with credential capture (P1 where the captured credential is privileged), or anomaly requiring containment. |
-| **P4** | Low | Informational alert, false positive confirmed after investigation, or minor procedural violation with no data or system impact. |
+| **P1** | Critical | Active or confirmed breach; ransomware deployment, whether executing, staged or dormant; data exfiltration, whether active or completed; confirmed or suspected privileged account compromise; complete service outage caused or suspected to be caused by a security incident; or threat actor present in production environment or active anywhere else in the environment. Each listed trigger is P1 whatever its scope. In the outage trigger, "security incident" has the meaning given in this section. Otherwise, a complete service outage is an IT operations P1 handled under the [IT Service Management Framework](../operations/framework-it-service-management.md), sections "Service levels" and "1. Incident management" (under "Framework principles"), not the security incident-response procedure. |
+| **P2** | High | Suspected breach; significant security event with potential for serious impact; confirmed security incident with limited blast radius, potential data exposure, or multi-system compromise, other than a P1 trigger; malware detected but not yet confirmed active, or active malware needing containment, other than ransomware deployment (P1); phishing with credential capture (P1 where the captured credential is privileged); or significant control failure. Significant operational risk. |
+| **P3** | Medium | Anomalous activity requiring or under investigation, or an anomaly requiring containment that meets no P1 or P2 criterion (a suspected breach is P2); or policy violation (a minor procedural violation with no data or system impact and no potential security significance is P4). |
+| **P4** | Low | Informational alert or informational security event with no confirmed harm; failed security scan; false positive confirmed after investigation; or minor procedural violation with no data or system impact and no potential security significance. |
+
+Where a case meets the criteria of more than one level, the more severe level applies.
 
 **Meaning of "security incident".** In the P1 trigger "complete service outage caused or suspected to be caused by a security incident", "security incident" has the meaning of "information security incident" in ISO/IEC 27035-1:2023, clause 3.1.5: one or more related and identified information security events that can harm the organization's assets or compromise its operations. An information security event is an occurrence indicating a possible breach of information security or failure of controls (clause 3.1.4). A security incident can be deliberate, accidental (for example, caused by inadvertent human error) or environmental (for example, caused by fire or flood), and can include the unavailability of information (clause 4.1). Malicious activity is not required.
 
@@ -70,7 +72,7 @@ Actual contact details (names, numbers, emails) are maintained in the confidenti
 | --- | --- |
 | Confirmed or suspected PII data breach | Data Protection Officer (DPO); Legal Counsel; initiate regulatory notification assessment |
 | Ransomware deployment | CEO, CFO, Board notification pathway; external IR partner engaged immediately |
-| Threat actor in production environment | External IR partner activated; affected systems isolated immediately |
+| Threat actor present in production environment or active anywhere else in the environment | External IR partner activated; affected systems isolated immediately |
 | Customer system or data impacted | Legal Counsel for contract obligations review; customer notification assessment |
 | Sector-programme data involved (where the organization participates in a covered programme) | Sector-conditional role per the relevant sector annex (for example, a BASC Regional Compliance Officer for trade or customs data) notified per the annex's stated timeframe; see [`compliance/`](../compliance/) |
 | Media or external parties involved | Communications Director and CEO manage all external statements |
