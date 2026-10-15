@@ -2,8 +2,8 @@
 
 **Document Title:** Role Authority Register\
 **Document Type:** Register\
-**Version:** 1.5.11\
-**Date:** 2026-09-05\
+**Version:** 1.6.0\
+**Date:** 2026-10-15\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/framework-document-architecture-and-interrelationship.md`](framework-document-architecture-and-interrelationship.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -56,6 +56,7 @@ This register defines generic governance roles used across the GRC Documentation
 | Security Owner | Ownership of security controls and incident response within a specific scope (a service, a platform, a programme). Distinct from CISO (organization-wide). | Security control evidence, scope-level security exceptions, incident response within scope. |
 | Communications Owner | Ownership of crisis-communication and incident-communication content and channels. | Communications plans, customer notifications, post-incident communications. |
 | IT Operations Lead | Day-to-day IT operations leadership including incident response, change execution, and operations governance. | Operations procedures, operational exceptions, runbook approval. |
+| SOC lead | The SOC Manager, or a duty deputy the SOC Manager explicitly designates in the SOC on-call rota (see [`security/standard-soc-operating-model.md`](../security/standard-soc-operating-model.md) section 4 for the definition and section 10 for the rota). Acts for security P3 and P4 incidents only where no Incident Commander is assigned under [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md). Does not hold Legal Counsel's authority to release or narrow a hold. | For unassigned security P3 and P4 incidents: technical and operational response direction and approval or deferral of isolation, service suspension, or credential revocation (that procedure, section 2.2); confirmation of whether the investigation treats a device, its user, its data, or records as evidence; recovery sign-off before resuming normal operations (that procedure, section 5.4); notice to Legal Counsel; notice to the Compliance Manager of an investigation covering records released or scheduled for destruction. |
 | AI Risk Maintainer | Maintenance of AI-specific risk artefacts (AI risk register, AI risk methodology annex, AI impact assessment templates). | AI risk register updates, AI methodology updates. |
 | AI Security Maintainer | Maintenance of AI-specific security artefacts (AI red-team report templates, AI vendor security questionnaire, AI dataset datasheets, MCP server register, AI access and agent permissions standard, AI incident response plan, AI inference cost governance standard, model registry, AI adversarial evaluation suite). Distinct from the CISO (organization-wide security) and the AI Governance Approver (AI policy approval); this role maintains the cross-AI security governance content. | AI security artefact updates; AI security content consistency. |
 | Assurance Metrics Maintainer | Maintenance of digital trust and assurance metrics registers. | Metrics catalogue updates. |
