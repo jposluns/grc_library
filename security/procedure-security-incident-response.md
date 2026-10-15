@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.8.0\
+**Version:** 1.9.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -48,7 +48,7 @@ This procedure applies to:
 | **Chief Information Security Officer (CISO)** | Accountable for the incident response programme. Notified immediately for all P1 incidents and within 1 hour for P2. For P1 and P2, is the interim technical authority, or relies on a pre-authorized duty delegate as that authority, until an Incident Commander is assigned (section 2.2). Authorizes IR partner engagement. Coordinates with the DPO on regulatory notification. |
 | **Chief Information Officer (CIO)** | Notified immediately for P1 incidents. Provides executive oversight and approves communications to affected customers and partners; regulatory notifications route through the DPO with Legal Counsel content approval per the notification steps in this procedure. |
 | **Security Operations Centre (SOC)** | Operates SIEM and endpoint monitoring. Performs initial triage, severity classification, and evidence preservation. Executes containment and eradication steps under direction from the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for P1 and P2 before an Incident Commander is assigned, the interim technical authority (section 2.2). Maintains timestamped logs of all IR actions. |
-| **SOC lead** | The SOC Manager, or a duty deputy the SOC Manager explicitly designates in the SOC on-call rota ([`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) section 4 for the definition and section 10 for the rota). The SOC lead's incident authority and duties are only those given to the SOC lead in sections 2.1, 2.2, 5.1, 5.2, 5.4 and 7.2 of this procedure, and in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) section 8. Those sections hold the full list; the SOC lead holds no other Incident Commander authority. The SOC lead holds that authority and those duties only while a security P3 or P4 incident has no Incident Commander assigned; once one is assigned, that Incident Commander acts instead. The exception is the section 7.2 post-incident review, which the SOC lead conducts for any security P3 or P4 incident that has one under section 7.1, whether or not an Incident Commander is assigned. |
+| **SOC lead** | The SOC Manager, or a duty deputy the SOC Manager explicitly designates in the SOC on-call rota ([`security/standard-soc-operating-model.md`](standard-soc-operating-model.md) section 4 for the definition and section 10 for the rota). The SOC lead's incident authority and duties are only those given to the SOC lead in sections 2.1, 2.2, 5.1, 5.2, 5.4 and 7.2 of this procedure, and in [`governance/standard-records-retention-and-destruction.md`](../governance/standard-records-retention-and-destruction.md) section 8. Those sections hold the full list; the SOC lead holds no other Incident Commander authority. The SOC lead holds that authority and those duties only while a security P3 or P4 incident has no Incident Commander assigned; once one is assigned, that Incident Commander acts instead. This includes the section 7.2 post-incident review: for a security P3 or P4 incident that has one under section 7.1, the SOC lead conducts it only where no Incident Commander was assigned. |
 | **IT Operations** | Supports containment and recovery activities. Executes technical remediation steps as directed by the Incident Commander or, for P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for P1 and P2 before an Incident Commander is assigned, the interim technical authority (section 2.2). |
 | **Legal Counsel** | Advises on regulatory notification obligations (for example, GDPR, PIPEDA, PIPL; plus sector-programme regulatory obligations such as BASC where the organization participates). Provides guidance on evidence preservation, litigation hold, and third-party disclosure. |
 | **IR Partner** | External incident response partner engaged by the CISO for P1 incidents. Contact details are maintained in the operational state register. |
@@ -214,7 +214,7 @@ Regulatory notifications are Restricted classification materials. Content must n
 
 ### 7.2 PIR process
 
-The PIR must be conducted by the Incident Commander (for P1/P2) or SOC lead (for P3/P4) and must address:
+For P1/P2, the PIR must be conducted by the Incident Commander. For P3/P4, it must be conducted by the Incident Commander where one was assigned, or otherwise by the SOC lead. The PIR must address:
 
 1. **Timeline reconstruction**: complete chronological sequence from initial indicator to closure, with timestamps.
 2. **Root cause analysis**: the fundamental control failure, vulnerability, or process gap that enabled the incident.
