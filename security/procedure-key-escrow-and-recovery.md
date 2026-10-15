@@ -2,7 +2,7 @@
 
 **Document Title:** Key Escrow and Recovery Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -168,7 +168,7 @@ For every recovery the procedure produces a request record with:
 | Category 1 lost | Self-service rekey where possible; otherwise, subject to the hold and investigation safeguard below, device reimage |
 | Category 1 compromised (exposed escrow) | Treat as a personal-data exposure if Confidential or Restricted content was encrypted with the key; per the privacy breach response procedure |
 | Category 2 lost | Rotate; affected service downtime accepted as the cost of the rotation |
-| Category 2 compromised | Incident, classified per [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §3.1: P1 where any P1 criterion is met (including a secret that gives privileged access, or active exfiltration through the secret), otherwise P2 or P3; rotate and investigate; cascade to dependent secrets |
+| Category 2 compromised | Incident, classified per [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §3.1: P1 where any P1 criterion is met (including a secret that gives privileged access, or active exfiltration through the secret), otherwise P2; rotate and investigate; cascade to dependent secrets |
 | Category 3 lost | P1 incident; recovery ceremony from backup if available; full audit; consider trust-chain rotation if recovery integrity is uncertain |
 | Category 3 compromised | P1 incident; immediate ceremony to rotate; full trust chain re-issued; customer and regulator notification per applicable rules |
 

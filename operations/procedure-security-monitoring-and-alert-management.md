@@ -2,8 +2,8 @@
 
 **Document Title:** Security Monitoring and Alert Management Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.27\
-**Date:** 2026-10-13\
+**Version:** 1.4.0\
+**Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`security/standard-monitoring-integrity-and-coverage.md`](../security/standard-monitoring-integrity-and-coverage.md)\
@@ -184,7 +184,7 @@ The CISO is notified immediately for any P1 incident declaration arising from a 
 
 ### 7.2 P1 escalation decision
 
-A SIEM alert triggers P1 incident declaration when any of the following indicators are present:
+The P1 criteria in [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md) §3.1 govern P1 incident declaration: any case arising from a SIEM alert that meets any of those criteria is declared P1. Each of the following indicators also triggers P1 declaration; the list does not limit those criteria:
 
 - Confirmed malware or ransomware execution on a production server.
 - Evidence of lateral movement involving a Tier 0 or Tier 1 asset.
@@ -192,7 +192,7 @@ A SIEM alert triggers P1 incident declaration when any of the following indicato
 - Evidence of data exfiltration of Confidential or Restricted data.
 - Active attack on backup or SIEM infrastructure.
 
-In the absence of a clear indicator, the SOC lead escalates ambiguous high-severity situations to the CISO for declaration decision.
+Where it is unclear whether a case meets a P1 criterion, the SOC lead escalates it to the CISO for a declaration decision.
 
 ### 7.3 Sector-programme anomaly escalation
 
