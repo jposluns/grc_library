@@ -1889,8 +1889,10 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
     # Readiness comes from Popen.wait INSIDE the command's try/finally; the
     # production spawn window itself is covered by the at-spawn policy routes,
     # so TERM is sent only after readiness. Read a pipe for readiness and wait
-    # on process exit; one shared monotonic deadline bounds both stages (they
-    # are not independent ceilings). Neither depends on a command sleep.
+    # on process exit. Readiness has its own deadline; the exit wait starts at
+    # TERM and covers the probe's bounded cleanup (3b348): the grace loop, the
+    # self-test kill (5s scaled by 24, equal to TEST_WAIT), two reap waits and
+    # the fixture watcher (TEST_WAIT). Neither depends on a command sleep.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
     ready_r, ready_w = os.pipe()
@@ -1931,6 +1933,7 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         if proc.poll() is not None:
             return fail("probe-died-before-term")
         proc.send_signal(signal.SIGTERM)
+        deadline = time.monotonic() + 3 * GRACE_SECONDS + 2 * TEST_WAIT
         # subprocess.wait uses a monotonic deadline and waitpid.
         try:
             proc.wait(timeout=max(0.001, deadline - time.monotonic()))
