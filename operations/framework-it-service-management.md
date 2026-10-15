@@ -2,11 +2,11 @@
 
 **Document Title:** IT Service Management Framework\
 **Document Type:** Framework\
-**Version:** 1.1.0\
+**Version:** 1.1.1\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
-**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
+**Related Documents:** [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`operations/standard-service-level-management.md`](standard-service-level-management.md), [`operations/register-it-operations-kpis.md`](register-it-operations-kpis.md), [`resilience/plan-it-disaster-recovery.md`](../resilience/plan-it-disaster-recovery.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../security/sop-incident-escalation-matrix.md), [`governance/framework-continuous-assurance-and-improvement.md`](../governance/framework-continuous-assurance-and-improvement.md)\
 **Classification:** Public\
 **Category:** Operations\
 **Review Frequency:** Annual and upon material service management or regulatory change\
