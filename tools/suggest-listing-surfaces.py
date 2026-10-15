@@ -194,8 +194,8 @@ def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
     """Root-level files tools/build-taxonomy.py indexes, read from its source.
 
     Parses the builder (never imports it) and returns the string-literal tuple that a
-    ``for`` loop in ``iter_all_docs()`` walks. None when the builder cannot be read or
-    parsed, or no such loop is found.
+    ``for`` loop in ``iter_all_docs()`` walks (the first such loop in ast.walk order when
+    there are several). None when the builder cannot be read or parsed, or no such loop is found.
     """
     path = root / TAXONOMY_BUILDER
     try:

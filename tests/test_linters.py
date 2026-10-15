@@ -30808,7 +30808,8 @@ class SuggestListingSurfacesTests(unittest.TestCase):
     # guard names, deliberately broader than the helper's anchored stage grammar (it also
     # matches a check inside $(...) or an if-test, or after an interpreter flag that takes an
     # argument such as -X dev), so a narrowed helper parser cannot pass.
-    ANY_CHECK_RE = re.compile(r"python3\b[^\n]*?\s([\w./-]+\.py)\b[^\n]*?\s--check\b")
+    # In-line whitespace only ([ \t], never a newline) and a whole --check flag (not --check-foo).
+    ANY_CHECK_RE = re.compile(r"python3\b[^\n]*?[ \t]([\w./-]+\.py)\b[^\n]*?[ \t]--check(?![\w-])")
 
     def _guard_check_scripts(self):
         guard = (REPO_ROOT / "tools/pre-push-guard.sh").read_text(encoding="utf-8")
@@ -30871,6 +30872,28 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         td = Path(tempfile.mkdtemp(prefix="sls-roots-"))
         self.addCleanup(shutil.rmtree, td)
         self.assertIsNone(helper.indexed_root_documents(td))
+
+    def test_unparsable_builder_reports_unknown_for_a_root_document(self):
+        from contextlib import redirect_stdout
+        from unittest.mock import patch
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_bad_builder")
+        td = Path(tempfile.mkdtemp(prefix="sls-roots-"))
+        self.addCleanup(shutil.rmtree, td)
+        (td / "tools").mkdir()
+        (td / "tools/build-taxonomy.py").write_text("def iter_all_docs(:\n", encoding="utf-8")
+        self.assertIsNone(helper.indexed_root_documents(td))
+        # report_one calls indexed_root_documents() with its default root, bound at definition
+        # time, so patching REPO_ROOT alone would still read the real builder: wrap it as well.
+        real = helper.indexed_root_documents
+        out = io.StringIO()
+        with patch.object(helper, "REPO_ROOT", td), \
+                patch.object(helper, "indexed_root_documents", lambda: real(td)), \
+                redirect_stdout(out):
+            helper.report_one("specification-master-project.md")
+        self.assertIn("[unknown]", out.getvalue())
+        self.assertIn("root specifications iter_all_docs()", out.getvalue())
+        self.assertNotIn("[add]", out.getvalue())
+        self.assertNotIn("[regenerate]", out.getvalue())
 
     def test_unreadable_or_partial_derivation_reports_unknown(self):
         from contextlib import redirect_stdout
