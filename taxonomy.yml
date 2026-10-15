@@ -12661,7 +12661,7 @@ documents:
   domain: "security"
   type: "Procedure"
   title: "Security Incident Response Procedure"
-  version: "1.7.0"
+  version: "1.7.1"
   date: "2026-10-15"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"

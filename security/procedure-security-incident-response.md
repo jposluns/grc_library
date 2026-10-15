@@ -2,7 +2,7 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.7.0\
+**Version:** 1.7.1\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -336,6 +336,7 @@ The SOC must track and report the following metrics at the monthly security oper
 | Incident management policy and planning | Clause 5.2 | Clauses 4 to 11 | N/A | §2.3, §3.1 | A.5.24 | DSS02.01 | SEF-01, SEF-03 |
 | Detection and reporting | Clause 5.3 | N/A | Clauses 7, 8 and 12 | §3.2 | A.6.8 | DSS02.02 | SEF-06 |
 | Triage and classification | Clause 5.4 | Clause 6.5 | Clauses 9 and 10 | §3.2 (RS.MA-02, RS.MA-03, RS.MA-04) | A.5.25 | DSS02.02 | SEF-06 |
+| Incident command and IR partner engagement | Clauses 4.5.3 and 5.5 | Clauses 7.3 and 8.3 | N/A | §3.2 (RS.MA-01) | A.5.24, A.5.26 | DSS02.04 | SEF-07 |
 | Containment and evidence preservation | Clause 5.5 | N/A | Clause 11.2 | §3.2 (RS.MI-01, RS.AN-06, RS.AN-07) | A.5.26 | DSS02.04 | SEF-07, SEF-09 |
 | Eradication and recovery | Clause 5.5 | N/A | Clauses 11.3 and 11.4 | §3.2 (RS.MI-02, RS.MA-05, RC.RP-01, RC.RP-02, RC.RP-03, RC.RP-04, RC.RP-05) | A.5.26 | DSS02.05 | SEF-07 |
 | Regulatory notification | Clause 5.5 j), l) | N/A | Clause 12.3 | §3.2 (RS.CO-02) | A.5.5 | MEA03.01, MEA03.02 | SEF-08 |
@@ -343,7 +344,7 @@ The SOC must track and report the following metrics at the monthly security oper
 | Evidence handling | Clauses 5.3 d), i); 5.4 i), l); 5.5 f), j), m) | N/A | Clause 10.6 | §3.2 (RS.AN-06, RS.AN-07) | A.5.28 | DSS02.04 | SEF-09 |
 | Incident response metrics | Clause 5.6 | Clause 12.1 | N/A | §3.1 | Clause 9.1 | MEA01.02, MEA01.03, MEA01.04 | SEF-05 |
 
-Beyond the incident-lifecycle mappings above, this procedure aligns with NIST SP 800-184 (Guide for Cybersecurity Event Recovery) for the recovery phase, and with NIST SP 800-86 (Guide to Integrating Forensic Techniques into Incident Response) and ISO/IEC 27037:2012 (Guidelines for identification, collection, acquisition and preservation of digital evidence) for evidence handling and digital forensics.
+Beyond the incident-lifecycle mappings above, this procedure aligns with NIST SP 800-184 (Guide for Cybersecurity Event Recovery) for the recovery phase, and with NIST SP 800-86 (Guide to Integrating Forensic Techniques into Incident Response) and ISO/IEC 27037:2012 (Guidelines for identification, collection, acquisition and preservation of digital evidence) for evidence handling and digital forensics. Where the IR partner or another organization takes part in the response, the procedure also draws on ISO/IEC 27035-4:2024 (Part 4: Coordination), Clauses 4.3.2 and 5.5, as guidance for coordinating with that organization; the standard recommends defining each participating party's roles and responsibilities and identifying which organization leads the response.
 
 ---
 
