@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.8.1\
+**Version:** 1.9.0\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -32,20 +32,20 @@ Applies to all cryptographic key operations performed by IT Operations, Security
 
 | Role | Responsibility |
 | --- | --- |
-| **Security Architecture** | Designs key management architecture; approves new key types and algorithms; approves key generation requests (1.2); approves the protocols within which the ephemeral key-agreement key exemptions apply (1.1, 7.1 and the dual-control rule below). |
+| **Security Architecture** | Designs key management architecture; approves new key types and algorithms; approves key generation requests (1.2); approves the protocols within which the ephemeral key-agreement key exemptions apply (1.1, 3.1, 4.1, 4.3, 7.1 and the dual-control rule below). |
 | **IT Operations: Key Custodian** | Executes key operations; maintains Key Lifecycle Register. |
-| **CISO** | Approves non-standard key operations; approves each use of a compromised key under the controlled conditions in 6.2, step 4, and those conditions, with the approval, the conditions, the users told of the consequences and the period of use recorded in the KLR (NIST SP 800-57 Part 1 Rev. 5, section 7.5); reviews KLR quarterly. |
+| **CISO** | Approves non-standard key operations; approves once, in addition to Security Architecture, each approved protocol used for ephemeral key-agreement keys on high-sensitivity systems (4.3); approves each use of a compromised key under the controlled conditions in 6.2, step 4, and those conditions, with the approval, the conditions, the users told of the consequences and the period of use recorded in the KLR (NIST SP 800-57 Part 1 Rev. 5, section 7.5); reviews KLR quarterly. |
 | **System / Application Owner** | Requests keys for their systems; approves rotation schedules. |
 | **Legal Counsel** | Confirms under 7.1 whether a legal hold or investigation covers data a key protects, and is the only role that can confirm an external-authority investigation or a hold that is required but not yet recorded; gives the written release under 7.1. |
 | **Internal Audit** | Audits KLR completeness and key operation logs annually. |
 
-Dual control is required for all key generation, export, and destruction operations: no single person may perform these operations unilaterally. An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (1.2). The generation of a private or public ephemeral key-agreement key within an approved protocol (1.1), and the export of the public ephemeral key-agreement key to the peer within that protocol are outside this requirement. The destruction of a private or public ephemeral key-agreement key within the protocol is outside this requirement (7.1).
+Dual control is required for all key generation, activation, export, and destruction operations: no single person may perform these operations unilaterally. An approved protocol is a protocol approved by Security Architecture, which also approves key generation requests (1.2). The generation of a private or public ephemeral key-agreement key within an approved protocol (1.1), its activation by its use within that protocol, and the export of the public ephemeral key-agreement key to the peer within that protocol are outside this requirement. The destruction of a private or public ephemeral key-agreement key within the protocol is outside this requirement (7.1).
 
 ---
 
 ## 1. Key generation
 
-1.1 Steps 1.1, 1.2, 1.4 and 1.6 do not apply to a private or public ephemeral key-agreement key generated within an approved protocol, and 1.5 does not apply because the key has no KLR entry (2.1); 1.3 still applies to it. For every other key, submit a key generation request through the ITSM portal specifying: key type, algorithm, key length, intended use, system/application, and required validity period.
+1.1 A private or public ephemeral key-agreement key is generated only within an approved protocol. Steps 1.1, 1.2, 1.4 and 1.6 do not apply to a private or public ephemeral key-agreement key generated within an approved protocol, and 1.5 does not apply because the key has no KLR entry (2.1); 1.3 still applies to it. For every other key, submit a key generation request through the ITSM portal specifying: key type, algorithm, key length, intended use, system/application, and required validity period.
 
 1.2 The Security Architecture team reviews and approves the request, confirming algorithm compliance with the Cryptographic Key Lifecycle Management Framework.
 
@@ -78,7 +78,7 @@ Dual control is required for all key generation, export, and destruction operati
 
 ## 3. Key distribution
 
-3.1 Keys are distributed only to authorized systems and personnel as defined in the approved access list.
+3.1 Section 3 does not apply to the export of a public ephemeral key-agreement key to the peer within an approved protocol. Keys are distributed only to authorized systems and personnel as defined in the approved access list.
 
 3.2 Distribution channels:
 - Public keys: distributed via PKI certificate exchange or encrypted API (TLS 1.3+).
@@ -93,11 +93,11 @@ Dual control is required for all key generation, export, and destruction operati
 
 ## 4. Key activation
 
-4.1 Keys are activated in the target system or application by the system owner or authorized operator.
+4.1 Keys are activated in the target system or application by the system owner or authorized operator, and a Key Custodian other than the activating person must witness or cryptographically authenticate the activation, except for the activation of a private or public ephemeral key-agreement key by its use within an approved protocol (dual-control rule above).
 
-4.2 Activation is recorded in the Key Lifecycle Register: activation date, activating operator, target system.
+4.2 Activation is recorded in the Key Lifecycle Register: activation date, activating operator, witnessing or authenticating Key Custodian, target system.
 
-4.3 For high-sensitivity systems, activation requires CISO approval.
+4.3 For high-sensitivity systems, activation requires CISO approval. On such a system, for a private or public ephemeral key-agreement key activated by its use within an approved protocol, the CISO instead approves that protocol once, in addition to Security Architecture, and that approval replaces per-key CISO approval of activation.
 
 ---
 
