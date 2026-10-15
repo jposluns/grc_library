@@ -24,7 +24,7 @@ In modern programmes the boundaries between the three overlap with **security** 
 
 | If you are ... | Start at |
 | --- | --- |
-| New to GRC, or evaluating the library | Continue reading §Purpose below, then [`docs/portal.md`](docs/portal.md). |
+| New to GRC, or evaluating the library | Continue reading [Purpose](#purpose) below, then [`docs/portal.md`](docs/portal.md). |
 | Unsure which documents apply to your situation | [`docs/decision-tree.md`](docs/decision-tree.md) (the guided reading-order decision tree), then [`docs/portal.md`](docs/portal.md). |
 | An adopter setting up a programme | [`docs/portal.md`](docs/portal.md) (canonical front door), then [`docs/adopter-guide.md`](docs/adopter-guide.md) and [`docs/template-quickstart.md`](docs/template-quickstart.md). |
 | An auditor or reviewer assessing scope | [`docs/portal.md`](docs/portal.md) and [`governance/register-document-index-and-classification.md`](governance/register-document-index-and-classification.md). |
