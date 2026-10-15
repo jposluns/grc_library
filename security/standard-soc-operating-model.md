@@ -2,7 +2,7 @@
 
 **Document Title:** Security Operations Centre Operating Model Standard\
 **Document Type:** Standard\
-**Version:** 1.1.1\
+**Version:** 1.1.2\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -49,7 +49,7 @@ Adopting organizations document the current tier and the target tier in the secu
 | --- | --- |
 | SOC Manager | Operational leadership; shift governance; SLA accountability; supplier relationship if hybrid; SOC lead, or designates a duty deputy as SOC lead (see below) |
 | SOC Analyst (Tier 1) | Initial triage; alert validation; routine investigation; documented response per playbook |
-| SOC Analyst (Tier 2) | Deep investigation; correlation across alerts; incident commander for a P3 or P4 incident when assigned to that incident |
+| SOC Analyst (Tier 2) | Deep investigation; correlation across alerts; incident commander for a security P3 or P4 incident when assigned to that incident |
 | SOC Analyst (Tier 3) or Senior Incident Responder | Complex investigation; incident commander for P2, and for P1 only where the CIO or CISO delegates the role in writing (see [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) §2.2); forensic work; co-ordination with external IR partner |
 | Detection Engineer | Detection content authoring, tuning, lifecycle; metric ownership |
 | Threat Intelligence Analyst | Intelligence collection, analysis, dissemination; sector and threat-actor tracking |
