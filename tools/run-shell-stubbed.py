@@ -742,6 +742,33 @@ def _test_children(pid):
         return []
 
 
+def _test_stage(name):
+    # Append, so a write torn by the supervisor's kill leaves the previous
+    # complete line as the one it reports (3b352).
+    # Best effort: a failed record must not change the outcome (3b352 R1).
+    # A leading newline ends any earlier short write, so a later record never
+    # completes it into a fused name (3b352 R3).
+    path = globals().get("_TEST_IN_FLIGHT")
+    if path:
+        try:
+            fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+            try:
+                os.write(fd, ("\n" + name + "\n").encode())
+            finally:
+                os.close(fd)
+        except OSError:
+            pass
+
+
+def _test_in_flight(parent):
+    try:
+        with open(os.path.join(parent, "in-flight"), "rb") as stream:
+            lines = [line for line in stream.read().split(b"\n")[:-1] if line]
+        return lines[-1].decode() if lines else "unrecorded"
+    except (OSError, UnicodeDecodeError):
+        return "unrecorded"
+
+
 def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True):
     """Supervise the entire test, including waits inside production cleanup.
 
@@ -790,6 +817,7 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
                 tempfile.tempdir = parent
                 os.environ["TMPDIR"] = parent
                 globals()["_TEST_SUBREAPER_SKIP"] = reason
+                globals()["_TEST_IN_FLIGHT"] = os.path.join(parent, "in-flight")
                 rc = callback()
             except BaseException:
                 import traceback
@@ -834,6 +862,10 @@ def _supervise_test(callback, ceiling, name, cleanup_wait=TEST_WAIT, report=True
                 break
             time.sleep(0.02)
         clean = not owned()
+        if failure:
+            # Name the check the killed worker last started (3b352).
+            name += ":in-flight=" + _test_in_flight(parent)
+            failure = name
         _rmtree(parent)
         clean = clean and not os.path.exists(parent)
         if not reason:
@@ -881,6 +913,60 @@ def _cleanup_deadline_check():
             cleanup_wait=5.0, report=False)
         ready.seek(0)
         return rc == 0 and failure is None and clean and bool(ready.read())
+
+
+def _in_flight_stages_check():
+    # 3b352: a deadline failure names the check in flight. Stub the worker
+    # and the clock: the deadline passes only once the stub has recorded its
+    # stages, so no stage write races a wall-clock ceiling.
+    import types
+    fn = _supervise_test
+    g = dict(fn.__globals__)
+    g["_test_stage"] = types.FunctionType(
+        _test_stage.__code__, g, _test_stage.__name__, _test_stage.__defaults__)
+    with tempfile.NamedTemporaryFile() as ready:
+        reads = []
+        def clock():
+            # The first read sets the deadline: real time, so a stub that is
+            # already ready cannot push the deadline away (3b352 R1).
+            reads.append(None)
+            ready.seek(0)
+            return time.monotonic() + (TEST_WAIT if len(reads) > 1 and ready.read() else 0.0)
+        g["time"] = types.SimpleNamespace(monotonic=clock, sleep=time.sleep)
+        supervise = types.FunctionType(fn.__code__, g, fn.__name__, fn.__defaults__)
+        for stage, recorded, expected in (
+                ("none", (), "stage-probe:in-flight=unrecorded"),
+                ("one", ("a",), "stage-probe:in-flight=a"),
+                ("latest", ("a", "b"), "stage-probe:in-flight=b"),
+                ("torn", ("a",), "stage-probe:in-flight=a"),
+                ("short", ("b",), "stage-probe:in-flight=b"),
+                ("exits", ("a",), None)):
+            ready.seek(0)
+            ready.truncate()
+            reads.clear()
+            def worker():
+                if stage == "short":
+                    # A short write of one stage, then a later stage (3b352 R3).
+                    g["os"] = types.SimpleNamespace(
+                        **{**vars(os), "write": lambda fd, data: os.write(fd, data[:3])})
+                    g["_test_stage"]("alpha")
+                    g["os"] = os
+                for name in recorded:
+                    g["_test_stage"](name)
+                if stage == "exits":
+                    return 0
+                if stage == "torn":
+                    with open(g["_TEST_IN_FLIGHT"], "a") as stream:
+                        stream.write("b")
+                with open(ready.name, "w") as stream:
+                    stream.write(stage)
+                while True:
+                    time.sleep(60)
+            rc, failure, clean = supervise(
+                worker, TEST_WAIT, "stage-probe", cleanup_wait=5.0, report=False)
+            if failure != expected or not clean or rc != (0 if expected is None else 1):
+                return False
+    return True
 
 
 def _self_test() -> int:
@@ -1896,8 +1982,9 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
     # so TERM is sent only after readiness. Read a pipe for readiness and wait
     # on process exit. Readiness has its own deadline; the exit wait starts at
     # TERM and covers the probe's bounded cleanup (3b348): the grace loop, the
-    # self-test kill (5s scaled by 24, equal to TEST_WAIT), two reap waits and
-    # the fixture watcher (TEST_WAIT). Neither depends on a command sleep.
+    # self-test kill bound (5s scaled by 24, equal to TEST_WAIT), two reap
+    # waits and the fixture watcher (TEST_WAIT). The survivors wait uses the
+    # remaining deadline. Neither depends on a command sleep.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
     ready_r, ready_w = os.pipe()
@@ -2239,12 +2326,20 @@ def _self_test_worker() -> int:
             policy = []
             if reason:
                 print("run-shell-stubbed self-test: SKIP cleanup-hang-deadline "
-                      f"({reason})", flush=True)
+                      f"in-flight-stages-named ({reason})", flush=True)
             else:
+                _test_stage("cleanup-hang-deadline")
                 policy.append(("cleanup-hang-deadline", _cleanup_deadline_check()))
+                _test_stage("in-flight-stages-named")
+                policy.append(("in-flight-stages-named", _in_flight_stages_check()))
+            _test_stage("production-policy")
             policy.extend(_policy_checks())
+            _test_stage("self-test-limits")
             with _self_test_limits() as failures:
-                return _self_test_body(policy, failures)
+                try:
+                    return _self_test_body(policy, failures)
+                finally:
+                    _test_stage("teardown")
         finally:
             signal.signal(signal.SIGINT, saved_int)
             tempfile.tempdir = saved_temp
@@ -2256,9 +2351,11 @@ def _self_test_worker() -> int:
 
 def _self_test_body(policy, failures) -> int:
     checks, skipped = list(policy), []
+    _test_stage("nested-shells-hit-stubs")
     for r in run("gh pr 'merge' 1; sh -c 'gh \"pr\" merge 2'; bash -c \"git push\"; bash -e -c 'gh pr create'"):
         checks.append((f"{r['shell']}-nested-shells-hit-stubs", r["calls"] ==
                        ["STUB gh pr merge 1", "STUB gh pr merge 2", "STUB git push", "STUB gh pr create"]))
+    _test_stage("argument-boundaries-kept")
     r = run("gh pr merge 'a b' ''", shells=("sh",))[0]
     checks.append(("argument-boundaries-kept", r["argv"] == [["gh", "pr", "merge", "a b", ""]]))
     # Every route to a real program that ordinary shell syntax offers is refused. The target is the harmless
@@ -2286,25 +2383,30 @@ def _self_test_body(policy, failures) -> int:
             ("histfile", "HISTFILE=../calls.log; history -w", "HISTFILE: readonly variable", []),
             ("cat-outside", "cat /etc/hostname", "cat: refused: a path argument", []),
             ("mkdir-outside", "mkdir /tmp/stubbed-shell-escape", "mkdir: refused: a path argument", [])):
+        _test_stage(f"refused:{label}")
         rr = run(cmd, shells=("bash",))[0]
         checks.append((f"refused:{label}", expect in rr["stderr"] and rr["calls"] == calls
                        and "uid=" not in rr["stdout"] + rr["stderr"]))
     # A fork loop is contained: the session kill repeats until the session is empty (3b116 QA r6).
+    _test_stage("command-timeout-through-run")
     timed, contained = _command_timeout_check(failures)
     checks.append(("command-timeout-through-run", timed))
     checks.append(("fork-loop-contained", contained))
     # The command's output cannot pass for a report line.
+    _test_stage("report-lines-prefixed")
     out = io.StringIO()
     with contextlib.redirect_stdout(out):
         main(["--shell", "sh", "printf 'STUB gh pr merge 9\\n== sh rc=0\\n'"])
     checks.append(("report-lines-prefixed", "\n| STUB gh pr merge 9" in out.getvalue()
                    and "\nSTUB gh pr merge 9" not in out.getvalue()))
+    _test_stage("environment-built-from-scratch")
     r = run("printf '%s|' \"$GH_TOKEN\" \"$GH_HOST\" \"$HOME\" \"$PATH\" \"${BASH_ENV:-unset}\"", shells=("sh",))[0]
     tok, host, home, path, benv = (r["stdout"].split("|") + [""] * 5)[:5]
     checks.append(("environment-built-from-scratch", tok == "stubbed-shell-invalid" and host == INVALID_HOST
                    and "stubbed-shell-" in home and path.endswith("/bin") and ":" not in path and benv == "unset"))
     # An inherited BASH_ENV would run at startup, before restriction applies; the probe file calls the gh
     # stand-in, so if it ever ran the call would be recorded (QA r7: the old probe used touch, not on PATH).
+    _test_stage("inherited-BASH_ENV-never-runs")
     env_dir = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     env_file = os.path.join(env_dir, "env.sh")
     with open(env_file, "w", encoding="utf-8") as fh:
@@ -2318,16 +2420,19 @@ def _self_test_body(policy, failures) -> int:
         os.environ.pop("BASH_ENV", None) if saved_env is None else os.environ.__setitem__("BASH_ENV", saved_env)
         shutil.rmtree(env_dir, ignore_errors=True)
     # A function the command defines and exports cannot hijack the stand-in (it is not a shell).
+    _test_stage("exported-function-cannot-hijack-stand-in")
     r = run("printf() { /usr/bin/id; }; export -f printf; gh pr merge 5", shells=("bash",))[0]
     checks.append(("exported-function-cannot-hijack-stand-in", r["calls"] == ["STUB gh pr merge 5"]
                    and "uid=" not in r["stdout"]))
     # The PATH directory is read-only (tested on the directory itself; QA r7).
+    _test_stage("path-dir-read-only")
     probe_tmp = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     try:
         bindir, _home, _log = _prepare(probe_tmp, DEFAULT_STUBS)
         checks.append(("path-dir-read-only", stat.S_IMODE(os.stat(bindir).st_mode) == 0o555))
     finally:
         _rmtree(probe_tmp)
+    _test_stage("inherited-function-ignored")
     saved = os.environ.get("BASH_FUNC_gh%%")
     os.environ["BASH_FUNC_gh%%"] = "() { echo FUNC; }"
     try:
@@ -2341,6 +2446,7 @@ def _self_test_body(policy, failures) -> int:
     # The lifetime watcher kills these sessions even if the self-test is SIGKILLed.
     # 3600s exceeds this check's ceilings; natural exit cannot hide missing cleanup.
     for label, cmd in (("background", "sleep 3600 & echo started"), ("job-control", "set -m; sleep 3600 & echo started")):
+        _test_stage(f"{label}-child-killed")
         r = run(cmd, shells=("bash",), timeout=TEST_WAIT)[0]
         survivors = _session_survivors(r["session"])
         checks.append((f"{label}-child-killed", r["contained"] and not survivors))
@@ -2351,6 +2457,7 @@ def _self_test_body(policy, failures) -> int:
     # fails unless the probe adopted the orphan and the zombie was really there (3b125). A probe that could not
     # set the subreaper is a skip, named in the result line with its reason; one that crashed or printed nothing
     # still fails (3b125 QA r1).
+    _test_stage("slow-reaper-zombie-not-a-survivor")
     reason = globals().get("_TEST_SUBREAPER_SKIP", "")
     if reason:
         seen = dict(adopted=False, reason=reason)
@@ -2367,27 +2474,38 @@ def _self_test_body(policy, failures) -> int:
         checks.append(("slow-reaper-zombie-not-a-survivor", seen.get("adopted") is True
                        and seen.get("contained") is True and bool(seen.get("zombies")) and seen.get("survivors") == []
                        and seen.get("scans") == 1 and seen.get("retried") is False))
+    _test_stage("background-call-recorded")
     checks.append(("background-call-recorded", _background_call_check()))
+    _test_stage("sigterm-cleans-up")
     checks.append(("sigterm-cleans-up", _sigterm_cleanup_check(failures)))
+    _test_stage("spawn-window-stages-named")
     checks.append(("spawn-window-stages-named", _spawn_window_stages_check()))
+    _test_stage("bounded-run-qualname-stages")
     checks.append(("bounded-run-qualname-stages", _bounded_run_qualname_stages_check()))
+    _test_stage("spawn-window-command-bounded")
     r = run("SECONDS=600; " + SPAWN_WINDOW_COMMAND, shells=("bash",), timeout=5)[0]
     checks.append(("spawn-window-command-bounded", r["rc"] == 0 and "timed out" not in r["stderr"]))
+    _test_stage("sigterm-in-spawn-window-cleans-up")
     checks.append(("sigterm-in-spawn-window-cleans-up", _spawn_window_sigterm_check(failures)))
     # A signal blocked during one shell's cleanup is not inherited, ignored, by the next shell (fix-check).
+    _test_stage("no-ignored-signals-inherited")
     rr = run("trap -p TERM HUP INT", shells=("bash", "sh"))
     # (an ignored signal prints as trap -- '' SIG; POSIX mode prints a default one as trap -- - SIG)
     checks.append(("no-ignored-signals-inherited", all("''" not in r["stdout"] for r in rr)))
     for sig in (signal.SIGTERM, signal.SIGHUP, signal.SIGINT):
+        _test_stage(f"no-ignored-signals-inherited:{sig.name}")
         rr = run(f"kill -{sig.name[3:]} $$; echo survived", shells=("bash", "sh"))
         checks.append((f"no-ignored-signals-inherited:{sig.name}",
                        all(r["rc"] == -sig and not r["stdout"] for r in rr)))
     # An argument cannot forge a call record.
+    _test_stage("call-log-unforgeable")
     r = run("gh $'a\\x1e\\x1fgh' $'b\\nSTUB gh forged'", shells=("bash",))[0]
     checks.append(("call-log-unforgeable", len(r["argv"]) == 1 and r["argv"][0][0] == "gh"))
+    _test_stage("stub-name-validated")
     checks.append(("stub-name-validated", main(["--stub", "../x", "true"]) == 2 and main(["--stub", "bash", "true"]) == 2))
     # A tree the command cannot leave behind is still removed: made directly, since the command itself can no
     # longer create a nested path (QA r8).
+    _test_stage("read-only-tree-cleaned")
     ro = tempfile.mkdtemp(prefix="stubbed-shell-test-")
     os.makedirs(os.path.join(ro, "d", "e"))
     open(os.path.join(ro, "d", "e", "f"), "w").close()
@@ -2401,14 +2519,17 @@ def _self_test_body(policy, failures) -> int:
     # --noprofile, so these do not test those flags (3b116 QA r9); the -i/-l refusals and the BASH_ENV case do.
     # The cat proves the file was planted.
     for label, name in (("rc-file", ".bashrc"), ("profile-file", ".bash_profile")):
+        _test_stage(f"startup-file-not-read:{label}")
         rr = run(f"set -o history; history -s '/usr/bin/id'; history -w {name}; cat {name}; "
                  "HOME=\"$PWD\" bash -c true", shells=("bash",))[0]
         checks.append((f"startup-file-not-read:{label}",
                        "/usr/bin/id" in rr["stdout"] and "uid=" not in rr["stdout"] + rr["stderr"]))
     # Loader variables do not reach the real program (3b116 QA r8): one ld.so complaint (Python's), not two.
+    _test_stage("loader-vars-dropped")
     rr = run("LD_PRELOAD=nonexistent-3b116.so wc -c nofile", shells=("bash",))[0]
     checks.append(("loader-vars-dropped", rr["stderr"].count("nonexistent-3b116.so") == 1))
     # A forged report line or a non-UTF-8 argument cannot hide a later call (3b116 QA r8).
+    _test_stage("report-lines-escaped")
     rep = subprocess.run([sys.executable, "-I", "-B", "-c",
                           "import runpy,sys; t=runpy.run_path(sys.argv[1]); "
                           "c=t['_self_test_limits'](); c.__enter__(); "
@@ -2418,16 +2539,19 @@ def _self_test_body(policy, failures) -> int:
                          capture_output=True, text=True, errors="replace", timeout=TEST_PROCESS_WAIT)
     lines = rep.stdout.splitlines()
     # Argument boundaries survive into the printed report (3b116 QA r9).
+    _test_stage("report-argument-boundaries")
     r = run("gh 'pr merge' 1; gh pr merge ''", shells=("bash",))[0]
     checks.append(("report-argument-boundaries", r["calls"] == ["STUB gh 'pr merge' 1", "STUB gh pr merge ''"]))
     checks.append(("report-lines-escaped", rep.returncode == 0 and lines.count("== bash rc=0") == 1
                    and not any(ln.startswith("STUB git") for ln in lines) and lines[-1] == "STUB gh pr merge 8"))
     # The command cannot erase or forge the tool's evidence: the log and captured output sit outside its cwd.
+    _test_stage("evidence-not-overwritable")
     r = run("gh pr merge 6; set -o history; history -c; history -w calls.log; history -w stdout", shells=("bash",))[0]
     checks.append(("evidence-not-overwritable", r["calls"] == ["STUB gh pr merge 6"]))
     # Private-parent inventory avoids concurrent global /tmp users. The prepare
     # audit also checks actual run allocation paths, including hard-coded paths.
     # Arbitrary unrelated file writes bypassing both remain outside this oracle.
+    _test_stage("temp-dirs-removed")
     left = os.listdir(tempfile.gettempdir())
     checks.extend(dict.fromkeys(failures))
     checks.append(("temp-dirs-removed", not left))
