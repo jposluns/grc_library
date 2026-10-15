@@ -169,7 +169,7 @@ _129 documents._
 | [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.28 | 2026-09-25 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.2.0 | 2026-10-14 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.2.0 | 2026-10-15 |
-| [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.14 | 2026-09-05 |
+| [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.15 | 2026-10-15 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.27 | 2026-10-03 |
 | [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.15 | 2026-09-25 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.2.0 | 2026-10-13 |
