@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Operations Procedure\
 **Document Type:** Procedure\
-**Version:** 1.8.0\
+**Version:** 1.8.1\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -32,7 +32,7 @@ Applies to all cryptographic key operations performed by IT Operations, Security
 
 | Role | Responsibility |
 | --- | --- |
-| **Security Architecture** | Designs key management architecture; approves new key types and algorithms. |
+| **Security Architecture** | Designs key management architecture; approves new key types and algorithms; approves key generation requests (1.2); approves the protocols within which the ephemeral key-agreement key exemptions apply (1.1, 7.1 and the dual-control rule below). |
 | **IT Operations: Key Custodian** | Executes key operations; maintains Key Lifecycle Register. |
 | **CISO** | Approves non-standard key operations; approves each use of a compromised key under the controlled conditions in 6.2, step 4, and those conditions, with the approval, the conditions, the users told of the consequences and the period of use recorded in the KLR (NIST SP 800-57 Part 1 Rev. 5, section 7.5); reviews KLR quarterly. |
 | **System / Application Owner** | Requests keys for their systems; approves rotation schedules. |

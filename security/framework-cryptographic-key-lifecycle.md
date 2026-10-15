@@ -2,7 +2,7 @@
 
 **Document Title:** Cryptographic Key Lifecycle Management Framework\
 **Document Type:** Framework\
-**Version:** 1.8.0\
+**Version:** 1.8.1\
 **Date:** 2026-10-15\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
@@ -83,7 +83,7 @@ All cryptographic keys must be registered in the Key Lifecycle Register with the
 | Role | Responsibility |
 | --- | --- |
 | **CISO** | Approves cryptographic standards and key management policy; approves each use of a compromised key for processing under controlled conditions, and those conditions (NIST SP 800-57 Part 1 Rev. 5, section 7.5), with the approval, the conditions, the users told of the consequences and the period of use recorded in the KLR; reviews KLR quarterly. |
-| **Security Architecture** | Designs key management architecture; selects approved algorithms and HSM platforms. |
+| **Security Architecture** | Designs key management architecture; selects approved algorithms and HSM platforms; approves the protocols within which the ephemeral key-agreement key exemptions in this framework apply. |
 | **IT Operations** | Executes key rotation, distribution, and revocation procedures. |
 | **Internal Audit** | Verifies KLR completeness and control adherence annually. |
 
