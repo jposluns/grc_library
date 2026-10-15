@@ -7488,7 +7488,7 @@ documents:
   domain: "operations"
   type: "Procedure"
   title: "Media Handling and Transport Procedure"
-  version: "1.9.0"
+  version: "1.10.0"
   date: "2026-10-15"
   owner: "Chief Information Security Officer"
   approving_authority: "Governance Library Maintainer"
