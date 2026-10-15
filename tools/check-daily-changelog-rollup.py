@@ -13,6 +13,14 @@ mirror rows):
 
     **YYYY-MM-DD | X.Y.Z | PRs #A-#B (N PRs)** - one-line day summary
 
+The root roll-up and the detailed-mirror sweep are ONE coupled operation,
+produced together by the coupled roll-up tool in the private maintainer
+repository; a hand-made root roll-up fails the CHANGELOG mirror header-parity
+gate (specification gate 59), so the advisory message names that tool rather than inviting a
+hand edit. The message deliberately carries no sibling-repo path token (the
+cross-repo reference audit flags a private-sibling pointer from a public-tree
+file for over-exposure review).
+
 The roll-up is easy to forget, because a day's per-PR entries are individually
 correct and nothing else complains. This check scans CHANGELOG.md and, for any
 UTC date STRICTLY BEFORE today (UTC) that still carries MORE THAN ONE per-PR
@@ -28,7 +36,7 @@ It deliberately does NOT warn for:
 Scope: root CHANGELOG.md only. HTML-commented regions (e.g. the retained mirror
 of a pruned entry) are ignored so a commented-out entry never counts.
 
-Exit status is ALWAYS 0: the finding is advisory (offload the roll-up draft to a
+Exit status is ALWAYS 0: the finding is advisory (offload the coupled roll-up run to a
 worker), never a push blocker.
 
 Usage:
@@ -112,8 +120,11 @@ def report(due: list[tuple[str, int]], stream=sys.stdout) -> int:
     for date_str, count in due:
         print(
             f"DAILY SUMMARY DUE for {date_str}: {count} per-PR entries not yet "
-            f"rolled up; the next PR should include the daily roll-up "
-            f"(offload the draft)",
+            f"rolled up; the next PR should include the daily roll-up, run via "
+            f"the coupled roll-up tool (rollup-changelog.py) in the private "
+            f"maintainer repository, which writes the root roll-up and the "
+            f"detailed-mirror sweep together (offload the run); a hand-made "
+            f"root roll-up fails the CHANGELOG mirror header-parity gate",
             file=stream,
         )
     return len(due)
@@ -195,6 +206,26 @@ def _self_test() -> int:
             buf = io.StringIO()
             self.assertEqual(report(due, stream=buf), len(due))
 
+        def test_report_message_names_coupled_rollup_tool(self):
+            # Regression (2026-10-15): a root roll-up hand-made from this
+            # message alone failed the mirror header-parity gate. The message
+            # must route to the coupled tool and name the gate a hand edit
+            # fails, without a private-sibling path token (over-exposure).
+            import io
+
+            buf = io.StringIO()
+            report([("2026-07-25", 3)], stream=buf)
+            msg = buf.getvalue()
+            self.assertTrue(msg.startswith("DAILY SUMMARY DUE for 2026-07-25: 3 "))
+            self.assertIn("coupled roll-up tool (rollup-changelog.py)", msg)
+            self.assertIn("private maintainer repository", msg)
+            self.assertIn(
+                "a hand-made root roll-up fails the CHANGELOG mirror "
+                "header-parity gate",
+                msg,
+            )
+            self.assertNotIn("library_private", msg)
+
     suite = unittest.TestLoader().loadTestsFromTestCase(T)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     return 0 if result.wasSuccessful() else 1
@@ -231,7 +262,7 @@ def main(argv: list[str] | None = None) -> int:
     today = datetime.datetime.now(datetime.timezone.utc).date()
     due = find_rollups_due(path.read_text(encoding="utf-8"), today)
     report(due)
-    # Advisory only: findings are roll-up-draft candidates, never a push blocker.
+    # Advisory only: findings are coupled roll-up run candidates, never a push blocker.
     return 0
 
 
