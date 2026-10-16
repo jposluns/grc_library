@@ -88,13 +88,17 @@ different models (versions count). Gate failures have no exception-register bypa
     and preserve the documented closing-QA compensating control. Prequeue bounded
     research at the closing merge SHA and record dispatches as pending work.
 14. Plan-bending decision: apply decision-classification-before-enacting.md.
-    Write ACT/ASK/BLOCKED before enactment; use only the closed blocker vocabulary
-    retained below, ask reachable authorities, and prove whole-set exhaustion.
+    Write ACT/ASK/BLOCKED before enactment; use only the closed blocker
+    vocabulary retained in that procedure's project overlay, ask reachable
+    authorities, and prove whole-set exhaustion.
 15. Plan/run initiation or interpretation of authorization before execution: apply express-authorization-before-execution.md. A conditional
     go covers only the presently authorized step; await the required confirmation
     before the gated step. An adjacent or unnamed endorsement does not widen scope.
 
-The following project overlays are retained from 9985b75f. Their old statements
+Fourteen project overlays retained from 9985b75f stay below the
+PROJECT-OVERLAY marker in each legacy procedure copy under
+.claude/references/governance/, read at the triggers above;
+tools/aiqt_rules.py pins their digests. The legacy procedures' old statements
 that GRC authors all portable AIQT and guardrails is only an export target are
 superseded for the imported AIQT snapshot: upstream owns those pinned bytes;
 GRC owns local compatibility and its legacy publication sources. New portable
@@ -106,3 +110,9 @@ The AIQT snapshot is separately licensed Apache-2.0; its LICENSE and NOTICE
 remain verbatim. No legacy procedure retires. In every retained procedure,
 the worker-brief template is the operational store root worker-brief-template.md
 (current store root /opt/grc/private), superseding the archived private/.working path.
+
+Two clauses from the former overlay tails stay always loaded here:
+- Record and assess a degradation hypothesis in the degradation-watch-log
+  before asserting it.
+- Maintainer return does not restore attended mode; swap-back needs an
+  explicit operator instruction.

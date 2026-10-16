@@ -71,8 +71,10 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # 3b177-d lowers 1021 -> 781 (skills/playbook relocation + SUPERSEDED deletion); downward ratchet resumes.
 # 3b177-e lowers 781 -> 468 and the startup character ceiling 288490 -> 245289 (set from the draft's
 # 458 lines + 10 and 244289 + 1000; restored clauses since then still fit); downward ratchet continues.
+# 3b304 W1-b lowers the startup character ceiling 245289 -> 233300 (the overlay tails leave the
+# generated compatibility rule; measured 232696 plus a reserve of at least 600, rounded up to 50).
 CEILING = 468
-STARTUP_CHARACTER_CEILING = 245289  # 3b177-e; final backlog goal remains 150000
+STARTUP_CHARACTER_CEILING = 233300  # 3b304 W1-b; final backlog goal remains 150000
 
 
 

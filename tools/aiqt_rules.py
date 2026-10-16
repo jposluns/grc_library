@@ -1,12 +1,15 @@
 """Pinned AIQT rendering and validation. Offline, exact bytes, fail closed.
 
+The compatibility target is the exact bytes of its source. The fourteen
+retained overlays stay only in their legacy copies, below the PROJECT-OVERLAY
+marker, and are not rendered into the target.
+
 OVERLAY_DIGESTS pins the SHA-256 of the raw UTF-8 bytes that follow the first
 PROJECT-OVERLAY marker in each retained legacy file, read without newline
-translation and before any strip or rewrite. To change a retained overlay, edit
-the legacy tail, recompute
+translation or strip. To change a retained overlay, edit the
+legacy tail, recompute
 hashlib.sha256(text.split(MARKER, 1)[1].encode()).hexdigest(), update the
-constant in the same commit, run python3 tools/aiqt_rules.py --write, and
-re-run gate 37.
+constant in the same commit, and re-run gate 37.
 
 validate() resolves its root first, so a relative or symlink-reached root is
 accepted. A changed retained tail fails before the generated target is compared,
@@ -27,7 +30,6 @@ fails that check at the present headroom).
 import argparse
 import hashlib
 import json
-import re
 import tempfile
 import tomllib
 from pathlib import Path
@@ -49,7 +51,7 @@ OVERLAY_DIGESTS: dict[str, str] = {
     ".claude/references/governance/action-before-explanation-of-inaction.md":
         "7cb3bbce65996a4ce92370fa2aec5d7eb6aecfa090d28144ee7148a7bca0a4aa",
     ".claude/references/governance/ai-assistant-workflow-disciplines.md":
-        "28228e2fe18fd10e774a9c2c38ed169bab27b349afa1bc76873cac6f59342c11",
+        "d83251982f9ff4ec365d1d0208097d00429988ce28b80866e60012da89e0c413",
     ".claude/references/governance/artefact-and-branch-discipline.md":
         "3a5f8301bebf5f2ec25971588acdfd0488e51f292e30bb0ab8e1058dffca9168",
     ".claude/references/governance/change-tracking.md":
@@ -112,19 +114,7 @@ def overlays(root, legacy):
         paths.append(path)
         if sha(raw.encode()) != OVERLAY_DIGESTS[path]:
             raise ValueError("retained overlay drift: " + path)
-        tail = raw.strip()
-        tail = tail.replace("## Project overlay (grc_library wiring and lineage; local copy only)",
-                            "## " + Path(path).name)
-        tail = tail.replace("(../../hooks/", "(../hooks/")
-        tail = tail.replace("(../../../tools/", "(../../tools/")
-        tail = tail.replace("grc_library_private/.working/worker-brief-template.md",
-                            "/opt/grc/private/worker-brief-template.md")
-        tail = re.sub(r"- Guardrails authoring instantiation.*?(?=\n- Gate-37)",
-                      "- Maintainer D2 (2026-10-02): upstream owns the pinned AIQT bytes; "
-                      "GRC owns compatibility and legacy publication procedures. "
-                      "Portable AIQT changes require upstream review and an explicit re-pin.",
-                      tail, flags=re.S)
-        parts.append(tail)
+        parts.append(raw)
     if len(parts) != 14:
         raise ValueError("expected fourteen retained overlays")
     if len(set(paths)) != len(paths) or set(paths) != set(OVERLAY_DIGESTS):
@@ -132,8 +122,8 @@ def overlays(root, legacy):
     return parts
 
 def compatibility(root, legacy):
-    parts = overlays(root, legacy)
-    return ((root / SOURCE).read_text() + "\n" + "\n\n".join(parts) + "\n").encode()
+    overlays(root, legacy)
+    return (root / SOURCE).read_bytes()
 
 def inventory(root):
     data = json.loads((root / MANIFEST).read_text(), object_pairs_hook=unique)

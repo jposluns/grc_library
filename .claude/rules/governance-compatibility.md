@@ -88,13 +88,17 @@ different models (versions count). Gate failures have no exception-register bypa
     and preserve the documented closing-QA compensating control. Prequeue bounded
     research at the closing merge SHA and record dispatches as pending work.
 14. Plan-bending decision: apply decision-classification-before-enacting.md.
-    Write ACT/ASK/BLOCKED before enactment; use only the closed blocker vocabulary
-    retained below, ask reachable authorities, and prove whole-set exhaustion.
+    Write ACT/ASK/BLOCKED before enactment; use only the closed blocker
+    vocabulary retained in that procedure's project overlay, ask reachable
+    authorities, and prove whole-set exhaustion.
 15. Plan/run initiation or interpretation of authorization before execution: apply express-authorization-before-execution.md. A conditional
     go covers only the presently authorized step; await the required confirmation
     before the gated step. An adjacent or unnamed endorsement does not widen scope.
 
-The following project overlays are retained from 9985b75f. Their old statements
+Fourteen project overlays retained from 9985b75f stay below the
+PROJECT-OVERLAY marker in each legacy procedure copy under
+.claude/references/governance/, read at the triggers above;
+tools/aiqt_rules.py pins their digests. The legacy procedures' old statements
 that GRC authors all portable AIQT and guardrails is only an export target are
 superseded for the imported AIQT snapshot: upstream owns those pinned bytes;
 GRC owns local compatibility and its legacy publication sources. New portable
@@ -107,160 +111,8 @@ remain verbatim. No legacy procedure retires. In every retained procedure,
 the worker-brief template is the operational store root worker-brief-template.md
 (current store root /opt/grc/private), superseding the archived private/.working path.
 
-## action-before-explanation-of-inaction.md
-
-- Project instantiation: the CLAUDE.md `PR activity subscription discipline`
-  (subscribe plus a 60-second fallback timer; the background-task check SOP).
-
-## ai-assistant-workflow-disciplines.md
-
-- **In-session subagent fan-out is DISABLED in this project** by the
-  `block-orchestrator-self-qa.py` PreToolUse hook (matcher `Task|Agent|Workflow|SendMessage`): the in-session-subagent
-  primitive in §2 above is a general adopter primitive, but `grc_library` uses ONLY the
-  separate-session (orch-verify) primitive, via the global `orch-verify` dispatcher, because an in-session
-  subagent bills the scarce orchestrator account. Consuming the once-only actor-created sentinel is
-  the only in-session PATH to authorize such a dispatch, but the actor can create that sentinel with
-  one `touch`, so it is a deliberate speed bump plus an audit record, not a security boundary.
-  Project wiring only; the pack body keeps in-session fan-out for adopters.
-
-- Worker-hallucination tracking artefact: `hallucination-metrics`.
-- Worker-brief template: `/opt/grc/private/worker-brief-template.md`.
-- Verifier-override register: `/opt/grc/private/verifier-overrides.md` (surfaced at `/orch`).
-- Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
-  channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
-  guardrail seeds go to guardrails via `inbox-send`).
-- Maintainer D2 (2026-10-02): upstream owns the pinned AIQT bytes; GRC owns compatibility and legacy publication procedures. Portable AIQT changes require upstream review and an explicit re-pin.
-- Gate-37 instantiation: until the root `guardrails/` cutover, gate 37 preserves
-  byte parity between the portable pack source and the project-local rule bodies
-  (after stripping sanctioned local overlays). The migration EXTENDS that hard
-  local check with the deterministic coding-adapter generator's `--check` mode and
-  a publication manifest; it does not replace it with a network-dependent
-  upstream-drift probe.
-
-## artefact-and-branch-discipline.md
-
-- Generated artefacts here: `tools/alignment_citation_ids.json` (regenerate via
-  `tools/build-alignment-citation-registry.py`; its `--check` needs `grc_library_ref`, and gate 96
-  re-verifies the committed counts and digests at load), `taxonomy.yml`, `narrative.yml`, `docs/portal.md`,
-  `docs/maturity-scorecard.md`, `governance/relationship-model.generated.json`,
-  the `## Number allocation` block in `TODO.md`, the section 7.1 publisher table in
-  `governance/specification-citation-verification.md` (generated from its `json citation-publishers`
-  block), the generated table of `.project-governance/register-historical-citation-exceptions.md`
-  (from its `.toml` data file via `tools/build-historical-citation-exceptions.py`; gate 6 refuses drift), and every compiler-owned
-  corpus-management output (the CLAUDE.md generated-artefacts block, the two prose rules and index in `.claude/rules/corpus-management/`, and the on-demand bodies in `.claude/references/corpus-management/`)
-  (regenerate via `tools/build-taxonomy.py`,
-  `tools/build-narrative-registry.py`, `tools/build-portal.py`,
-  `tools/build-relationship-model.py`, `tools/build-todo-number-allocation.py`,
-  `tools/build-corpus-management.py`, and `tools/build-citation-publishers.py`;
-  gates 33, 85, 34, 93, 91, 99, and 102 run the `--check` forms).
-- Protected-branch force-push procedure and `refs/preservation/` convention: the
-  project CLAUDE.md Boundaries section.
-
-## change-tracking.md
-
-- Detailed mirror (Option C two-tier, maintainer-decided 2026-09-07): the LIVE mirror is `changelog-details/CHANGELOG-detailed.md` in the operational STORE, resolved by `lint_common.resolve_working` (store-first; by default `<repo-parent>/private/`), co-committed with the other working records (DONE, QA rows, bypass log). It is NOT at `grc_library_private/.working/changelog-details/` (that path is the retired transitional-fallback target; gate 59 and the roll-up tool both resolve via `resolve_working`, so they cannot disagree on the location).
-- Completed periods are ROLLED UP in the root CHANGELOG (daily, then weekly) AND SWEPT to the canonical PUSHED archive `grc_library_private/changelog-archive/<date>-daily.md` (durable, since the store is local-only-no-origin). These two halves are COUPLED into ONE close-out operation by `grc_library_private/tools/rollup-changelog.py` (replacing the broken `sweep-detailed-mirror.py`): a root-only roll-up (which gate 59 then fails) or a mirror-only sweep can never be produced by the sanctioned path. A planned archive-coverage gate (defense-in-depth) would further assert that every rolled-up root period vouches for an existing archive file (closing the mirror-only silent-pass direction), with an exemption list for accepted history-only ranges (e.g. 2026-08-31, whose detail is fragmented in store git history); the coupled tool is the primary guard and already prevents the split-brain drift.
-- Closed-work ledger: `/opt/grc/private/DONE.md`; backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`;
-  overnight file: `/opt/grc/private/overnight-pr.md` (gate 46 enforces its Status lifecycle).
-- The DONE worked example, concretely: PR #172 "FR-4+5+6+7+8: README polish bundle"
-  (2026-06-21), five medium README findings closed in one PR.
-- **After-merge next-N list source (this project):** the pack body's "list the upcoming next-N planned PRs from TODO" (`### After-merge`) reads, in this project, the `## Up next` queue at the top of the private `P-TODO.md` (the single ordered work queue across both backlogs; CLAUDE.md `## PR workflow` step 9). `TODO.md`'s Standing-conventions note and `.claude/playbooks/pr-lifecycle.md` are aligned to this; `/orch` itself continues from the handoff Next-actions, not this queue.
-
-## clarify-before-acting.md
-
-- Project instantiation: the CLAUDE.md `Behavioral rule: clarify before acting`
-  section; the structured question primitive available here is `AskUserQuestion`.
-
-## decision-classification-before-enacting.md
-
-- The write-before-enact decisions log is `grc_library_private/autonomous-decisions-log.md`: every significant autonomous decision is classified (an `ACT` / `ASK` / `BLOCKED: <type>` line) and written there before it is enacted. The closed blocker set is as in the rule body (`maintainer-decision-unreachable`, `irreversible-needs-confirmation`, `failing-check`, `source-unavailable`, `maintainer-directed-hold`).
-- Mechanical backstop: the [`block-unjustified-decision.py`](../hooks/block-unjustified-decision.py) PreToolUse hook refuses a log write that lacks a `**Classification:**` line, names a blocker-type outside the closed set, or (in a deferral or hold entry) cites a forbidden internal-state justification; a `grc_library_private` validate check gates the log's shape in parity with the hook.
-- The set-completeness / anti-false-completeness half is enforced by [`tools/audit-backlog-actionability.py`](../../tools/audit-backlog-actionability.py) (the enumeration tool the hold path must quote) plus the same hook's exhaustion guard (a hold justified by a set-completeness claim is refused unless it embeds a fresh full-audit token matching the live backlog count).
-- Project instantiation: the CLAUDE.md `## Decision discipline: act, ask, or name a blocker (write-before-enact)` and `## Backlog-status characterization is the audit tool's output` sections.
-
-## evidence-grounded-completion.md
-
-- The stated-intention rule's mechanical backstop here is the
-  [`block-turn-end-with-outstanding-work.py`](../hooks/block-turn-end-with-outstanding-work.py)
-  Stop hook: it refuses turn-end while any local branch (except `main` and recorded held branches) is ahead of `main` AND `git diff --quiet` reports a differing tree (a branch ahead of `main` but tree-identical, e.g. squash-merged-but-undeleted, is exempt; a diff-command error also leaves the branch reportable).
-  It fails open, honours a one-shot `.allow-stop` escape
-  FILE for a genuine block, and exempts deliberately-held branches through the `held-branches.txt`
-  file; the hook mechanically checks only that each entry carries a YYYY-MM-DD-shaped token comparing lexically at or after today, while the reason and any decision-record citation are the instructed convention it does not verify.
-
-- The broken-link audit the no-decorative-links section names is gate 3
-  (repository-internal link audit, `tools/lint-links.py`); the domain allow-list
-  gate is `tools/lint-external-link-domains.py`.
-
-## gate-discipline.md
-
-- The removal ledger the footer names: `claude-rules-considerations`
-  (this rule's why-section moved there in the GR-P2 two-layer condense, PR #726).
-- This project offers NO exception register: a failing gate means fix the artefact
-  or descope the PR (the strict-mode stance in the project CLAUDE.md Boundaries).
-
-## high-assurance-verification.md
-
-- The persistent register: `high-assurance/register` (surfaced at
-  `/orch` alongside the other standing registers).
-
-## project-integrity.md
-
-- The project instantiation is the PRIMORDIAL RULE section at the top of the
-  project CLAUDE.md (the AIQT checkpoint line and cadence).
-
-## session-lifecycle.md
-
-- Handoff record: `/opt/grc/private/session-handoff.md`; concurrency lease:
-  `/opt/grc/private/session-state.md` (gate 63 guards its shape); resume command: `/orch`.
-- Pending decisions: `/opt/grc/private/pending-decisions.md`; the timer default and the
-  operating modes are operationalized in the project CLAUDE.md attended-autonomous,
-  wind-down, and session-migration sections.
-- Unattended-degradation auto-handoff (section 4): operationalized in the project
-  CLAUDE.md's No idle-stop-in-unattended-mode item (item 4 of `## Attended-autonomous operating mode`) and the wind-down sections. The closing
-  handoff is executed directly and takes no `AskUserQuestion` (the unattended hook
-  blocks it anyway); the concrete close is a green merged PR plus a refreshed
-  `/opt/grc/private/session-handoff.md` (Next-actions, State-snapshot, Asserted-expectations,
-  green-at-`<sha>`) and the `/opt/grc/private/session-state.md` lease RELEASE.
-- **No-manufactured-winddown interim supersession (2026-08-28).** The fleet share
-  `10-TRUST-no-manufactured-winddown` is adopted as an interim local control in the project CLAUDE.md
-  `## No manufactured wind-down` section, which SUPERSEDES this rule's §1 "prefer a fresh session"
-  preference, its §4 "session depth is a legitimate CONTRIBUTING factor" clause (both OFFER sub-cases),
-  and its "winding down on felt degradation or work shape" anti-pattern until the canonical
-  guardrails/AIQT pack ships and reconciles. Read that CLAUDE.md section as governing on wind-down
-  triggers. Overlay-only; the pack rule body is unchanged.
-- **#5(b) attended->unattended timeout swap (2026-08-28).** The project CLAUDE.md §3
-  graceful-degradation timeout now performs an ASSISTANT-INITIATED `Operating-mode` transition
-  attended-autonomous -> daytime-unattended on a no-answer timeout (records the decision PENDING,
-  continues), a NARROW project exception to §2's "mode transitions are operator acts", authorized by
-  fleet directive #5(b). It is direction-limited: attended -> MORE-unattended ONLY, never ENDING
-  unattended, so §2's hard clause ("ending an unattended mode is never a no-answer default or a
-  timeout effect") is fully preserved. Swap-BACK to attended remains an operator act per §2:
-  maintainer return does not itself restore attended mode (the block-askuserquestion-unattended.py
-  message states that a lease more unattended than the fleet file ends only on an explicit
-  operator instruction; since 2026-09-25 the hook also reads the canonical fleet mode file). Reversibility gate absolute:
-  authorial / irreversible / outward decisions still defer-and-skip, never auto-proceed. Overlay-only;
-  pack §2 body unchanged.
-
-## surface-counterproductive-instructions.md
-
-- Project instantiation: the CLAUDE.md communication conventions (proactive
-  assessment as a standing default; "suggest"/"advise" invite assessment).
-
-## trust-recovery-escalation.md
-
-- Slash commands: the forensic pass is `/full-qa`, the persona pass is `/fitness`,
-  the suite wrapper is `/trust-recovery` (all under `.claude/commands/`).
-
-## validate-inference-before-action.md
-
-- The register in which validation-sweep dispatch declarations are recorded
-  (the skill's Rule 5.6): `/opt/grc/private/validate-sweeps/history.md`.
-- The repeated-failure circuit-breaker is backed by the
-  [`block-repeated-tool-failure.py`](../hooks/block-repeated-tool-failure.py)
-  PreToolUse hook, which mechanically refuses a byte-identical resubmit (GUARD 1) and, on
-  two or more consecutive same-class blocks, escalates the refusal with a hard-stop
-  instruction to WRITE a mechanism diagnosis before retrying (GUARD 2); the hook does not
-  verify the diagnosis, and a command whose subject matches no recent blocked subject passes
-  it, so writing and assessing the diagnosis is the discipline the hook prompts, not one it
-  enforces. The degradation hypothesis, if raised, is recorded and assessed in
-  `/opt/grc/private/degradation-watch-log.md` before it is asserted.
+Two clauses from the former overlay tails stay always loaded here:
+- Record and assess a degradation hypothesis in the degradation-watch-log
+  before asserting it.
+- Maintainer return does not restore attended mode; swap-back needs an
+  explicit operator instruction.
