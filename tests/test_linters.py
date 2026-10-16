@@ -50,6 +50,11 @@ except ImportError:
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
+if str(REPO_ROOT / "tools") not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT / "tools"))
+# Find the pack once at load, so every later sys.path snapshot already holds it.
+import aiqt_bootstrap  # noqa: E402  (tools/ is on sys.path above)
+aiqt_bootstrap.ensure_on_path()
 
 
 def fixture_git_environment():
@@ -31843,7 +31848,6 @@ class SuggestListingSurfacesTests(unittest.TestCase):
     def test_mixed_document_kinds_match_individual_reports(self):
         from contextlib import redirect_stdout, redirect_stderr
         from unittest.mock import patch
-        load_linter_module("tools/aiqt_bootstrap.py", "_sls_bootstrap").ensure_on_path()
         path_patch = patch.object(sys, "path", list(sys.path))
         path_patch.start()
         self.addCleanup(path_patch.stop)
@@ -44067,7 +44071,6 @@ class JoinUnderContainmentTests(unittest.TestCase):
     def setUp(self):
         import importlib
         from unittest.mock import patch
-        load_linter_module("tools/aiqt_bootstrap.py", "_containment_bootstrap").ensure_on_path()
         path_patch = patch.object(sys, "path", list(sys.path))
         path_patch.start()
         self.addCleanup(path_patch.stop)
