@@ -2,8 +2,8 @@
 
 **Document Title:** Security Quick Reference\
 **Document Type:** Standard\
-**Version:** 1.1.28\
-**Date:** 2026-10-15\
+**Version:** 1.1.29\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-security-baseline-and-standards-reference.md`](standard-security-baseline-and-standards-reference.md), [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`security/standard-authentication-and-password-management.md`](../security/standard-authentication-and-password-management.md)\
@@ -88,8 +88,8 @@ OAuth 2.0 client credentials flow validated by IdP token validation policy at th
 | Public | Not required (good practice) | HTTPS for web | Anyone | Yes |
 | Controlled | Not required (good practice) | TLS 1.3 for any external sharing | Employees, contractors, and external recipients under appropriate context | Yes |
 | Internal | Required for databases, backups, and portable devices | TLS 1.3 required | Employees and approved contractors | Yes, with appropriate controls |
-| Confidential | Required. AES-256 minimum. | TLS 1.3 mandatory | Authorized personnel on a need-to-know basis | Requires the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, §4.2.2 pathway, Legal sign-off) |
-| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.3 mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except via the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, §4.2.2 pathway, Legal sign-off) with documented justification |
+| Confidential | Required. AES-256 minimum. | TLS 1.3 mandatory | Authorized personnel on a need-to-know basis | Requires the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway, Legal sign-off) |
+| Restricted | Required. AES-256. Key in secrets vault. | TLS 1.3 mandatory | Named individuals only. PAM-controlled access where applicable. | Prohibited except via the non-default hosting exception process in the [Security Baseline Standard](standard-security-baseline-and-standards-reference.md) (risk assessment, approval per the [Exception and Risk Acceptance Management Policy](../governance/policy-exception-and-risk-acceptance-management.md) §4.2.2 risk-tier pathway, Legal sign-off) with documented justification |
 
 If you are unsure what classification applies, classify one level higher until clarified.
 

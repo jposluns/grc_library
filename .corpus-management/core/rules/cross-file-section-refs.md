@@ -4,14 +4,19 @@ A document that cites a numbered section of ANOTHER corpus document cites a
 section that exists in the resolved target. The check fires on two
 high-confidence resolvable-target classes: an adjacent-link reference (a `§N` /
 `Section N` reference with a markdown `.md` link within an adjacency window on the
-same line, no intervening table pipe), where the link names the target; and a
+same prose line or table cell), where the link names the target; and a
 binding-declaration reference (a line carrying the binding sentinel together with
 a `.md` link binds every subsequent bare reference in the file to that target,
 the last link ending before the sentinel). The cited number must be a numbered
 heading (`## N. Title`, `### N.N Title`, `## Section N: Title`, and deeper) or a
 line-initial inline clause (`N.N ...`, at least two levels) in the target;
-headings and clauses are read outside fenced code blocks. Deliberate exclusions
-(recall costs, not gaps): table rows (any line with a pipe); external-standard
+headings and clauses are read outside fenced code blocks. Numbered headings
+and cited references are cut to four levels; inline clauses are recognized
+only at two to four levels, so a deeper clause line is not a target section
+and a five-level citation to it is checked against its four-level prefix
+(a documented residual).
+Deliberate exclusions
+(recall costs, not gaps): external-standard
 context lines (a reference citing an ISO / NIST / OWASP / GDPR clause, and kin);
 a target with zero numbered headings and zero inline clauses (a numbered
 reference to an unnumbered document is not a stale-heading case); a bare
@@ -22,3 +27,19 @@ patterns, the markdown-link pattern, the binding sentinel, the external-context
 vocabulary, and the adjacency window) and the exempt-file set are project
 configuration and are not part of this clause; a reference that resolves cleanly,
 and a document that cites none, contribute no findings.
+Table delimiters are unescaped pipes outside matched inline code spans. An
+unmatched backtick run is literal, and backslashes inside code spans are literal;
+escaped pipes and pipes inside code spans remain within their cells. In a table
+row, a reference to a heading in the citing document remains local when no
+link precedes it in the cell and a nearby following markdown link appears in
+parentheses after non-whitespace descriptive text. The parenthesized link must
+start within the configured adjacency window and have a matching closing
+parenthesis after its link and any citation text. `Of the target` identifies
+the linked target and does not qualify as local description.
+Only the explicit `of [the] target` wording is treated as a target citation in this table-cell local-section exception; `of the policy` remains a documented residual.
+A line is a table row for this exception only when its first non-whitespace
+character is a pipe, as the corpus writes table rows; a valid row written
+without a leading pipe, any cell of which holds a local section, then
+descriptive text, then a parenthesized link to the target, is treated as prose
+for this exception, so its local section is checked against the adjacent link.
+This is a documented residual.

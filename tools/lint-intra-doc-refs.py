@@ -15,6 +15,7 @@ This linter:
   ``§N.N.N``, ``Section N``, ``Section N.N``, ``Section N.N.N`` in the
   document body.
 - Fails if any reference's numeric identifier does not match a heading.
+  References and headings are compared at full numeric depth.
 
 Cross-document references are filtered out before the resolution check
 via the ``is_cross_doc_context`` heuristic, which detects context
