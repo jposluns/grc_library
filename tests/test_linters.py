@@ -2260,14 +2260,17 @@ class CIWaitPrescriptionTests(LinterTestCase):
 import json, os, pathlib, signal, sys, time
 # gh api --help documents --paginate --slurp as raw pages. gh 2.101.0
 # rejects --slurp with --jq/-q or --template/-t; pin the entire argv.
-assert sys.argv[1:] == [
+if sys.argv[1:] != [
     "api", "--paginate", "--slurp",
     "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
-], "unsupported gh api argv"
+]:
+    sys.exit("unsupported gh api argv")
 root = pathlib.Path(os.environ["CI_FIXTURE"])
 counter = root / "calls"
 n = int(counter.read_text()) if counter.exists() else 0
-counter.write_text(str(n + 1))
+temporary_counter = root / "calls.tmp"
+temporary_counter.write_text(str(n + 1))
+os.replace(temporary_counter, counter)
 states = json.loads((root / "states.json").read_text())
 state = states[min(n, len(states) - 1)]
 if state == "api-error":
@@ -2276,12 +2279,15 @@ if state == "api-error":
 if state == "term-resistant":
     signal.signal(signal.SIGTERM, signal.SIG_IGN)
     (root / "descendant.pid").write_text(str(os.getpid()))
-    time.sleep(2)
-    print("survived-deadline", flush=True)
-    sys.exit(8)
+    with open(root / "ready", "wb", buffering=0) as ready:
+        ready.write(b"R")
+    while True:
+        signal.pause()
 if state == "stalled":
-    time.sleep(5)
-    sys.exit(8)
+    with open(root / "ready", "wb", buffering=0) as ready:
+        ready.write(b"R")
+    while True:
+        signal.pause()
 if state == "malformed":
     print("not JSON")
 else:
@@ -2295,54 +2301,254 @@ else:
                 "run_number": run_number, "run_attempt": run_attempt, "id": run_number * 10}
 
     def wait_fixture(self, states, expected, calls=None):
+        import ast
         import json
+        import select
+        import signal
         import time
 
         text = (REPO_ROOT / "references/ci-wait.md").read_text(encoding="utf-8")
         command = text.split("```bash\n", 1)[1].split("\n```", 1)[0]
-        # Execute production selection and supervision under errexit; shorten timers.
-        deadline = "0.8" if expected == 124 else "5"
-        command = command.replace("timeout=1200", "timeout=" + deadline).replace("time.sleep(30)", "time.sleep(0.01)")
+
+        if expected == 124:
+            supervisor = command.split("<<'WAIT'\n", 1)[1].split("\nWAIT", 1)[0]
+            tree = ast.parse(supervisor)
+            timeout_type = ast.parse("subprocess.TimeoutExpired", mode="eval").body
+            kill_first = ast.parse("os.killpg(task.pid, signal.SIGKILL)").body[0]
+
+            def is_timed_communicate(statement):
+                if not isinstance(statement, ast.Expr) or not isinstance(statement.value, ast.Call):
+                    return False
+                call = statement.value
+                return (isinstance(call.func, ast.Attribute)
+                        and call.func.attr == "communicate"
+                        and isinstance(call.func.value, ast.Name)
+                        and call.func.value.id == "task"
+                        and any(keyword.arg == "timeout" for keyword in call.keywords))
+
+            handlers = [handler for node in ast.walk(tree)
+                        if isinstance(node, ast.Try)
+                        and any(is_timed_communicate(statement) for statement in node.body)
+                        for handler in node.handlers
+                        if handler.type is not None
+                        and ast.dump(handler.type, include_attributes=False)
+                        == ast.dump(timeout_type, include_attributes=False)]
+            self.assertEqual(len(handlers), 1, "expected one communicate timeout handler")
+            first = handlers[0].body[0] if handlers[0].body else None
+            self.assertIsInstance(first, ast.Try, "group SIGKILL must start timeout handler")
+            self.assertTrue(first.body, "group SIGKILL must start timeout handler")
+            self.assertEqual(ast.dump(first.body[0], include_attributes=False),
+                             ast.dump(kill_first, include_attributes=False),
+                             "group SIGKILL must precede any timeout-handler wait")
+
+        def replace_once(old, new):
+            nonlocal command
+            self.assertEqual(command.count(old), 1, old)
+            command = command.replace(old, new)
+
+        # These are liveness budgets, not throughput requirements. Allow tens
+        # of seconds of scheduler delay on shared CI hosts. Timeout cases first
+        # rendezvous on the actual pending/stalled event, then exercise the real
+        # supervisor's TimeoutExpired path with an already-expired deadline.
+        # The inner 60 s completion ceiling leaves 30 s inside the outer 90 s
+        # for group termination, pipe EOF and wrapper scheduling. These are
+        # finite hang guards, not promises about host throughput. The 30 s
+        # readiness and reap budgets bound setup, descendant reaping and
+        # failed-test cleanup.
+        ready_budget = 30
+        exit_budget = 90
+        reap_budget = 30
+        replace_once("timeout=1200", "timeout=0" if expected == 124 else "timeout=60")
+        replace_once("import json\n", "import json, os, signal\n")
+        replace_once('"gh", "api"',
+                     'sys.executable, os.environ["CI_FIXTURE"] + "/gh.py", "api"')
+        if expected == 124:
+            # Observe the real TimeoutExpired; do not synthesize the exception
+            # or replace the production handler. Reject any subsequent wait,
+            # communicate or sleep until the real group SIGKILL is attempted.
+            instrumentation = r"""
+deadline_expired = False
+real_communicate = task.communicate
+real_wait = task.wait
+real_sleep = time.sleep
+real_killpg = os.killpg
+
+def require_kill_first():
+    if deadline_expired:
+        fail_after_kill("timeout handler waited before group SIGKILL")
+
+def fail_after_kill(message):
+    try:
+        real_killpg(task.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+    sys.exit(message)
+
+def checked_communicate(*args, **kwargs):
+    global deadline_expired
+    require_kill_first()
+    try:
+        return real_communicate(*args, **kwargs)
+    except subprocess.TimeoutExpired:
+        deadline_expired = True
+        raise
+
+def checked_wait(*args, **kwargs):
+    require_kill_first()
+    return real_wait(*args, **kwargs)
+
+def checked_sleep(*args, **kwargs):
+    require_kill_first()
+    return real_sleep(*args, **kwargs)
+
+def checked_killpg(pid, sig):
+    global deadline_expired
+    try:
+        return real_killpg(pid, sig)
+    finally:
+        if pid == task.pid and sig == signal.SIGKILL:
+            deadline_expired = False
+
+task.communicate = checked_communicate
+task.wait = checked_wait
+time.sleep = checked_sleep
+os.killpg = checked_killpg
+"""
+            replace_once("try:\n    task.communicate(timeout=0)",
+                         instrumentation + "\ntry:\n    task.communicate(timeout=0)")
+            replace_once("time.sleep(30)",
+                         'with open(os.environ["CI_FIXTURE"] + "/ready", "wb", buffering=0) as ready:\n'
+                         '        ready.write(b"R")\n'
+                         '    while True:\n'
+                         '        signal.pause()')
+            replace_once("import signal\n", "import signal\nimport select\nimport time\n")
+            replace_once("task = subprocess.Popen(",
+                         'ready = os.open(os.environ["CI_FIXTURE"] + "/ready", os.O_RDWR)\n'
+                         "task = subprocess.Popen(")
+            replace_once("    task.communicate(timeout=0)",
+                         f"    until = time.monotonic() + {ready_budget}\n"
+                         "    if not select.select([ready], [], [], max(0, until - time.monotonic()))[0]:\n"
+                         "        fail_after_kill('fixture did not reach pending/stalled event')\n"
+                         "    event = os.read(ready, 1)\n"
+                         "    if event != b'R':\n"
+                         "        fail_after_kill('invalid readiness event')\n"
+                         "    task.communicate(timeout=0)")
+        else:
+            replace_once("time.sleep(30)", "time.sleep(0.01)")
+        replace_once("start_new_session=True)\n",
+                     'start_new_session=True)\n'
+                     'with open(os.environ["CI_FIXTURE"] + "/task.pid", "w") as pid_file:\n'
+                     '    pid_file.write(str(task.pid))\n')
         with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
             root = Path(directory)
             (root / "states.json").write_text(json.dumps(states), encoding="utf-8")
             (root / "gh.py").write_text(self.GH_FIXTURE, encoding="utf-8")
-            # Replace only the gh executable with the stdlib transport fixture.
-            self.assertEqual(command.count('"gh", "api"'), 1)
-            command = command.replace('"gh", "api"',
-                                      'sys.executable, os.environ["CI_FIXTURE"] + "/gh.py", "api"')
-            command = command.replace("import json\n", "import json, os\n", 1)
+            if expected == 124:
+                os.mkfifo(root / "ready")
             env = dict(os.environ, CI_FIXTURE=directory)
             started = time.monotonic()
-            result = subprocess.run(
+            process = subprocess.Popen(
                 ["bash", "-c", "set -e\n" + command],
-                env=env, capture_output=True, text=True, timeout=7,
+                env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                text=True, start_new_session=True,
             )
-            elapsed = time.monotonic() - started
-            count = int((root / "calls").read_text())
-            pid_file = root / "descendant.pid"
-            if pid_file.exists():
-                stat = Path("/proc") / pid_file.read_text() / "stat"
-                reaped_by = time.monotonic() + 0.2
-                while stat.exists():
-                    try:
-                        state = stat.read_text().rsplit(") ", 1)[1].split()[0]
-                    except FileNotFoundError:
-                        break
-                    if state in ("Z", "X"):
-                        break
-                    self.assertLess(time.monotonic(), reaped_by,
+            succeeded = False
+            try:
+                try:
+                    stdout, stderr = process.communicate(timeout=exit_budget)
+                except subprocess.TimeoutExpired:
+                    # A surviving descendant can keep the captured pipes open,
+                    # so the normal post-communicate check cannot run.
+                    pid_file = root / "descendant.pid"
+                    if pid_file.exists():
+                        pid = int(pid_file.read_text())
+                        if hasattr(os, "pidfd_open"):
+                            try:
+                                fd = os.pidfd_open(pid)
+                            except ProcessLookupError:
+                                fd = None
+                            if fd is not None:
+                                try:
+                                    if not select.select([fd], [], [], 0)[0]:
+                                        self.fail("descendant still running after outer deadline")
+                                finally:
+                                    os.close(fd)
+                        else:
+                            stat = Path("/proc") / str(pid) / "stat"
+                            try:
+                                state = stat.read_text().rsplit(") ", 1)[1].split()[0]
+                            except FileNotFoundError:
+                                state = "X"
+                            if state not in ("Z", "X"):
+                                self.fail("descendant still running after outer deadline")
+                    raise
+                output = stdout + stderr
+                self.assertEqual(process.returncode, expected, output)
+                self.assertIn(f"runs-wait exited rc={expected}", output)
+                counter = root / "calls"
+                if counter.exists():
+                    count = int(counter.read_text())
+                else:
+                    # Defence in depth: the readiness rendezvous normally
+                    # guarantees the counter exists before any kill. If a
+                    # future timeout test reaches here, only an unconstrained
+                    # timeout test may see zero completed fixture calls.
+                    self.assertEqual(expected, 124, output)
+                    self.assertIsNone(calls, output)
+                    count = 0
+                if calls is not None:
+                    self.assertEqual(count, calls, output)  # No diagnostic reread.
+                pid_file = root / "descendant.pid"
+                if pid_file.exists():
+                    pid = int(pid_file.read_text())
+                    until = time.monotonic() + reap_budget
+                    # pidfds report actual exit, including an unreaped zombie.
+                    if hasattr(os, "pidfd_open"):
+                        try:
+                            fd = os.pidfd_open(pid)
+                        except ProcessLookupError:
+                            fd = None
+                        if fd is not None:
+                            try:
+                                self.assertTrue(select.select(
+                                    [fd], [], [], max(0, until - time.monotonic()))[0],
                                     "descendant still running after deadline")
-                    time.sleep(0.01)
-        output = result.stdout + result.stderr
-        self.assertEqual(result.returncode, expected, output)
-        self.assertIn(f"runs-wait exited rc={expected}", output)
-        self.assertLess(elapsed, 1.8 if expected == 124 else 6, output)
-        if calls is not None:
-            self.assertEqual(count, calls, output)  # No trailing diagnostic API request.
-        print(f"CI fixture {self._testMethodName}: rc={result.returncode}, calls={count}, "
-              f"elapsed={elapsed:.2f}s")
-        return output
+                            finally:
+                                os.close(fd)
+                    else:
+                        # Preserve the existing /proc fallback on older Python.
+                        stat = Path("/proc") / str(pid) / "stat"
+                        while stat.exists():
+                            try:
+                                state = stat.read_text().rsplit(") ", 1)[1].split()[0]
+                            except FileNotFoundError:
+                                break
+                            if state in ("Z", "X"):
+                                break
+                            self.assertLess(time.monotonic(), until,
+                                            "descendant still running after deadline")
+                            time.sleep(0.01)
+                print(f"CI fixture {self._testMethodName}: rc={process.returncode}, "
+                      f"calls={count}, elapsed={time.monotonic() - started:.2f}s")
+                succeeded = True
+                return output
+            finally:
+                if not succeeded:
+                    # Also clean up broken-supervisor mutations and liveness failures.
+                    # Observe descendant exit above BEFORE cleanup can hide a defect.
+                    pids = [process.pid]
+                    pid_file = root / "task.pid"
+                    if pid_file.exists():
+                        pids.append(int(pid_file.read_text()))
+                    for pid in pids:
+                        try:
+                            os.killpg(pid, signal.SIGKILL)
+                        except ProcessLookupError:
+                            pass
+                    try:
+                        process.communicate(timeout=reap_budget)
+                    except subprocess.TimeoutExpired:
+                        pass
 
     def test_late_required_run(self):
         quality = self.run_record("Repository quality checks")
@@ -2381,9 +2587,39 @@ else:
                     "api", "--paginate", "--slurp",
                     "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100",
                     flag, ".",
-                ], capture_output=True, text=True, timeout=5)
+                ], capture_output=True, text=True, timeout=60)
+                # 60 s allows interpreter startup under CPU contention; this
+                # is only a hang guard for argv rejection, not a speed test.
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn("unsupported gh api argv", result.stderr)
+
+    def test_counter_survives_kill_between_truncate_and_write(self):
+        import signal
+
+        with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as directory:
+            root = Path(directory)
+            (root / "calls").write_text("7", encoding="utf-8")
+            (root / "states.json").write_text('["api-error"]', encoding="utf-8")
+            instrument = """
+import os, pathlib, signal
+real_write_text = pathlib.Path.write_text
+def interrupted_write_text(path, data, *args, **kwargs):
+    if path.name in ("calls", "calls.tmp"):
+        with path.open("w", encoding="utf-8"):
+            pass
+        os.kill(os.getpid(), signal.SIGKILL)
+    return real_write_text(path, data, *args, **kwargs)
+pathlib.Path.write_text = interrupted_write_text
+"""
+            result = subprocess.run(
+                [sys.executable, "-c", instrument + self.GH_FIXTURE,
+                 "api", "--paginate", "--slurp",
+                 "repos/jposluns/grc_library/actions/runs?head_sha=<SHA>&per_page=100"],
+                env=dict(os.environ, CI_FIXTURE=directory), capture_output=True,
+                text=True, timeout=60,
+            )
+            self.assertEqual(result.returncode, -signal.SIGKILL)
+            self.assertEqual((root / "calls").read_text(encoding="utf-8"), "7")
 
     def test_invalid_page_shape_fails_loud(self):
         for pages in ([{}], [{"workflow_runs": None}], {"workflow_runs": []}):
@@ -2460,8 +2696,7 @@ else:
         self.assertNotIn("completed/failure", output)
 
     def test_timeout_kills_term_resistant_descendant(self):
-        output = self.wait_fixture(["term-resistant"], 124, 1)
-        self.assertNotIn("survived-deadline", output)
+        self.wait_fixture(["term-resistant"], 124, 1)
 
 
 class OverlayRelocationCoverageTests(LinterTestCase):
