@@ -2,8 +2,8 @@
 
 **Document Title:** Consent Management Framework\
 **Document Type:** Framework\
-**Version:** 1.0.16\
-**Date:** 2026-10-04\
+**Version:** 1.0.17\
+**Date:** 2026-10-16\
 **Owner:** Data Protection Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`privacy/policy-privacy-and-data-governance.md`](policy-privacy-and-data-governance.md), [`privacy/template-privacy-notice.md`](template-privacy-notice.md), [`privacy/register-cookie-and-tracker.md`](register-cookie-and-tracker.md), [`privacy/template-record-of-processing-activities.md`](template-record-of-processing-activities.md), [`privacy/procedure-data-subject-rights-management.md`](procedure-data-subject-rights-management.md), [`privacy/framework-childrens-data.md`](framework-childrens-data.md), [`privacy/annex-privacy-jurisdiction-index.md`](annex-privacy-jurisdiction-index.md)\
@@ -129,9 +129,13 @@ Where a subject is below the age of digital consent in the applicable jurisdicti
 
 ---
 
-## Cookie consent under ePrivacy
+## Cookie and similar technologies consent
 
-For cookies and similar tracking technologies, consent is governed by the cookie and tracker register. Strictly necessary cookies do not require consent. All other categories require prior consent satisfying the validity standard above. Pre-ticked boxes, scroll-to-consent, and consent walls (where refusal degrades the core service disproportionately) are not valid; EDPB Guidelines 05/2020 treat scrolling and continued browsing as failing the unambiguous-indication standard.
+For cookies and similar tracking technologies, consent is governed by the cookie and tracker register. In the EU, Article 5(3) of the ePrivacy Directive, as amended by Directive 2009/136/EC and implemented in member-state law, requires prior consent for storage of or access to information in terminal equipment, subject to exceptions. The held as-made Article 5(3) instead requires clear and comprehensive information and a right to refuse, and excepts technical storage or access for the sole purpose of carrying out or facilitating the transmission of a communication over an electronic communications network, or as strictly necessary in order to provide an information society service explicitly requested by the subscriber or user. Directive 2009/136/EC is not held in the reference base, so an adopter confirms the amended wording and applicable national transposition directly. <!-- ref-absence: 2009/136/EC -->
+
+For the UK, regulation 6 of the Privacy and Electronic Communications (EC Directive) Regulations 2003 (PECR), as substituted by section 112 of the Data (Use and Access) Act 2025, provides that, subject to Schedule A1, a person must not store information, or gain access to information stored, in the terminal equipment of a subscriber or user. Schedule A1, inserted by Schedule 12 to that Act, permits storage or access with consent where the subscriber or user is provided with clear and comprehensive information about its purpose (paragraph 2), and sets out these further categories, each available only where every condition in its paragraph is met: transmission of a communication over an electronic communications network (paragraph 3); storage or access strictly necessary to provide an information society service requested by the subscriber or user (paragraph 4); collecting information for statistical purposes (paragraph 5); website appearance etc (paragraph 6); and emergency assistance (paragraph 7). The paragraph 5 and paragraph 6 categories require, among their conditions, clear and comprehensive information about the purpose; the subscriber or user must also be given a simple means of objecting, free of charge, to the storage or access and must not object. The reference base holds the as-made 2003 text of PECR; regulation 6 and Schedule A1 are stated here from the Data (Use and Access) Act 2025 as enacted, and regulation 6A lets the Secretary of State add, vary, or omit exceptions by regulations, so an adopter confirms the current text on legislation.gov.uk.
+
+For EU consent under the GDPR and ePrivacy rules, pre-ticked boxes, scroll-to-consent, and consent walls (where refusal degrades the core service disproportionately) are not valid; EDPB Guidelines 05/2020 treat scrolling and continued browsing as failing the unambiguous-indication standard.
 
 ---
 
@@ -161,7 +165,8 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | GDPR | Articles 4(11), 6(1)(a), 7, 8, 9(2)(a) | Consent definition, conditions, child consent, special-category consent |
-| UK GDPR | Same articles | Equivalent provisions |
+| UK GDPR | Same articles | Equivalent provisions on consent as a lawful basis; UK rules on cookies and similar technologies sit in PECR regulation 6, not in UK GDPR |
+| UK PECR (S.I. 2003/2426) regulation 6, as amended by the Data (Use and Access) Act 2025 s. 112 and Schedule 12 | Regulation 6(1); Schedule A1, paragraphs 2 to 7 | Storing information, or gaining access to information stored, in terminal equipment (cookies and similar technologies): consent with clear and comprehensive information (paragraph 2) or a Schedule A1 category (paragraphs 3 to 7) |
 | EDPB Guidelines 05/2020 (v1.1) | Guidelines 05/2020 on consent under Regulation 2016/679 | The regulator's authoritative interpretation of the GDPR consent standard: conditionality (consent bundled with or conditioned on a service is not freely given), the unambiguous-indication requirement, and that pre-ticked boxes and scrolling do not constitute valid consent |
 | ePrivacy Directive 2002/58/EC and national transpositions | Article 5(3) and member-state rules | Cookie and similar technologies consent |
 | LGPD | Articles 7(I), 8 | Consent as lawful basis |
@@ -170,7 +175,7 @@ For cookies and similar tracking technologies, consent is governed by the cookie
 | Canada PIPEDA (OPC Fair Information Principles) | Fair Information Principle 3 (Consent) | Meaningful consent: valid only where the individual can reasonably understand the nature, purpose and consequences; form of consent scaled to information sensitivity (express consent where information is sensitive, falls outside the individual's reasonable expectations, or creates a meaningful residual risk of significant harm); renewed consent for significant practice changes; withdrawal at any time, subject to legal or contractual restrictions and reasonable notice |
 | CPPA (lapsed, not in force) | Section 15(5)-(6) (lapsed with Bill C-27) | Express versus implied consent |
 | CCPA / CPRA | Cal. Civ. Code ss. 1798.120-1798.121; CCPA Regs 11 CCR s. 7004 | Opt-out of sale/sharing (1798.120) and right to limit use and disclosure of sensitive personal information (1798.121); consent-method requirements (symmetry in choice, no dark patterns) |
-| ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure |
+| ISO/IEC 29184:2020 | Online notice and consent | Consent capture structure; the standard is not held in the reference base, so an adopter confirms its current edition and content directly <!-- ref-absence: 29184 --> |
 
 ---
 
