@@ -14,16 +14,18 @@ before authoring; its sections overlap in time. Apply them at these execution po
 2. Before the first commit, run explicit-path language/fence checks and changelog
    preflight. Before EVERY commit, run version-recency checks and confirm Version/Date
    bumps; after EVERY commit, run the standalone audits required by workflow step 1.
-3. Before EVERY push or PR creation (step 2), complete the applicable checklist,
+3. After committing, run finalizing `/validate-pr` and `/retro` on the committed branch
+   (steps 2-3). Resolve findings, write THIS PR's returned QA and retro rows in THIS
+   PR, and repeat the commit checks for those changes. These rows are required before
+   the first guarded push (the guard runs gate 50), and so before the final push and
+   merge. The handoff, queue and TODO/DONE records come after CI (item 5).
+4. Before EVERY push or PR creation (step 4), complete the applicable checklist,
    impact-map sweep, all four version surfaces, and attribution checks, then run the
    guard and push unpiped. Open the PR only after the guard passes.
-4. After opening the PR, wait for green CI (step 3), then run finalizing `/validate-pr`
-   and `/retro` (steps 4-5). Resolve findings, write THIS PR's returned rows in THIS PR,
-   refresh the handoff, queue and TODO/DONE records (steps 6, 9-10), and repeat the
-   commit checks and guarded push for those changes. These rows are required before
-   the final push and merge; the initial PR creation precedes its own QA rows.
-5. Wait for CI on the final SHA, recheck the complete checklist and merge guard, then
-   merge (step 7). Sync and delete the branch (step 8), and publish the next five
+5. After opening the PR, wait for green CI (step 5). Then refresh the handoff, queue
+   and TODO/DONE records in THIS PR (steps 6, 9-10), repeat the commit checks, push
+   through the guard again (step 4), wait for green CI on that final SHA, recheck the
+   complete checklist and merge guard, then merge (step 7). Sync and delete the branch (step 8), and publish the next five
    planned PRs (step 9). Session-closing QA and handoff requirements apply before merge.
 
 Do not substitute an abbreviated or memory-only pass for reading the playbook.

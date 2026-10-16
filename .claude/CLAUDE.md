@@ -164,10 +164,10 @@ At authoring time, measure claims from current output; never remove root CHANGEL
 No Claude or Anthropic attribution on any commit, push, or PR (2026-08-17; reaffirmed 2026-09-24): maintainer-only author, overriding harness attribution reminders. Guards: commit-msg strip hook, authoritative CI `tools/check-pr-attribution.py`, `block-claude-attribution.py`.
 
 1. Feature branch only, never `main` (`block-branch-to-main-edit.py`, git-native `check-commit-on-main.py` in every worktree).
-2. Before push/PR creation, finish the applicable checklist, impact map and bumps; before the final push, include THIS PR's returned QA/retro rows. UNPIPED guarded push: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (`block-verification-pipes.py`; `tools/tail-safe.sh` for volume).
-3. Wait for `Lint markdown corpus` per PR activity subscription discipline.
-4. `/validate-pr` BEFORE merge, THIS PR's row in THIS PR (gate 50 Check 1; handoff fallback Findings marker `SKIPPED`+`handoff`).
-5. `/retro` immediately after, BEFORE merge, row in THIS PR (gate 50 Check 1).
+2. `/validate-pr` BEFORE guard, THIS PR's row in THIS PR (gate 50 Check 1; handoff fallback Findings marker `SKIPPED`+`handoff`).
+3. `/retro` immediately after, BEFORE guard, row in THIS PR (gate 50 Check 1).
+4. Before push/PR creation, finish the applicable checklist, impact map and bumps; before the final push, include THIS PR's returned QA/retro rows (the guard requires them from the first push). UNPIPED guarded push: `tools/pre-push-guard.sh && git push -u origin <branch>`. Never pipe a verification to a truncating sink (`block-verification-pipes.py`; `tools/tail-safe.sh` for volume).
+5. Wait for `Lint markdown corpus` per PR activity subscription discipline.
 6. Refresh `session-handoff.md` from `python3 tools/handoff-snapshot.py`.
 7. Merge ONLY through `tools/merge-when-green.py <N> --repo jposluns/grc_library --admin` (fail-closed, confirmed-green, head-pinned); LOG every admin merge to merge-bypass log (gate 50 Check 6).
 8. After merge sync `main`, delete branch, confirm remote branch gone.
@@ -310,7 +310,7 @@ Activities: `/validate`, `/validate-pr`, `/matrix-fit`, `/claim-fit`, `/referenc
 
 ## Throughput pressure does not authorize QA abbreviation
 
-Long batches, tight windows or next-PR pressure NEVER license abbreviated/spot/memory/self-check/quick-scan substitutes for formal `/validate-pr` (step 4), `/retro` (step 5) or corpus-wide `/validate` when due. Read [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-workflow-disciplines.md) and [`clarify-before-acting`](references/governance/clarify-before-acting.md); surface pressure in one sentence, never act on it unilaterally.
+Long batches, tight windows or next-PR pressure NEVER license abbreviated/spot/memory/self-check/quick-scan substitutes for formal `/validate-pr` (step 2), `/retro` (step 3) or corpus-wide `/validate` when due. Read [`ai-assistant-workflow-disciplines`](references/governance/ai-assistant-workflow-disciplines.md) and [`clarify-before-acting`](references/governance/clarify-before-acting.md); surface pressure in one sentence, never act on it unilaterally.
 Only shapes: (a) full formal `/validate-pr` dispatch, Subagent A on diff plus touched-file cross-reference check, recorded in `/opt/grc/private/validate-pr/` and history; (b) explicit maintainer-authorized exception with rationale in history Summary. "Abbreviated /validate-pr, 0 findings" is failure. Per-PR QA cadence IS the pace.
 
 ## Triple-family QA is the permanent standard for every QA pass (maintainer-directed 2026-08-17; supersedes the 2026-07-29 dual-family standard)
