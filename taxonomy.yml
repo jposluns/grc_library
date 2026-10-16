@@ -2905,7 +2905,7 @@ documents:
   domain: "compliance"
   type: "Policy"
   title: "Legal and Regulatory Compliance Policy"
-  version: "1.0.29"
+  version: "1.0.30"
   date: "2026-10-16"
   owner: "Chief Compliance Officer"
   approving_authority: "Governance Library Maintainer"
