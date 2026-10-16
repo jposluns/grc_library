@@ -2,8 +2,8 @@
 
 **Document Title:** Encryption and Key Management Policy\
 **Document Type:** Policy\
-**Version:** 1.9.0\
-**Date:** 2026-10-15\
+**Version:** 1.9.1\
+**Date:** 2026-10-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-data-classification-and-handling.md`](standard-data-classification-and-handling.md), [`security/standard-data-loss-prevention.md`](standard-data-loss-prevention.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/procedure-cryptographic-key-operations.md`](procedure-cryptographic-key-operations.md), [`security/register-approved-key-agreement-protocols.md`](register-approved-key-agreement-protocols.md)\
@@ -121,6 +121,8 @@ DLP enforcement must block or encrypt Restricted and Confidential data shared ex
 
 ### 8.1 Encryption requirements
 
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
 All trade, customs, and cargo data in BASC-certified regions (Colombia, Mexico, Peru, Chile) must:
 
 - Be encrypted at rest and in transit under the organization's trade-data protection controls, consistent with its ISO 28000:2022 supply-chain security management system.
@@ -225,7 +227,7 @@ Lessons learned from incidents or audits feed into the continual improvement cyc
 | ETSI EN 304 223 V2.1.1 (2025-12) | Provision 5.2.1-4: protection of sensitive data, such as training or test data, against unauthorized access; informative implementation guidance ETSI TR 104 128 V1.1.1 (2025-05) 6.5.5 (Provision 5.2.1-4, written against the predecessor ETSI TS 104 223), example measures: encryption at rest and in transit, including model artifacts and training data |
 | BASC International Security Standard 6.0.2/6.0.3 (2022) | Trade and Customs Data Security |
 | WCO SAFE Framework (2025 edition) | Supply Chain Security |
-| ISO 28000:2022 | Supply-Chain Security and Resilience |
+| ISO 28000:2022 | Supply-Chain Security and Resilience. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this alignment as verified. <!-- ref-absence: ISO 28000:2022 --> |
 
 ---
 

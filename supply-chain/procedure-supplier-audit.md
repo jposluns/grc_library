@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.0.20\
-**Date:** 2026-09-25\
+**Version:** 1.0.21\
+**Date:** 2026-10-17\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`supply-chain/procedure-supplier-due-diligence.md`](procedure-supplier-due-diligence.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](annex-trade-and-supply-chain-continuity-controls.md), [`risk/procedure-risk-register.md`](../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -131,11 +131,13 @@ Supplier Audit Reports and their supporting evidence are retained for a minimum 
 
 ### Step 5: Sector-programme trade-security compliance
 
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
+
 For suppliers in scope of a sector programme (for example, BASC for Latin American logistics, customs brokerage, or cargo operations; CTPAT for US trade; AEO for EU trade), the audit must additionally confirm:
 
 - Validity of current sector certification (for example, BASC, CTPAT, AEO) and scheduled renewal date.
 - Compliance with the WCO SAFE Framework of Standards 2025 edition.
-- Compliance with ISO 28000:2022 supply chain security management requirements.
+- Compliance with ISO 28000:2022 supply chain security management requirements, once verified against the standard.
 - Adequacy of cargo inspection procedures, seal integrity controls, and tamper-evidence mechanisms.
 - Security of communication channels with customs authorities and regulatory systems.
 
