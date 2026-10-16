@@ -54,7 +54,8 @@ DISCRIMINATING regex (the held-source ``path:line`` phrase), not the bare tokens
 and ``path:line`` which also occur inside ``source-not-held`` and the claim ``path:line``.
 A carrier_signal that matches ZERO carriers for an enrolled skill is caught FAIL-CLOSED by the tool itself (exit 2, per-skill), with the standing regression assertion on the live census a defence-in-depth second layer. The remaining residues are covered by the same-PR grep-every-carrier discipline.
 
-Exit 0 clean, 1 on any finding, 2 on an environmental error: a missing or unparseable
+Exit 0 clean, 1 on any finding or a one-line lookup error, 2 on a containment
+refusal or an environmental error: a missing or unparseable
 manifest, a manifest-named file that does not exist, or a FAIL-CLOSED schema violation (no
 skills; a skill missing files/carrier_signal/fields; an invalid carrier_signal or requires_regex
 pattern; a field or declared exception with no valid predicate, where a predicate is a non-empty
@@ -73,6 +74,7 @@ _TOOLS_DIR = str(Path(__file__).resolve().parent)
 if _TOOLS_DIR not in sys.path:
     sys.path.insert(0, _TOOLS_DIR)
 
+from lint_common import PathContainmentError, is_containment_refusal, join_under  # noqa: E402
 from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -209,7 +211,13 @@ def check_skill(skill, marker, root):
     findings = []
     signal_re = re.compile(skill["carrier_signal"])
     for rel in skill["files"]:
-        path = root / rel
+        try:
+            path = join_under(root, rel)
+        except PathContainmentError as exc:
+            if is_containment_refusal(exc):
+                findings.append({"file": rel, "line": 0, "cls": "env", "msg": str(exc)})
+                continue
+            path = root / rel
         if not path.exists():
             findings.append({"file": rel, "line": 0, "cls": "env",
                              "msg": "manifest-named file does not exist"})
@@ -294,7 +302,15 @@ def run(manifest_path, root):
         skill_carriers = 0
         skill_has_file = False
         for rel in skill["files"]:
-            p = root / rel
+            try:
+                p = join_under(root, rel)
+            except PathContainmentError as exc:
+                if is_containment_refusal(exc):
+                    if not isinstance(rel, str) or not rel:
+                        raise
+                    print("ENV ERROR: %s" % exc, file=sys.stderr)
+                    return 2, [], 0, (n_scanned, n_carriers)
+                p = root / rel
             if not p.exists():
                 continue
             skill_has_file = True
@@ -329,7 +345,14 @@ def main(argv=None):
         args.root = require_dir(args.root, "--root")
     if args.self_test:
         return _self_test()
-    code, findings, n_skills, counts = run(args.manifest, Path(args.root))
+    try:
+        code, findings, n_skills, counts = run(args.manifest, Path(args.root))
+    except PathContainmentError as exc:
+        print(f"ENV ERROR: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"ENV ERROR: {exc}", file=sys.stderr)
+        return 1
     n_scanned, n_carriers = counts
     print("=== skill verdict-recording carrier-completeness audit ===")
     for f in findings:

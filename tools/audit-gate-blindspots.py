@@ -4,7 +4,8 @@ markdown surfaces does NO gate scan.
 
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID for the deep-assessment
 skill's audit-programme phase, not an audit gate. It always exits 0 after printing
-its report (2 only on an internal or usage error, such as an empty or missing --root); its output is a coverage report, not a
+its report (2 on an internal or usage error, an empty or missing --root,
+or a refused runner entry); its output is a coverage report, not a
 defect list. It derives, per gate wired into ``tools/run_all_audits.sh``, the
 gate's effective scan scope by static inspection of the gate's module source, then
 inverts the union: the markdown files no scope-derivable gate scans at all. Every
@@ -39,7 +40,8 @@ Usage:
     python3 tools/audit-gate-blindspots.py [--root PATH] [--format md|tsv]
     python3 tools/audit-gate-blindspots.py --unscanned-only
 
-Stdlib-only Python 3.11.
+Stdlib-only Python 3.11. This script requires the adjacent lint_common.py
+module for shared path-containment checks.
 """
 
 from __future__ import annotations
@@ -51,6 +53,12 @@ import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.insert(0, _TOOLS_DIR)
+
+from lint_common import PathContainmentError, is_containment_refusal, join_under  # noqa: E402
 
 TOOL_ROOT = Path(__file__).resolve().parent.parent
 
@@ -95,7 +103,12 @@ def _const_strings(node: ast.AST) -> list[str]:
 
 def derive_scope(root: Path, name: str, script: str) -> GateScope:
     gate = GateScope(name=name, script=script)
-    path = root / script
+    try:
+        path = join_under(root, script)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        path = root / script
     try:
         source = path.read_text(encoding="utf-8", errors="replace")
     except FileNotFoundError as exc:
@@ -224,7 +237,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
     # 3b50b2e1: an empty --root used to become '.', so the current directory was audited. Checked
-    # inline: this tool is standalone (it does not import lint_common).
+    # inline to preserve this tool's existing root-argument diagnostics.
     try:
         root_is_dir = bool(str(args.root).strip()) and Path(args.root).is_dir()
     except OSError as exc:
@@ -242,7 +255,7 @@ def main(argv: list[str] | None = None) -> int:
         gates = load_gates(root)
         shared_exempt = default_exempt_dirs(root)
         md_files = tracked_markdown(root)
-    except (RuntimeError, OSError, subprocess.CalledProcessError) as exc:
+    except (PathContainmentError, RuntimeError, OSError, subprocess.CalledProcessError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 

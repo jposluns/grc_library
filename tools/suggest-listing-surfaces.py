@@ -31,8 +31,8 @@ Usage:
     tool infers the domain from the path prefix and reads the document's
     metadata (title, type) if the file is present.
 
-Exit codes: 0 always (advisory tool; it never fails a build). 2 on
-usage error.
+Exit codes: 0 for advice, 2 for usage errors or containment refusals, and
+1 for lookup errors (with the report's partial standard output preserved).
 """
 
 from __future__ import annotations
@@ -42,9 +42,13 @@ import re
 import sys
 from pathlib import Path
 
+_TOOLS_DIR = str(Path(__file__).resolve().parent)
+if _TOOLS_DIR not in sys.path:
+    sys.path.append(_TOOLS_DIR)
+
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import read_text_safe  # noqa: E402  # generic core (behaviour-identical to lint_common)
-from lint_common import is_default_exempt_root, REPO_ROOT, positional_args  # noqa: E402  # grc-config/store, stays local
+from lint_common import PathContainmentError, check_join_spelling, is_containment_refusal, join_under, is_default_exempt_root, REPO_ROOT, positional_args  # noqa: E402  # grc-config/store, stays local
 
 REGISTER = "governance/register-document-index-and-classification.md"
 PATH_IN_CODESPAN = re.compile(r"`([a-z][a-z0-9-]*(?:/[a-z0-9._-]+)+\.md)`")
@@ -132,7 +136,7 @@ def keywords(path: str) -> set[str]:
     return tokens
 
 
-def find_matrix_surfaces() -> list[str]:
+def _matrix_paths() -> list[str]:
     """All matrix/crosswalk files in the corpus (the semantic listing surfaces)."""
     found: list[str] = []
     for p in sorted(REPO_ROOT.glob("**/*.md")):
@@ -148,8 +152,19 @@ def find_matrix_surfaces() -> list[str]:
     return found
 
 
+def find_matrix_surfaces() -> list[str]:
+    """Selector seam called by scan-scope tests; wraps _matrix_paths."""
+    return _matrix_paths()
+
+
 def referenced_paths(file_rel: str) -> set[str]:
-    text = read_text_safe(REPO_ROOT / file_rel)
+    try:
+        path = join_under(REPO_ROOT, file_rel)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        path = REPO_ROOT / file_rel
+    text = read_text_safe(path)
     if text is None:
         return set()
     return set(PATH_IN_CODESPAN.findall(text))
@@ -244,16 +259,81 @@ def report_regenerate(domain: str | None) -> None:
     )
 
 
-def report_one(doc_path: str) -> None:
-    if is_default_exempt_root(doc_path, repo_root=REPO_ROOT):
+def report_paths(doc_path: str) -> tuple[str, str | None, list[str], Exception | None]:
+    """Plan the exact report paths without reading report content.
+
+    No path depends on file content: references affect ranking only.
+    Defer ordinary discovery errors to the report's original matrix-loop point.
+    Process control exceptions propagate during preflight, before report output.
+    """
+    normalized = Path(doc_path).as_posix() if doc_path else ""
+    domain = domain_of(normalized)
+    if is_default_exempt_root(normalized, repo_root=REPO_ROOT) or domain is None:
+        return normalized, None, [], None
+    try:
+        matrices = [p for p in _matrix_paths() if p != normalized]
+    except Exception as exc:
+        return normalized, f"{domain}/README.md", [], exc
+    return normalized, f"{domain}/README.md", matrices, None
+
+
+def document_path(doc_path: str) -> Path | None:
+    """Validate spelling before exemption; walk only non-exempt documents."""
+    # Use join_under's spelling rules before an exempt root can return early.
+    try:
+        check_join_spelling(REPO_ROOT, doc_path)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return join_under(REPO_ROOT, doc_path)
+    try:
+        exempt = is_default_exempt_root(doc_path, repo_root=REPO_ROOT)
+    except (OSError, RuntimeError):
+        # Unverifiable paths still need the shared refusal, including loops.
+        return join_under(REPO_ROOT, doc_path)
+    if exempt:
+        return None
+    if domain_of(Path(doc_path).as_posix()) is None:
+        try:
+            REPO_ROOT.lstat()
+        except FileNotFoundError:
+            # Main only checks is_file for a root-level name under a missing base.
+            return REPO_ROOT / doc_path
+    try:
+        return join_under(REPO_ROOT, doc_path)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        return REPO_ROOT / doc_path
+
+
+def preflight(docs: list[str]) -> list[tuple[str, str | None, list[str], Exception | None]]:
+    """Verify all planned paths before the first report write."""
+    plans = []
+    for doc in docs:
+        document_path(doc)
+        plan = report_paths(doc)
+        plans.append(plan)
+        _normalized, readme, matrices, _error = plan
+        for surface in ([REGISTER, readme, *matrices] if readme is not None else []):
+            try:
+                join_under(REPO_ROOT, surface)
+            except PathContainmentError as exc:
+                if is_containment_refusal(exc):
+                    raise
+    return plans
+
+
+def report_one(doc_path: str, plan=None) -> None:
+    path = document_path(doc_path)
+    doc_path, readme, matrices, discovery_error = plan or report_paths(doc_path)
+    if path is None:
         print(f"\n=== {doc_path} ===")
         print("    Source-pack path outside the corpus; no listing surfaces apply.")
         return
     domain = domain_of(doc_path)
-    exists = (REPO_ROOT / doc_path).is_file()
+    exists = path.is_file()
     title = doc_type = None
     if exists:
-        text = read_text_safe(REPO_ROOT / doc_path) or ""
+        text = read_text_safe(path) or ""
         m = TITLE_RE.search(text)
         title = m.group(1) if m else None
         m = TYPE_RE.search(text)
@@ -295,8 +375,13 @@ def report_one(doc_path: str) -> None:
         f"    [{'present' if reg_listed else 'MISSING'}] {REGISTER} "
         f"(add a row in the Active document index table)"
     )
-    readme = f"{domain}/README.md"
-    if (REPO_ROOT / readme).is_file():
+    try:
+        readme_path = join_under(REPO_ROOT, readme)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        readme_path = REPO_ROOT / readme
+    if readme_path.is_file():
         rm_listed = doc_path in referenced_paths(readme)
         print(
             f"    [{'present' if rm_listed else 'MISSING'}] {readme} "
@@ -317,7 +402,9 @@ def report_one(doc_path: str) -> None:
     # --- SEMANTIC surfaces (ranked candidates, not gated) ---
     kw = keywords(doc_path)
     candidates: list[tuple[int, str, str]] = []
-    for surface in find_matrix_surfaces():
+    if discovery_error is not None:
+        raise discovery_error from None
+    for surface in matrices:
         if surface == doc_path:
             continue
         refs = referenced_paths(surface)
@@ -363,17 +450,30 @@ def main(argv: list[str]) -> int:
     # before a path that begins with '-'). A path that does not exist yet stays valid: this tool
     # plans listing surfaces for PROPOSED documents (SuggestListingSurfacesTests).
     docs = positional_args(argv[1:], known_flags=())
+    docs = [doc[2:] if doc.startswith("./") else doc for doc in docs]
     if not docs:
         print(__doc__)
         print("ERROR: provide at least one document path.", file=sys.stderr)
         return 2
-    print(
-        "Listing-surface suggestions. MECHANICAL surfaces are gated by "
-        "lint-listing-surface-completeness.py (register + domain README) and "
-        f"the generator --check stages of {GUARD}; SEMANTIC surfaces are advisory."
-    )
-    for doc_path in docs:
-        report_one(doc_path.lstrip("./"))
+    try:
+        plans = preflight(docs)
+    except PathContainmentError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    try:
+        print(
+            "Listing-surface suggestions. MECHANICAL surfaces are gated by "
+            "lint-listing-surface-completeness.py (register + domain README) and "
+            f"the generator --check stages of {GUARD}; SEMANTIC surfaces are advisory."
+        )
+        for doc_path, plan in zip(docs, plans):
+            report_one(doc_path, plan)
+    except PathContainmentError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     return 0
 
 
