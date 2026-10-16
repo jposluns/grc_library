@@ -1,0 +1,34 @@
+{
+  "_comment": "Exclusion policy for tools/check-alignment-register-on-pr.py (delta gate D15). Maintainer decision 2026-10-16 11:13Z ('Tracked only'): the canonical-citations register covers standards and regulations whose currency is tracked; RFCs, vendor guidance and books are not expected in it, so an unregistered citation of one of those classes is not reported. Every row names its class (exactly one of 'RFC', 'vendor guidance', 'book') and its reason. A 'patterns' row is a regular expression searched (case-insensitive) in the citation; an 'entries' row names one citation, matched as a whole phrase. The check validates this file on load and runs nothing if a row is malformed. A citation that has a register row resolves as registered before this policy is consulted.",
+  "schema_version": 1,
+  "decision": "Maintainer decision 2026-10-16 11:13Z (Tracked only)",
+  "patterns": [
+    {
+      "class": "RFC",
+      "pattern": "\\b(?:IETF\\s+)?(?:RFC|BCP)s?\\s*\\d{1,5}\\b",
+      "reason": "An IETF RFC is immutable once published: a revision is issued as a new RFC number and errata do not create an edition, so there is no current version for the register to track."
+    },
+    {
+      "class": "vendor guidance",
+      "pattern": "^(?:Microsoft|Google|AWS|Amazon Web Services|Apple|Meta|IBM|Oracle|Cisco|Red Hat|Salesforce|GitHub|GitLab|HashiCorp|Cloudflare)\\b",
+      "reason": "Guidance a single vendor publishes about its own platform or practice (for example the AWS Well-Architected Framework or the Microsoft REST API Guidelines) is revised continuously without editions the library tracks."
+    }
+  ],
+  "entries": [
+    {
+      "class": "book",
+      "name": "Accelerate",
+      "reason": "Forsgren, Humble and Kim, Accelerate (IT Revolution, 2018), is a book: it is cited for its research findings, not tracked for currency."
+    },
+    {
+      "class": "book",
+      "name": "DAMA-DMBOK",
+      "reason": "The DAMA Guide to the Data Management Body of Knowledge is published as a book (second edition 2017); a book is not a register citation."
+    },
+    {
+      "class": "book",
+      "name": "Site Reliability Engineering",
+      "reason": "Site Reliability Engineering (O'Reilly, 2016) and its companion workbook are books; a book is not a register citation."
+    }
+  ]
+}

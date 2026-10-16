@@ -6205,6 +6205,318 @@ class ChangelogOnPrTests(DeltaGateRepoTestCase):
             shutil.rmtree(tmp, ignore_errors=True)
 
 
+class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
+    """tools/check-alignment-register-on-pr.py (delta gate D15, advisory).
+
+    Each fixture is a two-commit repository whose register is a small gate-6-valid
+    canonical-citations register; the check runs with positional base/head refs and must
+    exit 0 on every path (it warns, never blocks). The curated alias and exclusion data are
+    the real files beside the check, so these tests also pin that data's behaviour."""
+
+    SCRIPT = "check-alignment-register-on-pr.py"
+    REGISTER = "governance/register-canonical-citations.md"
+    DOC = "security/standard-example.md"
+    HEADER = (
+        "| Standard ID | Current version | Publication date | Topic | Superseded versions "
+        "| Upstream check location | Last verified (UTC) |\n"
+        "| --- | --- | --- | --- | --- | --- | --- |\n"
+    )
+    ROWS = (
+        ("ISO/IEC 27001", "2022", "2013"),
+        ("NIST CSF", "2.0", "1.1"),
+        ("NIST SP 800-218", "1.1", "1.0"),
+        ("IEC 62443-3-3", "2013", "-"),
+        ("EU GDPR", "Regulation 2016/679", "Directive 95/46/EC"),
+        ("EU DORA", "Regulation 2022/2554", "-"),
+        ("CSA CCM", "v4.1", "v4.0"),
+    )
+
+    def _register(self, rows=ROWS):
+        body = "".join(
+            f"| {sid} | {cur} | 2024 | Topic | {sup} | https://example.org/ | 2026-10-01 |\n"
+            for sid, cur, sup in rows
+        )
+        return "# Canonical Citations Register\n\n## Rows\n\n" + self.HEADER + body
+
+    @staticmethod
+    def _doc(*rows, heading="## Framework alignment", header="| Framework | Reference | Relevance |"):
+        sep = "| " + " | ".join(["---"] * (header.count("|") - 1)) + " |"
+        return "# Example\n\n" + heading + "\n\n" + header + "\n" + sep + "\n" + "".join(
+            r + "\n" for r in rows
+        )
+
+    def _check(self, base_doc, head_doc, register=None, extra_head=None):
+        base = {self.REGISTER: register or self._register(), self.DOC: base_doc}
+        head = {self.DOC: head_doc, **(extra_head or {})}
+        tmp, base_sha, shutil = self._build_repo(base, head)
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertEqual(
+            result.returncode, 0,
+            f"D15 is advisory and must exit 0.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        return result.stdout
+
+    def _warned(self, out):
+        return [line for line in out.splitlines() if line.startswith("D15 WARN")]
+
+    def test_list_form_unregistered_row_warns_and_registered_rows_pass(self) -> None:
+        out = self._check(
+            self._doc("| ISO/IEC 27001:2022 | A.5.1 | Policy |"),
+            self._doc(
+                "| ISO/IEC 27001:2022 | A.5.1 | Policy |",
+                "| NIST CSF 2.0 | GV.PO | Policy |",
+                "| NIST SP 800-57 Part 1 Rev. 5 | Key management | Keys |",
+            ),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("alignment-table row 'NIST SP 800-57'", warned[0])
+        self.assertIn("security/standard-example.md:9:", warned[0])
+        self.assertIn("D15 ADVISORY: 1 added citation", out)
+
+    def test_free_text_citation_list_column(self) -> None:
+        header = "| Control Area | ISO/IEC 27001:2022 | Regulatory |"
+        out = self._check(
+            self._doc(header=header),
+            self._doc("| Logging | A.8.15 | GDPR Art. 32; DORA Art. 9, Quebec Law 25 |", header=header),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("citation-list cell 'Quebec Law 25'", warned[0])
+
+    def test_matrix_header_added_under_alignment_heading(self) -> None:
+        header = "| Requirement | NIST SSDF | ISACA DTEF | Regulatory |"
+        out = self._check("# Example\n", self._doc(header=header))
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("alignment-table header 'ISACA DTEF'", warned[0])
+
+    def test_matrix_header_outside_alignment_heading_is_not_a_citation_surface(self) -> None:
+        header = "| Requirement | ISACA DTEF | Owner |"
+        out = self._check("# Example\n", self._doc(header=header, heading="## Roles"))
+        self.assertEqual(self._warned(out), [], out)
+
+    def test_alias_acronym_and_series_prefix_resolve(self) -> None:
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| General Data Protection Regulation | Art. 32 | Security |",  # curated alias
+                "| Cloud Security Alliance Cloud Controls Matrix (CCM) | IAM | Access |",  # acronym
+                "| IEC 62443 | Zones and conduits | OT |",  # series prefix of IEC 62443-3-3
+                "| CSA Cloud Controls Matrix v4.1 | LOG-05 | Logging |",  # alias with edition
+            ),
+        )
+        self.assertEqual(self._warned(out), [], out)
+
+    def test_eu_instrument_number_in_prose(self) -> None:
+        out = self._check(
+            "# Example\n\nIntro.\n",
+            "# Example\n\nIntro.\n\nProcessing follows Regulation (EU) 2016/679 and the critical "
+            "entities rules of Directive (EU) 2022/2557.\n",
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("EU/EC instrument number 'Directive (EU) 2022/2557'", warned[0])
+
+    def test_exclusion_policy_rfc_vendor_guide_and_book_not_reported(self) -> None:
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| RFC 9457 | Problem details | Errors |",
+                "| BCP 14 | Keywords | Requirements |",
+                "| BCP 47 | Language tags | Localization |",
+                "| Microsoft REST API Guidelines | Versioning | APIs |",
+                "| Accelerate (DORA research) | Delivery metrics | Flow |",
+                "| OWASP AI Exchange | Threats | AI |",
+            ),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)  # only the control case: unregistered, not excluded
+        self.assertIn("'OWASP AI Exchange'", warned[0])
+
+    def test_digit_and_lowercase_instrument_names_are_citations(self) -> None:
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| 21 CFR Part 11 | Electronic records | US |",
+                "| 42 CFR Part 2 | Substance records | US |",
+                "| ePrivacy Directive | Privacy | EU |",
+                "| eIDAS 2.0 | Identity | EU |",
+            ),
+        )
+        warned = "\n".join(self._warned(out))
+        for name in ("21 CFR Part 11", "42 CFR Part 2", "ePrivacy Directive", "eIDAS 2.0"):
+            with self.subTest(name=name):
+                self.assertIn(repr(name), warned, out)
+
+    def test_nist_ai_publication_number_resolves_to_registered_rmf(self) -> None:
+        rows = self.ROWS + (("NIST AI RMF", "1.0", "-"),)
+        out = self._check(self._doc(), self._doc("| NIST AI 100-1 | Risk | AI |"),
+                          register=self._register(rows))
+        self.assertEqual(self._warned(out), [], out)
+
+    def test_exclusion_policy_file_is_valid_and_reasoned(self) -> None:
+        mod = self._module()
+        rows = mod.load_exclusions(mod.EXCLUSIONS_PATH.read_text(encoding="utf-8"))
+        self.assertEqual({r["cls"] for r in rows}, {"RFC", "vendor guidance", "book"})
+        for row in rows:
+            self.assertGreaterEqual(len(row["reason"]), 10, row["label"])
+
+    def test_exclusion_policy_refuses_a_malformed_row(self) -> None:
+        import json
+
+        mod = self._module()
+        good = {"class": "book", "name": "Some Book", "reason": "A book is not a register citation."}
+        for bad in (
+            dict(good, **{"class": "blog"}),  # a class the decision does not cover
+            dict(good, reason=""),  # no reason
+            {"class": "book", "reason": good["reason"]},  # no name
+        ):
+            text = json.dumps({"schema_version": 1, "patterns": [], "entries": [bad]})
+            with self.subTest(bad=bad), self.assertRaises(mod.PolicyError):
+                mod.load_exclusions(text)
+        text = json.dumps({"schema_version": 1, "entries": [], "patterns": [
+            {"class": "RFC", "pattern": "RFC (", "reason": "An RFC is not tracked."}]})
+        with self.assertRaises(mod.PolicyError):
+            mod.load_exclusions(text)
+
+    def test_alias_and_umbrella_targets_are_live_register_rows(self) -> None:
+        import json
+
+        mod = self._module()
+        register = mod.Register((REPO_ROOT / self.REGISTER).read_text(encoding="utf-8"))
+        data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
+        targets = list(data["aliases"].values()) + [u["row"] for u in data["umbrella"]]
+        self.assertEqual(sorted(t for t in targets if not register.has_id(t)), [])
+
+    def test_not_citable_fragments_are_skipped(self) -> None:
+        header = "| Framework | Reference | Regulatory |"
+        out = self._check(
+            self._doc(header=header),
+            self._doc(
+                "| N/A | - | N/A |",
+                "| NIST | General | sectoral laws, Multi-jurisdiction |",
+                "| [Internal standard](../governance/standard-x.md) | 4.2 | SEF-07, A.3.4 |",
+                "| Internal | Key ops | Corpus convention touchpoint |",
+                "| ENISA | Guidance | PTES |",  # control: an unregistered citation in the same table
+                header=header,
+            ),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("citation-list cell 'PTES'", warned[0])
+
+    def test_malformed_alias_data_is_fail_open_at_cli(self) -> None:
+        import json
+        import subprocess as sp
+
+        base = {self.REGISTER: self._register(), self.DOC: self._doc()}
+        tmp, base_sha, shutil = self._build_repo(
+            base, {self.DOC: self._doc("| ISACA DTEF | Assurance | Audit |")}
+        )
+        try:
+            for bad in ([], {"patterns": ["("]}):
+                with self.subTest(bad=bad):
+                    alias = tmp / "bad-aliases.json"
+                    alias.write_text(json.dumps({"schema_version": 1, "not_citable": bad}), encoding="utf-8")
+                    code = (
+                        "import importlib.util, sys; from pathlib import Path; "
+                        "sys.path.insert(0, str(Path(sys.argv[1]).parent)); "
+                        "spec=importlib.util.spec_from_file_location('d15', sys.argv[1]); "
+                        "m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m); "
+                        "m.ALIASES_PATH=Path(sys.argv[2]); sys.exit(m.main(sys.argv[3:]))"
+                    )
+                    result = sp.run(
+                        [sys.executable, "-c", code, str(REPO_ROOT / "tools" / self.SCRIPT),
+                         str(alias), base_sha, "HEAD"], cwd=tmp, capture_output=True, text=True,
+                    )
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn("D15 NOTE:", result.stdout)
+                    self.assertIn("skipped (fail-open)", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_scan_exception_and_argument_error_are_fail_open_at_cli(self) -> None:
+        import subprocess as sp
+
+        base = {self.REGISTER: self._register(), self.DOC: self._doc()}
+        tmp, base_sha, shutil = self._build_repo(
+            base, {self.DOC: self._doc("| ISACA DTEF | Assurance | Audit |")}
+        )
+        try:
+            code = (
+                "import importlib.util, sys; from pathlib import Path; "
+                "sys.path.insert(0, str(Path(sys.argv[1]).parent)); "
+                "spec=importlib.util.spec_from_file_location('d15', sys.argv[1]); "
+                "m=importlib.util.module_from_spec(spec); spec.loader.exec_module(m); "
+                "m.scan_text=lambda *a: 1/0; sys.exit(m.main(sys.argv[2:]))"
+            )
+            script = str(REPO_ROOT / "tools" / self.SCRIPT)
+            for args in (("-c", code, script, base_sha, "HEAD"),
+                         (script, "--unknown-option")):
+                with self.subTest(args=args[-2:]):
+                    result = sp.run([sys.executable, *args], cwd=tmp,
+                                    capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn("D15 NOTE:", result.stdout)
+                    self.assertIn("skipped (fail-open)", result.stdout)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
+    def test_added_lines_only(self) -> None:
+        out = self._check(
+            self._doc("| ISACA DTEF | Assurance | Audit |"),
+            self._doc("| ISACA DTEF | Assurance | Audit |", "| NIST CSF 2.0 | GV | Governance |"),
+        )
+        self.assertEqual(self._warned(out), [], out)
+        self.assertIn("D15 OK", out)
+
+    def test_register_absent_is_a_noop(self) -> None:
+        base = {"README.md": "# Repo\n", self.DOC: self._doc()}
+        tmp, base_sha, shutil = self._build_repo(
+            base, {self.DOC: self._doc("| ISACA DTEF | Assurance | Audit |")}
+        )
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("D15 NOTE", result.stdout)
+        self.assertNotIn("D15 WARN", result.stdout)
+
+    def test_pr_2697_replay_against_historical_register(self) -> None:
+        # The 2026-10-04 PR #2697 added these two sentences (abridged from its
+        # compliance/annex-nis-2-implementation.md line 29) with no register row for either
+        # instrument. This fixed register fixture lacks both numbers regardless of later rows.
+        prose = (
+            "An entity of a type in Annex I is an essential entity where it exceeds the ceilings "
+            "for medium-sized enterprises provided for in Article 2(1) of the Annex to Commission "
+            "Recommendation 2003/361/EC (Article 3(1)(a)). Essential status also attaches to "
+            "critical entities under Directive (EU) 2022/2557.\n"
+        )
+        out = self._check("# NIS 2\n\nIntro.\n", "# NIS 2\n\nIntro.\n\n" + prose)
+        warned = "\n".join(self._warned(out))
+        for observed, number in (
+            ("Commission Recommendation 2003/361/EC", "2003/361"),
+            ("Directive (EU) 2022/2557", "2022/2557"),
+        ):
+            with self.subTest(number=number):
+                self.assertIn(f"EU/EC instrument number '{observed}'", warned, out)
+
+    def _module(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "check_alignment_register_on_pr", REPO_ROOT / "tools" / self.SCRIPT
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+
 class VersionBumpOnPrTests(DeltaGateRepoTestCase):
     """tools/check-version-bump-on-pr.py (delta gate D2)."""
 
@@ -29702,6 +30014,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         build-relationship-model.py
         build-taxonomy.py
         build-todo-number-allocation.py
+        check-alignment-register-on-pr.py
         check-changelog-dash-on-pr.py
         check-changelog-length-on-pr.py
         check-changelog-on-pr.py

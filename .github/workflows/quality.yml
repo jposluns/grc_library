@@ -379,6 +379,10 @@ jobs:
         if: github.event_name == 'pull_request'
         run: python3 tools/check-class-attestation-on-pr.py
 
+      - name: Alignment-citation register check
+        if: github.event_name == 'pull_request'
+        run: python3 tools/check-alignment-register-on-pr.py
+
       - name: Detect collection candidates on pack PRs (informational)
         if: github.event_name == 'pull_request'
         env:
