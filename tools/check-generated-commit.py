@@ -35,11 +35,13 @@ unjudged.
 
 What it checks. It copies every stage-0 regular-file blob of the index being committed (the one git named
 in GIT_INDEX_FILE, so `git commit -a` and `git commit <path>` are judged on what they commit) into a
-temporary directory, byte for byte, with no checkout filter and no working-tree read. It then runs that
-snapshot's own tools/build-taxonomy.py --check and tools/build-portal.py --check there (python3 -I, without
-the GIT_ variables), and refuses unless both exit 0, relaying their reports. The staged generators judge
-the staged sources and the staged outputs, so an output regenerated but not staged, or a working-tree edit,
-changes nothing. The check never regenerates or stages anything: it refuses and names the fix.
+temporary directory, except intent-to-add entries, which git leaves out of the commit. A genuinely staged
+empty file is copied. The copy is byte for byte, with no checkout filter and no working-tree read. It then
+runs the snapshot's own tools/build-taxonomy.py --check and tools/build-portal.py --check there
+(python3 -I, without the GIT_ variables), and refuses unless both exit 0, relaying their reports. The
+staged generators judge the staged sources and the staged outputs, so an output regenerated but not staged,
+or a working-tree edit, changes nothing. The check never regenerates or stages anything: it refuses and
+names the fix.
 
 Allowed without checking: the override GRC_ALLOW_STALE_GENERATED_COMMIT=1, honoured only when the value is
 exactly "1" (as check-changelog-preflight-commit.py reads its own), so "0", "false" or an empty value is not
@@ -63,8 +65,10 @@ tools/lint_common.py alone (gate 33 again); `git commit --amend` is judged only 
 changes a leading metadata block, adds or deletes a Markdown file, or changes an output relative to the
 commit it replaces; a commit that git's sequencer makes itself (every `git rebase` pick, a cherry-pick or
 revert that applies cleanly, a `git am` commit) and a clean `git merge` run no pre-commit hook;
-`--no-verify` skips the hook; and it guards nothing until tools/install-git-hooks.sh has installed the
-pre-commit shim in the clone.
+`--no-verify` skips the hook; intent-to-add entries are excluded even when HEAD tracks their paths, and a
+generator out-of-sync refusal may name omitted Markdown files as a possible cause; Git 2.11 or later is
+needed to distinguish those entries when a commit is judged; and it guards nothing until
+tools/install-git-hooks.sh has installed the pre-commit shim in the clone.
 """
 import __future__
 import ast
@@ -198,6 +202,42 @@ def _read_blobs(root, oids):
     return bodies
 
 
+def intent_to_add_paths(root):
+    """Paths added with -N, including paths tracked by HEAD. Only intent-to-add entries have
+    different raw records in Git's visible and invisible index views."""
+    def records(option):
+        try:
+            out = _git(root, "diff", "--cached", "--raw", "-z", "--no-renames", "--no-abbrev", option)
+        except subprocess.CalledProcessError as exc:
+            if exc.returncode == 129:
+                raise RuntimeError("git diff rejected the intent-to-add options with a usage error "
+                                   "(exit 129), which usually means an older git: intent-to-add "
+                                   "checking needs Git 2.11 or later "
+                                   "(--ita-visible-in-index and --ita-invisible-in-index)") from exc
+            raise
+        if out and not out.endswith(b"\0"):
+            raise RuntimeError("unterminated git diff --raw output for intent-to-add entries")
+        fields = out.split(b"\0") if out else []
+        if fields:
+            fields.pop()
+        if len(fields) % 2:
+            raise RuntimeError("unexpected git diff --raw output for intent-to-add entries")
+        paths = {}
+        for meta, raw in zip(fields[0::2], fields[1::2]):
+            if not re.fullmatch(rb":[0-7]{6} [0-7]{6} (?:[0-9a-f]{40}|[0-9a-f]{64}) "
+                                rb"(?:[0-9a-f]{40}|[0-9a-f]{64}) [A-Z]", meta):
+                raise RuntimeError("unexpected git diff --raw metadata for intent-to-add entries")
+            if not raw or raw in paths:
+                raise RuntimeError("missing or duplicate path in intent-to-add diff")
+            paths[raw] = meta
+        return paths
+
+    visible = records("--ita-visible-in-index")
+    invisible = records("--ita-invisible-in-index")
+    return {os.fsdecode(path) for path in visible.keys() | invisible.keys()
+            if visible.get(path) != invisible.get(path)}
+
+
 def staged_judged(root):
     """Thin observer: does the index being committed change a generated output, add or delete a Markdown
     file, or change a staged Markdown file's leading metadata block (the span the staged
@@ -239,9 +279,10 @@ def staged_judged(root):
         return True
 
 
-def snapshot(root, dest):
+def snapshot(root, dest, intent_to_add):
     """Thin observer: copy every stage-0 regular-file blob of the index being committed into dest, byte
-    for byte. An unmerged, unsafe or unknown-mode entry, or a short read, raises (ignorance refuses)."""
+    for byte, except intent-to-add paths. An unmerged, unsafe or unknown-mode entry, or a short read,
+    raises (ignorance refuses)."""
     entries = []
     for record in _git(root, "ls-files", "--stage", "-z").split(b"\0"):
         if not record:
@@ -254,6 +295,8 @@ def snapshot(root, dest):
             raise RuntimeError(f"unmerged index entry: {name!r}")
         if rel.is_absolute() or ".." in rel.parts or ".git" in rel.parts:
             raise RuntimeError(f"unsafe index path: {name!r}")
+        if name in intent_to_add:
+            continue
         if mode in _UNCOPIED:
             continue
         if mode not in _REGULAR:
@@ -295,6 +338,7 @@ def run_generators(dest):
 def _pre_commit():
     allow = override_set(os.environ)
     judged, results, report = False, [], ""
+    intent_to_add = set()
     try:
         top = subprocess.run(["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True,
                              check=True).stdout.strip()
@@ -302,8 +346,9 @@ def _pre_commit():
         if not allow:  # the override skips the generator runs, not only their verdict
             judged = staged_judged(root)
             if judged:
+                intent_to_add = intent_to_add_paths(root)
                 with tempfile.TemporaryDirectory(prefix="grc-generated-commit-") as tmp:
-                    snapshot(root, Path(tmp))
+                    snapshot(root, Path(tmp), intent_to_add)
                     results, report = run_generators(Path(tmp))
         ok = True
     except Exception as exc:
@@ -313,6 +358,16 @@ def _pre_commit():
         print(report, file=sys.stderr)
     if msg:
         print(msg, file=sys.stderr)
+    omitted_docs = sorted(p for p in intent_to_add if p.endswith(".md"))
+    if (rc and ok and judged and len(results) == len(_BUILDERS)
+            and all(code in (0, 1) for _, code in results)
+            and any(code == 1 for _, code in results) and omitted_docs):
+        names = ", ".join(f"`{p}`" for p in omitted_docs)
+        noun = "file" if len(omitted_docs) == 1 else "files"
+        verb = "is" if len(omitted_docs) == 1 else "are"
+        print(f"check-generated-commit: intent-to-add Markdown {noun} {names} {verb} absent from this "
+              "commit and may explain the out-of-sync outputs. Stage them or regenerate without them.",
+              file=sys.stderr)
     return rc
 
 
@@ -320,6 +375,7 @@ def _integration_self_test():
     """End to end: a real repository under a spaced path, the real installer, the real generators, and
     real commits. Returns (failures, number of checks)."""
     import shutil
+    from unittest.mock import patch
     src = Path(__file__).resolve().parents[1]
     failures, checks = [], []
 
@@ -391,8 +447,43 @@ def _integration_self_test():
                "an initial commit with a stale taxonomy.yml was not refused")
         regenerate()
         must(["git", "add", "-A"])
+        # On an unborn HEAD, an intent-to-add document is still absent from the commit.
+        draft = repo / "risk" / "draft.md"
+        draft.write_text("", encoding="utf-8")
+        must(["git", "add", "-N", "risk/draft.md"])
         cp = run(["git", "commit", "-q", "-m", "init"])
-        expect(cp.returncode == 0, f"an initial commit with fresh outputs was refused: {cp.stderr.strip()}")
+        expect(cp.returncode == 0, f"an initial commit with an intent-to-add draft was refused: {cp.stderr.strip()}")
+        if cp.returncode:
+            must(["git", "commit", "-q", "-m", "init fixture continuation"], extra={_OVERRIDE: "1"})
+        must(["git", "reset", "-q", "--", "risk/draft.md"])
+        draft.unlink(missing_ok=True)
+        # Simulate a Git that rejects the intent-to-add options. Unjudged commits do not
+        # need those options; judged commits refuse with an actionable version message.
+        fake_bin = Path(base) / "old git"
+        fake_bin.mkdir()
+        fake_git = fake_bin / "git"
+        fake_git.write_text(f"#!{sys.executable}\nimport os, sys\n"
+                            "if any(arg.startswith('--ita-') for arg in sys.argv[1:]):\n"
+                            "    print('usage: git diff [<options>] [<commit>] [--] [<path>...]', file=sys.stderr)\n"
+                            "    sys.exit(129)\n"
+                            f"os.execv({shutil.which('git')!r}, [{shutil.which('git')!r}, *sys.argv[1:]])\n",
+                            encoding="utf-8")
+        fake_git.chmod(0o755)
+        old_git_env = {"PATH": f"{fake_bin}{os.pathsep}{env.get('PATH', '')}"}
+        (repo / "notes.txt").write_text("old git unjudged\n", encoding="utf-8")
+        must(["git", "add", "notes.txt"])
+        cp = run([sys.executable, "tools/check-generated-commit.py", "--pre-commit"], extra=old_git_env)
+        expect(cp.returncode == 0, f"an unjudged check queried unavailable Git options: {cp.stderr.strip()}")
+        must(["git", "commit", "-q", "-m", "unjudged with old git"])
+        write_doc("1.0.1")
+        must(["git", "add", str(doc)])
+        cp = run([sys.executable, "tools/check-generated-commit.py", "--pre-commit"], extra=old_git_env)
+        expect(refused(cp, "could not be read or copied")
+               and "Git 2.11 or later" in cp.stderr
+               and "--ita-visible-in-index" in cp.stderr
+               and "--ita-invisible-in-index" in cp.stderr,
+               f"old Git option rejection lacked the version requirement: {cp.stderr.strip()}")
+        reset()
         # A Version bump, and a Date-only change, without regenerated outputs refuse.
         for version, date, label in (("1.0.1", "2026-01-01", "Version"), ("1.0.0", "2026-02-02", "Date")):
             write_doc(version, date)
@@ -452,9 +543,94 @@ def _integration_self_test():
         cp = run(["git", "commit", "-q", "-m", "bumped and regenerated"])
         expect(cp.returncode == 0, f"a bump staged with its regenerated outputs was refused: {cp.stderr.strip()}")
         reset()
+        # An empty intent-to-add draft is absent from a normal commit's tree.
+        write_doc("1.0.2")
+        regenerate()
+        must(["git", "add", str(doc), *_OUTPUTS])
+        draft.write_text("", encoding="utf-8")
+        must(["git", "add", "-N", "risk/draft.md"])
+        cp = run(["git", "commit", "-q", "-m", "bump without draft"])
+        expect(cp.returncode == 0,
+               f"a regenerated bump with an intent-to-add draft was refused: {cp.stderr.strip()}")
+        if cp.returncode:
+            must(["git", "commit", "-q", "-m", "bump fixture continuation"], extra={_OVERRIDE: "1"})
+        must(["git", "reset", "-q", "--", "risk/draft.md"])
+        draft.unlink(missing_ok=True)
+        # Outputs made with the draft present cannot be committed without the draft.
+        write_doc("1.0.3")
+        draft.write_text("", encoding="utf-8")
+        regenerate()
+        must(["git", "add", str(doc), *_OUTPUTS])
+        must(["git", "add", "-N", "risk/draft.md"])
+        cp = run(["git", "commit", "-q", "-m", "outputs include absent draft"])
+        expect(refused(cp) and "risk/draft.md" in cp.stderr
+               and "may explain the out-of-sync outputs" in cp.stderr,
+               f"an omitted draft was not explained on refusal (exit {cp.returncode}): {cp.stderr.strip()}")
+        if cp.returncode == 0:
+            must(["git", "reset", "-q", "--hard", "HEAD^"])
+        reset()
+        draft.unlink(missing_ok=True)
+        # A genuinely staged empty file has the same blob id, but belongs in the snapshot.
+        empty = repo / "risk" / "empty.md"
+        empty.write_text("", encoding="utf-8")
+        must(["git", "add", "risk/empty.md"])
+        cp = run(["git", "commit", "-q", "-m", "staged empty draft"])
+        expect(refused(cp), f"a staged empty Markdown file was omitted: {cp.stderr.strip()}")
+        reset()
+        empty.unlink(missing_ok=True)
+        # A tracked empty document re-added with -N is deleted by the commit. Its empty blob id
+        # looks staged, but the snapshot must omit it and reject outputs that still list it.
+        empty.write_text("", encoding="utf-8")
+        regenerate()
+        must(["git", "add", "risk/empty.md", *_OUTPUTS])
+        must(["git", "commit", "-q", "-m", "tracked empty document"])
+        must(["git", "rm", "-q", "--cached", "risk/empty.md"])
+        must(["git", "add", "-N", "risk/empty.md"])
+        regenerate()
+        must(["git", "add", *_OUTPUTS])
+        cp = run(["git", "commit", "-q", "-m", "omit tracked empty document"])
+        expect(refused(cp) and "risk/empty.md" in cp.stderr,
+               f"a tracked empty intent-to-add document had the wrong verdict: {cp.stderr.strip()}")
+        reset()
+        must(["git", "rm", "-q", "-f", "risk/empty.md"])
+        regenerate()
+        must(["git", "add", *_OUTPUTS])
+        must(["git", "commit", "-q", "-m", "remove tracked empty document"])
+        # For a nonempty tracked document, check omission directly: stale outputs may already
+        # refuse when the old implementation copies the empty intent-to-add blob.
+        must(["git", "rm", "-q", "--cached", str(doc)])
+        must(["git", "add", "-N", str(doc)])
+        with patch.dict(os.environ, env, clear=True):
+            omitted = intent_to_add_paths(repo)
+        expect("risk/policy-fixture.md" in omitted and "tools/lint_common.py" not in omitted,
+               "a tracked nonempty intent-to-add path was missed or an untouched path was included")
+        with patch.dict(os.environ, env, clear=True):
+            with tempfile.TemporaryDirectory() as tmp:
+                snapshot(repo, Path(tmp), omitted)
+                expect(not (Path(tmp) / "risk/policy-fixture.md").exists(),
+                       "the snapshot copied a tracked nonempty intent-to-add document")
+        regenerate()
+        must(["git", "add", *_OUTPUTS])
+        cp = run(["git", "commit", "-q", "-m", "omit tracked nonempty document"])
+        expect(refused(cp) and "risk/policy-fixture.md" in cp.stderr,
+               f"a tracked nonempty intent-to-add document had the wrong verdict: {cp.stderr.strip()}")
+        reset()
+        # commit -a includes the real content of an intent-to-add file in its temporary index.
+        draft.write_text("# Real draft\n\n**Document Title:** Real draft\\\n", encoding="utf-8")
+        regenerate()
+        must(["git", "add", *_OUTPUTS])
+        must(["git", "add", "-N", "risk/draft.md"])
+        cp = run(["git", "commit", "-q", "-a", "-m", "implicit draft"])
+        committed_draft = run(["git", "show", "HEAD:risk/draft.md"]) if cp.returncode == 0 else cp
+        expect(cp.returncode == 0 and committed_draft.stdout == draft.read_text(encoding="utf-8"),
+               f"commit -a did not commit the draft's real content: {cp.stderr.strip()}")
+        if cp.returncode == 0:
+            must(["git", "reset", "-q", "--hard", "HEAD^"])
+        reset()
+        draft.unlink(missing_ok=True)
         # `git commit -a` and a pathspec commit are judged on the index git builds for them.
         for args in (["-a"], ["--", str(doc)]):
-            write_doc("1.0.2")
+            write_doc("1.0.4")
             cp = run(["git", "commit", "-q", "-m", "implicit index", *args])
             expect(refused(cp), f"`git commit {' '.join(args[:1])}` with a stale output was not refused")
             reset()
@@ -493,6 +669,13 @@ def _integration_self_test():
         expect(refused(cp, "did not complete (tools/build-portal.py (crashed with an uncaught exception))")
                and "RuntimeError: fixture crash" in cp.stderr and "out of sync with the staged" not in cp.stderr,
                f"a staged generator raising an exception was not refused as a crash: {cp.stderr.strip()}")
+        draft.write_text("", encoding="utf-8")
+        must(["git", "add", "-N", "risk/draft.md"])
+        cp = run(["git", "commit", "-q", "-m", "crash with unrelated draft"])
+        expect(refused(cp, "did not complete") and "intent-to-add Markdown" not in cp.stderr,
+               f"a generator crash printed an unrelated draft hint: {cp.stderr.strip()}")
+        must(["git", "reset", "-q", "--", "risk/draft.md"])
+        draft.unlink(missing_ok=True)
         (repo / _BUILDERS[1]).write_text("raise SystemExit(3)\n", encoding="utf-8")
         must(["git", "add", _BUILDERS[1]])
         expect(refused(run(["git", "commit", "-q", "-m", "crash"]), "did not complete (tools/build-portal.py (exit 3))"),
