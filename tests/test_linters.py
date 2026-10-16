@@ -21257,6 +21257,24 @@ class SiblingPlaceholderTests(LinterTestCase):
         self.assertTrue(any("cap" in f or "exceeds" in f for f in findings), findings)
 
 
+class ResolveSiblingStoreIsolationTests(unittest.TestCase):
+    """The resolver tests must ignore a caller's external store."""
+
+    def test_resolve_sibling_suite_with_external_store(self) -> None:
+        with tempfile.TemporaryDirectory() as store:
+            env = os.environ.copy()
+            env["GRC_STORE"] = store
+            result = subprocess.run(
+                [sys.executable, "-m", "unittest", "tests.test_linters.ResolveSiblingTests"],
+                cwd=REPO_ROOT,
+                env=env,
+                capture_output=True,
+                text=True,
+            )
+        self.assertRegex(result.stderr, r"Ran [1-9][0-9]* tests")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+
 class ResolveSiblingTests(unittest.TestCase):
     """lint_common.resolve_sibling / sibling_placeholder_present, and the
     advisory tools' graceful degradation when a sibling repo is absent on a
@@ -21264,6 +21282,9 @@ class ResolveSiblingTests(unittest.TestCase):
     global lint_common.REPO_ROOT at call time, so the tests drive the logic
     by monkeypatching that global to a temp tree with / without siblings.
     """
+
+    def setUp(self) -> None:
+        self._clear_grc_store()
 
     def _lc(self):
         tools_dir = str(REPO_ROOT / "tools")
@@ -21319,7 +21340,6 @@ class ResolveSiblingTests(unittest.TestCase):
         # resolve_working (with no store present): grc_library_private/.working/<rel>
         # preferred, then the in-repo .working/<rel>, else None.
         lc = self._lc()
-        self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
@@ -21350,7 +21370,6 @@ class ResolveSiblingTests(unittest.TestCase):
         # adopt-with-overlay migration (option B): the fleet-standard store <repo-parent>/private
         # is preferred over both the private sibling .working/ and the in-repo .working/.
         lc = self._lc()
-        self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
@@ -21379,7 +21398,6 @@ class ResolveSiblingTests(unittest.TestCase):
         # _store_root: absolute GRC_STORE used as-is; relative resolved against the repo
         # root (not the process CWD), so its meaning is CWD-independent.
         lc = self._lc()
-        self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
@@ -21410,7 +21428,6 @@ class ResolveSiblingTests(unittest.TestCase):
         # private_store_roots lists the store then the sibling (both private); a NEW
         # private-required record is written to the store (option B unification).
         lc = self._lc()
-        self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
             root = Path(td) / "grc_library"
             root.mkdir()
