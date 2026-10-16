@@ -2,17 +2,58 @@
 
 # COBIT objective-title canonicality
 
-A COBIT objective code cited in a document with a paired title carries that objective's
-canonical title, not a paraphrase or a wrong title. A citation can name a real
-objective code (its existence is a separate check) yet attach a non-canonical title;
-this check catches that title mismatch. Reading each document's lines outside fenced
-code blocks, it finds each objective code (a domain-prefixed objective number, not a
-practice code), and where a canonical-title-shaped phrase immediately follows (a
-separator run then a COBIT title verb form, captured to the field boundary and capped
-at a fixed word count), compares that phrase case-insensitively and whitespace-normalized
-against the objective's catalogue title, flagging any that differ. A code with no paired
-title is allowed (title presence is optional), and a practice code (an objective number
-with a practice suffix) is not a title carrier. The objective code and title-phrase
-patterns are fixed by the check; the objective catalogue (each code's canonical title)
-is supplied by the adopter (the reference) and is not part of this clause. A document
-whose paired objective titles are all canonical contributes no findings.
+A COBIT objective code cited in a document with a paired title carries that
+objective's canonical title, not a paraphrase or a wrong title. A citation can
+name a real objective code (its existence is a separate check) yet attach a
+non-canonical title. This check covers verb-led, title-shaped phrases only.
+Outside fenced code blocks, it finds each objective code (a domain-prefixed
+objective number, not a practice code). After the code it accepts an optional
+`**` / `__` / backtick wrapper, whitespace and one optional separator: colon,
+hyphen, en dash, em dash, pipe, quote, opening parenthesis, comma, semicolon,
+slash or opening bracket. The next word must be one of these forms:
+
+```text
+Manage/Managed/Managing, Ensure/Ensured/Ensuring, Monitor/Monitored/Monitoring,
+Evaluate/Evaluated/Evaluating, Assess/Assessed/Assessing,
+Deliver/Delivered/Delivering, Align/Aligned/Aligning, Build/Built/Building,
+and Direct/Directed/Directing.
+```
+
+It captures the candidate to the field boundary, capped at eight words, and
+compares it case-insensitively and whitespace-normalized against the objective's
+catalogue title, flagging differences.
+Only the first two forms in each of the Managed and Ensured families
+match case-insensitively; all other forms require the listed capitalization. A candidate needs at least two
+words before a field boundary. Closing wrappers (`**`, `__`, backtick, `*` or `_`)
+and every accepted punctuation separator end the capture, except word-internal
+hyphens, slashes, en/em dashes, parentheses, brackets, asterisks,
+underscores, backticks and apostrophes. Compounds joined by any word-internal mark count by their parts for the two-word minimum, preserving their spelling.
+For a single-quoted candidate, the last closing quote before the next non-quote
+field boundary closes the title. A double-quoted candidate ends at the first
+closing double quote; apostrophes inside double quotes remain part of the title. In an unquoted candidate, a plural
+possessive (`s'` or `S'` followed by whitespace and a capitalized word) also
+continues the title.
+
+Residual: a wrong title opening with a word outside the listed forms, or with no
+verb at all (for example, MEA03, External Compliance), is not detected.
+Separators or wrappers outside the accepted set are also not detected:
+for example `**MEA03:** Title`, italic or curly-quoted titles, a linked code,
+or stacked separators. Added forms in other cases and single-word candidates
+are intentionally outside this precision-first check.
+
+Known false positives include sentence-case prose after a code
+(for example, `APO12: Assessing risk is required annually`), a canonical title
+used as a plural possessive before a capitalized word (for example,
+`APO10 Managed Vendors' SLAs`), `BAI03 Built-in controls apply`, and
+`per APO12 - Managed risk-based approach`. An unspaced em dash followed by a
+word continues a title, so MEA03 with its canonical title followed by
+an unspaced em dash and `anchors this` is flagged; prose em and en dashes are
+both forbidden by the language gate. An unspaced en dash after a spaced en-dash
+separator also continues the title, so the code APO12, a spaced en dash, then
+its canonical title joined to further words by an unspaced en dash (for
+example, `ISO 31000 crosswalk`) is a known false positive.
+
+A code with no paired title is allowed (title presence is optional); a practice code
+(an objective number with a practice suffix) is not a title carrier. The code
+and title-phrase patterns are fixed by the check; the objective catalogue is
+supplied by the adopter (the reference) and is not part of this clause.

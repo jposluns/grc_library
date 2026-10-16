@@ -1,6 +1,44 @@
 #!/usr/bin/env python3
 """COBIT objective-title canonicality - pack engine.
 
+Recognize verb-led title-shaped phrases after an optional code wrapper
+(**, __ or backtick), whitespace and one optional separator (colon, hyphen,
+en dash, em dash, pipe, quote, opening parenthesis, comma, semicolon, slash
+or opening bracket). The listed opening forms are:
+Manage/Managed/Managing, Ensure/Ensured/Ensuring, Monitor/Monitored/Monitoring,
+Evaluate/Evaluated/Evaluating, Assess/Assessed/Assessing,
+Deliver/Delivered/Delivering, Align/Aligned/Aligning, Build/Built/Building,
+and Direct/Directed/Directing.
+Only Manage/Managed/Ensure/Ensured match case-insensitively; all added forms
+must have the capitalization listed above. A candidate needs at least two
+words before a field boundary. Closing wrappers (**, __, backtick, * or _)
+and every accepted punctuation separator end the capture, except word-internal
+hyphens, slashes, en/em dashes, parentheses, brackets, asterisks,
+underscores, backticks and apostrophes. Compounds joined by any word-internal mark count by their parts for the two-word minimum, preserving their spelling.
+For a single-quoted candidate, the last closing quote before the next non-quote
+field boundary closes the title. A double-quoted candidate ends at the first
+closing double quote; apostrophes inside double quotes remain part of the title. In an unquoted candidate, a plural
+possessive (s' or S' followed by whitespace and a capitalized word) also
+continues the title.
+Residual: a wrong title opening with a word outside the listed forms, or
+with no verb at all, is not detected (for example, MEA03, External Compliance).
+Separators or wrappers outside the accepted set are also not detected:
+for example **MEA03:** Title, italic or curly-quoted titles, a linked code,
+or stacked separators. Added forms in other cases and single-word candidates
+are intentionally outside this precision-first check.
+
+Known false positives include sentence-case prose after a code
+(for example, APO12: Assessing risk is required annually), a canonical title
+used as a plural possessive before a capitalized word (for example,
+APO10 Managed Vendors' SLAs), BAI03 Built-in controls apply, and
+per APO12 - Managed risk-based approach. An unspaced em dash followed by a
+word continues a title, so MEA03 with its canonical title followed by
+an unspaced em dash and anchors this is flagged; prose em and en dashes are
+both forbidden by the language gate. An unspaced en dash after a spaced en-dash
+separator also continues the title, so the code APO12, a spaced en dash, then
+its canonical title joined to further words by an unspaced en dash (for
+example, ISO 31000 crosswalk) is a known false positive.
+
 Engine/wrapper split (Group-A content-generic lane, Pattern A): the PURE scan
 (the objective-code/title regexes, _norm, extract_title, scan_text, scan_file) is
 the source of record here in the pack, moved verbatim from the grc gate. The COBIT
@@ -46,13 +84,20 @@ OBJECTIVE_CODE_RE = re.compile(
     r"(?<![A-Za-z0-9-])(EDM|APO|BAI|DSS|MEA)(\d{2})(?![0-9])")
 
 # The separator that may sit between a code and its title.
-_SEP_RE = re.compile(r"\s*[:\-|\"'(,]?\s*")
+_SEP_RE = re.compile(r"\s*(?:\*\*|__|`)?\s*(?:[:\-\u2013\u2014|\"'(,;/\[])?\s*")
 
-# A COBIT title verb form opening the candidate title (case-insensitive).
-_TITLE_STEM_RE = re.compile(r"(?i)(?:Managed|Manage|Ensured|Ensure)\b")
+# Legacy stems ignore case; added opening forms require the listed capitalization.
+_TITLE_STEM_RE = re.compile(
+    r"(?:(?i:Managed|Manage|Ensured|Ensure)|Managing|Ensuring|Monitored|Monitor|Monitoring|"
+    r"Evaluated|Evaluate|Evaluating|Assessed|Assess|Assessing|Delivered|Deliver|Delivering|"
+    r"Aligned|Align|Aligning|Built|Build|Building|Directed|Direct|Directing)\b")
 
 # Field boundary that ends a candidate title.
-_BOUNDARY_RE = re.compile(r"\s{2,}|[|\")]|[.,;:\t]|\s*$")
+# Soft marks end fields unless flanked by word characters.
+_INTERNAL_MARKS = r"\-/\u2013\u2014()[\]*_\x60"
+_BOUNDARY_RE = re.compile(
+    rf"\s{{2,}}|(?<![^\W_])[{_INTERNAL_MARKS}']|[{_INTERNAL_MARKS}](?![^\W_])"
+    r"|'(?!\w)|[|\".,;:\t]|\s*$")
 
 _TITLE_MAX_WORDS = 8
 
@@ -62,23 +107,54 @@ def _norm(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
 
 
-def extract_title(rest: str) -> str | None:
+def extract_title(rest: str, *, quote: str = "") -> str | None:
     """Given the line text immediately AFTER an objective code, return the
     candidate title if a canonical-title-shaped phrase follows, else None.
 
     ``rest`` starts right after the code token. A separator run is consumed
     first; then the next word must be a COBIT title verb form for a title to
     be considered present. The title is captured to the field boundary and
-    capped at ``_TITLE_MAX_WORDS`` words.
+    capped at ``_TITLE_MAX_WORDS`` whitespace words; fewer than two parts is not a title.
+    Legacy stems ignore case; added forms require the listed capitalization.
+    Closing wrappers and punctuation end the capture except word-internal marks
+    and unquoted plural possessives followed by a capitalized word.
     """
     sep = _SEP_RE.match(rest)
     body = rest[sep.end():] if sep else rest
     if not _TITLE_STEM_RE.match(body):
         return None
-    boundary = _BOUNDARY_RE.search(body)
+    boundary = None
+    opening = rest[:sep.end()] if sep else ""
+    quote = quote or next((c for c in opening if c in "'\""), "")
+    marks = list(_BOUNDARY_RE.finditer(body))
+    if quote:
+        # For single quotes, the last closing quote before a field boundary wins.
+        # Earlier apostrophes can belong to plural possessives in the title.
+        closing = None
+        for mark in marks:
+            if quote == '"' and mark.group() == "'":
+                continue  # An apostrophe inside double quotes is title text.
+            if mark.group() == quote:
+                closing = mark
+                if quote == '"':
+                    boundary = mark  # A double quote has no possessive reading.
+                    break
+            else:
+                boundary = closing if closing is not None else mark
+                break
+    else:
+        for mark in marks:
+            # Keep unquoted plural possessives with a following title word.
+            if (mark.group() == "'" and mark.start() > 0
+                    and re.match(r"[sS]'\s+[A-Z]\w*", body[mark.start() - 1:])):
+                continue
+            boundary = mark
+            break
     raw = body[:boundary.start()] if boundary and boundary.start() > 0 else body
     words = _norm(raw).split()
-    if not words:
+    # Compounds count by their parts for eligibility; preserve spelling
+    # and the existing whitespace-word cap in the returned candidate.
+    if len(re.findall(rf"[^\s{_INTERNAL_MARKS}]+", raw)) < 2:
         return None
     return " ".join(words[:_TITLE_MAX_WORDS])
 
@@ -101,7 +177,10 @@ def scan_text(text: str) -> list[tuple[int, str, str, str]]:
             code = f"{m.group(1)}{m.group(2)}"
             if code not in COBIT_OBJECTIVES:
                 continue  # a non-objective token (existence is gate 61's job)
-            found = extract_title(line[m.end():])
+            found = extract_title(
+                line[m.end():],
+                quote=(line[m.start() - 1] if m.start() > 0
+                       and line[m.start() - 1] in "'\"" else ""))
             if found is None:
                 continue  # no title paired with this code: allowed
             canonical = COBIT_OBJECTIVES[code]

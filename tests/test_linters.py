@@ -22929,6 +22929,450 @@ class CobitTitleTextTests(LinterTestCase):
         )
 
 
+    # 32 non-title list entries from the pinned corpus (31 distinct shapes).
+    # Keep these alongside a single violation so both new tests flip on old code.
+    LIST_TEXT = """DSS05, CSA CCM v4.1 LOG-01 and LOG-03, and the EU NIS 2 Directive.
+DSS05, CSA CCM v4.1 DSP-04, GDPR Article 32, ISO/IEC 27701:2025 (data retention and deletion
+APO12, CSA CCM v4.1 GRC domain, NIST SP 800-39, ISO/IEC 23894:2023 for AI risk, and the NIST AI RMF. The policy integrates risk, compliance, privacy, security, resilience, ethics, and sustainability across business, technology, data, and AI systems.
+MEA01, ISO/IEC 42001:2023 §9.1, ISO 9001 §9 to 10
+MEA02, ISO 9001 §9 to 10, ISO/IEC 42001:2023 §9.1, Digital Trust Index
+APO12, BASC Latin America
+MEA03, GDPR, NIS 2, EU AI Act, BASC v6, WCO SAFE
+BAI10, CSA CCM CCC, NIST SP 800-128
+APO11, ITIL 4 continual improvement, ISO/IEC 42001:2023 §9/§10, NIST CSF 2.0
+MEA01, NIST CSF 2.0
+MEA01, ITIL 4
+MEA01, ITIL 4 continual improvement
+BAI05, NIST CSF 2.0 GV
+BAI07, CSA CCM CCC-01, CCC-02, CCC-04
+DSS02, CSA CCM SEF-07
+DSS03, EU NIS 2 Directive
+APO09, EU NIS 2
+DSS03, EU NIS 2 Directive
+APO06, ISO/IEC 27001:2022 Annex A.5.9, ISO 14001, GAAP/IFRS
+APO06, ISO AI 600-1
+BAI07, CSA CCM AIS
+BAI09, CSA CCM AIS/TVM
+BAI03, CSA CCM CCC-02, NIST SP 800-53 Rev. 5 SA
+DSS04, NIST SP 800-34r1, CSA CCM BCR-08, BCR-09, BCR-11
+MEA03, NIST SP 800-53 Rev. 5 CA-2
+APO12, ISO/IEC 27001:2022 §9.1
+EDM03, NIST CSF 2.0
+MEA04, ISO/IEC 27001:2023 Annex A.5.35, ISO/IEC 42001:2023, Basel Committee Operational Risk Principles, FRC UK Corporate Governance Code
+APO01, MEA03
+APO12, FAIR quantitative risk analysis
+MEA01, NIST SP 800-53 Rev. 5 CA family
+BAI07, CSA CCM v4.1 AIS domain, and OWASP ASVS v5.
+"""
+
+    def _check_delimited_title(self, separator: str) -> None:
+        for table in (False, True):
+            for wrong in ("Monitor Compliance", "Monitored Compliance"):
+                with self.subTest(separator=separator, table=table, wrong=wrong):
+                    citation = f"MEA03{separator} {wrong}"
+                    line = (f"| COBIT 2019 | {citation} | x |" if table
+                            else f"See {citation}; this objective applies.")
+                    body = "# Fixture\n\n" + self.LIST_TEXT + "\n" + line + "\n"
+                    fixture = self.make_fixture("delimited-title.md", body)
+                    result = run_linter(self.SCRIPT, fixture)
+                    self.assertLinterFails(result, "MEA03")
+                    self.assertEqual(result.returncode, 1)
+                    self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+                    self.assertIn(f'found "{wrong}"', result.stdout)
+                    canonical = "Managed Compliance With External Requirements"
+                    fixture.write_text(body.replace(citation,
+                                       f"MEA03{separator} {canonical}"),
+                                       encoding="utf-8")
+                    result = run_linter(self.SCRIPT, fixture)
+                    self.assertEqual(result.returncode, 0,
+                                     result.stdout + result.stderr)
+
+    def test_comma_titles_and_non_title_lists(self) -> None:
+        self._check_delimited_title(",")
+
+    def test_colon_titles_and_non_title_lists(self) -> None:
+        self._check_delimited_title(":")
+
+    def _assert_title_pair(self, citation: str, wrong: str, suffix: str = "") -> None:
+        body = "# Fixture\n\n" + self.LIST_TEXT + "\n" + citation + suffix + "\n"
+        fixture = self.make_fixture("title-pair.md", body)
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+        self.assertIn(f'found "{wrong}"', result.stdout)
+        canonical = "Managed Compliance With External Requirements"
+        fixture.write_text(body.replace(wrong, canonical), encoding="utf-8")
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_wrapped_titles_and_extended_separators(self) -> None:
+        # Includes bold wrong/canonical pairs and closing-bracket boundaries.
+        for wrapper in ("**", "__", "`", ""):
+            for separator in (" ", " – ", " — ", "; ", " / ", " ["):
+                with self.subTest(wrapper=wrapper, separator=separator):
+                    wrong = "Monitor Compliance"
+                    citation = f"{wrapper}MEA03{wrapper}{separator}{wrong}"
+                    self._assert_title_pair(citation, wrong,
+                                            "]" if separator == " [" else "")
+
+    def _check_closed_title_pair(self, template: str) -> None:
+        canonical = "Managed Compliance With External Requirements"
+        for title in (canonical, "Monitor Compliance"):
+            with self.subTest(template=template, title=title):
+                fixture = self.make_fixture(
+                    "closed-title.md", "# Fixture\n\n" + template.format(title=title) + "\n")
+                result = run_linter(self.SCRIPT, fixture)
+                if title == canonical:
+                    self.assertEqual(result.returncode, 0,
+                                     result.stdout + result.stderr)
+                else:
+                    self.assertEqual(result.returncode, 1,
+                                     result.stdout + result.stderr)
+                    self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+                    self.assertIn(f'found "{title}"', result.stdout)
+
+    def test_every_opening_separator_ends_titles(self) -> None:
+        # Each accepted punctuation separator must also close the title field.
+        for separator in (":", "-", "–", "—", "|", '"', "'", "(", ",", ";", "/", "["):
+            self._check_closed_title_pair(
+                "MEA03 " + separator + " {title} " + separator + " note")
+
+    def test_claude_round3_closing_separator_table(self) -> None:
+        for template in (
+            "MEA03 – {title} – is the anchor",
+            "MEA03 — {title} — anchors this",
+            "MEA03 / {title} / APO12",
+            "**MEA03** – {title} – x",
+        ):
+            self._check_closed_title_pair(template)
+
+    def test_legacy_verbs_and_gerunds(self) -> None:
+        for word in (
+            "Manage", "Managed", "Managing", "Ensure", "Ensured", "Ensuring",
+            "Monitor", "Monitored", "Monitoring",
+            "Evaluate", "Evaluated", "Evaluating", "Assess", "Assessed", "Assessing",
+            "Deliver", "Delivered", "Delivering", "Align", "Aligned", "Aligning",
+            "Build", "Built", "Building", "Direct", "Directed", "Directing",
+        ):
+            with self.subTest(word=word):
+                wrong = f"{word} Compliance"
+                self._assert_title_pair(f"MEA03, {wrong}", wrong)
+
+    def test_case_insensitive_title_openings(self) -> None:
+        for wrong in ("manage compliance", "MANAGED COMPLIANCE",
+                      "ensure compliance", "ENSURED COMPLIANCE"):
+            with self.subTest(wrong=wrong):
+                self._assert_title_pair(f"MEA03, {wrong}", wrong)
+        # Every added form requires the listed capitalization.
+        for word in (
+            "Managing", "Ensuring", "Monitor", "Monitored", "Monitoring",
+            "Evaluate", "Evaluated", "Evaluating", "Assess", "Assessed", "Assessing",
+            "Deliver", "Delivered", "Delivering", "Align", "Aligned", "Aligning",
+            "Build", "Built", "Building", "Direct", "Directed", "Directing",
+        ):
+            for variant in (word.lower(), word.upper()):
+                with self.subTest(variant=variant):
+                    fixture = self.make_fixture(
+                        "case-opening.md", f"# Fixture\n\nMEA03, {variant} Compliance\n")
+                    result = run_linter(self.SCRIPT, fixture)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        fixture = self.make_fixture(
+            "lower-canonical.md",
+            "# Fixture\n\nMEA03, managed compliance with external requirements\n"
+            "EDM03, ensured risk optimization\n"
+            "DSS05, monitor the security logs daily\n")
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_review_prose_is_not_a_title(self) -> None:
+        for line in (
+            "per DSS05, building access is controlled",
+            "under APO12, assessing risk is required",
+            "align with APO12; monitoring is quarterly",
+            "maps to MEA01 / monitoring KPIs",
+            "| MEA01 | Monitoring | x |",
+            "BAI03 built-in controls",
+            "EDM01 (Evaluate, Direct and Monitor)",
+        ):
+            with self.subTest(line=line):
+                fixture = self.make_fixture("prose.md", "# Fixture\n\n" + line + "\n")
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_closing_wrappers_end_titles(self) -> None:
+        canonical = "Managed Compliance With External Requirements"
+        for wrapper in ("**", "__", "`", "*", "_"):
+            for separator in (" ", ": "):
+                for title in (canonical, "Monitor Compliance"):
+                    with self.subTest(wrapper=wrapper, separator=separator, title=title):
+                        fixture = self.make_fixture(
+                            "closing-wrapper.md",
+                            f"# Fixture\n\n{wrapper}MEA03{separator}{title}{wrapper} note\n")
+                        result = run_linter(self.SCRIPT, fixture)
+                        if title == canonical:
+                            self.assertEqual(result.returncode, 0,
+                                             result.stdout + result.stderr)
+                        else:
+                            self.assertEqual(result.returncode, 1,
+                                             result.stdout + result.stderr)
+                            self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+                            self.assertIn(f'found "{title}"', result.stdout)
+
+    def test_open_parenthesis_ends_titles(self) -> None:
+        self._assert_title_pair("MEA03: Monitor Compliance", "Monitor Compliance",
+                                " (see below)")
+
+    def test_known_residual_title_boundary(self) -> None:
+        # Keep the earlier, pre-correction shape of
+        # governance/register-digital-trust-and-assurance-metrics.md:148 as a
+        # residual example; the current row carries canonical titles.
+        residuals = (
+            "MEA01, MEA02: Performance and conformance monitoring; system of internal control\n"
+            "MEA03, Compliance With External Requirements\n"
+            "MEA03: we Monitor Compliance\n"
+        )
+        fixture = self.make_fixture("residuals.md", "# Fixture\n\n" + residuals)
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        # Pair the residual with a detectable neighbour.
+        fixture.write_text("# Fixture\n\n" + residuals + "MEA03, Evaluate Compliance\n",
+                           encoding="utf-8")
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+        self.assertIn('found "Evaluate Compliance"', result.stdout)
+
+    def _assert_wrong_boundary_title(self, line: str, title: str) -> None:
+        fixture = self.make_fixture("wrong-boundary.md", "# Fixture\n\n" + line + "\n")
+        result = run_linter(self.SCRIPT, fixture)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+        self.assertIn(f'found "{title}"', result.stdout)
+
+    def test_wrong_hyphenated_risk_title(self) -> None:
+        self._assert_wrong_boundary_title(
+            "APO12, Managed Risk-Adjusted Performance", "Managed Risk-Adjusted Performance")
+
+    def test_wrong_hyphenated_compliance_title(self) -> None:
+        self._assert_wrong_boundary_title(
+            "MEA03, Managed Compliance With External Requirements-Based Controls",
+            "Managed Compliance With External Requirements-Based Controls")
+
+    def test_wrong_slash_title(self) -> None:
+        self._assert_wrong_boundary_title(
+            "APO12, Managed Risk/Compliance", "Managed Risk/Compliance")
+
+    def test_wrong_possessive_title(self) -> None:
+        self._assert_wrong_boundary_title(
+            "APO10 – Managed Vendors' Contracts", "Managed Vendors' Contracts")
+
+    def test_wrong_hyphenated_opening(self) -> None:
+        self._assert_wrong_boundary_title(
+            "MEA03: Monitor-Compliance Programme", "Monitor-Compliance Programme")
+
+    def test_returning_false_positives_are_flagged(self) -> None:
+        for line, title in (
+            ("BAI03 Built-in controls apply", "Built-in controls apply"),
+            ("per APO12 - Managed risk-based approach", "Managed risk-based approach"),
+        ):
+            with self.subTest(line=line):
+                self._assert_wrong_boundary_title(line, title)
+
+    def test_internal_apostrophe_and_closing_quotes(self) -> None:
+        self._assert_wrong_boundary_title(
+            "APO10: Managed Vendors' A", "Managed Vendors' A")
+        self._assert_wrong_boundary_title(
+            "APO10: Managed Vendor's Contracts", "Managed Vendor's Contracts")
+        for line in (
+            'MEA03 "Managed Compliance With External Requirements" and "GDPR" apply',
+            'APO12 "Managed Risk" and DSS05 "Managed Security Services".',
+            "APO10 'Managed Vendors' Contracts follow",
+            "'APO10 Managed Vendors' Contracts follow",
+            "MEA03 'Managed Compliance With External Requirements' Note",
+            "MEA03: Managed Compliance With External Requirements' note",
+        ):
+            with self.subTest(line=line):
+                fixture = self.make_fixture("quote.md", "# Fixture\n\n" + line + "\n")
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_round6_review_findings(self) -> None:
+        for line in (
+            "APO12: Managed–Compliance", "APO12: Managed—Compliance",
+            "APO12: Managed(Compliance)", "APO12: Managed[Compliance",
+            "APO12: Managed*Compliance", "APO12: Managed\x60Compliance",
+            "APO12: Managed Risk–Adjusted Performance", "APO12: Managed Risk–Based Approach",
+            "APO12: Managed Risk—Adjusted Performance", "APO12, Managed Risk(s)",
+            "MEA03: Managed-Compliance", "APO12, Managed/Risk",
+            "APO10 'Managed Vendors' Contracts'", "BAI11 'Managed Projects' Portfolio'",
+            'APO10 "Managed Vendors\' Contracts"',
+            "APO10 'Managed Vendors' Contracts'; APO12 Managed Risk",
+            "APO12: Managed Risk[Adjusted] Performance",
+            "APO12: Managed Risk*Adjusted Performance",
+            "APO12: Managed Risk_Adjusted Performance",
+            "APO12: Managed Risk\x60Adjusted Performance",
+        ):
+            with self.subTest(line=line):
+                fixture = self.make_fixture("round6.md", "# Fixture\n\n" + line + "\n")
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+
+    def test_round6_disclosed_false_positive_examples(self) -> None:
+        for line in (
+            "APO10 Managed Vendors' SLAs are tracked",
+            "DSS05 Managed Security Services' KPIs are reported",
+            "MEA03, Managed Compliance With External Requirements' Scope covers GDPR",
+            "APO12: Assessing risk is required annually.",
+            "APO12 – Align risk appetite with strategy",
+            "| MEA01 | Monitoring and evaluation | x |",
+            "MEA03—Managed Compliance With External Requirements—anchors this",
+            "APO12 – Managed Risk–ISO 31000 crosswalk",
+        ):
+            with self.subTest(line=line):
+                fixture = self.make_fixture("false-positive.md", "# Fixture\n\n" + line + "\n")
+                result = run_linter(self.SCRIPT, fixture)
+                self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                self.assertEqual(result.stdout.count("[cobit-title]"), 1)
+
+
+    def test_round6_base_differential(self) -> None:
+        import types
+        from collections import Counter
+        # Load both real engines in isolation, and restore import search paths.
+        source_path = ".corpus-management/tools/gate_lint_cobit_title_text.py"
+        pin = "9d7c9e5d160c8ae516209e29650c92a83e3fbb66"
+        base_result = subprocess.run(
+            ["git", "show", pin + ":" + source_path], cwd=REPO_ROOT,
+            capture_output=True, text=True)
+        self.assertEqual(
+            base_result.returncode, 0,
+            f"git show {pin}:{source_path} failed; this test needs full history "
+            f"(fetch-depth 0). git stderr: {base_result.stderr}")
+        base_source = base_result.stdout
+        saved_path = sys.path[:]
+        try:
+            sys.path.insert(0, str(REPO_ROOT / "tools"))
+            import aiqt_bootstrap
+            aiqt_bootstrap.ensure_on_path()
+            sys.path.insert(0, str(REPO_ROOT / ".corpus-management/tools"))
+            from cobit_iso31000_reference import COBIT_OBJECTIVES
+            engines = []
+            for name, source in (
+                ("_cobit_base_r6", base_source),
+                ("_cobit_new_r6", (REPO_ROOT / source_path).read_text(encoding="utf-8")),
+            ):
+                engine = types.ModuleType(name)
+                exec(compile(source, name, "exec"), engine.__dict__)
+                engine.configure(COBIT_OBJECTIVES)
+                engines.append(engine)
+        finally:
+            sys.path[:] = saved_path
+        base, new = engines
+        # Opening separators plus closing marks/wrappers and hard boundaries.
+        separators = (":", "-", "–", "—", "|", '"', "'", "(", ")", ",",
+                      ";", "/", "[", "]", "*", "_", "\x60", "**", "__",
+                      ".", "\t", "  ")
+        counts = Counter()
+        misses = []
+        for code in ("APO12", "APO10", "MEA03"):
+            canonical = COBIT_OBJECTIVES[code]
+            for title in (canonical, canonical + " Controls",
+                          "Managed Incorrect Title", "Managed"):
+                for separator in separators:
+                    for position in ("before", "inside", "after"):
+                        for quote in ("", "'", '"'):
+                            for possessive in ("", "'s", "'"):
+                                if title == canonical + " Controls":
+                                    ending = ("s'" if possessive == "'"
+                                              and not canonical.endswith("s")
+                                              else possessive)
+                                    candidate = canonical + ending + " Controls"
+                                else:
+                                    candidate = title + possessive
+                                if position == "before":
+                                    candidate = separator + " " + candidate
+                                elif position == "inside":
+                                    start = candidate.rfind(" ") + 1
+                                    offset = start + max(1, len(title[start:]) // 2)
+                                    candidate = candidate[:offset] + separator + candidate[offset:]
+                                else:
+                                    candidate += separator + " note"
+                                line = code + " " + quote + candidate + quote
+                                counts["generated"] += 1
+                                old_flags = base.scan_text(line)
+                                new_flags = new.scan_text(line)
+                                if not old_flags:
+                                    continue
+                                counts["base_flagged"] += 1
+                                if new_flags:
+                                    counts["retained"] += 1
+                                    continue
+                                # Independently bounded exemptions, not arbitrary
+                                # differences allowed merely because new is silent.
+                                if title == "Managed":
+                                    reason = "one-word: title presence requires two parts"
+                                elif (title == canonical and position != "inside"
+                                      and new.extract_title(line[len(code):]) == canonical):
+                                    reason = "canonical: closing field/quote or terminal possessive"
+                                elif (title == canonical + " Controls"
+                                      and possessive == "'" and canonical.endswith("s")
+                                      and ((quote == "'" and (
+                                          position == "after" and separator != "'"
+                                          or position == "inside" and separator in
+                                          (":", "|", '"', ",", ";", "**", "__", ".", "\t", "  ")))
+                                          or (quote == "" and position == "before"
+                                              and separator == "'"))):
+                                    # Here the inserted apostrophe is the last closing
+                                    # quote before a field boundary, so the canonical
+                                    # prefix is a complete quoted title (R4/R5 guard).
+                                    self.assertEqual(new.extract_title(line[len(code):]), canonical)
+                                    reason = "quoted-canonical: last quote precedes field boundary"
+                                else:
+                                    misses.append((line, old_flags))
+                                    continue
+                                counts[reason] += 1
+        # R7: replace EVERY adjacent-word boundary with EACH internal mark,
+        # without spaces. The old "inside" position only split the last word.
+        # Spell the set independently so an engine mutation cannot narrow coverage.
+        internal_marks = "-/–—()[]*_\x60"
+        for code in ("APO12", "APO10", "MEA03"):
+            canonical = COBIT_OBJECTIVES[code]
+            for title in (canonical, canonical + " Controls",
+                          "Managed Incorrect Title", "Managed"):
+                words = title.split()
+                for boundary in range(1, len(words)):
+                    for mark in internal_marks:
+                        candidate = (" ".join(words[:boundary]) + mark
+                                     + " ".join(words[boundary:]))
+                        for quote in ("", "'", '"'):
+                            line = code + " " + quote + candidate + quote
+                            counts["generated"] += 1
+                            counts["joined_generated"] += 1
+                            old_flags = base.scan_text(line)
+                            if not old_flags:
+                                continue
+                            counts["base_flagged"] += 1
+                            counts["joined_base_flagged"] += 1
+                            # Joined multi-part titles get NO new exemption.
+                            if new.scan_text(line):
+                                counts["retained"] += 1
+                            else:
+                                misses.append((line, old_flags))
+        print("COBIT differential:", dict(sorted(counts.items())))
+        self.assertEqual(counts["generated"], 7821)
+        self.assertEqual(counts["base_flagged"], 5151)
+        self.assertEqual(counts["joined_generated"], 693)
+        self.assertEqual(counts["joined_base_flagged"], 657)
+        self.assertFalse(misses, repr(misses[:30]))
+        self.assertEqual(counts["canonical: closing field/quote or terminal possessive"], 258)
+        self.assertEqual(counts["one-word: title presence requires two parts"], 675)
+        self.assertEqual(counts["quoted-canonical: last quote precedes field boundary"], 64)
+        self.assertEqual(counts["base_flagged"],
+                         counts["retained"] + sum(v for k, v in counts.items()
+                         if k.startswith(("one-word:", "canonical:", "quoted-canonical:"))))
+
+
 class PreflightChangelogMirrorTests(unittest.TestCase):
     """tools/preflight-changelog.py full-mirror link-resolution scan (PR #1084
     remaining half): a dangling in-repo relative markdown link ANYWHERE in the
@@ -29078,7 +29522,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.11.1", "3b306 rewords the todo-marked-done engine's rotation message, on top of 3b343's is_citation_ip (PATCH, 0.11.0 to 0.11.1)")
+        self.assertEqual(man["pack"]["version"], "0.12.0", "3b260 widens the COBIT objective-title engine and adds the quote argument of extract_title, on top of 3b306 (MINOR, 0.11.1 to 0.12.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
