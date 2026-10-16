@@ -52,6 +52,8 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_DIR = REPO_ROOT / "tests" / "tmp"
 if str(REPO_ROOT / "tools") not in sys.path:
     sys.path.insert(0, str(REPO_ROOT / "tools"))
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(sys.path.index(str(REPO_ROOT / "tools")) + 1, str(REPO_ROOT))
 # Find the pack once at load, so every later sys.path snapshot already holds it.
 import aiqt_bootstrap  # noqa: E402  (tools/ is on sys.path above)
 aiqt_bootstrap.ensure_on_path()
@@ -38459,10 +38461,6 @@ class ClausePreservationTests(unittest.TestCase):
             'if state != "KEPT" and row["destination"] == path:', "if False:"))
 
 
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
-
-
 class RepoRelativeDefaultPathTests(unittest.TestCase):
     """P-1.21 PR 2 reality fixtures: every changed hook and tool derives its default drop root (or
     tool path) from its own location, so the value follows the checkout when it moves, and an
@@ -45676,3 +45674,71 @@ class JoinUnderContainmentTests(unittest.TestCase):
             code, _, _, _ = mod.run(manifest, self.root)
         self.assertEqual(code, 2)
         self.assertIn("refused path", err.getvalue())
+
+
+class DirectRunFixtureTests(unittest.TestCase):
+    """A late-defined class for checking direct script discovery."""
+
+    def test_test_module_exists(self):
+        self.assertTrue((REPO_ROOT / "tests" / "test_linters.py").is_file())
+
+
+class DirectRunTests(unittest.TestCase):
+    @staticmethod
+    def _is_main_guard(node):
+        import ast
+        return (isinstance(node, ast.If) and
+                ast.dump(node.test) in {
+                    ast.dump(ast.parse(expr, mode="eval").body)
+                    for expr in ('__name__ == "__main__"', '"__main__" == __name__')
+                })
+
+    def test_late_class_runs_from_neutral_directory(self):
+        with tempfile.TemporaryDirectory() as cwd:
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "tests" / "test_linters.py"),
+                 "DirectRunFixtureTests"],
+                cwd=cwd, env={}, capture_output=True, text=True, timeout=60,
+            )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        count = re.search(r"\bRan ([1-9][0-9]*) tests?\b", result.stdout + result.stderr)
+        self.assertIsNotNone(count, result.stdout + result.stderr)
+
+    def test_direct_run_imports_repository_tests_package(self):
+        with tempfile.TemporaryDirectory() as cwd:
+            shadow = Path(cwd) / "site-packages"
+            (shadow / "tests").mkdir(parents=True)
+            (shadow / "tests" / "__init__.py").write_text("", encoding="utf-8")
+            code = (
+                "import sys\n"
+                "from pathlib import Path\n"
+                "root, shadow = map(Path, sys.argv[1:])\n"
+                "sys.path = [str(root / 'tests'), str(shadow), *sys.path[1:]]\n"
+                "import test_linters\n"
+                "import tests\n"
+                "print(tests.__file__)\n"
+            )
+            result = subprocess.run(
+                [sys.executable, "-c", code, str(REPO_ROOT), str(shadow)],
+                cwd=cwd, env={}, capture_output=True, text=True, timeout=60,
+            )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(Path(result.stdout.strip()).resolve(),
+                         REPO_ROOT / "tests" / "__init__.py")
+
+    def test_main_guard_is_last_top_level_statement(self):
+        import ast
+        tree = ast.parse((REPO_ROOT / "tests" / "test_linters.py").read_text(encoding="utf-8"))
+        guards = [node for node in tree.body if self._is_main_guard(node)]
+        self.assertEqual(len(guards), 1)
+        self.assertIs(guards[0], tree.body[-1])
+
+    def test_main_guard_recognizes_both_operand_orders(self):
+        import ast
+        for expression in ('__name__ == "__main__"', '"__main__" == __name__'):
+            with self.subTest(expression=expression):
+                self.assertTrue(self._is_main_guard(ast.parse(f"if {expression}: pass").body[0]))
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
