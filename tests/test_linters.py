@@ -41009,6 +41009,8 @@ class StoreScopeCeilingTests(LinterTestCase):
 class AIQTCutoverTests(unittest.TestCase):
     """Mutation controls for pinned bytes, scope, enumeration, and startup accounting."""
 
+    REFUSAL = '^refusing aliased or non-regular compatibility target$'
+
     @staticmethod
     def load(name):
         import importlib.util
@@ -41022,7 +41024,8 @@ class AIQTCutoverTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(dir=FIXTURE_DIR)
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+        # main() resolves its own path, so a symlinked tests/tmp must not split the two roots.
+        self.root = Path(self.tmp.name).resolve()
         for directory in ('guardrails/aiqt-rules', 'guardrails/governance',
                           '.claude/references/governance', '.claude/rules/aiqt',
                           '.claude/rules/security', 'vendor/aiqt'):
@@ -41136,14 +41139,14 @@ class AIQTCutoverTests(unittest.TestCase):
         target = self.root / self.aiqt.TARGET
         target.unlink()
         target.symlink_to(target.name)
-        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+        with self.assertRaisesRegex(ValueError, self.REFUSAL):
             self.aiqt.compatibility_target(self.root)
 
     def test_compatibility_target_rejects_parent_self_loop(self):
         parent = (self.root / self.aiqt.TARGET).parent
         shutil.rmtree(parent)
         parent.symlink_to(parent.name)
-        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+        with self.assertRaisesRegex(ValueError, self.REFUSAL):
             self.aiqt.compatibility_target(self.root)
 
     def test_compatibility_target_rejects_parent_two_link_loop(self):
@@ -41152,7 +41155,7 @@ class AIQTCutoverTests(unittest.TestCase):
         other = parent.with_name('other')
         parent.symlink_to(other.name)
         other.symlink_to(parent.name)
-        with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+        with self.assertRaisesRegex(ValueError, self.REFUSAL):
             self.aiqt.compatibility_target(self.root)
 
     def test_compatibility_target_rejects_non_regular(self):
@@ -41165,8 +41168,7 @@ class AIQTCutoverTests(unittest.TestCase):
                 else:
                     os.mkfifo(target)
                 try:
-                    with self.assertRaisesRegex(
-                            ValueError, '^refusing non-regular compatibility target$'):
+                    with self.assertRaisesRegex(ValueError, self.REFUSAL):
                         self.aiqt.compatibility_target(self.root)
                 finally:
                     if kind == 'directory':
@@ -41192,8 +41194,7 @@ class AIQTCutoverTests(unittest.TestCase):
                     else:
                         target.mkdir()
                 try:
-                    with self.assertRaisesRegex(
-                            ValueError, '^refusing non-regular compatibility target$'):
+                    with self.assertRaisesRegex(ValueError, self.REFUSAL):
                         self.aiqt.validate(self.root)
                     saved = (outside / target.relative_to(entry)
                              if kind in ('parent', 'grandparent') else outside)
@@ -41249,6 +41250,54 @@ class AIQTCutoverTests(unittest.TestCase):
                     self.assertEqual(str(caught.exception), error + path)
                 finally:
                     p.write_bytes(old)
+
+    def test_overlay_invalid_encoding(self):
+        from unittest.mock import patch
+        import contextlib
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        path = next(iter(self.aiqt.OVERLAY_DIGESTS))
+        p = self.root / path
+        p.write_bytes(p.read_bytes() + b'\xff\xfe invalid\n')
+        target = self.root / self.aiqt.TARGET
+        old = b'drifted target\n'
+        target.write_bytes(old)
+        for check in (self.aiqt.overlays, self.aiqt.compatibility, self.aiqt.validate):
+            with self.subTest(check=check.__name__):
+                with self.assertRaises(ValueError) as caught:
+                    if check != self.aiqt.validate:
+                        check(self.root, legacy)
+                    else:
+                        check(self.root)
+                self.assertEqual(str(caught.exception), 'invalid overlay encoding: ' + path)
+                self.assertIsNone(caught.exception.__cause__)
+                self.assertTrue(caught.exception.__suppress_context__)
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for mode in ('--write', '--check'):
+                with self.subTest(mode=mode):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        self.assertEqual(self.aiqt.main([mode]), 1)
+                    self.assertEqual(output.getvalue(), 'invalid overlay encoding: ' + path + '\n')
+                    self.assertEqual(target.read_bytes(), old)
+
+    def test_cli_crlf_checkout_fails(self):
+        # A core.autocrlf=true checkout converts every text file; exact bytes refuse it by design.
+        from unittest.mock import patch
+        import contextlib
+        data = self.aiqt.inventory(self.root)
+        for path in data['legacy_details'] + [self.aiqt.SOURCE, self.aiqt.TARGET]:
+            p = self.root / path
+            p.write_bytes(p.read_bytes().replace(b'\n', b'\r\n'))
+        target = self.root / self.aiqt.TARGET
+        old = target.read_bytes()
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for mode in ('--check', '--write'):
+                with self.subTest(mode=mode):
+                    output = io.StringIO()
+                    with contextlib.redirect_stdout(output):
+                        self.assertEqual(self.aiqt.main([mode]), 1)
+                    self.assertRegex(output.getvalue(), r'^retained overlay drift: \S+\n$')
+                    self.assertEqual(target.read_bytes(), old)
 
     def test_fifteenth_file_tail_rejected(self):
         legacy = self.aiqt.inventory(self.root)['legacy_details']
@@ -41332,8 +41381,9 @@ class AIQTCutoverTests(unittest.TestCase):
                                 with contextlib.redirect_stdout(output):
                                     result = self.aiqt.main([mode])
                                 self.assertEqual(result, 1, kind + ' target accepted')
-                                self.assertEqual(output.getvalue(),
-                                                 'refusing non-regular compatibility target\n')
+                                self.assertEqual(
+                                    output.getvalue(),
+                                    'refusing aliased or non-regular compatibility target\n')
                                 self.assertEqual(outside.read_bytes(), old)
                                 self.assertEqual(target.read_bytes(), old)
                     finally:
@@ -41345,18 +41395,24 @@ class AIQTCutoverTests(unittest.TestCase):
         import contextlib
         target = self.root / self.aiqt.TARGET
         old = target.read_bytes()
+        drift = old + b'changed\n'
         with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
             outside = Path(tmp) / 'rules'
             target.parent.rename(outside)
             target.parent.symlink_to(outside, target_is_directory=True)
             try:
+                # Drift behind the alias: a --write through the symlink would repair it.
+                (outside / target.name).write_bytes(drift)
                 with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
                     for mode in ('--write', '--check'):
-                        with contextlib.redirect_stdout(io.StringIO()):
+                        output = io.StringIO()
+                        with contextlib.redirect_stdout(output):
                             result = self.aiqt.main([mode])
                         self.assertEqual(result, 1, 'symlinked parent accepted')
-                        self.assertEqual((outside / target.name).read_bytes(), old)
-                        self.assertEqual(target.read_bytes(), old)
+                        self.assertEqual(output.getvalue(),
+                                         'refusing aliased or non-regular compatibility target\n')
+                        self.assertEqual((outside / target.name).read_bytes(), drift)
+                        self.assertEqual(target.read_bytes(), drift)
             finally:
                 target.parent.unlink()
                 outside.rename(target.parent)
@@ -41369,7 +41425,7 @@ class AIQTCutoverTests(unittest.TestCase):
             outside.write_bytes(old)
             target.unlink()
             target.symlink_to(outside)
-            with self.assertRaisesRegex(ValueError, '^refusing non-regular compatibility target$'):
+            with self.assertRaisesRegex(ValueError, self.REFUSAL):
                 self.aiqt.validate(self.root)
             self.assertEqual(outside.read_bytes(), old)
 
@@ -41379,13 +41435,18 @@ class AIQTCutoverTests(unittest.TestCase):
         expected = target.read_bytes()
         for mode, expected_mode in ((0o600, 0o600), (0o640, 0o640),
                                     (0o666, 0o666), (0o755, 0o755),
-                                    (0o4644, 0o644)):
+                                    (0o4644, 0o644), (0o2644, 0o644),
+                                    (0o1644, 0o644), (0o7644, 0o644)):
             with self.subTest(mode=oct(mode)):
                 target.write_bytes(expected + b'changed\n')
-                target.chmod(mode)
+                try:
+                    target.chmod(mode)
+                except OSError as exc:
+                    self.skipTest('platform refused mode ' + oct(mode) + ': ' + str(exc))
                 before = target.stat()
-                if mode == 0o4644 and not before.st_mode & 0o4000:
-                    self.skipTest('filesystem did not keep the setuid bit for 04644')
+                if before.st_mode & 0o7000 != mode & 0o7000:
+                    self.skipTest('filesystem did not keep the special bits of ' + oct(mode)
+                                  + ' (kept ' + oct(before.st_mode & 0o7777) + ')')
                 self.assertEqual(before.st_mode & 0o7777, mode)
                 entries = set(target.parent.iterdir())
                 with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
@@ -41419,10 +41480,14 @@ class AIQTCutoverTests(unittest.TestCase):
         target = self.root / self.aiqt.TARGET
         old = target.read_bytes()
         entries = set(target.parent.iterdir())
+        seen = []
         def fail_replace(temporary, destination):
             self.assertEqual(temporary.parent, target.parent)
             self.assertEqual(destination, target)
             self.assertNotEqual(temporary, target)
+            self.assertRegex(temporary.name, r'^\.governance-compatibility\.md\.[a-z0-9_]+$')
+            self.assertEqual(temporary.read_bytes(), old)
+            seen.append(temporary)
             raise OSError('injected replace failure')
         with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
             with patch.object(Path, 'replace', fail_replace):
@@ -41431,8 +41496,40 @@ class AIQTCutoverTests(unittest.TestCase):
                     result = self.aiqt.main(['--write'])
         self.assertEqual(result, 1)
         self.assertEqual(output.getvalue(), 'injected replace failure\n')
+        self.assertEqual(len(seen), 1, 'replace not reached')
         self.assertEqual(target.read_bytes(), old)
         self.assertEqual(set(target.parent.iterdir()), entries, 'temporary file leaked')
+
+    def test_cli_temporary_cleanup_on_stream_write_failure(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = b'drifted target\n'
+        target.write_bytes(old)
+        entries = set(target.parent.iterdir())
+        real = tempfile.NamedTemporaryFile
+        created = []
+        def failing_temporary(*args, **kwargs):
+            stream = real(*args, **kwargs)
+            created.append(Path(stream.name))
+            def fail_write(data):
+                self.assertTrue(created[-1].exists())
+                raise OSError('injected write failure')
+            stream.write = fail_write
+            return stream
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            with patch.object(self.aiqt.tempfile, 'NamedTemporaryFile', failing_temporary):
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    result = self.aiqt.main(['--write'])
+        self.assertEqual(result, 1)
+        self.assertEqual(output.getvalue(), 'injected write failure\n')
+        self.assertEqual(len(created), 1, 'temporary file not created')
+        self.assertEqual(created[0].parent, target.parent)
+        self.assertRegex(created[0].name, r'^\.governance-compatibility\.md\.[a-z0-9_]+$')
+        self.assertFalse(created[0].exists(), 'temporary file leaked')
+        self.assertEqual(target.read_bytes(), old)
+        self.assertEqual(set(target.parent.iterdir()), entries)
 
     def test_cli_type_error(self):
         from unittest.mock import patch
@@ -41541,8 +41638,26 @@ class AIQTCutoverTests(unittest.TestCase):
                         self.aiqt.main(args)
                     self.assertEqual(caught.exception.code, 2)
 
+    def test_cli_unknown_argument_exits_2(self):
+        from unittest.mock import patch
+        import contextlib
+        target = self.root / self.aiqt.TARGET
+        old = b'drifted target\n'
+        target.write_bytes(old)
+        with patch.object(self.aiqt, '__file__', str(self.root / 'tools/aiqt_rules.py')):
+            for args in (['--write', '--unknown'], ['--check', '--unknown'],
+                         ['--write', 'extra'], ['--write', '--root', '.']):
+                err = io.StringIO()
+                with self.subTest(args=args), contextlib.redirect_stderr(err):
+                    with self.assertRaises(SystemExit) as caught:
+                        self.aiqt.main(args)
+                    self.assertEqual(caught.exception.code, 2)
+                    self.assertIn('unrecognized arguments: ' + ' '.join(args[1:]), err.getvalue())
+                    self.assertEqual(target.read_bytes(), old)
+
     def test_cli_resolves_own_symlink_reached_path(self):
         from unittest.mock import patch
+        import contextlib
         target = self.root / self.aiqt.TARGET
         old = target.read_bytes()
         with tempfile.TemporaryDirectory(dir=FIXTURE_DIR) as tmp:
@@ -41550,7 +41665,14 @@ class AIQTCutoverTests(unittest.TestCase):
             alias.symlink_to(self.root, target_is_directory=True)
             with patch.object(self.aiqt, '__file__', str(alias / 'tools/aiqt_rules.py')):
                 self.assertEqual(self.aiqt.main(['--check']), 0)
+                target.write_bytes(old + b'changed\n')
+                output = io.StringIO()
+                with contextlib.redirect_stdout(output):
+                    self.assertEqual(self.aiqt.main(['--check']), 1)
+                self.assertEqual(output.getvalue(), 'generated compatibility drift\n')
                 self.assertEqual(self.aiqt.main(['--write']), 0)
+                self.assertEqual(target.read_bytes(), old)
+                self.assertEqual(self.aiqt.main(['--check']), 0)
             self.assertEqual(target.read_bytes(), old)
 
     def test_compatibility_cli(self):
