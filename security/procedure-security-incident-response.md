@@ -2,8 +2,8 @@
 
 **Document Title:** Security Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.11.0\
-**Date:** 2026-10-15\
+**Version:** 1.11.1\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`operations/standard-production-security-requirements.md`](../operations/standard-production-security-requirements.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../resilience/procedure-cross-domain-incident-coordination.md), [`governance/standard-emergency-authority.md`](../governance/standard-emergency-authority.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md), [`security/standard-soc-operating-model.md`](standard-soc-operating-model.md), [`security/sop-incident-escalation-matrix.md`](sop-incident-escalation-matrix.md), [`operations/framework-it-service-management.md`](../operations/framework-it-service-management.md)\
@@ -182,7 +182,7 @@ Once the scope of compromise is confirmed, the SOC and IT Operations must, subje
 | **GDPR (EU)** | Personal data breach within the GDPR's territorial scope, unless unlikely to result in a risk to individuals' rights and freedoms (Art. 33(1)) | Without undue delay, and where feasible within 72 hours of becoming aware | DPO to relevant supervisory authority (CISO coordinating); individuals where high risk (Art. 34) |
 | **PIPEDA (Canada)** | Breach of security safeguards where it is reasonable in the circumstances to believe it creates a real risk of significant harm to an individual (PIPEDA s. 10.1(1)) | As soon as feasible after the organization determines that the breach has occurred (PIPEDA s. 10.1(2); no fixed hour or day limit) | DPO to Privacy Commissioner of Canada; each affected individual for whom the same reasonable-belief test is met, on the same clock, unless otherwise prohibited by law (s. 10.1(3) and (6)) |
 | **Quebec Law 25** | Confirmed confidentiality incident involving personal information presenting a risk of serious injury | Promptly to the Commission d'accès à l'information (no fixed statutory hour-count) | DPO |
-| **PIPL (China)** | Actual or possible leakage, tampering, or loss of personal information of China data subjects (PIPL Art. 57) | Immediately / without delay | DPO to relevant authority (CISO coordinating) |
+| **PIPL (China)** | Actual or possible leak, distortion, or loss of personal information (PIPL Art. 57) | No fixed deadline (PIPL Art. 57 requires remedial measures immediately and notification of the departments, but sets no separate fixed time limit for notification); without delay, as programme policy | DPO to the PIPL Art. 60 departments (CISO coordinating); individuals unless the Art. 57 exception applies |
 
 Sector-programme notification obligations (for example, BASC requirements for trade, cargo, or customs anomalies meeting the BASC breach threshold) apply where the organization participates in a covered sector programme. The relevant sector annex states the trigger, timeframe, and notification path; see [`compliance/`](../compliance/).
 
