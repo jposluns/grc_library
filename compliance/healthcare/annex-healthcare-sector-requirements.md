@@ -2,7 +2,7 @@
 
 **Document Title:** Healthcare Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.1.20\
+**Version:** 1.1.21\
 **Date:** 2026-10-16\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -73,7 +73,7 @@ This annex applies where an organization:
 | **GDPR Article 9** | National DPAs | Processing special category data including health data |
 | **EU AI Act: High Risk (Article 6(1) + Annex I)** | National competent / market-surveillance authorities (Article 70; for the Section A Annex I medical-device route, the authority designated under the MDR/IVDR, or, in appropriate circumstances and with sectoral coordination, another authority a Member State designates (Article 74(3)); an Annex III point 5(d) system built on a general-purpose AI model by the same provider instead falls under the AI Office's Article 75(1) exclusive competence) | AI that is, or is a safety component of, a medical device or IVD (Annex I points 11-12) where that product must undergo third-party conformity assessment (Article 6(1)); AI used solely for non-safety-related aspects such as performance optimization, service efficiency, or quality control is not a safety component (Article 6(1a)), though AI whose failure or malfunctioning would endanger health and safety is (Article 6(1b)), as inserted by Regulation (EU) 2026/1744; emergency call-evaluation, dispatch, and patient-triage AI is separately listed under Annex III point 5(d), where a qualifying system may still be assessed as non-high-risk under Article 6(3) but is always high-risk where it profiles |
 | **Medical Device Regulation (MDR) 2017/745** | European Commission / national authorities | Medical device manufacturers and importers in EU |
-| **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission | In vitro diagnostic device manufacturers |
+| **In Vitro Diagnostic Regulation (IVDR) 2017/746** | European Commission / national authorities | In vitro diagnostic device manufacturers |
 | **EU NIS 2 Directive** | National competent authorities | Healthcare entities in scope; essential or important depending on Article 3 classification |
 | **European Health Data Space (EHDS)** | European Commission / national authorities | Health data holders and processors: adopted as Regulation (EU) 2025/327, which is not held in the reference base, so an adopter confirms its application dates and obligations directly <!-- ref-absence: 2025/327 | European Health Data Space --> |
 
