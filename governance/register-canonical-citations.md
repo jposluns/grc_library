@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.108\
-**Date:** 2026-10-04\
+**Version:** 1.5.109\
+**Date:** 2026-10-16\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -400,6 +400,7 @@ Soft-law guidance documents issued by supervisory authorities, regulators, or in
 
 - When a new version of a listed standard is published, update the **Current version** and **Publication date** columns, add the prior version to **Superseded versions**, and refresh **Last verified (UTC)** to the date the new version was confirmed upstream.
 - When a standard is added to the library's citation usage, add an entry here before the citing PR merges, including its **Upstream check location** (fetch-confirmed) and **Last verified (UTC)** (or `needs-reconfirm` if it could not be confirmed at add time).
+- **Unregistered-citation reminder (advisory):** the per-PR delta check D15 ([`tools/check-alignment-register-on-pr.py`](../tools/check-alignment-register-on-pr.py)) warns, without blocking, when a PR adds a framework-alignment table citation or an EU/EC instrument number that has no row here. RFCs, vendor guidance and books are not expected here (maintainer decision 2026-10-16) and are listed, each with its reason, in the check's exclusion policy [`tools/alignment-register-exclusions.json`](../tools/alignment-register-exclusions.json); a row that exists under another name is matched through [`tools/alignment-register-aliases.json`](../tools/alignment-register-aliases.json).
 - **Version-currency re-check (advisory):** when a row is load-bearing and its **Last verified (UTC)** is `needs-reconfirm` or more than one week old, re-check the **Upstream check location** before relying on it and refresh the date in that PR (see the Conventions cadence note and [`specification-citation-verification.md`](specification-citation-verification.md)). This is a discipline, not a CI gate.
 - The linter is permissive: it flags only patterns explicitly listed here as superseded. To catch a stale citation, the prior version must be listed under **Superseded versions**.
 - Periodic review: at least quarterly, plus on publication of any major superseding version.

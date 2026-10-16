@@ -11,7 +11,8 @@
 #      co-bump, D5 backlog-rotation-on-PR,
 #      D7 CHANGELOG-length-on-PR, D8 daily-changelog-rollup reminder
 #      (advisory), D9 retired-section-orphan check, D10 CLAUDE.md-size
-#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code, D14 class-completeness attestation). Most compare the PR head to its merge base, so their
+#      ratchet, D11 narrative-corpus mixed-diff, D12 number-floor monotonicity, D13 stranded-control-code, D14 class-completeness attestation,
+#      D15 alignment-citation register check (advisory)). Most compare the PR head to its merge base, so their
 #      inputs are not available in tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
@@ -172,6 +173,15 @@ run_check "D13 Stranded-control-code check" \
 # resolvable ledger (public CI, adopter) it no-ops.
 run_check "D14 Class-completeness attestation check" \
     python3 tools/check-class-attestation-on-pr.py
+
+# Delta gate D15 (advisory): a citation of a standard or regulation that the PR adds
+# in a framework-alignment table cell, or an EU/EC instrument number on any added
+# line, with no row in governance/register-canonical-citations.md. WARNS only (exit 0),
+# the D8 precedent; RFCs, vendor guidance and books are excluded by the data file
+# tools/alignment-register-exclusions.json. Not in run_all_audits.sh (it hides a
+# passing gate's warnings).
+run_check "D15 Alignment-citation register check" \
+    python3 tools/check-alignment-register-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
 # Gate 45: TODO staleness audit. Behaves like a delta gate because its
 # inputs (git log of merged-PR commit subjects, .working/validate-sweeps/
