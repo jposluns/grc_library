@@ -2,8 +2,8 @@
 
 **Document Title:** IT Onboarding and Offboarding Procedure\
 **Document Type:** Procedure\
-**Version:** 1.2.0\
-**Date:** 2026-10-15\
+**Version:** 1.3.0\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/policy-byod.md`](policy-byod.md), [`security/policy-acceptable-use.md`](policy-acceptable-use.md), [`security/standard-privileged-access-management.md`](standard-privileged-access-management.md), [`operations/procedure-endpoint-management-and-device-compliance.md`](../operations/procedure-endpoint-management-and-device-compliance.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -45,6 +45,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 | Human Resources (HR) | Triggers all onboarding and offboarding notifications to IT Operations within the timeframes specified. Notifies IT Operations of role changes within 24 hours of approval. Owns the hire, departure, and role-change notification forms. |
 | IT Operations | Executes account provisioning and deprovisioning. Maintains access profiles per role. Manages the deprovisioning checklist. Reports SLA compliance monthly to the CISO and CIO. |
 | Line Manager | Provides business approval for access requests that deviate from the standard role profile. Confirms departure dates and manages device collection for voluntary departures. Notified at the time of involuntary termination. |
+| Contract Owner | For contractors and third-party workers, holds the non-disclosure, policy-acknowledgement and exit-reminder responsibilities in items 4.2.4, 7.1.3 and 8.4.3 (item 9.6). |
 | Internal Audit | Periodically samples deprovisioning records to verify completeness and timeliness. |
 
 ---
@@ -75,6 +76,8 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 4.2.2 Provisional accounts must not be activated until the individual's confirmed start date.
 
 4.2.3 Role-based access permissions are configured against the pre-approved access profile for the role. Any access that exceeds the standard role profile requires written approval from the line manager and, for Confidential or Restricted data access, the CISO or data owner.
+
+4.2.4 The provisional account must not be activated until HR has recorded the individual's signed non-disclosure agreement (or equivalent contractual non-disclosure obligation) and acknowledgement of the Information Security Policy and the Acceptable Use Policy.
 
 ---
 
@@ -145,6 +148,8 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 7.1.2 IT Operations will initiate the deprovisioning checklist (Section 11) upon receipt of departure notification.
 
+7.1.3 HR must hold an exit interview with the departing individual on or before their last working day to remind them of their continuing non-disclosure and confidentiality obligations. Where an exit interview is not possible, HR must send the reminder to the individual in writing instead. HR must record the exit interview or written reminder in the offboarding record.
+
 ### 7.2 Last working day
 
 7.2.1 All user accounts for the departing individual must be suspended (not merely password-reset) at the end of their last working day. Suspension means the account is disabled in the enterprise identity provider and cannot be used to authenticate.
@@ -157,7 +162,7 @@ This procedure supports the Information Security Policy and aligns to ISO/IEC 27
 
 ### 7.4 Device collection and BYOD access removal
 
-**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device, its user, or the data on it as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel, in writing, formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
+**Hold and investigation safeguard.** Every wipe authority and requirement in this document is subject to this safeguard, including selective, corporate-container and full-device wipes. Before initiating a wipe, IT Operations must confirm whether a legal hold or investigation applies to the device, its user, or the data on it, using the two-part confirmation in rule 2 of the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1. A check of the GRC platform and Records Register confirms only whether a hold is recorded. Under that rule, Legal Counsel or the Incident Commander or, for security P3 and P4 where no Incident Commander is assigned, the SOC lead, or, for security P1 and P2 before an Incident Commander is assigned, the interim technical authority (Security Incident Response Procedure §2.2) confirms whether an investigation under [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md) treats the device, its user, or the data on it as evidence. Only Legal Counsel confirms whether an investigation by an external authority treats the device, its user, or the data on it as evidence, and whether a hold is required but not yet recorded. Where a legal hold or investigation applies, or its status cannot be confirmed, IT Operations must suspend the wipe and follow the lost or stolen device decision table in [`privacy/procedure-data-protection-and-privacy-breach-response.md`](../privacy/procedure-data-protection-and-privacy-breach-response.md) §5.2.1 and its rules for non-destructive containment, evidence preservation and any later wipe. This includes remote lock or MAM application-layer containment within 1 hour, forensic acquisition wherever the device is reachable, only as far as rule 3 and applicable law permit, cancellation of queued wipes when a hold or investigation comes to apply, and no wipe until Legal Counsel, in writing, formally releases or narrows the hold as rule 8 requires. For an investigation without a legal hold, rule 8 requires Legal Counsel's written confirmation that the investigation no longer treats the device contents as evidence. An image, backup, owner's consent or immediate-wipe deadline does not override this safeguard. Preserve the management capability needed for containment and evidence acquisition; defer deprovisioning, profile removal, unenrolment, reassignment or disposal where it would destroy evidence or prevent required preservation. Corporate access revocation must still meet its existing deadline. Record the hold check, deferred actions and Legal Counsel's release or confirmation. Where no legal hold or investigation applies, the existing wipe triggers, scope, consent requirements and deadlines continue to apply.
 
 7.4.1 The organization-issued managed device must be collected on or before the individual's last working day. The line manager must coordinate device collection. Personally-owned devices must not be required to be surrendered.
 
@@ -177,6 +182,10 @@ IT Operations must record the route, actions, timestamps, and wipe and deprovisi
 7.5.1 Any organizational data stored in the individual's collaboration and file storage platform workspace must be reviewed and, where required, transferred to the line manager or a designated successor within 7 calendar days of departure.
 
 7.5.2 Personal email forwarding from a corporate account to a personal account must not be set up and will be removed as part of the deprovisioning checklist.
+
+7.5.3 Where business content must be recovered from the individual's mailbox, IT Operations must inform the individual before starting the review, limit the review to the least intrusive means of identifying the business content, and, where feasible, carry it out in the individual's presence. IT Operations must complete the review and transfer to the line manager or a designated successor on or before the individual's last working day, and before the mailbox is converted or archived. This item does not limit the preservation required by a legal hold or investigation.
+
+7.5.4 Communications that are identifiably private must be excluded from any review and transfer of business content from an individual's mailbox, whether under item 7.5.3 or, after an involuntary termination, under item 8.5.1.
 
 ---
 
@@ -214,6 +223,12 @@ Disabling the enterprise identity-provider account and revoking active sessions,
 
 8.4.2 HR retains responsibility for communicating the termination to IT Operations and initiating the deprovisioning workflow.
 
+8.4.3 For an involuntary termination, HR must complete the requirement in item 7.1.3 within 1 business day of the termination being communicated; this deadline replaces the last-working-day deadline in item 7.1.3.
+
+### 8.5 Mailbox business-content recovery
+
+8.5.1 Where business content must be recovered from the mailbox of an individual whose employment or engagement has been involuntarily terminated, IT Operations must inform the individual before starting the review and limit the review to the least intrusive means of identifying the business content. Item 7.5.4 applies to the review. This item does not limit the preservation required by a legal hold or investigation.
+
 ---
 
 ## 9. Contractor and third-party offboarding
@@ -224,9 +239,11 @@ Disabling the enterprise identity-provider account and revoking active sessions,
 
 9.3 Where a contractor or third-party worker shared credentials with other members of their organization (e.g., a shared service account for a supplier), those shared credentials must be rotated immediately upon the individual's departure, regardless of whether other authorized users continue to require access.
 
-9.4 IT Operations must confirm with the relevant line manager or contract owner that all third-party access has been removed before closing the offboarding record.
+9.4 IT Operations must confirm with the relevant line manager or Contract Owner that all third-party access has been removed before closing the offboarding record.
 
 9.5 The 7-calendar-day target for deprovisioning checklist item 15 (Section 11) is a deliberate, narrow exception to the timelines in item 9.1: independently-authenticated external portals (client portals, supplier systems, and other platforms not federated to the organization's identity provider) are a distinct access class whose removal depends on the external party's own administrative process, so it cannot be guaranteed within the internal-account revocation timelines (checklist item 1 onward). Portals federated to the identity provider lose access when the account is disabled under checklist item 1, and centralized, privileged, and shared-credential access retains its shorter timelines (checklist items 1, 12, and 16).
+
+9.6 For contractors and third-party workers, the Contract Owner, in place of HR, is responsible for items 4.2.4, 7.1.3 and 8.4.3: recording the signed non-disclosure agreement (or equivalent contractual non-disclosure obligation) and the policy acknowledgements before the provisional account is activated, and holding the exit interview or sending the written reminder, and recording it, within the applicable deadline.
 
 ---
 
@@ -258,7 +275,7 @@ The following checklist must be completed for every departure. IT Operations is 
 | 2 | All active sessions terminated and refresh tokens revoked | IT Operations | Simultaneous with account disable | Session log confirms no active sessions |
 | 3 | MFA tokens and authenticator app enrolments removed | IT Operations | Within 4 hours of departure | MFA device list confirmed empty |
 | 4 | VPN certificate revoked | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | Certificate revocation confirmed in PKI management console |
-| 5 | Email access removed and mailbox converted or archived | IT Operations | Last day (voluntary) / 4 hours (involuntary) | Mailbox status confirmed in mail admin console |
+| 5 | Email access removed and mailbox converted or archived | IT Operations | Last day (voluntary) / 4 hours (involuntary) | Mailbox status confirmed in mail admin console; for a voluntary departure, any business-content recovery under 7.5.3 completed on or before the last working day and before conversion or archiving |
 | 6 | Email forwarding to personal account removed and blocked | IT Operations | Last day | Mail routing confirmed; no forwarding rules active |
 | 7 | Shared mailbox access removed | IT Operations | Within 24 hours | Access list confirmed in mail admin console |
 | 8 | Collaboration platform access removed | IT Operations | Within 4 hours of departure (voluntary) / 1 hour (involuntary) | User removed from collaboration platform tenant |
@@ -274,7 +291,8 @@ The following checklist must be completed for every departure. IT Operations is 
 | 18 | Security group memberships removed | IT Operations | Within 24 hours (voluntary) / 1 hour (involuntary) | Directory security groups confirmed |
 | 19 | Distribution list memberships removed | IT Operations | Within 24 hours | Distribution list memberships confirmed |
 | 20 | Software licences released and reclaimed | IT Operations | Within 7 calendar days | Licence management platform updated |
-| 21 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
+| 21 | Exit interview held or written reminder of non-disclosure and confidentiality obligations sent | HR / Contract Owner | Last day (voluntary) / within 1 business day (involuntary) | Exit interview or written reminder recorded in offboarding record |
+| 22 | Offboarding record completed and filed | IT Operations | Within 7 calendar days of departure | Record accessible in ITSM with all checklist items verified |
 
 ---
 
@@ -284,9 +302,9 @@ The following checklist must be completed for every departure. IT Operations is 
 
 12.2 Deprovisioning records must be retained for a minimum of 7 years from the date of departure. This supports audit requirements, regulatory inquiry, and legal proceedings.
 
-12.3 Records must be stored in the organization's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit.
+12.3 Records must be stored in the organization's approved records management system with access restricted to IT Operations, CISO, CIO, HR, and Internal Audit, and, limited to the records of their contractors and third-party workers, the Contract Owner (item 9.6).
 
-12.4 Onboarding records (access provisioning approvals, role-profile assignments, initial MFA enrolment confirmation) must similarly be retained for 7 years from the date of offboarding of the individual to whom they relate.
+12.4 Onboarding records (access provisioning approvals, role-profile assignments, initial MFA enrolment confirmation, signed non-disclosure agreements or equivalent contractual non-disclosure obligations, and policy acknowledgements) must similarly be retained for 7 years from the date of offboarding of the individual to whom they relate.
 
 12.5 Records must be retained and destroyed in accordance with the Records Retention and Destruction Standard.
 
@@ -308,6 +326,11 @@ The following checklist must be completed for every departure. IT Operations is 
 | NIST SP 800-53 Rev. 5 | AC-2 Account Management | Account lifecycle management from provisioning to deprovisioning |
 | CIS Controls v8.1 | 6.1, 6.2, 6.8 | Account provisioning, deprovisioning, and access review processes |
 | CIS Controls v8.1 | 6.8, 5.4 | Least-privilege access, role-based profiles, privileged account management |
+| US DoD CMMC Assessment Guide Level 2 v2.13 | PS.L2-3.9.2 Personnel Actions | Protection of systems containing CUI during and after terminations and transfers; exit interviews and account suspension before notification of termination as measures organizations may consider |
+| VDA ISA 6.0.3 (TISAX, automotive sector) | 2.1.2, 4.1.3, 4.2.1 | Non-disclosure and policy-compliance obligations for staff (implemented in this procedure by the activation gate in item 4.2.4), account disabling on departure, and access adjustment on role change |
+| UK NCSC Cyber Essentials v3.3 | User access control | Account removal on departure and special access privilege removal on role change |
+| Canada CCCS Baseline Cyber Security Controls for Small and Medium Organizations V1.2 | BC.12.1, BC.12.3 | Least-privilege role profiles and account removal on departure or role change |
+| Council of Europe CM/Rec(2015)5 | Principle 14 (paragraphs 14.3, 14.4 and 14.5) | For mailbox business-content recovery, advance information and least intrusive review on voluntary departure (item 7.5.3) and after an involuntary termination (item 8.5.1); recovery before departure on voluntary departure (item 7.5.3); for any recovery (item 7.5.4), exclusion of private communications |
 
 ---
 
