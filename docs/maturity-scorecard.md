@@ -85,7 +85,7 @@ _129 documents._
 | [governance/register-coverage-gaps.md](../governance/register-coverage-gaps.md) | Coverage Gap Analysis Register | Register | 1.1.51 | 2026-10-01 |
 | [governance/register-data-retention-schedule.md](../governance/register-data-retention-schedule.md) | Data Retention Schedule | Register | 1.1.0 | 2026-10-14 |
 | [governance/register-digital-trust-and-assurance-metrics.md](../governance/register-digital-trust-and-assurance-metrics.md) | Digital Trust and Assurance Metrics Register | Register | 1.1.4 | 2026-10-16 |
-| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.206 | 2026-10-15 |
+| [governance/register-document-index-and-classification.md](../governance/register-document-index-and-classification.md) | Document Index and Classification Register | Register | 1.27.207 | 2026-10-16 |
 | [governance/register-glossary.md](../governance/register-glossary.md) | Glossary and Acronym Index | Register | 1.4.20 | 2026-10-13 |
 | [governance/register-key-terms-and-definitions.md](../governance/register-key-terms-and-definitions.md) | Key Terms and Definitions Register | Register | 1.2.0 | 2026-10-14 |
 | [governance/register-role-authority.md](../governance/register-role-authority.md) | Role Authority Register | Register | 1.7.0 | 2026-10-15 |
@@ -129,7 +129,7 @@ _129 documents._
 | [privacy/procedure-data-subject-rights-management.md](../privacy/procedure-data-subject-rights-management.md) | Data Subject Rights Management Procedure | Procedure | 1.6.40 | 2026-10-16 |
 | [privacy/procedure-privacy-impact-and-cross-border-transfer.md](../privacy/procedure-privacy-impact-and-cross-border-transfer.md) | Privacy Impact and Cross-Border Transfer Procedure | Procedure | 1.6.11 | 2026-09-25 |
 | [privacy/template-dsar-workflow.md](../privacy/template-dsar-workflow.md) | Data Subject Access Request Workflow Template | Template | 1.1.15 | 2026-10-04 |
-| [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.1.3 | 2026-10-04 |
+| [privacy/template-privacy-notice.md](../privacy/template-privacy-notice.md) | Privacy Notice Template | Template | 1.1.4 | 2026-10-16 |
 | [resilience/plan-business-continuity-and-crisis-management.md](../resilience/plan-business-continuity-and-crisis-management.md) | Business Continuity and Crisis Management Plan | Plan | 1.1.2 | 2026-07-03 |
 | [resilience/plan-it-disaster-recovery.md](../resilience/plan-it-disaster-recovery.md) | IT Disaster Recovery Plan | Plan | 1.6.0 | 2026-10-15 |
 | [resilience/procedure-backup-and-recovery.md](../resilience/procedure-backup-and-recovery.md) | Backup and Recovery Procedure | Procedure | 1.1.1 | 2026-09-11 |
@@ -264,7 +264,7 @@ _151 documents._
 | [operations/standard-site-reliability-engineering.md](../operations/standard-site-reliability-engineering.md) | Site Reliability Engineering Standard | Standard | 1.0.5 | 2026-09-25 |
 | [privacy/annex-privacy-jurisdiction-index.md](../privacy/annex-privacy-jurisdiction-index.md) | Privacy Jurisdiction Index | Annex | 1.0.60 | 2026-10-03 |
 | [privacy/framework-childrens-data.md](../privacy/framework-childrens-data.md) | Children's Data Framework | Framework | 1.0.13 | 2026-10-01 |
-| [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.16 | 2026-10-04 |
+| [privacy/framework-consent-management.md](../privacy/framework-consent-management.md) | Consent Management Framework | Framework | 1.0.17 | 2026-10-16 |
 | [privacy/framework-privacy-by-design.md](../privacy/framework-privacy-by-design.md) | Privacy by Design Framework | Framework | 1.0.4 | 2026-08-04 |
 | [privacy/jurisdictions/annex-privacy-australia.md](../privacy/jurisdictions/annex-privacy-australia.md) | Australia Privacy Regulatory Requirements | Annex | 1.0.8 | 2026-10-03 |
 | [privacy/jurisdictions/annex-privacy-indonesia.md](../privacy/jurisdictions/annex-privacy-indonesia.md) | Indonesia Privacy Regulatory Requirements | Annex | 1.0.12 | 2026-10-01 |
