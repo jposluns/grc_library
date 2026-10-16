@@ -7,8 +7,19 @@ headings (``## N. Title``, ``### N.N Title``, ``## Section N: Title`` ...) are
 extracted outside fenced code blocks; a reference whose numeric identifier is not
 among them is a finding, UNLESS the ``is_cross_doc_context`` heuristic claims the
 reference for another document (a nearby markdown link or ``.md`` filename within a
-60-char window either side, a doctype word, or an external-framework name anywhere on
-the line). The cross-doc heuristic vocabulary is fixed in the check implementation.
+60-char window either side, a doctype word, or an external-framework name).
+The link/filename window is checked first, even for a cued mark on a regime line.
+For GDPR, CPPA, PIPEDA, HIPAA, PCI DSS, and SOC 2, a name anywhere on the line
+claims each mark unless that mark has an explicit local cue (in any case). A cued
+mark is checked against this document even if another doctype or framework is
+named on the line. Externally meant cues in ``GDPR §33 in this context requires
+notice`` and ``For breach notice, see §33 of the GDPR.`` are known false
+positives. Regime names match case-sensitively as whole words, so ``UKGDPR``
+and ``SOC 25`` do not name a regime. Lines without a regime retain the
+doctype/framework behaviour, including ``See §99.99 of this standard.``
+An uncued stale internal mark on a regime line (for example,
+``GDPR §33 and §99.99 apply.``) is not checked. References and headings are
+compared at full numeric depth.
 
 Engine/wrapper split (SHARED/SAFETY lane PR-36, Pattern A): this engine carries the
 pure check (``HEADING_RE``, ``REF_PATTERNS``, ``extract_sections``,
@@ -38,14 +49,17 @@ except ImportError as exc:  # fail loud: broken setup, never silently worked aro
 
 
 # Headings of form "## 5. Title", "### 5.1 Title", "#### 5.1.2 Title",
-# or "## Section 5: title", "## Section 5.1 title".
-HEADING_RE = re.compile(r"^(#{2,6})\s+(?:Section\s+)?(\d+(?:\.\d+){0,3})[.\s:]")
+# or "## Section 5: title", "## Section 5.1 title". Keep every numeric level.
+HEADING_RE = re.compile(r"^(#{2,6})\s+(?:Section\s+)?(\d+(?:\.\d+)*)[.\s:]")
 
-# In-document section reference patterns: §N, §N.N, §N.N.N, Section N(.N)*
+# In-document section references: §N, §N.N, §N.N.N, Section N(.N)*.
+# Keep every numeric level so a five-level reference cannot match four levels.
 REF_PATTERNS = [
-    re.compile(r"§(\d+(?:\.\d+){0,3})"),
-    re.compile(r"\bSection\s+(\d+(?:\.\d+){0,3})\b"),
+    re.compile(r"§(\d+(?:\.\d+)*)"),
+    re.compile(r"\bSection\s+(\d+(?:\.\d+)*)\b"),
 ]
+
+PRIVACY_REGIME_RE = re.compile(r"\b(?:GDPR|CPPA|PIPEDA|HIPAA|PCI DSS|SOC 2)\b")
 
 
 def extract_sections(text: str) -> set[str]:
@@ -72,10 +86,24 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
       start, so a link 41-60 chars after a reference is disclaimed
       here yet unclaimed by gates 62 and 65 (an accepted heuristic band, the
       same shape as the pre-existing preceding-side window).
-    - Doctype words and external-framework names: whole-line scans (ISO,
-      NIST, OWASP, CSA, MITRE, COBIT, GDPR, CPPA, BASC, etc).
+    - Doctype words and most external-framework names: whole-line scans (ISO,
+      NIST, OWASP, CSA, MITRE, COBIT, BASC, etc).
       Framework-mapping tables typically reference external framework
       section numbers in their cells; this scan catches that pattern.
+    - GDPR, CPPA, PIPEDA, HIPAA, PCI DSS, and SOC 2 claim every mark on
+      their line unless the mark is immediately preceded by "see" (optionally
+      "see also") or immediately followed by "above", "below", "here",
+      "herein", "in this" plus one word, or "of this" plus one word.
+      Cues match in any case. The link/filename window takes precedence over
+      this rule, and a cued mark wins over doctype/framework words on a regime
+      line. This can flag an externally meant cue. Regime names match
+      case-sensitively as whole words, so ``UKGDPR`` and ``SOC 25`` do not
+      name a regime. The doctype/framework heuristic still claims marks
+      without a regime
+      (e.g. ``See §99.99 of this standard.``).
+      An uncued stale internal mark on a regime line remains unchecked.
+      A dotted single-letter or parenthesized suffix may precede a trailing cue;
+      a separated parenthesized suffix or a comma before the cue does not qualify.
     """
     window = line[max(0, ref_start - 60):ref_start]
     if ".md" in window:
@@ -86,6 +114,19 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
     if ".md" in trailing:
         return True
     if "](" in trailing:
+        return True
+    mark = r"(?:§|Section\s+)\d+(?:\.\d+)*(?:\.[A-Za-z])?(?:\([A-Za-z0-9]+\))*"
+    before = line[:ref_start]
+    after = line[ref_start:]
+    local_cue = bool(
+        re.search(r"\bsee(?:\s+also)?\s+$", before, re.I)
+        or re.match(rf"{mark}\s+(?:above|below|here|herein)\b", after, re.I)
+        or re.match(rf"{mark}\s+(?:in|of)\s+this\s+\w+\b", after, re.I)
+    )
+    regime = PRIVACY_REGIME_RE.search(line)
+    if regime and local_cue:
+        return False
+    if regime:
         return True
     # Doctype words anywhere on the line: when the library writes about
     # another document's section, the document is typically named on the
@@ -107,7 +148,6 @@ def is_cross_doc_context(line: str, ref_start: int) -> bool:
     # framework-alignment tables.
     external_frameworks = (
         "ISO/IEC", "ISO ", "NIST", "OWASP", "CSA ", "MITRE", "COBIT",
-        "GDPR", "CPPA", "PIPEDA", "HIPAA", "PCI DSS", "SOC 2",
         "BASC", "CTPAT", "AEO", "WCO", "IMO", "ICAO", "NERC", "IEC 62443",
         "IEC 61511", "IEC 61508", "NFPA", "EN 54", "ASHRAE",
         "EU AI Act", "EU NIS", "EU DORA", "FedRAMP", "FIPS",
@@ -130,8 +170,6 @@ def scan(path: Path) -> list[tuple[int, str, str]]:
         # Documents without numbered headings have no intra-doc section refs to check.
         return findings
     for lineno, line in iter_non_code_lines(text):
-        # Skip table rows that show section references in coverage / index documents
-        # (they describe other documents' sections, not this one's).
         for pattern in REF_PATTERNS:
             for m in pattern.finditer(line):
                 ref = m.group(1)

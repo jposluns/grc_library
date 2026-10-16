@@ -70,7 +70,7 @@ _129 documents._
 | [dev-security/standard-developer-security-requirements.md](../dev-security/standard-developer-security-requirements.md) | Developer Security Requirements | Standard | 1.1.37 | 2026-10-15 |
 | [dev-security/standard-mobile-application-security.md](../dev-security/standard-mobile-application-security.md) | Mobile Application Security Standard | Standard | 1.1.8 | 2026-09-23 |
 | [dev-security/standard-security-baseline-and-standards-reference.md](../dev-security/standard-security-baseline-and-standards-reference.md) | Security Baseline and Standards Reference | Standard | 1.1.33 | 2026-09-29 |
-| [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.28 | 2026-10-15 |
+| [dev-security/standard-security-quick-reference.md](../dev-security/standard-security-quick-reference.md) | Security Quick Reference | Standard | 1.1.29 | 2026-10-16 |
 | [dev-security/standard-software-composition-analysis.md](../dev-security/standard-software-composition-analysis.md) | Software Composition Analysis Standard | Standard | 1.1.20 | 2026-09-24 |
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.6 | 2026-08-03 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.10 | 2026-09-25 |

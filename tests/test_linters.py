@@ -3930,6 +3930,186 @@ class IntraDocRefTests(LinterTestCase):
             f"intra-doc gate.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
 
+    def test_see_cue_checks_mark_on_regime_line(self) -> None:
+        body = (
+            VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+            + "\n\nGDPR Art. 33 concerns reporting, see §99.99 for our process.\n"
+        )
+        fixture = self.make_fixture("standard-mixed-regime-ref.md", body)
+        result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+        self.assertLinterFails(result, "99.99")
+
+    def test_see_cue_checks_mark_with_framework_words(self) -> None:
+        for line in (
+            "PCI DSS requires logging; see §99.99",
+            "GDPR Article 33 concerns reporting, see §99.99",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}.\n"
+                fixture = self.make_fixture("standard-mixed-regime-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), "99.99")
+
+    def test_see_cue_checks_mark_in_regime_row(self) -> None:
+        body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                + "\n\n| Regime | Control | Internal reference |\n"
+                + "| --- | --- | --- |\n"
+                + "| GDPR | Logging | See §99.99 |\n")
+        fixture = self.make_fixture("standard-regime-table-ref.md", body)
+        self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), "99.99")
+
+    def test_regime_cue_in_row_with_escaped_and_code_pipes_fails(self) -> None:
+        body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                + "\n\n| Regime | Detail | Reference |\n"
+                + "| --- | --- | --- |\n"
+                + "| GDPR | `a|b` and a\\|b | See §99.99 |\n")
+        fixture = self.make_fixture("standard-regime-pipes-ref.md", body)
+        self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), "99.99")
+
+    def test_external_regime_marks_are_not_internal(self) -> None:
+        body = (
+            VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+            + "\n\nGDPR §33 and GDPR Section 34 apply; PIPEDA Section 10.1 also applies.\n"
+        )
+        fixture = self.make_fixture("standard-external-regime-ref.md", body)
+        result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_uncued_regime_marks_pass(self) -> None:
+        for line in (
+            "Under GDPR, §33 requires notification.",
+            "§33 of the GDPR applies.",
+            "GDPR §33 and §34 apply.",
+            "GDPR §33, §34 apply.",
+            "HIPAA Security Rule §164.308",
+            "HIPAA 45 CFR §164.312",
+            "GDPR Art. §33 applies.",
+            "GDPR §99.99 (a) below applies.",
+            "GDPR §99.99, below, applies.",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-external-regime-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_explicit_local_cues_fail(self) -> None:
+        for line, ref in (
+            ("| mapping | See §99.99 | A | B | GDPR |", "99.99"),
+            ("Under HIPAA, §99.99 below sets the retention period.", "99.99"),
+            ("GDPR §33 and §99.99 of this document apply.", "99.99"),
+            ("GDPR §33 applies; see §99.99 for our process.", "99.99"),
+            ("Under HIPAA, §99.99 above sets the retention period.", "99.99"),
+            ("Under GDPR, §99.99 here sets retention.", "99.99"),
+            ("Under GDPR, §99.99 herein sets retention.", "99.99"),
+            ("GDPR §33 and §99.99 below apply.", "99.99"),
+            ("PCI DSS requires logging; see §99.99.", "99.99"),
+            ("| GDPR | Logging | See §99.99 |", "99.99"),
+            ("Under GDPR, §99.99 of this document applies.", "99.99"),
+            ("Under GDPR, §99.99 in this procedure applies.", "99.99"),
+            ("GDPR §33 applies; SEE ALSO §99.99 for our process.", "99.99"),
+            ("See §99.99 for details.", "99.99"),
+            ("GDPR §33 and §4.2.2.1.5 below apply.", "4.2.2.1.5"),
+            ("HIPAA §99.99(a) below applies.", "99.99"),
+            ("GDPR §99.99.a below applies.", "99.99"),
+            ("See Section 99.99 for details.", "99.99"),
+            ("GDPR §33 applies; see Section 99.99.", "99.99"),
+            ("GDPR: see §5.1 of ISO 27001", "5.1"),
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-cued-local-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), ref)
+
+    def test_long_section_depth_is_compared_in_full(self) -> None:
+        for heading, line, ref, should_fail in (
+            ("### 1.2.3.4 Four", "See §1.2.3.4.5 for detail.", "1.2.3.4.5", True),
+            ("#### 1.2.3.4.5 Five", "See §1.2.3.4 for detail.", "1.2.3.4", True),
+            ("#### 1.2.3.4.5 Five", "See §1.2.3.4.5 for detail.", "1.2.3.4.5", False),
+        ):
+            with self.subTest(heading=heading, line=line):
+                body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                        + f"\n\n{heading}\n\n{line}\n")
+                fixture = self.make_fixture("standard-deep-section-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                if should_fail:
+                    self.assertLinterFails(result, ref)
+                else:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_longer_word_containing_regime_is_reported(self) -> None:
+        body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                + "\n\nUKGDPR §33 applies.\n")
+        fixture = self.make_fixture("standard-longer-regime-word-ref.md", body)
+        self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), "33")
+
+    def test_externally_meant_cues_are_reported(self) -> None:
+        for line in (
+            "GDPR §33 in this context requires notice",
+            "For breach notice, see §33 of the GDPR.",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-external-cue-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), "33")
+
+    def test_nonmatching_regime_names_are_reported(self) -> None:
+        for line, ref in (("SOC 25 §3 applies.", "3"), ("gdpr §33 applies.", "33")):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-nonmatching-regime-ref.md", body)
+                self.assertLinterFails(run_linter("tools/lint-intra-doc-refs.py", fixture), ref)
+
+    def test_link_window_claims_cued_regime_mark(self) -> None:
+        body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                + "\n\nGDPR: see §99.99 in [our guide](guide.md).\n")
+        fixture = self.make_fixture("standard-linked-regime-ref.md", body)
+        result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_uncued_regime_line_residual_passes(self) -> None:
+        body = (VALID_METADATA.replace("## Purpose", "## 1. Purpose")
+                + "\n\nGDPR §33 and §99.99 apply.\n")
+        fixture = self.make_fixture("standard-regime-residual.md", body)
+        result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_main_external_forms_pass(self) -> None:
+        for line in (
+            "GDPR, §33", "GDPR §33, §34, and §35", "GDPR §33 or §34",
+            "HIPAA §164.312(a)(1) and §164.308",
+            "HIPAA Security Rule (45 CFR §164.312)",
+            "the HIPAA Privacy Rule's §164.502",
+            "GDPR Articles 33 and §34", "Under the GDPR, §33 requires notice.",
+            "| GDPR (EU) | §33 |", "| GDPR | §33, §34 |",
+            "§33 in the GDPR", "§33 under GDPR",
+            "PCI DSS Requirement §10.2", "PCI DSS v4.0 §10.2",
+            "| mapping | §5.12 | A | B | GDPR |",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-main-external-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_uncued_regime_forms_pass(self) -> None:
+        for line in (
+            "PCI DSS v4.0 §10.2", "PCI DSS 4.0 §10.2",
+            "GDPR §33, §34 and §35", "GDPR §33, §34, §35",
+            "GDPR Section 33 and Section 34 apply.",
+            "§33 and §34 of the GDPR apply.",
+            "HIPAA Privacy Rule §164.502",
+            "HIPAA Breach Notification Rule §164.404",
+            "HIPAA (45 CFR §164.312)", "HIPAA Security Rule, §164.308",
+            "PIPEDA Schedule 1 §4.7", "GDPR (§33)", "the GDPR's §33",
+            "GDPR Article 33 and §34",
+            "| GDPR | §33 | Breach notice |", "| Topic | GDPR | §33 |",
+        ):
+            with self.subTest(line=line):
+                body = VALID_METADATA.replace("## Purpose", "## 1. Purpose") + f"\n\n{line}\n"
+                fixture = self.make_fixture("standard-uncued-regime-ref.md", body)
+                result = run_linter("tools/lint-intra-doc-refs.py", fixture)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
 
 class CrossFileSectionRefTests(LinterTestCase):
     """tools/lint-cross-file-section-refs.py (gate 62)
@@ -3969,6 +4149,113 @@ class CrossFileSectionRefTests(LinterTestCase):
             0,
             f"resolving refs should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
         )
+
+    def test_stale_reference_in_table_cell_fails(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n| Control | Detail |\n| --- | --- |\n"
+            "| A | [target](standard-xref-target.md) §9.9 |\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertLinterFails(result, "9.9")
+
+    def test_resolving_reference_in_table_cell_passes(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n| Control | Detail |\n| --- | --- |\n"
+            "| A | [target](standard-xref-target.md) §2.1 |\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_escaped_and_code_span_pipes_stay_in_cell(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n| Control | Detail |\n| --- | --- |\n"
+            "| A | [target](standard-xref-target.md) \\| §9.9 |\n"
+            "| B | [target](standard-xref-target.md) `a|b` §9.8 |\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertLinterFails(result, "9.9")
+        self.assertIn("9.8", result.stdout)
+
+    def test_link_in_another_table_cell_does_not_bind(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n| Control | Detail |\n| --- | --- |\n"
+            "| [target](standard-xref-target.md) | §9.9 |\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_local_table_section_before_following_link_is_not_cross_file(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n## 8. Exceptions\n\n| Role | Detail |\n| --- | --- |\n"
+            "| Owner | Section 8 exception path ([policy](standard-xref-target.md) §2) |\n"
+        )
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_round_two_table_local_exception_requires_description_and_close(self) -> None:
+        self.make_fixture("t.md", self.TARGET_BODY + "\n\n## 4. Other\n")
+        for line, should_fail in (
+            ("| Owner | §8 ([t](t.md)) |", True),
+            ("| Owner | Section 8 ([t](t.md)) |", True),
+            ("| Owner | §8 of the target ([t](t.md)) |", True),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2) |", False),
+            ("| Owner | Section 8 exception path ([policy](t.md) §2 |", True),
+        ):
+            with self.subTest(line=line):
+                citer = VALID_METADATA + f"\n\n## 8. Exceptions\n\n{line}\n"
+                fixture = self.make_fixture("standard-round-two-cross-ref.md", citer)
+                result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+                if should_fail:
+                    self.assertLinterFails(result, "§8")
+                else:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_of_the_policy_table_residual_passes(self) -> None:
+        self.make_fixture("t.md", self.TARGET_BODY)
+        citer = VALID_METADATA + "\n\n## 8. Exceptions\n\n| Owner | §8 of the policy ([t](t.md)) |\n"
+        fixture = self.make_fixture("standard-cross-file-residual.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_table_row_without_leading_pipe_residual_is_reported(self) -> None:
+        # Documented residual: only a line beginning with a pipe is a table row
+        # for the local-section exception, so this valid row is read as prose.
+        self.make_fixture("t.md", self.TARGET_BODY)
+        citer = VALID_METADATA + (
+            "\n\n## 8. Exceptions\n\nRole | Detail\n--- | ---\n"
+            "Owner | Section 8 exception path ([policy](t.md) §2)\n"
+        )
+        fixture = self.make_fixture("standard-cross-file-residual.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertLinterFails(result, "§8")
+        self.assertNotIn("§2 ", result.stdout)
+
+    def test_local_prose_section_before_following_link_is_checked(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = (VALID_METADATA + "\n\n## 8. Exceptions\n\n"
+                 + "See Section 8 of [t](standard-xref-target.md) for details.\n")
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        self.assertLinterFails(run_linter("tools/lint-cross-file-section-refs.py", fixture), "§8")
+
+    def test_unmatched_and_code_backticks_do_not_join_table_cells(self) -> None:
+        self.make_fixture("standard-xref-target.md", self.TARGET_BODY)
+        citer = (VALID_METADATA + "\n\n| Note | Target | Reference |\n"
+                 + "| --- | --- | --- |\n"
+                 + "| stray ` tick | [t](standard-xref-target.md) | §9 |\n"
+                 + "| `C:\\` | [t](standard-xref-target.md) | §9 |\n")
+        fixture = self.make_fixture("standard-xref-citer.md", citer)
+        result = run_linter("tools/lint-cross-file-section-refs.py", fixture)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 class RequiredSectionsTests(LinterTestCase):
@@ -29522,7 +29809,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.12.0", "3b260 widens the COBIT objective-title engine and adds the quote argument of extract_title, on top of 3b306 (MINOR, 0.11.1 to 0.12.0)")
+        self.assertEqual(man["pack"]["version"], "0.13.0", "3b325 adds table-cell coverage to the cross-file section-reference gate and explicit local cues on regime lines to the intra-document gate, on top of 3b260's COBIT objective-title widening (MINOR, 0.12.0 to 0.13.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
