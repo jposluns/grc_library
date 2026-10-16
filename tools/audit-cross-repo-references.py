@@ -166,23 +166,55 @@ def classify_link(
     if not target_no_anchor:
         return "in-repo-exists", "(pure anchor)"
     public_root = root.resolve()
-    logical_target = (source.parent / target_no_anchor).resolve()
     try:
-        logical_target.relative_to(public_root)
+        source = public_root / source.relative_to(root)
     except ValueError:
-        return "ambiguous", f"{target} (resolves outside repo)"
+        source = Path(os.path.normpath(str(source)))
     try:
-        logical_target.relative_to(public_root / ".working")
+        logical_path = Path(os.path.normpath(str(source.parent / target_no_anchor)))
+        working_rel = source.relative_to(public_root / ".working")
+        logical_rel = logical_path.relative_to(public_root / ".working")
     except ValueError:
-        # The target left logical .working but stayed in the public repo.
-        resolved = logical_target
-    else:
+        working_rel = None
+    if working_rel is not None:
+        if Path(target_no_anchor).is_absolute():
+            return "ambiguous", f"{target} (absolute path into logical .working)"
         # The target stayed inside logical .working: resolve beside the physical
         # source, which may be in the private sibling.
-        resolved = (
-            (physical_source or source).parent / target_no_anchor
-        ).resolve()
-    if resolved.exists():
+        physical = physical_source or source
+        if (not working_rel.parts or not physical.is_absolute()
+                or len(physical.parents) < len(working_rel.parts)):
+            return "ambiguous", f"{target} (outside or unjudgeable working store)"
+        try:
+            store_root = physical.parents[len(working_rel.parts) - 1].resolve()
+            physical.resolve().relative_to(store_root)
+            resolved = (store_root / logical_rel).resolve()
+            resolved.relative_to(store_root)
+        except (ValueError, OSError, RuntimeError):
+            return "ambiguous", f"{target} (outside or unjudgeable working store)"
+    else:
+        try:
+            resolved = (source.parent / target_no_anchor).resolve()
+        except (ValueError, OSError, RuntimeError):
+            return "ambiguous", f"{target} (unjudgeable logical target)"
+        try:
+            resolved.relative_to(public_root)
+        except ValueError:
+            return "ambiguous", f"{target} (resolves outside repo)"
+        try:
+            resolved.relative_to(public_root / ".working")
+        except ValueError:
+            pass
+        else:
+            try:
+                logical_path.relative_to(public_root / ".working")
+            except ValueError:
+                return "ambiguous", f"{target} (enters logical .working through symlink)"
+    try:
+        exists = resolved.exists()
+    except (OSError, RuntimeError, ValueError):
+        return "ambiguous", f"{target} (unjudgeable target)"
+    if exists:
         return "in-repo-exists", target
     return "in-repo-missing", target
 
@@ -231,8 +263,18 @@ def classify_cross_repo(
         note = "sibling-absent, placeholder present" if expected else "sibling-absent"
         existence = f"{note} (existence not verified)"
     elif subpath:
-        exists = (sibling / subpath).exists()
-        existence = "target exists in sibling" if exists else "target MISSING in sibling"
+        if "\\" in subpath or "\0" in subpath:
+            existence = "sibling target unjudgeable (existence not verified)"
+        else:
+            try:
+                sibling_root = sibling.resolve()
+                resolved = (sibling / subpath).resolve()
+                resolved.relative_to(sibling_root)
+                exists = resolved.exists()
+            except (ValueError, OSError, RuntimeError):
+                existence = "sibling target outside or unjudgeable (existence not verified)"
+            else:
+                existence = "target exists in sibling" if exists else "target MISSING in sibling"
     else:
         existence = "sibling present (bare pointer, no sub-path to check)"
     detail = f"{full}/{subpath}" if subpath else full

@@ -22741,6 +22741,165 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
             (d / "real.md").write_text("x", encoding="utf-8")
             self.assertEqual(mod.unresolved_links_in_mirror(root=root), [])
 
+    def test_store_links_stay_in_store(self):
+        mod = self._load("_pcl_store_links")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store, outside = (base / name for name in ("public", "store", "outside"))
+            root.mkdir()
+            (store / "changelog-details").mkdir(parents=True)
+            outside.mkdir()
+            (store / "real.md").write_text("ok")
+            (outside / "escape.md").write_text("outside")
+            (store / "inside").symlink_to(store, target_is_directory=True)
+            (store / "away").symlink_to(outside, target_is_directory=True)
+            physical = store / "changelog-details" / "CHANGELOG-detailed.md"
+            logical = ".working/changelog-details/CHANGELOG-detailed.md"
+
+            def check(link):
+                return mod.unresolved_link_targets(
+                    logical, f"[x]({link})", root, source_path=physical)
+
+            self.assertEqual(check("../inside/real.md"), [])
+            self.assertEqual(check("../real.md"), [])
+            self.assertEqual(check("../missing.md"), ["../missing.md"])
+            self.assertEqual(check("../away/escape.md"), ["../away/escape.md"])
+
+    def test_absolute_links_public_working_and_external(self):
+        mod = self._load("_pcl_absolute_links")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store = base / "public", base / "store"
+            root.mkdir()
+            (store / "changelog-details").mkdir(parents=True)
+            (root / "exists.md").write_text("ok")
+            (root / ".working").mkdir()
+            (root / ".working" / "exists.md").write_text("logical only")
+            physical = store / "changelog-details" / "CHANGELOG-detailed.md"
+            logical = ".working/changelog-details/CHANGELOG-detailed.md"
+
+            def check(target):
+                return mod.unresolved_link_targets(
+                    logical, f"[x]({target})", root, source_path=physical)
+
+            self.assertEqual(check(str(root / "exists.md")), [])
+            self.assertEqual(check(str(root / "missing.md")), [str(root / "missing.md")])
+            self.assertEqual(check(str(root / ".working" / "exists.md")),
+                             [str(root / ".working" / "exists.md")])
+            self.assertEqual(check(str(base / "external.md")), [])
+
+    def test_depth_one_and_symlinked_source_paths(self):
+        mod = self._load("_pcl_logical_store")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store, outside = (base / name for name in ("public", "store", "outside"))
+            root.mkdir()
+            (store / "nested" / "deeper").mkdir(parents=True)
+            outside.mkdir()
+            (store / "real.md").write_text("ok")
+            (outside / "real.md").write_text("outside")
+            (store / "inside").symlink_to(store / "nested" / "deeper", target_is_directory=True)
+            (store / "away").symlink_to(outside, target_is_directory=True)
+            self.assertEqual(mod.unresolved_link_targets(
+                ".working/notes.md", "[x](real.md)", root,
+                source_path=store / "notes.md"), [])
+            self.assertEqual(mod.unresolved_link_targets(
+                ".working/inside/notes.md", "[x](../real.md)", root,
+                source_path=store / "inside" / "notes.md"), [])
+            self.assertEqual(mod.unresolved_link_targets(
+                ".working/away/notes.md", "[x](../real.md)", root,
+                source_path=store / "away" / "notes.md"), ["../real.md"])
+
+    def test_nul_link_is_finding(self):
+        mod = self._load("_pcl_nul")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ".working").mkdir()
+            self.assertEqual(mod.unresolved_link_targets(
+                ".working/notes.md", "[x](bad\0name.md)", root), ["bad\0name.md"])
+            self.assertEqual(mod.unresolved_link_targets(
+                "notes.md", "[x](bad\0name.md)", root), ["bad\0name.md"])
+
+    def test_working_root_source_is_unjudgeable(self):
+        mod = self._load("_pcl_empty_working_rel")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            root.mkdir()
+            (base / "real.md").write_text("ok")
+            if ")" in str(base) or "#" in str(base) or any(
+                    marker in str(base) for marker in mod.CROSS_REPO_MARKERS):
+                self.skipTest("temporary path contains a link delimiter or cross-repo marker")
+            target = ".working/" + str(base.relative_to("/")) + "/real.md"
+            self.assertEqual(mod.unresolved_link_targets(
+                ".working", f"[x]({target})", root, source_path=base / "store"),
+                [target])
+
+    def test_shallow_or_relative_physical_source_is_unjudgeable(self):
+        mod = self._load("_pcl_shallow_physical")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            # The relative case resolves against the working directory; give it a real
+            # target there, so only the absolute-path check can report it.
+            (root / "a" / "b").mkdir(parents=True)
+            (root / "a" / "b" / "real.md").write_text("ok")
+            previous = os.getcwd()
+            os.chdir(root)
+            try:
+                for physical in (Path("a/b/c/notes.md"), Path("/notes.md")):
+                    with self.subTest(physical=physical):
+                        self.assertEqual(mod.unresolved_link_targets(
+                            ".working/nested/notes.md", "[x](../real.md)", root,
+                            source_path=physical), ["../real.md"])
+            finally:
+                os.chdir(previous)
+
+    def test_public_links_follow_resolved_paths(self):
+        mod = self._load("_pcl_public_resolved")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            (root / "nested" / "deep").mkdir(parents=True)
+            (root / "nested" / "exists.md").write_text("ok")
+            (root / "jump").symlink_to(root / "nested" / "deep", target_is_directory=True)
+            (root / ".working").mkdir()
+            (root / ".working" / "private.md").write_text("working")
+            (root / "portal").symlink_to(root / ".working", target_is_directory=True)
+
+            def check(target):
+                return mod.unresolved_link_targets("notes.md", f"[x]({target})", root)
+
+            self.assertEqual(check("jump/../exists.md"), [])
+            self.assertEqual(check("portal/private.md"), ["portal/private.md"])
+
+    def test_absolute_public_alias_uses_resolved_root(self):
+        mod = self._load("_pcl_absolute_public_alias")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            root.mkdir()
+            (root / "exists.md").write_text("ok")
+            alias = base / "public-alias"
+            alias.symlink_to(root, target_is_directory=True)
+
+            def check(target):
+                return mod.unresolved_link_targets("notes.md", f"[x]({target})", root)
+
+            self.assertEqual(check(str(alias / "exists.md")), [])
+            self.assertEqual(check(str(alias / "missing.md")), [str(alias / "missing.md")])
+
+    def test_public_working_symlink_cannot_escape(self):
+        mod = self._load("_pcl_public_working_escape")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, outside = base / "public", base / "outside"
+            root.mkdir()
+            outside.mkdir()
+            (outside / "exists.md").write_text("ok")
+            (root / ".working").symlink_to(outside, target_is_directory=True)
+            self.assertEqual(mod.unresolved_link_targets(
+                "notes.md", "[x](.working/exists.md)", root), [".working/exists.md"])
+
     def test_d7_length_findings(self):
         # P-1.4: the D7 length check is reused (not duplicated) via d7_length_findings on the
         # root CHANGELOG.md added lines: an over-ceiling entry is flagged, a short one is clean,
@@ -22754,6 +22913,191 @@ class PreflightChangelogMirrorTests(unittest.TestCase):
         # the same over-long text in the detailed mirror is NOT length-gated (out of D7 scope)
         self.assertEqual(
             mod.d7_length_findings([(mod.DETAILED_MIRROR_REL, long_line)]), [])
+
+
+class AuditCrossRepoReferencesTests(unittest.TestCase):
+    """Store containment and absolute links in the advisory audit."""
+
+    def _load(self):
+        from unittest.mock import patch
+        with patch.object(sys, "path", [str(REPO_ROOT / "tools"), *sys.path]):
+            return load_linter_module("tools/audit-cross-repo-references.py",
+                                      "_audit_containment_tests")
+
+    def test_store_and_sibling_links(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store, outside, sibling = (
+                base / name for name in ("public", "store", "outside", "grc_library_ref"))
+            root.mkdir()
+            (store / "changelog-details").mkdir(parents=True)
+            outside.mkdir()
+            sibling.mkdir()
+            (store / "real.md").write_text("ok")
+            (outside / "escape.md").write_text("outside")
+            (store / "inside").symlink_to(store, target_is_directory=True)
+            (store / "away").symlink_to(outside, target_is_directory=True)
+            source = store / "changelog-details" / "notes.md"
+            source.write_text("[a](../inside/real.md) [b](../real.md) "
+                              "[c](../missing.md) [d](../away/escape.md)\n"
+                              "grc_library_ref/odd\\n\n")
+            findings, _ = mod.audit_tree(store, link_root=root, logical_prefix=".working",
+                                         sibling_resolver=lambda name: sibling)
+            buckets = [(item[2], item[4]) for item in findings]
+            self.assertIn(("ambiguous", "../away/escape.md (outside or unjudgeable working store)"), buckets)
+            self.assertIn(("in-repo-missing", "../missing.md"), buckets)
+            self.assertEqual(sum(bucket == "in-repo-exists" for bucket, _ in buckets), 2)
+            self.assertTrue(any(bucket == "cross-repo" and "unjudgeable" in detail
+                                for bucket, detail in buckets))
+
+    def test_absolute_links_public_working_and_external(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store = base / "public", base / "store"
+            root.mkdir()
+            (store / "changelog-details").mkdir(parents=True)
+            (root / "exists.md").write_text("ok")
+            (root / ".working").mkdir()
+            (root / ".working" / "exists.md").write_text("logical only")
+            source = root / ".working" / "changelog-details" / "notes.md"
+            physical = store / "changelog-details" / "notes.md"
+
+            def classify(target):
+                return mod.classify_link(target, source, root, physical_source=physical)
+
+            self.assertEqual(classify(str(root / "exists.md")),
+                             ("in-repo-exists", str(root / "exists.md")))
+            self.assertEqual(classify(str(root / "missing.md")),
+                             ("in-repo-missing", str(root / "missing.md")))
+            self.assertEqual(classify(str(root / ".working" / "exists.md")),
+                             ("ambiguous", str(root / ".working" / "exists.md")
+                              + " (absolute path into logical .working)"))
+            self.assertEqual(classify(str(base / "external.md")),
+                             ("ambiguous", str(base / "external.md")
+                              + " (resolves outside repo)"))
+
+    def test_depth_one_and_symlinked_source_paths(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store, outside = (base / name for name in ("public", "store", "outside"))
+            root.mkdir()
+            (store / "nested" / "deeper").mkdir(parents=True)
+            outside.mkdir()
+            (store / "real.md").write_text("ok")
+            (outside / "real.md").write_text("outside")
+            (store / "inside").symlink_to(store / "nested" / "deeper", target_is_directory=True)
+            (store / "away").symlink_to(outside, target_is_directory=True)
+            def classify(dirname, link):
+                return mod.classify_link(link, root / ".working" / dirname / "notes.md",
+                                         root, physical_source=store / dirname / "notes.md")
+            self.assertEqual(mod.classify_link("real.md", root / ".working" / "notes.md",
+                                               root, physical_source=store / "notes.md"),
+                             ("in-repo-exists", "real.md"))
+            self.assertEqual(classify("inside", "../real.md"),
+                             ("in-repo-exists", "../real.md"))
+            self.assertEqual(classify("away", "../real.md"),
+                             ("ambiguous", "../real.md (outside or unjudgeable working store)"))
+
+    def test_nul_link_does_not_abort_audit(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "notes.md").write_text("[x](bad\0name.md)\n")
+            findings, _ = mod.audit_tree(root)
+            self.assertTrue(any(item[2] == "ambiguous" and "bad\0name.md" in item[4]
+                                for item in findings), findings)
+
+    def test_symlinked_public_root_uses_store(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, store = base / "public", base / "store"
+            root.mkdir()
+            store.mkdir()
+            (store / "real.md").write_text("ok")
+            alias = base / "public-alias"
+            alias.symlink_to(root, target_is_directory=True)
+            self.assertEqual(mod.classify_link(
+                "real.md", alias / ".working" / "notes.md", alias,
+                physical_source=store / "notes.md"), ("in-repo-exists", "real.md"))
+
+    def test_public_links_follow_resolved_paths(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            (root / "nested" / "deep").mkdir(parents=True)
+            (root / "nested" / "exists.md").write_text("ok")
+            (root / "jump").symlink_to(root / "nested" / "deep", target_is_directory=True)
+            (root / ".working").mkdir()
+            (root / ".working" / "private.md").write_text("working")
+            (root / "portal").symlink_to(root / ".working", target_is_directory=True)
+            source = root / "notes.md"
+            self.assertEqual(mod.classify_link("jump/../exists.md", source, root),
+                             ("in-repo-exists", "jump/../exists.md"))
+            self.assertEqual(mod.classify_link("portal/private.md", source, root),
+                             ("ambiguous", "portal/private.md (enters logical .working through symlink)"))
+
+    def test_absolute_public_alias_uses_resolved_root(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            root.mkdir()
+            (root / "exists.md").write_text("ok")
+            alias = base / "public-alias"
+            alias.symlink_to(root, target_is_directory=True)
+            target = str(alias / "exists.md")
+            source = root / "notes.md"
+            self.assertEqual(mod.classify_link(target, source, root),
+                             ("in-repo-exists", target))
+
+    def test_public_working_symlink_cannot_escape(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root, outside = base / "public", base / "outside"
+            root.mkdir()
+            outside.mkdir()
+            (outside / "exists.md").write_text("ok")
+            (root / ".working").symlink_to(outside, target_is_directory=True)
+            self.assertEqual(mod.classify_link(".working/exists.md", root / "notes.md", root),
+                             ("ambiguous", ".working/exists.md (resolves outside repo)"))
+
+    def test_nul_public_link_is_unjudgeable(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self.assertEqual(mod.classify_link("bad\0name.md", root / "notes.md", root),
+                             ("ambiguous", "bad\0name.md (unjudgeable logical target)"))
+
+    def test_working_root_source_is_unjudgeable(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            root = base / "public"
+            root.mkdir()
+            (base / "real.md").write_text("ok")
+            if ")" in str(base) or "#" in str(base):
+                self.skipTest("temporary path contains a link delimiter")
+            target = ".working/" + str(base.relative_to("/")) + "/real.md"
+            self.assertEqual(mod.classify_link(
+                target, root / ".working", root, physical_source=base / "store"),
+                ("ambiguous", target + " (outside or unjudgeable working store)"))
+
+    def test_shallow_or_relative_physical_source_is_unjudgeable(self):
+        mod = self._load()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for physical in (Path("a/b/c/notes.md"), Path("/notes.md")):
+                with self.subTest(physical=physical):
+                    self.assertEqual(mod.classify_link(
+                        "../real.md", root / ".working" / "nested" / "notes.md", root,
+                        physical_source=physical),
+                        ("ambiguous", "../real.md (outside or unjudgeable working store)"))
 
 
 class PreflightChangelogGitDiffTests(unittest.TestCase):
@@ -24778,6 +25122,20 @@ class SkillInternalRefsTests(LinterTestCase):
     """tools/lint-skill-internal-refs.py (gate 76)"""
 
     SCRIPT = "tools/lint-skill-internal-refs.py"
+
+    def test_symlink_tool_path_is_unjudgeable(self):
+        from unittest.mock import patch
+        with patch.object(sys, "path", [str(REPO_ROOT / "tools"), *sys.path]):
+            mod = load_linter_module(self.SCRIPT, "_skill_refs_containment")
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            tools = base / "tools"
+            tools.mkdir()
+            outside = base / "outside.py"
+            outside.write_text("pass\n")
+            (tools / "escape.py").symlink_to(outside)
+            self.assertEqual(mod._scan_line("Run tools/escape.py", tools),
+                             ["unjudgeable project tool path (`tools/escape.py`)"])
 
     def test_runs_clean_on_corpus_at_head(self):
         # Guard-first pairing: the one mild citation-quote-verification leak was

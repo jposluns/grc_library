@@ -587,22 +587,61 @@ def unresolved_link_targets(
             continue
         if any(marker in base for marker in CROSS_REPO_MARKERS):
             continue
-        logical_target = (logical_source.parent / base).resolve()
         try:
-            logical_target.relative_to(public_root)
-        except ValueError:
-            continue  # resolves outside this repo: treated as cross-repo
+            logical_path = Path(os.path.normpath(str(logical_source.parent / base)))
+        except (OSError, RuntimeError, ValueError):
+            findings.append(base)
+            continue
         try:
-            logical_target.relative_to(logical_working)
+            working_rel = logical_source.relative_to(logical_working)
+            logical_rel = logical_path.relative_to(logical_working)
         except ValueError:
-            # The link left logical .working but stayed in the public repo:
-            # resolve existence against the public corpus.
-            resolved = logical_target
-        else:
+            working_rel = None
+        if working_rel is not None:
+            if Path(base).is_absolute():
+                findings.append(base)  # a mirror link must not name logical .working absolutely
+                continue
+            if (not working_rel.parts or not physical_source.is_absolute()
+                    or len(physical_source.parents) < len(working_rel.parts)):
+                findings.append(base)  # the physical store root cannot be established
+                continue
             # The link stayed inside logical .working: follow the selected
             # physical working tree (a private-only mirror included).
-            resolved = (physical_source.parent / base).resolve()
-        if not resolved.exists():
+            try:
+                store_root = physical_source.parents[len(working_rel.parts) - 1].resolve()
+                physical_source.resolve().relative_to(store_root)
+                resolved = (store_root / logical_rel).resolve()
+                resolved.relative_to(store_root)
+            except (ValueError, OSError, RuntimeError):
+                findings.append(base)
+                continue
+        else:
+            try:
+                resolved = (logical_source.parent / base).resolve()
+                resolved.relative_to(public_root)
+            except ValueError:
+                if "\0" in base or logical_path.is_relative_to(logical_working):
+                    findings.append(base)
+                continue  # resolved outside this repo: treated as cross-repo
+            except (OSError, RuntimeError):
+                findings.append(base)
+                continue
+            # A public symlink may enter .working even when the authored path did not.
+            try:
+                resolved.relative_to(logical_working)
+            except ValueError:
+                pass
+            else:
+                try:
+                    logical_path.relative_to(logical_working)
+                except ValueError:
+                    findings.append(base)
+                    continue
+        try:
+            exists = resolved.exists()
+        except (OSError, RuntimeError, ValueError):
+            exists = False
+        if not exists:
             findings.append(base)
     return findings
 

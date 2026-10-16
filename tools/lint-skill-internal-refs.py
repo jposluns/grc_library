@@ -140,8 +140,14 @@ def _scan_line(line: str, tools_dir: Path) -> list[str]:
         hits.append(f"backlog-section reference ({m.group(0)!r})")
     for name in _PAT_TOOLPATH.findall(line):
         # Only a REAL project tool counts (a placeholder example does not).
-        if (tools_dir / name).is_file():
-            hits.append(f"project tool path (`tools/{name}`)")
+        try:
+            target = (tools_dir / name).resolve()
+            target.relative_to(tools_dir.resolve())
+        except (ValueError, OSError, RuntimeError):
+            hits.append(f"unjudgeable project tool path (`tools/{name}`)")
+        else:
+            if target.is_file():
+                hits.append(f"project tool path (`tools/{name}`)")
     if _PAT_REPO.search(line):
         hits.append(f"sibling-repo name ({_PAT_REPO.search(line).group(0)!r})")
     return hits
