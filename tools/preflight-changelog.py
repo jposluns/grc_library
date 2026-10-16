@@ -74,7 +74,7 @@ Exit codes:
     0   no spelling, dash, unlinked-reference, dangling-link, or D7-over-length issue in the added CHANGELOG lines
     1   one or more issues (do not commit until fixed)
     2   git invocation error: a ``git diff`` that fails (an unborn HEAD, or a directory that is not
-        a repository, an operational store or private sibling holding the mirror included) exits 2
+        a repository, including the operational store or private-sibling fallback holding the mirror) exits 2
         instead of reporting 0 added lines and passing (fail closed, 3b141 QA r1); or the gate-2
         language-engine child did not deliver a valid result (a load failure, an engine
         API violation, a crash, a timeout, exit 0 without the marked result line, or
@@ -571,7 +571,7 @@ def unresolved_link_targets(
     a test root without a divergent reimplementation. ``source_path`` is the
     PHYSICAL on-disk location of the source file when it differs from its logical
     ``root``/``source_rel_path`` location (the post-.working-move case: the mirror
-    is read from the private sibling). Link CLASSIFICATION stays logical against
+    is read from the operational store or private-sibling fallback). Link CLASSIFICATION stays logical against
     the public ``root``; link EXISTENCE follows the physical working tree for a
     target that stays inside logical ``.working/``, and the public ``root`` for a
     target that leaves ``.working/`` into the public corpus."""
@@ -666,8 +666,8 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
     """Every in-repo relative markdown-link target in the WHOLE detailed mirror
     that does NOT resolve. Returns ``(line_no, target, line_text)`` per dangling
     link. Reuses ``unresolved_link_targets`` (same rules). ``root=None`` (the
-    default) resolves the mirror via ``resolve_working`` (private sibling then
-    in-repo); an explicit ``root`` preserves the temp-fixture behaviour. Link
+    default) resolves the mirror via ``resolve_working`` (operational store first,
+    then private sibling, then in-repo); an explicit ``root`` preserves the temp-fixture behaviour. Link
     targets resolve against ``REPO_ROOT`` in the default case, since the mirror's
     references are authored relative to the public corpus. Returns [] if absent."""
     if root is None:
@@ -694,7 +694,7 @@ def unresolved_links_in_mirror(root: Path | None = None) -> list[tuple[int, str,
 
 def _foreign_repo_env() -> dict[str, str]:
     """This process's environment for a ``git diff`` in ANOTHER repository (the operational store or
-    the private sibling holding the mirror): every variable that ``git rev-parse --local-env-vars``
+    private-sibling fallback holding the mirror): every variable that ``git rev-parse --local-env-vars``
     names as local to one repository is dropped (GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE,
     GIT_OBJECT_DIRECTORY, GIT_ALTERNATE_OBJECT_DIRECTORIES, GIT_COMMON_DIR, GIT_CONFIG_PARAMETERS
     and the rest; git drops the same list before it enters a submodule), and every other variable
@@ -751,7 +751,7 @@ def _added_lines_from_repo(
 def added_lines(staged: bool, root: Path = REPO_ROOT) -> list[tuple[str, str]]:
     """Added CHANGELOG lines across the public repo AND the (post-move) private
     detailed mirror. The public root CHANGELOG.md (and, pre-move, the in-repo
-    mirror) come from this repo's diff; a private-sibling mirror gets its OWN
+    mirror) come from this repo's diff; a mirror in the operational store or private-sibling fallback gets its OWN
     repository-local ``git diff`` so private additions still receive the dash and
     unlinked-path checks. That diff runs without this repository's local git
     variables (:func:`_foreign_repo_env`), so ``--staged`` reads THAT repository's

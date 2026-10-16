@@ -8,7 +8,7 @@
 #
 # Scope note: `export-ignore` affects `git archive` only. The public `.working/`
 # tree was removed from this repository in PR2b-3 (its canonical copy lives in the
-# private sibling grc_library_private/.working/), so this block is retained as
+# operational store: `$GRC_STORE` or `<repo-parent>/private`), so this block is retained as
 # defence in depth: should any writer recreate a public `.working/`, it stays out
 # of release tarballs. The removed tree remains in this repository's git history;
 # true history cleanliness is a separate history-rewrite step.

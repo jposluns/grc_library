@@ -272,8 +272,9 @@ The `.working/` inputs and graceful degradation. Five of the six checks read
 maintainer-only working state (the validate-pr and improvement-log registers,
 the merge-bypass log, the detailed CHANGELOG mirror, the deep-assessment
 register). Those reads route through ``lint_common.resolve_working``, which
-prefers ``grc_library_private/.working/`` and returns None when neither the
-private sibling nor the in-repo ``.working/`` supplies the file. Each dependent
+prefers the operational store (``$GRC_STORE`` or ``<repo-parent>/private``),
+then the private sibling's ``.working/`` tree, then the in-repo
+``.working/``; it returns None when none supplies the file. Each dependent
 check then no-ops INDIVIDUALLY and the run reports which checks it skipped, so
 the closing OK line never asserts a check passed that never ran. Checks 2
 (TODO/DONE rotation) and 4 (version-history parity) read PUBLIC files and always
@@ -1371,7 +1372,7 @@ def todo_rotation_findings(todo_text: str) -> list[str]:
             findings.append(
                 f"  [todo-rotation] {TODO_PATH}:{lineno} carries a "
                 f"self-completion marker ({hit}): a closed item must be "
-                f"DELETED from TODO in this PR and rotated to the private-sibling "
+                f"DELETED from TODO in this PR and rotated to the operational store's "
                 f"DONE ledger (cross-repo), not annotated in place. Line: {line.strip()[:100]}"
             )
     return findings
@@ -1527,8 +1528,9 @@ def worker_provenance_findings(detailed_text: str, *, ceiling: int | StoreScope 
 
 def main() -> int:
     # The five `.working/`-tree inputs route through resolve_working: it prefers
-    # grc_library_private/.working/, falls back to the in-repo `.working/`, and
-    # returns None when neither supplies the file (public CI / adopter clone).
+    # the operational store ($GRC_STORE or <repo-parent>/private), then the
+    # private sibling's `.working/` tree, then the in-repo `.working/`;
+    # it returns None when none supplies the file (public CI / adopter clone).
     # Each private-dependent check then no-ops INDIVIDUALLY, so the two PUBLIC
     # checks (TODO/DONE rotation, version-history parity) run either way and the
     # gate keeps its full strength on the maintainer's machine.

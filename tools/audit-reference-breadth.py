@@ -457,8 +457,8 @@ def main(argv: list[str] | None = None) -> int:
             return 2
 
     # Working-state (.working/) resolution (post-.working-move): reads resolve via the read
-    # resolver (private sibling then in-repo, None when neither holds it -> empty history);
-    # an implicit maintainer --update-state REQUIRES the private sibling and refuses rather
+    # resolver (operational store, then private sibling, then in-repo; None when none holds it -> empty history);
+    # an implicit maintainer --update-state REQUIRES the operational store or private-sibling fallback and refuses rather
     # than recreate a public .working/ tree. An explicit --state is a deliberate adopter-local
     # override that keeps the caller's path (codex I-5).
     if args.state is None:

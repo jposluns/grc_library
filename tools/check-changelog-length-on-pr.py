@@ -10,7 +10,7 @@ ceiling.
 WHY THIS GATE EXISTS (maintainer-directed 2026-07-17). The root CHANGELOG.md
 carries one COMPACT one-line summary per change
 (``**YYYY-MM-DD | X.Y.Z | PR #N** - <short summary>``); the full maintainer-grade
-detail lives in the maintainer-grade detailed mirror (in the private-sibling working-state store) and in git history. Root
+detail lives in the maintainer-grade detailed mirror (in the operational store) and in git history. Root
 summaries have drifted back into long, dense, run-on paragraphs THREE times
 (#887-901, #902-914, #919-986), each time reformatted by hand and each time
 recurring while the earlier whole-file readability check was advisory only, so

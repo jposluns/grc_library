@@ -120,7 +120,7 @@ def merged_prs() -> set[int]:
 def latest_sweep_iteration(history_path: Path | None) -> tuple[int, int] | None:
     """Read sweep history file and return (sweep_n, iter_m) of the most
     recent row, or None if no rows present (or the file is absent, e.g.
-    when `.working/` has moved to the private sibling in public CI)."""
+    when `.working/` has moved to the operational store in public CI)."""
     if history_path is None or not history_path.exists():
         return None
     text = history_path.read_text(encoding="utf-8")
@@ -217,7 +217,7 @@ def main() -> int:
     cursor_path = resolve_working("session-handoff.md")
     if cursor_path is None:
         # The sweep cursor lives in the maintainer-only session-handoff file.
-        # Once `.working/` moves to the private sibling it is absent in public
+        # Once `.working/` moves to the operational store it is absent in public
         # CI / an adopter clone, so the sweep-cursor check no-ops there; the
         # public TODO.md queued-PR check above still ran.
         print(

@@ -5880,7 +5880,7 @@ class ChangelogOnPrTests(DeltaGateRepoTestCase):
 
     def test_root_changelog_only_passes(self) -> None:
         # Post-.working-move: D1 is root-CHANGELOG-only; the detailed mirror lives in the
-        # private sibling (cross-repo, invisible to a public diff), so a root-only edit passes.
+        # operational store (cross-repo, invisible to a public diff), so a root-only edit passes.
         tmp, base_sha, shutil = self._build_repo(
             self.BASE,
             {"CHANGELOG.md": "# Changelog\n\nNew entry.\n\nOld entry.\n"},
@@ -7212,7 +7212,7 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
     def test_block_public_working_write_hook_self_test(self) -> None:
         # The .working writer-contract recreate guard (PR2b-3): blocks a maintainer
         # WRITE that would RE-CREATE the deleted public grc_library/.working/ tree while
-        # _private/.working/ is the canonical store; allows removals, reads, adopter writes, the
+        # the operational store is canonical; allows removals, reads, adopter writes, the
         # escape. Its --self-test gates the FP-safety envelope.
         result = self._run_selftest(
             [sys.executable,
@@ -21024,8 +21024,8 @@ class ResolveSiblingTests(unittest.TestCase):
             self.addCleanup(os.environ.__setitem__, "GRC_STORE", prev)
 
     def test_resolve_working_prefers_private_then_local_then_none(self) -> None:
-        # resolve_working: grc_library_private/.working/<rel> preferred, then the
-        # in-repo .working/<rel>, else None (the .working -> _private migration).
+        # resolve_working (with no store present): grc_library_private/.working/<rel>
+        # preferred, then the in-repo .working/<rel>, else None.
         lc = self._lc()
         self._clear_grc_store()
         with tempfile.TemporaryDirectory() as td:
@@ -21333,7 +21333,7 @@ class ResolveSiblingTests(unittest.TestCase):
 class WorkingResolveNoOpTests(unittest.TestCase):
     """The six .working-reading gates rewired in PR #1227 (50/59/78/60/43/51)
     must NO-OP with exit 0 and an honest skip line when resolve_working returns
-    None (the .working -> grc_library_private/.working migration end-state: the
+    None (the .working move to the private sibling and then the operational store: the
     tree is absent in public CI and in an adopter clone). The other fixtures
     exercise only the EXPLICIT --root path; this class binds the DEFAULT
     resolve_working path so a broken default resolver, or a missing no-op
@@ -21422,7 +21422,7 @@ class WorkingResolveNoOpTests(unittest.TestCase):
 
     def test_gate51_display_path_external_is_absolute(self):
         # display_path renders an ABSOLUTE path for a file OUTSIDE the repo (the
-        # private sibling post-migration), so relative_to(REPO_ROOT) does not
+        # operational store or private-sibling fallback post-migration), so relative_to(REPO_ROOT) does not
         # raise ValueError on every finding; a repo-internal path stays relative.
         mod = self._load("lint-working-prose-hygiene.py")
         outside = Path("/tmp") / "grc_library_private" / ".working" / "x.md"
@@ -29073,7 +29073,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.11.0", "3b343 adds the gate 22 clause-citation filter is_citation_ip, a new public function, on top of 3b330 (MINOR, 0.10.0 to 0.11.0)")
+        self.assertEqual(man["pack"]["version"], "0.11.1", "3b306 rewords the todo-marked-done engine's rotation message, on top of 3b343's is_citation_ip (PATCH, 0.11.0 to 0.11.1)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -42153,8 +42153,8 @@ class AIQTCutoverTests(unittest.TestCase):
         # P-TODO 3b299: the always-loaded .claude/CLAUDE.md names the operational records at the
         # operational store, not the retired grc_library_private/.working/ tree or a private-repository
         # spelling. The one permitted mention is the complete backtick-delimited token
-        # `grc_library_private/.working/<f>` in the clause that points the old spelling still used in
-        # playbooks and commands to the tools/lint_common.py path resolvers. Each citation is counted,
+        # `grc_library_private/.working/<f>` in the clause that points transitional fallback reads
+        # to the tools/lint_common.py path resolvers. Each citation is counted,
         # so removing one of several fails. Reads the repository working-tree file only, never the
         # host's store.
         text = (REPO_ROOT / '.claude' / 'CLAUDE.md').read_text(encoding='utf-8')
@@ -42171,6 +42171,9 @@ class AIQTCutoverTests(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertEqual(text.count('`/opt/grc/private/' + name + '`'), count)
                 self.assertEqual(text.count('grc_library_private/' + name), 0)
+        resume = (REPO_ROOT / 'RESUME.md').read_text(encoding='utf-8')
+        self.assertEqual(resume.count('`/opt/grc/private/session-handoff.md`'), 2)
+        self.assertNotIn('grc_library_private/.working/', resume)
 
     def test_validate_relative_root(self):
         previous = Path.cwd()

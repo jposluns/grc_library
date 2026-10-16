@@ -53,9 +53,9 @@ def main() -> int:
     overnight_file = resolve_working("overnight-pr.md")
     if overnight_file is None:
         # The overnight-work file is maintainer-only working state. Once
-        # `.working/` moves to grc_library_private it is absent in public CI and
+        # `.working/` moves to the operational store it is absent in public CI and
         # in an adopter clone, so the gate no-ops there; on the maintainer's
-        # machine the private sibling supplies it and the protocol is enforced.
+        # machine the operational store (or the private-sibling fallback) supplies it and the protocol is enforced.
         print(
             "OK: overnight-pr.md not present (maintainer-only working state; "
             "skipping in public CI / adopter clone)."

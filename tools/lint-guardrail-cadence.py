@@ -36,9 +36,10 @@ Mechanics:
     not a skip.
   - An ABSENT history file is different, a deliberate narrowing of the stance
     above. The history is maintainer-only working state living in
-    ``grc_library_private/.working/``, so the DEFAULT lookup routes through
-    ``lint_common.resolve_working`` and the gate no-ops (exit 0) when neither
-    the private sibling nor the in-repo ``.working/`` supplies it. The
+    the operational store (``$GRC_STORE`` or ``<repo-parent>/private``), so
+    the DEFAULT lookup routes through ``lint_common.resolve_working``: store,
+    then the private sibling's ``.working/`` tree, then the
+    in-repo ``.working/``. The gate no-ops (exit 0) when none supplies it. The
     fail-closed rationale is about a record that is PRESENT but not maintained;
     it does not reach a public CI run or an adopter clone that never owed the
     review. On the maintainer's machine, where the record is kept, every
@@ -170,10 +171,10 @@ def main(argv: list[str]) -> int:
         resolved = resolve_working("guardrail-reviews/history.md")
         if resolved is None:
             # The guardrail-review history is maintainer-only working state.
-            # Once `.working/` moves to grc_library_private it is absent in
-            # public CI and adopter clones, so the cadence gate no-ops there; on
-            # the maintainer's machine the private sibling supplies it and the
-            # drift threshold is enforced in full. This NARROWS the deliberate
+            # When the operational store is absent in public CI and adopter
+            # clones, the cadence gate no-ops there; on the maintainer's machine
+            # the operational store supplies it, and the drift threshold is
+            # enforced in full. This NARROWS the deliberate
             # fail-closed stance to the case it was written for -- a record that
             # is PRESENT but not maintained. An absent private tree is not a
             # dishonoured convention, and failing on it would fail every adopter

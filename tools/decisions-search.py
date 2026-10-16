@@ -10,7 +10,8 @@ output: a recorded decision means act on it, never re-ask (the clarify-before-ac
 compute-first gate, the same executed-not-narrated discipline as ``ref-holds.py``). With the companion hook disabled (above), this on-demand search the
     orchestrator drives and quotes is now the sole control against re-asking a decided question.
 
-It searches the decision stores (whichever exist; adopter-safe):
+It searches the decision stores (whichever exist; adopter-safe). The
+``.working/`` paths below resolve from the operational store when present:
   - ``.working/pending-decisions.md``     (the live + resolved decision queue)
   - ``../grc_library_private/design-decisions.md``  (the durable design-decision record)
   - ``.working/DONE.md``                  (closed-item ledger, records the disposition)

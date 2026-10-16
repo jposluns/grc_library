@@ -158,7 +158,7 @@ def classify_link(
     target stays inside ``.working/`` or leaves it into the public corpus).
     ``physical_source`` is the source file's actual on-disk location when it
     differs (the post-.working-move case: a working-state file read from the
-    private sibling); a target that stays inside logical ``.working/`` then
+    operational store or the private-sibling fallback); a target that stays inside logical ``.working/`` then
     resolves for existence beside the PHYSICAL source, so a private-to-private
     working-state link is not misread as missing against a deleted public tree.
     """
@@ -180,7 +180,7 @@ def classify_link(
         if Path(target_no_anchor).is_absolute():
             return "ambiguous", f"{target} (absolute path into logical .working)"
         # The target stayed inside logical .working: resolve beside the physical
-        # source, which may be in the private sibling.
+        # source, which may be in the operational store or private sibling fallback.
         physical = physical_source or source
         if (not working_rel.parts or not physical.is_absolute()
                 or len(physical.parents) < len(working_rel.parts)):
@@ -304,7 +304,7 @@ def audit_tree(
     # link_base is the LOGICAL public source root: classify_link uses it to decide
     # whether a target stays inside `.working/` or leaves it. A target that stays
     # inside `.working/` resolves for existence beside the PHYSICAL source (passed
-    # separately), which may be the private sibling; a target that leaves `.working/`
+    # separately), which may be the operational store or private-sibling fallback; a target that leaves `.working/`
     # resolves against the public root. So a `.working`->`.working` link (e.g.
     # `../validate-sweeps/history.md`) follows the private tree and is not misread as
     # missing once the public `.working/` is deleted, while a `../CHANGELOG.md` still
@@ -533,7 +533,7 @@ def main(argv: list[str]) -> int:
         print(f"ERROR: unreadable content under --root {args.root} ({exc}); "
               f"the audit would be incomplete.", file=sys.stderr)
         return 2
-    # Post-migration the `.working/` tree lives in the private sibling (outside
+    # Post-migration the `.working/` tree lives in the operational store (outside
     # this root); audit it too so the `.working/` coverage this tool exists to
     # provide survives the move. While `.working/` is still in-repo it is already
     # covered by the root walk, so this branch does nothing.

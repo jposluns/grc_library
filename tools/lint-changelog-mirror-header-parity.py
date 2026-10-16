@@ -4,10 +4,10 @@
 The change-tracking discipline keeps two CHANGELOG surfaces in lock-step:
 the adopter-facing root ``CHANGELOG.md`` (compact one-line ``date | version | PR`` entries) and
 the maintainer-grade detailed mirror (full structured entries, now
-resolved from the private-sibling working-state store). Delta check D1
+resolved from the operational store). Delta check D1
 enforces, per commit, that a PR touches the root ``CHANGELOG.md`` (before
 PR #1235 it required BOTH files; the detailed mirror has since moved to the
-private-sibling working-state store, cross-repo and outside the public
+operational store, cross-repo and outside the public
 diff, so D1 no longer requires it); it does NOT check that the two carry
 the SAME set of per-PR
 entry headers (matched in BOTH the compact ``**date | version | PR #N**``
@@ -355,9 +355,9 @@ def main(argv: list[str]) -> int:
         resolved = resolve_working("changelog-details/CHANGELOG-detailed.md")
         if resolved is None:
             # The detailed mirror is maintainer-only working state. Once
-            # `.working/` moves to grc_library_private it is absent in public CI
+            # `.working/` moves to the operational store it is absent in public CI
             # and adopter clones, so the gate no-ops there; on the maintainer's
-            # machine the private sibling supplies it and per-PR header parity,
+            # machine the operational store (or the private-sibling fallback) supplies it and per-PR header parity,
             # version agreement, and ordering are all enforced.
             print(
                 "OK: the detailed CHANGELOG mirror is not present "

@@ -276,7 +276,7 @@ def _self_test() -> int:
     import unittest
 
     CLAUDE = ".claude/CLAUDE.md"
-    LEDGER = ".working/DONE.md"
+    LEDGER = ".working/DONE.md"  # Logical .working/ DONE ledger fixture
 
     class D9Tests(unittest.TestCase):
         # --- retired-id derivation (FP guard #1: renumber) ---

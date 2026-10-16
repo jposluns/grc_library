@@ -85,6 +85,6 @@ def run(files: list[Path], *, repo_root: Path) -> int:
 
     print(f"\nFAIL: {total} self-marked-done item(s) across {len(grouped)} file(s).")
     print("TODO is forward-looking: a closed item is DELETED from TODO in this PR;")
-    print("its DONE entry rotates cross-repo to the private sibling, not annotated")
+    print("its DONE entry rotates cross-repo to the operational store, not annotated")
     print("done-in-place. Rotate the item.")
     return 1

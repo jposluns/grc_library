@@ -105,9 +105,9 @@ run_check "D4 Per-PR Version-Date co-bump check" \
 
 # Delta gate D5: when a PR's added CHANGELOG lines assert a TODO-item
 # closure ("clos... TODO §X"), require the same diff to rotate the item
-# by touching the public TODO.md (the DONE ledger moved to the private-
-# sibling working-state store in PR #1235, cross-repo and outside the
-# public diff, so only the public TODO.md index rotation is enforced). PR-time companion of gate 57
+# by touching the public TODO.md (the DONE ledger is in the operational store,
+# cross-repo and outside the public diff, so only the public TODO.md index
+# rotation is enforced). PR-time companion of gate 57
 # (the static marked-done detector); catches the wholesale-forgotten
 # rotation where TODO.md is never edited.
 run_check "D5 Backlog-rotation-on-PR check" \

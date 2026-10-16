@@ -108,7 +108,7 @@ def _questions_text(payload: dict) -> str:
 
 
 # `.working/` -> `_private` migration: resolve the (maintainer-only) working-state file through
-# lint_common.resolve_working (private sibling preferred, in-repo fallback). Fail-SAFE: if the
+# lint_common.resolve_working (the operational store, /opt/grc/private by default, preferred; then the private sibling, then in-repo). Fail-SAFE: if the
 # helper cannot be imported, fall back to the historical in-repo path so this hook never breaks.
 def _load_sibling(name, _cache={}):
     """Execute a reviewed repository helper's .py SOURCE BYTES and return the module.

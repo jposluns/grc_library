@@ -65,7 +65,8 @@ if _TOOLS_DIR not in sys.path:
 from lint_common import REPO_ROOT, resolve_working  # noqa: E402
 
 # The surfaces whose blocks the GR-P3 class lives in: the backlog and the
-# working ledgers whose rows are rewritten in place.
+# working ledgers whose rows are rewritten in place. The `.working/`
+# paths resolve from the operational store when present.
 SCANNED_FILES = (
     "TODO.md",
     "TODO-REFERENCE.md",
@@ -84,7 +85,7 @@ def git_diffable_targets() -> tuple[list[str], list[str]]:
     """(files, skipped): the scanned surfaces `git diff` on the public repo can
     see, plus the `.working/` surfaces it cannot. A public target always
     qualifies; a `.working/` target qualifies only while it resolves in-repo
-    (pre-migration). Once it resolves into the private sibling, the public
+    (pre-migration). Once it resolves into the operational store or private-sibling fallback, the public
     `git diff` cannot reach it, so it is skipped with an honest note (the
     private ledgers' block-tension scan becomes a private-repo concern)."""
     files = list(_PUBLIC_TARGETS)
