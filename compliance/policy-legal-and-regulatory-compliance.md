@@ -2,8 +2,8 @@
 
 **Document Title:** Legal and Regulatory Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.28\
-**Date:** 2026-10-04\
+**Version:** 1.0.29\
+**Date:** 2026-10-16\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`risk/policy-enterprise-governance-and-risk-management.md`](../risk/policy-enterprise-governance-and-risk-management.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/procedure-supplier-audit.md`](../supply-chain/procedure-supplier-audit.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md)\
@@ -138,7 +138,7 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer for tr
 | Framework | Reference | Relevance |
 | --- | --- | --- |
 | ISO 37301:2021 | Clauses 4 to 10 (compliance management system) | CMS structure, obligations register, CAPA |
-| COBIT 2019 | MEA03, Monitor Compliance; APO12, Managed Risk | Regulatory governance, compliance metrics |
+| COBIT 2019 | MEA03, Managed Compliance With External Requirements; APO12, Managed Risk | Regulatory governance, compliance metrics |
 | CSA CCM v4.1 | GRC-01 to GRC-08: Compliance governance | Control mapping and compliance reporting |
 | ISO/IEC 27001:2022 | Annex A: Information security controls | Security compliance evidence |
 | ISO 28000:2022 | Supply-Chain Security and Resilience | Trade compliance controls |
