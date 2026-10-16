@@ -62,9 +62,11 @@ FP-safety is paramount (a gate that cries wolf gets bypassed):
     which has no regex-escaping or windowing failure mode.
 
 ``--root`` overrides the repository root the two inputs are read from (the
-regression fixtures point it at a synthetic tree). ``--self-test`` builds
+regression fixtures point it at a synthetic tree). Both fixed inputs must
+resolve within that root. ``--self-test`` builds
 synthetic positive/negative trees in a tempdir and verifies detection, then
 exits 0 only if every self-test assertion holds.
+This point-in-time check cannot stop a symlink swapped after resolution or a hard-link alias.
 
 Stdlib-only Python 3.11.
 """
@@ -287,8 +289,18 @@ def run_checks(root: Path) -> tuple[list[str], list[str]]:
 
     Raises ManifestError (exit 2) when a required input is missing/unparseable.
     """
-    claude_path = root / CLAUDE_REL
-    manifest_path = root / MANIFEST_REL
+    try:
+        claude_path = join_under(root, CLAUDE_REL)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        claude_path = root / CLAUDE_REL
+    try:
+        manifest_path = join_under(root, MANIFEST_REL)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        manifest_path = root / MANIFEST_REL
     if not claude_path.is_file():
         raise ManifestError(f"required file not found: {CLAUDE_REL}")
     if not manifest_path.is_file():
