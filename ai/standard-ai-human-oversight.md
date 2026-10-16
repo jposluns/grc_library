@@ -2,8 +2,8 @@
 
 **Document Title:** AI Human-Oversight Standard\
 **Document Type:** Standard\
-**Version:** 0.0.7\
-**Date:** 2026-09-20\
+**Version:** 0.0.8\
+**Date:** 2026-10-16\
 **Owner:** AI Governance Lead\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`ai/standard-ai-model-risk.md`](standard-ai-model-risk.md), [`ai/standard-ai-access-and-agent-permissions.md`](standard-ai-access-and-agent-permissions.md), [`ai/standard-ai-and-agentic-development-security.md`](standard-ai-and-agentic-development-security.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/guideline-ethical-ai-use.md`](guideline-ethical-ai-use.md), [`privacy/register-automated-decision-making.md`](../privacy/register-automated-decision-making.md), [`governance/principle-capability-is-not-authority.md`](../governance/principle-capability-is-not-authority.md)\
@@ -46,7 +46,7 @@ It also depends on the access-governance principle that capability is not author
 
 ### 4.1 Oversight assignment
 
-Human oversight is assigned to named natural persons who have the competence, training, authority, and organizational support to exercise it (EU AI Act Article 26(2)). The assignment records the overseer, the system, the oversight mode (section 4.2), and the scope of decisions the overseer may take; it is documented in the AI System Register and reviewed at least annually. An overseer's authority to override, interrupt, or disregard the system is part of the recorded assignment, not an inherent property of access.
+Human oversight is assigned to named natural persons who have the competence, training, authority, and organizational support to exercise it (EU AI Act Article 26(2)). The Article 26 statutory duty applies from 2 December 2027 for Article 6(2)/Annex III systems and 2 August 2028 for Article 6(1)/Annex I systems (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744); earlier assignment is an internal control. The assignment records the overseer, the system, the oversight mode (section 4.2), and the scope of decisions the overseer may take; it is documented in the AI System Register and reviewed at least annually. An overseer's authority to override, interrupt, or disregard the system is part of the recorded assignment, not an inherent property of access.
 
 ### 4.2 The six-mode human-AI interaction taxonomy
 

@@ -2,8 +2,8 @@
 
 **Document Title:** AI Algorithmic Compliance Checklist\
 **Document Type:** Checklist\
-**Version:** 1.0.17\
-**Date:** 2026-09-25\
+**Version:** 1.0.18\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](policy-ai-compliance.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/template-model-card.md`](template-model-card.md), [`ai/template-system-card.md`](template-system-card.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md)\
@@ -126,11 +126,11 @@ The checklist is completed by the AI System Owner in the first instance, reviewe
 | # | Control Item | Status (Yes / No / Partial / N/A) | Evidence | Owner | Notes |
 |---|---|---|---|---|---|
 | E1 | EU AI Act compliance obligations identified and documented for this specific system: risk tier confirmed; applicable Articles listed; deployer obligations addressed | | | | |
-| E2 | Canada automated-decision-making governance assessed and documented: applicability of the TBS Directive on Automated Decision-Making determined (binding on federal institutions subject to the Policy on Service and Digital; a leading-practice benchmark otherwise); ISED Voluntary Code commitments considered for generative-AI systems; AIDA tracked as a lapsed planning indicator (Bill C-27 died on the 2025-01-06 prorogation; the responsible Minister has stated it will not return in its original form), monitored for any successor AI-governance instrument rather than treated as pending reintroduction | | | | |
+| E2 | Canada automated-decision-making governance assessed and documented: applicability of the TBS Directive on Automated Decision-Making determined (binding on federal institutions subject to the Policy on Service and Digital; a leading-practice benchmark otherwise); ISED Voluntary Code commitments considered for generative-AI systems; AIDA tracked as a lapsed planning indicator (Bill C-27 died on the 2025-01-06 prorogation; per a June 2025 ministerial statement not held in the reference base, AIDA is reported not to return in its original form, which an adopter confirms directly), monitored for any successor AI-governance instrument rather than treated as pending reintroduction <!-- ref-absence: AIDA ministerial statement --> | | | | |
 | E3 | UK AI regulation framework reviewed: the five cross-sectoral principles mapped to AI-governance controls; ICO AI and data protection guidance and applicable sector regulators' AI guidance considered | | | | |
 | E4 | ISO/IEC 42001:2023 alignment gaps for this system identified and tracked: gaps are recorded in the CAPA system and assigned to owners | | | | |
 | E5 | Post-market monitoring plan in place for high-risk systems: plan documents metrics, thresholds, frequency, responsible party, and escalation path | | | | |
-| E6 | Serious incident reporting pathway to competent authority established: reporting contacts documented; internal escalation path tested; the EU AI Act Art. 73 reporting deadlines acknowledged (15 days general; no later than 2 days for a widespread infringement or critical-infrastructure disruption; no later than 10 days for a fatality) | | | | |
+| E6 | Serious incident reporting pathway established: reporting contacts documented; internal escalation path tested; the EU AI Act Art. 73 reporting deadlines acknowledged (15 days general; no later than 2 days for a widespread infringement or critical-infrastructure disruption; no later than 10 days for a fatality); provider recipients are the market surveillance authorities of the Member States where the incident occurred under Article 73(1), or the AI Office for systems within its Article 75(1) competence under Article 75(1a), with the AI Office transmitting the information to the market surveillance authority of the Member State in whose territory the provider or its legal representative is situated | | | | |
 
 ---
 

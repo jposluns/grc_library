@@ -2,8 +2,8 @@
 
 **Document Title:** AI Compliance Policy\
 **Document Type:** Policy\
-**Version:** 1.0.36\
-**Date:** 2026-10-12\
+**Version:** 1.0.37\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`ai/procedure-ai-system-impact-assessment.md`](procedure-ai-system-impact-assessment.md), [`ai/template-ai-system-register.md`](template-ai-system-register.md), [`ai/standard-ai-security-and-risk.md`](standard-ai-security-and-risk.md), [`privacy/policy-privacy-and-data-governance.md`](../privacy/policy-privacy-and-data-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](../compliance/register-global-regulatory-applicability.md), [`ai/standard-ai-human-oversight.md`](standard-ai-human-oversight.md), [`security/procedure-security-incident-response.md`](../security/procedure-security-incident-response.md), [`ai/plan-ai-incident-response.md`](plan-ai-incident-response.md)\
@@ -22,7 +22,7 @@
 
 This policy establishes the organization's obligations and commitments for AI regulatory compliance. It defines the classification of AI systems, the governance structures accountable for compliance, the obligations that apply to the organization as an AI deployer and, where relevant, as a provider, and the obligations that arise under applicable national and international AI governance frameworks.
 
-The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and the UK's principles-based AI regulation framework (the CP 815 white paper and the CP 1019 government response). Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and, per the responsible Minister's June 2025 statement, will not return in its original form, so adopting entities treat it as a lapsed planning indicator rather than a binding instrument, monitor for any successor AI-governance instrument, and align in the meantime to the in-force Canadian instruments set out in Section 7.2.
+The policy is grounded in the EU AI Act 2024, ISO/IEC 42001:2023, NIST AI Risk Management Framework 1.0 (with the AI 600-1 Generative AI Profile), the OECD AI Principles (2019 Recommendation as updated 2024), and the UK's principles-based AI regulation framework (the CP 815 white paper and the CP 1019 government response). Canada's proposed Artificial Intelligence and Data Act (AIDA) is retained only as a lapsed planning indicator: AIDA lapsed with Bill C-27 at the January 2025 prorogation and, per a June 2025 ministerial statement not held in the reference base, is reported not to return in its original form (an adopter confirms the current position directly). Adopting entities monitor for a successor and align in the meantime to the in-force Canadian instruments in Section 7.2. <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
 
 ### 1.2 Scope
 
@@ -100,6 +100,8 @@ All AI systems must be classified before deployment. Classification determines t
 
 Where the organization deploys a high-risk AI system (as classified under Section 4), the following obligations apply.
 
+The Chapter III, Sections 1 to 3 statutory obligations cited in this section (except Article 6(5)) apply from 2 December 2027 for systems classified under Article 6(2) and Annex III, and from 2 August 2028 for systems classified under Article 6(1) and Annex I (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744). The organization may implement the controls earlier as internal policy; an early control does not imply that its statutory deadline has arrived.
+
 ### 5.1 Registration
 
 High-risk AI systems used in contexts covered by EU AI Act Annex III must be registered in the EU database of high-risk AI systems by the deployer, where required by the applicable provision. The AI System Owner is responsible for initiating and maintaining this registration, with Legal support.
@@ -133,7 +135,7 @@ Human oversight assignments must be documented in the AI System Register and rev
 
 ### 5.4 Incident reporting
 
-Where the organization, acting as a deployer, identifies a serious incident involving a high-risk AI system, it must immediately inform first the provider, and then the importer or distributor and the relevant market surveillance authorities of the incident (EU AI Act Article 26(5)). If the provider cannot be reached, the Article 73 reporting procedure in Section 10 applies mutatis mutandis. Other AI-related incidents involving high-risk AI systems must be reported in accordance with Section 10 of this policy.
+Where the organization, acting as a deployer, identifies a serious incident involving a high-risk AI system, it informs first the provider, and then the importer or distributor and the relevant market surveillance authorities under EU AI Act Article 26(5). If the organization cannot reach the provider, the Article 73 procedure in Section 10 applies to it mutatis mutandis (Article 26(5)), and it reports to the market surveillance authorities of the Member States where the incident occurred (Article 73(1)). Article 75(1a) moves serious-incident reporting to the AI Office for providers only. Where the organization is itself the provider, it reports as provider (to the AI Office under Article 75(1a) for a system within the AI Office's competence). For a deployer of a system within the AI Office's Article 75(1) competence that is a separate entity in the provider's undertaking, the held texts do not state the recipient of a fallback report; Legal confirms it. Other AI-related incidents involving high-risk AI systems are reported in accordance with Section 10 of this policy. The statutory Article 26 duty follows the application dates in Section 5; earlier internal escalation remains required.
 
 ---
 
@@ -185,7 +187,7 @@ Key compliance obligations:
 
 ### 7.2 Canada: automated decision-making governance
 
-Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation and, per the June 2025 ministerial statement, will not return in its original form (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments:
+Canada has no in-force federal AI statute. The Artificial Intelligence and Data Act (AIDA), introduced as Part 3 of Bill C-27, lapsed when that bill died at the January 2025 prorogation. Per a June 2025 ministerial statement not held in the reference base, AIDA is reported not to return in its original form; an adopter confirms the current position directly (Section 1.1). Pending a successor, where the organization operates in Canada or processes data in connection with Canadian operations it aligns to the in-force Canadian instruments: <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
 
 - **Treasury Board Directive on Automated Decision-Making**, the mandatory federal instrument governing automated decision systems. It binds federal government institutions subject to the Policy on Service and Digital; other organizations use it as a leading-practice benchmark. Where the organization is such an in-scope institution or delivers automated decisions on behalf of one, it complies with the Directive's requirements, using the **Algorithmic Impact Assessment (AIA)** tool to classify and document each automated decision system by impact level.
 - **ISED Voluntary Code of Conduct on the Responsible Development and Management of Advanced Generative AI Systems (2023)**, the voluntary code for advanced generative-AI systems. The organization adopts its commitments (accountability; safety; fairness and equity; transparency; human oversight and monitoring; and validity and robustness) for generative-AI systems it develops or manages, pending binding legislation.
@@ -312,7 +314,7 @@ The person who detects an AI incident, or first receives notice of it, must repo
 
 ### 10.3 External reporting: EU AI act
 
-For a serious incident involving a high-risk AI system, the organization's primary duty as a deployer is the Article 26(5) notification described in Section 5.4. Where the organization cannot reach the provider, the Article 73 reporting procedure applies mutatis mutandis and the organization reports to the relevant national market surveillance authority:
+For a serious incident involving a high-risk AI system, the organization's primary duty as a deployer is the Article 26(5) notification described in Section 5.4, when that duty applies. If the organization cannot reach the provider, the Article 73 procedure applies to it mutatis mutandis (Article 26(5)), and it reports to the market surveillance authorities of the Member States where the incident occurred (Article 73(1)). Article 75(1a) moves serious-incident reporting to the AI Office for providers only. Where the organization is itself the provider, it reports as provider (to the AI Office under Article 75(1a) for a system within the AI Office's competence). For a deployer of a system within the AI Office's Article 75(1) competence that is a separate entity in the provider's undertaking, the held texts do not state the recipient of a fallback report; Legal confirms it. Providers report to the market surveillance authorities of the Member States where the incident occurred under Article 73(1), while a provider of a high-risk AI system within the AI Office's Article 75(1) competence reports to the AI Office under Article 75(1a). The AI Office promptly transmits the relevant information to the market surveillance authority of the Member State in whose territory the provider or its legal representative is situated. The Article 73 deadlines are:
 
 - **Immediately** after establishing a causal link, or its reasonable likelihood, between the AI system and the incident, and in any event **within 15 days** of becoming aware of it (EU AI Act Art. 73(2)).
 - **Immediately, and no later than 2 days** after becoming aware of it, where the serious incident is a widespread infringement or a serious and irreversible disruption of the management or operation of critical infrastructure (Art. 73(3), referencing Art. 3(49)(b)).

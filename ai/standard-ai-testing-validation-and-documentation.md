@@ -2,8 +2,8 @@
 
 **Document Title:** AI Testing, Validation and Documentation Standard\
 **Document Type:** Standard\
-**Version:** 1.0.10\
-**Date:** 2026-09-25\
+**Version:** 1.0.11\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md), [`ai/procedure-ai-audit.md`](procedure-ai-audit.md), [`ai/checklist-ai-algorithmic-compliance.md`](checklist-ai-algorithmic-compliance.md), [`dev-security/policy-secure-development-and-engineering.md`](../dev-security/policy-secure-development-and-engineering.md)\
@@ -55,7 +55,7 @@ All AI systems must maintain current documentation covering:
 | **Deployment Record** | Target environment, integration points, monitoring configuration, rollback plan |
 | **Change Log** | Version history, retraining events, performance drift events, incident history |
 
-High-risk AI systems (EU AI Act Annex III) must maintain technical documentation per EU AI Act Annex IV.
+High-risk AI systems (EU AI Act Annex III) maintain technical documentation per EU AI Act Annex IV. As a statutory Chapter III, Sections 1 to 3 obligation, this applies from 2 December 2027 for Article 6(2)/Annex III systems and from 2 August 2028 for Article 6(1)/Annex I systems (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744); earlier documentation is an internal control.
 
 ---
 

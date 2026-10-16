@@ -2,8 +2,8 @@
 
 **Document Title:** AI Audit Procedure\
 **Document Type:** Procedure\
-**Version:** 1.1.9\
-**Date:** 2026-10-13\
+**Version:** 1.1.10\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/framework-ai-system-audit-certification.md`](framework-ai-system-audit-certification.md), [`compliance/standard-internal-audit.md`](../compliance/standard-internal-audit.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md)\
@@ -93,7 +93,7 @@ Applies to all AI systems in the AI System Inventory, including production AI mo
 
 4.2 Auditors validate that bias mitigation, explainability, and safety controls function as documented.
 
-4.3 For high-risk AI systems, auditors independently verify EU AI Act Annex IV documentation completeness.
+4.3 For high-risk AI systems, auditors independently verify EU AI Act Annex IV documentation completeness. This is an internal audit control before the Chapter III, Sections 1 to 3 statutory application dates: 2 December 2027 for Article 6(2)/Annex III systems and 2 August 2028 for Article 6(1)/Annex I systems (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744).
 
 ---
 

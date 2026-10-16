@@ -2,8 +2,8 @@
 
 **Document Title:** ESG and AI Ethics Disclosure Guideline\
 **Document Type:** Guideline\
-**Version:** 1.1.10\
-**Date:** 2026-09-25\
+**Version:** 1.1.11\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`governance/framework-sustainability-and-responsible-technology.md`](framework-sustainability-and-responsible-technology.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md), [`ai/guideline-ethical-ai-use.md`](../ai/guideline-ethical-ai-use.md), [`governance/framework-human-capital-and-ethical-conduct.md`](framework-human-capital-and-ethical-conduct.md)\
@@ -112,6 +112,8 @@ The organization aligns its ESG and AI ethics disclosures with the following sta
 | EU AI Act | High-risk AI system disclosures to competent authorities |
 | GPAI Model Governance Playbook | AI model governance disclosures |
 | ISO/IEC 42001:2023 | Organization-defined AI management system disclosures informed by §7.4 and A.8 |
+
+The EU AI Act Chapter III, Sections 1 to 3 high-risk duties referenced here (except Article 6(5)) apply from 2 December 2027 for Article 6(2)/Annex III systems and 2 August 2028 for Article 6(1)/Annex I systems under Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744. Earlier disclosure metrics are organizational practice.
 
 ---
 
