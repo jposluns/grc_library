@@ -33,6 +33,8 @@ Usage:
 
 Exit codes: 0 for advice, 2 for usage errors or containment refusals, and
 1 for lookup errors (with the report's partial standard output preserved).
+Fixed control-file inputs refuse containment escapes while unavailable inputs remain advisory unknowns.
+This point-in-time check cannot stop a symlink swapped after resolution or a hard-link alias.
 """
 
 from __future__ import annotations
@@ -170,6 +172,16 @@ def referenced_paths(file_rel: str) -> set[str]:
     return set(PATH_IN_CODESPAN.findall(text))
 
 
+def fixed_input_path(root: Path, rel: str) -> Path:
+    """Check containment and return the lexical path; retain advisory lookup failures."""
+    try:
+        return join_under(root, rel)
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        return root / rel
+
+
 def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
     """Scripts of the generator --check stages the pre-push guard runs, in run order.
 
@@ -177,12 +189,12 @@ def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
     (``tools/<name>.sh``) in place, and keeps each ``python3 <script>.py ...
     --check`` stage whose script exists (the guard skips an absent
     .web/build.py). None when the guard or a runner it names cannot be read
-    (absent, unreadable, or not UTF-8).
+    (absent, unreadable, or not UTF-8). A containment refusal propagates.
     """
     found: list[str] = []
 
     def walk(rel: str, expand_runners: bool) -> bool:
-        path = root / rel
+        path = fixed_input_path(root, rel)
         try:
             text = read_text_safe(path) if path.is_file() else None
         except OSError:  # read_text_safe surfaces filesystem errors; this helper is advisory
@@ -198,7 +210,7 @@ def guard_generators(root: Path = REPO_ROOT) -> list[str] | None:
             m = CHECK_STAGE_RE.match(line)
             if m and "--check" in m.group(2).split():
                 script = m.group(1)
-                if script not in found and (root / script).is_file():
+                if script not in found and fixed_input_path(root, script).is_file():
                     found.append(script)
         return True
 
@@ -211,8 +223,9 @@ def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
     Parses the builder (never imports it) and returns the string-literal tuple that a
     ``for`` loop in ``iter_all_docs()`` walks (the first such loop in ast.walk order when
     there are several). None when the builder cannot be read or parsed, or no such loop is found.
+    A containment refusal propagates.
     """
-    path = root / TAXONOMY_BUILDER
+    path = fixed_input_path(root, TAXONOMY_BUILDER)
     try:
         text = read_text_safe(path) if path.is_file() else None
         tree = ast.parse(text) if text is not None else None
@@ -234,12 +247,21 @@ def indexed_root_documents(root: Path = REPO_ROOT) -> tuple[str, ...] | None:
     return None
 
 
-def report_regenerate(domain: str | None) -> None:
+_UNPLANNED = object()
+
+
+def planned_generators() -> list[str] | None:
     generators = guard_generators()
     if generators is not None and any(
-        a not in generators and (REPO_ROOT / a).is_file() for a in ANCHORS
+        a not in generators and fixed_input_path(REPO_ROOT, a).is_file() for a in ANCHORS
     ):
         generators = None  # a partial derivation is reported as unknown, never listed
+    return generators
+
+
+def report_regenerate(domain: str | None, generators=_UNPLANNED) -> None:
+    if generators is _UNPLANNED:
+        generators = planned_generators()
     if generators is None:
         print(
             f"    [unknown] could not read the generator stages from {GUARD} or a runner "
@@ -305,24 +327,42 @@ def document_path(doc_path: str) -> Path | None:
         return REPO_ROOT / doc_path
 
 
-def preflight(docs: list[str]) -> list[tuple[str, str | None, list[str], Exception | None]]:
-    """Verify all planned paths before the first report write."""
+def preflight(
+    docs: list[str],
+) -> list[tuple[tuple[str, str | None, list[str], Exception | None], tuple[str, ...] | None, object]]:
+    """Verify planned paths and compute the taxonomy index and generator plan before reporting.
+
+    Return (report plan, indexed root documents, generators) for each document.
+    Compute the index only when a root document is planned (otherwise None),
+    and the generator plan only when a document needs regeneration
+    (otherwise _UNPLANNED).
+    """
     plans = []
+    root_documents = False
     for doc in docs:
-        document_path(doc)
+        path = document_path(doc)
         plan = report_paths(doc)
-        plans.append(plan)
+        plans.append((plan, path is None))
         _normalized, readme, matrices, _error = plan
+        if path is not None and readme is None:
+            root_documents = True
         for surface in ([REGISTER, readme, *matrices] if readme is not None else []):
             try:
                 join_under(REPO_ROOT, surface)
             except PathContainmentError as exc:
                 if is_containment_refusal(exc):
                     raise
-    return plans
+    indexed = indexed_root_documents() if root_documents else None
+    needs_regeneration = any(
+        not exempt and (plan[1] is not None or
+                        (indexed is not None and plan[0] in indexed))
+        for plan, exempt in plans
+    )
+    generators = planned_generators() if needs_regeneration else _UNPLANNED
+    return [(plan, indexed, generators) for plan, _exempt in plans]
 
 
-def report_one(doc_path: str, plan=None) -> None:
+def report_one(doc_path: str, plan=None, indexed=_UNPLANNED, generators=_UNPLANNED) -> None:
     path = document_path(doc_path)
     doc_path, readme, matrices, discovery_error = plan or report_paths(doc_path)
     if path is None:
@@ -349,7 +389,8 @@ def report_one(doc_path: str, plan=None) -> None:
             "meta-specifications, so no hand-edited MECHANICAL surface applies. "
             "Confirm this is an intentional root-level document."
         )
-        indexed = indexed_root_documents()
+        if indexed is _UNPLANNED:
+            indexed = indexed_root_documents()
         if indexed is None:
             print(
                 f"    [unknown] could not read the root specifications iter_all_docs() in "
@@ -357,7 +398,7 @@ def report_one(doc_path: str, plan=None) -> None:
             )
         elif doc_path in indexed:
             print("    taxonomy.yml indexes it (domain \"root\"), so the corpus generators apply.")
-            report_regenerate(domain)
+            report_regenerate(domain, generators)
         else:
             print(
                 f"    [add] {TAXONOMY_BUILDER} indexes only its named root specifications "
@@ -397,7 +438,7 @@ def report_one(doc_path: str, plan=None) -> None:
             f"    [n/a] {readme} does not exist -- '{domain}/' is not a corpus "
             f"domain with a README (no MECHANICAL domain-README surface applies)."
         )
-    report_regenerate(domain)
+    report_regenerate(domain, generators)
 
     # --- SEMANTIC surfaces (ranked candidates, not gated) ---
     kw = keywords(doc_path)
@@ -466,8 +507,8 @@ def main(argv: list[str]) -> int:
             "lint-listing-surface-completeness.py (register + domain README) and "
             f"the generator --check stages of {GUARD}; SEMANTIC surfaces are advisory."
         )
-        for doc_path, plan in zip(docs, plans):
-            report_one(doc_path, plan)
+        for doc_path, (plan, indexed, generators) in zip(docs, plans):
+            report_one(doc_path, plan, indexed, generators)
     except PathContainmentError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

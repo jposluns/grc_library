@@ -41,7 +41,9 @@ Usage:
     python3 tools/audit-gate-blindspots.py --unscanned-only
 
 Stdlib-only Python 3.11. This script requires the adjacent lint_common.py
-module for shared path-containment checks.
+module for shared path-containment checks. The runner and the lint_common.py
+source inspected under ``--root`` must resolve within that root.
+This point-in-time check cannot stop a symlink swapped after resolution or a hard-link alias.
 """
 
 from __future__ import annotations
@@ -170,7 +172,12 @@ def derive_scope(root: Path, name: str, script: str) -> GateScope:
 
 
 def load_gates(root: Path) -> list[GateScope]:
-    runner = root / "tools" / "run_all_audits.sh"
+    try:
+        runner = join_under(root, "tools/run_all_audits.sh")
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        runner = root / "tools/run_all_audits.sh"
     if not runner.is_file():
         raise RuntimeError(f"runner not found: {runner}")
     gates: list[GateScope] = []
@@ -183,7 +190,13 @@ def load_gates(root: Path) -> list[GateScope]:
 
 def default_exempt_dirs(root: Path) -> frozenset[str]:
     """Read DEFAULT_EXEMPT_DIRS from lint_common by importing its source safely."""
-    src = (root / "tools" / "lint_common.py").read_text(
+    try:
+        path = join_under(root, "tools/lint_common.py")
+    except PathContainmentError as exc:
+        if is_containment_refusal(exc):
+            raise
+        path = root / "tools/lint_common.py"
+    src = path.read_text(
         encoding="utf-8", errors="replace"
     )
     tree = ast.parse(src)

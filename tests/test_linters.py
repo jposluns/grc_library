@@ -31171,9 +31171,9 @@ class SuggestListingSurfacesTests(unittest.TestCase):
 
     TOOL = str(REPO_ROOT / "tools/suggest-listing-surfaces.py")
 
-    def _run(self, arg):
+    def _run(self, *args):
         import subprocess
-        return subprocess.run([sys.executable, self.TOOL, arg],
+        return subprocess.run([sys.executable, self.TOOL, *args],
                               capture_output=True, text=True)
 
     def test_domain_without_readme_does_not_crash(self):
@@ -31247,6 +31247,83 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         line = next(row for row in r.stdout.splitlines() if "[add]" in row)
         self.assertIn("iter_all_docs() in tools/build-taxonomy.py", line)
 
+    def test_mixed_document_kinds_match_individual_reports(self):
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        load_linter_module("tools/aiqt_bootstrap.py", "_sls_bootstrap").ensure_on_path()
+        path_patch = patch.object(sys, "path", list(sys.path))
+        path_patch.start()
+        self.addCleanup(path_patch.stop)
+        helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_mixed")
+        td = Path(tempfile.mkdtemp(prefix="sls-mixed-"))
+        self.addCleanup(shutil.rmtree, td)
+        for rel, body in {
+            "ai/README.md": "# AI\n",
+            "governance/register-document-index-and-classification.md": "# Register\n",
+            "ai/standard-proposed-listing-probe.md": "# AI document\n",
+            "nonexistent/foo.md": "# No README\n",
+            "executive/briefs/proposed-listing-probe.md": "# Executive document\n",
+            "specification-master-project.md": "# Indexed root\n",
+            "specification-proposed-listing-probe.md": "# Unindexed root\n",
+            ".working/missing.md": "# Working document\n",
+            ".corpus-management/fixture.md": "# Exempt document\n",
+            "tools/build-taxonomy.py": (
+                "def iter_all_docs():\n"
+                "    for name in ('specification-master-project.md',):\n"
+                "        yield name\n"
+            ),
+            "tools/build-portal.py": "",
+            "tools/build-narrative-registry.py": "",
+            ".web/build.py": "",
+            "tools/pre-push-guard.sh": (
+                "python3 tools/build-taxonomy.py --check\n"
+                "python3 tools/build-portal.py --check\n"
+                "python3 tools/build-narrative-registry.py --check\n"
+                "python3 .web/build.py --check\n"
+            ),
+        }.items():
+            path = td / rel
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(body, encoding="utf-8")
+        docs = ("ai/standard-proposed-listing-probe.md", "nonexistent/foo.md",
+                "specification-master-project.md", "specification-proposed-listing-probe.md",
+                ".working/missing.md", "executive/briefs/proposed-listing-probe.md",
+                ".corpus-management/fixture.md")
+        real_indexed = helper.indexed_root_documents
+        real_guard = helper.guard_generators
+
+        def run(*paths):
+            out, err = io.StringIO(), io.StringIO()
+            with redirect_stdout(out), redirect_stderr(err):
+                code = helper.main(["suggest", *paths])
+            self.assertEqual(code, 0, out.getvalue() + err.getvalue())
+            self.assertEqual(err.getvalue(), "")
+            return out.getvalue()
+
+        with patch.object(helper, "REPO_ROOT", td), \
+                patch.object(helper, "indexed_root_documents", lambda: real_indexed(td)), \
+                patch.object(helper, "guard_generators", lambda: real_guard(td)):
+            combined = run(*docs)
+            individual = [run(doc) for doc in docs]
+        header = individual[0].split("\n=== ", 1)[0]
+        self.assertEqual(combined, header + "".join(report[len(header):] for report in individual))
+        reports = dict(zip(docs, individual))
+        for doc in (docs[0], docs[1], docs[2], docs[4], docs[5]):
+            self.assertIn("[regenerate]", reports[doc])
+        for doc in (docs[3], docs[6]):
+            self.assertNotIn("[regenerate]", reports[doc])
+        self.assertIn("[add]", reports[docs[3]])
+        self.assertIn("Source-pack path outside the corpus", reports[docs[6]])
+        regen = {doc: next(line for line in reports[doc].splitlines()
+                           if "[regenerate]" in line)
+                 for doc in (docs[0], docs[1], docs[2], docs[4], docs[5])}
+        for doc in (docs[0], docs[1], docs[2], docs[4]):
+            self.assertIn("python3 tools/build-taxonomy.py", regen[doc])
+            self.assertNotIn("build-narrative-registry.py", regen[doc])
+        self.assertIn("python3 tools/build-narrative-registry.py", regen[docs[5]])
+        self.assertNotIn("build-taxonomy.py", regen[docs[5]])
+        self.assertNotIn("build-portal.py", regen[docs[5]])
+
     def test_indexed_root_documents_are_read_from_build_taxonomy(self):
         helper = load_linter_module("tools/suggest-listing-surfaces.py", "_sls_roots")
         indexed = helper.indexed_root_documents()
@@ -31287,16 +31364,21 @@ class SuggestListingSurfacesTests(unittest.TestCase):
         self.addCleanup(shutil.rmtree, td)
         (td / "tools").mkdir()
         (td / "tools/pre-push-guard.sh").write_text("", encoding="utf-8")
+        (td / "tools/build-taxonomy.py").write_text("", encoding="utf-8")
+        real_guard = helper.guard_generators
         # An existing but unreadable guard (PermissionError from the reader, not chmod 000,
         # which root ignores) is None, not a crash.
-        with patch.object(helper, "read_text_safe", side_effect=PermissionError(13, "denied")):
+        with patch.object(helper, "REPO_ROOT", td), \
+                patch.object(helper, "guard_generators", lambda root=td: real_guard(root)), \
+                patch.object(helper, "read_text_safe", side_effect=PermissionError(13, "denied")):
             self.assertIsNone(helper.guard_generators(td))
             out = io.StringIO()
             with redirect_stdout(out):
                 helper.report_regenerate("ai")
             self.assertIn("[unknown]", out.getvalue())
         # A readable guard whose derivation misses an anchor is unknown, not a partial list.
-        with patch.object(helper, "guard_generators", return_value=["tools/build-portal.py"]):
+        with patch.object(helper, "REPO_ROOT", td), \
+                patch.object(helper, "guard_generators", return_value=["tools/build-portal.py"]):
             out = io.StringIO()
             with redirect_stdout(out):
                 helper.report_regenerate("ai")
@@ -43388,6 +43470,11 @@ class JoinUnderContainmentTests(unittest.TestCase):
 
     def setUp(self):
         import importlib
+        from unittest.mock import patch
+        load_linter_module("tools/aiqt_bootstrap.py", "_containment_bootstrap").ensure_on_path()
+        path_patch = patch.object(sys, "path", list(sys.path))
+        path_patch.start()
+        self.addCleanup(path_patch.stop)
         self.common = importlib.import_module("lint_common")
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
@@ -43417,8 +43504,13 @@ class JoinUnderContainmentTests(unittest.TestCase):
         import contextlib
         from unittest.mock import patch
         mod = self.load("suggest-listing-surfaces.py")
+        real_indexed = mod.indexed_root_documents
+        real_guard_generators = mod.guard_generators
         out, err = io.StringIO(), io.StringIO()
-        with patch.object(mod, "REPO_ROOT", self.root), contextlib.redirect_stdout(out), \
+        with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "indexed_root_documents", lambda: real_indexed(self.root)), \
+                patch.object(mod, "guard_generators", lambda: real_guard_generators(self.root)), \
+                contextlib.redirect_stdout(out), \
                 contextlib.redirect_stderr(err):
             code = mod.main(["suggest", value])
         return code, out.getvalue(), err.getvalue()
@@ -43482,6 +43574,87 @@ class JoinUnderContainmentTests(unittest.TestCase):
         self.assertEqual((code, out), (2, ""))
         self.assertIn("refused path", err)
 
+    def test_suggest_fixed_guard_inputs_refuse_external_symlinks(self):
+        from unittest.mock import patch
+        (self.root / "tools").mkdir()
+        guard = self.root / "tools/pre-push-guard.sh"
+        runner = self.root / "tools/runner.sh"
+        stage = self.root / "tools/build-test.py"
+        anchor = self.root / "tools/build-taxonomy.py"
+        mod = self.load("suggest-listing-surfaces.py")
+        real_guard_generators = mod.guard_generators
+        for name, target, guard_text, runner_text in (
+            ("guard", guard, "", ""),
+            ("runner", runner, "tools/runner.sh\n", ""),
+            ("stage", stage, "tools/runner.sh\n", "python3 tools/build-test.py --check\n"),
+            ("anchor", anchor, "", ""),
+        ):
+            with self.subTest(name=name):
+                for path in (guard, runner, stage, anchor):
+                    path.unlink(missing_ok=True)
+                guard.write_text(guard_text)
+                runner.write_text(runner_text)
+                stage.write_text("")
+                anchor.write_text("")
+                if name == "anchor":
+                    guard.write_text("")
+                target.unlink()
+                target.symlink_to(self.outside)
+                with patch.object(mod, "REPO_ROOT", self.root), \
+                        patch.object(mod, "guard_generators", lambda: real_guard_generators(self.root)), \
+                        patch.object(mod, "_matrix_paths", return_value=[]):
+                    import contextlib
+                    out, err = io.StringIO(), io.StringIO()
+                    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                        code = mod.main(["suggest", "ai/ok.md"])
+                self.assertEqual((code, out.getvalue()), (2, ""), err.getvalue())
+                self.assertIn("refused path", err.getvalue())
+                self.assertIn(f"'{target.relative_to(self.root)}'", err.getvalue())
+
+    def test_suggest_fixed_taxonomy_input_refuses_external_symlink(self):
+        from unittest.mock import patch
+        (self.root / "tools").mkdir()
+        builder = self.root / "tools/build-taxonomy.py"
+        builder.write_text("def iter_all_docs():\n    for name in ('specification-master-project.md',):\n        yield name\n")
+        mod = self.load("suggest-listing-surfaces.py")
+        real_indexed = mod.indexed_root_documents
+        real_guard_generators = mod.guard_generators
+        with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "indexed_root_documents", lambda: real_indexed(self.root)), \
+                patch.object(mod, "guard_generators", lambda: real_guard_generators(self.root)):
+            import contextlib
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mod.main(["suggest", "specification-master-project.md"])
+            self.assertEqual(code, 0, out.getvalue() + err.getvalue())
+            self.assertIn("taxonomy.yml indexes it", out.getvalue())
+            builder.unlink()
+            builder.symlink_to(self.outside)
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mod.main(["suggest", "specification-master-project.md"])
+            self.assertEqual((code, out.getvalue()), (2, ""), err.getvalue())
+            self.assertIn("refused path", err.getvalue())
+            self.assertIn("'tools/build-taxonomy.py'", err.getvalue())
+
+    def test_suggest_second_document_refusal_leaves_stdout_empty(self):
+        from unittest.mock import patch
+        import contextlib
+        (self.root / "tools").mkdir()
+        (self.root / "tools/build-taxonomy.py").symlink_to(self.outside)
+        mod = self.load("suggest-listing-surfaces.py")
+        real_indexed = mod.indexed_root_documents
+        real_guard_generators = mod.guard_generators
+        with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "indexed_root_documents", lambda: real_indexed(self.root)), \
+                patch.object(mod, "guard_generators", lambda: real_guard_generators(self.root)), \
+                patch.object(mod, "_matrix_paths", return_value=[]):
+            out, err = io.StringIO(), io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mod.main(["suggest", "ai/ok.md", "specification-master-project.md"])
+        self.assertEqual((code, out.getvalue()), (2, ""), err.getvalue())
+        self.assertIn("refused path", err.getvalue())
+
     def test_suggest_argument_spelling(self):
         self.assertEqual(self.suggest("./ai/ok.md")[0], 0)
         self.assertEqual(self.suggest(".working/missing.md")[0], 0)
@@ -43492,6 +43665,13 @@ class JoinUnderContainmentTests(unittest.TestCase):
                 code, out, err = self.suggest(value)
                 self.assertEqual((code, out), (2, ""))
                 self.assertIn("refused path", err)
+
+    def test_suggest_regular_file_tools_parent_reports_unknown(self):
+        (self.root / "tools").write_text("regular file\n")
+        code, out, err = self.suggest("ai/ok.md")
+        self.assertEqual(code, 0, out + err)
+        self.assertIn("[unknown]", out)
+        self.assertNotIn("refused path", out + err)
 
     def test_suggest_exempt_overlong_name_is_refused(self):
         code, out, err = self.suggest(".corpus-management/" + "x" * 300)
@@ -43549,8 +43729,10 @@ class JoinUnderContainmentTests(unittest.TestCase):
         import contextlib
         from unittest.mock import patch
         mod = self.load("suggest-listing-surfaces.py")
+        real_guard_generators = mod.guard_generators
         out, err = io.StringIO(), io.StringIO()
         with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "guard_generators", lambda: real_guard_generators(self.root)), \
                 patch.object(mod, "_matrix_paths", side_effect=PermissionError("matrix lookup")), \
                 contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
             code = mod.main(["suggest", "ai/ok.md"])
@@ -43625,6 +43807,190 @@ class JoinUnderContainmentTests(unittest.TestCase):
             code = mod.main(["--root", str(self.root)])
         self.assertEqual((code, out.getvalue()), (2, ""))
         self.assertIn("refused path", err.getvalue())
+
+    def test_blindspots_fixed_inputs_stay_under_root(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("audit-gate-blindspots.py")
+        tools = self.root / "tools"
+        tools.mkdir()
+        inputs = {
+            "run_all_audits.sh": "\n",
+            "lint_common.py": "DEFAULT_EXEMPT_DIRS = frozenset()\n",
+        }
+        for name, body in inputs.items():
+            (tools / name).write_text(body)
+        with patch.object(mod, "tracked_markdown", return_value=[]):
+            with contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()) as err:
+                self.assertEqual(mod.main(["--root", str(self.root)]), 0, err.getvalue())
+            for name, body in inputs.items():
+                with self.subTest(name=name):
+                    path = tools / name
+                    outside = self.parent / name
+                    outside.write_text(body)
+                    path.unlink()
+                    path.symlink_to(outside)
+                    try:
+                        with contextlib.redirect_stdout(io.StringIO()) as out, \
+                                contextlib.redirect_stderr(io.StringIO()) as err:
+                            code = mod.main(["--root", str(self.root)])
+                        self.assertEqual((code, out.getvalue()), (2, ""))
+                        self.assertIn("refused path", err.getvalue())
+                        self.assertIn(name, err.getvalue())
+                    finally:
+                        path.unlink()
+                        path.write_text(body)
+
+    def test_blindspots_dangling_fixed_inputs_keep_missing_diagnostics(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("audit-gate-blindspots.py")
+        tools = self.root / "tools"
+        tools.mkdir()
+        runner = tools / "run_all_audits.sh"
+        common = tools / "lint_common.py"
+        runner.write_text("\n")
+        common.write_text("DEFAULT_EXEMPT_DIRS = frozenset()\n")
+        with patch.object(mod, "tracked_markdown", return_value=[]):
+            for path, expected in ((runner, "runner not found:"),
+                                   (common, "No such file or directory")):
+                with self.subTest(path=path):
+                    body = path.read_text()
+                    path.unlink()
+                    path.symlink_to("missing-inside-root")
+                    try:
+                        with contextlib.redirect_stderr(io.StringIO()) as err:
+                            self.assertEqual(mod.main(["--root", str(self.root)]), 2)
+                        self.assertIn(expected, err.getvalue())
+                        self.assertNotIn("refused path", err.getvalue())
+                    finally:
+                        path.unlink()
+                        path.write_text(body)
+
+    def test_playbook_fixed_inputs_stay_under_root(self):
+        import contextlib
+        mod = self.load("lint-playbook-pointer-integrity.py")
+        playbooks = self.root / ".claude/playbooks"
+        playbooks.mkdir(parents=True)
+        inputs = {
+            ".claude/CLAUDE.md": PlaybookPointerIntegrityTests.CLAUDE_CLEAN,
+            ".claude/playbooks/PLAYBOOK-MANIFEST.yml": PlaybookPointerIntegrityTests.MANIFEST,
+        }
+        for rel, body in inputs.items():
+            (self.root / rel).write_text(body)
+        (playbooks / "pr-lifecycle.md").write_text(PlaybookPointerIntegrityTests.PLAYBOOK)
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(mod.main(["playbook", "--root", str(self.root)]), 0,
+                             err.getvalue())
+        for rel, body in inputs.items():
+            with self.subTest(rel=rel):
+                path = self.root / rel
+                outside = self.parent / path.name
+                outside.write_text(body)
+                path.unlink()
+                path.symlink_to(outside)
+                try:
+                    with contextlib.redirect_stdout(io.StringIO()) as out, \
+                            contextlib.redirect_stderr(io.StringIO()) as err:
+                        code = mod.main(["playbook", "--root", str(self.root)])
+                    self.assertEqual((code, out.getvalue()), (2, ""))
+                    self.assertIn("refused path", err.getvalue())
+                    self.assertIn(rel, err.getvalue())
+                finally:
+                    path.unlink()
+                    path.write_text(body)
+
+    def test_playbook_dangling_fixed_inputs_keep_not_found_message(self):
+        import contextlib
+        mod = self.load("lint-playbook-pointer-integrity.py")
+        playbooks = self.root / ".claude/playbooks"
+        playbooks.mkdir(parents=True)
+        inputs = {
+            ".claude/CLAUDE.md": PlaybookPointerIntegrityTests.CLAUDE_CLEAN,
+            ".claude/playbooks/PLAYBOOK-MANIFEST.yml": PlaybookPointerIntegrityTests.MANIFEST,
+        }
+        for rel, body in inputs.items():
+            (self.root / rel).write_text(body)
+        for rel, body in inputs.items():
+            with self.subTest(rel=rel):
+                path = self.root / rel
+                path.unlink()
+                path.symlink_to("missing-inside-root")
+                try:
+                    with contextlib.redirect_stderr(io.StringIO()) as err:
+                        self.assertEqual(mod.main(["playbook", "--root", str(self.root)]), 2)
+                    self.assertIn(f"required file not found: {rel}", err.getvalue())
+                    self.assertNotIn("refused path", err.getvalue())
+                finally:
+                    path.unlink()
+                    path.write_text(body)
+
+    def test_carrier_default_manifest_contained_explicit_absolute_allowed(self):
+        import contextlib
+        import json
+        mod = self.load("lint-skill-verdict-carrier-completeness.py")
+        tools = self.root / "tools"
+        tools.mkdir()
+        manifest = tools / "skill-verdict-fields.json"
+        body = json.dumps({"skills": [{"name": "fixture", "files": ["ai/ok.md"],
+            "carrier_signal": "ok", "fields": [{"name": "fixture", "requires_all": ["ok"]}]}]})
+        manifest.write_text(body)
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(mod.main(["--root", str(self.root)]), 0, err.getvalue())
+        outside = self.parent / "skill-verdict-fields.json"
+        outside.write_text(body)
+        manifest.unlink()
+        manifest.symlink_to(outside)
+        with contextlib.redirect_stdout(io.StringIO()) as out, \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["--root", str(self.root)])
+        self.assertEqual((code, out.getvalue()), (2, ""))
+        self.assertIn("refused path", err.getvalue())
+        self.assertIn("skill-verdict-fields.json", err.getvalue())
+        with contextlib.redirect_stdout(io.StringIO()), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["--root", str(self.root), "--manifest", str(outside)])
+        self.assertEqual(code, 0, err.getvalue())
+
+    def test_carrier_dangling_default_manifest_keeps_load_message(self):
+        import contextlib
+        mod = self.load("lint-skill-verdict-carrier-completeness.py")
+        tools = self.root / "tools"
+        tools.mkdir()
+        (tools / "skill-verdict-fields.json").symlink_to("missing-inside-root")
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["--root", str(self.root)])
+        self.assertEqual(code, 2)
+        self.assertIn("cannot load manifest", err.getvalue())
+        self.assertNotIn("refused path", err.getvalue())
+
+    def test_fixed_inputs_with_regular_file_parent_keep_not_found_messages(self):
+        import contextlib
+        cases = (
+            ("audit-gate-blindspots.py", "tools", ["--root", str(self.root)], "runner not found:"),
+            ("lint-playbook-pointer-integrity.py", ".claude",
+             ["playbook", "--root", str(self.root)],
+             "required file not found: .claude/CLAUDE.md"),
+            ("lint-skill-verdict-carrier-completeness.py", "tools",
+             ["--root", str(self.root)], "cannot load manifest"),
+        )
+        for tool, parent, args, expected in cases:
+            with self.subTest(tool=tool):
+                parent_path = self.root / parent
+                parent_path.write_text("regular file\n")
+                try:
+                    mod = self.load(tool)
+                    with contextlib.redirect_stdout(io.StringIO()) as out, \
+                            contextlib.redirect_stderr(io.StringIO()) as err:
+                        code = mod.main(args)
+                    self.assertEqual(code, 2, out.getvalue() + err.getvalue())
+                    self.assertIn(expected, err.getvalue())
+                    self.assertNotIn("refused path", err.getvalue())
+                finally:
+                    parent_path.unlink()
 
     def test_playbook_pointer_and_relocated_paths(self):
         mod = self.load("lint-playbook-pointer-integrity.py")

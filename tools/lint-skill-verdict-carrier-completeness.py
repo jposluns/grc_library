@@ -61,6 +61,11 @@ skills; a skill missing files/carrier_signal/fields; an invalid carrier_signal o
 pattern; a field or declared exception with no valid predicate, where a predicate is a non-empty
 LIST of non-empty strings; or an enrolled skill whose signal matches zero carriers). A vacuous
 manifest or a vacuous signal must refuse, not pass silently.
+The default manifest is read under ``--root`` and must resolve within it.
+An explicit ``--manifest`` is an operator-selected input and may be an absolute
+path outside that root; manifest-named carrier files remain contained by ``--root``.
+A relative ``--manifest`` is resolved against the current directory.
+This point-in-time check cannot stop a symlink swapped after resolution or a hard-link alias.
 """
 from __future__ import annotations
 
@@ -78,7 +83,7 @@ from lint_common import PathContainmentError, is_containment_refusal, join_under
 from lint_common import is_fence_line  # noqa: E402  # the shared fence predicate (3b83), stays local
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_MANIFEST = REPO_ROOT / "tools" / "skill-verdict-fields.json"
+DEFAULT_MANIFEST_REL = "tools/skill-verdict-fields.json"
 
 _HEADING = re.compile(r"^\s{0,3}#")
 _UNIT_MARKER = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
@@ -335,7 +340,7 @@ def run(manifest_path, root):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--manifest", default=str(DEFAULT_MANIFEST))
+    ap.add_argument("--manifest")
     ap.add_argument("--root", default=str(REPO_ROOT))
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args(argv)
@@ -346,7 +351,16 @@ def main(argv=None):
     if args.self_test:
         return _self_test()
     try:
-        code, findings, n_skills, counts = run(args.manifest, Path(args.root))
+        if args.manifest is not None:
+            manifest_path = args.manifest
+        else:
+            try:
+                manifest_path = join_under(Path(args.root), DEFAULT_MANIFEST_REL)
+            except PathContainmentError as exc:
+                if is_containment_refusal(exc):
+                    raise
+                manifest_path = Path(args.root) / DEFAULT_MANIFEST_REL
+        code, findings, n_skills, counts = run(manifest_path, Path(args.root))
     except PathContainmentError as exc:
         print(f"ENV ERROR: {exc}", file=sys.stderr)
         return 2
