@@ -45,8 +45,9 @@ and the RELOCATED anchors) and asserts, against ``.claude/CLAUDE.md``:
 
 Exit codes:
   0  clean.
-  1  one or more integrity findings.
-  2  environment error (a required input is missing or the manifest is unparseable).
+  1  one or more integrity findings, or a one-line lookup error.
+  2  containment refusal or environment error (a required input is missing
+     or the manifest is unparseable).
 
 FP-safety is paramount (a gate that cries wolf gets bypassed):
   * It reads named files by explicit path, never the exempt-dir walker.
@@ -77,7 +78,7 @@ import tempfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lint_common import REPO_ROOT, require_dir  # noqa: E402
+from lint_common import PathContainmentError, is_containment_refusal, join_under, REPO_ROOT, require_dir  # noqa: E402
 
 CLAUDE_REL = ".claude/CLAUDE.md"
 MANIFEST_REL = ".claude/playbooks/PLAYBOOK-MANIFEST.yml"
@@ -181,7 +182,13 @@ def _check_pointers(entries: list[dict], claude_text: str, root: Path) -> list[s
     # out of scope here by design. A manifest entry pointing at a deleted or
     # renamed file is the dangling case that matters, and it is caught here.
     for e in entries:
-        if not (root / e["playbook"]).is_file():
+        try:
+            target = join_under(root, e["playbook"])
+        except PathContainmentError as exc:
+            if is_containment_refusal(exc):
+                raise
+            target = root / e["playbook"]
+        if not target.is_file():
             findings.append(
                 f"[pointer] DANGLING playbook target: manifest lists "
                 f"{e['playbook']!r} but that file does not exist"
@@ -255,7 +262,12 @@ def _check_relocated(entries: list[dict], root: Path) -> list[str]:
     for e in entries:
         if not e["relocated_anchors"]:
             continue
-        pb = root / e["playbook"]
+        try:
+            pb = join_under(root, e["playbook"])
+        except PathContainmentError as exc:
+            if is_containment_refusal(exc):
+                raise
+            pb = root / e["playbook"]
         if not pb.is_file():
             # A dangling target is already reported by (a); do not double-report.
             continue
@@ -376,9 +388,12 @@ def main(argv: list[str]) -> int:
 
     try:
         findings, notes = run_checks(Path(args.root))
-    except ManifestError as exc:
+    except (ManifestError, PathContainmentError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
+    except OSError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
 
     for note in notes:
         print(note)

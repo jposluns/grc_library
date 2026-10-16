@@ -52,7 +52,7 @@ import stat as _stat
 import subprocess
 import sys
 from collections.abc import Iterable, Iterator
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import NamedTuple
 
 # Repository root: the parent of ``tools/``.
@@ -2093,3 +2093,152 @@ def has_todo_index_header(text: str) -> bool:
         if tuple(c.strip() for c in cells[:3]) == ("ID", "Item", "Tags"):
             return True
     return False
+
+
+class PathContainmentError(ValueError):
+    """A supplied path segment cannot be safely joined beneath its base (3b295)."""
+
+    refusal = True
+
+
+class _JoinSpellingError(ValueError):
+    """Keep the offending segment for join_under's existing diagnostic."""
+
+    def __init__(self, reason: str, segment: object):
+        super().__init__(reason)
+        self.segment = segment
+
+
+def check_join_spelling(base: Path, *segments: str, check_length: bool = True) -> None:
+    """Check raw relative components before a caller can exempt a path.
+
+    The first pass in join_under precedes base resolution; its second pass uses
+    the resolved base for PC_NAME_MAX, preserving the original error order.
+    """
+    if not segments:
+        raise _JoinSpellingError("no segments", "<no segments>")
+    for segment in segments:
+        if not isinstance(segment, str) or not segment or "\0" in segment or "\\" in segment:
+            raise _JoinSpellingError(
+                "expected a non-empty relative string without NUL or backslash", segment)
+        if Path(segment).is_absolute() or PureWindowsPath(segment).drive:
+            raise _JoinSpellingError("absolute or drive-qualified segment", segment)
+        if ".." in segment.split("/"):
+            raise _JoinSpellingError("parent component", segment)
+        if any(part in ("", ".") for part in segment.split("/")):
+            raise _JoinSpellingError("empty or dot component", segment)
+    if not check_length:
+        return
+    try:
+        name_max = os.pathconf(base, "PC_NAME_MAX")
+    except (OSError, ValueError):
+        name_max = 255
+    if name_max <= 0:
+        name_max = 255
+    for segment in segments:
+        try:
+            if any(len(os.fsencode(part)) > name_max for part in segment.split("/")):
+                raise _JoinSpellingError("name too long", segment)
+        except (TypeError, ValueError) as exc:
+            if isinstance(exc, _JoinSpellingError):
+                raise
+            raise _JoinSpellingError(str(exc), segment) from exc
+
+
+def join_under(base: Path, *segments: str) -> Path:
+    """Check containment and return the lexical join, or refuse.
+
+    Segments must be raw relative strings. Empty strings, empty or dot
+    components, NUL bytes, backslashes, Windows drives, absolute paths
+    and every parent component are refused with PathContainmentError. Existing
+    components are resolved strictly, including symlinks; missing suffixes
+    with valid component spellings are allowed beneath the last verified
+    component. A dangling link targeting outside the base is refused. Only
+    ENOENT or ENOTDIR after a verified prefix is a lookup
+    failure. Other resolution errors leave containment unverifiable and
+    are refusals: symbolic-link loops, unsearchable directories, single names
+    too long for the filesystem, and resolved paths too long to resolve.
+    A finite internal link chain that resolves successfully stays usable
+    through its original lexical spelling, even if native reads reject it.
+    A missing base or a base that is a file is refused. A symlinked base
+    establishes its resolved target as the base. Refusal messages name the
+    resolved base directory when resolution succeeds; otherwise they name
+    the supplied base.
+    Resolution proves containment only; the returned path preserves the base
+    and relative spelling used by native lookups, including internal symlinks.
+
+    This is a point-in-time containment check, not an atomic file operation.
+    It does not prevent later symlink replacement, hard-link aliases, mount
+    changes, or unsafe interpretation of the returned path by another API.
+    It does not check file contents, ownership, permissions or file type.
+    """
+    segment = "<no segments>"
+    message_base = base
+    lookup_failure = False
+    try:
+        check_join_spelling(base, *segments, check_length=False)
+        segment = str(base)
+        root = Path(base).resolve(strict=True)
+        message_base = root
+        if not root.is_dir():
+            raise ValueError("base is not a directory")
+        check_join_spelling(root, *segments)
+        joined = root
+        for segment in segments:
+            for part in Path(segment).parts:
+                joined = joined / part
+                try:
+                    joined.lstat()
+                except FileNotFoundError:
+                    # The prefix was verified, and nothing can be reached beyond
+                    # a missing component. Preserve the caller's native lookup.
+                    return Path(base).joinpath(*segments)
+                except NotADirectoryError:
+                    lookup_failure = True
+                    raise
+                resolved = joined.resolve(strict=False)
+                if not resolved.is_relative_to(root):
+                    raise ValueError("resolves outside the base")
+                try:
+                    joined = joined.resolve(strict=True)
+                except (FileNotFoundError, NotADirectoryError):
+                    # The non-strict resolution above proved the dangling target
+                    # is inside. Retry only the caller's original lexical lookup.
+                    lookup_failure = True
+                    raise
+        return Path(base).joinpath(*segments)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        if isinstance(exc, _JoinSpellingError):
+            segment = exc.segment
+        if message_base is base:
+            try:
+                message_base = Path(base).resolve(strict=True)
+            except (OSError, RuntimeError, TypeError, ValueError):
+                pass
+        if isinstance(exc, (OSError, RuntimeError)):
+            reason = (exc.strerror or "operating-system lookup failed"
+                      if lookup_failure else "cannot verify containment")
+        else:
+            reason = str(exc)
+        if not isinstance(segment, str):
+            segment = f"<non-string entry: {type(segment).__name__}>"
+        if isinstance(segment, str):
+            if Path(segment).is_absolute() or PureWindowsPath(segment).drive:
+                segment = "<absolute or drive-qualified path>"
+            elif ".." in segment.split("/"):
+                segment = "<path with parent component>"
+        error = PathContainmentError(
+            f"refused path {segment!r} under {str(message_base)!r}: {reason}"
+        )
+        error.refusal = not lookup_failure
+        raise error from exc
+
+
+def is_containment_refusal(exc: PathContainmentError) -> bool:
+    """Return whether containment failed, rather than a verified lookup.
+
+    By convention, call sites rely on join_under to mark verified lookup
+    failures; the attribute is writable. An arbitrary OSError cause is
+    never sufficient evidence to retry an unchecked lexical path.
+    """
+    return exc.refusal

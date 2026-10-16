@@ -30780,7 +30780,7 @@ class HookRoundNineTests(unittest.TestCase):
 
 
 class SuggestListingSurfacesTests(unittest.TestCase):
-    """tools/suggest-listing-surfaces.py (advisory, exit-0-always): must not crash on a
+    """tools/suggest-listing-surfaces.py (advisory, reporting exit 0): must not crash on a
     doc whose first path segment is not a corpus domain with a README (docs/, a bogus
     domain). Regression for the FileNotFoundError at the domain-README read
     (read_text_safe does not swallow filesystem errors, by design)."""
@@ -42997,3 +42997,272 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
                 else:
                     self.assertIn("'present' expiry=", result.stdout)
                     self.assertIn("cannot encode report output", result.stderr)
+
+
+class JoinUnderContainmentTests(unittest.TestCase):
+    """Entry paths refuse escapes before reading content or writing a report."""
+
+    def setUp(self):
+        import importlib
+        self.common = importlib.import_module("lint_common")
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.parent = Path(tmp.name)
+        self.root = self.parent / "repo"
+        self.root.mkdir()
+        (self.root / "ai").mkdir()
+        (self.root / "ai/ok.md").write_text("ok\n")
+        (self.root / "ai/README.md").write_text("`ai/ok.md`\n")
+        (self.root / "governance").mkdir()
+        (self.root / "governance/register-document-index-and-classification.md").write_text(
+            "`ai/ok.md`\n")
+        self.outside = self.parent / "outside.md"
+        self.outside.write_text("outside\n")
+
+    def load(self, name):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "_containment_" + name.replace("-", "_"), REPO_ROOT / "tools" / name)
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[spec.name] = module
+        self.addCleanup(sys.modules.pop, spec.name, None)
+        spec.loader.exec_module(module)
+        return module
+
+    def suggest(self, value):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("suggest-listing-surfaces.py")
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "REPO_ROOT", self.root), contextlib.redirect_stdout(out), \
+                contextlib.redirect_stderr(err):
+            code = mod.main(["suggest", value])
+        return code, out.getvalue(), err.getvalue()
+
+    def test_helper_refuses_parent_absolute_drive_and_backslash(self):
+        for value in ("../outside.md", "ai/../ok.md", str(self.outside),
+                      "C:/outside.md", r"ai\outside.md", "", "ai/\0outside.md"):
+            with self.subTest(value=value), self.assertRaises(self.common.PathContainmentError):
+                self.common.join_under(self.root, value)
+        self.assertEqual(self.common.join_under(self.root, "ai/ok.md"),
+                         self.root / "ai/ok.md")
+        self.assertEqual(self.common.join_under(self.root, "ai/missing.md"),
+                         self.root / "ai/missing.md")
+
+    def test_helper_refuses_escape_loop_and_overlong_name(self):
+        (self.root / "ai/escape.md").symlink_to(self.outside)
+        (self.root / "ai/loop.md").symlink_to("loop.md")
+        for value in ("ai/escape.md", "ai/loop.md", "ai/" + "x" * 300):
+            with self.subTest(value=value), self.assertRaises(self.common.PathContainmentError) as caught:
+                self.common.join_under(self.root, value)
+            self.assertTrue(self.common.is_containment_refusal(caught.exception))
+        self.assertEqual(self.common.join_under(self.root, "ai/ok.md"),
+                         self.root / "ai/ok.md")
+
+    def test_helper_refuses_empty_dot_and_long_missing_suffix(self):
+        for value in ("ai//ok.md", "ai/", "./ai/ok.md", "ai/./ok.md",
+                      "ai/missing/" + "x" * 300):
+            with self.subTest(value=value), self.assertRaises(self.common.PathContainmentError) as caught:
+                self.common.join_under(self.root, value)
+            self.assertTrue(self.common.is_containment_refusal(caught.exception))
+
+    def test_helper_keeps_internal_symlink_spelling_and_enotdir_lookup(self):
+        (self.root / "ai/inner.md").symlink_to("ok.md")
+        (self.root / "ai/dirlink").symlink_to(".", target_is_directory=True)
+        self.assertEqual(self.common.join_under(self.root, "ai/inner.md"),
+                         self.root / "ai/inner.md")
+        self.assertEqual(self.common.join_under(self.root, "ai/dirlink/new.md"),
+                         self.root / "ai/dirlink/new.md")
+        with self.assertRaises(self.common.PathContainmentError) as caught:
+            self.common.join_under(self.root, "ai/ok.md/x")
+        self.assertFalse(self.common.is_containment_refusal(caught.exception))
+
+    def test_helper_verified_missing_link_retains_native_lookup(self):
+        (self.root / "ai/dangling.md").symlink_to("missing.md")
+        with self.assertRaises(self.common.PathContainmentError) as caught:
+            self.common.join_under(self.root, "ai/dangling.md")
+        self.assertFalse(self.common.is_containment_refusal(caught.exception))
+
+    def test_suggest_argument_reference_and_readme_paths(self):
+        from unittest.mock import patch
+        mod = self.load("suggest-listing-surfaces.py")
+        with patch.object(mod, "REPO_ROOT", self.root):
+            with self.assertRaises(self.common.PathContainmentError):
+                mod.referenced_paths("../outside.md")
+        code, out, err = self.suggest("../outside.md")
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("refused path", err)
+        (self.root / "ai/README.md").unlink()
+        (self.root / "ai/README.md").symlink_to(self.outside)
+        code, out, err = self.suggest("ai/ok.md")
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("refused path", err)
+
+    def test_suggest_argument_spelling(self):
+        self.assertEqual(self.suggest("./ai/ok.md")[0], 0)
+        self.assertEqual(self.suggest(".working/missing.md")[0], 0)
+        for value in ("../outside.md", str(self.outside), "ai//ok.md",
+                      ".working//x.md", ".corpus-management/./x.md",
+                      "./.corpus-management//missing.md", ".", "", "./"):
+            with self.subTest(value=value):
+                code, out, err = self.suggest(value)
+                self.assertEqual((code, out), (2, ""))
+                self.assertIn("refused path", err)
+
+    def test_suggest_exempt_overlong_name_is_refused(self):
+        code, out, err = self.suggest(".corpus-management/" + "x" * 300)
+        self.assertEqual((code, out), (2, ""))
+        self.assertIn("refused path", err)
+
+    def test_join_spelling_precheck_agrees_with_join_under(self):
+        spellings = (
+            None, 3, "", "ai/missing.md", ".corpus-management/missing.md",
+            "ai//missing.md", "./ai/missing.md", "ai/./missing.md",
+            "ai/../missing.md", "../missing.md", "/missing.md",
+            "C:/missing.md", "ai\\missing.md", "ai/\0missing.md",
+            "ai/" + "x" * 300, "ai/" + "é" * 150,
+        )
+        for value in spellings:
+            with self.subTest(value=value):
+                try:
+                    self.common.check_join_spelling(self.root, value)
+                    precheck_refused = False
+                except (TypeError, ValueError):
+                    precheck_refused = True
+                try:
+                    self.common.join_under(self.root, value)
+                    join_refused = False
+                except self.common.PathContainmentError:
+                    join_refused = True
+                self.assertEqual(precheck_refused, join_refused)
+
+    def test_suggest_exempt_skips_content_reads(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("suggest-listing-surfaces.py")
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "read_text_safe", side_effect=AssertionError("content read")), \
+                patch.object(mod, "_matrix_paths", side_effect=AssertionError("matrix read")), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mod.main(["suggest", ".corpus-management/missing.md"])
+        self.assertEqual((code, err.getvalue()), (0, ""))
+        self.assertIn("outside the corpus", out.getvalue())
+
+    def test_suggest_interrupt_during_preflight_leaves_stdout_empty(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("suggest-listing-surfaces.py")
+        for fault in (KeyboardInterrupt, SystemExit, GeneratorExit):
+            with self.subTest(fault=fault), patch.object(mod, "REPO_ROOT", self.root), \
+                    patch.object(mod, "_matrix_paths", side_effect=fault), \
+                    contextlib.redirect_stdout(io.StringIO()) as out:
+                with self.assertRaises(fault):
+                    mod.main(["suggest", "ai/ok.md"])
+                self.assertEqual(out.getvalue(), "")
+
+    def test_suggest_lookup_error_exits_one(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("suggest-listing-surfaces.py")
+        out, err = io.StringIO(), io.StringIO()
+        with patch.object(mod, "REPO_ROOT", self.root), \
+                patch.object(mod, "_matrix_paths", side_effect=PermissionError("matrix lookup")), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mod.main(["suggest", "ai/ok.md"])
+        self.assertEqual(code, 1)
+        self.assertIn("matrix lookup", err.getvalue())
+
+    def test_playbook_lookup_error_exits_one(self):
+        import contextlib
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root can read mode-000 playbooks")
+        mod = self.load("lint-playbook-pointer-integrity.py")
+        playbooks = self.root / ".claude/playbooks"
+        playbooks.mkdir(parents=True)
+        (self.root / ".claude/CLAUDE.md").write_text(PlaybookPointerIntegrityTests.CLAUDE_CLEAN)
+        (playbooks / "PLAYBOOK-MANIFEST.yml").write_text(PlaybookPointerIntegrityTests.MANIFEST)
+        target = playbooks / "pr-lifecycle.md"
+        target.write_text(PlaybookPointerIntegrityTests.PLAYBOOK)
+        target.chmod(0)
+        self.addCleanup(target.chmod, 0o600)
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["playbook", "--root", str(self.root)])
+        self.assertEqual(code, 1)
+        self.assertIn("ERROR:", err.getvalue())
+
+    def test_carrier_lookup_error_exits_one(self):
+        import contextlib
+        import json
+        if hasattr(os, "geteuid") and os.geteuid() == 0:
+            self.skipTest("root can read mode-000 carrier files")
+        mod = self.load("lint-skill-verdict-carrier-completeness.py")
+        carrier = self.root / "ai/ok.md"
+        carrier.chmod(0)
+        self.addCleanup(carrier.chmod, 0o600)
+        manifest = self.root / "manifest.json"
+        manifest.write_text(json.dumps({"skills": [{"name": "fixture", "files": ["ai/ok.md"],
+            "carrier_signal": "ok", "fields": [{"name": "fixture", "requires_all": ["ok"]}]}]}))
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["--manifest", str(manifest), "--root", str(self.root)])
+        self.assertEqual(code, 1)
+        self.assertIn("ENV ERROR:", err.getvalue())
+
+    def test_carrier_census_reraises_non_string_and_empty_entry(self):
+        import json
+        mod = self.load("lint-skill-verdict-carrier-completeness.py")
+        manifest = self.root / "manifest.json"
+        for rel in (None, ""):
+            with self.subTest(rel=rel):
+                manifest.write_text(json.dumps({"skills": [{"name": "fixture", "files": [rel],
+                    "carrier_signal": "ok", "fields": [{"name": "fixture", "requires_all": ["ok"]}]}]}))
+                with self.assertRaises(self.common.PathContainmentError):
+                    mod.run(manifest, self.root)
+
+    def test_blindspots_import_prepends_tools_path_once(self):
+        from unittest.mock import patch
+        tools = str(REPO_ROOT / "tools")
+        with patch.object(sys, "path", [entry for entry in sys.path if entry != tools]):
+            self.load("audit-gate-blindspots.py")
+            self.assertEqual(sys.path[0], tools)
+            self.load("audit-gate-blindspots.py")
+            self.assertEqual(sys.path.count(tools), 1)
+
+    def test_gate_runner_entry(self):
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load("audit-gate-blindspots.py")
+        (self.root / "tools").mkdir()
+        (self.root / "tools/run_all_audits.sh").write_text(
+            'run_gate "fixture" python3 tools/../../outside.py\n')
+        with patch.object(mod, "tracked_markdown", return_value=[]), \
+                contextlib.redirect_stdout(io.StringIO()) as out, \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            code = mod.main(["--root", str(self.root)])
+        self.assertEqual((code, out.getvalue()), (2, ""))
+        self.assertIn("refused path", err.getvalue())
+
+    def test_playbook_pointer_and_relocated_paths(self):
+        mod = self.load("lint-playbook-pointer-integrity.py")
+        entry = {"playbook": "../outside.md", "relocated_anchors": ["outside"]}
+        with self.assertRaises(self.common.PathContainmentError):
+            mod._check_pointers([entry], "", self.root)
+        with self.assertRaises(self.common.PathContainmentError):
+            mod._check_relocated([entry], self.root)
+
+    def test_carrier_check_and_census_paths(self):
+        import contextlib
+        import json
+        mod = self.load("lint-skill-verdict-carrier-completeness.py")
+        skill = {"name": "fixture", "files": ["../outside.md"],
+                 "carrier_signal": "outside",
+                 "fields": [{"name": "fixture", "requires_all": ["outside"]}]}
+        findings = mod.check_skill(skill, "exempt", self.root)
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["cls"], "env")
+        manifest = self.root / "manifest.json"
+        manifest.write_text(json.dumps({"skills": [skill]}))
+        with contextlib.redirect_stderr(io.StringIO()) as err:
+            code, _, _, _ = mod.run(manifest, self.root)
+        self.assertEqual(code, 2)
+        self.assertIn("refused path", err.getvalue())
