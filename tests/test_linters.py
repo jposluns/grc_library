@@ -6354,6 +6354,64 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             with self.subTest(name=name):
                 self.assertIn(repr(name), warned, out)
 
+    def test_hipaa_part_alias_does_not_cover_other_cfr_parts(self) -> None:
+        rows = self.ROWS + (("US HIPAA", "1996", "-"),)
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| 45 CFR Part 164 | Privacy and security | Health |",
+                "| 45 CFR Part 165 | Unrelated part | Health |",
+            ),
+            register=self._register(rows),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("'45 CFR Part 165'", warned[0])
+
+    def test_unregistered_usc_sections_are_reported(self) -> None:
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| 15 U.S.C. 45 | FTC Act section | Consumer protection |",
+                "| 15 U.S.C. 46 | Unrelated section | Consumer protection |",
+            ),
+        )
+        warned = "\n".join(self._warned(out))
+        for name in ("15 U.S.C. 45", "15 U.S.C. 46"):
+            with self.subTest(name=name):
+                self.assertIn(repr(name), warned, out)
+
+    def test_usc_provision_forms_and_digit_led_non_instruments(self) -> None:
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| 15 U.S.C. § 45 | FTC Act section | Consumer protection |",
+                "| 15 U.S.C. §45 | FTC Act section | Consumer protection |",
+                "| 15 U.S.C. Section 45 | FTC Act section | Consumer protection |",
+                "| 15 USC 45 | FTC Act section | Consumer protection |",
+                "| 2 CFRs apply | Prose | US |",
+                "| 10 USCIS forms | Prose | US |",
+            ),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 4, out)
+        self.assertEqual(sum("'15 U.S.C'" in line for line in warned), 3, out)
+        self.assertEqual(sum("'15 USC 45'" in line for line in warned), 1, out)
+
+    def test_cmmc_model_row_does_not_cover_assessment_guide(self) -> None:
+        rows = self.ROWS + (("US CMMC", "2.0", "1.0"),)
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| US CMMC | Model | Defense |",
+                "| US DoD CMMC Assessment Guide Level 2 v2.13 | Assessment guidance | Defense |",
+            ),
+            register=self._register(rows),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("'US DoD CMMC Assessment Guide Level 2 v2.13'", warned[0])
+
     def test_nist_ai_publication_number_resolves_to_registered_rmf(self) -> None:
         rows = self.ROWS + (("NIST AI RMF", "1.0", "-"),)
         out = self._check(self._doc(), self._doc("| NIST AI 100-1 | Risk | AI |"),
