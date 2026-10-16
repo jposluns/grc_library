@@ -370,8 +370,9 @@ class Resolver:
         if any(p.fullmatch(name) for p in self.aliases["not_citable_patterns"]):
             return True
         # A leading digit or lowercase letter alone does not make an instrument prose:
-        # "21 CFR Part 11" and "ePrivacy Directive" still need register lookup.
-        instrument = bool(INSTRUMENT_WORD.search(name) or re.search(r"\bCFR\b", name))
+        # "21 CFR Part 11", "15 U.S.C"/"15 USC 45", and "ePrivacy Directive"
+        # still need register lookup; "2 CFRs apply" and "10 USCIS forms" do not.
+        instrument = bool(INSTRUMENT_WORD.search(name) or re.search(r"\b(?:CFR\b|U\.?S\.?C\b)", name))
         if FRAGMENT.fullmatch(name):
             return True
         if name[0].isdigit() and not instrument:
