@@ -23,6 +23,10 @@ drive end-to-end on the maintainer's behalf:
    `tools/run_all_audits.sh` passes standalone **after each commit** on the feature
    branch, not only before the final push (the history-aware gates 40/31/45 see only
    committed state, so a between-commits run catches what a working-tree run misses).
+   Once a commit names THIS PR in the root CHANGELOG, gate 50's Check 1 fails on THIS PR
+   until its RETURNED `/validate-pr` row and its `/retro` row are written (steps 2-3);
+   that one finding is expected until then, a concurrent-run artefact identified as such
+   (step 2) is not a defect, and any other failure is a defect to fix before continuing.
    Before pushing, run both runners as a single pre-push gate:
    `tools/pre-push-guard.sh && git push -u origin <branch>`. The guard chains
    `run_all_audits.sh` (corpus gates from HEAD) then `run-pr-time-checks.sh` (the per-PR
@@ -35,30 +39,25 @@ drive end-to-end on the maintainer's behalf:
    `preflight-changelog.py --staged` in each `git commit` that stages `CHANGELOG.md`), but the
    guard stays an explicit `&&` step so a push is gated even in a clone that never ran the
    installer.
-2. Push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
-   <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
-   `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
-   STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
-   other pipe or truncating sink): a pipe masks the exit code so the dependent action
-   proceeds past a failure. When long output must be tamed, use the fail-loud wrapper
-   [`tools/tail-safe.sh`](../../tools/tail-safe.sh) (preserves the exit code) or redirect to
-   a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
-   [`.claude/hooks/block-verification-pipes.py`](../../.claude/hooks/block-verification-pipes.py)
-   refuses the named verification commands piped to truncating sinks (defence in depth,
-   not a substitute for the habit). Read the verification's own terminal
-   PASS/FAIL line before relying on any chain. On a green guard, open the PR via
-   `mcp__github__create_pull_request`.
-3. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
-   `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
-4. As the PR's FINALIZING QA step, BEFORE merge, invoke `/validate-pr` (dispatches
+2. As the PR's FINALIZING QA step, on the committed branch BEFORE the guarded push (step 4)
+   and so BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
    touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
-   row records THIS PR's OWN number. The synchronous sequence is: open the PR, wait for the
-   first green CI, run `/validate-pr` (then `/retro`, step 5) against the branch synced to
+   row records THIS PR's OWN number (the number its root CHANGELOG entry names, or the
+   planned number; the PR is opened only at step 4). If the opened PR's number differs from
+   the planned one (GitHub numbers PRs and issues from one sequence), renumber every carrier
+   of the number (the root and detailed CHANGELOG entries, both rows and the per-PR record
+   file name, if one exists), commit, re-run the guard and push before relying on CI.
+   The synchronous sequence is: commit, run `/validate-pr`
+   (then `/retro`, step 3) against the committed branch synced to
    current `main`, disposition every finding in-window, write the rows and records, commit
-   them into the SAME PR, let CI re-run on the row-carrying commit, then merge (step 7/8).
+   them into the SAME PR, run the pre-push guard and push (step 4), open the PR, wait for
+   green CI on the row-carrying commit (step 5), refresh the records (steps 6, 9-10), commit, run
+   the pre-push guard and push again (step 4), wait for green CI on that final SHA, then
+   merge (step 7/8).
    No placeholder row and no back-fill into a later PR: the row that records PR N lands IN
-   PR N. The prior recursion-avoidance batching is retired; gate 50's Check 1 now requires
+   PR N. The prior recursion-avoidance batching is retired; gate 50's Check 1 (run by the
+   pre-push guard) now requires
    each PR's own rows (window inclusive of `max_pr`) and fails a row that records the QA as
    `DISPATCHED` / `RESULT PENDING` and never `RETURNED`.
    **Read-only-git subagent rule (shared-tree safety):** any subagent this or `/validate`
@@ -86,7 +85,8 @@ drive end-to-end on the maintainer's behalf:
    (the window now includes the current highest PR). Fuller
    prose may still go in the Summary cell. (See `## Session migration and PR close-out
    checklist` item 3.)
-5. Immediately after `/validate-pr` returns and BEFORE merge, invoke `/retro` to run the
+3. Immediately after `/validate-pr` returns and BEFORE the guarded push (step 4) and merge,
+   invoke `/retro` to run the
    retrospective per the
    [`pr-retrospective`](../../guardrails/skills/pr-retrospective/SKILL.md)
    skill: append one row to `grc_library_private/.working/improvement-log.md`.
@@ -94,6 +94,22 @@ drive end-to-end on the maintainer's behalf:
    in THIS PR (recording this PR's own number), committed before the PR is finalized; the
    synchronous model retired the recursion-avoidance batching, so the row is never deferred
    to a later PR.
+4. Once THIS PR's RETURNED `/validate-pr` row and its `/retro` row are recorded (steps 2-3),
+   push with the pre-push guard: `tools/pre-push-guard.sh && git push -u origin
+   <branch>`. Run EVERY verification command (the guard, `run_all_audits.sh`,
+   `run-pr-time-checks.sh`, the linter-regression runner, a generator `--check`)
+   STANDALONE and UNPIPED (never `guard | tail && push`, never `audits | tail`, nor any
+   other pipe or truncating sink): a pipe masks the exit code so the dependent action
+   proceeds past a failure. When long output must be tamed, use the fail-loud wrapper
+   [`tools/tail-safe.sh`](../../tools/tail-safe.sh) (preserves the exit code) or redirect to
+   a file and read the tail plus a directly-captured `$?`; the PreToolUse hook
+   [`.claude/hooks/block-verification-pipes.py`](../../.claude/hooks/block-verification-pipes.py)
+   refuses the named verification commands piped to truncating sinks (defence in depth,
+   not a substitute for the habit). Read the verification's own terminal
+   PASS/FAIL line before relying on any chain. On a green guard, open the PR via
+   `mcp__github__create_pull_request`.
+5. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
+   `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
 6. Refresh `grc_library_private/.working/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
@@ -189,8 +205,9 @@ is external. Two mechanisms:
 
 2. **PR close-out checklist.** Apply authoring and commit-time items at those boundaries;
    before every push or PR creation, confirm all then-applicable paired surfaces.
-   The initial guarded push/PR creation precedes finalizing QA (workflow steps 3-5).
-   Before the FINAL push and merge, confirm every paired bookkeeping surface is in the
+   Finalizing QA (workflow steps 2-3) precedes the first guarded push and PR creation (step 4).
+   Before the FINAL push and merge (the guard requires THIS PR's QA/retro rows from the
+   first push), confirm every paired bookkeeping surface is in the
    diff (the recurring failure is a substantive change with a *paired* surface dropped):
    - THIS PR's OWN RETURNED `/validate-pr` history row AND its `/retro` row are both
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
@@ -635,7 +652,7 @@ a gate; when a gate's coverage changes, its row here is updated in the same PR.
 
 ## Version-bump discipline (enforcement detail)
 
-**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 2) runs
+**Enforcement.** The pre-push guard (`tools/pre-push-guard.sh`, PR-workflow step 4) runs
 `run_all_audits.sh` (gate 40, plus gate 36 which exercises gates 31/40 in test form) and
 `run-pr-time-checks.sh` (D2 per-PR version-bump, D4 per-PR Version-Date co-bump) before
 the push, so a missed bump blocks the push instead of flipping CI red. At each commit ask:

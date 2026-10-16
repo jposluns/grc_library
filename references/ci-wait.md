@@ -4,7 +4,7 @@ Relocated from `.claude/CLAUDE.md` `## PR activity subscription discipline` (3b1
 read at every CI or background wait, like a skill. The always-on core stays inline in
 CLAUDE.md; gate 80 enforces the pointer pair via .claude/playbooks/PLAYBOOK-MANIFEST.yml.
 
-PR workflow step 3 (waiting for CI to settle) and any subsequent wait for review comments
+PR workflow step 5 (waiting for CI to settle) and any subsequent wait for review comments
 use `mcp__github__subscribe_pr_activity`. Subscriptions deliver failure events, comments,
 and reviews into the conversation as they happen, but do not reliably deliver success
 transitions or every state change, so a subscription alone can sit indefinitely on a
