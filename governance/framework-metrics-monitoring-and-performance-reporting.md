@@ -2,8 +2,8 @@
 
 **Document Title:** Metrics, Monitoring and Performance Reporting Framework\
 **Document Type:** Framework\
-**Version:** 1.1.10\
-**Date:** 2026-09-25\
+**Version:** 1.1.11\
+**Date:** 2026-10-17\
 **Owner:** GRC Programme Manager\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/framework-continuous-assurance-and-improvement.md`](framework-continuous-assurance-and-improvement.md), [`governance/framework-governance-performance-and-improvement.md`](framework-governance-performance-and-improvement.md), [`governance/register-digital-trust-and-assurance-metrics.md`](register-digital-trust-and-assurance-metrics.md), [`governance/procedure-grc-programme-management-and-annual-review.md`](procedure-grc-programme-management-and-annual-review.md), [`compliance/procedure-capa.md`](../compliance/procedure-capa.md), [`ai/framework-ai-governance-and-risk.md`](../ai/framework-ai-governance-and-risk.md)\
@@ -32,7 +32,7 @@ This framework defines the governance metrics, Key Risk Indicators (KRIs), Key P
 | **Business Continuity** | RTO/RPO compliance percentage, BCP testing frequency, continuity audit score | ISO 22301:2019, COBIT DSS04 |
 | **AI Governance** | Model explainability percentage, bias detection rate, retraining frequency, organization-defined AI governance maturity score | ISO/IEC 42001:2023 §9.1 (monitoring basis), NIST AI RMF |
 | **Digital Trust** | Transparency index, stakeholder confidence rating, service uptime, SLA adherence | ISACA DTEF (2024); organization-defined |
-| **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000:2022 |
+| **BASC Trade Security** | Cargo integrity incidents (count), customs data validation accuracy percentage, BASC audit score, time-to-report customs incidents | BASC v6, WCO SAFE, ISO 28000:2022. The ISO 28000:2022 attribution is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 
 ---
 
@@ -86,7 +86,7 @@ Poorly defined metrics without these fields must not be published in governance 
 | ISACA DTEF (2024) | Digital-trust indicators (organization-defined) | Stakeholder confidence and service quality |
 | BASC v6 (2022) | Trade-Security Performance Measurement | BASC KPI and customs incident reporting |
 | WCO SAFE Framework (2025 edition) | AEO performance standards | Trade security performance measurement |
-| ISO 28000:2022 | Supply chain security measurement | Supply chain security metrics |
+| ISO 28000:2022 | Supply chain security measurement | Supply chain security metrics. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 
 ---
 

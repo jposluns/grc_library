@@ -2,8 +2,8 @@
 
 **Document Title:** Network Security and Segmentation Standard\
 **Document Type:** Standard\
-**Version:** 1.4.16\
-**Date:** 2026-10-13\
+**Version:** 1.4.17\
+**Date:** 2026-10-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](../security/policy-information-security.md), [`operations/standard-production-security-requirements.md`](standard-production-security-requirements.md), [`operations/standard-cloud-security-configuration-baseline.md`](standard-cloud-security-configuration-baseline.md), [`security/policy-encryption-and-key-management.md`](../security/policy-encryption-and-key-management.md), [`security/standard-logging-and-monitoring.md`](../security/standard-logging-and-monitoring.md)\
@@ -180,6 +180,8 @@ Sector-specific testing or inspection cadences (for example, sector-mandated tra
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Network and Information Systems Security |
 
 Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3) for trade and customs network security; WCO SAFE Framework for supply chain security; ISO 28000:2022 for supply chain security management) apply where the organization participates in a covered programme; see [`compliance/`](../compliance/).
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
 
 ---
 

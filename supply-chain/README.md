@@ -2,8 +2,8 @@
 
 **Document Title:** Supply Chain Domain README\
 **Document Type:** Register\
-**Version:** 1.3.2\
-**Date:** 2026-09-25\
+**Version:** 1.3.3\
+**Date:** 2026-10-17\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`compliance/policy-compliance-and-audit-management.md`](../compliance/policy-compliance-and-audit-management.md)\
@@ -61,7 +61,7 @@ General supply-chain security governance that applies regardless of sector. Trus
 Standards referenced for cross-programme alignment:
 
 - **WCO SAFE Framework**: World Customs Organization standards for customs-to-customs and customs-to-business cooperation
-- **ISO 28000:2022**: Supply chain security management systems
+- **ISO 28000:2022**: Supply chain security management systems. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
 - **ISO 28001**: Customs clearance verification and supply chain continuity requirements
 
 ---

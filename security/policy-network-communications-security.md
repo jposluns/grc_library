@@ -2,8 +2,8 @@
 
 **Document Title:** Network Communications Security Policy\
 **Document Type:** Policy\
-**Version:** 1.1.18\
-**Date:** 2026-10-15\
+**Version:** 1.1.19\
+**Date:** 2026-10-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/standard-logging-and-monitoring.md`](standard-logging-and-monitoring.md), [`security/policy-encryption-and-key-management.md`](policy-encryption-and-key-management.md), [`operations/procedure-change-management-and-configuration-control.md`](../operations/procedure-change-management-and-configuration-control.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../resilience/procedure-security-incident-reporting-and-escalation.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../supply-chain/framework-supplier-and-cloud-governance.md)\
@@ -154,6 +154,8 @@ Where the organization participates in a sector programme that imposes additiona
 | EU NIS 2 Directive (Directive (EU) 2022/2555) | Critical Network Security Requirements | Critical infrastructure network obligations |
 
 Sector-specific framework alignments (for example, the applicable BASC International Security Standard (6.0.2 or 6.0.3, section 5), WCO SAFE Framework (2025 edition), and ISO 28000:2022 supply-chain security management for trade and customs contexts) apply where the organization participates in a covered sector programme; see [`compliance/`](../compliance/).
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
 
 ---
 
