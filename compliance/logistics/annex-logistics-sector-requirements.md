@@ -2,8 +2,8 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.28\
-**Date:** 2026-10-04\
+**Version:** 1.0.29\
+**Date:** 2026-10-16\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/logistics/README.md`](README.md), [`compliance/logistics/annex-basc-programme-overview.md`](annex-basc-programme-overview.md), [`compliance/logistics/register-ctpat-united-states-it-controls.md`](register-ctpat-united-states-it-controls.md), [`compliance/logistics/register-ctpat-united-states-msc-controls.md`](register-ctpat-united-states-msc-controls.md), [`compliance/logistics/register-pip-canada-controls.md`](register-pip-canada-controls.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](annex-aeo-united-kingdom-cybersecurity.md), [`compliance/logistics/register-basc-it-responsibilities.md`](register-basc-it-responsibilities.md), [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/matrix-grc-compliance-alignment.md`](../matrix-grc-compliance-alignment.md), [`supply-chain/framework-supplier-and-cloud-governance.md`](../../supply-chain/framework-supplier-and-cloud-governance.md), [`supply-chain/matrix-supply-chain-security-programme-alignment.md`](../../supply-chain/matrix-supply-chain-security-programme-alignment.md), [`supply-chain/annex-trade-and-supply-chain-continuity-controls.md`](../../supply-chain/annex-trade-and-supply-chain-continuity-controls.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -80,7 +80,7 @@ This annex applies where an organization:
 | **EU Aviation Security Regulation (EC) 300/2008** | EASA / national authorities | Air carriers; airports; cargo operators |
 | **EASA AMC 20-42: Aviation Cybersecurity** | EASA | Aviation organizations; airspace users |
 | **EU Maritime Security (Regulation 725/2004)** | EMSA / national authorities | Ships; port facilities |
-| **ITS Regulation 2021/575** | European Commission | Intelligent transport systems |
+| **EU Intelligent Transport Systems Directive (Directive 2010/40/EU, as amended by Directive (EU) 2023/2661)** | National authorities (transposition) / European Commission | Intelligent transport systems in road transport and interfaces with other modes of transport; the Directive and its amending Directive are not held in the reference base, so an adopter confirms the current text, scope and national transposition directly <!-- ref-absence: 2010/40 | 2023/2661 --> |
 | **EU AI Act (High Risk: Annex III point 2)** | National competent / market-surveillance authorities (Article 70; Annex III point 2 is excepted from the AI Office's Article 75(1)(a) exclusive competence) | AI used as a safety component in the management and operation of critical digital infrastructure, road traffic, or the supply of water, gas, heating, or electricity (Annex III point 2; road traffic is the logistics-relevant use); a qualifying Annex III system may still be assessed as non-high-risk under Article 6(3) |
 | **AEO (EU UCC Art 38)** | National customs authorities | Customs operators |
 
