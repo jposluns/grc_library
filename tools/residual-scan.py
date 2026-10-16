@@ -79,7 +79,7 @@ from lint_common import (  # noqa: E402
 
 def _extra_working_root() -> Path | None:
     """The resolved `.working/` dir when it lives OUTSIDE the public repo
-    (post-migration, in the private sibling). Returns None when `.working/` is
+    (post-migration, in the operational store). Returns None when `.working/` is
     still in-repo (already covered by the REPO_ROOT walk) or absent."""
     wd = resolve_working_dir(repo_root=REPO_ROOT)
     if wd is None:
@@ -88,12 +88,12 @@ def _extra_working_root() -> Path | None:
         wd.relative_to(REPO_ROOT)
         return None  # in-repo: the REPO_ROOT walk already covers it
     except ValueError:
-        return wd  # private sibling: walk it too
+        return wd  # operational store or private-sibling fallback: walk it too
 
 
 def _rel_for(path: Path) -> str:
     """Relpath used for classification. In-repo paths are relative to REPO_ROOT;
-    a private-sibling `.working/` file is re-rooted to a ``.working/...`` rel so
+    an operational-store or private-sibling `.working/` file is re-rooted to a ``.working/...`` rel so
     ``classify()`` (which keys on ``.working/`` prefixes) still matches."""
     try:
         return path.relative_to(REPO_ROOT).as_posix()

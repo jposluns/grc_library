@@ -1,4 +1,4 @@
-Render the backlog "pipeline" view the maintainer wants (maintainer-directed 2026-08-06). A project-only command (it reads THIS project's `TODO.md` + `grc_library_private/P-TODO.md` + `grc_library_private/.working/DONE.md`), not a portable pack skill. It changes no state.
+Render the backlog "pipeline" view the maintainer wants (maintainer-directed 2026-08-06). A project-only command (it reads THIS project's `TODO.md` + `grc_library_private/P-TODO.md` + `/opt/grc/private/DONE.md`), not a portable pack skill. It changes no state.
 
 **`_private` (read first).** Reads the private backlog + DONE ledger via the `_private` delegation directive. On the maintainer orchestrator, if `_private` is absent, FAIL LOUD and clone it; do not reconstruct from memory. On an adopter clone, `_private` is absent by design: the view degrades to the public `TODO.md` only.
 

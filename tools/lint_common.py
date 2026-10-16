@@ -68,7 +68,8 @@ REPO_ROOT: Path = Path(__file__).resolve().parent.parent
 # ``.working`` held maintainer working state (per-run records from
 # /validate, /fitness, and other maintainer-invoked activities): frozen-state
 # archives the corpus linters skip. It has moved out of this public repository
-# into the private sibling ``grc_library_private/.working/``; the exempt-dir
+# into the operational store, with the private sibling's ``.working/`` retained
+# as a transitional fallback; the exempt-dir
 # entry is retained so an in-repo ``.working`` (a maintainer mid-migration state,
 # or an adopter's own) is still skipped if present.
 DEFAULT_EXEMPT_DIRS: frozenset[str] = frozenset(
@@ -170,7 +171,8 @@ FROZEN_RECORD_RE = re.compile(r"^\.working/[^/]+/\d{4}-")
 # Per-activity append-only history tables.
 LEDGER_RE = re.compile(r"^\.working/[^/]+/history\.md$")
 
-# Top-level append-only ledgers.
+# Top-level append-only ledgers. Logical `.working/` names also
+# classify the operational store records resolved outside this checkout.
 LEDGER_PATHS = (
     "CHANGELOG.md",
     ".working/changelog-details/CHANGELOG-detailed.md",
@@ -298,12 +300,13 @@ def resolve_sibling(name: str, *, strict: bool = False) -> Path | None:
     return candidate if candidate.is_dir() else None
 
 
-# The maintainer working-state subtree (`.working/`) is migrating out of the public
-# repo into `grc_library_private/.working/` (privacy: it carried account identifiers
-# and operational records adopters never need). `resolve_working` is the single access
-# point during and after that migration: it prefers the private location, falls back to
-# the in-repo `.working/` (so the pre-migration and mid-migration states both work), and
-# returns None when neither is present (public CI / adopter clone -> the reader no-ops,
+# The maintainer working-state subtree (`.working/`) moved out of the public repo
+# into the operational store (`$GRC_STORE` or `<repo-parent>/private`; privacy:
+# it carried account identifiers and operational records adopters never need).
+# `resolve_working` is the single access point: it prefers that store, then the
+# transitional private sibling's `.working/` tree, then the in-repo
+# `.working/` (so migration states still work), and returns None when none is
+# present (public CI / adopter clone -> the reader no-ops,
 # exactly like an advisory sibling tool). See the migration plan in grc_library_private.
 WORKING_SUBDIR = ".working"
 

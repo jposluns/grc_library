@@ -24,9 +24,10 @@ being in ``DEFAULT_EXEMPT_DIRS``, because the deferred-finding ageing
 discipline is what this gate exists to enforce. Other registers
 adopting the convention should be added to ``TARGET_FILES`` or
 supplied via ``--target``. The DEFAULT target resolves through
-``lint_common.resolve_working`` (private sibling
-``grc_library_private/.working/`` preferred, in-repo ``.working/``
-as fallback); when neither supplies it the audit skips that target
+``lint_common.resolve_working`` (operational store ``$GRC_STORE`` or
+``<repo-parent>/private`` first, then the private sibling
+``.working/`` tree, then in-repo ``.working/``);
+when none supplies it the audit skips that target
 and the closing line reports how many of the targets it actually
 scanned. An explicit ``--target`` / ``--root`` is used verbatim.
 

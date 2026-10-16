@@ -148,9 +148,9 @@ def main() -> int:
     session_state = resolve_working("session-state.md")
     if session_state is None:
         # The session-concurrency lease is maintainer-only working state. Once
-        # `.working/` moves to grc_library_private, it is absent in public CI and
+        # `.working/` moves to the operational store, it is absent in public CI and
         # in an adopter clone, so the gate no-ops there (graceful degradation);
-        # on the maintainer's machine the private sibling supplies it and the
+        # on the maintainer's machine the operational store (or the private-sibling fallback) supplies it and the
         # protocol is enforced.
         print(
             "OK: session-state lease not present (maintainer-only working state; "

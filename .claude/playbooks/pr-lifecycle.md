@@ -42,7 +42,7 @@ drive end-to-end on the maintainer's behalf:
 2. As the PR's FINALIZING QA step, on the committed branch BEFORE the guarded push (step 4)
    and so BEFORE merge, invoke `/validate-pr` (dispatches
    Subagent A on THIS PR's own diff plus a cross-reference check on files citing the
-   touched files). Records to `grc_library_private/.working/validate-pr/`, and the history
+   touched files). Records to `/opt/grc/private/validate-pr/`, and the history
    row records THIS PR's OWN number (the number its root CHANGELOG entry names, or the
    planned number; the PR is opened only at step 4). If the opened PR's number differs from
    the planned one (GitHub numbers PRs and issues from one sequence), renumber every carrier
@@ -77,7 +77,7 @@ drive end-to-end on the maintainer's behalf:
    where the handoff PR's own QA cannot be self-contained within it at the session boundary,
    is to skip the trailing `/validate-pr` / `/retro`; the independent compensating read is
    the next session's `/orch` corpus-wide `/validate`. When the fallback is taken, record
-   the exemption in the handoff PR's `grc_library_private/.working/validate-pr/history.md` row **Findings cell**
+   the exemption in the handoff PR's `/opt/grc/private/validate-pr/history.md` row **Findings cell**
    (the cell `tools/lint-bookkeeping-parity.py` (gate 50) reads to detect the handoff
    exemption): the marker must be `SKIPPED` together with `handoff`, or the phrase
    `handoff-PR exception`, never a bare `n/a`. Putting the marker in the Summary cell only
@@ -89,7 +89,7 @@ drive end-to-end on the maintainer's behalf:
    invoke `/retro` to run the
    retrospective per the
    [`pr-retrospective`](../../guardrails/skills/pr-retrospective/SKILL.md)
-   skill: append one row to `grc_library_private/.working/improvement-log.md`.
+   skill: append one row to `/opt/grc/private/improvement-log.md`.
    Pattern and Proposed-improvement entries (if any) surface in chat. The register row lands
    in THIS PR (recording this PR's own number), committed before the PR is finalized; the
    synchronous model retired the recursion-avoidance batching, so the row is never deferred
@@ -110,7 +110,7 @@ drive end-to-end on the maintainer's behalf:
    `mcp__github__create_pull_request`.
 5. Wait for the `Lint markdown corpus` CI check using the subscription discipline in
    `references/ci-wait.md` (the CI-wait discipline; lean core in CLAUDE.md); on failure, fix and re-push.
-6. Refresh `grc_library_private/.working/session-handoff.md` with the
+6. Refresh `/opt/grc/private/session-handoff.md` with the
    current state snapshot, last-merged list, next-actions queue, and open decisions. The mechanical facts (versions, gate and rule and skill and command counts, HEAD sha, session figures) come from `python3 tools/handoff-snapshot.py`, a read-only aggregator; paste its verified block rather than hand-deriving the numbers. At a
    **session-closing** handoff PR, also refresh the `## Asserted expectations` section
    (the surfaces this session mechanically verified, scoped to what it touched, plus known
@@ -133,7 +133,7 @@ drive end-to-end on the maintainer's behalf:
    precisely because it is invisible when used.
    **So every bypass merge is LOGGED.** The maintainer's decision (2026-07-25) is to
    retain the emergency path and make its use auditable rather than remove it. Append
-   one row to `grc_library_private/.working/merge-bypass-log.md` for each
+   one row to `/opt/grc/private/merge-bypass-log.md` for each
    `--admin` merge, recording the PR, the pre-merge CI state, and a one-line
    justification. An unlogged bypass merge is a discipline failure; the log is what
    converts an always-on bypass from an unaudited hole into a recorded exception. If a
@@ -168,14 +168,15 @@ drive end-to-end on the maintainer's behalf:
 10. TODO/DONE rotation discipline: when a PR closes a TODO item, the item's index row is
    deleted from [`TODO.md`](../../TODO.md) AND its detail block from
    the private `grc_library_private/TODO-REFERENCE.md` (cross-repo), and an entry is added to
-   `grc_library_private/.working/DONE.md`
+   `/opt/grc/private/DONE.md`
    (the closed-TODO ledger, keyed by PR number with the original backlog ID as a
    cross-reference). The DONE entry names the closed item's number and gives a clean
    one-to-two-sentence summary of what the item was and how it was accomplished, and that
    same summary is surfaced in chat at the moment of completion (in addition to DONE and the
    CHANGELOG), per the change-tracking rule's completion-summary convention. The public
    TODO index-row deletion lives in this PR; the private detail-block and DONE rotations are
-   cross-repo in the private sibling. TODO holds only
+   outside this public repository, in the private sibling and operational store respectively.
+   TODO holds only
    forward-looking content; historical lists belong in DONE, not in TODO. **"TODO item"
    is backlog-item-keyed, not FR/§-keyed**: a `FR-N` item, a numbered `§N.M` subsection,
    AND a prose-named or maintainer-directed item recorded in TODO (e.g. "OT post-ingestion
@@ -193,7 +194,7 @@ Long sessions degrade (context dilution, lossy compaction, state drift, error
 compounding), and the assistant has no reliable internal gauge of this, so the defence
 is external. Two mechanisms:
 
-1. **Session handoff.** `grc_library_private/.working/session-handoff.md`
+1. **Session handoff.** `/opt/grc/private/session-handoff.md`
    is the single resume point for a new session: branch, versions, counts, last-merged
    PRs, trust-recovery state, the next-actions queue, open decisions, the standing
    disciplines, the **green-at-`<sha>`** mechanical baseline, and (at session close) the
@@ -213,7 +214,8 @@ is external. Two mechanisms:
      present (they land in THIS PR, recording this PR's own number, per the synchronous QA model, rather than being batched forward from the prior PR).
    - Every TODO item this PR closes has its index row deleted from `TODO.md` AND its
      detail block deleted from the private `grc_library_private/TODO-REFERENCE.md`, and is added to
-     `grc_library_private/.working/DONE.md`, both cross-repo in the private sibling (outside this PR's public diff). **Backlog-item-keyed, not
+     `/opt/grc/private/DONE.md`; these are in the private sibling and operational store
+     respectively (outside this PR's public diff). **Backlog-item-keyed, not
      FR/§-keyed**: a prose-named or maintainer-directed item (not just an `FR-N` or a
      numbered `§N.M`) is a TODO item that rotates the same way.
    - If this PR changed an enumerated collection (gates, governance rules, skills), every
@@ -487,7 +489,7 @@ is external. Two mechanisms:
      if this PR changes a corpus document's body, the per-touch run
      (`python3 tools/audit-reference-breadth.py --docs <touched paths>`, judge on any
      non-empty candidate set, then `--update-state`) is done and the
-     `grc_library_private/.working/reference-audit/doc-state.md`
+     `/opt/grc/private/reference-audit/doc-state.md`
      refresh is in the PR's QA batch. The refresh counts only when `--update-state`
      exits 0 and prints its `State updated for` line. After `nothing was written` (a
      line is named only for an unloaded row), the cause must be resolved, repairing
@@ -502,7 +504,7 @@ is external. Two mechanisms:
      message does not count. An empty candidate set is recorded as the one-line
      steady-state note, not skipped silently. (Convention-guarded; the mechanical
      staleness backstop is a queued TODO item.)
-   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`grc_library_private/.working/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
+   - **The ROOT CHANGELOG never loses history; it is SUMMARIZED, never removed (maintainer-directed 2026-07-26).** [`CHANGELOG.md`](../../CHANGELOG.md) is one of the few history/status files that must go back to the PROJECT START and is NEVER swept, pruned, or moved to `_private`: old per-PR entries are only summarized IN PLACE (daily then weekly roll-ups condense them to `**date | version | PRs #A-#B (N PRs)**` and `**Week of ...**` blocks that STAY in the root). Only the DETAILED mirror (`/opt/grc/private/changelog-details/`) is swept to `_private`; the root roll-up and the mirror sweep are SEPARATE processes, and no move-to-`_private` process touches the root. The ONLY sanctioned removal from the root is a surgical edit fixing an AI error (for example expunging leaked private info). #1177 wrongly REMOVED six weekly summaries from the root; #1192 restored them, and the D8 reminder plus this rule foreclose the recurrence.
    - **Detailed-mirror current-week sweep** (the changelog-restructure current-week model;
      the pack rule's current-period-model section is the authoritative description): the
      detailed mirror (the operational store's `changelog-details/CHANGELOG-detailed.md`,
@@ -556,7 +558,7 @@ is external. Two mechanisms:
    in the handoff's `## Asserted expectations` section, what this session mechanically
    verified (scoped to touched surfaces) plus the green-at-`<sha>` baseline, which the
    receiving `/validate` cross-checks (a contradiction of a claimed-clean touched surface
-   is a genuine miss, escalated). The closing PR's `grc_library_private/.working/validate-pr/history.md` row
+   is a genuine miss, escalated). The closing PR's `/opt/grc/private/validate-pr/history.md` row
    records the exemption with the gate-50-recognized marker (`SKIPPED` with `handoff`, or
    `handoff-PR exception`) in its **Findings cell**, never a bare `n/a`: that cell is what
    `tools/lint-bookkeeping-parity.py` reads to classify the row as handoff-exempt, so a

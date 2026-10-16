@@ -55,7 +55,7 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
 - **If the update needs a license or a maintainer download** (cannot be auto-fetched, or egress is
   blocked), **pause and ask the maintainer.** On no response, apply the graceful-degradation
   default: defer the current item and move on to the next independent item (record it in
-  `grc_library_private/.working/pending-decisions.md`).
+  `/opt/grc/private/pending-decisions.md`).
 - **Never write or rely on a superseded version unless the maintainer explicitly authorizes**
   working from the older one. A register row, a citation, or a mapping must carry the
   upstream-confirmed current version, or the item waits.
@@ -96,7 +96,7 @@ attempt acquisition, then named options on failure. The project instantiation:
    above.
 2. **On acquisition failure** (egress-blocked, licensed/paywalled): the unattended DEFAULT is
    defer-and-skip via the roughly-5-minute graceful-degradation timer, recording the deferral in
-   `grc_library_private/.working/pending-decisions.md` as deferred-blocked, routing around to the
+   `/opt/grc/private/pending-decisions.md` as deferred-blocked, routing around to the
    next independent item, and holding anything that depends on it. Attended, surface named options:
    the maintainer downloads or provides the document (the usual resolution when licensed or
    egress-blocked); defer; or reword so the artefact does not depend on it, or cite

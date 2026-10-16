@@ -18,10 +18,10 @@ further live violation predating #1151 at ``§3.100``. This gate is the
 mechanical backstop (built in PR #1173).
 
 Four checks, spanning ``TODO.md``, the private ``P-TODO.md``,
-``.working/DONE.md``, and the public ``tools/todo-number-floor.json``:
+the operational store's ``DONE.md`` (logical ``.working/DONE.md``), and the public ``tools/todo-number-floor.json``:
 
   A. RECYCLE. A live id from ``TODO.md`` OR the private ``P-TODO.md``
-     whose number is also recorded as retired in a ``.working/DONE.md``
+     whose number is also recorded as retired in the operational store's ``DONE.md`` (logical ``.working/DONE.md``)
      heading. Such a number denotes two items, which is exactly what the
      rule forbids. A live id is an item the audit tool counts, read the
      same way in both lists (design note 5): an index row or a ``### <id>``
@@ -226,7 +226,7 @@ Exit codes:
   1   one or more findings.
   2   a required file is missing or unparseable. `.working/DONE.md` counts as
       "required" only under an EXPLICIT ``--root``; on the DEFAULT lookup it
-      resolves via ``lint_common.resolve_working`` (private sibling preferred)
+      resolves via ``lint_common.resolve_working`` (operational store preferred)
       and an ABSENT ledger downgrades the recycled-number check to a reported
       skip, exit 0.
 
@@ -1241,8 +1241,8 @@ def main(argv: list[str]) -> int:
     else:
         done_path = resolve_working("DONE.md")
         if done_path is None:
-            # `.working/DONE.md` is the maintainer-only retirement ledger. Once
-            # `.working/` moves to grc_library_private it is absent in public CI
+            # `.working/DONE.md` is the maintainer-only retirement ledger. When
+            # the operational store is absent, the ledger is absent in public CI
             # and adopter clones, so check A (RECYCLE, a LIVE id equal to a specific
             # retired id) no-ops there: without the full retired-id set there is
             # nothing a live number can be compared against. Check B (COUNTER) is

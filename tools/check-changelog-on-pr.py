@@ -9,7 +9,7 @@ range carries a `Changelog: <one-line-reason>` trailer in its message body.
 The former two-file lock-step (root CHANGELOG.md plus a detailed mirror, introduced in
 PR #125, 2026-06-21) no longer applies to the public diff: as of PR #1235 (2026-07-29,
 the working-state move to the private sibling) the detailed mirror lives in the
-private-sibling working-state store (cross-repo, invisible to a public PR diff), so this
+operational store (cross-repo, invisible to a public PR diff), so this
 gate enforces ONLY the root CHANGELOG.md.
 
 The library's CONTRIBUTING.md and audit-programme spec require a CHANGELOG entry
@@ -52,8 +52,8 @@ from lint_common import PrRangeError, resolve_pr_range  # noqa: E402  # grc-conf
 
 CHANGELOG_PATH = "CHANGELOG.md"
 
-# The detailed CHANGELOG mirror moved to the private-sibling working-state store
-# (grc_library_private/.working/changelog-details/) in the .working/ -> _private
+# The detailed CHANGELOG mirror moved to the operational store
+# (`$GRC_STORE` or `<repo-parent>/private`, under changelog-details/) in the working-state
 # migration. It is a cross-repo surface, invisible to a public PR diff, so this
 # PR-time gate requires only the PUBLIC root CHANGELOG.md.
 
@@ -140,7 +140,7 @@ def main(argv: list[str]) -> int:
         file=sys.stderr,
     )
     print(
-        "entry now lives in the private-sibling working-state mirror, cross-repo and not",
+        "entry now lives in the operational store's detailed mirror, cross-repo and not",
         file=sys.stderr,
     )
     print(
