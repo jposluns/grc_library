@@ -399,7 +399,9 @@ never add a second frontmatter block. Keep LICENSE and NOTICE beside the vendore
 snapshot. Do not fetch a moving head or install the snapshot README as a rule.
 
 In GRC, `.claude/rules/governance-compatibility.md` is generated from
-`.claude/references/governance-compatibility.md` plus the retained overlays.
+`.claude/references/governance-compatibility.md`; the fourteen retained overlays
+stay only in the legacy copies under `.claude/references/governance/`,
+digest-pinned by `tools/aiqt_rules.py`.
 Keep all legacy governance bodies under `.claude/references/governance/` and
 read them at the mandatory compatibility triggers. Do not copy `governance/`
 wholesale into `.claude/rules/` or import all the references at startup.

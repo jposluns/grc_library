@@ -41042,25 +41042,50 @@ class AIQTCutoverTests(unittest.TestCase):
         # P-TODO 3b183: the retained overlays name store files at the operational store, not the
         # retired grc_library_private/.working/ tree. The one permitted mention is change-tracking's
         # statement that changelog-details/ there is the retired fallback target. The backlog
-        # pointer names both backlogs (public TODO.md and private P-TODO.md).
-        legacy = self.aiqt.inventory(self.root)['legacy_details']
-        rendered = self.aiqt.compatibility(self.root, legacy).decode()
-        self.assertEqual(re.findall(r'grc_library_private/\.working/[\w./<>-]*', rendered),
-                         ['grc_library_private/.working/changelog-details/'])
-        self.assertNotIn('grc_library_private/degradation-watch-log.md', rendered)
+        # pointer names both backlogs (public TODO.md and private P-TODO.md). Since 3b304 W1-b the
+        # raw legacy tails are the only carrier, so a retired spelling fails here even after a
+        # deliberate OVERLAY_DIGESTS update.
         text = '\n'.join((self.root / path).read_bytes().decode('utf-8')
                          .split(self.aiqt.MARKER, 1)[1]
                          for path in self.aiqt.OVERLAY_DIGESTS)
         self.assertEqual(re.findall(r'grc_library_private/\.working/[\w./<>-]*', text),
                          ['grc_library_private/.working/changelog-details/'])
         self.assertNotIn('grc_library_private/degradation-watch-log.md', text)
-        for label, body in (('rendered', rendered), ('raw', text)):
-            self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', body)
-            for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
-                         'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
-                         'degradation-watch-log.md', 'worker-brief-template.md'):
-                with self.subTest(body=label, name=name):
-                    self.assertIn('`/opt/grc/private/' + name + '`', body)
+        self.assertIn('backlogs: public `TODO.md` and private `grc_library_private/P-TODO.md`', text)
+        for name in ('session-handoff.md', 'session-state.md', 'pending-decisions.md', 'DONE.md',
+                     'overnight-pr.md', 'verifier-overrides.md', 'validate-sweeps/history.md',
+                     'degradation-watch-log.md', 'worker-brief-template.md'):
+            with self.subTest(name=name):
+                self.assertIn('`/opt/grc/private/' + name + '`', text)
+
+    def test_overlay_d2_raw(self):
+        # P-TODO 3b304 W1-b: the generator no longer rewrites the superseded authoring bullet, so
+        # the raw ai-assistant-workflow-disciplines tail states maintainer D2 itself.
+        path = '.claude/references/governance/ai-assistant-workflow-disciplines.md'
+        raw = (self.root / path).read_bytes().decode('utf-8').split(self.aiqt.MARKER, 1)[1]
+        self.assertIn('- Maintainer D2 (2026-10-02): upstream owns the pinned AIQT bytes; GRC owns'
+                      ' compatibility and legacy publication procedures. Portable AIQT changes'
+                      ' require upstream review and an explicit re-pin.', ' '.join(raw.split()))
+        self.assertNotIn('Guardrails authoring instantiation', raw)
+        self.assertNotIn('one-way publication', raw)
+
+    def test_compatibility_target_is_source_alone(self):
+        # P-TODO 3b304 W1-b: the always-loaded rule is its source's exact bytes; the overlay tails
+        # stay in the legacy copies. Two overlay clauses stay always loaded in the source, once each.
+        legacy = self.aiqt.inventory(self.root)['legacy_details']
+        source = (self.root / self.aiqt.SOURCE).read_bytes()
+        self.assertEqual(self.aiqt.compatibility(self.root, legacy), source)
+        self.assertEqual((self.root / self.aiqt.TARGET).read_bytes(), source)
+        text = source.decode('utf-8')
+        self.assertNotIn(self.aiqt.MARKER, text)
+        self.assertEqual(re.findall(r'^## .*$', text, re.M), [])
+        words = ' '.join(text.split())
+        for clause in ('Record and assess a degradation hypothesis in the degradation-watch-log'
+                       ' before asserting it.',
+                       'Maintainer return does not restore attended mode; swap-back needs an'
+                       ' explicit operator instruction.'):
+            with self.subTest(clause=clause):
+                self.assertEqual(words.count(clause), 1)
 
     def test_claude_md_cites_live_store_paths(self):
         # P-TODO 3b299: the always-loaded .claude/CLAUDE.md names the operational records at the

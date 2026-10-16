@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Pinned AIQT bytes and declared scopes use exact equality, including metadata.
 Legacy GRC bodies remain mirrored under .claude/references/governance/;
-the compatibility output deterministically includes their retained overlays.
+the compatibility output is generated from its source alone, and the retained
+overlays stay in the legacy copies, digest-pinned by tools/aiqt_rules.py.
 
 Claude-rules local-copy sync audit.
 

@@ -330,10 +330,9 @@ The disciplines implement the same audit-trail-integrity principle the broader p
 - Exchange channel and runbook: `multi-session-orchestration` (the former `grc_library_scratch` exchange
   channel is RETIRED, maintainer-directed 2026-09-23; worker results return synchronously via orch-verify and
   guardrail seeds go to guardrails via `inbox-send`).
-- Guardrails authoring instantiation (TF-2 closed, Option B locked 2026-08-02):
-  `grc_library` is the authoritative authoring and dogfood source; the standalone
-  `guardrails` repository under the maintainer's account is a one-way publication
-  target, never an upstream authoring dependency.
+- Maintainer D2 (2026-10-02): upstream owns the pinned AIQT bytes; GRC owns
+  compatibility and legacy publication procedures. Portable AIQT changes require
+  upstream review and an explicit re-pin.
 - Gate-37 instantiation: until the root `guardrails/` cutover, gate 37 preserves
   byte parity between the portable pack source and the project-local rule bodies
   (after stripping sanctioned local overlays). The migration EXTENDS that hard
