@@ -2,8 +2,8 @@
 
 **Document Title:** OT Incident Response Procedure\
 **Document Type:** Procedure\
-**Version:** 1.3.0\
-**Date:** 2026-10-15\
+**Version:** 1.3.1\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`security/procedure-security-incident-response.md`](../../security/procedure-security-incident-response.md), [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md), [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md), [`resilience/procedure-security-incident-reporting-and-escalation.md`](../../resilience/procedure-security-incident-reporting-and-escalation.md), [`resilience/standard-business-continuity-and-disaster-recovery.md`](../../resilience/standard-business-continuity-and-disaster-recovery.md), [`resilience/template-lessons-learned.md`](../../resilience/template-lessons-learned.md), [`risk/procedure-risk-register.md`](../../risk/procedure-risk-register.md), [`compliance/procedure-capa.md`](../../compliance/procedure-capa.md), [`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md), [`compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md`](../../compliance/energy-and-utilities/annex-energy-and-utilities-sector-requirements.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -306,9 +306,9 @@ These windows are indicative; the resilience domain's BC/DR standard ([`resilien
 
 11.2.1 Regulatory reporting obligations vary by jurisdiction and sector. The Communications Owner and Legal Counsel determine applicability and timing for each incident. Common OT-relevant reporting regimes:
 
-- **NERC CIP** (North American electricity): EOP-004-4 emergency reporting; CIP-008 reportable cyber security incidents.
+- **NERC CIP** (North American electricity): EOP-004-4 emergency reporting; CIP-008 reportable cyber security incidents. NERC EOP-004-4 is not held in the reference base; adopters confirm its current text and reporting obligations directly. <!-- ref-absence: EOP-004-4 -->
 - **EU NIS 2** (essential or important entities subject to Article 23): Entities must submit to the CSIRT or, where applicable, the competent authority: early warning without undue delay and in any event within 24 hours of becoming aware of the significant incident, incident notification with an initial assessment without undue delay and in any event within 72 hours of becoming aware of the significant incident, except that a trust service provider must notify without undue delay and in any event within 24 hours of becoming aware of significant incidents that have an impact on the provision of its trust services (Article 23(4), second subparagraph), an intermediate report on relevant status updates upon request of a CSIRT or, where applicable, the competent authority (Article 23(4)(c)), final report within one month after submission of the incident notification (or, where the incident is still ongoing at that point, a progress report then and the final report within one month of handling, Art 23(4)(e)) per the NIS 2 implementation annex ([`compliance/annex-nis-2-implementation.md`](../../compliance/annex-nis-2-implementation.md)).
-- **Sector-specific transport regulators**: TSA pipeline directives (US), maritime cyber risk management guidelines (IMO MSC-FAL.1/Circ.3), aviation cybersecurity guidance (the non-binding ICAO Aviation Cybersecurity Strategy, October 2019).
+- **Sector-specific transport regulators**: TSA pipeline directives (US; the TSA Pipeline Security Directives are not held in the reference base, so adopters confirm their current text and applicability directly <!-- ref-absence: TSA Pipeline Security Directive -->), maritime cyber risk management guidelines (IMO MSC-FAL.1/Circ.3/Rev.4), aviation cybersecurity guidance (the non-binding ICAO Aviation Cybersecurity Strategy, October 2019).
 - **Privacy regulators**: where the OT incident affects personal data (operator credentials, employee records on engineering workstations) per the privacy breach response procedure ([`privacy/procedure-data-protection-and-privacy-breach-response.md`](../../privacy/procedure-data-protection-and-privacy-breach-response.md)).
 
 11.2.2 Sector coordinator reporting (E-ISAC for North American electricity; WaterISAC for US water sector; equivalent ISACs by sector) is voluntary but encouraged and may be required by sector-specific obligations the adopter participates in.
@@ -354,16 +354,16 @@ OT forensics operates under constraints that do not apply to IT forensics:
 
 | Framework | Reference | Relevance |
 | --- | --- | --- |
-| IEC 62443-2-1 | Establishing an IACS security programme | Incident management within IACS programme |
+| IEC 62443-2-1 | Establishing an IACS security programme | Incident management within IACS programme; IEC 62443-2-1 is not held in the reference base, so adopters confirm its current text directly <!-- ref-absence: IEC 62443-2-1 --> |
 | NIST SP 800-82 Rev. 3 | Guide to Operational Technology (OT) Security | Incident handling guidance for OT |
 | NIST SP 800-61 Rev. 3 | Incident Response Recommendations and Considerations for Cybersecurity Risk Management (CSF 2.0 Community Profile) | Rev. 3 reorganizes incident response around the six NIST CSF 2.0 Functions (Govern, Identify, Protect, Detect, Respond, Recover), retiring the previous preparation/detection/containment/eradication/post-incident life-cycle model; incident-handling recommendations for OT cybersecurity risk management |
 | ISO/IEC 27035-1:2023, ISO/IEC 27035-2:2023 | Information security incident management | Broader incident management framework |
 | ISO/IEC 27037:2012 | §6.1: Chain of custody; §6.8: Prioritizing collection and acquisition | Volatile-evidence prioritization before state-altering actions and chain of custody for OT forensic evidence |
-| IEC 61511 | Functional safety: Safety instrumented systems for the process industry sector | Safety-management precedence on SIS-implicated incidents |
+| IEC 61511 | Functional safety: Safety instrumented systems for the process industry sector | Safety-management precedence on SIS-implicated incidents; IEC 61511 is not held in the reference base, so adopters confirm its current text directly <!-- ref-absence: IEC 61511 --> |
 | NERC CIP-008 | Cyber security incident reporting and response planning | North American electricity reporting requirements |
 | EU NIS 2 Directive | Cybersecurity of network and information systems | EU essential and important entity reporting timelines |
-| TSA Pipeline Security Directives | Sector-specific incident reporting | US pipeline operators |
-| IMO MSC-FAL.1/Circ.3 | Maritime cyber risk management | Maritime sector incident considerations |
+| TSA Pipeline Security Directives | Sector-specific incident reporting | US pipeline operators; the TSA Pipeline Security Directives are not held in the reference base, so adopters confirm their current text and applicability directly <!-- ref-absence: TSA Pipeline Security Directive --> |
+| IMO MSC-FAL.1/Circ.3/Rev.4 | Maritime cyber risk management | Maritime sector incident considerations |
 
 ---
 
