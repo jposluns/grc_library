@@ -13006,6 +13006,390 @@ class CcmAicmCitationTests(LinterTestCase):
         )
         result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
         self.assertLinterFails(result, "ccm-bare-domain-title-mismatch")
+
+    def test_glossary_canonical_domain_rows_pass(self) -> None:
+        # Glossary check (3b296): marker rows giving the exact DOMAIN_NAMES name pass,
+        # including a trailing note with a canonical "DCS (Datacenter Security)"
+        # cross-mention.
+        fixture = self.make_fixture(
+            "register-glossary.md",
+            "# Glossary\n\n| Term | Definition |\n| --- | --- |\n"
+            "| **CEK** | (CSA CCM domain) Cryptography, Encryption & Key Management. |\n"
+            "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+            "Distinct from DCS (Datacenter Security) in CCM v4.1. |\n"
+            "| **STA** | (CSA CCM domain) Supply Chain Management, Transparency, and Accountability. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertEqual(
+            result.returncode, 0,
+            f"canonical glossary domain rows must pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+
+    def test_glossary_other_domain_name_flagged(self) -> None:
+        # The PR #2721 defect: the DCS row carried DSP's name.
+        fixture = self.make_fixture(
+            "register-glossary.md",
+            "| **DCS** | Two distinct meanings disambiguated by context: (1) (CSA CCM domain) "
+            "Data Security and Privacy Lifecycle Management; (2) (OT) Distributed Control System. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "[ccm-glossary-domain-name]")
+        self.assertIn("is the name of a different domain, DSP; DCS is 'Datacenter Security'",
+                      result.stdout)
+
+    def test_glossary_unknown_and_aicm_only_code_flagged(self) -> None:
+        # An unknown code fails with its KNOWN_BAD_DOMAINS hint; the AICM-only MDS
+        # domain under a CCM-only marker fails.
+        unknown = self.make_fixture(
+            "register-glossary.md",
+            "| **GRM** | (CSA CCM domain) Governance and Risk Management. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", unknown)
+        self.assertLinterFails(result, "[ccm-glossary-unknown-domain]")
+        self.assertIn("GRM: not a CCM/AICM domain code; use GRC (GRM was the CCM v3.0.1 code",
+                      result.stdout)
+        aicm_only = self.make_fixture(
+            "register-glossary.md",
+            "| **MDS** | (CSA CCM domain) Model Security. |\n",
+        )
+        self.assertLinterFails(
+            run_linter("tools/lint-ccm-aicm-citations.py", aicm_only),
+            "[ccm-glossary-aicm-only-domain]")
+
+    def test_glossary_and_for_ampersand_is_form_difference(self) -> None:
+        # Strict comparison: "and" for "&" fails, and the message calls it a form
+        # difference rather than another domain's name.
+        fixture = self.make_fixture(
+            "register-glossary.md",
+            "| **TVM** | (CSA CCM domain) Threat and Vulnerability Management. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", fixture)
+        self.assertLinterFails(result, "[ccm-glossary-domain-name]")
+        self.assertIn("is a form difference from the canonical 'Threat & Vulnerability Management'",
+                      result.stdout)
+
+    def test_glossary_numbered_multi_meaning_row_parsed(self) -> None:
+        # The "(1) (CSA CCM domain) X; (2) (OT) Y" form: the expansion ends at the
+        # ";", so the canonical row passes and a wrong meaning (1) is reported alone.
+        row = ("| **DCS** | Two distinct meanings disambiguated by context: (1) (CSA CCM domain) "
+               "{name}; (2) (OT) Distributed Control System. The library uses CCM-DCS for the "
+               "cloud-control-matrix domain. |\n")
+        ok = self.make_fixture("register-glossary.md", row.format(name="Datacenter Security"))
+        result = run_linter("tools/lint-ccm-aicm-citations.py", ok)
+        self.assertEqual(
+            result.returncode, 0,
+            f"the canonical numbered DCS row must pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        bad = self.make_fixture("register-glossary.md", row.format(name="Data Centre Security"))
+        result = run_linter("tools/lint-ccm-aicm-citations.py", bad)
+        self.assertLinterFails(
+            result, "DCS: domain expansion 'Data Centre Security' is not the canonical")
+        self.assertEqual(result.stdout.count("[ccm-"), 1, result.stdout)
+        self.assertIn("FAIL: 1 CCM/AICM citation issue(s)", result.stderr)
+
+    def test_glossary_ampersand_code_parsed(self) -> None:
+        # I&S (an "&" code gate 20's glossary regex cannot match) is parsed: the
+        # canonical row with its rename note passes, a wrong expansion fails.
+        ok = self.make_fixture(
+            "register-glossary.md",
+            "| **I&S** | (CSA CCM domain) Infrastructure Security. Renamed from the v4.0 IVS "
+            "(Infrastructure and Virtualization Security) domain in CCM v4.1.0. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", ok)
+        self.assertEqual(
+            result.returncode, 0,
+            f"the canonical I&S row must pass.\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        bad = self.make_fixture(
+            "register-glossary.md",
+            "| **I&S** | (CSA CCM domain) Infrastructure and Virtualization Security. |\n",
+        )
+        self.assertLinterFails(
+            run_linter("tools/lint-ccm-aicm-citations.py", bad),
+            "I&S: domain expansion 'Infrastructure and Virtualization Security'")
+
+    def test_glossary_equivalence_and_cross_mention_flagged(self) -> None:
+        # The PR #2721 DSP defect: a correct expansion, but the row equates DSP with
+        # DCS. A non-canonical "CODE (Name)" cross-mention also fails.
+        equated = self.make_fixture(
+            "register-glossary.md",
+            "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+            "Used interchangeably with DCS in CCM v4.1. |\n",
+        )
+        result = run_linter("tools/lint-ccm-aicm-citations.py", equated)
+        self.assertLinterFails(result, "[ccm-glossary-domain-equivalence]")
+        self.assertIn("row equates DSP with the distinct DCS domain", result.stdout)
+        mention = self.make_fixture(
+            "register-glossary.md",
+            "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+            "Distinct from DCS (Data Centre Security) in CCM v4.1. |\n",
+        )
+        self.assertLinterFails(
+            run_linter("tools/lint-ccm-aicm-citations.py", mention),
+            "[ccm-glossary-cross-mention]")
+
+    def test_glossary_absent_or_without_marker_rows_skipped(self) -> None:
+        # An adopter fork without the glossary is skipped with no finding; a
+        # glossary with no marker rows passes.
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_3b296")
+        plain = self.make_fixture(
+            "register-glossary.md",
+            "| **GRC** | Governance, Risk, and Compliance. |\n",
+        )
+        self.assertEqual(mod.scan_glossary(plain), [])
+        self.assertEqual(mod.scan_glossary(plain.parent / "absent" / "register-glossary.md"), [])
+        self.assertEqual(mod.reference_findings(), [])
+
+    def test_glossary_main_skips_tree_without_glossary(self) -> None:
+        # main() calls scan_glossary only for a target named register-glossary.md: a
+        # tree holding a wrong marker row under another name passes, and the same
+        # row under the glossary name is scanned.
+        import contextlib
+        from unittest import mock
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_main")
+        row = "| **TVM** | (CSA CCM domain) Threat and Vulnerability Management. |\n"
+        other = self.make_fixture("register-acronyms.md", row)
+        scanned: list = []
+        real = mod.scan_glossary
+        with mock.patch.object(mod, "scan_glossary",
+                               side_effect=lambda p: scanned.append(p) or real(p)):
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(mod.main(["lint", str(other.parent)]), 0)
+            self.assertEqual(scanned, [])
+            glossary = self.make_fixture("register-glossary.md", row)
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                self.assertEqual(mod.main(["lint", str(other.parent)]), 1)
+        self.assertEqual(scanned, [glossary])
+        self.assertIn("L1 [ccm-glossary-domain-name] TVM:", out.getvalue())
+
+    def test_glossary_reference_drift_reported(self) -> None:
+        # A code in only one of VALID_DOMAINS / DOMAIN_NAMES is reported against the
+        # "DOMAIN_NAMES =" line of the reference file.
+        from unittest import mock
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_drift")
+        lines = mod.REFERENCE_PATH.read_text(encoding="utf-8").splitlines()
+        want_line = next(i for i, ln in enumerate(lines, start=1) if ln.startswith("DOMAIN_NAMES ="))
+        names = {c: n for c, n in mod.DOMAIN_NAMES.items() if c != "UEM"}
+        names["ZZZ"] = "Invented Domain"
+        with mock.patch.object(mod, "DOMAIN_NAMES", names):
+            findings = mod.reference_findings()
+        self.assertEqual(
+            [(f.path, f.line, f.rule, f.message) for f in findings],
+            [(mod.REFERENCE_PATH, want_line, "ccm-reference-domain-drift", "UEM is in VALID_DOMAINS only"),
+             (mod.REFERENCE_PATH, want_line, "ccm-reference-domain-drift", "ZZZ is in DOMAIN_NAMES only")])
+        with mock.patch.object(mod, "VALID_DOMAINS", frozenset(mod.VALID_DOMAINS) | {"QQQ"}):
+            self.assertEqual([f.message for f in mod.reference_findings()],
+                             ["QQQ is in VALID_DOMAINS only"])
+
+    def test_glossary_equivalence_wordings(self) -> None:
+        # Either order, a version number between the words, and "same <noun> as" are
+        # equivalences; a negated word (straight or curly apostrophe), "same time as",
+        # a code in another clause, or a code in a contrasting phrase, is not.
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_equiv")
+        head = "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+        flagged = [
+            "DSP and DCS are interchangeable.",
+            "Used interchangeably with DCS.",
+            "Used interchangeably with the CCM v4.1 DCS domain.",
+            "DCS in CCM v4.1 is used interchangeably.",
+            "It is the same domain as DCS.",
+            "Same as DCS.",
+            "A synonym for DCS.",
+            "DCS is an alias.",
+            "Equivalent to DCS; distinct from IPY.",
+            "Not a v4.0 code, but used interchangeably with DCS.",
+            "Same code as DCS.",
+            "Unlike IPY, used interchangeably with DCS.",
+        ]
+        passing = [
+            "Not interchangeable with DCS.",
+            "DSP and DCS are not interchangeable.",
+            "Never equivalent to DCS.",
+            "No longer the same as DCS in CCM v4.1.",
+            "DCS isn't an alias of DSP.",
+            "Distinct from DCS. Older texts used the terms interchangeably.",
+            "Distinct from DCS; the two are often treated as synonyms elsewhere.",
+            "Same as the v4.0 DSP domain.",
+            "DCS isn\u2019t an alias of DSP.",
+            "Audited at the same time as DCS controls.",
+            "DSP is equivalent to DSP, but distinct from DCS.",
+            "Equivalent to DSP, whereas DCS covers facilities.",
+            "Same as DSP, unlike DCS.",
+            "Equivalent to DSP, not DCS.",
+            "DCS is not equivalent to DSP, but DSP is equivalent to DSP.",
+            "DCS is not equivalent to DSP, whereas DSP is equivalent to DSP.",
+            "DCS is not equivalent to DSP, while DSP is equivalent to DSP.",
+        ]
+        for i, text in enumerate(flagged + passing):
+            with self.subTest(text=text):
+                glossary = self.make_fixture(f"e{i}-register-glossary.md", head + text + " |\n")
+                rules = [(f.rule, f.message) for f in mod.scan_glossary(glossary)]
+                if text in flagged:
+                    self.assertEqual(rules, [(
+                        "ccm-glossary-domain-equivalence",
+                        "DSP: row equates DSP with the distinct DCS domain ('Datacenter Security')")])
+                else:
+                    self.assertEqual(rules, [])
+
+    def test_glossary_equivalence_phrase_limits(self) -> None:
+        # These examples pin the documented phrase heuristic, including its loud
+        # false positives and equivalences missed across a phrase boundary.
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_limits")
+        head = "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+        cases = [
+            ("DCS, equivalent to this domain.", False),
+            ("DCS while CCM v3 was current was equivalent to this domain.", False),
+            ("DSP is equivalent to DSP and DCS is not equivalent to DSP.", True),
+            ("Equivalent to DSP rather than DCS.", True),
+            ("Equivalent to DSP instead of DCS.", True),
+        ]
+        for i, (body, flagged) in enumerate(cases):
+            with self.subTest(body=body):
+                glossary = self.make_fixture(f"limit{i}-register-glossary.md", head + body + " |\n")
+                rules = [(f.rule, f.message) for f in mod.scan_glossary(glossary)]
+                want = [(
+                    "ccm-glossary-domain-equivalence",
+                    "DSP: row equates DSP with the distinct DCS domain ('Datacenter Security')",
+                )] if flagged else []
+                self.assertEqual(rules, want)
+
+    def test_glossary_ampersand_codes_in_mentions_and_aicm_marker(self) -> None:
+        # I&S and A&A are matched as cross-mentions and in an equivalence; the
+        # "(CSA CCM/AICM domain)" marker lets the AICM-only MDS pass; a fenced row is
+        # not checked.
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_amp")
+        cases = {
+            "| **IPY** | (CSA CCM domain) Interoperability & Portability. Distinct from "
+            "I&S (Infrastructure Security) and A&A (Audit & Assurance). |": [],
+            "| **IPY** | (CSA CCM domain) Interoperability & Portability. Distinct from "
+            "I&S (Infrastructure and Virtualization Security). |": [
+                ("ccm-glossary-cross-mention", "IPY: cross-mention 'I&S (Infrastructure and "
+                 "Virtualization Security)': 'Infrastructure and Virtualization Security' is "
+                 "not the canonical 'Infrastructure Security'")],
+            "| **IPY** | (CSA CCM domain) Interoperability & Portability. Distinct from "
+            "A&A (Audit and Assurance). |": [
+                ("ccm-glossary-cross-mention", "IPY: cross-mention 'A&A (Audit and Assurance)': "
+                 "'Audit and Assurance' is a form difference from the canonical 'Audit & Assurance'")],
+            "| **LOG** | (CSA CCM domain) Logging and Monitoring. LOG and A&A are "
+            "interchangeable. |": [
+                ("ccm-glossary-domain-equivalence",
+                 "LOG: row equates LOG with the distinct A&A domain ('Audit & Assurance')")],
+            "| **A&A** | (CSA CCM domain) Audit & Assurance. Same as I&S in CCM v4.1. |": [
+                ("ccm-glossary-domain-equivalence",
+                 "A&A: row equates A&A with the distinct I&S domain ('Infrastructure Security')")],
+            "| **MDS** | (CSA CCM/AICM domain) Model Security. |": [],
+            "```\n| **MDS** | (CSA CCM domain) Model Safety. |\n```": [],
+        }
+        for i, (row, want) in enumerate(cases.items()):
+            with self.subTest(row=row):
+                glossary = self.make_fixture(f"a{i}-register-glossary.md", row + "\n")
+                self.assertEqual([(f.rule, f.message) for f in mod.scan_glossary(glossary)], want)
+
+    def test_glossary_long_malformed_row_is_linear(self) -> None:
+        # A long row with no closing "|", and a long whitespace run inside an
+        # expansion, are parsed without quadratic backtracking.
+        import time
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_long")
+        pad = " " * 200_000
+        glossary = self.make_fixture(
+            "register-glossary.md",
+            "| **DCS** | (CSA CCM domain) Datacenter" + pad + "x\n"
+            "| **DCS** | (CSA CCM domain) Datacenter" + pad + "(2) x |\n",
+        )
+        start = time.monotonic()
+        findings = mod.scan_glossary(glossary)
+        self.assertLess(time.monotonic() - start, 5.0)
+        self.assertEqual([(f.line, f.rule) for f in findings], [(2, "ccm-glossary-domain-name")])
+
+    def test_glossary_repeated_negated_equivalence_is_linear(self) -> None:
+        # A long clause of repeated negated equivalence words (quadratic when each word
+        # tokenised the whole clause before it), repeated contrasting phrases, and a
+        # long backslash run are each scanned in linear time.
+        import time
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_negated_long")
+        head = "| **DSP** | (CSA CCM domain) Data Security and Privacy Lifecycle Management. "
+        glossary = self.make_fixture(
+            "register-glossary.md",
+            head + "DCS " + "not interchangeable " * 20_000 + "|\n"
+            + head + "Equivalent to DSP" + ", but distinct from DCS" * 10_000 + ". |\n"
+            + "| **DCS** | (CSA CCM domain) Datacenter Security. " + "\\" * 200_000 + "x |\n",
+        )
+        start = time.monotonic()
+        findings = mod.scan_glossary(glossary)
+        self.assertLess(time.monotonic() - start, 5.0)
+        self.assertEqual(findings, [])
+
+    def test_glossary_code_and_break_growth(self) -> None:
+        # Coarse growth check: many codes and contrast boundaries exercise the cursors.
+        import time
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_code_growth")
+        unit = "DCS is not equivalent to DSP, but DSP is equivalent to DSP, "
+        small = unit * (10_000 // len(unit))
+        large = unit * (100_000 // len(unit))
+
+        def measure(body: str) -> float:
+            start = time.perf_counter()
+            codes = mod._equated_codes(body)
+            elapsed = time.perf_counter() - start
+            self.assertEqual(codes, ["DSP", "DSP"] * (len(body) // len(unit)))
+            return elapsed
+
+        small_time = min(measure(small) for _ in range(3))
+        large_time = min(measure(large) for _ in range(3))
+        self.assertLess(large_time, small_time * 20 + 0.05)
+
+    def test_glossary_marker_growth_without_delimiters(self) -> None:
+        # Coarse growth check: each marker's name ends at the next marker.
+        import time
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_marker_growth")
+        marker = "(CSA CCM domain) Datacenter Security "
+
+        def measure(count: int) -> float:
+            glossary = self.make_fixture(
+                "register-glossary.md", "| **DCS** | " + marker * count + "|\n")
+            start = time.perf_counter()
+            findings = mod.scan_glossary(glossary)
+            elapsed = time.perf_counter() - start
+            self.assertEqual(findings, [])
+            return elapsed
+
+        small_time = min(measure(1_000) for _ in range(3))
+        large_time = min(measure(10_000) for _ in range(3))
+        self.assertLess(large_time, small_time * 20 + 0.05)
+
+    def test_glossary_equivalence_word_growth(self) -> None:
+        # Coarse growth check for repeated matches inside one long word run.
+        import time
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_word_growth")
+
+        def measure(count: int) -> float:
+            body = "equivalent'" * count
+            start = time.perf_counter()
+            codes = mod._equated_codes(body)
+            elapsed = time.perf_counter() - start
+            self.assertEqual(codes, [])
+            return elapsed
+
+        small_time = min(measure(5_000) for _ in range(3))
+        large_time = min(measure(50_000) for _ in range(3))
+        self.assertLess(large_time, small_time * 20 + 0.05)
+
+    def test_glossary_escaped_pipe_parity(self) -> None:
+        # A "|" after an even run of backslashes closes the cell (the run is literal
+        # backslashes); after an odd run it is escaped and stays in the cell.
+        mod = load_linter_module("tools/lint-ccm-aicm-citations.py", "_ccm_glossary_pipes")
+        head = "| **DCS** | (CSA CCM domain) Data Centre Security. "
+        body = "(CSA CCM domain) Data Centre Security. "
+        self.assertEqual(mod._glossary_row(head + "Ends in \\\\|"), ("DCS", body + "Ends in \\\\"))
+        self.assertEqual(mod._glossary_row(head + "A \\\\\\| B. |"), ("DCS", body + "A \\\\\\| B."))
+        self.assertIsNone(mod._glossary_row(head + "Ends in \\|"))
+        glossary = self.make_fixture("register-glossary.md", head + "Ends in \\\\|\n")
+        self.assertEqual([(f.line, f.rule) for f in mod.scan_glossary(glossary)],
+                         [(1, "ccm-glossary-domain-name")])
 class MatrixControlCodeTests(LinterTestCase):
     """tools/lint-matrix-control-codes.py"""
 
