@@ -4,6 +4,10 @@ The compatibility target is the exact bytes of its source. The fourteen
 retained overlays stay only in their legacy copies, below the PROJECT-OVERLAY
 marker, and are not rendered into the target.
 
+Every comparison is of exact bytes, so a checkout with git core.autocrlf=true
+fails the compatibility check and --check by design: the retained tails then
+carry CRLF line endings and fail as "retained overlay drift: <path>".
+
 OVERLAY_DIGESTS pins the SHA-256 of the raw UTF-8 bytes that follow the first
 PROJECT-OVERLAY marker in each retained legacy file, read without newline
 translation or strip. To change a retained overlay, edit the
@@ -100,7 +104,10 @@ def overlays(root, legacy):
     parts = []
     paths = []
     for path in legacy:
-        text = (root / path).read_bytes().decode("utf-8")
+        try:
+            text = (root / path).read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            raise ValueError("invalid overlay encoding: " + path) from None
         count = text.count(MARKER)
         if path not in OVERLAY_DIGESTS:
             if count:
@@ -194,7 +201,7 @@ def compatibility_target(root):
     target = root / TARGET
     if (target.is_symlink() or target.parent.is_symlink() or target.resolve() != target
             or (target.exists() and (not target.is_file() or target.stat().st_nlink != 1))):
-        raise ValueError("refusing non-regular compatibility target")
+        raise ValueError("refusing aliased or non-regular compatibility target")
     return target
 
 def atomic_write(target, content):
