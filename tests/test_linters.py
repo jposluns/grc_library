@@ -6368,6 +6368,21 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(len(warned), 1, out)
         self.assertIn("'45 CFR Part 165'", warned[0])
 
+    def test_tsa_pipeline_directives_plural_alias(self) -> None:
+        rows = self.ROWS + (("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),)
+        out = self._check(
+            self._doc(),
+            self._doc(
+                "| TSA Pipeline Security Directives | Incident reporting | US pipelines |",
+                "| US TSA Pipeline Security Directives | TSA SDs | Pipelines |",
+                "| US TSA Rail Cybersecurity Directives | TSA SDs | Rail |",
+            ),
+            register=self._register(rows),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", warned[0])
+
     def test_unregistered_usc_sections_are_reported(self) -> None:
         out = self._check(
             self._doc(),
