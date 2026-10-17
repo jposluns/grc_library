@@ -44,22 +44,27 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
    field; a record with no such field, or with more than one, names no extract through the
    record. A matched line that itself holds an extract path in backticks or double quotes (such
    as a record's own quoted `path:` line) still names that path; a path opened by one delimiter
-   and closed by the other names nothing. One leading byte-order mark in an extract is ignored.
+   and closed by the other names nothing. Every leading byte-order mark in an extract is ignored.
    The title is the first non-blank line when, after leading whitespace, it starts `# `; a later
-   `# ` line is a body heading. A metadata bullet starts `- ` at column 0; an indented `- ` line
-   is body. A `---` within the first 40 lines ends the header only while every line before it is
-   header material: the title, blank lines, metadata bullets, and a screening section (a
-   `## Screening note` line and every line after it up to the `---`), so a publication's
-   Screening note is header. Any other line before the `---` (body prose, another heading, an
-   indented bullet, a `----- PAGE` line) ends the header just above it and any blank lines before
-   it, and the `---` is then a horizontal rule in the body. With no `---` in the first 40 lines,
-   the header ends at the first of these lines: a `----- PAGE` line, a blank line after a
-   metadata bullet, or a `# ` line other than the title or an indented `- ` line (before or after
-   the first metadata bullet); before the first metadata bullet, any other line except a blank or
-   the title also ends it, and after it any other non-blank line stays header. A record whose
-   single `path:` or `extract:` field does not hold a quoted `--full-text.md` path names no
-   extract, and record lines after a line of another shape are not attributed to the record. A
-   screened publication extract may omit material by design, and its Screening note says what.
+   heading starting with one or more `#` and a space is body, except a `## Screening note` section
+   before a `---`. A metadata bullet starts `- ` at column 0; an indented `- ` line is body. A `---`
+   within the first 40 lines ends the header only while every line before it is header material:
+   the title, blank lines, metadata bullets, and a screening section (a `## Screening note` line
+   and every line after it up to the `---`),
+   so a publication's Screening note is header. Any other line before the `---` (body prose,
+   another heading, an indented bullet, a `----- PAGE` line) ends the header just above it and
+   any blank lines before it; the `---` is then a horizontal rule in the body. With no `---` in
+   the first 40 lines, the header ends at the first of these lines: a `----- PAGE` line, a blank
+   line after a metadata bullet, a non-title line that, after leading whitespace, starts with
+   one or more `#` and a space, or an indented `- ` line (before or after the first metadata
+   bullet). Other non-blank prose also ends the header, before or after the first metadata bullet,
+   as it does with `---`. A wrapped bullet's continuation line ends the header, with or without a
+   `---`, so a marker on it or after it is missed; none occur in the reference base. An indented
+   metadata sub-bullet is read as body, so its marker is missed; none occur in the reference base.
+   A record whose single `path:` or `extract:` field does not hold a quoted `--full-text.md` path
+   names no extract, and record lines after a line of another shape are not attributed to the
+   record. A screened publication extract may omit material by
+   design, and its Screening note says what.
    Such an omission, or a gap described in words other than a marker form, is not detected: read
    the header before quoting. CANNOT-EVALUATE, printed on stderr with exit 2, means a matched
    extract could not be evaluated: it is missing, cannot be read, is not a regular file, is a

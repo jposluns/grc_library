@@ -28,23 +28,23 @@ its ``  - `` line through its indented ``    key:`` field lines; blank and comme
 it are skipped, and any other line ends it. A record with no such field, or with more than one
 (even if one of them is an extract path), names no extract through the record; but a matched
 line that itself holds an extract path in backticks or double quotes (such as that record's own
-quoted ``path:`` line) names
-that path, as above, because the line names the extract directly. The header is the title and the
-metadata at the top of the extract (one leading byte-order mark is ignored). The title is the
-first non-blank line when, after leading whitespace, it starts ``# ``; a later ``# `` line is a
-body heading. A metadata bullet is a line starting ``- `` at column 0; an indented ``- `` line is
-not one. A ``---`` line within the first 40 lines ends the header at the
-first one, but only while every line before it is header material: the title, blank lines,
-metadata bullet lines, and a screening section (a line starting ``## Screening note`` and every
-line after it up to the ``---``), so a publication's Screening note is header. The first line
-before the ``---`` of any other kind (body prose, a heading other than the title, an indented
-bullet, a ``----- PAGE`` line) ends the header instead: the header stops before that line and any
-blank lines just above it, and the ``---`` is then a horizontal rule in the body. With no ``---``
-in the first 40 lines, the header ends at the first of these lines: a ``----- PAGE`` line, a blank
-line after a metadata bullet line, or a ``# `` line other than the title or an indented ``- ``
-line (before or after the first metadata bullet); before the first metadata bullet, any other line
-except a blank or the title also ends it, and after it any other non-blank line stays header. At
-most the first 40 lines, within the first 256 KiB, are header. A
+quoted ``path:`` line) names that path directly. The header is the title and metadata at the top
+of the extract (every leading byte-order mark is ignored). The title is the first non-blank
+line when, after leading whitespace, it starts ``# ``; a later heading starting with one or
+more ``#`` and a space is body, except a ``## Screening note`` section before a ``---``. A
+metadata bullet starts ``- `` at column 0; an indented ``- `` line is body. A ``---`` line within
+the first 40 lines ends the header at the first one, but only while every line before it is
+header material: the title, blank lines, metadata bullets, and a screening section (a line
+starting ``## Screening note`` and every line after it up to the ``---``), so a publication's
+Screening note is header. The first line before the ``---`` of any other kind (body prose, a
+heading other than the title, an indented bullet, a ``----- PAGE`` line) ends the header instead:
+the header stops before that line and any blank lines just above it, and the ``---`` is then a
+horizontal rule in the body. With no ``---`` in the first 40 lines, the header ends at the first
+of these lines: a ``----- PAGE`` line, a blank line after a metadata bullet, a non-title line that
+starts with one or more ``#`` and a space after leading whitespace, or an indented ``- `` line
+(before or after the first metadata bullet). Other non-blank prose also ends the header,
+before or after the first metadata bullet,
+as it does with ``---``. At most the first 40 lines, within the first 256 KiB, are header. A
 header line carrying "INCOMPLETE BODY", "NO BODY TEXT", "PARTIAL:" or "Not recovered" (the marker
 forms the reference base's extracts use) marks the body incomplete, and so does a body with no
 non-blank line after the header (``---`` and ``----- PAGE`` lines are not body text). Incomplete
@@ -64,11 +64,14 @@ Residuals (not detected): the markers are exact and case-sensitive substrings, s
 in other words (or in another case) is not detected; text before the first ``---`` is header only
 under the rule above, so a note after a line of another kind (other than in a screening section)
 is body and not read; in an extract with no ``---`` in its first 40 lines, a second bullet block
-after a blank line is not header; a catalogue record whose single ``path:`` or ``extract:`` field
-does not hold a quoted ``--full-text.md`` path (a ``.json`` path, ``null``, an unquoted path)
-names no extract; record field lines that follow a line of another shape (a continuation line,
-an unindented key) are not attributed to the record; a screened publication extract may omit
-material by design, which its Screening note describes in words the markers need not match.
+after a blank line is not header; a wrapped bullet's continuation line ends the header, with or
+without a ``---``, so a marker on it or after it is missed (none occur in the reference base);
+an indented metadata sub-bullet is read as body (none occur in the reference base), so its marker
+is missed; a catalogue record whose single ``path:`` or ``extract:`` field does not hold a quoted
+``--full-text.md`` path (a ``.json`` path, ``null``, or an unquoted path) names no extract; record
+field lines that follow a line of another shape (a continuation line or an unindented key) are not
+attributed to the record; a screened publication extract may omit material by design, which its
+Screening note describes in words the markers need not match.
 
 Usage:
   python3 tools/ref-holds.py "27002"
@@ -247,8 +250,8 @@ def read_extract(ref_root: Path, rel: str) -> tuple[bytes, bool]:
 
 def split_header(lines: list[str]) -> tuple[list[str], list[str]]:
     """Split an extract's lines into its header and the rest (see the module docstring)."""
-    # 3b365 r5: a "# " line is header only as the title, the first non-blank line, and a bullet only at
-    # column 0; a later "# " heading or an indented "- " line is body (no real extract's header has either).
+    # A heading is header only as the title, except a ## Screening note section before a ---;
+    # metadata bullets start at column 0.
     title = next((n for n, line in enumerate(lines[:HEADER_LINES]) if line.strip()), None)
     sep = next((n for n, line in enumerate(lines[:HEADER_LINES]) if line.strip() == "---"), None)
     if sep is not None:
@@ -279,8 +282,9 @@ def split_header(lines: list[str]) -> tuple[list[str], list[str]]:
             bullets = True
         elif n == title and s.startswith("# "):
             continue
-        elif not bullets or s.startswith(("# ", "- ")):
-            # 3b365 r6: a later "# " heading or an indented "- " line is body even after the bullets.
+        else:
+            # Body prose, a later heading of any depth, and indented bullets end the header
+            # before or after metadata bullets, just as they do with a separator.
             return lines[:n], lines[n:]
     return lines, []
 
@@ -292,8 +296,8 @@ def incomplete_body_notes(ref_root: Path, rel: str) -> list[str]:
     Only the header is searched, so a marker quoted in the body is not read as a note about the
     extraction."""
     data, more = read_extract(ref_root, rel)
-    # 3b365 r6: one leading byte-order mark is not part of the title line.
-    lines = data.decode("utf-8", errors="replace").removeprefix("\ufeff").splitlines()
+    # Every leading U+FEFF is encoding residue, not part of the title line.
+    lines = data.decode("utf-8", errors="replace").lstrip("\ufeff").splitlines()
     if more and lines:
         lines.pop()  # the last line may be cut at the read bound
     header, rest = split_header(lines)
@@ -621,10 +625,13 @@ def _self_test() -> int:
                 self.assertNotIn("incomplete", out.lower())
 
         def test_no_separator_heading_or_indented_bullet_after_bullets_held(self):
-            # 3b365 r6: without a "---", a later "# " heading or an indented "- " line ends the header
-            # even after a column-0 bullet, so a marker bullet after it is body.
+            # Without "---", any later heading, body prose, or indented "- " line ends the
+            # header even after a column-0 bullet, so a marker bullet after it is body.
             d = self._mk("- Code N (`legislation/N/N--full-text.md`)\n")
             for text in ("# T\n- Source file\n# Part One\n- Not recovered: annex B\n\nBody text.\n",
+                         "# T\n- Source file\n## Part One\n- Not recovered: annex B\n\nBody text.\n",
+                         "# T\n- Source file\n  ### Part One\n- Not recovered: annex B\n\nBody text.\n",
+                         "# T\n- Source file\nPart One is here.\n- Not recovered: annex B\n\nBody text.\n",
                          "# T\n- Source file\n  - Not recovered: annex B\n\nBody text.\n",
                          "# T\n- Source file\n# Part One\n- Not recovered: annex B\n\n----- PAGE 1 -----\n\n"
                          "Body text.\n",
@@ -634,13 +641,37 @@ def _self_test() -> int:
                 self.assertEqual(rc, 0, text + out + err)
                 self.assertNotIn("incomplete", out.lower())
 
+        def test_wrapped_bullet_continuation_ends_header_held(self):
+            # A continuation line ends the header even when it or a later bullet has a marker.
+            d = self._mk("- Code W (`legislation/W/W--full-text.md`)\n")
+            for continuation in ("  INCOMPLETE BODY: OCR failed.\n", "INCOMPLETE BODY: OCR failed.\n",
+                                 "  pages 2 to 9 are scans.\n- Not recovered: OCR failed.\n"):
+                for separator in ("", "---\n"):
+                    content = ("# T\n- Extraction note: pages 2 to 9 are scans.\n"
+                               f"{continuation}{separator}Body text.\n")
+                    self._write(d, "legislation/W/W--full-text.md", content)
+                    rc, out, err = self._run(d, "Code W")
+                    self.assertEqual(rc, 0, content + out + err)
+                    self.assertNotIn("incomplete", out.lower())
+
         def test_byte_order_mark_before_title_held_incomplete(self):
-            # 3b365 r6: one leading U+FEFF is stripped, so the title and the bullet under it are header.
+            # Every leading U+FEFF is stripped, so the title and the bullet under it are header.
             d = self._mk("- Code B (`legislation/B/B--full-text.md`)\n")
-            self._write(d, "legislation/B/B--full-text.md", "\ufeff# T\n- Not recovered: x\n---\n\nBody text.\n")
-            rc, out, err = self._run(d, "Code B")
-            self.assertEqual(rc, 3, out + err)
-            self.assertIn("note: - Not recovered: x", out)
+            for prefix in ("\ufeff", "\ufeff\ufeff"):
+                self._write(d, "legislation/B/B--full-text.md",
+                            prefix + "# T\n- Not recovered: x\n---\n\nBody text.\n")
+                rc, out, err = self._run(d, "Code B")
+                self.assertEqual(rc, 3, out + err)
+                self.assertIn("note: - Not recovered: x", out)
+
+        def test_indented_title_held_incomplete(self):
+            d = self._mk("- Code I (`legislation/I/I--full-text.md`)\n")
+            for separator in ("---\n\n", "\n"):
+                self._write(d, "legislation/I/I--full-text.md",
+                            f"  # T\n- Not recovered: x\n{separator}Body text.\n")
+                rc, out, err = self._run(d, "Code I")
+                self.assertEqual(rc, 3, out + err)
+                self.assertIn("note: - Not recovered: x", out)
 
         def test_mixed_path_delimiters_name_no_extract(self):
             # 3b365 r6: a path opened by a backtick and closed by a double quote (or the reverse) is
