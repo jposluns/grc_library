@@ -65,9 +65,9 @@
   "not_citable": {
     "exact": [
       "N/A", "NA", "None", "-", "TBD", "Internal", "Multi-jurisdiction", "Other", "Legal", "Regulatory",
-      "AICPA", "CEN", "CENELEC", "CIS", "CISA", "CSA", "EBA", "EDPB", "EIOPA", "ENISA", "ESMA", "ETSI",
-      "FCA", "ICO", "IEC", "IEEE", "IETF", "IMDA", "ISACA", "ISO", "ISO/IEC", "MITRE", "NCSC", "NERC", "NIST",
-      "OECD", "OWASP", "PRA", "W3C"
+      "AICPA", "Article 29 Working Party", "CEN", "CENELEC", "CIS", "CISA", "CSA", "EBA", "EDPB",
+      "EIOPA", "ENISA", "ESMA", "ETSI", "FCA", "ICO", "IEC", "IEEE", "IETF", "IMDA", "ISACA", "ISO",
+      "ISO/IEC", "MITRE", "NCSC", "NERC", "NIST", "OECD", "OWASP", "PRA", "W3C"
     ],
     "patterns": [
       ".*\\btouchpoint\\b.*",

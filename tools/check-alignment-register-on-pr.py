@@ -48,6 +48,59 @@ as a series prefix of a Standard ID (``IEC 62443`` for the ``IEC 62443-*`` part
 rows). The series and suffix acceptance is this check's addition to gate 6: it
 can only make D15 report less than gate 6 would for the same text, never more.
 
+A citation whose provision suffix was removed keeps its full form for the exact
+lookups (a Standard ID or curated alias, with or without a trailing edition or a
+terminal parenthetical, or an umbrella pattern): ``UK ICO, Employment practices
+and data protection: Monitoring workers (June 2024)`` is registered by an alias
+or row keyed on that full title, so an alias need not be keyed on the series
+name before the colon (which would cover every title in the series). A
+trailing edition or year is removed from the full form first, never a
+parenthetical (``T (DRAFT) v2`` becomes ``T (DRAFT)``). A parenthetical that
+is then terminal (nothing but whitespace or punctuation after it) is dropped
+only on an allowlist: every item in it is a date, an edition or version
+(``(June 2024)``, ``(2019, updated 2024)``, ``(v2.0)``; a month is a full or
+standard abbreviated month name, so ``(Decision 2024)`` is not a date), a WP
+number or EDPB-style designator that the name's own register row carries
+(``(WP 248)`` after a name of the WP248 row, not after any other name), or an
+acronym word of three or more capitals registered as the acronym of the name
+before it: it names that name's register row itself as a Standard ID or curated
+alias key (not through an umbrella pattern, which may match a whole family), or
+it is an acronym word of that row's Standard ID (``CSA AI Controls Matrix
+(AICM)``, through the ``CSA AICM`` row). So ``... Monitoring workers (June 2024)
+Unknown Act``, ``(Unknown Act)``, ``(UK)``, ``(USA)``, ``(RETIRED)``, ``(DRAFT)
+v2``, ``(DRAFT), 2024``, ``(N/A)``, ``(RFC 9457)``, ``(WP 999)``, ``(HIPAA)``
+after a name that is not HIPAA's and ``(Novel 2024)`` are not registered by a
+full-title alias. Otherwise the stripped form resolves as
+before, and a warning names the stripped form. A segment that begins with the
+exact words ``Article 29 Working Party`` (that spelling and case, after leading
+whitespace, optionally followed by a colon) keeps them: they name the issuing
+body, not a provision, so the provision rule applies only to the text after
+them, and the citation is registered when a row carries its WP number or
+Opinion designator. The full form is matched on its WP numbers only when it
+carries at least one, every one is registered, and nothing but WP numbers,
+dates and editions follows the last one (``(WP 248) Decision 2017`` is text
+after it), so ``Article 29 Working Party
+Guidelines on DPIA under Article 35 (WP 248)`` matches the WP248 row although
+its stripped form ends at ``under``, while ``... (WP 248, WP 999)``, ``... (WP
+248) and Article 36`` and ``... (replaced by EDPB Guidelines 07/2020)`` do not.
+Designators are matched within their issuing body: each register row's
+designators are recorded with the body its Standard ID names (``EDPB ...``
+rows; ``Article 29 Working Party``, ``WP29`` and ``WPnnn`` rows), a citation's
+body is ``Article 29 Working Party`` at its start, or an EDPB name (``EDPB``,
+``EU EDPB``, ``European Data Protection Board`` at its start, or an ``(EDPB)``
+suffix), and a WP number is an Article 29 Working Party designator only. So an
+EDPB ``Guidelines 07/2020`` row does not register ``Article 29 Working Party
+Guidelines 07/2020``, ``EU Unknown Act (WP 248)`` and ``EDPB Guidelines on DPIA
+(WP 248)`` are not registered by the WP248 row, and a name with no issuer is not
+matched on its designators (none of these rules changed a whole-corpus finding
+on 2026-10-17). The
+exception is anchored to the segment start because both corpus uses
+(2026-10-17) begin a cell (``security/policy-byod.md:168``,
+``privacy/standard-pseudonymization-and-anonymization.md:150``), while after
+another citation (``GDPR Article 29 Working Party guidance``) the words follow
+the instrument actually cited, which then resolves alone as it did before
+3b367. The bare body name is not a citation (``not_citable``).
+
 WHAT IS NOT A FINDING. The exclusion policy
 (``tools/alignment-register-exclusions.json``) encodes the maintainer decision
 of 2026-10-16 ("Tracked only"): the register covers standards and regulations
@@ -68,12 +121,48 @@ or an unreadable policy file (fail-open, the guard-malfunction stance).
 
 RESIDUE (what D15 does NOT establish). It is delta-only, so a citation that is
 already on main is out of scope (gate 6's report mode inventories those for its
-grammar families). It cannot see a citation outside the four surfaces above
-(an instrument named in prose without a number, a citation in a table it does
-not recognize), a citation the alias or suffix rules accept loosely (``AI Act``
+grammar families). It cannot see a citation outside the four surfaces above (an
+instrument named in prose without a number, a citation in a table it does not
+recognize), a citation the alias or suffix rules accept loosely (``AI Act``
 resolves to any registered AI Act), or an EU number that appears only in
 another row's Current version cell (the EN 54 row's Construction Products
-Regulation (EU) 305/2011 counts as registered).
+Regulation (EU) 305/2011 counts as registered). Only the spelled-out,
+segment-initial ``Article 29 Working Party`` (the one form the corpus used on
+2026-10-17) is exempt from provision stripping: ``Art. 29 Working Party``,
+``Art 29 Working Party``, ``Articles 29 Working Party``, ``Article 29 WP``,
+``Article 29 Data Protection Working Party`` and ``Article 29`` before a
+differently cased body name (``Article 29 working party Opinion 2/2017``;
+neither rule uses ``re.I``) at the start of a segment are still stripped to
+nothing and not checked. The full form gets only the exact lookups and the
+Article 29 Working Party WP-number match, not the suffix, series or comma-list
+rules, nor the stripped form's parenthesised-acronym rule. A free-text cell is
+split on ``,`` before the full-form lookup, so a full-title alias or row whose
+name contains a comma (``UK ICO, Employment practices ...``) matches only in a
+list-form row or a matrix header; in a free-text cell its pieces resolve
+separately. The stripped form's own lookup still drops everything from its
+first ``(``, so with an alias ``FOO Guidance`` the name ``FOO Guidance (June
+2024) Unknown Act`` counts as registered (this predates 3b367). The full form
+still drops any four-digit year, date, version or edition parenthetical,
+whether or not it is the named document's own, and an acronym item followed by
+``s`` drops when its singular is the row's acronym (``(CCMs)`` after a CCM
+name). The date and edition items are matched as written and are case-sensitive
+(the WP-number match of an Article 29 Working Party full form reads them
+case-insensitively, so ``(WP 248 rev.01)`` registers): ``(Mar 3, 2024)`` is
+split at its comma into ``Mar 3`` and ``2024``, and ``(rev 2)``, ``(rev.01)``,
+``(version 2)``, ``(V2)`` and ``(2024 Edition)`` match no item (``Rev`` and
+``Version`` must be capitalized, ``v`` and ``edition`` lowercase), so each is
+kept, and the citation warns only if neither the full form nor the stripped
+form resolves and the stripped form is not excluded and is a citation (false
+positives). A row's designators are read from its whole Standard ID, so a
+designator named inside a row's ID (a replaced document) counts for that row
+only within the row's issuing body: an EDPB row ``EDPB Guidelines 9/2022
+(replacing Guidelines 01/2021)`` counts ``Guidelines 1/2021``, but the WP250 in
+``EDPB Guidelines 9/2022 (replacing WP250)`` does not count for that row, since
+a WP number counts only for an Article 29 Working Party row. An acronym the
+glossary register expands is not used: the glossary is not tied to register
+rows, and a PR can add a row to it. The EDPB's endorsement of WP29 documents is
+not modelled: ``EDPB Opinion 05/2014`` and ``EDPB WP248`` are not registered by
+the Article 29 Working Party rows.
 
 Usage:
     python3 tools/check-alignment-register-on-pr.py                 # CI (GITHUB_BASE_REF)
@@ -143,9 +232,53 @@ VERSION_TAIL = re.compile(
 )
 # A provision reference written after a citation ("GDPR Art. 32", "EU AI Act: High Risk").
 PROVISION_TAIL = re.compile(
-    r"\s*(?::\s|\bArt(?:icle)?s?\b\.?|§|\bSch(?:edule)?\b\.?|\bAnnex\b|\bClauses?\b|\bSections?\b"
+    r"\s*(?::\s|\bArt(?:icle)?s?\b\.?|§|\bSch(?:edule)?\b\.?"
+    r"|\bAnnex\b|\bClauses?\b|\bSections?\b"
     r"|\bCh\b\.?\s+[IVX\d]|\bRecital\b|\bpara(?:graph)?\b\.?|\bs\.\s*\d).*$"
 )
+# "Article 29 Working Party" at the start of a segment names the issuing body, not a provision,
+# so PROVISION_TAIL is applied only after it (exact spelling and case; not "Art 29", "Articles
+# 29" or a mention after another citation, which is that citation's provision). A colon right
+# after the body name introduces the document ("Article 29 Working Party: Opinion 2/2017"), so
+# it is kept with the name rather than read as a provision tail.
+ISSUING_BODY = re.compile(r"\s*Article\s+29\s+Working\s+Party\b(?::(?=\s+\S))?")
+# An EDPB name: an optional "EU " and the board's acronym or full name at the start, or an
+# "(EDPB)" issuer suffix at the end ("Guidelines 07/2020 on the concepts of controller and
+# processor (EDPB)").
+EDPB_NAME = re.compile(r"\s*(?:EU\s+)?(?:EDPB|European\s+Data\s+Protection\s+Board)\b")
+EDPB_SUFFIX = re.compile(r"\(EDPB\)[\s.,;:]*$")
+# The items of a terminal parenthetical the full form may drop without a register lookup: a date
+# ("June 2024", "2025-05", "adopted 7 July 2021", "Sept. 2017") or an edition or version ("v2.0",
+# "Version 1.1", "2025 edition"). A month is a full or standard abbreviated name ending at a word
+# boundary, so "Decision 2024", "Marketing 2024" and "Novel 2024" are not dates.
+MONTH = (
+    r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?"
+    r"|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\b\.?"
+)
+DATE_ITEM = (
+    r"(?:(?:adopted|updated|effective|published|revised)\s+)?(?:\d{1,2}\s+)?"
+    rf"(?:{MONTH}\s+)?(?:\d{{1,2}},?\s+)?"
+    r"\d{4}(?:[-.]\d{2}){0,2}"
+)
+EDITION_ITEM = r"(?:v|Version\s*|Rev(?:ision)?\.?\s*)\d+(?:\.\d+)*|\d{4}\s+edition|edition\s+\d+"
+FIXED_ITEM = re.compile(rf"{DATE_ITEM}|{EDITION_ITEM}")
+# A WP number ("WP 249") or EDPB-style designator ("Opinion 2/2017") is dropped only when the
+# register row of the name it follows carries that designator (``Resolver.designator_source``).
+DESIGNATOR_ITEM = re.compile(
+    r"WP\s?\d{2,3}|(?:Guidelines|Opinion|Recommendations?|Statement)\s+\d{1,2}/\d{4}"
+)
+# The one other droppable item: an acronym word in capitals of three or more characters
+# ("AICM", "KSIs", "O-AA"), and only when it is registered as the acronym of the name it follows
+# (``Resolver.acronym_source``). Any other capitals word ("RETIRED", "DRAFTS", "USA", "HIPAA"
+# after a name that is not HIPAA's) is substantive and stays part of the name.
+ACRONYM_ITEM = re.compile(r"(?=[A-Z0-9&./:-]{3})[A-Z][A-Z0-9&./:-]*[A-Z0-9]s?")
+# A parenthetical that ends the text, with nothing but whitespace or punctuation after its
+# closing parenthesis; ``Resolver.paren_items`` judges its items.
+TERMINAL_PAREN = re.compile(r"\s*\(([^()]*)\)[\s.,;:]*$")
+# What may follow the last WP number of an Article 29 Working Party full form for the WP-number
+# match: further WP numbers, dates, editions and punctuation only ("(WP 248 rev.01)").
+WP_NUMBER = re.compile(r"\bWP\s?(\d{2,3})\b")
+WP_TAIL = re.compile(rf"(?:[\s.,;:()]|WP\s?\d{{2,3}}|{DATE_ITEM}|{EDITION_ITEM})*", re.I)
 # A control code or code fragment standing alone ("A.3.4", "DE.CM-09", "SEF-07").
 FRAGMENT = re.compile(
     r"(?:[A-Z]{1,4}\.)+[A-Z0-9]{1,4}(?:[.-][A-Z0-9]{1,3})*|[A-Z&]{2,5}-\d{1,3}(?:\.\d+)?"
@@ -285,12 +418,24 @@ class Register:
         self.entries = GATE6.parse_register_text(text)
         self.ids = {e["identity_key"]: e["id"] for e in self.entries}
         self.numbers = set()
+        # (issuing body, designator) per row: the body is derived from the Standard ID, so an
+        # EDPB "Guidelines 07/2020" row does not register an Article 29 Working Party one.
         self.designators = set()
+        # The same pairs per row, and the acronym words of each row's Standard ID ("CCM" of "CSA
+        # CCM"), by identity key.
+        self.row_designators = {}
+        self.acronyms = {}
         for e in self.entries:
             cells = e["cells"]
             for cell in (cells[0], cells[1], cells[4]):
                 self.numbers.update(num for _, num in eu_numbers(cell))
-            self.designators.update(designators(e["id"]))
+            body = row_body(e["id"])
+            pairs = {(body, d) for d in designators(e["id"])} if body else set()
+            self.designators |= pairs
+            self.row_designators.setdefault(e["identity_key"], set()).update(pairs)
+            self.acronyms[e["identity_key"]] = {
+                w for w in re.findall(r"[^\s(),;]+", e["id"]) if ACRONYM_ITEM.fullmatch(w)
+            }
 
     def has_id(self, std_id: str) -> bool:
         return identity_key(std_id) in self.ids
@@ -328,13 +473,42 @@ DESIGNATOR = re.compile(
 )
 
 
-def designators(text: str) -> set[str]:
-    if not re.search(r"\b(?:EDPB|Article 29|WP\s?\d)", text, re.I):
+def designators(text: str, issuer_known: bool = False) -> set[str]:
+    if not issuer_known and not re.search(r"\b(?:EDPB|Article 29|WP\s?\d)", text, re.I):
         return set()
     out = set()
     for m in DESIGNATOR.finditer(text):
         out.add(f"wp{m[4]}" if m[4] else f"{m[1].lower().rstrip('s')} {int(m[2])}/{m[3]}")
     return out
+
+
+def row_body(std_id: str) -> str:
+    """The issuing body of a register row, from its Standard ID: ``edpb`` for an EDPB row,
+    ``a29`` for an Article 29 Working Party, WP29 or WPnnn row, else empty."""
+    if re.match(r"\s*EDPB\b", std_id):
+        return "edpb"
+    if re.search(r"Article\s+29\s+Working\s+Party|\bWP29\b", std_id) or re.match(r"\s*WP\s?\d", std_id):
+        return "a29"
+    return ""
+
+
+def citation_issuer(name: str) -> str:
+    """The issuing body a citation names: ``a29`` when it begins with ``Article 29 Working
+    Party``, ``edpb`` when it begins with an EDPB name or ends with ``(EDPB)``, else empty."""
+    if ISSUING_BODY.match(name):
+        return "a29"
+    if EDPB_NAME.match(name) or EDPB_SUFFIX.search(name):
+        return "edpb"
+    return ""
+
+
+def citation_designators(name: str) -> set[tuple[str, str]]:
+    """(issuing body, designator) per designator of a citation that names its issuer. A WP
+    number is an Article 29 Working Party designator, so only such a citation carries one."""
+    body = citation_issuer(name)
+    if not body:
+        return set()
+    return {(body, d) for d in designators(name, True) if body == "a29" or not d.startswith("wp")}
 
 
 def strip_markdown(cell: str) -> str:
@@ -347,10 +521,13 @@ def strip_markdown(cell: str) -> str:
 
 
 def strip_version(name: str) -> str:
-    prev = None
-    while prev != name:
-        prev, name = name, VERSION_TAIL.sub("", name).strip()
-    return name
+    """Remove trailing editions and versions; a parenthetical is never removed ("T (DRAFT) v2"
+    becomes "T (DRAFT)"), so a terminal parenthetical is judged by the caller."""
+    while True:
+        m = VERSION_TAIL.search(name)
+        if not m or m.start() == 0 or re.search(r"[()]", m[0]):
+            return name
+        name = name[:m.start()].strip()
 
 
 class Resolver:
@@ -385,6 +562,103 @@ class Resolver:
             or (INSTRUMENT_WORD.search(name) and len(name.split()) > 1)
         )
 
+    def named_row(self, cand: str) -> str | None:
+        """The identity key of the register row ``cand`` names as a Standard ID or a curated
+        alias key; None when it names none."""
+        reg, key = self.register, identity_key(cand)
+        if key in reg.ids:
+            return key
+        target = self.aliases["aliases"].get(key)
+        if target and reg.has_id(target):
+            return identity_key(target)
+        return None
+
+    def exact_row(self, cand: str) -> str | None:
+        """The identity key of the register row ``cand`` names exactly: a Standard ID, a curated
+        alias of one, or an umbrella pattern; None when it names none."""
+        row = self.named_row(cand)
+        if row:
+            return row
+        for p, row in self.aliases["umbrella"]:
+            if p.fullmatch(cand) and self.register.has_id(row):
+                return identity_key(row)
+        return None
+
+    def exact_registered(self, cand: str) -> bool:
+        """``cand`` is a register Standard ID, a curated alias of one, or matches an umbrella."""
+        return self.exact_row(cand) is not None
+
+    def acronym_source(self, word: str, row: str) -> str:
+        """Why ``word`` is registered as the acronym of a name of the register row ``row``: it
+        names that row itself as a Standard ID or curated alias key (an umbrella pattern does
+        not count, since it can match a whole family), or it is an acronym word of the row's
+        Standard ID. Empty when neither holds."""
+        forms = {word, word[:-1]} if word.endswith("s") else {word}
+        if any(self.named_row(f) == row for f in forms):
+            return "registered"
+        if forms & self.register.acronyms.get(row, set()):
+            return "row acronym"
+        return ""
+
+    def designator_source(self, item: str, row: str) -> str:
+        """``row designator`` when the register row ``row`` carries the designator ``item`` (a
+        WP number or an EDPB-style designator) within the row's issuing body; else empty. A WP
+        number is an Article 29 Working Party designator only."""
+        body = row_body(self.register.ids.get(row, ""))
+        pairs = {(body, d) for d in designators(item, True) if body == "a29" or not d.startswith("wp")}
+        if body and pairs and pairs <= self.register.row_designators.get(row, set()):
+            return "row designator"
+        return ""
+
+    def paren_items(self, inner: str, row: str) -> list[tuple[str, str]]:
+        """(item, rule) per item of the parenthetical ``inner`` after a name of the register
+        row ``row``; the rule is empty for a substantive item, which keeps the parenthetical
+        part of the name."""
+        out = []
+        for item in (i.strip() for i in re.split(r"[,;]", inner)):
+            if FIXED_ITEM.fullmatch(item):
+                out.append((item, "date or edition"))
+            elif DESIGNATOR_ITEM.fullmatch(item):
+                out.append((item, self.designator_source(item, row)))
+            elif ACRONYM_ITEM.fullmatch(item):
+                out.append((item, self.acronym_source(item, row)))
+            else:
+                out.append((item, ""))
+        return out
+
+    def wp_registered(self, full: str) -> bool:
+        """An Article 29 Working Party full form ("... under Article 35 (WP 248)") whose WP
+        numbers are all registered, with nothing but WP numbers, dates and editions after the
+        last one."""
+        nums = list(WP_NUMBER.finditer(full))
+        if citation_issuer(full) != "a29" or not nums or not WP_TAIL.fullmatch(full[nums[-1].end():]):
+            return False
+        return {("a29", f"wp{m[1]}") for m in nums} <= self.register.designators
+
+    def full_registered(self, full: str) -> bool:
+        """The full form of a citation, before ``split_parts`` removed its provision or title
+        tail ("UK ICO, Employment practices and data protection: Monitoring workers"), matches
+        exactly. A trailing edition or year is removed first; then a terminal parenthetical is
+        dropped only when every item in it is a date, an edition, or a designator or acronym
+        registered for the row the name before it names (``paren_items``); a substantive
+        parenthetical, or one with text after it, is kept. An Article 29 Working Party full
+        form is also registered by its WP numbers (``wp_registered``). Only these lookups
+        apply: the suffix, series and comma-list rules stay with the stripped form."""
+        if self.wp_registered(full):
+            return True
+        core = strip_version(full)
+        if any(self.exact_registered(c) for c in {full, core}):
+            return True
+        m = TERMINAL_PAREN.search(core)
+        if not m:
+            return False
+        bare = core[:m.start()].strip()
+        for name in filter(None, {bare, strip_version(bare)}):
+            row = self.exact_row(name)
+            if row and all(rule for _, rule in self.paren_items(m[1], row)):
+                return True
+        return False
+
     def name_registered(self, name: str) -> bool:
         reg = self.register
         bare = name.split("(", 1)[0].strip()
@@ -393,26 +667,28 @@ class Resolver:
             candidates |= {inner.strip(), strip_version(inner.strip())}
         for cand in filter(None, candidates):
             key = identity_key(cand)
-            if key in reg.ids or (key in self.aliases["aliases"] and reg.has_id(self.aliases["aliases"][key])):
-                return True
-            if any(p.fullmatch(cand) and reg.has_id(row) for p, row in self.aliases["umbrella"]):
+            if self.exact_registered(cand):
                 return True
             if reg.by_suffix(cand) or reg.by_series(key) or reg.by_edition(key):
                 return True
-        if designators(name) & reg.designators:
+        if citation_designators(name) & reg.designators:
             return True
         # A comma list in a name cell ("EU AI Act, GDPR") is registered when every member is.
         parts = [p.strip() for p in bare.split(",")]
         return len(parts) > 1 and all(p and self.name_registered(p) for p in parts)
 
-    def resolve(self, text: str) -> list[tuple[str, str]]:
+    def resolve(self, text: str, full: str = "") -> list[tuple[str, str]]:
         """(status, detail) per citation in one cell or segment: status is ``registered``,
         ``excluded``, ``not-citable`` or ``unregistered``. A registered citation is registered
         even when it also matches the exclusion policy (a registered vendor framework stays
-        tracked); the policy decides only what an unregistered citation means."""
-        text = strip_markdown(text)
+        tracked); the policy decides only what an unregistered citation means. ``full`` is the
+        segment before its provision or title tail was removed: an exact match on it registers
+        the citation, and otherwise ``text`` resolves as before."""
+        text, full = strip_markdown(text), strip_markdown(full)
         if not text:
             return [("not-citable", "")]
+        if full and full != text and self.full_registered(full):
+            return [("registered", full)]
         grammar = [o for o in ENGINE.discover(text, ".md") if o["channel"] == "grammar"]
         if grammar:
             out = []
@@ -439,11 +715,13 @@ class Resolver:
         return ("unregistered", text)
 
 
-def split_parts(cell: str, free_text: bool) -> list[str]:
-    """Split a cell into citations. Both kinds split on ";" outside parentheses and on " / "
-    and " + "; a free-text cell also splits on ",". Each segment loses its provision suffix
-    ("Art. 32", ": High Risk"), and a free-text segment its trailing control codes ("CSA CCM
-    LOG-05"). A link to a corpus document is an internal reference, not a citation."""
+def split_parts(cell: str, free_text: bool) -> list[tuple[str, str]]:
+    """Split a cell into (citation, full form) pairs. Both kinds split on ";" outside
+    parentheses and on " / " and " + "; a free-text cell also splits on ",". Each citation
+    loses its provision suffix ("Art. 32", ": High Risk"), and a free-text segment its trailing
+    control codes ("CSA CCM LOG-05"); the full form keeps the provision suffix, so a title
+    after a colon still reaches the exact lookups. A segment whose citation is empty is
+    dropped. A link to a corpus document is an internal reference, not a citation."""
     cell = re.sub(r"\[[^\]]*\]\((?!https?:)[^)]*\.md(?:#[^)]*)?\)", "", cell)
     cell = strip_markdown(cell)
     stops = ";," if free_text else ";"
@@ -459,13 +737,15 @@ def split_parts(cell: str, free_text: bool) -> list[str]:
     parts.append("".join(buf))
     out = []
     for part in parts:
-        for seg in re.split(r"\s+/\s+|\s+\+\s+", part):
-            seg = PROVISION_TAIL.sub("", seg)
+        for full in re.split(r"\s+/\s+|\s+\+\s+", part):
+            body = ISSUING_BODY.match(full)
+            head = body[0] if body else ""
+            seg = head + PROVISION_TAIL.sub("", full[len(head):])
             if free_text:
-                seg = CODE_TAIL.sub("", seg)
-            seg = seg.strip(" .")
+                seg, full = CODE_TAIL.sub("", seg), CODE_TAIL.sub("", full)
+            seg, full = seg.strip(" ."), full.strip(" .")
             if seg:
-                out.append(seg)
+                out.append((seg, full))
     return out
 
 
@@ -509,8 +789,8 @@ def scan_text(text: str, added: set[int], resolver: Resolver) -> list[tuple[int,
     found: list[tuple[int, str, str]] = []
 
     def record(ln, surface, cell, free_text):
-        for part in split_parts(cell, free_text):
-            for status, detail in resolver.resolve(part):
+        for part, full in split_parts(cell, free_text):
+            for status, detail in resolver.resolve(part, full):
                 if status == "unregistered":
                     found.append((ln, surface, detail))
 
