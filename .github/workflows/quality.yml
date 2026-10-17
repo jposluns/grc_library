@@ -327,6 +327,9 @@ jobs:
       - name: Hook-launcher isolation audit
         run: python3 tools/lint-hooks-syntax.py --launcher-isolation
 
+      - name: Startup character and core-line ceiling audit
+        run: python3 tools/lint-startup-character-ceiling.py
+
       - name: CHANGELOG-on-PR check
         if: github.event_name == 'pull_request'
         run: python3 tools/check-changelog-on-pr.py

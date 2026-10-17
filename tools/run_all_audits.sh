@@ -60,9 +60,10 @@ run_gate() {
         # shows lines that start with DUE-SOON (gate 72's due-soon band), so a
         # lapse shows at resume. A gate whose output has the exact marker line
         # below, followed by a space and this run's token, also shows lines that
-        # start with WARN or NOTE; only gate 72 prints it (RUNNER_ECHO_MARKER in
-        # its script, printed only when GRC_RUNNER_ECHO_TOKEN is set), for its
-        # stale, future-dated and untiered lines. The key is a line the gate
+        # start with WARN or NOTE; only gates 72 and 106 print it (RUNNER_ECHO_MARKER
+        # in their scripts, printed only when GRC_RUNNER_ECHO_TOKEN is set), gate 72
+        # for its stale, future-dated and untiered lines and gate 106 for its
+        # low-headroom line. The key is a line the gate
         # declares in its own output, not its script path, so a rename, move or
         # other invocation path of the script cannot switch the echo off. The
         # token is the part data cannot forge: the marker text is public, and gate
@@ -238,6 +239,10 @@ run_gate "Citation-publisher table in sync with its source of record"  python3 t
 run_gate "Worker-id anonymity audit"                             python3 tools/lint-worker-id-anonymity.py
 run_gate "Reference-absence claim audit"                         python3 tools/lint-ref-absence-claims.py
 run_gate "Hook-launcher isolation audit"                         python3 tools/lint-hooks-syntax.py --launcher-isolation
+# Gate 106 runs both halves of delta gate D10 here (the startup character and the
+# core-line ceilings), so the ceilings the pre-push guard enforces are visible to a
+# corpus-gate run.
+run_gate "Startup character and core-line ceiling audit"        python3 tools/lint-startup-character-ceiling.py
 
 # ----------------------------------------------------------------------
 # Summary
