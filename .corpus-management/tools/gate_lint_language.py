@@ -46,6 +46,46 @@ Checks for:
   verbs whose Canadian form is not `-ize` (the practise-to-practice family)
   and the grammar-ambiguous verb "analyses" are caught editorially, not by
   pattern.
+- The three spelling checks bound a word by ASCII letters, not by `\\b`
+  (``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER``): a word next to "_", a digit,
+  any non-ASCII character or anything else that is not an ASCII letter is
+  reported, so "_organisations_", "__organisations__", a snake_case part such as
+  "data_minimisation" and "éorganisations" are flagged. Case folding is off
+  inside the class, because under re.IGNORECASE `[A-Za-z]` also matches U+017F
+  (long s), U+212A (Kelvin sign), U+0130 and U+0131 (dotted and dotless I).
+  Residuals (false positives): a code identifier with a checked part (such as a
+  function named "normalise_link") is reported, and a word with a non-ASCII
+  letter inside it is reported from after that letter ("alisation" in the
+  French "réalisation"). Quote such external text through the allowed spans
+  below, or rename the identifier. Residual (false negative): a non-ASCII
+  character inside the checked part (a ligature, a soft hyphen, a zero-width
+  space or a combining mark) hides an -ise or -yse form, unless the text before
+  the character is itself a complete -ise or -yse form, which is then reported
+  ("recognise" in "recognise" followed by U+017F, a soft hyphen, a zero-width
+  space or a combining mark and then "s"); an -isation word is
+  still reported from after that character only when at least one ASCII letter
+  separates the character from "isation", and is otherwise hidden too (a soft
+  hyphen, a zero-width space or a combining mark directly before "isation" or
+  inside it), while a character directly after "isation", before its suffix,
+  leaves the word through "isation" reported ("organisation" in "organisation"
+  followed by a soft hyphen and "al"). A character inside the "al" or "ally"
+  suffix hides the word, except directly after the "al" of "ally", which leaves
+  the word through "al" reported: "organisationa" followed by a soft hyphen and
+  "l", and "organisationall" followed by a soft hyphen and "y", report nothing,
+  while "organisational" followed by a soft hyphen and "ly" reports
+  "organisational". Exception to both residuals: the -ise,
+  -yse and -isation patterns fold case, so they match U+017F (long s) as "s",
+  U+0130 and U+0131 (dotted and dotless I) as "i" and U+212A (Kelvin sign) as
+  "k". An -ise or -yse form
+  with one of them in place of that letter is reported ("organiſed",
+  "organısed", "minimiſe", "analyſed"), and an -isation word with one of them
+  anywhere before "isation" or in place of a letter of it is reported whole
+  ("r", U+212A and "organisations" are reported as one word). Residual (false
+  positive): an -isation word on the isation_allowed_words list with U+017F,
+  U+0130 or U+0131 in it is reported ("improviſation"), because the list
+  lookup lowercases the word with str.lower(), which does not map those
+  characters to the plain ASCII spelling: U+017F and U+0131 stay as they are,
+  and U+0130 becomes "i" followed by U+0307 (a combining dot).
 - Verbatim quotes of external instruments and official proper names that
   legitimately carry Commonwealth spellings are masked out of the three
   spelling checks via the `allowed_commonwealth_spans` profile field (the GDPR Article 25(1)
@@ -75,14 +115,40 @@ Checks for:
   letter, a URL with userinfo, path text after a punctuation run the token rules
   end at (including the part of a dotted version such as "v1.2/" from the dot
   on), path text after a "_" (or run of "_") followed by anything other than an
-  ASCII letter or digit (in an emphasized URL), and a URL after a literal "_" or
-  "__" that is not emphasis (for example in an inline code span or a string
-  literal), which is read with the emphasis rule. Accepted over-mask: a checked
+  ASCII letter or digit (in an emphasized URL), text after a "_" run followed
+  by anything other than an ASCII letter or digit in a URL after a literal "_"
+  or "__" that is not emphasis (for example in an inline code span or a string
+  literal), which is read with the emphasis rule, text after any non-ASCII
+  character (not only a letter) in a URL path, query or fragment, which ends
+  the token (a URL path such as "/réorganisations" reports "organisations"),
+  and a URL whose host holds a non-ASCII character, which is masked only up to
+  the end of the last ASCII label before the character that can end a host
+  (two or more letters after a dot, under the host case rules, applied to the
+  labels before the character; the letters
+  directly before the character count), and not at all when no such label
+  precedes it, as when the character is in the first label (since 3b366):
+  an "https" URL whose host is "x.org" followed by "é", then the path
+  "/organisations", is masked through "x.org" and reports "organisations",
+  and "https://café.org/for-organisations" is not masked. The
+  scheme is matched in ASCII only, so "httpſ://" (U+017F, long s) is not a URL
+  and stays checked. Accepted over-mask: a checked
   word written as a host label, including a lowercase word glued by a dot to a
   URL with no path or an all-uppercase word glued to an all-uppercase host (a
   valid top-level label the engine cannot tell from a real one), is masked with
-  the host.
-- Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
+  the host, as is a checked word that is itself the last ASCII label before a
+  non-ASCII host character and can end a host (a whole label after a dot, all
+  lowercase letters, or all uppercase when no host label before the character
+  holds a lowercase letter): an "https" URL whose host is "x.organisations"
+  followed by "é.org", then the path "/a", is masked through
+  "x.organisations". Such a word is
+  reported when it is in the first label, has mixed case, or shares its label
+  with a hyphen or a digit ("organisations", "x.Organisations",
+  "x.a-organisations" or "x.organisations9" followed by "é.org").
+- Bare 'ensure' or 'ensures' without 'that', bounded by ASCII letters like the
+  spelling checks ("_ensure_", "ensure2", "éensure" and "ensure_x" are
+  reported); a run of "_" or "*" may close the word before 'that' ("_ensure_
+  that" passes), while emphasis on 'that' itself ("ensure _that_") is still
+  reported. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
   Verbatim external titles that carry a bare imperative 'Ensure'
@@ -178,8 +244,8 @@ WORKED_EXAMPLE = "docs/worked-example.md"
 # third-person forms passed gate 2 because only three of the four inflections
 # were listed); keep all four present for any stem added later. Prefixed
 # derivatives (unauthorised, unrecognised, reorganise, deprioritise, ...) are
-# enumerated as their own stems because the `\b(...)` construction does not
-# match a covered stem inside a prefixed word. Each stem also carries its
+# enumerated as their own stems because the letter-bounded `(...)` construction
+# does not match a covered stem inside a prefixed word. Each stem also carries its
 # derivational forms: the -isable adjective and the -iser / -isers agent
 # nouns (a false-negative verifier on the 2026-07-02 harmonization sweep
 # found the derivational family escaping both the sweep and the gate). The
@@ -226,13 +292,46 @@ class LanguageChecks(NamedTuple):
     yse_pattern: "re.Pattern[str]"
 
 
+# The three spelling checks bound a word by ASCII letters, not by `\b` (3b372):
+# `\b` treats "_", digits and non-ASCII letters as word characters, so a word
+# in "_" / "__" emphasis, in a snake_case name, glued to a digit or glued to a
+# non-ASCII letter ("_organisations_", "éorganisations") was not reported. The
+# class is ASCII-only and case-folding is switched off inside it, because under
+# re.IGNORECASE `[A-Za-z]` also matches U+017F (long s), U+212A (Kelvin sign),
+# U+0130 and U+0131 (dotted and dotless I). A non-ASCII character inside the
+# checked part (a ligature, soft hyphen, zero-width space or combining mark)
+# hides an -ise or -yse form, unless the text before the character is itself a
+# complete -ise or -yse form, which is reported ("recognise" + U+017F + "s"
+# reports "recognise"); an -isation word is still reported from after
+# that character only when at least one ASCII letter separates the character
+# from "isation", and is otherwise hidden too (a residual), while a character
+# directly after "isation", before its suffix, leaves the word through
+# "isation" reported ("organisation" + U+00AD + "al" reports "organisation").
+# A character inside the "al" or "ally" suffix hides the word, except directly
+# after the "al" of "ally", which leaves the word through "al" reported
+# ("organisationa" + U+00AD + "l" and "organisationall" + U+00AD + "y" report
+# nothing; "organisational" + U+00AD + "ly" reports "organisational").
+# The patterns themselves still fold case, so they match U+017F as "s", U+0130
+# and U+0131 as "i" and U+212A as "k": an -ise or -yse form with one of them in
+# place of that letter is reported ("organiſed", "analyſed"), and an -isation
+# word with one of them anywhere before "isation" or in place of a letter of it
+# is reported whole.
+# The isation_allowed_words lookup uses str.lower(), which does not map U+017F,
+# U+0130 or U+0131 to the plain ASCII spelling (U+017F and U+0131 stay as they
+# are; U+0130 becomes "i" + U+0307, a combining dot), so an allowed word holding
+# one of them is reported ("improviſation", a residual false positive).
+_NO_LETTER_BEFORE = r"(?<!(?-i:[A-Za-z]))"
+_NO_LETTER_AFTER = r"(?!(?-i:[A-Za-z]))"
+
+
 def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     """Compile the ise/yse spelling patterns FROM the supplied vocabulary.
 
-    Byte-identical to the former hardcoded ISE_PATTERN / YSE_PATTERN for the
-    shipped (plain-word) vocabulary: the stems carry no regex metacharacters,
+    The alternation is the former hardcoded ISE_PATTERN / YSE_PATTERN one for
+    the shipped (plain-word) vocabulary: the stems carry no regex metacharacters,
     so re.escape is a no-op and the enumerated seven ise inflections match the
-    former f-string construction exactly.
+    former f-string construction exactly. Since 3b372 it is bounded by
+    ``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER`` instead of ``\\b``.
     """
     ise = "|".join(
         "|".join(re.escape(word) for word in (
@@ -244,8 +343,10 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     yse = "|".join(re.escape(word) for word in vocab.yse_forms)
     return LanguageChecks(
         vocab,
-        re.compile(r"\b(" + ise + r")\b" if ise else r"(?!)", re.IGNORECASE),
-        re.compile(r"\b(" + yse + r")\b" if yse else r"(?!)", re.IGNORECASE),
+        re.compile(_NO_LETTER_BEFORE + "(" + ise + ")" + _NO_LETTER_AFTER
+                   if ise else r"(?!)", re.IGNORECASE),
+        re.compile(_NO_LETTER_BEFORE + "(" + yse + ")" + _NO_LETTER_AFTER
+                   if yse else r"(?!)", re.IGNORECASE),
     )
 
 # Commonwealth `-isation` noun / adjective forms (organisation, authorisation,
@@ -253,7 +354,8 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
 # stems, the noun check is a generic suffix match with a small allowed-words
 # exclusion, because the legitimate-in-every-dialect `-isation` vocabulary is
 # tiny (improvisation) while the Commonwealth-noun vocabulary is open-ended.
-ISATION_PATTERN = re.compile(r"\b[A-Za-z][a-z]*isation(s|al|ally)?\b", re.IGNORECASE)
+ISATION_PATTERN = re.compile(
+    _NO_LETTER_BEFORE + r"[A-Za-z][a-z]*isation(s|al|ally)?" + _NO_LETTER_AFTER, re.IGNORECASE)
 
 # Commonwealth `-yse` verb forms and agent nouns (Canadian is `analyze` /
 # `analyzer`). The noun plural `analyses` (of `analysis`) is deliberately NOT
@@ -284,7 +386,8 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
 # (3b366): a URL is an external identifier whose spelling the library cannot change
 # (the UK ICO `for-organisations` guidance path). The mask applies wherever the token
 # occurs (a bare URL, an inline code span, a link target, a reference-style link
-# definition, an autolink, a generator string literal). The scheme (any case) must be
+# definition, an autolink, a generator string literal). The scheme (any case, ASCII
+# letters only: "httpſ" with U+017F, long s, is not a scheme, 3b372) must be
 # preceded by a non-word character or by a "_" or "__" emphasis delimiter that is
 # itself preceded by a non-word character ("_https://" is recognized, "xhttps://"
 # and "x_https://" are not), and followed by a real authority: dot-separated host
@@ -311,7 +414,9 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
 # without the delimiter "_" is an ordinary path character. The rule reads the
 # text, not markdown, so a URL after a literal "_" or "__" that is not emphasis
 # (for example in an inline code span or a string literal) is read with the
-# emphasis rule too (a residual). Prose glued to the URL is left to the checks by
+# emphasis rule too, and text after a "_" run followed by anything other than an
+# ASCII letter or digit in a URL after a literal "_" or "__" stays checked (a
+# residual). Prose glued to the URL is left to the checks by
 # preferring under-masking (a false positive) to over-masking (a bypass): one of
 # ".,;:!?" continues the token only when no letter, "-", "_", "~", "+", "@", "$",
 # apostrophe, "(", ")", "&", "%", "=", "#" or "/" follows, directly or after a
@@ -332,13 +437,30 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
 # punctuation run the rules above end the token at (including the part of a dotted
 # version such as "v1.2/" from the dot on), path text after a "_" (or run of "_")
 # followed by anything other than an ASCII letter or digit (in an emphasized URL),
-# and a URL after a literal "_" or "__" that is not emphasis (for example in an
-# inline code span or a string literal), which is read with the emphasis rule.
+# text after a "_" run followed by anything other than an ASCII letter or digit in
+# a URL after a literal "_" or "__" that is not emphasis (for example in an inline
+# code span or a string literal), which is read with the emphasis rule, text after
+# any non-ASCII character (not only a letter) in a URL path, query or fragment,
+# which ends the token (a URL path such as "/réorganisations" reports
+# "organisations"), and a URL whose host holds a non-ASCII character, which is
+# masked only up to the end of the last ASCII label before the character that
+# _URL_HOST accepts as a top-level label (the letters directly before the
+# character count), and not at all when no such label precedes it, as when the
+# character is in the first label (since 3b366): an "https" URL whose host is
+# "x.org" followed by "é", then the path "/organisations", is masked through
+# "x.org" and reports "organisations", and "https://café.org/for-organisations"
+# is not masked.
 # Accepted over-mask (besides the query-key forms above): a host is masked as
 # written, so a checked word spelled as a host label is not reported, including a
 # lowercase word glued by a dot to a URL with no path or an all-uppercase word glued
 # to an all-uppercase host, which is a syntactically valid top-level label that the
-# engine cannot tell from a real one without a top-level-domain registry.
+# engine cannot tell from a real one without a top-level-domain registry, and a
+# checked word that is itself the last ASCII label before a non-ASCII host
+# character and that _URL_HOST accepts as a top-level label (an "https" URL whose
+# host is "x.organisations" followed by "é.org", then the path "/a", is masked
+# through "x.organisations"); a checked word in the first label, in mixed case or
+# sharing its label with a hyphen or a digit ("x.Organisations",
+# "x.a-organisations" or "x.organisations9" followed by "é.org") is reported.
 _URL_SAFE = (r"(?:[A-Za-z0-9\-=&+#@$/]|(?(emph)_(?=_*[A-Za-z0-9])|_)"
              r"|~(?!~)|%[0-9A-Fa-f]{2})")
 _URL_PUNCT = (r"(?:[.,;:!?](?![A-Za-z\-_~+@$'()&%=#/]|[0-9]+[A-Za-z\-_~+@$'()&%=#/])"
@@ -352,7 +474,7 @@ _URL_HOST = (r"(?:\[(?P<ipv6>[0-9A-Fa-f:.]+)\]"
              r"|(?:[A-Z0-9](?:[A-Z0-9\-]*[A-Z0-9])?\.)+[A-Z]{2,63}(?![A-Za-z0-9\-]))"
              r"(?::[0-9]{1,5})?")
 URL_PATTERN = re.compile(
-    r"(?:(?<!\w)|(?P<emph>)(?:(?<=(?<!\w)_)|(?<=(?<!\w)__)))(?i:https?)://" + _URL_HOST
+    r"(?:(?<!\w)|(?P<emph>)(?:(?<=(?<!\w)_)|(?<=(?<!\w)__)))(?ai:https?)://" + _URL_HOST
     + rf"(?:(?:[/#]|{_URL_QUERY})(?:{_URL_CHAR}|\({_URL_CHAR}*\))*)?")
 URL_TRAILING_PUNCTUATION = ".,;:!?"
 
@@ -390,7 +512,13 @@ def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str
     return found
 
 EM_DASH_PATTERN = re.compile(r"[\u2014\u2013]")  # em dash or en dash
-ENSURE_PATTERN = re.compile(r"\b(ensure|ensures)\b(?!\s+that\b)", re.IGNORECASE)
+# The ensure check uses the same ASCII-letter bounds as the spelling checks
+# (3b372), so "_ensure_", "ensure2", "éensure" and "ensure_x" are reported; a run
+# of "_" or "*" emphasis may close the word before "that" ("_ensure_ that"), while
+# emphasis on "that" itself ("ensure _that_") is still reported.
+ENSURE_PATTERN = re.compile(
+    _NO_LETTER_BEFORE + r"(ensure|ensures)" + _NO_LETTER_AFTER + r"(?![_*]*\s+that\b)",
+    re.IGNORECASE)
 
 
 
