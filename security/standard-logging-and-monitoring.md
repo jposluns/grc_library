@@ -2,8 +2,8 @@
 
 **Document Title:** Logging and Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.4.28\
-**Date:** 2026-09-25\
+**Version:** 1.4.29\
+**Date:** 2026-10-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`security/policy-information-security.md`](policy-information-security.md), [`security/procedure-security-incident-response.md`](procedure-security-incident-response.md), [`governance/register-digital-trust-and-assurance-metrics.md`](../governance/register-digital-trust-and-assurance-metrics.md), [`ai/standard-ai-security-and-risk.md`](../ai/standard-ai-security-and-risk.md), [`security/standard-monitoring-integrity-and-coverage.md`](standard-monitoring-integrity-and-coverage.md)\
@@ -133,6 +133,8 @@ Sector-conditional roles (for example, a BASC Regional Compliance Officer who ov
 ---
 
 ## 5. Framework alignment
+
+ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
 
 | Control Area | ISO/IEC 27002:2022 | NIST | COBIT 2019 | CSA CCM v4.1 | Legal |
 | --- | --- | --- | --- | --- | --- |

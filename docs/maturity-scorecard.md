@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-portal.py`.
 **Document Title:** Document Maturity Scorecard\
 **Document Type:** Register\
 **Version:** 1.0.0\
-**Date:** 2026-10-16\
+**Date:** 2026-10-17\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`docs/portal.md`](portal.md), [`docs/adopter-guide.md`](adopter-guide.md), [`governance/register-document-index-and-classification.md`](../governance/register-document-index-and-classification.md), [`specification-master-project.md`](../specification-master-project.md)\
@@ -149,7 +149,7 @@ _129 documents._
 | [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.10.0 | 2026-10-15 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.8 | 2026-10-13 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.5.0 | 2026-10-16 |
-| [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.9.0 | 2026-10-15 |
+| [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.9.1 | 2026-10-17 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.29 | 2026-10-15 |
 | [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.33 | 2026-10-03 |
 | [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.18 | 2026-10-15 |
@@ -163,15 +163,15 @@ _129 documents._
 | [security/sop-incident-escalation-matrix.md](../security/sop-incident-escalation-matrix.md) | Incident Escalation Matrix | SOP | 1.4.0 | 2026-10-15 |
 | [security/sop-security-ticket-reporting-scheme.md](../security/sop-security-ticket-reporting-scheme.md) | Security Ticket Reporting Scheme | SOP | 1.1.5 | 2026-10-12 |
 | [security/standard-authentication-and-password-management.md](../security/standard-authentication-and-password-management.md) | Authentication and Password Management Standard | Standard | 1.1.20 | 2026-09-25 |
-| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.9.0 | 2026-10-15 |
+| [security/standard-data-classification-and-handling.md](../security/standard-data-classification-and-handling.md) | Data Classification and Handling Standard | Standard | 1.9.1 | 2026-10-17 |
 | [security/standard-data-loss-prevention.md](../security/standard-data-loss-prevention.md) | Data Loss Prevention Standard | Standard | 1.3.9 | 2026-10-13 |
 | [security/standard-endpoint-hardening.md](../security/standard-endpoint-hardening.md) | Endpoint Hardening Standard | Standard | 1.2.1 | 2026-10-16 |
-| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.28 | 2026-09-25 |
+| [security/standard-logging-and-monitoring.md](../security/standard-logging-and-monitoring.md) | Logging and Monitoring Standard | Standard | 1.4.29 | 2026-10-17 |
 | [security/standard-remote-working-security.md](../security/standard-remote-working-security.md) | Remote Working Security Standard | Standard | 1.2.1 | 2026-10-16 |
 | [security/standard-soc-operating-model.md](../security/standard-soc-operating-model.md) | Security Operations Centre Operating Model Standard | Standard | 1.2.0 | 2026-10-15 |
 | [specification-ingestion.md](../specification-ingestion.md) | GRC Library Ingestion and Transformation Specification | Specification | 1.7.15 | 2026-10-15 |
 | [specification-master-project.md](../specification-master-project.md) | Master Project Specification | Specification | 1.6.27 | 2026-10-03 |
-| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.15 | 2026-09-25 |
+| [supply-chain/procedure-supplier-due-diligence.md](../supply-chain/procedure-supplier-due-diligence.md) | Supplier Due Diligence Procedure | Procedure | 1.1.16 | 2026-10-17 |
 | [supply-chain/standard-cloud-exit-and-data-portability.md](../supply-chain/standard-cloud-exit-and-data-portability.md) | Cloud Exit and Data Portability Standard | Standard | 1.2.0 | 2026-10-13 |
 | [supply-chain/standard-supplier-security-and-privacy-assurance.md](../supply-chain/standard-supplier-security-and-privacy-assurance.md) | Supplier Security and Privacy Assurance Standard | Standard | 1.1.15 | 2026-10-16 |
 
@@ -219,8 +219,8 @@ _151 documents._
 | [compliance/logistics/register-ctpat-united-states-it-controls.md](../compliance/logistics/register-ctpat-united-states-it-controls.md) | US CTPAT IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-09-25 |
 | [compliance/logistics/register-ctpat-united-states-msc-controls.md](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | US CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.5 | 2026-07-02 |
 | [compliance/logistics/register-pip-canada-controls.md](../compliance/logistics/register-pip-canada-controls.md) | Canada PIP IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-08-14 |
-| [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.5 | 2026-09-25 |
-| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.29 | 2026-09-25 |
+| [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.6 | 2026-10-17 |
+| [compliance/policy-compliance-and-audit-management.md](../compliance/policy-compliance-and-audit-management.md) | Compliance, Audit, and CAPA Management Policy | Policy | 1.0.30 | 2026-10-17 |
 | [compliance/policy-legal-and-regulatory-compliance.md](../compliance/policy-legal-and-regulatory-compliance.md) | Legal and Regulatory Compliance Policy | Policy | 1.0.30 | 2026-10-16 |
 | [compliance/procedure-audit-planning.md](../compliance/procedure-audit-planning.md) | Audit Planning Procedure | Procedure | 1.0.15 | 2026-10-13 |
 | [compliance/procedure-mergers-acquisitions-due-diligence.md](../compliance/procedure-mergers-acquisitions-due-diligence.md) | Mergers and Acquisitions Due Diligence Procedure | Procedure | 1.0.5 | 2026-10-16 |
@@ -320,9 +320,9 @@ _151 documents._
 | [security/standard-threat-modelling.md](../security/standard-threat-modelling.md) | Threat Modelling Standard | Standard | 1.0.16 | 2026-09-24 |
 | [supply-chain/annex-trade-and-supply-chain-continuity-controls.md](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Trade and Supply-Chain Continuity Controls Annex | Annex | 1.0.1 | 2026-07-02 |
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
-| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.10 | 2026-09-25 |
+| [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.11 | 2026-10-17 |
 | [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.10 | 2026-10-04 |
-| [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.20 | 2026-09-25 |
+| [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.21 | 2026-10-17 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.10 | 2026-09-25 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.5 | 2026-08-31 |
