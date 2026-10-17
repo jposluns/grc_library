@@ -33,7 +33,40 @@ enforcement is `detect-env`'s `ref_availability` HALT plus `/orch` step 3 acting
    and `grc_library_ref/COVERAGE-MAP.md` to find the held artefact and its recorded version. (MITRE
    lives under `grc_library_ref/frameworks/`, not `grc_library_ref/standards/`.) **A held /
    not-held claim is EXECUTED, not narrated:** run `python3 tools/ref-holds.py <query>` and quote
-   its output (HELD with the path, or NOT-FOUND-IN-INDEX), never a partial filename grep. A `grep`
+   its output (HELD with the path, HELD-INCOMPLETE, or NOT-FOUND-IN-INDEX), never a partial
+   filename grep. HELD-INCOMPLETE, or a HELD followed by a WARNING, quotes an extract's own
+   header note that its body is incomplete (a header line carrying one of the exact,
+   case-sensitive markers "INCOMPLETE BODY", "NO BODY TEXT", "PARTIAL:" or "Not recovered"), or
+   notes that the body has no text. Only the part the note describes is not quotable from the
+   extract; read the source file the extract's header names for that part. A match on a
+   catalogue.yml record line (for example its title, notes or checked_edition) is checked against
+   that record's extract, named in its `path:` field or, in publication records, its `extract:`
+   field; a record with no such field, or with more than one, names no extract through the
+   record. A matched line that itself holds an extract path in backticks or double quotes (such
+   as a record's own quoted `path:` line) still names that path; a path opened by one delimiter
+   and closed by the other names nothing. One leading byte-order mark in an extract is ignored.
+   The title is the first non-blank line when, after leading whitespace, it starts `# `; a later
+   `# ` line is a body heading. A metadata bullet starts `- ` at column 0; an indented `- ` line
+   is body. A `---` within the first 40 lines ends the header only while every line before it is
+   header material: the title, blank lines, metadata bullets, and a screening section (a
+   `## Screening note` line and every line after it up to the `---`), so a publication's
+   Screening note is header. Any other line before the `---` (body prose, another heading, an
+   indented bullet, a `----- PAGE` line) ends the header just above it and any blank lines before
+   it, and the `---` is then a horizontal rule in the body. With no `---` in the first 40 lines,
+   the header ends at the first of these lines: a `----- PAGE` line, a blank line after a
+   metadata bullet, or a `# ` line other than the title or an indented `- ` line (before or after
+   the first metadata bullet); before the first metadata bullet, any other line except a blank or
+   the title also ends it, and after it any other non-blank line stays header. A record whose
+   single `path:` or `extract:` field does not hold a quoted `--full-text.md` path names no
+   extract, and record lines after a line of another shape are not attributed to the record. A
+   screened publication extract may omit material by design, and its Screening note says what.
+   Such an omission, or a gap described in words other than a marker form, is not detected: read
+   the header before quoting. CANNOT-EVALUATE, printed on stderr with exit 2, means a matched
+   extract could not be evaluated: it is missing, cannot be read, is not a regular file, is a
+   symlink loop, or resolves outside the reference base; or it is larger than 256 KiB and its
+   first 256 KiB hold no header end, or no body text after the header. An extract of 256 KiB or
+   less with no body text after its header is reported as incomplete, not CANNOT-EVALUATE.
+   CANNOT-EVALUATE is never a HELD. A `grep`
    may FIND a file, but its ABSENCE from a partial/filtered grep never proves not-held. This is the
    same executed-not-narrated forcing function (run it, quote it) for reference-holdings
    claims, and the `evidence-grounded-completion` "inventory/absence claims require the index, not a
