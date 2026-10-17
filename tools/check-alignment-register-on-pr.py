@@ -116,8 +116,10 @@ unregistered citation and, once its modules load, ALWAYS exits 0. It is wired in
 and the ``pull_request`` job of ``quality.yml`` only, never into
 ``tools/run_all_audits.sh``: the corpus-gate bar requires near-zero false
 positives, and that runner hides a passing gate's warnings. An absent register
-(an adopter may drop it) is a NOTE and a no-op, and so is a missing merge base
-or an unreadable policy file (fail-open, the guard-malfunction stance).
+where D15 reads it (an adopter may drop it) is a NOTE and a no-op, and so is a
+missing merge base or a failed ``git diff`` (fail-open, the guard-malfunction
+stance). An unreadable policy file is a NOTE and a no-op for the main check; the
+sibling probe can still run then (see SIBLING PROBE below).
 
 RESIDUE (what D15 does NOT establish). It is delta-only, so a citation that is
 already on main is out of scope (gate 6's report mode inventories those for its
@@ -164,6 +166,85 @@ rows, and a PR can add a row to it. The EDPB's endorsement of WP29 documents is
 not modelled: ``EDPB Opinion 05/2014`` and ``EDPB WP248`` are not registered by
 the Article 29 Working Party rows.
 
+SIBLING PROBE (report only). When the PR changes ``tools/alignment-register-aliases.json``
+or the register, D15 also scans the WHOLE corpus at the PR head (every in-scope document,
+every line, the three table surfaces above but not EU/EC numbers in prose) and lists each
+citation that is still unregistered and shares a distinctive token with a changed alias key
+(added, removed or retargeted between the merge base and the head) or a changed register
+Standard ID (in one version's set of Standard IDs and not the other's: a row added or
+removed, and a row whose Standard ID is edited counts as the old ID removed and the new one
+added; an edit to a row's other cells, such as a date or a version, changes no Standard ID,
+so on 2026-10-17 a synthetic edit that moved every date in the Last verified (UTC) cells of
+all 23 register tables one day later, 217 dates in 216 of their 219 rows (189 of the 192
+Standard ID rows and the 27 rows of the AI security tooling references table, which is keyed
+by Project and which gate 6 does not parse; the other 3 rows read ``needs-reconfirm``), listed
+nothing, where taking each of those 189 Standard IDs as changed lists 86 citations). It exists because in PR #2833 (3b364) round 1
+aliased only the cited ``US TSA Pipeline Security Directives`` while the sibling row ``US TSA
+Rail Cybersecurity Directives`` kept warning until a later round. The probe resolves
+citations with the head's alias file (an absent one is an empty map), so a replay against
+another head, or a PR that deletes the file, classifies with that head's aliases; the main
+D15 check above, and both parts' exclusion policy, read the files in the checkout
+(``ALIASES_PATH``, ``EXCLUSIONS_PATH``), which in CI is the commit checked out as the head (the
+PR merge ref). D15 reads the register at ``--register-ref`` when it is given and at the head
+otherwise, and only an absent register there ends the run: it, a missing merge base and a
+failed ``git diff`` of the changed file names each end the run before the probe, with only
+its own NOTE and no probe-skipped NOTE. A head without the register does not end a run with
+a ``--register-ref`` that has one: the main check reads that ref's register, and the probe
+compares the head's absent register as one with no rows, so when the PR deletes the register
+every Standard ID of the merge base's register counts as removed. When
+the main check cannot load the register or its policy files (an unreadable
+or absent file in the checkout) it is skipped with a NOTE. The probe still lists siblings then
+only when the file that failed is the checkout's alias file (absent, unreadable or malformed),
+which the probe does not read: it also needs the exclusion policy in the checkout, a register
+that parses and a head alias file that is absent or loads, and prints a NOTE that it was
+skipped when one of them fails. With ``--register-ref``
+the family tokens and the judgement of which citations are unregistered use that ref's
+register, while the changed Standard IDs are still those between the merge base and the
+head. A DISTINCTIVE TOKEN is a
+case-folded run of ASCII letters and digits, after accents are removed (NFKD, combining
+marks dropped, so ``Qu\u00e9bec`` and ``Quebec`` match), that is either a designator (letters and digits
+together: ``C5``, ``WP248``, ``02G``), a number of three or more digits that is not a year
+from 1900 to 2099 (``2557``, ``62443``), or a word of three or more letters not in
+``SIBLING_STOP_WORDS``; and in every case one that appears in fewer than ``FAMILY_ROWS``
+(ten) of the head register's Standard IDs: ``ISO``, ``IEC``, ``NIST``, ``800`` and
+``Canada`` each name a family of rows (on 2026-10-17 every NIST alias key matched about 100
+corpus rows through ``NIST`` alone), so the probe does not match on them. The stop list holds function words and words that name a kind of
+instrument (``Act``, ``Directive``, ``Framework``), a topic (``Security``, ``Privacy``,
+``Risk``) or a jurisdiction or kind of body (``European``, ``National``, ``Authority``):
+each describes many unrelated instruments, so a shared stop word is no evidence that two
+names denote one instrument (in the tests, ``ACME Security Directives`` is not listed beside a
+``TSA Pipeline Security Directives`` fixture alias). Publisher acronyms stay distinctive, because the
+3b364 sibling shared only ``TSA`` with the aliased row; a year is not distinctive because
+unrelated editions share it; a two-letter word (``EU``, ``AI``, ``UK``) is too short. The
+probe lists in two tiers, so that a citation sharing only a distinctive word is still listed
+and the noise stays visibly weak. A
+citation that shares a strong token of a changed entry, an acronym (a word with a capital
+after its first letter as written: ``TSA``, ``CSA``, ``MiCA``, ``GenAI``), a designator or a
+number, is a ``D15 SIBLING`` line. A citation that shares no acronym, designator or number
+with any changed entry and a distinctive word with at least one is a ``D15 SIBLING (word
+match)`` line after the strong ones, naming the shared
+words (``pipeline`` of ``Transportation Security Administration Pipeline Security Directives
+(SD Pipeline-2021-02G)`` beside the former alias key ``US TSA Pipeline Security Directives``
+(removed in PR #2839; a test adds it back as a fixture), which
+the 3b370 round 2 review found lost while the probe matched an entry with an acronym on its
+acronym alone; ``quebec`` beside ``Quebec Law 25``). A word match is weak evidence: on
+2026-10-17 words such as ``party``, ``assessment``, ``access``, ``design``, ``provisions`` and
+``certification`` paired unrelated instruments of different publishers, and those words are
+in the stop list, but other words still pair unrelated instruments. A changed entry with no
+distinctive token is named in a NOTE line, and so is a change to the alias file's
+``umbrella`` or ``not_citable`` entries, which the probe does not compare. The probe never
+changes the exit status and does not run when neither file changes. Residual (printed
+beside the result): not listed are a form that shares no distinctive token with the changed
+entry (``Law 25`` beside ``Quebec Law 25``, or a spelled-out name beside its acronym that
+shares no distinctive word with it, such as one sharing only stop words or family tokens:
+``Cloud Security Alliance Cloud Controls Matrix v4.1`` beside ``CSA Cloud Controls Matrix``), every
+form of a changed entry with no distinctive token, a form sharing only a family token
+(``NIST SP 800-57`` beside ``NIST SP 800-218``; the family tokens of the register in use are
+printed), a sibling outside the three table surfaces (prose, an EU/EC number, or another
+table: the ``Regulation / Directive`` table of TSA directives in the logistics annex is not
+one), and the siblings of an ``umbrella`` or ``not_citable`` change; and a listed citation
+can be a different instrument from the same publisher, as a word match often is.
+
 Usage:
     python3 tools/check-alignment-register-on-pr.py                 # CI (GITHUB_BASE_REF)
     python3 tools/check-alignment-register-on-pr.py origin/main      # locally
@@ -180,14 +261,16 @@ import json
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 import aiqt_bootstrap  # noqa: E402,F401  # single shim: AIQT pack tools/ on sys.path
 from aiqt_corpus import iter_non_code_lines  # noqa: E402  # the line model gate 6 reads
-from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, resolve_pr_range  # noqa: E402
+from lint_common import AUDITED_DOMAIN_DIRS, PrRangeError, git, git_show, resolve_pr_range  # noqa: E402
 
 TOOLS = Path(__file__).resolve().parent
 REGISTER_REL = "governance/register-canonical-citations.md"
+ALIASES_REL = "tools/alignment-register-aliases.json"
 ALIASES_PATH = TOOLS / "alignment-register-aliases.json"
 EXCLUSIONS_PATH = TOOLS / "alignment-register-exclusions.json"
 # The three classes the 2026-10-16 decision names; a policy row of any other class is refused.
@@ -290,6 +373,43 @@ ACRONYM = re.compile(r"\b[A-Z][A-Z0-9&]*[A-Z0-9](?:-[A-Z0-9]+)*\b")
 INSTRUMENT_WORD = re.compile(
     r"\b(?:Act|Regulations?|Directive|Law|Code|Standard|Framework|Guidelines?|Rules?)\b"
 )
+# The sibling probe's stop list (see the module docstring): function words, and words naming a
+# kind of instrument, a topic, or a jurisdiction or kind of body, none of which identifies one
+# instrument. Case-folded; words shorter than three letters are never distinctive anyway.
+SIBLING_STOP_WORDS = frozenset({
+    # function words
+    "and", "for", "from", "into", "its", "not", "per", "the", "under", "via", "with",
+    # kinds of instrument
+    "act", "acts", "amendment", "annex", "article", "baseline", "benchmark", "chapter",
+    "code", "codes", "control", "controls", "criteria", "decision", "directive",
+    "directives", "edition", "framework", "frameworks", "guidance", "guide", "guideline",
+    "guidelines", "handbook", "law", "laws", "matrix", "model", "notice", "opinion", "order",
+    "part", "policy", "principles", "program", "programme", "publication", "recommendation",
+    "regulation", "regulations", "regulatory", "report", "requirement", "requirements",
+    "rev", "revision", "rule", "rules", "section", "series", "special", "specification",
+    "standard", "standards", "statement", "version",
+    # topics
+    "assurance", "cloud", "compliance", "critical", "cyber", "cybersecurity", "data",
+    "digital", "governance", "incident", "information", "infrastructure", "management",
+    "operational", "personal", "privacy", "protection", "quality", "reporting",
+    "resilience", "risk", "safety", "security", "service", "services", "system", "systems",
+    "technology",
+    # generic words that named unrelated instruments of different publishers on 2026-10-17
+    # (3b370 round 1 review: "Third-Party Risk Toolkit" beside an Article 29 Working Party
+    # row, "Age Appropriate Design Code" beside EDPB Guidelines 4/2019)
+    "access", "agentic", "application", "applications", "artificial", "assessment",
+    "certification", "conduct", "design", "intelligence", "maturity", "party", "provision",
+    "provisions", "right", "rights", "testing", "top", "verification", "working",
+    # jurisdictions and kinds of body
+    "agency", "association", "authority", "board", "commission", "council", "department",
+    "european", "federal", "general", "government", "institute", "international",
+    "kingdom", "ministry", "national", "office", "organisation", "organization", "states",
+    "union", "united", "usa",
+})
+TOKEN = re.compile(r"[a-z0-9]+")
+# A token in this many register Standard IDs names a family, not an instrument (2026-10-17:
+# iso 31, iec 30, nist 19, 800 13, canada 12 of 192 rows; the next, edpb, 9; tsa 1).
+FAMILY_ROWS = 10
 
 
 def _load_gate6():
@@ -852,12 +972,224 @@ def in_scope(rel: str) -> bool:
     return rel.split("/", 1)[0] in AUDITED_DOMAIN_DIRS and "/" in rel
 
 
-def build_resolver(register_text: str) -> Resolver:
+def build_resolver(register_text: str, aliases_text: str | None = None) -> Resolver:
+    """The resolver over ``register_text``. The main check reads the alias file from the
+    checkout (``ALIASES_PATH``); the sibling probe passes the head's alias file as
+    ``aliases_text``. The exclusion policy is always read from the checkout."""
+    if aliases_text is None:
+        aliases_text = ALIASES_PATH.read_text(encoding="utf-8")
     return Resolver(
         Register(register_text),
-        load_aliases(ALIASES_PATH.read_text(encoding="utf-8")),
+        load_aliases(aliases_text),
         load_exclusions(EXCLUSIONS_PATH.read_text(encoding="utf-8")),
     )
+
+
+def fold_accents(text: str) -> str:
+    """``text`` with accents removed (NFKD, combining marks dropped): ``Qu\u00e9bec`` becomes
+    ``Quebec``."""
+    return "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
+
+
+def distinctive_tokens(text: str, family: frozenset = frozenset()) -> set[str]:
+    """The distinctive tokens of a name (module docstring, SIBLING PROBE): designators mixing
+    letters and digits, numbers of three or more digits that are not a 1900-2099 year, and
+    words of three or more letters outside ``SIBLING_STOP_WORDS``; none in ``family``. Accents
+    are removed first."""
+    out = set()
+    for tok in TOKEN.findall(fold_accents(text).casefold()):
+        digits = sum(c.isdigit() for c in tok)
+        if digits and digits < len(tok):
+            out.add(tok)
+        elif digits:
+            if len(tok) >= 3 and not (len(tok) == 4 and 1900 <= int(tok) <= 2099):
+                out.add(tok)
+        elif len(tok) >= 3 and tok not in SIBLING_STOP_WORDS:
+            out.add(tok)
+    return out - family
+
+
+def family_tokens(register: Register) -> frozenset:
+    """Tokens in ``FAMILY_ROWS`` or more register Standard IDs: they name a family of
+    instruments (``iso``, ``nist``, ``800``), not one, so the sibling probe does not match on
+    them."""
+    counts: dict[str, int] = {}
+    for e in register.entries:
+        for tok in distinctive_tokens(e["id"]):
+            counts[tok] = counts.get(tok, 0) + 1
+    return frozenset(t for t, n in counts.items() if n >= FAMILY_ROWS)
+
+
+def entry_tokens(entry: str, family: frozenset = frozenset()) -> tuple[set[str], set[str]]:
+    """(strong, words): the distinctive tokens of a changed entry, none in ``family``, split
+    into its acronyms (a word with a capital after its first letter as written: ``TSA``,
+    ``MiCA``, ``GenAI``), designators and numbers, and its other distinctive words
+    (``Pipeline``, ``Quebec``). A citation sharing a strong token is a ``D15 SIBLING`` line;
+    one sharing only words is a weak ``D15 SIBLING (word match)`` line, since a word such as
+    ``Pipeline`` names many publishers' instruments."""
+    tokens = distinctive_tokens(entry, family)
+    caps = {
+        t.casefold() for t in re.findall(r"[A-Za-z0-9]+", fold_accents(entry))
+        if t.isalpha() and any(c.isupper() for c in t[1:])
+    }
+    strong = {t for t in tokens if t in caps or any(c.isdigit() for c in t)}
+    return strong, tokens - strong
+
+
+def alias_sections(text: str | None) -> dict:
+    """The top-level object of one version of the alias file; an absent file is an empty map.
+    Raises PolicyError when the file is not a JSON object (and ValueError on invalid JSON)."""
+    if text is None:
+        return {}
+    data = json.loads(text)
+    if not isinstance(data, dict):
+        raise PolicyError("alias file: the top level must be a JSON object")
+    return data
+
+
+def changed_alias_keys(base_text: str | None, head_text: str | None) -> list[str]:
+    """Alias keys added, removed or retargeted between two versions of the alias file (an
+    absent file has no aliases). Raises ValueError on a malformed file."""
+    maps = []
+    for text in (base_text, head_text):
+        aliases = alias_sections(text).get("aliases", {})
+        if not isinstance(aliases, dict):
+            raise PolicyError("alias file: 'aliases' must map names to register Standard IDs")
+        maps.append(aliases)
+    base, head = maps
+    return sorted(k for k in set(base) | set(head) if base.get(k) != head.get(k))
+
+
+def changed_uncovered_sections(base_text: str | None, head_text: str | None) -> list[str]:
+    """The alias-file sections the sibling probe does not compare (``umbrella``,
+    ``not_citable``) that differ between two versions of the file."""
+    base, head = alias_sections(base_text), alias_sections(head_text)
+    return [s for s in ("umbrella", "not_citable") if base.get(s) != head.get(s)]
+
+
+def changed_standard_ids(base_text: str | None, head_text: str | None) -> list[str]:
+    """Standard IDs in one version of the register and not the other (an absent register has
+    no rows): a row added or removed, and a row whose Standard ID is edited counts as its old
+    ID removed and its new ID added. Only the set of Standard IDs is compared, so an edit to a
+    row's other cells (a date, a version) changes nothing here."""
+    ensure_gate6()
+    base, head = (
+        {e["id"] for e in GATE6.parse_register_text(text)} if text is not None else set()
+        for text in (base_text, head_text)
+    )
+    return sorted(base ^ head)
+
+
+def probe_siblings(changed: list[tuple[str, str]], docs, resolver: Resolver) -> tuple[list[tuple], list[tuple]]:
+    """(strong, weak): lists of (rel, line_no, surface, citation, shared tokens, kind, entry)
+    for the unregistered alignment-table citations in ``docs`` (pairs of path and text, every
+    line scanned). A citation sharing a strong token (``entry_tokens``) with a changed ``(kind,
+    entry)`` is strong and names the first such entry; any other citation sharing a word of a
+    changed entry is weak and names the first entry it shares a word with. Each citation is
+    listed once. PURE over its inputs."""
+    family = family_tokens(resolver.register)
+    probes = [(kind, entry, *entry_tokens(entry, family)) for kind, entry in changed]
+    strong, weak = [], []
+    for rel, text in docs:
+        every_line = set(range(1, len(text.splitlines()) + 1))
+        for ln, surface, citation in scan_text(text, every_line, resolver):
+            if surface == "EU/EC instrument number":
+                continue
+            tokens = distinctive_tokens(citation)
+            hit = next(
+                ((kind, entry, tokens & probe) for kind, entry, probe, _ in probes if tokens & probe), None
+            )
+            out = strong
+            if hit is None:
+                out = weak
+                hit = next(
+                    ((kind, entry, tokens & words) for kind, entry, _, words in probes if tokens & words), None
+                )
+            if hit is not None:
+                kind, entry, shared = hit
+                out.append((rel, ln, surface, citation, sorted(shared), kind, entry))
+    return strong, weak
+
+
+def sibling_report(texts: dict, register_text: str, docs) -> list[str]:
+    """The sibling probe's output lines. ``texts`` holds the base and head versions of the
+    alias file and the register (``base_aliases``, ``head_aliases``, ``base_register``,
+    ``head_register``; None when absent); ``register_text`` is the register the citations
+    resolve against (the head's, or the ``--register-ref`` one); ``docs`` are (path, text)
+    pairs. The resolver reads the head's alias file, an absent one as an empty map. Raises
+    OSError or ValueError (PolicyError, RegisterError, JSON) when an input cannot be read."""
+    head_aliases = texts["head_aliases"]
+    resolver = build_resolver(
+        register_text, head_aliases if head_aliases is not None else '{"schema_version": 1}'
+    )
+    changed = [("alias key", k) for k in changed_alias_keys(texts["base_aliases"], head_aliases)] + [
+        ("register Standard ID", s)
+        for s in changed_standard_ids(texts["base_register"], texts["head_register"])
+    ]
+    family = family_tokens(resolver.register)
+    lines = []
+    for section in changed_uncovered_sections(texts["base_aliases"], head_aliases):
+        lines.append(
+            f"D15 NOTE: this PR changes the {section!r} entries of {ALIASES_REL}; the sibling probe "
+            f"compares alias keys and register Standard IDs only and does not cover them."
+        )
+    if not changed:
+        lines.append(
+            "D15 NOTE: no alias key or register Standard ID is added, removed or retargeted (an "
+            "edit to other register cells, such as a date or a version, is not compared); the "
+            "sibling probe has nothing to match."
+        )
+    for kind, entry in changed:
+        if not any(entry_tokens(entry, family)):
+            lines.append(f"D15 NOTE: changed {kind} {entry!r} has no distinctive token; the sibling probe cannot list its siblings.")
+    strong, weak = probe_siblings(changed, docs, resolver)
+    for rel, ln, surface, citation, shared, kind, entry in strong:
+        lines.append(
+            f"D15 SIBLING {rel}:{ln}: {surface} {citation!r} shares "
+            f"{', '.join(repr(t) for t in shared)} with changed {kind} {entry!r} and has no row in {REGISTER_REL}"
+        )
+    for rel, ln, surface, citation, shared, kind, entry in weak:
+        lines.append(
+            f"D15 SIBLING (word match) {rel}:{ln}: {surface} {citation!r} shares only the word(s) "
+            f"{', '.join(repr(t) for t in shared)} with changed {kind} {entry!r} and has no row in "
+            f"{REGISTER_REL}; weak evidence"
+        )
+    lines.append(
+        f"D15 SIBLING-PROBE: {len(strong) + len(weak)} unregistered alignment-table citation(s) in "
+        f"the corpus share a distinctive token with the {len(changed)} alias key(s) or register "
+        f"Standard ID(s) this PR changes: {len(strong)} share an acronym, designator or number "
+        f"(D15 SIBLING) and {len(weak)} share only a distinctive word (D15 SIBLING (word match), "
+        f"weak evidence: a word such as \"pipeline\" names many instruments); check each for another "
+        f"form of the same instrument. Residual, not listed: a form sharing no distinctive token "
+        f"with a changed entry (\"Law 25\" beside \"Quebec Law 25\", or a spelled-out name beside "
+        f"its acronym that shares no distinctive word with it, such as one sharing only stop words "
+        f"or family tokens: \"Cloud Security Alliance Cloud Controls Matrix v4.1\" beside \"CSA "
+        f"Cloud Controls Matrix\"); every form of a changed entry with no distinctive token (NOTE lines "
+        f"above); a form sharing only a family token (in {FAMILY_ROWS} or more Standard IDs of "
+        f"this register: {', '.join(sorted(family)) or 'none'}), such as \"NIST SP 800-57\" beside "
+        f"\"NIST SP 800-218\"; a sibling outside the three alignment-table surfaces (prose, an "
+        f"EU/EC number, another table); and siblings of umbrella or not_citable changes. A listed "
+        f"citation can be another instrument from the same publisher, and a word match often is. "
+        f"Report only; exit 0."
+    )
+    return lines
+
+
+def run_sibling_probe(merge_base: str, head: str, register_text: str) -> None:
+    """The report-only whole-corpus sibling probe; prints only, never affects the exit."""
+    try:
+        texts = dict(
+            base_aliases=git_show(merge_base, ALIASES_REL), head_aliases=git_show(head, ALIASES_REL),
+            base_register=git_show(merge_base, REGISTER_REL), head_register=git_show(head, REGISTER_REL),
+        )
+        names = git("ls-tree", "-r", "--name-only", "-z", head).split("\0")
+        docs = ((rel, git_show(head, rel)) for rel in sorted(n for n in names if n and in_scope(n)))
+        lines = sibling_report(texts, register_text, ((rel, text) for rel, text in docs if text is not None))
+    except (OSError, ValueError, subprocess.CalledProcessError) as exc:  # PolicyError, RegisterError, JSON
+        print(f"D15 NOTE: sibling probe cannot read the alias file, the register or the corpus ({exc}); skipped.")
+        return
+    for line in lines:
+        print(line)
 
 
 def run(base: str | None, head: str, register_ref: str | None) -> int:
@@ -875,14 +1207,19 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
         print(f"D15 NOTE: {REGISTER_REL} is absent at {register_ref or head}; nothing to check against.")
         return 0
     try:
-        resolver = build_resolver(register_text)
-    except (OSError, ValueError) as exc:  # PolicyError, RegisterError and JSON errors
-        print(f"D15 NOTE: cannot load the register or the D15 policy files ({exc}); advisory check skipped (fail-open).")
-        return 0
-    try:
         names = git("diff", "--name-only", "--no-renames", "-z", merge_base, head).split("\0")
     except subprocess.CalledProcessError as exc:
         print(f"D15 NOTE: git diff failed ({exc}); advisory check skipped (fail-open).")
+        return 0
+    probe = bool({ALIASES_REL, REGISTER_REL} & set(names))
+    try:
+        resolver = build_resolver(register_text)
+    except (OSError, ValueError) as exc:  # PolicyError, RegisterError and JSON errors
+        print(f"D15 NOTE: cannot load the register or the D15 policy files ({exc}); advisory check skipped (fail-open).")
+        # The probe reads the head's alias file, so a checkout without one (a PR that deletes
+        # it) still reaches the probe.
+        if probe:
+            run_sibling_probe(merge_base, head, register_text)
         return 0
     files = sorted(n for n in names if n and in_scope(n))
     hits = []
@@ -896,15 +1233,17 @@ def run(base: str | None, head: str, register_ref: str | None) -> int:
             hits.append((rel, ln, surface, citation))
     if not hits:
         print(f"D15 OK: {len(files)} corpus document(s) changed; no added citation lacks a register row.")
-        return 0
     for rel, ln, surface, citation in hits:
         print(f"D15 WARN {rel}:{ln}: {surface} {citation!r} has no row in {REGISTER_REL}")
-    print(
-        f"D15 ADVISORY: {len(hits)} added citation(s) with no register row. Add a row (see the "
-        f"register's Maintenance section), curate an alias in "
-        f"tools/{ALIASES_PATH.name}, or, for an RFC, vendor guidance or a book, an entry in "
-        f"tools/{EXCLUSIONS_PATH.name}. Warning only; exit 0."
-    )
+    if hits:
+        print(
+            f"D15 ADVISORY: {len(hits)} added citation(s) with no register row. Add a row (see the "
+            f"register's Maintenance section), curate an alias in "
+            f"tools/{ALIASES_PATH.name}, or, for an RFC, vendor guidance or a book, an entry in "
+            f"tools/{EXCLUSIONS_PATH.name}. Warning only; exit 0."
+        )
+    if probe:
+        run_sibling_probe(merge_base, head, register_text)
     return 0
 
 
