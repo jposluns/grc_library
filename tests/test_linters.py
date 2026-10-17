@@ -6220,7 +6220,7 @@ class DeltaGateRepoTestCase(unittest.TestCase):
     are date-independent (only D4 compares commit dates).
     """
 
-    def _build_repo(self, base_files, head_files, head_message="Second"):
+    def _build_repo(self, base_files, head_files, head_message="Second", head_deleted=()):
         import shutil
         import subprocess as sp
         import tempfile
@@ -6243,6 +6243,8 @@ class DeltaGateRepoTestCase(unittest.TestCase):
             path = tmp / rel
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(content, encoding="utf-8")
+        for rel in head_deleted:
+            (tmp / rel).unlink()
         sp.run(["git", "-C", str(tmp), "add", "-A"], check=True)
         sp.run(["git", "-C", str(tmp), "commit", "-q", "-m", head_message], check=True)
         return tmp, base_sha, shutil
@@ -7232,6 +7234,501 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         ):
             with self.subTest(number=number):
                 self.assertIn(f"EU/EC instrument number '{observed}'", warned, out)
+
+    # The sibling probe (3b370): when a PR changes the alias file or the register, D15 lists
+    # every unregistered alignment-table citation already in the corpus that shares a
+    # distinctive token with a changed alias key or register Standard ID. In PR #2833 (3b364)
+    # round 1 aliased "US TSA Pipeline Security Directives" while the sibling row "US TSA Rail
+    # Cybersecurity Directives" kept warning.
+    ALIASES = "tools/alignment-register-aliases.json"
+    TSA_ROWS = ROWS + (("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),)
+    SIBLING_DOC = (
+        "| US TSA Pipeline Security Directives | TSA SDs | Pipelines |",
+        "| US TSA Rail Cybersecurity Directives | TSA SDs | Rail |",
+        "| ACME Security Directives | Guidance | Generic |",
+        "| ISACA DTEF | Assurance | Audit |",
+    )
+
+    @staticmethod
+    def _aliases(*keys, target="TSA Pipeline Security Directive", **sections):
+        import json
+
+        return json.dumps({
+            "schema_version": 1,
+            "aliases": {k: target for k in keys},
+            **sections,
+        }, indent=2) + "\n"
+
+    def _probe(self, base_extra, head_extra, doc=None, deleted=()):
+        """Run D15 on a PR whose corpus document is unchanged (present at the base) and whose
+        other changes are ``head_extra`` (and the deletion of ``deleted``); returns stdout."""
+        doc = doc or self._doc(*self.SIBLING_DOC)
+        base = {self.DOC: doc, **base_extra}
+        tmp, base_sha, shutil = self._build_repo(base, head_extra, head_deleted=deleted)
+        try:
+            result = self._run_gate(self.SCRIPT, tmp, base_sha)
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        self.assertEqual(
+            result.returncode, 0,
+            f"D15 is advisory and must exit 0.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}",
+        )
+        self.assertNotIn("Traceback", result.stderr, result.stderr)
+        return result.stdout
+
+    @staticmethod
+    def _siblings(out):
+        return [line for line in out.splitlines() if line.startswith("D15 SIBLING ")]
+
+    def test_sibling_probe_lists_other_form_of_aliased_instrument(self) -> None:
+        register = self._register(self.TSA_ROWS)
+        out = self._probe(
+            {self.REGISTER: register, self.ALIASES: self._aliases("TSA Pipeline Security Directives")},
+            {self.ALIASES: self._aliases(
+                "TSA Pipeline Security Directives", "US TSA Pipeline Security Directives",
+            )},
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("security/standard-example.md:8:", listed[0])
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", listed[0])
+        self.assertIn("'tsa'", listed[0])
+        self.assertIn("alias key 'US TSA Pipeline Security Directives'", listed[0])
+        # A row sharing only stop-list words ("Security", "Directives") and an unregistered
+        # row sharing nothing are not listed; the residual is printed beside the result.
+        self.assertNotIn("ACME", out)
+        self.assertNotIn("ISACA DTEF", out)
+        self.assertIn("D15 SIBLING-PROBE: 1 unregistered", out)
+        self.assertIn("sharing no distinctive token", out)
+        self.assertEqual(self._warned(out), [], out)
+
+    def test_sibling_probe_runs_on_a_changed_register_standard_id(self) -> None:
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        out = self._probe(
+            {self.REGISTER: self._register(), self.ALIASES: aliases},
+            {self.REGISTER: self._register(self.TSA_ROWS)},
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", listed[0])
+        self.assertIn("register Standard ID 'TSA Pipeline Security Directive'", listed[0])
+
+    def test_sibling_probe_ignores_a_date_only_register_edit(self) -> None:
+        # Only the set of Standard IDs is compared (3b370 round 2): a refresh of the Last
+        # verified dates changes no Standard ID, so nothing is listed (comparing whole rows
+        # would list the rail sibling here, and 86 citations on the real corpus).
+        register = self._register(self.TSA_ROWS)
+        out = self._probe(
+            {self.REGISTER: register},
+            {self.REGISTER: register.replace("2026-10-01 |\n", "2026-10-18 |\n")},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("no alias key or register Standard ID is added, removed or retargeted", out)
+        self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
+
+    def test_sibling_probe_lists_siblings_of_a_removed_register_row(self) -> None:
+        aliases = self._aliases("US TSA Pipeline Security Directives", target="EU DORA")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
+            {self.REGISTER: self._register()},
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", listed[0])
+        self.assertIn("register Standard ID 'TSA Pipeline Security Directive'", listed[0])
+
+    def test_sibling_probe_absent_base_register_counts_every_row_added(self) -> None:
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        out = self._probe({self.ALIASES: aliases}, {self.REGISTER: self._register(self.TSA_ROWS)})
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", listed[0])
+        self.assertIn(f"with the {len(self.TSA_ROWS)} alias key(s) or register Standard ID(s)", out)
+
+    def test_sibling_probe_malformed_base_register_is_a_note(self) -> None:
+        out = self._probe(
+            {self.REGISTER: "# Canonical Citations Register\n\n| broken\n"},
+            {self.REGISTER: self._register(self.TSA_ROWS)},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("D15 NOTE: sibling probe cannot read", out)
+
+    def test_sibling_probe_lists_siblings_of_a_removed_alias_key(self) -> None:
+        register = self._register(self.TSA_ROWS)
+        out = self._probe(
+            {self.REGISTER: register, self.ALIASES: self._aliases("TSA Pipeline Security Directives")},
+            {self.ALIASES: self._aliases()},
+        )
+        listed = [line for line in self._siblings(out) if "Rail" in line]
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("alias key 'TSA Pipeline Security Directives'", listed[0])
+
+    def test_sibling_probe_lists_siblings_of_a_retargeted_alias_key(self) -> None:
+        doc = self._doc("| ACME Rail Directives | x | y |", "| ACME Pipeline Code | x | y |")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases("ACME Rail Directives")},
+            {self.ALIASES: self._aliases("ACME Rail Directives", target="EU DORA")},
+            doc=doc,
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'ACME Pipeline Code' shares 'acme'", listed[0])
+        self.assertIn("alias key 'ACME Rail Directives'", listed[0])
+
+    def test_sibling_probe_resolves_with_the_head_alias_file(self) -> None:
+        # The probe reads the head's alias file, not the checkout's: the newly aliased form is
+        # registered and not listed, its unaliased sibling is.
+        doc = self._doc("| ACME Rail Directives | x | y |", "| ACME Pipeline Code | x | y |")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("ACME Rail Directives")},
+            doc=doc,
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'ACME Pipeline Code'", listed[0])
+
+    def test_sibling_probe_treats_a_deleted_head_alias_file_as_empty(self) -> None:
+        out = self._probe(
+            {
+                self.REGISTER: self._register(self.TSA_ROWS),
+                self.ALIASES: self._aliases("US TSA Pipeline Security Directives"),
+            },
+            {},
+            deleted=(self.ALIASES,),
+        )
+        listed = self._siblings(out)
+        # With no aliases the formerly aliased form is unregistered too.
+        self.assertEqual(len(listed), 2, out)
+        self.assertIn("'US TSA Pipeline Security Directives'", listed[0] + listed[1])
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", listed[0] + listed[1])
+        self.assertNotIn("cannot read", out)
+
+    def test_sibling_probe_absent_base_alias_file_counts_every_key_added(self) -> None:
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS)},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives")},
+        )
+        listed = self._siblings(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("alias key 'US TSA Pipeline Security Directives'", listed[0])
+
+    def test_sibling_probe_malformed_alias_file_is_a_note(self) -> None:
+        good = self._aliases("US TSA Pipeline Security Directives")
+        for name, base, head in (("base", "[]\n", good), ("head", good, "[]\n")):
+            with self.subTest(malformed=name):
+                out = self._probe(
+                    {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: base},
+                    {self.ALIASES: head},
+                )
+                self.assertEqual(self._siblings(out), [], out)
+                self.assertIn("D15 NOTE: sibling probe cannot read", out)
+        mod = self._module()
+        with self.assertRaises(mod.PolicyError):
+            mod.changed_alias_keys("[]", None)
+
+    def test_sibling_probe_notes_an_umbrella_only_change(self) -> None:
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        umbrella = [{"pattern": r"ISACA DTEF\b.*", "row": "EU DORA"}]
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives", umbrella=umbrella)},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("changes the 'umbrella' entries", out)
+        self.assertIn("does not cover them", out)
+        self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
+
+    def test_sibling_probe_skips_the_eu_number_surface(self) -> None:
+        # An unregistered EU/EC number in prose shares "2557" with the changed alias key, but
+        # the probe lists alignment-table citations only.
+        doc = self._doc(*self.SIBLING_DOC) + "\nDirective (EU) 2022/2557 applies to rail operators.\n"
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives", "Directive (EU) 2022/2557")},
+            doc=doc,
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
+
+    def test_sibling_probe_drops_family_tokens_of_the_changed_entry(self) -> None:
+        mod = self._module()
+        rows = self.TSA_ROWS + tuple((f"NIST SP 800-{n}", "1.0", "-") for n in range(100, 100 + mod.FAMILY_ROWS))
+        doc = self._doc("| NIST SP 800-57 | Key management | Keys |")
+        out = self._probe(
+            {self.REGISTER: self._register(rows), self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("NIST SP 800-53", target="NIST CSF")},
+            doc=doc,
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("changed alias key 'NIST SP 800-53' has no distinctive token", out)
+        self.assertIn("this register: 800, nist)", out)
+
+    @staticmethod
+    def _weak(out):
+        return [line for line in out.splitlines() if line.startswith("D15 SIBLING (word match) ")]
+
+    def _strong(self, out):
+        return [line for line in self._siblings(out) if line not in self._weak(out)]
+
+    def test_sibling_probe_lists_word_only_matches_in_a_weak_tier(self) -> None:
+        # An acronym match is a D15 SIBLING line; a citation sharing only a word with the
+        # changed entry is a weak "word match" line after it (3b370 round 3: nothing dropped).
+        doc = self._doc("| ACME Pipeline Code | x | y |", "| US TSA Rail Cybersecurity Directives | x | y |")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("TSA Pipeline Security Directives")},
+            doc=doc,
+        )
+        strong, weak = self._strong(out), self._weak(out)
+        self.assertEqual(len(strong), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives' shares 'tsa'", strong[0])
+        self.assertEqual(len(weak), 1, out)
+        self.assertIn("'ACME Pipeline Code' shares only the word(s) 'pipeline'", weak[0])
+        self.assertIn("weak evidence", weak[0])
+        lines = out.splitlines()
+        self.assertLess(lines.index(strong[0]), lines.index(weak[0]), out)
+        self.assertIn("D15 SIBLING-PROBE: 2 unregistered", out)
+        self.assertIn("1 share an acronym, designator or number (D15 SIBLING) and 1 share only", out)
+
+    def test_sibling_probe_lists_the_spelled_out_form_as_a_word_match(self) -> None:
+        # The codex 3b370 round 2 case: the spelled-out TSA form shares only "pipeline" with
+        # the changed alias key, so the acronym-only match lost it.
+        doc = self._doc(
+            "| Transportation Security Administration Pipeline Security Directives "
+            "(SD Pipeline-2021-02G) | x | y |",
+        )
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives")},
+            doc=doc,
+        )
+        self.assertEqual(self._strong(out), [], out)
+        weak = self._weak(out)
+        self.assertEqual(len(weak), 1, out)
+        self.assertIn("'Transportation Security Administration Pipeline Security Directives", weak[0])
+        self.assertIn("shares only the word(s) 'pipeline' with changed alias key "
+                      "'US TSA Pipeline Security Directives'", weak[0])
+
+    def test_sibling_probe_treats_an_internal_capital_as_strong(self) -> None:
+        doc = self._doc("| ESMA MiCA Guidelines | x | y |")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("MiCA Crypto Rules", target="EU DORA")},
+            doc=doc,
+        )
+        strong = self._strong(out)
+        self.assertEqual(len(strong), 1, out)
+        self.assertIn("'ESMA MiCA Guidelines' shares 'mica'", strong[0])
+        self.assertEqual(self._weak(out), [], out)
+
+    def test_sibling_probe_falls_back_to_words_and_folds_accents(self) -> None:
+        doc = self._doc("| Qu\u00e9bec Privacy Act | x | y |")
+        out = self._probe(
+            {self.REGISTER: self._register(), self.ALIASES: self._aliases()},
+            {self.REGISTER: self._register(self.ROWS + (("Quebec Law 25", "2021", "-"),))},
+            doc=doc,
+        )
+        listed = self._weak(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertEqual(self._strong(out), [], out)
+        self.assertIn("shares only the word(s) 'quebec' with changed register Standard ID 'Quebec Law 25'", listed[0])
+        self.assertNotIn("has no distinctive token", out)
+
+    def test_sibling_probe_does_not_list_a_spelled_out_name_sharing_only_stop_words(self) -> None:
+        # 3b370 round 3 review: the spelled-out CSA name shares only "cloud", "controls",
+        # "matrix" and "security" with the changed "CSA Cloud Controls Matrix" key, all stop
+        # words, so it is not listed; the printed residual names the case.
+        spelled = "Cloud Security Alliance Cloud Controls Matrix v4.1"
+        doc = self._doc(f"| {spelled} | x | y |", "| CSA STAR Registry | x | y |")
+        register = self._register()
+        head_aliases = self._aliases("CSA Cloud Controls Matrix", target="CSA CCM")
+        out = self._probe(
+            {self.REGISTER: register, self.ALIASES: self._aliases()},
+            {self.ALIASES: head_aliases},
+            doc=doc,
+        )
+        # The spelled-out form is unregistered at the head, so only the matching leaves it out.
+        mod = self._module()
+        every_line = set(range(1, len(doc.splitlines()) + 1))
+        unregistered = [c for _, _, c in mod.scan_text(doc, every_line, mod.build_resolver(register, head_aliases))]
+        self.assertIn(spelled, unregistered)
+        strong = self._strong(out)
+        self.assertEqual(len(strong), 1, out)
+        self.assertIn("'CSA STAR Registry' shares 'csa'", strong[0])
+        self.assertEqual(self._weak(out), [], out)
+        self.assertNotIn(spelled, "\n".join(self._siblings(out)))
+        self.assertIn(
+            "a spelled-out name beside its acronym that shares no distinctive word with it, such as one "
+            "sharing only stop words or family tokens: \"Cloud Security Alliance Cloud Controls Matrix "
+            "v4.1\" beside \"CSA Cloud Controls Matrix\"",
+            out,
+        )
+
+    def test_sibling_probe_notes_a_not_citable_only_change(self) -> None:
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
+            {self.ALIASES: self._aliases(
+                "US TSA Pipeline Security Directives", not_citable={"exact": ["ISACA DTEF"]},
+            )},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("changes the 'not_citable' entries", out)
+        self.assertIn("does not cover them", out)
+        self.assertNotIn("'umbrella'", out)
+        self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
+
+    def test_sibling_probe_uses_the_register_ref(self) -> None:
+        # --register-ref decides which citations are unregistered and the family tokens; the
+        # changed entries are still those between the merge base and the head.
+        import subprocess as sp
+
+        register = self._register(self.TSA_ROWS)
+        tmp, base_sha, shutil = self._build_repo(
+            {self.DOC: self._doc(*self.SIBLING_DOC), self.REGISTER: register, self.ALIASES: self._aliases()},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives")},
+        )
+        refs = {
+            # a row the head lacks registers the rail form
+            "rail": self.TSA_ROWS + (("US TSA Rail Cybersecurity Directives", "2024", "-"),),
+            # ten more TSA rows make "tsa" a family token
+            "family": self.TSA_ROWS + tuple(
+                (f"TSA Directive {n}", "1.0", "-") for n in range(100, 100 + self._module().FAMILY_ROWS)
+            ),
+        }
+        outs = {}
+        try:
+            git = ["git", "-C", str(tmp)]
+            for name, rows in refs.items():
+                sp.run(git + ["checkout", "-q", "-b", name, base_sha], check=True)
+                (tmp / self.REGISTER).write_text(self._register(rows), encoding="utf-8")
+                sp.run(git + ["commit", "-q", "-am", name], check=True)
+                sp.run(git + ["checkout", "-q", "main"], check=True)
+            for name in (None, *refs):
+                cmd = [sys.executable, str(REPO_ROOT / "tools" / self.SCRIPT), base_sha, "HEAD"]
+                result = sp.run(
+                    cmd + (["--register-ref", name] if name else []),
+                    capture_output=True, text=True, cwd=str(tmp),
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                outs[name] = result.stdout
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+        head = self._strong(outs[None])
+        self.assertEqual(len(head), 1, outs[None])
+        self.assertIn("'US TSA Rail Cybersecurity Directives' shares 'tsa'", head[0])
+        self.assertIn("this register: none)", outs[None])
+        self.assertEqual(self._siblings(outs["rail"]), [], outs["rail"])
+        self.assertIn("D15 SIBLING-PROBE: 0 unregistered", outs["rail"])
+        self.assertEqual(self._siblings(outs["family"]), [], outs["family"])
+        self.assertIn("this register: tsa)", outs["family"])
+
+    def _run_without_checkout_aliases(self, head_extra):
+        """Run D15 from a tools/ copy without the alias file, on a PR whose base holds the
+        sibling document, the TSA register and an empty alias file, and whose head adds
+        ``head_extra``; returns stdout."""
+        import os
+        import shutil
+        import subprocess as sp
+        import tempfile
+
+        td = Path(tempfile.mkdtemp(prefix="d15-no-aliases-"))
+        self.addCleanup(shutil.rmtree, td, True)
+        shutil.copytree(
+            REPO_ROOT / "tools", td / "tools",
+            ignore=shutil.ignore_patterns("__pycache__", "alignment-register-aliases.json"),
+        )
+        (td / ".corpus-management").symlink_to(REPO_ROOT / ".corpus-management")
+        self.assertFalse((td / "tools" / "alignment-register-aliases.json").exists())
+        tmp, base_sha, _ = self._build_repo(
+            {
+                self.DOC: self._doc(*self.SIBLING_DOC), self.REGISTER: self._register(self.TSA_ROWS),
+                self.ALIASES: self._aliases(),
+            },
+            head_extra,
+        )
+        self.addCleanup(shutil.rmtree, tmp, True)
+        result = sp.run(
+            [sys.executable, str(td / "tools" / self.SCRIPT), base_sha, "HEAD"],
+            capture_output=True, text=True, cwd=str(tmp),
+            env=dict(os.environ, AIQT_PACK_ROOT=str(REPO_ROOT / "vendor" / "aiqt")),
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertNotIn("Traceback", result.stderr, result.stderr)
+        return result.stdout
+
+    def test_sibling_probe_runs_when_the_main_check_cannot_load_its_policy(self) -> None:
+        # The tool runs from a tools/ copy without the alias file: the main check is skipped
+        # (fail-open NOTE) and the probe still runs on the head's alias file.
+        out = self._run_without_checkout_aliases(
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives")},
+        )
+        self.assertIn("cannot load the register or the D15 policy files", out)
+        self.assertIn("advisory check skipped (fail-open)", out)
+        self.assertNotIn("D15 OK", out)
+        listed = self._strong(out)
+        self.assertEqual(len(listed), 1, out)
+        self.assertIn("'US TSA Rail Cybersecurity Directives' shares 'tsa'", listed[0])
+        self.assertIn("D15 SIBLING-PROBE: 1 unregistered", out)
+
+    def test_sibling_probe_not_run_on_a_policy_failure_when_neither_file_changes(self) -> None:
+        # The policy-failure branch keeps the guard: the main check is skipped, and with no
+        # change to the alias file or the register the probe does not run either.
+        out = self._run_without_checkout_aliases(
+            {"security/standard-other.md": self._doc("| NIST CSF 2.0 | GV | Governance |")},
+        )
+        self.assertIn("cannot load the register or the D15 policy files", out)
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertNotIn("SIBLING-PROBE", out)
+        self.assertNotIn("sibling probe", out)
+
+    def test_sibling_probe_not_run_when_neither_file_changes(self) -> None:
+        register = self._register(self.TSA_ROWS)
+        out = self._probe(
+            {self.REGISTER: register},
+            {"security/standard-other.md": self._doc("| NIST CSF 2.0 | GV | Governance |")},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertNotIn("SIBLING-PROBE", out)
+        self.assertIn("D15 OK", out)
+
+    def test_distinctive_tokens(self) -> None:
+        mod = self._module()
+        for text, expected in (
+            ("US TSA Rail Cybersecurity Directives", {"tsa", "rail"}),
+            ("ACME Security Directives", {"acme"}),
+            ("Directive (EU) 2022/2557", {"2557"}),
+            ("BSI C5:2020", {"bsi", "c5"}),
+            ("EU AI Act", set()),
+            ("Qu\u00e9bec Law 25", {"quebec"}),
+            ("FSB Third-Party Risk Toolkit", {"fsb", "third", "toolkit"}),
+        ):
+            with self.subTest(text=text):
+                self.assertEqual(mod.distinctive_tokens(text), expected)
+        # The generic words the 3b370 round 1 review found pairing different publishers.
+        for word in ("party", "assessment", "access", "design", "provisions", "certification"):
+            with self.subTest(word=word):
+                self.assertIn(word, mod.SIBLING_STOP_WORDS)
+        # A changed entry's tokens split into strong ones (acronyms, including a word with an
+        # internal capital, designators and numbers) and its other distinctive words.
+        for text, expected in (
+            ("US TSA Pipeline Security Directives", ({"tsa"}, {"pipeline"})),
+            ("BSI C5:2020", ({"bsi", "c5"}, set())),
+            ("Directive (EU) 2022/2557", ({"2557"}, set())),
+            ("Qu\u00e9bec Law 25", (set(), {"quebec"})),
+            ("US FedRAMP", ({"fedramp"}, set())),
+            ("EU MiCA Crypto Rules", ({"mica"}, {"crypto"})),
+            ("NIST GenAI Profile", ({"nist", "genai"}, {"profile"})),
+        ):
+            with self.subTest(entry=text):
+                self.assertEqual(mod.entry_tokens(text), expected)
+        # A token in FAMILY_ROWS or more register Standard IDs names a family, not an instrument.
+        self.assertEqual(mod.distinctive_tokens("NIST SP 800-57", frozenset({"nist", "800"})), set())
+        rows = [(f"NIST SP 800-{n}", "1.0", "-") for n in range(100, 100 + mod.FAMILY_ROWS)]
+        register = mod.Register(self._register(tuple(rows) + self.TSA_ROWS[-1:]))
+        self.assertEqual(mod.family_tokens(register), frozenset({"nist", "800"}))
 
     def _module(self):
         import importlib.util

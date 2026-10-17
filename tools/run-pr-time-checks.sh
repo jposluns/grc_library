@@ -181,7 +181,12 @@ run_check "D14 Class-completeness attestation check" \
 # line, with no row in governance/register-canonical-citations.md. WARNS only (exit 0),
 # the D8 precedent; RFCs, vendor guidance and books are excluded by the data file
 # tools/alignment-register-exclusions.json. Not in run_all_audits.sh (it hides a
-# passing gate's warnings).
+# passing gate's warnings). When the PR changes tools/alignment-register-aliases.json
+# or the register, the same run adds the report-only sibling probe (D15 SIBLING lines):
+# unregistered alignment-table citations anywhere in the corpus that share a
+# distinctive token with an alias key added, removed or retargeted, or a Standard ID
+# added or removed (a date-only register edit changes none); a citation sharing only a
+# word is listed after them as a weak "D15 SIBLING (word match)" line. No separate gate number.
 run_check "D15 Alignment-citation register check" \
     python3 tools/check-alignment-register-on-pr.py "${BASE_REF}" "${HEAD_REF}"
 
