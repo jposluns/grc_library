@@ -519,7 +519,7 @@ def _ref_base_absence(ref_base: Path) -> str:
     if not is_dir:
         return "grc_library_ref is present but is not a directory"
     # 3b313: Path.is_file() read an unexaminable catalogue.yml (an unreadable directory) as
-    # missing on Python 3.12+, so the line named a cause that was not observed.
+    # missing on Python 3.14+, so the line named a cause that was not observed.
     try:
         os.stat(ref_base / "catalogue.yml")
     except FileNotFoundError:
@@ -531,8 +531,8 @@ def _ref_base_absence(ref_base: Path) -> str:
 
 def _has_regular_catalogue(ref_base: Path) -> bool:
     """Whether ref_base/catalogue.yml is a regular file (following symlinks); never raises."""
-    # 3b313: Path.is_file() re-raises EACCES on Python 3.11, so the no-op gate could end in a
-    # traceback at an unreadable reference base.
+    # 3b313: Path.is_file() re-raises EACCES on Python 3.11 to 3.13, so the no-op gate could end
+    # in a traceback at an unreadable reference base.
     try:
         return stat.S_ISREG(os.stat(ref_base / "catalogue.yml").st_mode)
     except (OSError, ValueError):

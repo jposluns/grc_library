@@ -21459,9 +21459,9 @@ class ReferenceBreadthStateTests(unittest.TestCase):
                      "mode 000 does not deny access to root")
     def test_default_ref_base_unreadable_catalogue_is_not_reported_missing(self):
         # 3b313: at an unreadable (mode 000) default reference base holding a regular catalogue.yml,
-        # Path.is_file() returned False on Python 3.12+ and the no-op line said the catalogue.yml was
-        # missing or not a regular file, which was not observed; on Python 3.11 is_file() re-raises
-        # EACCES, so the no-op gate could end in a traceback. Both cases still exit 0.
+        # Path.is_file() returned False on Python 3.14+ and the no-op line said the catalogue.yml was
+        # missing or not a regular file, which was not observed; on Python 3.11 to 3.13 is_file()
+        # re-raises EACCES, so the no-op gate could end in a traceback. Both cases still exit 0.
         from contextlib import redirect_stdout, redirect_stderr
         from pathlib import Path
         from unittest.mock import patch
@@ -21477,7 +21477,7 @@ class ReferenceBreadthStateTests(unittest.TestCase):
         def raise_eacces(self):
             raise PermissionError(13, "Permission denied")
 
-        for label, is_file in (("unreadable", Path.is_file), ("is_file raises (3.11)", raise_eacces)):
+        for label, is_file in (("unreadable", Path.is_file), ("is_file raises (3.11 to 3.13)", raise_eacces)):
             with self.subTest(case=label):
                 out, err = io.StringIO(), io.StringIO()
                 with patch.object(self.mod, "DEFAULT_REF_BASE", base), \
