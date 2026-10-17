@@ -7600,11 +7600,11 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
     regresses.
     """
 
-    def _run_selftest(self, cmd):
+    def _run_selftest(self, cmd, timeout=None):
         import subprocess as sp
 
         return sp.run(
-            cmd, capture_output=True, text=True, cwd=str(REPO_ROOT)
+            cmd, capture_output=True, text=True, cwd=str(REPO_ROOT), timeout=timeout
         )
 
     def test_block_on_open_findings_hook_self_test(self) -> None:
@@ -8001,6 +8001,626 @@ class VerificationGuardrailSelfTests(unittest.TestCase):
                          f"--self-test failed behind a non-reaping parent.\nstdout:\n{result.stdout}\n"
                          f"stderr:\n{result.stderr}")
         self.assertIn("self-test: OK", result.stdout)
+
+    def test_run_shell_stubbed_sigterm_exit_timeout_captures_probe_state(self) -> None:
+        """P-TODO 3b363: when the sigterm-cleans-up stage's wait for the probe's exit reaches its deadline, the
+        failure output carries the probe's /proc state before the probe is killed. The cause of the codex
+        probe-exit-wait-timeout is unknown and did not reproduce, so the next occurrence must carry its own
+        evidence. A near-zero private deadline forces the timeout path; the stage still fails with the same
+        name."""
+        driver = (
+            "import runpy, sys\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "failures = []\n"
+            "passed = t['_sigterm_cleanup_check'](failures, _exit_wait=0.0)\n"
+            "print('RESULT', passed, failures)\n"
+        )
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=600)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        self.assertIn("RESULT False [('sigterm-cleans-up:probe-exit-wait-timeout', False)]",
+                      result.stdout, detail)
+        prefix = "sigterm-cleans-up: probe-exit-wait-timeout: "
+        captured = [line[len(prefix):] for line in result.stderr.splitlines() if line.startswith(prefix)]
+        probe = [line for line in captured if " (probe): " in line]
+        self.assertEqual(len(probe), 1, detail)
+        for field in ("State: ", "SigPnd: ", "ShdPnd: ", "SigBlk: ", "SigIgn: ", "SigCgt: ", "wchan: "):
+            self.assertIn(field, probe[0], detail)
+        self.assertTrue(any(" (probe) fds: " in line for line in captured), detail)
+        # The fixture watcher is the probe's child in its own session (round 2, E1).
+        watchers = [m.group(1) for m in (re.match(r"pid (\d+) \(child\): State: ", line) for line in captured) if m]
+        self.assertEqual(len(watchers), 1, detail)
+        self.assertTrue(any(line.startswith(f"pid {watchers[0]} (child) fds: ") for line in captured), detail)
+        # The watcher's own stack block, up to the next header, is its faulthandler dump (round 3).
+        header = f"thread stacks of pid {watchers[0]} (child):"
+        self.assertIn(header, captured, detail)
+        block = []
+        for line in captured[captured.index(header) + 1:]:
+            if line.startswith("thread stacks of "):
+                break
+            block.append(line)
+        self.assertTrue(any("most recent call first" in line for line in block), detail)
+        self.assertTrue(any(line.rstrip().endswith(" in _fixture_watch") for line in block), detail)
+        self.assertTrue(any(re.match(r"pid \d+ \([a-z+-]*run-session[a-z+-]*\): State: ", line)
+                            for line in captured), detail)
+        # The probe shares the driver's process group and session, so the driver is listed too.
+        self.assertTrue(any(" (pgrp+session): " in line for line in captured), detail)
+        self.assertTrue(any(re.fullmatch(r"thread stacks of pid \d+ \(probe\):", line) for line in captured), detail)
+        self.assertTrue(any("most recent call first" in line for line in captured), detail)
+
+    def _probe_capture_driver(self, body):
+        """Run body in a fresh interpreter with t (the loaded tool), capture (its _probe_capture) and g (that
+        function's globals, where the /proc read seams live); body prints one JSON line."""
+        import json
+
+        driver = ("import json, os, runpy, subprocess, sys, time\n"
+                  "t = runpy.run_path(sys.argv[1])\n"
+                  "capture = t['_probe_capture']\n"
+                  "g = capture.__globals__\n" + body)
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=120)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        return json.loads(result.stdout.splitlines()[-1]), detail
+
+    def test_probe_capture_returns_within_its_budget_when_proc_reads_hang(self) -> None:
+        """P-TODO 3b363 round 2: the capture's time bound is enforced, not checked between reads. With every /proc
+        read hanging, the capture returns within its budget (plus formatting) and says it was cut short. Round 3:
+        the caller is left single-threaded with no capture process, so later stages keep the single-threaded spawn
+        path and os.fork does not warn."""
+        out, detail = self._probe_capture_driver(
+            "import threading, warnings\n"
+            "warnings.simplefilter('error')\n"
+            "g['_capture_read'] = lambda path: time.sleep(30)\n"
+            "r, w = os.pipe()\n"
+            "start = time.monotonic()\n"
+            "lines = capture(os.getpid(), os.getsid(0), r, budget=0.5)\n"
+            "elapsed = time.monotonic() - start\n"
+            "try:\n"
+            "    left = os.waitpid(-1, os.WNOHANG)\n"
+            "except ChildProcessError:\n"
+            "    left = None\n"
+            "pid = os.fork()\n"
+            "if pid == 0:\n"
+            "    os._exit(0)\n"
+            "os.waitpid(pid, 0)\n"
+            "print(json.dumps({'elapsed': elapsed, 'lines': lines, 'threads': threading.active_count(),\n"
+            "                  'left': left}))\n")
+        self.assertLess(out["elapsed"], 1.0, detail)
+        self.assertEqual(out["threads"], 1, detail)
+        self.assertIsNone(out["left"], detail)
+        self.assertTrue(out["lines"], detail)
+        self.assertTrue(out["lines"][0].startswith("capture cut short at its 0.5s budget while describing the probe"),
+                        detail)
+
+    def test_probe_capture_character_limit_covers_the_whole_output(self) -> None:
+        """P-TODO 3b363 round 2: the character limit counts every returned line with its prefix and newline,
+        including the note naming what was left out, and part of it is kept for the thread stacks."""
+        # The stand-in probe is a separate single-threaded process, as the real probe is: a faulthandler dump of
+        # every thread, signalled into the capturing process itself while its worker thread runs, can crash it.
+        out, detail = self._probe_capture_driver(
+            "r, w = os.pipe()\n"
+            "probe = subprocess.Popen([sys.executable, '-I', '-c', 'import faulthandler, signal, sys, time; '\n"
+            "    'faulthandler.register(signal.SIGUSR1, file=int(sys.argv[1]), all_threads=True); '\n"
+            "    'print(flush=True); time.sleep(120)', str(w)], pass_fds=(w,), stdout=subprocess.PIPE)\n"
+            "probe.stdout.readline()\n"
+            "os.close(w)\n"
+            "prefix = 'P' * 44 + ': '\n"
+            "try:\n"
+            "    runs = {str(limit): capture(probe.pid, os.getsid(0), r, limit=limit, prefix=prefix)\n"
+            "            for limit in (0, 1, 60, 300, 1000, 4000)}\n"
+            "finally:\n"
+            "    probe.kill()\n"
+            "    probe.wait()\n"
+            "print(json.dumps({'prefix': prefix, 'runs': runs}))\n")
+        for limit, lines in out["runs"].items():
+            self.assertLessEqual(sum(len(line) + 1 for line in lines), int(limit), f"limit {limit}{detail}")
+            for line in lines:
+                self.assertTrue(line.startswith(out["prefix"]), f"limit {limit}{detail}")
+        lines = [line[len(out["prefix"]):] for line in out["runs"]["1000"]]
+        self.assertTrue(any(line.endswith("lines left out at the 1000-character limit") for line in lines), detail)
+        self.assertTrue(any(re.fullmatch(r"thread stacks of pid \d+ \(probe\):", line) for line in lines), detail)
+        self.assertTrue(any(line.startswith("pid ") and " (probe): State: " in line for line in lines), detail)
+
+    def test_probe_capture_signals_only_known_faulthandler_targets(self) -> None:
+        """P-TODO 3b363 round 3: a child of the probe that holds the stack pipe and has its own SIGUSR1 handler
+        (SigCgt includes SIGUSR1, but it is no faulthandler; codex saw such a child exit with 42) is not signalled,
+        unregistered or registered with a start time that is not its own; the probe still is. Round 4: nor is it
+        when registered with its real start time but a descriptor that is not the stack pipe."""
+        import signal
+
+        out, detail = self._probe_capture_driver(
+            "r, w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "probe = subprocess.Popen([sys.executable, '-I', '-c', 'import faulthandler, os, signal, sys, time; '\n"
+            "    'faulthandler.register(signal.SIGUSR1, file=int(sys.argv[1]), all_threads=True); '\n"
+            "    'pid = os.fork(); '\n"
+            "    'pid or signal.signal(signal.SIGUSR1, lambda *a: os._exit(42)); '\n"
+            "    'pid or print(os.getpid(), flush=True); '\n"
+            "    'time.sleep(120)', str(w)], pass_fds=(w,), stdout=subprocess.PIPE)\n"
+            "child = int(probe.stdout.readline())\n"
+            "os.close(w)\n"
+            "try:\n"
+            "    plain = capture(probe.pid, None, r, budget=4.0)\n"
+            "    os.write(reg_w, f'{child} 0 {w}\\n'.encode())\n"
+            "    forged = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "    with open(f'/proc/{child}/stat') as stream:\n"
+            "        state = stream.read().rsplit(')', 1)[1].split()[0]\n"
+            # Round 4: its real start time, but its stdout (another pipe) as the dump descriptor.
+            "    with open(f'/proc/{child}/stat') as stream:\n"
+            "        started = stream.read().rsplit(')', 1)[1].split()[19]\n"
+            "    os.write(reg_w, f'{child} {started} 1\\n'.encode())\n"
+            "    other = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "    with open(f'/proc/{child}/stat') as stream:\n"
+            "        other_state = stream.read().rsplit(')', 1)[1].split()[0]\n"
+            "finally:\n"
+            "    os.kill(child, 9)\n"
+            "    probe.kill()\n"
+            "    probe.wait()\n"
+            "print(json.dumps({'child': child, 'pipe': f'pipe:[{os.fstat(r).st_ino}]', 'state': state,\n"
+            "                  'plain': plain, 'forged': forged, 'probe': probe.pid,\n"
+            "                  'other': other, 'other_state': other_state}))\n")
+        child, pipe = out["child"], out["pipe"]
+        # The stand-in shares the driver's process group and session, so the child's role is child+pgrp+session.
+        role = f"pid {child} (child+pgrp+session)"
+        status = [line for line in out["plain"] if line.startswith(f"{role}: State: ")]
+        self.assertEqual(len(status), 1, detail)
+        sigcgt = int(re.search(r"SigCgt: ([0-9a-f]+)", status[0]).group(1), 16)
+        self.assertTrue(sigcgt >> (signal.SIGUSR1 - 1) & 1, detail)
+        self.assertTrue(any(line.startswith(f"{role} fds: ") and pipe in line for line in out["plain"]), detail)
+        self.assertFalse(any(line.startswith(f"thread stacks of pid {child} ") for line in out["plain"]), detail)
+        self.assertTrue(any(line.startswith(f"thread stacks of {role}: not requested (its start time ")
+                            and line.endswith(" is not the registered 0; it is another process)")
+                            for line in out["forged"]), detail)
+        self.assertTrue(any(line.startswith(f"thread stacks of {role}: not requested (its descriptor 1 is pipe:[")
+                            and line.endswith("], not the stack pipe)") and pipe not in line
+                            for line in out["other"]), detail)
+        for lines in (out["plain"], out["forged"], out["other"]):
+            self.assertIn(f"thread stacks of pid {out['probe']} (probe):", lines, detail)
+        self.assertNotIn(out["state"], ("Z", "X"), detail)
+        self.assertNotIn(out["other_state"], ("Z", "X"), detail)
+
+    def test_probe_capture_reports_unreadable_proc_entries(self) -> None:
+        """P-TODO 3b363 round 2: an unreadable status or descriptor becomes a line saying so, the capture goes on,
+        and an unreadable probe status is named as such, never as faulthandler not being registered."""
+        out, detail = self._probe_capture_driver(
+            "real_read, real_link = g['_capture_read'], g['_capture_readlink']\n"
+            # Bound here: the seams run in the capture's forked child, whose own pid differs (round 3).
+            "status, fd0 = f'/proc/{os.getpid()}/status', f'/proc/{os.getpid()}/fd/0'\n"
+            "def read(path):\n"
+            "    if path == status:\n"
+            "        raise PermissionError(13, 'Permission denied')\n"
+            "    return real_read(path)\n"
+            "def link(path):\n"
+            "    if path == fd0:\n"
+            "        raise PermissionError(13, 'Permission denied')\n"
+            "    return real_link(path)\n"
+            "g['_capture_read'], g['_capture_readlink'] = read, link\n"
+            "r, w = os.pipe()\n"
+            "print(json.dumps({'pid': os.getpid(), 'lines': capture(os.getpid(), None, r, budget=2.0)}))\n")
+        pid, lines = out["pid"], out["lines"]
+        self.assertIn(f"pid {pid} (probe): status unreadable: PermissionError(13, 'Permission denied')", lines, detail)
+        self.assertTrue(any(line.startswith(f"pid {pid} (probe) fds: ") and "0 -> ? (PermissionError)" in line
+                            for line in lines), detail)
+        self.assertTrue(any(line.startswith(f"thread stacks of pid {pid} (probe): not requested (its status could "
+                                            "not be read: PermissionError") for line in lines), detail)
+        self.assertFalse(any("faulthandler is not registered" in line for line in lines), detail)
+
+    def test_probe_capture_names_an_exited_probe(self) -> None:
+        """P-TODO 3b363 round 2: a probe that has exited is named as exited (a zombie) or as unreadable (reaped);
+        no stacks are requested from it and the capture still returns its lines."""
+        out, detail = self._probe_capture_driver(
+            "p = subprocess.Popen([sys.executable, '-I', '-c', 'pass'])\n"
+            "os.waitid(os.P_PID, p.pid, os.WEXITED | os.WNOWAIT)\n"
+            "r, w = os.pipe()\n"
+            "zombie = capture(p.pid, None, r, budget=2.0)\n"
+            "p.wait()\n"
+            "gone = capture(p.pid, None, r, budget=2.0)\n"
+            "print(json.dumps({'pid': p.pid, 'zombie': zombie, 'gone': gone}))\n")
+        pid = out["pid"]
+        self.assertTrue(any(line.startswith(f"pid {pid} (probe): State: Z") for line in out["zombie"]), detail)
+        self.assertTrue(any(line.startswith(f"thread stacks of pid {pid} (probe): not requested (it has exited; "
+                                            "State: Z") for line in out["zombie"]), detail)
+        self.assertTrue(any(line.startswith(f"pid {pid} (probe): status unreadable: FileNotFoundError")
+                            for line in out["gone"]), detail)
+        self.assertTrue(any(line.startswith(f"thread stacks of pid {pid} (probe): not requested (its status could "
+                                            "not be read: FileNotFoundError") for line in out["gone"]), detail)
+
+    def test_probe_capture_gives_each_target_its_own_signal_failure(self) -> None:
+        """P-TODO 3b363 round 4: pidfd_send_signal raising (PermissionError, or AttributeError where it does not
+        exist) gives each target its own reason line instead of ending the stack section; where no pidfd opens,
+        the probe alone is signalled by os.kill and a registered target is not. Round 5: for the probe, a failed
+        pidfd send is retried by os.kill and its lines state both outcomes, and the os.kill fallback after no
+        pidfd opened is named, with the pidfd error, before its dump."""
+        out, detail = self._probe_capture_driver(
+            "import signal\n"
+            "r, w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "probe = subprocess.Popen([sys.executable, '-I', '-c', 'import faulthandler, os, signal, sys, time; '\n"
+            "    'faulthandler.register(signal.SIGUSR1, file=int(sys.argv[1]), all_threads=True); '\n"
+            "    'pid = os.fork(); '\n"
+            "    'pid or print(os.getpid(), flush=True); '\n"
+            "    'time.sleep(120)', str(w)], pass_fds=(w,), stdout=subprocess.PIPE)\n"
+            "child = int(probe.stdout.readline())\n"
+            "os.close(w)\n"
+            "with open(f'/proc/{child}/stat') as stream:\n"
+            "    started = stream.read().rsplit(')', 1)[1].split()[19]\n"
+            "def register():\n"
+            "    os.write(reg_w, f'{child} {started} {w}\\n'.encode())\n"
+            "send, pidfd_open, kill = signal.pidfd_send_signal, os.pidfd_open, os.kill\n"
+            "def refuse(*a):\n"
+            "    raise PermissionError(1, 'Operation not permitted')\n"
+            "def unopened(*a):\n"
+            "    raise OSError(38, 'Function not implemented')\n"
+            "def refuse_usr1(p, sig):\n"
+            "    # The capture still SIGKILLs its own child through os.kill.\n"
+            "    if sig == signal.SIGUSR1:\n"
+            "        raise PermissionError(1, 'Operation not permitted')\n"
+            "    return kill(p, sig)\n"
+            "runs = {}\n"
+            "try:\n"
+            "    signal.pidfd_send_signal = refuse\n"
+            "    register()\n"
+            "    runs['refused'] = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "    os.kill = refuse_usr1\n"
+            "    register()\n"
+            "    runs['both-refused'] = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "    os.kill = kill\n"
+            "    del signal.pidfd_send_signal\n"
+            "    register()\n"
+            "    runs['missing'] = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "    signal.pidfd_send_signal, os.pidfd_open = send, unopened\n"
+            "    register()\n"
+            "    runs['unopened'] = capture(probe.pid, None, r, budget=4.0, registry_fd=reg_r)\n"
+            "finally:\n"
+            "    signal.pidfd_send_signal, os.pidfd_open, os.kill = send, pidfd_open, kill\n"
+            "    os.kill(child, 9)\n"
+            "    probe.kill()\n"
+            "    probe.wait()\n"
+            "print(json.dumps({'child': child, 'probe': probe.pid, 'runs': runs}))\n")
+        probe = f"thread stacks of pid {out['probe']} (probe)"
+        child = f"thread stacks of pid {out['child']} (child+pgrp+session)"
+        refused = "PermissionError(1, 'Operation not permitted')"
+        for run, reason in (("refused", f"SIGUSR1 could not be sent: {refused}"),
+                            ("missing", "SIGUSR1 could not be sent: AttributeError(")):
+            lines = out["runs"][run]
+            self.assertTrue(any(line.startswith(f"{child}: not requested ({reason}") for line in lines),
+                            f"{run}{detail}")
+            # The probe's pidfd failure is retried by os.kill, which succeeds: both are stated before its dump.
+            retried = f"{probe}: " + reason.replace(": ", " by its pidfd: ", 1)
+            note = [n for n, line in enumerate(lines) if line.startswith(retried) and line.endswith("; os.kill sent it")]
+            self.assertEqual(len(note), 1, f"{run}{detail}")
+            self.assertIn(f"{probe}:", lines[note[0]:], f"{run}{detail}")
+            self.assertTrue(any("most recent call first" in line for line in lines), f"{run}{detail}")
+            self.assertFalse(any(line.startswith(f"{probe}: not requested") for line in lines), f"{run}{detail}")
+            self.assertFalse(any(line.startswith("capture error") for line in lines), f"{run}{detail}")
+        lines = out["runs"]["both-refused"]
+        self.assertIn(f"{probe}: not requested (SIGUSR1 could not be sent: {refused} by its pidfd; "
+                      f"os.kill failed: {refused})", lines, detail)
+        self.assertIn(f"{child}: not requested (SIGUSR1 could not be sent: {refused})", lines, detail)
+        self.assertNotIn(f"{probe}:", lines, detail)
+        lines = out["runs"]["unopened"]
+        fallback = (f"{probe}: no pidfd could be opened for it (OSError(38, 'Function not implemented')), "
+                    "so SIGUSR1 was sent by os.kill")
+        self.assertIn(fallback, lines, detail)
+        self.assertIn(f"{probe}:", lines[lines.index(fallback):], detail)
+        self.assertTrue(any("most recent call first" in line for line in lines), detail)
+        self.assertIn(f"{child}: not requested (no pidfd could be opened for it: "
+                      "OSError(38, 'Function not implemented'))", lines, detail)
+
+    def _probe_capture_child_descriptors(self, lowered):
+        """Run a capture whose child records its open descriptors and then hangs, and return what the child
+        listed itself, what the driver listed from outside while it hung, and the driver's own descriptors.
+
+        Round 5 handshake: the child signals a FIFO after writing its report, and the driver, wrapping os.fork,
+        waits for that (up to 60 s) in the parent before the capture goes on to its budget, so the cut-short
+        check never races the child's listing. Round 6: the driver reads the FIFO to EOF before listing, so the
+        child's FIFO descriptor is closed by then. With lowered, the driver first opens descriptor 100 and then
+        lowers its soft RLIMIT_NOFILE to 64, below it."""
+        out, detail = self._probe_capture_driver(
+            "import resource, select, shutil, tempfile\n"
+            f"lowered = {lowered!r}\n"
+            "r, w = os.pipe()\n"
+            "reg_r, reg_w = os.pipe()\n"
+            "hold_r, hold_w = os.pipe()\n"
+            "scratch = tempfile.mkdtemp()\n"
+            "report, ready = os.path.join(scratch, 'fds.json'), os.path.join(scratch, 'ready')\n"
+            "os.mkfifo(ready)\n"
+            "def read(path):\n"
+            "    # Runs in the capture child: record its open descriptors, signal readiness, then hang.\n"
+            "    fds = {}\n"
+            "    for n in os.listdir(f'/proc/{os.getpid()}/fd'):\n"
+            "        try:\n"
+            "            fds[n] = os.readlink(f'/proc/{os.getpid()}/fd/{n}')\n"
+            "        except OSError:\n"
+            "            pass  # the listing's own directory descriptor, closed by now\n"
+            "    with open(report, 'w') as stream:\n"
+            "        json.dump(fds, stream)\n"
+            "    with open(ready, 'w') as stream:\n"
+            "        stream.write('ready')\n"
+            "    time.sleep(30)\n"
+            "fork, seen = os.fork, {}\n"
+            "def forked():\n"
+            "    pid = fork()\n"
+            "    if pid:\n"
+            "        fifo = os.open(ready, os.O_RDONLY | os.O_NONBLOCK)\n"
+            "        try:\n"
+            "            # Round 6: read to EOF, so the child has closed the FIFO before its descriptors are listed.\n"
+            "            got, until = b'', time.monotonic() + 60\n"
+            "            while select.select([fifo], [], [], max(0, until - time.monotonic()))[0]:\n"
+            "                chunk = os.read(fifo, 16)\n"
+            "                if not chunk:\n"
+            "                    seen['ready'] = got.decode()\n"
+            "                    break\n"
+            "                got += chunk\n"
+            "            if 'ready' in seen:\n"
+            "                # The driver's own view of the hanging child's descriptors.\n"
+            "                seen['outside'] = {}\n"
+            "                for n in os.listdir(f'/proc/{pid}/fd'):\n"
+            "                    try:\n"
+            "                        seen['outside'][n] = os.readlink(f'/proc/{pid}/fd/{n}')\n"
+            "                    except OSError:\n"
+            "                        pass  # closed between the listing and the readlink\n"
+            "        finally:\n"
+            "            os.close(fifo)\n"
+            "    return pid\n"
+            "g['_capture_read'] = read\n"
+            "limits = resource.getrlimit(resource.RLIMIT_NOFILE)\n"
+            "high = None\n"
+            "try:\n"
+            "    if lowered:\n"
+            "        high = os.dup2(hold_w, 100)\n"
+            "        resource.setrlimit(resource.RLIMIT_NOFILE, (64, limits[1]))\n"
+            "    os.fork = forked\n"
+            "    try:\n"
+            "        lines = capture(os.getpid(), None, r, budget=1.0, registry_fd=reg_r)\n"
+            "    finally:\n"
+            "        os.fork = fork\n"
+            "        resource.setrlimit(resource.RLIMIT_NOFILE, limits)\n"
+            "    with open(report) as stream:\n"
+            "        listed = json.load(stream)\n"
+            "finally:\n"
+            "    shutil.rmtree(scratch)\n"
+            "link = lambda fd: os.readlink(f'/proc/self/fd/{fd}')\n"
+            "print(json.dumps({'listed': listed, 'seen': seen, 'lines': lines, 'r': [str(r), link(r)],\n"
+            "                  'reg_r': [str(reg_r), link(reg_r)], 'high': high,\n"
+            "                  'others': [link(fd) for fd in (w, reg_w, hold_r, hold_w, 1, 2)]}))\n")
+        self.assertEqual(out["seen"].get("ready"), "ready", detail)
+        return out, detail
+
+    def _assert_capture_child_descriptors(self, out, detail):
+        for view in ("listed", "outside"):
+            listed = out["listed"] if view == "listed" else out["seen"]["outside"]
+            if out["high"] is not None:
+                # Round 5: open above the lowered soft limit, so closerange up to SC_OPEN_MAX missed it.
+                self.assertNotIn(str(out["high"]), listed, f"{view}{detail}")
+            # Round 5: 0, 1 and 2 are /dev/null, so a stray write cannot reach a reused descriptor number.
+            for n in ("0", "1", "2"):
+                self.assertEqual(listed.get(n), "/dev/null", f"{view} {n}{detail}")
+            kept = {n: target for n, target in listed.items() if n not in ("0", "1", "2")}
+            self.assertEqual(len(kept), 3, f"{view}{detail}")
+            self.assertEqual(kept.get(out["r"][0]), out["r"][1], f"{view}{detail}")
+            self.assertEqual(kept.get(out["reg_r"][0]), out["reg_r"][1], f"{view}{detail}")
+            # The third is the output pipe, which the driver does not hold; none of its other descriptors is kept.
+            (output,) = [target for n, target in kept.items() if n not in (out["r"][0], out["reg_r"][0])]
+            self.assertTrue(output.startswith("pipe:["), f"{view}{detail}")
+            self.assertNotIn(output, out["others"], f"{view}{detail}")
+        self.assertTrue(out["lines"][0].startswith("capture cut short"), detail)
+
+    def test_probe_capture_child_keeps_only_its_three_descriptors(self) -> None:
+        """P-TODO 3b363 round 4: the forked capture child closes every inherited descriptor except its output pipe,
+        stack_fd and registry_fd, so a child that outlives its reap holds none of the stage's other pipes. Round 5:
+        it puts /dev/null on 0, 1 and 2, and a readiness handshake replaces the race against the budget."""
+        self._assert_capture_child_descriptors(*self._probe_capture_child_descriptors(lowered=False))
+
+    def test_probe_capture_child_closes_a_descriptor_above_a_lowered_soft_limit(self) -> None:
+        """P-TODO 3b363 round 5 (codex: limit 64, inherited fd 100 stayed open): a descriptor opened before the
+        soft RLIMIT_NOFILE was lowered below it is closed too, as the child closes what /proc/self/fd lists."""
+        self._assert_capture_child_descriptors(*self._probe_capture_child_descriptors(lowered=True))
+
+    def _capture_isolate_child(self, setup):
+        """Run _capture_isolate in a forked child of a fresh interpreter, after setup (code run in that child,
+        which binds keep and ceiling and may use the pipes a_r, a_w, b_r and b_w), and return the child's notes,
+        its moved descriptors and its open descriptors' targets afterwards, with the driver's targets of the
+        four pipe ends. The child reports over a pipe of its own, out_w, which keep must hold."""
+        body = ("isolate = t['_capture_isolate']\n"
+                "out_r, out_w = os.pipe()\n"
+                "a_r, a_w = os.pipe()\n"
+                "b_r, b_w = os.pipe()\n"
+                "link = lambda fd: os.readlink(f'/proc/self/fd/{fd}')\n"
+                "ends = {name: link(fd) for name, fd in (('a_r', a_r), ('a_w', a_w), ('b_r', b_r), ('b_w', b_w))}\n"
+                "pid = os.fork()\n"
+                "if pid == 0:\n"
+                "    report = out_w\n"
+                "    try:\n"
+                + "".join(f"        {line}\n" for line in setup.splitlines()) +
+                "        notes, moved = isolate(keep, ceiling)\n"
+                "        report = moved.get(out_w, out_w)\n"
+                "        fds = {}\n"
+                "        for n in os.listdir(f'/proc/{os.getpid()}/fd'):\n"
+                "            try:\n"
+                "                fds[n] = os.readlink(f'/proc/{os.getpid()}/fd/{n}')\n"
+                "            except OSError:\n"
+                "                pass  # the listing's own directory descriptor, closed by now\n"
+                "        data = {'notes': notes, 'moved': moved, 'fds': fds, 'out': report}\n"
+                "    except BaseException as exc:\n"
+                "        data = {'error': repr(exc)}\n"
+                "    try:\n"
+                "        os.write(report, json.dumps(data).encode())\n"
+                "    finally:\n"
+                "        os._exit(0)\n"
+                "os.close(out_w)\n"
+                "data = b''\n"
+                "while chunk := os.read(out_r, 65536):\n"
+                "    data += chunk\n"
+                "os.waitpid(pid, 0)\n"
+                "print(json.dumps({'child': json.loads(data), 'ends': ends, 'out_w': out_w}))\n")
+        out, detail = self._probe_capture_driver(body)
+        self.assertNotIn("error", out["child"], detail)
+        return out, detail
+
+    def test_capture_isolate_moves_a_kept_descriptor_off_0_to_2(self) -> None:
+        """P-TODO 3b363 round 6 (codex CAPTURE-STD-FD): a kept descriptor numbered 0 or 2 is moved above 2 and
+        stays open there, and /dev/null still ends on 0, 1 and 2; the old numbers are not kept twice."""
+        out, detail = self._capture_isolate_child("os.dup2(a_r, 0)\n"
+                                                  "os.dup2(b_w, 2)\n"
+                                                  "keep, ceiling = {0, 2, out_w}, 1 << 16\n")
+        child, ends = out["child"], out["ends"]
+        self.assertEqual(child["notes"], [], detail)
+        self.assertEqual(sorted(child["moved"]), ["0", "2"], detail)
+        moved = {int(old): new for old, new in child["moved"].items()}
+        self.assertTrue(all(new > 2 for new in moved.values()), detail)
+        fds = child["fds"]
+        for n in ("0", "1", "2"):
+            self.assertEqual(fds.get(n), "/dev/null", f"{n}{detail}")
+        self.assertEqual(fds.get(str(moved[0])), ends["a_r"], detail)
+        self.assertEqual(fds.get(str(moved[2])), ends["b_w"], detail)
+        self.assertEqual(child["out"], out["out_w"], detail)
+        self.assertEqual(sorted(fds, key=int),
+                         sorted(map(str, {0, 1, 2, moved[0], moved[2], out["out_w"]}), key=int), detail)
+
+    def test_capture_isolate_moves_a_kept_descriptor_off_0_to_2_in_a_full_descriptor_table(self) -> None:
+        """P-TODO 3b363 round 7 (codex CAPTURE-FD-MOVE-EMFILE): with the child's descriptor table full (its soft
+        RLIMIT_NOFILE lowered and every number below it open), a kept pipe on 0 is still moved above 2, as the
+        descriptors outside keep are closed before the move, and 0, 1 and 2 end on /dev/null. A full table also
+        leaves /proc/self/fd unlistable, so the closerange fallback does the closing."""
+        out, detail = self._capture_isolate_child(
+            "import errno, resource\n"
+            "os.dup2(a_r, 0)\n"
+            "high = max(map(int, os.listdir('/proc/self/fd')))\n"
+            "resource.setrlimit(resource.RLIMIT_NOFILE, (high + 8, resource.getrlimit(resource.RLIMIT_NOFILE)[1]))\n"
+            "filled = []\n"
+            "while True:\n"
+            "    try:\n"
+            "        filled.append(os.dup(a_w))\n"
+            "    except OSError as exc:\n"
+            "        if exc.errno != errno.EMFILE:\n"
+            "            raise\n"
+            "        break\n"
+            "if not filled:\n"
+            "    raise RuntimeError('the descriptor table was not filled')\n"
+            "keep, ceiling = {0, out_w}, 1 << 16\n")
+        child, ends = out["child"], out["ends"]
+        self.assertEqual(len(child["notes"]), 1, detail)
+        self.assertTrue(child["notes"][0].startswith("capture child: /proc/self/fd unreadable (OSError(24, "), detail)
+        self.assertEqual(sorted(child["moved"]), ["0"], detail)
+        moved = child["moved"]["0"]
+        self.assertGreater(moved, 2, detail)
+        fds = child["fds"]
+        for n in ("0", "1", "2"):
+            self.assertEqual(fds.get(n), "/dev/null", f"{n}{detail}")
+        self.assertEqual(fds.get(str(moved)), ends["a_r"], detail)
+        self.assertEqual(sorted(fds, key=int), sorted(map(str, {0, 1, 2, moved, out["out_w"]}), key=int), detail)
+
+    def test_probe_capture_reads_stacks_from_a_stack_pipe_at_descriptor_0(self) -> None:
+        """P-TODO 3b363 round 6: with stack_fd at descriptor 0, the capture child reads the probe's thread stacks
+        from the number _capture_isolate moved it to, not from the /dev/null now on 0."""
+        out, detail = self._probe_capture_driver(
+            "r, w = os.pipe()\n"
+            "probe = subprocess.Popen([sys.executable, '-I', '-c', 'import faulthandler, signal, sys, time; '\n"
+            "    'faulthandler.register(signal.SIGUSR1, file=int(sys.argv[1]), all_threads=True); '\n"
+            "    'print(flush=True); time.sleep(120)', str(w)], pass_fds=(w,), stdout=subprocess.PIPE)\n"
+            "try:\n"
+            "    probe.stdout.readline()\n"
+            "    os.close(w)\n"
+            "    os.dup2(r, 0)\n"
+            "    os.close(r)\n"
+            "    lines = capture(probe.pid, None, 0, budget=4.0)\n"
+            "finally:\n"
+            "    probe.kill()\n"
+            "    probe.wait()\n"
+            "print(json.dumps({'probe': probe.pid, 'lines': lines}))\n")
+        lines = out["lines"]
+        self.assertIn(f"thread stacks of pid {out['probe']} (probe):", lines, detail)
+        self.assertTrue(any("most recent call first" in line for line in lines), detail)
+        self.assertFalse(any(line.startswith("capture") for line in lines), detail)
+
+    def test_capture_isolate_falls_back_below_its_ceiling_when_proc_self_fd_is_unlistable(self) -> None:
+        """P-TODO 3b363 round 6 (claude N1): where /proc/self/fd cannot be listed, the capture child says so,
+        closes every descriptor below the ceiling outside keep, and leaves one above the ceiling open."""
+        out, detail = self._capture_isolate_child(
+            "listdir = os.listdir\n"
+            "def unlistable(path='.'):\n"
+            "    if path == '/proc/self/fd':\n"
+            "        raise PermissionError(13, 'Permission denied')\n"
+            "    return listdir(path)\n"
+            "os.listdir = unlistable\n"
+            "os.dup2(a_r, 40)\n"
+            "os.dup2(b_w, 100)\n"
+            "keep, ceiling = {out_w}, 64\n")
+        child, ends = out["child"], out["ends"]
+        self.assertEqual(child["notes"], ["capture child: /proc/self/fd unreadable (PermissionError(13, 'Permission "
+                                          "denied')); closed descriptors below 64 only"], detail)
+        self.assertEqual(child["moved"], {}, detail)
+        fds = child["fds"]
+        for n in ("0", "1", "2"):
+            self.assertEqual(fds.get(n), "/dev/null", f"{n}{detail}")
+        self.assertNotIn("40", fds, detail)
+        self.assertEqual(fds.get("100"), ends["b_w"], detail)
+        self.assertEqual(sorted(fds, key=int), sorted(map(str, {0, 1, 2, out["out_w"], 100}), key=int), detail)
+
+    def test_capture_isolate_fallback_leaves_open_a_descriptor_between_the_ceiling_and_a_kept_one_above_it(
+            self) -> None:
+        """P-TODO 3b363 round 8 (codex CAPTURE-FALLBACK-CEILING): where /proc/self/fd cannot be listed and a
+        kept descriptor is numbered above the ceiling, an unkept one between the ceiling and it stays open, as
+        every fallback range stops at the ceiling."""
+        out, detail = self._capture_isolate_child(
+            "listdir = os.listdir\n"
+            "def unlistable(path='.'):\n"
+            "    if path == '/proc/self/fd':\n"
+            "        raise PermissionError(13, 'Permission denied')\n"
+            "    return listdir(path)\n"
+            "os.listdir = unlistable\n"
+            "os.dup2(a_r, 40)\n"
+            "os.dup2(b_w, 80)\n"
+            "os.dup2(a_w, 100)\n"
+            "keep, ceiling = {out_w, 100}, 64\n")
+        child, ends = out["child"], out["ends"]
+        self.assertEqual(child["notes"], ["capture child: /proc/self/fd unreadable (PermissionError(13, 'Permission "
+                                          "denied')); closed descriptors below 64 only"], detail)
+        self.assertEqual(child["moved"], {}, detail)
+        fds = child["fds"]
+        for n in ("0", "1", "2"):
+            self.assertEqual(fds.get(n), "/dev/null", f"{n}{detail}")
+        self.assertNotIn("40", fds, detail)
+        self.assertEqual(fds.get("80"), ends["b_w"], detail)
+        self.assertEqual(fds.get("100"), ends["a_w"], detail)
+        self.assertEqual(sorted(fds, key=int), sorted(map(str, {0, 1, 2, out["out_w"], 80, 100}), key=int), detail)
+
+    def test_run_shell_stubbed_sigterm_stage_passes_when_registration_fails(self) -> None:
+        """P-TODO 3b363 round 4: a failure in SIGNAL_PROBE's watcher registration (an unreadable /proc stat, or a
+        full registry pipe that a blocking write would wait on forever) leaves the watcher unregistered and the
+        probe's stage passing as before."""
+        driver = (
+            "import runpy, sys\n"
+            "t = runpy.run_path(sys.argv[1])\n"
+            "g = t['_sigterm_cleanup_check'].__globals__\n"
+            "probe = g['SIGNAL_PROBE']\n"
+            "hook = 'g[\"_fixture_watch\"] = registered_watch\\n'\n"
+            "assert probe.count(hook) == 1 and probe.count('/proc/{watcher}/stat') == 1\n"
+            "fill = ('registry = int(sys.argv[5])\\n'\n"
+            "        'os.set_blocking(registry, False)\\n'\n"
+            "        'while True:\\n'\n"
+            "        '    try:\\n'\n"
+            "        '        os.write(registry, b\"x\" * 4096)\\n'\n"
+            "        '    except BlockingIOError:\\n'\n"
+            "        '        break\\n'\n"
+            "        'os.set_blocking(registry, True)\\n')\n"
+            "variants = {'unreadable-stat': probe.replace('/proc/{watcher}/stat', '/proc/{watcher}/no-such-entry'),\n"
+            "            'full-registry': probe.replace(hook, fill + hook)}\n"
+            "for name, text in variants.items():\n"
+            "    g['SIGNAL_PROBE'] = text\n"
+            "    failures = []\n"
+            "    passed = t['_sigterm_cleanup_check'](failures)\n"
+            "    print('RESULT', name, passed, failures)\n"
+        )
+        result = self._run_selftest([sys.executable, "-I", "-B", "-c", driver,
+                                     str(REPO_ROOT / "tools" / "run-shell-stubbed.py")], timeout=600)
+        detail = f"\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        self.assertEqual(result.returncode, 0, detail)
+        for name in ("unreadable-stat", "full-registry"):
+            self.assertIn(f"RESULT {name} True []", result.stdout, detail)
 
     def test_stop_guard_unattended_hook_self_test(self) -> None:
         """The adopted No-Manufactured-Wind-Down Stop guard's own self-test, wired at
