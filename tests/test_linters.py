@@ -727,7 +727,7 @@ class LanguageLinterTests(LinterTestCase):
 
     def test_prefixed_ise_derivative_flagged(self) -> None:
         # Prefixed derivatives are enumerated as their own stems; the bare
-        # \b(...)  construction does not match a stem inside a prefixed word.
+        # letter-bounded (...) construction does not match a stem inside a prefixed word.
         fixture = self.make_fixture(
             "standard-unauthorised.md",
             VALID_METADATA + "\n\nBlock unauthorised access attempts.\n",
@@ -878,6 +878,22 @@ class LanguageLinterTests(LinterTestCase):
                     f"standard-url-round5-{index}.md", VALID_METADATA + "\n\n" + body)
                 self.assertLinterFails(
                     run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+
+    def test_spelling_word_bounded_by_letters_flagged(self) -> None:
+        # 3b372: the spelling checks bound a word by ASCII letters, not \b, so a
+        # word in "_" / "__" emphasis ("_" is a word character to \b) or glued to a
+        # non-ASCII letter is reported, and "http\u017f://" (U+017F) is not a URL scheme.
+        for index, (body, expected) in enumerate((
+                ("See _organisations_ here.\n", "[isation] organisations"),
+                ("See __organisations__ here.\n", "[isation] organisations"),
+                ("The team _organised_ it.\n", "[ise] organised"),
+                ("The team __analysed__ it.\n", "[yse] analysed"),
+                ("See \u00e9organisations here.\n", "[isation] organisations"),
+                ("See http\u017f://x.org/organisations here.\n", "[isation] organisations"))):
+            with self.subTest(body=body):
+                fixture = self.make_fixture(
+                    f"standard-letter-bounded-{index}.md", VALID_METADATA + "\n\n" + body)
+                self.assertLinterFails(run_linter("tools/lint-language.py", fixture), expected)
 
     def test_bare_ensure_flagged(self) -> None:
         # The 'ensure' rule requires 'that' after 'ensure'/'ensures'.
@@ -31984,7 +32000,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.14.0", "3b366 masks http(s) URL tokens from the language engine's spelling checks and adds the public mask_urls helper, on top of 3b325's section-reference widening (MINOR, 0.13.0 to 0.14.0)")
+        self.assertEqual(man["pack"]["version"], "0.14.1", "3b372 bounds the language engine's spelling checks by ASCII letters instead of \\b and matches the URL scheme in ASCII only, on top of 3b366's URL mask (PATCH, 0.14.0 to 0.14.1)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -37440,6 +37456,227 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertMasked("_https://x.org/a___.organisations_",
                           "_" + self.BLANK + "___.organisations_")
         self.assertMasked("_https://x.org/a___", "_" + self.BLANK + "___")
+
+    def test_spelling_letter_boundaries(self):
+        # 3b372: the three spelling checks bound a word by ASCII letters, not \b.
+        # "_", digits and non-ASCII letters are word characters to \b, so a word in
+        # "_" / "__" emphasis, in a snake_case name, glued to a digit or glued to a
+        # non-ASCII letter (round 7 note a) was not reported. U+017F, U+212A and
+        # U+0131, which re.IGNORECASE folds into [A-Za-z], do not block the word
+        # either (a leading U+017F is taken by the isation pattern's first letter,
+        # so the isation cases add them on the right only).
+        glue = [("_", "_"), ("__", "__"), ("data_", "_policy"), ("2", "2"),
+                ("\u00e9", "\u00e9"), ("\u00e9", ""), ("", "\u00e9")]
+        cases = [("isation", "organisations",
+                  glue + [("", "\u212a"), ("", "\u017f"), ("", "\u0131")]),
+                 ("ise", "organised", glue + [("\u017f", "\u212a")]),
+                 ("yse", "analysed", glue + [("\u212a", "\u017f")])]
+        for kind, word, pairs in cases:
+            for left, right in pairs:
+                text = "See " + left + word + right + " here."
+                with self.subTest(text=text):
+                    self.assertEqual(self.engine.spelling_matches(text, self.language),
+                                     [(kind, word)])
+                    for generator in (False, True):
+                        self.assertEqual(self.scan(text, generator=generator),
+                                         [(kind, 1, word)])
+        # An ASCII letter still bounds the word, and the exclusions still apply.
+        for text in ("xorganised", "organisedx", "_xanalysed_", "_improvisation_",
+                     "__analyses__", "data_organization_policy"):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.spelling_matches(text, self.language), [])
+
+    def test_mask_urls_scheme_is_ascii_only(self):
+        # 3b372 (round 7 note b): under (?i:...) U+017F (long s) matched "s", so
+        # "http\u017f://" was taken for a scheme and its path masked; the scheme is now
+        # matched in ASCII only, and the text stays checked.
+        for text in ("http\u017f://x.org/organisations", "HTTP\u017f://x.org/organisations",
+                     "_http\u017f://x.org/organisations_"):
+            with self.subTest(text=text):
+                self.assertMasked(text, text)
+                self.assertEqual(self.engine.spelling_matches("See " + text + " here.",
+                                                              self.language),
+                                 [("isation", "organisations")])
+        self.assertMasked("HTTPS://x.org/organisations", " " * 27)
+
+    def test_ensure_letter_boundaries(self):
+        # 3b372: the "ensure that" check bounds the word by ASCII letters, not \b,
+        # so "ensure" in "_" / "__" emphasis, glued to a digit, a non-ASCII letter
+        # or a snake_case part is reported, and an emphasis run before "that" is
+        # allowed ("_ensure_ that", "*ensure* that"); emphasis on "that" itself
+        # ("ensure _that_") is still reported.
+        for text in ("We _ensure_ the result.", "We __ensure__ it.", "We ensure2 it.",
+                     "We \u00e9ensure it.", "We have to ensure_x now.", "We *ensure* it.",
+                     "We ensure\u212a it.", "We \u212aensure it.", "_ENSURES_ the result.",
+                     "We ensure _that_ it holds.", "We ensure *that* it holds."):
+            for generator in (False, True):
+                with self.subTest(text=text, generator=generator):
+                    self.assertEqual(self.scan(text, generator=generator),
+                                     [("ensure", 1, text)])
+        for text in ("We _ensure_ that it holds.", "We __ensure__ that it holds.",
+                     "We *ensure* that it holds.", "We **ensures** that it holds.",
+                     "We ensure that it holds.", "We ensured it.", "We xensure it.",
+                     "We ensurex it."):
+            for generator in (False, True):
+                with self.subTest(text=text, generator=generator):
+                    self.assertEqual(self.scan(text, generator=generator), [])
+
+    def test_non_ascii_inside_checked_part_residual(self):
+        # 3b372 residual: a non-ASCII character inside the checked part (a
+        # ligature, a soft hyphen, a zero-width space, a combining mark) hides an
+        # -ise or -yse form; an -isation word is reported from after that character
+        # only when at least one ASCII letter separates it from "isation", and is
+        # otherwise hidden too (the character directly before "isation" or inside it).
+        for text in ("orga\u00adnised", "organi\u200bsed", "analy\u0301sed",
+                     "\ufb01nalised", "organ\u00adisation", "organis\u00adation",
+                     "organi\u200bsation", "organ\u0301isation", "organi\u00adsation"):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.spelling_matches(text, self.language), [])
+                for generator in (False, True):
+                    self.assertEqual(self.scan(text, generator=generator), [])
+        for text, word in (("orga\u00adnisations", "nisations"),
+                           ("orga\u200bnisations", "nisations"),
+                           ("r\u00e9organisations", "organisations")):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.spelling_matches(text, self.language),
+                                 [("isation", word)])
+
+    def test_case_folding_character_inside_isation_word_reported_whole(self):
+        # 3b372 residual: U+017F, U+212A, U+0130 and U+0131 inside a word are
+        # matched as letters by the case-folding -isation pattern, so the word is
+        # reported whole, not from after the character.
+        for char in ("\u017f", "\u212a", "\u0130", "\u0131"):
+            word = "r" + char + "organisations"
+            with self.subTest(word=word):
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + word + " here.", self.language), [("isation", word)])
+
+    def test_case_folding_character_in_ise_and_yse_form_reported(self):
+        # 3b372 round 4: the case-folding -ise and -yse patterns match U+017F as
+        # "s", U+0130 and U+0131 as "i" and U+212A as "k" in place of that letter.
+        for word, kind in (("organi\u017fed", "ise"), ("organ\u0131sed", "ise"),
+                           ("organ\u0130sed", "ise"), ("minimi\u017fe", "ise"),
+                           ("to\u212aenised", "ise"), ("analy\u017fed", "yse"),
+                           ("analys\u0131ng", "yse")):
+            with self.subTest(word=word):
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + word + " here.", self.language), [(kind, word)])
+
+    def test_mask_urls_non_ascii_host_masked_to_last_top_level_label(self):
+        # 3b372 round 4: a non-ASCII host character ends the mask at the end of
+        # the last ASCII label before it that can end a host, so a checked word
+        # after it is reported and one ending at it is masked with the host.
+        self.assertMasked("https://x.org\u00e9/organisations",
+                          " " * 13 + "\u00e9/organisations")
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://x.org\u00e9/organisations here.", self.language),
+            [("isation", "organisations")])
+        self.assertMasked("https://x.organisations\u00e9.org/a",
+                          " " * 23 + "\u00e9.org/a")
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://x.organisations\u00e9.org/a here.", self.language), [])
+
+    def test_mask_urls_checked_word_before_non_ascii_host_character_reported(self):
+        # 3b372 round 5: only a checked word that is itself the last ASCII label
+        # before a non-ASCII host character and can end a host is masked; in the
+        # first label, in mixed case or sharing its label with a hyphen or a
+        # digit, the word is reported and the URL is left unmasked.
+        for host, word in (("organisations", "organisations"),
+                           ("x.Organisations", "Organisations"),
+                           ("x.a-organisations", "organisations"),
+                           ("x.organisations9", "organisations")):
+            url = "https://" + host + "\u00e9.org/a"
+            with self.subTest(url=url):
+                self.assertMasked(url, url)
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + url + " here.", self.language), [("isation", word)])
+        # 3b372 round 7: an all-uppercase word there is masked only when no host
+        # label before the character holds a lowercase letter; after a lowercase
+        # label it is reported, masked only through the last lowercase label that
+        # can end a host, and not at all when no such label precedes it.
+        self.assertMasked("https://x.ORGANISATIONS\u00e9.org/a",
+                          "https://x.ORGANISATIONS\u00e9.org/a")
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://x.ORGANISATIONS\u00e9.org/a here.", self.language),
+            [("isation", "ORGANISATIONS")])
+        self.assertMasked("https://x.org.ORGANISATIONS\u00e9.org/a",
+                          " " * 13 + ".ORGANISATIONS\u00e9.org/a")
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://x.org.ORGANISATIONS\u00e9.org/a here.", self.language),
+            [("isation", "ORGANISATIONS")])
+        for host in ("X.ORGANISATIONS", "X.ORG.ORGANISATIONS"):
+            url = "https://" + host + "\u00e9.org/a"
+            with self.subTest(url=url):
+                self.assertMasked(url, " " * len("https://" + host) + "\u00e9.org/a")
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + url + " here.", self.language), [])
+
+    def test_complete_form_before_non_ascii_character_reported(self):
+        # 3b372 round 5: when the text before a non-ASCII character inside the
+        # checked part is itself a complete -ise or -yse form, that form is
+        # reported (U+017F, a soft hyphen, a zero-width space, a combining mark).
+        for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
+            for text, kind, word in (("recognise" + char + "s", "ise", "recognise"),
+                                     ("analyse" + char + "rs", "yse", "analyse")):
+                with self.subTest(text=text):
+                    self.assertEqual(self.engine.spelling_matches(
+                        "See " + text + " here.", self.language), [(kind, word)])
+
+    def test_isation_word_through_isation_before_non_ascii_character_reported(self):
+        # 3b372 round 7: a non-ASCII character directly after "isation", before
+        # its suffix, leaves the word through "isation" reported (U+017F, a soft
+        # hyphen, a zero-width space, a combining mark).
+        for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
+            for suffix in ("s", "al", "ally"):
+                text = "organisation" + char + suffix
+                with self.subTest(text=text):
+                    self.assertEqual(self.engine.spelling_matches(
+                        "See " + text + " here.", self.language),
+                        [("isation", "organisation")])
+
+    def test_isation_word_with_non_ascii_character_inside_suffix(self):
+        # 3b372 round 8: a non-ASCII character inside the "al" or "ally" suffix
+        # hides the word, except directly after the "al" of "ally", which leaves
+        # the word through "al" reported (U+017F, a soft hyphen, a zero-width
+        # space, a combining mark).
+        for char in ("\u017f", "\u00ad", "\u200b", "\u0301"):
+            for text, expected in (
+                    ("organisationa" + char + "l", []),
+                    ("organisationall" + char + "y", []),
+                    ("organisational" + char + "ly", [("isation", "organisational")])):
+                with self.subTest(text=text):
+                    self.assertEqual(self.engine.spelling_matches(
+                        "See " + text + " here.", self.language), expected)
+
+    def test_allowed_isation_word_with_case_folding_character_reported(self):
+        # 3b372 round 5 residual: the allowed-words lookup uses str.lower(), which
+        # does not map U+017F, U+0130 or U+0131 to the plain ASCII spelling
+        # (U+0130 becomes "i" + U+0307), so an allowed -isation word holding one
+        # of them is reported.
+        self.assertEqual(self.engine.spelling_matches(
+            "See improvisation here.", self.language), [])
+        for word in ("improvi\u017fation", "improv\u0131sation", "improv\u0130sation"):
+            with self.subTest(word=word):
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + word + " here.", self.language), [("isation", word)])
+
+    def test_mask_urls_non_ascii_character_ends_token(self):
+        # 3b372 residual: any non-ASCII character (a letter or not) in a URL path,
+        # query or fragment ends the masked token, so a checked word after it is
+        # reported; a non-ASCII character in the first host label leaves the whole
+        # URL unmasked (since 3b366).
+        for url in ("https://x.org/r\u00e9organisations", "https://x.org/a\u00b7organisations",
+                    "https://x.org/a?q=r\u00e9organisations",
+                    "https://x.org/a?q=a\u00b7organisations",
+                    "https://x.org/a#r\u00e9organisations", "https://x.org/a#a\u00b7organisations",
+                    "https://caf\u00e9.org/for-organisations"):
+            with self.subTest(url=url):
+                self.assertEqual(self.engine.spelling_matches(
+                    "See " + url + " here.", self.language), [("isation", "organisations")])
+        self.assertMasked("https://x.org/a#a\u00b7organisations",
+                          " " * 17 + "\u00b7organisations")
+        self.assertMasked("https://caf\u00e9.org/for-organisations",
+                          "https://caf\u00e9.org/for-organisations")
 
     def test_mask_urls_glued_punctuation_ends_token(self):
         for glue in (",", ";", ":", "!", "?", ".", ".O", ".The-", ".-", "'",

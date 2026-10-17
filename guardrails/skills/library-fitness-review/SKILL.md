@@ -95,7 +95,7 @@ Dispatch the full catalogue on every full run. Skipping a persona is the same cl
 
 Apply a six-step synthesis rubric (mirrors the validation-sweep's synthesis discipline at a different scope):
 
-**4.1. Dedupe by `(file_path, normalised_section, claim_type)`**. Different personas may surface the same defect through different lenses (e.g., the executive reader and the newcomer both flag the same unexplained acronym). One dedupe-key tuple, one synthesized finding.
+**4.1. Dedupe by `(file_path, normalized_section, claim_type)`**. Different personas may surface the same defect through different lenses (e.g., the executive reader and the newcomer both flag the same unexplained acronym). One dedupe-key tuple, one synthesized finding.
 
 **4.2. Tag each synthesized finding `R | I | K`**: `R` (Real evidence: quoted line or specific reference); `I` (Inference: persona's interpretation pending verification); `K` (Known-issue resurfaced: already in the remediation backlog from a prior run).
 
