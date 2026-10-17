@@ -2,8 +2,8 @@
 
 **Document Title:** Canonical Citations Register\
 **Document Type:** Register\
-**Version:** 1.5.110\
-**Date:** 2026-10-16\
+**Version:** 1.5.111\
+**Date:** 2026-10-17\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`governance/register-glossary.md`](register-glossary.md), [`governance/register-document-index-and-classification.md`](register-document-index-and-classification.md), [`governance/charter-governance-library.md`](charter-governance-library.md), [`governance/specification-citation-verification.md`](specification-citation-verification.md), [`tools/lint-standards-currency.py`](../tools/lint-standards-currency.py)\
@@ -305,7 +305,11 @@ When citing a standard in library content, use the **Standard ID** plus the **Cu
 | NIST SP 1900 series | subseries (Cyber-Physical Systems; individual publications carry their own dates, e.g. SP 1900-206:2022) | various per publication | Smart-building cybersecurity and IoT guidance | - | https://www.nist.gov/nist-research-library/nist-special-publication-subseries-descriptions | verified 2026-07-09 |
 | NFPA 72 | 2025 | 2025 | National Fire Alarm and Signaling Code | 2022, 2019 | https://www.nfpa.org/codes-and-standards/nfpa-72-standard-development/72 | 2026-06-30 |
 | EN 54 | series (CEN/TC 72; 25+ parts, many harmonized under the Construction Products Regulation (EU) 305/2011) | various | Fire detection and fire alarm systems (European standard series) | - | https://standards.cencenelec.eu/ | verified 2026-07-10 (series-level; corpus cites the series generically, no specific part) |
-| TSA Pipeline Security Directive | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | 2026-05-03 | US Transportation Security Administration pipeline cybersecurity requirements (mitigation actions, contingency planning, and testing) | 02F, SD02, SD 02C | https://www.tsa.gov/sites/default/files/signed_security_directive_pipeline-2021-02g_and_transmittal_memo_508c.pdf | verified 2026-08-30 (TSA-published 02G PDF + independent current-web confirmation; tsa.gov direct-fetch 403) |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | 2026-05-03 | US Transportation Security Administration pipeline cybersecurity requirements (mitigation actions, contingency planning, and testing) | 02F, SD02, SD 02C | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive Pipeline-2021-01 | SD Pipeline-2021-01G (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD Pipeline-2021-01F) | 2026-01-16 | Enhancing Pipeline Cybersecurity; TSA-designated hazardous liquid and natural gas pipelines or liquefied natural gas facilities | SD Pipeline-2021-01F | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1580-21-01 | SD 1580-21-01E (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1580-21-01D) | 2026-01-16 | Enhancing Rail Cybersecurity; covered freight railroads | SD 1580-21-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1582-21-01 | SD 1582-21-01E (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1582-21-01D) | 2026-01-16 | Enhancing Public Transportation and Passenger Railroad Cybersecurity; covered passenger railroad carriers and rail transit systems, excluding bus-only operations owned or operated by a public transportation agency otherwise identified in 49 CFR 1582.101 | SD 1582-21-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
+| Security Directive 1580/82-2022-01 | SD 1580/82-2022-01E (effective 2026-05-03 through 2027-05-02; supersedes SD 1580/82-2022-01D) | 2026-05-03 | Rail Cybersecurity Mitigation Actions and Testing; covered freight and TSA-designated passenger railroads | SD 1580/82-2022-01D | https://www.tsa.gov/sd-and-ea | verified 2026-10-17 |
 | Basel III | 2017 (post-crisis reform finalization; now in the consolidated Basel Framework; transitional arrangements through 2028) | 2017-12 | Banking regulation framework | Basel II | https://www.bis.org/bcbs/basel3.htm | 2026-08-23 |
 
 ## OECD and global

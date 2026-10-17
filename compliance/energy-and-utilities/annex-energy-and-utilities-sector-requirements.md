@@ -2,8 +2,8 @@
 
 **Document Title:** Energy and Utilities Sector Requirements Annex\
 **Document Type:** Annex\
-**Version:** 0.0.11\
-**Date:** 2026-10-04\
+**Version:** 0.0.12\
+**Date:** 2026-10-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/README.md`](../README.md), [`compliance/policy-legal-and-regulatory-compliance.md`](../policy-legal-and-regulatory-compliance.md), [`compliance/register-global-regulatory-applicability.md`](../register-global-regulatory-applicability.md), [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md), [`security/policy-information-security.md`](../../security/policy-information-security.md), [`operations/standard-network-security-and-segmentation.md`](../../operations/standard-network-security-and-segmentation.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../../resilience/framework-business-continuity-and-resilience.md)\
@@ -47,7 +47,11 @@ Subsector-specific obligations vary materially. The annex identifies overlay are
 | --- | --- | --- |
 | NERC CIP (CIP-002 through CIP-015) | Bulk Electric System in North America | Library provides NIST-aligned baselines; the entity layers the CIP requirements per Cyber Asset categorization |
 | EU NIS 2 | Energy and water sector entities in scope; essential or important depending on Article 3 classification | See [`compliance/annex-nis-2-implementation.md`](../annex-nis-2-implementation.md) |
-| US TSA Pipeline Security Directives and Rail Cybersecurity Directives | Critical pipelines and rail | Library supports; entities follow the directive's specific identification of measures and reporting |
+| US TSA Security Directive Pipeline-2021-01G | "Owner/Operators of a hazardous liquid and natural gas pipeline or a liquefied natural gas facility notified by TSA that their pipeline system or facility is critical" | Library supports; entities follow the directive's applicability, measures, and reporting requirements |
+| US TSA Security Directive Pipeline-2021-02G | "Owners and Operators of a hazardous liquid and natural gas pipeline or a liquefied natural gas facility notified by TSA that their pipeline system or facility is critical" | Library supports; entities follow the directive's applicability, measures, and reporting requirements |
+| US TSA Security Directive 1580-21-01E | "Each freight railroad carrier identified in 49 CFR 1580.101 and other TSA-designated freight railroads" | Library supports; entities follow the directive's applicability, measures, and reporting requirements |
+| US TSA Security Directive 1582-21-01E | "Each Owner/Operator identified in 49 CFR 1582.101 that is a passenger railroad carrier or rail transit system and other TSA-designated passenger railroads"; per the directive's footnote 4, "The applicability does not include bus-only operations owned or operated by a public transportation agency otherwise identified in 49 CFR 1582.101." | Library supports; entities follow the directive's applicability, measures, and reporting requirements |
+| US TSA Security Directive 1580/82-2022-01E | "Each freight railroad carrier identified in 49 CFR 1580.101 and other TSA-designated freight and passenger railroads" | Library supports; entities follow the directive's applicability, measures, and reporting requirements |
 | IEC 62443 series | ICS / OT cybersecurity | Architectural alignment in library; per-zone and per-conduit requirements layered |
 | UK NIS (post-NIS 2 timeline) | Operators of essential services in energy, water | National competent authority guidance |
 | Canada CER, NEB-equivalent cybersecurity | Federally regulated pipelines | National regulator guidance |
@@ -152,8 +156,11 @@ Energy and utilities outages have direct safety and societal impact; resilience 
 | ISA 62443 | ISA-aligned to IEC 62443 | OT cybersecurity in North American practice |
 | NERC CIP | CIP-002 through CIP-015 | Bulk electric system cybersecurity (North America) |
 | NIS 2 | (EU) 2022/2555 | EU essential and important entities including energy and water |
-| US TSA Pipeline Security Directives | TSA SDs | Pipelines |
-| US TSA Rail Cybersecurity Directives | TSA SDs | Rail |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02G | Pipeline Cybersecurity Mitigation Actions, Contingency Planning, and Testing |
+| Security Directive Pipeline-2021-01 | SD Pipeline-2021-01G | Enhancing Pipeline Cybersecurity |
+| Security Directive 1580-21-01 | SD 1580-21-01E | Enhancing Rail Cybersecurity |
+| Security Directive 1582-21-01 | SD 1582-21-01E | Enhancing Public Transportation and Passenger Railroad Cybersecurity |
+| Security Directive 1580/82-2022-01 | SD 1580/82-2022-01E | Rail Cybersecurity Mitigation Actions and Testing |
 | EU Critical Entities Resilience Directive | (EU) 2022/2557 | Physical and operational resilience |
 | US Executive Orders on bulk-power-system equipment | EO 13920 and successors | Supply-chain security |
 | ENTSO-E Network Codes | EU electricity codes | Cross-border cybersecurity in electricity |

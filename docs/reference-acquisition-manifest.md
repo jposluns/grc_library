@@ -8,7 +8,7 @@ Do not edit by hand. Regenerate with `python3 tools/build-reference-manifest.py`
 **Document Title:** Reference-Acquisition Manifest\
 **Document Type:** Guide\
 **Version:** 1.0.0\
-**Date:** 2026-10-12\
+**Date:** 2026-10-17\
 **Owner:** Governance Library Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`README.md`](../README.md), [`docs/portal.md`](portal.md)\
@@ -663,7 +663,7 @@ without the private reference sibling).
 | VDA Information Security Assessment (ISA) catalogue ISA2027.1 (English) | Version 2027.1, 2026-09-30 (Cover sheet) | VDA |  | FREE |
 | Vulnerability Scans and Approved Scanning Vendors (ASV): A PCI SSC Resource Guide |  | PCI SSC |  | FREE |
 
-## Legislation (247: 247 free, 0 licensed)
+## Legislation (252: 252 free, 0 licensed)
 
 | Title | Version / edition | Issuer | Upstream URL | Acquisition |
 | --- | --- | --- | --- | --- |
@@ -910,6 +910,11 @@ without the private reference sibling).
 | US NYDFS Cybersecurity Requirements for Financial Services Companies, 23 NYCRR Part 500 (Second Amendment, effective 1 November 2023) |  | US |  | FREE |
 | US Sarbanes-Oxley Act of 2002, Public Law 107-204 |  | US |  | FREE |
 | US SEC Regulation S-P: Privacy of Consumer Financial Information and Safeguarding Customer Information (Final Rule, Release 34-100155, 16 May 2024) |  | US |  | FREE |
+| US TSA Security Directive 1580-21-01E: Enhancing Rail Cybersecurity | SD 1580-21-01E; effective January 16, 2026 through January 15, 2027; cancels and supersedes SD 1580-21-01D; with TSA transmittal memo dated January 9, 2026 | US | https://www.tsa.gov/sd-and-ea | FREE |
+| US TSA Security Directive 1580/82-2022-01E: Rail Cybersecurity Mitigation Actions and Testing | SD 1580/82-2022-01E; effective May 3, 2026 through May 2, 2027; supersedes SD 1580/82-2022-01D; with TSA transmittal memo dated May 1, 2026 | US | https://www.tsa.gov/sd-and-ea | FREE |
+| US TSA Security Directive 1582-21-01E: Enhancing Public Transportation and Passenger Railroad Cybersecurity | SD 1582-21-01E; effective January 16, 2026 through January 15, 2027; cancels and supersedes SD 1582-21-01D; with TSA transmittal memo dated January 9, 2026 | US | https://www.tsa.gov/sd-and-ea | FREE |
+| US TSA Security Directive Pipeline-2021-01G: Enhancing Pipeline Cybersecurity | SD Pipeline-2021-01G; effective January 16, 2026 through January 15, 2027; cancels and supersedes SD Pipeline-2021-01F; with TSA transmittal memo dated January 9, 2026 | US | https://www.tsa.gov/sd-and-ea | FREE |
+| US TSA Security Directive Pipeline-2021-02G: Pipeline Cybersecurity Mitigation Actions, Contingency Planning, and Testing | SD Pipeline-2021-02G; effective May 3, 2026 through May 2, 2027; cancels and supersedes SD Pipeline-2021-02F; with TSA transmittal memo dated May 1, 2026 | US | https://www.tsa.gov/sd-and-ea | FREE |
 | Vietnam Decree No. 356/2025/ND-CP on Personal Data Protection (unofficial English translation) | Decree 356/2025/ND-CP, dated 2025-12-31, in force 2026-01-01 (Art 42(1)); implements PDPL 91/2025; unofficial English translation by THU VIEN PHAP LUAT, per the document's last page (recorded as QTSC until 2026-10-06); Vietnamese original authoritative | Vietnam |  | FREE |
 | Vietnam Law on Personal Data Protection No. 91/2025/QH15 (unofficial English translation) | Law 91/2025/QH15, passed 2025-06-26, in force 2026-01-01 (Art 38(1)); unofficial English translation (DPO-India); Vietnamese original authoritative | Vietnam |  | FREE |
 | Virginia Consumer Data Protection Act (VCDPA), Code of Virginia Title 59.1 Chapter 53 |  | US |  | FREE |
@@ -965,5 +970,5 @@ without the private reference sibling).
 | WCO Compendium of Authorized Economic Operator Programmes (2020 edition) |  | World Customs Organization |  | FREE |
 | WCO SAFE Framework of Standards (2025 edition) | 2025 edition (dated June 2025, published September 2025); current upstream, confirmed 2026-07-11; 2021 edition retired to .superseded/ | World Customs Organization | https://www.wcoomd.org/-/media/wco/public/global/pdf/topics/facilitation/instruments-and-tools/tools/safe-package/safe-framework-2025_en.pdf | FREE |
 
-**Total: 900 sources (779 free, 121 licensed).**
+**Total: 905 sources (784 free, 121 licensed).**
 
