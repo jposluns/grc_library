@@ -6498,20 +6498,31 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertEqual(len(warned), 1, out)
         self.assertIn("'45 CFR Part 165'", warned[0])
 
-    def test_tsa_pipeline_directives_plural_alias(self) -> None:
-        rows = self.ROWS + (("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),)
+    def test_tsa_pipeline_directives_plural_is_not_aliased_to_one_row(self) -> None:
+        # 3b369: the plural names both pipeline series, so it no longer maps to the 02 row only.
+        # Both pipeline rows are registered, so an alias to either row would silence a plural.
+        rows = self.ROWS + (
+            ("TSA Pipeline Security Directive", "SD Pipeline-2021-02G", "-"),
+            ("Security Directive Pipeline-2021-01", "SD Pipeline-2021-01G", "-"),
+        )
         out = self._check(
             self._doc(),
             self._doc(
+                "| TSA Pipeline Security Directive | Mitigation actions | US pipelines |",
+                "| Security Directive Pipeline-2021-01 | Incident reporting | US pipelines |",
                 "| TSA Pipeline Security Directives | Incident reporting | US pipelines |",
                 "| US TSA Pipeline Security Directives | TSA SDs | Pipelines |",
                 "| US TSA Rail Cybersecurity Directives | TSA SDs | Rail |",
             ),
             register=self._register(rows),
         )
-        warned = self._warned(out)
-        self.assertEqual(len(warned), 1, out)
-        self.assertIn("'US TSA Rail Cybersecurity Directives'", warned[0])
+        warned = "\n".join(self._warned(out))
+        self.assertEqual(len(self._warned(out)), 3, out)
+        self.assertIn("'TSA Pipeline Security Directives'", warned)
+        self.assertIn("'US TSA Pipeline Security Directives'", warned)
+        self.assertIn("'US TSA Rail Cybersecurity Directives'", warned)
+        self.assertNotIn("'TSA Pipeline Security Directive'", warned)
+        self.assertNotIn("'Security Directive Pipeline-2021-01'", warned)
 
     def test_unregistered_usc_sections_are_reported(self) -> None:
         out = self._check(
@@ -6562,6 +6573,15 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         out = self._check(self._doc(), self._doc("| NIST AI 100-1 | Risk | AI |"),
                           register=self._register(rows))
         self.assertEqual(self._warned(out), [], out)
+
+    def test_alias_keys_are_in_case_insensitive_order(self) -> None:
+        # 3b369: three older pairs were out of order; the file's own rule keeps the block sorted.
+        import json
+
+        keys = list(json.loads(self._module().ALIASES_PATH.read_text(encoding="utf-8"))["aliases"])
+        # ">=" so a case-variant duplicate fails: the check folds case, so it would be one key.
+        out_of_order = [(a, b) for a, b in zip(keys, keys[1:]) if a.casefold() >= b.casefold()]
+        self.assertEqual(out_of_order, [])
 
     ICO_SERIES = "UK ICO, Employment practices and data protection"
 
