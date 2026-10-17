@@ -48,6 +48,28 @@ Usage:
 Output: per shell, the exit code, stdout, stderr and each stubbed call as `STUB <name> <argv...>`.
 Exit codes: 0 ran (or self-test passed); 1 self-test failed; 2 usage error; 3 processes of the run were
 still alive at the kill deadline or the shell could not be reaped within the cleanup deadlines.
+
+Self-test stage sigterm-cleans-up: when its wait for the SIGTERMed probe's exit reaches the deadline, it prints,
+before killing the probe and on stderr, lines prefixed `sigterm-cleans-up: probe-exit-wait-timeout: ` (3b363):
+the /proc status lines State, SigPnd, ShdPnd, SigBlk, SigIgn and SigCgt, the wchan and the open file descriptors
+(count and the escaped readlink targets of the first 32) of the probe, then of its direct children (the fixture
+watcher among them), the run's session, the probe's process group and its session, in that order (at most 64
+after the probe), then the Python thread stacks (faulthandler on SIGUSR1) of the probe and of the fixture watcher.
+Only those two are signalled, as they are known to run faulthandler on SIGUSR1: the probe registers the watcher's
+pid, start time and dump descriptor on a pipe the stage reads (a failed registration leaves the watcher
+unregistered and the probe unchanged), and each is signalled through a pidfd after its identity is checked; the
+probe is identified as the stage's unreaped child, so its pid cannot be reused and its start time is not checked,
+and where no pidfd can be opened it alone is signalled by os.kill, which a line states before its dump; a
+failed pidfd signal to the probe is retried by os.kill and both outcomes are stated (round 5). No other process
+is signalled, and a failed signal becomes that target's own line. The collection runs in a forked child process
+that closes every inherited descriptor except its output pipe and the stack and registry pipes' read ends (those
+listed in /proc/self/fd, whatever the descriptor limit; only if that is unreadable, every one below 65536), then
+puts /dev/null on descriptors 0 to 2; the stage reads it for at most 5 s, then SIGKILLs it and waits up to 1 s
+more for the reap, so the capture takes at most about 6 s, before the probe is killed. A cut-short capture and a
+failed reap are each stated; after a failed reap, the child, holding only those three descriptors and /dev/null,
+may remain until it exits. The stage's process gains no thread; the output, prefix and newlines
+included, is at most 16384 characters. The capture never raises, and leaves the stage's verdict, failure name and
+deadline unchanged.
 """
 from __future__ import annotations
 
@@ -56,6 +78,8 @@ import functools
 import shlex
 import threading
 import contextlib
+# Imported here, not in _capture_isolate, so a full descriptor table cannot fail the import (3b363 round 8).
+import fcntl
 import io
 import json
 import re
@@ -1944,10 +1968,32 @@ def _policy_checks():
 
 
 SIGNAL_PROBE = r"""
-import os, runpy, subprocess, sys
+import faulthandler, os, runpy, signal, subprocess, sys
+# The parent's exit-wait timeout asks for every thread's stack (3b363).
+faulthandler.register(signal.SIGUSR1, file=int(sys.argv[4]), all_threads=True)
 t = runpy.run_path(sys.argv[1])
 fd = int(sys.argv[2])
 g = t["run"].__globals__
+# The fixture watcher is forked with faulthandler still registered; register it
+# as a stack-dump target by pid, start time and dump descriptor (3b363 round 3).
+# A failed registration leaves the watcher unregistered and the probe unchanged;
+# the line is shorter than PIPE_BUF, so the non-blocking write is whole or
+# fails with nothing written (round 4). Only a termination passes through.
+watch = g["_fixture_watch"]
+def registered_watch():
+    watcher, writer = watch()
+    try:
+        with open(f"/proc/{watcher}/stat") as stream:
+            started = stream.read().rsplit(")", 1)[1].split()[19]
+        registry = int(sys.argv[5])
+        os.set_blocking(registry, False)
+        os.write(registry, f"{watcher} {started} {sys.argv[4]}\n".encode())
+    except g["_Terminated"]:
+        raise
+    except Exception:
+        pass
+    return watcher, writer
+g["_fixture_watch"] = registered_watch
 saved = subprocess.Popen
 class Process(saved):
     def wait(self, timeout=None):
@@ -1976,7 +2022,527 @@ with t["_self_test_limits"]():
 """
 
 
-def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
+_CAPTURE_STATUS = ("State", "SigPnd", "ShdPnd", "SigBlk", "SigIgn", "SigCgt")
+
+
+def _capture_read(path):
+    """The text of a /proc file for _probe_capture (a seam the 3b363 tests slow down or fail)."""
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        return fh.read()
+
+
+def _capture_listdir(path):
+    return os.listdir(path)
+
+
+def _capture_readlink(path):
+    return os.readlink(path)
+
+
+def _capture_isolate(keep, ceiling=1 << 16):
+    """In _probe_capture's forked child, close every descriptor except those in keep, move each kept one at
+    0, 1 or 2 above 2, then put /dev/null on 0, 1 and 2 (3b363 round 5); returns lines naming what could not
+    be done, and a dict from each kept descriptor that was moved to its new number.
+
+    The descriptors closed first are the ones actually open outside keep, listed from /proc/self/fd, so one
+    above a lowered soft RLIMIT_NOFILE, or above any limit, is closed as well, and the time taken follows the
+    number open, not the limit. The listing's own descriptor is excluded: os.listdir has closed it before the
+    loop, and closing a number that is no longer open (EBADF) is skipped. Only if /proc/self/fd cannot be
+    listed does it fall back to os.closerange over [0, ceiling) outside keep, called only for nonempty ranges,
+    as os.closerange(0, 0) closes every descriptor; a descriptor at or above ceiling (65536 by default) then
+    stays open, and a returned line says the fallback was used. Closing comes before the moves (round 7), so
+    a full descriptor table has room for them. Then each descriptor in keep numbered 0, 1 or 2 is duplicated
+    with fcntl F_DUPFD to a number above 2, which the caller must use from then on (round 6); one that cannot
+    be duplicated stays where it is, and a returned line says so. Then /dev/null is opened read-write and
+    dup2'd onto each of 0, 1 and 2 except a kept descriptor that could not be moved, replacing the old number
+    of each moved one, so a stray write to 0, 1 or 2 (from stderr or a finalizer) reaches /dev/null and not a
+    descriptor later opened at that number. An old number that /dev/null cannot be put on is closed instead,
+    so no kept descriptor stays open at two numbers. So each of 0, 1 and 2 ends on /dev/null unless a
+    returned line names a step that failed for it. A descriptor in keep that was not moved is neither closed
+    nor replaced; one that was moved stays open at the number moved gives for it, and only its old number is
+    replaced (or closed).
+    """
+    notes, moved = [], {}
+    keep = set(keep)
+    try:
+        names = os.listdir("/proc/self/fd")
+    except OSError as exc:
+        names = None
+        notes.append(f"capture child: /proc/self/fd unreadable ({exc!r}); closed descriptors below {ceiling} only")
+        low = 0
+        for fd in sorted(keep):
+            # Each range stops at ceiling, even below a kept descriptor above it (round 8). An empty range is
+            # skipped: os.closerange(0, 0) closes every descriptor (round 7).
+            high = min(fd, ceiling)
+            if low < high:
+                os.closerange(low, high)
+            low = fd + 1
+        if low < ceiling:
+            os.closerange(low, ceiling)
+    for name in names or ():
+        try:
+            fd = int(name)
+        except ValueError:
+            continue
+        if fd in keep:
+            continue
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+    for fd in sorted(fd for fd in keep if fd <= 2):
+        try:
+            moved[fd] = fcntl.fcntl(fd, fcntl.F_DUPFD, 3)
+        except OSError as exc:
+            notes.append(f"capture child: kept descriptor {fd} could not be moved above 2: {exc!r}")
+            continue
+        keep.discard(fd)
+        keep.add(moved[fd])
+    try:
+        null = os.open(os.devnull, os.O_RDWR)
+    except OSError as exc:
+        notes.append(f"capture child: {os.devnull} could not be opened for descriptors 0 to 2: {exc!r}")
+        for fd in moved:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+        return notes, moved
+    for fd in (0, 1, 2):
+        if fd != null and fd not in keep:
+            try:
+                os.dup2(null, fd)
+            except OSError as exc:
+                notes.append(f"capture child: {os.devnull} could not be put on descriptor {fd}: {exc!r}")
+                if fd in moved:
+                    try:
+                        os.close(fd)
+                    except OSError:
+                        pass
+    if null > 2:
+        os.close(null)
+    return notes, moved
+
+
+def _probe_capture(pid, sid, stack_fd, budget=5.0, limit=16384, members=64, fds=32, prefix="", registry_fd=None):
+    """Evidence lines for a probe that missed its exit deadline (3b363); never raises.
+
+    Processes, in this order: the probe; its direct children (PPid is the
+    probe, so the fixture watcher in its own session is included); then the
+    other processes in the run's session sid, in the probe's process group and
+    in the probe's session. A process in several sets is listed once, at its
+    first set, with every set named. The whole /proc scan is collected before
+    any process is described, so unrelated peers cannot displace the probe's
+    children: at most members processes after the probe are described, and
+    the number left out is stated. Each described process gets one line with
+    its /proc/<pid>/status fields _CAPTURE_STATUS and its wchan, and one line
+    with its open file descriptor count and the readlink targets, escaped by
+    _printable, of the first fds of them; readlink is called for those only,
+    and the number not listed is stated.
+
+    Thread stacks: faulthandler writes them to stack_fd on SIGUSR1. SigCgt
+    shows only that some handler is installed, and a process with its own
+    SIGUSR1 handler may exit when signalled (round 3), so only processes known
+    to run faulthandler on SIGUSR1 are signalled, in this order: the probe,
+    which SIGNAL_PROBE registers with faulthandler first and which must be the
+    caller's unreaped child, so its pid cannot be reused while the capture
+    runs; then each target registered on registry_fd as a line "pid starttime
+    fd", which SIGNAL_PROBE writes for the fixture watcher it forks
+    (faulthandler stays registered across the fork, writing to fd). No other
+    process is signalled, whatever its SigCgt or descriptors. Each target is
+    opened with os.pidfd_open before its checks: for a registered target, the
+    start time in /proc/<pid>/stat must equal the registered one, so the pidfd
+    is that process and not a reused pid; then its status must show it alive
+    with SIGUSR1 caught; for a registered target, its descriptor fd must link
+    to the stack pipe. Only then is SIGUSR1 sent, by signal.pidfd_send_signal
+    on that pidfd, so a pid reused after the checks cannot receive it;
+    otherwise the line says why no stacks were requested. Where os.pidfd_open
+    is unavailable or fails, the probe alone is signalled by os.kill, which is
+    safe because it is the caller's unreaped child (its pid cannot be reused;
+    its start time is not checked), and a line naming that fallback and the
+    pidfd error precedes its dump; a registered target is then not signalled.
+    For the probe, pidfd_send_signal raising anything but ProcessLookupError
+    is retried by os.kill, on the same grounds, and the probe's line states
+    both outcomes (round 5). Any other error in a target's checks or signal,
+    including pidfd_send_signal raising PermissionError, OSError or
+    AttributeError for a registered target, becomes that target's reason
+    line, and the next target is still tried. Residual: a target
+    that execs between its checks and the signal gets SIGUSR1 with its default
+    action; neither the probe nor the watcher execs.
+
+    One pipe serves every target. Bytes already in it before a target is
+    signalled are counted on a line of their own and attributed to no
+    process; after the signal it is read until the dump goes quiet (2 s for
+    the first bytes, then 0.25 s), and only then is the next target
+    signalled. Caveat: a dump that pauses longer than that and resumes later
+    is counted as stray bytes before the next target.
+
+    Time: every /proc access, signal and stack read runs in a child process
+    forked for the capture, which sends its lines to the caller over a pipe.
+    The caller reads that pipe for at most budget seconds from entry, then
+    SIGKILLs and reaps the child, waiting at most 1 s more for the reap and
+    saying so if it did not happen (a child already reaped elsewhere counts
+    as reaped), and returns what it received, with a first line saying the
+    capture was cut short when it was. So the capture adds no thread to the
+    caller, and once it returns no capture process is left that could send
+    a signal unless the reap failed. Before collecting, the child closes
+    every descriptor it inherited except its output pipe, stack_fd and
+    registry_fd, then puts /dev/null on 0, 1 and 2 (_capture_isolate, round
+    5): the descriptors closed are those listed in /proc/self/fd, whatever
+    the soft or hard descriptor limit, and only if that listing fails, every
+    one below 65536 (one at or above it then stays open, and a line says the
+    fallback was used). If the reap still fails (the SIGKILLed child has not
+    yet exited, for example while in uninterruptible sleep on a /proc read),
+    a child remains that holds only those three and /dev/null: the write end
+    of its output pipe, whose read end the caller has closed, and the
+    caller's read ends stack_fd and registry_fd; it holds none of the
+    caller's other pipes, so
+    the caller's cleanup does not wait on it. The scan and the descriptions stop
+    min(2.5, budget / 2) seconds before the budget, which is left for the
+    stacks. The fork is a plain os.fork: in a multi-threaded caller the child
+    could block on a lock another thread held, which the budget bounds.
+
+    Characters: limit bounds the whole returned text, counted as the sum of
+    len(line) + 1 (one newline each) over the returned lines, including
+    prefix, which starts every line, and the note naming the lines left
+    out. Up to half of limit is kept for the stacks. A line longer than 1024
+    characters is cut and says so. An error becomes one line.
+    """
+    import selectors
+    start = time.monotonic()
+    deadline = start + budget
+    scan_deadline = deadline - min(2.5, budget / 2)
+    stack_deadline = deadline - min(0.05, budget / 10)
+    head, procs, stacks = [], [], []
+    phase = ["starting"]
+
+    def parse(text):
+        return dict(line.split(":", 1) for line in text.splitlines() if ":" in line)
+
+    def stopped(until):
+        return time.monotonic() >= until
+
+    def collect(put):
+        # Runs in the capture child; put(kind, text) sends one line to the caller.
+        def step(name):
+            phase[0] = name
+            put("phase", name)
+
+        def describe(p, role):
+            # The status line and the descriptor line of p.
+            try:
+                status = parse(_capture_read(f"/proc/{p}/status"))
+                fields = [f"{k}: {status.get(k, '?').strip()}" for k in _CAPTURE_STATUS]
+                try:
+                    fields.append("wchan: " + (_capture_read(f"/proc/{p}/wchan").strip() or "?"))
+                except Exception as exc:
+                    fields.append(f"wchan: unreadable ({exc!r})")
+                put("procs", f"pid {p} ({role}): " + "; ".join(fields))
+            except Exception as exc:
+                put("procs", f"pid {p} ({role}): status unreadable: {exc!r}")
+            if stopped(scan_deadline):
+                put("procs", f"pid {p} ({role}) fds: not read (time limit reached)")
+                return
+            try:
+                names = sorted((n for n in _capture_listdir(f"/proc/{p}/fd") if n.isdigit()), key=int)
+            except Exception as exc:
+                put("procs", f"pid {p} ({role}) fds: unreadable: {exc!r}")
+                return
+            targets = {}
+            for n in names[:fds]:
+                if stopped(scan_deadline):
+                    break
+                try:
+                    targets[n] = _printable(_capture_readlink(f"/proc/{p}/fd/{n}")[:200])
+                except Exception as exc:
+                    targets[n] = f"? ({exc.__class__.__name__})"
+            text = f"pid {p} ({role}) fds: {len(names)} open"
+            if targets:
+                text += ": " + ", ".join(f"{n} -> {t}" for n, t in targets.items())
+            if len(names) > fds:
+                text += f"; {len(names) - fds} more not listed (limit {fds})"
+            if min(len(names), fds) > len(targets):
+                text += f"; {min(len(names), fds) - len(targets)} not read (time limit reached)"
+            put("procs", text)
+
+        def request(p, known, pipe, notes):
+            # Sends SIGUSR1 to p through a pidfd (the probe, known None, by
+            # os.kill when no pidfd opens or the pidfd send fails) and returns
+            # None, or says why not; notes gets how a sent signal was sent
+            # when it was not by the pidfd (round 5).
+            try:
+                pidfd = os.pidfd_open(p)
+            except Exception as exc:
+                pidfd, unopened = None, exc
+            try:
+                if known is not None:
+                    try:
+                        started = _capture_read(f"/proc/{p}/stat").rsplit(")", 1)[1].split()[19]
+                    except Exception as exc:
+                        return f"its start time could not be read: {exc!r}"
+                    if started != known[0]:
+                        return f"its start time {started} is not the registered {known[0]}; it is another process"
+                try:
+                    status = parse(_capture_read(f"/proc/{p}/status"))
+                except Exception as exc:
+                    return f"its status could not be read: {exc!r}"
+                state = status.get("State", "?").strip()
+                if state[:1] in ("Z", "X"):
+                    return f"it has exited; State: {state}"
+                if not int(status.get("SigCgt", "0").strip() or "0", 16) >> (signal.SIGUSR1 - 1) & 1:
+                    return "its SigCgt does not include SIGUSR1, so faulthandler is not registered for it"
+                if known is not None:
+                    try:
+                        link = _capture_readlink(f"/proc/{p}/fd/{known[1]}")
+                    except Exception as exc:
+                        return f"its descriptor {known[1]} could not be read: {exc!r}"
+                    if link != pipe:
+                        return f"its descriptor {known[1]} is {_printable(link[:200])}, not the stack pipe"
+                if pidfd is None and known is not None:
+                    return f"no pidfd could be opened for it: {unopened!r}"
+                # The probe is the caller's unreaped child: its pid cannot be
+                # reused while the capture runs, so os.kill is safe for it.
+                if pidfd is None:
+                    try:
+                        os.kill(p, signal.SIGUSR1)
+                    except ProcessLookupError:
+                        return "it exited before the signal"
+                    except Exception as exc:
+                        return f"no pidfd could be opened for it ({unopened!r}) and os.kill failed: {exc!r}"
+                    notes.append(f"no pidfd could be opened for it ({unopened!r}), so SIGUSR1 was sent by os.kill")
+                    return None
+                try:
+                    signal.pidfd_send_signal(pidfd, signal.SIGUSR1)
+                except ProcessLookupError:
+                    return "it exited before the signal"
+                except Exception as exc:
+                    if known is not None:
+                        return f"SIGUSR1 could not be sent: {exc!r}"
+                    try:
+                        os.kill(p, signal.SIGUSR1)
+                    except ProcessLookupError:
+                        return f"SIGUSR1 could not be sent: {exc!r} by its pidfd; os.kill found it exited"
+                    except Exception as again:
+                        return f"SIGUSR1 could not be sent: {exc!r} by its pidfd; os.kill failed: {again!r}"
+                    notes.append(f"SIGUSR1 could not be sent by its pidfd: {exc!r}; os.kill sent it")
+                return None
+            except Exception as exc:
+                return f"its checks failed: {exc!r}"
+            finally:
+                if pidfd is not None:
+                    os.close(pidfd)
+
+        step("describing the probe")
+        describe(pid, "probe")
+        groups = [("child", 1, pid), ("run-session", 3, sid)]
+        try:
+            fields = _capture_read(f"/proc/{pid}/stat").rsplit(")", 1)[1].split()
+            groups += [("pgrp", 2, int(fields[2])), ("session", 3, int(fields[3]))]
+        except Exception as exc:
+            put("procs", f"probe process group and session unreadable: {exc!r}")
+        step("scanning /proc")
+        found = {}
+        for entry in _capture_listdir("/proc"):
+            if stopped(scan_deadline):
+                put("procs", f"process scan stopped at the time limit; {len(found)} processes found before it")
+                break
+            if not entry.isdigit() or int(entry) == pid:
+                continue
+            try:
+                # After the command name: state, ppid, pgrp, session.
+                fields = _capture_read(f"/proc/{entry}/stat").rsplit(")", 1)[1].split()
+                roles = [name for name, i, ident in groups
+                         if ident is not None and int(fields[i]) == ident]
+            except Exception:
+                continue
+            if roles:
+                found[int(entry)] = roles
+        rank = [name for name, _, _ in groups]
+        order = sorted(found, key=lambda p: (rank.index(found[p][0]), p))
+        step("describing processes")
+        for n, p in enumerate(order[:members]):
+            if stopped(scan_deadline):
+                put("procs", f"{min(len(order), members) - n} found processes not described (time limit reached)")
+                break
+            describe(p, "+".join(found[p]))
+        if len(order) > members:
+            put("procs", f"{len(order) - members} further processes not described (limit {members})")
+        step("reading thread stacks")
+        if stack_fd is None:
+            put("stacks", "thread stacks: not requested (no stack pipe)")
+            return
+        pipe = f"pipe:[{os.fstat(stack_fd).st_ino}]"
+        targets = [(pid, "probe", None)]
+        if registry_fd is not None:
+            data = b""
+            with selectors.DefaultSelector() as selector:
+                selector.register(registry_fd, selectors.EVENT_READ)
+                # The writers stay open, so read what is there, not to EOF.
+                while len(data) < 65536 and selector.select(0):
+                    chunk = os.read(registry_fd, 4096)
+                    if not chunk:
+                        break
+                    data += chunk
+            for line in data.decode("utf-8", "replace").splitlines():
+                try:
+                    p, started, fd = line.split()
+                    p, fd = int(p), int(fd)
+                except ValueError:
+                    put("stacks", f"stack-dump registration unparsable: {_printable(line[:200])}")
+                    continue
+                if p != pid:
+                    targets.append((p, "+".join(found.get(p, ["registered"])), (started, fd)))
+        total = 0
+        with selectors.DefaultSelector() as selector:
+            selector.register(stack_fd, selectors.EVENT_READ)
+            for p, role, known in targets:
+                label = f"thread stacks of pid {p} ({role})"
+                if stopped(stack_deadline):
+                    put("stacks", f"{label}: not requested (time limit reached)")
+                    continue
+                stray = 0
+                while stray < (1 << 20) and selector.select(0):
+                    chunk = os.read(stack_fd, 4096)
+                    if not chunk:
+                        break
+                    stray += len(chunk)
+                if stray:
+                    put("stacks", f"{stray} bytes on the stack pipe before {label} was requested, "
+                                  "attributed to no process")
+                notes = []
+                why = request(p, known, pipe, notes)
+                for note in notes:
+                    put("stacks", f"{label}: {note}")
+                if why is not None:
+                    put("stacks", f"{label}: not requested ({why})")
+                    continue
+                data, heard = b"", False
+                while True:
+                    # Stop once the dump goes quiet, or at the budget. Bytes past
+                    # limit are drained and dropped so the writer never blocks.
+                    wait = min(stack_deadline - time.monotonic(), 0.25 if heard else 2.0)
+                    if wait <= 0 or not selector.select(wait):
+                        break
+                    chunk = os.read(stack_fd, 4096)
+                    if not chunk:
+                        break
+                    heard = True
+                    data += chunk[:max(0, limit - total - len(data))]
+                total += len(data)
+                put("stacks", f"{label}:")
+                for line in data.decode("utf-8", "replace").splitlines() or ["(none written within the budget)"]:
+                    put("stacks", line)
+
+    def child_main(out, notes):
+        def put(kind, text):
+            data = (json.dumps([kind, text]) + "\n").encode()
+            while data:
+                data = data[os.write(out, data):]
+        try:
+            for note in notes:
+                put("procs", note)
+            collect(put)
+        except Exception as exc:
+            put("procs", f"capture error while {phase[0]}: {exc!r}")
+
+    child = out_r = out_w = None
+    try:
+        out_r, out_w = os.pipe()
+        child = os.fork()
+        if child == 0:
+            try:
+                # Keep only the output pipe, stack_fd and registry_fd (and
+                # /dev/null on 0 to 2), so a child that outlives its reap
+                # holds no other pipe open.
+                notes, moved = _capture_isolate({out_w, stack_fd, registry_fd} - {None})
+                # A kept descriptor at 0 to 2 now has a new number (round 6); collect reads stack_fd and
+                # registry_fd from this scope, so rebinding them here moves its reads too.
+                stack_fd, registry_fd = moved.get(stack_fd, stack_fd), moved.get(registry_fd, registry_fd)
+                child_main(moved.get(out_w, out_w), notes)
+            finally:
+                os._exit(0)
+        os.close(out_w)
+        out_w = None
+        sinks = {"procs": procs, "stacks": stacks}
+        data, done = b"", False
+        with selectors.DefaultSelector() as selector:
+            selector.register(out_r, selectors.EVENT_READ)
+            while not done:
+                wait = deadline - time.monotonic()
+                if wait <= 0 or not selector.select(wait):
+                    break
+                chunk = os.read(out_r, 65536)
+                done = not chunk
+                *lines, data = (data + chunk).split(b"\n")
+                for line in lines:
+                    kind, text = json.loads(line)
+                    if kind == "phase":
+                        phase[0] = text
+                    else:
+                        sinks[kind].append(text)
+        if not done:
+            head.append(f"capture cut short at its {budget}s budget while {phase[0]}; "
+                        "what was collected follows, and the probe cleanup goes on")
+    except Exception as exc:
+        head.append(f"capture error: {exc!r}")
+    finally:
+        try:
+            for fd in (out_r, out_w):
+                if fd is not None:
+                    os.close(fd)
+            if child:
+                try:
+                    os.kill(child, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+                reap_by = time.monotonic() + 1.0
+                while True:
+                    try:
+                        if os.waitpid(child, os.WNOHANG)[0]:
+                            break
+                    except ChildProcessError:
+                        # Already reaped elsewhere.
+                        break
+                    if time.monotonic() >= reap_by:
+                        head.append(f"capture process {child} not reaped within 1 s of its SIGKILL")
+                        break
+                    time.sleep(0.005)
+        except Exception as exc:
+            head.append(f"capture cleanup error: {exc!r}")
+
+    def clip(line):
+        line = prefix + line
+        return line if len(line) <= 1024 else line[:1000] + f" [{len(line) - 1000} characters cut]"
+
+    def size(lines):
+        return sum(len(line) + 1 for line in lines)
+
+    def fit(lines, room):
+        lines = [clip(line) for line in lines]
+        if size(lines) <= room:
+            return lines
+        out, used, note_room = [], 0, len(prefix) + 80
+        for line in lines:
+            if used + len(line) + 1 > room - note_room:
+                break
+            out.append(line)
+            used += len(line) + 1
+        note = clip(f"{len(lines) - len(out)} lines left out at the {limit}-character limit")
+        if used + len(note) + 1 <= room:
+            out.append(note)
+        return out
+
+    try:
+        out = fit(head, limit)
+        room = limit - size(out)
+        out += fit(procs, room - min(size([clip(line) for line in stacks]), room // 2))
+        return out + fit(stacks, limit - size(out))
+    except Exception as exc:
+        line = prefix + f"capture error: {exc!r}"
+        return [line] if len(line) < limit else []
+
+
+def _sigterm_cleanup_check(failures, timeout=TEST_WAIT, _exit_wait=None):
     # Readiness comes from Popen.wait INSIDE the command's try/finally; the
     # production spawn window itself is covered by the at-spawn policy routes,
     # so TERM is sent only after readiness. Read a pipe for readiness and wait
@@ -1985,10 +2551,15 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
     # self-test kill bound (5s scaled by 24, equal to TEST_WAIT), two reap
     # waits and the fixture watcher (TEST_WAIT). The survivors wait uses the
     # remaining deadline. Neither depends on a command sleep.
+    # When the exit wait reaches its deadline, before the finally kills and
+    # reaps the probe, _probe_capture's lines go to stderr, each prefixed
+    # "sigterm-cleans-up: probe-exit-wait-timeout: " (3b363: the cause of the
+    # codex timeouts is unknown, so the next one carries its own evidence).
+    # _exit_wait replaces that deadline for the forced-timeout test only.
     import selectors
     parent = tempfile.mkdtemp(prefix="stubbed-sigterm-test-")
     ready_r, ready_w = os.pipe()
-    hold_r, hold_w = os.pipe()
+    hold_r = hold_w = stack_r = stack_w = reg_r = reg_w = None
     proc, sid = None, None
     def fail(stage):
         # 3b281 B3: a stalled stage must not impersonate a cleanup leak; every
@@ -1996,13 +2567,20 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         failures.append(("sigterm-cleans-up:" + stage, False))
         return False
     try:
+        hold_r, hold_w = os.pipe()
+        stack_r, stack_w = os.pipe()
+        reg_r, reg_w = os.pipe()
         proc = subprocess.Popen(
             [sys.executable, "-I", "-B", "-c", SIGNAL_PROBE,
-             os.path.abspath(__file__), str(ready_w), str(hold_r)],
+             os.path.abspath(__file__), str(ready_w), str(hold_r), str(stack_w), str(reg_w)],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            pass_fds=(ready_w, hold_r), env={**os.environ, "TMPDIR": parent})
+            pass_fds=(ready_w, hold_r, stack_w, reg_w), env={**os.environ, "TMPDIR": parent})
         os.close(ready_w)
         ready_w = None
+        os.close(stack_w)
+        stack_w = None
+        os.close(reg_w)
+        reg_w = None
         deadline = time.monotonic() + timeout
         data = b""
         with selectors.DefaultSelector() as selector:
@@ -2025,11 +2603,20 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
         if proc.poll() is not None:
             return fail("probe-died-before-term")
         proc.send_signal(signal.SIGTERM)
-        deadline = time.monotonic() + 3 * GRACE_SECONDS + 2 * TEST_WAIT
+        deadline = time.monotonic() + (3 * GRACE_SECONDS + 2 * TEST_WAIT
+                                       if _exit_wait is None else _exit_wait)
         # subprocess.wait uses a monotonic deadline and waitpid.
         try:
             proc.wait(timeout=max(0.001, deadline - time.monotonic()))
         except subprocess.TimeoutExpired:
+            try:
+                for line in _probe_capture(proc.pid, sid, stack_r, registry_fd=reg_r,
+                                           prefix="sigterm-cleans-up: probe-exit-wait-timeout: "):
+                    print(line, file=sys.stderr)
+                sys.stderr.flush()
+            except Exception:
+                # Neither the capture nor an unwritable stderr may replace the stage's failure.
+                pass
             return fail("probe-exit-wait-timeout")
         if proc.returncode == 0:
             return fail("probe-exit-zero")
@@ -2047,11 +2634,9 @@ def _sigterm_cleanup_check(failures, timeout=TEST_WAIT):
             except subprocess.TimeoutExpired:
                 failures.append(("sigterm-probe-cleanup-wait", False))
         # Release and kill even failed fixtures before removing their tree.
-        os.close(hold_w)
-        os.close(hold_r)
-        os.close(ready_r)
-        if ready_w is not None:
-            os.close(ready_w)
+        for fd in (hold_w, hold_r, ready_r, ready_w, stack_r, stack_w, reg_r, reg_w):
+            if fd is not None:
+                os.close(fd)
         if sid is not None:
             _kill_session(sid)
         for pid in _procs_under([parent]):
