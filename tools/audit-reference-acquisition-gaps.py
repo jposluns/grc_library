@@ -5,8 +5,10 @@ reference base does NOT hold.
 WHAT THIS IS (and is NOT). An orchestrator dev-AID feeding the not-held-source
 direction of the /reference-audit cadence (#718, closing the reference-audit spec item
 (d)), not an audit gate. It always exits 0 after printing its report (2 only on
-internal or usage error); CI cannot host it because the ground truth lives in the
-sibling private reference repo. Its companion `tools/audit-reference-breadth.py`
+internal or usage error). The linter regression suite runs it in CI with refused
+arguments and against temporary fixture reference siblings and catalogues; CI does not
+hold the sibling private reference repo, so a report against the real ground truth is a
+maintainer-local run. Its companion `tools/audit-reference-breadth.py`
 answers the HELD -> corpus direction (does the corpus use what we hold); this tool
 answers the CITED -> not-held direction (does the corpus cite a source we do not
 hold, so it is an acquisition candidate for the ref-base acquisition queue and the
@@ -40,8 +42,20 @@ Usage:
     python3 tools/audit-reference-acquisition-gaps.py --section "NIST publications"
 
 Stdlib-only Python 3.11. The register parser is keyed to the canonical register's
-table format (Standard ID in column 1, `## ` section family headers); a format
-change fails loudly, never silently.
+table format (Standard ID in column 1, `## ` section family headers). It does not
+detect all format drift: it skips every line that is not a `|`-led line after a table
+separator in its section, every row whose first cell is empty, and the skipped and (by
+default) tooling sections. It refuses (exit 2) a register path that is missing or not a
+regular file, a register that cannot be read, and a register that yields zero rows. The
+catalogue reader likewise takes only lines in the `  - title: "..."` form (only LF ends a
+line, and a trailing CR is dropped), decodes the text between the outer double quotes as a
+JSON string (the reference generators write a quote as \\" and a backslash as \\\\; the
+decoding admits raw control characters, U+0000 to U+001F, such as a tab or a carriage
+return), and refuses (exit 2) a catalogue path that is missing or not a regular file, or
+that cannot be examined, a catalogue that cannot be read, a title that does not decode, and
+a catalogue with zero such titles. Without --ref-base, an absent grc_library_ref sibling is
+instead the no-op exit 0, and a sibling that cannot be examined, is not a directory, or has
+no regular catalogue.yml is refused (exit 2) before the catalogue reader runs.
 """
 
 from __future__ import annotations
@@ -153,8 +167,24 @@ def parse_catalogue_titles(ref_base: Path) -> list[str]:
     cat = ref_base / "catalogue.yml"
     if strict_kind(cat) != "file":  # an unexaminable path raises InaccessiblePath (an OSError)
         raise RuntimeError(f"catalogue not found: {cat}")
-    titles = re.findall(r'^  - title:\s*"(.*)"\s*$',
-                        cat.read_text(encoding="utf-8", errors="replace"), re.M)
+    # 3b313: only LF ends a line (a trailing CR is dropped), as in audit-reference-breadth.py.
+    # read_text() turned a raw CR into a line end, and normalize_topics.py q() can leave one in
+    # a title, so that title was dropped and its register entries were reported as not held.
+    text = cat.read_bytes().decode("utf-8", errors="replace")
+    title_re = re.compile(r'  - title:\s*"(.*)"\s*')
+    raw_titles = [m.group(1) for m in (title_re.fullmatch(ln.removesuffix("\r"))
+                                       for ln in text.split("\n")) if m]
+    titles = []
+    for raw in raw_titles:
+        # 3b313: the reference generators escape a quote as \" and a backslash as \\, and the
+        # escapes used to be kept in the title, so matching against the real title missed.
+        # strict=False admits raw control characters (U+0000 to U+001F, such as a tab or a
+        # carriage return), which normalize_topics.py leaves unescaped.
+        try:
+            titles.append(json.loads(f'"{raw}"', strict=False))
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(f"catalogue format drift: title {raw!r} is not a JSON string "
+                               f"({exc.msg})") from None
     if not titles:
         raise RuntimeError("catalogue format drift: zero titles parsed")
     return titles

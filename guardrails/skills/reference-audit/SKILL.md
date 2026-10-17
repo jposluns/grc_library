@@ -105,8 +105,9 @@ what already exists.
 
 - **FULL mode on the standing cadence**: as a member of every `/deep-assessment` run,
   and ad-hoc when the maintainer wants the exhaustive both-directions picture. Every
-  in-scope source item is classified and every in-scope project document gets a
-  candidate list.
+  in-scope source item is classified. Each in-scope project document with at least one
+  candidate gets a line with its full candidate count and a capped candidate list (the
+  triage tool's per-document display cap); a document with no candidates gets no line.
 - **Per-touch mode on every substantive project-document change**: when a change touches
   a project document's body, run the triage tool in its per-touch form for the touched
   documents. The per-document state file makes the steady-state cost near zero: with no
