@@ -6563,6 +6563,508 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                           register=self._register(rows))
         self.assertEqual(self._warned(out), [], out)
 
+    ICO_SERIES = "UK ICO, Employment practices and data protection"
+
+    def test_full_title_alias_matches_and_series_name_does_not_cover_other_titles(self) -> None:
+        # 3b367 (a): the ": " provision branch strips a document title; the full title still
+        # reaches the alias lookup, so an alias keyed on it registers that title only.
+        import json
+
+        mod = self._module()
+        data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
+        data["aliases"][f"{self.ICO_SERIES}: Monitoring workers"] = "UK ICO Monitoring Workers"
+        resolver = mod.Resolver(
+            mod.Register(self._register(self.ROWS + (("UK ICO Monitoring Workers", "2024", "-"),))),
+            mod.load_aliases(json.dumps(data)),
+            mod.load_exclusions(mod.EXCLUSIONS_PATH.read_text(encoding="utf-8")),
+        )
+        header = "| Framework | Reference | Regulatory |"
+        doc = self._doc(
+            f"| {self.ICO_SERIES}: Monitoring workers (June 2024) | Devices | - |",
+            f"| {self.ICO_SERIES}: Recruitment and selection | Vetting | - |",
+            "| Other | - | GDPR Art. 32; EU AI Act: High Risk |",
+            # Round 2: text after the parenthetical, so the alias must not match its prefix.
+            f"| {self.ICO_SERIES}: Monitoring workers (June 2024) Unknown Act | Devices | - |",
+            header=header,
+        )
+        found = mod.scan_text(doc, set(range(1, doc.count("\n") + 1)), resolver)
+        self.assertEqual(
+            [(ln, cite) for ln, _, cite in found],
+            # the other title; a true ": " provision tail; a non-terminal parenthetical
+            [(8, self.ICO_SERIES), (9, "EU AI Act"), (10, self.ICO_SERIES)],
+        )
+
+    def _resolver(self, register_rows=ROWS, extra_aliases=None, extra_umbrella=()):
+        """A resolver over a fixture register and the real alias and exclusion files (plus
+        ``extra_aliases`` and the ``extra_umbrella`` (pattern, row) pairs)."""
+        import json
+
+        mod = self._module()
+        data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
+        data["aliases"].update(extra_aliases or {})
+        data["umbrella"] += [{"pattern": p, "row": r} for p, r in extra_umbrella]
+        return mod, mod.Resolver(
+            mod.Register(self._register(register_rows)),
+            mod.load_aliases(json.dumps(data)),
+            mod.load_exclusions(mod.EXCLUSIONS_PATH.read_text(encoding="utf-8")),
+        )
+
+    def _scan_rows(self, *rows, register_rows=ROWS, extra_aliases=None, extra_umbrella=()):
+        """(line, citation) per D15 finding for a list-form table whose rows are all added,
+        using the real alias and exclusion files (plus ``extra_aliases`` and ``extra_umbrella``)."""
+        mod, resolver = self._resolver(register_rows, extra_aliases, extra_umbrella)
+        doc = self._doc(*rows, header="| Framework | Reference | Regulatory |")
+        found = mod.scan_text(doc, set(range(1, doc.count("\n") + 1)), resolver)
+        return [(ln, cite) for ln, _, cite in found]
+
+    def test_free_text_full_form_exact_match(self) -> None:
+        # Round 2 (claude N5): a free-text segment's full form reaches the exact lookups too.
+        # Passes on the round-1 checker as well; it pins the free-text path of that change.
+        got = self._scan_rows(
+            "| Other | - | GDPR Art. 88; ICO guidance: Monitoring workers (June 2024) |",
+            "| Other | - | ICO guidance: Recruitment |",  # control: no alias for this title
+            register_rows=self.ROWS + (("UK ICO Monitoring Workers", "2024", "-"),),
+            extra_aliases={"ICO guidance: Monitoring workers": "UK ICO Monitoring Workers"},
+        )
+        self.assertEqual(got, [(8, "ICO guidance")])
+
+    def test_full_title_register_row_matches(self) -> None:
+        rows = self.ROWS + ((f"{self.ICO_SERIES}: Monitoring workers", "2024", "-"),)
+        out = self._check(
+            self._doc(),
+            self._doc(
+                f"| {self.ICO_SERIES}: Monitoring workers (June 2024) | Devices | Monitoring |",
+                f"| {self.ICO_SERIES}: Recruitment and selection | Vetting | Hiring |",
+            ),
+            register=self._register(rows),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 1, out)
+        self.assertIn(f"security/standard-example.md:8: alignment-table row '{self.ICO_SERIES}'", warned[0])
+
+    WP249 = "Article 29 Working Party Opinion 2/2017 on data processing at work (WP 249)"
+
+    def test_article_29_working_party_citation_is_looked_up(self) -> None:
+        # 3b367 (b): the leading "Article" was read as a provision, so the citation split to
+        # nothing and was never checked.
+        header = "| Framework | Reference | Regulatory |"
+        head = self._doc(
+            f"| {self.WP249} | §5.4.2 | - |",
+            "| Other | - | GDPR Art. 88; Article 29 Working Party Opinion 2/2017 |",
+            header=header,
+        )
+        with self.subTest(register="unregistered"):
+            warned = self._warned(self._check(self._doc(header=header), head))
+            self.assertEqual(len(warned), 2, warned)
+            self.assertIn(f"alignment-table row {self.WP249!r}", warned[0])
+            self.assertIn("citation-list cell 'Article 29 Working Party Opinion 2/2017'", warned[1])
+        with self.subTest(register="registered"):
+            # Passes before 3b367 too (both citations were dropped unchecked); after it, it pins
+            # that the row's WP number and the free-text Opinion designator match the WP249 row.
+            rows = self.ROWS + (
+                ("WP249 (Article 29 Working Party Opinion 2/2017 on data processing at work)", "Original", "-"),
+            )
+            out = self._check(self._doc(header=header), head, register=self._register(rows))
+            self.assertEqual(self._warned(out), [], out)
+
+    def test_article_29_exception_is_the_spelled_out_segment_initial_form_only(self) -> None:
+        # Round 2 (codex, claude N1): only "Article 29 Working Party" at the start of a segment
+        # keeps its words; no WP249 row is registered here, so a kept citation warns.
+        cases = (
+            # Abbreviated and plural forms are provisions again: stripped to nothing.
+            ("| Art 29 Working Party Opinion 2/2017 | - | - |", []),
+            ("| Articles 29 Working Party Opinion 2/2017 | - | - |", []),
+            # After another citation the words are that citation's provision: GDPR resolves.
+            ("| GDPR Article 29 Working Party guidance | - | - |", []),
+            ("| Other | - | DORA Art. 9; GDPR Article 29 Working Party guidance |", []),
+            # The possessive still starts with the body name. Passes on the round-1 checker too.
+            ("| Article 29 Working Party's Opinion 2/2017 | - | - |",
+             [(7, "Article 29 Working Party's Opinion 2/2017")]),
+            # Ends at a comma: the bare body name is not a citation; the Opinion still warns.
+            ("| Other | - | Article 29 Working Party, Opinion 2/2017 |", [(7, "Opinion 2/2017")]),
+            ("| Article 29 Working Party | Guidance | - |", []),  # a bare list cell (claude W2)
+        )
+        for row, want in cases:
+            with self.subTest(row=row):
+                self.assertEqual(self._scan_rows(row), want)
+
+    def test_full_form_drops_only_a_date_edition_or_designator_parenthetical(self) -> None:
+        # Round 3 (codex): a substantive terminal parenthetical stays part of the full form, so
+        # a full-title alias does not register it; the stripped series name then warns.
+        title = f"{self.ICO_SERIES}: Monitoring workers"
+        got = self._scan_rows(
+            f"| {title} (Unknown Act) | Devices | - |",
+            f"| {title} (June 2024) | Devices | - |",
+            f"| {title} (2019, updated 2024) | Devices | - |",
+            f"| {title} (v2.0) | Devices | - |",
+            # Round 6 item 3: a WP number the ICO row does not carry is kept.
+            f"| {title} (WP 249) | Devices | - |",
+            # Punctuation after the parenthetical (claude N: the class was unpinned).
+            f"| {title} (June 2024): | Devices | - |",
+            # Free text: a control code after the full title is removed from the full form too.
+            "| Other | - | GDPR Art. 88; ICO guidance: Monitoring workers (June 2024) LOG-05 |",
+            "| Other | - | ICO guidance: Monitoring workers (Unknown Act) LOG-05 |",
+            register_rows=self.ROWS + (("UK ICO Monitoring Workers", "2024", "-"),),
+            extra_aliases={
+                title: "UK ICO Monitoring Workers",
+                "ICO guidance: Monitoring workers": "UK ICO Monitoring Workers",
+            },
+        )
+        self.assertEqual(got, [(7, self.ICO_SERIES), (11, self.ICO_SERIES), (14, "ICO guidance")])
+
+    def test_full_form_keeps_a_jurisdiction_status_or_multi_word_capitals_parenthetical(self) -> None:
+        # Round 4 (all three): the acronym item accepted any capitals run, so these were dropped
+        # and the full-title alias registered them; now they stay and the series name warns.
+        # The last three rows pin the items a mutant could remove unnoticed (claude). Round 5:
+        # "SMEs" and "AICM" are not this title's registered acronyms, so they are kept too.
+        # Round 6 item 3: Opinion 2/2017 and WP 248 are designators the ICO row does not carry, so they are kept.
+        title = f"{self.ICO_SERIES}: Monitoring workers"
+        kept = ("UK", "US", "UNKNOWN ACT", "SUPERSEDED", "WITHDRAWN", "NOT ADOPTED", "DRAFT",
+                "HIPAA, US", "RFC 9457", "SMEs", "AICM", "Opinion 2/2017", "WP 248")
+        dropped = ("v1.5, 2026", "ICO")
+        got = self._scan_rows(
+            *(f"| {title} ({p}) | Devices | - |" for p in kept + dropped),
+            register_rows=self.ROWS + (("UK ICO Monitoring Workers", "2024", "-"),),
+            extra_aliases={title: "UK ICO Monitoring Workers"},
+        )
+        self.assertEqual(got, [(7 + n, self.ICO_SERIES) for n in range(len(kept))])
+
+    WP248_ROW = ("WP248 rev.01 (Article 29 Working Party Guidelines on Data Protection Impact Assessment)",
+                 "rev.01", "-")
+
+    def test_article_29_full_form_matches_a_registered_designator(self) -> None:
+        # Round 3 (claude W): the stripped form ends at the inner "Article 35", so only the full
+        # form's WP number can reach the WP248 row; main dropped the citation unchecked.
+        got = self._scan_rows(
+            "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 248) | DPIA | - |",
+            "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 250) | DPIA | - |",
+            # Only a full form led by the issuing body is matched on its designators.
+            "| EU Unknown Act Article 35 (WP 248) | DPIA | - |",
+            register_rows=self.ROWS + (self.WP248_ROW,),
+        )
+        self.assertEqual(
+            got, [(8, "Article 29 Working Party Guidelines on DPIA under"), (9, "EU Unknown Act")]
+        )
+
+    def test_article_29_full_form_needs_every_wp_number_registered(self) -> None:
+        # Round 4 (all three): one registered designator anywhere in the full form registered it;
+        # now only WP numbers count, at least one is needed, and every one must be registered.
+        # The register here has neither WP999 nor the consent guidelines, but, like the real
+        # register, an EDPB Guidelines 07/2020 row.
+        edpb = ("EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR)", "Version 2.1", "-")
+        got = self._scan_rows(
+            "| Article 29 Working Party Guidelines on Y under Article 35 (WP 248, WP 999) | - | - |",
+            "| Article 29 Working Party Guidelines on consent under Article 7 "
+            "(replaced by EDPB Guidelines 07/2020) | - | - |",
+            "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 248) | DPIA | - |",
+            # Round 4 (gemini): the stripped-form designator fallback ignored the issuing body.
+            "| EU Unknown Act (WP 248) | DPIA | - |",
+            register_rows=self.ROWS + (self.WP248_ROW, edpb),
+        )
+        self.assertEqual(got, [
+            (7, "Article 29 Working Party Guidelines on Y under"),
+            (8, "Article 29 Working Party Guidelines on consent under"),
+            (10, "EU Unknown Act (WP 248)"),
+        ])
+
+    def test_article_29_colon_before_the_title_is_not_a_provision(self) -> None:
+        # Round 3 (claude W): ": " after the body name introduced the document and stripped it,
+        # leaving the not-citable body name, so an unregistered WP249 citation gave no finding.
+        cite = "Article 29 Working Party: Opinion 2/2017 on data processing at work (WP 249)"
+        rows = (f"| {cite} | §5.4.2 | - |", "| Other | - | GDPR Art. 88; Article 29 Working Party: Opinion 2/2017 |")
+        with self.subTest(register="unregistered"):
+            self.assertEqual(
+                self._scan_rows(*rows), [(7, cite), (8, "Article 29 Working Party: Opinion 2/2017")]
+            )
+        with self.subTest(register="registered"):
+            wp249 = ("WP249 (Article 29 Working Party Opinion 2/2017 on data processing at work)", "Original", "-")
+            self.assertEqual(self._scan_rows(*rows, register_rows=self.ROWS + (wp249,)), [])
+
+    def test_abbreviated_article_29_residual_is_still_dropped(self) -> None:
+        # Pins a documented residual (claude N3): "Art." is still read as a provision, so this
+        # unregistered citation is stripped to nothing and not checked. Passes before and after.
+        self.assertEqual(self._scan_rows("| Art. 29 Working Party Opinion 2/2017 | - | - |"), [])
+
+    def test_true_provision_tails_are_still_stripped(self) -> None:
+        # Guard cases: these pin behaviour 539ca8e5 already had, so they pass before and after.
+        rows = self.ROWS + (("US HIPAA", "1996", "-"),)
+        header = "| Framework | Reference | Regulatory |"
+        out = self._check(
+            self._doc(header=header),
+            self._doc(
+                "| GDPR Article 6(1)(f) | Legitimate interest | - |",
+                "| GDPR Art. 29 | Processing under authority | - |",
+                "| 45 CFR Part 164 | Privacy and security | - |",
+                "| ISO/IEC 27001:2022 A.5.1 | Policies | - |",
+                "| Digital Operational Resilience Act Section 5 | ICT risk | - |",
+                "| Quebec Law 25 Section 5 | Privacy | - |",
+                "| EU AI Act: High Risk | Classification | - |",
+                "| Other | - | GDPR Article 6(1)(f), DORA Art. 9, Quebec Law 25 Section 3 |",
+                header=header,
+            ),
+            register=self._register(rows),
+        )
+        warned = self._warned(out)
+        self.assertEqual(len(warned), 3, out)
+        for ln, cite in ((12, "Quebec Law 25"), (13, "EU AI Act"), (14, "Quebec Law 25")):
+            with self.subTest(cite=cite, line=ln):
+                self.assertTrue(any(f"example.md:{ln}:" in w and repr(cite) in w for w in warned), out)
+
+    ICO_TITLE = f"{ICO_SERIES}: Monitoring workers"
+    ICO_ROW = ("UK ICO Monitoring Workers", "2024", "-")
+    HIPAA_ROW = ("US HIPAA", "1996", "-")
+
+    def _scan_ico(self, *parens, suffix=""):
+        """D15 findings for ``ICO_TITLE (p)suffix`` per parenthetical ``p``, with a full-title
+        alias, a second alias ``MWG`` for the same row and a HIPAA row."""
+        return self._scan_rows(
+            *(f"| {self.ICO_TITLE} ({p}){suffix} | Devices | - |" for p in parens),
+            register_rows=self.ROWS + (self.ICO_ROW, self.HIPAA_ROW),
+            extra_aliases={self.ICO_TITLE: self.ICO_ROW[0], "MWG": self.ICO_ROW[0]},
+        )
+
+    def test_terminal_acronym_is_dropped_only_through_an_allowlist_source(self) -> None:
+        # Round 5 item 1 (all three): an allowlist replaces the status-word denylist. Each
+        # source drops a parenthetical that names the title's own row; the rule is reported.
+        # Round 6 item 1: the glossary source is removed, so "EPDP" is no longer one.
+        mod, resolver = self._resolver(
+            self.ROWS + (self.ICO_ROW, self.HIPAA_ROW),
+            {self.ICO_TITLE: self.ICO_ROW[0], "MWG": self.ICO_ROW[0]},
+        )
+        row = mod.identity_key(self.ICO_ROW[0])
+        for word, source in (("MWG", "registered"), ("ICO", "row acronym"), ("MWGs", "registered")):
+            with self.subTest(source=source, word=word):
+                self.assertEqual(resolver.paren_items(word, row), [(word, source)])
+                self.assertEqual(self._scan_ico(word), [])
+        # A capitals word that is none of these is substantive: the parenthetical stays and the
+        # series name warns. HIPAA is a registered row, but not this title's.
+        kept = ("RETIRED", "BETA", "CANCELLED", "DRAFTS", "NOT-ADOPTED", "HIPAA", "USA", "UK",
+                "N/A", "CCM", "June 2024, USA", "ICO, HIPAA", "EPDP")
+        self.assertEqual(self._scan_ico(*kept), [(7 + n, self.ICO_SERIES) for n in range(len(kept))])
+        self.assertEqual(self._scan_ico("June 2024, ICO", "ICO; v2.0"), [])
+
+    def test_registered_name_acronym_from_the_row(self) -> None:
+        # Round 5 item 1, round 6 item 1: "(HIPAA)" after the Act's own name and "(AICM)" after
+        # the AI Controls Matrix's are acronym words of their rows' Standard IDs, so they are
+        # dropped without the glossary; after the ICO title both are kept.
+        hipaa = "Health Insurance Portability and Accountability Act: Security Rule guidance"
+        aicm = "CSA AI Controls Matrix: Implementation Guidelines"
+        got = self._scan_rows(
+            f"| {hipaa} (HIPAA) | - | - |",
+            f"| {aicm} (AICM) v2.0 | - | - |",
+            f"| {self.ICO_TITLE} (HIPAA) | - | - |",
+            f"| {self.ICO_TITLE} (AICM) v2.0 | - | - |",
+            register_rows=self.ROWS + (self.ICO_ROW, self.HIPAA_ROW, ("CSA AICM", "1.0", "-")),
+            extra_aliases={hipaa: "US HIPAA", aicm: "CSA AICM", self.ICO_TITLE: self.ICO_ROW[0]},
+        )
+        self.assertEqual(got, [(9, self.ICO_SERIES), (10, self.ICO_SERIES)])
+
+    def test_umbrella_pattern_does_not_register_an_acronym(self) -> None:
+        # Round 6 item 2 (gemini): a capitals word an umbrella pattern matched was dropped after
+        # any title under that umbrella. Only a Standard ID or curated alias key counts now.
+        title = "Fixture Rules 9: Monitoring"
+        umbrella = ((r"Fixture Rules 9: [A-Za-z ]+|FR9[A-Z]*", "FR9 Fixture Rules Register"),)
+        register_rows = self.ROWS + (("FR9 Fixture Rules Register", "2024", "-"),)
+        got = self._scan_rows(
+            f"| {title} (FR9DRAFT) | - | - |",  # umbrella only: kept
+            f"| {title} (FR9X) | - | - |",  # umbrella only: kept
+            f"| {title} (FR9) | - | - |",  # an acronym word of the row's Standard ID
+            f"| {title} (FRX) | - | - |",  # a curated alias key of the row
+            f"| {title} (June 2024) | - | - |",  # control: the title registers through the umbrella
+            register_rows=register_rows,
+            extra_aliases={"FRX": "FR9 Fixture Rules Register"},
+            extra_umbrella=umbrella,
+        )
+        self.assertEqual(got, [(7, "Fixture Rules 9"), (8, "Fixture Rules 9")])
+        mod, resolver = self._resolver(register_rows, {"FRX": register_rows[-1][0]}, umbrella)
+        row = mod.identity_key(register_rows[-1][0])
+        self.assertEqual(resolver.acronym_source("FR9DRAFT", row), "")
+        self.assertEqual(resolver.acronym_source("FRX", row), "registered")
+
+    def test_designator_item_is_dropped_only_for_its_own_row(self) -> None:
+        # Round 6 item 3 (claude W2, gemini): a WP number or designator item was dropped after any
+        # registered name. Now the name's row must carry that (body, designator) pair.
+        # Round 7 items 1 and 2 (claude): rows 16-18 cross to another row of the same body, row 19
+        # is the row's own designator (control), and row 20 is a WP number named in an EDPB row's
+        # Standard ID.
+        edpb, edpb_05, wp216 = self.EDPB_ROWS[0], self.EDPB_ROWS[1], self.EDPB_ROWS[3]
+        replacing = ("EDPB Guidelines 9/2022 (replacing WP250)", "Version 2.0", "-")
+        aliases = {
+            "DPIA Guidelines: Article 35 commentary": self.WP248_ROW[0],
+            "Controller Guidelines: processors": edpb[0],
+            "Breach Guidelines: notification": replacing[0],
+            self.ICO_TITLE: self.ICO_ROW[0],
+        }
+        got = self._scan_rows(
+            "| DPIA Guidelines: Article 35 commentary (WP 248) | - | - |",  # the row's own WP number
+            "| DPIA Guidelines: Article 35 commentary (WP248, October 2017) | - | - |",
+            "| Controller Guidelines: processors (Guidelines 07/2020) | - | - |",  # the row's own
+            "| Controller Guidelines: processors (Version 2.1, adopted 7 July 2021) | - | - |",
+            "| DPIA Guidelines: Article 35 commentary (WP 999) | - | - |",
+            "| DPIA Guidelines: Article 35 commentary (Guidelines 07/2020) | - | - |",  # another row's
+            "| Controller Guidelines: processors (Guidelines 99/2099) | - | - |",
+            "| Controller Guidelines: processors (WP 248) | - | - |",  # a WP number is A29 only
+            f"| {self.ICO_TITLE} (ICO, v2.0, WP 248) | - | - |",
+            "| DPIA Guidelines: Article 35 commentary (WP 216) | - | - |",  # the WP216 row's
+            "| DPIA Guidelines: Article 35 commentary (Opinion 05/2014) | - | - |",  # the WP216 row's
+            "| Controller Guidelines: processors (Guidelines 05/2020) | - | - |",  # the 05/2020 row's
+            "| Breach Guidelines: notification (Guidelines 09/2022) | - | - |",  # the row's own
+            "| Breach Guidelines: notification (WP 250) | - | - |",  # in the ID, but an EDPB row
+            register_rows=self.ROWS + (self.WP248_ROW, edpb, self.ICO_ROW, wp216, edpb_05, replacing),
+            extra_aliases=aliases,
+        )
+        self.assertEqual(got, [
+            (11, "DPIA Guidelines"), (12, "DPIA Guidelines"), (13, "Controller Guidelines"),
+            (14, "Controller Guidelines"), (15, self.ICO_SERIES), (16, "DPIA Guidelines"),
+            (17, "DPIA Guidelines"), (18, "Controller Guidelines"), (20, "Breach Guidelines"),
+        ])
+
+    def test_month_names_need_a_word_boundary_in_parenthetical_items(self) -> None:
+        # Round 6 item 4 (claude W1, executed): "(?:Jan|...|Dec)[a-z]*" read "Decision",
+        # "Marketing" and "Novel" as months, so these parentheticals were dropped as dates.
+        # Round 7 item 3 (claude): a word after each remaining abbreviation is pinned too.
+        dated = ("Decision 2024", "Marketing 2024", "Novel 2024", "Junk 2024", "Mayor 2024",
+                 "Janitor 2024", "Augur 2024", "Octet 2024", "Aprons 2024")
+        months = ("Sept. 2017", "Sep 2017", "September 2017", "Dec. 2024", "June 2024", "Jun 2024",
+                  "May 2024", "updated 3 March 2025", "Jan 2024", "Feb. 2024", "Mar 2024",
+                  "Apr 2024", "Jul 2024", "Aug 2024", "Nov 2024")
+        got = self._scan_ico(*dated, *months)
+        self.assertEqual(got, [(7 + n, self.ICO_SERIES) for n in range(len(dated))])
+
+    def test_month_names_need_a_word_boundary_in_the_wp_tail(self) -> None:
+        # Round 6 item 4 (claude W1): the same month group let WP_TAIL accept "(WP 248) Decision
+        # 2017", so text after the last WP number registered the citation.
+        stem = "Article 29 Working Party Guidelines on DPIA under Article 35"
+        got = self._scan_rows(
+            f"| {stem} (WP 248) Decision 2017 | - | - |",
+            f"| {stem} (WP 248) Marketing 2017 | - | - |",
+            f"| {stem} (WP 248) October 2017 | - | - |",  # control: a month after the WP number
+            f"| {stem} (WP 248) Oct. 2017 | - | - |",
+            register_rows=self.ROWS + (self.WP248_ROW,),
+        )
+        stripped = "Article 29 Working Party Guidelines on DPIA under"
+        self.assertEqual(got, [(7, stripped), (8, stripped)])
+
+    def test_issuer_names_are_anchored(self) -> None:
+        # Round 6 item 5 (claude W3): a body name mid-name or a non-terminal "(EDPB)" is not the
+        # citation's issuer, so its designators are not matched; a bare "WP216" row is an
+        # Article 29 Working Party row.
+        got = self._scan_rows(
+            "| Unknown Act implementing EDPB Guidelines 07/2020 | - | - |",
+            "| Unknown Act of the Article 29 Working Party (WP 216) | - | - |",
+            "| Guidelines 07/2020 on controllers (EDPB) Unknown Act | - | - |",
+            "| Article 29 Working Party Opinion on anonymisation (WP 216) | - | - |",  # control
+            "| Guidelines 07/2020 on controllers (EDPB) | - | - |",  # control
+            register_rows=self.ROWS + (self.EDPB_ROWS[0], ("WP216", "Original", "-")),
+        )
+        self.assertEqual(got, [
+            (7, "Unknown Act implementing EDPB Guidelines 07/2020"),
+            (8, "Unknown Act of the"),
+            (9, "Guidelines 07/2020 on controllers (EDPB) Unknown Act"),
+        ])
+
+    def test_version_tail_is_removed_before_the_parenthetical_is_judged(self) -> None:
+        # Round 5 item 2 (all three, executed): strip_version removed the year or version and
+        # then the status parenthetical, so these registered through the full-title alias.
+        warned = self._scan_rows(
+            *(f"| {self.ICO_TITLE} {tail} | Devices | - |"
+              for tail in ("(DRAFT) v2", "(DRAFT) 2024", "(DRAFT), 2024", "(BETA) v2", "(USA) v2.0")),
+            register_rows=self.ROWS + (self.ICO_ROW,),
+            extra_aliases={self.ICO_TITLE: self.ICO_ROW[0]},
+        )
+        self.assertEqual(warned, [(7 + n, self.ICO_SERIES) for n in range(5)])
+        # A droppable parenthetical with a version after it registers (codex warning).
+        self.assertEqual(self._scan_ico("June 2024", "ICO", "v2.0", suffix=" v2.0"), [])
+        self.assertEqual(self._module().strip_version("T (DRAFT) v2"), "T (DRAFT)")
+
+    EDPB_ROWS = (
+        ("EDPB Guidelines 07/2020 (concepts of controller and processor in the GDPR)", "Version 2.1", "-"),
+        ("EDPB Guidelines 05/2020 (consent under Regulation 2016/679)", "Version 1.1", "Version 1.0"),
+        ("EDPB Guidelines 4/2019 (Article 25 data protection by design and by default)", "Version 2.0", "-"),
+        ("WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques)", "Original", "-"),
+    )
+
+    def test_designators_are_matched_within_their_issuing_body(self) -> None:
+        # Round 5 item 3 (codex error, claude note): a non-WP designator registered for an EDPB
+        # row registered the same designator from the Article 29 Working Party, and vice versa.
+        got = self._scan_rows(
+            "| Article 29 Working Party Guidelines 07/2020 on controllers | - | - |",
+            "| EDPB Opinion 05/2014 on anonymisation | - | - |",
+            # These register today and still do: each body's own designator.
+            "| Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques | - | - |",
+            "| EDPB Guidelines 07/2020 on the concepts of controller and processor | - | - |",
+            "| EDPB Guidelines 4/2019 on Article 25 Data Protection by Design and by Default | - | - |",
+            "| Article 29 Working Party Guidelines on DPIA under Article 35 (WP 248) | - | - |",
+            register_rows=self.ROWS + self.EDPB_ROWS + (self.WP248_ROW,),
+        )
+        self.assertEqual(got, [
+            (7, "Article 29 Working Party Guidelines 07/2020 on controllers"),
+            (8, "EDPB Opinion 05/2014 on anonymisation"),
+        ])
+        mod = self._module()
+        reg = mod.Register(self._register(self.ROWS + self.EDPB_ROWS + (self.WP248_ROW,)))
+        self.assertLessEqual({("edpb", "guideline 7/2020"), ("a29", "opinion 5/2014"), ("a29", "wp248")},
+                             reg.designators)
+
+    def test_edpb_name_forms(self) -> None:
+        # Round 5 item 4 (claude note): an "EU " prefix, the board's full name and an "(EDPB)"
+        # issuer suffix name the EDPB; without an issuer the designator is not matched.
+        got = self._scan_rows(
+            "| EU EDPB Guidelines 05/2020 on consent under Regulation 2016/679 "
+            "(Version 1.1, adopted 4 May 2020) | - | - |",
+            "| European Data Protection Board Guidelines 07/2020 on controllers | - | - |",
+            "| Guidelines 07/2020 on the concepts of controller and processor (EDPB) | - | - |",
+            "| Guidelines 07/2020 on the concepts of controller and processor | - | - |",
+            "| EU EDPB Guidelines 99/2020 on nothing | - | - |",
+            register_rows=self.ROWS + self.EDPB_ROWS,
+        )
+        self.assertEqual(got, [
+            (10, "Guidelines 07/2020 on the concepts of controller and processor"),
+            (11, "EU EDPB Guidelines 99/2020 on nothing"),
+        ])
+
+    def test_wp_number_path_needs_nothing_but_wp_numbers_dates_and_editions_after_it(self) -> None:
+        # Round 5 item 5 (claude note): text after the last WP number, or an EDPB-led name,
+        # keeps the WP-number match from registering the citation.
+        stem = "Article 29 Working Party Guidelines on DPIA under Article 35"
+        got = self._scan_rows(
+            f"| {stem} (WP 248) Unknown Act | - | - |",
+            f"| {stem} (WP 248) and Article 36 | - | - |",
+            "| EDPB Guidelines on DPIA (WP 248) | - | - |",
+            f"| {stem} (WP 248 rev.01) | - | - |",
+            f"| {stem} (WP 248, 2017) | - | - |",
+            f"| {stem} (WP 248, October 2017). | - | - |",
+            register_rows=self.ROWS + (self.WP248_ROW,),
+        )
+        self.assertEqual(got, [
+            (7, "Article 29 Working Party Guidelines on DPIA under"),
+            (8, "Article 29 Working Party Guidelines on DPIA under"),
+            (9, "EDPB Guidelines on DPIA (WP 248)"),
+        ])
+
+    def test_glossary_register_does_not_register_an_acronym(self) -> None:
+        # Round 6 item 1 (claude, codex, gemini): the glossary source let "(SEC)" drop after any
+        # name containing "U.S.", "(HIPAA)" after a longer, different title containing the
+        # expansion, and a glossary row the PR itself adds ("(DRAFTS)") suppress its warning.
+        glossary = (REPO_ROOT / "governance/register-glossary.md").read_text(encoding="utf-8")
+        glossary += "| **DRAFTS** | Fixture Code Monitoring workers. A term this PR adds. |\n"
+        titles = (
+            "U.S. Fixture Rules: Disclosure",
+            "Commentary on the Health Insurance Portability and Accountability Act: Part 1",
+            "Fixture Code: Monitoring workers",
+        )
+        rows = self.ROWS + tuple((t, "2024", "-") for t in titles)
+        head = self._doc(*(f"| {t} ({p}) | - | - |" for t, p in zip(titles, ("SEC", "HIPAA", "DRAFTS"))))
+        out = self._check(self._doc(), head, register=self._register(rows),
+                          extra_head={"governance/register-glossary.md": glossary})
+        warned = [w for w in self._warned(out) if self.DOC in w]  # not the glossary's own lines
+        self.assertEqual(len(warned), 3, out)
+        for ln, stem in ((7, "U.S. Fixture Rules"),
+                         (8, "Commentary on the Health Insurance Portability and Accountability Act"),
+                         (9, "Fixture Code")):
+            with self.subTest(stem=stem):
+                self.assertIn(f"example.md:{ln}: alignment-table row {stem!r}", warned[ln - 7], out)
+
     def test_exclusion_policy_file_is_valid_and_reasoned(self) -> None:
         mod = self._module()
         rows = mod.load_exclusions(mod.EXCLUSIONS_PATH.read_text(encoding="utf-8"))
