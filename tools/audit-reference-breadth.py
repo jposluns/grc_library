@@ -5,12 +5,22 @@ directions, exhaustively.
 WHAT THIS IS (and is NOT). This is an orchestrator dev-AID feeding the
 /reference-audit skill (2.14 (closing PR #707)), not an audit gate. It exits 0 after
 printing its report (2 only on internal or usage error, including a refused --docs argument:
-missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; or, with
---update-state, a state-file read/write error, an unloaded state-like row, or a change to
-the file during the run; a truncated-pipe consumer
-such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool);
-CI cannot host it because
-the ground truth lives in the sibling private reference repo. Its output is a
+missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; a reference
+catalogue that fails the format checks described at the end, or that is missing or not a
+regular file under a --ref-base other than the default path (under the default path, given
+or not, a catalogue.yml that is missing or not a regular file is the no-op exit 0 described
+below); or, with --update-state, a state-file read/write error, an unloaded
+state-like row, or a change to the file during the run; a truncated-pipe consumer
+such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool).
+In CI the linter regression suite runs it against fixture reference repos it builds (and,
+in-process, with DEFAULT_REF_BASE patched to fixture paths), and
+with the real default --ref-base only in cases whose arguments are refused (exit 2) before the
+reference base is read. CI does not hold the private sibling reference repo that holds
+the real ground truth. On the default --ref-base, a run that passes its argument checks
+and finds no regular catalogue.yml prints a no-op line and exits 0; the line says which
+was observed: the grc_library_ref sibling is not present, cannot be examined, is not a
+directory, or is a directory whose catalogue.yml cannot be examined or is missing or not a
+regular file. Its output is a
 recall-oriented WORKLIST for the semantic judge, never a defect list: a lexical
 matcher deliberately over-collects, and every classification below is a candidate
 for adjudication.
@@ -18,12 +28,21 @@ for adjudication.
 Directions and modes:
 
 - FULL (default): exhaustive both ways. Every in-scope reference item is classified
-  by corpus usage (WELL-CITED / THIN / UNCITED / NO-KEY), and every corpus document
-  gets a candidate list of topic-matching items it does not cite.
-- --docs P [P ...]: the per-touch mode. For the named corpus documents only, emit
-  the candidate set, filtered (when the doc-state file has a row for the document)
-  to reference items ADDED or UPDATED in the reference repo since the recorded SHA,
-  plus any topic match the document has never been audited against. --update-state
+  by corpus usage (WELL-CITED / THIN / UNCITED / NO-KEY). Each corpus document with at
+  least one topic-matching item it does not cite gets a line with the full candidate
+  count and the first --max-candidates-per-doc candidates (default 10, strongest topic
+  overlap first); a document with no candidates gets no line.
+- --docs P [P ...]: the per-touch mode. For the named corpus documents only, list
+  every topic-matching item the document does not cite (no display cap). A document
+  with a doc-state row is limited to the items whose catalogue path or original path
+  equals or prefixes a path in ``git diff -z --name-only <recorded SHA>..HEAD`` of the
+  reference repo (raw names, compared with the decoded catalogue values); if that diff
+  fails, it gets every topical match. A document with no
+  row (never audited) gets every topical match. The state holds one SHA per document
+  and no per-item history, so an unchanged item that the document newly matches is not
+  offered while the document keeps a usable row. That includes an item re-tagged in
+  catalogue.yml whose own files did not change: the catalogue.yml change is in the diff,
+  but it is not the item's path or original path. --update-state
   regenerates the whole state file (hand-written prose around the table is
   replaced), setting the rows for the named documents to the reference repo's
   current HEAD using a SHA abbreviation of at least 12 characters (git lengthens
@@ -75,15 +94,37 @@ Usage:
 
 Stdlib-only Python 3.11. The catalogue parser is keyed to the GENERATED
 catalogue.yml format (do-not-hand-edit header, 2-space item indent, 4-space
-fields, inline topic lists); a format change fails loudly, never silently.
+fields, inline topic lists). Only LF ends a line (a trailing CR is dropped), so a title
+holding U+2028, U+2029 or U+0085 stays one line. The text between the outer double quotes
+of a title, path or original value is decoded as a JSON string, as the reference
+generators escape it (a quote is written \\" and a backslash \\\\); the decoding admits raw
+control characters (U+0000 to U+001F, such as a tab or a carriage return), which
+normalize_topics.py writes unescaped. It refuses (exit 2) an item before any bucket,
+a title, path or original value that does not decode, a path or original value that is
+neither one double-quoted string nor null (null, which normalize_topics.py writes for no
+value, is no value), a catalogue with zero items, a topics value that is not a
+bracketed list of zero or more non-empty double-quoted entries with no double quote or
+backslash inside (an empty list is no topics), and
+any other non-blank line outside column-0 comments
+that is not a bucket, item, or 4-space field line inside an item (a field line between a
+bucket line and that bucket's first item is outside an item), so a mis-indented field is
+refused rather than dropped. A 4-space field line whose name is not made only of
+lowercase ASCII letters and underscores is refused; any such [a-z_] name other than
+path, original and topics is ignored, because the catalogue carries metadata fields
+this tool does not use and refusing a new one would stop the audit on a harmless
+generator change. It does not detect all drift: a misspelled path, original or topics
+name made of [a-z_] characters is ignored like any other unused field, and an item with
+no topics line has no topics.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import signal
+import stat
 import subprocess
 import sys
 
@@ -202,6 +243,22 @@ class RefItem:
         return f"{self.bucket}:{self.title}"
 
 
+def decode_title(raw: str, name: str = "title") -> str:
+    """The text held between a title, path or original value's outer double quotes, decoded as a
+    JSON string.
+
+    3b313: the reference generators escape a quote as \\" and a backslash as \\\\ (ingest.py with
+    json.dumps, normalize_topics.py by hand), and the escapes used to be kept in the value, so an
+    alias or comparison keyed by the real title or file name missed. strict=False admits raw
+    control characters (U+0000 to U+001F, such as a tab or a carriage return), which
+    normalize_topics.py leaves unescaped."""
+    try:
+        return json.loads(f'"{raw}"', strict=False)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"catalogue format drift: {name} {raw!r} is not a JSON string "
+                           f"({exc.msg})") from None
+
+
 def parse_catalogue(ref_base: Path) -> list[RefItem]:
     """Line-based parser keyed to the generated catalogue.yml format."""
     cat = ref_base / "catalogue.yml"
@@ -213,30 +270,62 @@ def parse_catalogue(ref_base: Path) -> list[RefItem]:
     bucket_re = re.compile(r"^([a-z_]+):\s*$")
     item_re = re.compile(r'^  - title:\s*"(.*)"\s*$')
     field_re = re.compile(r'^    ([a-z_]+):\s*(.*?)\s*$')
-    for raw in cat.read_text(encoding="utf-8", errors="replace").splitlines():
+    # An entry holds no double quote or backslash: an escaped entry would be read with its escapes.
+    topics_re = re.compile(r'^\[\s*(?:"[^"\\]+"(?:\s*,\s*"[^"\\]+")*\s*)?\]$')
+    # 3b313: only LF ends a line (a trailing CR is dropped), as in _parse_state. splitlines()
+    # also split on U+2028, U+2029 and U+0085, which the reference repo's ingest tool
+    # (json.dumps with ensure_ascii=False) leaves unescaped in a title, so a valid title line
+    # was refused.
+    text = cat.read_bytes().decode("utf-8", errors="replace")
+    for raw in (ln.removesuffix("\r") for ln in text.split("\n")):
         if raw.startswith("#") or not raw.strip():
             continue
         m = bucket_re.match(raw)
         if m:
             bucket = m.group(1)
+            # 3b313: a field line between a bucket line and its first item used to be applied
+            # to the previous bucket's last item.
+            cur = None
             continue
         m = item_re.match(raw)
         if m:
             if bucket is None:
                 raise RuntimeError("catalogue format drift: item before bucket")
-            cur = RefItem(bucket=bucket, title=m.group(1),
+            cur = RefItem(bucket=bucket, title=decode_title(m.group(1)),
                           tier=TIER_BY_BUCKET.get(bucket, "unknown"))
             items.append(cur)
             continue
         m = field_re.match(raw)
-        if m and cur is not None:
-            key, val = m.group(1), m.group(2)
-            if key == "path":
-                cur.path = val.strip('"')
-            elif key == "original":
-                cur.original = val.strip('"')
-            elif key == "topics":
-                cur.topics = set(re.findall(r'"([^"]+)"', val))
+        if not m or cur is None:
+            # 3b313: a mis-indented field (a topics line at 3 or 5 spaces) used to be skipped,
+            # leaving that item with no topics and so no candidates.
+            raise RuntimeError(f"catalogue format drift: unrecognized line {raw!r}")
+        key, val = m.group(1), m.group(2)
+        if key in ("path", "original") and val == "null":
+            # 3b313: normalize_topics.py writes a None value as null and the reference validator
+            # accepts a falsy path or original, so null is no value rather than drift.
+            setattr(cur, key, "")
+        elif key in ("path", "original"):
+            # 3b313: these were read with strip('"'), which kept the generators' escapes, so a
+            # file name holding a quote, a backslash or a control character never equalled the
+            # changed path git reported and the item was left out of the --docs delta.
+            q = re.fullmatch(r'"(.*)"', val)
+            if not q:
+                raise RuntimeError(f"catalogue format drift: {key} value {val!r} is not a "
+                                   "double-quoted string")
+            setattr(cur, key, decode_title(q.group(1), key))
+        elif key == "topics":
+            # 3b313: a topics value that is not a list of double-quoted entries used to parse
+            # as no topics (or only its quoted entries), so the item drew no candidates. An
+            # empty list is no topics: the reference generator can write it and the reference
+            # validator accepts it.
+            if not topics_re.match(val):
+                raise RuntimeError(f"catalogue format drift: topics value {val!r} is not a "
+                                   'list of double-quoted entries')
+            cur.topics = set(re.findall(r'"([^"]+)"', val))
+        # Any other [a-z_] field name is ignored on purpose: the generated catalogue carries
+        # metadata fields this tool does not use (23 besides these three on 2026-10-17), and
+        # refusing a new one would stop the audit on a harmless generator change.
     if not items:
         raise RuntimeError("catalogue format drift: zero items parsed")
     return items
@@ -399,16 +488,55 @@ def write_state(path: Path, state: dict[str, tuple[str, str]], ref_head: str,
 
 
 def ref_changed_paths(ref_base: Path, since: str) -> set[str]:
-    out = subprocess.run(["git", "-C", str(ref_base), "diff", "--name-only",
-                          f"{since}..HEAD"], capture_output=True, text=True)
+    # 3b313: -z prints each name raw and NUL-terminated. Without it git C-quotes a name holding a
+    # quote, a backslash or a control character, so it never equalled the decoded catalogue path.
+    # Raw names are UTF-8 bytes (C-quoting kept them ASCII), so decode them as UTF-8 explicitly.
+    out = subprocess.run(["git", "-C", str(ref_base), "diff", "-z", "--name-only",
+                          f"{since}..HEAD"], capture_output=True, encoding="utf-8",
+                         errors="replace")
     if out.returncode != 0:
         raise RuntimeError(f"ref diff failed for {since}: {out.stderr.strip()}")
-    return {ln for ln in out.stdout.splitlines() if ln}
+    return {name for name in out.stdout.split("\0") if name}
 
 
 def item_touched(item: RefItem, changed: set[str]) -> bool:
     return any(p and any(c == p or c.startswith(p) for c in changed)
                for p in (item.path, item.original))
+
+
+def _ref_base_absence(ref_base: Path) -> str:
+    """What was observed at a default reference base that holds no regular catalogue.yml."""
+    try:
+        os.lstat(ref_base)
+    except FileNotFoundError:
+        return "grc_library_ref not present"
+    except OSError as exc:
+        return f"grc_library_ref cannot be examined ({exc.strerror})"
+    try:
+        is_dir = stat.S_ISDIR(os.stat(ref_base).st_mode)
+    except OSError as exc:
+        return f"grc_library_ref is present but cannot be examined ({exc.strerror})"
+    if not is_dir:
+        return "grc_library_ref is present but is not a directory"
+    # 3b313: Path.is_file() read an unexaminable catalogue.yml (an unreadable directory) as
+    # missing on Python 3.12+, so the line named a cause that was not observed.
+    try:
+        os.stat(ref_base / "catalogue.yml")
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        return f"grc_library_ref is present but its catalogue.yml cannot be examined ({exc.strerror})"
+    return "grc_library_ref is present but its catalogue.yml is missing or not a regular file"
+
+
+def _has_regular_catalogue(ref_base: Path) -> bool:
+    """Whether ref_base/catalogue.yml is a regular file (following symlinks); never raises."""
+    # 3b313: Path.is_file() re-raises EACCES on Python 3.11, so the no-op gate could end in a
+    # traceback at an unreadable reference base.
+    try:
+        return stat.S_ISREG(os.stat(ref_base / "catalogue.yml").st_mode)
+    except (OSError, ValueError):
+        return False
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -428,13 +556,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--docs", nargs="+", default=None,
                     help="Per-touch mode: corpus documents to assess.")
     ap.add_argument("--update-state", action="store_true",
-                    help="With --docs: record ref HEAD for the named documents.")
+                    help="With --docs: regenerate the whole state file (hand-written prose "
+                         "is not kept), recording ref HEAD for the named documents.")
     ap.add_argument("--ref-since", default=None,
                     help="New-ingest mode: reference items changed since this SHA.")
     ap.add_argument("--ref-items", nargs="+", default=None,
                     help="New-ingest mode: reference items whose title matches.")
     ap.add_argument("--include-publications", action="store_true")
-    ap.add_argument("--max-candidates-per-doc", type=int, default=10)
+    ap.add_argument("--max-candidates-per-doc", type=int, default=10,
+                    help="Display cap per document in FULL mode and per item in new-ingest "
+                         "mode; counts stay complete. --docs lists every candidate.")
     args = ap.parse_args(argv)
     if args.docs:
         # 3b50b2b: normalize and validate the named documents first. An equivalent spelling
@@ -489,14 +620,16 @@ def main(argv: list[str] | None = None) -> int:
                       "only for intentional adopter-local state.", file=sys.stderr)
                 return 2
 
-    # Adopter graceful-degradation (3.91 (closing PR #1011)): with no reachable reference base (the
-    # DEFAULT ref-base, not an explicit --ref-base override, and no grc_library_ref
-    # sibling holding a catalogue), no-op exit 0 rather than crash, so a bare adopter
-    # clone runs this maintainer-only advisory green. An EXPLICIT --ref-base that is bad
-    # still falls through to parse_catalogue's error (typo guard). For the maintainer, a
+    # Adopter graceful-degradation (3.91 (closing PR #1011)): with no reachable reference base (a
+    # --ref-base equal to the default path, whether or not the flag was given, and no regular
+    # catalogue.yml there), no-op exit 0 rather than crash, so a bare adopter clone runs this
+    # maintainer-only advisory green. A --ref-base other than the
+    # default path that is bad still falls through to parse_catalogue's error (typo guard). For the maintainer, a
     # missing _ref is caught loud at /orch (the 1.19.7 loud gate, closing PR #1007), not silently here.
-    if args.ref_base == DEFAULT_REF_BASE and not (args.ref_base / "catalogue.yml").is_file():
-        print("audit-reference-breadth: grc_library_ref not present; no-op "
+    # 3b313: the no-op line names what was observed; it used to say "not present" also for a present
+    # sibling whose catalogue.yml is missing or not a regular file.
+    if args.ref_base == DEFAULT_REF_BASE and not _has_regular_catalogue(args.ref_base):
+        print(f"audit-reference-breadth: {_ref_base_absence(args.ref_base)}; no-op "
               "(reference-breadth is a maintainer-only advisory, nothing to report).")
         return 0
 

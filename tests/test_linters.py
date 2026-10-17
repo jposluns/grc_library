@@ -18419,6 +18419,78 @@ class AdvisoryAidArgRefusalTests(LinterTestCase):
                 self.assertEqual(rc, 2, err.getvalue())
                 self.assertIn("ERROR:", err.getvalue())
 
+    def test_catalogue_titles_decode_generator_escapes(self) -> None:
+        # 3b313: the reference generators write a quote in a title as \" and a backslash as \\
+        # (ingest.py with json.dumps(ensure_ascii=False), normalize_topics.py by hand); the title
+        # reader kept the escapes, so matching against the real title missed.
+        import contextlib
+        import importlib.util
+        import io
+        import json
+        spec = importlib.util.spec_from_file_location(
+            "acq_gaps_3b313", REPO_ROOT / "tools" / "audit-reference-acquisition-gaps.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-titles-"))
+        self.addCleanup(shutil.rmtree, td)
+        cat = td / "catalogue.yml"
+        titles = ('Quoted "SP 800-53" title', "Back\\slash title", 'Both \\ and " title',
+                  "Tab\tand \N{LINE SEPARATOR} title")
+        for writer, quote in (
+                ("ingest", lambda s: json.dumps(s, ensure_ascii=False)),
+                # The quoting of grc_library_ref/tools/normalize_topics.py q().
+                ("normalize_topics",
+                 lambda s: '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"')):
+            with self.subTest(writer=writer):
+                cat.write_text("standards:\n" + "".join(
+                    f"  - title: {quote(t)}\n    topics: [\"cybersecurity\"]\n" for t in titles),
+                    encoding="utf-8")
+                self.assertEqual(mod.parse_catalogue_titles(td), list(titles))
+        for bad in ('"bad \\x escape"', '"unescaped " quote"', '"trailing \\"'):
+            with self.subTest(bad=bad):
+                cat.write_text(f"standards:\n  - title: {bad}\n", encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError,
+                                            "catalogue format drift: title .* is not a JSON string"):
+                    mod.parse_catalogue_titles(td)
+                err = io.StringIO()
+                with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                    rc = mod.main(["--ref-base", str(td)])
+                self.assertEqual(rc, 2, err.getvalue())
+                self.assertIn("is not a JSON string", err.getvalue())
+
+    def test_catalogue_titles_split_only_at_lf(self) -> None:
+        # 3b313: read_text() turned a raw CR into a line end. normalize_topics.py q() leaves a CR
+        # in a title unescaped, so that title was dropped and its register entry reported as not
+        # held. U+2028, U+2029 and U+0085 also stay inside one title; a trailing CR is dropped.
+        import contextlib
+        import importlib.util
+        import io
+        spec = importlib.util.spec_from_file_location(
+            "acq_gaps_3b313_lf", REPO_ROOT / "tools" / "audit-reference-acquisition-gaps.py")
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        td = Path(tempfile.mkdtemp(prefix="acqgaps-lf-"))
+        self.addCleanup(shutil.rmtree, td)
+        titles = ("Fixture\rISO/IEC 99999 standard", "A\N{LINE SEPARATOR}B",
+                  "C\N{PARAGRAPH SEPARATOR}D", "E\x85F", "Other held title")
+        # The quoting of grc_library_ref/tools/normalize_topics.py q().
+        quote = lambda s: '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
+        (td / "catalogue.yml").write_bytes("standards:\r\n".encode("utf-8") + "".join(
+            f"  - title: {quote(t)}\r\n    topics: [\"cybersecurity\"]\n" for t in titles
+        ).encode("utf-8"))
+        self.assertEqual(mod.parse_catalogue_titles(td), list(titles))
+        register = td / "register.md"
+        register.write_text("## Fixture family\n\n| Standard ID | Version | Issuer | Topic |\n"
+                            "| --- | --- | --- | --- |\n"
+                            "| ISO/IEC 99999 | 2024 | ISO | Fixture topic |\n", encoding="utf-8")
+        mod.CANONICAL_REGISTER = register
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stderr(err), contextlib.redirect_stdout(out):
+            rc = mod.main(["--ref-base", str(td)])
+        self.assertEqual(rc, 0, err.getvalue())
+        self.assertIn("Register entries examined: 1; matched to a held reference item: 1; "
+                      "NOT held (acquisition candidates): 0.", out.getvalue())
+
     def test_valid_section_not_refused(self) -> None:
         # A family the register holds passes the --section check (it may still stop later
         # for an absent reference base, as in CI, but never with the --section refusal).
@@ -21145,6 +21217,307 @@ class ReferenceBreadthStateTests(unittest.TestCase):
                 self.assertEqual(result.stderr, "")
                 self._assert_delta(result)
                 self.assertEqual(self.state.read_bytes(), before)
+
+    def test_unusable_anchor_gets_every_topical_match(self):
+        # 3b313: a row whose SHA git cannot diff from falls back to the full topical set.
+        self.old_sha = "deadbeef0"
+        before = self._seed()
+        result = self._run_tool(self.DOCS[-1], update=False)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("state SHA unusable", result.stdout)
+        self.assertEqual(
+            [line for line in result.stdout.splitlines() if line.startswith("- [")],
+            ["- [authoritative] State fixture changed (`standard.md`; topics ['cybersecurity'])",
+             "- [authoritative] State fixture unchanged (`stable.md`; topics ['cybersecurity'])"])
+        self.assertEqual(self.state.read_bytes(), before)
+
+    def test_full_mode_skips_documents_without_candidates_and_caps_display(self):
+        # 3b313: FULL mode prints no line for a document with no candidates, and shows at most
+        # --max-candidates-per-doc candidates while keeping the count complete.
+        result = self._main("--max-candidates-per-doc", "1")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        section = result.stdout.split("## Per-document enhancement candidates", 1)[1]
+        rows = [line for line in section.splitlines() if line.startswith("- ")]
+        corpus = self.mod.tracked_corpus_md(REPO_ROOT)
+        expected = sorted(
+            rel for rel in corpus
+            if "cybersecurity" in self.mod.doc_topics(
+                rel, (REPO_ROOT / rel).read_text(encoding="utf-8", errors="replace")))
+        self.assertTrue(expected, "positive control: some documents match the fixture topic")
+        self.assertLess(len(expected), len(corpus), "control: some documents have no candidates")
+        self.assertEqual(rows, [f"- {rel} (2): [authoritative] State fixture changed ... plus 1 more"
+                                for rel in expected])
+
+    def test_catalogue_unrecognized_lines_refuse(self):
+        # 3b313: a line the parser does not recognize is refused rather than skipped.
+        good = (self.ref / "catalogue.yml").read_text(encoding="utf-8")
+        self.assertEqual(len(self.mod.parse_catalogue(self.ref)), 2)
+        for bad in ('     topics: ["cybersecurity"]\n', '   topics: ["cybersecurity"]\n',
+                    '  # indented comment\n', 'not a bucket line\n',
+                    # A field line after a new bucket line, before that bucket's first item,
+                    # must not overwrite the previous bucket's last item.
+                    'frameworks:\n    path: "late.md"\n  - title: "Late"\n'):
+            with self.subTest(line=bad):
+                (self.ref / "catalogue.yml").write_text(good + bad, encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, "catalogue format drift: unrecognized line"):
+                    self.mod.parse_catalogue(self.ref)
+        (self.ref / "catalogue.yml").write_text(
+            '    path: "early.md"\n' + good, encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "unrecognized line"):
+            self.mod.parse_catalogue(self.ref)
+        result = self._main("--ref-items", "State")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("ERROR: catalogue format drift: unrecognized line", result.stderr)
+        # The documented choice: an unknown [a-z_] field name is ignored; any other name is not.
+        (self.ref / "catalogue.yml").write_text(
+            'standards:\n  - title: "Gap"\n    unknown_field: "x"\n    topics: ["cybersecurity"]\n',
+            encoding="utf-8")
+        items = self.mod.parse_catalogue(self.ref)
+        self.assertEqual([(item.title, item.topics) for item in items], [("Gap", {"cybersecurity"})])
+        (self.ref / "catalogue.yml").write_text(
+            'standards:\n  - title: "Gap"\n    Unknown-2: "x"\n    topics: ["cybersecurity"]\n',
+            encoding="utf-8")
+        with self.assertRaisesRegex(RuntimeError, "unrecognized line"):
+            self.mod.parse_catalogue(self.ref)
+
+    def test_catalogue_topics_must_be_quoted_entries(self):
+        # 3b313: a topics value without double-quoted entries used to parse as no topics (or as
+        # only its quoted entries), so the item silently drew no candidates.
+        for value in ('[cybersecurity]', 'cybersecurity', '["cybersecurity", privacy]',
+                      '"cybersecurity"', '', '[,]', '[""]', '["cyber\\\\security"]',
+                      '["cyber\\"security"]'):
+            with self.subTest(value=value):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: "T"\n    topics: {value}\n', encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, "catalogue format drift: topics value"):
+                    self.mod.parse_catalogue(self.ref)
+        result = self._main("--ref-items", "T")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertIn("ERROR: catalogue format drift: topics value", result.stderr)
+        # An empty list is no topics: the reference generator (normalize_topics.py) can write it
+        # and the reference validator accepts it.
+        for value, topics in (('[]', set()), ('[ ]', set()),
+                              ('["cybersecurity"]', {"cybersecurity"}),
+                              ('["cybersecurity", "privacy"]', {"cybersecurity", "privacy"})):
+            with self.subTest(value=value):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: "T"\n    topics: {value}\n', encoding="utf-8")
+                self.assertEqual([item.topics for item in self.mod.parse_catalogue(self.ref)],
+                                 [topics])
+
+    def test_catalogue_lines_end_only_at_lf(self):
+        # 3b313: str.splitlines() also split a title at U+2028, U+2029 or U+0085, which the
+        # reference ingest tool's json.dumps(ensure_ascii=False) leaves unescaped, so a valid
+        # title line was refused. A trailing CR is still dropped.
+        for sep in ("\N{LINE SEPARATOR}", "\N{PARAGRAPH SEPARATOR}", "\x85"):
+            with self.subTest(sep=ascii(sep)):
+                (self.ref / "catalogue.yml").write_bytes(
+                    f'standards:\n  - title: "A{sep}B"\n    path: "a.md"\n'
+                    f'    topics: ["cybersecurity"]\n'.encode("utf-8"))
+                items = self.mod.parse_catalogue(self.ref)
+                self.assertEqual([(i.title, i.path, i.topics) for i in items],
+                                 [(f"A{sep}B", "a.md", {"cybersecurity"})])
+        (self.ref / "catalogue.yml").write_bytes(
+            b'standards:\r\n  - title: "C"\r\n    path: "c.md"\r\n    topics: ["cybersecurity"]\r\n')
+        items = self.mod.parse_catalogue(self.ref)
+        self.assertEqual([(i.title, i.path, i.topics) for i in items],
+                         [("C", "c.md", {"cybersecurity"})])
+
+    @staticmethod
+    def _normalize_topics_quote(s):
+        # The quoting of grc_library_ref/tools/normalize_topics.py q().
+        return '"' + str(s).replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+    def test_catalogue_titles_decode_generator_escapes(self):
+        # 3b313: the reference generators write a quote in a title as \" and a backslash as \\
+        # (ingest.py with json.dumps(ensure_ascii=False), normalize_topics.py by hand); the parser
+        # kept the escapes, so an alias keyed by the real title silently missed.
+        import json
+        titles = ('Quoted "SP 800-53" title', "Back\\slash title", 'Both \\ and " title',
+                  "Tab\tand \N{LINE SEPARATOR} title")
+        for title in titles:
+            for writer in ("ingest", "normalize_topics"):
+                quoted = (json.dumps(title, ensure_ascii=False) if writer == "ingest"
+                          else self._normalize_topics_quote(title))
+                with self.subTest(title=ascii(title), writer=writer):
+                    (self.ref / "catalogue.yml").write_text(
+                        f'standards:\n  - title: {quoted}\n    path: "a.md"\n'
+                        f'    topics: ["cybersecurity"]\n', encoding="utf-8")
+                    items = self.mod.parse_catalogue(self.ref)
+                    self.assertEqual([i.title for i in items], [title])
+                    self.assertIn("FIXTUREKEY",
+                                  self.mod.derive_keys(items[0], {title: ["FIXTUREKEY"]}))
+        aliases = self.td / "aliases.json"
+        aliases.write_text(json.dumps({titles[0]: ["FIXTUREKEY"]}), encoding="utf-8")
+        (self.ref / "catalogue.yml").write_text(
+            f'standards:\n  - title: {json.dumps(titles[0], ensure_ascii=False)}\n'
+            f'    path: "a.md"\n    topics: ["cybersecurity"]\n', encoding="utf-8")
+        result = self._main("--aliases", str(aliases), "--ref-items", "Quoted")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn(f"### [authoritative] {titles[0]}\n\nKeys: ['FIXTUREKEY', '800-53']",
+                      result.stdout)
+        # A title that does not decode as a JSON string is refused (exit 2).
+        for bad in ('"bad \\x escape"', '"unescaped " quote"', '"trailing \\"'):
+            with self.subTest(bad=bad):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: {bad}\n    topics: ["cybersecurity"]\n',
+                    encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError,
+                                            "catalogue format drift: title .* is not a JSON string"):
+                    self.mod.parse_catalogue(self.ref)
+                result = self._main("--ref-items", "x")
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertIn("is not a JSON string", result.stderr)
+
+    def test_delta_offers_items_with_generator_written_file_names(self):
+        # 3b313: path and original were read with strip('"'), keeping the generators' escapes,
+        # and compared with `git diff --name-only`, which C-quotes a name holding a quote or a
+        # tab; neither side was the raw name, so a changed item was left out of the --docs delta.
+        import json
+        quoted, tabbed = 'q"uote.md', "tab\toriginal.pdf"
+        for writer, quote in (("ingest", json.dumps), ("normalize_topics", self._normalize_topics_quote)):
+            with self.subTest(writer=writer):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: "Quoted path"\n    path: {quote(quoted)}\n'
+                    '    topics: ["cybersecurity"]\n'
+                    '  - title: "Tab original"\n    path: "plain.md"\n'
+                    f'    original: {quote(tabbed)}\n    topics: ["cybersecurity"]\n'
+                    '  - title: "Unchanged"\n    path: "stable.md"\n    topics: ["cybersecurity"]\n',
+                    encoding="utf-8")
+                for name in (quoted, tabbed, "plain.md"):
+                    (self.ref / name).write_text(f"{writer} one\n", encoding="utf-8")
+                self._git("add", ".")
+                self._git("commit", "-qm", f"{writer} names")
+                self.old_sha = self._git("rev-parse", "--short=12", "HEAD")
+                for name in (quoted, tabbed):
+                    (self.ref / name).write_text(f"{writer} two\n", encoding="utf-8")
+                self._git("add", ".")
+                self._git("commit", "-qm", f"{writer} update")
+                self.assertEqual([(i.path, i.original) for i in self.mod.parse_catalogue(self.ref)],
+                                 [(quoted, ""), ("plain.md", tabbed), ("stable.md", "")])
+                self.assertEqual(self.mod.ref_changed_paths(self.ref, self.old_sha), {quoted, tabbed})
+                before = self._seed()
+                result = self._run_tool(self.DOCS[-1], update=False)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(f"delta since ref {self.old_sha}: 2 item(s) added/updated",
+                              result.stdout)
+                self.assertEqual(
+                    [line for line in result.stdout.splitlines() if line.startswith("- [")],
+                    [f"- [authoritative] Quoted path (`{quoted}`; topics ['cybersecurity'])",
+                     "- [authoritative] Tab original (`plain.md`; topics ['cybersecurity'])"])
+                self.assertEqual(self.state.read_bytes(), before)
+        # A path or original value that is not one double-quoted string, or does not decode, is
+        # refused (exit 2) rather than kept with its quotes or escapes.
+        for key in ("path", "original"):
+            for bad in ("plain.md", '"plain.md', '"bad \\x escape"', '"unescaped " quote"'):
+                with self.subTest(key=key, bad=bad):
+                    (self.ref / "catalogue.yml").write_text(
+                        f'standards:\n  - title: "T"\n    {key}: {bad}\n'
+                        '    topics: ["cybersecurity"]\n', encoding="utf-8")
+                    with self.assertRaisesRegex(RuntimeError, f"catalogue format drift: {key} "):
+                        self.mod.parse_catalogue(self.ref)
+                    result = self._main("--ref-items", "T")
+                    self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                    self.assertIn(f"ERROR: catalogue format drift: {key} ", result.stderr)
+
+    def test_default_ref_base_no_op_names_what_was_observed(self):
+        # 3b313: the no-op line said "grc_library_ref not present" also for a present sibling
+        # whose catalogue.yml is missing or not a regular file. Every case still exits 0.
+        from contextlib import redirect_stdout, redirect_stderr
+        from unittest.mock import patch
+        import io
+        base = self.td / "grc_library_ref"
+        cases = (
+            ("absent", lambda: None, "grc_library_ref not present; no-op"),
+            ("file", lambda: base.write_text("x\n", encoding="utf-8"),
+             "grc_library_ref is present but is not a directory; no-op"),
+            ("dangling link", lambda: base.symlink_to(self.td / "missing-ref"),
+             "grc_library_ref is present but cannot be examined ("),
+            ("no catalogue", base.mkdir,
+             "grc_library_ref is present but its catalogue.yml is missing or not a regular file; no-op"),
+            ("catalogue is a directory", lambda: (base / "catalogue.yml").mkdir(parents=True),
+             "grc_library_ref is present but its catalogue.yml is missing or not a regular file; no-op"),
+        )
+        for label, setup, expect in cases:
+            with self.subTest(case=label):
+                setup()
+                out, err = io.StringIO(), io.StringIO()
+                with patch.object(self.mod, "DEFAULT_REF_BASE", base), \
+                        patch.dict(os.environ, self._tool_environment(), clear=True), \
+                        redirect_stdout(out), redirect_stderr(err):
+                    rc = self.mod.main(["--state", str(self.state)])
+                self.assertEqual(rc, 0, out.getvalue() + err.getvalue())
+                self.assertEqual(err.getvalue(), "")
+                self.assertTrue(out.getvalue().startswith(f"audit-reference-breadth: {expect}"),
+                                out.getvalue())
+                if base.is_symlink() or base.is_file():
+                    base.unlink()
+                elif base.is_dir():
+                    shutil.rmtree(base)
+
+    @unittest.skipIf(hasattr(os, "geteuid") and os.geteuid() == 0,
+                     "mode 000 does not deny access to root")
+    def test_default_ref_base_unreadable_catalogue_is_not_reported_missing(self):
+        # 3b313: at an unreadable (mode 000) default reference base holding a regular catalogue.yml,
+        # Path.is_file() returned False on Python 3.12+ and the no-op line said the catalogue.yml was
+        # missing or not a regular file, which was not observed; on Python 3.11 is_file() re-raises
+        # EACCES, so the no-op gate could end in a traceback. Both cases still exit 0.
+        from contextlib import redirect_stdout, redirect_stderr
+        from pathlib import Path
+        from unittest.mock import patch
+        import io
+        base = self.td / "grc_library_ref"
+        base.mkdir()
+        (base / "catalogue.yml").write_text(
+            'standards:\n  - title: "T"\n    topics: ["cybersecurity"]\n', encoding="utf-8")
+        os.chmod(base, 0)
+        self.addCleanup(os.chmod, base, 0o700)
+        expect = "grc_library_ref is present but its catalogue.yml cannot be examined ("
+
+        def raise_eacces(self):
+            raise PermissionError(13, "Permission denied")
+
+        for label, is_file in (("unreadable", Path.is_file), ("is_file raises (3.11)", raise_eacces)):
+            with self.subTest(case=label):
+                out, err = io.StringIO(), io.StringIO()
+                with patch.object(self.mod, "DEFAULT_REF_BASE", base), \
+                        patch.object(Path, "is_file", is_file), \
+                        patch.dict(os.environ, self._tool_environment(), clear=True), \
+                        redirect_stdout(out), redirect_stderr(err):
+                    rc = self.mod.main(["--state", str(self.state)])
+                self.assertEqual(rc, 0, out.getvalue() + err.getvalue())
+                self.assertEqual(err.getvalue(), "")
+                self.assertTrue(out.getvalue().startswith(f"audit-reference-breadth: {expect}"),
+                                out.getvalue())
+                self.assertIn("; no-op", out.getvalue())
+
+    def test_catalogue_null_path_and_original_are_no_value(self):
+        # 3b313: normalize_topics.py emit_val writes null for a None value and the reference
+        # validator accepts a falsy path or original; the parser refused null as format drift.
+        for key in ("path", "original"):
+            with self.subTest(key=key):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: "T"\n    {key}: null\n'
+                    '    topics: ["cybersecurity"]\n', encoding="utf-8")
+                items = self.mod.parse_catalogue(self.ref)
+                self.assertEqual([(i.title, i.path, i.original, i.topics) for i in items],
+                                 [("T", "", "", {"cybersecurity"})])
+                result = self._main("--ref-items", "T")
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn("### [authoritative] T\n", result.stdout)
+        # Only the bare null is no value; a quoted "null" is the file name null.
+        (self.ref / "catalogue.yml").write_text(
+            'standards:\n  - title: "T"\n    path: "null"\n    original: null\n'
+            '    topics: ["cybersecurity"]\n', encoding="utf-8")
+        self.assertEqual([(i.path, i.original) for i in self.mod.parse_catalogue(self.ref)],
+                         [("null", "")])
+        for bad in ("Null", "~", "null x"):
+            with self.subTest(bad=bad):
+                (self.ref / "catalogue.yml").write_text(
+                    f'standards:\n  - title: "T"\n    original: {bad}\n'
+                    '    topics: ["cybersecurity"]\n', encoding="utf-8")
+                with self.assertRaisesRegex(RuntimeError, "catalogue format drift: original "):
+                    self.mod.parse_catalogue(self.ref)
 
 
 class QuickGuardSeparatorTests(LinterTestCase):
