@@ -8,9 +8,9 @@ printing its report (2 only on internal or usage error, including a refused --do
 missing, out-of-tree, empty, or outside the scanned corpus set, 3b50b2b; a reference
 catalogue that fails the format checks described at the end, or that is missing or not a
 regular file under a --ref-base other than the default path (under the default path, given
-or not, a catalogue.yml that is missing or not a regular file is the no-op exit 0 described
-below); or, with --update-state, a state-file read/write error, an unloaded
-state-like row, or a change to the file during the run; a truncated-pipe consumer
+or not, a catalogue.yml that cannot be examined, is missing or is not a regular file is the
+no-op exit 0 described below); or, with --update-state, a state-file read/write error,
+an unloaded state-like row, or a change to the file during the run; a truncated-pipe consumer
 such as ``| head`` terminates it via SIGPIPE, as normal for a command-line tool).
 In CI the linter regression suite runs it against fixture reference repos it builds (and,
 in-process, with DEFAULT_REF_BASE patched to fixture paths), and
