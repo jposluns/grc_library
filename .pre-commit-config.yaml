@@ -721,3 +721,10 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: lint-startup-character-ceiling
+        name: Startup character and core-line ceiling audit
+        entry: python3 tools/lint-startup-character-ceiling.py
+        language: system
+        pass_filenames: false
+        always_run: true
+        verbose: true

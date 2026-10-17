@@ -73,8 +73,13 @@ CLAUDE_MD = REPO_ROOT / ".claude" / "CLAUDE.md"
 # 458 lines + 10 and 244289 + 1000; restored clauses since then still fit); downward ratchet continues.
 # 3b304 W1-b lowers the startup character ceiling 245289 -> 233300 (the overlay tails leave the
 # generated compatibility rule; measured 232696 plus a reserve of at least 600, rounded up to 50).
+# Consumer: gate 106 (tools/lint-startup-character-ceiling.py) reads CLAUDE_MD, CEILING,
+# STARTUP_CHARACTER_CEILING and STARTUP_HEADROOM_WARNING by name, with line_count(),
+# evaluate() and census(); renaming any of them makes gate 106 exit 2.
 CEILING = 468
 STARTUP_CHARACTER_CEILING = 233300  # 3b304 W1-b; final backlog goal remains 150000
+# Startup headroom (ceiling minus measured characters) below which D10 and gate 106 warn.
+STARTUP_HEADROOM_WARNING = 250
 
 
 
@@ -230,9 +235,9 @@ def run() -> int:
     print(msg, file=sys.stderr if code else sys.stdout)
     print(json.dumps(totals, sort_keys=True))
     headroom = STARTUP_CHARACTER_CEILING - totals["startup"]["characters"]
-    if headroom < 250:
+    if headroom < STARTUP_HEADROOM_WARNING:
         print(f"WARNING: D10 startup headroom is {headroom} characters "
-              "(under 250); preserve clauses when making room.")
+              f"(under {STARTUP_HEADROOM_WARNING}); preserve clauses when making room.")
     if totals["startup"]["characters"] > STARTUP_CHARACTER_CEILING:
         print(f"FAIL: startup character ceiling {STARTUP_CHARACTER_CEILING} exceeded")
         code = 1

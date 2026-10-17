@@ -16,7 +16,9 @@
 #      inputs are not available in tools/run_all_audits.sh (the advisory D8
 #      and the size-only D10 read working-tree state and take no base ref);
 #      they run
-#      only here and in quality.yml.
+#      only here and in quality.yml. D10's two checks (the core-line and
+#      startup character ceilings) also run as gate 106 in run_all_audits.sh
+#      (tools/lint-startup-character-ceiling.py).
 #   2. The history-aware gates that examine each file's commit graph
 #      (gate 45 TODO staleness, gate 40 version-bump-recency, gate 31
 #      document-date-staleness). These ALSO run in run_all_audits.sh;

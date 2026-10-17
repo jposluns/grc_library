@@ -30787,6 +30787,7 @@ class CorpusManagementScanScopeTests(unittest.TestCase):
         lint-skill-derives-from.py
         lint-skill-internal-refs.py
         lint-skill-verdict-carrier-completeness.py
+        lint-startup-character-ceiling.py
         lint-structure.py
         lint-todo-index-reference-parity.py
         lint-todo-list-tag.py
@@ -38885,7 +38886,8 @@ class ClausePreservationTests(unittest.TestCase):
             if headroom < 0:
                 self.assertLess(output.index("WARNING:"), output.index("FAIL: startup"))
         source = Path(mod.__file__).read_text(encoding="utf-8")
-        warning_start = source.index("    if headroom < 250:")
+        self.assertEqual(mod.STARTUP_HEADROOM_WARNING, 250)
+        warning_start = source.index("    if headroom < STARTUP_HEADROOM_WARNING:")
         ceiling_start = source.index('    if totals["startup"]["characters"] >', warning_start)
         return_start = source.index("    return code", ceiling_start)
         reordered = (source[:warning_start] + source[ceiling_start:return_start]
@@ -38894,8 +38896,9 @@ class ClausePreservationTests(unittest.TestCase):
         code, output = run(mod, -1, 0)
         self.assertEqual(code, 1)
         self.assertLess(output.index("FAIL: startup"), output.index("WARNING:"))
-        self.assertIn("if headroom < 250:", source)
-        exec(compile(source.replace("if headroom < 250:", "if headroom <= 250:"),
+        self.assertIn("if headroom < STARTUP_HEADROOM_WARNING:", source)
+        exec(compile(source.replace("if headroom < STARTUP_HEADROOM_WARNING:",
+                                    "if headroom <= STARTUP_HEADROOM_WARNING:"),
                      mod.__file__, "exec"), mod.__dict__)
         code, output = run(mod, 250, 0)
         self.assertEqual(code, 0)
@@ -39514,6 +39517,301 @@ class ClausePreservationTests(unittest.TestCase):
         self.check(2, "REBASED must use a different path")
         self.check(1, "texts are identical; use MOVED", tool=self.mutant(
             'if state != "KEPT" and row["destination"] == path:', "if False:"))
+
+
+class StartupCharacterCeilingGateTests(unittest.TestCase):
+    """Gate 106 runs both D10 halves with D10's own counts, ceilings and threshold."""
+
+    GATE = REPO_ROOT / "tools" / "lint-startup-character-ceiling.py"
+    D10 = REPO_ROOT / "tools" / "check-claude-md-size.py"
+
+    @staticmethod
+    def load(path, name):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(name, path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def fake_d10(self, characters=0, ceiling=1000, lines=1, line_ceiling=10, warn=250,
+                 error=None, totals=None, drop=()):
+        """A stand-in for D10's module: mocked counts and ceilings, D10's real evaluate()."""
+        import types
+        real = self.load(self.D10, "_d10_for_gate106")
+
+        def census(root):
+            if error is not None:
+                raise error
+            if totals is not None:
+                return totals
+            return {"startup": {"characters": characters, "files": 3}}
+
+        values = dict(census=census, line_count=lambda path: lines, evaluate=real.evaluate,
+                      CLAUDE_MD=Path(".claude/CLAUDE.md"), CEILING=line_ceiling,
+                      STARTUP_CHARACTER_CEILING=ceiling, STARTUP_HEADROOM_WARNING=warn)
+        for key in drop:
+            del values[key]
+        return types.SimpleNamespace(**values)
+
+    def run_gate(self, fake=None, load_error=None, token=None, **kwargs):
+        """Run gate 106's main() with _d10 patched (None fake and no load_error: real
+        D10). GRC_RUNNER_ECHO_TOKEN is token, or unset when None: run_all_audits.sh
+        sets it for gate 36, which runs this suite."""
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load(self.GATE, "_gate106")
+        env = {k: v for k, v in os.environ.items() if k != "GRC_RUNNER_ECHO_TOKEN"}
+        if token is not None:
+            env["GRC_RUNNER_ECHO_TOKEN"] = token
+        if load_error is not None:
+            d10 = patch.object(mod, "_d10", side_effect=load_error)
+        elif fake is not None or kwargs:
+            d10 = patch.object(mod, "_d10", return_value=fake or self.fake_d10(**kwargs))
+        else:
+            d10 = contextlib.nullcontext()
+        out, err = io.StringIO(), io.StringIO()
+        with d10, patch.dict(os.environ, env, clear=True), \
+                contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = mod.main()
+        return code, out.getvalue(), err.getvalue()
+
+    def test_over_character_ceiling_fails_with_d10_message(self):
+        code, out, _ = self.run_gate(characters=1001)
+        self.assertEqual(code, 1)
+        self.assertIn("FAIL: startup character ceiling 1000 exceeded", out)
+        self.assertIn("headroom -1", out)
+        self.assertIn("WARN: startup headroom is -1 characters", out)
+
+    def test_at_and_under_ceiling_pass_with_headroom_and_warn_below_threshold(self):
+        for characters, headroom, warned in ((1000, 0, True), (837, 163, True),
+                                             (751, 249, True), (750, 250, False)):
+            with self.subTest(characters=characters):
+                code, out, _ = self.run_gate(characters=characters)
+                self.assertEqual(code, 0, out)
+                self.assertIn(f"OK: {characters} startup characters in 3 files, "
+                              f"ceiling 1000, headroom {headroom}.", out)
+                self.assertEqual(f"WARN: startup headroom is {headroom} characters "
+                                 "(under 250" in out, warned, out)
+
+    def test_warning_threshold_is_d10s(self):
+        for warn, warned in ((163, False), (164, True)):
+            code, out, _ = self.run_gate(characters=837, warn=warn)
+            self.assertEqual(code, 0, out)
+            self.assertEqual(f"(under {warn}," in out, warned, out)
+
+    def test_line_ceiling_half_uses_d10_evaluate(self):
+        code, out, _ = self.run_gate(lines=11, line_ceiling=10)
+        self.assertEqual(code, 1)
+        self.assertIn("FAIL: .claude/CLAUDE.md is 11 lines, over the 10-line ceiling", out)
+        self.assertIn("OK: 0 startup characters", out)
+        code, out, _ = self.run_gate(lines=10, line_ceiling=10)
+        self.assertEqual(code, 0, out)
+        self.assertIn("D10 OK: .claude/CLAUDE.md is 10 lines (ceiling 10).", out)
+
+    def test_same_count_against_two_ceilings_changes_verdict(self):
+        # One mocked count, two mocked ceilings: the verdict follows the ceiling
+        # D10 supplies, so a hard-coded ceiling in the gate cannot pass both.
+        self.assertEqual(self.run_gate(characters=1000, ceiling=1000)[0], 0)
+        self.assertEqual(self.run_gate(characters=1000, ceiling=999)[0], 1)
+        self.assertEqual(self.run_gate(lines=460, line_ceiling=468)[0], 0)
+        self.assertEqual(self.run_gate(lines=460, line_ceiling=459)[0], 1)
+
+    def test_census_error_exits_2(self):
+        code, _, err = self.run_gate(error=ValueError("symlink in rule tree: x"))
+        self.assertEqual(code, 2)
+        self.assertIn("symlink in rule tree", err)
+
+    def test_d10_load_and_read_errors_exit_2(self):
+        # A renamed D10 constant or function, a missing census key, or a D10 that
+        # does not parse is a load error (2), never the over-ceiling code (1).
+        for name in ("CEILING", "STARTUP_CHARACTER_CEILING", "STARTUP_HEADROOM_WARNING",
+                     "census", "evaluate", "line_count", "CLAUDE_MD"):
+            with self.subTest(drop=name):
+                code, _, err = self.run_gate(drop=(name,))
+                self.assertEqual(code, 2)
+                self.assertIn("AttributeError", err)
+        for totals in ({}, {"startup": {"characters": 1}}, {"startup": {"files": 1}}):
+            with self.subTest(totals=totals):
+                code, _, err = self.run_gate(totals=totals)
+                self.assertEqual(code, 2)
+                self.assertIn("KeyError", err)
+        code, _, err = self.run_gate(load_error=SyntaxError("invalid syntax"))
+        self.assertEqual(code, 2)
+        self.assertIn("SyntaxError", err)
+
+    def test_d10_import_errors_exit_2(self):
+        # A D10 that fails to import, or raises at its top level, cannot be read:
+        # exit 2, never the over-ceiling code (1) or an uncaught traceback.
+        for error in (ModuleNotFoundError("No module named 'gone'"),
+                      ImportError("cannot import name 'x'"),
+                      NameError("name 'y' is not defined")):
+            with self.subTest(error=type(error).__name__):
+                code, out, err = self.run_gate(load_error=error)
+                self.assertEqual(code, 2)
+                self.assertIn(type(error).__name__, err)
+                self.assertEqual(out, "")
+
+    def test_d10_evaluate_signature_change_exits_2(self):
+        fake = self.fake_d10()
+        fake.evaluate = lambda count: (0, "D10 OK")
+        code, out, err = self.run_gate(fake=fake)
+        self.assertEqual(code, 2)
+        self.assertIn("TypeError", err)
+        self.assertEqual(out, "")
+
+    def test_non_int_census_or_constant_exits_2(self):
+        # A non-int count or constant is unreadable D10 output: exit 2, checked
+        # before any verdict line is printed.
+        cases = [dict(totals={"startup": {"characters": "837", "files": 3}}),
+                 dict(totals={"startup": {"characters": 837.0, "files": 3}}),
+                 dict(totals={"startup": {"characters": 837, "files": None}}),
+                 dict(totals={"startup": {"characters": True, "files": 3}}),
+                 dict(ceiling="1000"), dict(warn=250.0)]
+        for kwargs in cases:
+            with self.subTest(**{k: repr(v) for k, v in kwargs.items()}):
+                code, out, err = self.run_gate(**kwargs)
+                self.assertEqual(code, 2)
+                self.assertIn("TypeError", err)
+                self.assertEqual(out, "")
+
+    def test_non_int_line_count_or_line_ceiling_exits_2(self):
+        # The core-line count and CEILING are int-checked before evaluate() is
+        # called: a float or bool exits 2, never a verdict from evaluate().
+        cases = [dict(lines=11.0), dict(lines=True), dict(lines=460.0, line_ceiling=468),
+                 dict(line_ceiling=10.0), dict(line_ceiling=True),
+                 dict(lines=11, line_ceiling=False)]
+        for kwargs in cases:
+            with self.subTest(**{k: repr(v) for k, v in kwargs.items()}):
+                code, out, err = self.run_gate(**kwargs)
+                self.assertEqual(code, 2)
+                self.assertIn("TypeError", err)
+                self.assertEqual(out, "")
+
+    def test_evaluate_code_not_0_or_1_exits_2(self):
+        # evaluate()'s code must be the int 0 or 1; anything else is unreadable
+        # D10 output (exit 2), checked before any verdict line is printed.
+        for bad in (2, -1, True, False, 0.0, 1.0, "1", None):
+            with self.subTest(code=repr(bad)):
+                fake = self.fake_d10()
+                fake.evaluate = lambda count, ceiling, bad=bad: (bad, "D10 OK")
+                code, out, err = self.run_gate(fake=fake)
+                self.assertEqual(code, 2)
+                self.assertIn("TypeError", err)
+                self.assertEqual(out, "")
+
+    def test_evaluate_message_not_str_exits_2(self):
+        # evaluate()'s message must be a str; None is unreadable D10 output
+        # (exit 2), checked before any verdict line is printed.
+        fake = self.fake_d10()
+        fake.evaluate = lambda count, ceiling: (0, None)
+        code, out, err = self.run_gate(fake=fake)
+        self.assertEqual(code, 2)
+        self.assertIn("TypeError", err)
+        self.assertEqual(out, "")
+
+    def test_d10_top_level_system_exit_exits_2(self):
+        # A D10 that calls sys.exit() while loading must not end the gate with
+        # D10's code (0 would pass silently): exit 2.
+        for exit_code in (0, 1, None, "stop"):
+            with self.subTest(load_exit=repr(exit_code)):
+                code, out, err = self.run_gate(load_error=SystemExit(exit_code))
+                self.assertEqual(code, 2)
+                self.assertIn("SystemExit", err)
+                self.assertEqual(out, "")
+        # The real loader on a D10 file whose top level exits 0.
+        import contextlib
+        from unittest.mock import patch
+        mod = self.load(self.GATE, "_gate106_sysexit")
+        with tempfile.TemporaryDirectory() as tmp:
+            d10 = Path(tmp) / "check-claude-md-size.py"
+            d10.write_text("import sys\nsys.exit(0)\n", encoding="utf-8")
+            out, err = io.StringIO(), io.StringIO()
+            with patch.object(mod, "D10_PATH", d10), \
+                    contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                code = mod.main()
+        self.assertEqual(code, 2)
+        self.assertIn("SystemExit", err.getvalue())
+        self.assertEqual(out.getvalue(), "")
+
+    def test_refuses_arguments(self):
+        # As gate 72 does: any argument is refused (exit 2) before the check runs.
+        for argv in (["--bogus"], ["extra"], ["--"]):
+            with self.subTest(argv=argv):
+                r = subprocess.run([sys.executable, str(self.GATE), *argv],
+                                   capture_output=True, text=True, cwd=REPO_ROOT)
+                self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+                self.assertIn("ERROR: ", r.stderr)
+                self.assertEqual(r.stdout, "")
+
+    def test_runner_echo_marker_only_with_token(self):
+        mod = self.load(self.GATE, "_gate106_marker")
+        cadence = self.load(REPO_ROOT / "tools" / "lint-citation-currency-cadence.py",
+                            "_cadence_marker_106")
+        self.assertEqual(mod.RUNNER_ECHO_MARKER, cadence.RUNNER_ECHO_MARKER)
+        self.assertEqual(mod.RUNNER_ECHO_TOKEN_ENV, cadence.RUNNER_ECHO_TOKEN_ENV)
+        _, out, _ = self.run_gate(characters=837, token="0f1e2d3c")
+        self.assertEqual(out.splitlines()[0], mod.RUNNER_ECHO_MARKER + " 0f1e2d3c")
+        for token in (None, ""):
+            _, out, _ = self.run_gate(characters=837, token=token)
+            self.assertNotIn("runner-echo", out)
+
+    def test_run_gate_shows_warn_line_on_a_pass(self):
+        # The shipped run_gate body hides a passing gate's output but shows gate
+        # 106's WARN line, because the gate prints the marker with the token.
+        import shlex
+        src = (REPO_ROOT / "tools/run_all_audits.sh").read_text(encoding="utf-8")
+        start = src.index("run_gate() {")
+        func = src[start:src.index("\n}\n", start) + 3]
+        stub = (
+            "import importlib.util, sys, types\n"
+            "def load(p):\n"
+            "    s = importlib.util.spec_from_file_location('m', p)\n"
+            "    m = importlib.util.module_from_spec(s); s.loader.exec_module(m); return m\n"
+            f"gate, real = load({str(self.GATE)!r}), load({str(self.D10)!r})\n"
+            "gate._d10 = lambda: types.SimpleNamespace(\n"
+            "    census=lambda root: {'startup': {'characters': int(sys.argv[1]), 'files': 3}},\n"
+            "    line_count=lambda p: 1, evaluate=real.evaluate, CLAUDE_MD=None, CEILING=10,\n"
+            "    STARTUP_CHARACTER_CEILING=1000, STARTUP_HEADROOM_WARNING=250)\n"
+            "sys.exit(gate.main())\n")
+        body = "".join(f"run_gate G{n} {shlex.quote(sys.executable)} -c {shlex.quote(stub)} {n}\n"
+                       for n in (837, 750))
+        script = "set -u\nTOTAL=0\nFAILED=0\nFAILED_LIST=()\nFAIL_FAST=0\n" + func + body
+        env = {k: v for k, v in os.environ.items() if k != "GRC_RUNNER_ECHO_TOKEN"}
+        r = subprocess.run(["bash", "-c", script], capture_output=True, text=True, env=env)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.count("... OK"), 2, r.stdout)
+        self.assertEqual(r.stdout.count("      WARN: startup headroom is"), 1, r.stdout)
+        self.assertIn("      WARN: startup headroom is 163 characters (under 250", r.stdout)
+        self.assertLess(r.stdout.index("WARN:"), r.stdout.index("G750"))
+        for hidden in ("OK: 837", "D10 OK", "runner-echo"):
+            self.assertNotIn(hidden, r.stdout)
+
+    def test_reports_real_d10_census_and_line_count(self):
+        # Unmocked: gate 106 reports exactly what D10's own census and line count
+        # measure in this checkout, against D10's own ceilings.
+        d10 = self.load(self.D10, "_d10_real")
+        characters = d10.census(REPO_ROOT)["startup"]["characters"]
+        lines = d10.line_count(d10.CLAUDE_MD)
+        headroom = d10.STARTUP_CHARACTER_CEILING - characters
+        code, out, err = self.run_gate()
+        self.assertEqual(err, "")
+        # "OK: N ..." on a pass, "exceeded (N ..." on a fail.
+        self.assertRegex(out, rf"[ (]{characters} startup characters in ")
+        self.assertIn(f"ceiling {d10.STARTUP_CHARACTER_CEILING}, headroom {headroom}", out)
+        self.assertIn(d10.evaluate(lines, d10.CEILING)[1], out)
+        self.assertEqual("WARN: startup headroom" in out,
+                         headroom < d10.STARTUP_HEADROOM_WARNING)
+        self.assertEqual(code, int(lines > d10.CEILING
+                                   or characters > d10.STARTUP_CHARACTER_CEILING))
+
+    def test_uses_d10_names_and_defines_no_ceiling(self):
+        source = self.GATE.read_text(encoding="utf-8")
+        for name in ("d10.STARTUP_CHARACTER_CEILING", "d10.census(REPO_ROOT)", "d10.CEILING",
+                     "d10.evaluate(", "d10.line_count(d10.CLAUDE_MD)",
+                     "d10.STARTUP_HEADROOM_WARNING"):
+            self.assertIn(name, source)
+        self.assertNotRegex(source, r"(CEILING|STARTUP_HEADROOM_WARNING)\s*=")
+        self.assertNotRegex(source, r"\b(250|468|233300)\b")
 
 
 class RepoRelativeDefaultPathTests(unittest.TestCase):
