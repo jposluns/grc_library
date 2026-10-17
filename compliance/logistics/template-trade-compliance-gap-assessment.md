@@ -2,7 +2,7 @@
 
 **Document Title:** Trade Compliance Programme Gap Assessment Template\
 **Document Type:** Template\
-**Version:** 1.0.6\
+**Version:** 1.0.7\
 **Date:** 2026-10-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -43,7 +43,7 @@ Complete the following fields for each gap assessment.
 | | ☐ BASC (Latin America) |
 | | ☐ NEEC (Mexico to SAT) |
 | | ☐ OEA (Brazil to RFB) |
-| | ☐ ISO 28000:2022 Supply Chain Security Management |
+| | ☐ ISO 28000:2022 Supply Chain Security Management. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating this attribution as verified. <!-- ref-absence: ISO 28000:2022 --> |
 | **Assessment Scope** | *(describe the supply chain segments, facilities, and operations included)* |
 | **Assessor(s)** | *(role titles)* |
 | **Review Date** | |

@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.30\
+**Version:** 1.0.31\
 **Date:** 2026-10-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -95,7 +95,7 @@ This annex applies where an organization:
 | **IATA Cyber Security Guidance** | International Air Transport Association | IATA member airlines; handling agents |
 | **WCO SAFE Framework** | World Customs Organization | All customs operators |
 | **ISO 28000:2022**: Supply chain security | ISO | Supply chain organizations. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
-| **ISO 28001**: Best practices for implementing supply chain security | ISO | Customs clearance verification |
+| **ISO 28001:2007**: Best practices for implementing supply chain security | ISO | Customs clearance verification. ISO 28001:2007 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28001 attribution here as verified. <!-- ref-absence: ISO 28001:2007 --> |
 | **ISO/SAE 21434**: Road Vehicle Cybersecurity Engineering | ISO / SAE | Vehicle OEMs; automotive supply chain |
 | **UNECE WP.29 / R155**: Cybersecurity Management System for vehicles | UNECE | Vehicle manufacturers selling in participating markets |
 
