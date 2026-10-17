@@ -51,6 +51,37 @@ Checks for:
   spelling checks via the `allowed_commonwealth_spans` profile field (the GDPR Article 25(1)
   quote, the OECD's official name, the WP216 opinion title, the EU / UK
   "Authorised Economic Operator" programme name).
+- Scheme-qualified http / https URL tokens are masked out of the three spelling
+  checks (``mask_urls``, run before the allowed spans), because a URL is an
+  external identifier whose spelling cannot be changed. The mask applies wherever
+  the token occurs: bare, in an inline code span, as a link target, in a
+  reference-style link definition, as an autolink, or in a generator string
+  literal. Only the URL itself is masked: a link's visible text, a non-URL code
+  span, and prose separated from the URL by whitespace or a delimiter are still
+  checked, and the token rules (see ``URL_PATTERN``) end it where prose is glued
+  to it, preferring a false positive to a bypass. The token ends at "^", at an
+  ASCII control character and at any non-ASCII character, as at whitespace and
+  the other stop characters. A URL opened after a "_" or "__" emphasis delimiter
+  ends at a run of one or more "_" followed by anything other than an ASCII
+  letter or digit, so prose after the emphasis is checked; a run of "_" followed
+  by an ASCII letter or digit continues the token, as a path underscore does
+  (the "___" of a path such as "/a___organisations" continues it). A "?"
+  continues the token whenever a query key (any run, possibly empty, of letters,
+  digits, ".", "_", "~", "+", "-" or %XX escapes) reaches "=", so
+  "?-organisations=1" and "?=organisations" are masked like "?organisations=1"
+  (an accepted over-mask). Residuals that stay checked (false positives): a URL
+  wrapped across lines, a host with no dot or a numeric or mixed-case top-level
+  label, an all-uppercase top-level label after a host label with a lowercase
+  letter, a URL with userinfo, path text after a punctuation run the token rules
+  end at (including the part of a dotted version such as "v1.2/" from the dot
+  on), path text after a "_" (or run of "_") followed by anything other than an
+  ASCII letter or digit (in an emphasized URL), and a URL after a literal "_" or
+  "__" that is not emphasis (for example in an inline code span or a string
+  literal), which is read with the emphasis rule. Accepted over-mask: a checked
+  word written as a host label, including a lowercase word glued by a dot to a
+  URL with no path or an all-uppercase word glued to an all-uppercase host (a
+  valid top-level label the engine cannot tell from a real one), is masked with
+  the host.
 - Bare 'ensure' or 'ensures' without 'that'. Exempt files where the rule
   itself is described (the ingestion spec, the master spec, the AI
   ingestion instruction, and governance/template-document-review-record.md).
@@ -93,6 +124,7 @@ Exits non-zero if any findings are reported.
 from __future__ import annotations
 
 import ast
+import ipaddress
 import re
 import sys
 from collections import defaultdict
@@ -248,14 +280,109 @@ def mask_allowed_spans(line: str, spans: tuple[str, ...]) -> str:
     return line
 
 
+# Scheme-qualified http(s) URL tokens are masked out of the three spelling checks
+# (3b366): a URL is an external identifier whose spelling the library cannot change
+# (the UK ICO `for-organisations` guidance path). The mask applies wherever the token
+# occurs (a bare URL, an inline code span, a link target, a reference-style link
+# definition, an autolink, a generator string literal). The scheme (any case) must be
+# preceded by a non-word character or by a "_" or "__" emphasis delimiter that is
+# itself preceded by a non-word character ("_https://" is recognized, "xhttps://"
+# and "x_https://" are not), and followed by a real authority: dot-separated host
+# labels ending in an all-lowercase alphabetic top-level label, or in an all-uppercase
+# one when no host label contains a lowercase letter (the host "X.ORG.UK" is
+# accepted, while "ico.org.uk.ORGANISATIONS" ends the host at ".uk"), or a bracketed literal
+# that the standard library's ipaddress module accepts as an IPv6 address, with an
+# optional port. The token then takes only a path, query or fragment starting with
+# "/", "?" or "#", and stops at whitespace, a backtick, "<", ">", a double quote,
+# "|", "*", "{", "}", a square bracket, a backslash, "^", "~~", a "%" not followed by
+# two hexadecimal digits, an ASCII control character, any non-ASCII character and
+# an unbalanced parenthesis; one level of balanced parentheses inside the path is
+# kept. When the scheme follows a "_" or "__" emphasis delimiter, a run of one or
+# more "_" continues the token only when an ASCII letter or digit follows the run
+# (each "_" is kept only when, after any further "_", an ASCII letter or digit
+# follows), so the closing delimiter ends it when followed by anything other than
+# an ASCII letter or digit (a URL in "_..._(organisations)" or "_..._#organisations"
+# leaves the text after the delimiter checked, while the "___" of a path such as
+# "/a___organisations" continues the token); a "_" or run of "_" in the path (the
+# "_" of "/a_b/c_" or "/v_2/c_" in a URL opened after "_") is kept only when an
+# ASCII letter or digit follows it, so a path "_" followed by anything else,
+# punctuation or a non-ASCII letter alike, ends the token (in
+# "/for_/organisations/x_" the text from that "_" on stays checked, a residual);
+# without the delimiter "_" is an ordinary path character. The rule reads the
+# text, not markdown, so a URL after a literal "_" or "__" that is not emphasis
+# (for example in an inline code span or a string literal) is read with the
+# emphasis rule too (a residual). Prose glued to the URL is left to the checks by
+# preferring under-masking (a false positive) to over-masking (a bypass): one of
+# ".,;:!?" continues the token only when no letter, "-", "_", "~", "+", "@", "$",
+# apostrophe, "(", ")", "&", "%", "=", "#" or "/" follows, directly or after a
+# run of digits (",1-organisations",
+# ",1/organisations" and "a(b,)organisations" end; so does "v1.2/", a residual; the
+# ":" of a nested "http://" or "https://" continues); a dot followed by letters
+# continues it only as a lowercase extension of one to six characters ending the
+# segment (".html", ".pdf"; every checked word is at least seven letters), so
+# ".The-organisation" and ".Organisations" end the token; "?" continues it whenever
+# a query key, any run (possibly empty) of letters, digits, ".", "_", "~", "+", "-"
+# or %XX escapes, reaches "=" ("?organisations=1", "?-organisations=1" and
+# "?=organisations" are masked, an accepted over-mask) and otherwise ends it; an
+# apostrophe continues it only as a possessive "'s". The trailing ".,;:!?" is then
+# trimmed from the token and left unmasked. Residuals (under-masked, so they fail
+# safe as false positives): a URL wrapped across lines, a host with no dot or a
+# numeric or mixed-case top-level label, an all-uppercase top-level label after a
+# host label with a lowercase letter, a URL with userinfo, path text after a
+# punctuation run the rules above end the token at (including the part of a dotted
+# version such as "v1.2/" from the dot on), path text after a "_" (or run of "_")
+# followed by anything other than an ASCII letter or digit (in an emphasized URL),
+# and a URL after a literal "_" or "__" that is not emphasis (for example in an
+# inline code span or a string literal), which is read with the emphasis rule.
+# Accepted over-mask (besides the query-key forms above): a host is masked as
+# written, so a checked word spelled as a host label is not reported, including a
+# lowercase word glued by a dot to a URL with no path or an all-uppercase word glued
+# to an all-uppercase host, which is a syntactically valid top-level label that the
+# engine cannot tell from a real one without a top-level-domain registry.
+_URL_SAFE = (r"(?:[A-Za-z0-9\-=&+#@$/]|(?(emph)_(?=_*[A-Za-z0-9])|_)"
+             r"|~(?!~)|%[0-9A-Fa-f]{2})")
+_URL_PUNCT = (r"(?:[.,;:!?](?![A-Za-z\-_~+@$'()&%=#/]|[0-9]+[A-Za-z\-_~+@$'()&%=#/])"
+              r"|(?<=[Hh][Tt][Tt][Pp]):(?=//)|(?<=[Hh][Tt][Tt][Pp][Ss]):(?=//))")
+_URL_EXT = r"\.(?=[a-z][a-z0-9]{0,5}(?![A-Za-z0-9\-_]))"
+_URL_QUERY = r"\?(?=(?:[A-Za-z0-9_.~+\-]|%[0-9A-Fa-f]{2})*=)"
+_URL_APOS = r"'(?=s(?![A-Za-z]))"
+_URL_CHAR = f"(?:{_URL_SAFE}|{_URL_PUNCT}|{_URL_EXT}|{_URL_QUERY}|{_URL_APOS})"
+_URL_HOST = (r"(?:\[(?P<ipv6>[0-9A-Fa-f:.]+)\]"
+             r"|(?:[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?\.)+[a-z]{2,63}(?![A-Za-z0-9\-])"
+             r"|(?:[A-Z0-9](?:[A-Z0-9\-]*[A-Z0-9])?\.)+[A-Z]{2,63}(?![A-Za-z0-9\-]))"
+             r"(?::[0-9]{1,5})?")
+URL_PATTERN = re.compile(
+    r"(?:(?<!\w)|(?P<emph>)(?:(?<=(?<!\w)_)|(?<=(?<!\w)__)))(?i:https?)://" + _URL_HOST
+    + rf"(?:(?:[/#]|{_URL_QUERY})(?:{_URL_CHAR}|\({_URL_CHAR}*\))*)?")
+URL_TRAILING_PUNCTUATION = ".,;:!?"
+
+
+def _blank_url(match: "re.Match[str]") -> str:
+    token = match.group(0)
+    if match.group("ipv6") is not None:
+        try:
+            ipaddress.IPv6Address(match.group("ipv6"))
+        except ValueError:
+            return token
+    kept = token.rstrip(URL_TRAILING_PUNCTUATION)
+    return " " * len(kept) + token[len(kept):]
+
+
+def mask_urls(line: str) -> str:
+    """Blank out scheme-qualified http(s) URL tokens before spelling checks."""
+    return URL_PATTERN.sub(_blank_url, line)
+
+
 def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str]]:
     """The three spelling checks on one line or string literal, as ``(kind, word)``.
 
-    Kinds are ``ise``, ``isation`` and ``yse``, reported in that order, after the
-    allowed Commonwealth spans are masked. This is the single spelling loop:
-    check_file, check_generator_source and the grc CHANGELOG preflight aid call it.
+    Kinds are ``ise``, ``isation`` and ``yse``, reported in that order, after any
+    http(s) URL tokens (``mask_urls``) and then the allowed Commonwealth spans are
+    masked; URLs go first so an allowed span inside a URL cannot split it. This is
+    the single spelling loop: check_file, check_generator_source and the grc
+    CHANGELOG preflight aid call it.
     """
-    masked = mask_allowed_spans(text, language.vocab.allowed_commonwealth_spans)
+    masked = mask_allowed_spans(mask_urls(text), language.vocab.allowed_commonwealth_spans)
     found = [("ise", m.group(0)) for m in language.ise_pattern.finditer(masked)]
     found += [("isation", m.group(0)) for m in ISATION_PATTERN.finditer(masked)
               if m.group(0).lower() not in language.vocab.isation_allowed_words]
