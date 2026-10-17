@@ -75,10 +75,10 @@ _129 documents._
 | [governance/charter-governance-library.md](../governance/charter-governance-library.md) | Governance Library Charter | Charter | 1.2.6 | 2026-08-03 |
 | [governance/framework-continuous-assurance-and-improvement.md](../governance/framework-continuous-assurance-and-improvement.md) | Continuous Assurance and Improvement Framework | Framework | 1.1.10 | 2026-09-25 |
 | [governance/framework-document-architecture-and-interrelationship.md](../governance/framework-document-architecture-and-interrelationship.md) | Document Architecture and Interrelationship Framework | Framework | 1.1.6 | 2026-09-05 |
-| [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.1.10 | 2026-09-25 |
+| [governance/framework-metrics-monitoring-and-performance-reporting.md](../governance/framework-metrics-monitoring-and-performance-reporting.md) | Metrics, Monitoring and Performance Reporting Framework | Framework | 1.1.11 | 2026-10-17 |
 | [governance/framework-sustainability-and-responsible-technology.md](../governance/framework-sustainability-and-responsible-technology.md) | Sustainability and Responsible Technology Framework | Framework | 1.2.6 | 2026-09-25 |
 | [governance/guideline-esg-and-ai-ethics-disclosure.md](../governance/guideline-esg-and-ai-ethics-disclosure.md) | ESG and AI Ethics Disclosure Guideline | Guideline | 1.1.11 | 2026-10-16 |
-| [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.22 | 2026-09-25 |
+| [governance/matrix-cross-framework-alignment.md](../governance/matrix-cross-framework-alignment.md) | Cross-Framework Alignment Matrix | Matrix | 1.1.23 | 2026-10-17 |
 | [governance/policy-exception-and-risk-acceptance-management.md](../governance/policy-exception-and-risk-acceptance-management.md) | Exception and Risk Acceptance Management Policy | Policy | 1.5.7 | 2026-09-25 |
 | [governance/register-ai-security-tooling-landscape.md](../governance/register-ai-security-tooling-landscape.md) | AI Security Tooling Landscape Register | Register | 1.1.13 | 2026-09-29 |
 | [governance/register-canonical-citations.md](../governance/register-canonical-citations.md) | Canonical Citations Register | Register | 1.5.110 | 2026-10-16 |
@@ -104,7 +104,7 @@ _129 documents._
 | [operations/register-it-operations-kpis.md](../operations/register-it-operations-kpis.md) | IT Operations Key Performance Indicators Register | Register | 1.1.10 | 2026-10-12 |
 | [operations/standard-certificate-authority-management.md](../operations/standard-certificate-authority-management.md) | Certificate Authority Management Standard | Standard | 1.3.12 | 2026-09-16 |
 | [operations/standard-cloud-security-configuration-baseline.md](../operations/standard-cloud-security-configuration-baseline.md) | Cloud Security Configuration Baseline | Standard | 1.4.19 | 2026-10-13 |
-| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.16 | 2026-10-13 |
+| [operations/standard-network-security-and-segmentation.md](../operations/standard-network-security-and-segmentation.md) | Network Security and Segmentation Standard | Standard | 1.4.17 | 2026-10-17 |
 | [operations/standard-physical-security-of-it-infrastructure.md](../operations/standard-physical-security-of-it-infrastructure.md) | Physical Security of IT Infrastructure Standard | Standard | 1.3.10 | 2026-10-13 |
 | [operations/standard-production-security-requirements.md](../operations/standard-production-security-requirements.md) | Production Security Requirements | Standard | 1.1.32 | 2026-09-24 |
 | [privacy/charter-privacy-management-programme.md](../privacy/charter-privacy-management-programme.md) | Privacy Management Programme Charter | Charter | 1.5.21 | 2026-10-13 |
@@ -144,15 +144,15 @@ _129 documents._
 | [risk/register-assurance-map.md](../risk/register-assurance-map.md) | Assurance Map Register | Register | 1.1.7 | 2026-09-25 |
 | [risk/register-key-risk-indicators.md](../risk/register-key-risk-indicators.md) | Key Risk Indicator Catalogue | Register | 1.1.6 | 2026-10-12 |
 | [risk/standard-enterprise-risk-management.md](../risk/standard-enterprise-risk-management.md) | Enterprise Risk Management Standard | Standard | 1.8.16 | 2026-10-13 |
-| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.14 | 2026-09-29 |
+| [risk/standard-third-party-and-supply-chain-risk.md](../risk/standard-third-party-and-supply-chain-risk.md) | Third-Party and Supply Chain Risk Standard | Standard | 1.1.15 | 2026-10-17 |
 | [risk/template-enterprise-risk-register.md](../risk/template-enterprise-risk-register.md) | Enterprise Risk Register Template | Template | 1.1.7 | 2026-07-02 |
 | [security/framework-cryptographic-key-lifecycle.md](../security/framework-cryptographic-key-lifecycle.md) | Cryptographic Key Lifecycle Management Framework | Framework | 1.10.0 | 2026-10-15 |
 | [security/policy-acceptable-use.md](../security/policy-acceptable-use.md) | Acceptable Use Policy | Policy | 1.3.8 | 2026-10-13 |
 | [security/policy-byod.md](../security/policy-byod.md) | Bring Your Own Device (BYOD) Policy | Policy | 1.5.0 | 2026-10-16 |
 | [security/policy-encryption-and-key-management.md](../security/policy-encryption-and-key-management.md) | Encryption and Key Management Policy | Policy | 1.9.1 | 2026-10-17 |
 | [security/policy-identity-and-access-management.md](../security/policy-identity-and-access-management.md) | Identity and Access Management Policy | Policy | 1.3.29 | 2026-10-15 |
-| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.33 | 2026-10-03 |
-| [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.18 | 2026-10-15 |
+| [security/policy-information-security.md](../security/policy-information-security.md) | Information Security Policy | Policy | 1.3.34 | 2026-10-17 |
+| [security/policy-network-communications-security.md](../security/policy-network-communications-security.md) | Network Communications Security Policy | Policy | 1.1.19 | 2026-10-17 |
 | [security/procedure-access-control.md](../security/procedure-access-control.md) | Access Control Procedure | Procedure | 1.4.0 | 2026-10-15 |
 | [security/procedure-cryptographic-key-operations.md](../security/procedure-cryptographic-key-operations.md) | Cryptographic Key Operations Procedure | Procedure | 1.10.0 | 2026-10-15 |
 | [security/procedure-key-escrow-and-recovery.md](../security/procedure-key-escrow-and-recovery.md) | Key Escrow and Recovery Procedure | Procedure | 1.3.0 | 2026-10-15 |
@@ -214,9 +214,9 @@ _151 documents._
 | [architecture/standard-technology-radar.md](../architecture/standard-technology-radar.md) | Technology Radar Standard | Standard | 1.0.8 | 2026-09-23 |
 | [compliance/financial-services/annex-financial-services-sector-requirements.md](../compliance/financial-services/annex-financial-services-sector-requirements.md) | Financial Services Sector GRC Requirements Annex | Annex | 1.0.24 | 2026-10-04 |
 | [compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md](../compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md) | UK AEO-S IT and Cybersecurity Requirements | Annex | 1.0.3 | 2026-07-02 |
-| [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.29 | 2026-10-16 |
+| [compliance/logistics/annex-logistics-sector-requirements.md](../compliance/logistics/annex-logistics-sector-requirements.md) | Logistics Sector GRC Requirements Annex | Annex | 1.0.30 | 2026-10-17 |
 | [compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md](../compliance/logistics/procedure-aeo-united-kingdom-self-assessment.md) | UK AEO IT Self-Assessment Procedure | Procedure | 1.0.2 | 2026-07-02 |
-| [compliance/logistics/register-ctpat-united-states-it-controls.md](../compliance/logistics/register-ctpat-united-states-it-controls.md) | US CTPAT IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-09-25 |
+| [compliance/logistics/register-ctpat-united-states-it-controls.md](../compliance/logistics/register-ctpat-united-states-it-controls.md) | US CTPAT IT and Cybersecurity Compliance Controls Register | Register | 1.0.7 | 2026-10-17 |
 | [compliance/logistics/register-ctpat-united-states-msc-controls.md](../compliance/logistics/register-ctpat-united-states-msc-controls.md) | US CTPAT Full Minimum Security Criteria Controls Register | Register | 1.0.5 | 2026-07-02 |
 | [compliance/logistics/register-pip-canada-controls.md](../compliance/logistics/register-pip-canada-controls.md) | Canada PIP IT and Cybersecurity Compliance Controls Register | Register | 1.0.6 | 2026-08-14 |
 | [compliance/logistics/template-trade-compliance-gap-assessment.md](../compliance/logistics/template-trade-compliance-gap-assessment.md) | Trade Compliance Programme Gap Assessment Template | Template | 1.0.6 | 2026-10-17 |
@@ -321,18 +321,18 @@ _151 documents._
 | [supply-chain/annex-trade-and-supply-chain-continuity-controls.md](../supply-chain/annex-trade-and-supply-chain-continuity-controls.md) | Trade and Supply-Chain Continuity Controls Annex | Annex | 1.0.1 | 2026-07-02 |
 | [supply-chain/framework-supplier-and-cloud-governance.md](../supply-chain/framework-supplier-and-cloud-governance.md) | Supplier and Cloud Governance Framework | Framework | 1.0.1 | 2026-07-02 |
 | [supply-chain/matrix-supply-chain-security-programme-alignment.md](../supply-chain/matrix-supply-chain-security-programme-alignment.md) | Supply Chain Security Programme Alignment Matrix | Matrix | 1.0.11 | 2026-10-17 |
-| [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.10 | 2026-10-04 |
+| [supply-chain/procedure-fourth-party-and-nth-party-risk.md](../supply-chain/procedure-fourth-party-and-nth-party-risk.md) | Fourth-Party and Nth-Party Risk Procedure | Procedure | 1.0.11 | 2026-10-17 |
 | [supply-chain/procedure-supplier-audit.md](../supply-chain/procedure-supplier-audit.md) | Supplier Audit Procedure | Procedure | 1.0.21 | 2026-10-17 |
 | [supply-chain/procedure-supplier-exit-and-data-return.md](../supply-chain/procedure-supplier-exit-and-data-return.md) | Supplier Exit and Data Return Procedure | Procedure | 1.0.5 | 2026-07-02 |
 | [supply-chain/procedure-supplier-onboarding-security-review.md](../supply-chain/procedure-supplier-onboarding-security-review.md) | Supplier Onboarding Security Review Procedure | Procedure | 1.0.10 | 2026-09-25 |
 | [supply-chain/procedure-supplier-ongoing-monitoring.md](../supply-chain/procedure-supplier-ongoing-monitoring.md) | Supplier Ongoing Monitoring Procedure | Procedure | 1.0.5 | 2026-08-31 |
 | [supply-chain/procedure-third-party-ai-due-diligence.md](../supply-chain/procedure-third-party-ai-due-diligence.md) | Third-Party AI Due Diligence Procedure | Procedure | 1.0.17 | 2026-09-25 |
-| [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.9 | 2026-10-04 |
+| [supply-chain/register-concentration-risk.md](../supply-chain/register-concentration-risk.md) | Concentration Risk Register | Register | 1.0.10 | 2026-10-17 |
 | [supply-chain/register-sbom.md](../supply-chain/register-sbom.md) | Software Bill of Materials Register | Register | 1.0.7 | 2026-09-23 |
 | [supply-chain/register-subprocessor-template.md](../supply-chain/register-subprocessor-template.md) | Subprocessor Register Template | Register | 1.0.4 | 2026-09-25 |
 | [supply-chain/register-supplier-risk-template.md](../supply-chain/register-supplier-risk-template.md) | Supplier Risk Register Template | Register | 1.0.4 | 2026-09-25 |
-| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.8 | 2026-09-25 |
-| [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.13 | 2026-09-25 |
+| [supply-chain/standard-supplier-resilience-monitoring.md](../supply-chain/standard-supplier-resilience-monitoring.md) | Supplier Resilience Monitoring Standard | Standard | 1.0.9 | 2026-10-17 |
+| [supply-chain/template-supplier-offboarding-evidence.md](../supply-chain/template-supplier-offboarding-evidence.md) | Supplier Offboarding Evidence Template | Template | 1.0.14 | 2026-10-17 |
 | [supply-chain/template-supplier-security-questionnaire.md](../supply-chain/template-supplier-security-questionnaire.md) | Supplier Security Questionnaire | Template | 1.0.8 | 2026-09-25 |
 
 ---

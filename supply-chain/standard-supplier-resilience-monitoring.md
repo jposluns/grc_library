@@ -2,8 +2,8 @@
 
 **Document Title:** Supplier Resilience Monitoring Standard\
 **Document Type:** Standard\
-**Version:** 1.0.8\
-**Date:** 2026-09-25\
+**Version:** 1.0.9\
+**Date:** 2026-10-17\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`supply-chain/framework-supplier-and-cloud-governance.md`](framework-supplier-and-cloud-governance.md), [`supply-chain/standard-supplier-security-and-privacy-assurance.md`](standard-supplier-security-and-privacy-assurance.md), [`supply-chain/procedure-supplier-ongoing-monitoring.md`](procedure-supplier-ongoing-monitoring.md), [`supply-chain/register-concentration-risk.md`](register-concentration-risk.md), [`supply-chain/procedure-fourth-party-and-nth-party-risk.md`](procedure-fourth-party-and-nth-party-risk.md), [`risk/standard-third-party-and-supply-chain-risk.md`](../risk/standard-third-party-and-supply-chain-risk.md), [`resilience/framework-business-continuity-and-resilience.md`](../resilience/framework-business-continuity-and-resilience.md), [`compliance/financial-services/annex-dora-implementation.md`](../compliance/financial-services/annex-dora-implementation.md)\
@@ -139,7 +139,7 @@ Five categories of signal are monitored. Each category contains specific signals
 | DORA | Articles 28, 30, 33 to 34 (monitoring, contractual provisions, risk assessments) | EU financial services |
 | EBA Guidelines on outsourcing arrangements | EBA/GL/2019/02 §82 to 95 | Banking monitoring |
 | NIST SP 800-161 Rev. 1 | SR-6 (supplier assessments and reviews) | US baseline |
-| ISO 28000:2022 | Security management for supply chains | International |
+| ISO 28000:2022 | Security management for supply chains | International. The ISO 28000:2022 alignment is unverifiable. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 --> |
 | ISO/IEC 27036-2:2022 | Clause 7.4 (supplier relationship management process) | Supplier monitoring |
 | FSB Cyber Lexicon and Third-Party Risk Toolkit | FSB | Financial-sector practice |
 | NIST CSF 2.0 | GV.SC | Cross-walk |
