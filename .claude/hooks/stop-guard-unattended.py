@@ -1731,33 +1731,129 @@ def _self_test():
                 _out, err = proc.communicate(_json.dumps({"stop_hook_active": False}).encode(), timeout=60)
                 return proc.returncode, err
 
+        def _require_diagnostic_calls(self):
+            """Report refused diagnostic calls by transport in a real forked child."""
+            import select
+            import socket
+            transports = ("pipe", "socket", "regular file")
+            report_r = report_w = sink_r = sink_w = -1
+            ours = theirs = None
+            try:
+                report_r, report_w = os.pipe()
+                sink_r, sink_w = os.pipe()
+                ours, theirs = socket.socketpair()
+                try:
+                    child = os.fork()
+                except OSError as exc:
+                    return {name: "os.fork(): %s" % exc for name in transports}
+                if child == 0:
+                    refused = {}
+                    try:
+                        step = "os.listdir('/proc/self/fd')"
+                        try:
+                            os.listdir("/proc/self/fd")
+                            step = "os.setsid()"
+                            os.setsid()
+                        except (OSError, ValueError) as exc:
+                            refused = {name: "%s: %s" % (step, exc) for name in transports}
+                        if not refused:
+                            step = "os.open('/proc/self/fd/<pipe>')"
+                            try:
+                                fd = os.open("/proc/self/fd/%d" % sink_w,
+                                             os.O_WRONLY | os.O_NONBLOCK | os.O_CLOEXEC)
+                                try:
+                                    step = "select.select(pipe)"
+                                    if not select.select([], [fd], [], 1)[1]:
+                                        raise OSError("pipe not writable")
+                                    step = "os.write(pipe)"
+                                    os.write(fd, b"x")
+                                finally:
+                                    os.close(fd)
+                            except (OSError, ValueError) as exc:
+                                refused["pipe"] = "%s: %s" % (step, exc)
+                            step = "socket.socket(fileno=os.dup(socket))"
+                            try:
+                                with socket.socket(family=socket.AF_UNSPEC, type=0, proto=0,
+                                                   fileno=os.dup(theirs.fileno())) as peer:
+                                    step = "select.select(socket)"
+                                    if not select.select([], [peer.fileno()], [], 1)[1]:
+                                        raise OSError("socket not writable")
+                                    step = "socket.sendmsg()"
+                                    peer.sendmsg([b"x"], [], socket.MSG_DONTWAIT)
+                            except (OSError, ValueError) as exc:
+                                refused["socket"] = "%s: %s" % (step, exc)
+                    finally:
+                        try:
+                            os.write(report_w, _json.dumps(refused).encode()[:select.PIPE_BUF])
+                        finally:
+                            os._exit(0)
+                os.close(report_w)
+                report_w = -1
+                deadline = time.monotonic() + 3
+                while True:
+                    waited, status = os.waitpid(child, os.WNOHANG)
+                    if waited:
+                        break
+                    if time.monotonic() >= deadline:
+                        os.kill(child, signal.SIGKILL)
+                        os.waitpid(child, 0)
+                        return {name: "probe child timed out" for name in transports}
+                    time.sleep(0.01)
+                report = os.read(report_r, select.PIPE_BUF).decode(errors="replace")
+            except OSError as exc:
+                return {name: "probe setup: %s" % exc for name in transports}
+            finally:
+                for fd in (report_r, report_w, sink_r, sink_w):
+                    if fd >= 0:
+                        os.close(fd)
+                if ours is not None:
+                    ours.close()
+                if theirs is not None:
+                    theirs.close()
+            if not os.WIFEXITED(status) or os.WEXITSTATUS(status):
+                return {name: "probe child wait status %d" % status for name in transports}
+            try:
+                return _json.loads(report)
+            except (ValueError, TypeError):
+                return {name: "invalid probe report: %r" % report for name in transports}
+
         def test_diagnostic_fork_delivery(self):
             # 3b123: capture_stderr runs the writer's child branch inline; here the real fork delivers.
             # Only the forked child writes, so the refusal arriving on a pipe, a socket and a regular file
             # shows the child's delivery, and each exit status still carries the block.
             import socket
+            unavailable = self._require_diagnostic_calls()
             marker = b"BLOCKED (stop-guard-unattended):"
             rc, err = self._blocking_hook(subprocess.PIPE)
-            self.assertEqual(rc, 2, err)
-            self.assertIn(marker, err)
+            with self.subTest(transport="pipe"):
+                self.assertEqual(rc, 2, err)
+                if "pipe" in unavailable:
+                    self.skipTest("pipe delivery unavailable: %s" % unavailable["pipe"])
+                self.assertIn(marker, err)
             ours, theirs = socket.socketpair()
             with ours:
                 with theirs:
                     rc, _err = self._blocking_hook(theirs.fileno())
-                self.assertEqual(rc, 2)
-                ours.settimeout(30)
-                received = chunk = ours.recv(4096)
-                while chunk:  # EOF once the hook and its writer child have both closed the socket
-                    chunk = ours.recv(4096)
-                    received += chunk
-                self.assertIn(marker, received)
+                with self.subTest(transport="socket"):
+                    self.assertEqual(rc, 2)
+                    if "socket" in unavailable:
+                        self.skipTest("socket delivery unavailable: %s" % unavailable["socket"])
+                    ours.settimeout(30)
+                    received = chunk = ours.recv(4096)
+                    while chunk:  # EOF once the hook and its writer child have both closed the socket
+                        chunk = ours.recv(4096)
+                        received += chunk
+                    self.assertIn(marker, received)
             with tempfile.TemporaryFile() as sink:
                 rc, _err = self._blocking_hook(sink.fileno())
-                self.assertEqual(rc, 2)
-                deadline = time.monotonic() + 10  # the writer child may finish after the hook exits
-                while marker not in os.pread(sink.fileno(), 4096, 0) and time.monotonic() < deadline:
-                    time.sleep(0.01)
-                self.assertIn(marker, os.pread(sink.fileno(), 4096, 0))
+                with self.subTest(transport="regular file"):
+                    self.assertEqual(rc, 2)
+                    if "regular file" in unavailable:
+                        self.skipTest("regular file delivery unavailable: %s" % unavailable["regular file"])
+                    deadline = time.monotonic() + 10  # the writer child may finish after the hook exits
+                    while marker not in os.pread(sink.fileno(), 4096, 0) and time.monotonic() < deadline:
+                        time.sleep(0.01)
+                    self.assertIn(marker, os.pread(sink.fileno(), 4096, 0))
 
         def test_diagnostic_fork_drops_terminals(self):
             # 3b123: a terminal stderr receives no diagnostic (it is never written or reopened), and the
