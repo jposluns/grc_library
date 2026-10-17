@@ -2,8 +2,8 @@
 
 **Document Title:** AI Model Documentation and Transparency Framework\
 **Document Type:** Framework\
-**Version:** 1.0.13\
-**Date:** 2026-09-19\
+**Version:** 1.0.14\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`ai/charter-ai-governance-council.md`](charter-ai-governance-council.md), [`ai/framework-ai-governance-and-risk.md`](framework-ai-governance-and-risk.md), [`ai/standard-ai-testing-validation-and-documentation.md`](standard-ai-testing-validation-and-documentation.md), [`ai/procedure-ai-model-lifecycle-management.md`](procedure-ai-model-lifecycle-management.md)\
@@ -123,7 +123,7 @@ This realizes the right-to-know objective (ISO/IEC 12792:2025 §6.2) for the aff
 
 ### 4.3 Regulatory transparency
 
-For High-risk AI systems under the EU AI Act, technical documentation per Annex IV must be maintained and available to competent authorities on request.
+For high-risk AI systems under the EU AI Act, technical documentation per Annex IV is maintained and available to competent authorities on request when the Chapter III obligation applies: from 2 December 2027 for Article 6(2)/Annex III systems and 2 August 2028 for Article 6(1)/Annex I systems (Article 113, third paragraph, point (c), as replaced by Regulation (EU) 2026/1744). Earlier documentation remains an internal control.
 
 This realizes the traceability objective (ISO/IEC 12792:2025 §6.2) through the AI-provider-to-relevant-authorities and AI-provider-to-AI-auditor stakeholder pairs (§6.3).
 

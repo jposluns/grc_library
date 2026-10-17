@@ -2,8 +2,8 @@
 
 **Document Title:** Security Baseline and Standards Reference\
 **Document Type:** Standard\
-**Version:** 1.1.33\
-**Date:** 2026-09-29\
+**Version:** 1.1.34\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Officer\
 **Approving Authority:** Chief Information Officer\
 **Related Documents:** [`dev-security/standard-developer-security-requirements.md`](standard-developer-security-requirements.md), [`dev-security/standard-devops-security-requirements.md`](standard-devops-security-requirements.md), [`dev-security/standard-security-quick-reference.md`](standard-security-quick-reference.md), [`security/policy-information-security.md`](../security/policy-information-security.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md)\
@@ -112,7 +112,7 @@ Requirements include: documented cybersecurity programme; password and access co
 
 ### 5.4 AI regulation
 
-Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions subject to the Policy on Service and Digital) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Had AIDA been enacted (it lapsed and, per the responsible Minister's June 2025 statement, will not return in its original form), it would have required, in accordance with regulations, an assessment of whether an AI system was high-impact, risk-identification and mitigation measures for high-impact systems, transparency, and record-keeping (not the Treasury Board algorithmic impact assessment process); monitor for any successor AI-governance instrument. Refer to the AI and agentic development security standard for AI security requirements.
+Canada has no in-force federal AI statute. AIDA (proposed as Part 3 of Bill C-27) lapsed at the 2025-01-06 prorogation and is not in force; treat it as a lapsed planning indicator, not a compliance target. The current Canadian instruments are the Treasury Board Directive on Automated Decision-Making (binding on federal institutions subject to the Policy on Service and Digital) and the federal Voluntary Code of Conduct on Generative AI (voluntary); PIPEDA remains the in-force federal private-sector privacy law. Had AIDA been enacted (it lapsed and, per a June 2025 ministerial statement not held in the reference base, is reported not to return in its original form, which an adopter confirms directly), it would have required, in accordance with regulations, an assessment of whether an AI system was high-impact, risk-identification and mitigation measures for high-impact systems, transparency, and record-keeping (not the Treasury Board algorithmic impact assessment process); monitor for any successor AI-governance instrument. Refer to the AI and agentic development security standard for AI security requirements. <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
 
 ---
 

@@ -2,8 +2,8 @@
 
 **Document Title:** Canada AI Regulatory Requirements\
 **Document Type:** Annex\
-**Version:** 1.0.9\
-**Date:** 2026-09-25\
+**Version:** 1.0.10\
+**Date:** 2026-10-16\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md), [`ai/jurisdictions/annex-ai-us-colorado.md`](annex-ai-us-colorado.md), [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-union.md), [`privacy/jurisdictions/annex-privacy-canada.md`](../../privacy/jurisdictions/annex-privacy-canada.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`compliance/register-global-regulatory-applicability.md`](../../compliance/register-global-regulatory-applicability.md)\
@@ -26,7 +26,7 @@ Alongside [`ai/jurisdictions/annex-ai-european-union.md`](annex-ai-european-unio
 
 Canada has no omnibus AI law in force. Federal AI governance rests on a binding directive for the federal public sector, soft-law commitments for industry, and sector regulation; provincial and standards-body instruments add further layers. The corpus's operational AI substance is maintained in [`ai/policy-ai-compliance.md`](../policy-ai-compliance.md); this annex consolidates the Canadian regulatory framing and cross-references that policy rather than duplicating it.
 
-**The Artificial Intelligence and Data Act (AIDA)**, introduced as Part 3 of Bill C-27, was Canada's proposed comprehensive federal AI statute. It **is not in force and must not be treated as law**: Bill C-27 died on the Order Paper when Parliament was prorogued, and the responsible Minister has since stated it will not return in its original form. An adopter therefore does not rely on AIDA as an obligation; the binding Canadian AI requirements are those below. (AIDA's status is a current-events fact; the adopter confirms it upstream before relying on this framing.)
+**The Artificial Intelligence and Data Act (AIDA)**, introduced as Part 3 of Bill C-27, was Canada's proposed comprehensive federal AI statute. It **is not in force and must not be treated as law**: Bill C-27 died on the Order Paper when Parliament was prorogued. Per a June 2025 ministerial statement not held in the reference base, AIDA is reported not to return in its original form (an adopter confirms the current position directly). An adopter therefore does not rely on AIDA as an obligation; the binding Canadian AI requirements are those below. <!-- ref-absence: AIDA ministerial statement | Artificial Intelligence and Data Act ministerial statement -->
 
 ## Federal public-sector automated decision-making: the Treasury Board Directive
 
