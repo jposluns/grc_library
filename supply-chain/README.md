@@ -2,7 +2,7 @@
 
 **Document Title:** Supply Chain Domain README\
 **Document Type:** Register\
-**Version:** 1.3.3\
+**Version:** 1.3.4\
 **Date:** 2026-10-17\
 **Owner:** Supplier Risk Maintainer\
 **Approving Authority:** Governance Library Maintainer\
@@ -62,7 +62,7 @@ Standards referenced for cross-programme alignment:
 
 - **WCO SAFE Framework**: World Customs Organization standards for customs-to-customs and customs-to-business cooperation
 - **ISO 28000:2022**: Supply chain security management systems. ISO 28000:2022 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28000 attribution here as verified. <!-- ref-absence: ISO 28000:2022 -->
-- **ISO 28001**: Customs clearance verification and supply chain continuity requirements
+- **ISO 28001:2007**: Customs clearance verification and supply chain continuity requirements. ISO 28001:2007 is not held in the reference base; confirm its requirements against the standard before treating an ISO 28001 attribution here as verified. <!-- ref-absence: ISO 28001:2007 -->
 
 ---
 
