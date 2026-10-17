@@ -11,8 +11,8 @@ additions to the root [`CHANGELOG.md`] or the maintainer-grade detailed
 mirror contain any of:
 
   - a gate-2 spelling finding (ise, isation, or yse), found by gate 2's own
-    matcher (the engine's ``spelling_matches``: the same language profile and
-    official-quote masks), or
+    matcher (the engine's ``spelling_matches``: the same language profile,
+    http(s) URL-token mask and official-quote masks), or
   - an em-dash or en-dash in prose (the no-dash convention: delta gate D3
     enforces this PR-time on the root file, and gate 51 enforces it on the
     ``.working/`` mirror, but NEITHER fires on the first local commit), or
@@ -320,7 +320,11 @@ def spelling_findings(lines):
     The child (the module docstring and tools/preflight_language_runner.py) loads
     lint-language.py, validates the engine API, compiles the language and runs
     the engine's ``spelling_matches`` on every added line, so gate 2's
-    vocabulary, patterns and quote masks apply. Additions are checked in
+    vocabulary, patterns and masks apply: the http(s) URL-token mask
+    (``mask_urls``: only the URL itself, so link text, prose separated from
+    the URL by whitespace or a delimiter, and prose glued to it past the token
+    end are still checked, and a URL wrapped across lines stays checked) and
+    then the allowed verbatim-quote spans. Additions are checked in
     isolation, including inline code as in gate 2. Fenced additions may
     over-report, like the existing preflight link check. A run with zero added
     lines still loads and validates the engine (the no-added-lines loading

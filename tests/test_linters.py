@@ -749,6 +749,136 @@ class LanguageLinterTests(LinterTestCase):
         result = run_linter("tools/lint-language.py", fixture)
         self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
 
+    def test_url_spelling_exempt_bare_url(self) -> None:
+        # 3b366: a scheme-qualified URL is an external identifier whose spelling
+        # cannot be changed (the UK ICO guidance path), so it is masked out of the
+        # spelling checks.
+        fixture = self.make_fixture(
+            "standard-url-bare.md",
+            VALID_METADATA + "\n\nSee https://ico.org.uk/for-organisations/x/ for guidance.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_url_spelling_exempt_in_code_span(self) -> None:
+        # 3b366: the same URL inside an inline code span is exempt.
+        fixture = self.make_fixture(
+            "standard-url-code-span.md",
+            VALID_METADATA + "\n\nSee `https://ico.org.uk/for-organisations/x/` for guidance.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_url_spelling_exempt_link_target(self) -> None:
+        # 3b366: the same URL as a markdown link target is exempt.
+        fixture = self.make_fixture(
+            "standard-url-link-target.md",
+            VALID_METADATA + "\n\nSee the [link](https://ico.org.uk/for-organisations/x/) for guidance.\n",
+        )
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+
+    def test_url_exemption_does_not_cover_prose(self) -> None:
+        # 3b366: the URL mask is token-scoped. The same word in ordinary prose, in a
+        # link's visible text, or in a non-URL code span is still flagged, including
+        # on a line that also carries an exempt URL.
+        for name, body in (
+            ("standard-url-prose.md",
+             "See https://ico.org.uk/x/ for guidance to organisations.\n"),
+            ("standard-url-link-text.md",
+             "See the [organisations guidance](https://ico.org.uk/x/) page.\n"),
+            ("standard-url-non-url-code-span.md",
+             "See the `for-organisations` path segment.\n"),
+        ):
+            with self.subTest(fixture=name):
+                fixture = self.make_fixture(name, VALID_METADATA + "\n\n" + body)
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+
+    def test_url_mask_does_not_cover_glued_prose(self) -> None:
+        # 3b366 round 2: prose glued to a URL by a stop character or by the
+        # trimmed trailing punctuation is outside the token and still flagged.
+        for index, glue in enumerate([*"`<>\"|*{}[]\\)", *".,;:!?", ",1-", ".("]):
+            with self.subTest(glue=glue):
+                fixture = self.make_fixture(
+                    f"standard-url-glued-{index}.md",
+                    VALID_METADATA + "\n\nSee https://x.org/a" + glue + "organisations here.\n")
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+        # A scheme with no real authority (no dotted host) is not a URL token.
+        fixture = self.make_fixture(
+            "standard-url-no-authority.md",
+            VALID_METADATA + "\n\nSee http://organisations-are-recognised here.\n")
+        self.assertLinterFails(
+            run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+
+    def test_url_mask_round3_glue_still_flagged(self) -> None:
+        # 3b366 round 3: a capitalized sentence glued to a path-less host, prose
+        # after "~~" and a bracketed authority that is not an IPv6 literal are
+        # outside the token and still flagged.
+        for index, (body, word) in enumerate((
+                ("See https://ico.org.uk.Organisations must register.\n", "Organisations"),
+                ("See ~~https://x.org/a~~organisations here.\n", "organisations"),
+                ("See https://[.]/organisations here.\n", "organisations"),
+                ("See https://x.org/%GGorganisations here.\n", "GGorganisations"))):
+            with self.subTest(body=body):
+                fixture = self.make_fixture(
+                    f"standard-url-round3-{index}.md", VALID_METADATA + "\n\n" + body)
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] " + word)
+
+    def test_url_after_emphasis_underscore_exempt(self) -> None:
+        # 3b366 round 3: a URL in Markdown underscore emphasis is recognized (the
+        # citation-verification worklist form), while a scheme embedded in a word
+        # is not.
+        fixture = self.make_fixture(
+            "standard-url-emphasis.md",
+            VALID_METADATA + "\n\nSee _https://ico.org.uk/for-organisations/_ for guidance.\n")
+        result = run_linter("tools/lint-language.py", fixture)
+        self.assertEqual(result.returncode, 0, f"linter should pass.\nstdout:\n{result.stdout}\nstderr:\n{result.stderr}")
+        for index, word in enumerate(("xhttps", "x_https")):
+            with self.subTest(word=word):
+                fixture = self.make_fixture(
+                    f"standard-url-embedded-{index}.md",
+                    VALID_METADATA + f"\n\nSee {word}://ico.org.uk/for-organisations/ here.\n")
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+
+    def test_url_mask_round4_glue_still_flagged(self) -> None:
+        # 3b366 round 4: prose right after a closing "_" / "__" emphasis delimiter,
+        # a digit run before "/", an all-uppercase label glued to a lowercase host,
+        # an invalid query escape, a non-scheme "://" and ",)" inside parentheses
+        # are outside the token and still flagged.
+        for index, (body, word) in enumerate((
+                ("See _https://x.org/a_(organisations) here.\n", "organisations"),
+                ("See __https://x.org/a__(organisations) here.\n", "organisations"),
+                ("See _https://x.org/a_.organisations here.\n", "organisations"),
+                ("See __https://x.org/a__,organisations here.\n", "organisations"),
+                ("See https://x.org/a,1/organisations here.\n", "organisations"),
+                ("See https://ico.org.uk.ORGANISATIONS here.\n", "ORGANISATIONS"),
+                ("See https://x.org/p?organisations%zz=1 here.\n", "organisations"),
+                ("See https://x.org/a://organisations here.\n", "organisations"),
+                ("See https://x.org/a(b,)Organisations here.\n", "Organisations"))):
+            with self.subTest(body=body):
+                fixture = self.make_fixture(
+                    f"standard-url-round4-{index}.md", VALID_METADATA + "\n\n" + body)
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] " + word)
+
+    def test_url_mask_round5_closer_before_punctuation_flagged(self) -> None:
+        # 3b366 round 5: prose after a closing "_" / "__" followed by punctuation
+        # that a URL path could hold ("#", "-", "&", "$") is outside the token.
+        for index, body in enumerate((
+                "See _https://x.org/a_#organisations here.\n",
+                "See __https://x.org/a__-organisations here.\n",
+                "See _https://x.org/a_&organisations here.\n",
+                "See __https://x.org/a__$organisations here.\n")):
+            with self.subTest(body=body):
+                fixture = self.make_fixture(
+                    f"standard-url-round5-{index}.md", VALID_METADATA + "\n\n" + body)
+                self.assertLinterFails(
+                    run_linter("tools/lint-language.py", fixture), "[isation] organisations")
+
     def test_bare_ensure_flagged(self) -> None:
         # The 'ensure' rule requires 'that' after 'ensure'/'ensures'.
         fixture = self.make_fixture(
@@ -30214,7 +30344,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.13.0", "3b325 adds table-cell coverage to the cross-file section-reference gate and explicit local cues on regime lines to the intra-document gate, on top of 3b260's COBIT objective-title widening (MINOR, 0.12.0 to 0.13.0)")
+        self.assertEqual(man["pack"]["version"], "0.14.0", "3b366 masks http(s) URL tokens from the language engine's spelling checks and adds the public mask_urls helper, on top of 3b325's section-reference widening (MINOR, 0.13.0 to 0.14.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -35418,6 +35548,336 @@ class LanguageEngineProfileTests(unittest.TestCase):
         self.assertEqual(self.scan("sentinelised sentinelyse", language=dyn),
                          [("ise", 1, "sentinelised"), ("yse", 1, "sentinelyse")])
         self.assertEqual(self.scan("## sentinel title", language=dyn), [])
+
+    # 3b366 round 2: direct unit tests of mask_urls. URL is a 15-character token,
+    # so the masked form of URL + rest is BLANK + rest.
+    URL = "https://x.org/a"
+    BLANK = " " * 15
+
+    def assertMasked(self, text, expected):
+        self.assertEqual(self.engine.mask_urls(text), expected, repr(text))
+
+    def test_mask_urls_stop_characters(self):
+        for stop in " \t`<>\"|*{}[]\\)":
+            with self.subTest(stop=stop):
+                self.assertMasked(self.URL + stop + "organisations",
+                                  self.BLANK + stop + "organisations")
+        # 3b366 round 3: a strikethrough delimiter ends the token; a single "~" does not.
+        self.assertMasked(self.URL + "~~organisations", self.BLANK + "~~organisations")
+        self.assertMasked("~~" + self.URL + "~~organisations",
+                          "~~" + self.BLANK + "~~organisations")
+        self.assertMasked("https://x.org/~organisations", " " * 28)
+
+    def test_mask_urls_round7_caret_control_and_non_ascii_end_token(self):
+        # 3b366 round 7: "^", an ASCII control character and any non-ASCII
+        # character end the token, so prose glued after them stays checked.
+        for stop in ("^", "\x00", "\x1f", "\x7f", "\u00e9", "\u00a0", "\u2019"):
+            with self.subTest(stop=stop):
+                self.assertMasked(self.URL + stop + "organisations",
+                                  self.BLANK + stop + "organisations")
+                self.assertEqual(self.engine.spelling_matches(
+                    self.URL + stop + "/organisations", self.language),
+                    [("isation", "organisations")])
+        self.assertMasked("https://x.org/caf\u00e9/organisations",
+                          " " * 17 + "\u00e9/organisations")
+
+    def test_mask_urls_round3_glue_ends_token(self):
+        # 3b366 round 3: each glue must end the token (discriminates the "(" and
+        # "~ + @ $" punctuation lookaheads and the six-character extension cap),
+        # and a symbol glued after punctuation ends it too.
+        for glue in (".(organisations)", ".~organisations", ".+organisations",
+                     ".@organisations", ".$organisations", ".utilise", ".analyse",
+                     ".&organisations", ".%organisations", ".%20organisations",
+                     ".=organisations", ".#organisations", ",/organisations"):
+            with self.subTest(glue=glue):
+                self.assertMasked(self.URL + glue, self.BLANK + glue)
+        self.assertEqual(self.engine.spelling_matches(self.URL + ".utilise", self.language),
+                         [("ise", "utilise")])
+        self.assertEqual(self.engine.spelling_matches(self.URL + ".analyse", self.language),
+                         [("yse", "analyse")])
+
+    def test_mask_urls_round4_digit_run_glue_ends_token(self):
+        # 3b366 round 4: after ".,;:!?" a run of digits followed by "&", "%", "=",
+        # "#", "/" or ")" ends the token like a letter does, so these glue forms
+        # stay reported. Under-masked as a result (residual): a dotted version
+        # followed by "/" ("v1.2/") leaves its tail checked.
+        for glue in (",1/", ",1&", ",1%", ",1=", ",1#", ",1)", ".2/", ";12/", ":3=",
+                     "!4#", "?5&", ".20%"):
+            with self.subTest(glue=glue):
+                self.assertMasked(self.URL + glue + "organisations",
+                                  self.BLANK + glue + "organisations")
+                self.assertEqual(self.engine.spelling_matches(
+                    self.URL + glue + "organisations", self.language),
+                    [("isation", "organisations")])
+        self.assertMasked("https://x.org/v1.2/organisations", " " * 16 + ".2/organisations")
+        self.assertMasked("https://x.org/a(b,)Organisations", self.BLANK + "(b,)Organisations")
+        self.assertEqual(self.engine.spelling_matches(
+            "https://x.org/a(b,)Organisations", self.language), [("isation", "Organisations")])
+        # A digit run that ends the segment, or is followed by another dot, continues.
+        self.assertMasked("https://x.org/v1.2", " " * 18)
+        self.assertMasked("https://x.org/a,1.html", " " * 22)
+
+    def test_mask_urls_query_key_continuation(self):
+        # 3b366 round 4: "?" continues the token whenever a query key (any run,
+        # possibly empty, of letters, digits, ". _ ~ + -" or %XX escapes) reaches
+        # "="; these forms are masked by design (an accepted over-mask that the
+        # rule surfaces state), and "?" before letters with no "=" ends it.
+        for text in ("https://x.org/a?-organisations=1", "https://x.org/a?_organisations=1",
+                     "https://x.org/a?1organisations=1", "https://x.org/a?=organisations",
+                     "https://x.org/a?%41organisations=1"):
+            with self.subTest(text=text):
+                self.assertMasked(text, " " * len(text))
+        for rest in ("?organisations", "?organisations%zz=1", "?organisations&a=1"):
+            with self.subTest(rest=rest):
+                self.assertMasked(self.URL + rest, self.BLANK + rest)
+
+    def test_mask_urls_round4_survivors(self):
+        # 3b366 round 4: an invalid escape in a query key ends the token, a nested
+        # plain "http://" continues it, and a "://" after a non-scheme does not.
+        self.assertEqual(self.engine.spelling_matches(
+            "https://x.org/p?organisations%zz=1", self.language),
+            [("isation", "organisations")])
+        text = "https://web.archive.org/web/2020/http://x.org/organisations"
+        self.assertMasked(text, " " * len(text))
+        self.assertEqual(self.engine.spelling_matches(
+            "https://x.org/a://organisations", self.language),
+            [("isation", "organisations")])
+
+    def test_mask_urls_top_level_label_case(self):
+        # 3b366 round 3: the top-level label is all-lowercase or all-uppercase, so a
+        # capitalized sentence glued to a path-less host is not swallowed.
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://ico.org.uk.Organisations must register.", self.language),
+            [("isation", "Organisations")])
+        self.assertMasked("https://ico.org.uk.Organisations", " " * 18 + ".Organisations")
+        self.assertMasked("https://x.Org/organisations", "https://x.Org/organisations")
+        self.assertMasked("HTTPS://X.ORG.UK/organisations", " " * 30)
+        # 3b366 round 4: an all-uppercase top-level label is accepted only when no
+        # host label has a lowercase letter, so an all-capitals word glued to a
+        # lowercase host stays reported, and "x.ORG" is an under-masked residual.
+        self.assertMasked("https://ico.org.uk.ORGANISATIONS", " " * 18 + ".ORGANISATIONS")
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://ico.org.uk.ORGANISATIONS here.", self.language),
+            [("isation", "ORGANISATIONS")])
+        self.assertMasked("https://x.org.UTILISE", " " * 13 + ".UTILISE")
+        self.assertEqual(self.engine.spelling_matches("https://x.org.UTILISE", self.language),
+                         [("ise", "UTILISE")])
+        self.assertMasked("https://x.ORG/organisations", "https://x.ORG/organisations")
+        self.assertMasked("HTTPS://X1-A.ORG/organisations", " " * 30)
+        # Accepted over-mask: a lowercase word glued by a dot to a path-less host is
+        # a syntactically valid top-level label, masked with the host.
+        self.assertEqual(self.engine.spelling_matches(
+            "See https://ico.org.uk.organisations must register.", self.language), [])
+        # 3b366 round 5: likewise an all-uppercase word glued to an all-uppercase
+        # host is masked, while a mixed-case word glued to it is not a label.
+        self.assertEqual(self.engine.spelling_matches(
+            "See HTTPS://X.ORG.ORGANISATIONS here.", self.language), [])
+        self.assertMasked("HTTPS://X.ORGanisations", "HTTPS://X.ORGanisations")
+        self.assertEqual(self.engine.spelling_matches(
+            "See HTTPS://X.ORGanisations here.", self.language),
+            [("isation", "ORGanisations")])
+
+    def test_mask_urls_ipv6_literal_validated(self):
+        # 3b366 round 3: a bracketed authority is masked only as a valid IPv6 literal.
+        for text in ("https://[.]/organisations", "https://[1:2]/organisations",
+                     "https://[::1::2]/organisations", "https://[12345::1]/organisations",
+                     "https://[:]/organisations", "https://[1.2.3.4]/organisations",
+                     "https://[::1.2.3]/organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, text)
+        for text in ("https://[::ffff:192.0.2.1]/organisations",
+                     "https://[2001:DB8::A]/organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, " " * len(text))
+
+    def test_mask_urls_percent_escape_validated(self):
+        # 3b366 round 3: "%" continues the token only before two hexadecimal digits.
+        prefix = " " * len("https://x.org/")
+        for rest in ("%organisations", "%GGorganisations", "%4organisations", "%"):
+            with self.subTest(rest=rest):
+                self.assertMasked("https://x.org/" + rest, prefix + rest)
+        self.assertMasked("https://x.org/a?%zz=organisations", self.BLANK + "?%zz=organisations")
+        for text in ("https://x.org/%20organisations", "https://x.org/a?%2Fq=organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, " " * len(text))
+
+    def test_mask_urls_after_emphasis_underscore(self):
+        # 3b366 round 3: "_" or "__" emphasis before the scheme is recognized; a
+        # scheme embedded in a word is not.
+        text = "_https://ico.org.uk/for-organisations/_"
+        self.assertMasked(text, "_" + " " * (len(text) - 2) + "_")
+        self.assertMasked("__https://x.org/organisations__", "__" + " " * 27 + "__")
+        for text in ("x_https://x.org/organisations", "x__https://x.org/organisations",
+                     "___https://x.org/organisations", "xhttps://x.org/organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, text)
+
+    def test_mask_urls_emphasis_close_ends_token(self):
+        # 3b366 round 4: a URL opened after "_" or "__" ends at a closing delimiter
+        # followed by anything other than an ASCII letter or digit, so prose right
+        # after the emphasis is checked; inside the path of such a URL a "_" (or run
+        # of "_") stays a path character only when an ASCII letter or digit follows
+        # it, and in a URL not opened after a delimiter "_" is always a path character.
+        for delim in ("_", "__"):
+            for rest in ("(organisations)", ".organisations", ",organisations",
+                         ";organisations", ")organisations", " organisations",
+                         "'organisations", "!organisations"):
+                with self.subTest(delim=delim, rest=rest):
+                    self.assertMasked(delim + self.URL + delim + rest,
+                                      delim + self.BLANK + delim + rest)
+                    self.assertEqual(self.engine.spelling_matches(
+                        "See " + delim + self.URL + delim + rest + " here.", self.language),
+                        [("isation", "organisations")])
+            with self.subTest(delim=delim, rest="end of line"):
+                self.assertMasked(delim + self.URL + delim, delim + self.BLANK + delim)
+        self.assertMasked("_https://x.org/a_b_organisations_", "_" + " " * 31 + "_")
+        self.assertMasked("_https://x.org/a__organisations_", "_" + " " * 30 + "_")
+        self.assertMasked("https://x.org/a_(organisations)", " " * 31)
+        self.assertMasked("https://x.org/a_.organisations", " " * 16 + ".organisations")
+
+    def test_mask_urls_emphasis_close_before_any_punctuation(self):
+        # 3b366 round 5: a closing "_" / "__" ends the token before every ASCII
+        # punctuation character (only a letter or digit continues it), so prose
+        # after "_#", "_-", "_/", "_$" and the rest is checked; a "_" inside the
+        # path of an emphasized URL stays a path character only when a letter or
+        # digit follows it (see test_mask_urls_round6_emphasis_residuals).
+        for delim in ("_", "__"):
+            for punct in "!\"#$%&'()*+,-./:;<=>?@[\\]^`{|}~":
+                rest = punct + "organisations"
+                with self.subTest(delim=delim, rest=rest):
+                    self.assertMasked(delim + self.URL + delim + rest,
+                                      delim + self.BLANK + delim + rest)
+                    self.assertEqual(self.engine.spelling_matches(
+                        "See " + delim + self.URL + delim + rest + " here.", self.language),
+                        [("isation", "organisations")])
+            with self.subTest(delim=delim, rest="%41organisations"):
+                self.assertMasked(delim + self.URL + delim + "%41organisations",
+                                  delim + self.BLANK + delim + "%41organisations")
+        self.assertMasked("_https://x.org/a_b/c_", "_" + " " * 19 + "_")
+        self.assertMasked("_https://x.org/a_b/organisations_", "_" + " " * 31 + "_")
+        self.assertMasked("__https://x.org/a_b/c__", "__" + " " * 19 + "__")
+
+    def test_mask_urls_round6_emphasis_residuals(self):
+        # 3b366 round 6: a closer followed by a digit continues the token like one
+        # followed by a letter (pins the digits in the closer lookahead).
+        self.assertMasked("_https://x.org/v_2/c_", "_" + " " * 19 + "_")
+        # Residual (false positive): path text after a "_" (or run of "_") followed
+        # by anything other than an ASCII letter or digit stays checked in an
+        # emphasized URL.
+        self.assertMasked("_https://x.org/for_/organisations/x_",
+                          "_" + " " * 17 + "_/organisations/x_")
+        self.assertEqual(self.engine.spelling_matches(
+            "_https://x.org/for_/organisations/x_", self.language),
+            [("isation", "organisations")])
+        # 3b366 round 7: a non-ASCII letter after the path "_" ends the token too.
+        self.assertMasked("_https://x.org/a_\u00e9/organisations/x_",
+                          "_" + " " * 15 + "_\u00e9/organisations/x_")
+        self.assertEqual(self.engine.spelling_matches(
+            "_https://x.org/a_\u00e9/organisations/x_", self.language),
+            [("isation", "organisations")])
+        # Residual (false positive): a URL after a literal "_" or "__" that is not
+        # emphasis is read with the emphasis rule, in an inline code span and in a
+        # generator string literal alike.
+        for delim in ("_", "__"):
+            with self.subTest(delim=delim):
+                line = "See `" + delim + self.URL + "_#organisations` here."
+                self.assertMasked(line, "See `" + delim + self.BLANK + "_#organisations` here.")
+                self.assertEqual(self.engine.spelling_matches(line, self.language),
+                                 [("isation", "organisations")])
+                self.assertEqual(
+                    [r[0] for r in self.scan(delim + self.URL + "_#organisations",
+                                             generator=True)],
+                    ["isation"])
+
+    def test_mask_urls_round7_underscore_run(self):
+        # 3b366 round 7: in an emphasized URL a whole run of "_" continues the token
+        # when an ASCII letter or digit follows the run, and ends it otherwise, so
+        # the triple underscore below is a path run and "organisations" is masked.
+        self.assertMasked("_https://x.org/a___organisations_", "_" + " " * 31 + "_")
+        self.assertEqual(self.engine.spelling_matches(
+            "_https://x.org/a___organisations_", self.language), [])
+        self.assertMasked("__https://x.org/a___2organisations__", "__" + " " * 32 + "__")
+        self.assertMasked("_https://x.org/a___.organisations_",
+                          "_" + self.BLANK + "___.organisations_")
+        self.assertMasked("_https://x.org/a___", "_" + self.BLANK + "___")
+
+    def test_mask_urls_glued_punctuation_ends_token(self):
+        for glue in (",", ";", ":", "!", "?", ".", ".O", ".The-", ".-", "'",
+                     ",1-", ".2a", ".(", ";("):
+            with self.subTest(glue=glue):
+                self.assertMasked(self.URL + glue + "organisations",
+                                  self.BLANK + glue + "organisations")
+        self.assertMasked("https://example.com/foo.The-organisation",
+                          " " * 23 + ".The-organisation")
+        self.assertMasked("https://x.org/a;organisation;authorise",
+                          self.BLANK + ";organisation;authorise")
+        self.assertMasked("https://x.org&organisations", " " * 13 + "&organisations")
+
+    def test_mask_urls_trims_trailing_punctuation(self):
+        for punct in ".,;:!?":
+            with self.subTest(punct=punct):
+                self.assertMasked(self.URL + punct + " organisations",
+                                  self.BLANK + punct + " organisations")
+                self.assertMasked(self.URL + punct, self.BLANK + punct)
+        self.assertMasked(self.URL + ").", self.BLANK + ").")
+        self.assertMasked(self.URL + "?!.", self.BLANK + "?!.")
+
+    def test_mask_urls_requires_authority(self):
+        for text in ("http://organisations-are-recognised", "http://,organisations",
+                     "http:///organisations", "https://localhost/organisations",
+                     "https://127.0.0.1/organisations", "https://user@x.org/organisations",
+                     "https://x.organisations-y/z", "xhttps://x.org/organisations",
+                     "https://x.org1/organisations", "https://x./organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, text)
+
+    def test_mask_urls_balanced_parentheses(self):
+        self.assertMasked("[t](https://x.org/foo_(organisation))", "[t](" + " " * 32 + ")")
+        self.assertMasked("https://x.example/(organisations)", " " * 33)
+        self.assertMasked("(see https://x.org/a)organisations",
+                          "(see " + self.BLANK + ")organisations")
+        self.assertMasked("https://x.org/a((organisations))", self.BLANK + "((organisations))")
+
+    def test_mask_urls_scheme_case_and_plain_http(self):
+        for text in ("http://x.org/organisations", "HTTPS://X.ORG/organisations",
+                     "Http://x.org/organisations", "HTTP://x.org:8080/organisations"):
+            with self.subTest(text=text):
+                self.assertMasked(text, " " * len(text))
+
+    def test_mask_urls_ipv6_and_url_syntax(self):
+        for text in ("https://[::1]/organisations", "http://[2001:db8::1]:8080/organisations",
+                     "https://x.org/organisations.html?q=organisations&b=1#organisations",
+                     "https://x.org/children's-organisations", "https://x.org/v1.2",
+                     "https://web.archive.org/web/2020/https://x.org/organisations",
+                     "https://x.org?organisations=1", "https://x.org#organisations",
+                     "https://x.org", "https://x.org/"):
+            with self.subTest(text=text):
+                self.assertMasked(text, " " * len(text))
+
+    def test_mask_urls_prose_occurrence_still_reported(self):
+        for line in ("See https://ico.org.uk/for-organisations/ for organisations.",
+                     "See [organisations](https://ico.org.uk/for-organisations/).",
+                     "<https://ico.org.uk/for-organisations/>organisations",
+                     "[1]: https://ico.org.uk/for-organisations/ \"organisations\"",
+                     "https://ico.org.uk/for-organisations/,organisations"):
+            with self.subTest(line=line):
+                self.assertEqual(self.engine.spelling_matches(line, self.language),
+                                 [("isation", "organisations")])
+        for generator in (False, True):
+            with self.subTest(generator=generator):
+                self.assertEqual(self.scan("https://ico.org.uk/for-organisations/ organisations",
+                                           generator=generator),
+                                 [("isation", 1, "organisations")])
+
+    def test_mask_urls_runs_before_allowed_spans(self):
+        # An allowed span inside a URL must not split the URL token.
+        raw = {k: [] for k in self.vocab._fields}
+        raw.update(ise_stems=["realise"], allowed_commonwealth_spans=["realised"])
+        dyn = self.engine.compile_language(self.engine.language_vocabulary(**raw))
+        self.assertEqual(self.engine.spelling_matches(
+            "https://x.org/realised/organisations", dyn), [])
+        self.assertEqual(self.engine.spelling_matches("realised organisations", dyn),
+                         [("isation", "organisations")])
 
     def test_bad_arrays_fail_closed(self):
         raw = {k: [] for k in self.vocab._fields}

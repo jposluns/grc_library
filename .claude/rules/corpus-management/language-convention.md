@@ -8,5 +8,11 @@ orthography with American English (the Oxford convention adopted in Canadian usa
 so the `-ize` rule that `tools/lint-language.py` enforces is the Canadian-orthography
 manifestation of the convention, not a generic American mandate. Where Canadian English
 has no opinion, Commonwealth forms are preferred; where neither has an opinion, other
-dialects' usage is acceptable. Em-dashes (`—`) and en-dashes (`–`) are forbidden in
-prose regardless of dialect; use commas, colons, or parentheses.
+dialects' usage is acceptable. Scheme-qualified `http(s)` URLs are external identifiers:
+the `-ise`, `-isation` and `-yse` checks skip the URL, not adjacent prose (dash,
+`ensure that` and heading-case checks still apply, URL included). The
+`.corpus-management/README.md` 3b366 entry and the `URL_PATTERN` comment in
+`.corpus-management/tools/gate_lint_language.py` give token rules, checked residuals
+and accepted over-masks.
+Em-dashes (`—`) and en-dashes (`–`) are forbidden in prose regardless of dialect; use
+commas, colons, or parentheses.
