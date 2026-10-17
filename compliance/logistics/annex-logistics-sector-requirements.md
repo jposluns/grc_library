@@ -2,7 +2,7 @@
 
 **Document Title:** Logistics Sector GRC Requirements Annex\
 **Document Type:** Annex\
-**Version:** 1.0.31\
+**Version:** 1.0.32\
 **Date:** 2026-10-17\
 **Owner:** Chief Compliance Officer\
 **Approving Authority:** Governance Library Maintainer\
@@ -38,9 +38,11 @@ This annex applies where an organization:
 
 | Regulation / Directive | Authority | Mode / Scope |
 |---|---|---|
-| **TSA Security Directive SD Pipeline-2021-02G**: Pipeline Cybersecurity (effective 2026-05-03 through 2027-05-02; cancels and supersedes the expired 02F) | Transportation Security Administration (TSA) | Critical pipeline operators |
-| **TSA Security Directive SD-1580/82-2022-01**: Surface Transportation Cybersecurity | TSA | Passenger and freight railroad carriers; owner-operators of highways |
-| **TSA Security Directive SD-1582-21-01**: Freight Rail Cybersecurity | TSA | Freight railroad carriers; rail transit; designated categories |
+| **TSA Security Directive Pipeline-2021-01G**: Enhancing Pipeline Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD Pipeline-2021-01F) | Transportation Security Administration (TSA) | TSA-designated critical hazardous liquid and natural gas pipelines or liquefied natural gas facilities |
+| **TSA Security Directive Pipeline-2021-02G**: Pipeline Cybersecurity Mitigation Actions, Contingency Planning, and Testing (effective 2026-05-03 through 2027-05-02; cancels and supersedes SD Pipeline-2021-02F) | TSA | TSA-designated critical hazardous liquid and natural gas pipelines or liquefied natural gas facilities |
+| **TSA Security Directive 1580-21-01E**: Enhancing Rail Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1580-21-01D) | TSA | Freight railroad carriers identified in 49 CFR 1580.101 and other TSA-designated freight railroads |
+| **TSA Security Directive 1582-21-01E**: Enhancing Public Transportation and Passenger Railroad Cybersecurity (effective 2026-01-16 through 2027-01-15; cancels and supersedes SD 1582-21-01D) | TSA | Passenger railroad carriers and rail transit systems identified in 49 CFR 1582.101 and other TSA-designated passenger railroads; excludes bus-only operations owned or operated by a public transportation agency otherwise identified in 49 CFR 1582.101 |
+| **TSA Security Directive 1580/82-2022-01E**: Rail Cybersecurity Mitigation Actions and Testing (effective 2026-05-03 through 2027-05-02; supersedes SD 1580/82-2022-01D) | TSA | Freight railroad carriers identified in 49 CFR 1580.101 and other TSA-designated freight and passenger railroads |
 | **TSA Security Directive: Aviation Cybersecurity** | TSA | Airport operators; aircraft operators; last-mile delivery involving air |
 | **USCG Maritime Cybersecurity (NVIC 01-20)** | U.S. Coast Guard | Maritime Transportation Security Act (MTSA) facility owners and operators; vessel operators |
 | **DOT Cybersecurity Strategy** | U.S. Dept of Transportation | All DOT-regulated entities |
@@ -105,16 +107,16 @@ This annex applies where an organization:
 
 ### TSA cybersecurity directives (US surface transportation and pipeline)
 
-TSA Security Directives for surface transportation (freight rail, highway) and pipelines mandate specific cybersecurity measures. Key requirements applicable across directives:
+The held TSA Security Directives cover designated freight and passenger railroads, rail transit systems, and critical pipeline systems and facilities. They do not establish a highway owner/operator scope. Requirements differ by directive:
 
 | Requirement | Detail | GRC Library Mapping |
 |---|---|---|
-| **Cybersecurity Incident Reporting** | Report cybersecurity incidents to CISA within 24 hours | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
-| **Cybersecurity Point of Contact** | Designate and report to TSA a primary and alternative cybersecurity point of contact | Role designation procedure |
-| **Cybersecurity Gap Assessment** | Complete TSA-prescribed cybersecurity gap assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with TSA-specific assessment |
-| **Cybersecurity Incident Response Plan** | Develop and implement a cybersecurity incident response plan | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
-| **Cybersecurity Management Plan** | Implement specific measures including: (1) network segmentation; (2) access controls; (3) continuous monitoring; (4) patch management | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
-| **Annual assessment** | Annual cybersecurity assessment and update | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
+| **Cybersecurity Incident Reporting** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require Owner/Operators to report to CISA the cybersecurity incidents that each directive's Section II.C requires to be reported (incidents involving systems that the Owner/Operator has responsibility to operate and/or maintain, in the categories that section lists), as soon as practicable, but no later than 72 hours after the Owner/Operator identifies a cybersecurity incident | [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md): supplement with CISA reporting procedure |
+| **Cybersecurity Coordinator** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require a Cybersecurity Coordinator and one or more alternates, at least one of whom is a U.S. citizen serving as a principal point of contact with TSA and CISA | Role designation procedure |
+| **Cybersecurity Vulnerability Assessment** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G require a Cybersecurity Vulnerability Assessment using the form provided by TSA, submitted to TSA; under each of the three, Owner/Operators who have previously submitted a vulnerability assessment to TSA are not required to update and submit a revised assessment | [`compliance/logistics/template-trade-compliance-gap-assessment.md`](template-trade-compliance-gap-assessment.md): supplement with the TSA form |
+| **Cybersecurity Incident Response Plan** | SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-02G require Owner/Operators to develop and maintain an up-to-date Cybersecurity Incident Response Plan for their Critical Cyber Systems | [`resilience/procedure-cross-domain-incident-coordination.md`](../../resilience/procedure-cross-domain-incident-coordination.md) |
+| **Cybersecurity Implementation Plan** | SD 1580/82-2022-01E and SD Pipeline-2021-02G require a TSA-approved Cybersecurity Implementation Plan covering: (1) network segmentation; (2) access control measures; (3) continuous monitoring and detection; (4) reducing the risk of exploitation of unpatched systems | [`security/policy-information-security.md`](../../security/policy-information-security.md); [`security/procedure-access-control.md`](../../security/procedure-access-control.md); [`dev-security/standard-developer-security-requirements.md`](../../dev-security/standard-developer-security-requirements.md) |
+| **Cybersecurity Assessment Plan** | SD 1580/82-2022-01E and SD Pipeline-2021-02G require a Cybersecurity Assessment Plan, with an annual update submitted for approval and an annual report of the previous year's results | [`compliance/standard-internal-audit.md`](../standard-internal-audit.md) |
 
 **CISA Reporting Timeline:** Under CIRCIA (Cyber Incident Reporting for Critical Infrastructure Act), covered cyber incidents must be reported to CISA within 72 hours after the entity reasonably believes a covered incident has occurred, and ransom payments within 24 hours; the CISA implementing final rule remains pending (expected 2026), so the reporting obligation is not yet operative.
 
@@ -229,7 +231,7 @@ For organizations operating or managing connected vehicle fleets:
 
 | Gap Area | Applicable Regulation | Action Required |
 |---|---|---|
-| TSA cybersecurity incident reporting to CISA (24-hour, per TSA Security Directives); the separate CIRCIA 72-hour covered-incident regime is pending | TSA Security Directives (24h); CIRCIA (72h, rule pending) | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
+| TSA cybersecurity incident reporting to CISA (as soon as practicable, no later than 72 hours after identification, for the cybersecurity incidents each directive's Section II.C requires to be reported under SD 1580-21-01E, SD 1582-21-01E, and SD Pipeline-2021-01G); the separate CIRCIA covered-incident regime is pending | TSA Security Directives (72h); CIRCIA (rule pending) | Supplement [`security/sop-incident-escalation-matrix.md`](../../security/sop-incident-escalation-matrix.md) with CISA reporting runbook |
 | NIS 2 incident notification templates and reporting to national CSIRT | EU NIS 2 Art 23 | Create NIS 2 incident notification templates per Member State |
 | CAF self-assessment procedure | UK CAA CAP 1753 | Create CAF self-assessment procedure aligned to CAP 1753 |
 | IMO ISM Code cyber annex | IMO MSC-FAL.1/Circ.3 | Create ISM Code cyber risk management annex (maritime operators) |
@@ -264,7 +266,7 @@ For transportation and logistics organizations building sector-specific GRC comp
 1. **Immediate (core baseline):**
  - Confirm CTPAT / AEO-S / BASC certification or PIP membership status and gap-fill using existing compliance domain documents
  - Assess NIS 2 applicability and determine entity classification (essential / important)
- - Identify applicable TSA Security Directives or IMO obligations
+ - Identify applicable TSA freight rail, passenger rail, rail mitigation, and pipeline Security Directives or IMO obligations; do not infer highway coverage from the held TSA directives
 
 2. **Within 90 days:**
  - Complete NIS 2 cybersecurity risk management gap assessment

@@ -2,8 +2,8 @@
 
 **Document Title:** OT Asset Inventory and Lifecycle Register\
 **Document Type:** Register\
-**Version:** 1.0.2\
-**Date:** 2026-07-02\
+**Version:** 1.0.3\
+**Date:** 2026-10-17\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`operations/ot/README.md`](README.md), [`operations/ot/annex-ot-security-overview.md`](annex-ot-security-overview.md), [`operations/ot/standard-ot-ics-security.md`](standard-ot-ics-security.md), [`operations/ot/procedure-ot-incident-response.md`](procedure-ot-incident-response.md), [`operations/ot/procedure-ot-change-management.md`](procedure-ot-change-management.md), [`operations/register-asset-inventory.md`](../register-asset-inventory.md), [`operations/procedure-patch-management.md`](../procedure-patch-management.md), [`security/procedure-vulnerability-management.md`](../../security/procedure-vulnerability-management.md), [`supply-chain/procedure-supplier-due-diligence.md`](../../supply-chain/procedure-supplier-due-diligence.md), [`resilience/plan-it-disaster-recovery.md`](../../resilience/plan-it-disaster-recovery.md), [`governance/register-canonical-citations.md`](../../governance/register-canonical-citations.md), [`governance/register-glossary.md`](../../governance/register-glossary.md)\
@@ -314,7 +314,7 @@ Metric definitions feed into the IT Operations KPI register ([`operations/regist
 | NERC CIP-010 | Configuration change management and vulnerability assessments | Configuration baseline tracking. |
 | IEC 61511 | Functional safety - process sector | Safety classification field. |
 | EU NIS 2 | Essential and important entity obligations | Inventory underpins risk management and incident reporting obligations. |
-| TSA Pipeline Security Directive | Asset inventory requirement | US pipeline sector. |
+| TSA Pipeline Security Directive | SD Pipeline-2021-02G Section III.A: "Identify the Owner/Operator’s Critical Cyber Systems as defined in Section VII. of this Security Directive." Section IV.C.2.a lists "Hardware/software asset inventory, including supervisory control, and data acquisition systems." among the documents TSA may request to inspect or copy to establish compliance | Owners and Operators of a hazardous liquid and natural gas pipeline or a liquefied natural gas facility notified by TSA that their pipeline system or facility is critical; the inventory supports Critical Cyber System identification and is a record TSA may request. |
 
 ---
 
