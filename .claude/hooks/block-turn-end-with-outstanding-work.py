@@ -44,12 +44,17 @@ environment-variable form was not: a Stop hook inherits the harness's environmen
 environment of a tool call.
 
 GIT FAILURES BLOCK: enumeration failures, malformed listing records, unreadable
-refs, rev-list failures and diff failures/timeouts produce blocking diagnostics.
+ref files, rev-list failures and diff failures/timeouts produce blocking diagnostics.
 A repository without main or refused by safe.directory also blocks.
+LIMIT: a ref directory git cannot read (for example permission-denied
+refs/heads/sub/) is invisible to git, which exits 0 with no stderr; this hook
+cannot see branches inside that directory.
 Per-branch failures name the branch and do not discard other branches. Listing
 failures name the enumeration because no trustworthy branch list is available.
 Non-UTF-8 names are kept as bytes for git and escaped for display. Inherited
-GIT_TRACE* variables are removed. Stderr lines starting with "fatal:", "error:",
+GIT_TRACE* variables are removed and configured trace2 targets are disabled.
+Git runs with LC_ALL=C and without LANGUAGE or LC_MESSAGES so diagnostics
+match the untranslated prefixes below. Stderr lines starting with "fatal:", "error:",
 "warning: ignoring broken ref " or "warning: ignoring ref with broken name "
 block. Other stderr (including other warnings, hints and trace2 lines) is ignored;
 stdout must still be clean. A nonzero exit blocks, except diff exit 1 with empty
@@ -191,13 +196,19 @@ _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
 def _git_environment() -> dict:
-    return {key: value for key, value in os.environ.items()
-            if not key.startswith("GIT_TRACE")}
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_TRACE") and key not in {"LANGUAGE", "LC_MESSAGES"}}
+    env["LC_ALL"] = "C"
+    # Trace2 starts before git applies -c settings; override its early config too.
+    env.update(GIT_TRACE2="0", GIT_TRACE2_PERF="0", GIT_TRACE2_EVENT="0")
+    return env
 
 
 def _git_result(*args: str | bytes) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["git", "-c", "core.warnAmbiguousRefs=false", "-C", str(REPO), *args],
+        ["git", "-c", "core.warnAmbiguousRefs=false",
+         "-c", "trace2.normalTarget=", "-c", "trace2.perfTarget=",
+         "-c", "trace2.eventTarget=", "-C", str(REPO), *args],
         capture_output=True, env=_git_environment(), timeout=GIT_TIMEOUT, check=False,
     )
 
@@ -215,11 +226,15 @@ def _branch_display(ref: bytes) -> str:
                    else ascii(char)[1:-1] for char in name)
 
 
+def _git_display(output: bytes) -> str:
+    return output.decode("utf-8", errors="backslashreplace").rstrip("\r\n")
+
+
 def _git(*args: str | bytes) -> bytes:
     result = _git_result(*args)
     result.check_returncode()
     if _blocking_stderr(result.stderr):
-        raise ValueError("git diagnostic: " + ascii(result.stderr))
+        raise ValueError("git diagnostic: " + _git_display(result.stderr))
     return result.stdout
 
 
@@ -271,7 +286,7 @@ def unmerged_branches() -> list:
     try:
         listing = _git("for-each-ref", "--format=%(refname)", "refs/heads")
     except (OSError, subprocess.SubprocessError, ValueError) as exc:
-        return [("branch enumeration", "unverified: " + ascii(str(exc)))]
+        return [("branch enumeration", "unverified: " + str(exc))]
     if b"refs/heads/main" not in listing.split(b"\n"):
         out.append(("main", "unverified: missing refs/heads/main"))
     for ref in listing.split(b"\n"):
@@ -279,7 +294,7 @@ def unmerged_branches() -> list:
             continue
         if (not ref.startswith(b"refs/heads/") or ref == b"refs/heads/"
                 or any(byte <= 32 or byte == 127 for byte in ref)):
-            out.append((ascii(ref), "unverified: malformed branch listing"))
+            out.append((_git_display(ref), "unverified: malformed branch listing"))
             continue
         name = ref[len(b"refs/heads/"):].decode("utf-8", errors="surrogateescape")
         if name == "main" or name in held:
@@ -288,20 +303,21 @@ def unmerged_branches() -> list:
         try:
             ahead = _git("rev-list", "--count", b"refs/heads/main.." + ref)
             if not _re.fullmatch(rb"[0-9]+\n?", ahead):
-                raise ValueError("invalid rev-list count: " + ascii(ahead))
+                raise ValueError("invalid rev-list count: " + _git_display(ahead))
             ahead = ahead.strip()
             if int(ahead) == 0:
                 continue
             result = _git_result("diff", "--quiet", b"refs/heads/main", ref, "--")
             if result.stdout or _blocking_stderr(result.stderr):
-                raise ValueError("git diff diagnostic: " + ascii((result.stdout, result.stderr)))
+                raise ValueError("git diff diagnostic: stdout: " + _git_display(result.stdout)
+                                 + "; stderr: " + _git_display(result.stderr))
             if result.returncode == 0:
                 continue          # tree-identical: the work landed
             if result.returncode != 1:
                 raise ValueError("git diff exit %s: %s" %
-                                 (result.returncode, ascii(result.stderr)))
+                                 (result.returncode, _git_display(result.stderr)))
         except (OSError, subprocess.SubprocessError, ValueError) as exc:
-            out.append((display, "unverified: " + ascii(str(exc))))
+            out.append((display, "unverified: " + str(exc)))
             continue
         out.append((display, ahead.decode("ascii")))
     return out

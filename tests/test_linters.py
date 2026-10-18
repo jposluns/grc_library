@@ -35487,7 +35487,7 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 class HookDescendantIsolationTests(unittest.TestCase):
     COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):
@@ -48560,15 +48560,70 @@ class HeldBranchExpiryTests(unittest.TestCase):
                             contextlib.redirect_stderr(io.StringIO()) as err:
                         self.assertEqual(hook.main(), 2)
                     self.assertIn("BLOCKED", err.getvalue())
-                    if name != "trace-config":
-                        self.assertEqual(
-                            {branch for branch, ahead in hook.unmerged_branches()},
-                            {"ordinary", hook._branch_display(os.fsencode("refs/heads/" + name))})
+                    self.assertEqual(
+                        {branch for branch, ahead in hook.unmerged_branches()},
+                        {"ordinary", hook._branch_display(os.fsencode("refs/heads/" + name))})
                     hook.ESCAPE_FILE.touch()
                     with self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
                         self.assertEqual(hook.main(), 0)
                     self.assertFalse(hook.ESCAPE_FILE.exists())
             self.git("update-ref", "-d", "refs/heads/" + name)
+
+    def test_hook_child_locale(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "locale_hook_test")
+        self.addCleanup(sys.modules.pop, "locale_hook_test", None)
+        inherited = {"LANGUAGE": "fr_FR", "LC_ALL": "fr_FR.UTF-8",
+                     "LC_MESSAGES": "fr_FR.UTF-8", "GIT_TRACE2": "1"}
+        with self.mock.patch.dict(os.environ, inherited), \
+                self.mock.patch.object(hook.subprocess, "run") as run:
+            hook._git_result("for-each-ref", "refs/heads")
+            child = run.call_args.kwargs["env"]
+            self.assertEqual(child["LC_ALL"], "C")
+            self.assertNotIn("LANGUAGE", child)
+            self.assertNotIn("LC_MESSAGES", child)
+            for key in ("GIT_TRACE2", "GIT_TRACE2_PERF", "GIT_TRACE2_EVENT"):
+                self.assertEqual(child[key], "0")
+            self.assertEqual(os.environ["LC_ALL"], inherited["LC_ALL"])
+
+    def test_hook_configured_trace2_stdout_allows_main_only(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "trace_stdout_hook_test")
+        self.addCleanup(sys.modules.pop, "trace_stdout_hook_test", None)
+        base = self.init_repo()
+        self.git("update-ref", "refs/heads/main", base)
+        self.git("update-ref", "-d", "refs/heads/present")
+        config = self.root / "global-config"
+        for target in ("normalTarget", "perfTarget", "eventTarget"):
+            with self.subTest(target=target):
+                config.write_text("[trace2]\n" + target + " = /dev/stdout\n", encoding="ascii")
+                with self.mock.patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}), \
+                        self.mock.patch.object(hook, "REPO", self.root), \
+                        self.mock.patch.object(hook, "HELD_FILE", None), \
+                        self.mock.patch.object(hook, "ESCAPE_FILE", self.root / ".allow-stop"), \
+                        self.mock.patch.object(hook, "is_worker_session", return_value=False), \
+                        self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
+                    self.assertEqual(hook.unmerged_branches(), [])
+                    self.assertEqual(hook.main(), 0)
+
+    def test_hook_diagnostics_decode_bytes(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "display_hook_test")
+        self.addCleanup(sys.modules.pop, "display_hook_test", None)
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git_result", return_value=
+                                       subprocess.CompletedProcess([], 0, b"",
+                                           b"warning: ignoring broken ref refs/heads/odd\xff\n")):
+            self.assertEqual(hook.unmerged_branches(), [
+                ("branch enumeration",
+                 r"unverified: git diagnostic: warning: ignoring broken ref refs/heads/odd\xff")])
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git", return_value=
+                                       b"refs/heads/main\n13:27:50 trace\xff\n"):
+            branches = hook.unmerged_branches()
+            self.assertEqual(branches, [(r"13:27:50 trace\xff", "unverified: malformed branch listing")])
+            self.assertIn(r"- 13:27:50 trace\xff (+unverified:", hook.decide(False, False, branches))
+        self.assertEqual(hook._git_display(b"message\r\n\n"), "message")
 
     def test_hook_real_git_stderr_and_ambiguity(self):
         hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
@@ -48583,14 +48638,17 @@ class HeldBranchExpiryTests(unittest.TestCase):
                 self.mock.patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}):
             for setting, diagnostic in [
                 ("[core]\nfsyncObjectFiles = true\n", b"warning: core.fsyncObjectFiles"),
-                ("[trace2]\nnormalTarget = 2\n", b" version "),
+                ("[trace2]\nnormalTarget = 2\n", b""),
             ]:
                 with self.subTest(setting=setting):
                     config.write_text(setting, encoding="ascii")
                     result = hook._git_result("for-each-ref", "--format=%(refname)", "refs/heads")
                     self.assertEqual(result.returncode, 0)
                     self.assertEqual(result.stdout, b"refs/heads/main\n")
-                    self.assertIn(diagnostic, result.stderr)
+                    if diagnostic:
+                        self.assertIn(diagnostic, result.stderr)
+                    else:
+                        self.assertEqual(result.stderr, b"")
                     self.assertEqual(hook.unmerged_branches(), [])
                     # Exercise rev-list and diff too: an ahead but identical tree allows.
                     tree = self.git("rev-parse", "main^{tree}").stdout.strip()
