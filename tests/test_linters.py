@@ -50327,6 +50327,132 @@ class HeldBranchExpiryTests(unittest.TestCase):
                     self.assertFalse(hook.ESCAPE_FILE.exists())
             self.git("update-ref", "-d", "refs/heads/" + name)
 
+    def outstanding_hook(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "held_failure_hook_test")
+        self.addCleanup(sys.modules.pop, "held_failure_hook_test", None)
+        base = self.init_repo()
+        self.git("update-ref", "refs/heads/main", base)
+        blob = self.git("hash-object", "-w", "--stdin", input="work").stdout.strip()
+        tree = self.git("mktree", input=f"100644 blob {blob}\twork\n").stdout.strip()
+        tip = self.git("commit-tree", tree, "-p", base, "-m", "work").stdout.strip()
+        for i in range(10):
+            self.git("update-ref", f"refs/heads/outstanding-{i}", tip)
+        for name, value in (("REPO", self.root), ("HELD_FILE", self.path),
+                            ("ESCAPE_FILE", self.root / ".allow-stop")):
+            patch = self.mock.patch.object(hook, name, value)
+            patch.start()
+            self.addCleanup(patch.stop)
+        patch = self.mock.patch.object(hook, "is_worker_session", return_value=False)
+        patch.start()
+        self.addCleanup(patch.stop)
+        return hook
+
+    def assert_held_failure(self, hook, reason):
+        import contextlib
+        with self.mock.patch.object(sys, "stdin", io.StringIO("{}")), \
+                contextlib.redirect_stderr(io.StringIO()) as err:
+            self.assertEqual(hook.main(), 2)
+        message = err.getvalue()
+        self.assertIn("held-branches.txt", message)
+        self.assertIn(reason, message)
+        displayed = [line for line in message.splitlines() if line.startswith("    - ")]
+        self.assertEqual(len(displayed), 8)
+        self.assertIn("held-branches.txt", displayed[0])
+        self.assertIn(reason, displayed[0])
+        for i in range(7):
+            self.assertIn(f"outstanding-{i} (+1)", message)
+        for i in range(7, 10):
+            self.assertNotIn(f"outstanding-{i} (+1)", message)
+        entries = hook.unmerged_branches()
+        self.assertEqual(len(entries), 11)
+        self.assertEqual(sum("held-branches.txt" in name for name, _ in entries), 1)
+        self.assertEqual(entries[1:], [(f"outstanding-{i}", "1") for i in range(10)])
+
+    def assert_held_escape(self, hook):
+        hook.ESCAPE_FILE.touch()
+        with self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
+            self.assertEqual(hook.main(), 0)
+        self.assertFalse(hook.ESCAPE_FILE.exists())
+        with self.mock.patch.object(sys, "stdin", io.StringIO('{"stop_hook_active": true}')):
+            self.assertEqual(hook.main(), 0)
+
+    def test_hook_invalid_utf8_held_file(self):
+        hook = self.outstanding_hook()
+        self.path.write_bytes(b"outstanding-0 # 9999-12-31 held\n\xff")
+        self.assert_held_failure(hook, "UnicodeDecodeError")
+
+    def test_hook_invalid_utf8_escape(self):
+        hook = self.outstanding_hook()
+        self.path.write_bytes(b"\xff")
+        self.assert_held_escape(hook)
+
+    def test_hook_unreadable_held_file(self):
+        hook = self.outstanding_hook()
+        self.path.write_text("outstanding-0 # 9999-12-31 held\n", encoding="ascii")
+        with self.mock.patch.object(Path, "read_text", side_effect=PermissionError("denied")):
+            self.assert_held_failure(hook, "PermissionError")
+        # A directory gives a real read failure even when tests run as root.
+        self.path.unlink()
+        self.path.mkdir()
+        self.assert_held_failure(hook, "IsADirectoryError")
+
+    def test_hook_unreadable_escape(self):
+        hook = self.outstanding_hook()
+        self.path.mkdir()
+        with self.mock.patch.object(Path, "read_text", side_effect=PermissionError("denied")):
+            self.assert_held_escape(hook)
+
+    def test_hook_held_stat_failure(self):
+        hook = self.outstanding_hook()
+        original = Path.exists
+
+        def exists(path):
+            if path == self.path:
+                raise PermissionError("held stat denied")
+            return original(path)
+
+        with self.mock.patch.object(Path, "exists", exists):
+            self.assert_held_failure(hook, "held stat denied")
+            self.assert_held_escape(hook)
+
+    def test_hook_held_resolution_failure(self):
+        import lint_common
+        hook = self.outstanding_hook()
+        with self.mock.patch.object(lint_common, "resolve_working",
+                                    side_effect=PermissionError("held resolver denied")):
+            failed = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                               "held_resolution_failure_test")
+        self.addCleanup(sys.modules.pop, "held_resolution_failure_test", None)
+        with self.mock.patch.object(failed, "REPO", self.root), \
+                self.mock.patch.object(failed, "ESCAPE_FILE", hook.ESCAPE_FILE), \
+                self.mock.patch.object(failed, "is_worker_session", return_value=False):
+            self.assert_held_failure(failed, "held resolver denied")
+            self.assert_held_escape(failed)
+
+    def test_hook_message_format_failure(self):
+        import contextlib
+        hook = self.outstanding_hook()
+        with self.mock.patch.object(hook, "decide", side_effect=ValueError("format failed")):
+            with self.mock.patch.object(sys, "stdin", io.StringIO("{}")), \
+                    contextlib.redirect_stderr(io.StringIO()) as err:
+                self.assertEqual(hook.main(), 2)
+            self.assertIn("cannot format outstanding work", err.getvalue())
+            self.assertIn(str(hook.ESCAPE_FILE), err.getvalue())
+            self.assert_held_escape(hook)
+
+    def test_hook_message_encoding_failure(self):
+        hook = self.outstanding_hook()
+        raw = io.BytesIO()
+        stream = io.TextIOWrapper(raw, encoding="ascii", errors="strict")
+        with self.mock.patch.object(hook, "decide", return_value="BLOCKED: caf\u00e9"), \
+                self.mock.patch.object(sys, "stderr", stream):
+            with self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
+                self.assertEqual(hook.main(), 2)
+            stream.flush()
+            self.assertEqual(raw.getvalue(), b"BLOCKED: caf\\xe9\n")
+            self.assert_held_escape(hook)
+
     def test_hook_child_locale(self):
         hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
                          "locale_hook_test")

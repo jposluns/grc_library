@@ -59,6 +59,8 @@ match the untranslated prefixes below. Stderr lines starting with "fatal:", "err
 block. Other stderr (including other warnings, hints and trace2 lines) is ignored;
 stdout must still be clean. A nonzero exit blocks, except diff exit 1 with empty
 stdout and no blocking diagnostic, which means the branch tree differs.
+HELD-INPUT FAILURES BLOCK: a failed resolution, stat, read, decode or parse
+uses no holds and adds one diagnostic while retaining the branch scan.
 The one-shot escape and stop_hook_active still take precedence. Other errors
 reaching main()'s outer handler retain its existing fail-open behavior.
 
@@ -190,7 +192,14 @@ def _working_file(rel_below, root):
     return cand if cand.exists() else None
 
 
-HELD_FILE = _working_file("held-branches.txt", REPO)
+# Save resolution failures until AFTER the continuation/worker/escape checks.
+# Raising here would bypass main() entirely and make the escape unreachable.
+_HELD_FILE_ERROR = None
+try:
+    HELD_FILE = _working_file("held-branches.txt", REPO)
+except Exception as exc:
+    HELD_FILE = None
+    _HELD_FILE_ERROR = exc
 GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
 
@@ -281,12 +290,21 @@ def unmerged_branches() -> list:
     # main. Remaining residue: patch-equivalent-but-not-tree-equal work (a merged change plus an
     # unrelated later edit) still reads as unmerged, which errs toward blocking, and a stale local
     # main reads every branch as unmerged, which errs the same way.
-    held = held_branches()
     out = []
+    try:
+        if _HELD_FILE_ERROR is not None:
+            raise _HELD_FILE_ERROR
+        held = held_branches()
+    except Exception as exc:
+        # No partial holds survive an untrusted input. Keep scanning so ALL
+        # outstanding branches remain visible, alongside exactly one input error.
+        held = {}
+        path = HELD_FILE if HELD_FILE is not None else "held-branches.txt (resolution)"
+        out.append((str(path), "unverified: " + type(exc).__name__ + ": " + str(exc)))
     try:
         listing = _git("for-each-ref", "--format=%(refname)", "refs/heads")
     except (OSError, subprocess.SubprocessError, ValueError) as exc:
-        return [("branch enumeration", "unverified: " + str(exc))]
+        return out + [("branch enumeration", "unverified: " + str(exc))]
     if b"refs/heads/main" not in listing.split(b"\n"):
         out.append(("main", "unverified: missing refs/heads/main"))
     for ref in listing.split(b"\n"):
@@ -393,9 +411,22 @@ def main() -> int:
                                               # docstring rules out); fall through to block instead
             else:
                 return 0                      # granted ONLY after a successful consume
-        message = decide(False, False, unmerged_branches())
+        branches = unmerged_branches()
+        try:
+            message = decide(False, False, branches)
+        except Exception:
+            if not branches:
+                return 0
+            # The scan established a block; a rendering error must not erase it.
+            # Escape handling above remains independent of this fallback.
+            message = ("BLOCKED (turn-end-outstanding-work): cannot format outstanding work; "
+                       "one-shot escape: touch " + str(ESCAPE_FILE))
         if message:
-            print(message, file=sys.stderr)
+            try:
+                print(message, file=sys.stderr)
+            except UnicodeError:
+                print(message.encode("ascii", errors="backslashreplace").decode("ascii"),
+                      file=sys.stderr)
             return 2
     except Exception:
         return 0                              # fail open, deliberately
