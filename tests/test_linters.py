@@ -22516,7 +22516,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     EU MiCA "(as amended by ...)" citation is read. Round 6 pins a listed Regulation or
     Directive citation the allowlist cannot read failing rather than being compared by
     its numbers, sunset and abrogation wording failing in a slot, ASCII-only slots, and
-    the short India Rules clause failing."""
+    the short India Rules clause failing. Round 7 pins a listed edition that carries
+    any EU instrument number failing closed unless the citation allowlist reads it, the
+    amending Act slot as an allowlist, and "sunset" marking a general row ended."""
 
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
@@ -23223,8 +23225,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("2023", india_current, india),
             ("1988", "1988", au),
             ("2023", "2023", india),
-            ("1988", "1988, as amended by the Privacy Amendment Act 2012 (Cth) No. 197, 2012 "
-             "(Royal Assent 12 December 2012)", au),
+            ("1988", au_current.replace("No. 128, 2024 (Royal Assent 10 December 2024)",
+                                        "No. 129, 2024 (Royal Assent 11 December 2024)"), au),
             ("1988", au_current.replace("commences 10 December 2026", "commences 1 July 2027"), au),
             ("2023", india_current.replace("around 13 May 2027", "around 14 May 2027"), india),
         ):
@@ -23400,8 +23402,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             current = f"1988, as amended by {act} (Cth) No. 1, 2026 (Royal Assent 1 January 2026)"
             self.assertFalse(match("1988", current, au), current)
             self.assertFalse(self.mod.statute_note_recognised(au, current[len("1988"):]), current)
-        self.assertTrue(match("1988", "1988, as amended by the Privacy Amendment Act 2026 (Cth) No. 1, "
-                              "2026 (Royal Assent 1 January 2026)", au))
+        # Round 7: the amending Act slot is an allowlist, so an unlisted name fails too.
+        self.assertFalse(match("1988", "1988, as amended by the Privacy Amendment Act 2026 (Cth) No. 1, "
+                               "2026 (Royal Assent 1 January 2026)", au))
 
     def test_statute_slots_take_ascii_digits_only(self):
         # Round 6 (claude note): Arabic-Indic digits do not fill a digit slot.
@@ -23414,6 +23417,101 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for forms in self.mod._STATUTE_NOTE_RES.values():
             for compiled in forms["opening"] + forms["clauses"]:
                 self.assertTrue(compiled.flags & re.ASCII, compiled.pattern)
+
+    # Round 7 (VPR3B380-R6): listed editions that carry an EU instrument number but do not
+    # begin "Regulation" or "Directive", per landing row, with the topic they replace.
+    ROUND_7_UNREADABLE_CITATIONS = (
+        ("EU GDPR", "Regulation (EU) 2016/679", (
+            "(EU) 2016/679 (repealed)",
+            "regulation (EU) 2016/679 (repealed)",
+            "Repealed Regulation (EU) 2016/679",
+            "Regulation (EU) No 2016/679 (repealed)",
+        )),
+        ("EU NIS2", "Directive (EU) 2022/2555", (
+            "(EU) 2022/2555 (withdrawn)",
+            "directive (EU) 2022/2555 (withdrawn)",
+            "Withdrawn Directive (EU) 2022/2555",
+            "Directive (EU) No 2022/2555 (withdrawn)",
+        )),
+        ("EU AI Act", "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744", (
+            "(EU) 2024/1689, as amended by (EU) 2026/1744 (repealed)",
+            "regulation (EU) 2024/1689, as amended by (EU) 2026/1744",
+            "Repealed Regulation (EU) 2024/1689, as amended by (EU) 2026/1744",
+            "Regulation (EU) No 2024/1689, as amended by (EU) 2026/1744 (repealed)",
+        )),
+    )
+
+    def test_any_listed_eu_instrument_number_fails_closed(self):
+        # Round 7: a listed edition with any EU instrument number that the citation
+        # allowlist cannot read fails, however it begins, and says how to fix it.
+        match = self.mod.edition_matches
+        rows = {"EU GDPR": "EU GDPR", "EU NIS2": "EU NIS 2 Directive", "EU AI Act": "EU AI Act"}
+        for name, topic, shapes in self.ROUND_7_UNREADABLE_CITATIONS:
+            row = rows[name]
+            current = self._register_current(row)
+            self.assertTrue(match(topic, current, row), (topic, current))
+            for listed in shapes:
+                self.assertIsNone(self.mod.instrument_edition(listed, row), listed)
+                self.assertFalse(match(listed, current, row), listed)
+                hits = self.mod.stale_standard_editions(self._landing_with(
+                    f'<span class="id">{name}</span><span class="topic">{topic}</span>',
+                    f'<span class="id">{name}</span><span class="topic">{listed}</span>',
+                ))
+                self.assertEqual(len(hits), 1, (listed, hits))
+                self.assertIn(f"{name!r} lists edition {listed!r}", hits[0])
+                self.assertIn("carries an EU instrument number", hits[0])
+                self.assertIn("EU_INSTRUMENT_SHORT_NAMES", hits[0])
+        # The rule needs no instrument word, marker or case to see a number.
+        for listed in ("2016/679", "2016/679 (repealed)", "GDPR 2016/679"):
+            self.assertFalse(match(listed, "Regulation 2016/679", "EU GDPR"), listed)
+        # Every current site entry that names an edition still matches.
+        self.assertEqual(self.mod.stale_standard_editions(), [])
+        entries = [e for e in self.mod.standard_edition_entries() if e.status != "no edition"]
+        self.assertTrue(entries)
+        for e in entries:
+            self.assertEqual(e.status, "match", e)
+
+    # Round 7 (reviewers' notes): ending wording by stem, each in an amending Act name.
+    ROUND_7_ENDING_ACT_WORDS = (
+        "Repeal", "Repealing", "Rescind", "Rescission", "Revoke", "Revocation", "Lapse", "Lapsing",
+        "Cease", "Cessation", "Supersede", "Supersession", "Expire", "Expiration", "Expiry",
+        "Dissolve", "Dissolution", "Discontinue", "Discontinuance", "Closure", "Winding Up",
+        "Sunset", "Abrogation", "Termination", "Successor", "Replacement",
+    )
+
+    def test_amending_act_slot_is_an_allowlist(self):
+        # Round 7: the amending Act slot takes only the register's enumerated names.
+        match, au = self.mod.edition_matches, "Australia Privacy Act"
+        self.assertEqual(self.mod.STATUTE_AMENDING_ACTS,
+                         frozenset({"the Privacy and Other Legislation Amendment Act 2024"}))
+        self.assertTrue(match("1988", self._register_current(au), au))
+        for word in self.ROUND_7_ENDING_ACT_WORDS:
+            for act in (f"the Privacy {word} Amendment Act 2026", f"the Privacy and Other Legislation "
+                        f"{word} Amendment Act 2024"):
+                note = f", as amended by {act} (Cth) No. 1, 2026 (Royal Assent 1 January 2026)"
+                self.assertFalse(match("1988", "1988" + note, au), act)
+                self.assertFalse(self.mod.statute_note_recognised(au, note), act)
+        old = "| Australia Privacy Act | " + self.AU_REGISTER_CURRENT + " |"
+        current = self.AU_REGISTER_CURRENT.replace("the Privacy and Other Legislation Amendment Act 2024",
+                                                   "the Privacy Repeal Amendment Act 2024")
+        hits = self._with_register(old, f"| Australia Privacy Act | {current} |")
+        self.assertEqual(len(hits), 2, hits)
+        for hit in hits:
+            self.assertIn("STATUTE_AMENDING_ACTS", hit)
+            self.assertIn("if the register text changed legitimately, update that allowlist", hit)
+
+    def test_sunset_marks_a_general_row_ended(self):
+        # Round 7 (codex): "2025 (sunset)" on a general row passed in round 6.
+        match = self.mod.edition_matches
+        self.assertTrue(match("2025", "2025", "OWASP Top 10"))
+        for current in ("2025 (sunset)", "2025 (Sunset)", "2025, sunset 2026", "2025 (sunsets 2027)",
+                        "2025 (sunsetted)", "2025 (sunsetting 2027)"):
+            self.assertFalse(match("2025", current, "OWASP Top 10"), current)
+            self.assertTrue(self.mod.edition_ended("2025", current), current)
+        hits = self._with_register("| OWASP LLM Top 10 | 2026 |", "| OWASP LLM Top 10 | 2026 (sunset) |")
+        self.assertTrue(hits)
+        for hit in hits:
+            self.assertIn("Current version '2026 (sunset)'", hit)
 
     def test_check_mode_fails_on_a_reverted_edition(self):
         import contextlib
