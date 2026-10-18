@@ -22504,7 +22504,12 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     missing source failing, and EU NIS2 and EU eIDAS 2 being compared. Round 3 pins the
     ending check on equal numbers (Superseded versions and ended wording), the expiry
     vocabulary of the statute rule, the last eIDAS amendment in any form, columns read to
-    their own close with a completeness check, and one EU AI Act entry per For-AI page."""
+    their own close with a completeness check, and one EU AI Act entry per For-AI page.
+    Round 4 pins allowlists in place of word lists for the statute notes and the EU
+    instrument citations (eIDAS and the EU AI Act), the extended ending vocabulary, each
+    ending marking tied to its subject, eIDAS amendments collected only up to the first
+    boundary, "id" spans found anywhere inside an item, items tracked by offset, and a
+    register-wide check that no compared row's leading edition is rejected."""
 
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
@@ -22586,7 +22591,7 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertTrue(match("v1.1", "v1.1"))
         self.assertTrue(match("2026", "2026"))
         self.assertTrue(match("1988", "1988, as amended by a later Act 2024", "Australia Privacy Act"))
-        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025", "India DPDPA"))
+        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", "India DPDPA"))
         self.assertFalse(match("2025", "2026"))
         self.assertFalse(match("2.0", "2.2.0"))
         self.assertFalse(match("2019", "2019 Recommendation as updated 2024"))
@@ -22851,14 +22856,19 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for listed, current, row, superseded in (
             ("2026", "2026", "OWASP LLM Top 10", ["2025 (v2.0)"]),
             ("2024", "2024", "ISO/IEC 42006", ["draft 2024", "2024 draft"]),
-            # A marking said of an older edition listed in Superseded versions.
-            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183; "
-             "Directive 1999/93/EC repealed", "EU eIDAS", ["Directive 1999/93/EC"]),
         ):
             self.assertTrue(match(listed, current, row, superseded), (listed, current))
-        # The same marking with nothing in Superseded versions to say it of fails.
-        self.assertFalse(match("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by "
-                               "Regulation 2024/1183; Directive 1999/93/EC repealed", "EU eIDAS", []))
+        # A marking said of an older edition listed in Superseded versions is not said of
+        # the listed edition.
+        self.assertFalse(self.mod.edition_ended(
+            "Regulation (EU) 910/2014", "Regulation 910/2014; Directive 1999/93/EC repealed",
+            ["Directive 1999/93/EC"]))
+        # Round 4: an instrument citation is read whole against an allowlist, so text after
+        # it fails whatever it says, with or without a Superseded version to say it of.
+        for superseded in (["Directive 1999/93/EC"], []):
+            self.assertFalse(match("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by "
+                                   "Regulation 2024/1183; Directive 1999/93/EC repealed", "EU eIDAS",
+                                   superseded))
 
     def test_register_supersession_marking_with_equal_numbers_fails_the_site(self):
         for old, new, name in (
@@ -22879,19 +22889,31 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(len(hits), 2, hits)
         self.assertTrue(all("'OWASP SAMM 2.2.0' lists edition '2.2.0'" in h for h in hits), hits)
 
-    def test_no_compared_register_row_is_ended(self):
-        # Every register row compared by the site matches its own Current version, so the
-        # ending and Superseded checks reject no current row. Register-wide, only the rows
-        # whose Current version says the instrument itself lapsed or was repealed fail.
+    # A row's leading edition token: its Current version up to the first ";", "," or
+    # parenthesis (an "(EU)" or "(EC)" marker excepted), so "1988, as amended by ..."
+    # gives "1988" and "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)"
+    # gives "Regulation 910/2014 as amended by Regulation 2024/1183".
+    LEADING_EDITION = re.compile(r"[;,]|\s\((?!(?:EU|EC)\))")
+
+    def test_no_compared_register_row_is_rejected(self):
+        # Round 4 (claude N3): each register row's leading edition token, listed against
+        # its own Current version, matches on every row the site compares (the rows whose
+        # site entries carry an edition), so the allowlists and the ending and Superseded
+        # checks reject no current row the site cites. Rows the site does not compare may
+        # be rejected; on 2026-10-18 they include the three whose Current version says the
+        # instrument itself lapsed or was repealed (Colorado AI Act, Canada CPPA / successor
+        # C-36, Canada AIDA), and rows whose leading token is not their whole edition. That
+        # set is not pinned here.
         _, resolver = self.mod._load_edition_resolver()
-        compared = {e.row for e in self.mod.standard_edition_entries() if e.row}
+        compared = {e.row for e in self.mod.standard_edition_entries() if e.row and e.edition}
         rejected = set()
         for e in resolver.register.entries:
-            if not self.mod.edition_matches(e["current"], e["current"], e["id"], e["superseded"]):
+            listed = self.LEADING_EDITION.split(e["current"])[0].strip()
+            if not self.mod.edition_matches(listed, e["current"], e["id"], e["superseded"]):
                 rejected.add(e["id"])
-        self.assertEqual(len(compared), 59)
+        self.assertIn("Australia Privacy Act", compared)
+        self.assertIn("EU eIDAS", compared)
         self.assertEqual(compared & rejected, set())
-        self.assertEqual(rejected, {"Colorado AI Act", "Canada CPPA / successor C-36 (PPCDA)", "Canada AIDA"})
 
     def test_statute_expiry_vocabulary_is_rejected_anywhere_in_the_note(self):
         # Round 2 reviewers (codex, claude).
@@ -22920,6 +22942,165 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertTrue(match("Regulation (EU) 2027/55", current, "EU eIDAS"), current)
         self.assertTrue(match("Regulation (EU) 2024/1183",
                               "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)", "EU eIDAS"))
+
+    # Round 4 reviewer examples (claude W1, codex E2, claude N1): text after the edition
+    # that is not one recognised note fails, whatever words it uses.
+    STATUTE_REVIEWER_SUFFIXES = (
+        "; the Privacy Act 2026 replaces it",
+        "; succeeded by the Privacy Act 2026",
+        "; valid until 2027-06-30",
+        "; cancelled",
+        "; 2025 amendment superseded, current Act expired",
+    )
+
+    def test_statute_rule_accepts_only_one_recognised_note(self):
+        match = self.mod.edition_matches
+        au, india = "Australia Privacy Act", "India DPDPA"
+        india_current = self.mod.CITATIONS_REGISTER.read_text(encoding="utf-8")
+        india_current = next(ln for ln in india_current.splitlines()
+                             if ln.startswith("| India DPDPA | ")).split(" | ")[1]
+        self.assertTrue(match("1988", self.AU_REGISTER_CURRENT, au))
+        self.assertTrue(match("2023", india_current, india))
+        self.assertTrue(match("1988", "1988", au))
+        for prefix, listed, row in (
+            ("1988, as amended", "1988", au),
+            ("1988, as amended by the Privacy Amendment Act 2012", "1988", au),
+            (self.AU_REGISTER_CURRENT, "1988", au),
+            ("2023 (Act enacted 2023-08-11)", "2023", india),
+            (india_current, "2023", india),
+        ):
+            for suffix in self.STATUTE_REVIEWER_SUFFIXES + (
+                "; the Privacy Act 2026 commences 2026-07-01",
+                "; deprecated",
+                "; no longer current",
+                ", obsolete",
+                " and the 2026 Act",
+            ):
+                self.assertFalse(match(listed, prefix + suffix, row), prefix + suffix)
+        # Ending or displacing wording inside an accepted shape also fails.
+        for current in (
+            "1988, as amended by the Repeal Act 2026",
+            "1988, as amended by the Privacy Act 2024; the new regime commences 2026 and replaces it",
+            "2023 (in force until 2026-06-30)",
+        ):
+            self.assertFalse(match(current[:4], current, au if current[:4] == "1988" else india), current)
+
+    def test_instrument_citations_are_read_against_an_allowlist(self):
+        # Round 4: the same principle on the eIDAS amendment-named rule and the EU AI Act
+        # topic edition.
+        match = self.mod.edition_matches
+        eidas = "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)"
+        ai_act = "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)"
+        ai_listed = "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744"
+        self.assertTrue(match("Regulation (EU) 2024/1183", eidas, "EU eIDAS"))
+        self.assertTrue(match(ai_listed, ai_act, "EU AI Act"))
+        for suffix in (
+            "; the European Digital Identity Act replaces it",
+            "; succeeded by the European Digital Identity Regulation",
+            "; valid until 2030-01-01",
+            "; cancelled",
+            ", deprecated",
+            ", no longer current",
+            " (Repealed)",
+            " and retracted",
+        ):
+            self.assertFalse(match("Regulation (EU) 2024/1183", eidas + suffix, "EU eIDAS"), suffix)
+            self.assertFalse(match(ai_listed, ai_act + suffix, "EU AI Act"), suffix)
+        for current in (
+            "Regulation 910/2014 as amended by Regulation 2024/1183 (obsolete)",
+            "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (repealed)",
+            "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus) (withdrawn)",
+        ):
+            self.assertIsNone(self.mod.instrument_edition(current), current)
+
+    def test_eidas_amendments_stop_at_the_first_boundary(self):
+        # Round 4 (claude N4): amendment numbers are collected only up to the first ";" or
+        # "(" after "as amended by", so a number in a later note is not an amendment.
+        match = self.mod.edition_matches
+        cases = (
+            ("Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2; corrigendum 2024/2000)",
+             "Regulation (EU) 2024/2000"),
+            ("Regulation 910/2014 as amended by Regulation 2024/1183; Implementing Regulation 2025/1 applies",
+             "Regulation (EU) 2025/1"),
+            ("Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2) and Regulation 2027/55",
+             "Regulation (EU) 2027/55"),
+        )
+        for current, later in cases:
+            self.assertFalse(match(later, current, "EU eIDAS"), current)
+        edition = self.mod.instrument_edition
+        for current, _ in cases:
+            self.assertIsNone(edition(current), current)
+        self.assertEqual(edition("Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)"),
+                         ["910/2014", "2024/1183"])
+        self.assertEqual(edition("Regulation 910/2014 as amended by Regulation 2024/1183, (EU) 2027/55"),
+                         ["910/2014", "2024/1183", "2027/55"])
+
+    def test_ending_vocabulary_is_extended(self):
+        # Round 4 (claude W2).
+        match = self.mod.edition_matches
+        for marking in ("deprecated", "obsolete", "retired", "cancelled", "canceled", "annulled",
+                        "retracted", "no longer current", "valid until 2027", "applies until 2027"):
+            for current in (f"2022 ({marking})", f"2022; {marking}"):
+                self.assertFalse(match("2022", current, "ISO/IEC 27001", ["2013"]), current)
+                self.assertTrue(self.mod.edition_ended("2022", current, ["2013"]), current)
+        # The active forms of the TSA directive and TBS rows still do not end an edition.
+        for current in (
+            "SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; "
+            "cancels and supersedes SD Pipeline-2021-02F)",
+            "In effect since 9 October 2024 (replaces the Policy on Privacy Protection dated 26 October 2022)",
+        ):
+            self.assertFalse(self.mod.edition_ended("2024", current, []), current)
+
+    def test_each_marking_is_tied_to_its_subject(self):
+        # Round 4 (claude W1, codex E2): an older Superseded number in the clause does not
+        # excuse a later marking of the listed edition; commas are clause boundaries; the
+        # text after a marking is read too.
+        ended = self.mod.edition_ended
+        for current in (
+            "2026 (2025 withdrawn and 2026 superseded)",
+            "2026 (2025 edition replaced, withdrawn)",
+            "2026 (the 2025 edition, deprecated)",
+            "2026 (2025 withdrawn along with 2026)",
+        ):
+            self.assertTrue(ended("2026", current, ["2025"]), current)
+        for current in (
+            "2026 (the 2025 edition was withdrawn)",
+            "2026; 2025 superseded",
+        ):
+            self.assertFalse(ended("2026", current, ["2025"]), current)
+        self.assertFalse(ended("Regulation (EU) 910/2014",
+                               "Regulation 910/2014 (Directive 1999/93/EC repealed by Regulation 910/2014)",
+                               ["Directive 1999/93/EC"]))
+
+    def _one_line_landing(self, stray):
+        col = ('<div class="biblio-col"><ul><li><span class="id">OWASP SAMM 2.2.0</span>'
+               '<span class="topic">x</span></li></ul></div>')
+        return {self.LANDING: col + stray + "\n"}
+
+    def test_an_id_span_nested_in_an_item_outside_every_list_fails(self):
+        # Round 4 (codex E1): an "id" span anywhere inside an <li>, here inside an <a>.
+        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        stray = text.replace("</body>", '<ul><li><a href="#x"><span class="id">OWASP SAMM 2.0</span></a>'
+                             '<span class="topic">x</span></li></ul>\n</body>')
+        self.assertNotEqual(stray, text)
+        hits = self.mod.stale_standard_editions({self.LANDING: stray})
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'OWASP SAMM 2.0x' is not among the entries", hits[0])
+
+    def test_two_items_on_one_line_do_not_hide_each_other(self):
+        # Round 4 (claude N2): items are tracked by offset, not line.
+        self.assertEqual(self.mod.stale_standard_editions(self._one_line_landing("")), [])
+        hits = self.mod.stale_standard_editions(self._one_line_landing(
+            '<ul><li><span class="id">OWASP SAMM 2.0</span><span class="topic">x</span></li></ul>'))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn(".web/templates/landing.html:1: list item 'OWASP SAMM 2.0x' is not among", hits[0])
+        # A second For-AI item on the line of another is read and compared.
+        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        line = next(ln for ln in text.splitlines() if "OWASP Top 10 for LLM Applications 2026" in ln)
+        doubled = text.replace(line, line + line.strip().replace("2026", "2025"))
+        hits = self.mod.stale_standard_editions({self.FOR_AI_V3: doubled})
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'OWASP Top 10 for LLM Applications 2025' lists edition '2025'", hits[0])
 
     def test_changed_biblio_markup_fails_instead_of_dropping_the_entry(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
