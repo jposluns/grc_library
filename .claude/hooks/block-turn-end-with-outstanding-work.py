@@ -45,10 +45,15 @@ environment of a tool call.
 
 GIT FAILURES BLOCK: enumeration failures, malformed listing records, unreadable
 refs, rev-list failures and diff failures/timeouts produce blocking diagnostics.
-Per-branch failures name the full ref and do not discard other branches. Listing
+A repository without main or refused by safe.directory also blocks.
+Per-branch failures name the branch and do not discard other branches. Listing
 failures name the enumeration because no trustworthy branch list is available.
 Non-UTF-8 names are kept as bytes for git and escaped for display. Inherited
-GIT_TRACE* variables are removed; unexpected configured trace output is rejected.
+GIT_TRACE* variables are removed. Stderr lines starting with "fatal:", "error:",
+"warning: ignoring broken ref " or "warning: ignoring ref with broken name "
+block. Other stderr (including other warnings, hints and trace2 lines) is ignored;
+stdout must still be clean. A nonzero exit blocks, except diff exit 1 with empty
+stdout and no blocking diagnostic, which means the branch tree differs.
 The one-shot escape and stop_hook_active still take precedence. Other errors
 reaching main()'s outer handler retain its existing fail-open behavior.
 
@@ -71,6 +76,7 @@ import os
 import re as _re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 def _load_sibling(name, _cache={}):
@@ -191,15 +197,28 @@ def _git_environment() -> dict:
 
 def _git_result(*args: str | bytes) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["git", "-C", str(REPO), *args],
+        ["git", "-c", "core.warnAmbiguousRefs=false", "-C", str(REPO), *args],
         capture_output=True, env=_git_environment(), timeout=GIT_TIMEOUT, check=False,
     )
+
+
+def _blocking_stderr(stderr: bytes) -> bool:
+    return any(line.startswith((b"fatal:", b"error:",
+                                b"warning: ignoring broken ref ",
+                                b"warning: ignoring ref with broken name "))
+               for line in stderr.split(b"\n"))
+
+
+def _branch_display(ref: bytes) -> str:
+    name = ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace")
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in name)
 
 
 def _git(*args: str | bytes) -> bytes:
     result = _git_result(*args)
     result.check_returncode()
-    if result.stderr:
+    if _blocking_stderr(result.stderr):
         raise ValueError("git diagnostic: " + ascii(result.stderr))
     return result.stdout
 
@@ -253,6 +272,8 @@ def unmerged_branches() -> list:
         listing = _git("for-each-ref", "--format=%(refname)", "refs/heads")
     except (OSError, subprocess.SubprocessError, ValueError) as exc:
         return [("branch enumeration", "unverified: " + ascii(str(exc)))]
+    if b"refs/heads/main" not in listing.split(b"\n"):
+        out.append(("main", "unverified: missing refs/heads/main"))
     for ref in listing.split(b"\n"):
         if not ref:
             continue
@@ -263,17 +284,20 @@ def unmerged_branches() -> list:
         name = ref[len(b"refs/heads/"):].decode("utf-8", errors="surrogateescape")
         if name == "main" or name in held:
             continue
-        display = ascii(ref)
+        display = _branch_display(ref)
         try:
-            ahead = _git("rev-list", "--count", b"refs/heads/main.." + ref).strip()
-            if not ahead.isdigit():
+            ahead = _git("rev-list", "--count", b"refs/heads/main.." + ref)
+            if not _re.fullmatch(rb"[0-9]+\n?", ahead):
                 raise ValueError("invalid rev-list count: " + ascii(ahead))
+            ahead = ahead.strip()
             if int(ahead) == 0:
                 continue
             result = _git_result("diff", "--quiet", b"refs/heads/main", ref, "--")
-            if result.returncode == 0 and not result.stderr:
+            if result.stdout or _blocking_stderr(result.stderr):
+                raise ValueError("git diff diagnostic: " + ascii((result.stdout, result.stderr)))
+            if result.returncode == 0:
                 continue          # tree-identical: the work landed
-            if result.returncode != 1 or result.stderr:
+            if result.returncode != 1:
                 raise ValueError("git diff exit %s: %s" %
                                  (result.returncode, ascii(result.stderr)))
         except (OSError, subprocess.SubprocessError, ValueError) as exc:

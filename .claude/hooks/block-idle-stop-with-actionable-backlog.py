@@ -35,7 +35,9 @@ OWN one-shot sentinel, distinct from the branch guard's ``.allow-stop`` so the t
 race on a shared file under parallel Stop-hook execution). A wait during branch-bearing
 work declares both. The reliable loop-terminator remains ``stop_hook_active``.
 
-DESIGN INVARIANTS (each mirrors ``block-turn-end-with-outstanding-work.py``):
+DESIGN INVARIANTS (loop safety and worker exemption are shared with
+``block-turn-end-with-outstanding-work.py``; that hook blocks when git cannot
+answer, while this idle-stop hook retains its own fail-open behavior):
   * FAIL OPEN. Any exception, unreadable/ambiguous state, unknown mode, or audit
     failure resolves the blocking predicate to False (allow), with one deliberate
     exception: a failed escape CONSUMPTION (a caught unlink error) refuses the escape
