@@ -22405,7 +22405,9 @@ class GeneratorSortKeyParityTests(unittest.TestCase):
 
     ``tools/build-taxonomy.py`` orders ``taxonomy.yml`` and ``.web/build.py`` orders the
     website domain pages; the type-reading-progression rank ``TYPE_ORDER`` is replicated
-    in both (``.web/`` is a standalone stdlib-only generator, isolated from ``tools/``).
+    in both (``.web/`` is a standalone stdlib-only generator, isolated from ``tools/``
+    except under ``--check``, whose hand-written edition check loads gate D15's resolver
+    from ``tools/``; rendering never imports ``tools/``).
     If the two drift, the taxonomy source order and the on-site page order silently
     diverge. This guards the WHOLE per-domain sort key, the ``TYPE_ORDER`` rank AND the
     secondary tiebreaker, widened from a rank-only concern by Sweep 105 finding A-1
@@ -22497,7 +22499,9 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     The landing and v2 coverage bibliography lists and the For-AI OWASP and EU AI Act
     entries are written by hand; PR #2846 brought them in line with the register.
     These tests pin both directions: the current lists pass, and an edition changed
-    back to the one #2846 replaced fails, alone and through ``--check``."""
+    back to the one #2846 replaced fails, alone and through ``--check``. Round 2 pins
+    the year-named statute rule to its rows and notes, an unparseable list item or a
+    missing source failing, and EU NIS2 and EU eIDAS 2 being compared."""
 
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
@@ -22571,19 +22575,197 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_names_without_an_edition_are_skipped(self):
         entries = self.mod.standard_edition_entries()
-        for name in ("LINDDUN", "STRIDE", "IEC 62443", "EU eIDAS 2"):
+        for name in ("LINDDUN", "STRIDE", "IEC 62443", "Basel III"):
             self.assertEqual(self._entry(entries, self.LANDING, name).status, "no edition")
 
     def test_edition_comparison(self):
         match = self.mod.edition_matches
         self.assertTrue(match("v1.1", "v1.1"))
         self.assertTrue(match("2026", "2026"))
-        self.assertTrue(match("1988", "1988, as amended by a later Act 2024"))
-        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025"))
+        self.assertTrue(match("1988", "1988, as amended by a later Act 2024", "Australia Privacy Act"))
+        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025", "India DPDPA"))
         self.assertFalse(match("2025", "2026"))
         self.assertFalse(match("2.0", "2.2.0"))
         self.assertFalse(match("2019", "2019 Recommendation as updated 2024"))
         self.assertFalse(match("Regulation (EU) 2024/1689", "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744"))
+
+    AU_REGISTER_CURRENT = (
+        "1988, as amended by the Privacy and Other Legislation Amendment Act 2024 (Cth) No. 128, "
+        "2024 (Royal Assent 10 December 2024); the automated-decision transparency obligation "
+        "(Australian Privacy Principles 1.7 to 1.9, Schedule 1 Part 15) commences 10 December 2026"
+    )
+
+    def test_statute_year_rule_accepts_only_amendment_and_commencement_notes(self):
+        match = self.mod.edition_matches
+        au, india = "Australia Privacy Act", "India DPDPA"
+        for listed, current, row in (
+            ("1988", self.AU_REGISTER_CURRENT, au),
+            ("1988", "1988, as amended", au),
+            ("1988", "1988 as amended by the Privacy Amendment Act 2012", au),
+            ("2023", "2023 (Act enacted 2023-08-11); Act brought into force 2025", india),
+            ("2023", "2023 (in force 2025-11-13 on a staged schedule)", india),
+        ):
+            self.assertTrue(match(listed, current, row), (listed, current, row))
+        for listed, current, row in (
+            # The reviewers' examples.
+            ("1988", "1988, superseded by 2025", au),
+            ("1988", "1988 (repealed in 2026)", au),
+            ("2025", "2025 (superseded by the 2026 edition)", "OWASP Top 10"),
+            ("2025", "2025 (superseded by the 2026 edition)", au),
+            # Replacement, withdrawal, revocation and lapse after a recognised note.
+            ("1988", "1988, as amended; repealed and replaced by the Privacy Act 2026", au),
+            ("1988", "1988, as amended by the 2024 Act; withdrawn 2026", au),
+            ("2023", "2023 (Act enacted 2023-08-11); revoked 2027", india),
+            ("1988", "1988; replaced by the Privacy Act 2026", au),
+            # Any unrecognised continuation.
+            ("1988", "1988 (see the 2026 Act)", au),
+            ("1988", "1988; 2026 edition", au),
+            ("1988", "1988 Act, 2026 consolidation", au),
+            ("1988", "19880", au),
+            # Only the statute rows: a bare-year edition elsewhere compares numbers alone.
+            ("2019", "2019, as amended by the 2025 update", "COBIT"),
+            ("2019", "2019 (Act enacted 2019-10-01); 2024 edition", "ISO 22301"),
+            ("2025", "2025, as amended by the 2026 release", "OWASP Top 10"),
+            ("1988", self.AU_REGISTER_CURRENT, ""),
+        ):
+            self.assertFalse(match(listed, current, row), (listed, current, row))
+
+    def test_amendment_named_row_matches_only_its_latest_amendment(self):
+        match = self.mod.edition_matches
+        current = "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)"
+        self.assertTrue(match("Regulation (EU) 2024/1183", current, "EU eIDAS"))
+        for listed, current_, row in (
+            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183 "
+             "and Regulation 2027/55", "EU eIDAS"),
+            ("Regulation (EU) 910/2014", current, "EU eIDAS"),
+            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183, "
+             "superseded by Regulation 2028/1", "EU eIDAS"),
+            ("Regulation (EU) 2024/1183", current, "EU GDPR"),
+            ("Regulation (EU) 2026/1744", "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744",
+             "EU AI Act"),
+        ):
+            self.assertFalse(match(listed, current_, row), (listed, current_, row))
+
+    def _with_register(self, old, new, texts=None):
+        import tempfile
+        from unittest import mock
+        register = self.mod.CITATIONS_REGISTER.read_text(encoding="utf-8")
+        self.assertIn(old, register)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "register-canonical-citations.md"
+            path.write_text(register.replace(old, new), encoding="utf-8")
+            with mock.patch.object(self.mod, "CITATIONS_REGISTER", path):
+                return self.mod.stale_standard_editions(texts)
+
+    def test_register_supersession_of_a_year_named_statute_fails(self):
+        old = "| Australia Privacy Act | " + self.AU_REGISTER_CURRENT + " |"
+        for current in ("1988, superseded by 2025", "1988 (repealed in 2026)"):
+            hits = self._with_register(old, f"| Australia Privacy Act | {current} |")
+            self.assertEqual(len(hits), 2, hits)
+            for hit in hits:
+                self.assertIn("'Australia Privacy Act 1988' lists edition '1988'", hit)
+                self.assertIn(f"Current version {current!r}", hit)
+
+    def test_the_statute_rule_is_limited_to_the_year_named_statutes(self):
+        self.assertEqual(self.mod.STATUTE_YEAR_ROWS, frozenset({"Australia Privacy Act", "India DPDPA"}))
+        entries = self.mod.standard_edition_entries()
+        for name, row in (("Australia Privacy Act 1988", "Australia Privacy Act"), ("India DPDPA 2023", "India DPDPA")):
+            entry = self._entry(entries, self.LANDING, name)
+            self.assertEqual((entry.row, entry.status), (row, "match"), entry)
+
+    def test_register_supersession_of_a_bare_year_edition_fails(self):
+        hits = self._with_register(
+            "| OWASP Top 10 | 2025 |", "| OWASP Top 10 | 2025 (superseded by the 2026 edition) |"
+        )
+        self.assertEqual(len(hits), 2, hits)
+        self.assertTrue(all("'OWASP Top 10 (2025)' lists edition '2025'" in h for h in hits), hits)
+
+    EXPECTED_SOURCES = (
+        ("templates/landing.html", "biblio"),
+        ("templates-v2/coverage.html", "biblio"),
+        ("templates/for-ai.html", "for-ai"),
+        ("templates-v2/for-ai.html", "for-ai"),
+        ("templates-v3/for-ai.html", "for-ai"),
+    )
+
+    def test_every_configured_source_is_parsed(self):
+        self.assertEqual(self.mod.EDITION_LIST_SOURCES, self.EXPECTED_SOURCES)
+        entries = self.mod.standard_edition_entries()
+        self.assertEqual(
+            {e.source for e in entries}, {f".web/{rel}" for rel, _ in self.EXPECTED_SOURCES}
+        )
+        self.assertEqual([e for e in entries if e.status == "unparsed"], [])
+        for rel, kind in self.EXPECTED_SOURCES:
+            compared = [e for e in entries if e.source == f".web/{rel}" and e.status == "match"]
+            self.assertGreaterEqual(len(compared), 2 if kind == "for-ai" else 40, rel)
+
+    def test_changed_biblio_markup_fails_instead_of_dropping_the_entry(self):
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<li><span class="id">OWASP SAMM 2.2.0</span>',
+            '<li><span class="id standard">OWASP SAMM 2.0</span>',
+        ))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn(".web/templates/landing.html:", hits[0])
+        self.assertIn("cannot be parsed", hits[0])
+        self.assertIn("OWASP SAMM 2.0", hits[0])
+
+    def test_changed_for_ai_markup_fails_instead_of_dropping_the_entry(self):
+        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        for old, new in (
+            ('<span class="row-name">OWASP MCP Top 10</span>', '<span class="row-name inst">OWASP MCP Top 10</span>'),
+            ('<li><span class="row-name">European Union</span>, AI Act (Regulation (EU) 2024/1689, as amended by (EU) 2026/1744)',
+             '<li><span class="row-name">European Union</span>, AI Act, Regulation (EU) 2024/1689'),
+        ):
+            self.assertIn(old, text)
+            hits = self.mod.stale_standard_editions({self.FOR_AI_V3: text.replace(old, new)})
+            self.assertEqual(len(hits), 1, (new, hits))
+            self.assertIn(".web/templates-v3/for-ai.html:", hits[0])
+            self.assertIn("cannot be parsed", hits[0])
+
+    def test_a_source_with_no_list_fails(self):
+        text = (REPO_ROOT / ".web" / "templates-v2/for-ai.html").read_text(encoding="utf-8")
+        hits = self.mod.stale_standard_editions(
+            {"templates-v2/for-ai.html": text.replace("<h2>Resource index", "<h2>Resources")}
+        )
+        self.assertEqual(hits, [".web/templates-v2/for-ai.html: no hand-written standard list found to check"])
+        landing = self._landing_with('<div class="biblio-col">', '<div class="biblio-column">')
+        hits = self.mod.stale_standard_editions(landing)
+        self.assertEqual(hits, [".web/templates/landing.html: no hand-written standard list found to check"])
+
+    def test_eu_nis2_and_eidas_2_resolve_and_are_compared(self):
+        entries = self.mod.standard_edition_entries()
+        for source in (self.LANDING, "templates-v2/coverage.html"):
+            nis2 = self._entry(entries, source, "EU NIS2")
+            self.assertEqual((nis2.row, nis2.edition, nis2.status),
+                             ("EU NIS 2 Directive", "Directive (EU) 2022/2555", "match"))
+            eidas = self._entry(entries, source, "EU eIDAS 2")
+            self.assertEqual((eidas.row, eidas.edition, eidas.status),
+                             ("EU eIDAS", "Regulation (EU) 2024/1183", "match"))
+
+    def test_superseded_eu_instrument_numbers_fail(self):
+        for old, new, name in (
+            ("Directive (EU) 2022/2555", "Directive (EU) 2016/1148", "EU NIS2"),
+            ("Regulation (EU) 2024/1183", "Regulation (EU) 910/2014", "EU eIDAS 2"),
+        ):
+            hits = self.mod.stale_standard_editions(self._landing_with(old, new))
+            self.assertEqual(len(hits), 1, hits)
+            self.assertIn(f"{name!r} lists edition {new!r}", hits[0])
+
+    def test_a_later_eidas_amendment_in_the_register_fails_the_site(self):
+        hits = self._with_register(
+            "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)",
+            "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2) and Regulation 2027/55",
+        )
+        self.assertEqual(len(hits), 2, hits)
+        self.assertTrue(all("'EU eIDAS 2' lists edition 'Regulation (EU) 2024/1183'" in h for h in hits), hits)
+
+    def test_unresolved_name_with_an_eu_instrument_number_fails(self):
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<span class="id">EU NIS2</span><span class="topic">Directive (EU) 2022/2555</span>',
+            '<span class="id">EU NIS Two</span><span class="topic">Directive (EU) 2016/1148</span>',
+        ))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'EU NIS Two' carries edition 'Directive (EU) 2016/1148' but names no register row", hits[0])
 
     def test_check_mode_fails_on_a_reverted_edition(self):
         import contextlib

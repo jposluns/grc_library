@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version; a name that resolves to no row but carries an edition also fails; names without an edition are out of scope).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version; a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2558,8 +2558,10 @@ CITATIONS_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md
 # tools/alignment-register-aliases.json) is reused rather than re-implemented.
 D15_CHECKER = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
 # (template path under .web/, list kind). "biblio" reads every <li> of the
-# "biblio-col" lists (an "id" span and a "topic" span); "for-ai" reads the OWASP
-# entries and the EU AI Act entry of the For-AI resource index.
+# "biblio-col" lists (an "id" span and a "topic" span); "for-ai" reads every <li> of the
+# For-AI resource index and checks its OWASP entries and its EU AI Act entry. An <li>
+# of a list read that the item pattern cannot parse, or a source with no list read,
+# fails the check ("unparsed"), so a markup change cannot silently drop an entry.
 EDITION_LIST_SOURCES = (
     ("templates/landing.html", "biblio"),
     ("templates-v2/coverage.html", "biblio"),
@@ -2590,6 +2592,28 @@ _EDITION_SHAPE_RE = re.compile(
 # "Regulation (EU) 2024/1689" and "Regulation 2024/1689" are equal).
 _EDITION_NUMBER_RE = re.compile(r"\d+(?:[./]\d+)*")
 _YEAR_RE = re.compile(r"(?:19|20)\d\d")
+# The register rows of statutes the site names by their enactment year ("Australia
+# Privacy Act 1988", "India DPDPA 2023"). Only for these rows may a listed year match a
+# Current version that continues past the year (``edition_matches``); every other row,
+# including a bare-year edition (ISO, COBIT, OWASP), is compared by its numbers alone.
+STATUTE_YEAR_ROWS = frozenset({"Australia Privacy Act", "India DPDPA"})
+# The notes that may follow the year in such a row: an amendment note (", as amended by
+# ...", " as amended by ...", ", as amended") or an enactment or commencement note in
+# parentheses ("(Act enacted 2023-08-11)", "(commenced ...)", "(in force ...)").
+_STATUTE_NOTE_RE = re.compile(
+    r",? as amended\b"
+    r"| \((?:Act enacted|enacted|commenced|commencing|in force|brought into force)\b[^()]*\)"
+)
+# Wording that ends or displaces an edition. After the year it rejects the statute rule
+# wherever it appears ("1988, as amended ...; repealed 2026").
+_EDITION_ENDED_RE = re.compile(r"supersed|repeal|replac|withdr[ae]w|revok|rescind|lapse", re.I)
+# The register rows the site names after their amending instrument: "EU eIDAS 2", topic
+# "Regulation (EU) 2024/1183", is the row "Regulation 910/2014 as amended by Regulation
+# 2024/1183 (eIDAS 2)". For these rows a listed edition that is one instrument number
+# matches when it is the last instrument the Current version says amended the base act,
+# so a later amendment recorded in the register fails the site's citation.
+AMENDMENT_NAMED_ROWS = frozenset({"EU eIDAS"})
+_INSTRUMENT_RE = re.compile(r"(?:Regulation|Directive)\s+(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})")
 
 
 class EditionEntry(NamedTuple):
@@ -2601,7 +2625,7 @@ class EditionEntry(NamedTuple):
     edition: str
     row: str
     current: str
-    status: str  # "match", "mismatch", "unresolved", or "no edition"
+    status: str  # "match", "mismatch", "unresolved", "no edition", or "unparsed"
 
 
 def _edition_source_text(rel):
@@ -2630,27 +2654,48 @@ def _plain(fragment):
 
 
 def _hand_written_entries(rel, kind, text):
-    """(line, name, edition) per entry of one hand-written list; edition may be empty."""
-    entries, in_biblio = [], False
+    """(line, name, edition, parsed) per entry of one hand-written list; edition may be
+    empty. An <li> of a list read that its item pattern cannot parse gives parsed=False
+    with the line's text as the name; a source with no list read gives one such entry
+    with line 0 and an empty name."""
+    entries, in_list, lists = [], False, 0
     for lineno, line in enumerate(text.splitlines(), 1):
         if kind == "biblio":
             if '<div class="biblio-col">' in line:
-                in_biblio = True
-            elif in_biblio and "</div>" in line:
-                in_biblio = False
+                in_list, lists = True, lists + 1
+            elif in_list and "</div>" in line:
+                in_list = False
+            if not (in_list and "<li" in line):
+                continue
             m = _BIBLIO_ITEM_RE.search(re.sub(r'<span class="ext">[^<]*</span>|</?a\b[^>]*>', "", line))
-            if in_biblio and m:
-                entries.append((lineno, _plain(m["name"]), _plain(m["topic"])))
+            if m:
+                entries.append((lineno, _plain(m["name"]), _plain(m["topic"]), True))
+            else:
+                entries.append((lineno, _plain(line), "", False))
+            continue
+        # The For-AI resource index runs from its heading to the next section heading.
+        if re.search(r"<h2>Resource index\b", line):
+            in_list, lists = True, lists + 1
+            continue
+        if in_list and "<h2" in line:
+            in_list = False
+        if not (in_list and "<li" in line):
             continue
         m = _FOR_AI_ITEM_RE.search(line)
         if not m:
+            entries.append((lineno, _plain(line), "", False))
             continue
         name = _plain(m["name"])
-        eu = _FOR_AI_EU_AI_ACT_RE.match(_plain(m["name"] + m["rest"]))
+        full = _plain(m["name"] + m["rest"])
+        eu = _FOR_AI_EU_AI_ACT_RE.match(full)
         if eu:
-            entries.append((lineno, FOR_AI_EU_AI_ACT_ID, eu["edition"]))
+            entries.append((lineno, FOR_AI_EU_AI_ACT_ID, eu["edition"], True))
+        elif name.startswith("European Union") and "AI Act" in full:
+            entries.append((lineno, full, "", False))
         elif name.startswith("OWASP "):
-            entries.append((lineno, name, ""))
+            entries.append((lineno, name, "", True))
+    if not lists or not entries:
+        entries.append((0, "", "", False))
     return entries
 
 
@@ -2666,20 +2711,40 @@ def _topic_edition(topic, d15):
     return ""
 
 
-def edition_matches(listed, current):
-    """Whether a listed edition equals a register Current version.
+def edition_matches(listed, current, row=""):
+    """Whether a listed edition equals the Current version of the register row ``row``.
 
-    The two are compared by their numbers. A statute named by its enactment year
-    ("Australia Privacy Act 1988") also matches a Current version that leads with that
-    year and continues only with amendment or commencement notes ("1988, as amended
-    by ...", "2023 (Act enacted ...)").
+    The two are compared by their numbers. Two narrow exceptions apply only to the rows
+    named for them:
+
+    * A statute named by its enactment year (``STATUTE_YEAR_ROWS``: "Australia Privacy
+      Act 1988", "India DPDPA 2023") also matches a Current version that is that year
+      followed directly by one of the notes ``_STATUTE_NOTE_RE`` recognises, an
+      amendment note ("1988, as amended by ...") or an enactment or commencement note
+      ("2023 (Act enacted 2023-08-11); ..."), provided nothing after the year speaks of
+      supersession, repeal, replacement, withdrawal, revocation or lapse. Any other
+      continuation ("1988, superseded by 2025", "1988 (repealed in 2026)", "1988 Act")
+      does not match, and a bare-year edition of any other row (ISO, COBIT, OWASP) never
+      matches on its leading year.
+    * A row named after its amending instrument (``AMENDMENT_NAMED_ROWS``: "EU eIDAS
+      2") matches a listed edition that is one instrument number ("Regulation (EU)
+      2024/1183") when that is the last instrument after "as amended by" in the Current
+      version, again with no supersession wording.
     """
     if _EDITION_NUMBER_RE.findall(listed) == _EDITION_NUMBER_RE.findall(current):
         return True
-    return bool(
-        _YEAR_RE.fullmatch(listed)
-        and re.match(re.escape(listed) + r"(?:$|[,;]| \(| as amended\b)", current)
-    )
+    if row in AMENDMENT_NAMED_ROWS:
+        own = _INSTRUMENT_RE.fullmatch(listed.strip())
+        _, amended, amendments = current.partition(" as amended by ")
+        later = [m["num"] for m in _INSTRUMENT_RE.finditer(amendments)]
+        return bool(
+            own and amended and later and later[-1] == own["num"]
+            and not _EDITION_ENDED_RE.search(current)
+        )
+    if row not in STATUTE_YEAR_ROWS or not _YEAR_RE.fullmatch(listed) or not current.startswith(listed):
+        return False
+    rest = current[len(listed):]
+    return bool(_STATUTE_NOTE_RE.match(rest)) and not _EDITION_ENDED_RE.search(rest)
 
 
 def standard_edition_entries(texts=None):
@@ -2692,21 +2757,31 @@ def standard_edition_entries(texts=None):
     ``VERSION_TAIL``: "v1.1", "2.2.0", ":2024", "(2026)", "Rev. 5", "2019") is split
     off and the rest resolved. On a "biblio" list, a one-part name that resolves
     without an edition takes its edition from the topic span when the topic is one
-    ("EU AI Act", "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744"); a
-    topic is never read for a name that does not resolve. Outcomes:
+    ("EU AI Act", "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744"). For a
+    name that does not resolve, the topic is read only for an EU instrument number:
+    one there ("Directive (EU) 2022/2555") is an edition that names no row, so the
+    entry fails rather than passing with a number nobody compared. Outcomes:
 
     * ``match``: the name resolves and its edition equals the row's Current version
       (``edition_matches``).
     * ``mismatch``: the name resolves and its edition differs (a failure).
-    * ``unresolved``: the name resolves to no row and carries an edition (a failure).
+    * ``unresolved``: the name resolves to no row and carries an edition, in the name
+      or as an EU instrument number in the topic (a failure).
+    * ``unparsed``: an <li> of a list read that its item pattern cannot parse, or a
+      source with no list read (a failure).
     * ``no edition``: the entry names no edition, so there is nothing to compare.
       These are out of scope. On 2026-10-18 they were: LINDDUN, STRIDE, IEC 62443,
       NIST AI 600-1 and NIST SP 800-207 on both lists; MITRE ATLAS, MITRE ATT&CK and
       NIST SP 800-218 on the landing list (the coverage list gives their editions);
       UK GDPR, DPA 2018, US CCPA, CPRA, Brazil LGPD, Canada PIPEDA, Singapore PDPA,
-      China PIPL, Switzerland nFADP, EU NIS2, EU eIDAS 2, US HIPAA, US SOX and Basel
-      III on both lists; OWASP MCP Top 10 and OWASP GenAI Red Teaming Guide on the
-      For-AI pages.
+      China PIPL, Switzerland nFADP, US HIPAA, US SOX and Basel III on both lists;
+      OWASP MCP Top 10 and OWASP GenAI Red Teaming Guide on the For-AI pages. EU NIS2
+      and EU eIDAS 2 resolve through curated aliases and are compared.
+
+    On the For-AI pages only the OWASP entries and the EU AI Act entry are compared;
+    the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC
+    42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest) are out of scope of
+    this check, although every <li> of the resource index must still parse.
 
     ``texts`` maps a source path to replacement text (for tests); other sources are
     read from the template tree.
@@ -2717,7 +2792,10 @@ def standard_edition_entries(texts=None):
     out = []
     for rel, kind in EDITION_LIST_SOURCES:
         text = texts[rel] if rel in texts else _edition_source_text(rel)
-        for lineno, listed, extra in _hand_written_entries(rel, kind, text):
+        for lineno, listed, extra, parsed in _hand_written_entries(rel, kind, text):
+            if not parsed:
+                out.append(EditionEntry(f".web/{rel}", lineno, listed, "", "", "", "unparsed"))
+                continue
             parts = re.split(r"\s+/\s+", listed)
             for name in parts:
                 key, edition = resolver.named_row(name), ""
@@ -2730,12 +2808,14 @@ def standard_edition_entries(texts=None):
                     tail = m[0].strip(" :,()") if m and m.start() > 0 else ""
                     if _EDITION_SHAPE_RE.fullmatch(tail):
                         key, edition = resolver.named_row(name[:m.start()].strip()), tail
+                    elif kind == "biblio" and d15.eu_numbers(extra):
+                        edition = extra
                 row = rows.get(key)
                 if not edition:
                     status = "no edition"
                 elif row is None:
                     status = "unresolved"
-                elif edition_matches(edition, row["current"]):
+                elif edition_matches(edition, row["current"], row["id"]):
                     status = "match"
                 else:
                     status = "mismatch"
@@ -2760,6 +2840,13 @@ def stale_standard_editions(texts=None):
                 f"{e.source}:{e.line}: {e.name!r} carries edition {e.edition!r} but names no "
                 f"register row (add the row or a curated alias)"
             )
+        elif e.status == "unparsed" and e.line:
+            hits.append(
+                f"{e.source}:{e.line}: list item {e.name!r} cannot be parsed (the markup the "
+                f"edition check reads changed; update the check or the template)"
+            )
+        elif e.status == "unparsed":
+            hits.append(f"{e.source}: no hand-written standard list found to check")
     return hits
 
 
