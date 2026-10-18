@@ -35486,8 +35486,8 @@ def _rewrite_slot_share_fixture(test, source, path):
 
 
 class HookDescendantIsolationTests(unittest.TestCase):
-    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 2, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
-    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-C', str(REPO), 'diff', '--quiet', 'main', name]", "['git', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
+    COUNTS = {'.claude/hooks/block-branch-to-main-edit.py': 3, '.claude/hooks/block-idle-stop-with-actionable-backlog.py': 1, '.claude/hooks/block-turn-end-with-outstanding-work.py': 1, '.claude/hooks/block-unbumped-version-commit.py': 4, '.claude/hooks/clock-inject.py': 1, '.claude/hooks/future-stamp-write.py': 2, '.claude/hooks/nmw-actionable': 1, '.claude/hooks/stamp-truth-stop.py': 1, '.claude/hooks/stop-guard-unattended.py': 17, 'tools/audit-backlog-actionability.py': 3, 'tools/lint_common.py': 4}
+    NONPYTHON = {"['git', '-C', repo, *args]", "['git', '-C', repo_root, 'rev-parse', '--abbrev-ref', 'HEAD']", "['git', '-C', self.pd, 'rev-parse', 'HEAD']", "['git', '-c', 'core.warnAmbiguousRefs=false', '-c', 'trace2.normalTarget=', '-c', 'trace2.perfTarget=', '-c', 'trace2.eventTarget=', '-C', str(REPO), *args]", "['git', '-C', str(repo), 'config', 'remote.origin.url', url]", "['git', '-C', str(root), 'rev-parse', '--is-inside-work-tree']", "['git', '-C', str(root), *args]", "['git', 'init', '-q', str(repo)]", "['git', 'show', f'{ref}:{path}']", "['git', *args]", "['sleep', '60']", "['timeout', '60', 'sleep', '60']", "[git, 'init', '-q', os.path.join(parent, 'real')]", "[git, 'rev-parse', '--git-dir']", "command if command is not None else ['timeout', '60', 'sleep', '60']"}
     PYTHON_TARGETS = {'block-idle-stop-with-actionable-backlog.py': {'str(script)'}, 'block-unbumped-version-commit.py': {"str(d5 / '.claude' / 'hooks' / 'hook.py')"}, 'clock-inject.py': {'code'}, 'future-stamp-write.py': {'code'}, 'stamp-truth-stop.py': {'code'}, 'nmw-actionable': {'TOOL'}, 'stop-guard-unattended.py': {'exe', 'hook', 'code', "os.path.join(r, '.claude', 'hooks', os.path.basename(__file__))"}}
 
     def test_every_python_descendant_is_isolated(self):
@@ -48526,6 +48526,241 @@ class HeldBranchExpiryTests(unittest.TestCase):
         self.git("update-ref", "refs/heads/present", commit, root=root)
         return commit
 
+    def test_hook_exact_refs_and_trace(self):
+        import contextlib
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "exact_refs_hook_test")
+        self.addCleanup(sys.modules.pop, "exact_refs_hook_test", None)
+        base = self.init_repo()
+        self.git("update-ref", "refs/heads/main", base)
+        blob = self.git("hash-object", "-w", "--stdin", input="work").stdout.strip()
+        tree = self.git("mktree", input=f"100644 blob {blob}\twork\n").stdout.strip()
+        tip = self.git("commit-tree", tree, "-p", base, "-m", "work").stdout.strip()
+        self.git("update-ref", "refs/heads/ordinary", tip)
+        self.git("update-ref", "refs/tags/ordinary", base)
+        cases = ["odd" + chr(cp) + "name" for cp in (0xa0, 0x2003, 0x85, 0x2028, 0x3000)]
+        cases += [os.fsdecode(b"odd-\xff"), "trace-stderr", "trace-stdout", "trace-config"]
+        for name in cases:
+            with self.subTest(name=ascii(name)):
+                self.git("update-ref", "refs/heads/" + name, tip)
+                env = {}
+                if name.startswith("trace-"):
+                    if name == "trace-config":
+                        config = self.root / "trace-config"
+                        config.write_text("[trace2]\nnormalTarget = /dev/stdout\n")
+                        env["GIT_CONFIG_GLOBAL"] = str(config)
+                    else:
+                        env["GIT_TRACE"] = "1" if name == "trace-stderr" else "/dev/stdout"
+                with self.mock.patch.dict(os.environ, env), \
+                        self.mock.patch.object(hook, "REPO", self.root), \
+                        self.mock.patch.object(hook, "HELD_FILE", None), \
+                        self.mock.patch.object(hook, "ESCAPE_FILE", self.root / ".allow-stop"), \
+                        self.mock.patch.object(hook, "is_worker_session", return_value=False):
+                    with self.mock.patch.object(sys, "stdin", io.StringIO("{}")), \
+                            contextlib.redirect_stderr(io.StringIO()) as err:
+                        self.assertEqual(hook.main(), 2)
+                    self.assertIn("BLOCKED", err.getvalue())
+                    self.assertEqual(
+                        {branch for branch, ahead in hook.unmerged_branches()},
+                        {"ordinary", hook._branch_display(os.fsencode("refs/heads/" + name))})
+                    hook.ESCAPE_FILE.touch()
+                    with self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
+                        self.assertEqual(hook.main(), 0)
+                    self.assertFalse(hook.ESCAPE_FILE.exists())
+            self.git("update-ref", "-d", "refs/heads/" + name)
+
+    def test_hook_child_locale(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "locale_hook_test")
+        self.addCleanup(sys.modules.pop, "locale_hook_test", None)
+        inherited = {"LANGUAGE": "fr_FR", "LC_ALL": "fr_FR.UTF-8",
+                     "LC_MESSAGES": "fr_FR.UTF-8", "GIT_TRACE2": "1"}
+        with self.mock.patch.dict(os.environ, inherited), \
+                self.mock.patch.object(hook.subprocess, "run") as run:
+            hook._git_result("for-each-ref", "refs/heads")
+            child = run.call_args.kwargs["env"]
+            self.assertEqual(child["LC_ALL"], "C")
+            self.assertNotIn("LANGUAGE", child)
+            self.assertNotIn("LC_MESSAGES", child)
+            for key in ("GIT_TRACE2", "GIT_TRACE2_PERF", "GIT_TRACE2_EVENT"):
+                self.assertEqual(child[key], "0")
+            self.assertEqual(os.environ["LC_ALL"], inherited["LC_ALL"])
+
+    def test_hook_configured_trace2_stdout_allows_main_only(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "trace_stdout_hook_test")
+        self.addCleanup(sys.modules.pop, "trace_stdout_hook_test", None)
+        base = self.init_repo()
+        self.git("update-ref", "refs/heads/main", base)
+        self.git("update-ref", "-d", "refs/heads/present")
+        config = self.root / "global-config"
+        for target in ("normalTarget", "perfTarget", "eventTarget"):
+            with self.subTest(target=target):
+                config.write_text("[trace2]\n" + target + " = /dev/stdout\n", encoding="ascii")
+                with self.mock.patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}), \
+                        self.mock.patch.object(hook, "REPO", self.root), \
+                        self.mock.patch.object(hook, "HELD_FILE", None), \
+                        self.mock.patch.object(hook, "ESCAPE_FILE", self.root / ".allow-stop"), \
+                        self.mock.patch.object(hook, "is_worker_session", return_value=False), \
+                        self.mock.patch.object(sys, "stdin", io.StringIO("{}")):
+                    self.assertEqual(hook.unmerged_branches(), [])
+                    self.assertEqual(hook.main(), 0)
+
+    def test_hook_diagnostics_decode_bytes(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "display_hook_test")
+        self.addCleanup(sys.modules.pop, "display_hook_test", None)
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git_result", return_value=
+                                       subprocess.CompletedProcess([], 0, b"",
+                                           b"warning: ignoring broken ref refs/heads/odd\xff\n")):
+            self.assertEqual(hook.unmerged_branches(), [
+                ("branch enumeration",
+                 r"unverified: git diagnostic: warning: ignoring broken ref refs/heads/odd\xff")])
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git", return_value=
+                                       b"refs/heads/main\n13:27:50 trace\xff\n"):
+            branches = hook.unmerged_branches()
+            self.assertEqual(branches, [(r"13:27:50 trace\xff", "unverified: malformed branch listing")])
+            self.assertIn(r"- 13:27:50 trace\xff (+unverified:", hook.decide(False, False, branches))
+        self.assertEqual(hook._git_display(b"message\r\n\n"), "message")
+
+    def test_hook_malformed_listing_escapes_control_characters(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "control_display_hook_test")
+        self.addCleanup(sys.modules.pop, "control_display_hook_test", None)
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git", return_value=
+                                       b"refs/heads/main\ntrace\x1b[31m\n"):
+            branches = hook.unmerged_branches()
+            self.assertEqual(branches, [
+                (r"trace\x1b[31m", "unverified: malformed branch listing")])
+            message = hook.decide(False, False, branches)
+            self.assertIn(r"- trace\x1b[31m (+unverified:", message)
+            self.assertNotIn("\x1b", message)
+
+    def test_hook_real_git_stderr_and_ambiguity(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "stderr_hook_test")
+        self.addCleanup(sys.modules.pop, "stderr_hook_test", None)
+        base = self.init_repo()
+        self.git("update-ref", "refs/heads/main", base)
+        self.git("update-ref", "-d", "refs/heads/present")
+        config = self.root / "global-config"
+        with self.mock.patch.object(hook, "REPO", self.root), \
+                self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}):
+            for setting, diagnostic in [
+                ("[core]\nfsyncObjectFiles = true\n", b"warning: core.fsyncObjectFiles"),
+                ("[trace2]\nnormalTarget = 2\n", b""),
+            ]:
+                with self.subTest(setting=setting):
+                    config.write_text(setting, encoding="ascii")
+                    result = hook._git_result("for-each-ref", "--format=%(refname)", "refs/heads")
+                    self.assertEqual(result.returncode, 0)
+                    self.assertEqual(result.stdout, b"refs/heads/main\n")
+                    if diagnostic:
+                        self.assertIn(diagnostic, result.stderr)
+                    else:
+                        self.assertEqual(result.stderr, b"")
+                    self.assertEqual(hook.unmerged_branches(), [])
+                    # Exercise rev-list and diff too: an ahead but identical tree allows.
+                    tree = self.git("rev-parse", "main^{tree}").stdout.strip()
+                    tip = self.git("commit-tree", tree, "-p", base, "-m", "same").stdout.strip()
+                    self.git("update-ref", "refs/heads/x", tip)
+                    self.git("update-ref", "refs/heads/refs/heads/x", tip)
+                    self.git("update-ref", "refs/tags/refs/heads/main", base)
+                    self.assertEqual(hook.unmerged_branches(), [])
+                    blob = self.git("hash-object", "-w", "--stdin", input="work").stdout.strip()
+                    tree = self.git("mktree", input=f"100644 blob {blob}\twork\n").stdout.strip()
+                    tip = self.git("commit-tree", tree, "-p", base, "-m", "work").stdout.strip()
+                    self.git("update-ref", "refs/heads/x", tip)
+                    self.assertEqual(hook.unmerged_branches(), [("x", "1")])
+                    for ref in ("refs/heads/x", "refs/heads/refs/heads/x", "refs/tags/refs/heads/main"):
+                        self.git("update-ref", "-d", ref)
+                    broken = self.root / ".git/refs/heads/broken"
+                    broken.write_text("garbage\n", encoding="ascii")
+                    result = hook._git_result("for-each-ref", "--format=%(refname)", "refs/heads")
+                    self.assertEqual(result.returncode, 0)
+                    self.assertIn(b"warning: ignoring broken ref refs/heads/broken", result.stderr)
+                    self.assertIn("unverified", hook.unmerged_branches()[0][1])
+                    broken.unlink()
+            self.git("update-ref", "-d", "refs/heads/main")
+            self.assertIn("missing refs/heads/main", hook.unmerged_branches()[0][1])
+
+    def test_hook_diagnostic_policy_and_display(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "diagnostic_hook_test")
+        self.addCleanup(sys.modules.pop, "diagnostic_hook_test", None)
+        for diagnostic, blocks in [
+            (b"fatal: cannot answer\n", True),
+            (b"error: cannot answer\n", True),
+            (b"warning: ignoring broken ref refs/heads/x\n", True),
+            (b"warning: ignoring ref with broken name refs/heads/x\n", True),
+            (b"warning: unrelated\nhint: advice\n", False),
+            (b"trace output\n", False),
+            (b"hint: advice\nfatal: cannot answer\n", True),
+        ]:
+            with self.subTest(diagnostic=diagnostic):
+                self.assertEqual(hook._blocking_stderr(diagnostic), blocks)
+        self.assertEqual(hook._branch_display(b"refs/heads/odd\xc2\xa0name"), "odd" + chr(0xa0) + "name")
+        self.assertEqual(hook._branch_display(b"refs/heads/odd\xffname"), r"odd\xffname")
+        self.assertEqual(hook._branch_display(b"refs/heads/odd\xc2\x85name"), r"odd\x85name")
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git", side_effect=[b"refs/heads/main\nrefs/heads/x\n", b"1\n"]), \
+                self.mock.patch.object(hook, "_git_result", return_value=
+                                       subprocess.CompletedProcess([], 0, b"trace output", b"")):
+            self.assertIn("unverified", hook.unmerged_branches()[0][1])
+
+    def test_hook_git_failures_stay_blocking(self):
+        import contextlib
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "git_failure_hook_test")
+        self.addCleanup(sys.modules.pop, "git_failure_hook_test", None)
+        failures = [OSError("git missing"), subprocess.TimeoutExpired("git", 20),
+                    subprocess.CalledProcessError(128, "git"), ValueError("bad output")]
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "ESCAPE_FILE", self.root / ".allow-stop"), \
+                self.mock.patch.object(hook, "is_worker_session", return_value=False):
+            for failure in failures:
+                for stage in ("listing", "count", "diff"):
+                    with self.subTest(failure=type(failure).__name__, stage=stage):
+                        def git(*args):
+                            if args[0] == "for-each-ref":
+                                if stage == "listing":
+                                    raise failure
+                                return b"refs/heads/bad\nrefs/heads/ordinary\n"
+                            if stage == "count" and args[-1].endswith(b"/bad"):
+                                raise failure
+                            return b"1\n"
+
+                        def diff(args, **kwargs):
+                            if stage == "diff" and b"refs/heads/bad" in args:
+                                raise failure
+                            return subprocess.CompletedProcess(args, 1, b"", b"")
+
+                        with self.mock.patch.object(hook, "_git", side_effect=git), \
+                                self.mock.patch.object(hook.subprocess, "run", side_effect=diff), \
+                                self.mock.patch.object(sys, "stdin", io.StringIO("{}")), \
+                                contextlib.redirect_stderr(io.StringIO()) as err:
+                            self.assertEqual(hook.main(), 2)
+                        self.assertIn("unverified", err.getvalue())
+                        if stage != "listing":
+                            self.assertIn("- bad (+unverified:", err.getvalue())
+                            self.assertIn("- ordinary (+1)", err.getvalue())
+
+    def test_report_exact_unicode_refs(self):
+        commit = self.init_repo()
+        for cp in (0xa0, 0x2003, 0x85, 0x2028, 0x3000):
+            name = "odd" + chr(cp) + "name"
+            with self.subTest(name=ascii(name)):
+                self.git("update-ref", "refs/heads/" + name, commit)
+                with self.mock.patch.dict(os.environ, {"GIT_TRACE": "1"}):
+                    got = self.mod.branch_statuses(self.root, {name, "odd", "name"})
+                self.assertEqual(got[name], ("LOCAL", None))
+                self.assertEqual(got["odd"], ("GONE", None))
+                self.assertEqual(got["name"], ("GONE", None))
+
     def test_git_probe_real_local_and_gone(self):
         self.init_repo()
         self.assertEqual(self.presence("present"), "LOCAL")
@@ -48539,13 +48774,14 @@ class HeldBranchExpiryTests(unittest.TestCase):
             self.git("update-ref", ref, commit)
         cases = {
             "present": "LOCAL", "absent": "GONE", "feat": "GONE", "feat/x": "LOCAL",
-            "v1": "SHADOWED", "heads/v1": "LOCAL", "-dash": "LOCAL", "HEAD": "LOCAL",
+            "v1": "LOCAL", "heads/v1": "GONE", "-dash": "LOCAL", "HEAD": "LOCAL",
             "present~0": "GONE", "present^0": "GONE", "present^{commit}": "GONE",
             "present@{0}": "GONE", "tag-only": "GONE", "remote-only": "GONE",
             "origin/remote-only": "GONE", "has space": "GONE", "has*glob": "GONE",
             "two..dots": "GONE", "\x00": "GONE", "literal": "GONE", "heads/literal": "LOCAL",
         }
-        listing = self.git("for-each-ref", "--format=%(refname:short)", "refs/heads").stdout.split()
+        listing = [ref.removeprefix("refs/heads/") for ref in
+                   self.git("for-each-ref", "--format=%(refname)", "refs/heads").stdout.split("\n") if ref]
         for name, expected in cases.items():
             with self.subTest(name=name):
                 self.assertEqual(self.presence(name), expected)
@@ -48555,8 +48791,6 @@ class HeldBranchExpiryTests(unittest.TestCase):
                 if expected != "LOCAL":
                     self.assertIn(repr(name), out)
                     self.assertIn(f"branch-presence={expected}", out)
-                if expected == "SHADOWED":
-                    self.assertIn("required-name='heads/v1'", out)
 
     def test_broken_ref_is_unknown(self):
         import contextlib
@@ -48643,7 +48877,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
         self.assertEqual(call.kwargs.get("timeout"), self.mod.GIT_TIMEOUT)
         self.assertEqual(call.kwargs.get("encoding"), "utf-8")
         self.assertEqual(call.args[0][-3:],
-                         ["for-each-ref", "--format=%(refname)%00%(refname:short)", "refs/heads"])
+                         ["for-each-ref", "--format=%(refname)", "refs/heads"])
 
     def test_git_stderr_is_unknown(self):
         self.init_repo()
@@ -48651,7 +48885,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
                                  (0, "fatal: corrupt refs\n"), (0, "error: bad refs\n")):
             with self.subTest(code=code, diagnostic=diagnostic), \
                     self.mock.patch.object(self.mod.subprocess, "run", return_value=
-                                           subprocess.CompletedProcess([], code, "refs/heads/present\x00present\n", diagnostic)):
+                                           subprocess.CompletedProcess([], code, "refs/heads/present\n", diagnostic)):
                 rc, out, err = self.real_report("present # 2026-10-22\nabsent # 2026-10-22\n", quiet=True)
             self.assertEqual(rc, 2)
             self.assertEqual(out.count("branch-presence=UNKNOWN"), 2)
@@ -48755,7 +48989,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
         ):
             with self.subTest(diagnostic=diagnostic), \
                     self.mock.patch.object(self.mod.subprocess, "run", return_value=
-                                           subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                                           subprocess.CompletedProcess([], 0, "refs/heads/present\n", diagnostic)):
                 rc, out, err = self.real_report(
                     "present # 2026-10-22\nbroken # 2026-10-22\n", quiet=True)
             self.assertEqual(rc, 2 if unknown else 1)
@@ -48819,7 +49053,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
         self.git("symbolic-ref", "refs/heads/alias", "refs/heads/present")
         self.assertEqual(self.presence("packed"), "LOCAL")
         self.assertEqual(self.presence("alias"), "LOCAL")
-        self.assertEqual(self.presence("v1"), "SHADOWED")
+        self.assertEqual(self.presence("v1"), "LOCAL")
 
     def test_outside_repository_and_git_missing(self):
         for missing in (False, True):
@@ -48888,49 +49122,26 @@ class HeldBranchExpiryTests(unittest.TestCase):
         self.assertNotIn("required-name", out)
         self.assertNotIn("heads/y", out)
 
-    def test_paired_listing_matches_hook_whitespace_split(self):
-        import contextlib
+    def test_full_listing_matches_literal_names(self):
         commit = self.init_repo()
-        for name in ("v1", "heads/literal", "caf\u00e9", "wide\u2003gap", "line\u2028break"):
+        names = {"v1", "heads/literal", "caf\u00e9", "wide\u2003gap", "line\u2028break"}
+        for name in names:
             self.git("update-ref", "refs/heads/" + name, commit)
         self.git("update-ref", "refs/tags/v1", commit)
-        command = ["for-each-ref", "--format=%(refname:short)", "refs/heads"]
-        expected = set(self.git(*command).stdout.split())
-        pairs = self.git("for-each-ref", "--format=%(refname)%00%(refname:short)",
-                         "refs/heads").stdout
-        short_names = [line.partition("\x00")[2] for line in pairs.split("\n") if line]
-        self.assertEqual(expected, set("\n".join(short_names).split()))
-        candidates = expected | {"v1", "literal", "absent", "wide\u2003gap", "line\u2028break"}
-        with contextlib.redirect_stderr(io.StringIO()):
-            got = self.mod.branch_statuses(self.root, candidates)
-        self.assertIsNotNone(got)
-        self.assertEqual({name for name, value in got.items() if value[0] == "LOCAL"},
-                         expected - {"wide", "gap", "line", "break"})
-        self.assertEqual(got["caf\u00e9"], ("LOCAL", None))
-        self.assertEqual(got["v1"], ("SHADOWED", "heads/v1"))
+        got = self.mod.branch_statuses(self.root, names | {"literal", "wide", "absent"})
+        self.assertEqual({name for name, value in got.items() if value[0] == "LOCAL"}, names)
         self.assertEqual(got["literal"], ("GONE", None))
-        for byte in ("\x00", "\n"):
-            # Git's CLI cannot receive NUL; check-ref-format rejects LF.
-            if byte == "\x00":
-                with self.assertRaises(ValueError):
-                    self.git("check-ref-format", "refs/heads/a" + byte + "b")
-            else:
-                result = subprocess.run(
-                    ["git", "check-ref-format", "refs/heads/a" + byte + "b"],
-                    capture_output=True, env=self.fixture_git_environment(), check=False)
-                self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(got["wide"], ("GONE", None))
+
 
     def test_head_born_and_unborn(self):
         commit = self.init_repo()
-        self.git("symbolic-ref", "HEAD", "refs/heads/unborn-fixture")
         self.git("update-ref", "refs/heads/HEAD", commit)
-        self.assertEqual(self.presence("HEAD"), "LOCAL")
-        self.git("symbolic-ref", "HEAD", "refs/heads/present")
-        rc, out, err = self.real_report("HEAD # 2026-10-22\n", quiet=True)
-        self.assertEqual(rc, 1, err)
-        self.assertIn("branch-presence=SHADOWED", out)
-        self.assertIn("required-name='heads/HEAD'", out)
-        self.assertEqual(self.presence("heads/HEAD"), "LOCAL")
+        for target in ("unborn-fixture", "present"):
+            self.git("symbolic-ref", "HEAD", "refs/heads/" + target)
+            self.assertEqual(self.presence("HEAD"), "LOCAL")
+            self.assertEqual(self.presence("heads/HEAD"), "GONE")
+
 
     def test_warning_exact_ref_and_shape(self):
         self.init_repo()
@@ -48945,7 +49156,7 @@ class HeldBranchExpiryTests(unittest.TestCase):
         ):
             with self.subTest(diagnostic=diagnostic, name=name), \
                     self.mock.patch.object(self.mod.subprocess, "run", return_value=
-                        subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                        subprocess.CompletedProcess([], 0, "refs/heads/present\n", diagnostic)):
                 rc, out, err = self.real_report(name + " # 2026-10-22\n")
             self.assertEqual(rc, {"LOCAL": 0, "GONE": 1, "UNKNOWN": 2}[expected])
             self.assertIn("branch-presence=" + expected, out)
@@ -48986,14 +49197,12 @@ class HeldBranchExpiryTests(unittest.TestCase):
         commit = self.git("commit-tree", tree, "-m", "fixture").stdout.strip()
         for ref in ("refs/heads/present", "refs/heads/v1", "refs/tags/v1"):
             self.git("update-ref", ref, commit)
-        for name, expected, code in (("absent", "GONE", 1), ("v1", "SHADOWED", 1),
+        for name, expected, code in (("absent", "GONE", 1), ("v1", "LOCAL", 0),
                                      ("present", "LOCAL", 0)):
             with self.subTest(name=name):
                 rc, out, err = self.real_report(name + " # 2026-10-22\n")
                 self.assertEqual(rc, code, err)
                 self.assertIn("branch-presence=" + expected, out)
-                if name == "v1":
-                    self.assertIn("required-name='heads/v1'", out)
 
     def test_empty_file_still_checks_git(self):
         self.path.write_text("")
@@ -49103,29 +49312,25 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
                     self.assertFalse(mode and any(c in mode for c in "wax+"))
                     self.assertFalse(flags & (os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC))
         self.assertEqual(sorted(str(p) for p in self.root.rglob("*")), before)
-    def test_shadowed_unicode_space_has_no_required_name(self):
+    def test_tag_does_not_shadow_unicode_branch(self):
         commit = self.init_repo()
         for name in ("shadow\u2003gap", "x\u00a0y"):
             with self.subTest(name=name):
                 self.git("update-ref", "refs/heads/" + name, commit)
                 self.git("update-ref", "refs/tags/" + name, commit)
-                needed = "heads/" + name
-                listing = self.git("for-each-ref", "--format=%(refname:short)", "refs/heads").stdout.split()
-                self.assertNotIn(needed, listing)
                 rc, out, err = self.real_report(name + " # 2026-10-22\n")
-                self.assertEqual(rc, 1, err)
-                self.assertIn("branch-presence=SHADOWED", out)
+                self.assertEqual(rc, 0, err)
+                self.assertIn("branch-presence=LOCAL", out)
                 self.assertNotIn("required-name=", out)
-                self.assertIn("no hold name can match this branch because the hook splits its name", out)
-                self.assertIn(f"hook-tokens={needed.split()!r}", out)
 
-    def test_unshadowed_unicode_space_is_gone(self):
+
+    def test_unicode_space_is_local(self):
         commit = self.init_repo()
         name = "wide\u2003gap"
         self.git("update-ref", "refs/heads/" + name, commit)
         rc, out, err = self.real_report(name + " # 2026-10-22\n")
-        self.assertEqual(rc, 1, err)
-        self.assertIn("branch-presence=GONE", out)
+        self.assertEqual(rc, 0, err)
+        self.assertIn("branch-presence=LOCAL", out)
         self.assertNotIn("required-name=", out)
 
     def test_warning_with_leading_text_is_unrelated(self):
@@ -49134,7 +49339,7 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
             diagnostic = f"unrelated leading text warning: ignoring {shape} refs/heads/present\n"
             with self.subTest(shape=shape), \
                     self.mock.patch.object(self.mod.subprocess, "run", return_value=
-                        subprocess.CompletedProcess([], 0, "refs/heads/present\x00present\n", diagnostic)):
+                        subprocess.CompletedProcess([], 0, "refs/heads/present\n", diagnostic)):
                 rc, out, err = self.real_report("present # 2026-10-22\n")
             self.assertEqual(rc, 0, err)
             self.assertIn("branch-presence=LOCAL", out)
@@ -49168,8 +49373,8 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
         self.assertIn("git enumeration failed", err)
 
     def test_unclean_listing_is_all_unknown(self):
-        good = "refs/heads/present\x00present\n"
-        for bad in ("refs/heads/other\n", "trace: git internals\n", "refs/tags/tag\x00tag\n",
+        good = "refs/heads/present\n"
+        for bad in ("other\n", "trace: git internals\n", "refs/tags/tag\x00tag\n",
                     "refs/tags/tag\x00refs/tags/tag\n",
                     "refs/heads/other\x00unrelated\n", "refs/heads/other\x00other\x00extra\n",
                     "refs/heads/other\x00othTRACEer\n", "refs/heads/\x00heads/\n"):
@@ -49210,16 +49415,12 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
                     self.git("update-ref", "refs/tags/" + name, commit, root=root)
                 if form == "files":
                     self.assertTrue((root / ".git/refs/heads/present").is_file())
-                listing = self.git("for-each-ref", "--format=%(refname:short)",
-                                   "refs/heads", root=root).stdout.split()
-                got = self.mod.branch_statuses(root, set(names) | set(listing) | {"absent"})
+                got = self.mod.branch_statuses(root, set(names) | {"absent", "wide", "gap"})
                 self.assertIsNotNone(got)
-                self.assertTrue(all(value[0] != "UNKNOWN" for value in got.values()))
                 self.assertEqual({name for name, value in got.items() if value[0] == "LOCAL"},
-                                 set(listing) - {"wide", "gap", "line", "break", "next",
-                                                 "heads/x", "y", "heads/shadow"})
-                self.assertEqual(got["prefixed"], ("SHADOWED", "heads/prefixed"))
-                self.assertEqual(got["full"], ("SHADOWED", "refs/heads/full"))
+                                 set(names))
+                self.assertEqual(got["absent"], ("GONE", None))
+
 
     def test_all_trace2_stdout_targets_are_unknown(self):
         self.init_repo()
@@ -49234,16 +49435,16 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
             self.assertIn("presence was not judged", err)
 
 
-    def test_shadowed_token_exempts_another_branch(self):
+    def test_nested_names_match_only_the_literal_branch(self):
         commit = self.init_repo()
         for ref in ("refs/heads/x", "refs/heads/heads/x",
                     "refs/heads/refs/heads/x", "refs/tags/x"):
             self.git("update-ref", ref, commit)
         rc, out, err = self.real_report("refs/heads/x # 2026-10-22\n")
-        self.assertEqual(rc, 1, err)
-        self.assertIn("branch-presence=SHADOWED", out)
-        self.assertIn("required-name='heads/refs/heads/x'", out)
-        self.assertIn("hook-exempts=['x']", out)
+        self.assertEqual(rc, 0, err)
+        self.assertIn("branch-presence=LOCAL", out)
+        self.assertNotIn("hook-exempts=", out)
+
 
     def test_split_fragment_is_not_local(self):
         commit = self.init_repo()
@@ -49251,19 +49452,19 @@ print(json.dumps(dict(events=events, codes=codes, out=out.getvalue(), err=err.ge
         rc, out, err = self.real_report("heads/x # 2026-10-22\n")
         self.assertEqual(rc, 1, err)
         self.assertIn("branch-presence=GONE", out)
-        self.assertIn("hook-token-fragment-of=['heads/x\\xa0y']", out)
+        self.assertNotIn("hook-token-fragment-of=", out)
         self.assertNotIn("hook-exempts=", out)
 
-    def test_shadowed_name_matching_a_fragment(self):
+    def test_literal_name_beside_old_fragment(self):
         commit = self.init_repo()
         for ref in ("refs/heads/heads/x", "refs/tags/heads/x",
                     "refs/heads/heads/x\u00a0y"):
             self.git("update-ref", ref, commit)
         rc, out, err = self.real_report("heads/x # 2026-10-22\n")
-        self.assertEqual(rc, 1, err)
-        self.assertIn("branch-presence=SHADOWED", out)
-        self.assertIn("required-name='heads/heads/x'", out)
-        self.assertIn("hook-token-fragment-of=['heads/x\\xa0y']", out)
+        self.assertEqual(rc, 0, err)
+        self.assertIn("branch-presence=LOCAL", out)
+        self.assertNotIn("hook-token-fragment-of=", out)
+
 
     def test_output_encoding_failure_is_not_resolver_failure(self):
         commit = self.init_repo()

@@ -32,8 +32,8 @@ WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
     cannot loop the session;
   * anything at all, if the escape file exists and is successfully consumed (see below);
-  * anything at all, if an error reaches main()'s outer exception handler (see fail-open); a LOCAL
-    recovery path (the diff non-zero exit, the resolver import, a failed escape-unlink) can instead block;
+  * anything at all, if an error reaches main()'s outer exception handler (see GIT FAILURES BLOCK); a LOCAL
+    recovery path (git checks, the resolver import, a failed escape-unlink) can instead block;
   * anything at all, inside a dispatched worker session: a worker's fan-out cannot discharge any of
     this guard's remedies, so the check is skipped there (#1695).
 
@@ -43,17 +43,24 @@ cannot silently become the standing state. It is reachable from a Bash tool call
 environment-variable form was not: a Stop hook inherits the harness's environment, never the
 environment of a tool call.
 
-FAIL OPEN at the top level: any error reaching main()'s outer handler allows the stop. But 'any
-internal error allows' is NOT exhaustive: three LOCAL recovery paths handle their own errors without
-failing open. (a) A present escape file that cannot be consumed (a failed unlink) refuses the escape
-and falls through to the block, so a non-deletable sentinel cannot become a permanent bypass. (b) The
-per-branch tree check catches ANY non-zero `git diff --quiet main <branch>` exit as CalledProcessError
-and treats it as 'trees differ', so a diff-command error (e.g. a bad ref, exit 128) on an ahead-of-main
-branch leaves that branch REPORTABLE toward a block, not allowed; only a clean exit-0 (tree-identical)
-exempts an ahead branch, and a diff TIMEOUT (TimeoutExpired, uncaught there) reaches the outer fail-open.
-(c) If `resolve_working` cannot be imported, the held-branches lookup falls back to the in-repo
-`.working/` path only, so a hold recorded in the operational store is not seen and its branch can block.
-A guard that traps the actor on its own malfunction gets removed, and a removed guard protects nothing.
+GIT FAILURES BLOCK: enumeration failures, malformed listing records, unreadable
+ref files, rev-list failures and diff failures/timeouts produce blocking diagnostics.
+A repository without main or refused by safe.directory also blocks.
+LIMIT: a ref directory git cannot read (for example permission-denied
+refs/heads/sub/) is invisible to git, which exits 0 with no stderr; this hook
+cannot see branches inside that directory.
+Per-branch failures name the branch and do not discard other branches. Listing
+failures name the enumeration because no trustworthy branch list is available.
+Non-UTF-8 names are kept as bytes for git and escaped for display. Inherited
+GIT_TRACE* variables are removed and configured trace2 targets are disabled.
+Git runs with LC_ALL=C and without LANGUAGE or LC_MESSAGES so diagnostics
+match the untranslated prefixes below. Stderr lines starting with "fatal:", "error:",
+"warning: ignoring broken ref " or "warning: ignoring ref with broken name "
+block. Other stderr (including other warnings, hints and trace2 lines) is ignored;
+stdout must still be clean. A nonzero exit blocks, except diff exit 1 with empty
+stdout and no blocking diagnostic, which means the branch tree differs.
+The one-shot escape and stop_hook_active still take precedence. Other errors
+reaching main()'s outer handler retain its existing fail-open behavior.
 
 GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-action:
   * "a branch is ahead of main" is NOT "a branch is meant to merge". A deliberately-held branch
@@ -74,6 +81,7 @@ import os
 import re as _re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 def _load_sibling(name, _cache={}):
@@ -187,11 +195,47 @@ GIT_TIMEOUT = 20
 _EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
 
 
-def _git(*args: str) -> str:
+def _git_environment() -> dict:
+    env = {key: value for key, value in os.environ.items()
+           if not key.startswith("GIT_TRACE") and key not in {"LANGUAGE", "LC_MESSAGES"}}
+    env["LC_ALL"] = "C"
+    # Trace2 starts before git applies -c settings; override its early config too.
+    env.update(GIT_TRACE2="0", GIT_TRACE2_PERF="0", GIT_TRACE2_EVENT="0")
+    return env
+
+
+def _git_result(*args: str | bytes) -> subprocess.CompletedProcess:
     return subprocess.run(
-        ["git", "-C", str(REPO), *args],
-        capture_output=True, text=True, timeout=GIT_TIMEOUT, check=True,
-    ).stdout
+        ["git", "-c", "core.warnAmbiguousRefs=false",
+         "-c", "trace2.normalTarget=", "-c", "trace2.perfTarget=",
+         "-c", "trace2.eventTarget=", "-C", str(REPO), *args],
+        capture_output=True, env=_git_environment(), timeout=GIT_TIMEOUT, check=False,
+    )
+
+
+def _blocking_stderr(stderr: bytes) -> bool:
+    return any(line.startswith((b"fatal:", b"error:",
+                                b"warning: ignoring broken ref ",
+                                b"warning: ignoring ref with broken name "))
+               for line in stderr.split(b"\n"))
+
+
+def _branch_display(ref: bytes) -> str:
+    name = ref.removeprefix(b"refs/heads/").decode("utf-8", errors="backslashreplace")
+    return "".join(char if char.isprintable() or unicodedata.category(char) == "Zs"
+                   else ascii(char)[1:-1] for char in name)
+
+
+def _git_display(output: bytes) -> str:
+    return output.decode("utf-8", errors="backslashreplace").rstrip("\r\n")
+
+
+def _git(*args: str | bytes) -> bytes:
+    result = _git_result(*args)
+    result.check_returncode()
+    if _blocking_stderr(result.stderr):
+        raise ValueError("git diagnostic: " + _git_display(result.stderr))
+    return result.stdout
 
 
 def held_branches() -> dict:
@@ -239,19 +283,43 @@ def unmerged_branches() -> list:
     # main reads every branch as unmerged, which errs the same way.
     held = held_branches()
     out = []
-    for name in _git("for-each-ref", "--format=%(refname:short)", "refs/heads").split():
+    try:
+        listing = _git("for-each-ref", "--format=%(refname)", "refs/heads")
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        return [("branch enumeration", "unverified: " + str(exc))]
+    if b"refs/heads/main" not in listing.split(b"\n"):
+        out.append(("main", "unverified: missing refs/heads/main"))
+    for ref in listing.split(b"\n"):
+        if not ref:
+            continue
+        if (not ref.startswith(b"refs/heads/") or ref == b"refs/heads/"
+                or any(byte <= 32 or byte == 127 for byte in ref)):
+            out.append((_branch_display(ref), "unverified: malformed branch listing"))
+            continue
+        name = ref[len(b"refs/heads/"):].decode("utf-8", errors="surrogateescape")
         if name == "main" or name in held:
             continue
-        ahead = _git("rev-list", "--count", "main.." + name).strip()
-        if not ahead or ahead == "0":
-            continue
+        display = _branch_display(ref)
         try:
-            subprocess.run(["git", "-C", str(REPO), "diff", "--quiet", "main", name],
-                           timeout=GIT_TIMEOUT, check=True)
-            continue          # tree-identical to main: the work landed, the branch is just undeleted
-        except subprocess.CalledProcessError:
-            pass              # trees differ: genuinely unmerged work
-        out.append((name, ahead))
+            ahead = _git("rev-list", "--count", b"refs/heads/main.." + ref)
+            if not _re.fullmatch(rb"[0-9]+\n?", ahead):
+                raise ValueError("invalid rev-list count: " + _git_display(ahead))
+            ahead = ahead.strip()
+            if int(ahead) == 0:
+                continue
+            result = _git_result("diff", "--quiet", b"refs/heads/main", ref, "--")
+            if result.stdout or _blocking_stderr(result.stderr):
+                raise ValueError("git diff diagnostic: stdout: " + _git_display(result.stdout)
+                                 + "; stderr: " + _git_display(result.stderr))
+            if result.returncode == 0:
+                continue          # tree-identical: the work landed
+            if result.returncode != 1:
+                raise ValueError("git diff exit %s: %s" %
+                                 (result.returncode, _git_display(result.stderr)))
+        except (OSError, subprocess.SubprocessError, ValueError) as exc:
+            out.append((display, "unverified: " + str(exc)))
+            continue
+        out.append((display, ahead.decode("ascii")))
     return out
 
 
@@ -267,7 +335,7 @@ def decide(stop_hook_active: bool, escape: bool, branches: list) -> str | None:
              "WHY: an unmerged branch ahead of main is real outstanding work; yielding here strands it "
              "for the next session to untangle.", ""]
     if branches:
-        lines.append("  Branches ahead of main and not recorded as held (%d):" % len(branches))
+        lines.append("  Branches outstanding or not verifiable (%d):" % len(branches))
         lines += ["    - %s (+%s)" % (n, a) for n, a in branches[:8]]
         lines.append("    Held-branches record path:")
         # Show the ACTUAL resolved held-branches path (resolve_working -> local store), never a
