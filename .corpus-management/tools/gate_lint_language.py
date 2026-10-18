@@ -35,8 +35,12 @@ Checks for:
 - Em dashes and en dashes (not allowed; replace with hyphen, colon, or
   parentheses).
 - Commonwealth `-ise` verb endings used where Canadian `-ize` is preferred
-  (the `ise_stems` profile field enumerates the stems, including prefixed derivatives;
-  the rule is the Canadian-orthography form, not a generic American mandate).
+  (the `ise_stems` profile field enumerates the stems; the `ise_prefixes` field
+  lists verb prefixes, any run of which, with a hyphen after up to three of
+  them, may precede a stem, so "reorganised", "unreorganised" and "de-emphasised" are
+  reported whole while "surprise" or "premise" are not, because no listed stem
+  ends them; the rule is the Canadian-orthography form, not a generic American
+  mandate).
 - Commonwealth `-isation` noun / adjective forms (`ISATION_PATTERN`, a
   generic suffix match with the `isation_allowed_words` profile-field exclusion for the
   tiny legitimate-in-every-dialect vocabulary such as `improvisation`).
@@ -244,8 +248,14 @@ WORKED_EXAMPLE = "docs/worked-example.md"
 # third-person forms passed gate 2 because only three of the four inflections
 # were listed); keep all four present for any stem added later. Prefixed
 # derivatives (unauthorised, unrecognised, reorganise, deprioritise, ...) are
-# enumerated as their own stems because the letter-bounded `(...)` construction
-# does not match a covered stem inside a prefixed word. Each stem also carries its
+# matched through the `ise_prefixes` list (3b234 round 4): the letter-bounded
+# construction does not match a covered stem inside a prefixed word, so any run
+# of listed prefixes, with a hyphen after up to three of them, may precede a stem
+# inside the same bounds. Only the base stem is listed; a prefixed word that is
+# not a run of listed prefixes before a listed stem (immobilise) is listed as its
+# own stem. A word is only matched when a listed stem ends it, so a word that
+# merely begins with a prefix (premise, devise, comprise, disguise) is never
+# reported. Each stem also carries its
 # derivational forms: the -isable adjective and the -iser / -isers agent
 # nouns (a false-negative verifier on the 2026-07-02 harmonization sweep
 # found the derivational family escaping both the sweep and the gate). The
@@ -258,6 +268,7 @@ class LanguageVocabulary(NamedTuple):
     move to the ``language`` reference-vocabulary profile and are passed in.
     """
     ise_stems: tuple[str, ...]
+    ise_prefixes: tuple[str, ...]
     isation_allowed_words: frozenset[str]
     yse_forms: tuple[str, ...]
     allowed_commonwealth_spans: tuple[str, ...]
@@ -266,12 +277,17 @@ class LanguageVocabulary(NamedTuple):
 
 
 def language_vocabulary(
-    *, ise_stems, isation_allowed_words, yse_forms,
+    *, ise_stems, ise_prefixes, isation_allowed_words, yse_forms,
     allowed_commonwealth_spans, verbatim_ensure_titles, lowercase_project_names,
 ) -> "LanguageVocabulary":
-    """Compose raw profile arrays into the vocabulary; fail closed on bad data."""
+    """Compose raw profile arrays into the vocabulary; fail closed on bad data.
+
+    Every field is required (a missing one raises TypeError). A prefix must be
+    ASCII letters only: the optional hyphen after it is the engine's, and any
+    other character would break the letter bounds of the word.
+    """
     values = (
-        ise_stems, isation_allowed_words, yse_forms,
+        ise_stems, ise_prefixes, isation_allowed_words, yse_forms,
         allowed_commonwealth_spans, verbatim_ensure_titles, lowercase_project_names,
     )
     for key, value in zip(LanguageVocabulary._fields, values):
@@ -279,8 +295,11 @@ def language_vocabulary(
             not isinstance(word, str) or not word for word in value
         ):
             raise ValueError(f"language.{key}: expected an array of nonempty strings")
+    if any(not re.fullmatch(r"[A-Za-z]+", prefix) for prefix in ise_prefixes):
+        raise ValueError("language.ise_prefixes: expected ASCII letters only")
     return LanguageVocabulary(
-        tuple(ise_stems), frozenset(isation_allowed_words), tuple(yse_forms),
+        tuple(ise_stems), tuple(ise_prefixes), frozenset(isation_allowed_words),
+        tuple(yse_forms),
         tuple(allowed_commonwealth_spans), tuple(verbatim_ensure_titles),
         set(lowercase_project_names),
     )
@@ -331,7 +350,11 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     the shipped (plain-word) vocabulary: the stems carry no regex metacharacters,
     so re.escape is a no-op and the enumerated seven ise inflections match the
     former f-string construction exactly. Since 3b372 it is bounded by
-    ``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER`` instead of ``\\b``.
+    ``_NO_LETTER_BEFORE`` / ``_NO_LETTER_AFTER`` instead of ``\\b``. Since 3b234
+    round 4 any run of ``ise_prefixes`` may precede the stem inside those bounds,
+    with a "-" after up to three of them, and the whole word, prefixes included,
+    is reported; a chain with more hyphens is reported from its last three
+    hyphenated groups. With no prefixes listed the pattern is the one above.
     """
     ise = "|".join(
         "|".join(re.escape(word) for word in (
@@ -340,6 +363,12 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
         ))
         for stem in vocab.ise_stems
     )
+    prefixes = "|".join(re.escape(prefix) for prefix in vocab.ise_prefixes)
+    if ise and prefixes:
+        # At most three hyphenated groups: an unbounded hyphenated run would be
+        # retried from every hyphen of a long prefix chain (quadratic time).
+        ise = ("(?:(?:" + prefixes + ")+-){0,3}(?:" + prefixes + ")*(?:"
+               + ise + ")")
     yse = "|".join(re.escape(word) for word in vocab.yse_forms)
     return LanguageChecks(
         vocab,
