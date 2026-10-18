@@ -82,8 +82,11 @@ Exit codes:
         Loading is checked even without added lines (3b201). KeyboardInterrupt raised
         in THIS process (a real Ctrl-C) propagates; one raised by engine code is an
         engine fault in the child, exit 2. A D7 length checker
-        (check-changelog-length-on-pr.py) that fails to load is also exit 2, reported as one
-        fixed ERROR line rather than a traceback (3b236).
+        (check-changelog-length-on-pr.py) that fails to load, or that lacks ENTRY_RE, evaluate,
+        DEFAULT_WORD_MAX or DEFAULT_SENTENCE_MAX, is also exit 2, reported as one fixed ERROR
+        line rather than a traceback (3b236). So is a diff the parser cannot read exactly: a
+        hunk whose lines do not match its header's line counts, or an added line that is not
+        valid UTF-8 (3b236 round 2).
 
 Engine isolation (3b201, /validate-pr round 5): every language-engine interaction
 (loading lint-language.py, engine API validation, compile_language,
@@ -203,8 +206,12 @@ class D7CheckerUnavailable(RuntimeError):
     """The D7 length checker failed to load; main() reports the fixed error and exits 2."""
 
 
+_D7_NAMES = ("ENTRY_RE", "evaluate", "DEFAULT_WORD_MAX", "DEFAULT_SENTENCE_MAX")
+
+
 def _load_d7():
-    """The loaded D7 length-checker module. Any failure while loading it raises
+    """The loaded D7 length-checker module. Any failure while loading it, or a loaded module
+    without one of the names d7_length_findings() reads (_D7_NAMES), raises
     D7CheckerUnavailable; a KeyboardInterrupt propagates."""
     global _d7
     if _d7 is None:
@@ -214,6 +221,8 @@ def _load_d7():
                 Path(__file__).resolve().parent / 'check-changelog-length-on-pr.py')
             module = _ilu.module_from_spec(spec)
             spec.loader.exec_module(module)
+            if not all(hasattr(module, name) for name in _D7_NAMES):
+                raise D7CheckerUnavailable()
         except KeyboardInterrupt:
             raise
         except BaseException:
@@ -748,50 +757,110 @@ def _added_lines_from_repo(
     hook's GIT_INDEX_FILE names the index being committed; a mirror in another repository passes
     :func:`_foreign_repo_env`.
 
-    The flags override every setting that would reshape what the parser below reads (3b141 QA
-    r1): an external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
+    The flags override each setting known to reshape what the parser below reads (3b141 QA r1):
+    an external diff driver (``diff.external``, ``GIT_EXTERNAL_DIFF``, the ``command`` of a
     ``diff=<driver>`` attribute), a ``textconv`` filter, a ``-diff`` or ``binary`` attribute (it
     prints "Binary files ... differ"), colour (``color.diff``, ``color.ui``), and the ``+++ b/``
     prefix (``diff.noprefix``, ``diff.mnemonicPrefix``, ``diff.dstPrefix``). Each leaves no
-    ``+++ b/`` header or ``+`` line, so the aid reported 0 added lines and passed. Not pinned: the
-    source prefix (only the ``---`` line carries it, and the parser skips that line), and
-    ``diff.relative`` (it changes a path, never whether a ``+`` line is read).
+    ``+++ b/`` header or ``+`` line, so the aid reported 0 added lines and passed. They also pin
+    the context (3b236 round 2): ``--inter-hunk-context=0`` (``diff.interHunkContext``),
+    ``-c diff.suppressBlankEmpty=false``, and no ``GIT_DIFF_OPTS`` in git's environment (its
+    ``--unified=<n>`` overrides ``--unified=0``), since a blank context line printed as an empty
+    line ended the round 1 hunk early and dropped every later added line. Not pinned: the source
+    prefix (only the ``---`` line carries it, and the parser skips that line), and
+    ``diff.relative`` (it changes a path, never whether a ``+`` line is read). The list is not
+    a proof that no other setting reshapes the diff; the parser therefore reads each hunk by
+    its header's line counts, and a diff it cannot read exactly raises ``ChangelogDiffUnreadable``
+    (``main()`` exits 2) rather than yielding fewer added lines.
 
     A git failure raises ``CalledProcessError`` carrying git's ``stderr``, and ``main()`` exits 2:
     an unread diff is not zero added lines. This replaces the 3.190 fail-open, which returned []
     for any git failure (a sibling that is not a git repository included), so a failed diff
     printed "OK: 0 added CHANGELOG line(s)" and exited 0."""
-    cmd = ["git", "diff", "--no-ext-diff", "--no-textconv", "--text", "--no-color",
-           "--dst-prefix=b/", "--unified=0"]
+    cmd = ["git", "-c", "diff.suppressBlankEmpty=false", "diff", "--no-ext-diff",
+           "--no-textconv", "--text", "--no-color", "--dst-prefix=b/", "--unified=0",
+           "--inter-hunk-context=0"]
     if staged:
         cmd.append("--cached")
     cmd += ["HEAD", "--", *paths]
-    proc = subprocess.run(cmd, cwd=str(repo), capture_output=True, env=env)
+    git_env = {k: v for k, v in (os.environ if env is None else env).items()
+               if k != "GIT_DIFF_OPTS"}
+    proc = subprocess.run(cmd, cwd=str(repo), capture_output=True, env=git_env)
     if proc.returncode != 0:
         raise subprocess.CalledProcessError(
             proc.returncode, cmd, proc.stdout, proc.stderr.decode("utf-8", errors="replace"))
-    results: list[tuple[str, str]] = []
-    current: str | None = None
-    in_hunk = False
+    return _parse_added_lines(proc.stdout)
+
+
+class ChangelogDiffUnreadable(ValueError):
+    """The ``git diff`` output could not be read exactly; main() reports one ERROR line and
+    exits 2."""
+
+
+_HUNK_RE = re.compile(rb"@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@")
+
+
+def _parse_added_lines(diff: bytes) -> list[tuple[str, str]]:
+    """(file, added-line-text) for every added line in ``diff``, the bytes of a ``git diff``.
+
+    Each hunk is read by the old and new line counts in its ``@@ -a,b +c,d @@`` header (an
+    omitted count is 1): a "-" line takes one old line, a "+" line one new line, a " " line or
+    an EMPTY line (a blank context line under ``diff.suppressBlankEmpty``) one of each, and a
+    "\\" line ("No newline at end of file") none. So a "+" line is an added line even when its
+    text starts with "++" (3b236), and a hunk never ends before its counts are used up (3b236
+    round 2). Raises ChangelogDiffUnreadable, never yields fewer added lines, when a hunk
+    line does not fit the counts, the output ends inside a hunk, a hunk adds lines before any
+    ``+++ b/`` header, a "+" line appears outside a hunk, or an added line or a header path is
+    not valid UTF-8."""
+    lines = diff.split(b"\n")
     # Split on LF only (3b236): a CR, U+2028 or U+0085 inside an added line is part of that
     # line, so no fragment of it can lose its "+" marker and escape the checks.
-    for raw in proc.stdout.split(b"\n"):
-        line = raw.decode("utf-8")
-        # Inside a hunk every line carries a one-character marker, so a "+" line is an added
-        # line even when its text starts with "++" (3b236); any other line ends the hunk.
-        if in_hunk:
-            if line.startswith("+"):
-                if current is not None:
-                    results.append((current, line[1:]))
-                continue
-            if line.startswith((" ", "-", "\\")):
-                continue
-            in_hunk = False
-        if line.startswith("@@"):
-            in_hunk = True
+    if lines and lines[-1] == b"":
+        lines.pop()
+    results: list[tuple[str, str]] = []
+    current: str | None = None
+    old_left = new_left = 0
+    for number, line in enumerate(lines, start=1):
+        if old_left or new_left:
+            marker = line[:1]
+            if marker == b"+" and new_left:
+                new_left -= 1
+                try:
+                    text = line[1:].decode("utf-8")
+                except UnicodeDecodeError:
+                    raise ChangelogDiffUnreadable(
+                        f"an added line of {current} (diff line {number}) is not valid "
+                        "UTF-8") from None
+                results.append((current, text))
+            elif marker == b"-" and old_left:
+                old_left -= 1
+            elif marker in (b" ", b"") and old_left and new_left:
+                old_left -= 1
+                new_left -= 1
+            elif marker != b"\\":
+                raise ChangelogDiffUnreadable(
+                    f"diff line {number} does not fit its hunk's line counts")
             continue
-        if line.startswith("+++ b/"):
-            current = line[len("+++ b/") :]
+        if line.startswith(b"@@"):
+            match = _HUNK_RE.match(line)
+            if match is None:
+                raise ChangelogDiffUnreadable(f"diff line {number} is not a hunk header")
+            old_left = 1 if match.group(1) is None else int(match.group(1))
+            new_left = 1 if match.group(2) is None else int(match.group(2))
+            if new_left and current is None:
+                raise ChangelogDiffUnreadable(
+                    f"the hunk at diff line {number} adds lines to no named file")
+        elif line.startswith(b"+++ "):
+            try:
+                header = line.decode("utf-8")
+            except UnicodeDecodeError:
+                raise ChangelogDiffUnreadable(
+                    f"the file header at diff line {number} is not valid UTF-8") from None
+            current = header[len("+++ b/"):] if header.startswith("+++ b/") else None
+        elif line.startswith(b"+"):
+            raise ChangelogDiffUnreadable(f"diff line {number} is an added line outside a hunk")
+    if old_left or new_left:
+        raise ChangelogDiffUnreadable("the diff ends inside a hunk")
     return results
 
 
@@ -860,7 +929,7 @@ def main(argv: list[str]) -> int:
         detail = (exc.stderr or "").strip()
         print(f"ERROR: git diff failed: {exc}" + (f"\n{detail}" if detail else ""), file=sys.stderr)
         return 2
-    except OSError as exc:
+    except (OSError, ChangelogDiffUnreadable) as exc:
         print(f"ERROR: the CHANGELOG diff could not be read: {exc}", file=sys.stderr)
         return 2
     try:
