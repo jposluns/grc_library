@@ -2,8 +2,8 @@
 
 **Document Title:** GRC Library Compliance Alignment Matrix\
 **Document Type:** Matrix\
-**Version:** 1.12.3\
-**Date:** 2026-10-12\
+**Version:** 1.12.4\
+**Date:** 2026-10-18\
 **Owner:** Chief Information Security Officer\
 **Approving Authority:** Governance Library Maintainer\
 **Related Documents:** [`compliance/policy-compliance-and-audit-management.md`](policy-compliance-and-audit-management.md), [`compliance/register-global-regulatory-applicability.md`](register-global-regulatory-applicability.md), [`compliance/logistics/register-basc-it-responsibilities.md`](logistics/register-basc-it-responsibilities.md), [`compliance/logistics/annex-aeo-united-kingdom-cybersecurity.md`](logistics/annex-aeo-united-kingdom-cybersecurity.md), [`governance/charter-governance-library.md`](../governance/charter-governance-library.md), [`governance/matrix-cross-framework-alignment.md`](../governance/matrix-cross-framework-alignment.md)\
@@ -37,7 +37,7 @@ This matrix maps GRC library documents to the control domains and section refere
 | AEO/AEO-S | UK HMRC Authorized Economic Operator (Security and Safety) | Requirement area headings |
 | AICPA TSC 2017 | AICPA 2017 Trust Services Criteria (TSP Section 100), the criteria used to evaluate controls in a SOC 2 examination; the 2022 revision updated the points of focus, not the criteria | Criterion identifiers only: CC1.1 to CC9.2 (common criteria), A1.1 to A1.3 (Availability), C1.1 to C1.2 (Confidentiality), PI1.1 to PI1.5 (Processing Integrity), and P1.1 to P8.1 (Privacy); never a category name or a privacy group heading such as P1.0 |
 
-Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents collectively satisfy a framework's requirements. A cell containing "N/A" indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security. The AICPA TSC 2017 column is being populated domain by domain; until a row's Trust Services Criteria mapping has been assessed, its "N/A" in that column records that no mapping has been made yet and does not assert that no criterion applies.
+Read across a row to identify which frameworks a given document supports. Read down a column to identify which GRC library documents map or align to a framework's requirements; a mapping does not establish that those documents satisfy the framework. A cell containing "N/A" indicates no direct mapping; the document may still provide contextual support. "N/A" is used in particular for the customs and trade-security columns (CTPAT, PIP, BASC, WCO SAFE, AEO/AEO-S) on documents whose subject is not customs or trade security. The AICPA TSC 2017 column is being populated domain by domain; until a row's Trust Services Criteria mapping has been assessed, its "N/A" in that column records that no mapping has been made yet and does not assert that no criterion applies.
 
 ---
 
