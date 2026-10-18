@@ -27869,6 +27869,187 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                 self.assertNotIn(name, foreign)
             self.assertEqual(foreign.get("GRC_STORE"), str(store))
 
+    # The files a standalone run of the aid loads, copied into a fixture tree so a test runs it
+    # through its command line against the fixture's own repository.
+    CLI_FILES = ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
+                 "tools/lint-language.py", "tools/check-changelog-length-on-pr.py",
+                 "tools/lint_common.py", "tools/aiqt_bootstrap.py",
+                 ".corpus-management/tools/gate_lint_language.py",
+                 ".corpus-management/tools/profile_loader.py",
+                 ".corpus-management/defaults/grc/language.toml")
+
+    def _run_cli(self, td, added, replace=None):
+        """Run ``tools/preflight-changelog.py --staged`` in a fixture repository whose staged
+        CHANGELOG.md adds the line ``added`` (text, or bytes written as they are) after a committed
+        heading. ``replace`` maps a copied file to the source written over it before the run."""
+        root = Path(td) / "cli"
+        for rel in self.CLI_FILES:
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(REPO_ROOT / rel, root / rel)
+        for rel, source in (replace or {}).items():
+            (root / rel).write_text(source, encoding="utf-8")
+        env = {k: v for k, v in self._env(td).items()
+               if k not in ("GRC_STORE", "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
+        env["AIQT_PACK_ROOT"] = str(REPO_ROOT / "vendor" / "aiqt")
+
+        def git(*args):
+            subprocess.run(["git", "-C", str(root), "-c", "user.name=t", "-c",
+                            "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                           check=True, capture_output=True, env=env)
+
+        git("init", "-q", "-b", "feature")
+        (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "--no-verify", "-m", "init")
+        body = added if isinstance(added, bytes) else added.encode("utf-8")
+        (root / "CHANGELOG.md").write_bytes(b"# Changelog\n" + body + b"\n")
+        git("add", "CHANGELOG.md")
+        return subprocess.run([sys.executable, "tools/preflight-changelog.py", "--staged"],
+                              cwd=root, env=env, capture_output=True, text=True)
+
+    def test_an_added_line_starting_with_plus_plus_is_checked(self):
+        # 3b236 (1): the parser skipped every line starting "+++" or "---" wherever it appeared,
+        # so an added line whose text starts with "++" (diff line "+++...") escaped every check,
+        # a forged "++ b/<path>" header included. File headers are now recognised only outside a
+        # hunk. Mutation killed: skipping "+++" lines inside a hunk again.
+        for added in ("++" + self.ADDED, "++ b/" + self.ADDED):
+            with self.subTest(added=added), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), added)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_an_added_line_with_a_unicode_line_break_is_checked_whole(self):
+        # 3b236 (2): the diff was read as text and split with splitlines(), so a CR, U+2028 or
+        # U+0085 inside an added line split it, the second fragment lost its "+" marker, and that
+        # fragment escaped every check. The diff is now read as bytes and split on LF only.
+        for separator in ("\r", "\u2028", "\u0085"):
+            with self.subTest(separator=ascii(separator)), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td),
+                                       "a clean start" + separator + self.ADDED)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_a_d7_checker_load_failure_is_one_named_error(self):
+        # 3b236 (3): the D7 length checker was loaded at module level, outside main()'s fail-closed
+        # boundary, so a checker that failed to load printed a raw traceback. It now loads inside
+        # that boundary: exit 2 with one fixed ERROR line, no traceback and no verdict.
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(
+                os.path.realpath(td), "a clean entry",
+                replace={"tools/check-changelog-length-on-pr.py":
+                         "raise RuntimeError('d7 checker broken')\n"})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: the D7 length checker could not be loaded from "
+            "check-changelog-length-on-pr.py."])
+
+    def test_a_blank_context_line_cannot_end_a_hunk_early(self):
+        # 3b236 round 2 (1): the round 1 parser ended a hunk on any line not starting " ", "-" or
+        # "\"; with diff.suppressBlankEmpty=true git prints a blank context line as an empty line,
+        # so the hunk ended early and every later added line was dropped (exit 0, "OK"). Two routes
+        # put a blank context line inside a -U0 hunk: diff.interHunkContext=1, and GIT_DIFF_OPTS=
+        # --unified=3 (it overrides --unified=0). Both routes fail on 267f988e. The flags alone
+        # print the blank line as " " context, so the parser is also tested on its own below.
+        from unittest import mock
+        mod = self._load("_pcl_blank_context")
+        with tempfile.TemporaryDirectory() as td:
+            td = os.path.realpath(td)
+            root = Path(td) / "r"
+            root.mkdir()
+            env = self._env(td)
+
+            def git(*args):
+                subprocess.run(["git", "-C", str(root), "-c", "user.name=t", "-c",
+                                "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                               check=True, capture_output=True, env=env)
+
+            git("init", "-q", "-b", "feature")
+            (root / "CHANGELOG.md").write_text("# Changelog\nx1\n\nx2\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            git("commit", "-q", "--no-verify", "-m", "init")
+            (root / "CHANGELOG.md").write_text(
+                "# Changelog\ny1\n\n" + self.ADDED + "\n", encoding="utf-8")
+            git("add", "CHANGELOG.md")
+            git("config", "diff.suppressBlankEmpty", "true")
+            routes = (({"diff.interHunkContext": "1"}, {}),
+                      ({}, {"GIT_DIFF_OPTS": "--unified=3"}))
+            for config, extra in routes:
+                for key, value in config.items():
+                    git("config", key, value)
+                with mock.patch.dict(os.environ, {**env, **extra}, clear=True):
+                    for staged in (True, False):
+                        with self.subTest(config=config, env=extra, staged=staged):
+                            self.assertEqual(
+                                mod._added_lines_from_repo(root, ("CHANGELOG.md",), staged),
+                                [("CHANGELOG.md", "y1"), ("CHANGELOG.md", self.ADDED)])
+                for key in config:
+                    git("config", "--unset", key)
+
+    def test_the_parser_reads_each_hunk_by_its_line_counts(self):
+        # 3b236 round 2 (1): an empty line inside a hunk is a blank context line, and a diff the
+        # parser cannot read exactly raises the named error instead of yielding fewer added lines.
+        mod = self._load("_pcl_hunk_counts")
+        head = b"diff --git a/CHANGELOG.md b/CHANGELOG.md\n--- a/CHANGELOG.md\n+++ b/CHANGELOG.md\n"
+        self.assertEqual(
+            mod._parse_added_lines(head + b"@@ -2,3 +2,3 @@\n-x1\n+y1\n\n-x2\n+++y2\n"),
+            [("CHANGELOG.md", "y1"), ("CHANGELOG.md", "++y2")])
+        self.assertEqual(
+            mod._parse_added_lines(head + b"@@ -1 +1 @@\n-x\n\\ No newline at end of file\n+y\n"),
+            [("CHANGELOG.md", "y")])
+        unreadable = (
+            head + b"@@ -1,0 +2,2 @@\n+one\n",             # the output ends inside the hunk
+            head + b"@@ -1,0 +2 @@\n+one\n+two\n",         # an added line after the hunk
+            head + b"@@ -1,0 +2,2 @@\n+one\nnoise\n+two\n",  # a line that fits no count
+            head + b"@@ -1,0 +2,2 @@\n+one\n\n",           # context beyond the old count
+            head + b"@@ malformed @@\n+one\n",               # an unreadable hunk header
+            b"@@ -0,0 +1 @@\n+one\n",                        # additions to no named file
+            head + b"@@ -0,0 +1 @@\n+bad \xff byte\n",       # an added line that is not UTF-8
+        )
+        for diff in unreadable:
+            with self.subTest(diff=diff), self.assertRaises(mod.ChangelogDiffUnreadable):
+                mod._parse_added_lines(diff)
+
+    def test_an_added_line_that_is_not_utf8_is_one_named_error(self):
+        # 3b236 round 2 (2): the diff bytes were decoded with a bare decode("utf-8"), so an added
+        # line that is not valid UTF-8 printed a raw UnicodeDecodeError traceback with exit 1. It is
+        # now one ERROR line and exit 2, with no verdict.
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(os.path.realpath(td), b"bad \xff byte")
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: the CHANGELOG diff could not be read: an added line of CHANGELOG.md "
+            "(diff line 6) is not valid UTF-8"])
+
+    def test_a_d7_checker_without_a_required_name_is_one_named_error(self):
+        # 3b236 round 2 (3): a checker that loaded without ENTRY_RE, evaluate, DEFAULT_WORD_MAX or
+        # DEFAULT_SENTENCE_MAX failed later with a raw AttributeError traceback. _load_d7() now
+        # checks the four names, so a missing one is the fixed D7 error, exit 2. The control row
+        # (every name present) passes, so each refusal is the missing name's.
+        parts = {
+            "ENTRY_RE": "ENTRY_RE = re.compile(r'^- (PR #\\d+): (.*)$')\n",
+            "evaluate": "def evaluate(entries, word_max, sentence_max):\n    return []\n",
+            "DEFAULT_WORD_MAX": "DEFAULT_WORD_MAX = 100\n",
+            "DEFAULT_SENTENCE_MAX": "DEFAULT_SENTENCE_MAX = 45\n",
+        }
+        for missing in (None, *parts):
+            source = "import re\n" + "".join(v for k, v in parts.items() if k != missing)
+            with self.subTest(missing=missing), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(
+                    os.path.realpath(td), "a clean entry",
+                    replace={"tools/check-changelog-length-on-pr.py": source})
+                if missing is None:
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                    continue
+                self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+                self.assertEqual(result.stdout, "")
+                self.assertEqual(result.stderr.splitlines(), [
+                    "ERROR: the D7 length checker could not be loaded from "
+                    "check-changelog-length-on-pr.py."])
+
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive PR #1087 guards over
