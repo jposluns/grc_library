@@ -78,6 +78,7 @@ GUARD-INPUT RESIDUE, stated at the point of use per validate-inference-before-ac
 from __future__ import annotations
 
 import datetime as _dt
+import errno
 import json
 import os
 import re as _re
@@ -187,9 +188,15 @@ except Exception:  # pragma: no cover - fail-safe: never let a helper-load failu
 def _working_file(rel_below, root):
     """`.working/<rel_below>` resolved via lint_common (local store preferred), or None."""
     if _resolve_working is not None:
-        return _resolve_working(rel_below, repo_root=root)
+        return _resolve_working(rel_below, repo_root=root, strict=True)
     cand = root / ".working" / rel_below
-    return cand if cand.exists() else None
+    try:
+        os.stat(cand)
+    except OSError as exc:
+        if exc.errno in (errno.ENOENT, errno.ENOTDIR):
+            return None
+        raise
+    return cand
 
 
 # Save resolution failures until AFTER the continuation/worker/escape checks.
@@ -262,8 +269,14 @@ def held_branches() -> dict:
     for weeks and would need its hold rewritten on every commit.
     """
     held = {}
-    if HELD_FILE is None or not HELD_FILE.exists():
+    if HELD_FILE is None:
         return held
+    try:
+        os.stat(HELD_FILE)
+    except OSError as exc:
+        if exc.errno in (errno.ENOENT, errno.ENOTDIR):
+            return held
+        raise
     today = _dt.date.today().isoformat()
     for line in HELD_FILE.read_text(encoding="utf-8").splitlines():
         line = line.strip()

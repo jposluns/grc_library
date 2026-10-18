@@ -50403,18 +50403,32 @@ class HeldBranchExpiryTests(unittest.TestCase):
         with self.mock.patch.object(Path, "read_text", side_effect=PermissionError("denied")):
             self.assert_held_escape(hook)
 
+    @unittest.skipIf(os.geteuid() == 0, "root bypasses directory permissions")
     def test_hook_held_stat_failure(self):
         hook = self.outstanding_hook()
-        original = Path.exists
-
-        def exists(path):
-            if path == self.path:
-                raise PermissionError("held stat denied")
-            return original(path)
-
-        with self.mock.patch.object(Path, "exists", exists):
-            self.assert_held_failure(hook, "held stat denied")
-            self.assert_held_escape(hook)
+        with tempfile.TemporaryDirectory() as directory:
+            store = Path(directory)
+            held = store / "held-branches.txt"
+            held.write_text("outstanding-0 # 9999-12-31 held\n", encoding="ascii")
+            store.chmod(0)
+            try:
+                # Exercise stat directly, including when access changes after resolution.
+                with self.mock.patch.object(hook, "HELD_FILE", held):
+                    self.assert_held_failure(hook, "PermissionError")
+                    self.assert_held_escape(hook)
+                # Also exercise the real strict resolver during hook initialization.
+                with self.mock.patch.dict(os.environ, {"GRC_STORE": str(store),
+                                                       "CLAUDE_PROJECT_DIR": str(self.root)}):
+                    failed = self.load(
+                        REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                        "held_stat_resolution_test")
+                self.addCleanup(sys.modules.pop, "held_stat_resolution_test", None)
+                with self.mock.patch.object(failed, "ESCAPE_FILE", hook.ESCAPE_FILE), \
+                        self.mock.patch.object(failed, "is_worker_session", return_value=False):
+                    self.assert_held_failure(failed, "InaccessiblePath")
+                    self.assert_held_escape(failed)
+            finally:
+                store.chmod(0o700)
 
     def test_hook_held_resolution_failure(self):
         import lint_common
