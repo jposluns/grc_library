@@ -22491,6 +22491,118 @@ class WebGeneratorLiteralFigureDetectorTests(unittest.TestCase):
             self.assertIsNone(rx.search(neg), f"conservative detector false-positived on {neg!r}")
 
 
+class WebGeneratorStandardEditionTests(unittest.TestCase):
+    """3b380: hand-written standard editions on the site must match the citations register.
+
+    The landing and v2 coverage bibliography lists and the For-AI OWASP and EU AI Act
+    entries are written by hand; PR #2846 brought them in line with the register.
+    These tests pin both directions: the current lists pass, and an edition changed
+    back to the one #2846 replaced fails, alone and through ``--check``."""
+
+    LANDING = "templates/landing.html"
+    FOR_AI_V3 = "templates-v3/for-ai.html"
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "web_build_3b380_mod", REPO_ROOT / ".web" / "build.py"
+        )
+        cls.mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.mod)
+
+    def _landing_with(self, old, new):
+        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        self.assertIn(old, text)
+        return {self.LANDING: text.replace(old, new)}
+
+    def _entry(self, entries, source, name):
+        found = [e for e in entries if e.source == f".web/{source}" and e.name == name]
+        self.assertEqual(len(found), 1, f"{name!r} not read once from {source}")
+        return found[0]
+
+    def test_current_lists_match_the_register(self):
+        self.assertEqual(self.mod.stale_standard_editions(), [])
+        entries = self.mod.standard_edition_entries()
+        for source, name, row in (
+            (self.LANDING, "OWASP LLM Top 10 (2026)", "OWASP LLM Top 10"),
+            (self.LANDING, "OWASP SAMM 2.2.0", "OWASP SAMM"),
+            (self.LANDING, "EU AI Act", "EU AI Act"),
+            ("templates-v2/coverage.html", "MITRE ATLAS v2026.07", "MITRE ATLAS"),
+            ("templates/for-ai.html", "OWASP Top 10 for LLM Applications 2026", "OWASP LLM Top 10"),
+            (self.FOR_AI_V3, "EU AI Act", "EU AI Act"),
+        ):
+            entry = self._entry(entries, source, name)
+            self.assertEqual((entry.row, entry.status), (row, "match"), entry)
+
+    def test_reverted_llm_top_10_edition_fails(self):
+        hits = self.mod.stale_standard_editions(
+            self._landing_with("OWASP LLM Top 10 (2026)", "OWASP LLM Top 10 (2025)")
+        )
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn(".web/templates/landing.html:", hits[0])
+        self.assertIn("'OWASP LLM Top 10 (2025)' lists edition '2025'", hits[0])
+        self.assertIn("Current version '2026'", hits[0])
+
+    def test_reverted_samm_edition_fails(self):
+        hits = self.mod.stale_standard_editions(
+            self._landing_with("OWASP SAMM 2.2.0", "OWASP SAMM 2.0")
+        )
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'OWASP SAMM 2.0' lists edition '2.0'", hits[0])
+        self.assertIn("Current version '2.2.0'", hits[0])
+
+    def test_eu_ai_act_without_the_amendment_fails_on_for_ai(self):
+        text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
+        current = "(Regulation (EU) 2024/1689, as amended by (EU) 2026/1744)"
+        self.assertIn(current, text)
+        hits = self.mod.stale_standard_editions(
+            {self.FOR_AI_V3: text.replace(current, "(Regulation (EU) 2024/1689)")}
+        )
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'EU AI Act' lists edition 'Regulation (EU) 2024/1689'", hits[0])
+
+    def test_unresolved_name_with_an_edition_fails(self):
+        hits = self.mod.stale_standard_editions(self._landing_with(
+            '<span class="id">Basel III</span>', '<span class="id">Basel IV 2023</span>'
+        ))
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'Basel IV 2023' carries edition '2023' but names no register row", hits[0])
+
+    def test_names_without_an_edition_are_skipped(self):
+        entries = self.mod.standard_edition_entries()
+        for name in ("LINDDUN", "STRIDE", "IEC 62443", "EU eIDAS 2"):
+            self.assertEqual(self._entry(entries, self.LANDING, name).status, "no edition")
+
+    def test_edition_comparison(self):
+        match = self.mod.edition_matches
+        self.assertTrue(match("v1.1", "v1.1"))
+        self.assertTrue(match("2026", "2026"))
+        self.assertTrue(match("1988", "1988, as amended by a later Act 2024"))
+        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025"))
+        self.assertFalse(match("2025", "2026"))
+        self.assertFalse(match("2.0", "2.2.0"))
+        self.assertFalse(match("2019", "2019 Recommendation as updated 2024"))
+        self.assertFalse(match("Regulation (EU) 2024/1689", "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744"))
+
+    def test_check_mode_fails_on_a_reverted_edition(self):
+        import contextlib
+        from unittest import mock
+        reverted = self._landing_with("OWASP SAMM 2.2.0", "OWASP SAMM 2.0")[self.LANDING]
+        real = self.mod._edition_source_text
+
+        def source(rel):
+            return reverted if rel == self.LANDING else real(rel)
+
+        err = io.StringIO()
+        with mock.patch.object(self.mod, "_edition_source_text", source), \
+                contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+            rc = self.mod.main(["--check"])
+        self.assertEqual(rc, 1)
+        self.assertIn("hand-written standard edition(s) differ", err.getvalue())
+        self.assertIn("'OWASP SAMM 2.0'", err.getvalue())
+
+
 class WebGeneratorBaseTokenTests(unittest.TestCase):
     """S4: site-root links render through {{BASE}} without changing root output."""
 

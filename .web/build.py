@@ -22,8 +22,11 @@ shared partials under each variant's template tree (``.web/templates/`` and the
 non-indexable ``.web/templates-v2/`` and ``.web/templates-v3/`` staging copies). It never walks the repository and
 never reads ``.working/``, ``.claude/``, ``tools/``, ``tests/``, ``.github/``, or
 the private sibling repositories. (Under ``--check`` it additionally reads the
-committed ``.web/corpus-link-manifest.md`` and self-scans this generator source for
-the safeguard checks; neither feeds published content.) By default its rendered output is the site under
+committed ``.web/corpus-link-manifest.md``, self-scans this generator source for
+the safeguard checks, and, for the hand-written edition check, reads
+``governance/register-canonical-citations.md`` through gate D15's resolver
+(``tools/check-alignment-register-on-pr.py`` and its alias and exclusion files);
+none of these feeds published content.) By default its rendered output is the site under
 ``.web/dist/`` (``--out DIR`` redirects it) (``index.html``, ``about/index.html``, ``pack/index.html``,
 ``for-ai/index.html``, one ``<domain>/index.html`` per corpus domain, one
 ``types/<slug>/index.html`` per document type, and the three generated files
@@ -76,18 +79,20 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, or a root-relative href that skips the ``{{BASE}}`` token.
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version; a name that resolves to no row but carries an edition also fails; names without an edition are out of scope).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import posixpath
 import re
 import subprocess
 import sys
 from collections import Counter
+from html import unescape as html_unescape
 from pathlib import Path
 from typing import NamedTuple
 
@@ -2544,6 +2549,220 @@ def bare_root_relative_hrefs():
     return hits
 
 
+# Hand-written standard editions (3b380). Most site figures are generated, but a few
+# lists name standards by hand, and their editions drifted behind the citations
+# register until PR #2846 corrected them. The register is the authority; this check
+# compares the hand-written editions with it and does not generate the lists.
+CITATIONS_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md"
+# Gate D15's checker, whose resolver (Standard ID or curated alias, from
+# tools/alignment-register-aliases.json) is reused rather than re-implemented.
+D15_CHECKER = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
+# (template path under .web/, list kind). "biblio" reads every <li> of the
+# "biblio-col" lists (an "id" span and a "topic" span); "for-ai" reads the OWASP
+# entries and the EU AI Act entry of the For-AI resource index.
+EDITION_LIST_SOURCES = (
+    ("templates/landing.html", "biblio"),
+    ("templates-v2/coverage.html", "biblio"),
+    ("templates/for-ai.html", "for-ai"),
+    ("templates-v2/for-ai.html", "for-ai"),
+    ("templates-v3/for-ai.html", "for-ai"),
+)
+_BIBLIO_ITEM_RE = re.compile(
+    r'<li><span class="id">(?P<name>[^<]*)</span><span class="topic">(?P<topic>[^<]*)</span></li>'
+)
+_FOR_AI_ITEM_RE = re.compile(
+    r'<li><span class="(?:fa-inst|row-name)">(?P<name>[^<]*)</span>(?P<rest>.*?)'
+    r'<span class="(?:fa-cov|row-desc)">'
+)
+# The For-AI pages name the EU AI Act as "European Union, AI Act (Regulation ...)",
+# split across the name span on v3; the parenthetical is its edition.
+_FOR_AI_EU_AI_ACT_RE = re.compile(
+    r"^European Union, AI Act \((?P<edition>Regulation (?:[^()]|\([^()]*\))*)\)"
+)
+FOR_AI_EU_AI_ACT_ID = "EU AI Act"
+# A trailing token is an edition only in one of these shapes: a dotted version, a v- or
+# Rev.-prefixed number, or a year. Any other trailing number is part of the name
+# ("IEC 62443", "EU eIDAS 2").
+_EDITION_SHAPE_RE = re.compile(
+    r"(?:v|Rev\.?\s*)?\d+(?:\.\d+)+|(?:v|Rev\.?\s*)\d+|(?:19|20)\d\d", re.I
+)
+# Editions are compared by their numbers ("v1.1" and "1.1", "(2026)" and "2026",
+# "Regulation (EU) 2024/1689" and "Regulation 2024/1689" are equal).
+_EDITION_NUMBER_RE = re.compile(r"\d+(?:[./]\d+)*")
+_YEAR_RE = re.compile(r"(?:19|20)\d\d")
+
+
+class EditionEntry(NamedTuple):
+    """One hand-written entry the edition check read, with its outcome."""
+
+    source: str
+    line: int
+    name: str
+    edition: str
+    row: str
+    current: str
+    status: str  # "match", "mismatch", "unresolved", or "no edition"
+
+
+def _edition_source_text(rel):
+    return (WEB_DIR / rel).read_text(encoding="utf-8")
+
+
+def _load_edition_resolver():
+    """Gate D15's module and its resolver over the citations register."""
+    tools = str(REPO_ROOT / "tools")
+    if tools not in sys.path:
+        sys.path.insert(0, tools)
+    try:
+        spec = importlib.util.spec_from_file_location("d15_for_web_editions", D15_CHECKER)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        resolver = module.build_resolver(CITATIONS_REGISTER.read_text(encoding="utf-8"))
+    except (ImportError, OSError, ValueError) as e:
+        raise BuildError(f"cannot load the D15 citation resolver: {e}") from e
+    return module, resolver
+
+
+def _plain(fragment):
+    """Template HTML as text: the external-link marker and tags dropped, entities decoded."""
+    fragment = re.sub(r'<span class="ext">[^<]*</span>', "", fragment)
+    return html_unescape(re.sub(r"<[^>]+>", "", fragment)).strip()
+
+
+def _hand_written_entries(rel, kind, text):
+    """(line, name, edition) per entry of one hand-written list; edition may be empty."""
+    entries, in_biblio = [], False
+    for lineno, line in enumerate(text.splitlines(), 1):
+        if kind == "biblio":
+            if '<div class="biblio-col">' in line:
+                in_biblio = True
+            elif in_biblio and "</div>" in line:
+                in_biblio = False
+            m = _BIBLIO_ITEM_RE.search(re.sub(r'<span class="ext">[^<]*</span>|</?a\b[^>]*>', "", line))
+            if in_biblio and m:
+                entries.append((lineno, _plain(m["name"]), _plain(m["topic"])))
+            continue
+        m = _FOR_AI_ITEM_RE.search(line)
+        if not m:
+            continue
+        name = _plain(m["name"])
+        eu = _FOR_AI_EU_AI_ACT_RE.match(_plain(m["name"] + m["rest"]))
+        if eu:
+            entries.append((lineno, FOR_AI_EU_AI_ACT_ID, eu["edition"]))
+        elif name.startswith("OWASP "):
+            entries.append((lineno, name, ""))
+    return entries
+
+
+def _topic_edition(topic, d15):
+    """The topic span read as an edition, when it is one: it carries an EU instrument
+    number ("Regulation (EU) 2016/679"), or every comma item is a date or edition
+    ("2019, updated 2024"). Descriptive topics give an empty string."""
+    if d15.eu_numbers(topic):
+        return topic
+    items = [i.strip() for i in topic.split(",")]
+    if topic and all(d15.FIXED_ITEM.fullmatch(i) for i in items):
+        return topic
+    return ""
+
+
+def edition_matches(listed, current):
+    """Whether a listed edition equals a register Current version.
+
+    The two are compared by their numbers. A statute named by its enactment year
+    ("Australia Privacy Act 1988") also matches a Current version that leads with that
+    year and continues only with amendment or commencement notes ("1988, as amended
+    by ...", "2023 (Act enacted ...)").
+    """
+    if _EDITION_NUMBER_RE.findall(listed) == _EDITION_NUMBER_RE.findall(current):
+        return True
+    return bool(
+        _YEAR_RE.fullmatch(listed)
+        and re.match(re.escape(listed) + r"(?:$|[,;]| \(| as amended\b)", current)
+    )
+
+
+def standard_edition_entries(texts=None):
+    """Every entry of the hand-written standard lists, resolved against the register.
+
+    A compound name ("UK GDPR / DPA 2018") is split on " / " as gate D15 splits a
+    cell, and each part is resolved with D15's resolver (``Resolver.named_row``: a
+    register Standard ID or a curated alias). A part that resolves as written names
+    no edition; otherwise a trailing edition in an edition shape (D15's
+    ``VERSION_TAIL``: "v1.1", "2.2.0", ":2024", "(2026)", "Rev. 5", "2019") is split
+    off and the rest resolved. On a "biblio" list, a one-part name that resolves
+    without an edition takes its edition from the topic span when the topic is one
+    ("EU AI Act", "Regulation (EU) 2024/1689, as amended by (EU) 2026/1744"); a
+    topic is never read for a name that does not resolve. Outcomes:
+
+    * ``match``: the name resolves and its edition equals the row's Current version
+      (``edition_matches``).
+    * ``mismatch``: the name resolves and its edition differs (a failure).
+    * ``unresolved``: the name resolves to no row and carries an edition (a failure).
+    * ``no edition``: the entry names no edition, so there is nothing to compare.
+      These are out of scope. On 2026-10-18 they were: LINDDUN, STRIDE, IEC 62443,
+      NIST AI 600-1 and NIST SP 800-207 on both lists; MITRE ATLAS, MITRE ATT&CK and
+      NIST SP 800-218 on the landing list (the coverage list gives their editions);
+      UK GDPR, DPA 2018, US CCPA, CPRA, Brazil LGPD, Canada PIPEDA, Singapore PDPA,
+      China PIPL, Switzerland nFADP, EU NIS2, EU eIDAS 2, US HIPAA, US SOX and Basel
+      III on both lists; OWASP MCP Top 10 and OWASP GenAI Red Teaming Guide on the
+      For-AI pages.
+
+    ``texts`` maps a source path to replacement text (for tests); other sources are
+    read from the template tree.
+    """
+    d15, resolver = _load_edition_resolver()
+    texts = texts or {}
+    rows = {e["identity_key"]: e for e in resolver.register.entries}
+    out = []
+    for rel, kind in EDITION_LIST_SOURCES:
+        text = texts[rel] if rel in texts else _edition_source_text(rel)
+        for lineno, listed, extra in _hand_written_entries(rel, kind, text):
+            parts = re.split(r"\s+/\s+", listed)
+            for name in parts:
+                key, edition = resolver.named_row(name), ""
+                if key and kind == "for-ai":
+                    edition = extra
+                elif key and len(parts) == 1:
+                    edition = _topic_edition(extra, d15)
+                elif not key:
+                    m = d15.VERSION_TAIL.search(name)
+                    tail = m[0].strip(" :,()") if m and m.start() > 0 else ""
+                    if _EDITION_SHAPE_RE.fullmatch(tail):
+                        key, edition = resolver.named_row(name[:m.start()].strip()), tail
+                row = rows.get(key)
+                if not edition:
+                    status = "no edition"
+                elif row is None:
+                    status = "unresolved"
+                elif edition_matches(edition, row["current"]):
+                    status = "match"
+                else:
+                    status = "mismatch"
+                out.append(EditionEntry(
+                    f".web/{rel}", lineno, name, edition,
+                    row["id"] if row else "", row["current"] if row else "", status,
+                ))
+    return out
+
+
+def stale_standard_editions(texts=None):
+    """Failure lines for hand-written editions that differ from the register (empty = clean)."""
+    hits = []
+    for e in standard_edition_entries(texts):
+        if e.status == "mismatch":
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} lists edition {e.edition!r} but the register "
+                f"row {e.row!r} has Current version {e.current!r}"
+            )
+        elif e.status == "unresolved":
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} carries edition {e.edition!r} but names no "
+                f"register row (add the row or a curated alias)"
+            )
+    return hits
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="Render the grclibrary.ai public site (landing, about, pack, per-domain, and per-type pages, plus the non-indexable staging trees: the /v2 executive routes (decisions/start/trust/coverage/library/how-its-built), the /v3 need-based path routes, on-site document pages, and client-side search, and the decisions/<subtype>/<slug>/ executive reading-room pages, one per registry narrative page, rendered on-site for both /v2 and /v3) from the live corpus.",
@@ -2616,6 +2835,20 @@ def main(argv=None):
             print(
                 f"web-generator --check FAIL: root-relative href(s) missing "
                 f"the {token} prefix: {', '.join(root_href_hits)}.",
+                file=sys.stderr,
+            )
+            return 1
+        # Hand-written standard editions (3b380) must match the citations register.
+        try:
+            edition_hits = stale_standard_editions()
+        except BuildError as e:
+            print(f"web-generator --check FAIL: {e}", file=sys.stderr)
+            return 1
+        if edition_hits:
+            print(
+                "web-generator --check FAIL: hand-written standard edition(s) differ from "
+                "governance/register-canonical-citations.md (correct the template, or the "
+                "register if upstream moved): " + "; ".join(edition_hits) + ".",
                 file=sys.stderr,
             )
             return 1
