@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (a statute named by its year and an EU instrument citation are read against an allowlist of the notes that may follow the edition, so any other text after it fails); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2582,11 +2582,19 @@ _BIBLIO_ITEM_RE = re.compile(
 # A <div> open tag whose class attribute contains the token "biblio-col", any <div>
 # open or close tag (to find that div's own close), an <li> item up to its close (or
 # the next <li> or the end of the column), and, for the completeness check, a span
-# with the class token "id" anywhere inside such an item.
-_BIBLIO_COL_RE = re.compile(r"""<div\b[^>]*\bclass\s*=\s*["'](?:[^"']*\s)?biblio-col(?:\s[^"']*)?["'][^>]*>""")
-_DIV_TAG_RE = re.compile(r"<(/?)div\b[^>]*>")
-_LI_RE = re.compile(r"<li\b.*?(?:</li>|(?=<li\b)|\Z)", re.S)
-_ID_SPAN_RE = re.compile(r"""<span\b[^>]*\bclass\s*=\s*["'](?:[^"']*\s)?id(?:\s[^"']*)?["']""")
+# with the class token "id" anywhere inside such an item. Tag and attribute names are
+# matched in any case ("<LI>", "CLASS"), and a class value may be quoted or unquoted
+# (class=id); an item found this way that the strict item pattern cannot parse fails as
+# unparsed or incomplete, so the wider match only widens what fails.
+_BIBLIO_COL_RE = re.compile(
+    r"""<div\b[^>]*\bclass\s*=\s*(?:["'](?:[^"']*\s)?biblio-col(?:\s[^"']*)?["']|biblio-col(?=[\s/>]))[^>]*>""",
+    re.I,
+)
+_DIV_TAG_RE = re.compile(r"<(/?)div\b[^>]*>", re.I)
+_LI_RE = re.compile(r"<li\b.*?(?:</li>|(?=<li\b)|\Z)", re.S | re.I)
+_ID_SPAN_RE = re.compile(
+    r"""<span\b[^>]*\bclass\s*=\s*(?:["'](?:[^"']*\s)?id(?:\s[^"']*)?["']|id(?=[\s/>]))""", re.I
+)
 # The For-AI resource index runs from its heading to the next section heading.
 _FOR_AI_INDEX_RE = re.compile(r"<h2>Resource index\b")
 _FOR_AI_ITEM_RE = re.compile(
@@ -2612,33 +2620,86 @@ _EDITION_SHAPE_RE = re.compile(
 _EDITION_NUMBER_RE = re.compile(r"\d+(?:[./]\d+)*")
 _YEAR_RE = re.compile(r"(?:19|20)\d\d")
 # The register rows of statutes the site names by their enactment year ("Australia
-# Privacy Act 1988", "India DPDPA 2023"). Only for these rows may a listed year match a
-# Current version that continues past the year (``edition_matches``); every other row,
-# including a bare-year edition (ISO, COBIT, OWASP), is compared by its numbers alone.
-STATUTE_YEAR_ROWS = frozenset({"Australia Privacy Act", "India DPDPA"})
-# What may follow the year in such a row is read against an allowlist: one note, and
-# any other text fails. The note opens with an amendment note (", as amended", or ", as
-# amended by" one amending Act named with its year (the name ends at its first "Act"),
-# optionally followed by a
-# jurisdiction such as "(Cth)", "No. 128, 2024" and a "(Royal Assent ...)" date; the
-# comma is optional) or with an enactment or commencement note in parentheses ("(Act
-# enacted 2023-08-11)", "(in force ...)"). It may continue only with commencement
-# clauses, each after a ";" outside parentheses: a subject and then "commences",
-# "commence", "commenced", "brought into force", "takes effect" or "took effect" ("...;
-# the automated-decision transparency obligation ... commences 10 December 2026"). A
-# commencement clause that names an Act of another year ("the Privacy Act 2026
-# commences ...", "... and the 2026 Act") speaks of a successor, not of this Act, and
-# fails.
-_STATUTE_OPENING_RE = re.compile(
-    r",? as amended"
-    r"(?: by (?:(?!\bAct\b)[^,;()])*?(?:\bAct (?:19|20)\d\d|\b(?:19|20)\d\d Act)"
-    r"(?: \([A-Za-z]+\))?(?: No\. \d+, (?:19|20)\d\d)?(?: \((?:Royal Assent|assented to)\b[^()]*\))?)?"
-    r"| \((?:Act enacted|enacted|commenced|commencing|in force|brought into force)\b[^()]*\)"
+# Privacy Act 1988", "India DPDPA 2023"), with the notes their Current version may carry
+# after the year. Only for these rows may a listed year match a Current version that
+# continues past the year (``edition_matches``); every other row, including a bare-year
+# edition (ISO, COBIT, OWASP), is compared by its numbers alone.
+#
+# The notes are enumerated, not patterned: each form is the register's own text with
+# only its variable parts as slots (``_STATUTE_SLOTS``: a date, a year, an Act number,
+# a G.S.R. number, an amending Act name of the same shape as the register's). The text
+# after the year is split at each ";" outside parentheses; its first part must equal one
+# of the row's "opening" forms, and each later part, after one space, one of its
+# "clauses" forms, each form at most once. Anything else fails closed, and the failure
+# says to update this allowlist when the register text changed legitimately.
+# Sources, governance/register-canonical-citations.md as of 2026-10-18:
+# * Australia Privacy Act (Current version): "1988, as amended by the Privacy and Other
+#   Legislation Amendment Act 2024 (Cth) No. 128, 2024 (Royal Assent 10 December 2024);
+#   the automated-decision transparency obligation (Australian Privacy Principles 1.7
+#   to 1.9, Schedule 1 Part 15) commences 10 December 2026".
+# * India DPDPA (Current version): "2023 (Act enacted 2023-08-11); Act brought into force
+#   by G.S.R. 843(E) of 13 November 2025 on a staged schedule under s. 1(2) (...; core
+#   substantive regime and the Board's principal inquiry-and-penalty functions at 18
+#   months, around 13 May 2027); Digital Personal Data Protection Rules 2025 (G.S.R.
+#   846(E)) notified the same day commence on a matching rule 1(2)-(4) schedule". The
+#   short Rules clause "Rules 2025 commence 2025-11-13" is also accepted: it is not the
+#   register's text but the review brief pins it as passing.
+STATUTE_NOTE_FORMS = {
+    "Australia Privacy Act": {
+        "opening": (
+            ", as amended by {amending_act} (Cth) No. {number}, {year} (Royal Assent {date})",
+        ),
+        "clauses": (
+            "the automated-decision transparency obligation (Australian Privacy Principles 1.7 "
+            "to 1.9, Schedule 1 Part 15) commences {date}",
+        ),
+    },
+    "India DPDPA": {
+        "opening": (
+            " (Act enacted {iso_date})",
+        ),
+        "clauses": (
+            "Act brought into force by G.S.R. {gsr} of {date} on a staged schedule under s. 1(2) "
+            "(definitions and Board establishment immediate; consent-manager registration s. 6(9) "
+            "at 12 months; core substantive regime and the Board's principal inquiry-and-penalty "
+            "functions at 18 months, around {date})",
+            "Digital Personal Data Protection Rules {year} (G.S.R. {gsr}) notified the same day "
+            "commence on a matching rule 1(2)-(4) schedule",
+            "Rules {year} commence {iso_date}",
+        ),
+    },
+}
+STATUTE_YEAR_ROWS = frozenset(STATUTE_NOTE_FORMS)
+# The variable parts of the forms. An amending Act name has the register's shape: "the",
+# capitalised words (with "and" or "of" between them), then "Amendment Act" and a year
+# ("the Privacy and Other Legislation Amendment Act 2024").
+_STATUTE_SLOTS = {
+    "amending_act": r"the [A-Z][a-z]+(?: (?:[A-Z][a-z]+|and|of))* Amendment Act (?:19|20)\d\d",
+    "number": r"\d{1,4}",
+    "year": r"(?:19|20)\d\d",
+    "date": r"\d{1,2} (?:January|February|March|April|May|June|July|August|September|October"
+            r"|November|December) (?:19|20)\d\d",
+    "iso_date": r"(?:19|20)\d\d-\d\d-\d\d",
+    "gsr": r"\d{1,4}\(E\)",
+}
+
+
+def _statute_form_re(form):
+    parts = re.split(r"\{(\w+)\}", form)
+    return re.compile("".join(
+        re.escape(part) if i % 2 == 0 else f"(?:{_STATUTE_SLOTS[part]})" for i, part in enumerate(parts)
+    ))
+
+
+_STATUTE_NOTE_RES = {
+    row: {kind: tuple(_statute_form_re(f) for f in forms[kind]) for kind in ("opening", "clauses")}
+    for row, forms in STATUTE_NOTE_FORMS.items()
+}
+# Succession wording that no statute note may carry, even inside a slot (an amending Act
+# named "the Successor Amendment Act 2026").
+_SUCCESSION_RE = re.compile(
+    r"\b(?:successor|succeed\w*|replac\w*|abolish\w*|end(?:s|ed|ing)?|terminat\w*)\b", re.I
 )
-_STATUTE_COMMENCEMENT_RE = re.compile(
-    r"\S.*? (?:commences?|commenced|brought into force|takes effect|took effect)\b.*"
-)
-_ACT_YEAR_RE = re.compile(r"\bAct (?:of )?((?:19|20)\d\d)\b|\b((?:19|20)\d\d) Act\b")
 # Wording that marks an edition ended: the passive or state forms ("superseded",
 # "succeeded by", "repealed", "withdrawn", "deprecated", "obsolete", "retired",
 # "cancelled", "annulled", "retracted", "expired in 2026", "in force until 2026-06-30",
@@ -2666,12 +2727,13 @@ _CLAUSE_BOUNDARY_RE = re.compile(r"[;,()]|\.\s")
 AMENDMENT_NAMED_ROWS = frozenset({"EU eIDAS"})
 # An EU instrument citation is read whole against an allowlist (``instrument_edition``):
 # a base instrument ("Regulation 2024/1689", "Directive (EU) 2022/2555"); then
-# optionally ",? as amended by" and instrument numbers joined by "," or "and", each with
-# or without "Regulation", "Directive" or "(EU)" ("Regulation 2024/1183 and (EU)
-# 2027/55"), the list ending at the first ";" or "(" that is not an "(EU)" or "(EC)"
-# marker; then optionally one short-name parenthetical whose words each carry a capital
-# letter or are numbers ("(eIDAS 2)", "(Digital Omnibus)"). Any other text makes the
-# citation unreadable.
+# optionally an amendment list, either ",? as amended by" followed by instrument numbers
+# joined by "," or "and", each with or without "Regulation", "Directive" or "(EU)"
+# ("Regulation 2024/1183 and (EU) 2027/55"), the list ending at the first ";" or "("
+# that is not an "(EU)" or "(EC)" marker, or the same list in parentheses ("(as amended
+# by Regulation (EU) 2023/2869)", the EU MiCA row); then optionally one short-name
+# parenthetical that is one of the row's enumerated short names
+# (``instrument_short_names``). Any other text makes the citation unreadable.
 _BASE_INSTRUMENT_RE = re.compile(
     r"(?:Regulation|Directive)\s+(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})(?![\w/])"
 )
@@ -2679,10 +2741,21 @@ _AMENDMENT_ITEM_RE = re.compile(
     r"(?:(?:Regulation|Directive)\s+)?(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})"
 )
 _AMENDED_BY_RE = re.compile(r",?\s+as amended by\s+")
+_PAREN_AMENDED_BY_RE = re.compile(r"\s+\(as amended by\s+")
 _AMENDMENT_LIST_END_RE = re.compile(r";|\((?!(?:EU|EC)\))")
 _AMENDMENT_SEPARATOR_RE = re.compile(r"\s*,\s*|\s+and\s+")
-_NAME_WORD = r"(?:[\w.-]*[A-Z][\w.-]*|\d+)"
-_SHORT_NAME_RE = re.compile(rf"\s*(?:\({_NAME_WORD}(?:\s+{_NAME_WORD})*\)\s*)?")
+_SHORT_NAME_RE = re.compile(r"\s*\((?P<name>[^()]*)\)\s*")
+# The short names a row's citation may end with, enumerated from the register
+# (governance/register-canonical-citations.md as of 2026-10-18): EU eIDAS, "Regulation
+# 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)"; EU AI Act, "Regulation
+# 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)". Every row may
+# also carry its own register Standard ID, with or without its leading "EU " ("(EU
+# MiCA)", "(MiCA)"). Any other parenthetical ("(No Longer Valid)", "(Until)", "(Not
+# Current)") fails; if the register text changed legitimately, update this allowlist.
+EU_INSTRUMENT_SHORT_NAMES = {
+    "EU eIDAS": frozenset({"eIDAS 2"}),
+    "EU AI Act": frozenset({"Digital Omnibus"}),
+}
 
 
 class EditionEntry(NamedTuple):
@@ -2876,43 +2949,72 @@ def _clauses(text):
     return out + [text[start:]]
 
 
-def statute_note_recognised(year, note):
-    """Whether ``note``, the text after the listed ``year`` in a statute row's Current
-    version, is empty or one note of the shapes the allowlist accepts (see
-    ``_STATUTE_OPENING_RE``): an opening amendment or enactment note, optionally
-    continued by ";"-separated commencement clauses that name no Act of another year.
-    Text in any other shape fails ("; the Privacy Act 2026 replaces it",
-    "; succeeded by ...", "; valid until ...", "; cancelled"), and so does a note that,
-    within its accepted shapes, uses ending or displacing wording ("..., as amended by
-    Act 2024 (lapsed 2026)")."""
+def statute_note_recognised(row, note):
+    """Whether ``note``, the text after the listed year in the Current version of the
+    statute row ``row``, is empty or one of that row's enumerated notes
+    (``STATUTE_NOTE_FORMS``): its first ";"-separated part equals one of the row's
+    opening forms and each later part, after one space, one of its clause forms, each
+    form used at most once, the forms' slots taking only their variable parts (a date,
+    a year, an Act or G.S.R. number, an amending Act name of the register's shape).
+    Every other text fails ("; the successor Privacy Law 2026 commences and ends the
+    1988 Act", "; Act No. 5 of 2026 commences", "; Bill 2026 commences", "; replacing
+    ..."), and so does a note that fills a slot with ending, displacing or succession
+    wording ("the Successor Amendment Act 2026", "the Repeal Amendment Act 2026")."""
     if not note:
         return True
-    if _EDITION_ENDED_RE.search(note) or _EDITION_DISPLACING_RE.search(note):
+    forms = _STATUTE_NOTE_RES.get(row)
+    if forms is None:
+        return False
+    if _EDITION_ENDED_RE.search(note) or _EDITION_DISPLACING_RE.search(note) or _SUCCESSION_RE.search(note):
         return False
     opening, *continuation = _clauses(note)
-    if not _STATUTE_OPENING_RE.fullmatch(opening):
+    if not any(f.fullmatch(opening) for f in forms["opening"]):
         return False
+    used = set()
     for clause in continuation:
-        clause = clause.strip()
-        if not _STATUTE_COMMENCEMENT_RE.fullmatch(clause):
+        if not clause.startswith(" "):
             return False
-        if any((a or b) != year for a, b in _ACT_YEAR_RE.findall(clause)):
+        hit = next((i for i, f in enumerate(forms["clauses"]) if f.fullmatch(clause[1:])), None)
+        if hit is None or hit in used:
             return False
+        used.add(hit)
     return True
 
 
-def instrument_edition(text):
+def instrument_short_names(row):
+    """The short names a citation of the register row ``row`` may end with in
+    parentheses: the row's enumerated names (``EU_INSTRUMENT_SHORT_NAMES``) and its own
+    Standard ID, with or without a leading "EU ". No row, no short name."""
+    names = set(EU_INSTRUMENT_SHORT_NAMES.get(row, ()))
+    if row:
+        names.add(row)
+        if row.startswith("EU "):
+            names.add(row[3:])
+    return names
+
+
+def instrument_edition(text, row=""):
     """The instrument numbers of an EU instrument citation, the base act's first and then
     each amendment's in order ("2024/1689", "2026/1744"; leading zeros dropped), when the
-    whole text is one citation in the allowlisted shape (see ``_BASE_INSTRUMENT_RE``);
-    None for any other text. Amendment numbers are collected only up to the first ";" or
-    "(" after "as amended by" (an "(EU)" marker excepted), and what follows must be at
-    most one short-name parenthetical with no ending or displacing wording, so
-    "...(eIDAS 2); valid until 2030" and "...(Digital Omnibus); succeeded by ..." are
-    not citations."""
+    whole text is one citation of the register row ``row`` in the allowlisted shape (see
+    ``_BASE_INSTRUMENT_RE``); None for any other text. Amendment numbers are collected
+    only up to the first ";" or "(" after "as amended by" (an "(EU)" marker excepted),
+    or inside one "(as amended by ...)" parenthetical, and what follows must be nothing
+    or one parenthetical that is one of the row's short names
+    (``instrument_short_names``), so "...(eIDAS 2); valid until 2030", "... (No Longer
+    Valid)" and "...(Digital Omnibus) (Until)" are not citations."""
     def key(num):
         a, b = num.split("/")
         return f"{int(a)}/{int(b)}"
+
+    def amendments(listed):
+        out = []
+        for item in _AMENDMENT_SEPARATOR_RE.split(listed.strip()):
+            m = _AMENDMENT_ITEM_RE.fullmatch(item)
+            if not m:
+                return None
+            out.append(key(m["num"]))
+        return out
 
     text = text.strip()
     base = _BASE_INSTRUMENT_RE.match(text)
@@ -2920,18 +3022,32 @@ def instrument_edition(text):
         return None
     nums, rest = [key(base["num"])], text[base.end():]
     amended = _AMENDED_BY_RE.match(rest)
+    paren = _PAREN_AMENDED_BY_RE.match(rest)
     if amended:
         stop = _AMENDMENT_LIST_END_RE.search(rest, amended.end())
         end = stop.start() if stop else len(rest)
-        for item in _AMENDMENT_SEPARATOR_RE.split(rest[amended.end():end].strip()):
-            m = _AMENDMENT_ITEM_RE.fullmatch(item)
-            if not m:
-                return None
-            nums.append(key(m["num"]))
-        rest = rest[end:]
-    if (not _SHORT_NAME_RE.fullmatch(rest) or _EDITION_ENDED_RE.search(rest)
-            or _EDITION_DISPLACING_RE.search(rest)):
-        return None
+        listed, rest = rest[amended.end():end], rest[end:]
+    elif paren:
+        depth, end = 1, None
+        for i in range(paren.end(), len(rest)):
+            depth += {"(": 1, ")": -1}.get(rest[i], 0)
+            if depth == 0:
+                end = i
+                break
+        if end is None:
+            return None
+        listed, rest = rest[paren.end():end], rest[end + 1:]
+    else:
+        listed = None
+    if listed is not None:
+        more = amendments(listed)
+        if more is None:
+            return None
+        nums += more
+    if rest.strip():
+        short = _SHORT_NAME_RE.fullmatch(rest)
+        if not short or short["name"] not in instrument_short_names(row):
+            return None
     return nums
 
 
@@ -2945,21 +3061,24 @@ def edition_matches(listed, current, row="", superseded=()):
     * An EU instrument citation ("Regulation (EU) 2016/679", "Regulation (EU)
       2024/1689, as amended by (EU) 2026/1744", the topic editions of the EU rows,
       the EU AI Act among them) matches only when the Current version is wholly an
-      instrument citation too (``instrument_edition``, an allowlist: "Regulation
-      2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)") with the
-      same instrument numbers in the same order. A row named after its amending
+      instrument citation of the row too (``instrument_edition``, an allowlist:
+      "Regulation 2024/1689 as amended by Regulation (EU) 2026/1744 (Digital Omnibus)",
+      "Regulation 2023/1114 (as amended by Regulation (EU) 2023/2869)") with the same
+      instrument numbers in the same order. A row named after its amending
       instrument (``AMENDMENT_NAMED_ROWS``: "EU eIDAS 2") also matches a listed edition
       that is one instrument number ("Regulation (EU) 2024/1183") when that is the last
       amendment number of the Current version, in any form ("Regulation 2027/55", "(EU)
       2027/55", "2027/55"). Any text the citation allowlist does not accept ("...
-      (eIDAS 2); valid until 2030", "... (repealed)") matches nothing.
+      (eIDAS 2); valid until 2030", "... (repealed)", a short name not enumerated for
+      the row) matches nothing.
     * A statute named by its enactment year (``STATUTE_YEAR_ROWS``: "Australia Privacy
       Act 1988", "India DPDPA 2023") matches a Current version that is that year alone
-      or that year followed by one note the allowlist accepts
-      (``statute_note_recognised``: "1988, as amended by ... Act 2024 ...; the ...
-      obligation ... commences 10 December 2026", "2023 (Act enacted 2023-08-11); Act
-      brought into force ..."). Any other continuation ("1988 Act", "1988, as amended;
-      the Privacy Act 2026 replaces it", "1988 (repealed)") does not match.
+      or that year followed by one of the row's enumerated notes
+      (``statute_note_recognised`` over ``STATUTE_NOTE_FORMS``: the register's own
+      amendment, commencement and Rules clauses, with only their dates, years, numbers
+      and amending Act name variable). Any other continuation ("1988 Act", "1988, as
+      amended", "1988, as amended; the Privacy Act 2026 replaces it", "1988
+      (repealed)") does not match.
     * Any other edition, including a bare-year edition of any other row (ISO, COBIT,
       OWASP), matches when its numbers equal the Current version's and the Current
       version does not mark it ended (``edition_ended``: "2025 (superseded)", "2.2.0
@@ -2967,16 +3086,16 @@ def edition_matches(listed, current, row="", superseded=()):
     """
     if edition_superseded(listed, superseded):
         return False
-    own = instrument_edition(listed)
+    own = instrument_edition(listed, row)
     if own is not None:
-        cited = instrument_edition(current)
+        cited = instrument_edition(current, row)
         if cited is None:
             return False
         if own == cited:
             return True
         return row in AMENDMENT_NAMED_ROWS and len(own) == 1 and len(cited) > 1 and own[0] == cited[-1]
     if row in STATUTE_YEAR_ROWS and _YEAR_RE.fullmatch(listed) and current.startswith(listed):
-        return statute_note_recognised(listed, current[len(listed):])
+        return statute_note_recognised(row, current[len(listed):])
     return _numbers(listed) == _numbers(current) and not edition_ended(listed, current, superseded)
 
 
@@ -3064,6 +3183,22 @@ def standard_edition_entries(texts=None):
     return out
 
 
+def _allowlist_rejection(edition, current, row):
+    """The note added to a mismatch that an allowlist caused: the text after a statute's
+    year is none of its ``STATUTE_NOTE_FORMS``, or the Current version is no instrument
+    citation the check reads (an unlisted short name among the causes). "" otherwise."""
+    if (row in STATUTE_YEAR_ROWS and _YEAR_RE.fullmatch(edition) and current.startswith(edition)
+            and not statute_note_recognised(row, current[len(edition):])):
+        return (" (the text after the year is none of the row's enumerated notes in "
+                "STATUTE_NOTE_FORMS; if the register text changed legitimately, update that "
+                "allowlist in .web/build.py)")
+    if instrument_edition(edition, row) is not None and instrument_edition(current, row) is None:
+        return (" (the Current version is not an EU instrument citation the check reads; a "
+                "short-name parenthetical must be listed for the row in EU_INSTRUMENT_SHORT_NAMES; "
+                "if the register text changed legitimately, update that allowlist in .web/build.py)")
+    return ""
+
+
 def stale_standard_editions(texts=None):
     """Failure lines for hand-written editions that differ from the register (empty = clean)."""
     hits = []
@@ -3072,6 +3207,7 @@ def stale_standard_editions(texts=None):
             hits.append(
                 f"{e.source}:{e.line}: {e.name!r} lists edition {e.edition!r} but the register "
                 f"row {e.row!r} has Current version {e.current!r}"
+                + _allowlist_rejection(e.edition, e.current, e.row)
             )
         elif e.status == "unresolved":
             hits.append(
