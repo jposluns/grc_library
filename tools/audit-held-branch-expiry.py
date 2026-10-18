@@ -19,34 +19,14 @@ The header also gives the hook's local date: the hook lapses a hold by that
 date. --today overrides both clocks. Entries are reported per line, including
 duplicates: entry-live copies the hook's per-line predicate; branch-held is
 yes if ANY line holds that name. These fields describe the held-name record;
-presence distinguishes whole short names from split fragments and names
-belonging to a different branch.
+presence matches the literal branch name after refs/heads/.
 A byte-order mark stays part of the name, just as it does in the hook.
 
-Presence uses one git enumeration pairing full names with short names using NUL.
-Git forbids NUL and LF in ref names; LF separates listing records. The hook's
-view is the short-name output split on any whitespace. The report refuses to
-judge presence if any non-empty stdout line is not exactly a full branch ref,
-NUL and one of its short-name forms: the branch name, heads/<name>, or the full
-ref name. This includes trace output from git configuration.
-LOCAL means the entry is a whole short name in a clean listing and, if a
-branch literally named by the entry exists, the entry's name matches it. The
-hook applies the hold only while an entry of this name is live (this entry or
-a duplicate) and when its own listing shows the same name (see the limits
-below).
-GONE means no whole short name applies this hold to the named branch; the
-branch may be deleted, may be a ref git cannot list, or may have a name the
-hook's whitespace split breaks apart.
-SHADOWED means git lists the entry's exact refs/heads/<name> paired with a
-different short name, even if the entry matches another branch or a fragment.
-Such rows name, as hook-exempts, any different branch whose whole short name
-matches the entry. The hook exempts that branch only while an entry of this
-name is live (this entry or a duplicate), and never when the name contains
-whitespace that the hook's split breaks. A GONE row can carry hook-exempts too.
-Fragment matches identify the split short names they came from. The report prints
-required-name only if that paired name is exactly one token after the hook's
-whitespace split; otherwise it explains that no hold name can match this branch
-because the hook splits its name, and prints the tokens the hook sees.
+Presence uses full refs, split on LF only; Git forbids LF in ref names.
+Unicode whitespace stays inside the name. LOCAL means refs/heads/<entry>
+exists; GONE means it was not listed. Tags and other ambiguous short names
+cannot shadow a branch. Short-name fragments no longer match or exempt anything.
+The report rejects stdout records that are not full branch refs.
 UNKNOWN means presence cannot be judged.
 A nonzero git exit, timeout, missing git, or a fatal: or error: diagnostic makes
 all entries UNKNOWN, and exits 2 even for an existing empty held-branches file.
@@ -65,7 +45,7 @@ Ref listing does not prove object integrity.
 Exit 0: no reported entry needs expiry or presence attention (including a
 missing file); LOCAL describes the clean listing, subject to the limits below.
 Exit 0 says nothing about branches that no entry names.
-Exit 1: an entry is lapsed, due, malformed, GONE or SHADOWED.
+Exit 1: an entry is lapsed, due, malformed or GONE.
 Exit 2: the file, the store or git could not be read, presence is UNKNOWN,
 report output could not be encoded, or an argument is invalid.
 Expiry and presence are independent labelled fields. --quiet keeps entries
@@ -76,30 +56,16 @@ duplicates and rows suppressed by --quiet, for each state that occurred.
 Store resolution is strict: this tool refuses where the hook's resolver falls
 through to another location. Git has one five-second timeout on enumeration.
 The report removes inherited GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE and GIT_TRACE*
-and LANGUAGE, sets LC_ALL=C, and explicitly decodes git output as UTF-8. The hook does not scrub its
-environment, so an inherited GIT_DIR can make them read different repositories.
-The hook also locates the held-branches file from its own environment: started
-with a different GRC_STORE (observed), it read no file where the report read one.
-Inherited GIT_TRACE output to stdout can add tokens to the hook's view, so
-the report can say GONE for a token that appears there.
-Trace output can also interrupt a listing record: the hook then loses the
-branch's token while the report can say LOCAL and exit 0 for that entry.
-The hook decodes git output with the interpreter's default text encoding
-(UTF-8 in UTF-8 mode, otherwise the locale encoding); the report uses UTF-8,
-so their decoding can differ: one can fail where the other succeeds
-(observed, next sentence), and under a non-UTF-8 locale other than C the
-hook may read a non-ASCII name as different text (not observed: the test
-host has no such locale).
-With LC_ALL=C, PYTHONUTF8=0 and PYTHONCOERCECLOCALE=0, and the hook started
-without -I, a UTF-8 branch name with a non-ASCII letter raised
-UnicodeDecodeError in the hook's listing and its main() returned 0; the
-report decoded the listing successfully (with an ASCII stdout it then exits 2
-when it prints the row). The configured launcher starts the
-hook with python3 -I, which ignores those two PYTHON variables: started that
-way under LC_ALL=C (observed on Python 3.14), the hook decoded the listing as
-UTF-8.
-These are listing and environment limits, not a prediction of whether the
-hook will block a turn.
+and LANGUAGE, sets LC_ALL=C, and explicitly decodes git output as UTF-8. A
+non-UTF-8 ref makes report presence UNKNOWN (exit 2); the hook instead keeps
+raw bytes and can check that ref. Both split listing records only on LF and
+remove GIT_TRACE* variables. Configured trace output on stdout is rejected by
+both; it blocks the hook and makes report presence UNKNOWN. The hook keeps
+inherited repository-selection variables, so environments can select different
+repositories. Different GRC_STORE values can also select different held files.
+The held-file grammar is unchanged: Unicode line separators in that file still
+separate entries, and surrounding whitespace is stripped. Thus enumeration of
+a whole ref does not imply every possible name can be represented as a hold.
 --self-test writes temporary fixtures; the report path never writes.
 """
 from __future__ import annotations
@@ -151,14 +117,11 @@ def classify(expiry: str | None, today: dt.date, days: int) -> tuple[str, int | 
 
 
 class BranchStatuses(dict[str, tuple[str, str | None]]):
-    def __init__(self) -> None:
-        super().__init__()
-        self.exempted: dict[str, list[str]] = {}
-        self.fragments: dict[str, list[str]] = {}
+    """Presence keyed by literal branch name."""
 
 
 def branch_statuses(repo: Path, branches: set[str]) -> BranchStatuses | None:
-    """Return paired-listing presence, or None if git cannot judge the whole run."""
+    """Return full-ref presence, or None if git cannot judge the whole run."""
     environment = {key: value for key, value in os.environ.items()
                    if key not in {"GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "LANGUAGE"}
                    and not key.startswith("GIT_TRACE")}
@@ -166,7 +129,7 @@ def branch_statuses(repo: Path, branches: set[str]) -> BranchStatuses | None:
     try:
         result = subprocess.run(
             ["git", "-C", str(repo), "for-each-ref",
-             "--format=%(refname)%00%(refname:short)", "refs/heads"],
+             "--format=%(refname)", "refs/heads"],
             capture_output=True, encoding="utf-8", env=environment,
             timeout=GIT_TIMEOUT, check=False,
         )
@@ -190,43 +153,26 @@ def branch_statuses(repo: Path, branches: set[str]) -> BranchStatuses | None:
                  if (match := re.fullmatch(
                      r"warning: ignoring (?:broken ref|ref with broken name) refs/heads/(.*)",
                      line)) is not None}
-    # NUL separates each full/short pair; only LF separates records.
-    # Ref names cannot contain either byte; Unicode separators remain names.
-    full_names = {}
-    short_names = []
-    for line in result.stdout.split("\n"):
-        if not line:
+    names = set()
+    for full in result.stdout.split("\n"):
+        if not full:
             continue
-        full, _, short = line.partition("\x00")
         name = full.removeprefix("refs/heads/")
         if (not full.startswith("refs/heads/") or not name
-                or short not in {name, "heads/" + name, full}):
+                or any(ord(char) <= 32 or ord(char) == 127 for char in full)):
             print("audit-held-branch-expiry: git wrote something other than the branch "
                   "listing to stdout (for example trace output); presence was not judged.",
                   file=sys.stderr)
             return None
-        full_names[full] = short
-        short_names.append(short)
-    # The hook uses str.split(), including Unicode whitespace within names.
-    names = set("\n".join(short_names).split())
+        names.add(name)
     statuses = BranchStatuses()
-    whole_names = set(short_names)
     for branch in branches:
-        needed = full_names.get("refs/heads/" + branch)
         if branch in uncertain:
             statuses[branch] = ("UNKNOWN", None)
-        elif needed is not None and needed != branch:
-            statuses[branch] = ("SHADOWED", needed)
-        elif branch in names and branch in whole_names:
+        elif branch in names:
             statuses[branch] = ("LOCAL", None)
         else:
             statuses[branch] = ("GONE", None)
-        if statuses[branch][0] in {"GONE", "SHADOWED"}:
-            statuses.exempted[branch] = [full.removeprefix("refs/heads/")
-                                        for full, short in full_names.items()
-                                        if short == branch and full != "refs/heads/" + branch]
-            statuses.fragments[branch] = [short for short in short_names
-                                          if short != branch and branch in short.split()]
     return statuses
 
 
@@ -254,10 +200,10 @@ def report(path: Path, repo: Path, today: dt.date, local_today: dt.date,
     for entry in entries:
         branch, expiry, _ = entry
         state, remaining = classify(expiry, today, days)
-        presence, needed = presences[branch]
+        presence, _ = presences[branch]
         expiry_counts[state] = expiry_counts.get(state, 0) + 1
         presence_counts[presence] = presence_counts.get(presence, 0) + 1
-        if state != "OK" or presence in {"GONE", "SHADOWED"}:
+        if state != "OK" or presence == "GONE":
             status = max(status, 1)
         if presence == "UNKNOWN":
             status = 2
@@ -266,15 +212,7 @@ def report(path: Path, repo: Path, today: dt.date, local_today: dt.date,
             rows.append(f"{branch!r} expiry={expiry or '-'} "
                         f"days={remaining if remaining is not None else '-'} "
                         f"expiry-state={state} branch-presence={presence} entry-live={held} "
-                        f"branch-held={'yes' if branch in held_branches else 'no'}"
-                        + (f" required-name={needed!r}" if needed is not None
-                           and needed.split() == [needed] else
-                           " no hold name can match this branch because the hook splits its name;"
-                           f" hook-tokens={needed.split()!r}" if needed is not None else "")
-                        + (f" hook-exempts={presences.exempted[branch]!r}"
-                           if presences.exempted.get(branch) else "")
-                        + (f" hook-token-fragment-of={presences.fragments[branch]!r}"
-                           if presences.fragments.get(branch) else ""))
+                        f"branch-held={'yes' if branch in held_branches else 'no'}")
     if not quiet or rows or today != local_today:
         print(f"report-date-utc={today.isoformat()} hook-date-local={local_today.isoformat()}")
         if today != local_today:
@@ -284,7 +222,7 @@ def report(path: Path, repo: Path, today: dt.date, local_today: dt.date,
     counts = [f"expiry-state:{state}={expiry_counts[state]}"
               for state in ("LAPSED", "DUE", "OK", "MALFORMED") if state in expiry_counts]
     counts += [f"branch-presence:{presence}={presence_counts[presence]}"
-               for presence in ("LOCAL", "GONE", "SHADOWED", "UNKNOWN")
+               for presence in ("LOCAL", "GONE", "UNKNOWN")
                if presence in presence_counts]
     print("summary" + (" " + " ".join(counts) if counts else " entries=0"))
     return status
