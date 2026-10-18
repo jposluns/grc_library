@@ -59,8 +59,10 @@ The report removes inherited GIT_DIR, GIT_WORK_TREE, GIT_INDEX_FILE and GIT_TRAC
 and LANGUAGE, sets LC_ALL=C, and explicitly decodes git output as UTF-8. A
 non-UTF-8 ref makes report presence UNKNOWN (exit 2); the hook instead keeps
 raw bytes and can check that ref. Both split listing records only on LF and
-remove GIT_TRACE* variables. Configured trace output on stdout is rejected by
-both; it blocks the hook and makes report presence UNKNOWN. The hook keeps
+remove inherited GIT_TRACE* variables. Configured trace output on stdout makes
+report presence UNKNOWN. The hook disables configured trace2 targets, so that
+output does not reach its listing; trace output that does reach stdout is still
+rejected as a malformed listing. The hook keeps
 inherited repository-selection variables, so environments can select different
 repositories. Different GRC_STORE values can also select different held files.
 The held-file grammar is unchanged: Unicode line separators in that file still

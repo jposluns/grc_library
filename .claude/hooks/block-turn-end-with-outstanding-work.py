@@ -32,7 +32,7 @@ WHAT IT DOES NOT BLOCK, by construction:
   * a continuation that is already under way (stop_hook_active), so it blocks at most once and
     cannot loop the session;
   * anything at all, if the escape file exists and is successfully consumed (see below);
-  * anything at all, if an error reaches main()'s outer exception handler (see fail-open); a LOCAL
+  * anything at all, if an error reaches main()'s outer exception handler (see GIT FAILURES BLOCK); a LOCAL
     recovery path (git checks, the resolver import, a failed escape-unlink) can instead block;
   * anything at all, inside a dispatched worker session: a worker's fan-out cannot discharge any of
     this guard's remedies, so the check is skipped there (#1695).
@@ -294,7 +294,7 @@ def unmerged_branches() -> list:
             continue
         if (not ref.startswith(b"refs/heads/") or ref == b"refs/heads/"
                 or any(byte <= 32 or byte == 127 for byte in ref)):
-            out.append((_git_display(ref), "unverified: malformed branch listing"))
+            out.append((_branch_display(ref), "unverified: malformed branch listing"))
             continue
         name = ref[len(b"refs/heads/"):].decode("utf-8", errors="surrogateescape")
         if name == "main" or name in held:

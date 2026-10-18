@@ -48625,6 +48625,20 @@ class HeldBranchExpiryTests(unittest.TestCase):
             self.assertIn(r"- 13:27:50 trace\xff (+unverified:", hook.decide(False, False, branches))
         self.assertEqual(hook._git_display(b"message\r\n\n"), "message")
 
+    def test_hook_malformed_listing_escapes_control_characters(self):
+        hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
+                         "control_display_hook_test")
+        self.addCleanup(sys.modules.pop, "control_display_hook_test", None)
+        with self.mock.patch.object(hook, "HELD_FILE", None), \
+                self.mock.patch.object(hook, "_git", return_value=
+                                       b"refs/heads/main\ntrace\x1b[31m\n"):
+            branches = hook.unmerged_branches()
+            self.assertEqual(branches, [
+                (r"trace\x1b[31m", "unverified: malformed branch listing")])
+            message = hook.decide(False, False, branches)
+            self.assertIn(r"- trace\x1b[31m (+unverified:", message)
+            self.assertNotIn("\x1b", message)
+
     def test_hook_real_git_stderr_and_ambiguity(self):
         hook = self.load(REPO_ROOT / ".claude/hooks/block-turn-end-with-outstanding-work.py",
                          "stderr_hook_test")
