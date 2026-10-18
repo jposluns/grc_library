@@ -2642,8 +2642,8 @@ _YEAR_RE = re.compile(r"(?:19|20)\d\d")
 #   substantive regime and the Board's principal inquiry-and-penalty functions at 18
 #   months, around 13 May 2027); Digital Personal Data Protection Rules 2025 (G.S.R.
 #   846(E)) notified the same day commence on a matching rule 1(2)-(4) schedule". The
-#   short Rules clause "Rules 2025 commence 2025-11-13" is also accepted: it is not the
-#   register's text but the review brief pins it as passing.
+#   short Rules clause "Rules 2025 commence 2025-11-13" is not the register's text and
+#   fails.
 STATUTE_NOTE_FORMS = {
     "Australia Privacy Act": {
         "opening": (
@@ -2665,12 +2665,12 @@ STATUTE_NOTE_FORMS = {
             "functions at 18 months, around {date})",
             "Digital Personal Data Protection Rules {year} (G.S.R. {gsr}) notified the same day "
             "commence on a matching rule 1(2)-(4) schedule",
-            "Rules {year} commence {iso_date}",
         ),
     },
 }
 STATUTE_YEAR_ROWS = frozenset(STATUTE_NOTE_FORMS)
-# The variable parts of the forms. An amending Act name has the register's shape: "the",
+# The variable parts of the forms, matched as ASCII (a digit slot takes no other
+# script's digits). An amending Act name has the register's shape: "the",
 # capitalised words (with "and" or "of" between them), then "Amendment Act" and a year
 # ("the Privacy and Other Legislation Amendment Act 2024").
 _STATUTE_SLOTS = {
@@ -2688,7 +2688,7 @@ def _statute_form_re(form):
     parts = re.split(r"\{(\w+)\}", form)
     return re.compile("".join(
         re.escape(part) if i % 2 == 0 else f"(?:{_STATUTE_SLOTS[part]})" for i, part in enumerate(parts)
-    ))
+    ), re.ASCII)
 
 
 _STATUTE_NOTE_RES = {
@@ -2696,9 +2696,12 @@ _STATUTE_NOTE_RES = {
     for row, forms in STATUTE_NOTE_FORMS.items()
 }
 # Succession wording that no statute note may carry, even inside a slot (an amending Act
-# named "the Successor Amendment Act 2026").
+# named "the Successor Amendment Act 2026", "the Privacy Act Sunset Amendment Act 2026",
+# "the Privacy Abrogation Amendment Act 2026").
 _SUCCESSION_RE = re.compile(
-    r"\b(?:successor|succeed\w*|replac\w*|abolish\w*|end(?:s|ed|ing)?|terminat\w*)\b", re.I
+    r"\b(?:successor|succeed\w*|replac\w*|abolish\w*|end(?:s|ed|ing)?|terminat\w*|sunset\w*"
+    r"|abrogat\w*)\b",
+    re.I,
 )
 # Wording that marks an edition ended: the passive or state forms ("superseded",
 # "succeeded by", "repealed", "withdrawn", "deprecated", "obsolete", "retired",
@@ -3070,7 +3073,10 @@ def edition_matches(listed, current, row="", superseded=()):
       amendment number of the Current version, in any form ("Regulation 2027/55", "(EU)
       2027/55", "2027/55"). Any text the citation allowlist does not accept ("...
       (eIDAS 2); valid until 2030", "... (repealed)", a short name not enumerated for
-      the row) matches nothing.
+      the row) matches nothing, and neither does a listed edition that starts as a
+      Regulation or Directive citation the allowlist cannot read ("Regulation (EU)
+      2016/679 (repealed)", "Regulation (EU) 2016/679 (Until)"): it is not compared
+      by its numbers.
     * A statute named by its enactment year (``STATUTE_YEAR_ROWS``: "Australia Privacy
       Act 1988", "India DPDPA 2023") matches a Current version that is that year alone
       or that year followed by one of the row's enumerated notes
@@ -3094,6 +3100,8 @@ def edition_matches(listed, current, row="", superseded=()):
         if own == cited:
             return True
         return row in AMENDMENT_NAMED_ROWS and len(own) == 1 and len(cited) > 1 and own[0] == cited[-1]
+    if _BASE_INSTRUMENT_RE.match(listed.strip()):
+        return False
     if row in STATUTE_YEAR_ROWS and _YEAR_RE.fullmatch(listed) and current.startswith(listed):
         return statute_note_recognised(row, current[len(listed):])
     return _numbers(listed) == _numbers(current) and not edition_ended(listed, current, superseded)

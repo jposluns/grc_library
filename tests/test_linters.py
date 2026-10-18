@@ -22513,7 +22513,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     enumerations in place of patterns: the statute notes are the register's own clauses
     with only their variable parts open, the EU short names are listed per row, the
     list-item and id-span patterns ignore case and accept an unquoted class, and the
-    EU MiCA "(as amended by ...)" citation is read."""
+    EU MiCA "(as amended by ...)" citation is read. Round 6 pins a listed Regulation or
+    Directive citation the allowlist cannot read failing rather than being compared by
+    its numbers, sunset and abrogation wording failing in a slot, ASCII-only slots, and
+    the short India Rules clause failing."""
 
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
@@ -22598,7 +22601,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # Round 5: the statute notes are enumerated, so an amendment note not in the
         # register's shape fails.
         self.assertFalse(match("1988", "1988, as amended by a later Act 2024", "Australia Privacy Act"))
-        self.assertTrue(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", "India DPDPA"))
+        # Round 6: the short Rules clause is not register text, so it fails.
+        self.assertFalse(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", "India DPDPA"))
         self.assertFalse(match("2025", "2026"))
         self.assertFalse(match("2.0", "2.2.0"))
         self.assertFalse(match("2019", "2019 Recommendation as updated 2024"))
@@ -22620,10 +22624,11 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("1988", self.AU_REGISTER_CURRENT, au),
             ("1988", self.AU_AMENDMENT_NOTE, au),
             ("2023", "2023 (Act enacted 2023-08-11)", india),
-            ("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", india),
         ):
             self.assertTrue(match(listed, current, row), (listed, current, row))
         for listed, current, row in (
+            # Round 6: the short Rules clause is not register text.
+            ("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", india),
             # Round 5: shapes the round 2 pattern accepted that the register does not use.
             ("1988", "1988, as amended", au),
             ("1988", "1988 as amended by the Privacy Amendment Act 2012", au),
@@ -23221,7 +23226,6 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             ("1988", "1988, as amended by the Privacy Amendment Act 2012 (Cth) No. 197, 2012 "
              "(Royal Assent 12 December 2012)", au),
             ("1988", au_current.replace("commences 10 December 2026", "commences 1 July 2027"), au),
-            ("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", india),
             ("2023", india_current.replace("around 13 May 2027", "around 14 May 2027"), india),
         ):
             self.assertTrue(match(listed, current, row), current)
@@ -23230,6 +23234,8 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         # so the bare "Rules 2025" of round 1 is not one of its forms.
         self.assertNotIn("; Rules 2025", india_current)
         self.assertFalse(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025", india))
+        # Round 6: nor is the short "Rules 2025 commence 2025-11-13" clause.
+        self.assertFalse(match("2023", "2023 (Act enacted 2023-08-11); Rules 2025 commence 2025-11-13", india))
         for prefix, listed, row in (
             ("1988", "1988", au),
             (self.AU_AMENDMENT_NOTE, "1988", au),
@@ -23361,6 +23367,53 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for new in ('<div class=biblio-col>\n          <h3 id="std-ai">',
                     '<DIV CLASS="biblio-col">\n          <h3 id="std-ai">'):
             self.assertEqual(self._biblio_hits(col, new), [], new)
+
+    def test_unreadable_listed_instrument_citation_fails(self):
+        # Round 6 (codex error, claude warning): an unreadable listed citation is not
+        # compared by its numbers.
+        match = self.mod.edition_matches
+        gdpr = self._register_current("EU GDPR")
+        self.assertEqual(gdpr, "Regulation 2016/679")
+        self.assertTrue(match("Regulation (EU) 2016/679", gdpr, "EU GDPR"))
+        topic = '<span class="topic">Regulation (EU) 2016/679</span>'
+        for listed in ("Regulation (EU) 2016/679 (repealed)", "Regulation (EU) 2016/679 (Until)",
+                       "Directive (EU) 2016/679 (Until)"):
+            self.assertFalse(match(listed, gdpr, "EU GDPR"), listed)
+        for listed in ("Regulation (EU) 2016/679 (repealed)", "Regulation (EU) 2016/679 (Until)"):
+            hits = self.mod.stale_standard_editions(
+                self._landing_with(topic, f'<span class="topic">{listed}</span>')
+            )
+            self.assertEqual(len(hits), 1, (listed, hits))
+            self.assertIn(f"'EU GDPR' lists edition {listed!r}", hits[0])
+        # Every current site entry that names an edition still matches.
+        self.assertEqual(self.mod.stale_standard_editions(), [])
+        entries = [e for e in self.mod.standard_edition_entries() if e.status != "no edition"]
+        self.assertTrue(entries)
+        for e in entries:
+            self.assertEqual(e.status, "match", e)
+
+    def test_sunset_and_abrogation_acts_fail_in_a_slot(self):
+        # Round 6 (claude note).
+        match, au = self.mod.edition_matches, "Australia Privacy Act"
+        for act in ("the Privacy Act Sunset Amendment Act 2026", "the Privacy Abrogation Amendment Act 2026",
+                    "the Privacy Sunsetting Amendment Act 2026", "the Privacy Abrogated Amendment Act 2026"):
+            current = f"1988, as amended by {act} (Cth) No. 1, 2026 (Royal Assent 1 January 2026)"
+            self.assertFalse(match("1988", current, au), current)
+            self.assertFalse(self.mod.statute_note_recognised(au, current[len("1988"):]), current)
+        self.assertTrue(match("1988", "1988, as amended by the Privacy Amendment Act 2026 (Cth) No. 1, "
+                              "2026 (Royal Assent 1 January 2026)", au))
+
+    def test_statute_slots_take_ascii_digits_only(self):
+        # Round 6 (claude note): Arabic-Indic digits do not fill a digit slot.
+        match = self.mod.edition_matches
+        arabic = "\u0661\u0662\u0668"
+        self.assertTrue(match("1988", self.AU_AMENDMENT_NOTE, "Australia Privacy Act"))
+        self.assertFalse(match("1988", self.AU_AMENDMENT_NOTE.replace("No. 128", f"No. {arabic}"),
+                               "Australia Privacy Act"))
+        self.assertFalse(match("2023", "2023 (Act enacted \u0662\u0660\u0662\u0663-08-11)", "India DPDPA"))
+        for forms in self.mod._STATUTE_NOTE_RES.values():
+            for compiled in forms["opening"] + forms["clauses"]:
+                self.assertTrue(compiled.flags & re.ASCII, compiled.pattern)
 
     def test_check_mode_fails_on_a_reverted_edition(self):
         import contextlib
