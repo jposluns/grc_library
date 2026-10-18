@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version; a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version; a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, also fails, as does a list item the check cannot parse, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2557,11 +2557,16 @@ CITATIONS_REGISTER = REPO_ROOT / "governance" / "register-canonical-citations.md
 # Gate D15's checker, whose resolver (Standard ID or curated alias, from
 # tools/alignment-register-aliases.json) is reused rather than re-implemented.
 D15_CHECKER = REPO_ROOT / "tools" / "check-alignment-register-on-pr.py"
-# (template path under .web/, list kind). "biblio" reads every <li> of the
-# "biblio-col" lists (an "id" span and a "topic" span); "for-ai" reads every <li> of the
-# For-AI resource index and checks its OWASP entries and its EU AI Act entry. An <li>
-# of a list read that the item pattern cannot parse, or a source with no list read,
-# fails the check ("unparsed"), so a markup change cannot silently drop an entry.
+# (template path under .web/, list kind). "biblio" reads every <li> inside each <div>
+# whose class list contains "biblio-col" (whatever its other attributes or classes),
+# up to that div's own closing tag (nested divs are counted), each an "id" span and a
+# "topic" span; "for-ai" reads every <li> of the For-AI resource index and checks its
+# OWASP entries and its one EU AI Act entry. These fail the check: an <li> of a list
+# read that the item pattern cannot parse ("unparsed"); a source with no list read; an
+# <li> with an "id" span anywhere in the source that is not among the items read
+# ("incomplete"); and a For-AI source without exactly one EU AI Act entry
+# ("incomplete"). So a markup change to an <li> with an "id" span, to a "biblio-col"
+# div or to the EU AI Act entry fails rather than silently dropping the entry.
 EDITION_LIST_SOURCES = (
     ("templates/landing.html", "biblio"),
     ("templates-v2/coverage.html", "biblio"),
@@ -2572,6 +2577,14 @@ EDITION_LIST_SOURCES = (
 _BIBLIO_ITEM_RE = re.compile(
     r'<li><span class="id">(?P<name>[^<]*)</span><span class="topic">(?P<topic>[^<]*)</span></li>'
 )
+# A <div> open tag whose class attribute contains the token "biblio-col", any <div>
+# open or close tag (to find that div's own close), an <li> item up to its close (or
+# the next <li> or the end of the column), and, for the completeness check, any <li>
+# whose first child is a span with the class token "id".
+_BIBLIO_COL_RE = re.compile(r"""<div\b[^>]*\bclass\s*=\s*["'](?:[^"']*\s)?biblio-col(?:\s[^"']*)?["'][^>]*>""")
+_DIV_TAG_RE = re.compile(r"<(/?)div\b[^>]*>")
+_LI_RE = re.compile(r"<li\b.*?(?:</li>|(?=<li\b)|\Z)", re.S)
+_ID_ITEM_RE = re.compile(r"""<li\b[^>]*>\s*<span\b[^>]*\bclass\s*=\s*["'](?:[^"']*\s)?id(?:\s[^"']*)?["']""")
 _FOR_AI_ITEM_RE = re.compile(
     r'<li><span class="(?:fa-inst|row-name)">(?P<name>[^<]*)</span>(?P<rest>.*?)'
     r'<span class="(?:fa-cov|row-desc)">'
@@ -2582,6 +2595,8 @@ _FOR_AI_EU_AI_ACT_RE = re.compile(
     r"^European Union, AI Act \((?P<edition>Regulation (?:[^()]|\([^()]*\))*)\)"
 )
 FOR_AI_EU_AI_ACT_ID = "EU AI Act"
+# An item that names the EU AI Act in some other shape; it fails as unparsed.
+_FOR_AI_EU_AI_ACT_LOOSE_RE = re.compile(r"\b(?:European Union|EU)\b.*\bAI Act\b")
 # A trailing token is an edition only in one of these shapes: a dotted version, a v- or
 # Rev.-prefixed number, or a year. Any other trailing number is part of the name
 # ("IEC 62443", "EU eIDAS 2").
@@ -2604,9 +2619,19 @@ _STATUTE_NOTE_RE = re.compile(
     r",? as amended\b"
     r"| \((?:Act enacted|enacted|commenced|commencing|in force|brought into force)\b[^()]*\)"
 )
-# Wording that ends or displaces an edition. After the year it rejects the statute rule
-# wherever it appears ("1988, as amended ...; repealed 2026").
-_EDITION_ENDED_RE = re.compile(r"supersed|repeal|replac|withdr[ae]w|revok|rescind|lapse", re.I)
+# Wording that marks an edition ended: the passive or state forms ("superseded",
+# "repealed", "expired in 2026", "in force until 2026-06-30", "no longer in force").
+# The active forms by which a row says it displaces something older ("supersedes",
+# "cancels and supersedes", "replaces", "repeals") are deliberately not matched: the
+# TSA directive and TBS policy rows use them of their predecessors.
+_EDITION_ENDED_RE = re.compile(
+    r"\b(?:supersed(?:ed|ure)|repeal(?:ed)?|replaced|withdrawn|withdrew|revoked|rescinded"
+    r"|laps(?:ed|es)|expir(?:ed|es|y)|ceas(?:ed|es)|no longer (?:in force|in effect|applies)"
+    r"|in (?:force|effect) until)\b",
+    re.I,
+)
+# What a marking can be said of: the text since the last clause boundary before it.
+_CLAUSE_BOUNDARY_RE = re.compile(r"[;()]|\.\s")
 # The register rows the site names after their amending instrument: "EU eIDAS 2", topic
 # "Regulation (EU) 2024/1183", is the row "Regulation 910/2014 as amended by Regulation
 # 2024/1183 (eIDAS 2)". For these rows a listed edition that is one instrument number
@@ -2614,6 +2639,9 @@ _EDITION_ENDED_RE = re.compile(r"supersed|repeal|replac|withdr[ae]w|revok|rescin
 # so a later amendment recorded in the register fails the site's citation.
 AMENDMENT_NAMED_ROWS = frozenset({"EU eIDAS"})
 _INSTRUMENT_RE = re.compile(r"(?:Regulation|Directive)\s+(?:\((?:EU|EC)\)\s+)?(?P<num>\d{1,4}/\d{1,4})")
+# An instrument number in an amendment list, with or without "Regulation", "Directive"
+# or "(EU)" before it ("Regulation 2024/1183 and (EU) 2027/55"); not part of a date.
+_AMENDMENT_NUMBER_RE = re.compile(r"(?<![\w/.])(\d{1,4})/(\d{1,4})(?![\w/])")
 
 
 class EditionEntry(NamedTuple):
@@ -2625,7 +2653,7 @@ class EditionEntry(NamedTuple):
     edition: str
     row: str
     current: str
-    status: str  # "match", "mismatch", "unresolved", "no edition", or "unparsed"
+    status: str  # "match", "mismatch", "unresolved", "no edition", "unparsed" or "incomplete"
 
 
 def _edition_source_text(rel):
@@ -2653,49 +2681,80 @@ def _plain(fragment):
     return html_unescape(re.sub(r"<[^>]+>", "", fragment)).strip()
 
 
+def _biblio_columns(text):
+    """(start, end) offsets of the content of each "biblio-col" div, ending at that div's
+    own closing tag (nested divs counted), or at the end of the text if it never closes."""
+    cols = []
+    for m in _BIBLIO_COL_RE.finditer(text):
+        if cols and m.start() < cols[-1][1]:
+            continue  # a column nested in a column is read with its parent
+        depth, end = 0, len(text)
+        for tag in _DIV_TAG_RE.finditer(text, m.start()):
+            depth += -1 if tag[1] else 1
+            if depth == 0:
+                end = tag.start()
+                break
+        cols.append((m.end(), end))
+    return cols
+
+
 def _hand_written_entries(rel, kind, text):
-    """(line, name, edition, parsed) per entry of one hand-written list; edition may be
-    empty. An <li> of a list read that its item pattern cannot parse gives parsed=False
-    with the line's text as the name; a source with no list read gives one such entry
-    with line 0 and an empty name."""
-    entries, in_list, lists = [], False, 0
-    for lineno, line in enumerate(text.splitlines(), 1):
-        if kind == "biblio":
-            if '<div class="biblio-col">' in line:
+    """(line, name, edition, problem) per entry of one hand-written list; edition may be
+    empty and problem is "" for an entry read. An <li> of a list read that its item
+    pattern cannot parse gives problem "unparsed" with the item's text as the name; an
+    <li> with an "id" span that no list read covers gives "incomplete"; a For-AI source
+    without exactly one EU AI Act entry gives one "incomplete" entry with line 0; a
+    source with no list read gives one "unparsed" entry with line 0 and an empty name."""
+    entries, lists, eu_entries = [], 0, 0
+    if kind == "biblio":
+        for start, end in _biblio_columns(text):
+            lists += 1
+            for li in _LI_RE.finditer(text, start, end):
+                lineno = text.count("\n", 0, li.start()) + 1
+                item = re.sub(r'<span class="ext">[^<]*</span>|</?a\b[^>]*>', "", li[0]).strip()
+                m = _BIBLIO_ITEM_RE.fullmatch(item)
+                if m:
+                    entries.append((lineno, _plain(m["name"]), _plain(m["topic"]), ""))
+                else:
+                    entries.append((lineno, _plain(li[0]), "", "unparsed"))
+    else:
+        in_list = False
+        for lineno, line in enumerate(text.splitlines(), 1):
+            # The For-AI resource index runs from its heading to the next section heading.
+            if re.search(r"<h2>Resource index\b", line):
                 in_list, lists = True, lists + 1
-            elif in_list and "</div>" in line:
+                continue
+            if in_list and "<h2" in line:
                 in_list = False
             if not (in_list and "<li" in line):
                 continue
-            m = _BIBLIO_ITEM_RE.search(re.sub(r'<span class="ext">[^<]*</span>|</?a\b[^>]*>', "", line))
-            if m:
-                entries.append((lineno, _plain(m["name"]), _plain(m["topic"]), True))
-            else:
-                entries.append((lineno, _plain(line), "", False))
-            continue
-        # The For-AI resource index runs from its heading to the next section heading.
-        if re.search(r"<h2>Resource index\b", line):
-            in_list, lists = True, lists + 1
-            continue
-        if in_list and "<h2" in line:
-            in_list = False
-        if not (in_list and "<li" in line):
-            continue
-        m = _FOR_AI_ITEM_RE.search(line)
-        if not m:
-            entries.append((lineno, _plain(line), "", False))
-            continue
-        name = _plain(m["name"])
-        full = _plain(m["name"] + m["rest"])
-        eu = _FOR_AI_EU_AI_ACT_RE.match(full)
-        if eu:
-            entries.append((lineno, FOR_AI_EU_AI_ACT_ID, eu["edition"], True))
-        elif name.startswith("European Union") and "AI Act" in full:
-            entries.append((lineno, full, "", False))
-        elif name.startswith("OWASP "):
-            entries.append((lineno, name, "", True))
+            m = _FOR_AI_ITEM_RE.search(line)
+            if not m:
+                entries.append((lineno, _plain(line), "", "unparsed"))
+                continue
+            name = _plain(m["name"])
+            full = _plain(m["name"] + m["rest"])
+            eu = _FOR_AI_EU_AI_ACT_RE.match(full)
+            if eu:
+                eu_entries += 1
+                entries.append((lineno, FOR_AI_EU_AI_ACT_ID, eu["edition"], ""))
+            elif _FOR_AI_EU_AI_ACT_LOOSE_RE.search(full):
+                eu_entries += 1
+                entries.append((lineno, full, "", "unparsed"))
+            elif name.startswith("OWASP "):
+                entries.append((lineno, name, "", ""))
     if not lists or not entries:
-        entries.append((0, "", "", False))
+        return entries + [(0, "", "", "unparsed")]
+    # Completeness: every <li> with an "id" span in the source is an entry read.
+    read = {e[0] for e in entries}
+    for m in _ID_ITEM_RE.finditer(text):
+        lineno = text.count("\n", 0, m.start()) + 1
+        if lineno not in read:
+            li = _LI_RE.match(text, m.start())
+            entries.append((lineno, _plain(li[0]), "", "incomplete"))
+    if kind == "for-ai" and eu_entries != 1:
+        entries.append((0, f"expected exactly one EU AI Act entry in the resource index, found {eu_entries}",
+                        "", "incomplete"))
     return entries
 
 
@@ -2711,40 +2770,82 @@ def _topic_edition(topic, d15):
     return ""
 
 
-def edition_matches(listed, current, row=""):
-    """Whether a listed edition equals the Current version of the register row ``row``.
+def _numbers(text):
+    return _EDITION_NUMBER_RE.findall(text)
 
-    The two are compared by their numbers. Two narrow exceptions apply only to the rows
-    named for them:
+
+def edition_superseded(listed, superseded):
+    """Whether the listed edition is one of the row's Superseded versions: an item with
+    the same numbers, as written or without a trailing parenthetical ("2025" is the item
+    "2025 (v2.0)"). A draft item ("draft 2024") is a different edition from the
+    published one and is not compared."""
+    nums = _numbers(listed)
+    for item in superseded or ():
+        if not nums or re.search(r"\bdraft\b", item, re.I):
+            continue
+        core = re.sub(r"\s*\([^()]*\)\s*$", "", item)
+        if nums in (_numbers(item), _numbers(core)):
+            return True
+    return False
+
+
+def edition_ended(listed, current, superseded=()):
+    """Whether the Current version marks the listed edition ended (``_EDITION_ENDED_RE``:
+    superseded, repealed, withdrawn, revoked, rescinded, lapsed, expired, ceased, no
+    longer in force, in force until). Every marking anywhere in the text counts unless
+    its clause (the text since the last ";", "(", ")" or sentence end) names a number of
+    one of the row's Superseded versions that is not a number of the listed edition, so
+    the marking is said of that older edition ("2026 (the 2025 edition was withdrawn)"
+    when 2025 is listed as superseded). A row that only says it supersedes or replaces
+    something older uses an active form the pattern does not match."""
+    own = set(_numbers(listed))
+    older = {n for item in superseded or () for n in _numbers(item)} - own
+    for m in _EDITION_ENDED_RE.finditer(current):
+        bounds = [b.end() for b in _CLAUSE_BOUNDARY_RE.finditer(current, 0, m.start())]
+        clause = current[bounds[-1] if bounds else 0:m.start()]
+        if not set(_numbers(clause)) & older:
+            return True
+    return False
+
+
+def edition_matches(listed, current, row="", superseded=()):
+    """Whether a listed edition equals the Current version of the register row ``row``,
+    whose Superseded versions are ``superseded``.
+
+    A listed edition that is one of the Superseded versions (``edition_superseded``),
+    or that the Current version marks ended (``edition_ended``: "2025 (superseded)",
+    "1988, repealed", "Regulation ... 2024/1183 (repealed)"), never matches. Otherwise
+    the two are compared by their numbers, and two narrow exceptions apply only to the
+    rows named for them:
 
     * A statute named by its enactment year (``STATUTE_YEAR_ROWS``: "Australia Privacy
       Act 1988", "India DPDPA 2023") also matches a Current version that is that year
       followed directly by one of the notes ``_STATUTE_NOTE_RE`` recognises, an
       amendment note ("1988, as amended by ...") or an enactment or commencement note
-      ("2023 (Act enacted 2023-08-11); ..."), provided nothing after the year speaks of
-      supersession, repeal, replacement, withdrawal, revocation or lapse. Any other
-      continuation ("1988, superseded by 2025", "1988 (repealed in 2026)", "1988 Act")
-      does not match, and a bare-year edition of any other row (ISO, COBIT, OWASP) never
-      matches on its leading year.
+      ("2023 (Act enacted 2023-08-11); ..."); the ended check reads the whole note, so
+      "1988, as amended by Act 2024; expired in 2026" does not match. Any other
+      continuation ("1988 Act") does not match, and a bare-year edition of any other
+      row (ISO, COBIT, OWASP) never matches on its leading year.
     * A row named after its amending instrument (``AMENDMENT_NAMED_ROWS``: "EU eIDAS
       2") matches a listed edition that is one instrument number ("Regulation (EU)
-      2024/1183") when that is the last instrument after "as amended by" in the Current
-      version, again with no supersession wording.
+      2024/1183") when that is the last instrument number after "as amended by" in the
+      Current version, in any form ("Regulation 2027/55", "(EU) 2027/55", "2027/55").
     """
-    if _EDITION_NUMBER_RE.findall(listed) == _EDITION_NUMBER_RE.findall(current):
+    if edition_superseded(listed, superseded) or edition_ended(listed, current, superseded):
+        return False
+    if _numbers(listed) == _numbers(current):
         return True
     if row in AMENDMENT_NAMED_ROWS:
         own = _INSTRUMENT_RE.fullmatch(listed.strip())
         _, amended, amendments = current.partition(" as amended by ")
-        later = [m["num"] for m in _INSTRUMENT_RE.finditer(amendments)]
-        return bool(
-            own and amended and later and later[-1] == own["num"]
-            and not _EDITION_ENDED_RE.search(current)
-        )
+        later = [f"{int(a)}/{int(b)}" for a, b in _AMENDMENT_NUMBER_RE.findall(amendments)]
+        if not (own and amended and later):
+            return False
+        a, b = own["num"].split("/")
+        return later[-1] == f"{int(a)}/{int(b)}"
     if row not in STATUTE_YEAR_ROWS or not _YEAR_RE.fullmatch(listed) or not current.startswith(listed):
         return False
-    rest = current[len(listed):]
-    return bool(_STATUTE_NOTE_RE.match(rest)) and not _EDITION_ENDED_RE.search(rest)
+    return bool(_STATUTE_NOTE_RE.match(current[len(listed):]))
 
 
 def standard_edition_entries(texts=None):
@@ -2763,12 +2864,16 @@ def standard_edition_entries(texts=None):
     entry fails rather than passing with a number nobody compared. Outcomes:
 
     * ``match``: the name resolves and its edition equals the row's Current version
-      (``edition_matches``).
-    * ``mismatch``: the name resolves and its edition differs (a failure).
+      (``edition_matches``), is not among its Superseded versions, and is not marked
+      ended by the Current version.
+    * ``mismatch``: the name resolves and its edition differs, is superseded, or is
+      marked ended (a failure).
     * ``unresolved``: the name resolves to no row and carries an edition, in the name
       or as an EU instrument number in the topic (a failure).
     * ``unparsed``: an <li> of a list read that its item pattern cannot parse, or a
       source with no list read (a failure).
+    * ``incomplete``: an <li> with an "id" span that is not among the entries read,
+      or a For-AI source without exactly one EU AI Act entry (a failure).
     * ``no edition``: the entry names no edition, so there is nothing to compare.
       These are out of scope. On 2026-10-18 they were: LINDDUN, STRIDE, IEC 62443,
       NIST AI 600-1 and NIST SP 800-207 on both lists; MITRE ATLAS, MITRE ATT&CK and
@@ -2792,9 +2897,9 @@ def standard_edition_entries(texts=None):
     out = []
     for rel, kind in EDITION_LIST_SOURCES:
         text = texts[rel] if rel in texts else _edition_source_text(rel)
-        for lineno, listed, extra, parsed in _hand_written_entries(rel, kind, text):
-            if not parsed:
-                out.append(EditionEntry(f".web/{rel}", lineno, listed, "", "", "", "unparsed"))
+        for lineno, listed, extra, problem in _hand_written_entries(rel, kind, text):
+            if problem:
+                out.append(EditionEntry(f".web/{rel}", lineno, listed, "", "", "", problem))
                 continue
             parts = re.split(r"\s+/\s+", listed)
             for name in parts:
@@ -2815,7 +2920,7 @@ def standard_edition_entries(texts=None):
                     status = "no edition"
                 elif row is None:
                     status = "unresolved"
-                elif edition_matches(edition, row["current"], row["id"]):
+                elif edition_matches(edition, row["current"], row["id"], row["superseded"]):
                     status = "match"
                 else:
                     status = "mismatch"
@@ -2847,6 +2952,13 @@ def stale_standard_editions(texts=None):
             )
         elif e.status == "unparsed":
             hits.append(f"{e.source}: no hand-written standard list found to check")
+        elif e.status == "incomplete" and e.line:
+            hits.append(
+                f"{e.source}:{e.line}: list item {e.name!r} is not among the entries the edition "
+                f"check read (it lies outside every list read; update the check or the template)"
+            )
+        elif e.status == "incomplete":
+            hits.append(f"{e.source}: {e.name}")
     return hits
 
 

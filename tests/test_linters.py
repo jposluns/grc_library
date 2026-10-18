@@ -22501,7 +22501,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     These tests pin both directions: the current lists pass, and an edition changed
     back to the one #2846 replaced fails, alone and through ``--check``. Round 2 pins
     the year-named statute rule to its rows and notes, an unparseable list item or a
-    missing source failing, and EU NIS2 and EU eIDAS 2 being compared."""
+    missing source failing, and EU NIS2 and EU eIDAS 2 being compared. Round 3 pins the
+    ending check on equal numbers (Superseded versions and ended wording), the expiry
+    vocabulary of the statute rule, the last eIDAS amendment in any form, columns read to
+    their own close with a completeness check, and one EU AI Act entry per For-AI page."""
 
     LANDING = "templates/landing.html"
     FOR_AI_V3 = "templates-v3/for-ai.html"
@@ -22694,10 +22697,229 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         self.assertEqual(
             {e.source for e in entries}, {f".web/{rel}" for rel, _ in self.EXPECTED_SOURCES}
         )
-        self.assertEqual([e for e in entries if e.status == "unparsed"], [])
+        self.assertEqual([e for e in entries if e.status in ("unparsed", "incomplete")], [])
+        # Pinned on 2026-10-18 (round 3): the landing and coverage lists each hold 58 <li>
+        # items, two of them compound "A / B" names read as two entries, so 60 entries;
+        # each For-AI page compares its OWASP LLM Top 10 and EU AI Act entries and skips
+        # OWASP MCP Top 10 and the GenAI Red Teaming Guide (no edition). Changing a list
+        # changes these counts, so the change is reviewed here.
+        expected = {
+            "templates/landing.html": {"match": 40, "no edition": 20},
+            "templates-v2/coverage.html": {"match": 43, "no edition": 17},
+            "templates/for-ai.html": {"match": 2, "no edition": 2},
+            "templates-v2/for-ai.html": {"match": 2, "no edition": 2},
+            "templates-v3/for-ai.html": {"match": 2, "no edition": 2},
+        }
+        from collections import Counter
+        for rel, _ in self.EXPECTED_SOURCES:
+            counts = Counter(e.status for e in entries if e.source == f".web/{rel}")
+            self.assertEqual(dict(counts), expected[rel], rel)
+
+    def test_every_id_item_of_each_source_is_read(self):
+        entries = self.mod.standard_edition_entries()
         for rel, kind in self.EXPECTED_SOURCES:
-            compared = [e for e in entries if e.source == f".web/{rel}" and e.status == "match"]
-            self.assertGreaterEqual(len(compared), 2 if kind == "for-ai" else 40, rel)
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            id_lines = {text.count("\n", 0, i) + 1 for i in
+                        (m.start() for m in re.finditer(r'<li><span class="id">', text))}
+            read = {e.line for e in entries if e.source == f".web/{rel}"}
+            self.assertEqual(id_lines - read, set(), rel)
+            self.assertEqual(len(id_lines), 58 if kind == "biblio" else 0, rel)
+
+    def _biblio_hits(self, old, new):
+        return self.mod.stale_standard_editions(self._landing_with(old, new))
+
+    def test_biblio_column_with_other_attributes_is_read(self):
+        # Round 2 reviewers: an id, an extra class or a nested heading wrapper on a column
+        # dropped or cut short its list; each column is now read to its own close.
+        col = '<div class="biblio-col">\n          <h3 id="std-ai">'
+        for new in (
+            '<div class="biblio-col" id="col-ai">\n          <h3 id="std-ai">',
+            '<div class="biblio-col wide">\n          <h3 id="std-ai">',
+            '<div class="wide biblio-col">\n          <h3 id="std-ai">',
+            '<div id="col-ai" class="biblio-col">\n          <h3 id="std-ai">',
+        ):
+            self.assertEqual(self._biblio_hits(col, new), [], new)
+            # The column is still compared: a reverted edition in it fails.
+            texts = self._landing_with(col, new)
+            texts[self.LANDING] = texts[self.LANDING].replace(
+                "OWASP LLM Top 10 (2026)", "OWASP LLM Top 10 (2025)")
+            hits = self.mod.stale_standard_editions(texts)
+            self.assertEqual(len(hits), 1, (new, hits))
+            self.assertIn("'OWASP LLM Top 10 (2025)' lists edition '2025'", hits[0])
+
+    def test_biblio_heading_wrapper_does_not_cut_the_list_short(self):
+        wrapped = self._landing_with(
+            '<h3 id="std-ai">AI governance &amp; assurance</h3>',
+            '<div class="col-head"><h3 id="std-ai">AI governance &amp; assurance</h3></div>',
+        )
+        self.assertEqual(self.mod.stale_standard_editions(wrapped), [])
+        before = [e for e in self.mod.standard_edition_entries() if e.source == f".web/{self.LANDING}"]
+        after = [e for e in self.mod.standard_edition_entries(wrapped) if e.source == f".web/{self.LANDING}"]
+        self.assertEqual([(e.name, e.status) for e in after], [(e.name, e.status) for e in before])
+        text = wrapped[self.LANDING].replace("OWASP SAMM 2.2.0", "OWASP SAMM 2.0").replace(
+            "OWASP LLM Top 10 (2026)", "OWASP LLM Top 10 (2025)")
+        hits = self.mod.stale_standard_editions({self.LANDING: text})
+        self.assertEqual(len(hits), 2, hits)
+
+    def test_an_id_item_outside_every_list_read_fails(self):
+        # A renamed column class leaves its items outside every column read; another
+        # column remains, so only the completeness check sees the dropped items.
+        text = (REPO_ROOT / ".web" / self.LANDING).read_text(encoding="utf-8")
+        old = '<div class="biblio-col">\n          <h3 id="std-frameworks">'
+        self.assertIn(old, text)
+        hits = self.mod.stale_standard_editions(
+            {self.LANDING: text.replace(old, '<div class="biblio-column">\n          <h3 id="std-frameworks">')}
+        )
+        self.assertTrue(hits)
+        self.assertTrue(all("is not among the entries the edition check read" in h for h in hits), hits)
+        self.assertTrue(any("OWASP SAMM 2.2.0" in h for h in hits), hits)
+        # An item outside the biblio block altogether is caught the same way.
+        stray = text.replace("</body>", '<ul><li><span class="id">OWASP SAMM 2.0</span>'
+                             '<span class="topic">x</span></li></ul>\n</body>')
+        self.assertNotEqual(stray, text)
+        hits = self.mod.stale_standard_editions({self.LANDING: stray})
+        self.assertEqual(len(hits), 1, hits)
+        self.assertIn("'OWASP SAMM 2.0x' is not among the entries", hits[0])
+
+    def test_for_ai_source_needs_exactly_one_eu_ai_act_entry(self):
+        # Round 2 note: an EU AI Act entry whose name span changed matched neither branch
+        # and was skipped.
+        for rel, old in (
+            (self.FOR_AI_V3, '<span class="row-name">European Union</span>, AI Act'),
+            ("templates/for-ai.html", '<span class="fa-inst">European Union, AI Act'),
+        ):
+            text = (REPO_ROOT / ".web" / rel).read_text(encoding="utf-8")
+            self.assertIn(old, text)
+            for new in (old.replace("European Union", "EU"),
+                        old.replace("European Union", "The Union").replace(", AI Act", ", Artificial Intelligence Act")):
+                hits = self.mod.stale_standard_editions({rel: text.replace(old, new)})
+                self.assertTrue(hits, new)
+                self.assertTrue(any(f".web/{rel}" in h for h in hits), hits)
+            removed = text.replace(old, old.replace("European Union", "The Union").replace(", AI Act", ", Artificial Intelligence Act"))
+            self.assertIn(
+                f".web/{rel}: expected exactly one EU AI Act entry in the resource index, found 0",
+                self.mod.stale_standard_editions({rel: removed}),
+            )
+            line = next(ln for ln in text.splitlines() if old in ln)
+            doubled = text.replace(line, line + "\n" + line)
+            self.assertIn(
+                f".web/{rel}: expected exactly one EU AI Act entry in the resource index, found 2",
+                self.mod.stale_standard_editions({rel: doubled}),
+            )
+
+    def test_equal_numbers_do_not_bypass_the_ending_check(self):
+        # Round 2 reviewers (all three): a Current version equal in numbers but marked
+        # ended, or a listed edition in the row's Superseded versions.
+        match = self.mod.edition_matches
+        for listed, current, row in (
+            ("2025", "2025 (superseded)", "OWASP Top 10"),
+            ("1988", "1988 (repealed)", "Australia Privacy Act"),
+            ("1988", "1988, repealed", "Australia Privacy Act"),
+            ("2.2.0", "2.2.0 (withdrawn)", "OWASP SAMM"),
+            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183 (repealed)",
+             "EU eIDAS"),
+        ):
+            self.assertFalse(match(listed, current, row), (listed, current))
+        for listed, current, row, superseded in (
+            ("2025", "2025 (superseded)", "OWASP Top 10", ["2021", "2017"]),
+            ("1988", "1988 (repealed)", "Australia Privacy Act", []),
+            ("1988", "1988, repealed", "Australia Privacy Act", []),
+            ("2.2.0", "2.2.0 (withdrawn)", "OWASP SAMM", ["2.1.0", "2.0", "1.5"]),
+            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183 (repealed)",
+             "EU eIDAS", []),
+            ("Regulation (EU) 2016/679", "Regulation 2016/679 (revoked)", "EU GDPR", ["Directive 95/46/EC"]),
+            ("2022", "2022 (rescinded 2026)", "ISO/IEC 27001", ["2013"]),
+            ("2022", "2022; lapsed", "ISO/IEC 27001", ["2013"]),
+            ("2022", "2022; expired 2026", "ISO/IEC 27001", ["2013"]),
+            ("2022", "2022; ceased to have effect", "ISO/IEC 27001", ["2013"]),
+            ("2022", "2022; no longer in force", "ISO/IEC 27001", ["2013"]),
+            ("2022", "2022 (in force until 2026-06-30)", "ISO/IEC 27001", ["2013"]),
+            # The register's own procedure: a listed edition in Superseded versions fails.
+            ("2025", "2025", "OWASP LLM Top 10", ["2025 (v2.0)"]),
+            ("2.2.0", "2.2.0", "OWASP SAMM", ["2.2.0", "2.1.0"]),
+            ("Directive (EU) 2016/1148", "Directive 2016/1148", "EU NIS 2 Directive", ["NIS Directive 2016/1148"]),
+        ):
+            self.assertFalse(match(listed, current, row, superseded), (listed, current))
+        # A row that says it supersedes, replaces or repeals something older is not ended.
+        for listed, current in (
+            ("SD Pipeline-2021-02G", "SD Pipeline-2021-02G (effective 2026-05-03 through 2027-05-02; "
+             "cancels and supersedes SD Pipeline-2021-02F)"),
+            ("2024", "In effect since 9 October 2024 (replaces the Policy on Privacy Protection dated 26 October 2022)"),
+            ("Regulation (EU) 2016/679", "Regulation 2016/679 (repeals Directive 95/46/EC)"),
+        ):
+            self.assertFalse(self.mod.edition_ended(listed, current, []), current)
+        for listed, current, row, superseded in (
+            ("2026", "2026", "OWASP LLM Top 10", ["2025 (v2.0)"]),
+            ("2024", "2024", "ISO/IEC 42006", ["draft 2024", "2024 draft"]),
+            # A marking said of an older edition listed in Superseded versions.
+            ("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by Regulation 2024/1183; "
+             "Directive 1999/93/EC repealed", "EU eIDAS", ["Directive 1999/93/EC"]),
+        ):
+            self.assertTrue(match(listed, current, row, superseded), (listed, current))
+        # The same marking with nothing in Superseded versions to say it of fails.
+        self.assertFalse(match("Regulation (EU) 2024/1183", "Regulation 910/2014 as amended by "
+                               "Regulation 2024/1183; Directive 1999/93/EC repealed", "EU eIDAS", []))
+
+    def test_register_supersession_marking_with_equal_numbers_fails_the_site(self):
+        for old, new, name in (
+            ("| OWASP SAMM | 2.2.0 |", "| OWASP SAMM | 2.2.0 (withdrawn) |", "OWASP SAMM 2.2.0"),
+            ("| OWASP Top 10 | 2025 |", "| OWASP Top 10 | 2025 (superseded) |", "OWASP Top 10 (2025)"),
+        ):
+            hits = self._with_register(old, new)
+            self.assertEqual(len(hits), 2, hits)
+            self.assertTrue(all(f"{name!r} lists edition" in h for h in hits), hits)
+
+    def test_register_listing_the_site_edition_as_superseded_fails(self):
+        register = self.mod.CITATIONS_REGISTER.read_text(encoding="utf-8")
+        row = next(ln for ln in register.splitlines() if ln.startswith("| OWASP SAMM | 2.2.0 |"))
+        cells = row.split(" | ")
+        self.assertEqual(cells[4], "2.1.0, 2.0, 1.5")
+        cells[4] = "2.2.0, 2.1.0, 2.0, 1.5"
+        hits = self._with_register(row, " | ".join(cells))
+        self.assertEqual(len(hits), 2, hits)
+        self.assertTrue(all("'OWASP SAMM 2.2.0' lists edition '2.2.0'" in h for h in hits), hits)
+
+    def test_no_compared_register_row_is_ended(self):
+        # Every register row compared by the site matches its own Current version, so the
+        # ending and Superseded checks reject no current row. Register-wide, only the rows
+        # whose Current version says the instrument itself lapsed or was repealed fail.
+        _, resolver = self.mod._load_edition_resolver()
+        compared = {e.row for e in self.mod.standard_edition_entries() if e.row}
+        rejected = set()
+        for e in resolver.register.entries:
+            if not self.mod.edition_matches(e["current"], e["current"], e["id"], e["superseded"]):
+                rejected.add(e["id"])
+        self.assertEqual(len(compared), 59)
+        self.assertEqual(compared & rejected, set())
+        self.assertEqual(rejected, {"Colorado AI Act", "Canada CPPA / successor C-36 (PPCDA)", "Canada AIDA"})
+
+    def test_statute_expiry_vocabulary_is_rejected_anywhere_in_the_note(self):
+        # Round 2 reviewers (codex, claude).
+        match = self.mod.edition_matches
+        au = "Australia Privacy Act"
+        for current in (
+            "1988, as amended by Act 2024; expired in 2026",
+            "1988 (in force until 2026-06-30); Privacy Act 2026 from 2026-07-01",
+            "1988, as amended; ceased to have effect on 2026-07-01",
+            "1988, as amended by the Privacy Amendment Act 2012; no longer in force",
+            "1988, as amended by Act 2024 (lapsed 2026)",
+        ):
+            self.assertFalse(match("1988", current, au), current)
+        self.assertTrue(match("1988", self.AU_REGISTER_CURRENT, au))
+
+    def test_eidas_takes_the_last_amendment_number_in_any_form(self):
+        # Round 2 reviewer (claude).
+        match = self.mod.edition_matches
+        for current in (
+            "Regulation 910/2014 as amended by Regulation 2024/1183 and 2027/55",
+            "Regulation 910/2014 as amended by Regulation 2024/1183 and (EU) 2027/55",
+            "Regulation 910/2014 as amended by Regulation 2024/1183, (EU) 2027/55 (eIDAS 2)",
+            "Regulation 910/2014 as amended by Regulation 2024/1183 and Regulation (EU) 2027/55",
+        ):
+            self.assertFalse(match("Regulation (EU) 2024/1183", current, "EU eIDAS"), current)
+            self.assertTrue(match("Regulation (EU) 2027/55", current, "EU eIDAS"), current)
+        self.assertTrue(match("Regulation (EU) 2024/1183",
+                              "Regulation 910/2014 as amended by Regulation 2024/1183 (eIDAS 2)", "EU eIDAS"))
 
     def test_changed_biblio_markup_fails_instead_of_dropping_the_entry(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
