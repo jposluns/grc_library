@@ -27869,6 +27869,82 @@ class PreflightChangelogGitDiffTests(unittest.TestCase):
                 self.assertNotIn(name, foreign)
             self.assertEqual(foreign.get("GRC_STORE"), str(store))
 
+    # The files a standalone run of the aid loads, copied into a fixture tree so a test runs it
+    # through its command line against the fixture's own repository.
+    CLI_FILES = ("tools/preflight-changelog.py", "tools/preflight_language_runner.py",
+                 "tools/lint-language.py", "tools/check-changelog-length-on-pr.py",
+                 "tools/lint_common.py", "tools/aiqt_bootstrap.py",
+                 ".corpus-management/tools/gate_lint_language.py",
+                 ".corpus-management/tools/profile_loader.py",
+                 ".corpus-management/defaults/grc/language.toml")
+
+    def _run_cli(self, td, added, replace=None):
+        """Run ``tools/preflight-changelog.py --staged`` in a fixture repository whose staged
+        CHANGELOG.md adds the line ``added`` after a committed heading. ``replace`` maps a copied
+        file to the source written over it before the run."""
+        root = Path(td) / "cli"
+        for rel in self.CLI_FILES:
+            (root / rel).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(REPO_ROOT / rel, root / rel)
+        for rel, source in (replace or {}).items():
+            (root / rel).write_text(source, encoding="utf-8")
+        env = {k: v for k, v in self._env(td).items()
+               if k not in ("GRC_STORE", "GRC_PREFLIGHT_ENGINE_TIMEOUT")}
+        env["AIQT_PACK_ROOT"] = str(REPO_ROOT / "vendor" / "aiqt")
+
+        def git(*args):
+            subprocess.run(["git", "-C", str(root), "-c", "user.name=t", "-c",
+                            "user.email=t@example.invalid", "-c", "commit.gpgsign=false", *args],
+                           check=True, capture_output=True, env=env)
+
+        git("init", "-q", "-b", "feature")
+        (root / "CHANGELOG.md").write_text("# Changelog\n", encoding="utf-8")
+        git("add", "-A")
+        git("commit", "-q", "--no-verify", "-m", "init")
+        (root / "CHANGELOG.md").write_bytes(("# Changelog\n" + added + "\n").encode("utf-8"))
+        git("add", "CHANGELOG.md")
+        return subprocess.run([sys.executable, "tools/preflight-changelog.py", "--staged"],
+                              cwd=root, env=env, capture_output=True, text=True)
+
+    def test_an_added_line_starting_with_plus_plus_is_checked(self):
+        # 3b236 (1): the parser skipped every line starting "+++" or "---" wherever it appeared,
+        # so an added line whose text starts with "++" (diff line "+++...") escaped every check,
+        # a forged "++ b/<path>" header included. File headers are now recognised only outside a
+        # hunk. Mutation killed: skipping "+++" lines inside a hunk again.
+        for added in ("++" + self.ADDED, "++ b/" + self.ADDED):
+            with self.subTest(added=added), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td), added)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_an_added_line_with_a_unicode_line_break_is_checked_whole(self):
+        # 3b236 (2): the diff was read as text and split with splitlines(), so a CR, U+2028 or
+        # U+0085 inside an added line split it, the second fragment lost its "+" marker, and that
+        # fragment escaped every check. The diff is now read as bytes and split on LF only.
+        for separator in ("\r", "\u2028", "\u0085"):
+            with self.subTest(separator=ascii(separator)), tempfile.TemporaryDirectory() as td:
+                result = self._run_cli(os.path.realpath(td),
+                                       "a clean start" + separator + self.ADDED)
+                report = result.stdout + result.stderr
+                self.assertEqual(result.returncode, 1, report)
+                self.assertIn("FAIL CHANGELOG.md: em/en dash in prose", report)
+
+    def test_a_d7_checker_load_failure_is_one_named_error(self):
+        # 3b236 (3): the D7 length checker was loaded at module level, outside main()'s fail-closed
+        # boundary, so a checker that failed to load printed a raw traceback. It now loads inside
+        # that boundary: exit 2 with one fixed ERROR line, no traceback and no verdict.
+        with tempfile.TemporaryDirectory() as td:
+            result = self._run_cli(
+                os.path.realpath(td), "a clean entry",
+                replace={"tools/check-changelog-length-on-pr.py":
+                         "raise RuntimeError('d7 checker broken')\n"})
+        self.assertEqual(result.returncode, 2, result.stdout + result.stderr)
+        self.assertEqual(result.stdout, "")
+        self.assertEqual(result.stderr.splitlines(), [
+            "ERROR: the D7 length checker could not be loaded from "
+            "check-changelog-length-on-pr.py."])
+
 
 class AuditGateParityExclusionGuardTests(unittest.TestCase):
     """tools/lint-audit-gate-parity.py (gate 35) additive PR #1087 guards over

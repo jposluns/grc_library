@@ -81,7 +81,9 @@ Exit codes:
         malformed output), reported as one fixed ERROR line rather than a traceback.
         Loading is checked even without added lines (3b201). KeyboardInterrupt raised
         in THIS process (a real Ctrl-C) propagates; one raised by engine code is an
-        engine fault in the child, exit 2.
+        engine fault in the child, exit 2. A D7 length checker
+        (check-changelog-length-on-pr.py) that fails to load is also exit 2, reported as one
+        fixed ERROR line rather than a traceback (3b236).
 
 Engine isolation (3b201, /validate-pr round 5): every language-engine interaction
 (loading lint-language.py, engine API validation, compile_language,
@@ -186,12 +188,38 @@ from lint_common import REPO_ROOT, resolve_working  # noqa: E402  # grc-config/s
 # 100-word / 45-word-sentence ceiling on a root-CHANGELOG compact entry is caught at
 # authoring (this aid) rather than only at the pre-push guard. The module name is
 # hyphenated, so load it via importlib; reusing its ENTRY_RE + evaluate keeps the two in
-# lock-step (no duplicated length logic to drift).
+# lock-step (no duplicated length logic to drift). It loads on first use, inside main()'s
+# fail-closed boundary, so a load failure is one named error (exit 2), not a traceback (3b236).
 import importlib.util as _ilu  # noqa: E402
-_d7_spec = _ilu.spec_from_file_location(
-    '_changelog_len_d7', Path(__file__).resolve().parent / 'check-changelog-length-on-pr.py')
-_d7 = _ilu.module_from_spec(_d7_spec)
-_d7_spec.loader.exec_module(_d7)
+_d7 = None
+
+_D7_ERROR = (
+    "ERROR: the D7 length checker could not be loaded from "
+    "check-changelog-length-on-pr.py."
+)
+
+
+class D7CheckerUnavailable(RuntimeError):
+    """The D7 length checker failed to load; main() reports the fixed error and exits 2."""
+
+
+def _load_d7():
+    """The loaded D7 length-checker module. Any failure while loading it raises
+    D7CheckerUnavailable; a KeyboardInterrupt propagates."""
+    global _d7
+    if _d7 is None:
+        try:
+            spec = _ilu.spec_from_file_location(
+                '_changelog_len_d7',
+                Path(__file__).resolve().parent / 'check-changelog-length-on-pr.py')
+            module = _ilu.module_from_spec(spec)
+            spec.loader.exec_module(module)
+        except KeyboardInterrupt:
+            raise
+        except BaseException:
+            raise D7CheckerUnavailable() from None
+        _d7 = module
+    return _d7
 
 
 # Gate 2's project entry point: the isolated child loads it, and through it the
@@ -438,15 +466,16 @@ def d7_length_findings(lines):
     ``lines`` (a list of ``(path, added_text)``), reusing ``check-changelog-length-on-pr``'s
     ENTRY_RE + evaluate so this aid and the D7 delta gate never drift (P-1.4). Only the root
     file is length-gated; the detailed mirror is out of the D7 gate's scope."""
+    d7 = _load_d7()
     entries = []
     for path, text in lines:
         if path == "CHANGELOG.md":
-            m = _d7.ENTRY_RE.match(text)
+            m = d7.ENTRY_RE.match(text)
             if m:
                 entries.append((m.group(1), m.group(2)))
     return [
         ("CHANGELOG.md", f"D7 length ceiling exceeded ({offence})", "")
-        for offence in _d7.evaluate(entries, _d7.DEFAULT_WORD_MAX, _d7.DEFAULT_SENTENCE_MAX)
+        for offence in d7.evaluate(entries, d7.DEFAULT_WORD_MAX, d7.DEFAULT_SENTENCE_MAX)
     ]
 
 
@@ -737,18 +766,32 @@ def _added_lines_from_repo(
     if staged:
         cmd.append("--cached")
     cmd += ["HEAD", "--", *paths]
-    out = subprocess.run(cmd, cwd=str(repo), capture_output=True, text=True,
-                         check=True, env=env).stdout
+    proc = subprocess.run(cmd, cwd=str(repo), capture_output=True, env=env)
+    if proc.returncode != 0:
+        raise subprocess.CalledProcessError(
+            proc.returncode, cmd, proc.stdout, proc.stderr.decode("utf-8", errors="replace"))
     results: list[tuple[str, str]] = []
     current: str | None = None
-    for line in out.splitlines():
+    in_hunk = False
+    # Split on LF only (3b236): a CR, U+2028 or U+0085 inside an added line is part of that
+    # line, so no fragment of it can lose its "+" marker and escape the checks.
+    for raw in proc.stdout.split(b"\n"):
+        line = raw.decode("utf-8")
+        # Inside a hunk every line carries a one-character marker, so a "+" line is an added
+        # line even when its text starts with "++" (3b236); any other line ends the hunk.
+        if in_hunk:
+            if line.startswith("+"):
+                if current is not None:
+                    results.append((current, line[1:]))
+                continue
+            if line.startswith((" ", "-", "\\")):
+                continue
+            in_hunk = False
+        if line.startswith("@@"):
+            in_hunk = True
+            continue
         if line.startswith("+++ b/"):
             current = line[len("+++ b/") :]
-            continue
-        if line.startswith("+++") or line.startswith("---"):
-            continue
-        if line.startswith("+") and current is not None:
-            results.append((current, line[1:]))
     return results
 
 
@@ -805,6 +848,11 @@ def main(argv: list[str]) -> int:
     )
     args = parser.parse_args(argv[1:])
 
+    try:
+        _load_d7()
+    except D7CheckerUnavailable:
+        print(_D7_ERROR, file=sys.stderr)
+        return 2
     try:
         lines = added_lines(args.staged)
     except subprocess.CalledProcessError as exc:
