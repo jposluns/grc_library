@@ -276,7 +276,9 @@ EXCLUSIONS_PATH = TOOLS / "alignment-register-exclusions.json"
 # The three classes the 2026-10-16 decision names; a policy row of any other class is refused.
 EXCLUSION_CLASSES = frozenset({"RFC", "vendor guidance", "book"})
 
-# First header cells meaning "each row names one framework or standard".
+# First header cells meaning "each row names one framework or standard". A header cell is
+# compared by identity key, which drops the spaces around "/" ("Framework / Standard" is
+# "framework/standard"), so both header sets are compared through ``header_keys``.
 LIST_HEADERS = frozenset({
     "framework", "frameworks", "framework / standard", "framework or standard",
     "framework / regulation", "standard", "standards", "standard / framework",
@@ -435,6 +437,11 @@ def ensure_gate6():
 def identity_key(name: str) -> str:
     ensure_gate6()
     return ENGINE.identity_key(name)
+
+
+def header_keys(headers: frozenset) -> frozenset:
+    """The identity keys of a header set, normalized as a header cell is."""
+    return frozenset(identity_key(h) for h in headers)
 
 
 class PolicyError(ValueError):
@@ -907,6 +914,7 @@ def scan_text(text: str, added: set[int], resolver: Resolver) -> list[tuple[int,
     lines = text.splitlines()
     eligible = {ln for ln, _ in iter_non_code_lines(text)}
     found: list[tuple[int, str, str]] = []
+    list_headers, free_text_headers = header_keys(LIST_HEADERS), header_keys(FREE_TEXT_HEADERS)
 
     def record(ln, surface, cell, free_text):
         for part, full in split_parts(cell, free_text):
@@ -916,11 +924,11 @@ def scan_text(text: str, added: set[int], resolver: Resolver) -> list[tuple[int,
 
     for header_ln, header, rows, heading in iter_tables(lines, eligible):
         norm = [identity_key(strip_markdown(h)) for h in header]
-        list_form = bool(norm) and norm[0] in LIST_HEADERS
+        list_form = bool(norm) and norm[0] in list_headers
         matrix_form = not list_form and bool(ALIGNMENT_HEADING.search(heading))
         if not (list_form or matrix_form):
             continue
-        free_cols = {i for i, h in enumerate(norm) if h in FREE_TEXT_HEADERS}
+        free_cols = {i for i, h in enumerate(norm) if h in free_text_headers}
         if matrix_form and header_ln in added:
             for i, cell in enumerate(header[1:], 1):
                 if i not in free_cols:

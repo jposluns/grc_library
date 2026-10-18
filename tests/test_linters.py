@@ -6449,6 +6449,53 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         out = self._check("# Example\n", self._doc(header=header, heading="## Roles"))
         self.assertEqual(self._warned(out), [], out)
 
+    def _scan_header(self, header, row):
+        """D15 findings for one added row under ``header`` in a framework-alignment table."""
+        mod, resolver = self._resolver()
+        doc = self._doc(row, header=header)
+        return mod.scan_text(doc, set(range(1, doc.count("\n") + 1)), resolver)
+
+    def _assert_list_header(self, first):
+        # 3b376: identity_key drops the spaces around "/", so a spaced LIST_HEADERS entry never
+        # matched and its table was read as matrix-form, with its rows never scanned.
+        got = self._scan_header(f"| {first} | Relevant Clause | Mapping |", "| NIST SP 800-57 | Keys | Keys |")
+        self.assertEqual(got, [(7, "alignment-table row", "NIST SP 800-57")])
+
+    def test_list_header_framework_slash_regulation(self) -> None:
+        self._assert_list_header("Framework / Regulation")
+
+    def test_list_header_framework_slash_standard(self) -> None:
+        self._assert_list_header("Framework / Standard")
+
+    def test_list_header_law_slash_regulation(self) -> None:
+        self._assert_list_header("Law / Regulation")
+
+    def test_list_header_regulation_slash_guidance(self) -> None:
+        self._assert_list_header("Regulation / Guidance")
+
+    def test_list_header_regulation_slash_standard(self) -> None:
+        self._assert_list_header("Regulation / Standard")
+
+    def test_list_header_standard_slash_framework(self) -> None:
+        self._assert_list_header("Standard / Framework")
+
+    def test_free_text_header_legal_slash_regulatory(self) -> None:
+        got = self._scan_header(
+            "| Framework | Reference | Legal / Regulatory |",
+            "| ISO/IEC 27001:2022 | A.5.1 | GDPR Art. 32; Quebec Law 25 |",
+        )
+        self.assertEqual(got, [(7, "citation-list cell", "Quebec Law 25")])
+
+    def test_every_header_set_entry_is_recognized_as_written(self) -> None:
+        mod = self._module()
+        for header in sorted(mod.LIST_HEADERS):
+            with self.subTest(set="LIST_HEADERS", header=header):
+                self._assert_list_header(header.title())
+        for header in sorted(mod.FREE_TEXT_HEADERS):
+            with self.subTest(set="FREE_TEXT_HEADERS", header=header):
+                got = self._scan_header(f"| Framework | Reference | {header.title()} |", "| - | - | Quebec Law 25 |")
+                self.assertEqual(got, [(7, "citation-list cell", "Quebec Law 25")])
+
     def test_alias_acronym_and_series_prefix_resolve(self) -> None:
         out = self._check(
             self._doc(),
