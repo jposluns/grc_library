@@ -34,7 +34,7 @@ legacy ``## YYYY-MM-DD, Library Version X, PR #N`` form, AND the rolled-up forms
 that condensation produces (``| PRs #A-#B (N PRs) |``, its multi-range variant,
 and three ``**Week of ... (PRs ...)**`` shapes), whose ranges are expanded. Before
 2026-08-10 only the singular forms were read, so once roll-ups landed this universe
-collapsed to the single un-condensed entry and both checks narrowed with it. For each PR N with ``max(INCEPTION, oldest surviving row) <= N <= max(PR)``, require a row in
+collapsed to the single un-condensed entry and both checks narrowed with it. For each PR N with ``max(INCEPTION, recorded register floor) <= N <= max(PR)``, require a row in
 the PR-scoped validation history register AND (for substantive PRs) a row in
 the improvement log, with these exemptions:
 
@@ -68,14 +68,48 @@ the improvement log, with these exemptions:
   exemption-row convention existed, so they carry no validate-pr row at all;
   they are listed in ``KNOWN_HANDOFF_NO_ROW`` so the gate does not
   false-positive on a legitimately-absent row.
-- The window's lower bound is a DYNAMIC per-register floor,
-  ``max(INCEPTION, oldest surviving row in that register)`` (``effective_floor``,
-  mirroring gate 59): the dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED
+- The window's lower bound is a RECORDED per-register floor,
+  ``max(INCEPTION, N)`` for the register's ``<!-- gate50-floor: #N -->`` marker
+  (``recorded_floor``): the dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED
   validate-pr / retro rows out to ``grc_library_private``, keeping each register
-  to a recent window, so a swept-out PR falls below its register's floor and is
-  out of scope, not flagged missing. The two registers sweep independently, so
-  each gets its own floor. Before any sweep both floors equal ``INCEPTION`` and
-  behaviour is identical to the fixed-constant gate.
+  to a recent window, and records N, the oldest PR it kept, so a swept-out PR falls
+  below its register's floor and is out of scope, not flagged missing. Until 3b206
+  the floor was the register's oldest surviving row, so replacing or deleting that
+  row raised it past a genuinely missing row; only the sweep moves the marker. The
+  two registers sweep independently, so each records its own floor. A register with
+  no marker has floor ``INCEPTION``, identical to the fixed-constant gate (a note
+  says so). An unreadable marker sets nothing and is a finding; two or more markers
+  are a finding and the lowest applies. A floor above INCEPTION that is above the
+  register's oldest kept well-formed row, or above every CHANGELOG PR, is a finding
+  (``floor_ceiling_findings``), so a hand-raised marker cannot silently hide missing rows
+  while a PR-naming row below it remains; a validate-pr row whose leading identity names a
+  PR that Check 1 does not read (``#900-903``) names no kept PR but is itself a finding
+  (``unread_identity_findings``), so it cannot hide them silently either (the residual is
+  in ``recorded_floor``).
+
+  Sweep procedure (manual; the sweep lives outside this repository). For EACH register
+  the sweep touches, in the same edit that moves its rows out:
+  1. Compute N after the move: the lowest PR named by a well-formed row still KEPT in
+     that register (validate-pr history: every PR the leading identity names that Check 1's
+     presence reader also reads, ``floor_kept_prs`` with the row parser's
+     ``STORE_PR_IDENTITY_RE`` grammar and Check 1's ``PR_CELL_TOKEN``, so a combined
+     ``#A, #B`` row counts its lower PR, a later number is prose, as in ``#2429 iteration 2``
+     or ``#2500 (re-run of #2380)``, and a ``#900-903`` row, which presence does not read,
+     names none and is a finding until written ``#900-#903``; improvement log: the PR each row
+     leads with, ``parse_retro_prs``, the reader Check 1 uses). Malformed cells and the accepted no-PR dispositions name no PR. Every row below N
+     is a row the sweep moved; if a row below the intended cut stays (a late addendum,
+     say), N is that row's PR.
+  2. Write ``<!-- gate50-floor: #N -->`` as one line at column 0, outside any table (by
+     convention the register's last line), replacing the previous marker in place; never
+     add a second.
+  3. Raise N only in a sweep edit and only to the new oldest kept PR, never above a kept
+     row or the highest root CHANGELOG PR (both are findings). Lowering it only widens
+     the window. A sweep that moves no rows from a register leaves its marker alone; a
+     register never swept needs none.
+  4. Run this gate before and after; the after-run shows no new finding, and a
+     ``records no floor marker`` note for a swept register means step 2 was skipped.
+  A sweep that moves rows without raising the marker cannot pass silently: the floor
+  stays below the moved rows, so every moved PR that still needs a row is reported missing it.
 
 Validate-pr PR-bearing rows must begin their PR cell with a recognized identity.
 The exact historical dispositions abandoned-autocorrect (no PR) and
@@ -83,16 +117,17 @@ routed pre-open (no PR) remain accepted without creating PR records.
 The set is closed and matched exactly (``NO_PR_DISPOSITIONS``).
 Any other malformed cell produces one finding naming its file, line and value,
 and that finding keeps the gate failing. Both history readers exclude the
-malformed row while retaining valid peers, and no number in a malformed cell
-plays any part in the QA-cadence floor. While any malformed cell exists, the
-validate-pr floor is computed from well-formed rows only: a malformed cell
-cannot lower it unless no well-formed row remains, when the floor falls to
-INCEPTION and every in-window PR is reported; if the malformed row held the
-oldest PR the floor rises to
-the oldest well-formed row, so floor-dependent findings (a PR missing its
-validate-pr row) may be incomplete until the cell is fixed. A PR whose only row
-is malformed is also reported as missing its row when it is at or above that
-floor (unless listed in ``KNOWN_HANDOFF_NO_ROW``).
+malformed row while retaining valid peers, and no row, malformed or not,
+sets the QA-cadence floor, which is recorded (3b206); a malformed row also
+names no kept PR for the marker's upper bound. A PR whose
+only row is malformed is also reported as missing its row when it is at or above
+that floor (unless listed in ``KNOWN_HANDOFF_NO_ROW``), the oldest kept PR included.
+A row whose leading identity names a PR that Check 1's presence reader
+(``PR_CELL_TOKEN``) does not read, a hyphen range ending in a bare number such as
+``#900-903``, ``900-903`` or ``PR #900-903 iteration``, likewise produces one finding
+naming its file, line and value and telling the maintainer to write ``#900-#903``
+(``unread_identity_findings``, 3b206 r6); the PRs it leaves unread are neither present
+nor kept, so a marker raised above that row cannot hide missing rows silently.
 
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
@@ -153,8 +188,8 @@ here requires an approval a solo-authored PR never receives, so every merge goes
 through the maintainer's always-on `--admin` bypass, which is invisible when used; the
 log is the only thing that makes it auditable. CLAUDE.md already called an unlogged
 bypass a discipline failure, and it recurred five times in one day (#1170 to #1174),
-which is past the point where a convention is the right control. Same DYNAMIC-FLOOR model as Check 1
-(floor at the register's own oldest row), but NOT the same window: Check 1 includes the
+which is past the point where a convention is the right control. A DYNAMIC floor at the log's own
+oldest row (``effective_floor``; Check 1's floor is recorded instead since 3b206), and NOT the same window as Check 1: Check 1 includes the
 highest PR, because after the synchronous cutover its QA rows are written pre-merge in its
 own PR, while Check 6 EXCLUDES it, because a bypass row records a post-merge fact. A row
 counts by PRESENCE whatever its Mechanism cell says, so a future protection change that
@@ -279,9 +314,9 @@ check then no-ops INDIVIDUALLY and the run reports which checks it skipped, so
 the closing OK line never asserts a check passed that never ran. Checks 2
 (TODO/DONE rotation) and 4 (version-history parity) read PUBLIC files and always
 run, so a public-CI or adopter-clone invocation is a partial audit, not a no-op.
-Check 1 is all-or-nothing across its TWO registers: with either absent its
-per-register floor collapses to INCEPTION and every in-window PR reads as
-missing a row, so it skips unless both are present.
+Check 1 is all-or-nothing across its TWO registers: with either absent it has
+no rows and no recorded floor, so every in-window PR reads as missing a row,
+and it skips unless both are present.
 
 Exit codes:
     0 - All present-and-rotated checks pass.
@@ -427,8 +462,10 @@ PR_NUM_BOUNDARY = r"(?!\w|\.\d|-(?!#))"
 # `§7.1.1`, `resume-0825b`) is never read as a PR. P-3.245: the earlier
 # greedy `re.findall(r"\d+", ...)` matched those interior digit runs,
 # injected phantom low PR numbers into the status map, and collapsed the
-# dynamic floor (`max(INCEPTION, min(rows))`) toward INCEPTION, demanding
-# rows for every swept-out PR (the #1709-window storm).
+# then-dynamic floor (`max(INCEPTION, min(rows))`) toward INCEPTION, demanding
+# rows for every swept-out PR (the #1709-window storm). Since 3b206 the floor
+# is recorded, but a phantom low PR would still read as a kept row below the
+# marker (a false `floor_ceiling_findings` finding), so the boundary stays.
 PR_CELL_TOKEN = re.compile(r"#(\d+)" + PR_NUM_BOUNDARY + r"|(?<![\w.#-])(\d+)" + PR_NUM_BOUNDARY)
 
 # improvement-log PR column tolerates an optional leading `#` (mixed format:
@@ -675,6 +712,66 @@ def parse_retro_prs(text: str) -> set[int]:
         if m:
             prs.add(int(m.group(1)))
     return prs
+
+
+def floor_kept_prs(text: str) -> set[int]:
+    """Every PR the leading identity names that Check 1's presence reader also reads (3b206 r5).
+
+    The upper bound on a recorded floor (``floor_ceiling_findings``) compares the marker with
+    the oldest PR the register keeps, which is a row's identity, read with the row parser's one
+    grammar (``store_row_prs``, ``STORE_PR_IDENTITY_RE``), never every number in the cell:
+    ``#2429 iteration 2``, ``#2500 (re-run of #2380)`` and ``#2500 (3 reviewers)`` each keep only
+    the PR they lead with (round 2 also read 2, 2380 and 3, a false finding). A combined or
+    ranged identity (``#A, #B``, ``#A-#B``) names its PRs, so it counts its lower PR. Of those,
+    only the PRs Check 1's presence reader (``parse_validate_pr_status``, ``PR_CELL_TOKEN``)
+    also reads are kept, so the floor never counts a PR presence does not: ``#900-903`` names
+    {900, 903} but presence reads neither, so it keeps none (round 4 kept both, and with such
+    a row oldest no marker passed: at 900 Check 1 wanted a row for #900, above it the ceiling
+    called the marker above the oldest kept row #900). A PR the identity names but presence
+    does not read is not kept, but its row is a finding (``unread_identity_findings``, 3b206
+    r6), so a marker raised above such a row is never silent (round 5 dropped it silently).
+    The rows
+    are those ``_validate_pr_rows`` yields (malformed cells and the accepted no-PR dispositions
+    name none). The improvement log's kept PRs are not read here: they are ``parse_retro_prs``,
+    the PR each row leads with, the same reader as Check 1's presence test (3b206 r4), so a
+    combined ``#856, #855`` retro row keeps only #856 for both and the two cannot disagree.
+    """
+    prs: set[int] = set()
+    for _, c in _validate_pr_rows(text):
+        if len(c) > 2:
+            named, read = _identity_reads(c[2])
+            prs.update(set(named) & read)
+    return prs
+
+
+def _identity_reads(cell: str):
+    """A PR cell's leading identity (``store_row_prs``) and the PRs Check 1 reads in it."""
+    return store_row_prs(cell), {int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(cell)}
+
+
+def unread_identity_findings(text: str) -> list[str]:
+    """One finding per validate-pr row whose leading identity names a PR presence does not read.
+
+    3b206 r6 (review of round 5): ``#929-932`` names {929, 932} by the row grammar, but Check 1's
+    presence reader (``PR_CELL_TOKEN``) reads neither, so the row counted for neither presence
+    nor the floor and a marker raised above it hid the missing rows below silently. Such a row
+    is reported like a malformed cell, naming its file, line and value, with the fix: write each
+    range with ``#`` on both ends (``#929-#932``), which both readers read.
+    """
+    findings: list[str] = []
+    for lineno, c in _validate_pr_rows(text):
+        named, read = _identity_reads(c[2])
+        unread = sorted(set(named) - read)
+        if not unread:
+            continue
+        ranges = ", ".join(f"'#{lo}-#{hi}'" for lo, hi in named.spans) or "'#900-#903'"
+        prs = ", ".join(f"#{pr}" for pr in unread)
+        findings.append(
+            f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
+            f"unread PR range in cell {c[2]!r}; Check 1 reads no row for {prs}. "
+            f"Write each range with '#' on both ends, as {ranges}."
+        )
+    return findings
 
 
 # GATE50-UNIQUE (row integrity, 2026-09-24): Check 1 above tests PRESENCE and reduces each
@@ -1263,25 +1360,128 @@ def bypass_log_findings(
 
 
 def effective_floor(present_prs: set[int], *, floor: int = INCEPTION) -> int:
-    """The dynamic Check-1 floor: ``max(INCEPTION, oldest surviving row)``.
+    """The dynamic Check-6 floor: ``max(INCEPTION, oldest surviving row)``.
 
-    The dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED roll-up rows out
-    of the in-repo history registers (``validate-pr/history.md`` and
-    ``improvement-log.md``) to ``grc_library_private``, keeping each register
-    to a recent window (the gate-59 current-week model applied to the
-    registers). The root ``CHANGELOG.md`` (the universe set Check 1 iterates)
-    keeps EVERY PR, so once a register's old rows are swept this floor rises to
-    that register's oldest SURVIVING row and a swept-out PR falls below it,
-    correctly out of scope rather than flagged as a missing row. The floor
-    never drops below ``INCEPTION``; before any sweep the oldest surviving row
-    is far below it (validate-pr rows begin #183, retro rows #213), so the
-    floor is ``INCEPTION`` and behaviour is identical to the pre-sweep
-    fixed-constant gate. Per-register (not one combined floor): the two
-    registers sweep independently, so their oldest surviving rows can differ;
-    a combined floor would keep the higher-floored register in scope below its
-    own oldest row and re-introduce false missing-row findings.
+    Check 6 only: its floor exists so a merge-bypass log that starts partway through history
+    is not retroactively in breach. Check 1 used this floor until 3b206 and now reads a
+    RECORDED floor instead (``recorded_floor``), because a floor derived from row content
+    moves whenever the oldest row is edited. Check 6 keeps that residual: deleting the log's
+    oldest row raises its floor too.
     """
     return dynamic_floor(present_prs, floor)
+
+
+# The recorded Check-1 floor (3b206): one full-line HTML comment per register, written and
+# moved only by the dated-archive sweep. Any line that opens like a marker is read as one, so
+# a typo is a finding rather than a silently ignored line.
+FLOOR_MARKER = re.compile(r"^<!--\s*gate50-floor:\s*#(\d+)\s*-->\s*$")
+FLOOR_MARKER_PREFIX = re.compile(r"^\s*<!--\s*gate50-floor\b", re.IGNORECASE)
+
+
+def recorded_floor(text: str, register: str, *, inception: int = INCEPTION) -> tuple[int, list[str]]:
+    """A register's Check-1 floor, ``max(INCEPTION, recorded marker)``, and marker findings.
+
+    WHY RECORDED. The dated-archive sweep (1.19.9 (closing PR #1034)) moves AGED rows out of
+    the history registers (``validate-pr/history.md`` and ``improvement-log.md``) to
+    ``grc_library_private``, keeping each register to a recent window, while the root
+    ``CHANGELOG.md`` (the universe Check 1 iterates) keeps EVERY PR. A swept-out PR must fall
+    out of scope rather than read as a missing row, so each register needs a lower bound. Until
+    3b206 that bound was the register's oldest SURVIVING row, which made it a function of row
+    content: replacing the oldest validate-pr row with an accepted no-PR disposition (or a
+    malformed cell, or deleting it, or deleting the oldest retro row) raised the floor, and a
+    genuinely missing row just above the old floor escaped (reproduced by a codex reviewer on
+    093a33fd). The bound is now a fact the sweep RECORDS when it moves rows, a line
+    ``<!-- gate50-floor: #N -->`` in the register, where N is the oldest PR still kept there
+    (exactly what the row-derived floor read right after a sweep). No row edit can move it;
+    only the sweep raises it, in the same edit that moves the rows below it out, so swept-out
+    PRs still fall out of scope.
+
+    Per register: the two registers sweep independently, so each records its own floor; a
+    combined floor would keep the higher-floored register in scope below its own sweep.
+
+    The floor never drops below ``INCEPTION``. A register with no marker has never been swept
+    (or its sweep recorded nothing), so its floor is ``INCEPTION``: the pre-sweep fixed-constant
+    gate. That fails LOUD on a swept register that lacks its marker, reporting every swept-out
+    PR that would otherwise need a row there (at or above INCEPTION and not exempt), the same
+    storm direction as an absent register; ``main`` prints a note naming the fix.
+    An unreadable marker line is a finding (it sets nothing), and more than one marker is a
+    finding with the LOWEST applying, the wider and so louder window. The marker is bounded from
+    above (``floor_ceiling_findings``, 3b206 r2): a floor above INCEPTION that is above the
+    register's oldest kept well-formed row, or above every CHANGELOG PR (``KNOWN_SKIPPED_PRS``
+    excluded), is a finding. The residual is a marker raised by hand while no row below it names
+    a PR any more, each having been deleted or replaced by a row that names none (an accepted
+    no-PR disposition; in the improvement log any dated row not led by a PR number), which is
+    indistinguishable from a sweep in this repository (the archive that would show the rows
+    were moved, not lost, is private). A validate-pr row that names no kept PR for another
+    reason is not in the residual, because it is a finding of its own: a malformed cell, and a
+    row whose leading identity names a PR Check 1 does not read (``#900-903``,
+    ``unread_identity_findings``, 3b206 r6).
+    """
+    marks: list[tuple[int, int]] = []
+    findings: list[str] = []
+    for lineno, line in enumerate(text.splitlines(), 1):
+        if not FLOOR_MARKER_PREFIX.match(line):
+            continue
+        match = FLOOR_MARKER.match(line)
+        if match is None:
+            findings.append(
+                f"  [qa-cadence] {register}:{lineno}: unreadable floor marker {line.strip()!r}; "
+                f"expected '<!-- gate50-floor: #N -->'."
+            )
+            continue
+        marks.append((lineno, int(match.group(1))))
+    if not marks:
+        return inception, findings
+    lowest = min(pr for _, pr in marks)
+    if len(marks) > 1:
+        findings.append(
+            f"  [qa-cadence] {register}: {len(marks)} floor markers "
+            f"(lines {', '.join(str(n) for n, _ in marks)}); keep exactly one. "
+            f"The lowest, #{lowest}, applies."
+        )
+    return max(inception, lowest), findings
+
+
+def floor_ceiling_findings(
+    register: str,
+    floor: int,
+    kept_prs: set[int],
+    changelog_prs: set[int],
+    *,
+    inception: int = INCEPTION,
+) -> list[str]:
+    """Findings for a recorded floor set higher than the register itself can justify (3b206 r2).
+
+    The sweep records N, the oldest PR it KEPT, so right after a sweep no well-formed row in the
+    register is below N. A marker above the register's oldest kept well-formed row was therefore
+    raised by hand (or the sweep kept rows it should have moved), and it hides every missing row
+    between that row and the marker; a marker above every CHANGELOG PR silences Check 1 for the
+    register entirely. Both are findings, so a hand-raised marker is loud rather than trusted.
+    ``kept_prs`` are the PRs the register's well-formed rows name: in the validate-pr history
+    every PR the leading identity names that Check 1's presence reader also reads
+    (``floor_kept_prs``; malformed cells and the accepted no-PR
+    dispositions name none, and a PR presence does not read is a finding of its own,
+    ``unread_identity_findings``), in the improvement log the PR each row leads with
+    (``parse_retro_prs``, Check 1's reader). A floor
+    at or below ``inception`` came from no marker, or from one that sets nothing, and can hide
+    nothing, so it is never a finding here.
+    """
+    if floor <= inception:
+        return []
+    findings: list[str] = []
+    if changelog_prs and floor > max(changelog_prs):
+        findings.append(
+            f"  [qa-cadence] {register}: floor marker #{floor} is above the highest CHANGELOG PR "
+            f"#{max(changelog_prs)}, so Check 1 checks nothing in this register. Set it to the "
+            f"oldest PR the sweep kept."
+        )
+    if kept_prs and floor > min(kept_prs):
+        findings.append(
+            f"  [qa-cadence] {register}: floor marker #{floor} is above the oldest kept row, "
+            f"#{min(kept_prs)}, so a missing row between them is hidden. The sweep records the "
+            f"oldest PR it kept: lower the marker to #{min(kept_prs)}, or sweep the rows below it."
+        )
+    return findings
 
 
 def qa_cadence_findings(
@@ -1291,20 +1491,25 @@ def qa_cadence_findings(
     *,
     inception: int = INCEPTION,
     known_handoff: frozenset[int] = KNOWN_HANDOFF_NO_ROW,
+    vp_floor: int | None = None,
+    retro_floor: int | None = None,
 ) -> list[str]:
-    """Check 1: every in-window substantive PR has its validate-pr + retro rows."""
+    """Check 1: every in-window substantive PR has its validate-pr + retro rows.
+
+    ``vp_floor`` / ``retro_floor`` are the registers' RECORDED floors (``recorded_floor``;
+    None means ``inception``, an unswept register). They are passed in, never derived from
+    ``vp_status`` or ``retro_prs``, so no edit to a row can move the window (3b206).
+    """
     findings: list[str] = []
     if not changelog_prs:
         return ["  [qa-cadence] CHANGELOG.md has no parseable PR headers."]
     max_pr = max(changelog_prs)
-    # Dynamic per-register floors (1.19.9 (closing PR #1034)): a row swept to
-    # grc_library_private drops below its register's floor and is out of scope,
-    # not flagged missing. Before any sweep both floors equal INCEPTION.
-    # Malformed validate-pr cells are absent from vp_status and play no part in this floor
-    # (3b194 round 2): it comes from well-formed rows only, and the malformed-cell finding keeps
-    # the gate failing until the cell is fixed (see the module docstring).
-    vp_floor = effective_floor(set(vp_status), floor=inception)
-    retro_floor = effective_floor(retro_prs, floor=inception)
+    # Recorded per-register floors (1.19.9 (closing PR #1034); recorded since 3b206): a row
+    # swept to grc_library_private drops below its register's floor and is out of scope, not
+    # flagged missing. Before any sweep both floors equal INCEPTION. No row, well-formed or
+    # malformed, plays any part in either floor.
+    vp_floor = inception if vp_floor is None else max(inception, vp_floor)
+    retro_floor = inception if retro_floor is None else max(inception, retro_floor)
 
     for pr in sorted(p for p in changelog_prs if inception <= p <= max_pr):
         if pr in known_handoff:
@@ -1312,12 +1517,12 @@ def qa_cadence_findings(
         st = vp_status.get(pr)
         if st is None:
             if pr < vp_floor:
-                # Older than the oldest surviving validate-pr row: its row was
+                # Below the recorded validate-pr floor: its row was
                 # swept to grc_library_private (PR #1034), so out of scope.
                 continue
             findings.append(
                 f"  [qa-cadence] PR #{pr}: no row in {VALIDATE_PR_HISTORY}. "
-                f"Every merged PR in [{inception}, {max_pr}] needs a "
+                f"Every merged PR in [{vp_floor}, {max_pr}] needs a "
                 f"/validate-pr row (or a handoff/subsumption exemption row). "
                 f"If this is a session-closing handoff PR predating the "
                 f"exemption-row convention, add it to KNOWN_HANDOFF_NO_ROW."
@@ -1342,7 +1547,7 @@ def qa_cadence_findings(
             )
             continue
         # Normal substantive PR: validate-pr row present; require the retro row
-        # unless it is older than the oldest surviving retro row (swept out).
+        # unless it is below the recorded retro floor (swept out).
         if pr not in retro_prs and pr >= retro_floor:
             findings.append(
                 f"  [qa-cadence] PR #{pr}: has a /validate-pr row but no "
@@ -1563,8 +1768,8 @@ def main() -> int:
     if scope.note:
         print(f"note: {scope.note}")
 
-    # Check 1 needs BOTH registers. With either absent, that register's
-    # effective floor collapses to INCEPTION and EVERY in-window PR is flagged
+    # Check 1 needs BOTH registers. With either absent, that register has no
+    # rows and no recorded floor, so EVERY in-window PR is flagged
     # as missing its row, so a half-run is a false-positive storm, not a weaker
     # check. Skip unless both are present.
     # GATE50-UNIQUE: row integrity runs on EACH register that is available (independently of
@@ -1574,6 +1779,9 @@ def main() -> int:
         skipped.append("per-PR row integrity")
     if vp_text is not None:
         vp_records = _history_row_records(vp_text, all_findings)
+        # 3b206 r6: a row whose leading identity names a PR Check 1 does not read (`#929-932`)
+        # counts for neither presence nor the floor, so it is a finding like a malformed cell.
+        all_findings.extend(unread_identity_findings(vp_text))
         for lineno, prs, *_ in vp_records:
             if above_store_ceiling(prs, scope):
                 print(store_deferral_note(prs, scope, "validate-pr/history.md", lineno))
@@ -1588,11 +1796,36 @@ def main() -> int:
     if vp_text is None or retro_text is None:
         skipped.append(f"QA-cadence parity (from PR #{INCEPTION})")
     else:
+        # 3b206: each register's floor is the marker its archive sweep recorded, never its rows.
+        # The rows only bound it from above: a marker past the oldest kept row is a finding.
+        # A validate-pr row's kept PRs are its leading identity only (3b206 r3), not every number
+        # in the cell, so `#2429 iteration 2` keeps #2429 and never a phantom #2. The improvement
+        # log keeps the PR each row leads with, Check 1's own reader (3b206 r4), so presence and
+        # floor agree: a combined `#856, #855` retro row keeps #856, as Check 1 counts it.
+        vp_status = parse_validate_pr_status(vp_text)
+        retro_prs = parse_retro_prs(retro_text)
+        floors: list[int] = []
+        for rel, text, kept in (
+            (VALIDATE_PR_HISTORY, vp_text, floor_kept_prs(vp_text)),
+            (IMPROVEMENT_LOG, retro_text, retro_prs),
+        ):
+            floor, marker_findings = recorded_floor(text, rel)
+            all_findings.extend(marker_findings)
+            all_findings.extend(floor_ceiling_findings(rel, floor, kept, changelog))
+            floors.append(floor)
+            if not any(FLOOR_MARKER_PREFIX.match(line) for line in text.splitlines()):
+                print(
+                    f"note: [qa-cadence] {rel} records no floor marker, so its Check-1 floor is "
+                    f"INCEPTION #{INCEPTION}. A register whose old rows were swept needs the line "
+                    f"'<!-- gate50-floor: #N -->' (N = its oldest kept PR), written by the sweep."
+                )
         all_findings.extend(
             qa_cadence_findings(
                 changelog,
-                parse_validate_pr_status(vp_text),
-                parse_retro_prs(retro_text),
+                vp_status,
+                retro_prs,
+                vp_floor=floors[0],
+                retro_floor=floors[1],
             )
         )
 

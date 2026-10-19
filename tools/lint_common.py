@@ -1314,9 +1314,9 @@ def add_months(d: datetime.date, months: int) -> datetime.date:
 def dynamic_floor(present: Iterable[int], floor: int) -> int:
     """``max(floor, oldest surviving entry)``, or ``floor`` when none survive.
 
-    The shared kernel of the two sweep-aware windowing floors (the
-    bookkeeping-parity Check-1 ``effective_floor`` and the
-    changelog-mirror-header-parity ``effective_cutoff``): registers whose
+    The shared kernel of the two dynamic windowing floors (the
+    bookkeeping-parity Check-6 ``effective_floor``, which Check 1 also used until
+    3b206, and the changelog-mirror-header-parity ``effective_cutoff``): registers whose
     aged rows are swept to the private archive scope their comparisons to
     ``max(<fixed inception constant>, min(<surviving entries>))``, so a
     swept-out entry is correctly out of scope rather than flagged. Each

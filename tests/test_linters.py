@@ -17650,10 +17650,13 @@ class BookkeepingParityTests(LinterTestCase):
         if malformed:
             history += row(cell)
         history += row(f"#{first + 1}")
+        # 3b206: the sweep that archived those 526 PRs recorded the floor in each register.
+        marker = f"<!-- gate50-floor: #{first} -->\n"
+        history += marker
         working = {
             mod.VALIDATE_PR_HISTORY: Mock(read_text=Mock(return_value=history)),
             mod.IMPROVEMENT_LOG: Mock(read_text=Mock(return_value=
-                row(f"#{first}") + row(f"#{first + 1}"))),
+                row(f"#{first}") + row(f"#{first + 1}") + marker)),
         }
         files = {
             mod.CHANGELOG_PATH: "".join(
@@ -17753,19 +17756,26 @@ class BookkeepingParityTests(LinterTestCase):
                     f"{cell!r}; expected a leading PR identity.",
                 ])
 
-    def _cadence_main(self, mod, vp_cells, retro_cells, top):
+    def _cadence_main(self, mod, vp_cells, retro_cells, top, floor=None, retro_floor=None):
         # Run main() over a validate-pr history of `vp_cells` (in order, from line 2), an
         # improvement log of `retro_cells` and a CHANGELOG holding every PR in [INCEPTION, top];
-        # return the exit code, the finding lines and stderr.
+        # return the exit code, the finding lines and stderr. Both registers end with the
+        # recorded floor marker (3b206), by default the INCEPTION + 526 sweep these fixtures model;
+        # `retro_floor` gives the improvement log its own marker (default: the same as `floor`).
         from contextlib import redirect_stderr, redirect_stdout
         from io import StringIO
         from unittest.mock import Mock, patch
 
+        floor = mod.INCEPTION + 526 if floor is None else floor
+        retro_floor = floor if retro_floor is None else retro_floor
+        marker = f"<!-- gate50-floor: #{floor} -->\n"
+        retro_marker = f"<!-- gate50-floor: #{retro_floor} -->\n"
         row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
-        history = "| Date | PR | Touched | Findings | Hot-fix |\n" + "".join(map(row, vp_cells))
+        history = "| Date | PR | Touched | Findings | Hot-fix |\n" + "".join(map(row, vp_cells)) + marker
         working = {
             mod.VALIDATE_PR_HISTORY: Mock(read_text=Mock(return_value=history)),
-            mod.IMPROVEMENT_LOG: Mock(read_text=Mock(return_value="".join(map(row, retro_cells)))),
+            mod.IMPROVEMENT_LOG: Mock(read_text=Mock(
+                return_value="".join(map(row, retro_cells)) + retro_marker)),
         }
         files = {
             mod.CHANGELOG_PATH: "".join(
@@ -17790,19 +17800,21 @@ class BookkeepingParityTests(LinterTestCase):
         # 3b194 round 2 (codex ERROR): malformed cells play no part in the validate-pr floor. A
         # foreign reference whose number matches a retro row used to lower the floor into a no-row
         # cascade (floor 400, 456 findings). The floor stays at the oldest well-formed row, so the
-        # one genuine missing-row finding stands beside the malformed-cell finding.
+        # one genuine missing-row finding stands beside the malformed-cell finding. (Since 3b206
+        # the floors are recorded; the improvement log, which keeps #low, records #low.)
         mod = self._load_module()
         first, low = mod.INCEPTION + 526, mod.INCEPTION + 71
         missing = f"  [qa-cadence] PR #{first + 1}: no row in validate-pr/history.md."
         retro = [f"#{low}", f"#{first}", f"#{first + 2}"]
-        rc, found, err = self._cadence_main(mod, [f"#{first}", f"#{first + 2}"], retro, first + 2)
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first}", f"#{first + 2}"], retro, first + 2, retro_floor=low)
         self.assertEqual(rc, 1, err)
         self.assertEqual(len(found), 1, err)
         self.assertTrue(found[0].startswith(missing), err)
         for cell in (f"grc_library_ref #{low}", f"see #{low}", f"**#{low}**"):
             with self.subTest(cell=cell):
                 rc, found, err = self._cadence_main(
-                    mod, [f"#{first}", cell, f"#{first + 2}"], retro, first + 2)
+                    mod, [f"#{first}", cell, f"#{first + 2}"], retro, first + 2, retro_floor=low)
                 self.assertEqual(rc, 1, err)
                 self.assertEqual(len(found), 2, err)
                 self.assertEqual(found[0], f"  [qa-cadence] validate-pr/history.md:3: "
@@ -17811,9 +17823,9 @@ class BookkeepingParityTests(LinterTestCase):
 
     def test_any_malformed_cell_keeps_the_gate_red(self) -> None:
         # 3b194 round 2: wherever it sits and whatever it holds, a malformed cell is one named
-        # finding that keeps the gate failing. The floor comes from well-formed rows only, so a
-        # malformed oldest row raises it and hides that PR until the cell is fixed (the documented
-        # limitation), and a PR whose only row is malformed is also reported missing its row.
+        # finding that keeps the gate failing. A PR whose only row is malformed is also reported
+        # missing its row. Since 3b206 the floor is recorded, so a malformed OLDEST row no longer
+        # raises it: that PR is reported missing too (it used to hide until the cell was fixed).
         mod = self._load_module()
         first = mod.INCEPTION + 526
         valid = [f"#{first}", f"#{first + 1}", f"#{first + 2}"]
@@ -17825,7 +17837,7 @@ class BookkeepingParityTests(LinterTestCase):
             ([valid[0], "grc_library_ref #186", *valid[1:]], 3, []),
             ([valid[0], "", *valid[1:]], 3, []),
             ([valid[0], "other (no PR)", *valid[1:]], 3, []),
-            ([f"**#{first}**", *valid[1:]], 2, []),
+            ([f"**#{first}**", *valid[1:]], 2, [no_row(first)]),
             ([valid[0], f"see #{first + 1}", valid[2]], 3, [no_row(first + 1)]),
         )
         for vp_cells, line, extra in cases:
@@ -17838,6 +17850,253 @@ class BookkeepingParityTests(LinterTestCase):
                                            f"expected a leading PR identity.")
                 for got, want in zip(found[1:], extra):
                     self.assertTrue(got.startswith(want), err)
+
+    def test_replacing_the_oldest_row_does_not_raise_the_floor(self) -> None:
+        # 3b206 (codex repro on 093a33fd): the floor used to be the oldest surviving row, so
+        # replacing that row with an accepted no-PR disposition, or dropping the oldest retro
+        # row, raised the floor past a genuinely missing row just above it and the gate went
+        # green. The floor is now the recorded marker, so both misses are still reported.
+        mod = self._load_module()
+        first = mod.INCEPTION + 526
+        no_row = lambda pr: f"  [qa-cadence] PR #{pr}: no row in validate-pr/history.md."
+        no_retro = lambda pr: f"  [qa-cadence] PR #{pr}: has a /validate-pr row but no /retro row"
+        retro = [f"#{first}", f"#{first + 2}"]
+        rc, found, err = self._cadence_main(mod, [f"#{first}", f"#{first + 2}"], retro, first + 2)
+        self.assertEqual((rc, len(found)), (1, 1), err)
+        self.assertTrue(found[0].startswith(no_row(first + 1)), err)
+        rc, found, err = self._cadence_main(
+            mod, ["abandoned-autocorrect (no PR)", f"#{first + 2}"], retro, first + 2)
+        self.assertEqual((rc, len(found)), (1, 2), err)
+        self.assertTrue(found[0].startswith(no_row(first)), err)
+        self.assertTrue(found[1].startswith(no_row(first + 1)), err)
+        vp = [f"#{first}", f"#{first + 1}", f"#{first + 2}"]
+        rc, found, err = self._cadence_main(mod, vp, [f"#{first + 2}"], first + 2)
+        self.assertEqual((rc, len(found)), (1, 2), err)
+        self.assertTrue(found[0].startswith(no_retro(first)), err)
+        self.assertTrue(found[1].startswith(no_retro(first + 1)), err)
+
+    def test_recorded_floor_marker_grammar(self) -> None:
+        # 3b206: one exact marker per register sets its floor (never below INCEPTION); no marker
+        # means INCEPTION; an unreadable marker or a second marker is a named finding, and with
+        # two the LOWER applies, the wider and so louder window.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        self.assertEqual(mod.recorded_floor("", reg), (mod.INCEPTION, []))
+        self.assertEqual(mod.recorded_floor("| 2026-10-03 | #900 | x | y | z |\n", reg),
+                         (mod.INCEPTION, []))
+        self.assertEqual(mod.recorded_floor("<!-- gate50-floor: #900 -->\n", reg), (900, []))
+        self.assertEqual(mod.recorded_floor("<!--gate50-floor:#900-->\n", reg), (900, []))
+        self.assertEqual(mod.recorded_floor("<!-- gate50-floor: #12 -->\n", reg),
+                         (mod.INCEPTION, []))
+        floor, findings = mod.recorded_floor(
+            "<!-- gate50-floor: #900 -->\nx\n<!-- gate50-floor: #800 -->\n", reg)
+        self.assertEqual(floor, 800)
+        self.assertEqual(findings, [f"  [qa-cadence] {reg}: 2 floor markers (lines 1, 3); "
+                                    f"keep exactly one. The lowest, #800, applies."])
+        floor, findings = mod.recorded_floor("<!-- gate50-floor: 900 -->\n", reg)
+        self.assertEqual(floor, mod.INCEPTION)
+        self.assertEqual(findings, [f"  [qa-cadence] {reg}:1: unreadable floor marker "
+                                    f"'<!-- gate50-floor: 900 -->'; expected "
+                                    f"'<!-- gate50-floor: #N -->'."])
+        rc, found, err = self._cadence_main(
+            mod, [f"#{mod.INCEPTION + 1}"], [f"#{mod.INCEPTION + 1}"], mod.INCEPTION + 1,
+            floor=mod.INCEPTION + 1)
+        self.assertEqual((rc, found), (0, []), err)
+
+    def test_hand_raised_floor_marker_is_a_finding(self) -> None:
+        # 3b206 round 2 (claude warning): the sweep records the oldest PR it KEPT, so a marker
+        # above a register's oldest kept well-formed row, or above every CHANGELOG PR, was raised
+        # by hand and hides missing rows. Both are findings; a marker at or below the oldest kept
+        # row, and a floor that came from no marker, are not.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        above_row = lambda floor, kept: (
+            f"  [qa-cadence] {reg}: floor marker #{floor} is above the oldest kept row, #{kept}, "
+            f"so a missing row between them is hidden. The sweep records the oldest PR it kept: "
+            f"lower the marker to #{kept}, or sweep the rows below it.")
+        above_max = lambda floor, top: (
+            f"  [qa-cadence] {reg}: floor marker #{floor} is above the highest CHANGELOG PR "
+            f"#{top}, so Check 1 checks nothing in this register. Set it to the oldest PR the "
+            f"sweep kept.")
+        self.assertEqual(mod.floor_ceiling_findings(reg, 902, {900, 903}, {900, 910}),
+                         [above_row(902, 900)])
+        self.assertEqual(mod.floor_ceiling_findings(reg, 920, set(), {900, 910}),
+                         [above_max(920, 910)])
+        self.assertEqual(mod.floor_ceiling_findings(reg, 920, {900}, {900, 910}),
+                         [above_max(920, 910), above_row(920, 900)])
+        for floor in (900, 899):
+            self.assertEqual(mod.floor_ceiling_findings(reg, floor, {900, 903}, {900, 910}), [])
+        self.assertEqual(
+            mod.floor_ceiling_findings(reg, mod.INCEPTION, {mod.INCEPTION - 100}, {900}), [])
+        # Through main(): a marker raised past the missing #first + 1 no longer reads green.
+        first = mod.INCEPTION + 526
+        cells = [f"#{first}", f"#{first + 2}"]
+        rc, found, err = self._cadence_main(mod, cells, cells, first + 2, floor=first + 2)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(found, [
+            f"  [qa-cadence] {reg}: floor marker #{first + 2} is above the oldest kept row, "
+            f"#{first}, so a missing row between them is hidden. The sweep records the oldest PR "
+            f"it kept: lower the marker to #{first}, or sweep the rows below it.",
+            f"  [qa-cadence] {mod.IMPROVEMENT_LOG}: floor marker #{first + 2} is above the oldest "
+            f"kept row, #{first}, so a missing row between them is hidden. The sweep records the "
+            f"oldest PR it kept: lower the marker to #{first}, or sweep the rows below it.",
+        ], err)
+        # A marker above every PR used to silence Check 1 for the register entirely.
+        rc, found, err = self._cadence_main(mod, [], [], first, floor=first + 1)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(len(found), 2, err)
+        self.assertTrue(found[0].startswith(
+            f"  [qa-cadence] {reg}: floor marker #{first + 1} is above the highest CHANGELOG PR "
+            f"#{first}"), err)
+        self.assertTrue(found[1].startswith(
+            f"  [qa-cadence] {mod.IMPROVEMENT_LOG}: floor marker #{first + 1} is above the "
+            f"highest CHANGELOG PR #{first}"), err)
+
+    def test_floor_kept_prs_reads_the_leading_identity_only(self) -> None:
+        # 3b206 round 3 (codex): the ceiling's kept PRs came from every number token in a PR
+        # cell, so `#2429 iteration 2` also kept #2 and main() reported a false "above the oldest
+        # kept row, #2". A validate-pr row now keeps only its leading identity; an improvement-log
+        # row keeps the PR it leads with, Check 1's own reader (round 4).
+        mod = self._load_module()
+        cases = (
+            ("#2429 iteration 2", {2429}),
+            ("#2500 (re-run of #2380)", {2500}),
+            ("#2500 (3 reviewers)", {2500}),
+            ("#2500, #2501", {2500, 2501}),
+            ("#2500-#2502", {2500, 2502}),
+        )
+        for cell, prs in cases:
+            with self.subTest(cell=cell):
+                row = f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+                self.assertEqual(mod.floor_kept_prs(row), prs)
+                self.assertEqual(mod.parse_retro_prs(row), {min(prs)})
+        for cell in ("abandoned-autocorrect (no PR)", "see #2500"):
+            with self.subTest(cell=cell):
+                self.assertEqual(
+                    mod.floor_kept_prs(f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"), set())
+        # Through main(): a marker at the oldest kept row is green whatever numbers follow it.
+        first = mod.INCEPTION + 526
+        plain = [f"#{first}", f"#{first + 1}"]
+        iteration = [f"#{first}", f"#{first} iteration 2", f"#{first + 1}"]
+        for vp_cells, retro_cells in (
+            ([f"#{first} (re-run of #{first - 100})", f"#{first + 1}"],) * 2,
+            ([f"#{first} (3 reviewers)", f"#{first + 1}"],) * 2,
+            (plain, iteration),
+        ):
+            with self.subTest(vp_cells=vp_cells, retro_cells=retro_cells):
+                rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, first + 1)
+                self.assertEqual((rc, found), (0, []), err)
+        # In the validate-pr history the ceiling no longer reads #2 from `iteration 2`. (The
+        # row-integrity reader keys a history row on every PR token, so it reports its own
+        # companion finding for #2; that is a separate check, not the floor.)
+        rc, found, err = self._cadence_main(mod, iteration, plain, first + 1)
+        self.assertEqual([line for line in found if "floor marker" in line], [], err)
+
+    def test_improvement_log_floor_reads_the_pr_each_row_leads_with(self) -> None:
+        # 3b206 round 4 (review of round 3): the ceiling read an improvement-log row's whole
+        # leading identity, so a combined `#856, #855` row kept {855, 856} while Check 1's presence
+        # reader (parse_retro_prs) counts only #856, and no marker passed: at 855 Check 1 wanted a
+        # retro row for #855, at 856 the ceiling called the marker above the oldest kept row #855.
+        # Both now read the PR each row leads with, so the marker at 856 is green.
+        mod = self._load_module()
+        first = mod.INCEPTION + 526
+        vp_cells = [f"#{first}", f"#{first + 1}"]
+        rc, found, err = self._cadence_main(
+            mod, vp_cells, [f"#{first + 1}, #{first}"], first + 1, retro_floor=first + 1)
+        self.assertEqual((rc, found), (0, []), err)
+        # `#855, 2 reviewers` keeps only #855: a marker above it names #855, never a phantom #2.
+        retro_cells = [f"#{first}, 2 reviewers", f"#{first + 1}"]
+        rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, first + 1)
+        self.assertEqual((rc, found), (0, []), err)
+        rc, found, err = self._cadence_main(
+            mod, vp_cells, retro_cells, first + 1, retro_floor=first + 1)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(found, [
+            f"  [qa-cadence] {mod.IMPROVEMENT_LOG}: floor marker #{first + 1} is above the oldest "
+            f"kept row, #{first}, so a missing row between them is hidden. The sweep records the "
+            f"oldest PR it kept: lower the marker to #{first}, or sweep the rows below it.",
+        ], err)
+
+    def test_validate_pr_floor_keeps_only_prs_presence_reads(self) -> None:
+        # 3b206 round 5 (review of round 4): the validate-pr floor read a `#900-903` row's
+        # leading identity as {900, 903} while Check 1's presence reader (PR_CELL_TOKEN) reads
+        # neither, so with that row oldest no marker passed: at 900 Check 1 wanted a row for
+        # #900, above it the ceiling called the marker above the oldest kept row #900. The floor
+        # now keeps only the PRs both readers name, so the two cannot disagree.
+        mod = self._load_module()
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        for cell in ("#900-903", "#2429 iteration 2", "#2500 (re-run of #2380)",
+                     "#2500, #2501", "#2500-#2502", "#900-903, #904"):
+            with self.subTest(cell=cell):
+                kept = mod.floor_kept_prs(row(cell))
+                self.assertLessEqual(kept, set(mod.parse_validate_pr_status(row(cell))))
+                self.assertLessEqual(kept, set(mod.store_row_prs(cell)))
+        self.assertEqual(mod.floor_kept_prs(row("#900-903")), set())
+        self.assertEqual(mod.parse_validate_pr_status(row("#900-903")), {})
+        # Through main(), with a `#first-(first + 3)` row oldest: presence and floor agree.
+        first = mod.INCEPTION + 526
+        vp_cells = [f"#{first}-{first + 3}", f"#{first + 1}", f"#{first + 2}", f"#{first + 3}"]
+        retro_cells = [f"#{pr}" for pr in range(first, first + 4)]
+        history = "".join(map(row, vp_cells))
+        self.assertEqual(mod.floor_kept_prs(history), set(mod.parse_validate_pr_status(history)))
+        # The marker at the oldest PR presence reads, #first + 1, raises no ceiling finding;
+        # since round 6 the unread `#first-(first + 3)` row is itself one finding.
+        unread = (f"  [qa-cadence] validate-pr/history.md:2: unread PR range in cell "
+                  f"'#{first}-{first + 3}'; Check 1 reads no row for #{first}, #{first + 3}. "
+                  f"Write each range with '#' on both ends, as '#{first}-#{first + 3}'.")
+        rc, found, err = self._cadence_main(
+            mod, vp_cells, retro_cells, first + 3, floor=first + 1, retro_floor=first)
+        self.assertEqual((rc, found), (1, [unread]), err)
+        # A marker at #first reports #first missing its row, and no ceiling finding.
+        rc, found, err = self._cadence_main(
+            mod, vp_cells, retro_cells, first + 3, floor=first, retro_floor=first)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(len(found), 2, err)
+        self.assertEqual(found[0], unread, err)
+        self.assertTrue(found[1].startswith(
+            f"  [qa-cadence] PR #{first}: no row in validate-pr/history.md."), err)
+
+    def test_unread_identity_is_a_finding(self) -> None:
+        # 3b206 round 6 (claude E1 on round 5): a validate-pr row whose leading identity is a
+        # hyphen range ending in a bare number (`#929-932`) names PRs Check 1's presence reader
+        # (PR_CELL_TOKEN) does not read, so round 5 counted it for neither presence nor the floor
+        # and raised no finding: with rows `#929-932` (oldest) and `#939`, #933 to #938 rowless,
+        # marker #939 gave 0 ceiling and 0 QA findings. The row is now a named finding, like a
+        # malformed cell, telling the maintainer to write `#929-#932`.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        unread = lambda line, cell, prs, ranges: (
+            f"  [qa-cadence] {reg}:{line}: unread PR range in cell {cell!r}; Check 1 reads no "
+            f"row for {prs}. Write each range with '#' on both ends, as {ranges}.")
+        for cell in ("#929-932", "929-932", "PR #929-932", "#929-932 iteration"):
+            with self.subTest(cell=cell):
+                rc, found, err = self._cadence_main(
+                    mod, ["#939", cell], ["#939"], 939, floor=939)
+                self.assertEqual(rc, 1, err)
+                self.assertEqual(found, [unread(3, cell, "#929, #932", "'#929-#932'")], err)
+        # A combined row names only the PRs presence leaves unread.
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        self.assertEqual(mod.unread_identity_findings(row("#900-903, #904")),
+                         [unread(1, "#900-903, #904", "#900, #903", "'#900-#903'")])
+        for cell in ("#929-#932", "#929 - 932", "248, 249", "856", "PR #1282",
+                     "#2429 iteration 2", "#2500 (re-run of #2380)", "#2500, #2501",
+                     "abandoned-autocorrect (no PR)", "grc_library_ref #186"):
+            with self.subTest(cell=cell):
+                self.assertEqual(mod.unread_identity_findings(row(cell)), [])
+        # A well-formed `#929-#932` range raises no such finding: with the same rowless gap and
+        # marker #939 the ceiling reports the marker above the oldest kept row #929 instead.
+        rc, found, err = self._cadence_main(mod, ["#939", "#929-#932"], ["#939"], 939, floor=939)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(found, [
+            f"  [qa-cadence] {reg}: floor marker #939 is above the oldest kept row, #929, so a "
+            f"missing row between them is hidden. The sweep records the oldest PR it kept: "
+            f"lower the marker to #929, or sweep the rows below it.",
+        ], err)
+        # And with every PR's row present and the marker at #929, it is green.
+        vp_cells = [f"#{pr}" for pr in range(939, 932, -1)] + ["#931", "#930", "#929-#932"]
+        retro_cells = [f"#{pr}" for pr in range(939, 928, -1)]
+        rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, 939, floor=929)
+        self.assertEqual((rc, found), (0, []), err)
 
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
@@ -17955,15 +18214,15 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(findings, [], f"allowlisted handoff must pass; got {findings}")
 
     def test_dynamic_floor_swept_row_out_of_scope_genuine_miss_still_flags(self) -> None:
-        # PR #1034 dynamic floor: the oldest surviving validate-pr row is
-        # #11, so the per-register floor is max(inception=10, 11) = 11. PR #10
+        # PR #1034 per-register floor: the sweep recorded validate-pr floor
+        # 11 (3b206: recorded, no longer read off the oldest row). PR #10
         # is below the floor (its row was swept to grc_library_private) -> out
         # of scope, NOT flagged. PR #12 is above the floor with no row -> a
         # genuine miss, still flagged. #13 is the max PR (batch-lag exempt).
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
             {10, 11, 12, 13}, {11: "normal"}, {11},
-            inception=10, known_handoff=frozenset(),
+            inception=10, known_handoff=frozenset(), vp_floor=11, retro_floor=11,
         )
         joined = " ".join(findings)
         self.assertIn("#12", joined, f"genuine miss above floor must flag; got {findings}")
@@ -17971,15 +18230,15 @@ class BookkeepingParityTests(LinterTestCase):
                          f"swept row below floor must be out of scope; got {findings}")
 
     def test_dynamic_retro_floor_swept_retro_out_of_scope(self) -> None:
-        # PR #1034 per-register floor: the oldest surviving retro row is
-        # #12 (retro floor 12) and the oldest surviving validate-pr row is #11
-        # (vp floor 11). PR #10 is below the vp floor (swept) and PR #11 has a
+        # PR #1034 per-register floor: the sweeps recorded retro floor 12
+        # and validate-pr floor 11 (3b206: recorded per register, no longer
+        # read off each oldest row). PR #10 is below the vp floor (swept) and PR #11 has a
         # validate-pr row but its retro row was swept (#11 < retro floor 12);
         # neither is flagged. #12 (retro present) and #13 (max) are fine.
         mod = self._load_module()
         findings = mod.qa_cadence_findings(
             {10, 11, 12, 13}, {11: "normal", 12: "normal", 13: "normal"}, {12, 13},
-            inception=10, known_handoff=frozenset(),
+            inception=10, known_handoff=frozenset(), vp_floor=11, retro_floor=12,
         )
         self.assertEqual(findings, [],
                          f"swept rows below their register floors must be out of scope; got {findings}")
@@ -18380,6 +18639,8 @@ class BookkeepingParityTests(LinterTestCase):
         # window (oldest surviving row #1650), a dotted id in one PR cell used to
         # inject phantom PRs 3 and 245, dragging effective_floor from 1650 back
         # toward INCEPTION and flagging every swept-out PR as missing its row.
+        # (Check 1's floor is recorded since 3b206; effective_floor is Check 6's, and a phantom
+        # low PR would now also read as a kept row below the recorded marker.)
         mod = self._load_module()
         text = ("| Date | PR | Touched | Findings | Hot-fix | Detail | Summary |\n"
                 "|---|---|---|---|---|---|---|\n"
