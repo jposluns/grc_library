@@ -197,6 +197,7 @@ import ast
 import ipaddress
 import re
 import sys
+from array import array
 from collections import defaultdict
 from pathlib import Path
 from typing import NamedTuple
@@ -364,8 +365,12 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     is reported; a chain with more hyphens is reported from its last three
     hyphenated groups. With no prefixes listed the pattern is the one above.
     With prefixes listed, ``ise_words`` runs the pattern through ``ise_scan``
-    (3b234 round 6), which reports exactly what the pattern reports.
+    (3b234 round 6), which reports exactly what the pattern reports. An empty
+    prefix raises ValueError (3b407): ``language_vocabulary`` already rejects
+    one, but a vocabulary built directly would otherwise reach the scan.
     """
+    if any(not prefix for prefix in vocab.ise_prefixes):
+        raise ValueError("ise_prefixes: expected nonempty prefixes")
     stems = "|".join(
         "|".join(re.escape(word) for word in (
             stem, stem + "s", stem + "d", stem[:-1] + "ing",
@@ -411,8 +416,13 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
 # per text, in the backtracking engine's order (more prefixes before fewer, a
 # further hyphenated group before the unhyphenated run, prefixes and stem forms
 # in listed order), so it reports the same words as the pattern in time linear
-# in the length of the text.
+# in the length of the text. The memo and the search stack hold small integers
+# (3b407): the tuple-keyed memo and the list frames of round 6 cost about 250 MB
+# for a one-line word of a million characters, the arrays below about 10 MB.
 _ISE_HYPHEN_GROUPS = 3
+
+# The parts of an ise_words state, in its two low bits; "S" is never stacked.
+_ISE_G, _ISE_H0, _ISE_H1, _ISE_T, _ISE_S = range(5)
 
 
 def ise_words(text: str, language: LanguageChecks) -> list[str]:
@@ -423,52 +433,70 @@ def ise_words(text: str, language: LanguageChecks) -> list[str]:
     # A state is (part, hyphenated groups used, position). "G": before another
     # hyphenated group or the unhyphenated run; "H0" / "H1": inside a hyphenated
     # group before / after its first prefix; "T": inside the unhyphenated run;
-    # "S": a stem form with the letter bound after it. Its value is the end of
-    # the first match from it, or None. "T" and "S" do not depend on the groups
-    # used, so they carry 0.
-    solved: dict[tuple[str, int, int], "int | None"] = {}
+    # "S": a stem form with the letter bound after it. "T" and "S" do not depend
+    # on the groups used, so they carry 0. Only "H1" and "T" states can be
+    # reached twice, and a success ends the search from its start position with
+    # every later start at or after the word's end, so the memo records only
+    # failures: bit 0 of failed[x] for "T" at x, bit 1 + g for "H1" at x after g
+    # hyphenated groups.
+    prefixes = scan.prefixes
+    count = len(prefixes)
+    failed = bytearray(len(text) + 1)
 
-    def next_states(state):
-        part, groups, x = state
-        if part == "G":
-            if groups < _ISE_HYPHEN_GROUPS:
-                return [("H0", groups, x), ("T", 0, x)]
-            return [("T", 0, x)]
-        found = [("T" if part == "T" else "H1", groups, m.end())
-                 for prefix in scan.prefixes if (m := prefix.match(text, x))]
-        if part == "T":
-            found.append(("S", 0, x))
-        elif part == "H1" and text.startswith("-", x):
-            found.append(("G", groups + 1, x + 1))
-        return found
+    def next_child(part, groups, x, index):
+        """The first child of a state at or after ``index``, with the index after it."""
+        if part == _ISE_G:
+            if index == 0 and groups < _ISE_HYPHEN_GROUPS:
+                return _ISE_H0, groups, x, 1
+            if index < 2:
+                return _ISE_T, 0, x, 2
+            return None
+        while index < count:
+            m = prefixes[index].match(text, x)
+            index += 1
+            # A zero-width prefix match would make the state its own child and
+            # loop without end (3b407); compile_language rejects empty prefixes.
+            if m and m.end() > x:
+                return _ISE_T if part == _ISE_T else _ISE_H1, groups, m.end(), index
+        if index == count:
+            if part == _ISE_T:
+                return _ISE_S, 0, x, count + 1
+            if part == _ISE_H1 and text.startswith("-", x):
+                return _ISE_G, groups + 1, x + 1, count + 1
+        return None
 
     def solve(root):
-        stack = [[root, next_states(root), 0]]
+        # Two integers per frame: the state (position << 4 | groups << 2 | part)
+        # and the index of its next child.
+        stack = array("q", (root << 4 | _ISE_G, 0))
         while stack:
-            frame = stack[-1]
-            state, states, index = frame
-            if index == len(states):
-                solved[state] = None
+            index = stack.pop()
+            state = stack[-1]
+            part, groups, x = state & 3, state >> 2 & 3, state >> 4
+            child = next_child(part, groups, x, index)
+            if child is None:
                 stack.pop()
+                if part == _ISE_T:
+                    failed[x] |= 1
+                elif part == _ISE_H1:
+                    failed[x] |= 2 << groups
                 continue
-            child = states[index]
-            if child not in solved:
-                if child[0] != "S":
-                    stack.append([child, next_states(child), 0])
-                    continue
-                m = scan.stem.match(text, child[2])
-                solved[child] = m.end() if m else None
-            if solved[child] is None:
-                frame[2] = index + 1
-            else:
-                solved[state] = solved[child]
-                stack.pop()
-        return solved[root]
+            part, groups, x, index = child
+            stack.append(index)
+            if part == _ISE_S:
+                m = scan.stem.match(text, x)
+                if m:
+                    return m.end()
+            elif not (part == _ISE_T and failed[x] & 1
+                      or part == _ISE_H1 and failed[x] & 2 << groups):
+                stack.append(x << 4 | groups << 2 | part)
+                stack.append(0)
+        return None
 
     words = []
     pos = 0
     while (m := scan.start.search(text, pos)) is not None:
-        end = solve(("G", 0, m.start()))
+        end = solve(m.start())
         if end is None:
             pos = m.start() + 1
         else:

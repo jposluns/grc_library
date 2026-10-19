@@ -35641,7 +35641,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.15.0", "3b234 adds the language profile's ise_prefixes key and the matching language_vocabulary parameter, on top of 3b372's ASCII-letter word bounds (MINOR, 0.14.1 to 0.15.0)")
+        self.assertEqual(man["pack"]["version"], "0.15.1", "3b407 rejects an empty ise prefix in compile_language and encodes the ise_words memo compactly, on top of 3b234's ise_prefixes key (PATCH, 0.15.0 to 0.15.1)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -40996,6 +40996,12 @@ class LanguageEngineProfileTests(unittest.TestCase):
         # must report exactly the words the pattern's own finditer reports,
         # including case-folded characters, hyphen chains past the three-group cap
         # and (for the second vocabulary) prefixes that overlap one another.
+        self.assert_scan_matches_pattern(3234, 4000, 14)
+        empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
+        self.assertIsNone(empty.ise_scan)
+        self.assertEqual(self.engine.ise_words("re-organised", empty), ["organised"])
+
+    def assert_scan_matches_pattern(self, seed, texts, pieces_max):
         import random
         languages = (self.language, self.engine.compile_language(self.vocab._replace(
             ise_stems=self.vocab.ise_stems + ("reorganise", "costandardise"),
@@ -41003,10 +41009,10 @@ class LanguageEngineProfileTests(unittest.TestCase):
         pieces = (*self.vocab.ise_prefixes, "organise", "recognise", "realise", "d",
                   "s", "r", "ing", "able", "-", " ", "x", "_", "\u017f", "\u0130",
                   "\u0131", "\u212a", "mi\u017f", "\u00e9", "ab", "ba", "si", "RE")
-        rng = random.Random(3234)
+        rng = random.Random(seed)
         matched = 0
-        for _ in range(4000):
-            text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 14)))
+        for _ in range(texts):
+            text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, pieces_max)))
             if rng.random() < 0.5:
                 text = text.upper() if rng.random() < 0.5 else text.swapcase()
             for language in languages:
@@ -41015,9 +41021,50 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertEqual(self.engine.ise_words(text, language), expected,
                                  ascii(text))
         self.assertGreater(matched, 200)
-        empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
-        self.assertIsNone(empty.ise_scan)
-        self.assertEqual(self.engine.ise_words("re-organised", empty), ["organised"])
+
+    def test_prefix_scan_compact_memo_matches_the_pattern(self):
+        # 3b407: the scan memoizes only failures, as bits per position, and keeps
+        # its search stack as integers; longer texts than the round 6 fuzz reuse
+        # failed states across start positions and hyphenated groups.
+        self.assert_scan_matches_pattern(3407, 3000, 40)
+
+    def test_prefix_scan_rejects_an_empty_prefix(self):
+        # 3b407: an empty prefix made a scan state its own child, so ise_words
+        # looped without end. compile_language rejects one even when the
+        # vocabulary did not pass through language_vocabulary's check, and the
+        # scan skips a zero-width prefix match from a hand-built IsePrefixScan.
+        for prefixes in (("",), ("re", ""), ("", "un")):
+            with self.subTest(prefixes=prefixes), self.assertRaises(ValueError):
+                self.engine.compile_language(self.vocab._replace(ise_prefixes=prefixes))
+        scan = self.language.ise_scan
+        zero = self.language._replace(ise_scan=scan._replace(
+            prefixes=(re.compile(""), *scan.prefixes, re.compile("(?=r)"))))
+        for text in ("reorganised", "re-de-organised", "re-", "re" * 50 + "x",
+                     "co-non-re-de-organised and unrecognised", "surprise"):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.ise_words(text, zero),
+                                 self.engine.ise_words(text, self.language))
+
+    def test_prefix_scan_bounded_memory(self):
+        # 3b407: the round 6 memo (a dict keyed by tuples) and its list frames
+        # took about 250 bytes per character on a one-line prefix run (about
+        # 50 MB for these 200,000-character words); the integer memo and stack
+        # take about 10. The 8 MB limit (40 bytes per character) fails the
+        # round 6 encoding with room for allocator differences.
+        import tracemalloc
+        cases = (("re" * 99996 + "organise", ["re" * 99996 + "organise"]),
+                 ("mi\u017f" * 66666 + "xx", []))
+        for text, expected in cases:
+            self.assertEqual(len(text), 200000)
+            with self.subTest(text=ascii(text[:12])):
+                tracemalloc.start()
+                try:
+                    found = self.engine.ise_words(text, self.language)
+                    _, peak = tracemalloc.get_traced_memory()
+                finally:
+                    tracemalloc.stop()
+                self.assertEqual(found, expected)
+                self.assertLess(peak, 8_000_000)
 
     def test_prefix_rule_controls_unflagged(self):
         prefixes = self.vocab.ise_prefixes
