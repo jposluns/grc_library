@@ -6480,6 +6480,14 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     def test_list_header_standard_slash_framework(self) -> None:
         self._assert_list_header("Standard / Framework")
 
+    def test_list_header_sibling_slash_forms(self) -> None:
+        # 3b378 item 5: the sibling headers 3b376 surfaced, spaced and unspaced, in any case.
+        for first in ("Regulation / Guideline", "Regulation / Framework", "Regulation / Directive",
+                      "Standard / Regulation", "regulation/directive", "standard/regulation",
+                      "regulation/framework"):
+            with self.subTest(header=first):
+                self._assert_list_header(first)
+
     def test_free_text_header_legal_slash_regulatory(self) -> None:
         got = self._scan_header(
             "| Framework | Reference | Legal / Regulatory |",
@@ -6681,25 +6689,28 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             [(8, self.ICO_SERIES), (9, "EU AI Act"), (10, self.ICO_SERIES)],
         )
 
-    def _resolver(self, register_rows=ROWS, extra_aliases=None, extra_umbrella=()):
+    def _resolver(self, register_rows=ROWS, extra_aliases=None, extra_umbrella=(), extra_agency=()):
         """A resolver over a fixture register and the real alias and exclusion files (plus
-        ``extra_aliases`` and the ``extra_umbrella`` (pattern, row) pairs)."""
+        ``extra_aliases``, the ``extra_umbrella`` (pattern, row) pairs and the ``extra_agency``
+        labels)."""
         import json
 
         mod = self._module()
         data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
         data["aliases"].update(extra_aliases or {})
         data["umbrella"] += [{"pattern": p, "row": r} for p, r in extra_umbrella]
+        data["agency_labels"] += list(extra_agency)
         return mod, mod.Resolver(
             mod.Register(self._register(register_rows)),
             mod.load_aliases(json.dumps(data)),
             mod.load_exclusions(mod.EXCLUSIONS_PATH.read_text(encoding="utf-8")),
         )
 
-    def _scan_rows(self, *rows, register_rows=ROWS, extra_aliases=None, extra_umbrella=()):
+    def _scan_rows(self, *rows, register_rows=ROWS, extra_aliases=None, extra_umbrella=(), extra_agency=()):
         """(line, citation) per D15 finding for a list-form table whose rows are all added,
-        using the real alias and exclusion files (plus ``extra_aliases`` and ``extra_umbrella``)."""
-        mod, resolver = self._resolver(register_rows, extra_aliases, extra_umbrella)
+        using the real alias and exclusion files (plus ``extra_aliases``, ``extra_umbrella`` and
+        ``extra_agency``)."""
+        mod, resolver = self._resolver(register_rows, extra_aliases, extra_umbrella, extra_agency)
         doc = self._doc(*rows, header="| Framework | Reference | Regulatory |")
         found = mod.scan_text(doc, set(range(1, doc.count("\n") + 1)), resolver)
         return [(ln, cite) for ln, _, cite in found]
@@ -6866,6 +6877,295 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         with self.subTest(register="registered"):
             wp249 = ("WP249 (Article 29 Working Party Opinion 2/2017 on data processing at work)", "Original", "-")
             self.assertEqual(self._scan_rows(*rows, register_rows=self.ROWS + (wp249,)), [])
+
+    AI_ACT_ROW = ("EU AI Act", "Regulation 2024/1689", "-")
+    CCPA_REGS_ROW = ("US CCPA Regulations 2026", "2026", "-")
+    TBS_ADM_ROW = ("Canada TBS Directive on Automated Decision-Making", "2019", "-")
+
+    def test_chapter_is_a_provision_tail(self) -> None:
+        # 3b378 item 1: "Chapter" was not a provision word, so "EU AI Act Chapter IX" warned.
+        rows = (
+            "| EU AI Act Chapter IX | Post-market monitoring | - |",
+            "| EU AI Act Chapters III | High risk | - |",
+            "| Other | - | GDPR Chapter V, EU AI Act Ch. V |",
+            "| Chapter Unknown Act | - | - |",  # control: no chapter number, so not a provision
+        )
+        self.assertEqual(
+            self._scan_rows(*rows, register_rows=self.ROWS + (self.AI_ACT_ROW,)),
+            [(10, "Chapter Unknown Act")],
+        )
+        # Without the row the stripped name is reported, not the chapter.
+        self.assertEqual(self._scan_rows(rows[0]), [(7, "EU AI Act")])
+
+    def test_provision_inside_a_parenthetical_is_kept(self) -> None:
+        # 3b378 item 2: the provision tail was cut inside an open parenthesis, so the citation
+        # was reported truncated at "(11 CCR Div 6".
+        name = "California CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11)"
+        mod = self._module()
+        self.assertEqual(mod.split_parts(name, False), [(name, name)])
+        self.assertEqual(mod.split_parts("GDPR Art. 32 (security)", False), [("GDPR", "GDPR Art. 32 (security)")])
+        self.assertEqual(mod.split_parts("X (Art. 5) Art. 6", False), [("X (Art. 5)", "X (Art. 5) Art. 6")])
+        self.assertEqual(
+            self._scan_rows(f"| {name} | ADMT | - |", register_rows=self.ROWS + (self.CCPA_REGS_ROW,)), []
+        )
+        unknown = "Unknown Widget regulations (11 CCR Div 6 Ch 1 Arts 10-11)"
+        self.assertEqual(
+            self._scan_rows(f"| {unknown} | - | - |", register_rows=self.ROWS + (self.CCPA_REGS_ROW,)),
+            [(7, unknown)],
+        )
+
+    def test_leading_jurisdiction_label_names_the_instrument_after_it(self) -> None:
+        # 3b378 item 3: "Canada: " was read as a provision tail, leaving the not-citable
+        # "Canada" and hiding the instrument.
+        mod = self._module()
+        cite = "Canada: TBS Directive on Automated Decision-Making"
+        self.assertEqual(
+            mod.split_parts(cite, False),
+            [("TBS Directive on Automated Decision-Making", "Canada TBS Directive on Automated Decision-Making")],
+        )
+        rows = (
+            f"| {cite}; ISED Voluntary Code (2023) | ADM | - |",
+            "| Canada: TBS Directive on Unknown Systems | - | - |",
+            "| Other | - | EU: GDPR Art. 32, UK: Unknown Act |",
+            "| ACME: Unknown Act | - | - |",  # control: not a jurisdiction label
+        )
+        self.assertEqual(
+            self._scan_rows(*rows, register_rows=self.ROWS + (self.TBS_ADM_ROW,)),
+            [(7, "ISED Voluntary Code (2023)"), (8, "TBS Directive on Unknown Systems"), (9, "Unknown Act"),
+             (10, "ACME")],
+        )
+        # Without its row the instrument is now reported; before 3b378 it gave no finding.
+        self.assertEqual(self._scan_rows(rows[0]), [(7, "ISED Voluntary Code (2023)"),
+                                                    (7, "TBS Directive on Automated Decision-Making")])
+
+    BASC_NORM_ROW = ("BASC International Norm V6-2022 (Control and Security Management System, CSMS)", "V6-2022", "V5")
+    BASC_602_ROW = ("BASC International Security Standard 6.0.2 (2022, companies with indirect relation to the cargo)",
+                    "6.0.2", "-")
+    BASC_603_ROW = (
+        "BASC International Security Standard 6.0.3 (2022, companies implementing basic security operational controls)",
+        "6.0.3", "-",
+    )
+
+    def test_basc_security_standard_without_international(self) -> None:
+        # 3b378 item 4: the umbrella pattern required "International". Round 2 item 2
+        # (VPR3B378-R1): round 1 sent 6.0.3-only forms to the 6.0.2 row and expected that; each
+        # numbered standard now resolves to its own row, and the combined form needs both rows.
+        rows = (
+            "| Other | - | BASC Security Standard 6.0.2/6.0.3 |",
+            "| BASC Security Standard 6.0.3 | - | - |",
+            "| BASC International Security Standard 6.0.2 | - | - |",
+            "| BASC Security Standard 7.0.1 | - | - |",  # control: no such standard registered
+        )
+        both = self.ROWS + (self.BASC_NORM_ROW, self.BASC_602_ROW, self.BASC_603_ROW)
+        self.assertEqual(self._scan_rows(*rows, register_rows=both), [(10, "BASC Security Standard 7.0.1")])
+        self.assertEqual(
+            self._scan_rows(*rows, register_rows=self.ROWS + (self.BASC_NORM_ROW, self.BASC_602_ROW)),
+            [(7, "BASC Security Standard 6.0.2/6.0.3"), (8, "BASC Security Standard 6.0.3"),
+             (10, "BASC Security Standard 7.0.1")],
+        )
+        # Residual (predates 3b378), in both directions: the "International" spelling of a
+        # numbered standard whose row is absent is still registered by the series rule when the
+        # other numbered row exists, "BASC International Security Standard" being a series prefix
+        # of either Standard ID; no umbrella sends it to a row. With only the 6.0.3 row, "BASC
+        # International Security Standard 6.0.2" (line 9) gives no finding; with only the 6.0.2
+        # row, "BASC International Security Standard 6.0.3" gives none (round 2 review N1), and
+        # with either row neither does an unknown number such as 7.0.1 (round 2 review, codex).
+        self.assertEqual(
+            self._scan_rows(*rows, register_rows=self.ROWS + (self.BASC_NORM_ROW, self.BASC_603_ROW)),
+            [(7, "BASC Security Standard 6.0.2/6.0.3"), (10, "BASC Security Standard 7.0.1")],
+        )
+        international = (
+            "| BASC International Security Standard 6.0.3 | - | - |",
+            "| BASC International Security Standard 7.0.1 | - | - |",
+        )
+        for numbered in (self.BASC_602_ROW, self.BASC_603_ROW):
+            with self.subTest(row=numbered[1]):
+                self.assertEqual(
+                    self._scan_rows(*international, register_rows=self.ROWS + (self.BASC_NORM_ROW, numbered)), []
+                )
+        _, only_603 = self._resolver(self.ROWS + (self.BASC_NORM_ROW, self.BASC_603_ROW))
+        self.assertIsNone(only_603.exact_row("BASC International Security Standard 6.0.2"))
+        self.assertIsNone(only_603.exact_row("BASC International Security Standard 6.0.2/6.0.3"))
+        mod, resolver = self._resolver(both)
+        row_602, row_603 = mod.identity_key(self.BASC_602_ROW[0]), mod.identity_key(self.BASC_603_ROW[0])
+        for cite, row in (
+            ("BASC Security Standard 6.0.2", row_602),
+            ("BASC International Security Standard 6.0.3", row_603),
+            ("BASC Security Standard 6.0.3", row_603),
+            ("BASC International Security Standard 6.0.3/6.0.2", row_602),
+        ):
+            with self.subTest(cite=cite):
+                self.assertEqual(resolver.exact_row(cite), row)
+
+    def test_chapter_needs_a_whole_numeral(self) -> None:
+        # 3b378 round 2 item 1 (VPR3B378-R1): "[IVX\d]" read any word that starts with I, V or X
+        # as a chapter number and missed numerals such as L.
+        mod = self._module()
+        for cite in ("Chapter Implementation Guide", "Widget Act Chapter Values", "Chapter XYZ Rules"):
+            with self.subTest(cite=cite):
+                self.assertEqual(mod.split_parts(cite, False), [(cite, cite)])
+        self.assertEqual(mod.split_parts("Widget Act Chapter L", False), [("Widget Act", "Widget Act Chapter L")])
+        rows = (
+            "| Widget Act Chapter Values | - | - |",
+            "| EU AI Act Chapter L | - | - |",
+            "| Chapter XYZ Rules | - | - |",
+        )
+        self.assertEqual(
+            self._scan_rows(*rows, register_rows=self.ROWS + (self.AI_ACT_ROW,)),
+            [(7, "Widget Act Chapter Values"), (9, "Chapter XYZ Rules")],
+        )
+
+    def test_aeo_eu_ucc_article_38_alias(self) -> None:
+        # 3b378 round 2 item 3 (VPR3B378-R1): the logistics annex form was a false finding,
+        # although the EU UCC row exists and Article 38 UCC sets AEO status.
+        ucc = ("EU UCC", "Regulation 952/2013", "-")
+        rows = ("| AEO (EU UCC Art 38) | Customs | - |", "| AEO (Unknown Code Art 38) | - | - |")
+        self.assertEqual(self._scan_rows(*rows, register_rows=self.ROWS + (ucc,)), [(8, "AEO (Unknown Code Art 38)")])
+        self.assertEqual(self._scan_rows(rows[0]), [(7, "AEO (EU UCC Art 38)")])
+
+    def test_label_cut_at_a_colon_reports_the_full_form(self) -> None:
+        # 3b378 round 2 item 5 (VPR3B378-R1): a bare agency label before a colon was reported
+        # alone ("FINTRAC", "FMCSA"); a label that is not a citation on its own now gives the
+        # full form, and the text after the colon decides whether it is registered.
+        rows = (
+            "| **FINTRAC**: Proceeds of Crime (Money Laundering) and Terrorist Financing Act | AML | - |",
+            "| **FMCSA: Electronic Logging Devices (ELD)** | - | - |",
+            "| CBP: GDPR Art. 32 | - | - |",  # registered through the text after the colon
+            "| Other | - | NIST: Govern function |",  # nothing citable after the label
+            "| ACME: Unknown Act | - | - |",  # control: ACME may be a citation, so it is kept
+            "| EU GDPR: Unknown Title | - | - |",  # control: a registered citation keeps its tail
+        )
+        self.assertEqual(self._scan_rows(*rows), [
+            (7, "FINTRAC: Proceeds of Crime (Money Laundering) and Terrorist Financing Act"),
+            (8, "FMCSA: Electronic Logging Devices (ELD)"),
+            (11, "ACME"),
+        ])
+
+    def test_registered_label_before_a_colon_keeps_its_tail(self) -> None:
+        # 3b378 round 3 item 1 (VPR3B378-R2, claude E1, codex D15-R2-002): after_label ran
+        # before the register lookup, so a registered name that the shape heuristic calls not
+        # citable was resolved by its title and reported as the full form.
+        registered = self.ROWS + (
+            ("Switzerland nFADP", "2023", "-"),
+            ("CycloneDX", "1.6", "-"),
+            ("HarmBench", "2024", "-"),
+            ("MLCommons AILuminate", "v1.0", "-"),
+        )
+        rows = (
+            "| Switzerland nFADP: Federal Act on Data Protection | - | - |",
+            "| CycloneDX: ECMA-424 SBOM Standard | - | - |",
+            "| Cloud Controls Matrix: CCM v4 Implementation Guidelines | - | - |",  # alias key of CSA CCM
+            "| HarmBench: Evaluation Framework | - | - |",
+            "| MLCommons AILuminate: Safety Evaluation Framework | - | - |",
+            "| CycloneDX: BOM validation | - | - |",
+        )
+        self.assertEqual(self._scan_rows(*rows, register_rows=registered), [])
+        _, resolver = self._resolver(registered)
+        for label in ("Switzerland nFADP", "CycloneDX", "Cloud Controls Matrix", "HarmBench", "MLCommons AILuminate"):
+            with self.subTest(label=label):
+                self.assertTrue(resolver.not_citable(label))  # the shape heuristic alone would cut it
+                self.assertIsNone(resolver.after_label(label, f"{label}: Some Title 2020"))
+
+    def test_agency_label_is_reported_without_reporting_descriptive_text(self) -> None:
+        # 3b378 round 3 item 2 (VPR3B378-R2, codex D15-R2-001, claude W1): round 2 added the
+        # agencies to not_citable.exact, which silenced "CBP: Unknown Programme" and the bare
+        # agency rows. Agency labels are now their own list: reported bare, and before a colon
+        # by the full form unless the text after it is registered; a not-citable label with no
+        # citation after the colon still gives no finding.
+        rows = (
+            "| CBP: Unknown Programme | - | - |",
+            "| CBP | - | - |",
+            "| FINTRAC | - | - |",
+            "| FMCSA | - | - |",
+            "| CBP: GDPR Art. 32 | - | - |",  # control: registered through the text after the colon
+            "| Other | - | NIST: Govern function |",  # control: a publisher label heads a description
+            "| Other: N/A | - | - |",
+            "| Security management process: risk analysis | Required | - |",
+            "| Access control: unique user IDs | Required | - |",
+            "| **Supervisory Policy Manual: technology and operational risk modules** | HKMA | - |",
+        )
+        self.assertEqual(self._scan_rows(*rows), [
+            (7, "CBP: Unknown Programme"), (8, "CBP"), (9, "FINTRAC"), (10, "FMCSA"),
+        ])
+        _, resolver = self._resolver()
+        for name in ("CBP", "FINTRAC", "FMCSA"):
+            with self.subTest(name=name):
+                self.assertTrue(resolver.agency_label(name))
+                self.assertFalse(resolver.not_citable(name))
+        self.assertFalse(resolver.agency_label("NIST"))
+        self.assertTrue(resolver.not_citable("NIST"))
+
+    def test_agency_labels_must_be_a_list_of_strings(self) -> None:
+        import json
+
+        mod = self._module()
+        for bad in ("CBP", [1], {"CBP": 1}, None):
+            with self.subTest(bad=bad):
+                with self.assertRaisesRegex(mod.PolicyError, "'agency_labels' must be a list of strings"):
+                    mod.load_aliases(json.dumps({"schema_version": 1, "agency_labels": bad}))
+
+    def test_agency_label_is_reported_bare_in_any_case_or_shape(self) -> None:
+        # 3b378 round 4 item 1 (VPR3B378-R3, codex D15-R3-N1): the bare-name branch applied the
+        # not_citable shape heuristic before agency_label, so a lowercase agency ("cbp") or a
+        # configured mixed-case one ("Customs Bureau") was silent while its colon form was
+        # reported. Exclusion handling still comes first.
+        rows = (
+            "| cbp | - | - |",
+            "| fintrac | - | - |",
+            "| Customs Bureau | - | - |",
+            "| Customs Bureau: Unknown Programme | - | - |",
+            "| cbp: Unknown Programme | - | - |",
+            "| Other | - | cbp; Customs Bureau |",
+            "| Customs Office | - | - |",  # control: not an agency label, so the heuristic applies
+            "| cbp: GDPR Art. 32 | - | - |",  # control: registered through the text after the colon
+        )
+        self.assertEqual(self._scan_rows(*rows, extra_agency=["Customs Bureau"]), [
+            (7, "cbp"), (8, "fintrac"), (9, "Customs Bureau"), (10, "Customs Bureau: Unknown Programme"),
+            (11, "cbp: Unknown Programme"), (12, "Customs Bureau"), (12, "cbp"),
+        ])
+        self.assertEqual(self._scan_rows("| Customs Bureau | - | - |"), [])  # not configured: silent
+        _, resolver = self._resolver(extra_agency=["Customs Bureau"])
+        for name in ("cbp", "fintrac", "Customs Bureau"):
+            with self.subTest(name=name):
+                self.assertTrue(resolver.agency_label(name))
+                self.assertTrue(resolver.not_citable(name))  # the shape heuristic alone would cut it
+
+    def test_agency_label_may_not_also_be_not_citable(self) -> None:
+        # 3b378 round 4 item 2 (VPR3B378-R3, claude W2): a label in both agency_labels and
+        # not_citable.exact silenced the bare agency again; load_aliases now refuses it.
+        import json
+
+        mod = self._module()
+        data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
+        mod.load_aliases(json.dumps(data))  # the real file has no overlap
+        # Round 5 (VPR3B378-R4, claude N2): the error names the entry as agency_labels spells it.
+        for listed, named in (("CBP", "CBP"), ("cbp", "CBP"), ("Fintrac", "FINTRAC")):
+            with self.subTest(listed=listed):
+                bad = json.loads(json.dumps(data))
+                bad["not_citable"]["exact"].append(listed)
+                with self.assertRaisesRegex(
+                    mod.PolicyError, f"'agency_labels' and 'not_citable.exact' share {named}$"
+                ):
+                    mod.load_aliases(json.dumps(bad))
+
+    def test_prose_label_is_reported_with_its_prefix(self) -> None:
+        # 3b378 round 3 item 3 (VPR3B378-R2, claude N4): a generic prose label before a colon is
+        # not a citation on its own, so an unregistered citation after it is reported as the
+        # full form, prefix included (the documented choice); nothing citable after it is silent.
+        rows = (
+            "| Other | - | Note: Unknown Act 2020 |",
+            "| Other | - | Note: see the annex |",
+        )
+        self.assertEqual(self._scan_rows(*rows), [(7, "Note: Unknown Act 2020")])
+
+    def test_paren_tail_is_cut_outside_parentheses_only(self) -> None:
+        # 3b378 round 2 item 6 (VPR3B378-R1): paren_tail_ok cut the text after a parenthetical
+        # at a provision inside a further parenthetical, so the name never reached exact_row.
+        mod, resolver = self._resolver(extra_aliases={"GDPR Guide (Art 5 edition)": "EU GDPR"})
+        row = mod.identity_key("EU GDPR")
+        self.assertTrue(resolver.paren_tail_ok(" Guide (Art 5 edition)", row, "GDPR"))
+        self.assertTrue(resolver.paren_tail_ok(" Guide (Art 5 edition) Art. 6", row, "GDPR"))
+        self.assertFalse(resolver.paren_tail_ok(" Guide (Art 6 edition)", row, "GDPR"))
 
     def test_abbreviated_article_29_residual_is_still_dropped(self) -> None:
         # Pins a documented residual (claude N3): "Art." is still read as a provision, so this
@@ -7768,7 +8068,9 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         mod = self._module()
         register = mod.Register((REPO_ROOT / self.REGISTER).read_text(encoding="utf-8"))
         data = json.loads(mod.ALIASES_PATH.read_text(encoding="utf-8"))
-        targets = list(data["aliases"].values()) + [u["row"] for u in data["umbrella"]]
+        targets = list(data["aliases"].values()) + [
+            r for u in data["umbrella"] for r in (u["row"], *u.get("also", []))
+        ]
         self.assertEqual(sorted(t for t in targets if not register.has_id(t)), [])
 
     def test_not_citable_fragments_are_skipped(self) -> None:
@@ -8229,6 +8531,18 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
         self.assertIn("does not cover them", out)
         self.assertNotIn("'umbrella'", out)
         self.assertIn("D15 SIBLING-PROBE: 0 unregistered", out)
+
+    def test_sibling_probe_notes_an_agency_labels_only_change(self) -> None:
+        # 3b378 round 3: agency labels change what a label before a colon resolves to, and the
+        # probe does not compare them, so a change is named like a not_citable change.
+        aliases = self._aliases("US TSA Pipeline Security Directives")
+        out = self._probe(
+            {self.REGISTER: self._register(self.TSA_ROWS), self.ALIASES: aliases},
+            {self.ALIASES: self._aliases("US TSA Pipeline Security Directives", agency_labels=["CBP"])},
+        )
+        self.assertEqual(self._siblings(out), [], out)
+        self.assertIn("changes the 'agency_labels' entries", out)
+        self.assertNotIn("'not_citable'", out)
 
     def test_sibling_probe_uses_the_register_ref(self) -> None:
         # --register-ref decides which citations are unregistered and the family tokens; the
