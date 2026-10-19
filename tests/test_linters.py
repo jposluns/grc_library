@@ -25607,17 +25607,20 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             # Each part is checked against its own row: a second part naming another row
             # fails on that row alone, and a drifted second part still names its row.
             # 3b412: the renamed item keeps the old name's text (FOR_AI_NAME_TEXTS), so it
-            # also fails as a mismatched instrument.
+            # also fails as a mismatched instrument (round 2: and the page has no item
+            # named by the old name).
             hits = self.mod.stale_standard_editions(
                 self._for_ai_item(rel, self.ISO_27701_AND, "ISO/IEC 27701:2025 and UK GDPR"))
-            self.assertEqual(len(hits), 2, (rel, hits))
+            self.assertEqual(len(hits), 3, (rel, hits))
             self.assertIn("list item 'ISO/IEC 27701:2025 and UK GDPR' lists the instrument text", hits[0])
             self.assertIn("list item for the register row 'UK GDPR' cannot be parsed", hits[1])
+            self.assertIn(f"expected exactly one item named {self.ISO_27701_AND!r} in the resource index, found 0",
+                          hits[2])
             texts = self._for_ai_item(rel, self.ISO_27001_AND, "ISO/IEC 27001:2022 and 27002:2022 (withdrawn)",
                                       "This 2026 edition is withdrawn.")
             self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
                              [("mismatched instrument", ""), ("unparsed", "ISO/IEC 27001"),
-                              ("unparsed", "ISO/IEC 27002")], rel)
+                              ("unparsed", "ISO/IEC 27002"), ("incomplete", "")], rel)
 
     def test_for_ai_description_close_allows_whitespace_and_fails_unparsed(self):
         # 3b403 item 2: whitespace may stand between the description's </span> and the
@@ -25681,11 +25684,14 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(len(hits), 1, (rel, hits))
             self.assertIn("list item for the register row 'Texas TRAIGA' cannot be parsed", hits[0])
             # A name with ended wording after a row's name still names that row (3b412: and
-            # fails as a mismatched instrument, as the old name's text follows it).
+            # fails as a mismatched instrument, as the old name's text follows it; round 2:
+            # and the page has no item named "ISO/IEC 42001:2023").
             texts = self._for_ai_item(rel, "ISO/IEC 42001:2023", "ISO/IEC 42001:2023 (withdrawn)",
                                       "This 2026 edition is withdrawn.")
             self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
-                             [("mismatched instrument", ""), ("unparsed", "ISO/IEC 42001")], rel)
+                             [("mismatched instrument", ""), ("unparsed", "ISO/IEC 42001"), ("incomplete", "")], rel)
+            self.assertIn("expected exactly one item named 'ISO/IEC 42001:2023' in the resource index, found 0",
+                          self._failed(texts)[2].name)
             # A mapped name in another case or spacing is matched as the resolver matches.
             texts = self._for_ai_item(rel, "United States, Texas", "united  states, TEXAS",
                                       "This 2026 edition is withdrawn.")
@@ -25944,54 +25950,82 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                     self.assertIn(f"list item {name!r} lists the instrument text {between!r}, which is not the one "
                                   f"enumerated for its name in FOR_AI_LABEL_INSTRUMENTS or FOR_AI_NAME_TEXTS", hit)
             # Each item's own text passes, a CSA name's "." and a name in another case or
-            # spacing included; a name enumerated nowhere may carry only the empty text.
+            # spacing included; a name enumerated nowhere may carry only the empty text,
+            # but a listed name renamed that way leaves the page without its item (round 2,
+            # VPR3B412-R1 FORAI-PRESENCE-SCOPE: this case passed in round 1).
             self.assertEqual(self.mod.stale_standard_editions(self._for_ai_rest_as({}, rel, csf, csf_rest)[0]), [], rel)
             texts = self._for_ai_with(rel, ">ISO 31000:2018</span>", ">iso  31000:2018</span>")
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
             texts = self._for_ai_item(rel, "ISO 31000:2018", "ISO 31000")
-            self.assertEqual([(e.status, e.name) for e in self._failed(texts)],
-                             [("mismatched instrument", "ISO 31000")], rel)
+            failed = [(e.status, e.name) for e in self._failed(texts)]
+            self.assertEqual(failed[:1], [("mismatched instrument", "ISO 31000")], rel)
+            self.assertEqual([s for s, _ in failed], ["mismatched instrument", "incomplete"], (rel, failed))
+            self.assertIn("expected exactly one item named 'ISO 31000:2018' in the resource index, found 0",
+                          failed[1][1])
             texts = self._for_ai_rest_as(texts, rel, "ISO 31000", "")[0]
-            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            hits = self.mod.stale_standard_editions(texts)
+            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertTrue(hits[0].startswith(f".web/{rel}: expected exactly one item named 'ISO 31000:2018' in "
+                                               f"the resource index, found 0"), hits[0])
+            self.assertEqual([e.status for e in self._failed(texts)], ["incomplete"], rel)
 
     def test_for_ai_labels_and_unchecked_names_name_one_item_per_page(self):
         # 3b412 item 2 (VPR3B403-R2 claude N1): each jurisdiction label and each name of
         # FOR_AI_UNCHECKED_NAMES is the whole name of exactly one item on every For-AI
         # page, or the page fails naming it, so renaming an item to "Model Cards" cannot
-        # drop its checks silently.
+        # drop its checks silently. Round 2 (VPR3B412-R1 FORAI-PRESENCE-SCOPE): so is
+        # each name of FOR_AI_NAME_TEXTS, matched as the name-text check matches it.
         labels, unchecked = self.mod.FOR_AI_LABEL_INSTRUMENTS, self.mod.FOR_AI_UNCHECKED_NAMES
-        model_cards = next(iter(self.mod.FOR_AI_NAME_TEXTS["Model Cards"]))
+        texts_by_name = self.mod.FOR_AI_NAME_TEXTS
+        model_cards = next(iter(texts_by_name["Model Cards"]))
         uk = next(iter(labels["United Kingdom"]))
+        name_texts, both = "FOR_AI_NAME_TEXTS", "FOR_AI_NAME_TEXTS and FOR_AI_UNCHECKED_NAMES"
         for rel in self.FOR_AI_SOURCES:
             names = [name for name, _ in self._for_ai_names(rel)]
             self.assertEqual({name: names.count(name) for name in [*labels, *unchecked]},
                              dict.fromkeys([*labels, *unchecked], 1), rel)
+            self.assertEqual({name: names.count(name) for name in texts_by_name},
+                             dict.fromkeys(texts_by_name, 1), rel)
             texas, text = self._for_ai_li(rel, "United States, Texas")
             canada, _ = self._for_ai_li(rel, "Canada")
             datasheets, _ = self._for_ai_li(rel, "Datasheets for Datasets")
             nist_100_4, _ = self._for_ai_li(rel, "NIST AI 100-4")
+            iso_31000, _ = self._for_ai_li(rel, "ISO 31000:2018")
+            csf, _ = self._for_ai_li(rel, "NIST Cybersecurity Framework 2.0")
+            atlas, _ = self._for_ai_li(rel, "MITRE ATLAS")
             malaysia_as_uk = self._for_ai_item(rel, "Malaysia", "united  kingdom",
                                                "Documented in the United Kingdom AI annex.")
             malaysia_as_uk, _ = self._for_ai_rest_as(malaysia_as_uk, rel, "united  kingdom", uk)
             for texts, item_failures, presence in (
                 # VPR3B403-R2 claude's case: an item renamed "Model Cards" keeping its own
                 # text fails on that text and on the name; given Model Cards' text too, it
-                # fails on the name alone.
+                # fails on the name alone (round 2: and the page has no ISO 31000 item).
                 (self._for_ai_item(rel, "ISO 31000:2018", "Model Cards"),
-                 [("mismatched instrument", "Model Cards")], [("Model Cards", 2)]),
+                 [("mismatched instrument", "Model Cards")],
+                 [("Model Cards", 2, both), ("ISO 31000:2018", 0, name_texts)]),
                 (self._for_ai_with(rel, "ISO 31000:2018</span>, risk management.", "Model Cards</span>" + model_cards),
-                 [], [("Model Cards", 2)]),
+                 [], [("Model Cards", 2, both), ("ISO 31000:2018", 0, name_texts)]),
                 # A label removed or doubled, an unchecked name removed or doubled.
-                ({rel: text.replace(texas, "")}, [], [("United States, Texas", 0)]),
-                ({rel: text.replace(canada, canada + canada)}, [], [("Canada", 2)]),
-                ({rel: text.replace(datasheets, "")}, [], [("Datasheets for Datasets", 0)]),
-                ({rel: text.replace(nist_100_4, nist_100_4 + nist_100_4)}, [], [("NIST AI 100-4", 2)]),
+                ({rel: text.replace(texas, "")}, [], [("United States, Texas", 0, "FOR_AI_LABEL_INSTRUMENTS")]),
+                ({rel: text.replace(canada, canada + canada)}, [], [("Canada", 2, "FOR_AI_LABEL_INSTRUMENTS")]),
+                ({rel: text.replace(datasheets, "")}, [], [("Datasheets for Datasets", 0, both)]),
+                ({rel: text.replace(nist_100_4, nist_100_4 + nist_100_4)}, [], [("NIST AI 100-4", 2, both)]),
                 # A label given another label's name (in another case and spacing), text
                 # and description: one label is missing and the other doubled.
-                (malaysia_as_uk, [], [("Malaysia", 0), ("United Kingdom", 2)]),
+                (malaysia_as_uk, [], [("Malaysia", 0, "FOR_AI_LABEL_INSTRUMENTS"),
+                                      ("United Kingdom", 2, "FOR_AI_LABEL_INSTRUMENTS")]),
                 # An unchecked name is matched exactly, as FOR_AI_UNCHECKED_NAMES matches it.
                 (self._for_ai_item(rel, "Model Cards", "model cards"), [("unchecked", "model cards")],
-                 [("Model Cards", 0)]),
+                 [("Model Cards", 0, both)]),
+                # Round 2: a name of FOR_AI_NAME_TEXTS removed, doubled (a second copy in
+                # another case and spacing included), or replaced by a copy of another item.
+                ({rel: text.replace(iso_31000, "")}, [], [("ISO 31000:2018", 0, name_texts)]),
+                ({rel: text.replace(csf, "")}, [], [("NIST Cybersecurity Framework 2.0", 0, name_texts)]),
+                ({rel: text.replace(atlas, atlas + atlas)}, [], [("MITRE ATLAS", 2, name_texts)]),
+                ({rel: text.replace(iso_31000, iso_31000 + iso_31000.replace(">ISO 31000:2018<", ">iso  31000:2018<"))},
+                 [], [("ISO 31000:2018", 2, name_texts)]),
+                ({rel: text.replace(iso_31000, atlas)}, [],
+                 [("MITRE ATLAS", 2, name_texts), ("ISO 31000:2018", 0, name_texts)]),
             ):
                 failed = self._failed(texts)
                 self.assertEqual([(e.status, e.name) for e in failed[:len(item_failures)]], item_failures, rel)
@@ -25999,10 +26033,14 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                                  (rel, failed))
                 hits = self.mod.stale_standard_editions(texts)
                 self.assertEqual(len(hits), len(item_failures) + len(presence), (rel, hits))
-                for hit, (name, found) in zip(hits[len(item_failures):], presence):
+                for hit, (name, found, lists) in zip(hits[len(item_failures):], presence):
                     self.assertTrue(hit.startswith(f".web/{rel}: expected exactly one item named {name!r} in the "
-                                                   f"resource index, found {found} (each jurisdiction label"), hit)
-                    self.assertIn("FOR_AI_UNCHECKED_NAMES in .web/build.py names one item on every For-AI page", hit)
+                                                   f"resource index, found {found} (each name of "
+                                                   f"FOR_AI_LABEL_INSTRUMENTS and FOR_AI_NAME_TEXTS, case and "
+                                                   f"spacing ignored, and each name of FOR_AI_UNCHECKED_NAMES, "
+                                                   f"matched exactly, in .web/build.py names one item on every "
+                                                   f"For-AI page"), hit)
+                    self.assertTrue(hit.endswith(f"if the list changed legitimately, update {lists})"), hit)
             # A label in another case or spacing is that label.
             texts = self._for_ai_with(rel, ">Canada</span>", ">CANADA</span>")
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
