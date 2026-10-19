@@ -41036,6 +41036,13 @@ class LanguageEngineProfileTests(unittest.TestCase):
         for prefixes in (("",), ("re", ""), ("", "un")):
             with self.subTest(prefixes=prefixes), self.assertRaises(ValueError):
                 self.engine.compile_language(self.vocab._replace(ise_prefixes=prefixes))
+        # An empty stem made every start a zero-width word (3b407 round 2).
+        for stems in (("",), ("", *self.vocab.ise_stems), (*self.vocab.ise_stems, "")):
+            for prefixes in ((), self.vocab.ise_prefixes):
+                with (self.subTest(stems=stems[:2], prefixes=bool(prefixes)),
+                      self.assertRaises(ValueError)):
+                    self.engine.compile_language(self.vocab._replace(
+                        ise_stems=stems, ise_prefixes=prefixes))
         scan = self.language.ise_scan
         zero = self.language._replace(ise_scan=scan._replace(
             prefixes=(re.compile(""), *scan.prefixes, re.compile("(?=r)"))))
@@ -41045,6 +41052,24 @@ class LanguageEngineProfileTests(unittest.TestCase):
                 self.assertEqual(self.engine.ise_words(text, zero),
                                  self.engine.ise_words(text, self.language))
 
+    def test_prefix_scan_terminates_on_a_zero_width_word(self):
+        # 3b407 round 2: a hand-built stem pattern that matches empty made the
+        # scan report a zero-width word and search again from the same position,
+        # without end; ise_words now moves past every start it has tried.
+        empty = re.compile("")
+        bare = self.language._replace(
+            ise_scan=self.engine.IsePrefixScan(empty, (), empty))
+        for text in ("", "ab", "organised 1", "re-organised"):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.ise_words(text, bare),
+                                 [m.group(0) for m in empty.finditer(text)])
+        scan = self.language.ise_scan
+        stemless = self.language._replace(ise_scan=scan._replace(stem=empty))
+        for text, expected in (("organised 1", [""]), ("re-organised", ["re-", ""]),
+                               (" ", []), ("rere un", ["rere", "un"])):
+            with self.subTest(text=text):
+                self.assertEqual(self.engine.ise_words(text, stemless), expected)
+
     def test_prefix_scan_bounded_memory(self):
         # 3b407: the round 6 memo (a dict keyed by tuples) and its list frames
         # took about 250 bytes per character on a one-line prefix run (about
@@ -41052,6 +41077,8 @@ class LanguageEngineProfileTests(unittest.TestCase):
         # take about 10. The 8 MB limit (40 bytes per character) fails the
         # round 6 encoding with room for allocator differences.
         import tracemalloc
+        if tracemalloc.is_tracing():
+            self.skipTest("tracemalloc is already tracing; its peak would include the caller's")
         cases = (("re" * 99996 + "organise", ["re" * 99996 + "organise"]),
                  ("mi\u017f" * 66666 + "xx", []))
         for text, expected in cases:

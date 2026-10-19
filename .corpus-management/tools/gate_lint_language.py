@@ -366,11 +366,13 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     hyphenated groups. With no prefixes listed the pattern is the one above.
     With prefixes listed, ``ise_words`` runs the pattern through ``ise_scan``
     (3b234 round 6), which reports exactly what the pattern reports. An empty
-    prefix raises ValueError (3b407): ``language_vocabulary`` already rejects
-    one, but a vocabulary built directly would otherwise reach the scan.
+    prefix or stem raises ValueError (3b407): ``language_vocabulary`` already
+    rejects one, but a vocabulary built directly would otherwise reach the scan.
     """
     if any(not prefix for prefix in vocab.ise_prefixes):
         raise ValueError("ise_prefixes: expected nonempty prefixes")
+    if any(not stem for stem in vocab.ise_stems):
+        raise ValueError("ise_stems: expected nonempty stems")
     stems = "|".join(
         "|".join(re.escape(word) for word in (
             stem, stem + "s", stem + "d", stem[:-1] + "ing",
@@ -495,13 +497,16 @@ def ise_words(text: str, language: LanguageChecks) -> list[str]:
 
     words = []
     pos = 0
-    while (m := scan.start.search(text, pos)) is not None:
+    # Every start moves pos past it, even when its word is zero-width (a
+    # hand-built stem pattern that matches empty), and search() reads a pos past
+    # the end as the end, so the loop stops there (3b407 round 2).
+    while pos <= len(text) and (m := scan.start.search(text, pos)) is not None:
         end = solve(m.start())
         if end is None:
             pos = m.start() + 1
         else:
             words.append(text[m.start():end])
-            pos = end
+            pos = max(end, m.start() + 1)
     return words
 
 # Commonwealth `-isation` noun / adjective forms (organisation, authorisation,
