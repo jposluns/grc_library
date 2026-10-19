@@ -24130,8 +24130,11 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         line = next(ln for ln in text.splitlines() if "OWASP Top 10 for LLM Applications 2026" in ln)
         doubled = text.replace(line, line + line.strip().replace("2026", "2025"))
         hits = self.mod.stale_standard_editions({self.FOR_AI_V3: doubled})
-        self.assertEqual(len(hits), 1, hits)
+        # 3b413: the second item is named by the same OWASP name (its edition read only
+        # as present), so the page also fails on that name.
+        self.assertEqual(len(hits), 2, hits)
         self.assertIn("'OWASP Top 10 for LLM Applications 2025' lists edition '2025'", hits[0])
+        self.assertTrue(hits[1].startswith(self._owasp_presence(self.FOR_AI_V3, self.LLM_NAME, 2)), hits[1])
 
     def test_changed_biblio_markup_fails_instead_of_dropping_the_entry(self):
         hits = self.mod.stale_standard_editions(self._landing_with(
@@ -24145,16 +24148,20 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
 
     def test_changed_for_ai_markup_fails_instead_of_dropping_the_entry(self):
         text = (REPO_ROOT / ".web" / self.FOR_AI_V3).read_text(encoding="utf-8")
-        for old, new in (
-            ('<span class="row-name">OWASP MCP Top 10</span>', '<span class="row-name inst">OWASP MCP Top 10</span>'),
+        # 3b413: an OWASP item whose name span is not read leaves the page without it.
+        for old, new, presence in (
+            ('<span class="row-name">OWASP MCP Top 10</span>', '<span class="row-name inst">OWASP MCP Top 10</span>',
+             ["OWASP MCP Top 10"]),
             ('<li><span class="row-name">European Union</span>, AI Act (Regulation (EU) 2024/1689, as amended by (EU) 2026/1744)',
-             '<li><span class="row-name">European Union</span>, AI Act, Regulation (EU) 2024/1689'),
+             '<li><span class="row-name">European Union</span>, AI Act, Regulation (EU) 2024/1689', []),
         ):
             self.assertIn(old, text)
             hits = self.mod.stale_standard_editions({self.FOR_AI_V3: text.replace(old, new)})
-            self.assertEqual(len(hits), 1, (new, hits))
+            self.assertEqual(len(hits), 1 + len(presence), (new, hits))
             self.assertIn(".web/templates-v3/for-ai.html:", hits[0])
             self.assertIn("cannot be parsed", hits[0])
+            for hit, name in zip(hits[1:], presence):
+                self.assertTrue(hit.startswith(self._owasp_presence(self.FOR_AI_V3, name, 0)), hit)
 
     def test_a_source_with_no_list_fails(self):
         text = (REPO_ROOT / ".web" / "templates-v2/for-ai.html").read_text(encoding="utf-8")
@@ -24640,8 +24647,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         hits = self.mod.stale_standard_editions(
             {self.FOR_AI_V3: text.replace(name, ">OWASP Top 10 for LLM Applications 2026 (repealed)<")}
         )
-        self.assertEqual(len(hits), 1, hits)
+        # 3b413: and the page has no item named by the OWASP name.
+        self.assertEqual(len(hits), 2, hits)
         self.assertIn("names the register row 'OWASP LLM Top 10'", hits[0])
+        self.assertTrue(hits[1].startswith(self._owasp_presence(self.FOR_AI_V3, self.LLM_NAME, 0)), hits[1])
         # The entries that carry no edition stay "no edition".
         for e in self.mod.standard_edition_entries():
             self.assertIn(e.status, ("match", "no edition"), e)
@@ -25051,12 +25060,14 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 failed = [e for e in self.mod.standard_edition_entries(texts) if e.status != "match"
                           and e.status != "no edition"]
                 self.assertEqual([(e.status, e.edition) for e in failed], [("unparsed", between)], (rel, new))
-            # The empty text passes, and the entry is still compared.
+            # The empty text is a form of the branch, and the entry is still compared;
+            # 3b413: after a name of FOR_AI_OWASP_TEXTS it is none of that name's forms.
             texts = self._for_ai_with(rel, "OWASP Top 10 for LLM Applications 2026</span>.",
                                       "OWASP Top 10 for LLM Applications 2026</span>")
-            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
-            entry = self._entry(self.mod.standard_edition_entries(texts), rel,
-                                "OWASP Top 10 for LLM Applications 2026")
+            self.assertEqual([(e.status, e.name, e.edition) for e in self._failed(texts)],
+                             [("mismatched instrument", self.LLM_NAME, "")], rel)
+            entry = self._entry([e for e in self.mod.standard_edition_entries(texts)
+                                 if e.status != "mismatched instrument"], rel, self.LLM_NAME)
             self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "match"), rel)
 
     def test_every_current_for_ai_text_between_the_spans_is_accepted(self):
@@ -25122,6 +25133,25 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
     def _failed(self, texts):
         return [e for e in self.mod.standard_edition_entries(texts) if e.status not in ("match", "no edition")]
 
+    def _owasp_presence(self, rel, name, found):
+        """The start of the failure line for a For-AI page ``rel`` on which the name
+        ``name`` of FOR_AI_OWASP_TEXTS names ``found`` items (3b413)."""
+        return f".web/{rel}: expected exactly one item named {name!r} in the resource index, found {found} ("
+
+    def _owasp_edition(self, rel, item, name, change):
+        """The start of the failure line for a For-AI page ``rel`` on which the item
+        ``item``, named by the name ``name`` of FOR_AI_OWASP_TEXTS, has its trailing
+        edition ``change`` ("added" or "dropped") (3b413)."""
+        return (f".web/{rel}: item {item!r} in the resource index is the name {name!r} with its trailing "
+                f"edition {change} (")
+
+    def _owasp_row(self, rel, row, name, found):
+        """The start of the failure line for a For-AI page ``rel`` on which ``found``
+        items, compound parts or pieces name the register row ``row`` of the name
+        ``name`` of FOR_AI_OWASP_TEXTS (3b413)."""
+        return (f".web/{rel}: expected exactly one item, part or piece naming the register row {row!r} of "
+                f"{name!r} in the resource index, found {found} (")
+
     def test_for_ai_owasp_entry_is_chosen_by_resolution(self):
         # VPR3B393-R5 item 1: a For-AI name that resolves to an OWASP row, in any case
         # or spacing, is compared; the branch is not chosen by the literal prefix.
@@ -25145,13 +25175,16 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                               "version '2026'", hits[0])
                 entry = self._entry(self.mod.standard_edition_entries(texts), rel, name)
                 self.assertEqual((entry.row, entry.status), ("OWASP LLM Top 10", "mismatch"), ascii(name))
-            # A no-break space before the edition, or ended wording after it, fails too.
+            # A no-break space before the edition, or ended wording after it, fails too
+            # (3b413: and, the edition no longer read as trailing, the page has no item
+            # named by the OWASP name).
             for written in ("OWASP Top 10 for LLM Applications&nbsp;2025", "Owasp Top 10 for LLM Applications 2026 "
                             "(withdrawn)", "OWASP" + nbsp + "Top 10 for LLM Applications 2026 (withdrawn)"):
                 hits = self.mod.stale_standard_editions(
                     self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{written}</span>"))
-                self.assertEqual(len(hits), 1, (rel, ascii(written), hits))
+                self.assertEqual(len(hits), 2, (rel, ascii(written), hits))
                 self.assertIn("names the register row 'OWASP LLM Top 10' but its listed text", hits[0])
+                self.assertTrue(hits[1].startswith(self._owasp_presence(rel, self.LLM_NAME, 0)), hits[1])
             # The current edition in any case or spacing is compared and matches.
             for written, name in (
                 ("Owasp Top 10 for LLM Applications 2026", "Owasp Top 10 for LLM Applications 2026"),
@@ -25168,14 +25201,20 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
             entry = self._entry(self.mod.standard_edition_entries(texts), rel, f"Owasp{nbsp}MCP Top 10")
             self.assertEqual((entry.row, entry.status), ("OWASP MCP Top 10", "no edition"), rel)
+            # 3b413: an edition given to the OWASP MCP Top 10 item also fails as an
+            # edition added to that name, and the item renamed leaves the page without an
+            # item named "OWASP MCP Top 10".
             hits = self.mod.stale_standard_editions(
                 self._for_ai_with(rel, "OWASP MCP Top 10</span>", "owasp mcp top 10 2024</span>"))
-            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertEqual(len(hits), 2, (rel, hits))
             self.assertIn("lists edition '2024' but the register row 'OWASP MCP Top 10'", hits[0])
+            self.assertTrue(hits[1].startswith(self._owasp_edition(rel, "owasp mcp top 10 2024", "OWASP MCP Top 10",
+                                                                   "added")), hits[1])
             hits = self.mod.stale_standard_editions(
                 self._for_ai_with(rel, "OWASP MCP Top 10</span>", "Owasp Foo Guide 2025</span>"))
-            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertEqual(len(hits), 2, (rel, hits))
             self.assertIn("'Owasp Foo Guide 2025' carries edition '2025' but names no register row", hits[0])
+            self.assertTrue(hits[1].startswith(self._owasp_presence(rel, "OWASP MCP Top 10", 0)), hits[1])
         # The current outcomes are unchanged.
         statuses = {}
         for e in self.mod.standard_edition_entries():
@@ -25345,11 +25384,13 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
                 self.assertEqual((entry.row, entry.edition, entry.status), ("", "", "unresolved"), name)
             entry = self._entry(entries, rel, "IEC 62443")
             self.assertEqual((entry.row, entry.status), ("", "no edition"), rel)
-        # A compared For-AI name that resolves to no row takes the same rule.
+        # A compared For-AI name that resolves to no row takes the same rule (3b413: and
+        # the page has no item named "OWASP MCP Top 10").
         hits = self.mod.stale_standard_editions(
             self._for_ai_with(self.FOR_AI_V3, "OWASP MCP Top 10</span>", "Owasp Foo Guide</span>"))
-        self.assertEqual(len(hits), 1, hits)
+        self.assertEqual(len(hits), 2, hits)
         self.assertIn("'Owasp Foo Guide' names no register row and is not among the names enumerated", hits[0])
+        self.assertTrue(hits[1].startswith(self._owasp_presence(self.FOR_AI_V3, "OWASP MCP Top 10", 0)), hits[1])
 
     def test_month_day_year_date_topic(self):
         # VPR3B393-R5 item 5: "Month D YYYY" is a date the same-year rule reads.
@@ -25440,20 +25481,35 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         branch, keys = self.mod._for_ai_branch(d15, resolver, compound)
         self.assertEqual((branch, len(keys), all(keys)), ("OWASP", 2, True))
         for rel in self.FOR_AI_SOURCES:
+            # 3b413: a compound name is not the whole name of an OWASP item, so the item
+            # it replaces leaves the page without an item named by that OWASP name.
+            no_llm = self._owasp_presence(rel, self.LLM_NAME, 0)
+            no_mcp = self._owasp_presence(rel, "OWASP MCP Top 10", 0)
+            # VPR3B413-R2 claude N1: a compound part names the row of an OWASP item
+            # still on the page, which fails that name once as a second item for its row.
+            two_mcp = self._owasp_row(rel, "OWASP MCP Top 10", "OWASP MCP Top 10", 2)
+            two_genai = self._owasp_row(rel, "OWASP GenAI Red Teaming Guide", "OWASP GenAI Red Teaming Guide", 2)
             # Each part that resolves has the description checked against its row.
             for desc, rows in (("This 2026 edition is withdrawn.", ["OWASP LLM Top 10", "OWASP MCP Top 10"]),
                                ("Documented in the AI security and risk standard.", ["OWASP MCP Top 10"]),
                                (agentic, ["OWASP LLM Top 10"])):
                 hits = self.mod.stale_standard_editions(self._for_ai_item(rel, self.LLM_NAME, compound, desc))
-                self.assertEqual(len(hits), len(rows), (rel, desc, hits))
+                self.assertEqual(len(hits), len(rows) + 2, (rel, desc, hits))
                 for hit, row in zip(hits, rows):
                     self.assertIn(f"list item for the register row {row!r} cannot be parsed: its description "
                                   f"{desc!r}", hit)
-            # Parts whose rows share a description pass, and each part is read (the
-            # GenAI guide also keeps its own item).
+                self.assertTrue(hits[-2].startswith(no_llm), hits[-2])
+                self.assertTrue(hits[-1].startswith(two_mcp), hits[-1])
+            # Parts whose rows share a description pass the description check, and each
+            # part is read (the GenAI guide also keeps its own item); the page fails only
+            # on presence, having no item named "OWASP MCP Top 10" and two naming the
+            # GenAI guide's row.
             both = "OWASP MCP Top 10 / OWASP GenAI Red Teaming Guide"
             texts = self._for_ai_item(rel, "OWASP MCP Top 10", both, agentic)
-            self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+            hits = self.mod.stale_standard_editions(texts)
+            self.assertEqual(len(hits), 2, (rel, hits))
+            self.assertTrue(hits[0].startswith(no_mcp), hits[0])
+            self.assertTrue(hits[1].startswith(two_genai), hits[1])
             for name, count in (("OWASP MCP Top 10", 1), ("OWASP GenAI Red Teaming Guide", 2)):
                 found = [e for e in self.mod.standard_edition_entries(texts)
                          if e.source == f".web/{rel}" and e.name == name]
@@ -25462,15 +25518,19 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             hits = self.mod.stale_standard_editions(
                 self._for_ai_item(rel, "OWASP MCP Top 10", "OWASP GenAI Red Teaming Guide / OWASP MCP Top 10 2024",
                                   agentic))
-            self.assertEqual(len(hits), 1, (rel, hits))
+            self.assertEqual(len(hits), 3, (rel, hits))
             self.assertIn("'OWASP MCP Top 10 2024' lists edition '2024' but the register row 'OWASP MCP Top 10'",
                           hits[0])
+            self.assertTrue(hits[1].startswith(no_mcp), hits[1])
+            self.assertTrue(hits[2].startswith(two_genai), hits[2])
             # A failing description does not hide a part's stale edition.
             hits = self.mod.stale_standard_editions(
                 self._for_ai_item(rel, self.LLM_NAME, "OWASP MCP Top 10 / OWASP Top 10 for LLM Applications 2025"))
-            self.assertEqual(len(hits), 2, (rel, hits))
+            self.assertEqual(len(hits), 4, (rel, hits))
             self.assertIn("list item for the register row 'OWASP MCP Top 10' cannot be parsed", hits[0])
             self.assertIn("lists edition '2025' but the register row 'OWASP LLM Top 10'", hits[1])
+            self.assertTrue(hits[2].startswith(no_llm), hits[2])
+            self.assertTrue(hits[3].startswith(two_mcp), hits[3])
 
     def test_for_ai_owasp_branch_residuals_fail(self):
         # VPR3B393-R6 item 3: a name whose part resolves to an OWASP row, or that holds
@@ -25489,25 +25549,33 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
         for name in with_edition + without_edition:
             self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "OWASP", ascii(name))
         for rel in self.FOR_AI_SOURCES:
+            # 3b413: each renamed item also leaves the page without an item named by the
+            # OWASP name it replaces.
+            no_llm = self._owasp_presence(rel, self.LLM_NAME, 0)
+            no_mcp = self._owasp_presence(rel, "OWASP MCP Top 10", 0)
             for name in with_edition:
                 texts = self._for_ai_with(rel, f"{self.LLM_NAME}</span>", f"{name}</span>")
                 hits = self.mod.stale_standard_editions(texts)
-                self.assertEqual(len(hits), 1, (rel, ascii(name), hits))
+                self.assertEqual(len(hits), 2, (rel, ascii(name), hits))
                 self.assertIn(f"{name!r} carries edition '{name[-4:]}' but names no register row", hits[0])
-                self.assertEqual([(e.status, e.row) for e in self._failed(texts)], [("unresolved", "")], ascii(name))
+                self.assertTrue(hits[1].startswith(no_llm), hits[1])
+                self.assertEqual([(e.status, e.row) for e in self._failed(texts)],
+                                 [("unresolved", ""), ("incomplete", "")], ascii(name))
             for name in without_edition:
                 hits = self.mod.stale_standard_editions(
                     self._for_ai_with(rel, "OWASP MCP Top 10</span>", f"{name}</span>"))
-                self.assertEqual(len(hits), 1, (rel, ascii(name), hits))
+                self.assertEqual(len(hits), 2, (rel, ascii(name), hits))
                 self.assertIn(f"{name!r} names no register row and is not among the names enumerated", hits[0])
+                self.assertTrue(hits[1].startswith(no_mcp), hits[1])
             # A compound whose first part is a non-OWASP row is compared on its OWASP part.
             for first, row in (("ISO/IEC 42001", "ISO/IEC 42001"), ("MITRE ATLAS", "MITRE ATLAS")):
                 name = f"{first} / OWASP Top 10 for LLM Applications 2025"
                 self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "OWASP", name)
                 hits = self.mod.stale_standard_editions(self._for_ai_item(rel, self.LLM_NAME, name))
-                self.assertEqual(len(hits), 2, (rel, name, hits))
+                self.assertEqual(len(hits), 3, (rel, name, hits))
                 self.assertIn(f"list item for the register row {row!r} cannot be parsed", hits[0])
                 self.assertIn("lists edition '2025' but the register row 'OWASP LLM Top 10'", hits[1])
+                self.assertTrue(hits[2].startswith(no_llm), hits[2])
         # A name with no OWASP part and no "owasp" keeps the uncompared branch.
         for name in ("CSA AI Controls Matrix (AICM)", "MITRE ATLAS", "ISO/IEC 42001:2023"):
             self.assertEqual(self.mod._for_ai_branch(d15, resolver, name)[0], "", name)
@@ -25840,9 +25908,10 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             self.assertEqual([s for s, _ in failed], ["mismatched instrument", "incomplete"], (rel, failed))
             self.assertIn("expected exactly one item named 'Model Cards' in the resource index, found 0",
                           failed[1][1])
-            # A compared OWASP name that names no row fails as unresolved, not also as unchecked.
+            # A compared OWASP name that names no row fails as unresolved, not also as
+            # unchecked (3b413: and the page has no item named "OWASP MCP Top 10").
             texts = self._for_ai_with(rel, "OWASP MCP Top 10</span>", "Owasp Foo Guide</span>")
-            self.assertEqual([e.status for e in self._failed(texts)], ["unresolved"], rel)
+            self.assertEqual([e.status for e in self._failed(texts)], ["unresolved", "incomplete"], rel)
 
     def test_for_ai_owasp_part_that_names_no_row_fails(self):
         # 3b403 round 3 (review W2): UNRESOLVED_LIST_NAMES applies to bibliography lists
@@ -25856,14 +25925,17 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             for rel in self.FOR_AI_SOURCES:
                 texts = self._for_ai_with(rel, "OWASP MCP Top 10</span>", f"{new}</span>")
                 failed = self._failed(texts)
-                self.assertEqual([(e.source, e.name, e.edition, e.row, e.status) for e in failed],
+                # 3b413: and the page has no item named "OWASP MCP Top 10".
+                self.assertEqual([(e.source, e.name, e.edition, e.row, e.status) for e in failed[:1]],
                                  [(f".web/{rel}", part, "", "", "unresolved")], (rel, new))
+                self.assertEqual([e.status for e in failed[1:]], ["incomplete"], (rel, new))
                 hits = self.mod.stale_standard_editions(texts)
-                self.assertEqual(len(hits), 1, (rel, new, hits))
+                self.assertEqual(len(hits), 2, (rel, new, hits))
                 self.assertIn(f"{part!r} names no register row and is not among the names enumerated for "
                               f"a compared For-AI name", hits[0])
                 self.assertIn("UNRESOLVED_LIST_NAMES in .web/build.py applies to bibliography lists only",
                               hits[0])
+                self.assertTrue(hits[1].startswith(self._owasp_presence(rel, "OWASP MCP Top 10", 0)), hits[1])
         # The bibliography lists still accept the enumerated name.
         self.assertIn("IEC 62443", self.mod.UNRESOLVED_LIST_NAMES)
         entries = self.mod.standard_edition_entries()
@@ -26044,6 +26116,127 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             # A label in another case or spacing is that label.
             texts = self._for_ai_with(rel, ">Canada</span>", ">CANADA</span>")
             self.assertEqual(self.mod.stale_standard_editions(texts), [], rel)
+
+    def test_for_ai_owasp_names_name_one_item_per_page(self):
+        # 3b413 (VPR3B412-R2 claude N3): each OWASP item is the whole name of exactly one
+        # item on every For-AI page, its edition removed (VPR3B413-R1 claude W1), carries
+        # a trailing edition exactly when its name does, and lists its own text, the "."
+        # all three pages carry, or the page fails naming it.
+        owasp = self.mod.FOR_AI_OWASP_TEXTS
+        llm, mcp, genai = self.LLM_NAME, "OWASP MCP Top 10", "OWASP GenAI Red Teaming Guide"
+        self.assertEqual(owasp, dict.fromkeys((llm, mcp, genai), frozenset({"."})))
+        self.assertEqual(self.mod.FOR_AI_INTER_SPAN_FORMS["OWASP"], frozenset({"", "."}))
+        self.assertFalse(set(owasp) & (set(self.mod.FOR_AI_ITEM_TEXTS) | self.mod.FOR_AI_UNCHECKED_NAMES))
+        d15, resolver = self.mod._load_edition_resolver()
+        self.assertEqual(self.mod._for_ai_owasp_name(d15, "owasp top 10 for LLM  applications 2025"), llm)
+        self.assertEqual(self.mod._for_ai_owasp_name(d15, "OWASP Top 10 for LLM Applications"), llm)
+        self.assertEqual(self.mod._for_ai_owasp_name(d15, "OWASP MCP Top 10 2025"), mcp)
+        self.assertIsNone(self.mod._for_ai_owasp_name(d15, "OWASP GenAI Red Teaming Handbook"))
+        no_year, genai_1_0 = "OWASP Top 10 for LLM Applications", "OWASP GenAI Red Teaming Guide 1.0"
+        for rel in self.FOR_AI_SOURCES:
+            # The pages carry each OWASP name once, on the OWASP branch, with its text.
+            found = [(name, full[len(name):].strip()) for name, full in self._for_ai_names(rel)
+                     if self.mod._for_ai_branch(d15, resolver, name)[0] == "OWASP"]
+            self.assertEqual(found, [(llm, "."), (mcp, "."), (genai, ".")], rel)
+            lines = {name: self._for_ai_li(rel, name)[0] for name in owasp}
+            text = self._for_ai_li(rel, llm)[1]
+            stale_llm = lines[llm].replace("2026</span>", "2025</span>")
+            no_year_llm = lines[llm].replace(f">{llm}</span>", f">{no_year}</span>")
+            genai_with_1_0 = lines[genai].replace(f">{genai}</span>", f">{genai_1_0}</span>")
+            self.assertNotEqual(no_year_llm, lines[llm])
+            self.assertNotEqual(genai_with_1_0, lines[genai])
+            for texts, item_failures, presence, edition in (
+                # The N3 probe: the GenAI guide removed, or doubled.
+                ({rel: text.replace(lines[genai], "")}, [], [(genai, 0)], []),
+                ({rel: text.replace(lines[genai], lines[genai] * 2)}, [], [(genai, 2)], []),
+                # An OWASP item replaced by a copy of another, or renamed to another's name
+                # with its own text and description.
+                ({rel: text.replace(lines[genai], lines[mcp])}, [], [(mcp, 2), (genai, 0)], []),
+                (self._for_ai_item(rel, genai, mcp), [], [(mcp, 2), (genai, 0)], []),
+                # Renamed to a name that resolves to no row, or with the edition dropped
+                # (which the edition comparison reads as no edition and passes) or added
+                # (which it compares, and the register's 1.0 matches).
+                (self._for_ai_item(rel, genai, "OWASP GenAI Red Teaming Handbook"),
+                 [("unresolved", "OWASP GenAI Red Teaming Handbook")], [(genai, 0)], []),
+                (self._for_ai_item(rel, llm, no_year), [], [], [(no_year, llm, "dropped")]),
+                (self._for_ai_item(rel, genai, genai_1_0), [], [], [(genai_1_0, genai, "added")]),
+                # Doubled with another edition: that edition is compared, and the name counted.
+                ({rel: text.replace(lines[llm], lines[llm] + stale_llm)},
+                 [("mismatch", "OWASP Top 10 for LLM Applications 2025")], [(llm, 2)], []),
+                # VPR3B413-R1 claude W1: doubled with a copy that only drops or adds an
+                # edition (the GenAI one consistent with the register).
+                ({rel: text.replace(lines[llm], lines[llm] + no_year_llm)}, [], [(llm, 2)],
+                 [(no_year, llm, "dropped")]),
+                ({rel: text.replace(lines[genai], lines[genai] + genai_with_1_0)}, [], [(genai, 2)],
+                 [(genai_1_0, genai, "added")]),
+                # The text tied to its name: the empty text is none of its forms.
+                (self._for_ai_with(rel, f"{mcp}</span>.", f"{mcp}</span>"), [("mismatched instrument", mcp)], [],
+                 []),
+            ):
+                failed = self._failed(texts)
+                self.assertEqual([(e.status, e.name) for e in failed[:len(item_failures)]], item_failures, rel)
+                self.assertEqual([e.status for e in failed[len(item_failures):]],
+                                 ["incomplete"] * (len(presence) + len(edition)), (rel, failed))
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), len(item_failures) + len(presence) + len(edition), (rel, hits))
+                for hit, (name, count) in zip(hits[len(item_failures):], presence):
+                    self.assertTrue(hit.startswith(self._owasp_presence(rel, name, count)), hit)
+                    self.assertIn("in .web/build.py names one item on every For-AI page, and so does each name "
+                                  "of FOR_AI_OWASP_TEXTS, case and spacing ignored and any trailing edition "
+                                  "removed;", hit)
+                    self.assertTrue(hit.endswith("if the list changed legitimately, update FOR_AI_OWASP_TEXTS)"), hit)
+                for hit, (item, name, change) in zip(hits[len(item_failures) + len(presence):], edition):
+                    self.assertTrue(hit.startswith(self._owasp_edition(rel, item, name, change)), hit)
+                    self.assertTrue(hit.endswith("if the edition was added or dropped legitimately, update "
+                                                 "FOR_AI_OWASP_TEXTS)"), hit)
+            # VPR3B413-R2 claude W1-R2: a copy named by the register row's Standard ID, with
+            # or without the edition or in lower case, beside the original names its row a
+            # second time; VPR3B413-R2 claude N1: so does each part of a compound name added
+            # beside both originals (copied from the GenAI item, whose description the MCP
+            # row shares). Each fails the name once, naming the row.
+            both = "OWASP MCP Top 10 / OWASP GenAI Red Teaming Guide"
+            llm_row, mcp_row, genai_row = ("OWASP LLM Top 10", llm), (mcp, mcp), (genai, genai)
+            for source, copy, rows, replacing in (
+                    (llm, "OWASP LLM Top 10 2026", [llm_row], []),
+                    (llm, "OWASP LLM Top 10", [llm_row], []),
+                    (llm, "owasp llm top 10 2026", [llm_row], []),
+                    (llm, "owasp llm top 10", [llm_row], []),
+                    (llm, "OWASP LLM Top 10 (2026)", [llm_row], []),
+                    (genai, both, [mcp_row, genai_row], [mcp_row])):
+                copied = lines[source].replace(f">{source}</span>", f">{copy}</span>")
+                self.assertNotEqual(copied, lines[source])
+                texts = {rel: text.replace(lines[source], lines[source] + copied)}
+                failed = self._failed(texts)
+                self.assertEqual([e.status for e in failed], ["incomplete"] * len(rows), (rel, copy, failed))
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), len(rows), (rel, copy, hits))
+                for hit, (row, name) in zip(hits, rows):
+                    self.assertTrue(hit.startswith(self._owasp_row(rel, row, name, 2)), hit)
+                    self.assertIn("in .web/build.py names one item on every For-AI page, and no other item, part "
+                                  "of a compound name or piece of one names its register row, in any spelling;",
+                                  hit)
+                    self.assertTrue(hit.endswith("the row may be named once, so the template should drop the "
+                                                 "duplicate or compound part)"), hit)
+                # The copy replacing the original leaves no item named by the OWASP name,
+                # which fails as before; a compound part still beside its own item fails
+                # that item's row as well.
+                expected = [self._owasp_presence(rel, source, 0)] + [self._owasp_row(rel, row, name, 2)
+                                                                     for row, name in replacing]
+                hits = self.mod.stale_standard_editions({rel: text.replace(lines[source], copied)})
+                self.assertEqual(len(hits), len(expected), (rel, copy, hits))
+                for hit, start in zip(hits, expected):
+                    self.assertTrue(hit.startswith(start), hit)
+            hit = self.mod.stale_standard_editions(self._for_ai_with(rel, f"{mcp}</span>.", f"{mcp}</span>"))[0]
+            self.assertIn(f"list item {mcp!r} lists the instrument text '', which is not the one enumerated for "
+                          f"its name in FOR_AI_LABEL_INSTRUMENTS or FOR_AI_NAME_TEXTS, or for a compared OWASP "
+                          f"name in FOR_AI_OWASP_TEXTS", hit)
+            # An OWASP name in another case or spacing, or with its current edition in
+            # parentheses, is that name; a stale edition fails as a mismatch alone.
+            for old, new in ((f">{mcp}</span>", ">owasp  MCP top 10</span>"),
+                             (f">{llm}</span>", ">OWASP Top 10 for LLM Applications (2026)</span>")):
+                self.assertEqual(self.mod.stale_standard_editions(self._for_ai_with(rel, old, new)), [], (rel, new))
+            texts = self._for_ai_with(rel, f">{llm}</span>", ">OWASP Top 10 for LLM Applications 2025</span>")
+            self.assertEqual([e.status for e in self._failed(texts)], ["mismatch"], rel)
 
     def test_owasp_fallback_is_stated(self):
         # VPR3B393-R6 item 5: the fallback by spelling is stated in the USAGE text and
