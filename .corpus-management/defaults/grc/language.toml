@@ -4,7 +4,9 @@
 # tools/lint-language.py loads it via profile_loader.load("language") and
 # passes it to the engine's language_vocabulary(); the engine (parameterized
 # in PR-F) compiles the ise/yse patterns FROM ise_stems + yse_forms at run()
-# time (byte-identical to the former hardcoded ISE_PATTERN/YSE_PATTERN). Values
+# time (byte-identical to the former hardcoded ISE_PATTERN/YSE_PATTERN), and
+# since 3b234 round 4 lets any run of ise_prefixes, with a hyphen after up to
+# three of them, precede an ise stem inside the same word bounds. Values
 # transcribed VERBATIM from the former gate_lint_language.py module constants
 # (_ISE_STEMS, ISATION_ALLOWED_WORDS, the YSE forms, ALLOWED_COMMONWEALTH_SPANS,
 # VERBATIM_ENSURE_TITLES, LOWERCASE_PROJECT_NAMES). ise_stems order is
@@ -34,21 +36,26 @@ ise_stems = [
     "generalise",
     "operationalise",
     "anonymise",
+    "apologise",
     "authorise",
     "capitalise",
     "characterise",
     "containerise",
     "contextualise",
+    "criminalise",
     "crystallise",
-    "deprioritise",
-    "deserialise",
+    "externalise",
     "formalise",
+    "immobilise",
+    "initialise",
     "internalise",
     "itemise",
+    "legitimise",
     "localise",
     "materialise",
     "mechanise",
     "memorise",
+    "mobilise",
     "modernise",
     "monetise",
     "neutralise",
@@ -60,19 +67,46 @@ ise_stems = [
     "quantise",
     "randomise",
     "realise",
-    "reorganise",
     "sanitise",
+    "sensitise",
     "serialise",
     "stabilise",
     "summarise",
     "synchronise",
     "synthesise",
     "tokenise",
-    "unauthorise",
-    "unrecognise",
-    "unsanitise",
     "virtualise",
+    "visualise",
+    "vitalise",
     "weaponise",
+]
+# Verb prefixes (3b234 round 4): any run of them, with a hyphen after up to
+# three of them, may precede an ise_stems entry inside the same word bounds, so a
+# prefixed derivative needs no entry of its own (reorganised, unreorganised,
+# de-emphasised). ASCII letters only; a word is only reported when a listed
+# stem ends it, so premise, devise or comprise are never reported.
+ise_prefixes = [
+    "re",
+    "un",
+    "de",
+    "mis",
+    "over",
+    "under",
+    "pre",
+    "dis",
+    "co",
+    "non",
+    "anti",
+    "counter",
+    "cross",
+    "hyper",
+    "inter",
+    "micro",
+    "multi",
+    "post",
+    "semi",
+    "sub",
+    "super",
 ]
 isation_allowed_words = [
     "improvisation",

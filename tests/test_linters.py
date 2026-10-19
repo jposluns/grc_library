@@ -35218,7 +35218,7 @@ class CorpusManagementPackActivationTests(unittest.TestCase):
         man = self._load("core/manifest.toml")
         self.assertEqual(man["schema_version"], 1)
         self.assertEqual(man["pack"]["state"], "active", "compile PR-2 activates the pack")
-        self.assertEqual(man["pack"]["version"], "0.14.1", "3b372 bounds the language engine's spelling checks by ASCII letters instead of \\b and matches the URL scheme in ASCII only, on top of 3b366's URL mask (PATCH, 0.14.0 to 0.14.1)")
+        self.assertEqual(man["pack"]["version"], "0.15.0", "3b234 adds the language profile's ise_prefixes key and the matching language_vocabulary parameter, on top of 3b372's ASCII-letter word bounds (MINOR, 0.14.1 to 0.15.0)")
 
     def test_generation_enabled_and_summary_matches_ruleset(self):
         man = self._load("core/manifest.toml")
@@ -40056,7 +40056,7 @@ class ProfileLoaderTests(unittest.TestCase):
     def test_live_language_profile_loads(self):
         prof = self.mod.load("language")
         self.assertEqual(set(prof), {
-            "ise_stems", "isation_allowed_words", "yse_forms",
+            "ise_stems", "ise_prefixes", "isation_allowed_words", "yse_forms",
             "allowed_commonwealth_spans", "verbatim_ensure_titles",
             "lowercase_project_names",
         })
@@ -40071,6 +40071,7 @@ class ProfileLoaderTests(unittest.TestCase):
         cfg = wrapper._language_config()
         self.assertEqual(tuple(cfg), (
             tuple(prof["ise_stems"]),
+            tuple(prof["ise_prefixes"]),
             frozenset(prof["isation_allowed_words"]),
             tuple(prof["yse_forms"]),
             tuple(prof["allowed_commonwealth_spans"]),
@@ -40079,7 +40080,7 @@ class ProfileLoaderTests(unittest.TestCase):
         ))
         self.assertEqual(
             tuple(type(v) for v in cfg),
-            (tuple, frozenset, tuple, tuple, tuple, set))
+            (tuple, tuple, frozenset, tuple, tuple, tuple, set))
         for name in ("_ISE_STEMS", "ISE_PATTERN", "ISATION_ALLOWED_WORDS",
                      "YSE_PATTERN", "ALLOWED_COMMONWEALTH_SPANS",
                      "VERBATIM_ENSURE_TITLES", "LOWERCASE_PROJECT_NAMES"):
@@ -40088,7 +40089,8 @@ class ProfileLoaderTests(unittest.TestCase):
     def test_language_config_is_dynamic_and_lazy(self):
         from unittest.mock import patch
         synthetic = {
-            "ise_stems": ["sentinelise"], "isation_allowed_words": ["organisation"],
+            "ise_stems": ["sentinelise"], "ise_prefixes": ["sentinel"],
+            "isation_allowed_words": ["organisation"],
             "yse_forms": ["sentinelyse"], "allowed_commonwealth_spans": ["organised"],
             "verbatim_ensure_titles": ["ensure x"], "lowercase_project_names": ["sentinel"],
         }
@@ -40104,7 +40106,7 @@ class ProfileLoaderTests(unittest.TestCase):
             loaded.assert_called_once_with("language")
         cfg = run.call_args.kwargs["vocab"]
         self.assertEqual(tuple(cfg), (
-            ("sentinelise",), frozenset({"organisation"}), ("sentinelyse",),
+            ("sentinelise",), ("sentinel",), frozenset({"organisation"}), ("sentinelyse",),
             ("organised",), ("ensure x",), {"sentinel"}))
 
     def test_live_stubs_profile_loads(self):
@@ -40398,6 +40400,289 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     with self.subTest(value=value, generator=generator):
                         self.assertEqual(self.scan(value, generator=generator),
                                          [(kind, 1, value)])
+
+    def test_prefixed_stems_flagged(self):
+        # 3b234: the letter-bounded pattern does not match a covered stem inside a
+        # prefixed word, so "decentralised" passed while only "centralise" was listed.
+        # Since round 4 the ise_prefixes rule covers them; a hyphenated prefix is
+        # part of the reported word.
+        for stem in ("decentralise", "destabilise", "reprioritise", "underutilise",
+                     "unrealise", "derecognise", "detokenise", "recategorise",
+                     "reinitialise", "renormalise", "unutilise"):
+            with self.subTest(stem=stem):
+                self.assertEqual(self.scan(stem + "d"), [("ise", 1, stem + "d")])
+        for word in ("reinitialized", "renormalized", "unutilized"):
+            with self.subTest(word=word):
+                self.assertEqual(self.scan(word), [])
+        self.assertEqual(self.scan("de-emphasised"), [("ise", 1, "de-emphasised")])
+
+    def test_round3_stems_flagged(self):
+        # 3b234 round 3: the base "initialise" and further prefixed stems were not
+        # listed, so "initialised", "uninitialised" and "reutilised" passed. Each
+        # -ise inflection is flagged, its -isation noun where the word exists is
+        # flagged by the generic suffix check, and its -ize forms are accepted.
+        # Since round 4 only the bases are listed; the prefixes rule covers the rest.
+        nouns = ("initialise", "deinitialise", "reutilise", "reoptimise",
+                 "reserialise", "retokenise", "reparameterise", "depseudonymise",
+                 "repseudonymise", "reanonymise", "recentralise", "relocalise",
+                 "delocalise", "restabilise", "decapitalise", "devirtualise",
+                 "revirtualise", "remodernise", "rematerialise", "reinternalise",
+                 "externalise", "visualise")
+        for stem in (*nouns, "uninitialise", "unserialise", "unparameterise",
+                     "uncustomise", "unprioritise", "unstabilise", "unnormalise",
+                     "misrecognise", "uncapitalise"):
+            ize = stem[:-3] + "ize"
+            with self.subTest(stem=stem):
+                for word in (stem, stem + "d", stem + "s", stem[:-1] + "ing"):
+                    self.assertEqual(self.scan(word), [("ise", 1, word)])
+                for word in (ize, ize + "d", ize + "s", ize[:-1] + "ing"):
+                    self.assertEqual(self.scan(word), [])
+                if stem in nouns:
+                    word = stem[:-1] + "ation"
+                    self.assertEqual(self.scan(word), [("isation", 1, word)])
+                    self.assertEqual(self.scan(ize[:-1] + "ation"), [])
+        for stem in ("initialise", "externalise", "visualise"):
+            self.assertIn(stem, self.vocab.ise_stems)
+
+    # 3b234 round 4: the forms the round 3 review found passing, and the bases
+    # they need, with the -isation noun where the word exists.
+    ROUND4_FORMS = {
+        "underemphasise": False, "overoptimise": False, "miscategorise": True,
+        "restandardise": True, "preinitialise": True, "deoptimise": True,
+        "revitalise": True, "desensitise": True, "decriminalise": True,
+        "demobilise": True, "immobilise": True, "mobilise": True,
+        "legitimise": True, "delegitimise": True, "apologise": False,
+        "vitalise": True, "sensitise": True, "criminalise": True,
+    }
+    ROUND4_BASES = ("mobilise", "legitimise", "apologise", "vitalise", "sensitise",
+                    "criminalise", "immobilise")
+    # Words that end in "ise" in every dialect, several after a listed prefix.
+    ISE_CONTROLS = (
+        "surprise", "enterprise", "premise", "compromise", "revise", "devise",
+        "advise", "supervise", "exercise", "merchandise", "franchise", "otherwise",
+        "likewise", "expertise", "paradise", "precise", "concise", "disguise",
+        "chastise", "comprise", "improvise", "televise", "despise", "demise",
+        "promise", "raise", "praise", "noise", "poise", "cruise", "bruise", "rise",
+        "wise", "guise", "arise", "apprise")
+
+    def round4_words(self, stem):
+        return (stem, stem + "d", stem + "s", stem[:-1] + "ing")
+
+    def test_round4_forms_flagged(self):
+        for stem in self.ROUND4_BASES:
+            self.assertIn(stem, self.vocab.ise_stems)
+        self.assertNotIn("aestheticise", self.vocab.ise_stems)
+        for stem, noun in self.ROUND4_FORMS.items():
+            ize = stem[:-3] + "ize"
+            with self.subTest(stem=stem):
+                for word in self.round4_words(stem):
+                    for value in (word, word.upper(), word.capitalize()):
+                        for generator in (False, True):
+                            self.assertEqual(self.scan(value, generator=generator),
+                                             [("ise", 1, value)])
+                for word in self.round4_words(ize):
+                    self.assertEqual(self.scan(word), [])
+                if noun:
+                    word = stem[:-1] + "ation"
+                    self.assertEqual(self.scan(word), [("isation", 1, word)])
+                    self.assertEqual(self.scan(ize[:-1] + "ation"), [])
+
+    def test_prefix_rule_hyphen_and_runs(self):
+        # Any run of listed prefixes, with a hyphen after up to three of them, is
+        # part of the reported word; a prefix glued to a preceding letter is not.
+        for word in ("re-organised", "non-standardised", "co-organising",
+                     "over-optimises", "Pre-Initialised", "under-emphasise",
+                     "unreorganised", "re-deprioritised", "non-re-standardised",
+                     "suboptimised", "hyperparameterised", "multi-tokenised",
+                     "non-re-de-organised", "co-unre-de-standardised"):
+            with self.subTest(word=word):
+                self.assertEqual(self.scan(word), [("ise", 1, word)])
+                self.assertEqual(self.scan("_" + word + "_"), [("ise", 1, word)])
+                ize = word[:-4] + "ized" if word.endswith("ised") else None
+                if ize:
+                    self.assertEqual(self.scan(ize), [])
+        self.assertEqual(self.scan("xre-organised"), [("ise", 1, "organised")])
+        self.assertEqual(self.scan("xreorganised"), [])
+        self.assertEqual(self.scan("re-"), [])
+        self.assertEqual(self.scan("re- and de-centralised"),
+                         [("ise", 1, "de-centralised")])
+        # A chain with more hyphens is reported from its last three hyphenated
+        # groups; the bound keeps a long prefix chain linear, not quadratic.
+        self.assertEqual(self.scan("co-non-re-de-organised"),
+                         [("ise", 1, "non-re-de-organised")])
+        self.assertEqual(self.scan("re-" * 20000 + "x"), [])
+        self.assertEqual(self.scan("co-non-" * 10000 + "organised"),
+                         [("ise", 1, "non-co-non-organised")])
+
+    def test_prefix_rule_long_chain_bounded_time(self):
+        # 3b234 round 5: a long hyphenated prefix chain completes in bounded time.
+        # Without the three-hyphen cap the time grew quadratically with the chain
+        # (about 12 seconds for "re-" repeated 2000 times), because every hyphen
+        # restarted the run; with the cap these inputs (about 20000 characters)
+        # each take well under a second. The 5-second CPU budget leaves room for
+        # a slow runner while failing a quadratic regression.
+        import time
+        cases = (
+            ("re-" * 7000 + "x", []),
+            ("re-" * 7000 + "re", []),
+            ("unre-" * 4000 + "x", []),
+            ("mis-co-" * 3000 + "organ", []),
+            ("re" * 10000 + "x", []),
+            ("un-re-" * 3500 + "organised", [("ise", 1, "re-un-re-organised")]),
+        )
+        for text, expected in cases:
+            for generator in (False, True):
+                with self.subTest(text=text[:12], length=len(text), generator=generator):
+                    start = time.process_time()
+                    found = self.scan(text, generator=generator)
+                    elapsed = time.process_time() - start
+                    self.assertEqual(found, expected)
+                    self.assertLess(elapsed, 5.0)
+
+    def test_prefix_rule_casefold_runs_bounded_time(self):
+        # 3b234 round 6: U+017F (long s) folds to "s", so the prefix "mis" takes
+        # "mi" + U+017F, and the ASCII-only letter bound allowed a fresh attempt
+        # after every U+017F; the pattern alone took about 29 seconds for the first
+        # input below (quadratic). U+0130 and U+0131 fold to "i" the same way, and
+        # U+212A (Kelvin sign) folds to "k". With the memoized scan the first input
+        # takes well under a second; the shorter runs, one for every listed prefix,
+        # took about 2 seconds each before and a few hundredths of a second after.
+        import time
+        cases = [("mi\u017f" * 4000 + "x", [], 5.0),
+                 ("mi\u017f" * 4000 + "organised",
+                  [("ise", 1, "mi\u017f" * 4000 + "organised")], 5.0),
+                 (("mi\u017f" + "mult\u0130" + "d\u0131\u017f" + "\u212a") * 1000 + "x",
+                  [], 5.0)]
+        for prefix in self.vocab.ise_prefixes:
+            for tail in ("mi\u017f", "mult\u0130", "d\u0131\u017f", "\u017fub",
+                         "cro\u017f\u017f-", "\u212a"):
+                cases.append(((prefix + tail) * (4000 // len(prefix + tail)) + "x",
+                              [], 1.0))
+        for text, expected, budget in cases:
+            for generator in (False, True):
+                with self.subTest(text=ascii(text[:12]), length=len(text),
+                                  generator=generator):
+                    start = time.process_time()
+                    found = self.scan(text, generator=generator)
+                    elapsed = time.process_time() - start
+                    self.assertEqual(found, expected)
+                    self.assertLess(elapsed, budget)
+
+    def test_prefix_scan_matches_the_pattern(self):
+        # 3b234 round 6: ise_words runs the ise pattern as a memoized search; it
+        # must report exactly the words the pattern's own finditer reports,
+        # including case-folded characters, hyphen chains past the three-group cap
+        # and (for the second vocabulary) prefixes that overlap one another.
+        import random
+        languages = (self.language, self.engine.compile_language(self.vocab._replace(
+            ise_stems=self.vocab.ise_stems + ("reorganise", "costandardise"),
+            ise_prefixes=self.vocab.ise_prefixes + ("a", "ab", "ba", "s", "si"))))
+        pieces = (*self.vocab.ise_prefixes, "organise", "recognise", "realise", "d",
+                  "s", "r", "ing", "able", "-", " ", "x", "_", "\u017f", "\u0130",
+                  "\u0131", "\u212a", "mi\u017f", "\u00e9", "ab", "ba", "si", "RE")
+        rng = random.Random(3234)
+        matched = 0
+        for _ in range(4000):
+            text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 14)))
+            if rng.random() < 0.5:
+                text = text.upper() if rng.random() < 0.5 else text.swapcase()
+            for language in languages:
+                expected = [m.group(0) for m in language.ise_pattern.finditer(text)]
+                matched += bool(expected)
+                self.assertEqual(self.engine.ise_words(text, language), expected,
+                                 ascii(text))
+        self.assertGreater(matched, 200)
+        empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
+        self.assertIsNone(empty.ise_scan)
+        self.assertEqual(self.engine.ise_words("re-organised", empty), ["organised"])
+
+    def test_prefix_rule_controls_unflagged(self):
+        prefixes = self.vocab.ise_prefixes
+        for word in self.ISE_CONTROLS:
+            stem = word[:-1]
+            forms = (word, word + "s", word + "d", stem + "ing", stem + "ed")
+            for value in (*forms, *(p + w for p in ("re", "un", "pre") for w in forms),
+                          *(p + "-" + word for p in prefixes)):
+                for generator in (False, True):
+                    with self.subTest(value=value, generator=generator):
+                        self.assertEqual(self.scan(value, generator=generator), [])
+
+    def test_prefix_rule_profile_fail_closed(self):
+        raw = {k: list(v) for k, v in self.vocab._asdict().items()}
+        missing = dict(raw)
+        del missing["ise_prefixes"]
+        with self.assertRaises(TypeError):
+            self.engine.language_vocabulary(**missing)
+        for bad in ("re", ["re", 1], [""], ["re-"], ["r e"], ["(re)"], ["r" + chr(233)],
+                    ["re\n"], None):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.engine.language_vocabulary(**dict(raw, ise_prefixes=bad))
+        for missing_key in ("ise_prefixes", "ise_stems"):
+            with self.subTest(missing_key=missing_key):
+                with tempfile.TemporaryDirectory() as td:
+                    defaults = Path(td)
+                    (defaults / "grc").mkdir()
+                    text = (REPO_ROOT / ".corpus-management/defaults/grc/language.toml"
+                            ).read_text(encoding="utf-8")
+                    start = text.index(missing_key + " = [")
+                    end = text.index("]\n", start) + 2
+                    (defaults / "grc" / "language.toml").write_text(
+                        text[:start] + text[end:], encoding="utf-8")
+                    import profile_loader
+                    prof = profile_loader.load("language", defaults_dir=defaults / "grc")
+                    self.assertNotIn(missing_key, prof)
+                    with self.assertRaises(TypeError):
+                        self.engine.language_vocabulary(**prof)
+
+    def test_prefixed_entries_need_no_listing(self):
+        # Round 4 removed the prefixed entries the prefix rule covers. Listing
+        # them again changes no result: a removed entry's prefix joins the
+        # unhyphenated run before its base stem.
+        removed = ("reorganise", "unrecognise", "deemphasise", "overutilise",
+                   "mischaracterise", "preauthorise", "disorganise", "undercapitalise")
+        full = self.engine.compile_language(self.vocab._replace(
+            ise_stems=self.vocab.ise_stems + removed))
+        for stem in removed:
+            for pre in ("", "re", "un-", "non-re-", "co-non-re-", "xre-", "x"):
+                text = pre + stem + "d"
+                with self.subTest(text=text):
+                    self.assertEqual(self.engine.spelling_matches(text, full),
+                                     self.engine.spelling_matches(text, self.language))
+
+    def test_prefix_rule_without_prefixes_is_the_stem_pattern(self):
+        # An empty ise_prefixes list compiles the plain stem alternation, so
+        # prefixed derivatives are reported only after a hyphen, as before round 4.
+        empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
+        stems = "|".join(
+            "|".join(re.escape(w) for w in (s, s + "s", s + "d", s[:-1] + "ing",
+                                            s[:-1] + "able", s + "r", s + "rs"))
+            for s in self.vocab.ise_stems)
+        self.assertEqual(empty.ise_pattern.pattern,
+                         self.engine._NO_LETTER_BEFORE + "(" + stems + ")"
+                         + self.engine._NO_LETTER_AFTER)
+        self.assertEqual(self.scan("reorganised", language=empty), [])
+        self.assertEqual(self.scan("re-organised", language=empty),
+                         [("ise", 1, "organised")])
+
+    def test_preflight_flags_the_round4_forms(self):
+        # tools/preflight-changelog.py runs the same engine across its process
+        # boundary, so it must report exactly what gate 2 reports.
+        preflight = load_linter_module("tools/preflight-changelog.py", "_preflight_round4")
+        texts = []
+        for stem in self.ROUND4_FORMS:
+            ize = stem[:-3] + "ize"
+            texts += [*self.round4_words(stem), *self.round4_words(ize),
+                      stem[:-1] + "ation"]
+        texts += ["re-organised", "non-re-standardised", "unreorganised",
+                  *self.ISE_CONTROLS]
+        found = preflight.spelling_findings([("CHANGELOG.md", t) for t in texts])
+        expected = [f"gate 2 spelling [{kind}]: {word}"
+                    for t in texts
+                    for kind, word in self.engine.spelling_matches(t, self.language)]
+        self.assertEqual([issue for _, issue, _ in found], expected)
+        self.assertIn("gate 2 spelling [ise]: decriminalised", expected)
+        self.assertIn("gate 2 spelling [ise]: non-re-standardised", expected)
+        self.assertNotIn("surprise", " ".join(expected))
 
     def test_exclusions_are_scoped(self):
         for generator in (False, True):
