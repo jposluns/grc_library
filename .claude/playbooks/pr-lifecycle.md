@@ -516,7 +516,14 @@ is external. Two mechanisms:
      RETIRED; the LIVE detailed mirror now lives in the operational store (resolved via
      `resolve_working`), its completed weeks are rolled up in the root CHANGELOG AND swept to the
      PUSHED `grc_library_private/changelog-archive/` together by the coupled `rollup-changelog.py`
-     (#2066), and git history retains every entry regardless). Any such archiving is an advisory close-out follow-up,
+     (#2066), and git history retains every entry regardless).
+     For each register whose rows are swept, follow the manual sweep procedure in the
+     module docstring of `tools/lint-bookkeeping-parity.py`: compute N as the lowest PR
+     in a well-formed kept row, never above any kept row or the highest root CHANGELOG PR.
+     In the same sweep edit, write or replace the one `<!-- gate50-floor: #N -->` line
+     at column 0 outside any table; leave the marker alone if no rows move.
+     Run that gate before and after the sweep, with no new finding in the after-run.
+     Any such archiving is an advisory close-out follow-up,
      NOT a gate: it is cross-repo (neither repo's CI can see the other), the same cross-repo
      shape as the `/validate-pr` sweep and the `audit-register-currency.py` advisory
      tool, and the sweep removes tree content only (this
