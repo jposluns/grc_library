@@ -17756,12 +17756,14 @@ class BookkeepingParityTests(LinterTestCase):
                     f"{cell!r}; expected a leading PR identity.",
                 ])
 
-    def _cadence_main(self, mod, vp_cells, retro_cells, top, floor=None, retro_floor=None):
+    def _cadence_main(self, mod, vp_cells, retro_cells, top, floor=None, retro_floor=None,
+                      vp_extra=""):
         # Run main() over a validate-pr history of `vp_cells` (in order, from line 2), an
         # improvement log of `retro_cells` and a CHANGELOG holding every PR in [INCEPTION, top];
         # return the exit code, the finding lines and stderr. Both registers end with the
         # recorded floor marker (3b206), by default the INCEPTION + 526 sweep these fixtures model;
         # `retro_floor` gives the improvement log its own marker (default: the same as `floor`).
+        # `vp_extra` is raw history text placed after the `vp_cells` rows (3b408 short rows).
         from contextlib import redirect_stderr, redirect_stdout
         from io import StringIO
         from unittest.mock import Mock, patch
@@ -17771,7 +17773,8 @@ class BookkeepingParityTests(LinterTestCase):
         marker = f"<!-- gate50-floor: #{floor} -->\n"
         retro_marker = f"<!-- gate50-floor: #{retro_floor} -->\n"
         row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
-        history = "| Date | PR | Touched | Findings | Hot-fix |\n" + "".join(map(row, vp_cells)) + marker
+        history = ("| Date | PR | Touched | Findings | Hot-fix |\n" + "".join(map(row, vp_cells))
+                   + vp_extra + marker)
         working = {
             mod.VALIDATE_PR_HISTORY: Mock(read_text=Mock(return_value=history)),
             mod.IMPROVEMENT_LOG: Mock(read_text=Mock(
@@ -17986,9 +17989,9 @@ class BookkeepingParityTests(LinterTestCase):
             with self.subTest(vp_cells=vp_cells, retro_cells=retro_cells):
                 rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, first + 1)
                 self.assertEqual((rc, found), (0, []), err)
-        # In the validate-pr history the ceiling no longer reads #2 from `iteration 2`. (The
-        # row-integrity reader keys a history row on every PR token, so it reports its own
-        # companion finding for #2; that is a separate check, not the floor.)
+        # In the validate-pr history the ceiling no longer reads #2 from `iteration 2`. (Until
+        # 3b408 the row-integrity reader keyed a history row on every PR token and reported its
+        # own companion finding for #2; since 3b408 it reads the leading identity too.)
         rc, found, err = self._cadence_main(mod, iteration, plain, first + 1)
         self.assertEqual([line for line in found if "floor marker" in line], [], err)
 
@@ -18125,9 +18128,9 @@ class BookkeepingParityTests(LinterTestCase):
         self.assertEqual(rc, 1, err)
         self.assertEqual(no_row(found),
                          [missing(first)], err)
-        # With #first's own row present Check 1 is satisfied. (The row-integrity reader still keys
-        # a history row on every PR token, so it reports two canonical rows for #first; that is a
-        # separate check, unchanged here.)
+        # With #first's own row present Check 1 is satisfied. (Until 3b408 the row-integrity
+        # reader keyed a history row on every PR token and reported two canonical rows for
+        # #first; test_row_integrity_reads_the_leading_identity_through_main pins the fix.)
         rc, found, err = self._cadence_main(
             mod, [f"#{first + 1} (re-run of #{first})", f"#{first}"], retro_cells, first + 1,
             floor=first)
@@ -18145,6 +18148,117 @@ class BookkeepingParityTests(LinterTestCase):
         retro_cells = [f"#{pr}" for pr in range(first + 3, first - 1, -1)]
         rc, found, err = self._cadence_main(mod, vp_cells, retro_cells, first + 3, floor=first)
         self.assertEqual((rc, found), (0, []), err)
+
+    def test_unread_identity_hint_is_built_from_the_cell(self) -> None:
+        # 3b408 (ledger VPR3B206-R6): a cell with no range spans fell back to the hard-coded hint
+        # '#900-#903', so `#929-3.245`, `#929-1.5` or `#929-9x` was told to write unrelated PRs.
+        # The hint is now built from the cell: separate the identity from its hyphenated tail.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        hint = lambda line, cell, prs, example: (
+            f"  [qa-cadence] {reg}:{line}: unread PR identity in cell {cell!r}; Check 1 reads no "
+            f"row for {prs}. Separate the identity from the text after it with a space, not a "
+            f"hyphen, as {example!r}.")
+        cases = (
+            ("#929-3.245", "#929 3.245"),
+            ("#929-1.5", "#929 1.5"),
+            ("#929-9x", "#929 9x"),
+            ("929-9x", "929 9x"),
+            ("PR #929-9x iteration", "PR #929 9x iteration"),
+        )
+        for cell, example in cases:
+            with self.subTest(cell=cell):
+                rc, found, err = self._cadence_main(
+                    mod, ["#939", cell], ["#939"], 939, floor=939)
+                self.assertEqual(rc, 1, err)
+                self.assertEqual(found, [hint(3, cell, "#929", example)], err)
+                self.assertNotIn("#900", err)
+                # The suggested cell is read whole: no finding, and presence reads #929.
+                self.assertEqual(mod.unread_identity_findings(row(example)), [])
+                self.assertIn(929, mod.parse_validate_pr_status(row(example)))
+        # A range is still told to put '#' on both ends; a range that is fine is not mentioned.
+        self.assertEqual(mod.unread_identity_findings(row("#929-932-3.1")), [
+            f"  [qa-cadence] {reg}:1: unread PR range in cell '#929-932-3.1'; Check 1 reads no "
+            f"row for #929, #932. Write each range with '#' on both ends, as '#929-#932'. "
+            f"Separate the identity from the text after it with a space, not a hyphen, as "
+            f"'#929-#932 3.1'."])
+        self.assertEqual(mod.unread_identity_findings(row("#900-#903, #929-3.245")),
+                         [hint(1, "#900-#903, #929-3.245", "#929", "#900-#903, #929 3.245")])
+        for example in ("#929-#932 3.1", "#900-#903, #929 3.245"):
+            with self.subTest(example=example):
+                self.assertEqual(mod.unread_identity_findings(row(example)), [])
+
+    def test_short_validate_pr_row_is_a_malformed_row_finding(self) -> None:
+        # 3b408 (ledger VPR3B206-R6): _validate_pr_rows skipped a dated row with fewer than five
+        # cells without a finding, so its PR read as rowless with no word on why. It is now a
+        # malformed-row finding naming its file, line and value, beside the missing-row finding.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        first = mod.INCEPTION + 526
+        retro_cells = [f"#{first + 1}", f"#{first}"]
+        for short in (f"| 2026-10-03 | #{first} |", f"| 2026-10-03 | #{first} | x",
+                      "| 2026-10-03 |"):
+            with self.subTest(short=short):
+                rc, found, err = self._cadence_main(
+                    mod, [f"#{first + 1}"], retro_cells, first + 1, floor=first,
+                    vp_extra=short + "\n")
+                self.assertEqual(rc, 1, err)
+                self.assertEqual(len(found), 2, err)
+                self.assertEqual(found[0], (
+                    f"  [qa-cadence] {reg}:3: malformed row {short!r}; expected a Findings cell "
+                    f"after the Date, PR and Touched cells."), err)
+                self.assertTrue(found[1].startswith(
+                    f"  [qa-cadence] PR #{first}: no row in {reg}."), err)
+        # A five-field row (the Findings cell present, even empty) is read as before.
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first + 1}"], retro_cells, first + 1, floor=first,
+            vp_extra=f"| 2026-10-03 | #{first} | x |\n")
+        self.assertEqual((rc, found), (0, []), err)
+
+    def test_row_integrity_reads_the_leading_identity_through_main(self) -> None:
+        # 3b408 (ledger VPR3B406-R1): row integrity keyed a validate-pr row on every PR_CELL_TOKEN
+        # number, so `#856 (re-run of #855)` beside `#855` reported two canonical rows for #855
+        # and could satisfy a `#855 addendum` companion. It now keys set(named) & read from
+        # _identity_reads, the reading presence uses since 3b406.
+        mod = self._load_module()
+        reg = mod.VALIDATE_PR_HISTORY
+        row = lambda cell: f"| 2026-10-03 | {cell} | x | RETURNED | none |\n"
+        first = mod.INCEPTION + 526
+        retro_cells = [f"#{first + 1}", f"#{first}"]
+        rerun = f"#{first + 1} (re-run of #{first})"
+        rc, found, err = self._cadence_main(
+            mod, [rerun, f"#{first}"], retro_cells, first + 1, floor=first)
+        self.assertEqual((rc, found), (0, []), err)
+        # The re-run note is no canonical row for #first, so a lone companion has none.
+        rc, found, err = self._cadence_main(
+            mod, [rerun, f"#{first} addendum"], retro_cells, first + 1, floor=first)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(found, [
+            f"  [row-integrity] PR #{first}: {reg} line 3 is a companion (iteration/addendum) "
+            f"row with no canonical row for the PR."], err)
+        # Two rows that each lead with #first are still two canonical rows.
+        rc, found, err = self._cadence_main(
+            mod, [f"#{first + 1}", f"#{first}", f"#{first} (r2)"], retro_cells, first + 1,
+            floor=first)
+        self.assertEqual(rc, 1, err)
+        self.assertEqual(found, [
+            f"  [row-integrity] PR #{first}: {reg} lines 3, 4: 2 canonical rows (keep one; mark "
+            f"earlier rounds 'iteration' or 'addendum')."], err)
+        # The records carry the leading identity only; combined and ranged identities keep theirs.
+        cases = (
+            ("#856 (re-run of #855)", [856]),
+            ("#2429 iteration 2", [2429]),
+            ("#2500, see #2380", [2500]),
+            ("#2500, #2501", [2500, 2501]),
+            ("#2500-#2502", [2500, 2502]),
+            ("#900-903, #904", [904]),
+            ("#929-3.245", None),
+        )
+        for cell, keys in cases:
+            with self.subTest(cell=cell):
+                records = mod._history_row_records(row(cell))
+                self.assertEqual([list(r[1]) for r in records], [keys] if keys else [])
 
     def test_parse_changelog_prs_reads_compact_header(self) -> None:
         # parse_changelog_prs must read the stage-3a compact header form
