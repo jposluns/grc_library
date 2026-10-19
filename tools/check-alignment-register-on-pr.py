@@ -32,6 +32,43 @@ list), minus gate 6's exempt files:
    ``Regulation (EU) No 910/2014``), compared by number against the numbers in
    the register's Standard ID, Current version and Superseded versions cells.
 
+PROVISION TAILS (3b378). A provision tail (``PROVISION_TAIL``: ``Art. 32``, ``Annex I``,
+``: High Risk``, ``Ch 1``, ``Chapter IX``) is removed only from its first match outside
+parentheses (``strip_provision``), so ``EU AI Act Chapter IX`` is the EU AI Act and
+``California CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11)`` keeps
+its parenthetical instead of ending at ``(11 CCR Div 6``. ``Ch`` and ``Chapter`` count only
+before a whole numeral token, a capital Roman numeral of I, V, X, L and C or a number, so
+``Chapter IX`` and ``Chapter L`` are tails and ``Chapter Implementation Guide``, ``Widget Act
+Chapter Values`` and ``Chapter XYZ Rules`` keep their words. The text after a parenthetical
+(``Resolver.paren_tail_ok``) is cut the same way. A segment that begins with a jurisdiction
+and a colon (``JURISDICTION_LABEL``: the jurisdictions that begin a register Standard ID, as
+the register writes them) names the instrument after the colon: ``Canada: TBS Directive on
+Automated Decision-Making`` is the citation ``TBS Directive on Automated Decision-Making`` with
+the full form ``Canada TBS Directive on Automated Decision-Making``, where before the colon was
+read as a provision tail and left the not-citable ``Canada``. Any other label before a colon
+is still read as a provision tail (``NIST AI RMF 1.0: Govern function`` is the NIST AI RMF).
+When that label is not registered itself and is either an agency label (``agency_labels`` in
+the alias file: ``CBP``, ``FINTRAC``, ``FMCSA``) or not a citation on its own
+(``not_citable``: a publisher name such as ``NIST``, a placeholder, or descriptive text), the
+text after the colon is resolved instead (``Resolver.after_label``), and when it is
+unregistered the finding is the full form, the label and the text after the colon (``FMCSA:
+Electronic Logging Devices (ELD)``), not the label alone. The two kinds differ when nothing
+after the colon is a citation: an agency label is still reported by its full form (``CBP:
+Unknown Programme``), and so is a bare agency label in any case or shape (``CBP``, ``cbp``),
+while a not-citable label gives no finding (``NIST: Govern function``, ``Other: N/A``,
+``Security management process: risk analysis``). A label may not be both an agency label and a
+``not_citable.exact`` entry; ``load_aliases`` refuses the overlap. A registered label
+(``Switzerland nFADP: Federal Act on Data Protection``, ``Cloud Controls Matrix: CCM v4
+Implementation Guidelines``) never goes through ``after_label``, whatever its shape. A label
+registered only as a series stem (the series rule below) counts too: with today's register
+``ISO``, ``IEC``, ``IEEE`` and ``ISO/IEC`` are series stems (of ``ISO 31000``, ``IEC
+62443-1-1``, ``IEEE 2883`` and ``ISO/IEC 27001``), so ``ISO: Unknown Act 2020`` keeps its tail
+and gives no finding, while ``NIST``, ``CSA`` and ``OWASP`` are the series stem of no Standard
+ID and ``NIST: Unknown Act 2020`` is reported as the full form. This asymmetry is a known
+residual, kept as it is. A generic prose label in a free-text cell is not a
+citation on its own, so ``Note: Unknown Act 2020`` is reported with its prefix, as the full
+form.
+
 HOW A CITATION RESOLVES. Gate 6 (``tools/lint-standards-currency.py`` and its
 pack engine) owns the register parser and the identity normalization; this
 check imports both rather than re-implementing them, so the two tools read the
@@ -387,7 +424,7 @@ acronym alone; ``quebec`` beside ``Quebec Law 25``). A word match is weak eviden
 ``certification`` paired unrelated instruments of different publishers, and those words are
 in the stop list, but other words still pair unrelated instruments. A changed entry with no
 distinctive token is named in a NOTE line, and so is a change to the alias file's
-``umbrella`` or ``not_citable`` entries, which the probe does not compare. The probe never
+``umbrella``, ``not_citable`` or ``agency_labels`` entries, which the probe does not compare. The probe never
 changes the exit status and does not run when neither file changes. Residual (printed
 beside the result): not listed are a form that shares no distinctive token with the changed
 entry (``Law 25`` beside ``Quebec Law 25``, or a spelled-out name beside its acronym that
@@ -396,8 +433,9 @@ shares no distinctive word with it, such as one sharing only stop words or famil
 form of a changed entry with no distinctive token, a form sharing only a family token
 (``NIST SP 800-57`` beside ``NIST SP 800-218``; the family tokens of the register in use are
 printed), a sibling outside the three table surfaces (prose, an EU/EC number, or another
-table: the ``Regulation / Directive`` table of TSA directives in the logistics annex is not
-one), and the siblings of an ``umbrella`` or ``not_citable`` change; and a listed citation
+table: the ``Regulation / Programme`` table of Canadian programmes in the logistics annex is
+not one), and the siblings of an ``umbrella``, ``not_citable`` or ``agency_labels`` change;
+and a listed citation
 can be a different instrument from the same publisher, as a word match often is.
 
 Usage:
@@ -438,7 +476,8 @@ LIST_HEADERS = frozenset({
     "framework", "frameworks", "framework / standard", "framework or standard",
     "framework / regulation", "standard", "standards", "standard / framework",
     "regulation", "regulations", "regulation / guidance", "regulation / standard",
-    "law / regulation",
+    "law / regulation", "regulation / guideline", "regulation / framework",
+    "regulation / directive", "standard / regulation",
 })
 # Column headers whose cells are a free-text list of citations.
 FREE_TEXT_HEADERS = frozenset({
@@ -473,11 +512,22 @@ VERSION_TAIL = re.compile(
     r"|:\d{4})\s*$",
     re.I,
 )
-# A provision reference written after a citation ("GDPR Art. 32", "EU AI Act: High Risk").
+# A provision reference written after a citation ("GDPR Art. 32", "EU AI Act: High Risk",
+# "EU AI Act Chapter IX"). ``strip_provision`` finds the first one outside parentheses.
+# "Ch" and "Chapter" count only before a whole numeral token ("Chapter L", not "Chapter
+# Implementation Guide").
 PROVISION_TAIL = re.compile(
     r"\s*(?::\s|\bArt(?:icle)?s?\b\.?|§|\bSch(?:edule)?\b\.?"
     r"|\bAnnex\b|\bClauses?\b|\bSections?\b"
-    r"|\bCh\b\.?\s+[IVX\d]|\bRecital\b|\bpara(?:graph)?\b\.?|\bs\.\s*\d).*$"
+    r"|\bCh(?:apters?)?\b\.?\s+(?:[IVXLC]+|\d+)\b|\bRecital\b|\bpara(?:graph)?\b\.?|\bs\.\s*\d).*$"
+)
+# A jurisdiction label before a colon at the start of a segment ("Canada: TBS Directive on
+# Automated Decision-Making"): the colon introduces the instrument, so it is not read as a
+# provision tail. The names are the jurisdictions that begin a register Standard ID
+# (2026-10-19), written as the register writes them (case-sensitive).
+JURISDICTION_LABEL = re.compile(
+    r"\s*(Australia|Brazil|British Columbia|Canada|China|Colorado|EU|Illinois|India|Malaysia|NYC"
+    r"|Ontario|Quebec|Saudi Arabia|Singapore|South Korea|Switzerland|Texas|UK|US):\s+(?=\S)"
 )
 # "Article 29 Working Party" at the start of a segment names the issuing body, not a provision,
 # so PROVISION_TAIL is applied only after it (exact spelling and case; not "Art 29", "Articles
@@ -685,13 +735,16 @@ def load_exclusions(text: str) -> list[dict]:
 
 def load_aliases(text: str) -> dict:
     """Aliases (corpus name to register Standard ID), umbrella patterns (a family citation to
-    the row that covers it) and the not-citable vocabulary."""
+    the row that covers it, with any further rows it needs under ``also``), the
+    not-citable vocabulary and the agency labels. A label may not be both an agency label and a
+    ``not_citable.exact`` entry (compared by identity key)."""
     data = json.loads(text)
     if not isinstance(data, dict) or data.get("schema_version") != 1:
         raise PolicyError("alias file: schema_version 1 required")
     aliases = data.get("aliases", {})
     umbrella = data.get("umbrella", [])
     not_citable = data.get("not_citable", {})
+    agency_labels = data.get("agency_labels", [])
     if not isinstance(aliases, dict) or not all(
         isinstance(k, str) and isinstance(v, str) for k, v in aliases.items()
     ):
@@ -704,13 +757,27 @@ def load_aliases(text: str) -> dict:
         values = not_citable.get(key, [])
         if not isinstance(values, list) or not all(isinstance(v, str) for v in values):
             raise PolicyError(f"alias file: 'not_citable.{key}' must be a list of strings")
+    if not isinstance(agency_labels, list) or not all(isinstance(v, str) for v in agency_labels):
+        raise PolicyError("alias file: 'agency_labels' must be a list of strings")
     compiled = []
     for n, item in enumerate(umbrella, 1):
         try:
-            compiled.append((re.compile(item["pattern"], re.I), item["row"]))
-        except (KeyError, TypeError, re.error) as exc:
+            also = item.get("also", [])
+            if not isinstance(also, list) or not all(isinstance(r, str) for r in also):
+                raise TypeError("'also' must be a list of register Standard IDs")
+            compiled.append((re.compile(item["pattern"], re.I), item["row"], tuple(also)))
+        except (AttributeError, KeyError, TypeError, re.error) as exc:
             raise PolicyError(f"alias file: umbrella[{n}] malformed ({exc})") from None
     exact = {identity_key(v) for v in not_citable.get("exact", [])}
+    agencies = {identity_key(v) for v in agency_labels}
+    # A label in both lists would be declared reportable and not citable at once (agency_label
+    # wins in _unregistered and after_label), so the overlap is refused to keep the file
+    # unambiguous. The error names each entry as agency_labels spells it.
+    shared = list(dict.fromkeys(v for v in agency_labels if identity_key(v) in exact))
+    if shared:
+        raise PolicyError(
+            f"alias file: 'agency_labels' and 'not_citable.exact' share {', '.join(shared)}"
+        )
     try:
         patterns = [re.compile(p, re.I) for p in not_citable.get("patterns", [])]
     except re.error as exc:
@@ -720,6 +787,7 @@ def load_aliases(text: str) -> dict:
         umbrella=compiled,
         not_citable_exact=exact,
         not_citable_patterns=patterns,
+        agency_labels=agencies,
     )
 
 
@@ -906,6 +974,16 @@ class Resolver:
             or (INSTRUMENT_WORD.search(name) and len(name.split()) > 1)
         )
 
+    def agency_label(self, name: str) -> bool:
+        """``name`` is an agency label (``agency_labels`` in the alias file: ``CBP``,
+        ``FINTRAC``, ``FMCSA``). Unlike a ``not_citable`` publisher name, an agency label is
+        reported: bare as itself, in any case or shape, unless it is registered or excluded
+        (``cbp``; ``_unregistered`` reads it after the exclusion policy and before
+        ``not_citable``: the exact list, the patterns and the shape heuristic), and before a
+        colon by its full form unless the text after the colon is registered or excluded
+        (``after_label``)."""
+        return identity_key(name) in self.aliases["agency_labels"]
+
     def named_row(self, cand: str) -> str | None:
         """The identity key of the register row ``cand`` names as a Standard ID or a curated
         alias key; None when it names none."""
@@ -919,12 +997,14 @@ class Resolver:
 
     def exact_row(self, cand: str) -> str | None:
         """The identity key of the register row ``cand`` names exactly: a Standard ID, a curated
-        alias of one, or an umbrella pattern; None when it names none."""
+        alias of one, or an umbrella pattern; None when it names none. An umbrella that also
+        lists further rows (``also``: ``BASC Security Standard 6.0.2/6.0.3`` cites both the
+        6.0.2 and the 6.0.3 row) applies only when every one of them is in the register."""
         row = self.named_row(cand)
         if row:
             return row
-        for p, row in self.aliases["umbrella"]:
-            if p.fullmatch(cand) and self.register.has_id(row):
+        for p, row, also in self.aliases["umbrella"]:
+            if p.fullmatch(cand) and all(self.register.has_id(r) for r in (row, *also)):
                 return identity_key(row)
         return None
 
@@ -1062,7 +1142,8 @@ class Resolver:
         removed, it is only provision references (``PROVISION_REF``), dates, editions,
         punctuation and ``&``, ``and`` or ``or`` (``PAREN_TAIL``: ``(CCM) v4.1``, ``(MDR)
         2017/745``, ``(MDR) Annex I``, ``(MDR) Art. 10 and Annex I``, ``(MDR) Art. 10(1)(a) and
-        (b)``); or its text up to any provision tail (``PROVISION_TAIL``) follows ``inner`` to
+        (b)``); or its text up to its first provision tail outside parentheses
+        (``strip_provision``) follows ``inner`` to
         make a name of the same row (``exact_row``: ``(HIPAA) Security Rule`` as ``HIPAA
         Security Rule``; not ``(CCPA) Regulations``, a name of another row) and the rest is
         such a tail. So ``(MDR) Unregistered Act``, ``(MDR) 2017/999``, ``(MDR) Annex I
@@ -1082,8 +1163,8 @@ class Resolver:
         )
         if PAREN_TAIL.fullmatch(rest):
             return True
-        m = PROVISION_TAIL.search(rest)
-        head, tail = (rest[:m.start()], rest[m.start():]) if m else (rest, "")
+        head = strip_provision(rest)
+        tail = rest[len(head):]
         title = f"{inner} {head.strip()}"
         return bool(
             inner and head.strip() and PAREN_TAIL.fullmatch(tail)
@@ -1241,12 +1322,30 @@ class Resolver:
         even when it also matches the exclusion policy (a registered vendor framework stays
         tracked); the policy decides only what an unregistered citation means. ``full`` is the
         segment before its provision or title tail was removed: an exact match on it registers
-        the citation, and otherwise ``text`` resolves as before."""
+        the citation, and otherwise ``text`` resolves as before. A label cut at a colon that is
+        not a citation on its own or is an agency label (``after_label``) is resolved by the
+        text after the colon, and an unregistered one is reported as ``full`` ("FINTRAC:
+        Proceeds of Crime (Money Laundering) and Terrorist Financing Act", not "FINTRAC"). When
+        nothing after the colon is unregistered or excluded and not all of it is registered
+        (none of it, or only part of it), an agency label is still reported as ``full`` ("CBP:
+        Unknown Programme") and any other label is not a citation ("NIST: Govern function",
+        "Security management process: risk analysis")."""
         text, full = strip_markdown(text), strip_markdown(full)
         if not text:
             return [("not-citable", "")]
         if full and full != text and self.full_registered(full):
             return [("registered", full)]
+        after = self.after_label(text, full)
+        if after is not None:
+            inner = self.resolve(strip_provision(after).strip(" ."), after)
+            if any(status == "unregistered" for status, _ in inner):
+                return [("unregistered", full)]
+            if all(status == "registered" for status, _ in inner):
+                return [("registered", full)]
+            excluded = [o for o in inner if o[0] == "excluded"]
+            if excluded:
+                return excluded
+            return [("unregistered", full)] if self.agency_label(text) else [("not-citable", text)]
         grammar = [o for o in ENGINE.discover(text, ".md") if o["channel"] == "grammar"]
         if grammar:
             out = []
@@ -1264,22 +1363,70 @@ class Resolver:
             return [("registered", text)]
         return [self._unregistered(text)]
 
+    def after_label(self, text: str, full: str) -> str | None:
+        """The text after the colon when the citation ``text`` is a label cut at a colon and its
+        full form ``full`` continues it ("FMCSA: Electronic Logging Devices (ELD)"), and the
+        label is not excluded, is not registered (``name_registered``: a registered name before
+        a colon, such as ``Switzerland nFADP`` or the alias key ``Cloud Controls Matrix``, keeps
+        its tail and resolves as before; so does a publisher name that is only a series stem of
+        a Standard ID, such as ``ISO``, ``IEC``, ``IEEE`` or ``ISO/IEC`` with today's register,
+        so ``ISO: Unknown Act 2020`` gives no finding while ``NIST: Unknown Act 2020`` is
+        reported) and is an agency label (``agency_label``: ``FINTRAC``,
+        ``FMCSA``) or not a citation on its own (``not_citable``). None otherwise, so ``ACME:
+        Unknown Act`` still reports ``ACME``. A generic prose label is not a citation on its
+        own either, so ``Note: Unknown Act 2020`` in a free-text cell is reported with its
+        prefix, as the full form, like an agency label."""
+        if not full.startswith(text):
+            return None
+        m = re.match(r"\s*:\s+(?=\S)", full[len(text):])
+        if not m or self.excluded(text) or self.name_registered(text):
+            return None
+        if not (self.agency_label(text) or self.not_citable(text)):
+            return None
+        return full[len(text) + m.end():]
+
     def _unregistered(self, text: str) -> tuple[str, str]:
         row = self.excluded(text)
         if row:
             return ("excluded", f"{row['cls']}: {row['reason']}")
+        # An agency label is reported whatever its case or shape ("cbp", a configured
+        # "Customs Bureau"), so not_citable below (the exact list, the patterns and the shape
+        # heuristic) never silences it.
+        if self.agency_label(text):
+            return ("unregistered", text)
         if self.not_citable(text):
             return ("not-citable", text)
         return ("unregistered", text)
 
 
+def strip_provision(text: str) -> str:
+    """``text`` without its provision tail: from the first ``PROVISION_TAIL`` match outside
+    parentheses, so a provision inside a parenthetical stays part of the name ("California
+    CCPA ADMT and risk-assessment regulations (11 CCR Div 6 Ch 1 Arts 10-11)" is kept whole,
+    not cut at "(11 CCR Div 6")."""
+    pos = 0
+    while m := PROVISION_TAIL.search(text, pos):
+        depth = 0
+        for ch in text[:m.start()]:
+            depth += ch == "("
+            depth -= ch == ")" and depth > 0
+        if depth == 0:
+            return text[:m.start()]
+        pos = m.start() + 1
+    return text
+
+
 def split_parts(cell: str, free_text: bool) -> list[tuple[str, str]]:
     """Split a cell into (citation, full form) pairs. Both kinds split on ";" outside
     parentheses and on " / " and " + "; a free-text cell also splits on ",". Each citation
-    loses its provision suffix ("Art. 32", ": High Risk"), and a free-text segment its trailing
-    control codes ("CSA CCM LOG-05"); the full form keeps the provision suffix, so a title
-    after a colon still reaches the exact lookups. A segment whose citation is empty is
-    dropped. A link to a corpus document is an internal reference, not a citation."""
+    loses its provision suffix outside parentheses ("Art. 32", ": High Risk", "Chapter IX";
+    ``strip_provision``), and a free-text segment its trailing control codes ("CSA CCM
+    LOG-05"); the full form keeps the provision suffix, so a title after a colon still reaches
+    the exact lookups. A segment that begins with a jurisdiction label (``JURISDICTION_LABEL``)
+    is the instrument after the colon, and its full form is the jurisdiction and the instrument
+    without the colon ("Canada TBS Directive on Automated Decision-Making"). A segment whose
+    citation is empty is dropped. A link to a corpus document is an internal reference, not a
+    citation."""
     cell = re.sub(r"\[[^\]]*\]\((?!https?:)[^)]*\.md(?:#[^)]*)?\)", "", cell)
     cell = strip_markdown(cell)
     stops = ";," if free_text else ";"
@@ -1297,8 +1444,13 @@ def split_parts(cell: str, free_text: bool) -> list[tuple[str, str]]:
     for part in parts:
         for full in re.split(r"\s+/\s+|\s+\+\s+", part):
             body = ISSUING_BODY.match(full)
-            head = body[0] if body else ""
-            seg = head + PROVISION_TAIL.sub("", full[len(head):])
+            label = None if body else JURISDICTION_LABEL.match(full)
+            if label:
+                rest = full[label.end():]
+                seg, full = strip_provision(rest), f"{label[1]} {rest}"
+            else:
+                head = body[0] if body else ""
+                seg = head + strip_provision(full[len(head):])
             if free_text:
                 seg, full = CODE_TAIL.sub("", seg), CODE_TAIL.sub("", full)
             seg, full = seg.strip(" ."), full.strip(" .")
@@ -1529,9 +1681,9 @@ def changed_alias_keys(base_text: str | None, head_text: str | None) -> list[str
 
 def changed_uncovered_sections(base_text: str | None, head_text: str | None) -> list[str]:
     """The alias-file sections the sibling probe does not compare (``umbrella``,
-    ``not_citable``) that differ between two versions of the file."""
+    ``not_citable``, ``agency_labels``) that differ between two versions of the file."""
     base, head = alias_sections(base_text), alias_sections(head_text)
-    return [s for s in ("umbrella", "not_citable") if base.get(s) != head.get(s)]
+    return [s for s in ("umbrella", "not_citable", "agency_labels") if base.get(s) != head.get(s)]
 
 
 def changed_standard_ids(base_text: str | None, head_text: str | None) -> list[str]:
@@ -1635,7 +1787,7 @@ def sibling_report(texts: dict, register_text: str, docs) -> list[str]:
         f"above); a form sharing only a family token (in {FAMILY_ROWS} or more Standard IDs of "
         f"this register: {', '.join(sorted(family)) or 'none'}), such as \"NIST SP 800-57\" beside "
         f"\"NIST SP 800-218\"; a sibling outside the three alignment-table surfaces (prose, an "
-        f"EU/EC number, another table); and siblings of umbrella or not_citable changes. A listed "
+        f"EU/EC number, another table); and siblings of umbrella, not_citable or agency_labels changes. A listed "
         f"citation can be another instrument from the same publisher, and a word match often is. "
         f"Report only; exit 0."
     )
