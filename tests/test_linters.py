@@ -6382,9 +6382,10 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
     )
 
     def _register(self, rows=ROWS):
+        # A row may carry a fourth item, its Topic cell (``Topic`` otherwise).
         body = "".join(
-            f"| {sid} | {cur} | 2024 | Topic | {sup} | https://example.org/ | 2026-10-01 |\n"
-            for sid, cur, sup in rows
+            f"| {sid} | {cur} | 2024 | {topic[0] if topic else 'Topic'} | {sup} | https://example.org/ | 2026-10-01 |\n"
+            for sid, cur, sup, *topic in rows
         )
         return "# Canonical Citations Register\n\n## Rows\n\n" + self.HEADER + body
 
@@ -6504,6 +6505,7 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
                 "| Cloud Security Alliance Cloud Controls Matrix (CCM) | IAM | Access |",  # acronym
                 "| IEC 62443 | Zones and conduits | OT |",  # series prefix of IEC 62443-3-3
                 "| CSA Cloud Controls Matrix v4.1 | LOG-05 | Logging |",  # alias with edition
+                "| Cloud Controls Matrix (CCM) | IAM | Access |",  # acronym after its row's alias
             ),
         )
         self.assertEqual(self._warned(out), [], out)
@@ -7125,6 +7127,591 @@ class AlignmentRegisterOnPrTests(DeltaGateRepoTestCase):
             (7, "Article 29 Working Party Guidelines on DPIA under"),
             (8, "Article 29 Working Party Guidelines on DPIA under"),
             (9, "EDPB Guidelines on DPIA (WP 248)"),
+        ])
+
+    def test_parenthetical_acronym_needs_its_own_row_without_a_provision_tail(self) -> None:
+        # 3b374 (VPR3B367-R6): with no provision tail the full-form check was skipped, and the
+        # stripped form tried each parenthetical's inner text, so "(HIPAA)" and "(GDPR)"
+        # registered any name through the HIPAA and GDPR rows. The row-aware rule applies now.
+        hipaa = "Health Insurance Portability and Accountability Act"
+        got = self._scan_rows(
+            "| Unregistered Framework (HIPAA) | - | - |",
+            "| Unknown Widget Standard (GDPR) | - | - |",
+            "| Unknown Widget Standard (GDPR) Annex | - | - |",
+            "| Other | - | DORA Art. 9; Unknown Widget Standard (GDPR) |",
+            f"| {hipaa} (HIPAA) | - | - |",  # the row's own name: registered
+            "| GDPR (EU) | - | - |",  # control: the name alone resolves
+            "| (HIPAA) | - | - |",  # control: nothing before the parenthetical
+            register_rows=self.ROWS + (self.HIPAA_ROW,),
+            extra_aliases={hipaa: "US HIPAA"},
+        )
+        self.assertEqual(got, [
+            (7, "Unregistered Framework (HIPAA)"),
+            (8, "Unknown Widget Standard (GDPR)"),
+            (9, "Unknown Widget Standard (GDPR)"),
+            (10, "Unknown Widget Standard (GDPR)"),
+        ])
+
+    def test_article_29_wp_number_rule_applies_without_a_provision_tail(self) -> None:
+        # 3b374 (VPR2838-CL1): with no provision tail an Article 29 Working Party citation
+        # registered on any one registered WP number, while the same tails after "under Article
+        # 35" took the stricter full-form rule. Both now take it.
+        stem = "Article 29 Working Party Guidelines on DPIA"
+        got = self._scan_rows(
+            f"| {stem} (WP 248, WP 999) | - | - |",
+            f"| {stem} (WP 248) Decision 2017 | - | - |",
+            f"| {stem} under Article 35 (WP 248, WP 999) | - | - |",
+            f"| {stem} under Article 35 (WP 248) Decision 2017 | - | - |",
+            f"| {stem} (WP 248) | - | - |",  # control
+            f"| {stem} (WP 248, October 2017) | - | - |",  # control
+            f"| {stem} under Article 35 (WP 248) | - | - |",  # control
+            register_rows=self.ROWS + (self.WP248_ROW,),
+        )
+        self.assertEqual(got, [
+            (7, f"{stem} (WP 248, WP 999)"),
+            (8, f"{stem} (WP 248) Decision 2017"),
+            (9, f"{stem} under"),
+            (10, f"{stem} under"),
+        ])
+
+    def test_lowercase_wp_number_takes_the_article_29_rule(self) -> None:
+        # 3b374 round 2 item 1 (VPR3B374-R1): WP_NUMBER was case-sensitive while DESIGNATOR and
+        # WP_TAIL read re.I, so a lowercase WP number fell back to the any-one-designator rule.
+        stem = "Article 29 Working Party Guidelines on DPIA"
+        got = self._scan_rows(
+            f"| {stem} (wp 248, wp 999) | - | - |",
+            f"| {stem} (wp 248) Decision 2017 | - | - |",
+            f"| {stem} (Wp 248, WP 999) | - | - |",
+            f"| {stem} under Article 35 (wp 248, wp 999) | - | - |",
+            f"| {stem} (wp 248) | - | - |",  # control
+            f"| {stem} under Article 35 (wp 248) | - | - |",  # the full form's WP number now reads
+            register_rows=self.ROWS + (self.WP248_ROW,),
+        )
+        self.assertEqual(got, [
+            (7, f"{stem} (wp 248, wp 999)"),
+            (8, f"{stem} (wp 248) Decision 2017"),
+            (9, f"{stem} (Wp 248, WP 999)"),
+            (10, f"{stem} under"),
+        ])
+
+    # Register rows with their real Topic cells (2026-10-17), which the row-word rule reads.
+    TOPIC_ROWS = (
+        ("EU MDR", "Regulation 2017/745", "Directive 93/42/EEC", "Medical Device Regulation"),
+        ("EU IVDR", "Regulation 2017/746", "Directive 98/79/EC", "In-Vitro Diagnostic Regulation"),
+        ("CSA STAR", "continuous", "-", "Security, Trust, Assurance and Risk programme"),
+        ("US HIPAA", "1996", "-", "Health Insurance Portability and Accountability Act"),
+        (
+            "UK GDPR", "2018 (DPA 2018)", "-",
+            "UK General Data Protection Regulation (retained EU GDPR as amended by the Data "
+            "Protection Act 2018 and the Data (Use and Access) Act 2025)",
+        ),
+    )
+
+    def test_parenthetical_acronym_registers_after_its_rows_words(self) -> None:
+        # 3b374 round 2 item 2 (VPR3B374-R1): round 1 let the acronym count only after a
+        # Standard ID or alias of its row, which registers the citation by itself, so these
+        # corpus forms (healthcare annex EU MDR and EU IVDR rows, SSPM CSA STAR row) and the
+        # spelled-out CCM name became findings. The name before the parenthetical now needs only
+        # to be made of its row's words (Standard ID, Topic title, curated aliases, or the
+        # initials of an acronym of the Standard ID) whose initials give the acronym's letters
+        # (round 3: ``words_name_row``).
+        got = self._scan_rows(
+            "| Medical Device Regulation (MDR) 2017/745 | - | - |",
+            "| In Vitro Diagnostic Regulation (IVDR) 2017/746 | - | - |",
+            "| CSA Security Trust Assurance and Risk (STAR) | - | - |",
+            "| Cloud Security Alliance Cloud Controls Matrix (CCM) | - | - |",
+            "| Other | - | DORA Art. 9; Medical Device Regulation (MDR) |",
+            "| Unregistered Framework (HIPAA) | - | - |",
+            "| Unknown Widget Standard (GDPR) | - | - |",
+            "| Regulation (GDPR) | - | - |",  # GDPR row words whose initials give only R
+            "| Medical Device Regulation (IVDR) | - | - |",  # initials give only DR of IVDR
+            "| Global Data Protection Rules (GDPR) | - | - |",  # initials of its own acronym only
+            "| HIPAA Privacy Rule (HIPAA) | - | - |",  # control: the name matches an umbrella
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (12, "Unregistered Framework (HIPAA)"),
+            (13, "Unknown Widget Standard (GDPR)"),
+            (14, "Regulation (GDPR)"),
+            (15, "Medical Device Regulation (IVDR)"),
+            (16, "Global Data Protection Rules (GDPR)"),
+        ])
+        mod, resolver = self._resolver(self.ROWS + self.TOPIC_ROWS)
+        # An umbrella match is not the row's own name, so the row-word rule does not accept it;
+        # the citation above registers through the umbrella on its own name.
+        self.assertEqual(resolver.exact_row("HIPAA Privacy Rule"), mod.identity_key("US HIPAA"))
+        self.assertFalse(resolver.paren_names_row("HIPAA Privacy Rule", "HIPAA"))
+        self.assertTrue(resolver.paren_names_row("Cloud Security Alliance Cloud Controls Matrix", "CCM"))
+
+    def test_parenthetical_acronym_needs_an_accepted_tail(self) -> None:
+        # 3b374 round 3 item 1 (VPR3B374-R2, codex): the acronym counted whatever followed it, so
+        # "(MDR) Unregistered Act" and "(MDR) 2017/999" registered. Now only nothing, an
+        # edition or date, a provision tail, or an instrument number of the acronym's row.
+        got = self._scan_rows(
+            "| Medical Device Regulation (MDR) Unregistered Act | - | - |",
+            "| Medical Device Regulation (MDR) 2017/999 | - | - |",
+            "| Medical Device Regulation (MDR) Annex I | - | - |",
+            "| Medical Device Regulation (MDR) Art. 10 | - | - |",
+            "| Cloud Security Alliance Cloud Controls Matrix (CCM) v4.1 | - | - |",
+            "| Medical Device Regulation (MDR) 2017/745 | - | - |",
+            "| Other | - | DORA Art. 9; Medical Device Regulation (MDR) Unregistered Act |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Medical Device Regulation (MDR) Unregistered Act"),
+            (8, "Medical Device Regulation (MDR) 2017/999"),
+            (13, "Medical Device Regulation (MDR) Unregistered Act"),
+        ])
+        _, resolver = self._resolver(self.ROWS + self.TOPIC_ROWS)
+        # A provision tail is removed before the stripped form is resolved, so the tail rule's
+        # provision branch is pinned directly.
+        name = "Medical Device Regulation"
+        self.assertTrue(resolver.paren_names_row(name, "MDR", " Annex I"))
+        self.assertTrue(resolver.paren_names_row(name, "MDR", " Art. 10"))
+        self.assertTrue(resolver.paren_names_row(name, "MDR", " 2017/745 Annex I"))
+        self.assertTrue(resolver.paren_names_row("Cloud Controls Matrix", "CCM", " v4.1"))
+        self.assertFalse(resolver.paren_names_row(name, "MDR", " Unregistered Act"))
+        self.assertFalse(resolver.paren_names_row(name, "MDR", " 2017/999"))
+        self.assertFalse(resolver.paren_names_row(name, "MDR", " 93/42"))  # the superseded directive
+        self.assertFalse(resolver.paren_names_row("", "HIPAA", " Unregistered Act"))
+
+    def test_parenthetical_acronym_registers_common_phrasings(self) -> None:
+        # 3b374 round 3 item 2 (VPR3B374-R2, claude): these genuine phrasings (the EU privacy
+        # annex, the acquisition manifest) stopped registering in round 2. Function words, years
+        # and the row's own instrument number are ignored, a plural reads as its singular,
+        # "European" reads as the "EU" of an EU row, and a name of row words whose initials give
+        # all but one letter of the acronym ("Data Protection Regulation") names the row.
+        hipaa = "Health Insurance Portability and Accountability Act"
+        got = self._scan_rows(
+            "| EU General Data Protection Regulation (GDPR) | - | - |",
+            "| Data Protection Regulation (GDPR) | - | - |",
+            "| Medical Devices Regulation (MDR) | - | - |",
+            "| EU Medical Devices Regulation (MDR) | - | - |",
+            "| EU In Vitro Diagnostic Medical Devices Regulation (IVDR) | - | - |",
+            f"| {hipaa} of 1996 (HIPAA) | - | - |",
+            "| Medical Device Regulation 2017/745 (MDR) | - | - |",
+            "| European Medical Device Regulation (MDR) | - | - |",
+            "| Medical Device Regulation v3 (MDR) | - | - |",  # a trailing edition before it
+            "| UK General Data Protection Regulation (GDPR) | - | - |",
+            "| Unregistered Framework (HIPAA) | - | - |",
+            "| Unknown Widget Standard (GDPR) | - | - |",
+            "| Regulation (GDPR) | - | - |",
+            "| Global Data Protection Rules (GDPR) | - | - |",
+            "| Medical Device Regulation (IVDR) | - | - |",
+            "| Diagnostic Device Regulation (MDR) | - | - |",
+            "| Matrix Controls (CCM) | - | - |",
+            "| Continuous (STAR) | - | - |",
+            "| Unknown Thing (EU MDR) | - | - |",
+            "| Medical (CSA CCM) | - | - |",
+            "| HIPAA Fake Rule (HIPAA) | - | - |",
+            "| Medical Device Regulation 2017/999 (MDR) | - | - |",  # another instrument's number
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (17, "Unregistered Framework (HIPAA)"),
+            (18, "Unknown Widget Standard (GDPR)"),
+            (19, "Regulation (GDPR)"),
+            (20, "Global Data Protection Rules (GDPR)"),
+            (21, "Medical Device Regulation (IVDR)"),
+            (22, "Diagnostic Device Regulation (MDR)"),
+            (23, "Matrix Controls (CCM)"),
+            (24, "Continuous (STAR)"),
+            (25, "Unknown Thing (EU MDR)"),
+            (26, "Medical (CSA CCM)"),
+            (27, "HIPAA Fake Rule (HIPAA)"),
+            (28, "Medical Device Regulation 2017/999 (MDR)"),
+        ])
+
+    def test_row_words_read_the_topic_title_only(self) -> None:
+        # 3b374 round 3 item 3 (VPR3B374-R2, claude): the whole UK GDPR Topic cell, a description
+        # of the retained law, was read, so names built from it registered.
+        got = self._scan_rows(
+            "| Retained (GDPR) | - | - |",
+            "| Amended Act (GDPR) | - | - |",
+            "| Use and Access Act (GDPR) | - | - |",
+            "| UK (UK GDPR) | - | - |",  # control: the Standard ID's own word
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Retained (GDPR)"),
+            (8, "Amended Act (GDPR)"),
+            (9, "Use and Access Act (GDPR)"),
+        ])
+        mod, resolver = self._resolver(self.ROWS + self.TOPIC_ROWS)
+        words = resolver.row_words(mod.identity_key("UK GDPR"))
+        self.assertIn("general", words)
+        self.assertNotIn("retained", words)
+        self.assertNotIn("use", words)
+
+    def test_acronym_initials_alone_do_not_name_the_row(self) -> None:
+        # 3b374 round 3 item 4 (VPR3B374-R2, claude): a run spelling CSA counted as the whole
+        # name. A row word outside the run, and initials giving the parenthetical's acronym,
+        # are now required.
+        got = self._scan_rows(
+            "| Consumer Safety Act (STAR) | - | - |",
+            "| Certified Secure Apps (STAR) | - | - |",
+            "| Communications Security Act (CCM) | - | - |",
+            "| Cloud Security Alliance (STAR) | - | - |",
+            "| Cloud Security Alliance Cloud Controls Matrix (CCM) | - | - |",  # control
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Consumer Safety Act (STAR)"),
+            (8, "Certified Secure Apps (STAR)"),
+            (9, "Communications Security Act (CCM)"),
+            (10, "Cloud Security Alliance (STAR)"),
+        ])
+
+    def test_family_token_name_does_not_name_the_row(self) -> None:
+        # 3b374 round 3 item 5 (VPR3B374-R2, claude): a name made only of family tokens does not
+        # name a row by its Standard ID's words. A token is a family token in ten or more
+        # Standard IDs (``FAMILY_ROWS``), so the fixture register carries ten more NIST rows.
+        nist_rows = tuple((f"NIST SP 800-{n}", "1", "-") for n in range(10, 20))
+        _, resolver = self._resolver(self.ROWS + nist_rows)
+        self.assertFalse(resolver.paren_names_row("NIST", "CSF"))
+        self.assertTrue(resolver.paren_names_row("NIST Cybersecurity Framework", "CSF"))
+
+    def test_function_words_give_no_acronym_letters(self) -> None:
+        # 3b374 round 4 item 1 (VPR3B374-R3, claude W2, codex D15-INITIALS): the initials were
+        # taken from every word, so an exempt "and" or "to" supplied a letter of the acronym.
+        got = self._scan_rows(
+            "| Trust and Risk (STAR) | - | - |",
+            "| Security and Risk (STAR) | - | - |",
+            "| Security to and Risk (STAR) | - | - |",
+            "| Health Insurance and Act (HIPAA) | - | - |",
+            "| Consumer Safety Act to and (STAR) | - | - |",
+            "| CSA Security Trust Assurance and Risk (STAR) | - | - |",  # control
+            "| Health Insurance Portability and Accountability Act (HIPAA) | - | - |",  # control
+            # Without the "and" these are "Cloud Matrix" and "Medical Regulation", which give all
+            # but one letter of the acronym: a stated residual, not a function-word letter.
+            "| Cloud and Matrix (CCM) | - | - |",
+            "| Medical and Regulation (MDR) | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Trust and Risk (STAR)"),
+            (8, "Security and Risk (STAR)"),
+            (9, "Security to and Risk (STAR)"),
+            (10, "Health Insurance and Act (HIPAA)"),
+            (11, "Consumer Safety Act to and (STAR)"),
+        ])
+
+    def test_parenthetical_acronym_whole_tail_is_judged(self) -> None:
+        # 3b374 round 4 item 2 (VPR3B374-R3, codex D15-TAIL): the stripped form ends at the
+        # parenthetical, and the tail rule accepted whatever followed a provision word, so text
+        # after "Annex I" or ": " was never judged. The tail is now read from the full form.
+        got = self._scan_rows(
+            "| Medical Device Regulation (MDR) Annex I 2017/999 | - | - |",
+            "| Medical Device Regulation (MDR): Unregistered Act | - | - |",
+            "| Medical Device Regulation (MDR) Art. 10 Unregistered Act | - | - |",
+            "| Other | - | DORA Art. 9; Medical Device Regulation (MDR) Annex I 2017/999 |",
+            "| Medical Device Regulation (MDR) Annex I | - | - |",  # genuine tails
+            "| Medical Device Regulation (MDR) Art. 10 | - | - |",
+            "| Medical Device Regulation (MDR) 2017/745 | - | - |",
+            "| Medical Device Regulation (MDR) 2017/745 Annex I | - | - |",
+            "| Medical Device Regulation (MDR) Arts. 5 to 7, Annex XIV | - | - |",
+            "| Medical Device Regulation (MDR) Art. 10(2)(b) | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Medical Device Regulation (MDR)"),
+            (8, "Medical Device Regulation (MDR)"),
+            (9, "Medical Device Regulation (MDR)"),
+            (10, "Medical Device Regulation (MDR)"),
+        ])
+        _, resolver = self._resolver(self.ROWS + self.TOPIC_ROWS)
+        name = "Medical Device Regulation"
+        self.assertFalse(resolver.paren_names_row(name, "MDR", " Annex I 2017/999"))
+        self.assertFalse(resolver.paren_names_row(name, "MDR", ": Unregistered Act"))
+        self.assertTrue(resolver.paren_names_row(name, "MDR", " Annex I, Recital 26"))
+
+    def test_long_standard_id_needs_its_words_beside_the_parenthetical(self) -> None:
+        # 3b374 round 4 item 3 (VPR3B374-R3, claude W1): a name of any non-family words of a long
+        # Article 29 Working Party Standard ID registered through it. A name of Standard ID words
+        # now has to carry every Standard ID word the parenthetical does not.
+        wp216 = ("WP216 (Article 29 Working Party Opinion 05/2014 on Anonymisation Techniques)",
+                 "Original", "-")
+        got = self._scan_rows(
+            "| Party (WP248 rev.01) | - | - |",
+            "| Working Party Guidelines (WP248 rev.01) | - | - |",
+            "| Determining Whether Processing (WP248 rev.01) | - | - |",
+            "| Anonymisation Techniques (WP216) | - | - |",
+            "| EU (GDPR) | - | - |",  # control: the Standard ID's only other word
+            "| UK (UK GDPR) | - | - |",  # control
+            register_rows=self.ROWS + self.TOPIC_ROWS + (self.WP248_ROW, wp216),
+        )
+        self.assertEqual(got, [
+            (7, "Party (WP248 rev.01)"),
+            (8, "Working Party Guidelines (WP248 rev.01)"),
+            (9, "Determining Whether Processing (WP248 rev.01)"),
+            (10, "Anonymisation Techniques (WP216)"),
+        ])
+
+    def test_row_word_conditions_each_decide(self) -> None:
+        # 3b374 round 4 items 4 and 6 (VPR3B374-R3, claude W3): each case fails when its
+        # condition is removed: the row word outside an acronym run, "European" read as "eu"
+        # only for an EU row, the plural folded on the row side (``devices`` of the IVDR alias),
+        # the year dropped, and a year dropped only outside an instrument number.
+        echr = ("CoE ECHR", "1950", "-", "European Convention on Human Rights")
+        got = self._scan_rows(
+            "| Cloud Security Alliance Consumer Safety Act (CCM) | - | - |",  # only CSA runs
+            "| European Health Insurance Portability and Accountability Act (HIPAA) | - | - |",
+            "| Medical Device 2019/1937 (MDR) | - | - |",  # not two years
+            "| European Convention on Human Rights (ECHR) | - | - |",
+            "| Vitro Diagnostic Medical Devices Regulation (IVDR) | - | - |",
+            "| Medical Device Regulation 1999 (MDR) | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS + (echr,),
+        )
+        self.assertEqual(got, [
+            (7, "Cloud Security Alliance Consumer Safety Act (CCM)"),
+            (8, "European Health Insurance Portability and Accountability Act (HIPAA)"),
+            (9, "Medical Device 2019/1937 (MDR)"),
+        ])
+
+    def test_parenthetical_acronym_registers_numbered_and_titled_forms(self) -> None:
+        # 3b374 round 4 item 5 (VPR3B374-R3, claude W4): common forms that registered on main
+        # warned: a name with the row's own instrument number, a tail that makes a registered
+        # name with the parenthetical, and a possessive.
+        hipaa = "Health Insurance Portability and Accountability Act"
+        got = self._scan_rows(
+            "| Regulation (EU) 2016/679 (GDPR) | - | - |",
+            "| EU Regulation 2016/679 (GDPR) | - | - |",
+            "| Regulation (EU) 2017/745 (MDR) | - | - |",
+            "| (HIPAA) Security Rule | - | - |",
+            f"| {hipaa} (HIPAA) Security Rule | - | - |",
+            "| EU's General Data Protection Regulation (GDPR) | - | - |",
+            "| Regulation (EU) 2016/680 (GDPR) | - | - |",  # not the row's number
+            "| Regulation 2017/745 (GDPR) | - | - |",  # another row's number
+            "| Unknown Act 2016/679 (GDPR) | - | - |",  # not row words
+            "| (HIPAA) Fake Rule | - | - |",  # not a registered name
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (13, "Regulation (EU) 2016/680 (GDPR)"),
+            (14, "Regulation 2017/745 (GDPR)"),
+            (15, "Unknown Act 2016/679 (GDPR)"),
+            (16, "(HIPAA) Fake Rule"),
+        ])
+
+    def test_acronym_runs_and_initials_use_content_words_once(self) -> None:
+        # 3b374 round 5 items 1 and 5 (VPR3B374-R4, codex; claude): a run was built over every
+        # word, so "Consumer Safety and" spelled CSA, and a repeated word gave its initial twice.
+        got = self._scan_rows(
+            "| Consumer Safety and Cloud Matrix (CCM) | - | - |",
+            "| Consumer Safety Cloud Matrix (CCM) | - | - |",
+            "| Cloud Cloud (CCM) | - | - |",
+            "| Cloud Security Alliance Cloud Controls Matrix (CCM) | - | - |",  # control
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Consumer Safety and Cloud Matrix (CCM)"),
+            (8, "Consumer Safety Cloud Matrix (CCM)"),
+            (9, "Cloud Cloud (CCM)"),
+        ])
+
+    def test_parenthetical_acronym_tail_drops_the_rows_own_designation(self) -> None:
+        # 3b374 round 5 item 2 (VPR3B374-R4, claude W1): the library's own "Name (ACR):
+        # Regulation (EU) N/N" form warned, since only the number was removed from the tail.
+        # Round 5 item 3: the docstring's title-after-a-provision example truly warns.
+        got = self._scan_rows(
+            "| EU General Data Protection Regulation (GDPR): Regulation (EU) 2016/679 | - | - |",
+            "| Medical Device Regulation (MDR): Regulation (EU) 2017/745 | - | - |",
+            "| Medical Device Regulation (MDR): Regulation (EU) 2017/999 | - | - |",
+            "| Medical Device Regulation (MDR): Regulation (EU) 2016/679 | - | - |",  # GDPR's
+            "| Medical Device Regulation (MDR) Art. 10: General obligations | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (9, "Regulation (EU) 2017/999"),  # the instrument-number check, as on main
+            (9, "Medical Device Regulation (MDR)"),
+            (10, "Medical Device Regulation (MDR)"),
+            (11, "Medical Device Regulation (MDR)"),
+        ])
+
+    def test_parenthetical_acronym_tail_conditions_each_decide(self) -> None:
+        # 3b374 round 5 item 4 (VPR3B374-R4, claude W3): each case fails when its condition is
+        # removed: the name-tail branch's name must be of the parenthetical's own row ("CCPA
+        # Regulations" names another row), the rest after that name must be a provision tail,
+        # standalone "and" joins provision references, a Roman numeral is in capitals only, and
+        # (round 5 item 5) "&" joins provision references.
+        ccpa = (
+            ("US CCPA", "2018", "-", "California Consumer Privacy Act"),
+            ("US CCPA Regulations 2026", "2026", "-", "California Consumer Privacy Act Regulations"),
+        )
+        got = self._scan_rows(
+            "| (CCPA) Regulations | - | - |",
+            "| (HIPAA) Security Rule: Unregistered Act | - | - |",
+            "| (MDR) Annex civic | - | - |",
+            "| (MDR) Art. 10 and Annex I | - | - |",
+            "| (MDR) Article 10 & Annex I | - | - |",
+            "| (HIPAA) Security Rule: Art. 5 | - | - |",  # control: the rest is a provision tail
+            register_rows=self.ROWS + self.TOPIC_ROWS + ccpa,
+        )
+        self.assertEqual(got, [
+            (7, "(CCPA) Regulations"),
+            (8, "(HIPAA) Security Rule"),
+            (9, "(MDR)"),
+        ])
+
+    def test_required_standard_id_words_leave_out_function_words_and_years(self) -> None:
+        # 3b374 round 5 item 4 (VPR3B374-R4, claude W3): a name of Standard ID words must carry
+        # every Standard ID word the parenthetical does not, function words and years aside;
+        # each case fails when that word kind is kept in the required set.
+        rows = (("Code of Practice ABC", "1", "-"), ("UK Widget 2024 Act XYZ", "1", "-"))
+        got = self._scan_rows(
+            "| Code of Practice (ABC) | - | - |",  # "of" is not required
+            "| UK Widget Act (XYZ) | - | - |",  # "2024" is not required
+            "| Practice (ABC) | - | - |",  # "code" is
+            register_rows=self.ROWS + rows,
+        )
+        self.assertEqual(got, [(9, "Practice (ABC)")])
+
+    def test_function_word_breaks_an_acronym_run(self) -> None:
+        # 3b374 round 6 item 1 (VPR3B374-R5, codex; claude): a run skipped a function word, so
+        # "Cloud Security and Alliance" and "Cloud Security for Alliance" spelled CSA while
+        # "Consumer Safety and" did not. A function word now breaks a run.
+        got = self._scan_rows(
+            "| Cloud Security and Alliance Cloud Controls Matrix (CCM) | - | - |",
+            "| Cloud Security for Alliance Cloud Controls Matrix (CCM) | - | - |",
+            "| Cloud and Security Alliance Cloud Controls Matrix (CCM) | - | - |",
+            "| Consumer Safety and Cloud Matrix (CCM) | - | - |",
+            "| Cloud Security Alliance Cloud Controls Matrix (CCM) | - | - |",  # control
+            "| The Cloud Security Alliance Cloud Controls Matrix (CCM) | - | - |",  # control
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, "Cloud Security and Alliance Cloud Controls Matrix (CCM)"),
+            (8, "Cloud Security for Alliance Cloud Controls Matrix (CCM)"),
+            (9, "Cloud and Security Alliance Cloud Controls Matrix (CCM)"),
+            (10, "Consumer Safety and Cloud Matrix (CCM)"),
+        ])
+        mod, resolver = self._resolver(self.ROWS + self.TOPIC_ROWS)
+        row = mod.identity_key("CSA CCM")
+        self.assertFalse(resolver.words_name_row("Cloud Security and Alliance Cloud Controls Matrix", row, "CCM"))
+        self.assertTrue(resolver.words_name_row("Cloud Security Alliance Cloud Controls Matrix", row, "CCM"))
+
+    def test_bare_subpoints_after_a_connector(self) -> None:
+        # 3b374 round 6 item 2 (VPR3B374-R5, codex): "Art. 10(1)(a)" registered and "Art.
+        # 10(1)(a) and (b)" warned. A bare lowercase or numeric sub-point now follows a provision
+        # reference and a connector; a capitalised word in parentheses, a title or another
+        # instrument number after it, or a sub-point with no provision reference still warns.
+        mdr = "Medical Device Regulation (MDR)"
+        got = self._scan_rows(
+            f"| {mdr} Art. 10(1)(a) and (Fake) | - | - |",
+            f"| {mdr} Art. 10(1)(a) and (b) Unregistered Act | - | - |",
+            f"| {mdr} Art. 10(1)(a) and (b) 2017/999 | - | - |",
+            f"| {mdr} and (b) | - | - |",
+            f"| {mdr} Art. 10(1)(a) and (b) | - | - |",  # genuine tails
+            f"| {mdr} Art. 10(1)(a), (b) and (c) | - | - |",
+            f"| {mdr} Art. 10(1)(a) or (iv) | - | - |",
+            f"| {mdr} Art. 10(1)(a) to (c) | - | - |",
+            f"| {mdr} Art. 10(1)(a) & (b) | - | - |",
+            f"| {mdr} Art. 10(1)(a) - (b)(ii) | - | - |",
+            f"| {mdr} Art. 10(1)(a) | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (7, mdr),
+            (8, mdr),
+            (9, mdr),
+            (10, f"{mdr} and (b)"),
+        ])
+
+    def test_parenthetical_acronym_tail_eu_before_the_designation(self) -> None:
+        # 3b374 round 6 item 3 (VPR3B374-R5, claude): "(MDR): EU Regulation 2017/745" warned,
+        # since "EU" before the row's own designation was left in the tail. An "EU" before a
+        # designation of the row's own number is now removed with it; another number, a bare
+        # "EU" with no kind word and a Code of Federal Regulations reference still warn.
+        mdr = "Medical Device Regulation (MDR)"
+        got = self._scan_rows(
+            f"| {mdr}: EU Regulation 2017/745 | - | - |",
+            f"| {mdr} EU Regulation 2017/745 | - | - |",
+            f"| {mdr}: EU Regulation 2017/999 | - | - |",
+            f"| {mdr}: EU Regulation 2016/679 | - | - |",  # GDPR's
+            f"| {mdr}: EU 2017/745 | - | - |",
+            "| Health Insurance Portability and Accountability Act (HIPAA): 45 CFR 164.312 | - | - |",
+            "| (HIPAA) 45 CFR Part 164 | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [
+            (9, "Regulation 2017/999"),  # the instrument-number check, as on main
+            (9, mdr),
+            (10, mdr),
+            (11, mdr),
+            (12, "Health Insurance Portability and Accountability Act (HIPAA)"),
+            (13, "(HIPAA) 45 CFR Part 164"),
+        ])
+
+    def test_subpoint_chain_takes_only_subpoints(self) -> None:
+        # 3b374 round 7 item 1 (VPR3B374-R6, codex; claude): any parenthesised word of up to
+        # four characters chained after a number or a bare sub-point, so "(b)(Fake)", "(b)(Act)"
+        # and "Art. 10(Fake)" passed. Only a sub-point (``SUBPOINT``) now chains.
+        mdr = "Medical Device Regulation (MDR)"
+        got = self._scan_rows(
+            f"| {mdr} Art. 10(1)(a) and (b)(Fake) | - | - |",
+            f"| {mdr} Art. 10(1)(a) and (b)(Act) | - | - |",
+            f"| {mdr} Art. 10(Fake) | - | - |",
+            f"| {mdr} Art. 10(1)(Fake) | - | - |",
+            f"| {mdr} Art. 10(1)(a) | - | - |",  # genuine chains
+            f"| {mdr} Art. 10(1)(a) and (b) | - | - |",
+            f"| {mdr} Art. 10(1)(a) and (b)(ii) | - | - |",
+            f"| {mdr} Art. 10(1)(a)(iii) | - | - |",
+            f"| {mdr} Annex I(23)(a) | - | - |",
+            register_rows=self.ROWS + self.TOPIC_ROWS,
+        )
+        self.assertEqual(got, [(7, mdr), (8, mdr), (9, mdr), (10, mdr)])
+
+    def test_subpoint_takes_uppercase_and_roman_forms(self) -> None:
+        # 3b374 round 8 (VPR3B374-R7, codex): round 7's sub-point took neither an uppercase
+        # letter, an uppercase Roman numeral, a Roman numeral with c, d or m, nor a digit with an
+        # uppercase letter, so these corpus provision forms warned after a parenthetical acronym
+        # (HIPAA template; Illinois, California and Virginia sections; LGPD articles). A title
+        # word in parentheses and a lowercase non-Roman word of three letters still warn.
+        rows = self.ROWS + self.TOPIC_ROWS + (
+            ("US IL IHRA", "775 ILCS 5", "-"),
+            ("US CCPA", "2018", "-"),
+            ("US VCDPA", "2021", "-"),
+            ("BR LGPD", "2018", "-"),
+        )
+        mdr = "Medical Device Regulation (MDR)"
+        got = self._scan_rows(
+            f"| {mdr} Art. 10(1)(Fake) | - | - |",
+            f"| {mdr} Art. 10(Act) | - | - |",
+            f"| {mdr} Art. 10(1)(Mix) | - | - |",
+            f"| {mdr} Art. 10(1)(aaa) | - | - |",
+            "| (HIPAA) \u00a7164.308(a)(1)(ii)(A) | - | - |",  # corpus forms
+            "| (HIPAA) \u00a7164.308(a)(1)(ii)(D) | - | - |",
+            "| (HIPAA) \u00a7164.308(a)(1)(ii)(A) and (ii)(D) | - | - |",
+            "| (IHRA) Section 2-102(L)(1) | - | - |",
+            "| (CCPA) s. 1798.130(a)(2)(A) | - | - |",
+            "| (VCDPA) s. 59.1-577(B)(1) | - | - |",
+            "| (LGPD) Articles 7(I), 8 | - | - |",
+            "| (LGPD) Art. 7(IV) | - | - |",
+            "| (LGPD) Article 5(VIII) | - | - |",
+            f"| {mdr} Art. 10(1)(A) | - | - |",  # the other new forms
+            f"| {mdr} Art. 10(2A) | - | - |",
+            f"| {mdr} Art. 10(1)(II) | - | - |",
+            f"| {mdr} Art. 10(1)(cii) | - | - |",
+            register_rows=rows,
+        )
+        self.assertEqual(got, [(7, mdr), (8, mdr), (9, mdr), (10, mdr)])
+
+    def test_cybersecurity_framework_residuals_still_report(self) -> None:
+        # 3b374 round 7 item 2 (VPR3B374-R6, claude): stated residuals. "of" and "and" break a
+        # run, so the spelled-out NIST does not spell NIST; "2.0" with no "v" is not an edition.
+        rows = tuple(r for r in self.ROWS if r[0] != "NIST CSF") + (
+            ("NIST CSF", "2.0", "1.1", "Cybersecurity Framework"),
+        )
+        got = self._scan_rows(
+            "| National Institute of Standards and Technology Cybersecurity Framework (CSF) | - | - |",
+            "| (CSF) 2.0 | - | - |",
+            "| Cybersecurity Framework (CSF) | - | - |",  # controls
+            "| (CSF) v2.0 | - | - |",
+            register_rows=rows,
+        )
+        self.assertEqual(got, [
+            (7, "National Institute of Standards and Technology Cybersecurity Framework (CSF)"),
+            (8, "(CSF) 2.0"),
         ])
 
     def test_glossary_register_does_not_register_an_acronym(self) -> None:

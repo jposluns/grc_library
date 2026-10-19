@@ -43,10 +43,147 @@ citation is registered when its normalized identity, after a trailing edition
 or version is removed, matches a register Standard ID exactly, through a curated
 alias or umbrella pattern (``tools/alignment-register-aliases.json``), as a
 whole-word suffix of a Standard ID (``GDPR`` for ``EU GDPR``, ``Law 25`` for
-``Quebec Law 25``), through an acronym the citation carries in parentheses, or
-as a series prefix of a Standard ID (``IEC 62443`` for the ``IEC 62443-*`` part
-rows). The series and suffix acceptance is this check's addition to gate 6: it
-can only make D15 report less than gate 6 would for the same text, never more.
+``Quebec Law 25``), through an acronym the citation carries in parentheses when
+the text after the parenthetical is acceptable and either nothing precedes it or
+the name before it names the acronym's own row by that row's words (the row-word
+rule below, so ``Medical Device Regulation (MDR) 2017/745`` is registered through
+the EU MDR row and ``Unknown Widget Standard (GDPR)`` and ``Medical Device
+Regulation (MDR) Unregistered Act`` are not), or as a series prefix of a Standard
+ID (``IEC 62443`` for the ``IEC 62443-*`` part rows). The series and suffix
+acceptance is this check's addition to gate 6: it can only make D15 report less
+than gate 6 would for the same text, never more.
+
+THE ROW-WORD RULE (3b374). A parenthetical's text names register rows through the
+same lookups (exact, curated alias or umbrella, whole-word suffix, series stem,
+edition: ``(GDPR)`` names the EU GDPR and UK GDPR rows). It stands for the
+citation only for a row after which the TEXT AFTER IT is acceptable. That text is
+read from the citation before its provision tail was removed, so the whole tail
+is judged: once that row's own instrument numbers are removed (those in its
+Standard ID, its Current version cell, the title part of its Topic cell, or a
+curated alias key targeting it; not a Superseded versions number, which names an
+earlier instrument), with any designation of one and an optional ``EU`` before
+it (``TAIL_DESIGNATION``: ``Regulation (EU) 2016/679``, ``EU Regulation
+2017/745``), it is only provision references (``PROVISION_REF``: a provision
+word such as ``Art.``, ``Annex`` or ``Recital`` with its numbers, a Roman
+numeral in capitals only, and after a connector a bare sub-point such as
+``(b)``; a sub-point (``SUBPOINT``) is a lowercase letter or two, one uppercase
+letter, a Roman numeral of up to six letters all lowercase or all capitals, or
+one to three digits with an optional letter of either case, and only sub-points
+chain, as in ``10(1)(a)``, ``(b)(ii)``, ``164.308(a)(1)(ii)(A)``,
+``59.1-577(B)(1)``, ``7(IV)`` and ``10(2A)``), dates, editions, punctuation,
+``&`` and ``and`` or ``or``
+(``(CCM) v4.1``, ``(MDR) 2017/745``, ``(MDR) Annex I``, ``(MDR) Art. 10
+and Annex I``, ``(MDR) Article 10 & Annex I``, ``(MDR) Art. 10(1)(a) and
+(b)``, ``EU General Data Protection Regulation (GDPR): Regulation (EU)
+2016/679``, ``Medical Device Regulation (MDR): EU Regulation 2017/745``); or its
+text up to any provision tail follows the parenthetical to make a name of the
+same row, the rest being such a tail (``(HIPAA) Security Rule`` through the
+``HIPAA Security Rule`` umbrella; ``(CCPA) Regulations`` names the CCPA
+Regulations row, not the CCPA row ``(CCPA)`` names). ``(MDR) Unregistered
+Act``, ``(MDR) 2017/999``, ``(MDR) Annex I 2017/999``, ``(MDR) Annex civic``,
+``(MDR): Unregistered Act``, ``(MDR): Regulation (EU) 2017/999``, ``(MDR): EU
+Regulation 2017/999``, ``(MDR) Art. 10(1)(a) and (Fake)``, ``(MDR) Art.
+10(1)(a) and (b)(Fake)``, ``(MDR) Art. 10(1)(a) and (b)(Act)``, ``(MDR) Art.
+10(Fake)`` and ``(HIPAA) Security Rule: Unregistered Act`` are not acceptable.
+The designation's kind word is not compared with the row's, so ``(GDPR):
+Decision 2016/679`` is acceptable. When a name precedes it, that name, with or
+without a trailing edition, must also name the row by the ROW'S WORDS. The
+name's words are case-folded with accents removed, a possessive ``'s`` is
+removed (``EU's``), a plural is read as its singular
+(``Devices`` as ``device``, on both sides), ``European`` is read as ``EU`` for a
+row whose Standard ID carries ``EU`` (that ``EU`` marks the instrument as the
+European Union's), the row's own instrument numbers are dropped, another
+instrument number is kept as one word no row carries (``2019/1937`` is not read
+as two years), four-digit years from 1900 to 2099 outside instrument numbers are
+dropped, and the function words of ``NAME_FUNCTION_WORDS`` (``of``, ``and``,
+``the`` ...) need not be row words and give no initials. Then (a) every other
+word is a word of the row's Standard ID, at least one is not a family token, and
+they include every Standard ID word the parenthetical does not carry (function
+words, instrument numbers and years aside: ``UK (UK GDPR)``; ``NIST (CSF)`` is
+not, since ``nist`` names a family; ``Working Party Guidelines (WP248 rev.01)``
+and ``Anonymisation Techniques (WP216)`` are not, since the long Article 29
+Working Party Standard IDs carry more words); or (b) the name carries one of the
+row's own instrument numbers and every other word is a row word (of the Standard
+ID, of the title part of the Topic cell, or of a curated alias key targeting the
+row: ``Regulation (EU) 2016/679 (GDPR)``, ``EU Regulation 2016/679 (GDPR)``); or
+(c) every other word is a row word or belongs to a run of consecutive other
+words with no function word between them (a function word breaks a run and
+gives it no letter) whose initials spell an acronym word of the Standard ID
+other than one the parenthetical carries (``Cloud Security Alliance`` for the
+``CSA`` of ``CSA CCM`` before ``(CCM)``; ``Consumer Safety and`` spells no
+``CSA``, so ``Consumer Safety and Cloud Matrix (CCM)`` is reported like
+``Consumer Safety Cloud Matrix (CCM)``, and neither do ``Cloud Security and
+Alliance`` and ``Cloud Security for Alliance``, so ``Cloud Security and Alliance
+Cloud Controls Matrix (CCM)`` is reported too; ``Global Data Protection
+Rules (GDPR)`` is not spelled out from the ``GDPR`` it carries), at least one row
+word stands outside such runs (``Cloud Security Alliance (STAR)`` is only the
+run), and the initials of the other words, in order and a repeated word counted
+once, give all but at most one letter, and at least two, of an acronym word of
+the parenthetical (``Data Protection Regulation`` gives ``DPR`` of ``GDPR``;
+``Regulation`` gives only ``R``; ``Medical Device Regulation`` gives only ``DR``
+of ``IVDR``; ``Trust and Risk`` gives only ``TR`` of ``STAR``, since ``and``
+gives no letter; ``Cloud Cloud (CCM)`` gives only ``C``). The title part of a
+Topic cell is its text before a parenthetical, a ``;``, a sentence end, or a
+``,`` or ``:`` followed by a lowercase word (``topic_title``), so UK GDPR's
+words are those of ``UK General Data Protection Regulation``, not of the
+description of the retained law after it. So ``EU General Data Protection
+Regulation (GDPR)``, ``EU Medical Devices Regulation (MDR)``, ``Health
+Insurance Portability and Accountability Act of 1996 (HIPAA)``, ``European
+Medical Device Regulation (MDR)``, ``CSA Security Trust Assurance and Risk
+(STAR)`` and ``Cloud Security Alliance Cloud Controls Matrix (CCM)`` register,
+and ``EU In Vitro Diagnostic Medical Devices Regulation (IVDR)`` does through
+the curated alias ``In Vitro Diagnostic Medical Devices Regulation`` (the
+instrument's own title), while ``Unregistered Framework (HIPAA)``,
+``Regulation (GDPR)``, ``Medical Device Regulation (IVDR)``, ``Retained (GDPR)``
+and ``Consumer Safety Act (STAR)`` do not. A name that is itself a Standard ID,
+alias or umbrella match registers the citation without the parenthetical, so the
+rule decides only names that are not; an umbrella match is not taken as the
+row's own name (``HIPAA Privacy Rule`` is not made of HIPAA row words), which
+changes nothing since such a name registers on its own. What it still lets
+through: a name of row words that leaves out one letter of the acronym
+(``Medical Regulation (MDR)``, ``Controls Matrix (CCM)``, ``Regulation of
+Medical Devices (MDR)``, and so ``Cloud and Matrix (CCM)`` and ``Medical and
+Regulation (MDR)``, whose ``and`` gives no letter); a name of non-family Standard
+ID words that covers the Standard ID beside the parenthetical (``EU (GDPR)``); a
+name of row words with one of the row's instrument numbers, whatever its
+initials (``Regulation 2017/745 (MDR)``); words whose initials spell another
+acronym of the Standard ID beside row words (``Cyber Security Agency Cloud
+Controls Matrix (CCM)``, ``Consumer Safety Act Trust Assurance Risk (STAR)``,
+through the ``CSA`` of the Standard ID); and a parenthesised word of up to six
+Roman numeral letters all lowercase or all capitals after a provision number,
+read as a sub-point (``(MDR) Art. 10(civic)``, ``(MDR) Art. 10(MIX)``). A
+name of an Article 29 Working Party row's descriptive Topic words
+(``Determining Whether Processing (WP248 rev.01)``) or of a few words of its
+long Standard ID (``Party (WP248 rev.01)``) is reported; ``Article (WP248
+rev.01)`` is not checked at all, since its leading ``Article`` is read as a
+provision tail and the segment is stripped to nothing.
+What it still reports although the instrument is the row's: a name with a word
+its row lacks (``European Union Medical Device Regulation (MDR)``: ``union``;
+``European Health Insurance Portability and Accountability Act (HIPAA)``, since
+``European`` is read as ``EU`` only for an EU row), a name whose initials miss
+two or more letters of the acronym (``Protection Regulation (GDPR)``), a name
+whose words spell an acronym of the Standard ID only across function words
+(``National Institute of Standards and Technology Cybersecurity Framework
+(CSF)``: ``of`` and ``and`` break the run, so ``National Institute of Standards
+and Technology`` spells no ``NIST``), a short title that leaves out words of a
+long Article 29 Working Party Standard ID (``Guidelines on Data Protection
+Officers (WP243)``, ``Working Party Guidelines on Data Protection Impact
+Assessment (WP248 rev.01)``, ``Working Party Opinion on Anonymisation Techniques
+(WP216)``), a name carrying an instrument number the register does not record
+for the row (``Regulation 2016/679 (UK GDPR)``: the UK GDPR row records no
+number), and a parenthetical followed by other text, including a title after a
+provision and a provision this grammar does not read (``Medical Device
+Regulation (MDR) as amended``, ``Medical Device Regulation (MDR) Art. 10:
+General obligations``, ``CSA Security Trust Assurance and Risk (STAR) Level
+2``, ``(MDR) Annex XIV Part A``, ``(MDR) Annex I GSPR 17``; an edition number
+with no ``v``, ``Version`` or ``Rev`` before it: ``(CSF) 2.0``, while ``(CSF)
+v2.0`` is acceptable; a parenthesised word of three or more lowercase letters
+that are not all Roman numeral letters: ``(MDR) Art. 10(1)(aaa)``; a Code of
+Federal Regulations reference is not read, since its title number could not be
+checked against the row: ``Health Insurance Portability and Accountability Act
+(HIPAA): 45 CFR 164.312``, ``(HIPAA) 45 CFR Part 164``; nor is the row's own
+instrument number after a bare ``EU`` with no designation kind word: ``(MDR):
+EU 2017/745``).
 
 A citation whose provision suffix was removed keeps its full form for the exact
 lookups (a Standard ID or curated alias, with or without a trailing edition or a
@@ -83,6 +220,10 @@ after it), so ``Article 29 Working Party
 Guidelines on DPIA under Article 35 (WP 248)`` matches the WP248 row although
 its stripped form ends at ``under``, while ``... (WP 248, WP 999)``, ``... (WP
 248) and Article 36`` and ``... (replaced by EDPB Guidelines 07/2020)`` do not.
+The same WP-number rule decides a citation with no provision tail (3b374), so
+``Article 29 Working Party Guidelines on DPIA (WP 248, WP 999)`` and ``... (WP
+248) Decision 2017`` are not registered either; such a citation that carries no
+WP number is still matched on its other designators (``Opinion 05/2014``).
 Designators are matched within their issuing body: each register row's
 designators are recorded with the body its Standard ID names (``EDPB ...``
 rows; ``Article 29 Working Party``, ``WP29`` and ``WPnnn`` rows), a citation's
@@ -137,7 +278,18 @@ differently cased body name (``Article 29 working party Opinion 2/2017``;
 neither rule uses ``re.I``) at the start of a segment are still stripped to
 nothing and not checked. The full form gets only the exact lookups and the
 Article 29 Working Party WP-number match, not the suffix, series or comma-list
-rules, nor the stripped form's parenthesised-acronym rule. A free-text cell is
+rules, nor the stripped form's parenthesised-acronym rule. The stripped form's
+parenthesised acronym registers only by the row-word rule, so a name using a
+word its row does not carry warns although it names the same instrument
+(``European Union Medical Device Regulation (MDR)``), and so do a name whose
+initials miss two letters of the acronym and a parenthetical followed by text
+that is not only provision references, dates, editions and the row's own
+numbers and designations, nor a name of the row with the parenthetical; on 2026-10-17 the rule
+changed no whole-corpus D15 status from main (9e0554e8). Outside D15's surfaces
+it no longer registers prose fragments that main's any-parenthetical rule did
+(``Higher tier (GDPR)``, ``Managed Detection and Response (MDR)``). An Article 29 Working Party citation with a WP number and title text
+after it (``Article 29 Working Party WP248 Guidelines on DPIA``) is no longer
+registered by that number (none in the corpus on 2026-10-17). A free-text cell is
 split on ``,`` before the full-form lookup, so a full-title alias or row whose
 name contains a comma (``UK ICO, Employment practices ...``) matches only in a
 list-form row or a matrix header; in a free-text cell its pieces resolve
@@ -148,8 +300,11 @@ still drops any four-digit year, date, version or edition parenthetical,
 whether or not it is the named document's own, and an acronym item followed by
 ``s`` drops when its singular is the row's acronym (``(CCMs)`` after a CCM
 name). The date and edition items are matched as written and are case-sensitive
-(the WP-number match of an Article 29 Working Party full form reads them
-case-insensitively, so ``(WP 248 rev.01)`` registers): ``(Mar 3, 2024)`` is
+(the WP-number match of an Article 29 Working Party citation reads its WP numbers
+and the dates and editions after them case-insensitively, so ``(WP 248 rev.01)``
+registers and ``(wp 248, wp 999)`` takes the same rule as ``(WP 248, WP 999)``;
+the terminal-parenthetical allowlist's WP-number item is case-sensitive, so a
+lowercase ``(wp 248)`` there is kept): ``(Mar 3, 2024)`` is
 split at its comma into ``Mar 3`` and ``2024``, and ``(rev 2)``, ``(rev.01)``,
 ``(version 2)``, ``(V2)`` and ``(2024 Edition)`` match no item (``Rev`` and
 ``Version`` must be capitalized, ``v`` and ``edition`` lowercase), so each is
@@ -307,6 +462,9 @@ EU_NUMBER = re.compile(
     r"(?P<num>\d{1,4}/\d{1,4})(?:/(?P<suffix>EC|EEC|EU))?(?![\w/])"
     r"|\((?P<marker2>EU|EC|EEC)\)\s+(?:No\.?\s+)?(?P<num2>\d{1,4}/\d{1,4})(?![\w/])"
 )
+# A designation in the text after a parenthetical acronym (``Resolver.paren_tail_ok``): an
+# ``EU_NUMBER`` with an optional "EU " before it ("EU Regulation 2017/745").
+TAIL_DESIGNATION = re.compile(rf"(?:\bEU\s+)?(?:{EU_NUMBER.pattern})")
 
 # A trailing edition or version written after a framework name.
 VERSION_TAIL = re.compile(
@@ -361,9 +519,50 @@ ACRONYM_ITEM = re.compile(r"(?=[A-Z0-9&./:-]{3})[A-Z][A-Z0-9&./:-]*[A-Z0-9]s?")
 # closing parenthesis; ``Resolver.paren_items`` judges its items.
 TERMINAL_PAREN = re.compile(r"\s*\(([^()]*)\)[\s.,;:]*$")
 # What may follow the last WP number of an Article 29 Working Party full form for the WP-number
-# match: further WP numbers, dates, editions and punctuation only ("(WP 248 rev.01)").
-WP_NUMBER = re.compile(r"\bWP\s?(\d{2,3})\b")
+# match: further WP numbers, dates, editions and punctuation only ("(WP 248 rev.01)"). Both read
+# case-insensitively, as ``DESIGNATOR`` does, so "(wp 248, wp 999)" takes the same rule.
+WP_NUMBER = re.compile(r"\bWP\s?(\d{2,3})\b", re.I)
 WP_TAIL = re.compile(rf"(?:[\s.,;:()]|WP\s?\d{{2,3}}|{DATE_ITEM}|{EDITION_ITEM})*", re.I)
+# A provision reference after a parenthetical acronym ("Annex I", "Art. 10(2)", "Arts. 5 to 7",
+# "\u00a7164.312(a)", "Recital 26"): a provision word and one or more provision numbers, each a
+# Roman numeral in capitals or digits with dotted parts, either with parenthesised sub-points,
+# joined by "-", "\u2013", ",", "&", "and", "or" or "to". After such a connector a bare
+# parenthesised sub-point may stand for a number ("Art. 10(1)(a) and (b)"). A sub-point
+# (``SUBPOINT``) is a lowercase letter or two, one uppercase letter, a Roman numeral of up to
+# six letters all lowercase or all capitals ("(cii)", "(IV)"), or one to three digits with an
+# optional letter of either case ("(2A)"), and only sub-points chain after a number or a bare
+# sub-point ("Art. 10(1)(a)", "(b)(ii)", "164.308(a)(1)(ii)(A)", "Art. 7(IV)"), so
+# "(Fake)" and "(Act)" are not sub-points, alone or chained ("Art. 10(Fake)", "(b)(Fake)").
+SUBPOINT = r"\((?-i:[a-z]{1,2}|[A-Z]|[ivxlcdm]{1,6}|[IVXLCDM]{1,6}|\d{1,3}[A-Za-z]?)\)"
+PROVISION_NUMBER = rf"(?-i:[IVXLC]+|\d+[a-z]?(?:\.\d+)*)(?:{SUBPOINT})*"
+PROVISION_SUBPOINT = rf"(?:{SUBPOINT})+"
+PROVISION_REF = (
+    r"(?:Art(?:icle)?s?\.?|\u00a7\u00a7?|Sch(?:edule)?s?\.?|Annex(?:es)?|Clauses?|Sections?"
+    r"|Ch(?:apter)?s?\.?|Recitals?|para(?:graph)?s?\.?|s\.)"
+    rf"\s*{PROVISION_NUMBER}"
+    rf"(?:\s*(?:[-\u2013,&]|\band\b|\bor\b|\bto\b)\s*(?:{PROVISION_NUMBER}|{PROVISION_SUBPOINT}))*"
+)
+# What may follow a parenthetical acronym for it to stand for the citation (the row-word rule),
+# once the row's own instrument numbers and designations are removed: only provision
+# references, dates, editions, punctuation, "&" and "and" or "or" ("(CCM) v4.1", "(MDR) Annex
+# I", "(MDR) Art. 10", "(MDR) Article 10 & Annex I", "(MDR) Art. 10(1)(a) and (b)"); so no
+# other instrument number and no title ("(MDR) Annex I 2017/999", "(MDR): Unregistered Act").
+# ``Resolver.paren_tail_ok`` also accepts a tail that the parenthetical names the row with.
+PAREN_TAIL = re.compile(
+    rf"(?:[\s.,;:()&]|\band\b|\bor\b|{PROVISION_REF}|{DATE_ITEM}|{EDITION_ITEM})*", re.I
+)
+# A possessive "'s" ("EU's"), removed from a name before its words are read.
+POSSESSIVE = re.compile(r"(?<=[A-Za-z])['\u2019]s\b")
+# An instrument number ("2017/745", "No 910/2014", "93/42/EEC"), compared as int/int.
+INSTRUMENT_NUMBER = re.compile(r"\b(?:No\.?\s*)?(\d{1,4})/(\d{1,4})(?:/(?:EU|EC|EEC))?(?![\w/])")
+# Words a spelled-out name may carry that its row need not, and that give no initials (the
+# row-word rule).
+NAME_FUNCTION_WORDS = frozenset({"a", "an", "and", "for", "in", "of", "on", "the", "to"})
+# The title part of a register Topic cell: the text before a parenthetical, a ";", a sentence
+# end, or a "," or ":" followed by a lowercase word ("UK General Data Protection Regulation
+# (retained EU GDPR ...)" reads as "UK General Data Protection Regulation"; "Security, Trust,
+# Assurance and Risk programme" is kept whole).
+TOPIC_TITLE_END = re.compile(r"\s*(?:[(;]|\.\s|[,:]\s+(?=[a-z]))")
 # A control code or code fragment standing alone ("A.3.4", "DE.CM-09", "SEF-07").
 FRAGMENT = re.compile(
     r"(?:[A-Z]{1,4}\.)+[A-Z0-9]{1,4}(?:[.-][A-Z0-9]{1,3})*|[A-Z&]{2,5}-\d{1,3}(?:\.\d+)?"
@@ -567,28 +766,43 @@ class Register:
     def has_id(self, std_id: str) -> bool:
         return identity_key(std_id) in self.ids
 
-    def by_suffix(self, name: str) -> bool:
-        """``name`` is the whole-word tail of a Standard ID (``GDPR`` of ``EU GDPR``). A
-        one-word name qualifies only when it is an acronym or carries a digit."""
+    def suffix_rows(self, name: str) -> list[str]:
+        """The identity keys of the Standard IDs ``name`` is the whole-word tail of (``GDPR`` of
+        ``EU GDPR`` and ``UK GDPR``). A one-word name qualifies only when it is an acronym or
+        carries a digit."""
         key = identity_key(name)
         if len(key.split()) < 2 and not (ACRONYM.fullmatch(name) or re.search(r"\d", name)):
-            return False
-        return any(k.endswith(" " + key) for k in self.ids)
+            return []
+        return [k for k in self.ids if k.endswith(" " + key)]
 
-    def by_series(self, key: str) -> bool:
-        """``key`` is a series stem of a Standard ID: the ID continues with a part number
-        (``IEC 62443`` of ``IEC 62443-3-3``) or with an edition or qualifier (``BASC
-        International Security Standard`` of ``... 6.0.2 (2022, ...)``)."""
+    def by_suffix(self, name: str) -> bool:
+        """``name`` is the whole-word tail of a Standard ID (``suffix_rows``)."""
+        return bool(self.suffix_rows(name))
+
+    def series_rows(self, key: str) -> list[str]:
+        """The identity keys of the Standard IDs ``key`` is a series stem of: the ID continues
+        with a part number (``IEC 62443`` of ``IEC 62443-3-3``) or with an edition or qualifier
+        (``BASC International Security Standard`` of ``... 6.0.2 (2022, ...)``)."""
+        out = []
         for k in self.ids:
             tail = k[len(key):] if k.startswith(key) and len(k) > len(key) else ""
             if (key[-1:].isdigit() and tail[:1] == "-") or re.match(r" (?:\d|series\b|\()", tail):
-                return True
-        return False
+                out.append(k)
+        return out
+
+    def by_series(self, key: str) -> bool:
+        """``key`` is a series stem of a Standard ID (``series_rows``)."""
+        return bool(self.series_rows(key))
+
+    def edition_rows(self, key: str) -> list[str]:
+        """The identity keys of the Standard IDs ``key`` is followed by an edition and a
+        qualifier (``CSA CCM v4.1 DSP domain``): the edition token marks where the registered
+        name ends."""
+        return [k for k in self.ids if re.match(re.escape(k) + r" v?\d", key)]
 
     def by_edition(self, key: str) -> bool:
-        """``key`` is a Standard ID followed by an edition and a qualifier (``CSA CCM v4.1 DSP
-        domain``): the edition token marks where the registered name ends."""
-        return any(re.match(re.escape(k) + r" v?\d", key) for k in self.ids)
+        """``key`` is a Standard ID followed by an edition and a qualifier (``edition_rows``)."""
+        return bool(self.edition_rows(key))
 
 
 # EDPB and Article 29 Working Party designators ("Guidelines 07/2020", "Opinion 05/2014",
@@ -660,6 +874,9 @@ def strip_version(name: str) -> str:
 class Resolver:
     def __init__(self, register: Register, aliases: dict, exclusions: list[dict]):
         self.register, self.aliases, self.exclusions = register, aliases, exclusions
+        self._row_words: dict[str, set[str]] | None = None
+        self._row_numbers: dict[str, set[str]] = {}
+        self._family: frozenset | None = None
 
     def excluded(self, text: str):
         for row in self.exclusions:
@@ -786,19 +1003,233 @@ class Resolver:
                 return True
         return False
 
-    def name_registered(self, name: str) -> bool:
+    def paren_rows(self, inner: str) -> set[str]:
+        """The identity keys of the register rows a parenthetical's text names through the
+        stripped form's lookups: exactly (``exact_row``), or as a whole-word suffix, series stem
+        or edition-qualified name of a Standard ID (``(GDPR)`` names the EU GDPR and UK GDPR
+        rows)."""
+        reg, rows = self.register, set()
+        for cand in filter(None, {inner, strip_version(inner)}):
+            key = identity_key(cand)
+            rows.update(filter(None, [self.exact_row(cand)]))
+            rows.update(reg.suffix_rows(cand) + reg.series_rows(key) + reg.edition_rows(key))
+        return rows
+
+    def _row_entry(self, row: str) -> dict | None:
+        return next((e for e in self.register.entries if e["identity_key"] == row), None)
+
+    def row_words(self, row: str) -> set[str]:
+        """The words of the register row ``row``, judged from the row itself: the tokens
+        (case-folded, accents removed, a plural read as its singular by ``singular``) of its
+        Standard ID, of the title part of its Topic cell (``topic_title``: ``Medical Device
+        Regulation`` for ``EU MDR``; ``UK General Data Protection Regulation`` for ``UK GDPR``,
+        whose cell goes on to describe the retained law) and of each curated alias key that
+        targets it."""
+        if self._row_words is None:
+            words: dict[str, set[str]] = {}
+            for e in self.register.entries:
+                topic = topic_title(e["cells"][3] if len(e["cells"]) > 3 else "")
+                text = fold_accents(f"{e['id']} {topic}").casefold()
+                words.setdefault(e["identity_key"], set()).update(map(singular, TOKEN.findall(text)))
+            for key, target in self.aliases["aliases"].items():
+                if self.register.has_id(target):
+                    words.setdefault(identity_key(target), set()).update(
+                        map(singular, TOKEN.findall(fold_accents(key).casefold()))
+                    )
+            self._row_words = words
+        return self._row_words.get(row, set())
+
+    def row_numbers(self, row: str) -> set[str]:
+        """The instrument numbers (``int/int``) of the register row ``row``: those in its
+        Standard ID, its Current version cell (where the register records an instrument's
+        number: ``Regulation 2017/745`` for ``EU MDR``), the title part of its Topic cell and
+        each curated alias key that targets it. A Superseded versions number names an earlier
+        instrument, so it is not one of the row's."""
+        if row not in self._row_numbers:
+            e = self._row_entry(row)
+            texts = [e["id"], e["cells"][1], topic_title(e["cells"][3] if len(e["cells"]) > 3 else "")] if e else []
+            texts += [k for k, t in self.aliases["aliases"].items() if self.register.has_id(t) and identity_key(t) == row]
+            self._row_numbers[row] = {
+                f"{int(m[1])}/{int(m[2])}" for text in texts for m in INSTRUMENT_NUMBER.finditer(text)
+            }
+        return self._row_numbers[row]
+
+    def paren_tail_ok(self, after: str, row: str, inner: str = "") -> bool:
+        """The whole text ``after`` the parenthetical ``inner`` naming the register row ``row``
+        lets it stand for the citation: once the row's own instrument designations
+        (``TAIL_DESIGNATION`` with a number of ``row_numbers``: ``(GDPR): Regulation (EU)
+        2016/679``, ``(MDR): EU Regulation 2017/745``) and then its own instrument numbers are
+        removed, it is only provision references (``PROVISION_REF``), dates, editions,
+        punctuation and ``&``, ``and`` or ``or`` (``PAREN_TAIL``: ``(CCM) v4.1``, ``(MDR)
+        2017/745``, ``(MDR) Annex I``, ``(MDR) Art. 10 and Annex I``, ``(MDR) Art. 10(1)(a) and
+        (b)``); or its text up to any provision tail (``PROVISION_TAIL``) follows ``inner`` to
+        make a name of the same row (``exact_row``: ``(HIPAA) Security Rule`` as ``HIPAA
+        Security Rule``; not ``(CCPA) Regulations``, a name of another row) and the rest is
+        such a tail. So ``(MDR) Unregistered Act``, ``(MDR) 2017/999``, ``(MDR) Annex I
+        2017/999``, ``(MDR): Unregistered Act``, ``(MDR): Regulation (EU) 2017/999``, ``(MDR):
+        EU Regulation 2017/999``, ``(MDR) Art. 10(1)(a) and (Fake)``, ``(MDR) Art. 10(1)(a)
+        and (b)(Fake)``, ``(MDR) Art. 10(Fake)`` and ``(HIPAA) Security Rule: Unregistered
+        Act`` do not."""
+        numbers = self.row_numbers(row)
+
+        def own_designation(m: re.Match) -> str:
+            left, right = (m["num"] or m["num2"]).split("/")
+            return " " if f"{int(left)}/{int(right)}" in numbers else m[0]
+
+        rest = INSTRUMENT_NUMBER.sub(
+            lambda m: " " if f"{int(m[1])}/{int(m[2])}" in numbers else m[0],
+            TAIL_DESIGNATION.sub(own_designation, after),
+        )
+        if PAREN_TAIL.fullmatch(rest):
+            return True
+        m = PROVISION_TAIL.search(rest)
+        head, tail = (rest[:m.start()], rest[m.start():]) if m else (rest, "")
+        title = f"{inner} {head.strip()}"
+        return bool(
+            inner and head.strip() and PAREN_TAIL.fullmatch(tail)
+            and row in {self.exact_row(title), self.exact_row(strip_version(title))}
+        )
+
+    def words_name_row(self, name: str, row: str, inner: str = "") -> bool:
+        """``name`` names the register row ``row`` by its words, for the parenthetical ``inner``.
+        The name's words are case-folded with accents removed, a possessive ``'s`` is removed
+        (``EU's`` as ``eu``), a plural is read as its singular (``singular``: ``Devices`` as
+        ``device``), ``European`` is read as ``eu`` when the row's Standard ID carries ``EU``,
+        an instrument number of the row (``row_numbers``) is dropped, another instrument number
+        stays one word that no row carries (so ``2019/1937`` is not read as two years), and a
+        four-digit year from 1900 to 2099 outside an instrument number is dropped; function
+        words (``NAME_FUNCTION_WORDS``) need not be row words and give no initials. It names the
+        row when any of these holds:
+
+        - every other word is a word of the row's Standard ID, at least one of them is not a
+          family token, and they include every word of the Standard ID that ``inner`` does not
+          carry, leaving out its function words, instrument numbers and years (``UK`` before
+          ``(UK GDPR)``; ``NIST`` before ``(CSF)`` is not, since ``nist`` names a family;
+          ``Working Party Guidelines`` before ``(WP248 rev.01)`` is not, since the Standard ID
+          also carries ``Article 29 ... Data Protection Impact Assessment``);
+        - the name carries an instrument number of the row and every other word is a word of
+          the row (``row_words``): ``Regulation (EU) 2016/679`` before ``(GDPR)``; or
+        - every other word is a word of the row or one of a run of consecutive other words
+          with no function word between them (a function word breaks a run and gives it no
+          letter) whose initials spell an acronym word of the Standard ID other than one
+          ``inner`` carries (``Cloud Security Alliance`` for the ``CSA`` of ``CSA CCM`` before
+          ``(CCM)``; ``Consumer Safety and`` and ``Cloud Security and Alliance`` spell no
+          ``CSA``; ``Global Data Protection Rules`` does not spell out the ``GDPR`` of
+          ``(GDPR)``); at least one row word stands outside such runs (``Cloud Security Alliance
+          Consumer Safety Act (CCM)`` is only runs); and the initials of the name's other
+          words, in order and a repeated word counted once, give all but at most one letter,
+          and at least two, of an acronym word of ``inner`` (``Data Protection Regulation``
+          gives ``DPR`` of ``GDPR``; ``Regulation`` gives only ``R``; ``Medical Device
+          Regulation`` gives only ``DR`` of ``IVDR``; the ``and`` of ``Trust and Risk`` gives
+          no ``A`` of ``STAR``; ``Cloud Cloud`` gives only ``C`` of ``CCM``).
+
+        So ``Unknown Widget Standard`` names no row, ``Regulation`` does not name the GDPR rows
+        and ``Retained`` does not name UK GDPR."""
+        if self._family is None:
+            self._family = family_tokens(self.register)
+        std_id = self.register.ids.get(row, "")
+        id_words = {singular(w) for w in TOKEN.findall(fold_accents(std_id).casefold())}
+        numbers, own = self.row_numbers(row), []
+
+        def number(m: re.Match) -> str:
+            num = f"{int(m[1])}/{int(m[2])}"
+            if num in numbers:
+                own.append(num)
+                return " "
+            return f" n{int(m[1])}x{int(m[2])} "  # one word, not two years, that no row carries
+
+        text = INSTRUMENT_NUMBER.sub(number, POSSESSIVE.sub("", fold_accents(name)))
+        words = [
+            "eu" if w == "european" and "eu" in id_words else singular(w)
+            for w in TOKEN.findall(text.casefold())
+            if not is_year(w)
+        ]
+        content = [i for i, w in enumerate(words) if w not in NAME_FUNCTION_WORDS]
+        if not content:
+            return False
+        inner_words = {singular(w) for w in TOKEN.findall(fold_accents(inner).casefold())}
+        required = {
+            singular(w)
+            for w in TOKEN.findall(INSTRUMENT_NUMBER.sub(" ", fold_accents(std_id)).casefold())
+            if w not in NAME_FUNCTION_WORDS and not is_year(w)
+        } - inner_words
+        if (
+            all(words[i] in id_words for i in content)
+            and any(words[i] not in self._family for i in content)
+            and required <= {words[i] for i in content}
+        ):
+            return True
+        vocab = self.row_words(row)
+        if own and all(words[i] in vocab for i in content):
+            return True
+        acronyms = {a.casefold() for a in self.register.acronyms.get(row, set())}
+        acronyms -= set(TOKEN.findall(fold_accents(inner).casefold()))
+        # A run is consecutive words with no function word between them, so a function word
+        # gives no letter of a run and breaks one ("Consumer Safety and" and "Cloud Security
+        # and Alliance" do not spell CSA).
+        in_run = [False] * len(words)
+        for i in range(len(words)):
+            for j in range(i + 1, len(words) + 1):
+                if words[j - 1] in NAME_FUNCTION_WORDS:
+                    break
+                if j - i >= 2 and "".join(w[0] for w in words[i:j]) in acronyms:
+                    in_run[i:j] = [True] * (j - i)
+        if not all(words[k] in vocab or in_run[k] for k in content):
+            return False
+        if not any(words[k] in vocab and not in_run[k] for k in content):
+            return False
+        # A repeated word gives its initial once ("Cloud Cloud" gives only C).
+        initials = "".join(w[0] for w in dict.fromkeys(words[i] for i in content))
+        # The acronym words of ``inner``, a lowercase plural "s" dropped ("CCMs" spells "ccm").
+        spelled = [
+            re.sub(r"[^a-z0-9]", "", (w[:-1] if w.endswith("s") else w).casefold())
+            for w in inner.split() if ACRONYM_ITEM.fullmatch(w)
+        ]
+        return any(
+            common_subsequence(initials, a) >= max(2, len(a) - 1) for a in spelled if len(a) >= 3
+        )
+
+    def paren_names_row(self, before: str, inner: str, after: str = "") -> bool:
+        """The parenthetical ``inner`` may stand for the citation in the stripped form's lookups:
+        it names a register row (``paren_rows``) for which the text ``after`` it is acceptable
+        (``paren_tail_ok``) and either nothing precedes it or the name ``before`` it, with or
+        without a trailing edition, names that row by its words (``words_name_row``). So
+        ``Medical Device Regulation (MDR)`` registers through the EU MDR row and ``Unknown
+        Widget Standard (GDPR)`` does not register through the GDPR rows. A name that is itself
+        registered (a Standard ID, alias or umbrella match) registers the citation on its own,
+        so this rule decides only names that are not."""
+        names = list(filter(None, {before, strip_version(before)}))
+        return any(
+            self.paren_tail_ok(after, row, inner)
+            and (not before or any(self.words_name_row(n, row, inner) for n in names))
+            for row in self.paren_rows(inner)
+        )
+
+    def name_registered(self, name: str, full: str = "") -> bool:
+        """``name`` is registered by the stripped form's lookups. ``full`` is the citation before
+        its provision tail was removed: the text after a parenthetical is read from it when it
+        begins with ``name`` up to that parenthetical, so the whole tail is judged
+        (``paren_tail_ok``: ``(MDR) Annex I 2017/999`` does not count although the stripped
+        form ends at ``(MDR)``)."""
         reg = self.register
         bare = name.split("(", 1)[0].strip()
         candidates = {name, strip_version(name), bare, strip_version(bare)}
-        for inner in re.findall(r"\(([^()]*)\)", name):  # an acronym or alias in parentheses
-            candidates |= {inner.strip(), strip_version(inner.strip())}
+        for m in re.finditer(r"\(([^()]*)\)", name):  # an acronym or alias in parentheses
+            after = full[m.end():] if full.startswith(name[:m.end()]) else name[m.end():]
+            if self.paren_names_row(name[:m.start()].strip(), m[1].strip(), after):
+                candidates |= {m[1].strip(), strip_version(m[1].strip())}
         for cand in filter(None, candidates):
             key = identity_key(cand)
             if self.exact_registered(cand):
                 return True
             if reg.by_suffix(cand) or reg.by_series(key) or reg.by_edition(key):
                 return True
-        if citation_designators(name) & reg.designators:
+        # An Article 29 Working Party citation that carries a WP number is matched by the
+        # full-form WP-number rule (``wp_registered``) whether or not it had a provision tail.
+        if citation_issuer(name) == "a29" and WP_NUMBER.search(name):
+            if self.wp_registered(name):
+                return True
+        elif citation_designators(name) & reg.designators:
             return True
         # A comma list in a name cell ("EU AI Act, GDPR") is registered when every member is.
         parts = [p.strip() for p in bare.split(",")]
@@ -829,7 +1260,7 @@ class Resolver:
                 else:
                     out.append(("registered", observed))
             return out
-        if self.name_registered(text):
+        if self.name_registered(text, full):
             return [("registered", text)]
         return [self._unregistered(text)]
 
@@ -997,6 +1428,34 @@ def fold_accents(text: str) -> str:
     """``text`` with accents removed (NFKD, combining marks dropped): ``Qu\u00e9bec`` becomes
     ``Quebec``."""
     return "".join(c for c in unicodedata.normalize("NFKD", text) if not unicodedata.combining(c))
+
+
+def singular(word: str) -> str:
+    """A case-folded word with a plural ``s`` removed (``devices`` to ``device``; not ``access``
+    or a word of three letters or fewer), so the row-word rule compares singular and plural
+    forms as one word. Applied to both sides, so an odd stem (``analysi``) still matches."""
+    return word[:-1] if len(word) > 3 and word.endswith("s") and not word.endswith("ss") else word
+
+
+def is_year(word: str) -> bool:
+    """``word`` is a four-digit year from 1900 to 2099."""
+    return len(word) == 4 and word.isdigit() and 1900 <= int(word) <= 2099
+
+
+def topic_title(topic: str) -> str:
+    """The title part of a register Topic cell (``TOPIC_TITLE_END``)."""
+    return TOPIC_TITLE_END.split(topic, 1)[0].strip()
+
+
+def common_subsequence(a: str, b: str) -> int:
+    """The length of the longest common subsequence of ``a`` and ``b``."""
+    prev = [0] * (len(b) + 1)
+    for ch in a:
+        cur = [0]
+        for j, other in enumerate(b, 1):
+            cur.append(prev[j - 1] + 1 if ch == other else max(prev[j], cur[j - 1]))
+        prev = cur
+    return prev[-1]
 
 
 def distinctive_tokens(text: str, family: frozenset = frozenset()) -> set[str]:
