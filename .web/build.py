@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES``, also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / ", that resolves; the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES`` (which a For-AI name cannot use), also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), a For-AI jurisdiction label whose instrument text is none of its forms in ``FOR_AI_LABEL_INSTRUMENTS`` or a label's form after any other name, a For-AI name, part or piece not compared as an OWASP entry that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2675,19 +2675,25 @@ FOR_AI_INTER_SPAN_FORMS = {
 # three For-AI pages none. Any other span with the class "ext"
 # ("<span class="ext"> (repealed)</span>") is read as text.
 EXT_LINK_MARKER = '<span class="ext">&#8599;</span>'
-# A For-AI item's description span runs to the end of the item.
-_FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span></li>", re.S)
+# A For-AI item's description span runs to the end of the item; whitespace may stand
+# between its </span> and the </li>. An item whose description span does not run to its
+# close this way fails as unparsed, whatever its name.
+_FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span>\s*</li>", re.S)
 # The descriptions (the "fa-cov" or "row-desc" span, as text: ``_plain``, so a link is
-# its anchor text) a For-AI item may carry, keyed by the register Standard ID of the
-# row its name resolves to (``_for_ai_row``; the EU AI Act entry under
-# ``FOR_AI_EU_AI_ACT_ID``), enumerated from the three For-AI templates at 5c1e2b6a
-# (39 items naming 13 rows, one description per row, 10 distinct descriptions). A
-# compound name ("A / B") is split on " / " and each part that resolves names its row,
-# so the description must be enumerated for every such row. The description of an
-# item that resolves to a row is one of its row's, or the item fails as unparsed ("This
-# 2026 edition is withdrawn."), whatever words it uses; an item no part of which
-# resolves to a row keeps its description unchecked. If a template's text changed
-# legitimately, update this allowlist.
+# its anchor text) a For-AI item may carry, keyed by the register Standard ID of each
+# row its name names (``_for_ai_name_rows``; the EU AI Act entry under
+# ``FOR_AI_EU_AI_ACT_ID``), enumerated from the three For-AI templates at d6b7c37a
+# (93 of the 105 items, naming 37 rows, one description per row, 27 distinct
+# descriptions). A compound name ("A / B", "A and B") names the row of each of its
+# parts, so the description must be enumerated for every such row. The description of
+# an item that names a row is one of that row's, or the item fails as unparsed ("This
+# 2026 edition is withdrawn."), whatever words it uses; an item that names no row keeps
+# its description unchecked (at d6b7c37a the 12 items "NIST AI 100-2e2025", "NIST AI
+# 100-4", "Model Cards" and "Datasheets for Datasets", three per name, which have no
+# register row), and only a name enumerated in ``FOR_AI_UNCHECKED_NAMES`` may name no
+# row (a part of a compared OWASP name that names no row fails as unresolved, as
+# ``UNRESOLVED_LIST_NAMES`` applies to bibliography lists only: "OWASP MCP Top 10 /
+# IEC 62443"). If a template's text changed legitimately, update this allowlist.
 FOR_AI_DESCRIPTIONS = {
     FOR_AI_EU_AI_ACT_ID: frozenset({
         "Documented in the EU AI annex (which also reflects the in-force Digital Omnibus on AI, "
@@ -2714,7 +2720,156 @@ FOR_AI_DESCRIPTIONS = {
     "OWASP MCP Top 10": frozenset({
         "Documented in the AI and agentic development-security standard.",
     }),
+    # Named by a leading part of the name (``_named_prefix``): "CSA AI Controls Matrix
+    # (AICM)", "CSA Cloud Controls Matrix (CCM)", "ISO/IEC 5259 series".
+    "CSA AICM": frozenset({"Mapped in the compliance matrix."}),
+    "CSA CCM": frozenset({"Mapped in the compliance matrix."}),
+    "ISO/IEC 5259": frozenset({"Documented in the AI data-quality and readiness standard."}),
+    # The parts of "ISO/IEC 27001:2022 and 27002:2022".
+    "ISO/IEC 27001": frozenset({
+        "Both are documented in the information-security policy; ISO/IEC 27001:2022 is mapped in "
+        "the compliance matrix.",
+    }),
+    "ISO/IEC 27002": frozenset({
+        "Both are documented in the information-security policy; ISO/IEC 27001:2022 is mapped in "
+        "the compliance matrix.",
+    }),
+    # The parts of "ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)".
+    "ISO/IEC 27701": frozenset({
+        "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
+        "governance policy; the GDPR is documented in the EU privacy annex.",
+    }),
+    "EU GDPR": frozenset({
+        "ISO/IEC 27701:2025 is documented in the privacy programme charter and the privacy and data "
+        "governance policy; the GDPR is documented in the EU privacy annex.",
+    }),
+    # The rows of ``FOR_AI_NAME_ROWS``.
+    "OECD AI Principles": frozenset({"Cited in the canonical citations register."}),
+    "Colorado AI Act": frozenset({"Documented in the Colorado AI annex."}),
+    "NYC Local Law 144 (AEDT)": frozenset({"Documented in the NYC AI annex."}),
+    "US CCPA Regulations 2026": frozenset({"Documented in the California ADMT annex."}),
+    "Canada TBS Directive on Automated Decision-Making": frozenset({"Documented in the Canada AI annex."}),
+    "Australia Privacy Act": frozenset({"Documented in the Australia AI annex."}),
+    "Australia Voluntary AI Safety Standard": frozenset({"Documented in the Australia AI annex."}),
+    "Singapore Model AI Governance Framework for Generative AI": frozenset({
+        "Documented in the Singapore AI annex.",
+    }),
+    "Malaysia AIGE": frozenset({"Documented in the Malaysia AI annex."}),
+    "UK AI regulation white paper": frozenset({"Documented in the United Kingdom AI annex."}),
+    "UK AI regulation government response": frozenset({"Documented in the United Kingdom AI annex."}),
+    "South Korea AI Basic Act": frozenset({"Documented in the South Korea AI annex."}),
+    "Illinois HB 3773": frozenset({"Documented in the Illinois AI annex."}),
+    "Texas TRAIGA": frozenset({"Documented in the Texas AI annex."}),
+    "US OMB M-25-21": frozenset({"Documented in the US federal AI annex."}),
+    "US OMB M-25-22": frozenset({"Documented in the US federal AI annex."}),
+    "US OMB M-26-04": frozenset({"Documented in the US federal AI annex."}),
 }
+# For-AI names worded unlike any register Standard ID or curated alias, mapped to the
+# Standard IDs of the rows they name, so their descriptions are checked. A name (or a
+# part of a compound name) is matched as the resolver matches one (``identity_key``:
+# case and spacing ignored), and only for the description check: no edition is read
+# from these names. A jurisdiction label names the rows of the instruments its item
+# lists between the name and description spans (``FOR_AI_INTER_SPAN_FORMS``), as on the
+# three For-AI templates at d6b7c37a: "United States, Colorado, AI Act (SB24-205) and
+# its automated-decision-making re-enactment (SB26-189)." names the Colorado AI Act
+# row, and "Australia, Privacy Act automated-decision transparency amendments
+# (commencing 2026) and the Voluntary AI Safety Standard." names two rows; the label
+# must be the whole name and its item must list that instrument text, one of its forms
+# in ``FOR_AI_LABEL_INSTRUMENTS``. A mapped
+# Standard ID that is no register row stops the check (``BuildError``); if the register
+# renames a row, update this mapping. These are not curated aliases, so gate D15 does
+# not read them.
+FOR_AI_NAME_ROWS = {
+    "OECD Recommendation on AI": ("OECD AI Principles",),
+    # The second part of "ISO/IEC 27701:2025 and the GDPR (Regulation (EU) 2016/679)".
+    "the GDPR (Regulation (EU) 2016/679)": ("EU GDPR",),
+    "United States, Colorado": ("Colorado AI Act",),
+    "United States, New York City": ("NYC Local Law 144 (AEDT)",),
+    "United States, California": ("US CCPA Regulations 2026",),
+    "Canada": ("Canada TBS Directive on Automated Decision-Making",),
+    "Australia": ("Australia Privacy Act", "Australia Voluntary AI Safety Standard"),
+    "Singapore": ("Singapore Model AI Governance Framework for Generative AI",),
+    "Malaysia": ("Malaysia AIGE",),
+    "United Kingdom": ("UK AI regulation white paper", "UK AI regulation government response"),
+    "South Korea": ("South Korea AI Basic Act",),
+    "United States, Illinois": ("Illinois HB 3773",),
+    "United States, Texas": ("Texas TRAIGA",),
+    "United States, federal": ("US OMB M-25-21", "US OMB M-25-22", "US OMB M-26-04"),
+}
+# The instrument text each jurisdiction label of ``FOR_AI_NAME_ROWS`` lists between its
+# name and description spans (as text: ``_plain``), the one form that names the label's
+# mapped rows, enumerated from the three For-AI templates at d6b7c37a (12 labels, one
+# form each, the same on all three pages; every form is also in
+# ``FOR_AI_INTER_SPAN_FORMS``). A label is matched as the whole name, as
+# ``FOR_AI_NAME_ROWS`` matches it (``identity_key``), and maps to its rows only as the
+# whole name, not as a part of a compound name. A label whose text is none of its forms
+# (the empty text included), or a label's form after any other name ("United States,
+# Texas" with Colorado's instrument text, "Canada" with Colorado's), fails as a
+# mismatched instrument, whatever its description. If a template's text changed
+# legitimately, update this allowlist.
+FOR_AI_LABEL_INSTRUMENTS = {
+    "United States, Colorado": frozenset({
+        ", AI Act (SB24-205) and its automated-decision-making re-enactment (SB26-189).",
+    }),
+    "United States, New York City": frozenset({
+        ", Local Law 144 on automated employment decision tools.",
+    }),
+    "United States, California": frozenset({
+        ", CCPA regulations on automated decision-making technology (11 CCR Article 11, "
+        "sections 7200 to 7222).",
+    }),
+    "Canada": frozenset({
+        ", Treasury Board Directive on Automated Decision-Making (in force) and provincial and "
+        "sectoral instruments.",
+    }),
+    "Australia": frozenset({
+        ", Privacy Act automated-decision transparency amendments (commencing 2026) and the "
+        "Voluntary AI Safety Standard.",
+    }),
+    "Singapore": frozenset({
+        ", Model AI Governance Framework for Generative AI (advisory, not legislation).",
+    }),
+    "Malaysia": frozenset({
+        ", National Guidelines on AI Governance and Ethics (MOSTI, 2024; voluntary, seven "
+        "principles).",
+    }),
+    "United Kingdom": frozenset({
+        ", pro-innovation AI regulation framework (CP 815 white paper, 2023, and CP 1019 "
+        "government response, 2024; non-statutory, five principles applied by existing "
+        "regulators).",
+    }),
+    "South Korea": frozenset({
+        ", Framework Act on AI (AI Basic Act, Law No. 20676, in force 22 January 2026).",
+    }),
+    "United States, Illinois": frozenset({
+        ", AI in employment (HB 3773 / Public Act 103-0804), effective 1 January 2026.",
+    }),
+    "United States, Texas": frozenset({
+        ", Responsible Artificial Intelligence Governance Act (TRAIGA, HB 149), effective "
+        "1 January 2026.",
+    }),
+    "United States, federal": frozenset({
+        ", OMB memoranda M-25-21 (agency use of AI), M-25-22 (AI acquisition), and M-26-04 "
+        "(Unbiased AI Principles for procured LLMs), binding on federal agencies and reaching "
+        "vendors through contract terms.",
+    }),
+}
+# The For-AI names, or parts of names, that may name no register row, so their
+# descriptions are not checked, enumerated from the three For-AI templates at d6b7c37a
+# (12 items, three per name). A name is matched exactly as written. Any other name, part
+# or piece of an item that is not compared as an OWASP entry and names no row
+# (``_for_ai_name_rows``) fails as unchecked ("United States, Texas (TRAIGA)", "Model
+# Card"), whatever words it uses; add a register row or curated alias for it or map it
+# in ``FOR_AI_NAME_ROWS``, or, if it legitimately names no row, add it here.
+FOR_AI_UNCHECKED_NAMES = frozenset({
+    "NIST AI 100-2e2025", "NIST AI 100-4", "Model Cards", "Datasheets for Datasets",
+})
+# A For-AI name, or a part of one split on " / ", that names no row whole is split
+# again on " and " ("ISO/IEC 27001:2022 and 27002:2022"). A later part that begins with
+# a digit takes the designator before the first part's number (``_SHARED_PREFIX_RE``,
+# "ISO/IEC "), so "27002:2022" is read as "ISO/IEC 27002:2022".
+_COMPOUND_AND_SPLIT_RE = re.compile(r"\s+and\s+")
+_SHARED_PREFIX_RE = re.compile(r"\D*?\s(?=\d)")
 # The For-AI entries compared are those of the register rows whose Standard ID begins
 # with this word and a space (the OWASP rows), chosen by the row the name resolves to.
 FOR_AI_COMPARED_ID_PREFIX = "OWASP "
@@ -2950,13 +3105,14 @@ TOPIC_WORDS = frozenset({
     "system", "systems", "tactics", "taxonomy", "techniques", "technology", "threat",
     "threat-modeling", "threats", "to", "trust", "uk", "verification", "web", "zero",
 })
-# The names a list may carry that resolve to no register row and hold no edition,
-# enumerated from the lists read as of 2026-10-18: "IEC 62443" on the landing and v2
-# coverage lists (no For-AI entry compared resolves to no row). A name is matched
-# exactly as written. Any other name that resolves to no row and holds no edition fails
-# as unresolved ("IEC 62443 (withdrawn)", "IEC 62443 superseded"), whatever words it
-# uses; add a register row or curated alias for it, or, if it legitimately names no
-# row, add it here.
+# The names a bibliography list may carry that resolve to no register row and hold no
+# edition, enumerated from the lists read as of 2026-10-18: "IEC 62443" on the landing
+# and v2 coverage lists. A name is matched exactly as written. Any other name that
+# resolves to no row and holds no edition fails as unresolved ("IEC 62443 (withdrawn)",
+# "IEC 62443 superseded"), whatever words it uses; add a register row or curated alias
+# for it, or, if it legitimately names no row, add it here. This list does not apply to
+# the For-AI pages: there every part of a compared OWASP name must name a row, so
+# "OWASP MCP Top 10 / IEC 62443" fails as unresolved.
 UNRESOLVED_LIST_NAMES = frozenset({"IEC 62443"})
 
 
@@ -2969,7 +3125,9 @@ class EditionEntry(NamedTuple):
     edition: str
     row: str
     current: str
-    status: str  # "match", "mismatch", "unresolved", "unreadable", "no edition", "unparsed" or "incomplete"
+    # "match", "mismatch", "unresolved", "unreadable", "no edition", "unparsed",
+    # "mismatched instrument", "unchecked" or "incomplete"
+    status: str
 
 
 def _edition_source_text(rel):
@@ -3029,24 +3187,96 @@ def _for_ai_row(d15, resolver, name):
     return resolver.named_row(name[:m.start()].strip()) if _EDITION_SHAPE_RE.fullmatch(tail) else None
 
 
+def _for_ai_label(d15, name):
+    """The jurisdiction label of ``FOR_AI_LABEL_INSTRUMENTS`` that ``name`` is (matched
+    by ``identity_key``, as ``FOR_AI_NAME_ROWS`` matches it), or None."""
+    key = d15.identity_key(name)
+    return next((label for label in FOR_AI_LABEL_INSTRUMENTS if d15.identity_key(label) == key), None)
+
+
+def _for_ai_mapped_rows(d15, resolver, name, whole=True):
+    """The identity keys of the rows ``FOR_AI_NAME_ROWS`` maps ``name`` to (matched by
+    ``identity_key``), or an empty list; a jurisdiction label (``FOR_AI_LABEL_INSTRUMENTS``)
+    maps only when ``whole``, the item's whole name. Raises BuildError when a mapped
+    Standard ID is no register row."""
+    key = d15.identity_key(name)
+    for listed, row_ids in FOR_AI_NAME_ROWS.items():
+        if d15.identity_key(listed) != key or (not whole and listed in FOR_AI_LABEL_INSTRUMENTS):
+            continue
+        missing = [r for r in row_ids if not resolver.register.has_id(r)]
+        if missing:
+            raise BuildError(f"FOR_AI_NAME_ROWS maps {listed!r} to {', '.join(map(repr, missing))}, "
+                             f"which is no Standard ID in {CITATIONS_REGISTER.relative_to(REPO_ROOT)} "
+                             f"(update the mapping in .web/build.py)")
+        return [d15.identity_key(r) for r in row_ids]
+    return []
+
+
+def _for_ai_named_pieces(d15, resolver, part, whole=True):
+    """(piece, keys) per piece of one part of a For-AI name (split on " / "), ``keys``
+    the identity keys of the rows the piece names, for its description check, or [None]
+    for a piece that names none: the row the part resolves to (``_for_ai_row``), else
+    the rows ``FOR_AI_NAME_ROWS`` maps it to (a jurisdiction label only when ``whole``,
+    the part being the item's whole name), else, for a part joined with " and "
+    (``_COMPOUND_AND_SPLIT_RE``), those of each piece, a later piece that begins with a
+    digit taking the first piece's designator ("ISO/IEC 27001:2022 and 27002:2022" names
+    ISO/IEC 27001 and ISO/IEC 27002) and a piece never mapping as a jurisdiction label,
+    else the row a leading part of it names (``_named_prefix``: "CSA Cloud Controls
+    Matrix (CCM)", "ISO/IEC 5259 series", "ISO/IEC 42001:2023 (withdrawn)")."""
+    key = _for_ai_row(d15, resolver, part)
+    if key:
+        return [(part, [key])]
+    mapped = _for_ai_mapped_rows(d15, resolver, part, whole)
+    if mapped:
+        return [(part, mapped)]
+    pieces = _COMPOUND_AND_SPLIT_RE.split(part)
+    if len(pieces) == 1:
+        return [(part, [_named_prefix(resolver, part)])]
+    shared = _SHARED_PREFIX_RE.match(pieces[0])
+    out = []
+    for piece in pieces:
+        if shared and piece[:1].isdigit():
+            piece = shared[0] + piece
+        key = _for_ai_row(d15, resolver, piece)
+        out.append((piece, [key] if key else _for_ai_mapped_rows(d15, resolver, piece, False)
+                    or [_named_prefix(resolver, piece)]))
+    return out
+
+
+def _for_ai_name_rows(d15, resolver, part, whole=True):
+    """The identity keys of the rows one part of a For-AI name (split on " / ") names,
+    for its description check, None for a piece that names none
+    (``_for_ai_named_pieces``)."""
+    return [key for _, keys in _for_ai_named_pieces(d15, resolver, part, whole) for key in keys]
+
+
+def _for_ai_unchecked(d15, resolver, name):
+    """The parts and pieces of a For-AI name (split on " / " and " and ", as
+    ``_for_ai_named_pieces`` splits them) that name no row and are not enumerated in
+    ``FOR_AI_UNCHECKED_NAMES``, in order."""
+    parts = _COMPOUND_NAME_SPLIT_RE.split(name)
+    return [piece for part in parts for piece, keys in _for_ai_named_pieces(d15, resolver, part, len(parts) == 1)
+            if keys == [None] and piece not in FOR_AI_UNCHECKED_NAMES]
+
+
 def _for_ai_branch(d15, resolver, name):
     """(branch, keys) for a For-AI item that is not the EU AI Act entry. The name is
-    split on " / " (``_COMPOUND_NAME_SPLIT_RE``) and ``keys`` holds, per part, the row
-    that part resolves to (``_for_ai_row``) or None. The branch is "OWASP", the item
-    compared, when the row any part resolves to, or else the row a leading part of that
-    part names (``_named_prefix``: "Owasp Top 10 for LLM Applications 2026
-    (withdrawn)"), has a Standard ID beginning ``FOR_AI_COMPARED_ID_PREFIX`` ("ISO/IEC
+    split on " / " (``_COMPOUND_NAME_SPLIT_RE``) and ``keys`` holds, part by part, the
+    rows that part names (``_for_ai_name_rows``; a jurisdiction label names its rows
+    only as the whole name), None for a part or piece that names none. The branch is
+    "OWASP", the item compared, when any of those rows (one a
+    leading part of a part names included: "Owasp Top 10 for LLM Applications 2026
+    (withdrawn)") has a Standard ID beginning ``FOR_AI_COMPARED_ID_PREFIX`` ("ISO/IEC
     42001 / OWASP MCP Top 10" included), or when the name contains
     ``FOR_AI_COMPARED_WORD`` once NFKC-normalised, stripped of format characters and
     case-folded ("The OWASP Top 10 for LLM Applications 2025", "OW<zero-width
     space>ASP MCP Top 10", which then fail as unresolved); "" otherwise."""
     parts = _COMPOUND_NAME_SPLIT_RE.split(name)
-    keys = [_for_ai_row(d15, resolver, part) for part in parts]
+    keys = [key for part in parts for key in _for_ai_name_rows(d15, resolver, part, len(parts) == 1)]
     owasp = False
-    for part, key in zip(parts, keys):
-        named = key or _named_prefix(resolver, part)
-        if named:
-            row = next(e for e in resolver.register.entries if e["identity_key"] == named)
+    for key in keys:
+        if key:
+            row = next(e for e in resolver.register.entries if e["identity_key"] == key)
             owasp = owasp or row["id"].startswith(FOR_AI_COMPARED_ID_PREFIX)
     folded = "".join(ch for ch in unicodedata.normalize("NFKC", name)
                      if unicodedata.category(ch) != "Cf").casefold()
@@ -3062,13 +3292,21 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
     next <li> or the list's close (``_LI_GAP_RE``; the name is the item's text with that
     text), and a For-AI item whose text between its name and description spans is none
     of the forms enumerated for its branch (``FOR_AI_INTER_SPAN_FORMS``), with that text
-    as the edition; a For-AI item a part of whose name (split on " / ") resolves to a
-    row (``_for_ai_row``, or the EU AI Act entry) and whose description is none of those
-    enumerated for that row (``FOR_AI_DESCRIPTIONS``) gives problem "unparsed
-    description", once per such row, with the row's Standard ID as the name and the
-    description as the edition, and its entry is still read so its editions are
-    compared (the description of an item no part of which resolves to a row is not
-    checked); an <li> with an "id" span anywhere
+    as the edition, and so does a For-AI item whose description span does not run to its
+    close (``_FOR_AI_DESC_RE``), with the item's text as the name; a For-AI item a part
+    of whose name names a row (``_for_ai_name_rows``, or the EU AI Act entry) and whose
+    description is none of those enumerated for that row (``FOR_AI_DESCRIPTIONS``) gives
+    problem "unparsed description", once per such row, with the row's Standard ID as the
+    name and the description as the edition, and its entry is still read so its editions
+    are compared (the description of an item whose name names no row is not checked);
+    a For-AI item named by a jurisdiction label (``_for_ai_label``) whose text between
+    the spans is none of the label's forms in ``FOR_AI_LABEL_INSTRUMENTS``, or whose
+    text is a label's form while its name is not that label, gives problem "mismatched
+    instrument", with the item's name and that text as the edition; a For-AI item not
+    compared as an OWASP entry gives problem "unchecked" for each part or piece of its
+    name that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``
+    (``_for_ai_unchecked``), with that part as the name;
+    an <li> with an "id" span anywhere
     inside it that is not among the items of the lists read gives "incomplete"; a For-AI
     source without exactly one EU AI Act entry gives one "incomplete" entry with line 0;
     a source with no list read gives one "unparsed" entry with line 0 and an empty name.
@@ -3119,15 +3357,29 @@ def _hand_written_entries(rel, kind, text, d15_resolver=None):
                 continue
             else:
                 (branch, keys), between = _for_ai_branch(d15, resolver, name), _plain(m["rest"])
-            # The rows the item names: the EU AI Act, or the row of each part that resolves.
-            row_ids = [FOR_AI_EU_AI_ACT_ID] if eu else list(dict.fromkeys(ids[k] for k in keys if k))
             tail = _FOR_AI_DESC_RE.fullmatch(li[0], m.end())
-            desc = _plain(tail["desc"] if tail else li[0][m.end():])
-            undescribed = [r for r in row_ids if not tail or desc not in FOR_AI_DESCRIPTIONS.get(r, ())]
+            if not tail:
+                # The description span does not run to the item's close.
+                entries.append((pos, _plain(li[0]), "", "unparsed"))
+                continue
+            # The rows the item names: the EU AI Act, or the rows its name's parts name.
+            row_ids = [FOR_AI_EU_AI_ACT_ID] if eu else list(dict.fromkeys(ids[k] for k in keys if k))
+            desc = _plain(tail["desc"])
+            undescribed = [r for r in row_ids if desc not in FOR_AI_DESCRIPTIONS.get(r, ())]
             if between not in FOR_AI_INTER_SPAN_FORMS[branch]:
                 # The text between the spans is none of the forms enumerated for the branch.
                 entries.append((pos, full, between, "unparsed"))
                 continue
+            if not eu:
+                # A jurisdiction label lists one of its own instrument forms, and a label's
+                # form follows no other name.
+                label = _for_ai_label(d15, name)
+                owners = [lb for lb, forms in FOR_AI_LABEL_INSTRUMENTS.items() if between in forms]
+                if (label and between not in FOR_AI_LABEL_INSTRUMENTS[label]) or (owners and label not in owners):
+                    entries.append((pos, name, between, "mismatched instrument"))
+            if branch == "":
+                # A name, part or piece that names no row is enumerated, or it fails.
+                entries.extend((pos, piece, "", "unchecked") for piece in _for_ai_unchecked(d15, resolver, name))
             # A description none of those enumerated for a row the item names fails; the
             # item's editions are still compared.
             entries.extend((pos, row_id, desc, "unparsed description") for row_id in undescribed)
@@ -3582,8 +3834,10 @@ def standard_edition_entries(texts=None):
       "OWASP Top Ten (2025) (repealed)", "FooStandard 2.0 (withdrawn)"; "IEC 62443"
       holds none) or in the topic, as an EU instrument number or a topic read as an
       edition or date ("IEC 62443", topic "2009 edition"), or it carries no edition and
-      is not one of the names enumerated in ``UNRESOLVED_LIST_NAMES`` ("IEC 62443
-      (withdrawn)", "IEC 62443 superseded"; the edition field is empty) (a failure).
+      is not one of the names enumerated in ``UNRESOLVED_LIST_NAMES``, which a For-AI
+      name cannot use ("IEC 62443 (withdrawn)", "IEC 62443 superseded", and "IEC
+      62443" as a part of the For-AI name "OWASP MCP Top 10 / IEC 62443"; the edition
+      field is empty) (a failure).
     * ``unreadable``: the name does not resolve whole but a leading part of it does
       (``_named_prefix``: "OWASP Top 10 (2025) (repealed)"), or a one-part biblio name
       resolves and its topic is no edition the check reads yet holds a numeric
@@ -3606,12 +3860,23 @@ def standard_edition_entries(texts=None):
       list's close ("</li> (withdrawn)"; the name holds the item's text with that text),
       a For-AI item whose text between its name and description spans is none of the
       forms enumerated for it (``FOR_AI_INTER_SPAN_FORMS``; the edition field holds that
-      text), a For-AI item a part of whose name (split on " / ") resolves to a row
-      (``_for_ai_row``, or the EU AI Act entry) whose description is none of those
-      enumerated for that row (``FOR_AI_DESCRIPTIONS``; one entry per such row, the name
-      and row fields hold the row's Standard ID and the edition field the description;
-      an item no part of which resolves to a row keeps its description unchecked), or a
-      source with no list read (a failure).
+      text), a For-AI item whose description span does not run to its close, whitespace
+      aside ("</span> (withdrawn)</li>"), a For-AI item a part of whose name names a row
+      (``_for_ai_name_rows``: split on " / " and " and ", resolved, mapped by
+      ``FOR_AI_NAME_ROWS`` or named by a leading part; or the EU AI Act entry) whose
+      description is none of those enumerated for that row (``FOR_AI_DESCRIPTIONS``; one
+      entry per such row, the name and row fields hold the row's Standard ID and the
+      edition field the description; an item whose name names no row keeps its
+      description unchecked), or a source with no list read (a failure).
+    * ``mismatched instrument``: a For-AI item named by a jurisdiction label whose text
+      between its name and description spans is none of the forms enumerated for that
+      label in ``FOR_AI_LABEL_INSTRUMENTS`` ("United States, Texas" with Colorado's
+      instrument text), or whose text is a label's form while its name is not that label
+      ("Canada" with Colorado's); the edition field holds that text (a failure).
+    * ``unchecked``: a part or piece of the name of a For-AI item not compared as an
+      OWASP entry that names no row (``_for_ai_named_pieces``) and is not enumerated in
+      ``FOR_AI_UNCHECKED_NAMES`` ("United States, Texas (TRAIGA)"), so its description
+      would go unchecked; the name field holds that part (a failure).
     * ``incomplete``: an <li> with an "id" span that is not among the entries read,
       or a For-AI source without exactly one EU AI Act entry (a failure).
     * ``no edition``: the entry names no edition, so there is nothing to compare.
@@ -3635,11 +3900,14 @@ def standard_edition_entries(texts=None):
     "Withdrawn OWASP Top 10") is compared too, so one that does not resolve fails as
     unresolved (or as unreadable when a leading part names a row). Every part of a
     compared compound name has its edition compared, and the description is checked
-    against the row of every part that resolves. The other
+    against the row of every part that names one. The other
     For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO
     31000:2018, ISO/IEC 27001:2022 and the rest) are out of scope of this check,
     although every <li> of the resource index must still parse and the description of
-    every item that resolves to a row must be enumerated (``FOR_AI_DESCRIPTIONS``).
+    every item whose name names a row must be enumerated (``FOR_AI_DESCRIPTIONS``; a
+    name worded unlike its row is mapped in ``FOR_AI_NAME_ROWS``), a jurisdiction
+    label's instrument text must be its form in ``FOR_AI_LABEL_INSTRUMENTS``, and a name
+    that names no row must be enumerated in ``FOR_AI_UNCHECKED_NAMES``.
 
     ``texts`` maps a source path to replacement text (for tests); other sources are
     read from the template tree.
@@ -3696,8 +3964,9 @@ def standard_edition_entries(texts=None):
                 row = rows.get(key)
                 if unreadable:
                     status, edition = "unreadable", unreadable
-                elif not edition and row is None and name not in UNRESOLVED_LIST_NAMES:
-                    # A name that names no row and holds no edition is enumerated.
+                elif not edition and row is None and (kind != "biblio" or name not in UNRESOLVED_LIST_NAMES):
+                    # A name that names no row and holds no edition is enumerated, on a
+                    # bibliography list only: every part of a compared For-AI name names a row.
                     status = "unresolved"
                 elif not edition:
                     status = "no edition"
@@ -3749,6 +4018,7 @@ def _allowlist_rejection(edition, current, row):
 
 def stale_standard_editions(texts=None):
     """Failure lines for hand-written editions that differ from the register (empty = clean)."""
+    for_ai_sources = {f".web/{rel}" for rel, kind in EDITION_LIST_SOURCES if kind == "for-ai"}
     hits = []
     for e in standard_edition_entries(texts):
         if e.status == "mismatch":
@@ -3790,6 +4060,14 @@ def stale_standard_editions(texts=None):
                 f"topic to TOPIC_WORDS (never one stating that an edition ended), or add a "
                 f"curated alias if it names another row)"
             )
+        elif e.status == "unresolved" and not e.edition and e.source in for_ai_sources:
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row and is not among the "
+                f"names enumerated for a compared For-AI name, of which there are none "
+                f"(UNRESOLVED_LIST_NAMES in .web/build.py applies to bibliography lists only, so "
+                f"every part of a compared OWASP name must name a row; correct the template, or "
+                f"add a register row or a curated alias for it)"
+            )
         elif e.status == "unresolved" and not e.edition:
             hits.append(
                 f"{e.source}:{e.line}: {e.name!r} names no register row and is not among the "
@@ -3801,6 +4079,22 @@ def stale_standard_editions(texts=None):
             hits.append(
                 f"{e.source}:{e.line}: {e.name!r} carries edition {e.edition!r} but names no "
                 f"register row (add the row or a curated alias)"
+            )
+        elif e.status == "mismatched instrument":
+            hits.append(
+                f"{e.source}:{e.line}: list item {e.name!r} lists the instrument text {e.edition!r}, "
+                f"which is not the one enumerated for its name in FOR_AI_LABEL_INSTRUMENTS (a "
+                f"jurisdiction label must list one of its own forms, which name its mapped rows, "
+                f"and a label's form follows no other name; correct the template, or if its text "
+                f"changed legitimately, update that allowlist in .web/build.py)"
+            )
+        elif e.status == "unchecked":
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row, so its item's "
+                f"description is not checked, and is not among the names enumerated in "
+                f"FOR_AI_UNCHECKED_NAMES in .web/build.py (correct the template, add a register "
+                f"row or curated alias for it or map it in FOR_AI_NAME_ROWS, or, if it "
+                f"legitimately names no row, add the name to FOR_AI_UNCHECKED_NAMES)"
             )
         elif e.status == "unparsed" and e.line and e.row:
             hits.append(
