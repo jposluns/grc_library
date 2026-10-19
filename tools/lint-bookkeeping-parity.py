@@ -25,7 +25,8 @@ the post-commit ``run_all_audits.sh`` already runs it before any push.
 
 The six checks (plus the per-PR row-integrity pass, GATE50-UNIQUE, documented at
 ``row_integrity_findings``: one canonical row per PR per register; explicit ``iteration`` /
-``addendum`` companions; no pending/IN-PROGRESS row beside another row for the same PR):
+``addendum`` companions; no pending/IN-PROGRESS row beside another row for the same PR; it reads
+the same leading identity as Check 1's presence, see below):
 
 **Check 1, QA-cadence parity (the former §4.6 surface).** Derive the merged-PR
 list from the ``CHANGELOG.md`` per-entry headers, matched in BOTH the compact
@@ -120,12 +121,18 @@ prose and records nothing: ``#903 (re-run of #900)`` is no row for #900, and
 ``#2429 iteration 2`` is #2429's row alone; a combined ``#A, #B`` identity records both
 PRs and a well-formed ``#A-#B`` range its two endpoints. Until 3b406 presence read every
 PR number in the cell. The improvement log's presence is unchanged: ``parse_retro_prs``,
-the PR each row leads with.
+the PR each row leads with. Row integrity (GATE50-UNIQUE) reads the same leading identity
+(3b408): a validate-pr row counts only for the PRs ``_identity_reads`` gives it, so
+``#856 (re-run of #855)`` beside ``#855`` is one row for each PR, never two canonical rows
+for #855, and it cannot satisfy a ``#855 addendum`` companion. Until 3b408 integrity keyed
+every ``PR_CELL_TOKEN`` number in the cell.
 The exact historical dispositions abandoned-autocorrect (no PR) and
 routed pre-open (no PR) remain accepted without creating PR records.
 The set is closed and matched exactly (``NO_PR_DISPOSITIONS``).
 Any other malformed cell produces one finding naming its file, line and value,
-and that finding keeps the gate failing. Both history readers exclude the
+and that finding keeps the gate failing. So does a dated row with fewer than five
+pipe-separated fields, which has no Findings cell (a malformed row, 3b408; until then it
+was skipped without a finding). Both history readers exclude the
 malformed row while retaining valid peers, and no row, malformed or not,
 sets the QA-cadence floor, which is recorded (3b206); a malformed row also
 names no kept PR for the marker's upper bound. A PR whose
@@ -136,7 +143,10 @@ A row whose leading identity names a PR that Check 1's presence reader
 ``#900-903``, ``900-903`` or ``PR #900-903 iteration``, likewise produces one finding
 naming its file, line and value and telling the maintainer to write ``#900-#903``
 (``unread_identity_findings``, 3b206 r6); the PRs it leaves unread are neither present
-nor kept, so a marker raised above that row cannot hide missing rows silently.
+nor kept, so a marker raised above that row cannot hide missing rows silently. The fix is
+built from the cell (3b408): an identity whose last number runs into a hyphen and a digit,
+``#929-3.245``, ``#929-1.5`` or ``#929-9x``, is told to separate it with a space
+(``'#929 3.245'``), never to write an unrelated range.
 
 **Check 2, TODO/DONE rotation parity (the former §4.10 surface).** Precision-first
 and FP-free (the gate-48 S5 precedent): flag only the unambiguous
@@ -661,13 +671,21 @@ def _validate_pr_rows(text: str, findings: list[str] | None = None):
     """Yield PR-bearing rows; accept known no-PR dispositions without PR records.
 
     A malformed PR cell is excluded and reported into ``findings``; no number in it reaches a
-    PR record or the QA-cadence floor.
+    PR record or the QA-cadence floor. A dated row with fewer than five pipe-separated fields
+    has no Findings cell to classify, so it is excluded and reported the same way (3b408); until
+    then it was skipped without a finding.
     """
     for lineno, line in enumerate(text.splitlines(), 1):
         if not TABLE_ROW.match(line):
             continue
         c = cells(line)
         if len(c) < 5:
+            if findings is not None:
+                findings.append(
+                    f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
+                    f"malformed row {line!r}; expected a Findings cell after the Date, PR and "
+                    f"Touched cells."
+                )
             continue
         # Exact historical no-PR dispositions; do not accept arbitrary prose cells.
         if c[2] in NO_PR_DISPOSITIONS:
@@ -768,6 +786,13 @@ def _identity_reads(cell: str):
     return store_row_prs(cell), {int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(cell)}
 
 
+# A hyphen opening the text right after the leading identity, before a digit (``#929-3.245``):
+# the row grammar ends the identity at the number before it, while ``PR_CELL_TOKEN`` refuses a
+# number followed by a hyphen that does not open ``#``. Within the identity the same shape is a
+# range end written without ``#`` (``#929-932``).
+_IDENTITY_HYPHEN_TAIL = re.compile(r"-(?=\d)")
+
+
 def unread_identity_findings(text: str) -> list[str]:
     """One finding per validate-pr row whose leading identity names a PR presence does not read.
 
@@ -776,6 +801,13 @@ def unread_identity_findings(text: str) -> list[str]:
     nor the floor and a marker raised above it hid the missing rows below silently. Such a row
     is reported like a malformed cell, naming its file, line and value, with the fix: write each
     range with ``#`` on both ends (``#929-#932``), which both readers read.
+
+    3b408: the fix is built from the cell itself. A cell with no range spans used to be told to
+    write the unrelated ``'#900-#903'``; its unread PR is the identity's last number followed by
+    a hyphen and a digit (``#929-3.245``, ``#929-1.5``, ``#929-9x``), which the row grammar ends
+    the identity before but ``PR_CELL_TOKEN`` refuses, so the fix is to separate the identity
+    from the text after it with a space (``'#929 3.245'``). The range fix is given only when an
+    unread PR is a range endpoint.
     """
     findings: list[str] = []
     for lineno, c in _validate_pr_rows(text):
@@ -783,12 +815,30 @@ def unread_identity_findings(text: str) -> list[str]:
         unread = sorted(set(named) - read)
         if not unread:
             continue
-        ranges = ", ".join(f"'#{lo}-#{hi}'" for lo, hi in named.spans) or "'#900-#903'"
+        identity = STORE_PR_IDENTITY_RE.match(c[2]).group(0)
+        tail = c[2][len(identity):]
+        fixes: list[str] = []
+        unread_range = any(lo in unread or hi in unread for lo, hi in named.spans)
+        if unread_range:
+            ranges = ", ".join(f"'#{lo}-#{hi}'" for lo, hi in named.spans)
+            fixes.append(f"Write each range with '#' on both ends, as {ranges}.")
+        if _IDENTITY_HYPHEN_TAIL.match(tail):
+            example = _IDENTITY_HYPHEN_TAIL.sub("-#", identity) + " " + tail[1:]
+            fixes.append(
+                f"Separate the identity from the text after it with a space, not a hyphen, "
+                f"as {example!r}."
+            )
+        if not fixes:
+            # Not reached by the shared grammar today; still a hint about this cell's own PRs.
+            fixes.append(
+                f"Write each PR it names as '#N', set off by a space or a comma, as "
+                f"{', '.join(f'#{pr}' for pr in unread)!r}."
+            )
         prs = ", ".join(f"#{pr}" for pr in unread)
         findings.append(
             f"  [qa-cadence] {VALIDATE_PR_HISTORY}:{lineno}: "
-            f"unread PR range in cell {c[2]!r}; Check 1 reads no row for {prs}. "
-            f"Write each range with '#' on both ends, as {ranges}."
+            f"unread PR {'range' if unread_range else 'identity'} in cell {c[2]!r}; Check 1 reads no row for {prs}. "
+            + " ".join(fixes)
         )
     return findings
 
@@ -798,6 +848,9 @@ def unread_identity_findings(text: str) -> list[str]:
 # final row, or two retro rows for one PR, read green. Observed: after a context compaction the
 # orchestrator appended final rows beside its own pre-compaction IN-PROGRESS rows for PR #2490.
 # This check keeps every row occurrence and enforces ONE canonical row per PR per register.
+# A validate-pr row counts for the PRs its leading identity names that PR_CELL_TOKEN also reads
+# (``_identity_reads``, as presence does since 3b406; 3b408), so ``#856 (re-run of #855)`` is no
+# row for #855; a retro row counts for its leading identity (``store_row_prs``).
 # A row is a COMPANION (allowed alongside the canonical row) only when its PR cell says so with an
 # explicit ``iteration`` or ``addendum`` keyword (``#2429 iteration``, ``#2398 addendum``);
 # a companion never stands alone. One ordinary row plus one handoff/subsumption exemption row is
@@ -838,14 +891,19 @@ def _history_row_records(text: str, findings: list[str] | None = None) -> list[t
     old blanking pass was shown to do the opposite of documentation-hygiene: a literal ``<!--``
     in one row's prose and a ``-->`` in a later row's swallowed every REAL row between them.
 
-    The keys stay this register's own PR tokens; they travel as a ``StorePRs`` carrying the
-    cell's complete identity, its certainty and its range interiors, so a combined or ranged
-    row that names the own PR or a merged PR (``#2660-#2662`` around own #2661) is evaluated,
-    never deferred on its endpoints alone.
+    The keys are the PRs the row's leading identity names that this register's own token reader
+    also reads (``_identity_reads``, 3b408), the reading Check 1's presence and the floor use, so
+    a later number in the cell is prose and keys nothing: ``#856 (re-run of #855)`` is #856's row
+    alone, never a second canonical row for #855 nor a canonical row a ``#855 addendum`` companion
+    can lean on. Until 3b408 the keys were every ``PR_CELL_TOKEN`` number in the cell. They
+    travel as a ``StorePRs`` carrying the cell's complete identity, its certainty and its range
+    interiors, so a combined or ranged row that names the own PR or a merged PR (``#2660-#2662``
+    around own #2661) is evaluated, never deferred on its endpoints alone.
     """
     out: list[tuple[int, list[int], str, bool, bool]] = []
     for lineno, c in _validate_pr_rows(text, findings):
-        keys = sorted({int(m.group(1) or m.group(2)) for m in PR_CELL_TOKEN.finditer(c[2])})
+        named, read = _identity_reads(c[2])
+        keys = sorted(set(named) & read)
         if not keys:
             continue
         prs = store_history_prs(c[2], keys)
