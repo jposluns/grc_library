@@ -79,7 +79,7 @@ USAGE
                                    parsed (a renamed field, a moved file, a
                                    taxonomy schema change). This is the
                                    generator-health check wired into CI; it is a
-                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES``, also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), a For-AI jurisdiction label whose instrument text is none of its forms in ``FOR_AI_LABEL_INSTRUMENTS`` or a label's form after any other name, a For-AI name, part or piece not compared as an OWASP entry that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
+                                   coupling-breakage detector, NOT a corpus gate. It ALSO fails on a stale committed ``corpus-link-manifest.md``, a hardcoded CalVer literal in a template, a root-relative href that skips the ``{{BASE}}`` token, or a hand-written standard edition that differs from the citations register (``stale_standard_editions``: the landing and v2 coverage "biblio-col" lists and the OWASP and EU AI Act entries of the For-AI pages; each listed name is resolved by gate D15's resolver, a register Standard ID or curated alias, and its edition must equal the row's Current version, must not be among the row's Superseded versions, and must not be marked ended by the Current version (after the year of a statute named by its year only the row's enumerated notes, the register's own text with its dates, numbers and amending Act name variable, may follow (``STATUTE_NOTE_FORMS``), and an EU instrument citation may end only with a short name enumerated for its row or the row's own Standard ID (``EU_INSTRUMENT_SHORT_NAMES``), so any other text after the edition fails and the failure says to update the allowlist if the register text changed legitimately); a name that resolves to no row but carries an edition, or whose topic carries an EU instrument number, reads as an edition or date, or is not descriptive (a numeric character or a word not in ``TOPIC_WORDS``), or that carries no edition and is not enumerated in ``UNRESOLVED_LIST_NAMES`` (which a For-AI name cannot use), also fails, as does a list item the check cannot parse (any text but whitespace after an item's ``</li>`` and before the next item or the list's close included, a For-AI item's text between its name and description spans, which must be one of the forms in ``FOR_AI_INTER_SPAN_FORMS``, a For-AI item whose description span does not run to its ``</li>``, whitespace aside, and the description of a For-AI item, which must be one enumerated in ``FOR_AI_DESCRIPTIONS`` for the row of every part of its name, split on " / " and " and ", that names one (resolved, mapped in ``FOR_AI_NAME_ROWS``, or named by a leading part); the OWASP entries are chosen by the row any part of the name resolves to, not by its literal prefix, with one fallback by spelling: a For-AI name that, NFKC-normalised with format characters removed and case-folded, contains "owasp" anywhere is compared too, so one that does not resolve fails, and every part of a compared compound name has its edition compared), a For-AI jurisdiction label whose instrument text is none of its forms in ``FOR_AI_LABEL_INSTRUMENTS`` or a label's form after any other name, a For-AI name, part or piece not compared as an OWASP entry that names no row and is not enumerated in ``FOR_AI_UNCHECKED_NAMES``, an "id" list item outside every list read, a For-AI source without exactly one EU AI Act entry, or a configured source with no list read; names without an edition are out of scope, and so are the other For-AI editions (ISO/IEC 42001:2023, ISO/IEC 23894:2023, ISO/IEC 42005:2025, ISO 31000:2018, ISO/IEC 27001:2022 and the rest), which this check does not compare).
   python3 .web/build.py --out DIR  render into DIR instead of .web/dist/
 """
 
@@ -2691,7 +2691,9 @@ _FOR_AI_DESC_RE = re.compile(r"(?P<desc>.*)</span>\s*</li>", re.S)
 # its description unchecked (at d6b7c37a the 12 items "NIST AI 100-2e2025", "NIST AI
 # 100-4", "Model Cards" and "Datasheets for Datasets", three per name, which have no
 # register row), and only a name enumerated in ``FOR_AI_UNCHECKED_NAMES`` may name no
-# row. If a template's text changed legitimately, update this allowlist.
+# row (a part of a compared OWASP name that names no row fails as unresolved, as
+# ``UNRESOLVED_LIST_NAMES`` applies to bibliography lists only: "OWASP MCP Top 10 /
+# IEC 62443"). If a template's text changed legitimately, update this allowlist.
 FOR_AI_DESCRIPTIONS = {
     FOR_AI_EU_AI_ACT_ID: frozenset({
         "Documented in the EU AI annex (which also reflects the in-force Digital Omnibus on AI, "
@@ -3103,13 +3105,14 @@ TOPIC_WORDS = frozenset({
     "system", "systems", "tactics", "taxonomy", "techniques", "technology", "threat",
     "threat-modeling", "threats", "to", "trust", "uk", "verification", "web", "zero",
 })
-# The names a list may carry that resolve to no register row and hold no edition,
-# enumerated from the lists read as of 2026-10-18: "IEC 62443" on the landing and v2
-# coverage lists (no For-AI entry compared resolves to no row). A name is matched
-# exactly as written. Any other name that resolves to no row and holds no edition fails
-# as unresolved ("IEC 62443 (withdrawn)", "IEC 62443 superseded"), whatever words it
-# uses; add a register row or curated alias for it, or, if it legitimately names no
-# row, add it here.
+# The names a bibliography list may carry that resolve to no register row and hold no
+# edition, enumerated from the lists read as of 2026-10-18: "IEC 62443" on the landing
+# and v2 coverage lists. A name is matched exactly as written. Any other name that
+# resolves to no row and holds no edition fails as unresolved ("IEC 62443 (withdrawn)",
+# "IEC 62443 superseded"), whatever words it uses; add a register row or curated alias
+# for it, or, if it legitimately names no row, add it here. This list does not apply to
+# the For-AI pages: there every part of a compared OWASP name must name a row, so
+# "OWASP MCP Top 10 / IEC 62443" fails as unresolved.
 UNRESOLVED_LIST_NAMES = frozenset({"IEC 62443"})
 
 
@@ -3831,8 +3834,10 @@ def standard_edition_entries(texts=None):
       "OWASP Top Ten (2025) (repealed)", "FooStandard 2.0 (withdrawn)"; "IEC 62443"
       holds none) or in the topic, as an EU instrument number or a topic read as an
       edition or date ("IEC 62443", topic "2009 edition"), or it carries no edition and
-      is not one of the names enumerated in ``UNRESOLVED_LIST_NAMES`` ("IEC 62443
-      (withdrawn)", "IEC 62443 superseded"; the edition field is empty) (a failure).
+      is not one of the names enumerated in ``UNRESOLVED_LIST_NAMES``, which a For-AI
+      name cannot use ("IEC 62443 (withdrawn)", "IEC 62443 superseded", and "IEC
+      62443" as a part of the For-AI name "OWASP MCP Top 10 / IEC 62443"; the edition
+      field is empty) (a failure).
     * ``unreadable``: the name does not resolve whole but a leading part of it does
       (``_named_prefix``: "OWASP Top 10 (2025) (repealed)"), or a one-part biblio name
       resolves and its topic is no edition the check reads yet holds a numeric
@@ -3959,8 +3964,9 @@ def standard_edition_entries(texts=None):
                 row = rows.get(key)
                 if unreadable:
                     status, edition = "unreadable", unreadable
-                elif not edition and row is None and name not in UNRESOLVED_LIST_NAMES:
-                    # A name that names no row and holds no edition is enumerated.
+                elif not edition and row is None and (kind != "biblio" or name not in UNRESOLVED_LIST_NAMES):
+                    # A name that names no row and holds no edition is enumerated, on a
+                    # bibliography list only: every part of a compared For-AI name names a row.
                     status = "unresolved"
                 elif not edition:
                     status = "no edition"
@@ -4012,6 +4018,7 @@ def _allowlist_rejection(edition, current, row):
 
 def stale_standard_editions(texts=None):
     """Failure lines for hand-written editions that differ from the register (empty = clean)."""
+    for_ai_sources = {f".web/{rel}" for rel, kind in EDITION_LIST_SOURCES if kind == "for-ai"}
     hits = []
     for e in standard_edition_entries(texts):
         if e.status == "mismatch":
@@ -4052,6 +4059,14 @@ def stale_standard_editions(texts=None):
                 f"spelled out and listed; correct the template, add the words of a legitimate "
                 f"topic to TOPIC_WORDS (never one stating that an edition ended), or add a "
                 f"curated alias if it names another row)"
+            )
+        elif e.status == "unresolved" and not e.edition and e.source in for_ai_sources:
+            hits.append(
+                f"{e.source}:{e.line}: {e.name!r} names no register row and is not among the "
+                f"names enumerated for a compared For-AI name, of which there are none "
+                f"(UNRESOLVED_LIST_NAMES in .web/build.py applies to bibliography lists only, so "
+                f"every part of a compared OWASP name must name a row; correct the template, or "
+                f"add a register row or a curated alias for it)"
             )
         elif e.status == "unresolved" and not e.edition:
             hits.append(

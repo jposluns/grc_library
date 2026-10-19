@@ -25813,6 +25813,33 @@ class WebGeneratorStandardEditionTests(unittest.TestCase):
             texts = self._for_ai_with(rel, "OWASP MCP Top 10</span>", "Owasp Foo Guide</span>")
             self.assertEqual([e.status for e in self._failed(texts)], ["unresolved"], rel)
 
+    def test_for_ai_owasp_part_that_names_no_row_fails(self):
+        # 3b403 round 3 (review W2): UNRESOLVED_LIST_NAMES applies to bibliography lists
+        # only, so a part of a compared OWASP name that names no row fails as unresolved,
+        # in either order, an enumerated bibliography or unchecked name included.
+        d15, resolver = self.mod._load_edition_resolver()
+        for new, part in (("OWASP MCP Top 10 / IEC 62443", "IEC 62443"),
+                          ("IEC 62443 / OWASP MCP Top 10", "IEC 62443"),
+                          ("OWASP MCP Top 10 / Model Cards", "Model Cards")):
+            self.assertEqual(self.mod._for_ai_branch(d15, resolver, new)[0], "OWASP", new)
+            for rel in self.FOR_AI_SOURCES:
+                texts = self._for_ai_with(rel, "OWASP MCP Top 10</span>", f"{new}</span>")
+                failed = self._failed(texts)
+                self.assertEqual([(e.source, e.name, e.edition, e.row, e.status) for e in failed],
+                                 [(f".web/{rel}", part, "", "", "unresolved")], (rel, new))
+                hits = self.mod.stale_standard_editions(texts)
+                self.assertEqual(len(hits), 1, (rel, new, hits))
+                self.assertIn(f"{part!r} names no register row and is not among the names enumerated for "
+                              f"a compared For-AI name", hits[0])
+                self.assertIn("UNRESOLVED_LIST_NAMES in .web/build.py applies to bibliography lists only",
+                              hits[0])
+        # The bibliography lists still accept the enumerated name.
+        self.assertIn("IEC 62443", self.mod.UNRESOLVED_LIST_NAMES)
+        entries = self.mod.standard_edition_entries()
+        for rel in self.BIBLIO_SOURCES:
+            entry = self._entry(entries, rel, "IEC 62443")
+            self.assertEqual((entry.row, entry.status), ("", "no edition"), rel)
+
     def test_owasp_fallback_is_stated(self):
         # VPR3B393-R6 item 5: the fallback by spelling is stated in the USAGE text and
         # in the standard_edition_entries docstring.
