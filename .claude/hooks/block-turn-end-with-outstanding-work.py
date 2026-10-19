@@ -59,8 +59,14 @@ match the untranslated prefixes below. Stderr lines starting with "fatal:", "err
 block. Other stderr (including other warnings, hints and trace2 lines) is ignored;
 stdout must still be clean. A nonzero exit blocks, except diff exit 1 with empty
 stdout and no blocking diagnostic, which means the branch tree differs.
-HELD-INPUT FAILURES BLOCK: a failed resolution, stat, read, decode or parse
-uses no holds and adds one diagnostic while retaining the branch scan.
+HELD-INPUT FAILURES BLOCK: on the normal strict-resolution path, a held file
+whose initial lstat raises FileNotFoundError reads as absent, with no holds
+and no diagnostic. ENOTDIR, a dangling link and every other resolution,
+stat, read or decode failure use no holds and add one diagnostic while
+retaining the branch scan. Only in the fallback resolver (when lint_common
+cannot be loaded) and the post-resolution stat in held_branches() do ENOENT
+and ENOTDIR read as absent, with no holds and no diagnostic.
+A malformed hold line is skipped as no hold without a diagnostic.
 The one-shot escape and stop_hook_active still take precedence. Other errors
 reaching main()'s outer handler retain its existing fail-open behavior.
 
