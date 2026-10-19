@@ -40539,6 +40539,63 @@ class LanguageEngineProfileTests(unittest.TestCase):
                     self.assertEqual(found, expected)
                     self.assertLess(elapsed, 5.0)
 
+    def test_prefix_rule_casefold_runs_bounded_time(self):
+        # 3b234 round 6: U+017F (long s) folds to "s", so the prefix "mis" takes
+        # "mi" + U+017F, and the ASCII-only letter bound allowed a fresh attempt
+        # after every U+017F; the pattern alone took about 29 seconds for the first
+        # input below (quadratic). U+0130 and U+0131 fold to "i" the same way, and
+        # U+212A (Kelvin sign) folds to "k". With the memoized scan the first input
+        # takes well under a second; the shorter runs, one for every listed prefix,
+        # took about 2 seconds each before and a few hundredths of a second after.
+        import time
+        cases = [("mi\u017f" * 4000 + "x", [], 5.0),
+                 ("mi\u017f" * 4000 + "organised",
+                  [("ise", 1, "mi\u017f" * 4000 + "organised")], 5.0),
+                 (("mi\u017f" + "mult\u0130" + "d\u0131\u017f" + "\u212a") * 1000 + "x",
+                  [], 5.0)]
+        for prefix in self.vocab.ise_prefixes:
+            for tail in ("mi\u017f", "mult\u0130", "d\u0131\u017f", "\u017fub",
+                         "cro\u017f\u017f-", "\u212a"):
+                cases.append(((prefix + tail) * (4000 // len(prefix + tail)) + "x",
+                              [], 1.0))
+        for text, expected, budget in cases:
+            for generator in (False, True):
+                with self.subTest(text=ascii(text[:12]), length=len(text),
+                                  generator=generator):
+                    start = time.process_time()
+                    found = self.scan(text, generator=generator)
+                    elapsed = time.process_time() - start
+                    self.assertEqual(found, expected)
+                    self.assertLess(elapsed, budget)
+
+    def test_prefix_scan_matches_the_pattern(self):
+        # 3b234 round 6: ise_words runs the ise pattern as a memoized search; it
+        # must report exactly the words the pattern's own finditer reports,
+        # including case-folded characters, hyphen chains past the three-group cap
+        # and (for the second vocabulary) prefixes that overlap one another.
+        import random
+        languages = (self.language, self.engine.compile_language(self.vocab._replace(
+            ise_stems=self.vocab.ise_stems + ("reorganise", "costandardise"),
+            ise_prefixes=self.vocab.ise_prefixes + ("a", "ab", "ba", "s", "si"))))
+        pieces = (*self.vocab.ise_prefixes, "organise", "recognise", "realise", "d",
+                  "s", "r", "ing", "able", "-", " ", "x", "_", "\u017f", "\u0130",
+                  "\u0131", "\u212a", "mi\u017f", "\u00e9", "ab", "ba", "si", "RE")
+        rng = random.Random(3234)
+        matched = 0
+        for _ in range(4000):
+            text = "".join(rng.choice(pieces) for _ in range(rng.randint(1, 14)))
+            if rng.random() < 0.5:
+                text = text.upper() if rng.random() < 0.5 else text.swapcase()
+            for language in languages:
+                expected = [m.group(0) for m in language.ise_pattern.finditer(text)]
+                matched += bool(expected)
+                self.assertEqual(self.engine.ise_words(text, language), expected,
+                                 ascii(text))
+        self.assertGreater(matched, 200)
+        empty = self.engine.compile_language(self.vocab._replace(ise_prefixes=()))
+        self.assertIsNone(empty.ise_scan)
+        self.assertEqual(self.engine.ise_words("re-organised", empty), ["organised"])
+
     def test_prefix_rule_controls_unflagged(self):
         prefixes = self.vocab.ise_prefixes
         for word in self.ISE_CONTROLS:

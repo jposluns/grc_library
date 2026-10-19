@@ -305,10 +305,18 @@ def language_vocabulary(
     )
 
 
+class IsePrefixScan(NamedTuple):
+    """The ise pattern split into parts for the linear-time scan (3b234 round 6)."""
+    start: "re.Pattern[str]"
+    prefixes: tuple["re.Pattern[str]", ...]
+    stem: "re.Pattern[str]"
+
+
 class LanguageChecks(NamedTuple):
     vocab: LanguageVocabulary
     ise_pattern: "re.Pattern[str]"
     yse_pattern: "re.Pattern[str]"
+    ise_scan: "IsePrefixScan | None" = None
 
 
 # The three spelling checks bound a word by ASCII letters, not by `\b` (3b372):
@@ -355,20 +363,31 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
     with a "-" after up to three of them, and the whole word, prefixes included,
     is reported; a chain with more hyphens is reported from its last three
     hyphenated groups. With no prefixes listed the pattern is the one above.
+    With prefixes listed, ``ise_words`` runs the pattern through ``ise_scan``
+    (3b234 round 6), which reports exactly what the pattern reports.
     """
-    ise = "|".join(
+    stems = "|".join(
         "|".join(re.escape(word) for word in (
             stem, stem + "s", stem + "d", stem[:-1] + "ing",
             stem[:-1] + "able", stem + "r", stem + "rs",
         ))
         for stem in vocab.ise_stems
     )
+    ise = stems
+    scan = None
     prefixes = "|".join(re.escape(prefix) for prefix in vocab.ise_prefixes)
-    if ise and prefixes:
+    if stems and prefixes:
         # At most three hyphenated groups: an unbounded hyphenated run would be
         # retried from every hyphen of a long prefix chain (quadratic time).
-        ise = ("(?:(?:" + prefixes + ")+-){0,3}(?:" + prefixes + ")*(?:"
-               + ise + ")")
+        ise = ("(?:(?:" + prefixes + ")+-){0," + str(_ISE_HYPHEN_GROUPS) + "}(?:"
+               + prefixes + ")*(?:" + stems + ")")
+        scan = IsePrefixScan(
+            re.compile(_NO_LETTER_BEFORE + "(?=" + prefixes + "|" + stems + ")",
+                       re.IGNORECASE),
+            tuple(re.compile(re.escape(prefix), re.IGNORECASE)
+                  for prefix in vocab.ise_prefixes),
+            re.compile("(?:" + stems + ")" + _NO_LETTER_AFTER, re.IGNORECASE),
+        )
     yse = "|".join(re.escape(word) for word in vocab.yse_forms)
     return LanguageChecks(
         vocab,
@@ -376,7 +395,86 @@ def compile_language(vocab: LanguageVocabulary) -> LanguageChecks:
                    if ise else r"(?!)", re.IGNORECASE),
         re.compile(_NO_LETTER_BEFORE + "(" + yse + ")" + _NO_LETTER_AFTER
                    if yse else r"(?!)", re.IGNORECASE),
+        scan,
     )
+
+
+# The ise pattern with prefixes is quadratic in Python's backtracking engine on a
+# long prefix run holding a character that folds to an ASCII letter of a prefix
+# (3b234 round 6): in "mi\u017f" * n + "x" (U+017F, long s, folds to "s") the pattern
+# consumes the whole run as prefixes, and because the ASCII-only letter bound
+# allows a fresh attempt after every U+017F, each attempt walks the rest of the
+# run again (about 29 seconds for n = 4000). U+0130 and U+0131 (dotted and
+# dotless I) do the same for prefixes holding "i". ``ise_words`` therefore runs
+# the same pattern as a memoized search: each state (a position, the hyphenated
+# groups used so far, and the part of the pattern being matched) is solved once
+# per text, in the backtracking engine's order (more prefixes before fewer, a
+# further hyphenated group before the unhyphenated run, prefixes and stem forms
+# in listed order), so it reports the same words as the pattern in time linear
+# in the length of the text.
+_ISE_HYPHEN_GROUPS = 3
+
+
+def ise_words(text: str, language: LanguageChecks) -> list[str]:
+    """The words the ise pattern reports in ``text``, in order (3b234 round 6)."""
+    scan = language.ise_scan
+    if scan is None:
+        return [m.group(0) for m in language.ise_pattern.finditer(text)]
+    # A state is (part, hyphenated groups used, position). "G": before another
+    # hyphenated group or the unhyphenated run; "H0" / "H1": inside a hyphenated
+    # group before / after its first prefix; "T": inside the unhyphenated run;
+    # "S": a stem form with the letter bound after it. Its value is the end of
+    # the first match from it, or None. "T" and "S" do not depend on the groups
+    # used, so they carry 0.
+    solved: dict[tuple[str, int, int], "int | None"] = {}
+
+    def next_states(state):
+        part, groups, x = state
+        if part == "G":
+            if groups < _ISE_HYPHEN_GROUPS:
+                return [("H0", groups, x), ("T", 0, x)]
+            return [("T", 0, x)]
+        found = [("T" if part == "T" else "H1", groups, m.end())
+                 for prefix in scan.prefixes if (m := prefix.match(text, x))]
+        if part == "T":
+            found.append(("S", 0, x))
+        elif part == "H1" and text.startswith("-", x):
+            found.append(("G", groups + 1, x + 1))
+        return found
+
+    def solve(root):
+        stack = [[root, next_states(root), 0]]
+        while stack:
+            frame = stack[-1]
+            state, states, index = frame
+            if index == len(states):
+                solved[state] = None
+                stack.pop()
+                continue
+            child = states[index]
+            if child not in solved:
+                if child[0] != "S":
+                    stack.append([child, next_states(child), 0])
+                    continue
+                m = scan.stem.match(text, child[2])
+                solved[child] = m.end() if m else None
+            if solved[child] is None:
+                frame[2] = index + 1
+            else:
+                solved[state] = solved[child]
+                stack.pop()
+        return solved[root]
+
+    words = []
+    pos = 0
+    while (m := scan.start.search(text, pos)) is not None:
+        end = solve(("G", 0, m.start()))
+        if end is None:
+            pos = m.start() + 1
+        else:
+            words.append(text[m.start():end])
+            pos = end
+    return words
 
 # Commonwealth `-isation` noun / adjective forms (organisation, authorisation,
 # pseudonymisation, organisational, ...). Unlike the enumerated ise_stems verb
@@ -534,7 +632,7 @@ def spelling_matches(text: str, language: LanguageChecks) -> list[tuple[str, str
     CHANGELOG preflight aid call it.
     """
     masked = mask_allowed_spans(mask_urls(text), language.vocab.allowed_commonwealth_spans)
-    found = [("ise", m.group(0)) for m in language.ise_pattern.finditer(masked)]
+    found = [("ise", word) for word in ise_words(masked, language)]
     found += [("isation", m.group(0)) for m in ISATION_PATTERN.finditer(masked)
               if m.group(0).lower() not in language.vocab.isation_allowed_words]
     found += [("yse", m.group(0)) for m in language.yse_pattern.finditer(masked)]
