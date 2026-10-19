@@ -214,7 +214,7 @@ except Exception as exc:
     HELD_FILE = None
     _HELD_FILE_ERROR = exc
 GIT_TIMEOUT = 20
-_EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}")
+_EXPIRY = _re.compile(r"\d{4}-\d{2}-\d{2}", _re.ASCII)
 
 
 def _git_environment() -> dict:
