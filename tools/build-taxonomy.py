@@ -59,14 +59,15 @@ EXEMPT_FROM_INDEX = {
     "privacy/annex-regional-privacy-requirements.md",
 }
 
-# Only the guardrails pack directory is excluded from
-# the per-domain walk. (Phase 23.62 removed `tools/` and `docs/` from
-# this tuple because the walk is restricted to the DOMAINS list and
-# never reaches those directories; EXEMPT_FILES was also removed as a
-# whole because it was defined but never read.)
-EXEMPT_DIRECTORY_PREFIXES = (
-    "guardrails/",
-)
+# Directories excluded from the per-domain walk. Intentionally empty: the
+# walk is restricted to the DOMAINS list, so a prefix outside those
+# directories can never match. Phase 23.62 removed `tools/` and `docs/`
+# for that reason (and removed EXEMPT_FILES as a whole because it was
+# defined but never read); 3b218 removed the last entry, `guardrails/`,
+# which went dead when the pack moved from `dev-security/claude-rules/`
+# to the root (#1367). Any future entry must name a path under a DOMAINS
+# directory (for example "security/<subdir>/").
+EXEMPT_DIRECTORY_PREFIXES: tuple[str, ...] = ()
 
 FIELD_PATTERN = re.compile(r"^\*\*([^*]+):\*\*\s*(.*?)\s*$")
 LINK_RE = re.compile(r"\[`([^`]+)`\]\(([^)]+)\)")
